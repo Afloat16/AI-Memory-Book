@@ -32,6 +32,15 @@ This verifies packaging of the core and reader; there is no PyPI publication.
 
 ## Browser checks
 
+The real-browser job **passed**, alongside all four Python/MCP jobs, on
+commit `9c381ed9a29dcd8ac334ddb203e640e426b86c39`:
+[five successful CI jobs](https://github.com/Afloat16/AI-Memory-Book/actions/runs/42991673979).
+The run used Python 3.12.16 and Chrome 156.0.8078.79. Its desktop and mobile
+screenshots were retrieved from the workflow artifact and visually inspected.
+The [machine-readable report](assets/reader-browser.json) records ten successful
+checks, zero page/console/request/dialog errors, and exact viewport/document
+widths of 1440 and 390 pixels respectively.
+
 The `reader-browser` CI job launches the real HTTP server over a temporary
 synthetic database and operates Chrome/Chromium with Playwright. It exercises
 desktop project selection, chapter browsing across sessions, project-scoped
@@ -41,7 +50,10 @@ table of contents. Horizontal overflow, page exceptions, console errors, failed
 requests, and unexpected dialogs fail the check.
 
 The job publishes desktop/mobile PNGs and a machine-readable check report as
-the `reader-browser` workflow artifact. Artifacts expire after seven days.
+the `reader-browser` workflow artifact. Artifacts expire after seven days;
+the inspected release [desktop](assets/reader-desktop.png),
+[mobile](assets/reader-mobile.png), and [JSON report](assets/reader-browser.json)
+are also preserved in this repository.
 The browser script is intentionally outside unittest discovery so Playwright
 is not required by the dependency-free core.
 

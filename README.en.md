@@ -8,6 +8,10 @@ AI-Memory-Book is an experimental, local conversation memory engine. A navigable
 
 The Python 3.10+ core has no third-party dependencies. It uses SQLite FTS5, lexical English/CJK indexing, extractive snippets, a persistent revision-aware cache, and source-preserving adaptive pagination. No API key, embedding service, or LLM call is needed. The optional stdio MCP server uses the official Python SDK's v1 maintenance line (`mcp>=1.28,<2`).
 
+![The local reader showing project-scoped search and cited evidence](docs/assets/reader-desktop.png)
+
+Captured from a real browser test using synthetic examples. See the [mobile layout](docs/assets/reader-mobile.png) and [validation record](docs/validation.md).
+
 ## Install from source
 
 ```bash

@@ -8,6 +8,10 @@ AI-Memory-Book 是一个本地 AI 会话记忆引擎。目录帮助人和 AI 理
 
 **当前版本：v0.1.0，实验性开源版本。** 核心使用 Python 标准库和 SQLite FTS5，不需要 API key、向量数据库或模型调用。可选 MCP 接口使用官方 Python SDK。
 
+![记忆书桌面阅读器：按项目搜索并查看带出处的记忆页](docs/assets/reader-desktop.png)
+
+截图来自真实浏览器测试，内容为虚构示例；另见[手机布局](docs/assets/reader-mobile.png)与[浏览器验证记录](docs/validation.md)。
+
 ## 记忆怎样成为一本书
 
 | 书的层级 | 实际内容 | 如何确定 |
