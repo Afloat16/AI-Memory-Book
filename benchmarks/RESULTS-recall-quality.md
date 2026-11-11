@@ -1,6 +1,6 @@
 # Recall quality continuation — first frozen round (`6f52990`)
 
-This report completes the measurements missing from the recovered optimization task. **It describes the first frozen round, not the latest development source or a proof that the overall product goal has been reached.** A subsequent score-aware retrieval experiment passed its development gate and is being evaluated separately. Its results must not be attributed to the runtime measured here.
+This report completes the measurements missing from the recovered optimization task. **It describes the first frozen round, not the latest development source or a proof that the overall product goal has been reached.** A subsequent score-aware retrieval experiment passed its development gate and completed [a separate second-round evaluation](RESULTS-recall-score-quality.md). Its results must not be attributed to the runtime measured here.
 
 The first round delivers more public source evidence and retains the substantial response-token savings already introduced on the preserved performance branch. Against the older `main` baseline, the full public MCP workload uses **54.8% fewer response tokens** with lower measured p50 and p95. Against the already optimized **preserved v0.3 branch**, response tokens are essentially unchanged, public MCP p50 improves, and synthetic latency and complete-evidence regressions remain.
 
@@ -101,7 +101,7 @@ The first-round public gains require slightly more context and more core retriev
 
 ### Public gains and losses by cohort
 
-These counts are derived by matching every query ID in the full paired archive. A gain in the total does not imply every individual question improved. Latencies are not shown per cohort: the cohorts were scored separately after the full population was measured, not timed independently.
+These counts are derived by matching every query ID in the full paired archive. Evidence gains/losses sum positive/negative changes in each query's matched-evidence count; they do not enumerate equal-count exchanges of individual annotations within a question. A gain in the total does not imply every individual question improved. Latencies are not shown per cohort: the cohorts were scored separately after the full population was measured, not timed independently.
 
 | Cohort | Char cap | Evidence recall | Complete evidence | Evidence gains / losses | Complete-query gains / losses |
 | --- | --- | --- | --- | --- | --- |

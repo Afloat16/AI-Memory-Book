@@ -1,0 +1,1376 @@
+{
+  "schema_version": 1,
+  "evaluator_version": "upgrade-costs-1.0",
+  "created_at_utc": "2026-11-11T15:13:58.670860+00:00",
+  "runtime": {
+    "python": "3.12.14",
+    "sqlite": "3.53.1",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41"
+  },
+  "evaluator_source_sha256": "f9ff377a13f7db945c763de0ab9bad4f3983355f119e9e140a118ffa3034ecd1",
+  "parameters": {
+    "repeats": 3,
+    "max_page_chars": 900
+  },
+  "dataset": {
+    "kind": "public",
+    "version": "locomo-text-evidence-1.0",
+    "variant": "locomo_text_evidence_v1",
+    "seed": 20261111,
+    "split": "heldout",
+    "sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857",
+    "projects": 8,
+    "sessions": 216,
+    "turns": 4684,
+    "source_characters": 616994,
+    "source_utf8_bytes": 617094,
+    "queries": 1015,
+    "answerable_queries": 649,
+    "categories": {
+      "locomo_category_4": 434,
+      "locomo_category_5": 366,
+      "locomo_category_2": 126,
+      "locomo_category_3": 24,
+      "locomo_category_1": 65
+    },
+    "provenance": {
+      "dataset": "LoCoMo locomo10.json",
+      "repository": "https://github.com/snap-research/locomo",
+      "commit": "3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376",
+      "url": "https://raw.githubusercontent.com/snap-research/locomo/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/data/locomo10.json",
+      "sha256": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+      "bytes": 2805274,
+      "license": "CC-BY-NC-4.0",
+      "license_url": "https://github.com/snap-research/locomo/blob/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/LICENSE.txt",
+      "split_seed": 20261111,
+      "sample_ids": [
+        "conv-50",
+        "conv-26",
+        "conv-41",
+        "conv-42",
+        "conv-30",
+        "conv-44",
+        "conv-43",
+        "conv-48"
+      ],
+      "all_qa_in_split": 1600,
+      "all_qa_categories": {
+        "2": 254,
+        "1": 225,
+        "3": 70,
+        "4": 685,
+        "5": 366
+      },
+      "eligible_qa_in_split": 1015,
+      "selected_queries": 1015,
+      "max_queries": 0,
+      "excluded_qa": {
+        "image_bearing_evidence": 576,
+        "invalid_evidence_id": 5,
+        "missing_evidence": 4
+      },
+      "selection": "sha256(locomo-query-order-v1: + query_id) ascending",
+      "evidence_metric": "complete annotated utterance text and original source span",
+      "indexing": "one dialogue utterance per canonical user-role turn; speaker prefix; text only",
+      "date_time_convention": "source local clock represented as UTC for deterministic ordering"
+    }
+  },
+  "baseline": {
+    "engine": {
+      "label": "preserved-v0.3",
+      "engine_version": "0.3.0",
+      "source_sha256_before": "ab31378c3ed7eb486aea9a6f237139000ed6b30b8cc5dcf719b53f1b864caa1f",
+      "source_sha256_after": "ab31378c3ed7eb486aea9a6f237139000ed6b30b8cc5dcf719b53f1b864caa1f",
+      "source_unchanged": true,
+      "source_provenance": {
+        "source_root": "/workspace/scratch/5ff84b411581/baseline-v0.3/src/memory_book",
+        "repository_root": "/workspace/scratch/5ff84b411581/baseline-v0.3",
+        "git_commit": "3ee40946c5407e65fd375a8d47472066a82ae472",
+        "git_dirty": false,
+        "source_dirty": false,
+        "commit_identifies_source": true,
+        "python_files_differing_from_commit": []
+      }
+    },
+    "dataset": {
+      "kind": "public",
+      "version": "locomo-text-evidence-1.0",
+      "variant": "locomo_text_evidence_v1",
+      "seed": 20261111,
+      "split": "heldout",
+      "sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857",
+      "projects": 8,
+      "sessions": 216,
+      "turns": 4684,
+      "source_characters": 616994,
+      "source_utf8_bytes": 617094,
+      "queries": 1015,
+      "answerable_queries": 649,
+      "categories": {
+        "locomo_category_4": 434,
+        "locomo_category_5": 366,
+        "locomo_category_2": 126,
+        "locomo_category_3": 24,
+        "locomo_category_1": 65
+      },
+      "provenance": {
+        "dataset": "LoCoMo locomo10.json",
+        "repository": "https://github.com/snap-research/locomo",
+        "commit": "3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376",
+        "url": "https://raw.githubusercontent.com/snap-research/locomo/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/data/locomo10.json",
+        "sha256": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+        "bytes": 2805274,
+        "license": "CC-BY-NC-4.0",
+        "license_url": "https://github.com/snap-research/locomo/blob/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/LICENSE.txt",
+        "split_seed": 20261111,
+        "sample_ids": [
+          "conv-50",
+          "conv-26",
+          "conv-41",
+          "conv-42",
+          "conv-30",
+          "conv-44",
+          "conv-43",
+          "conv-48"
+        ],
+        "all_qa_in_split": 1600,
+        "all_qa_categories": {
+          "2": 254,
+          "1": 225,
+          "3": 70,
+          "4": 685,
+          "5": 366
+        },
+        "eligible_qa_in_split": 1015,
+        "selected_queries": 1015,
+        "max_queries": 0,
+        "excluded_qa": {
+          "image_bearing_evidence": 576,
+          "invalid_evidence_id": 5,
+          "missing_evidence": 4
+        },
+        "selection": "sha256(locomo-query-order-v1: + query_id) ascending",
+        "evidence_metric": "complete annotated utterance text and original source span",
+        "indexing": "one dialogue utterance per canonical user-role turn; speaker prefix; text only",
+        "date_time_convention": "source local clock represented as UTC for deterministic ordering"
+      }
+    },
+    "create_database_ms": 26.842822,
+    "import_ms": 1063.93812,
+    "snapshot": {
+      "schema_version": 2,
+      "application_id": 1296191307,
+      "revision": 216,
+      "page_count": 2503,
+      "page_size": 4096,
+      "logical_database_bytes": 10252288,
+      "source_tables": {
+        "projects": {
+          "columns": [
+            "id",
+            "name",
+            "created_at",
+            "updated_at"
+          ],
+          "rows": 8,
+          "sha256": "d55ec0e646366b61dd89a3e99638bd78d3b2d4d25d0652f2ebf190f6ec8f1919"
+        },
+        "chapters": {
+          "columns": [
+            "id",
+            "project_id",
+            "task_id",
+            "title",
+            "summary",
+            "updated_at"
+          ],
+          "rows": 8,
+          "sha256": "1adde760487113f503aaf962051a14c988e03442220275585c306f7c478873f0"
+        },
+        "sessions": {
+          "columns": [
+            "id",
+            "external_id",
+            "project_id",
+            "chapter_id",
+            "title",
+            "created_at",
+            "updated_at",
+            "content_hash",
+            "raw_json",
+            "segmentation",
+            "message_count",
+            "turn_count",
+            "content_chars",
+            "settings_json"
+          ],
+          "rows": 216,
+          "sha256": "a21a38398aca6882e5d3ae87f789e567121b0843ac7c3545517bcfb8eb0d8029"
+        },
+        "turns": {
+          "columns": [
+            "id",
+            "session_pk",
+            "ordinal",
+            "question",
+            "content",
+            "message_indices"
+          ],
+          "rows": 4684,
+          "sha256": "804959ffc5edcbdd31e9c366f184fd22bd972d6e04cdb8daafabe31a8f11ad02"
+        },
+        "sections": {
+          "columns": [
+            "id",
+            "session_pk",
+            "chapter_id",
+            "title",
+            "summary",
+            "ordinal"
+          ],
+          "rows": 1339,
+          "sha256": "87c66cf0e75cd918eee91cd58ac91afe12932876a2984e83ebee623511726d77"
+        },
+        "pages": {
+          "columns": [
+            "rid",
+            "id",
+            "section_id",
+            "session_pk",
+            "chapter_id",
+            "project_id",
+            "title",
+            "question",
+            "content",
+            "source_refs",
+            "ordinal"
+          ],
+          "rows": 1339,
+          "sha256": "d32e00f516a975e5a61938c761b3c2c4cb27aec145fae13305454ec51aceee15"
+        }
+      },
+      "source_tables_sha256": "40496366c4302d92ad263ab5b9d2cadea1ca72939ec94696fc8b1a6cbc586617",
+      "page_ids_content_source_refs": {
+        "columns": [
+          "id",
+          "content",
+          "source_refs"
+        ],
+        "rows": 1339,
+        "sha256": "256ba407820a49a6a0127dcb9fae572c7a5d097d50e96fabbbfdb85d9173207f"
+      },
+      "cache_rows": 1,
+      "valid_cache_rows": 1,
+      "index_rows": {
+        "pages_fts": 1339
+      }
+    },
+    "checkpointed_file_bytes": 10252288
+  },
+  "trials": [
+    {
+      "repetition": 1,
+      "engine": {
+        "label": "score-aware-recall",
+        "engine_version": "0.3.0",
+        "source_sha256_before": "c8f684da97bc104a392e3884390e9f4b0eca850ed26d36394b150f469aea2b46",
+        "source_sha256_after": "c8f684da97bc104a392e3884390e9f4b0eca850ed26d36394b150f469aea2b46",
+        "source_unchanged": true,
+        "source_provenance": {
+          "source_root": "/workspace/scratch/5ff84b411581/AI-Memory-Book/src/memory_book",
+          "repository_root": "/workspace/scratch/5ff84b411581/AI-Memory-Book",
+          "git_commit": "0ab49d4f2be6aabe5e51c3314bb9369041af5369",
+          "git_dirty": true,
+          "source_dirty": false,
+          "commit_identifies_source": true,
+          "python_files_differing_from_commit": []
+        }
+      },
+      "migration_open_ms": 40.501901,
+      "reopen_ms": 0.662744,
+      "before": {
+        "schema_version": 2,
+        "application_id": 1296191307,
+        "revision": 216,
+        "page_count": 2503,
+        "page_size": 4096,
+        "logical_database_bytes": 10252288,
+        "source_tables": {
+          "projects": {
+            "columns": [
+              "id",
+              "name",
+              "created_at",
+              "updated_at"
+            ],
+            "rows": 8,
+            "sha256": "d55ec0e646366b61dd89a3e99638bd78d3b2d4d25d0652f2ebf190f6ec8f1919"
+          },
+          "chapters": {
+            "columns": [
+              "id",
+              "project_id",
+              "task_id",
+              "title",
+              "summary",
+              "updated_at"
+            ],
+            "rows": 8,
+            "sha256": "1adde760487113f503aaf962051a14c988e03442220275585c306f7c478873f0"
+          },
+          "sessions": {
+            "columns": [
+              "id",
+              "external_id",
+              "project_id",
+              "chapter_id",
+              "title",
+              "created_at",
+              "updated_at",
+              "content_hash",
+              "raw_json",
+              "segmentation",
+              "message_count",
+              "turn_count",
+              "content_chars",
+              "settings_json"
+            ],
+            "rows": 216,
+            "sha256": "a21a38398aca6882e5d3ae87f789e567121b0843ac7c3545517bcfb8eb0d8029"
+          },
+          "turns": {
+            "columns": [
+              "id",
+              "session_pk",
+              "ordinal",
+              "question",
+              "content",
+              "message_indices"
+            ],
+            "rows": 4684,
+            "sha256": "804959ffc5edcbdd31e9c366f184fd22bd972d6e04cdb8daafabe31a8f11ad02"
+          },
+          "sections": {
+            "columns": [
+              "id",
+              "session_pk",
+              "chapter_id",
+              "title",
+              "summary",
+              "ordinal"
+            ],
+            "rows": 1339,
+            "sha256": "87c66cf0e75cd918eee91cd58ac91afe12932876a2984e83ebee623511726d77"
+          },
+          "pages": {
+            "columns": [
+              "rid",
+              "id",
+              "section_id",
+              "session_pk",
+              "chapter_id",
+              "project_id",
+              "title",
+              "question",
+              "content",
+              "source_refs",
+              "ordinal"
+            ],
+            "rows": 1339,
+            "sha256": "d32e00f516a975e5a61938c761b3c2c4cb27aec145fae13305454ec51aceee15"
+          }
+        },
+        "source_tables_sha256": "40496366c4302d92ad263ab5b9d2cadea1ca72939ec94696fc8b1a6cbc586617",
+        "page_ids_content_source_refs": {
+          "columns": [
+            "id",
+            "content",
+            "source_refs"
+          ],
+          "rows": 1339,
+          "sha256": "256ba407820a49a6a0127dcb9fae572c7a5d097d50e96fabbbfdb85d9173207f"
+        },
+        "cache_rows": 1,
+        "valid_cache_rows": 1,
+        "index_rows": {
+          "pages_fts": 1339
+        }
+      },
+      "after": {
+        "schema_version": 3,
+        "application_id": 1296191307,
+        "revision": 217,
+        "page_count": 3062,
+        "page_size": 4096,
+        "logical_database_bytes": 12541952,
+        "source_tables": {
+          "projects": {
+            "columns": [
+              "id",
+              "name",
+              "created_at",
+              "updated_at"
+            ],
+            "rows": 8,
+            "sha256": "d55ec0e646366b61dd89a3e99638bd78d3b2d4d25d0652f2ebf190f6ec8f1919"
+          },
+          "chapters": {
+            "columns": [
+              "id",
+              "project_id",
+              "task_id",
+              "title",
+              "summary",
+              "updated_at"
+            ],
+            "rows": 8,
+            "sha256": "1adde760487113f503aaf962051a14c988e03442220275585c306f7c478873f0"
+          },
+          "sessions": {
+            "columns": [
+              "id",
+              "external_id",
+              "project_id",
+              "chapter_id",
+              "title",
+              "created_at",
+              "updated_at",
+              "content_hash",
+              "raw_json",
+              "segmentation",
+              "message_count",
+              "turn_count",
+              "content_chars",
+              "settings_json"
+            ],
+            "rows": 216,
+            "sha256": "a21a38398aca6882e5d3ae87f789e567121b0843ac7c3545517bcfb8eb0d8029"
+          },
+          "turns": {
+            "columns": [
+              "id",
+              "session_pk",
+              "ordinal",
+              "question",
+              "content",
+              "message_indices"
+            ],
+            "rows": 4684,
+            "sha256": "804959ffc5edcbdd31e9c366f184fd22bd972d6e04cdb8daafabe31a8f11ad02"
+          },
+          "sections": {
+            "columns": [
+              "id",
+              "session_pk",
+              "chapter_id",
+              "title",
+              "summary",
+              "ordinal"
+            ],
+            "rows": 1339,
+            "sha256": "87c66cf0e75cd918eee91cd58ac91afe12932876a2984e83ebee623511726d77"
+          },
+          "pages": {
+            "columns": [
+              "rid",
+              "id",
+              "section_id",
+              "session_pk",
+              "chapter_id",
+              "project_id",
+              "title",
+              "question",
+              "content",
+              "source_refs",
+              "ordinal"
+            ],
+            "rows": 1339,
+            "sha256": "d32e00f516a975e5a61938c761b3c2c4cb27aec145fae13305454ec51aceee15"
+          }
+        },
+        "source_tables_sha256": "40496366c4302d92ad263ab5b9d2cadea1ca72939ec94696fc8b1a6cbc586617",
+        "page_ids_content_source_refs": {
+          "columns": [
+            "id",
+            "content",
+            "source_refs"
+          ],
+          "rows": 1339,
+          "sha256": "256ba407820a49a6a0127dcb9fae572c7a5d097d50e96fabbbfdb85d9173207f"
+        },
+        "cache_rows": 0,
+        "valid_cache_rows": 0,
+        "index_rows": {
+          "pages_fts": 1339,
+          "pages_stem_fts": 1339
+        }
+      },
+      "reopened": {
+        "schema_version": 3,
+        "application_id": 1296191307,
+        "revision": 217,
+        "page_count": 3062,
+        "page_size": 4096,
+        "logical_database_bytes": 12541952,
+        "source_tables": {
+          "projects": {
+            "columns": [
+              "id",
+              "name",
+              "created_at",
+              "updated_at"
+            ],
+            "rows": 8,
+            "sha256": "d55ec0e646366b61dd89a3e99638bd78d3b2d4d25d0652f2ebf190f6ec8f1919"
+          },
+          "chapters": {
+            "columns": [
+              "id",
+              "project_id",
+              "task_id",
+              "title",
+              "summary",
+              "updated_at"
+            ],
+            "rows": 8,
+            "sha256": "1adde760487113f503aaf962051a14c988e03442220275585c306f7c478873f0"
+          },
+          "sessions": {
+            "columns": [
+              "id",
+              "external_id",
+              "project_id",
+              "chapter_id",
+              "title",
+              "created_at",
+              "updated_at",
+              "content_hash",
+              "raw_json",
+              "segmentation",
+              "message_count",
+              "turn_count",
+              "content_chars",
+              "settings_json"
+            ],
+            "rows": 216,
+            "sha256": "a21a38398aca6882e5d3ae87f789e567121b0843ac7c3545517bcfb8eb0d8029"
+          },
+          "turns": {
+            "columns": [
+              "id",
+              "session_pk",
+              "ordinal",
+              "question",
+              "content",
+              "message_indices"
+            ],
+            "rows": 4684,
+            "sha256": "804959ffc5edcbdd31e9c366f184fd22bd972d6e04cdb8daafabe31a8f11ad02"
+          },
+          "sections": {
+            "columns": [
+              "id",
+              "session_pk",
+              "chapter_id",
+              "title",
+              "summary",
+              "ordinal"
+            ],
+            "rows": 1339,
+            "sha256": "87c66cf0e75cd918eee91cd58ac91afe12932876a2984e83ebee623511726d77"
+          },
+          "pages": {
+            "columns": [
+              "rid",
+              "id",
+              "section_id",
+              "session_pk",
+              "chapter_id",
+              "project_id",
+              "title",
+              "question",
+              "content",
+              "source_refs",
+              "ordinal"
+            ],
+            "rows": 1339,
+            "sha256": "d32e00f516a975e5a61938c761b3c2c4cb27aec145fae13305454ec51aceee15"
+          }
+        },
+        "source_tables_sha256": "40496366c4302d92ad263ab5b9d2cadea1ca72939ec94696fc8b1a6cbc586617",
+        "page_ids_content_source_refs": {
+          "columns": [
+            "id",
+            "content",
+            "source_refs"
+          ],
+          "rows": 1339,
+          "sha256": "256ba407820a49a6a0127dcb9fae572c7a5d097d50e96fabbbfdb85d9173207f"
+        },
+        "cache_rows": 0,
+        "valid_cache_rows": 0,
+        "index_rows": {
+          "pages_fts": 1339,
+          "pages_stem_fts": 1339
+        }
+      },
+      "checkpointed_file_bytes_after": 12541952,
+      "source_tables_preserved": true,
+      "page_ids_content_source_refs_preserved": true,
+      "cache_invalidated": true,
+      "reopen_unchanged": true
+    },
+    {
+      "repetition": 2,
+      "engine": {
+        "label": "score-aware-recall",
+        "engine_version": "0.3.0",
+        "source_sha256_before": "c8f684da97bc104a392e3884390e9f4b0eca850ed26d36394b150f469aea2b46",
+        "source_sha256_after": "c8f684da97bc104a392e3884390e9f4b0eca850ed26d36394b150f469aea2b46",
+        "source_unchanged": true,
+        "source_provenance": {
+          "source_root": "/workspace/scratch/5ff84b411581/AI-Memory-Book/src/memory_book",
+          "repository_root": "/workspace/scratch/5ff84b411581/AI-Memory-Book",
+          "git_commit": "0ab49d4f2be6aabe5e51c3314bb9369041af5369",
+          "git_dirty": true,
+          "source_dirty": false,
+          "commit_identifies_source": true,
+          "python_files_differing_from_commit": []
+        }
+      },
+      "migration_open_ms": 35.833297,
+      "reopen_ms": 0.805615,
+      "before": {
+        "schema_version": 2,
+        "application_id": 1296191307,
+        "revision": 216,
+        "page_count": 2503,
+        "page_size": 4096,
+        "logical_database_bytes": 10252288,
+        "source_tables": {
+          "projects": {
+            "columns": [
+              "id",
+              "name",
+              "created_at",
+              "updated_at"
+            ],
+            "rows": 8,
+            "sha256": "d55ec0e646366b61dd89a3e99638bd78d3b2d4d25d0652f2ebf190f6ec8f1919"
+          },
+          "chapters": {
+            "columns": [
+              "id",
+              "project_id",
+              "task_id",
+              "title",
+              "summary",
+              "updated_at"
+            ],
+            "rows": 8,
+            "sha256": "1adde760487113f503aaf962051a14c988e03442220275585c306f7c478873f0"
+          },
+          "sessions": {
+            "columns": [
+              "id",
+              "external_id",
+              "project_id",
+              "chapter_id",
+              "title",
+              "created_at",
+              "updated_at",
+              "content_hash",
+              "raw_json",
+              "segmentation",
+              "message_count",
+              "turn_count",
+              "content_chars",
+              "settings_json"
+            ],
+            "rows": 216,
+            "sha256": "a21a38398aca6882e5d3ae87f789e567121b0843ac7c3545517bcfb8eb0d8029"
+          },
+          "turns": {
+            "columns": [
+              "id",
+              "session_pk",
+              "ordinal",
+              "question",
+              "content",
+              "message_indices"
+            ],
+            "rows": 4684,
+            "sha256": "804959ffc5edcbdd31e9c366f184fd22bd972d6e04cdb8daafabe31a8f11ad02"
+          },
+          "sections": {
+            "columns": [
+              "id",
+              "session_pk",
+              "chapter_id",
+              "title",
+              "summary",
+              "ordinal"
+            ],
+            "rows": 1339,
+            "sha256": "87c66cf0e75cd918eee91cd58ac91afe12932876a2984e83ebee623511726d77"
+          },
+          "pages": {
+            "columns": [
+              "rid",
+              "id",
+              "section_id",
+              "session_pk",
+              "chapter_id",
+              "project_id",
+              "title",
+              "question",
+              "content",
+              "source_refs",
+              "ordinal"
+            ],
+            "rows": 1339,
+            "sha256": "d32e00f516a975e5a61938c761b3c2c4cb27aec145fae13305454ec51aceee15"
+          }
+        },
+        "source_tables_sha256": "40496366c4302d92ad263ab5b9d2cadea1ca72939ec94696fc8b1a6cbc586617",
+        "page_ids_content_source_refs": {
+          "columns": [
+            "id",
+            "content",
+            "source_refs"
+          ],
+          "rows": 1339,
+          "sha256": "256ba407820a49a6a0127dcb9fae572c7a5d097d50e96fabbbfdb85d9173207f"
+        },
+        "cache_rows": 1,
+        "valid_cache_rows": 1,
+        "index_rows": {
+          "pages_fts": 1339
+        }
+      },
+      "after": {
+        "schema_version": 3,
+        "application_id": 1296191307,
+        "revision": 217,
+        "page_count": 3062,
+        "page_size": 4096,
+        "logical_database_bytes": 12541952,
+        "source_tables": {
+          "projects": {
+            "columns": [
+              "id",
+              "name",
+              "created_at",
+              "updated_at"
+            ],
+            "rows": 8,
+            "sha256": "d55ec0e646366b61dd89a3e99638bd78d3b2d4d25d0652f2ebf190f6ec8f1919"
+          },
+          "chapters": {
+            "columns": [
+              "id",
+              "project_id",
+              "task_id",
+              "title",
+              "summary",
+              "updated_at"
+            ],
+            "rows": 8,
+            "sha256": "1adde760487113f503aaf962051a14c988e03442220275585c306f7c478873f0"
+          },
+          "sessions": {
+            "columns": [
+              "id",
+              "external_id",
+              "project_id",
+              "chapter_id",
+              "title",
+              "created_at",
+              "updated_at",
+              "content_hash",
+              "raw_json",
+              "segmentation",
+              "message_count",
+              "turn_count",
+              "content_chars",
+              "settings_json"
+            ],
+            "rows": 216,
+            "sha256": "a21a38398aca6882e5d3ae87f789e567121b0843ac7c3545517bcfb8eb0d8029"
+          },
+          "turns": {
+            "columns": [
+              "id",
+              "session_pk",
+              "ordinal",
+              "question",
+              "content",
+              "message_indices"
+            ],
+            "rows": 4684,
+            "sha256": "804959ffc5edcbdd31e9c366f184fd22bd972d6e04cdb8daafabe31a8f11ad02"
+          },
+          "sections": {
+            "columns": [
+              "id",
+              "session_pk",
+              "chapter_id",
+              "title",
+              "summary",
+              "ordinal"
+            ],
+            "rows": 1339,
+            "sha256": "87c66cf0e75cd918eee91cd58ac91afe12932876a2984e83ebee623511726d77"
+          },
+          "pages": {
+            "columns": [
+              "rid",
+              "id",
+              "section_id",
+              "session_pk",
+              "chapter_id",
+              "project_id",
+              "title",
+              "question",
+              "content",
+              "source_refs",
+              "ordinal"
+            ],
+            "rows": 1339,
+            "sha256": "d32e00f516a975e5a61938c761b3c2c4cb27aec145fae13305454ec51aceee15"
+          }
+        },
+        "source_tables_sha256": "40496366c4302d92ad263ab5b9d2cadea1ca72939ec94696fc8b1a6cbc586617",
+        "page_ids_content_source_refs": {
+          "columns": [
+            "id",
+            "content",
+            "source_refs"
+          ],
+          "rows": 1339,
+          "sha256": "256ba407820a49a6a0127dcb9fae572c7a5d097d50e96fabbbfdb85d9173207f"
+        },
+        "cache_rows": 0,
+        "valid_cache_rows": 0,
+        "index_rows": {
+          "pages_fts": 1339,
+          "pages_stem_fts": 1339
+        }
+      },
+      "reopened": {
+        "schema_version": 3,
+        "application_id": 1296191307,
+        "revision": 217,
+        "page_count": 3062,
+        "page_size": 4096,
+        "logical_database_bytes": 12541952,
+        "source_tables": {
+          "projects": {
+            "columns": [
+              "id",
+              "name",
+              "created_at",
+              "updated_at"
+            ],
+            "rows": 8,
+            "sha256": "d55ec0e646366b61dd89a3e99638bd78d3b2d4d25d0652f2ebf190f6ec8f1919"
+          },
+          "chapters": {
+            "columns": [
+              "id",
+              "project_id",
+              "task_id",
+              "title",
+              "summary",
+              "updated_at"
+            ],
+            "rows": 8,
+            "sha256": "1adde760487113f503aaf962051a14c988e03442220275585c306f7c478873f0"
+          },
+          "sessions": {
+            "columns": [
+              "id",
+              "external_id",
+              "project_id",
+              "chapter_id",
+              "title",
+              "created_at",
+              "updated_at",
+              "content_hash",
+              "raw_json",
+              "segmentation",
+              "message_count",
+              "turn_count",
+              "content_chars",
+              "settings_json"
+            ],
+            "rows": 216,
+            "sha256": "a21a38398aca6882e5d3ae87f789e567121b0843ac7c3545517bcfb8eb0d8029"
+          },
+          "turns": {
+            "columns": [
+              "id",
+              "session_pk",
+              "ordinal",
+              "question",
+              "content",
+              "message_indices"
+            ],
+            "rows": 4684,
+            "sha256": "804959ffc5edcbdd31e9c366f184fd22bd972d6e04cdb8daafabe31a8f11ad02"
+          },
+          "sections": {
+            "columns": [
+              "id",
+              "session_pk",
+              "chapter_id",
+              "title",
+              "summary",
+              "ordinal"
+            ],
+            "rows": 1339,
+            "sha256": "87c66cf0e75cd918eee91cd58ac91afe12932876a2984e83ebee623511726d77"
+          },
+          "pages": {
+            "columns": [
+              "rid",
+              "id",
+              "section_id",
+              "session_pk",
+              "chapter_id",
+              "project_id",
+              "title",
+              "question",
+              "content",
+              "source_refs",
+              "ordinal"
+            ],
+            "rows": 1339,
+            "sha256": "d32e00f516a975e5a61938c761b3c2c4cb27aec145fae13305454ec51aceee15"
+          }
+        },
+        "source_tables_sha256": "40496366c4302d92ad263ab5b9d2cadea1ca72939ec94696fc8b1a6cbc586617",
+        "page_ids_content_source_refs": {
+          "columns": [
+            "id",
+            "content",
+            "source_refs"
+          ],
+          "rows": 1339,
+          "sha256": "256ba407820a49a6a0127dcb9fae572c7a5d097d50e96fabbbfdb85d9173207f"
+        },
+        "cache_rows": 0,
+        "valid_cache_rows": 0,
+        "index_rows": {
+          "pages_fts": 1339,
+          "pages_stem_fts": 1339
+        }
+      },
+      "checkpointed_file_bytes_after": 12541952,
+      "source_tables_preserved": true,
+      "page_ids_content_source_refs_preserved": true,
+      "cache_invalidated": true,
+      "reopen_unchanged": true
+    },
+    {
+      "repetition": 3,
+      "engine": {
+        "label": "score-aware-recall",
+        "engine_version": "0.3.0",
+        "source_sha256_before": "c8f684da97bc104a392e3884390e9f4b0eca850ed26d36394b150f469aea2b46",
+        "source_sha256_after": "c8f684da97bc104a392e3884390e9f4b0eca850ed26d36394b150f469aea2b46",
+        "source_unchanged": true,
+        "source_provenance": {
+          "source_root": "/workspace/scratch/5ff84b411581/AI-Memory-Book/src/memory_book",
+          "repository_root": "/workspace/scratch/5ff84b411581/AI-Memory-Book",
+          "git_commit": "0ab49d4f2be6aabe5e51c3314bb9369041af5369",
+          "git_dirty": true,
+          "source_dirty": false,
+          "commit_identifies_source": true,
+          "python_files_differing_from_commit": []
+        }
+      },
+      "migration_open_ms": 44.715969,
+      "reopen_ms": 0.72918,
+      "before": {
+        "schema_version": 2,
+        "application_id": 1296191307,
+        "revision": 216,
+        "page_count": 2503,
+        "page_size": 4096,
+        "logical_database_bytes": 10252288,
+        "source_tables": {
+          "projects": {
+            "columns": [
+              "id",
+              "name",
+              "created_at",
+              "updated_at"
+            ],
+            "rows": 8,
+            "sha256": "d55ec0e646366b61dd89a3e99638bd78d3b2d4d25d0652f2ebf190f6ec8f1919"
+          },
+          "chapters": {
+            "columns": [
+              "id",
+              "project_id",
+              "task_id",
+              "title",
+              "summary",
+              "updated_at"
+            ],
+            "rows": 8,
+            "sha256": "1adde760487113f503aaf962051a14c988e03442220275585c306f7c478873f0"
+          },
+          "sessions": {
+            "columns": [
+              "id",
+              "external_id",
+              "project_id",
+              "chapter_id",
+              "title",
+              "created_at",
+              "updated_at",
+              "content_hash",
+              "raw_json",
+              "segmentation",
+              "message_count",
+              "turn_count",
+              "content_chars",
+              "settings_json"
+            ],
+            "rows": 216,
+            "sha256": "a21a38398aca6882e5d3ae87f789e567121b0843ac7c3545517bcfb8eb0d8029"
+          },
+          "turns": {
+            "columns": [
+              "id",
+              "session_pk",
+              "ordinal",
+              "question",
+              "content",
+              "message_indices"
+            ],
+            "rows": 4684,
+            "sha256": "804959ffc5edcbdd31e9c366f184fd22bd972d6e04cdb8daafabe31a8f11ad02"
+          },
+          "sections": {
+            "columns": [
+              "id",
+              "session_pk",
+              "chapter_id",
+              "title",
+              "summary",
+              "ordinal"
+            ],
+            "rows": 1339,
+            "sha256": "87c66cf0e75cd918eee91cd58ac91afe12932876a2984e83ebee623511726d77"
+          },
+          "pages": {
+            "columns": [
+              "rid",
+              "id",
+              "section_id",
+              "session_pk",
+              "chapter_id",
+              "project_id",
+              "title",
+              "question",
+              "content",
+              "source_refs",
+              "ordinal"
+            ],
+            "rows": 1339,
+            "sha256": "d32e00f516a975e5a61938c761b3c2c4cb27aec145fae13305454ec51aceee15"
+          }
+        },
+        "source_tables_sha256": "40496366c4302d92ad263ab5b9d2cadea1ca72939ec94696fc8b1a6cbc586617",
+        "page_ids_content_source_refs": {
+          "columns": [
+            "id",
+            "content",
+            "source_refs"
+          ],
+          "rows": 1339,
+          "sha256": "256ba407820a49a6a0127dcb9fae572c7a5d097d50e96fabbbfdb85d9173207f"
+        },
+        "cache_rows": 1,
+        "valid_cache_rows": 1,
+        "index_rows": {
+          "pages_fts": 1339
+        }
+      },
+      "after": {
+        "schema_version": 3,
+        "application_id": 1296191307,
+        "revision": 217,
+        "page_count": 3062,
+        "page_size": 4096,
+        "logical_database_bytes": 12541952,
+        "source_tables": {
+          "projects": {
+            "columns": [
+              "id",
+              "name",
+              "created_at",
+              "updated_at"
+            ],
+            "rows": 8,
+            "sha256": "d55ec0e646366b61dd89a3e99638bd78d3b2d4d25d0652f2ebf190f6ec8f1919"
+          },
+          "chapters": {
+            "columns": [
+              "id",
+              "project_id",
+              "task_id",
+              "title",
+              "summary",
+              "updated_at"
+            ],
+            "rows": 8,
+            "sha256": "1adde760487113f503aaf962051a14c988e03442220275585c306f7c478873f0"
+          },
+          "sessions": {
+            "columns": [
+              "id",
+              "external_id",
+              "project_id",
+              "chapter_id",
+              "title",
+              "created_at",
+              "updated_at",
+              "content_hash",
+              "raw_json",
+              "segmentation",
+              "message_count",
+              "turn_count",
+              "content_chars",
+              "settings_json"
+            ],
+            "rows": 216,
+            "sha256": "a21a38398aca6882e5d3ae87f789e567121b0843ac7c3545517bcfb8eb0d8029"
+          },
+          "turns": {
+            "columns": [
+              "id",
+              "session_pk",
+              "ordinal",
+              "question",
+              "content",
+              "message_indices"
+            ],
+            "rows": 4684,
+            "sha256": "804959ffc5edcbdd31e9c366f184fd22bd972d6e04cdb8daafabe31a8f11ad02"
+          },
+          "sections": {
+            "columns": [
+              "id",
+              "session_pk",
+              "chapter_id",
+              "title",
+              "summary",
+              "ordinal"
+            ],
+            "rows": 1339,
+            "sha256": "87c66cf0e75cd918eee91cd58ac91afe12932876a2984e83ebee623511726d77"
+          },
+          "pages": {
+            "columns": [
+              "rid",
+              "id",
+              "section_id",
+              "session_pk",
+              "chapter_id",
+              "project_id",
+              "title",
+              "question",
+              "content",
+              "source_refs",
+              "ordinal"
+            ],
+            "rows": 1339,
+            "sha256": "d32e00f516a975e5a61938c761b3c2c4cb27aec145fae13305454ec51aceee15"
+          }
+        },
+        "source_tables_sha256": "40496366c4302d92ad263ab5b9d2cadea1ca72939ec94696fc8b1a6cbc586617",
+        "page_ids_content_source_refs": {
+          "columns": [
+            "id",
+            "content",
+            "source_refs"
+          ],
+          "rows": 1339,
+          "sha256": "256ba407820a49a6a0127dcb9fae572c7a5d097d50e96fabbbfdb85d9173207f"
+        },
+        "cache_rows": 0,
+        "valid_cache_rows": 0,
+        "index_rows": {
+          "pages_fts": 1339,
+          "pages_stem_fts": 1339
+        }
+      },
+      "reopened": {
+        "schema_version": 3,
+        "application_id": 1296191307,
+        "revision": 217,
+        "page_count": 3062,
+        "page_size": 4096,
+        "logical_database_bytes": 12541952,
+        "source_tables": {
+          "projects": {
+            "columns": [
+              "id",
+              "name",
+              "created_at",
+              "updated_at"
+            ],
+            "rows": 8,
+            "sha256": "d55ec0e646366b61dd89a3e99638bd78d3b2d4d25d0652f2ebf190f6ec8f1919"
+          },
+          "chapters": {
+            "columns": [
+              "id",
+              "project_id",
+              "task_id",
+              "title",
+              "summary",
+              "updated_at"
+            ],
+            "rows": 8,
+            "sha256": "1adde760487113f503aaf962051a14c988e03442220275585c306f7c478873f0"
+          },
+          "sessions": {
+            "columns": [
+              "id",
+              "external_id",
+              "project_id",
+              "chapter_id",
+              "title",
+              "created_at",
+              "updated_at",
+              "content_hash",
+              "raw_json",
+              "segmentation",
+              "message_count",
+              "turn_count",
+              "content_chars",
+              "settings_json"
+            ],
+            "rows": 216,
+            "sha256": "a21a38398aca6882e5d3ae87f789e567121b0843ac7c3545517bcfb8eb0d8029"
+          },
+          "turns": {
+            "columns": [
+              "id",
+              "session_pk",
+              "ordinal",
+              "question",
+              "content",
+              "message_indices"
+            ],
+            "rows": 4684,
+            "sha256": "804959ffc5edcbdd31e9c366f184fd22bd972d6e04cdb8daafabe31a8f11ad02"
+          },
+          "sections": {
+            "columns": [
+              "id",
+              "session_pk",
+              "chapter_id",
+              "title",
+              "summary",
+              "ordinal"
+            ],
+            "rows": 1339,
+            "sha256": "87c66cf0e75cd918eee91cd58ac91afe12932876a2984e83ebee623511726d77"
+          },
+          "pages": {
+            "columns": [
+              "rid",
+              "id",
+              "section_id",
+              "session_pk",
+              "chapter_id",
+              "project_id",
+              "title",
+              "question",
+              "content",
+              "source_refs",
+              "ordinal"
+            ],
+            "rows": 1339,
+            "sha256": "d32e00f516a975e5a61938c761b3c2c4cb27aec145fae13305454ec51aceee15"
+          }
+        },
+        "source_tables_sha256": "40496366c4302d92ad263ab5b9d2cadea1ca72939ec94696fc8b1a6cbc586617",
+        "page_ids_content_source_refs": {
+          "columns": [
+            "id",
+            "content",
+            "source_refs"
+          ],
+          "rows": 1339,
+          "sha256": "256ba407820a49a6a0127dcb9fae572c7a5d097d50e96fabbbfdb85d9173207f"
+        },
+        "cache_rows": 0,
+        "valid_cache_rows": 0,
+        "index_rows": {
+          "pages_fts": 1339,
+          "pages_stem_fts": 1339
+        }
+      },
+      "checkpointed_file_bytes_after": 12541952,
+      "source_tables_preserved": true,
+      "page_ids_content_source_refs_preserved": true,
+      "cache_invalidated": true,
+      "reopen_unchanged": true
+    }
+  ],
+  "summary": {
+    "import_ms": 1063.93812,
+    "schema_before": 2,
+    "schema_after": [
+      3,
+      3,
+      3
+    ],
+    "logical_database_bytes_before": 10252288,
+    "logical_database_bytes_after": [
+      12541952,
+      12541952,
+      12541952
+    ],
+    "logical_database_growth_bytes": [
+      2289664,
+      2289664,
+      2289664
+    ],
+    "migration_open": {
+      "samples": 3,
+      "p50_ms": 40.501901,
+      "p95_ms": 44.2945622,
+      "mean_ms": 40.350389
+    },
+    "reopen": {
+      "samples": 3,
+      "p50_ms": 0.72918,
+      "p95_ms": 0.7979715,
+      "mean_ms": 0.732513
+    },
+    "source_tables_preserved": true,
+    "page_ids_content_source_refs_preserved": true,
+    "cache_invalidated": true,
+    "reopen_unchanged": true
+  },
+  "methodology": [
+    "Baseline and every candidate trial run in independent Python processes; requested package roots are checked against actual imports.",
+    "Baseline imports the corpus once, seeds one real revision-valid recall-cache entry, checkpoints WAL and closes. Each upgrade uses a fresh byte-for-byte copy of that database.",
+    "Import timing covers ingest calls only. Database construction, cache seeding, dataset loading, hashing, copying, checkpointing and process startup are reported separately or excluded.",
+    "Migration timing covers MemoryBook construction including schema upgrade/index materialization and its commit; reopen timing covers a second construction on the already upgraded database. Neither measures query or end-to-end model latency.",
+    "Source rows are individually SHA-256 hashed in stable column/row order. Six complete source-table fingerprints and an additional page-ID/text/source-reference fingerprint must remain identical before migration, after migration and on reopen.",
+    "Mutable meta, recall_cache and derived FTS rows are excluded from source hashes. Schema, revision, cache invalidation and FTS row counts are checked separately. Reopen must preserve the entire recorded snapshot.",
+    "Logical storage is SQLite page_count multiplied by page_size; checkpointed file bytes are recorded separately. It is not peak temporary disk usage, WAL write volume or resident memory.",
+    "Repeated copies have warm operating-system caches; measurements are not cold-disk or process-startup estimates. Every measured duration is retained.",
+    "Public corpora remain separately downloaded; reports contain counts, schema metadata and hashes, never source rows, questions or answers. Temporary databases are deleted on success or failure.",
+    "Source hashes identify executed Python bytes; dirty checkout commits identify base revisions only. Source/evaluator changes or preservation failures abort without publishing a successful report."
+  ]
+}

@@ -5,6 +5,97 @@ Product fixtures, examples, screenshots, and capture measurements are synthetic;
 v0.3.0 also evaluates an independently published LoCoMo text corpus. No private
 user conversation history was used in development or published.
 
+## Unreleased: recall-quality continuation
+
+### Score-aware continuation
+
+The second-round runtime is frozen at
+**`0ab49d4f2be6aabe5e51c3314bb9369041af5369`**. Its full local suite completed
+**244 tests in 26.498 seconds**, with no failures or skips. The ranker combines
+normalized BM25 relevance from the exact and Porter routes with a fixed **2:1
+exact-route preference**. `RECALL_VERSION = 7` gives the changed ranking its own
+recall-cache identity, so earlier cached rankings are not reused.
+
+Three [independent regression fixtures](../tests/test_score_fusion.py), fixed
+before the score-aware development comparison, verify that a multi-term exact
+fact survives Porter word collisions, an inflected query still returns the
+original source evidence, and stronger matches in another project cannot enter
+scoped results. Each fixture also checks delivered character budgets and source
+spans. These correctness checks are separate from the measured quality and cost
+interpretation in the
+[score-aware continuation results](../benchmarks/RESULTS-recall-score-quality.md).
+
+For this exact head, the
+[push run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43044441657)
+and [pull-request run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43044450305)
+both completed **9 of 9 jobs successfully**: core Python 3.10/3.12/3.13, MCP,
+Linux/macOS/Windows installers, Docker, and reader-browser. Both actual browser
+logs recorded **13 successful checks**, including scoped Chinese search,
+English/Chinese source-text preservation, import confirmation, keyboard focus,
+390px mobile layout, and no page, console, request, or unexpected-dialog errors.
+The same immutable Noto font pin and hashes documented below were verified in
+both runs. Their screenshots and browser reports are retained in the
+[push artifacts](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43044441657/artifacts/13865718642)
+and [pull-request artifacts](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43044450305/artifacts/13866836901).
+
+### First-round continuation
+
+The final local suite with MCP, client, and benchmark extras completed
+**241 tests in 18.420 seconds**, with no failures or skips. This continues the
+preserved performance work with bounded word-form retrieval, intact evidence
+selection, connection reuse, and reproducible evaluation. Quality, latency,
+token costs, and remaining limitations are reported separately in the
+[recall-quality continuation results](../benchmarks/RESULTS-recall-quality.md).
+
+The recorded CI head is **`bfb09d46f41a6a734bb8e434688f196fe8723c9d`**.
+Both its [push run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43041835462)
+and [pull-request run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43041847121)
+completed **9 of 9 jobs successfully**: core Python 3.10/3.12/3.13, MCP,
+Linux/macOS/Windows installers, Docker, and the actual browser reader.
+These links identify the verified head rather than an unspecified latest run.
+
+| Area | Verified behavior |
+|---|---|
+| MCP connection lifetime | One lazy connection is reused on its owning transport thread, closes on normal or exceptional lifespan exit, and preserves response content and tool declarations. Direct SDK calls, foreign threads, and unavailable file identities use temporary connections. |
+| External changes and isolation | Real stdio recall observes another writer's revision and invalidates cached evidence. Replacing the database file reopens the connection. Separate servers retain their own databases and write permissions. |
+| Bounded cached work | Directory-token caching is bounded, immutable, and connection-local; warmed and cold paths return identical evidence after a rename. Persistent recall-cache limits and invalidation across connections remain covered. |
+| Evidence and storage integrity | Scoped word-form recall, complete fitting lines/sentences, citation-inclusive budgets, Unicode source offsets, original-turn spans, and tiny-budget behavior are checked. Schema upgrades preserve source rows and page addresses, roll back failures, and remain compatible with an already-open legacy writer. |
+| Evaluation and recovery | Recorded source changes and character/token accounting failures produce failed diagnostic reports. Sequential resumption checks source, dataset, runtime, manifest, and output hashes; rejects stale or invalid reports; and reruns an invalidated suffix. Real subprocess tests cover SIGTERM recovery and POSIX process-group cleanup when a failed leader leaves a worker that ignores SIGTERM. |
+
+The corresponding focused tests are
+[MCP lifecycle](../tests/test_mcp_lifecycle.py),
+[lexical caching](../tests/test_lexical_cache.py),
+[recall budgets and word forms](../tests/test_recall_quality.py),
+[excerpt boundaries](../tests/test_excerpt_boundaries.py),
+[index migration](../tests/test_index_migration.py),
+[measurement gates](../tests/test_benchmark_gates.py), and
+[resumption](../tests/test_benchmark_resume.py).
+
+### First-round browser and font verification
+
+The same browser smoke script executed **13 successful checks** in both CI runs.
+It covered desktop project/chapter navigation, scoped Chinese search, source
+reading and keyboard-focus restoration, English/Chinese text preservation,
+JSON preview followed by confirmed import, inert imported content, and 390px
+mobile navigation. Desktop and mobile layouts had no horizontal overflow; the
+run recorded no page errors, console errors, failed requests, or unexpected
+dialogs. Each run uploaded three screenshots and the browser JSON report:
+[push artifacts](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43041835462/artifacts/13865502206)
+and [pull-request artifacts](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43041847121/artifacts/13865137770).
+CI artifacts expire after seven days; the earlier checked-in browser images
+below remain historical evidence for their documented release.
+
+The font preparation uses the official `notofonts/noto-cjk` commit
+[`f8d157532fbfaeda587e826d4cd5b21a49186f7c`](https://github.com/notofonts/noto-cjk/commit/f8d157532fbfaeda587e826d4cd5b21a49186f7c),
+with bounded download retries and timeouts. Both CI logs verified
+`NotoSansCJKsc-Regular.otf` at **16,437,364 bytes**, Git blob
+`dc15562470b4f842321894787a0d066879ccff8b`, and SHA-256
+`2c76254f6fc379fddfce0a7e84fb5385bb135d3e399294f6eeb6680d0365b74b`.
+The SHA-256 comes from that commit's
+[official SPDX manifest](https://github.com/notofonts/noto-cjk/blob/f8d157532fbfaeda587e826d4cd5b21a49186f7c/_manifest/spdx_2.2/manifest.spdx.json).
+The checked OFL license accompanies the font in the user font directory;
+`fc-cache` and `fc-match` must succeed before browser testing starts.
+
 ## v0.3.0: retrieval and actual response costs
 
 The complete local suite passed **174 tests** with MCP, client, and benchmark

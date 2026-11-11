@@ -1,9 +1,59 @@
 # Retrieval experiments
 
-## Recall-quality continuation and recovery
+## Current score-aware continuation
 
-The [continuation report](RESULTS-recall-quality.md) completes the interrupted
-`perf/recall-quality-budget` work. Its source identity, development choices,
+The [score-aware report](RESULTS-recall-score-quality.md) evaluates runtime
+`0ab49d4f2be6aabe5e51c3314bb9369041af5369`. It preserves the first frozen round
+below and evaluates the single development-selected score-aware fusion rule.
+Seeds 211/509 and all public heldout questions are now regression data; seeds
+883/1297 were reserved before this second run. These generated templates are
+not an independent domain test.
+
+Use [the corrected full manifest](recall_score_quality_manifest_v2.json) for a
+fresh reproduction. Prepare the two historical baseline worktrees described
+below, plus the first-round runtime:
+
+```bash
+git worktree add --detach ../baseline-recall 6f5299004642618e606d001b4c574e1bae572a7e
+```
+
+Install `.[mcp,clients,benchmark]`, Node 24+, and the pinned corpus/competitor
+caches below before starting. Plotting additionally requires `matplotlib`;
+install it before a frozen run if charts will be reproduced, because dependency
+changes deliberately invalidate a live execution checkpoint. Then run:
+
+```bash
+export TIKTOKEN_CACHE_DIR="$PWD/.artifacts/tiktoken"
+python -m benchmarks.resume \
+  --manifest benchmarks/recall_score_quality_manifest_v2.json \
+  --checkpoint .artifacts/score-full-checkpoint.json
+PYTHONPATH=. python scripts/assess_score_quality.py \
+  --full-checkpoint .artifacts/score-full-checkpoint.json
+python scripts/plot_recall_quality.py \
+  --assessment benchmarks/results/recall-score-final-assessment.json
+```
+
+The measured execution used eleven completed stages from the initial manifest
+and five stages from [the cost continuation](recall_score_cost_manifest.json).
+The initial migration step correctly refused a schema-3-to-schema-3 comparison;
+the corrected migration baseline is preserved v0.3, which supplies schema 2.
+The [failure and recovery record](reports/recall-score-recovery.json) retains the
+original failed stage. Neither evaluator assertions nor runtime code were
+changed to make it pass. The assessment checks all stage arguments and output
+hashes against the corrected full manifest, together with matching runtime and
+source/data/evaluator identities. Its combined execution index is an audit
+record, not a checkpoint to feed back into the runner.
+
+For the recorded split execution, the assessor's default mode reads the two
+original checkpoints and verifies their lineage; a fresh full reproduction uses
+`--full-checkpoint` as shown above. The figures use separate filenames so the
+first-round chart remains attributable to its own runtime.
+
+## First frozen recall-quality round
+
+The [first-round report](RESULTS-recall-quality.md) records the first 13-stage
+continuation of the interrupted `perf/recall-quality-budget` work at runtime
+`6f5299004642618e606d001b4c574e1bae572a7e`. Its source identity, development choices,
 reserved seeds, public regression/expansion cohorts, native component costs and
 remaining limitations are separate from the historical v0.3.0 records below.
 

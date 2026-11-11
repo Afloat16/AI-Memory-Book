@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "configuration corrected; continuation pending",
+  "status": "completed; eleven retained stages and five corrected continuation stages verified",
   "reason": "The schema-migration evaluator requires an actual schema increase. The original second-round upgrade stages incorrectly selected the schema-3 first-round runtime as their baseline. Preserved v0.3 supplies the intended schema-2 database. Runtime and evaluator source are unchanged; no assertion was weakened.",
   "runtime_commit": "0ab49d4f2be6aabe5e51c3314bb9369041af5369",
   "source_sha256": "c8f684da97bc104a392e3884390e9f4b0eca850ed26d36394b150f469aea2b46",
@@ -62,5 +62,44 @@
     "status": "failed"
   },
   "failure_log": "benchmarks/reports/recall-score-initial-failure.txt",
-  "measurement_policy": "The first 11 stage commands and outputs are unchanged. The last 5 run in a separately frozen checkpoint. Both checkpoints and the failed stage are preserved; the original 16-stage manifest did not complete."
+  "measurement_policy": "The first 11 stage commands and outputs are unchanged. The last 5 run in a separately frozen checkpoint. Both checkpoints and the failed stage are preserved; the original 16-stage manifest did not complete.",
+  "completed_stage_count": 16,
+  "completed_output_hashes_verified": true,
+  "runtime_and_source_identity_unchanged": true,
+  "completed_checkpoints": [
+    {
+      "role": "original run: eleven completed stages and preserved migration failure",
+      "path": "../reports/recall-score-final-original-run-checkpoint.json",
+      "sha256": "9384b41707d3cb7dd2a0003dd7530ab9798a75f8159548a47b14621b9e5b1ee9",
+      "identity_sha256": "15b1b2641b04ad4a0d95475312357527f158b01e185c5d11ce798567f5913758",
+      "completed_stages_used": [
+        "source-preflight",
+        "paired-synthetic-61",
+        "paired-synthetic-211",
+        "paired-synthetic-509",
+        "paired-synthetic-883",
+        "paired-synthetic-1297",
+        "paired-public-development",
+        "paired-public-regression",
+        "paired-public-expanded",
+        "paired-preserved-expanded",
+        "paired-main-expanded"
+      ]
+    },
+    {
+      "role": "corrected five-stage cost continuation",
+      "path": "../reports/recall-score-final-cost-run-checkpoint.json",
+      "sha256": "54a9c552c0a10756bceff8acc7aca3607ef80e6322f86a5aff3533bedf0f8a8d",
+      "identity_sha256": "95708e17cdebc7bcbcdcf6928f8e82f3cf9b8c6c59585685682c6b1b43b76d98",
+      "completed_stages_used": [
+        "upgrade-synthetic",
+        "upgrade-public",
+        "mcp-synthetic",
+        "mcp-public",
+        "native-components-public"
+      ]
+    }
+  ],
+  "execution_index": "benchmarks/reports/recall-score-final-run-checkpoint.json",
+  "execution_index_sha256": "d23478223c8cd88587a0a06d47cc11718f64d381ab552e8f2ed6be75ebfa3b06"
 }

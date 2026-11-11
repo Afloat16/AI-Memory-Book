@@ -2,7 +2,7 @@
 
 **Background memory for AI agents. Projects become books, tasks become chapters, and agents retrieve the cited evidence they need to continue working.**
 
-[简体中文](README.zh-CN.md) · [Agent guide](docs/agent-guide.md) · [Installation & background mode](docs/deployment.md) · [Client compatibility](docs/integrations.md) · [Measured results](benchmarks/RESULTS-v0.3.0.md) · [Releases](https://github.com/Afloat16/AI-Memory-Book/releases)
+[简体中文](README.zh-CN.md) · [Agent guide](docs/agent-guide.md) · [Installation & background mode](docs/deployment.md) · [Client compatibility](docs/integrations.md) · [Measured results](benchmarks/RESULTS-recall-score-quality.md) · [Releases](https://github.com/Afloat16/AI-Memory-Book/releases)
 
 AI-Memory-Book gives AI agents a shared, local memory of earlier work. After you connect a client and opt in to capture, a background worker indexes supported conversations. When a task depends on a previous decision, constraint, or unfinished step, the agent can call MCP once, receive bounded original evidence with source references, and continue the task. It does not need to read a directory or an entire conversation first.
 
@@ -205,44 +205,48 @@ The named volume persists the archive across server processes. No HTTP port is p
 
 ## Evidence, costs, and limitations
 
-**v0.3.0 reduces actual MCP response tokens by 46.2–54.9% versus v0.2.1 on the two measured workloads.** It also improves short-budget evidence delivery and core retrieval latency. The public comparison is close; it does not establish universal superiority over other memory products.
+**The unreleased score-aware continuation improves public source-evidence delivery.** In the current full public run, actual MCP response tokens are **54.7% lower** and median first-call latency is **31.1% lower** than main v0.2.1. Against the already optimized preserved v0.3 branch, response tokens are slightly higher (+0.38%) and the observed median is 15.5% lower. These are different baselines; universal lower cost and equal-or-better generated answers are not established.
 
-![Measured evidence and MCP response costs](docs/assets/v0.3.0-cost-quality.png)
+![Measured evidence and MCP response costs](docs/assets/recall-score-quality-costs.png)
 
 ### Paired version measurements
 
-| Measured workload | v0.2.1 | v0.3.0 |
-|---|---:|---:|
-| Public LoCoMo evidence recall, 2,000-character context cap | 26.18% | **45.03%** |
-| Public LoCoMo evidence recall, 8,000-character context cap | **73.30%** | 72.77% |
-| Public LoCoMo actual MCP response tokens, mean | 3,219.4 | **1,451.9** |
-| Public LoCoMo actual MCP new-query p50 | 9.061 ms | **7.668 ms** |
-| Synthetic actual MCP response tokens, mean | 2,186.7 | **1,177.3** |
-| Synthetic actual MCP new-query p95 | **13.406 ms** | 15.491 ms |
+The frozen runtime is [`0ab49d4`](https://github.com/Afloat16/AI-Memory-Book/commit/0ab49d4f2be6aabe5e51c3314bb9369041af5369). The following rows use all **1,015 eligible text-only questions** from eight LoCoMo heldout conversations, including the previously reported 256 and 759 additional questions from those same conversations. Of these, 649 are answerable. All public questions were already measured in the first frozen round and are regression data for this second round.
 
-The public sample uses eight heldout conversations and 256 independently selected queries (176 answerable, 191 required utterances). It is a text-only adaptation of the public persona-agent-generated [LoCoMo benchmark](https://github.com/snap-research/locomo), not an evaluation on private user histories. Evidence requires complete annotated text with correct source coordinates; it is not generated-answer accuracy. The 8,000-character public regression loses one required utterance. Both evidence and latency regressions remain visible.
-
-MCP token counts cover actual returned JSON text, including metadata, using `o200k_base`; they are not provider billing. The public MCP row uses an 8,000-character cap; the synthetic row uses 2,000. Process startup is excluded and reported separately. For all 298 distinct measured queries, `details: true` preserved identical context and page IDs. Compact mode retains project/session/turn references; exact coordinates remain available on demand.
-
-Two additional bilingual synthetic heldouts each contain 112 sessions and 1,408 turns. At 2,000 characters, evidence recall improves from 71.02–72.16% to 77.84–78.41%, with core p50 falling from 5.755–5.906 ms to 3.479–3.844 ms. These ranges describe two seeds, not confidence intervals. [Complete paired results and actual MCP measurements](benchmarks/RESULTS-v0.3.0.md).
-
-### Real external retrieval components
-
-The adapters execute the pinned billion-context search kernel and the official ai-memory v3.4.5 binary with native MiniLM hybrid retrieval. With the same frozen pages, project scope, top-five limit, and shared 1,024-token `cl100k_base` assembly:
-
-| Retrieval component | Evidence recall | Complete evidence | Mean context tokens |
+| Public workload | Main v0.2.1 | Preserved v0.3 | Score-aware continuation |
 |---|---:|---:|---:|
-| AI-Memory-Book v0.3.0 | 72.77% | 75.00% | 815.7 |
-| billion-context | 73.30% | 73.86% | 862.3 |
-| ai-memory, native local hybrid | 71.73% | 72.16% | **772.0** |
+| Evidence recall, 2,000-character context cap | 23.10% | 39.97% | **47.59%** |
+| Evidence recall, 8,000-character context cap | 66.37% | 66.24% | **69.54%** |
+| Complete evidence, 8,000-character context cap | 70.42% | 70.11% | **72.88%** |
+| Actual MCP response tokens, mean, 8,000-character cap | 3,233.5 | **1,459.6** | 1,465.1 |
+| Actual MCP first-call p50 | 8.371 ms | 6.823 ms | **5.764 ms** |
+| Actual MCP first-call p95 | 13.610 ms | 10.722 ms | **9.181 ms** |
 
-This is a shared-page component comparison. The book keeps native hierarchy/index metadata; the test does not reproduce every product's capture, observer, or proxy workflow. billion-context's kernel is faster in this sample. ai-memory's native HTTP/MCP query has a 29.972 ms median; AI-Memory-Book's separate actual stdio MCP measurement has a 7.668 ms median, with different transport and response boundaries. Native page-read costs and all 512/1,024/2,048-token curves are reported separately. **claude-mem remains unmeasured.** [Protocol, pins, failures, and full results](benchmarks/RESULTS-v0.3.0.md#3-actual-external-retrieval-components).
+Evidence requires complete annotated utterances with the correct source coordinates. These are source-evidence retrieval scores, not generated-answer accuracy. Public conversations come from the independently published, persona-agent-generated [LoCoMo dataset](https://github.com/snap-research/locomo), not private user histories.
 
-### Remaining limits
+MCP tokens count actual returned JSON text and metadata using `o200k_base`, not provider billing. Three repetitions use the official SDK's real subprocess stdio path. Result-cache entries are absent before each first call; OS/SQLite caches are not flushed. Startup and immediate repeats are reported separately. All 1,015 query IDs are retained, including five repeated query/project pairs. Compact and detailed modes preserve identical evidence for all public query rows and the 42-query synthetic MCP workload.
 
-Low-overlap paraphrases still have zero recall in the synthetic heldouts; distant multi-section queries recover 25% of required evidence and complete none at 8,000 characters. Unsupported questions often return some context, so the agent must still check whether the evidence answers the question. Current-state ordering is a conservative heuristic, not authoritative conflict resolution. [Failures and historical segmentation experiments](benchmarks/EXPERIMENTS.md).
+### External components and retained regressions
 
-`--budget` limits assembled context in **characters**, including citations, not outer JSON or exact model tokens. The benchmark's token packer is not a native production option. The engine uses lexical FTS without embeddings and does not provide cloud sync, public multi-user hosting, or guaranteed automatic context injection. Client permission decisions remain in the client.
+The full public comparison executes the pinned billion-context search kernel and official ai-memory v3.4.5 binary with native MiniLM hybrid retrieval. It controls supplied pages, project scope, top-five limit, and whole-block packing at 512 / 1,024 / 2,048 tokens. Native search responses and ai-memory page reads are counted separately. The timing boundaries differ across components and transports; shared-context scores do not establish a full-product latency or token advantage. **claude-mem and generated-answer quality remain unmeasured.** [Complete component curves, native costs, pins, and protocol](benchmarks/RESULTS-recall-score-quality.md).
+
+At the common 1,024-token `cl100k_base` cap on all 1,015 public questions:
+
+| Native retrieval component | Evidence recall | Complete evidence | Mean common-context tokens |
+|---|---:|---:|---:|
+| AI-Memory-Book score-aware | **69.54%** | **72.88%** | 827.2 |
+| billion-context kernel | 65.48% | 68.72% | 862.6 |
+| ai-memory local hybrid | 64.47% | 66.72% | **779.3** |
+
+The score-aware candidate leads both evidence metrics in all 12 competitor × tokenizer × cap comparisons, while mean common-context tokens are lower in 6/12. Billion's measured search boundary remains faster. The table counts the common context; the actual MCP counts above also include metadata and use `o200k_base`.
+
+The second rule retains exact BM25 score margins while allowing bounded word-form assistance. It passed development gates before the new reserved seeds 883/1297 were measured. At 8,000 characters, their complete-evidence rate improves from the first round's **81.58% to 84.21%**, with lookup coverage restored to 24/24. The previously observed 211/509 regression populations show the same recovery. Source spans, citation-inclusive budgets, and compact/detailed evidence remain checked.
+
+Tradeoffs remain. Public core retrieval is slower than preserved v0.3, even though the MCP connection-lifetime work reduces protocol overhead. Synthetic MCP p95 remains worse than preserved v0.3. Low-overlap paraphrases still fail, and multi-section partial evidence falls from the first round's 34.375% to 25% on the reserved synthetic workloads; none of those multi-section queries becomes complete. Low-token repacking can also lose evidence. Every public unanswerable question returns some context; this measures nonempty retrieval, not an answering model's abstention or hallucination rate. Current-state ordering remains a conservative heuristic.
+
+`--budget` limits assembled context in **characters**, including citations, not outer JSON or exact model tokens. The benchmark's token packer is not a native production option. The core uses local lexical FTS without embeddings or an API key. It does not provide cloud sync, public multi-user hosting, or guaranteed automatic context injection. Client permission decisions remain in the client.
+
+[Current report and resumable reproduction](benchmarks/RESULTS-recall-score-quality.md) · [First frozen round](benchmarks/RESULTS-recall-quality.md) · [Historical v0.3.0 measurements](benchmarks/RESULTS-v0.3.0.md) · [Earlier segmentation experiments](benchmarks/EXPERIMENTS.md)
 
 ## Optional archive inspection
 
@@ -262,7 +266,7 @@ python -m unittest discover -s tests -v
 python tests/installer_smoke.py --with-extras
 ```
 
-The v0.3.0 local suite passed **174 tests** with MCP, client, and benchmark extras. CI checks Python 3.10/3.12/3.13 core behavior, actual MCP stdio, browser interactions, Linux/macOS/Windows installers, and container persistence. [GitHub Actions status](https://github.com/Afloat16/AI-Memory-Book/actions) · [Validation details and historical runs](docs/validation.md). Configuration fixtures do not establish that every vendor application or login manager has been interactively verified.
+The continuation local suite passed **244 tests** with MCP, client, and benchmark extras. The verified [CI run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43044450305) passed all **9 jobs**, including all **13 actual browser checks**. CI checks Python 3.10/3.12/3.13 core behavior, actual MCP stdio, browser interactions, Linux/macOS/Windows installers, and container persistence. [GitHub Actions status](https://github.com/Afloat16/AI-Memory-Book/actions) · [Validation details and historical runs](docs/validation.md). Configuration fixtures do not establish that every vendor application or login manager has been interactively verified.
 
 ## Design references
 
