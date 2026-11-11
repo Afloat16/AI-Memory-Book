@@ -2,7 +2,7 @@
 
 ## Unreleased — recall quality continuation
 
-- Continue the preserved v0.3.0 performance branch with bounded English word-form retrieval. Keep exact FTS and add SQLite's local Porter index; fixed reciprocal-rank fusion gives the exact route twice the weight. No model, embedding package, network request, or provider key is added to the core.
+- Continue the preserved v0.3.0 performance branch with bounded English word-form retrieval. Keep exact FTS and add SQLite's local Porter index. When the routes differ, combine their max-normalized BM25 scores with a fixed 2:1 exact/stem weight, preserving score margins that rank-only fusion discarded; invalidate prior recall caches with retrieval version 7. No model, embedding package, network request, or provider key is added to the core.
 - Preserve intact source lines or sentences when equally relevant excerpts fit. Reuse a sliding match window, reserve citations before sharing the body budget, and return unused short-page space to longer selected pages.
 - Prefer distinct query-term coverage and complete source units before repetition frequency, so a repeated keyword fragment cannot displace an equally covered intact fact. Increment the recall-cache version for this behavior change.
 - Reuse immutable directory tokens in a bounded connection-local cache and precompile lexical regular expressions without changing normalization or ranking. Clear retained directory text when the connection closes.

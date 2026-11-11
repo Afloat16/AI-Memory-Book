@@ -18,7 +18,7 @@ from .text import estimate_tokens, excerpt, headline, index_text, query_terms, t
 
 SCHEMA_VERSION = 3
 INDEX_VERSION = 3
-RECALL_VERSION = 6
+RECALL_VERSION = 7
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -621,6 +621,10 @@ class MemoryBook:
                     routes.append(self.db.execute(statement, [expression, *params]).fetchall())
                 exact_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[0])}
                 stem_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[1])} if use_stem else {}
+                exact_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[0]}
+                stem_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[1]} if use_stem else {}
+                exact_scale = max(exact_scores.values(), default=1.0) or 1.0
+                stem_scale = max(stem_scores.values(), default=1.0) or 1.0
                 # Identical ordered routes add no candidate/ranking information.
                 # Keep BM25's score scale so novelty selection does not change
                 # merely because the same ranking was observed a second time.
@@ -648,10 +652,12 @@ class MemoryBook:
                             directory_terms[directory] = self._directory_tokens(directory)
                         title_overlap = len(qset & directory_terms[directory]) / len(qset)
                     if fuse_routes:
-                        # Exact matches retain twice the rank-fusion weight.
-                        # A missing route contributes zero, never a fake rank.
-                        relevance = ((2 / (1 + exact_ranks[item["id"]]) if item["id"] in exact_ranks else 0) +
-                                     (1 / (1 + stem_ranks[item["id"]]) if item["id"] in stem_ranks else 0))
+                        # Retain each route's
+                        # relative BM25 margins instead of only its ordinal rank.
+                        # Exact relevance retains the predeclared 2:1 preference.
+                        # An absent route contributes zero, never a fake score.
+                        relevance = (2 * exact_scores.get(item["id"], 0.0) / exact_scale +
+                                     stem_scores.get(item["id"], 0.0) / stem_scale)
                     else:
                         relevance = -item["rank"]
                     item["score"] = relevance * (1 + 0.15 * title_overlap if strategy == "book" else 1)
