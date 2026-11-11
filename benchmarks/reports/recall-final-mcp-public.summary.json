@@ -1,0 +1,747 @@
+{
+  "generated_at": "2026-11-11T14:45:11.138779+00:00",
+  "fixture": {
+    "kind": "public",
+    "version": "locomo-text-evidence-1.0",
+    "variant": "locomo_text_evidence_v1",
+    "seed": 20261111,
+    "split": "heldout",
+    "sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857",
+    "projects": 8,
+    "sessions": 216,
+    "turns": 4684,
+    "source_characters": 616994,
+    "source_utf8_bytes": 617094,
+    "queries": 1015,
+    "answerable_queries": 649,
+    "categories": {
+      "locomo_category_4": 434,
+      "locomo_category_5": 366,
+      "locomo_category_2": 126,
+      "locomo_category_3": 24,
+      "locomo_category_1": 65
+    },
+    "provenance": {
+      "dataset": "LoCoMo locomo10.json",
+      "repository": "https://github.com/snap-research/locomo",
+      "commit": "3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376",
+      "url": "https://raw.githubusercontent.com/snap-research/locomo/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/data/locomo10.json",
+      "sha256": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+      "bytes": 2805274,
+      "license": "CC-BY-NC-4.0",
+      "license_url": "https://github.com/snap-research/locomo/blob/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/LICENSE.txt",
+      "split_seed": 20261111,
+      "sample_ids": [
+        "conv-50",
+        "conv-26",
+        "conv-41",
+        "conv-42",
+        "conv-30",
+        "conv-44",
+        "conv-43",
+        "conv-48"
+      ],
+      "all_qa_in_split": 1600,
+      "all_qa_categories": {
+        "2": 254,
+        "1": 225,
+        "3": 70,
+        "4": 685,
+        "5": 366
+      },
+      "eligible_qa_in_split": 1015,
+      "selected_queries": 1015,
+      "max_queries": 0,
+      "excluded_qa": {
+        "image_bearing_evidence": 576,
+        "invalid_evidence_id": 5,
+        "missing_evidence": 4
+      },
+      "selection": "sha256(locomo-query-order-v1: + query_id) ascending",
+      "evidence_metric": "complete annotated utterance text and original source span",
+      "indexing": "one dialogue utterance per canonical user-role turn; speaker prefix; text only",
+      "date_time_convention": "source local clock represented as UTC for deterministic ordering"
+    }
+  },
+  "budget_chars": 8000,
+  "environment": {
+    "python": "3.12.14",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "sqlite": "3.53.1",
+    "mcp": "1.29.0",
+    "tiktoken": "0.12.0"
+  },
+  "scope": [
+    "Actual official-SDK subprocess stdio, not a hand-written wire approximation.",
+    "Indexing and tokenization are excluded from call latency; startup is reported separately.",
+    "First calls disable prior query-result entries; OS/SQLite caches are not flushed.",
+    "All query IDs are retained. Each repeated exact (query, project) pair clears recall_cache through a separate SQLite connection before its timed first call; cache clearing is excluded from call latency and recorded per row.",
+    "Immediate repeats retain cache entries. This is not a guarantee for novel questions.",
+    "Token counts are exact for named reference encodings, not provider billing or host prompt formats.",
+    "Tool schemas/instructions are counted separately; hosts decide how often to include them.",
+    "No model inference, network model call, or generated-answer quality is measured."
+  ],
+  "engines": [
+    {
+      "label": "main-v0.2.1",
+      "engine_sha256": "47c54bbe1c443aa072924d8376ad44b213e03d6ab3aa2371852460a936ca0a81",
+      "startup_to_initialize_ms": {
+        "n": 3,
+        "mean": 509.86307000000005,
+        "p50": 434.512691,
+        "p95": 663.3749482999999,
+        "min": 406.272431,
+        "max": 688.804088
+      },
+      "tool_list_json_tokens": [
+        {
+          "cl100k_base": 706,
+          "o200k_base": 742
+        },
+        {
+          "cl100k_base": 706,
+          "o200k_base": 742
+        },
+        {
+          "cl100k_base": 706,
+          "o200k_base": 742
+        }
+      ],
+      "initialization_instruction_tokens": [
+        {
+          "cl100k_base": 293,
+          "o200k_base": 291
+        },
+        {
+          "cl100k_base": 293,
+          "o200k_base": 291
+        },
+        {
+          "cl100k_base": 293,
+          "o200k_base": 291
+        }
+      ],
+      "query_pair_counts": {
+        "query_rows": 1015,
+        "distinct_query_project_pairs": 1010,
+        "duplicate_query_project_rows": 5,
+        "duplicate_pair_cache_clears": 15
+      },
+      "aggregate": {
+        "first_call_after_cache_clear": {
+          "wall_ms": {
+            "n": 3045,
+            "mean": 9.31237198587849,
+            "p50": 8.356339,
+            "p95": 13.872676399999998,
+            "min": 3.659823,
+            "max": 116.984584
+          },
+          "tokens": {
+            "cl100k_base": {
+              "context": {
+                "n": 3045,
+                "mean": 946.7773399014778,
+                "p50": 948.0,
+                "p95": 1100.0,
+                "min": 540,
+                "max": 1240
+              },
+              "response_text": {
+                "n": 3045,
+                "mean": 3257.959277504105,
+                "p50": 3267.0,
+                "p95": 3563.7999999999997,
+                "min": 1459,
+                "max": 3750
+              },
+              "response_envelope_json": {
+                "n": 3045,
+                "mean": 3634.0430213464697,
+                "p50": 3648.0,
+                "p95": 3965.7999999999984,
+                "min": 1625,
+                "max": 4154
+              },
+              "tool_arguments_json": {
+                "n": 3045,
+                "mean": 35.29162561576355,
+                "p50": 35.0,
+                "p95": 42.0,
+                "min": 28,
+                "max": 50
+              }
+            },
+            "o200k_base": {
+              "context": {
+                "n": 3045,
+                "mean": 922.2295566502463,
+                "p50": 924.0,
+                "p95": 1069.0,
+                "min": 530,
+                "max": 1199
+              },
+              "response_text": {
+                "n": 3045,
+                "mean": 3233.5454844006567,
+                "p50": 3246.0,
+                "p95": 3533.5999999999995,
+                "min": 1449,
+                "max": 3709
+              },
+              "response_envelope_json": {
+                "n": 3045,
+                "mean": 3644.3986863711,
+                "p50": 3660.0,
+                "p95": 3974.0,
+                "min": 1631,
+                "max": 4149
+              },
+              "tool_arguments_json": {
+                "n": 3045,
+                "mean": 35.141871921182265,
+                "p50": 35.0,
+                "p95": 42.0,
+                "min": 28,
+                "max": 50
+              }
+            }
+          }
+        },
+        "immediate_repeat": {
+          "wall_ms": {
+            "n": 3045,
+            "mean": 2.840299669950739,
+            "p50": 2.38655,
+            "p95": 4.597953799999995,
+            "min": 1.612613,
+            "max": 88.641231
+          },
+          "tokens": {
+            "cl100k_base": {
+              "context": {
+                "n": 3045,
+                "mean": 946.7773399014778,
+                "p50": 948.0,
+                "p95": 1100.0,
+                "min": 540,
+                "max": 1240
+              },
+              "response_text": {
+                "n": 3045,
+                "mean": 3257.959934318555,
+                "p50": 3267.0,
+                "p95": 3563.7999999999997,
+                "min": 1459,
+                "max": 3750
+              },
+              "response_envelope_json": {
+                "n": 3045,
+                "mean": 3634.0436781609196,
+                "p50": 3648.0,
+                "p95": 3965.7999999999984,
+                "min": 1625,
+                "max": 4154
+              },
+              "tool_arguments_json": {
+                "n": 3045,
+                "mean": 35.29162561576355,
+                "p50": 35.0,
+                "p95": 42.0,
+                "min": 28,
+                "max": 50
+              }
+            },
+            "o200k_base": {
+              "context": {
+                "n": 3045,
+                "mean": 922.2295566502463,
+                "p50": 924.0,
+                "p95": 1069.0,
+                "min": 530,
+                "max": 1199
+              },
+              "response_text": {
+                "n": 3045,
+                "mean": 3233.5461412151067,
+                "p50": 3246.0,
+                "p95": 3533.5999999999995,
+                "min": 1449,
+                "max": 3709
+              },
+              "response_envelope_json": {
+                "n": 3045,
+                "mean": 3644.39934318555,
+                "p50": 3660.0,
+                "p95": 3974.0,
+                "min": 1631,
+                "max": 4149
+              },
+              "tool_arguments_json": {
+                "n": 3045,
+                "mean": 35.141871921182265,
+                "p50": 35.0,
+                "p95": 42.0,
+                "min": 28,
+                "max": 50
+              }
+            }
+          }
+        }
+      },
+      "same_evidence_detail_comparison": {
+        "queries": 0,
+        "all_contexts_identical": true,
+        "mean_tokens": null
+      }
+    },
+    {
+      "label": "preserved-v0.3",
+      "engine_sha256": "cbbad8546c3f9d1d2b084d7e858f750afa28a4f047a6aee4de6f4f61c0239515",
+      "startup_to_initialize_ms": {
+        "n": 3,
+        "mean": 557.0742686666666,
+        "p50": 555.428255,
+        "p95": 649.572503,
+        "min": 455.761576,
+        "max": 660.032975
+      },
+      "tool_list_json_tokens": [
+        {
+          "cl100k_base": 710,
+          "o200k_base": 746
+        },
+        {
+          "cl100k_base": 710,
+          "o200k_base": 746
+        },
+        {
+          "cl100k_base": 710,
+          "o200k_base": 746
+        }
+      ],
+      "initialization_instruction_tokens": [
+        {
+          "cl100k_base": 168,
+          "o200k_base": 167
+        },
+        {
+          "cl100k_base": 168,
+          "o200k_base": 167
+        },
+        {
+          "cl100k_base": 168,
+          "o200k_base": 167
+        }
+      ],
+      "query_pair_counts": {
+        "query_rows": 1015,
+        "distinct_query_project_pairs": 1010,
+        "duplicate_query_project_rows": 5,
+        "duplicate_pair_cache_clears": 15
+      },
+      "aggregate": {
+        "first_call_after_cache_clear": {
+          "wall_ms": {
+            "n": 3045,
+            "mean": 6.886916410837438,
+            "p50": 6.413073,
+            "p95": 9.736614999999999,
+            "min": 2.993846,
+            "max": 98.170377
+          },
+          "tokens": {
+            "cl100k_base": {
+              "context": {
+                "n": 3045,
+                "mean": 860.5458128078818,
+                "p50": 862.0,
+                "p95": 1013.7999999999997,
+                "min": 488,
+                "max": 1139
+              },
+              "response_text": {
+                "n": 3045,
+                "mean": 1475.0679802955665,
+                "p50": 1480.0,
+                "p95": 1660.7999999999997,
+                "min": 741,
+                "max": 1768
+              },
+              "response_envelope_json": {
+                "n": 3045,
+                "mean": 1561.9192118226601,
+                "p50": 1566.0,
+                "p95": 1751.7999999999997,
+                "min": 785,
+                "max": 1857
+              },
+              "tool_arguments_json": {
+                "n": 3045,
+                "mean": 35.29162561576355,
+                "p50": 35.0,
+                "p95": 42.0,
+                "min": 28,
+                "max": 50
+              }
+            },
+            "o200k_base": {
+              "context": {
+                "n": 3045,
+                "mean": 838.7645320197045,
+                "p50": 840.0,
+                "p95": 989.0,
+                "min": 479,
+                "max": 1106
+              },
+              "response_text": {
+                "n": 3045,
+                "mean": 1459.584236453202,
+                "p50": 1466.0,
+                "p95": 1641.7999999999997,
+                "min": 736,
+                "max": 1741
+              },
+              "response_envelope_json": {
+                "n": 3045,
+                "mean": 1541.1004926108374,
+                "p50": 1547.0,
+                "p95": 1725.0,
+                "min": 776,
+                "max": 1825
+              },
+              "tool_arguments_json": {
+                "n": 3045,
+                "mean": 35.141871921182265,
+                "p50": 35.0,
+                "p95": 42.0,
+                "min": 28,
+                "max": 50
+              }
+            }
+          }
+        },
+        "immediate_repeat": {
+          "wall_ms": {
+            "n": 3045,
+            "mean": 2.275697481773399,
+            "p50": 1.97595,
+            "p95": 3.250725999999999,
+            "min": 1.450067,
+            "max": 65.914808
+          },
+          "tokens": {
+            "cl100k_base": {
+              "context": {
+                "n": 3045,
+                "mean": 860.5458128078818,
+                "p50": 862.0,
+                "p95": 1013.7999999999997,
+                "min": 488,
+                "max": 1139
+              },
+              "response_text": {
+                "n": 3045,
+                "mean": 1475.0679802955665,
+                "p50": 1480.0,
+                "p95": 1660.7999999999997,
+                "min": 741,
+                "max": 1768
+              },
+              "response_envelope_json": {
+                "n": 3045,
+                "mean": 1561.9192118226601,
+                "p50": 1566.0,
+                "p95": 1751.7999999999997,
+                "min": 785,
+                "max": 1857
+              },
+              "tool_arguments_json": {
+                "n": 3045,
+                "mean": 35.29162561576355,
+                "p50": 35.0,
+                "p95": 42.0,
+                "min": 28,
+                "max": 50
+              }
+            },
+            "o200k_base": {
+              "context": {
+                "n": 3045,
+                "mean": 838.7645320197045,
+                "p50": 840.0,
+                "p95": 989.0,
+                "min": 479,
+                "max": 1106
+              },
+              "response_text": {
+                "n": 3045,
+                "mean": 1459.584236453202,
+                "p50": 1466.0,
+                "p95": 1641.7999999999997,
+                "min": 736,
+                "max": 1741
+              },
+              "response_envelope_json": {
+                "n": 3045,
+                "mean": 1541.1004926108374,
+                "p50": 1547.0,
+                "p95": 1725.0,
+                "min": 776,
+                "max": 1825
+              },
+              "tool_arguments_json": {
+                "n": 3045,
+                "mean": 35.141871921182265,
+                "p50": 35.0,
+                "p95": 42.0,
+                "min": 28,
+                "max": 50
+              }
+            }
+          }
+        }
+      },
+      "same_evidence_detail_comparison": {
+        "queries": 1015,
+        "all_contexts_identical": true,
+        "mean_tokens": {
+          "cl100k_base": {
+            "compact_response_text": 1475.0679802955665,
+            "detailed_response_text": 2372.8433497536944
+          },
+          "o200k_base": {
+            "compact_response_text": 1459.584236453202,
+            "detailed_response_text": 2357.208866995074
+          }
+        }
+      }
+    },
+    {
+      "label": "optimized-recall",
+      "engine_sha256": "243516b97d1a023558865a5c56335d62c8f6940daec420b8bac6d1ca75eece46",
+      "startup_to_initialize_ms": {
+        "n": 3,
+        "mean": 436.38802533333336,
+        "p50": 425.151184,
+        "p95": 480.6365476,
+        "min": 397.211304,
+        "max": 486.801588
+      },
+      "tool_list_json_tokens": [
+        {
+          "cl100k_base": 710,
+          "o200k_base": 746
+        },
+        {
+          "cl100k_base": 710,
+          "o200k_base": 746
+        },
+        {
+          "cl100k_base": 710,
+          "o200k_base": 746
+        }
+      ],
+      "initialization_instruction_tokens": [
+        {
+          "cl100k_base": 168,
+          "o200k_base": 167
+        },
+        {
+          "cl100k_base": 168,
+          "o200k_base": 167
+        },
+        {
+          "cl100k_base": 168,
+          "o200k_base": 167
+        }
+      ],
+      "query_pair_counts": {
+        "query_rows": 1015,
+        "distinct_query_project_pairs": 1010,
+        "duplicate_query_project_rows": 5,
+        "duplicate_pair_cache_clears": 15
+      },
+      "aggregate": {
+        "first_call_after_cache_clear": {
+          "wall_ms": {
+            "n": 3045,
+            "mean": 6.320901316256158,
+            "p50": 5.767056,
+            "p95": 9.677879799999994,
+            "min": 2.657731,
+            "max": 54.478089
+          },
+          "tokens": {
+            "cl100k_base": {
+              "context": {
+                "n": 3045,
+                "mean": 862.2137931034483,
+                "p50": 864.0,
+                "p95": 1010.7999999999997,
+                "min": 488,
+                "max": 1170
+              },
+              "response_text": {
+                "n": 3045,
+                "mean": 1476.464039408867,
+                "p50": 1482.0,
+                "p95": 1652.0,
+                "min": 741,
+                "max": 1807
+              },
+              "response_envelope_json": {
+                "n": 3045,
+                "mean": 1563.3566502463054,
+                "p50": 1566.0,
+                "p95": 1742.0,
+                "min": 785,
+                "max": 1895
+              },
+              "tool_arguments_json": {
+                "n": 3045,
+                "mean": 35.29162561576355,
+                "p50": 35.0,
+                "p95": 42.0,
+                "min": 28,
+                "max": 50
+              }
+            },
+            "o200k_base": {
+              "context": {
+                "n": 3045,
+                "mean": 840.3448275862069,
+                "p50": 843.0,
+                "p95": 985.0,
+                "min": 479,
+                "max": 1134
+              },
+              "response_text": {
+                "n": 3045,
+                "mean": 1460.896551724138,
+                "p50": 1467.0,
+                "p95": 1636.3999999999992,
+                "min": 736,
+                "max": 1777
+              },
+              "response_envelope_json": {
+                "n": 3045,
+                "mean": 1542.4472906403942,
+                "p50": 1548.0,
+                "p95": 1721.9999999999986,
+                "min": 776,
+                "max": 1860
+              },
+              "tool_arguments_json": {
+                "n": 3045,
+                "mean": 35.141871921182265,
+                "p50": 35.0,
+                "p95": 42.0,
+                "min": 28,
+                "max": 50
+              }
+            }
+          }
+        },
+        "immediate_repeat": {
+          "wall_ms": {
+            "n": 3045,
+            "mean": 1.901032439408867,
+            "p50": 1.620931,
+            "p95": 2.9598521999999963,
+            "min": 1.146012,
+            "max": 79.403454
+          },
+          "tokens": {
+            "cl100k_base": {
+              "context": {
+                "n": 3045,
+                "mean": 862.2137931034483,
+                "p50": 864.0,
+                "p95": 1010.7999999999997,
+                "min": 488,
+                "max": 1170
+              },
+              "response_text": {
+                "n": 3045,
+                "mean": 1476.464039408867,
+                "p50": 1482.0,
+                "p95": 1652.0,
+                "min": 741,
+                "max": 1807
+              },
+              "response_envelope_json": {
+                "n": 3045,
+                "mean": 1563.3566502463054,
+                "p50": 1566.0,
+                "p95": 1742.0,
+                "min": 785,
+                "max": 1895
+              },
+              "tool_arguments_json": {
+                "n": 3045,
+                "mean": 35.29162561576355,
+                "p50": 35.0,
+                "p95": 42.0,
+                "min": 28,
+                "max": 50
+              }
+            },
+            "o200k_base": {
+              "context": {
+                "n": 3045,
+                "mean": 840.3448275862069,
+                "p50": 843.0,
+                "p95": 985.0,
+                "min": 479,
+                "max": 1134
+              },
+              "response_text": {
+                "n": 3045,
+                "mean": 1460.896551724138,
+                "p50": 1467.0,
+                "p95": 1636.3999999999992,
+                "min": 736,
+                "max": 1777
+              },
+              "response_envelope_json": {
+                "n": 3045,
+                "mean": 1542.4472906403942,
+                "p50": 1548.0,
+                "p95": 1721.9999999999986,
+                "min": 776,
+                "max": 1860
+              },
+              "tool_arguments_json": {
+                "n": 3045,
+                "mean": 35.141871921182265,
+                "p50": 35.0,
+                "p95": 42.0,
+                "min": 28,
+                "max": 50
+              }
+            }
+          }
+        }
+      },
+      "same_evidence_detail_comparison": {
+        "queries": 1015,
+        "all_contexts_identical": true,
+        "mean_tokens": {
+          "cl100k_base": {
+            "compact_response_text": 1476.464039408867,
+            "detailed_response_text": 2373.9546798029555
+          },
+          "o200k_base": {
+            "compact_response_text": 1460.896551724138,
+            "detailed_response_text": 2358.2364532019706
+          }
+        }
+      }
+    }
+  ],
+  "artifact": {
+    "path": "recall-final-mcp-public.json.gz",
+    "uncompressed_sha256": "742fae841e62bf7832a26eb25bc285677d8b6af0ce0f4c241a2f7ca9bde3b282"
+  }
+}
