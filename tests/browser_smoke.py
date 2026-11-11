@@ -213,6 +213,26 @@ def run(artifacts: Path, browser_executable: str | None = None) -> None:
                         page.screenshot(path=str(artifacts / "reader-desktop.png"), full_page=True, animations="disabled")
                         layout_check("desktop_layout")
 
+                        # Translate only interface chrome; stored source text and
+                        # user-provided titles must remain byte-for-byte identical.
+                        original_excerpts = page.locator("#results .excerpt").all_text_contents()
+                        original_titles = page.locator("#results .result-heading h3").all_text_contents()
+                        page.locator("#language-toggle").click()
+                        expect(page.locator("html")).to_have_attribute("lang", "en")
+                        expect(page.locator("#search-button")).to_have_text("Find memories")
+                        expect(page.locator("#results-title")).to_have_text("Memories related to your question")
+                        expect(page.locator("#page-title")).to_have_text("星河笔记")
+                        assert page.locator("#results .excerpt").all_text_contents() == original_excerpts
+                        assert page.locator("#results .result-heading h3").all_text_contents() == original_titles
+                        expect(page.locator("#results .read-button").first).to_have_text("Read source ↗")
+                        page.screenshot(path=str(artifacts / "reader-desktop-en.png"), full_page=True, animations="disabled")
+                        layout_check("english_desktop_layout")
+                        page.locator("#language-toggle").click()
+                        expect(page.locator("html")).to_have_attribute("lang", "zh-CN")
+                        expect(page.locator("#search-button")).to_have_text("查找记忆")
+                        assert page.locator("#results .excerpt").all_text_contents() == original_excerpts
+                        checked("English/Chinese toggle preserves source text and titles")
+
                         imported = {
                             "project": "browser-import",
                             "project_name": "浏览器导入样例",
@@ -267,6 +287,25 @@ def run(artifacts: Path, browser_executable: str | None = None) -> None:
                         expect(page.locator("#results-title")).to_have_text("同步与重试")
                         expect(page.locator("#results .section")).to_have_count(2)
                         checked("390px mobile table of contents opens a chapter")
+
+                        # A fresh browser profile must follow navigator.language,
+                        # independently of the first profile's saved preference.
+                        english_context = browser.new_context(locale="en-US", viewport={"width": 1440, "height": 1000})
+                        try:
+                            english_page = english_context.new_page()
+                            english_page.on("pageerror", lambda exc: report["page_errors"].append("English profile: " + str(exc)))
+                            english_page.on("console", lambda message: report["console_errors"].append("English profile: " + message.text) if message.type == "error" else None)
+                            english_page.goto(server.reader_url, wait_until="networkidle")
+                            expect(english_page.locator("html")).to_have_attribute("lang", "en")
+                            expect(english_page.locator("#search-button")).to_have_text("Find memories")
+                            expect(english_page.locator("#language-toggle")).to_have_text("中文")
+                            english_page.set_viewport_size({"width": 390, "height": 844})
+                            english_page.locator("#book-list .book-button").filter(has_text="星河笔记").click()
+                            expect(english_page.locator("#mobile-contents")).to_be_visible()
+                            assert english_page.evaluate("document.documentElement.scrollWidth <= innerWidth"), "English mobile layout overflows"
+                            checked("fresh English browser defaults to English and fits a 390px viewport")
+                        finally:
+                            english_context.close()
 
                         assert not report["page_errors"], f"JavaScript page errors: {report['page_errors']}"
                         assert not report["console_errors"], f"Browser console errors: {report['console_errors']}"

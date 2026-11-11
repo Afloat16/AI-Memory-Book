@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-FORMATS = ("auto", "canonical", "chatgpt", "claude-code", "codex")
+FORMATS = ("auto", "canonical", "chatgpt", "claude-code", "codex", "gemini", "kimi-legacy")
 ROLES = frozenset(("user", "assistant", "system", "developer", "tool"))
 MAX_IMPORT_BYTES = 64 * 1024 * 1024
 
@@ -57,7 +57,9 @@ def _text(content: Any) -> str:
     return "\n".join(pieces)
 
 
-def _default_id(path: Path, value: Any) -> str:
+def _default_id(path: Path, value: Any, fallback_id: str | None = None) -> str:
+    if fallback_id is not None:
+        return _nonempty(fallback_id, "fallback_id")
     digest = hashlib.sha256(
         json.dumps(value, ensure_ascii=False, sort_keys=True).encode("utf-8")
     ).hexdigest()[:12]
@@ -77,6 +79,7 @@ def _finish(
     path: Path,
     project: str | None,
     task_id: str | None,
+    fallback_id: str | None = None,
 ) -> dict[str, Any]:
     if not messages:
         raise ValueError("Transcript contains no supported textual messages")
@@ -88,7 +91,7 @@ def _finish(
     result: dict[str, Any] = {
         "project": _nonempty(chosen_project, "project"),
         "session_id": _nonempty(
-            _default_id(path, record) if session_id is None else session_id, "session_id"
+            _default_id(path, record, fallback_id) if session_id is None else session_id, "session_id"
         ),
         "title": _nonempty(_title(messages, path.stem) if title is None else title, "title"),
         "messages": messages,
@@ -109,7 +112,8 @@ def _finish(
 
 
 def _canonical(
-    data: Any, path: Path, project: str | None, task_id: str | None
+    data: Any, path: Path, project: str | None, task_id: str | None,
+    fallback_id: str | None = None,
 ) -> list[dict[str, Any]]:
     records = data.get("sessions") if isinstance(data, dict) and "sessions" in data else data
     if isinstance(records, dict):
@@ -132,18 +136,20 @@ def _canonical(
                 raise ValueError(f"Session {index + 1}, message {position + 1}: content must be text")
             if message["content"].strip():
                 messages.append({"role": message["role"], "content": message["content"]})
-        sessions.append(_finish(record, messages, path, project, task_id))
+        stable = f"{fallback_id}:{index}" if fallback_id and len(records) > 1 else fallback_id
+        sessions.append(_finish(record, messages, path, project, task_id, stable))
     return sessions
 
 
 def _chatgpt(
-    data: Any, path: Path, project: str | None, task_id: str | None
+    data: Any, path: Path, project: str | None, task_id: str | None,
+    fallback_id: str | None = None,
 ) -> list[dict[str, Any]]:
     records = data if isinstance(data, list) else [data]
     if not records:
         raise ValueError("ChatGPT export has no conversations")
     sessions = []
-    for record in records:
+    for index, record in enumerate(records):
         if not isinstance(record, dict) or not isinstance(record.get("mapping"), dict):
             raise ValueError("ChatGPT conversation requires a mapping object")
         mapping = record["mapping"]
@@ -176,7 +182,8 @@ def _chatgpt(
                 messages.append({"role": role, "content": body})
         canonical = {
             "project": record.get("project"),
-            "session_id": record.get("id") or record.get("conversation_id") or _default_id(path, record),
+            "session_id": record.get("id") or record.get("conversation_id") or _default_id(
+                path, record, f"{fallback_id}:{index}" if fallback_id and len(records) > 1 else fallback_id),
             "title": record.get("title") or None,
             "created_at": record.get("create_time"),
         }
@@ -185,13 +192,14 @@ def _chatgpt(
 
 
 def _native(
-    records: Any, kind: str, path: Path, project: str | None, task_id: str | None
+    records: Any, kind: str, path: Path, project: str | None, task_id: str | None,
+    fallback_id: str | None = None,
 ) -> list[dict[str, Any]]:
     if isinstance(records, dict):
         records = [records]
     if not isinstance(records, list) or not records:
         raise ValueError(f"{kind} requires non-empty JSONL records")
-    fallback = _default_id(path, records)
+    fallback = _default_id(path, records, fallback_id)
     current_id = fallback
     groups: dict[str, dict[str, Any]] = {}
 
@@ -237,9 +245,16 @@ def _native(
 
 
 def _detect(data: Any) -> str:
+    records = data if isinstance(data, list) else [data]
+    if any(isinstance(item, dict) and isinstance(item.get("role"), str)
+           and item["role"] in {"_system_prompt", "_usage", "_checkpoint"} for item in records):
+        return "kimi-legacy"
+    if any(isinstance(item, dict) and isinstance(item.get("sessionId"), str)
+           and (isinstance(item.get("projectHash"), str) or isinstance(item.get("messages"), list))
+           and "message" not in item for item in records):
+        return "gemini"
     if isinstance(data, dict) and ("sessions" in data or "messages" in data):
         return "canonical"
-    records = data if isinstance(data, list) else [data]
     if records and all(isinstance(item, dict) and "mapping" in item for item in records):
         return "chatgpt"
     if records and all(isinstance(item, dict) and "messages" in item for item in records):
@@ -253,7 +268,149 @@ def _detect(data: Any) -> str:
         for item in records
     ):
         return "claude-code"
-    raise ValueError("Unsupported transcript format; expected canonical, chatgpt, claude-code, or codex")
+    raise ValueError("Unsupported transcript format; expected canonical, chatgpt, claude-code, codex, gemini, or kimi-legacy")
+
+
+def _kimi_legacy(data: Any, path: Path, project: str | None, task_id: str | None,
+                 fallback_id: str | None = None) -> list[dict[str, Any]]:
+    """Read archived Python Kimi's active context.jsonl, not current Kimi Code.
+
+    Verified public schema: MoonshotAI/kimi-cli src/kimi_cli/soul/context.py
+    and packages/kosong/src/kosong/message.py. Only known text parts are retained;
+    bookkeeping, private thinking parts, multimodal bytes and tool calls are not.
+    """
+    records = data if isinstance(data, list) else [data]
+    messages = []
+    for record in records:
+        if not isinstance(record, dict):
+            raise ValueError("Kimi legacy records must be objects")
+        role = record.get("role")
+        if role in ("_system_prompt", "_usage", "_checkpoint"):
+            continue
+        if not isinstance(role, str) or role not in ROLES:
+            raise ValueError("Kimi legacy record has an unsupported role")
+        body = _text(record.get("content"))
+        if body.strip():
+            messages.append({"role": role, "content": body})
+    session_id = (path.parent.name if path.name == "context.jsonl" and path.parent.name
+                  else _default_id(path, data, fallback_id))
+    return [_finish({"session_id": session_id}, messages, path, project, task_id, fallback_id)]
+
+
+def _gemini_document(data: Any) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Replay Gemini's documented JSONL updates before extracting text.
+
+    Independently implemented from the public record schema and accumulator
+    semantics at google-gemini/gemini-cli, chatRecordingTypes.ts and
+    chatRecordingService.ts (verified source SHA
+    3c9ecd4c4d542f5e50e7f3368d4fd4c157910676 for the service).
+    Unlike a permissive client resume loader, malformed complete JSONL lines
+    are rejected by our strict parser rather than silently discarded.
+    """
+    records = data if isinstance(data, list) else [data]
+    metadata: dict[str, Any] = {}
+    messages: dict[str, dict[str, Any]] = {}
+
+    def add_message(message: Any) -> None:
+        if not isinstance(message, dict) or not isinstance(message.get("id"), str):
+            raise ValueError("Gemini messages require a string id")
+        messages[message["id"]] = dict(message)
+
+    def apply_patch(patch: Any) -> None:
+        if not isinstance(patch, dict):
+            raise ValueError("Gemini message patch must be an object")
+        message_id = patch.get("id")
+        if isinstance(message_id, str) and message_id in messages and "content" in patch:
+            messages[message_id]["content"] = patch["content"]
+        # Tool results are deliberately not imported as conversation text.
+
+    for record in records:
+        if not isinstance(record, dict):
+            raise ValueError("Gemini records must be objects")
+        if "$rewindTo" in record:
+            target = record["$rewindTo"]
+            if not isinstance(target, str):
+                raise ValueError("Gemini rewind target must be a string")
+            ids = list(messages)
+            if target not in messages:
+                messages.clear()
+            else:
+                for message_id in ids[ids.index(target):]:
+                    del messages[message_id]
+        elif "$patch" in record:
+            patch = record["$patch"]
+            apply_patch(patch)
+            updates = patch.get("updates", [])
+            removals = patch.get("removeIds", [])
+            if not isinstance(updates, list) or not isinstance(removals, list):
+                raise ValueError("Gemini patch updates and removeIds must be arrays")
+            for update in updates:
+                apply_patch(update)
+            for message_id in removals:
+                if isinstance(message_id, str):
+                    messages.pop(message_id, None)
+            if "orderIds" in patch:
+                ordering = patch["orderIds"]
+                if not isinstance(ordering, list):
+                    raise ValueError("Gemini patch orderIds must be an array")
+                ordered = {message_id: messages[message_id] for message_id in ordering
+                           if isinstance(message_id, str) and message_id in messages}
+                messages = {**{key: value for key, value in messages.items() if key not in ordered}, **ordered}
+        elif "$set" in record:
+            update = record["$set"]
+            if not isinstance(update, dict):
+                raise ValueError("Gemini metadata update must be an object")
+            if "messages" in update:
+                if not isinstance(update["messages"], list):
+                    raise ValueError("Gemini metadata messages must be an array")
+                messages.clear()
+                for message in update["messages"]:
+                    add_message(message)
+            metadata.update(update)
+        elif isinstance(record.get("id"), str):
+            add_message(record)
+        elif isinstance(record.get("sessionId"), str):
+            metadata.update(record)
+            if "messages" in record:
+                if not isinstance(record["messages"], list):
+                    raise ValueError("Gemini messages must be an array")
+                for message in record["messages"]:
+                    add_message(message)
+        else:
+            raise ValueError("Unrecognized Gemini transcript record")
+    if not isinstance(metadata.get("sessionId"), str):
+        raise ValueError("Gemini transcript requires sessionId metadata")
+    return metadata, list(messages.values())
+
+
+def _gemini_text(content: Any) -> str:
+    if isinstance(content, str):
+        return content
+    parts = content if isinstance(content, list) else [content]
+    texts = []
+    for part in parts:
+        if isinstance(part, str):
+            texts.append(part)
+        elif isinstance(part, dict) and isinstance(part.get("text"), str) and not part.get("thought"):
+            texts.append(part["text"])
+    return "\n".join(texts)
+
+
+def _gemini(data: Any, path: Path, project: str | None, task_id: str | None,
+            fallback_id: str | None = None) -> list[dict[str, Any]]:
+    metadata, records = _gemini_document(data)
+    messages = []
+    for record in records:
+        kind = record.get("type")
+        role = {"user": "user", "gemini": "assistant"}.get(kind) if isinstance(kind, str) else None
+        body = _gemini_text(record.get("content"))
+        if role and body.strip():
+            messages.append({"role": role, "content": body})
+    summary = metadata.get("summary")
+    canonical = {"session_id": metadata.get("sessionId"), "created_at": metadata.get("startTime")}
+    if isinstance(summary, str) and summary.strip():
+        canonical["title"] = summary.strip()[:200]
+    return [_finish(canonical, messages, path, project, task_id, fallback_id)]
 
 
 def load_sessions(
@@ -287,6 +444,12 @@ def load_sessions(
         text = path.read_text(encoding="utf-8-sig")
     except UnicodeDecodeError:
         raise ValueError("Transcript must be UTF-8 JSON or JSONL") from None
+    return parse_sessions(text, source_path=path, format=format, project=project, task_id=task_id)
+
+
+def _parse_document(text: str) -> Any:
+    if not isinstance(text, str):
+        raise ValueError("Transcript must be text")
     if not text.strip():
         raise ValueError("Transcript file is empty")
     try:
@@ -300,9 +463,86 @@ def load_sessions(
                 data.append(json.loads(line))
             except json.JSONDecodeError:
                 raise ValueError(f"Malformed JSON/JSONL at line {line_number}") from None
+    return data
+
+
+def transcript_info(text: str, format: str = "auto") -> dict[str, Any]:
+    """Inspect recognized source metadata without guessing a default project.
+
+    This function reads only its supplied text. It never opens a client's data
+    directory, environment, or sidecar configuration.
+    """
+    if format not in FORMATS:
+        raise ValueError(f"Unknown import format; choose one of: {', '.join(FORMATS)}")
+    data = _parse_document(text)
     kind = _detect(data) if format == "auto" else format
+    if kind == "gemini":
+        metadata, _ = _gemini_document(data)
+        directories = metadata.get("directories", [])
+        return {"format": kind,
+                "workspaces": [value for value in directories if isinstance(value, str)]
+                              if isinstance(directories, list) else [],
+                "projects": [],
+                "project_hashes": [metadata["projectHash"]]
+                                  if isinstance(metadata.get("projectHash"), str) else []}
+    records = data if isinstance(data, list) else [data]
+    if kind == "canonical" and isinstance(data, dict) and "sessions" in data:
+        records = data["sessions"]
+    workspaces: set[str] = set()
+    projects: set[str] = set()
+    project_hashes: set[str] = set()
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        cwd = record.get("cwd")
+        if kind == "codex" and record.get("type") == "session_meta":
+            payload = record.get("payload")
+            if isinstance(payload, dict):
+                cwd = payload.get("cwd")
+        if isinstance(cwd, str) and cwd.strip():
+            workspaces.add(cwd)
+        if kind == "canonical" and isinstance(record.get("project"), str):
+            projects.add(record["project"])
+        if isinstance(record.get("projectHash"), str):
+            project_hashes.add(record["projectHash"])
+    return {"format": kind, "workspaces": sorted(workspaces),
+            "projects": sorted(projects), "project_hashes": sorted(project_hashes)}
+
+
+def parse_sessions(
+    text: str,
+    source_path: str | Path,
+    format: str = "auto",
+    project: str | None = None,
+    task_id: str | None = None,
+    *,
+    fallback_id: str | None = None,
+) -> list[dict[str, Any]]:
+    """Parse supplied transcript text, with no filesystem or database access.
+
+    ``fallback_id`` is an optional stable source identity for incremental
+    watchers. Native session identifiers still take precedence. Without this
+    option, one-shot imports retain their historical content-derived fallback.
+    A caller must bound the text and explicitly handle incomplete writes before
+    calling this strict parser.
+    """
+    if format not in FORMATS:
+        raise ValueError(f"Unknown import format; choose one of: {', '.join(FORMATS)}")
+    if project is not None:
+        _nonempty(project, "project")
+    if task_id is not None:
+        _nonempty(task_id, "task_id")
+    if fallback_id is not None:
+        _nonempty(fallback_id, "fallback_id")
+    data = _parse_document(text)
+    kind = _detect(data) if format == "auto" else format
+    path = Path(source_path)
     if kind == "canonical":
-        return _canonical(data, path, project, task_id)
+        return _canonical(data, path, project, task_id, fallback_id)
     if kind == "chatgpt":
-        return _chatgpt(data, path, project, task_id)
-    return _native(data, kind, path, project, task_id)
+        return _chatgpt(data, path, project, task_id, fallback_id)
+    if kind == "gemini":
+        return _gemini(data, path, project, task_id, fallback_id)
+    if kind == "kimi-legacy":
+        return _kimi_legacy(data, path, project, task_id, fallback_id)
+    return _native(data, kind, path, project, task_id, fallback_id)

@@ -32,14 +32,15 @@ class _LocalServer(ThreadingHTTPServer):
         return request, address
 
 
-def make_server(db_path, host: str = "127.0.0.1", port: int = 8765) -> ThreadingHTTPServer:
+def make_server(db_path, host: str = "127.0.0.1", port: int = 8765, *, container_bind: bool = False) -> ThreadingHTTPServer:
     """Create an unstarted local server. ``port=0`` is useful in integration tests.
 
-    Remote binding is intentionally unsupported: this service has no user login
-    or authorization boundary between projects. Use a local MCP client instead
-    of exposing this reader through a tunnel.
+    The explicit container option permits 0.0.0.0 inside a container whose host
+    port is published to loopback only. Host/Origin checks remain local-only.
     """
-    if host != "localhost":
+    if host == "0.0.0.0" and container_bind:
+        pass
+    elif host != "localhost":
         try:
             if not ipaddress.ip_address(host).is_loopback:
                 raise ValueError("The reader can only bind to a loopback address.")
@@ -265,14 +266,16 @@ def make_server(db_path, host: str = "127.0.0.1", port: int = 8765) -> Threading
     server = server_class((host, port), Handler)
     actual_port = server.server_address[1]
     rendered_host = f"[{host}]" if ":" in host else host
-    server.allowed_hosts = {f"127.0.0.1:{actual_port}", f"localhost:{actual_port}", f"[::1]:{actual_port}", f"{rendered_host}:{actual_port}"}
-    server.reader_url = f"http://{rendered_host}:{actual_port}"
+    server.allowed_hosts = {f"127.0.0.1:{actual_port}", f"localhost:{actual_port}", f"[::1]:{actual_port}"}
+    if host != "0.0.0.0":
+        server.allowed_hosts.add(f"{rendered_host}:{actual_port}")
+    server.reader_url = f"http://{'127.0.0.1' if host == '0.0.0.0' else rendered_host}:{actual_port}"
     return server
 
 
-def serve(db_path, host: str = "127.0.0.1", port: int = 8765) -> None:
+def serve(db_path, host: str = "127.0.0.1", port: int = 8765, *, container_bind: bool = False) -> None:
     """Run the local reader until interrupted."""
-    server = make_server(db_path, host=host, port=port)
+    server = make_server(db_path, host=host, port=port, container_bind=container_bind)
     print(f"MemoryBook reader: {server.reader_url}", file=sys.stderr)
     try:
         server.serve_forever()

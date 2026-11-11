@@ -1,0 +1,42 @@
+services:
+  reader:
+    build: .
+    image: ai-memory-book:local
+    command: ["serve", "--host", "0.0.0.0", "--port", "8765", "--container-bind"]
+    ports:
+      - "127.0.0.1:8765:8765"
+    volumes:
+      - memory-data:/data
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8765/api/stats', timeout=3).read()"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  mcp:
+    profiles: [mcp]
+    build: .
+    image: ai-memory-book:local
+    command: [mcp]
+    stdin_open: true
+    tty: false
+    volumes:
+      - memory-data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  memory-data:
+    name: ai-memory-book-data

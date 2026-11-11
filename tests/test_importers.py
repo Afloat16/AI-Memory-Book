@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from memory_book.importers import MAX_IMPORT_BYTES, load_sessions
+from memory_book.importers import MAX_IMPORT_BYTES, load_sessions, parse_sessions, transcript_info
 
 
 class ImporterTests(unittest.TestCase):
@@ -208,6 +208,92 @@ class ImporterTests(unittest.TestCase):
             stream.truncate(MAX_IMPORT_BYTES + 1)
         with self.assertRaisesRegex(ValueError, "64 MiB"):
             load_sessions(self.path)
+
+    def test_text_parser_has_stable_watcher_fallback_without_opening_path(self):
+        source = self.canonical()
+        del source["session_id"]
+        first = parse_sessions(json.dumps(source), "/never-open/transcript.json", fallback_id="stable-file")
+        source["messages"].append({"role": "user", "content": "appended"})
+        second = parse_sessions(json.dumps(source), "/never-open/transcript.json", fallback_id="stable-file")
+        self.assertEqual(first[0]["session_id"], second[0]["session_id"])
+        self.assertEqual(first[0]["session_id"], "stable-file")
+        source["session_id"] = "native-id"
+        self.assertEqual(parse_sessions(json.dumps(source), "unused.json", fallback_id="stable-file")[0]["session_id"], "native-id")
+
+    @staticmethod
+    def gemini_metadata():
+        return {"sessionId": "gemini-1", "projectHash": "project-bucket",
+                "startTime": "2026-01-01T00:00:00Z", "directories": ["/team/project"]}
+
+    def test_gemini_legacy_json_uses_only_conversation_text(self):
+        value = {**self.gemini_metadata(), "messages": [
+            {"id": "u", "type": "user", "content": [{"text": "Question"}, {"inlineData": {"data": "ignored"}}]},
+            {"id": "a", "type": "gemini", "content": [{"text": "Answer"}, {"text": "private reasoning", "thought": True}, {"functionCall": {"name": "ignored"}}]},
+            {"id": "notice", "type": "warning", "content": "not conversation"},
+        ]}
+        result = load_sessions(self.write(value), project="project")[0]
+        self.assertEqual(result["session_id"], "gemini-1")
+        self.assertEqual(result["messages"], [{"role": "user", "content": "Question"}, {"role": "assistant", "content": "Answer"}])
+        self.assertEqual(transcript_info(json.dumps(value))["workspaces"], ["/team/project"])
+
+    def test_gemini_jsonl_replays_content_patches_deletion_and_order(self):
+        records = [self.gemini_metadata(),
+                   {"id": "u1", "type": "user", "content": "first"},
+                   {"id": "a1", "type": "gemini", "content": "obsolete"},
+                   {"id": "u2", "type": "user", "content": "second"},
+                   {"id": "a2", "type": "gemini", "content": "remove this"},
+                   {"$patch": {"id": "a1", "content": "patched", "updates": [{"id": "u2", "content": [{"text": "revised question"}]}],
+                               "removeIds": ["a2"], "orderIds": ["u2", "a1"]}}]
+        text = "\n".join(json.dumps(record) for record in records)
+        result = parse_sessions(text, "session-test.jsonl", project="project")[0]
+        self.assertEqual([message["content"] for message in result["messages"]], ["first", "revised question", "patched"])
+
+    def test_gemini_rewind_removes_target_and_following_messages(self):
+        records = [self.gemini_metadata(), {"id": "u1", "type": "user", "content": "keep"},
+                   {"id": "a1", "type": "gemini", "content": "remove answer"},
+                   {"id": "u2", "type": "user", "content": "remove later question"},
+                   {"$rewindTo": "a1"}, {"id": "a-new", "type": "gemini", "content": "replacement"}]
+        text = "\n".join(json.dumps(record) for record in records)
+        result = parse_sessions(text, "session-test.jsonl", project="project")[0]
+        self.assertEqual([message["content"] for message in result["messages"]], ["keep", "replacement"])
+        records += [{"$rewindTo": "missing"}, {"id": "fresh", "type": "user", "content": "fresh branch"}]
+        result = parse_sessions("\n".join(json.dumps(record) for record in records), "session-test.jsonl", project="project")[0]
+        self.assertEqual([message["content"] for message in result["messages"]], ["fresh branch"])
+
+    def test_gemini_set_replaces_messages_and_duplicate_id_updates_in_place(self):
+        records = [self.gemini_metadata(), {"id": "old", "type": "user", "content": "discard"},
+                   {"$set": {"messages": [{"id": "u", "type": "user", "content": "new question"},
+                                          {"id": "a", "type": "gemini", "content": "first answer"}],
+                             "directories": ["/another/project"]}},
+                   {"id": "a", "type": "gemini", "content": "final answer"}]
+        text = "\n".join(json.dumps(record) for record in records)
+        result = parse_sessions(text, "session-test.jsonl", project="project")[0]
+        self.assertEqual([message["content"] for message in result["messages"]], ["new question", "final answer"])
+        self.assertEqual(transcript_info(text)["workspaces"], ["/another/project"])
+
+    def test_gemini_malformed_patch_and_complete_line_are_rejected(self):
+        for patch in ({"updates": None}, {"removeIds": False}, {"orderIds": "bad"}):
+            text = json.dumps(self.gemini_metadata()) + "\n" + json.dumps({"$patch": patch})
+            with self.assertRaises(ValueError):
+                parse_sessions(text, "session-test.jsonl", project="project")
+        with self.assertRaisesRegex(ValueError, "line 2"):
+            parse_sessions(json.dumps(self.gemini_metadata()) + "\nnot valid\n", "session-test.jsonl", project="project")
+
+    def test_kimi_legacy_context_skips_bookkeeping_and_thinking(self):
+        records = [{"role": "_system_prompt", "content": "not user memory"},
+                   {"role": "_usage", "token_count": 40}, {"role": "_checkpoint", "id": 2},
+                   {"role": "user", "content": "User question"},
+                   {"role": "assistant", "content": [{"type": "think", "think": "not imported"}, {"type": "text", "text": "Visible answer"}]},
+                   {"role": "tool", "content": "Plain tool output"}]
+        result = parse_sessions("\n".join(json.dumps(record) for record in records),
+                                "/legacy/project/session-42/context.jsonl", project="legacy")[0]
+        self.assertEqual(result["session_id"], "session-42")
+        self.assertEqual([message["content"] for message in result["messages"]], ["User question", "Visible answer", "Plain tool output"])
+
+    def test_current_kimi_index_is_not_a_transcript(self):
+        with self.assertRaises(ValueError):
+            parse_sessions('{"sessionId":"id","sessionDir":"/path","workDir":"/project"}',
+                           "/unused/session_index.jsonl", project="project")
 
 
 if __name__ == "__main__":
