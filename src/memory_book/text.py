@@ -17,6 +17,9 @@ CJK = r"\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff"
 RUNS = re.compile(rf"[{CJK}]+|[^\W_{CJK}]+(?:[_./:-][^\W_{CJK}]+)*", re.UNICODE)
 CJK_RUN = re.compile(rf"^[{CJK}]+$")
 CJK_CHARACTER = re.compile(rf"[{CJK}]")
+CAMEL_BOUNDARY = re.compile(r"([a-z])([A-Z])")
+IDENTIFIER_SEPARATOR = re.compile(r"[_./:-]+")
+ZH_QUESTION = re.compile(r"为什么|请告诉我|请问|是什么|什么|怎么样|怎么|如何|多少|哪些|哪个|是否")
 STOP = frozenset("a an the is are was were be been to of in on at for from and or it this that these those with as by what which who when where why how do does did can could would should please tell me we our you your i my about now current latest final s t re ve ll d m".split())
 ZH_STOP = frozenset("什么 怎么 如何 为什么 哪个 哪些 是否 现在 当前 最后 最终 我们 这个 那个 一个 一下 请问 告诉 多少 了吗 的是 是什 么的 如何 何时 怎样".split())
 
@@ -25,13 +28,13 @@ def terms(text: str, *, query: bool = False) -> list[str]:
     """NFKC text -> English words/identifier pieces and Chinese bigrams."""
     if not text.isascii():
         text = unicodedata.normalize("NFKC", text)
-    text = re.sub(r"([a-z])([A-Z])", r"\1 \2", text).casefold()
+    text = CAMEL_BOUNDARY.sub(r"\1 \2", text).casefold()
     if not text.isascii():
         text = "".join(c for c in unicodedata.normalize("NFKD", text) if unicodedata.category(c) != "Mn")
     if query:
         # Remove complete Chinese question phrases before bigramming; otherwise
         # 为什么 leaves the meaningless fragment 为什 as a retrieval feature.
-        text = re.sub(r"为什么|请告诉我|请问|是什么|什么|怎么样|怎么|如何|多少|哪些|哪个|是否", " ", text)
+        text = ZH_QUESTION.sub(" ", text)
     result: list[str] = []
     for match in RUNS.finditer(text):
         value = match.group()
@@ -39,7 +42,7 @@ def terms(text: str, *, query: bool = False) -> list[str]:
             parts = [value] if len(value) == 1 else [value[i:i + 2] for i in range(len(value) - 1)]
             result.extend(p for p in parts if not query or p not in ZH_STOP)
         else:
-            parts = re.split(r"[_./:-]+", value)
+            parts = IDENTIFIER_SEPARATOR.split(value)
             # Indexed identifiers share the same split with queries; FTS syntax is
             # never passed through, even for user input containing quotes or OR.
             result.extend(p for p in parts if p and (not query or p not in STOP))
@@ -160,7 +163,7 @@ def excerpt(text: str, query: str, max_chars: int, *, prepared_terms: list[str] 
         starts.add(max(0, hi - width))
     unit_starts = [lo for lo, _, _ in matched_units]
     unit_ends = [hi for _, hi, _ in matched_units]
-    best_start, best_score = 0, (-1.0, -1, -1.0, -1)
+    best_start, best_score = 0, (-1, -1, -1.0, -1.0, -1)
     left = right = position_sum = 0
     inside: Counter[str] = Counter()
     for start in sorted(starts):
@@ -188,8 +191,11 @@ def excerpt(text: str, query: str, max_chars: int, *, prepared_terms: list[str] 
         # matched topic for its value, qualification, or following answer.
         count = right - left
         placement = abs((position_sum / count - start) / width - 1 / 3) if count else 1.0
-        score = (math.fsum(1 + math.log1p(n) * 0.08 for n in inside.values()),
-                 whole_terms.bit_count(), -placement, -start)
+        # Repetition cannot make an incomplete keyword-dense fragment beat
+        # intact source evidence with the same distinct query-term coverage.
+        # Frequency still breaks ties after coverage and source completeness.
+        score = (len(inside), whole_terms.bit_count(),
+                 math.fsum(math.log1p(n) for n in inside.values()), -placement, -start)
         if score > best_score:
             best_start, best_score = start, score
     end = min(len(text), best_start + width)

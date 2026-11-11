@@ -9,6 +9,7 @@ import re
 import sqlite3
 import time
 from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -17,7 +18,7 @@ from .text import estimate_tokens, excerpt, headline, index_text, query_terms, t
 
 SCHEMA_VERSION = 3
 INDEX_VERSION = 3
-RECALL_VERSION = 5
+RECALL_VERSION = 6
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -197,6 +198,10 @@ def _context_allocations(pages: list[dict], budget: int) -> list[tuple[dict, str
     return [(row, header, allowances[i]) for i, (row, header) in enumerate(selected)]
 
 
+def _directory_tokens(text: str) -> frozenset[str]:
+    return frozenset(terms(text, query=True))
+
+
 class MemoryBook:
     """One SQLite connection per instance. Use a separate instance per thread.
 
@@ -216,6 +221,10 @@ class MemoryBook:
         self.segmentation, self.max_page_chars = segmentation, max_page_chars
         self.min_page_chars, self.similarity_threshold = min_page_chars, similarity_threshold
         self.cache_size = cache_size
+        # Directory text is immutable as a key: a rename or a concurrent
+        # writer naturally gets a new entry. Cache only within this connection
+        # and bound retained text independently of result-cache settings.
+        self._directory_tokens = lru_cache(maxsize=512)(_directory_tokens)
         if self.path != ":memory:":
             Path(self.path).expanduser().resolve().parent.mkdir(parents=True, exist_ok=True)
             self.path = str(Path(self.path).expanduser())
@@ -250,7 +259,10 @@ class MemoryBook:
         self.close()
 
     def close(self) -> None:
-        self.db.close()
+        try:
+            self.db.close()
+        finally:
+            self._directory_tokens.cache_clear()
 
     def _stem_guard_ready(self) -> bool:
         """Also recognize schema-3 development databases created before the guard."""
@@ -633,7 +645,7 @@ class MemoryBook:
                     if strategy == "book":
                         directory = item["chapter_title"] + " " + item["session_title"]
                         if directory not in directory_terms:
-                            directory_terms[directory] = set(terms(directory, query=True))
+                            directory_terms[directory] = self._directory_tokens(directory)
                         title_overlap = len(qset & directory_terms[directory]) / len(qset)
                     if fuse_routes:
                         # Exact matches retain twice the rank-fusion weight.

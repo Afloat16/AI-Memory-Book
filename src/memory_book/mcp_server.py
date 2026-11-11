@@ -3,7 +3,11 @@
 from __future__ import annotations
 
 import json
+from contextlib import asynccontextmanager, contextmanager
+from contextvars import ContextVar
+from dataclasses import dataclass
 from pathlib import Path
+from threading import get_ident
 from typing import TYPE_CHECKING, Any
 
 from .store import MemoryBook
@@ -68,6 +72,33 @@ def _range(value: int, name: str, minimum: int, maximum: int) -> None:
         raise ValueError(f"{name} must be an integer between {minimum} and {maximum}")
 
 
+def _database_identity(database: str) -> tuple[int, int] | None:
+    """Recognize replacement of an on-disk database without retaining a path globally."""
+    if database == ":memory:":
+        return None
+    try:
+        stat = Path(database).expanduser().stat()
+    except OSError:
+        return None
+    # Some filesystems do not expose a usable inode/file ID. Preserve the
+    # previous per-call lifetime there instead of guessing whether it changed.
+    return (stat.st_dev, stat.st_ino) if stat.st_ino else None
+
+
+@dataclass
+class _BookResource:
+    owner_thread: int
+    book: MemoryBook | None = None
+    identity: tuple[int, int] | None = None
+    active: bool = True
+
+    def close(self) -> None:
+        book, self.book = self.book, None
+        self.identity = None
+        if book is not None:
+            book.close()
+
+
 def create_server(db_path: str | Path, allow_write: bool = False) -> FastMCP:
     """Create an MCP server; knowledge writes must be explicitly enabled."""
     try:
@@ -77,9 +108,52 @@ def create_server(db_path: str | Path, allow_write: bool = False) -> FastMCP:
         raise RuntimeError('MCP support requires: pip install ".[mcp]"') from exc
 
     database = str(db_path)
+    resource: ContextVar[_BookResource | None] = ContextVar("memory_book_resource", default=None)
+
+    @asynccontextmanager
+    async def lifespan(_server):
+        # FastMCP invokes synchronous tools on its event-loop thread. Own one
+        # lazy connection on that thread, and close it with the transport.
+        owned = _BookResource(owner_thread=get_ident())
+        token = resource.set(owned)
+        try:
+            yield
+        finally:
+            owned.active = False
+            try:
+                owned.close()
+            finally:
+                resource.reset(token)
+
+    @contextmanager
+    def acquire_book():
+        owned = resource.get()
+        if (owned is None or not owned.active or owned.owner_thread != get_ident()
+                or database == ":memory:"):
+            # Direct SDK calls have no transport lifespan. A future SDK may
+            # also offload tools to worker threads. Both keep the original
+            # safe, temporary connection behavior and SQLite's thread guard.
+            with MemoryBook(database) as book:
+                yield book
+            return
+        identity = _database_identity(database)
+        if owned.book is not None and identity != owned.identity:
+            owned.close()
+        if owned.book is None:
+            book = MemoryBook(database)
+            after_open = _database_identity(database)
+            if identity is None or identity != after_open:
+                # A new file or a concurrent replacement has no stable
+                # before/after identity yet. Do not retain that connection.
+                with book:
+                    yield book
+                return
+            owned.book, owned.identity = book, after_open
+        yield owned.book
+
     instructions = INSTRUCTIONS + (WRITE_INSTRUCTIONS if allow_write else
         "This connection is read-only; remember_session is not available.\n")
-    server = FastMCP("AI-Memory-Book", instructions=instructions, log_level="WARNING")
+    server = FastMCP("AI-Memory-Book", instructions=instructions, log_level="WARNING", lifespan=lifespan)
     read_only = ToolAnnotations(
         readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False
     )
@@ -100,7 +174,7 @@ def create_server(db_path: str | Path, allow_write: bool = False) -> FastMCP:
         """
         _range(budget_chars, "budget_chars", 0, 100000)
         _range(limit, "limit", 1, 50)
-        with MemoryBook(database) as book:
+        with acquire_book() as book:
             result = book.recall(
                 query, project=project, chapter=chapter, session=session,
                 budget_chars=budget_chars, limit=limit,
@@ -110,7 +184,7 @@ def create_server(db_path: str | Path, allow_write: bool = False) -> FastMCP:
     @server.tool(annotations=read_only)
     def browse_projects() -> Any:
         """List available project books; this step is optional before recall."""
-        with MemoryBook(database) as book:
+        with acquire_book() as book:
             return _json(book.projects())
 
     @server.tool(annotations=read_only)
@@ -118,7 +192,7 @@ def create_server(db_path: str | Path, allow_write: bool = False) -> FastMCP:
         """Read a paginated project table of contents without loading all pages."""
         _range(offset, "offset", 0, 1000000000)
         _range(limit, "limit", 1, 100)
-        with MemoryBook(database) as book:
+        with acquire_book() as book:
             return _json(book.toc(project, offset=offset, limit=limit))
 
     @server.tool(annotations=read_only)
@@ -126,7 +200,7 @@ def create_server(db_path: str | Path, allow_write: bool = False) -> FastMCP:
         """List a chapter's sections with bounded page previews; browse_section continues them."""
         _range(offset, "offset", 0, 1000000000)
         _range(limit, "limit", 1, 100)
-        with MemoryBook(database) as book:
+        with acquire_book() as book:
             return _json(book.chapter(chapter_id, offset=offset, limit=limit))
 
     @server.tool(annotations=read_only)
@@ -134,7 +208,7 @@ def create_server(db_path: str | Path, allow_write: bool = False) -> FastMCP:
         """List a section's pages with pagination, including long-answer continuation pages."""
         _range(offset, "offset", 0, 1000000000)
         _range(limit, "limit", 1, 100)
-        with MemoryBook(database) as book:
+        with acquire_book() as book:
             return _json(book.section(section_id, offset=offset, limit=limit))
 
     @server.tool(annotations=read_only)
@@ -142,7 +216,7 @@ def create_server(db_path: str | Path, allow_write: bool = False) -> FastMCP:
         """Read an exact evidence page with character pagination and source attribution."""
         _range(offset, "offset", 0, 1000000000)
         _range(limit, "limit", 1, 100000)
-        with MemoryBook(database) as book:
+        with acquire_book() as book:
             return _json(book.read(page_id, offset=offset, limit=limit))
 
     if allow_write:
@@ -151,7 +225,7 @@ def create_server(db_path: str | Path, allow_write: bool = False) -> FastMCP:
         ))
         def remember_session(payload: dict[str, Any]) -> Any:
             """Store a canonical session; an existing project/session_id is replaced atomically."""
-            with MemoryBook(database) as book:
+            with acquire_book() as book:
                 return _json(book.ingest(payload))
 
     return server

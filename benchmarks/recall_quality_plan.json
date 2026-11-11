@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "purpose": "Complete interrupted recall-quality work with reproducible quality, token and latency evidence",
+  "recovered_commit": "7ffb5ee17a35118dd104e52484e917f48326a34e",
+  "primary_baseline_commit": "3ee40946c5407e65fd375a8d47472066a82ae472",
+  "main_baseline_commit": "a05f88a79ce20be3fd5912c62fc020f8b11ba4a9",
+  "development": {
+    "synthetic_seeds": [61],
+    "projects": 8,
+    "locomo_split": "development",
+    "locomo_max_queries": 128
+  },
+  "reserved_before_results": {
+    "synthetic_seeds": [211, 509],
+    "projects": 8,
+    "note": "New seeds retain the existing synthetic templates and are regression tests, not independent real histories. No quality changes will be selected using their outcomes."
+  },
+  "public_verification": {
+    "regression_queries": 256,
+    "expanded_max_queries": 0,
+    "split": "heldout",
+    "cohort_reporting": ["previously published 256 queries", "remaining eligible queries", "all eligible queries"],
+    "note": "The expanded split includes the regression queries and shares their conversations. It must not be presented as entirely new heldout data."
+  },
+  "measurement": {
+    "repeats": 3,
+    "character_budgets": [2000, 8000],
+    "reference_tokenizers": ["cl100k_base", "o200k_base"],
+    "common_token_budgets": [512, 1024, 2048],
+    "candidate_limit": 5,
+    "parallel_timing": false,
+    "competitors": ["billion-context pinned native kernel", "ai-memory v3.4.5 native local hybrid"],
+    "correctness_gates": ["unchanged source", "zero character-budget violations", "zero context-size mismatches", "zero token-budget violations", "unchanged archived sources during migration"]
+  },
+  "goal_assessment": {
+    "quality": "Compare delivered evidence recall and complete-evidence rate on identical queries and budgets; retain gains, losses and category regressions.",
+    "tokens": "Name the tokenizer and actual consumption surface; retain both shared-assembly and native-response costs including documented follow-up reads.",
+    "latency": "Report p50 and p95 with explicit boundaries; different transports or missing native read paths cannot establish end-to-end superiority.",
+    "answer_quality": "Not established by source-evidence retrieval. A fixed answering model and paired answer evaluation are required for that separate claim.",
+    "passing_invariants_is_not_goal_success": true
+  }
+}

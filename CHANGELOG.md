@@ -4,10 +4,14 @@
 
 - Continue the preserved v0.3.0 performance branch with bounded English word-form retrieval. Keep exact FTS and add SQLite's local Porter index; fixed reciprocal-rank fusion gives the exact route twice the weight. No model, embedding package, network request, or provider key is added to the core.
 - Preserve intact source lines or sentences when equally relevant excerpts fit. Reuse a sliding match window, reserve citations before sharing the body budget, and return unused short-page space to longer selected pages.
+- Prefer distinct query-term coverage and complete source units before repetition frequency, so a repeated keyword fragment cannot displace an equally covered intact fact. Increment the recall-cache version for this behavior change.
+- Reuse immutable directory tokens in a bounded connection-local cache and precompile lexical regular expressions without changing normalization or ranking. Clear retained directory text when the connection closes.
+- Reuse one lazy SQLite connection within an MCP transport lifespan, with owner-thread checks, file-replacement detection, lifecycle cleanup and temporary-connection fallback. Tool declarations and compact/detailed payload contracts are unchanged; external writes still invalidate cached results through the database revision.
 - Apply project/chapter/session scopes before each candidate cap and defer directory/display metadata until needed. Identical ordered retrieval routes retain the original BM25 scale and behavior.
 - Upgrade schema 1/2 to schema 3 transactionally without changing schema-2 source rows, page addresses, or source spans. A revision guard repairs the stem index if an already-open old writer commits after upgrade; current writers keep incremental index updates.
 - Separate retrieval cache versions from source/index settings. Only truncated pages need word-form highlight work; full-page reads and compact/detailed MCP contracts remain available.
 - Correct benchmark version labels and record the measured source bytes, Git identity, and uncommitted or ignored Python changes. Add a repeatable index-upgrade cost and source-preservation measurement.
+- Make budget, source-stability and size-accounting failures fail evaluation while preserving diagnostics. Add explicit corpus plans and a sequential checkpointed runner that validates source/data/runtime identity and completed artifacts before resuming.
 - See [the continuation report](benchmarks/RESULTS-recall-quality.md) for measured quality, costs, regressions, and the distinction between retrieval evidence and generated answers.
 
 ## 0.3.0 — 2026-11-11

@@ -35,6 +35,16 @@ class ExcerptBoundaryTests(unittest.TestCase):
         text = "历史记录。" * 40 + "\n" + evidence + "\n" + "其他信息。" * 40
         self.assert_original_window(text, "cafe strasse 缓存", 62, evidence)
 
+    def test_repeated_keyword_fragment_does_not_displace_complete_fact(self):
+        evidence = "USER: The current oak configuration uses a key of amber."
+        text = "oak " * 30 + "\n" + evidence + "\n" + "Other notes. " * 20
+        self.assert_original_window(text, "oak", 80, evidence)
+
+    def test_distinct_query_terms_outrank_repetition_in_another_sentence(self):
+        evidence = "The oak instrument uses an amber key for calibration."
+        text = "oak " * 30 + "\n" + evidence + "\n" + "Other notes. " * 20
+        self.assert_original_window(text, "oak amber calibration", 80, evidence)
+
 
 if __name__ == "__main__":
     unittest.main()
