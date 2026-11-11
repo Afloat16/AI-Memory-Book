@@ -1,0 +1,359 @@
+# Installation and background operation
+
+AI-Memory-Book needs **Python 3.10+ with SQLite FTS5**. The release installer
+creates an isolated environment with the `mcp` and `clients` extras. It does not
+require Node.js, an embedding server, a database server, or a memory-service API
+key. Your AI client's own model and account requirements remain separate.
+
+## Install v0.2.0
+
+### macOS / Linux
+
+```bash
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.2.0/scripts/install.sh
+bash install-memory-book.sh
+```
+
+### Windows PowerShell
+
+```powershell
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.2.0/scripts/install.py -OutFile install-memory-book.py
+py -3 .\install-memory-book.py
+```
+
+The shared Python installer also works on macOS/Linux. A PowerShell wrapper is
+available at [`scripts/install.ps1`](../scripts/install.ps1). Neither wrapper
+changes your shell profile or PowerShell execution policy. Use Python 3.10 or
+newer; some Linux distributions package `venv` separately.
+
+The installer prints the exact launcher path and any required PATH instructions.
+Use that full path if `memory-book` is not yet found. By default, environments
+live under the data directory's `install` subdirectory. The usual POSIX launcher
+is `~/.local/bin/memory-book`; Windows uses the data directory's `bin` directory.
+Custom `--prefix`, `--bin-dir`, or `MEMORY_BOOK_HOME` can change these locations.
+
+The downloaded helper accepts `--version v0.2.0`, a full commit SHA, or
+`--source /absolute/path/to/checkout-or-wheel`. `--without-extras` installs only
+the core and therefore omits MCP/client integration. Installation stages a new
+environment before switching its managed launcher; previous environments and
+memory data are retained. An unrelated existing launcher is not overwritten.
+
+Once installed:
+
+```bash
+memory-book setup --client claude-code --dry-run
+memory-book setup --client claude-code
+memory-book doctor
+```
+
+See [client compatibility](integrations.md) for all 12 profiles, custom config
+paths, backups, and manual handling of JSONC. Installing the package does not
+itself enable transcript capture.
+
+## Alternative installation methods
+
+### uv or pipx
+
+Use a persistent tool environment and a pinned Git release:
+
+```bash
+uv tool install "ai-memory-book[mcp,clients] @ git+https://github.com/Afloat16/AI-Memory-Book.git@v0.2.0"
+```
+
+Or:
+
+```bash
+pipx install "ai-memory-book[mcp,clients] @ git+https://github.com/Afloat16/AI-Memory-Book.git@v0.2.0"
+```
+
+These Git URL forms require Git. Their syntax follows the official
+[uv tool guide](https://docs.astral.sh/uv/guides/tools/) and
+[pipx installation guide](https://pipx.pypa.io/stable/how-to/install-pipx.html).
+Use an installed environment for permanent MCP/service configuration: disposable
+`uvx` or `pipx run` environments can disappear while a client still references
+their absolute Python path.
+
+The project is distributed from GitHub and is not published to PyPI. An
+unqualified `pip install ai-memory-book` is not the documented route. Optional
+dependencies are still installed through the package manager's configured
+indexes; this is not an offline installation promise.
+
+### Source checkout
+
+```bash
+git clone --branch v0.2.0 https://github.com/Afloat16/AI-Memory-Book.git
+cd AI-Memory-Book
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[mcp,clients]"
+memory-book doctor
+```
+
+On Windows, use `.venv\Scripts\Activate.ps1` or invoke
+`.venv\Scripts\python.exe` directly. The dependency-free core can be installed
+with `python -m pip install -e .`; TOML merging needs the `clients` extra and MCP
+needs the `mcp` extra.
+
+## Data and configuration paths
+
+| Platform | Default data directory |
+|---|---|
+| Linux | `$XDG_DATA_HOME/ai-memory-book`, otherwise `~/.local/share/ai-memory-book` |
+| macOS | `~/Library/Application Support/AI-Memory-Book` |
+| Windows | `%LOCALAPPDATA%\AI-Memory-Book` |
+
+The directory normally contains `memory.db`, background `config.json`,
+`sync-state.json`, and `sync.log.jsonl`. All configured clients receive the same
+absolute database path, independent of their working directory.
+
+| Override | Purpose |
+|---|---|
+| `MEMORY_BOOK_HOME` | Change the shared data directory |
+| `MEMORY_BOOK_DB` | Select a database |
+| `MEMORY_BOOK_CONFIG` | Select a background configuration file |
+| `--db PATH` before a subcommand | Select that command's database |
+| `--config PATH` on setup/watch/sync/daemon/service/doctor | Select background configuration |
+
+An existing background config records its database. `doctor` reports the active
+paths. To change the database used by client connections and persistent capture,
+run setup with the explicit path and the same background config:
+
+```bash
+memory-book --db /absolute/data/memory.db setup --client codex --capture
+```
+
+Changing a shell environment variable does not rewrite already generated client
+or service definitions. Do not place a client config, the background config, the
+database, or state/log files at the same path; setup rejects such collisions.
+
+## Background capture
+
+Capture is **opt in**. `--capture` authorizes importing existing and future
+supported text transcripts from the displayed source paths. Without it, setup
+only connects MCP. Preview the scope before enabling a background service:
+
+```bash
+memory-book setup --client claude-code --capture --background --dry-run
+memory-book setup --client claude-code --capture --background
+```
+
+| Profile | Default source root | Recognized files and scope |
+|---|---|---|
+| `claude-code` | `~/.claude/projects` | `*.jsonl`; recorded workspace metadata |
+| `codex` | `~/.codex/sessions` | `rollout-*.jsonl`; recorded workspace metadata |
+| `gemini` | `~/.gemini/tmp` | `session-*.jsonl` and legacy `session-*.json`; project directory buckets |
+| `kimi-legacy` | `~/.kimi/sessions` | Active `context.jsonl`; working-directory buckets |
+
+Claude and Codex roots honor `CLAUDE_CONFIG_DIR` and `CODEX_HOME`; legacy Kimi's
+capture root honors `KIMI_SHARE_DIR`. The Codex default does not include
+`archived_sessions`; add that directory explicitly if wanted. These locations
+follow the official [Claude sessions](https://code.claude.com/docs/en/sessions),
+[Codex troubleshooting](https://learn.chatgpt.com/docs/reference/troubleshooting),
+[Gemini session management](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/session-management.md),
+and [legacy Kimi changelog](https://github.com/MoonshotAI/kimi-cli/blob/main/CHANGELOG.md).
+
+For Claude Code or Codex, restrict collection by recorded workspace and choose a
+readable project ID:
+
+```bash
+memory-book setup --client codex --capture \
+  --workspace /absolute/path/to/project --project atlas --background
+```
+
+Gemini and legacy Kimi do not reliably supply the workspace path needed for this
+filter. Choose that workspace's actual transcript directory with `--source` and
+assign `--project` instead; `--workspace` is rejected for those adapters.
+
+```bash
+memory-book setup --client gemini --capture \
+  --source /absolute/path/to/project-chats --project atlas --background
+```
+
+`--source` requires one selected client. Repeating setup replaces that client's
+setup-managed source, so narrowing its scope does not leave the previous broader
+source active. Separately added watch sources remain independent. With
+`--all --capture`, detected hosts without a capture adapter receive MCP setup
+only, with a note. Explicitly requesting unsupported capture fails before edits.
+
+You can also watch an export directory without a native client adapter:
+
+```bash
+memory-book watch add /absolute/path/to/exports --id atlas-exports \
+  --format canonical --project atlas
+memory-book watch list
+memory-book sync --once
+memory-book watch remove atlas-exports
+```
+
+Removing a source stops future capture without deleting stored memory. The
+worker polls changed files, retries incomplete active logs, skips symlinks and
+known credential/config files, and isolates malformed files. It does not delete
+memory because a source file disappears. Stable IDs allow revised transcripts
+to replace their previous indexed content. Status logs record operational
+metadata and error codes rather than conversation text.
+
+The worker does not call an LLM to summarize each turn. Source text stays in the
+local database; evidence returned to a model through MCP enters that client's
+model context. Native vendor log formats can change; see
+[import coverage and limits](integrations.md#import-formats).
+
+## User services and foreground operation
+
+`--background` installs and starts a current-user service. After watch sources
+are configured, the same service can be managed independently:
+
+```bash
+memory-book service install --dry-run
+memory-book service install
+memory-book service status
+memory-book service stop
+memory-book service start
+memory-book service uninstall
+```
+
+| Platform | Service mechanism | Scope |
+|---|---|---|
+| Linux | `systemd --user`, `ai-memory-book.service` | User manager; no automatic lingering setup |
+| macOS | `~/Library/LaunchAgents/com.ai-memory-book.agent.plist` | Logged-in user's GUI session |
+| Windows | Task Scheduler task `AI-Memory-Book` | Current interactive user at logon, limited privileges, no stored password |
+
+These are user/login services, not privileged system services guaranteed to run
+before login. Uninstall removes the managed service but keeps memory, watch
+configuration, and client MCP entries. The service launches the capture daemon
+and, by default, the reader on `http://127.0.0.1:8765`.
+
+If no usable user service manager is available, run the daemon under your own
+supervisor or use one-pass sync:
+
+```bash
+memory-book daemon --config /absolute/path/config.json
+memory-book sync --once --config /absolute/path/config.json
+```
+
+`memory-book sync` without `--once` polls continuously without starting the
+reader. A running daemon reloads changes to its config, including removed or
+narrowed sources. An invalid or deleted config stops the old capture cycle
+rather than continuing with stale scope. The top-level `reader_enabled` setting
+can disable its reader; `reader_port` changes the port. A separate `serve`
+process is unnecessary if the daemon already owns that port.
+
+Release candidate [CI run 42998379672](https://github.com/Afloat16/AI-Memory-Book/actions/runs/42998379672)
+passed actual installer jobs on Linux, macOS, and Windows, plus MCP, Docker,
+browser, and core checks. Installer jobs used a locally built wheel and tested
+extras, reinstall, failed-install recovery, and paths containing spaces/Unicode.
+Native service definitions and command flows have focused tests, and a real
+daemon subprocess was tested. Actual login/logout service execution across all
+three operating systems and interactive acceptance by every vendor client were
+**not** tested. See [validation details](validation.md).
+
+## Upgrading
+
+Install the desired pinned release using your original installation method.
+The bundled installer retains older environments and preserves your memory
+directory. Client and service definitions contain absolute Python paths, so a
+new environment does not automatically move existing connections to it.
+
+Run the **new launcher's** setup for the clients you already use, keeping the
+same database/config and any explicit write preference:
+
+```bash
+memory-book setup --client claude-code --client codex
+memory-book service install
+memory-book doctor
+```
+
+Only run `service install` if you want the background service installed or
+updated. Existing watch sources remain in the background config; repeating
+`--capture` is unnecessary unless changing their scope. Preserve custom
+`--client-config` or `--config` paths when rerunning setup. Restart the clients to
+release old MCP processes. Do not remove an old environment while a client or
+service still references it.
+
+### Upgrading from v0.1.0
+
+v0.1 commonly used `.memory-book/memory.db` relative to a working directory.
+v0.2 uses a stable per-user directory. **No database is moved automatically.**
+`doctor` warns about the old path when it exists in the current directory.
+
+To keep using the existing database, pass its absolute path:
+
+```bash
+memory-book --db /absolute/old-project/.memory-book/memory.db stats
+memory-book --db /absolute/old-project/.memory-book/memory.db setup --client codex
+```
+
+To populate a new shared database, stop writers and export/import normalized
+sources with explicit old and new paths:
+
+```bash
+memory-book --db /absolute/old-project/.memory-book/memory.db export --output memory-export.json
+memory-book --db /absolute/new-data/memory.db import memory-export.json --format canonical
+memory-book --db /absolute/new-data/memory.db setup --client codex
+```
+
+Keep the original database until project/session counts and a few known recalls
+match. Import rebuilds derived pages and indexes using the current configuration;
+page IDs and segmentation can differ. The export contains conversation text, so
+store it with the same care as the database.
+
+## Docker
+
+From a source checkout with Docker Compose available:
+
+```bash
+docker compose up -d --build reader
+```
+
+The reader is published only on host loopback at `127.0.0.1:8765`. Compose uses
+the persistent named volume **`ai-memory-book-data`**, mounted at `/data`, and
+the image defaults to `/data/memory.db`. The image runs as UID/GID `10001` and
+includes MCP/client dependencies. Its default command is read-only **stdio MCP**;
+Compose's reader service overrides that command to start the web reader.
+
+An MCP host can start a container against the same volume. This is a manual
+`mcpServers` example; adapt the host schema and Docker executable path:
+
+```json
+{
+  "mcpServers": {
+    "memory-book": {
+      "command": "/absolute/path/to/docker",
+      "args": ["run", "--rm", "-i", "-v", "ai-memory-book-data:/data", "ai-memory-book:local", "mcp"]
+    }
+  }
+}
+```
+
+Use `-i` without a pseudo-terminal (`-t`) for MCP. Native `setup` generates a
+Python invocation, not this Docker command. To import a host export, mount its
+directory explicitly read-only:
+
+```bash
+docker run --rm \
+  -v ai-memory-book-data:/data \
+  --mount type=bind,source=/absolute/path/to/exports,target=/imports,readonly \
+  ai-memory-book:local import /imports/session.json --format canonical --project atlas
+```
+
+Docker has **no automatic access to host transcripts**, and the default Compose
+services do not start a capture worker. Container capture requires explicit
+read-only source mounts, a background config using container paths, and a
+`daemon` command. Ensure bind-mount permissions allow UID `10001` to read sources
+and write its database directory. The supplied named volume avoids a host-home
+mount by default.
+
+`docker compose down` retains the named volume; adding `--volumes` deletes it.
+The reader is a local single-user interface, not a public multi-user deployment.
+
+## Troubleshooting
+
+| Symptom | Next step |
+|---|---|
+| `memory-book` is not found | Use the full launcher path printed by the installer, then follow its PATH instructions |
+| MCP cannot start after an upgrade | Rerun setup with the new launcher and restart the client |
+| JSONC/config merge refused | Keep the existing file; merge the printed snippet manually using the host's documented layout |
+| No new memory appears | Check `watch list`, run `sync --once`, and inspect `doctor`; MCP setup alone does not enable capture |
+| Background service is unavailable | Run `daemon` under your supervisor or use `sync --once` |
+| Reader port is already in use | Stop the duplicate reader or change `reader_port` in the background config |
+| Old project appears empty after upgrade | Select the old database explicitly or perform the v0.1 export/import above |
+| Host sees no tools despite successful local recall | Refresh MCP, inspect host approvals, and check its tool-capable model/configuration |

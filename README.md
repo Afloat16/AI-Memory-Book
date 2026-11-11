@@ -98,7 +98,9 @@ memory-book service uninstall
 
 Uninstalling the service keeps your database and client settings. Removing a watched source keeps its archived memory. A running daemon reloads changes to its configuration, including reduced capture scope. On machines without a usable user service manager, run `memory-book daemon` under your existing supervisor, or run `memory-book sync --once` when convenient.
 
-Only changed supported files are re-read. The worker skips symlinks and known credential/config files, retries incomplete active logs, isolates malformed files, and never deletes memory just because a source file disappears. Source text is stored locally; when a model calls a memory tool, the returned evidence becomes part of that client's model context. [Capture scope and operations](docs/deployment.md).
+Unchanged, successfully imported files are skipped. The worker skips symlinks and known credential/config files, retries incomplete active logs, isolates malformed files, and never deletes memory just because a source file disappears. Source text is stored locally; when a model calls a memory tool, the returned evidence becomes part of that client's model context. [Capture scope and operations](docs/deployment.md).
+
+A reproducible local sample with 300 synthetic files measured unchanged scans at a **36.95 ms median** across eight cycles, with zero reimports; changing one file updated one session and skipped 299. Scans still write state/heartbeat data. This is a small warm-cache measurement, not a CPU, battery, or large-archive guarantee. [Method and raw results](docs/validation.md#v020-capture-overhead-sample).
 
 ## A book you can browse
 
@@ -112,7 +114,7 @@ Only changed supported files are re-read. The worker skips symlinks and known cr
 
 Short follow-ups can stay together; long answers receive continuation pages. The default adaptive page cap is 900 characters. Each hit points back to its original session, user turn, message positions, and character spans. Chapters across sessions use explicit task IDs; unrelated tasks are not silently merged.
 
-![Local reader with project-scoped search and source evidence](docs/assets/reader-desktop.png)
+![Local reader with project-scoped search and source evidence](docs/assets/reader-desktop-en.png)
 
 The screenshot uses fictional conversations. The interface defaults to English, or Chinese for a Chinese-language browser; the **EN / 中文** switch remembers your choice. Original conversation text, titles, and evidence retain their original language. The reader is available at [http://127.0.0.1:8765](http://127.0.0.1:8765) while the service or `memory-book serve` is running.
 

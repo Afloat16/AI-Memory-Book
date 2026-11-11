@@ -1,61 +1,62 @@
 # Release validation
 
-This document separates functional checks, measured retrieval behavior, and the
-limits of what was tested. All fixtures and published examples are synthetic.
-No private user conversation history was read or published.
+This document separates measured behavior from configuration compatibility. All
+fixtures, examples, screenshots, and capture measurements are synthetic. No
+private user conversation history was used in development or published.
 
-## Core and integrations
+## v0.2.0: verified implementation
 
-The release source passed **83 unittest cases** with the optional official MCP
-SDK installed. The suite covers transactional import and replacement, source
-provenance, pagination, scoped retrieval, budgets, persistent cache invalidation,
-database migration, export round trips, importer formats, HTTP protections,
-directory pagination, and evaluator accounting. MCP tests launch the real stdio
-server and use the official SDK client; they do not only call tool functions in
-process. Without the optional SDK, the four MCP cases are skipped.
+The release candidate at `1d6a881faeb811504941d9bbb0682f587d5de344` passed
+**all nine GitHub Actions jobs**:
+[complete CI run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/42998379672).
+The full suite with the MCP and client extras installed ran **158 tests with no
+failures or skips**, both locally and in the separate MCP CI job. The dependency-free
+core also passed on Python **3.10, 3.12, and 3.13**, skipping optional-dependency
+cases when their extras were absent.
 
-The first published core commit passed the GitHub Actions matrix on Python
-**3.10, 3.12 and 3.13**, plus the separate MCP job:
-[verified core run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/42990594538).
-The repository [workflow](../.github/workflows/ci.yml) runs these checks on each
-push and pull request.
+| Area | What actually ran |
+|---|---|
+| Core and source integrity | Transactional import/replacement, exact provenance, scoped retrieval, character budgets, cache invalidation, export round trips, safe paths, and HTTP protections |
+| Client configuration | Schema fixtures, preservation of unrelated settings and credentials, backups, ownership, repeat setup/removal, stale-plan rejection, malformed JSON/JSONC fallback, TOML preservation, and path collisions |
+| Background capture | Incremental identity and hashing, database replacement/generation, moved/removed sources, partial JSONL/UTF-8, retry deadlines, repaired files, workspace isolation, cross-process locks, metadata-only logs, and worker shutdown |
+| Actual daemon process | A subprocess imported a fixture, honored an explicit database, reloaded a removed source, stopped importing its files, and exited cleanly on SIGTERM |
+| MCP protocol | The official SDK client initialized a real stdio subprocess, listed tools, recalled evidence, and checked explicit write enablement |
+| Linux/macOS/Windows installers | Each OS ran its shell/PowerShell wrapper, installed a local wheel into paths with spaces and Unicode, exercised reinstall and failed-install recovery, preserved existing data, refused an unrelated launcher, and installed the normal MCP/client extras |
+| Docker | Built the image, ran as the non-root user, initialized MCP over container stdio, read persisted evidence, served the reader through host loopback, checked Host validation, and retained data after a container restart |
+| Browser | Chrome operated the actual reader, exercised English/Chinese UI and imports, and checked desktop/mobile layouts and source-text preservation |
+
+The installer jobs use a wheel built from the candidate source; they test the
+installation mechanism and its dependencies. The project is distributed through
+GitHub source releases and is not published to PyPI.
 
 ```bash
-python -m pip install -e '.[mcp]'
+python -m pip install -e ".[mcp,clients]"
 python -m unittest discover -s tests -v
+python tests/installer_smoke.py --with-extras
 ```
 
-A wheel was also built, installed into an isolated target without dependencies,
-and used to import the example conversations and retrieve a cited answer. Its
-installed Python and static-reader files were compared with the release source.
-This verifies packaging of the core and reader; there is no PyPI publication.
+## Browser evidence
 
-## Browser checks
+The candidate used **Python 3.12.16 and Chrome 156.0.8078.79**. Its report records
+**13 successful checks**, zero page exceptions, console errors, failed requests,
+or unexpected dialogs. Desktop document width equals its 1440px viewport; the
+mobile document width equals its 390px viewport. A fresh `en-US` browser context
+selects English, and changing UI language preserves the exact conversation text
+and titles.
 
-The real-browser job **passed**, alongside all four Python/MCP jobs, on
-commit `9c381ed9a29dcd8ac334ddb203e640e426b86c39`:
-[five successful CI jobs](https://github.com/Afloat16/AI-Memory-Book/actions/runs/42991673979).
-The run used Python 3.12.16 and Chrome 156.0.8078.79. Its desktop and mobile
-screenshots were retrieved from the workflow artifact and visually inspected.
-The [machine-readable report](assets/reader-browser.json) records ten successful
-checks, zero page/console/request/dialog errors, and exact viewport/document
-widths of 1440 and 390 pixels respectively.
+The checked flow covers project selection, cross-session chapter browsing,
+project-scoped Chinese search, source reading, focus restoration, canonical JSON
+preview and confirmation, and inert display of script-like imported text. The
+screenshots are actual browser captures, not design mockups:
 
-The `reader-browser` CI job launches the real HTTP server over a temporary
-synthetic database and operates Chrome/Chromium with Playwright. It exercises
-desktop project selection, chapter browsing across sessions, project-scoped
-Chinese search, source reading, keyboard focus restoration, import preview and
-confirmation, inert rendering of script-like source text, and the 390px mobile
-table of contents. Horizontal overflow, page exceptions, console errors, failed
-requests, and unexpected dialogs fail the check.
+- [English desktop](assets/reader-desktop-en.png)
+- [Chinese desktop](assets/reader-desktop.png)
+- [Mobile](assets/reader-mobile.png)
+- [Machine-readable browser report](assets/reader-browser.json)
 
-The job publishes desktop/mobile PNGs and a machine-readable check report as
-the `reader-browser` workflow artifact. Artifacts expire after seven days;
-the inspected release [desktop](assets/reader-desktop.png),
-[mobile](assets/reader-mobile.png), and [JSON report](assets/reader-browser.json)
-are also preserved in this repository.
-The browser script is intentionally outside unittest discovery so Playwright
-is not required by the dependency-free core.
+These files are preserved in the repository because CI artifacts expire after
+seven days. The browser check intentionally lives outside unittest discovery,
+so the dependency-free core does not require Playwright.
 
 ```bash
 python -m pip install . playwright
@@ -63,29 +64,67 @@ python -m playwright install --with-deps chromium
 python tests/browser_smoke.py
 ```
 
-## Retrieval measurements
+## v0.2.0 capture overhead sample
 
-The [experiment record](../benchmarks/EXPERIMENTS.md) includes the initial short
+The reproducible [capture smoke measurement](../benchmarks/capture_smoke.py)
+used **300 synthetic canonical files** across three projects and 30 chapters,
+totaling **246,192 source bytes**. On the recorded Linux environment with
+Python 3.12.14 and SQLite 3.53.1:
+
+| Stage | Measured wall time | Actual import result |
+|---|---:|---|
+| Initial import into a new database | 435.83 ms | 300 files imported; 300 sessions updated |
+| Eight unchanged scans | Median 36.95 ms; maximum 51.21 ms | Each skipped 300 files and imported/updated zero sessions |
+| One changed file | 30.06 ms | One session updated; 299 files skipped |
+| Next unchanged scan | 26.16 ms | 300 files skipped; zero sessions updated |
+
+[Raw timings, counts, environment, and implementation fingerprint](../benchmarks/reports/capture-v0.2.0.json)
+are retained. Run it from the repository with:
+
+```bash
+PYTHONPATH=src python benchmarks/capture_smoke.py
+```
+
+These are consecutive `sync_once` calls with warm filesystem caches, without
+the normal polling sleep. The measurement includes state loading and locking.
+Unchanged scans still update the manifest and heartbeat; zero imports do not
+mean zero disk writes. This small sample does not measure resident CPU, RAM,
+battery use, vendor-client latency, or performance at other scales.
+
+## Historical v0.1.0 retrieval measurements
+
+The [experiment record](../benchmarks/EXPERIMENTS.md) retains the initial short
 corpus, development page-size sweep, all six segmentation/ranking combinations,
-two final heldout seeds, and unsuccessful categories. Complete per-query output
-is retained in compressed JSON alongside readable reports. Source fingerprints
-before and after both final runs match; the processes were restarted after
-release fixes.
+two untouched-seed evaluations, and unsuccessful query categories. Complete
+per-query output is retained in compressed JSON next to readable reports. Source
+fingerprints before and after those final runs match their original version.
 
-Reported recall requires the exact annotated original evidence to survive into
-the budgeted context with the correct source span. It is not an LLM answer
-score. Latency measures local retrieval, without result caching, and does not
-include process startup, network transfer, MCP transport or model inference.
+These are **v0.1.0 measurements**, retained as historical evidence rather than
+presented as a new v0.2.0 benchmark. Recall requires the exact annotated evidence
+to survive into the budgeted context with its correct source span; it is not an
+LLM answer score. Local latency excludes process startup, transcript capture,
+MCP transport, networking, and inference. Result caching was disabled while
+SQLite/OS page caches remained available.
 
-## Remaining evidence gaps
+The original v0.1 core and browser evidence is also available in its
+[core run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/42990594538)
+and [browser run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/42991673979).
 
-- Generated engineering conversations do not establish performance on real user
-  histories, other domains, or hundreds of millions of characters.
-- Import adapters are tested against representative synthetic export fixtures,
-  not every historical client export version or multimodal format.
-- Browser checks cover Chrome/Chromium at two viewport sizes, not every browser,
-  mobile device or assistive technology.
-- Current evidence does not establish a semantic-search, authoritative-version,
-  or end-to-end answer-quality guarantee.
-- External memory projects were researched, not installed and benchmarked against
+## What these checks do not establish
+
+- Client profiles follow official configuration schemas and have fixture tests;
+  every vendor application was not interactively launched and authenticated.
+- Native service definitions and command flows have focused tests. The installer
+  matrix does not exercise real login/logout, sleep/resume, or long-running user
+  sessions under systemd, launchd, and Task Scheduler.
+- Import formats are covered by representative synthetic records, not every
+  historical vendor version or multimodal format. Current Kimi Code has MCP
+  configuration support; native capture is limited to the separately named
+  legacy Python Kimi format.
+- Generated histories and a small local capture measurement do not establish
+  performance on a large personal archive, network disk, or every operating
+  system. Browser coverage is Chrome/Chromium at the stated sizes.
+- Lexical retrieval does not guarantee semantic recall, authoritative conflict
+  resolution, automatic host injection, or end-to-end model answer quality.
+- Related memory projects were researched, not installed and benchmarked against
   this implementation. No competitor performance claim is made.
