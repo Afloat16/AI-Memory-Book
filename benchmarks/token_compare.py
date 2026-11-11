@@ -161,6 +161,9 @@ def load_dataset(corpus: str, seed: int, split: str, projects: int,
                  locomo_path: str | None = None, max_queries: int = 0):
     if corpus == "synthetic":
         return generate_dataset(seed=seed, split=split, projects=projects)
+    if corpus == "transfer":
+        from benchmarks.transfer_data import load_transfer
+        return load_transfer()
     from benchmarks.public_data import load_locomo
     if not locomo_path:
         raise ValueError("--locomo-path is required for the external LoCoMo data")
@@ -386,7 +389,7 @@ def main() -> int:
     parser.add_argument("--baseline-label", default="baseline",
                         help="Display label; the imported package version and source identity are recorded separately")
     parser.add_argument("--candidate-label", default="candidate")
-    parser.add_argument("--corpus", choices=("synthetic", "locomo"), default="synthetic")
+    parser.add_argument("--corpus", choices=("synthetic", "locomo", "transfer"), default="synthetic")
     parser.add_argument("--locomo-path")
     parser.add_argument("--max-queries", type=int, default=0)
     parser.add_argument("--split", choices=("development", "heldout"), default="development")
@@ -434,7 +437,7 @@ def main() -> int:
             print(f"{label}: measured {engines[-1]['dataset']['queries']} queries", file=sys.stderr, flush=True)
     if engines[0]["dataset"]["sha256"] != engines[1]["dataset"]["sha256"]:
         raise RuntimeError("Engines did not receive identical datasets")
-    report = {"schema_version": 1, "evaluator_version": "token-compare-1.0",
+    report = {"schema_version": 1, "evaluator_version": "token-compare-1.1",
               "created_at_utc": datetime.now(timezone.utc).isoformat(),
               "runtime": {"python": platform.python_version(), "sqlite": sqlite3.sqlite_version, "platform": platform.platform()},
               "dataset": engines[0]["dataset"], "engines": engines,
@@ -446,7 +449,7 @@ def main() -> int:
                   "Fresh-process CLI measurements include Python startup, imports, database open, recall and JSON serialization, with warm disk caches; they are not cold-disk latency.",
                   "The common token packer sees no evidence labels, retains whole returned blocks, and never invokes retrieval again. Packing latency is reported separately.",
                   "Evidence requires original source identity and span plus the complete annotated text in the actual returned context. Unanswerable nonempty retrieval is not a hallucination rate.",
-                  "Synthetic heldout seeds were reserved after development selection; shared templates still limit generalization. Public LoCoMo data remains separately downloaded under CC BY-NC 4.0; reports contain IDs and metrics, not dataset text.",
+                  "A split name does not prove independence: previously observed public questions and synthetic seeds are regression data. The separate transfer manifest records newly authored synthetic diagnostics and their limits; no synthetic corpus establishes real-world generalization. Public LoCoMo data remains separately downloaded under CC BY-NC 4.0; reports contain IDs and metrics, not dataset text.",
                   "This paired version comparison does not execute external competitor products. See the separate component comparison for any measured upstream kernels."]}
     report["validation"] = validation_status(engines)
     write_artifacts(report, args.output)

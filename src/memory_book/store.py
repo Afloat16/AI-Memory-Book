@@ -18,12 +18,13 @@ from .text import estimate_tokens, excerpt, headline, index_text, query_terms, t
 
 SCHEMA_VERSION = 3
 INDEX_VERSION = 3
-RECALL_VERSION = 7
+RECALL_VERSION = 8
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
 HISTORICAL_QUERY = re.compile(r"\b(?:original|initial|previous|earlier|before|history|historical|formerly|old|as of)\b|最初|最早|之前|以前|原来|原始|历史|旧|\b(?:19|20)\d{2}\b", re.IGNORECASE)
 ASCII_WORD = re.compile(r"[a-zA-Z]")
+QUERY_CONJUNCTION = re.compile(r"\band\b|以及|并且|和", re.IGNORECASE)
 STEM_INDEX_SQL = "CREATE VIRTUAL TABLE IF NOT EXISTS pages_stem_fts USING fts5(title, question, body, directory, tokenize='porter unicode61');"
 STEM_DELETE_SQL = """CREATE TRIGGER IF NOT EXISTS pages_delete_stem_fts AFTER DELETE ON pages BEGIN
  DELETE FROM pages_stem_fts WHERE rowid = OLD.rid;
@@ -200,6 +201,20 @@ def _context_allocations(pages: list[dict], budget: int) -> list[tuple[dict, str
 
 def _directory_tokens(text: str) -> frozenset[str]:
     return frozenset(terms(text, query=True))
+
+
+def _query_facets(query: str) -> list[list[str]]:
+    """Recognize a small explicit conjunction, without semantic query rewriting.
+
+    Each side needs at least two lexical terms: a name such as ``research and
+    development`` is not automatically treated as two independent questions.
+    This is deliberately limited syntax support, not a claim to parse intent.
+    """
+    pieces = QUERY_CONJUNCTION.split(query)
+    if not 2 <= len(pieces) <= 3:
+        return []
+    facets = [query_terms(piece) for piece in pieces]
+    return facets if all(len(facet) >= 2 for facet in facets) else []
 
 
 class MemoryBook:
@@ -704,6 +719,45 @@ class MemoryBook:
                         chosen.append(item)
                         covered.update(matched[item["rid"]])
                     candidates = chosen + pending + candidates[len(pool):]
+                facets = (_query_facets(query) if strategy == "book" and limit > 1 and
+                          not CURRENT_QUERY.search(query) and not HISTORICAL_QUERY.search(query) else [])
+                if candidates and facets:
+                    # A whole-query OR score can fill every result slot with
+                    # one requested subject. Rank each explicit clause over
+                    # the already scoped, bounded candidate union and reserve
+                    # its best page after the unchanged first result. No new
+                    # sources, generated text, or answer labels enter this path.
+                    candidate_ids = [item["rid"] for item in candidates]
+                    original_positions = {item["rid"]: i for i, item in enumerate(candidates)}
+                    preferred = [candidates[0]]
+                    seen = {candidates[0]["rid"]}
+                    for facet in facets:
+                        clause = " OR ".join('"' + token.replace('"', '""') + '"' for token in facet)
+                        clause = f"({clause}) AND body : ({clause})"
+                        scores = []
+                        for table in (("pages_fts", "pages_stem_fts") if use_stem else ("pages_fts",)):
+                            # Unary + keeps SQLite from executing MATCH once
+                            # per rowid in the IN-list. FTS scans the clause
+                            # once, then applies the identical integer filter.
+                            hits = self.db.execute(
+                                f"SELECT rowid,bm25({table},2.0,2.0,1.0,0.25) rank FROM {table} "
+                                f"WHERE {table} MATCH ? AND +rowid IN (" +
+                                ",".join("?" for _ in candidate_ids) + ") ORDER BY rank,rowid LIMIT 96",
+                                [clause, *candidate_ids]).fetchall()
+                            route = {row["rowid"]: max(0.0, -row["rank"]) for row in hits}
+                            scale = max(route.values(), default=1.0) or 1.0
+                            scores.append({rid: value / scale for rid, value in route.items()})
+                        found = set().union(*(route.keys() for route in scores))
+                        if not found:
+                            continue
+                        leader = max(found, key=lambda rid: (
+                            2 * scores[0].get(rid, 0.0) +
+                            (scores[1].get(rid, 0.0) if use_stem else 0.0),
+                            -original_positions[rid]))
+                        if leader not in seen:
+                            preferred.append(candidates[original_positions[leader]])
+                            seen.add(leader)
+                    candidates = preferred + [item for item in candidates if item["rid"] not in seen]
                 if candidates:
                     selected_ids = [item["id"] for item in candidates[:limit]]
                     sources = {row["id"]: dict(row) for row in self.db.execute(
