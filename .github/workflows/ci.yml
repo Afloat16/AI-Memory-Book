@@ -50,9 +50,78 @@ jobs:
               subprocess.run([sys.executable, '-m', 'playwright', 'install', '--with-deps', 'chromium'], check=True)
           PY
       - name: Install Chinese fonts for readable screenshots
+        timeout-minutes: 4
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends fonts-noto-cjk
+          python - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+          import subprocess
+          import tempfile
+          import time
+          import urllib.error
+          import urllib.request
+
+          # Official Git tree supplies sizes/blob IDs; the same commit's
+          # _manifest/spdx_2.2/manifest.spdx.json supplies the font SHA-256.
+          revision = "f8d157532fbfaeda587e826d4cd5b21a49186f7c"
+          base = f"https://raw.githubusercontent.com/notofonts/noto-cjk/{revision}/"
+          directory = Path.home() / ".local/share/fonts/ai-memory-book-noto"
+          directory.mkdir(parents=True, exist_ok=True)
+          deadline = time.monotonic() + 150
+
+          def install(source, name, expected_size, expected_blob, expected_sha256=None):
+              for attempt in range(3):
+                  temporary = None
+                  try:
+                      remaining = deadline - time.monotonic()
+                      if remaining <= 0:
+                          raise TimeoutError("Font download deadline exceeded")
+                      request = urllib.request.Request(base + source, headers={"User-Agent": "AI-Memory-Book-CI"})
+                      with urllib.request.urlopen(request, timeout=min(15, remaining)) as response:
+                          with tempfile.NamedTemporaryFile(dir=directory, delete=False) as stream:
+                              temporary = Path(stream.name)
+                              blob = hashlib.sha1(f"blob {expected_size}\0".encode())
+                              sha256 = hashlib.sha256()
+                              size = 0
+                              while True:
+                                  if time.monotonic() >= deadline:
+                                      raise TimeoutError("Font download deadline exceeded")
+                                  block = response.read1(65536)
+                                  if not block:
+                                      break
+                                  size += len(block)
+                                  if size > expected_size:
+                                      raise ValueError(f"Unexpected file size: {source}")
+                                  blob.update(block)
+                                  sha256.update(block)
+                                  stream.write(block)
+                      if size != expected_size or blob.hexdigest() != expected_blob:
+                          raise ValueError(f"Size/Git blob verification failed: {source}")
+                      if expected_sha256 and sha256.hexdigest() != expected_sha256:
+                          raise ValueError(f"SHA-256 verification failed: {source}")
+                      os.replace(temporary, directory / name)
+                      print(f"Verified {name}: {size} bytes, SHA-256 {sha256.hexdigest()}")
+                      return
+                  except (OSError, urllib.error.URLError):
+                      if attempt == 2 or time.monotonic() >= deadline:
+                          raise
+                      time.sleep(attempt + 1)
+                  finally:
+                      if temporary is not None:
+                          temporary.unlink(missing_ok=True)
+
+          font = "NotoSansCJKsc-Regular.otf"
+          install("Sans/OTF/SimplifiedChinese/" + font, font, 16437364,
+                  "dc15562470b4f842321894787a0d066879ccff8b",
+                  "2c76254f6fc379fddfce0a7e84fb5385bb135d3e399294f6eeb6680d0365b74b")
+          install("Sans/LICENSE", "LICENSE", 4301, "d952d62c065f3f35fb83a173496e90b21525aef3")
+          subprocess.run(["fc-cache", "-f", str(directory)], check=True, timeout=30)
+          match = subprocess.run(["fc-match", "-f", "%{file}", "Noto Sans CJK SC"],
+                                 check=True, capture_output=True, text=True, timeout=10)
+          if Path(match.stdout.strip()).resolve() != (directory / font).resolve():
+              raise RuntimeError("Fontconfig did not select the verified Simplified Chinese font")
+          PY
       - name: Exercise the reader in a real browser
         run: python tests/browser_smoke.py
       - name: Upload reader screenshots and browser report
