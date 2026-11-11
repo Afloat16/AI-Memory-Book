@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased — recall quality continuation
+
+- Continue the preserved v0.3.0 performance branch with bounded English word-form retrieval. Keep exact FTS and add SQLite's local Porter index; fixed reciprocal-rank fusion gives the exact route twice the weight. No model, embedding package, network request, or provider key is added to the core.
+- Preserve intact source lines or sentences when equally relevant excerpts fit. Reuse a sliding match window, reserve citations before sharing the body budget, and return unused short-page space to longer selected pages.
+- Apply project/chapter/session scopes before each candidate cap and defer directory/display metadata until needed. Identical ordered retrieval routes retain the original BM25 scale and behavior.
+- Upgrade schema 1/2 to schema 3 transactionally without changing schema-2 source rows, page addresses, or source spans. A revision guard repairs the stem index if an already-open old writer commits after upgrade; current writers keep incremental index updates.
+- Separate retrieval cache versions from source/index settings. Only truncated pages need word-form highlight work; full-page reads and compact/detailed MCP contracts remain available.
+- Correct benchmark version labels and record the measured source bytes, Git identity, and uncommitted or ignored Python changes. Add a repeatable index-upgrade cost and source-preservation measurement.
+- See [the continuation report](benchmarks/RESULTS-recall-quality.md) for measured quality, costs, regressions, and the distinction between retrieval evidence and generated answers.
+
 ## 0.3.0 — 2026-11-11
 
 ### Retrieval and context cost

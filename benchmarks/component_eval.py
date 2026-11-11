@@ -27,7 +27,19 @@ from datetime import datetime, timezone
 
 from benchmarks.run import _normalized, engine_source_hash, original_turn_texts
 from benchmarks.token_compare import (ENCODINGS, TokenCounter, latency_summary,
-    load_dataset, pack_whole_blocks, score_row, summarize_rows)
+    checkout_provenance, load_dataset, pack_whole_blocks, score_row, summarize_rows)
+
+
+BASELINE_ENGINES = frozenset({"baseline", "v0.2.1"})
+
+
+def component_label(args) -> str:
+    """Keep legacy CLI engine selectors separate from measured version labels."""
+    if args.engine in BASELINE_ENGINES:
+        return args.baseline_label
+    if args.engine == "candidate":
+        return args.candidate_label
+    return args.engine
 
 
 def canonical_json(value) -> str:
@@ -88,7 +100,7 @@ def evidence_attainability(dataset, documents: list[dict]) -> dict:
 
 def export_frozen(args) -> dict:
     sys.path.insert(0, str(args.engine_src.resolve()))
-    from memory_book import MemoryBook
+    from memory_book import MemoryBook, __version__
     import memory_book
     source_root = Path(memory_book.__file__).parent
     before = engine_source_hash(source_root)
@@ -111,6 +123,8 @@ def export_frozen(args) -> dict:
     if before != engine_source_hash(source_root):
         raise RuntimeError("Frozen source changed during page export")
     bundle = {"documents": documents, "dataset": dataset.description(),
+              "label": args.baseline_label, "engine_version": __version__,
+              "source_provenance": checkout_provenance(source_root),
               "frozen_source_sha256": before, "stats": stats, "ingestion_ms": ingest_ms,
               "evidence_attainability": evidence_attainability(dataset, documents),
               "documents_sha256": hashlib.sha256(canonical_json(documents).encode()).hexdigest()}
@@ -126,8 +140,9 @@ class CoreBook:
         self.source_root = Path(memory_book.__file__).parent
         self.source_hash = engine_source_hash(self.source_root)
         self.book = MemoryBook(args.database, max_page_chars=900, cache_size=0)
-        self.metadata = {"name": args.engine, "version": __version__,
+        self.metadata = {"name": component_label(args), "version": __version__,
                          "source_sha256": self.source_hash,
+                         "source_provenance": checkout_provenance(self.source_root),
                          "comparison_scope": "shared-page retrieval component",
                          "latency_scope": "in-process recall including native context assembly; no IPC",
                          "result_cache": "disabled", "input_character_cap": 100000,
@@ -156,7 +171,7 @@ def measure_component(args) -> dict:
         raise ValueError("Component and frozen page export use different datasets")
     source_texts = original_turn_texts(dataset)
     counters = {name: TokenCounter(name) for name in ENCODINGS}
-    if args.engine in {"candidate", "v0.2.1"}:
+    if args.engine == "candidate" or args.engine in BASELINE_ENGINES:
         engine = CoreBook(args, documents)
     elif args.engine == "billion-context":
         from benchmarks.competitors.billion import BillionKernel
@@ -237,7 +252,8 @@ def measure_component(args) -> dict:
                 "by_category": {key: summarize_rows(value) for key, value in sorted(categories.items())},
                 "query_results": rows})
     native = list(native_rows.values())
-    return {"label": args.engine, "metadata": metadata, "dataset": dataset.description(),
+    return {"label": component_label(args), "engine_selector": args.engine,
+            "metadata": metadata, "dataset": dataset.description(),
             "kernel_or_native_search_latency": latency_summary(kernel_ms),
             "adapter_roundtrip_latency": latency_summary(bridge_ms),
             "first_pass_roundtrip_latency": latency_summary(first_ms),
@@ -293,8 +309,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--baseline-src", type=Path, required=True)
     parser.add_argument("--candidate-src", type=Path, default=Path("src"))
+    parser.add_argument("--baseline-label", default="baseline",
+                        help="Display label for the frozen source and baseline ranker; version/source identity are recorded separately")
+    parser.add_argument("--candidate-label", default="candidate")
     parser.add_argument("--engines", nargs="+", default=["candidate", "billion-context", "ai-memory-hybrid"],
-                        choices=["v0.2.1", "candidate", "billion-context", "ai-memory-fts", "ai-memory-hybrid"])
+                        choices=["baseline", "v0.2.1", "candidate", "billion-context", "ai-memory-fts", "ai-memory-hybrid"],
+                        help="Rankers to run; v0.2.1 is retained as a legacy alias for baseline, not a version assertion")
     parser.add_argument("--cache", type=Path, required=True)
     parser.add_argument("--offline", action="store_true")
     parser.add_argument("--corpus", choices=["synthetic", "locomo"], default="synthetic")
@@ -315,11 +335,16 @@ def main():
     args = parser.parse_args()
     if args.repeats < 1 or args.limit < 1 or min(args.token_budgets) < 1:
         parser.error("repeats, limit and budgets must be positive")
+    if not args.baseline_label.strip() or not args.candidate_label.strip() or args.baseline_label == args.candidate_label:
+        parser.error("baseline and candidate labels must be distinct and nonempty")
+    if len(BASELINE_ENGINES.intersection(args.engines)) > 1:
+        parser.error("baseline and v0.2.1 select the same ranker; use only one")
     if args.worker:
         result = export_frozen(args) if args.worker == "export" else measure_component(args)
         args.output.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
         return 0
     common = ["--baseline-src", str(args.baseline_src.resolve()), "--cache", str(args.cache.resolve()),
+              "--baseline-label", args.baseline_label, "--candidate-label", args.candidate_label,
               "--corpus", args.corpus, "--split", args.split, "--seed", str(args.seed),
               "--projects", str(args.projects), "--max-queries", str(args.max_queries),
               "--limit", str(args.limit), "--repeats", str(args.repeats),
@@ -339,7 +364,7 @@ def main():
         for name in args.engines:
             database = root / (name + ".db")
             shutil.copyfile(frozen_db, database)
-            source = args.baseline_src if name == "v0.2.1" else args.candidate_src
+            source = args.baseline_src if name in BASELINE_ENGINES else args.candidate_src
             subprocess.run([*command, "--worker", "measure", "--engine", name,
                             "--engine-src", str(source.resolve()), "--database", str(database)], check=True)
             engines.append(json.loads(output.read_text()))
@@ -350,7 +375,8 @@ def main():
               "tokenizer": {"library": "tiktoken", "version": TokenCounter(ENCODINGS[0]).version, "encodings": list(ENCODINGS)},
               "frozen_corpus": frozen, "engines": engines,
               "methodology": [
-                  "Every component receives identical adaptive-900 pages exported once from frozen v0.2.1, with the same queries, project scope, and top-k limit. No answer labels enter a backend.",
+                  f"Every component receives identical adaptive-900 pages exported once from the supplied frozen baseline ({args.baseline_label}), with the same queries, project scope, and top-k limit. Its actual package version, source hash and checkout provenance are recorded in frozen_corpus. No answer labels enter a backend.",
+                  "Display labels and legacy engine selectors do not establish source identity. Git base commits, source roots, checkout/source dirty flags and measured source hashes identify the executed core; a dirty source tree is not the base commit.",
                   "A common assembler expands selected IDs to complete original pages, adds identical citations, and applies identical rank-order whole-block token packing. Quality and context tokens describe this shared policy, not each product's native preview behavior.",
                   "Book ranking retains its native hierarchy/FTS fields; external backends receive each page's title/body/project. Equal granularity does not mean identical indexed features or complete product workflows.",
                   "Native metadata pages absent from the shared corpus consume top-k slots and search payload tokens but earn no evidence; they are counted as unmapped hits and excluded from harness full-page expansion.",

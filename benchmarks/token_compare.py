@@ -33,6 +33,64 @@ from benchmarks.run import (aggregate, engine_source_hash, evaluate_response,
 ENCODINGS = ("cl100k_base", "o200k_base")
 
 
+def checkout_provenance(source_root: Path) -> dict:
+    """Identify measured files without treating a dirty checkout as its commit.
+
+    Source hashes elsewhere in each report identify the actual Python bytes.
+    Git metadata is additional context, and can be absent for source archives.
+    Distinguish unrelated checkout changes from changes inside the source tree.
+    """
+    source_root = source_root.resolve()
+    result = {"source_root": str(source_root), "repository_root": None,
+              "git_commit": None, "git_dirty": None, "source_dirty": None,
+              "commit_identifies_source": False}
+    try:
+        def git(*arguments: str) -> str:
+            return subprocess.run(["git", "-C", str(source_root), *arguments],
+                                  check=True, capture_output=True, text=True,
+                                  timeout=10).stdout.strip()
+
+        repository_root = Path(git("rev-parse", "--show-toplevel")).resolve()
+        source_root.relative_to(repository_root)
+        result.update(repository_root=str(repository_root),
+                      git_commit=git("rev-parse", "HEAD"))
+        result["git_dirty"] = bool(git("status", "--porcelain", "--untracked-files=all"))
+        result["source_dirty"] = bool(git("status", "--porcelain", "--untracked-files=all",
+                                          "--", str(source_root)))
+        # Status omits ignored files and can omit assume-unchanged files. The
+        # measured package includes every *.py, so compare its actual bytes
+        # with HEAD's Git blobs before attributing them to that commit.
+        committed = {}
+        for entry in git("ls-tree", "-r", "--full-tree", "-z", "HEAD", "--",
+                         str(source_root)).split("\0"):
+            if entry:
+                metadata, path = entry.split("\t", 1)
+                mode, kind, digest = metadata.split()
+                if kind == "blob":
+                    committed[path] = (mode, digest)
+        actual = set()
+        mismatches = []
+        for path in sorted(source_root.rglob("*.py")):
+            relative = path.relative_to(repository_root).as_posix()
+            actual.add(relative)
+            record = committed.get(relative)
+            if record is None or record[0] == "120000":
+                mismatches.append(relative)
+                continue
+            content = path.read_bytes()
+            algorithm = "sha1" if len(record[1]) == 40 else "sha256"
+            blob = b"blob " + str(len(content)).encode() + b"\0" + content
+            if hashlib.new(algorithm, blob).hexdigest() != record[1]:
+                mismatches.append(relative)
+        mismatches.extend(path for path in committed if path.endswith(".py") and path not in actual)
+        result["python_files_differing_from_commit"] = sorted(set(mismatches))
+        result["source_dirty"] = result["source_dirty"] or bool(mismatches)
+        result["commit_identifies_source"] = bool(actual) and not result["source_dirty"]
+    except (OSError, ValueError, subprocess.SubprocessError):
+        pass
+    return result
+
+
 class TokenCounter:
     def __init__(self, name: str):
         if name not in ENCODINGS:
@@ -143,6 +201,7 @@ def measure_engine(args) -> dict:
     source_root = Path(memory_book.__file__).parent
     source_hash = engine_source_hash(source_root)
     report = {"label": args.label, "engine_version": __version__,
+              "source_provenance": checkout_provenance(source_root),
               "source_sha256_before": source_hash, "dataset": dataset.description(),
               "tokenizer": {"library": "tiktoken", "version": counters[ENCODINGS[0]].version,
                             "encodings": list(ENCODINGS)},
@@ -240,6 +299,13 @@ def comparison_markdown(report: dict) -> str:
         for config in engine["packed_configurations"]:
             m = config["metrics"]
             lines.append(f"| {engine['label']} | {config['tokenizer']} | {config['budget_tokens']} | {percent(m['evidence_recall'])} | {percent(m['complete_evidence_rate'])} | {m['mean_context_tokens'][config['tokenizer']]:.1f} | {config['packing_latency']['p95_ms']:.3f} |")
+    lines += ["", "## Source identity", "",
+              "The Python source hash identifies measured bytes. A dirty source tree is not the recorded Git commit; that commit is only its base revision.", "",
+              "| Engine | Package version | Git base commit | Checkout dirty | Source dirty | Python source SHA-256 |",
+              "|---|---|---|---|---|---|"]
+    for engine in report["engines"]:
+        provenance = engine.get("source_provenance", {})
+        lines.append(f"| {engine['label']} | {engine['engine_version']} | {provenance.get('git_commit') or 'unavailable'} | {provenance.get('git_dirty')} | {provenance.get('source_dirty')} | {engine['source_sha256_before']} |")
     lines += ["", "## Measurement boundaries", ""]
     lines += ["- " + item for item in report["methodology"]]
     lines += ["", "See the complete compressed JSON for category results, failures, source references, fingerprints, ingest cost, and fresh-process CLI measurements.", ""]
@@ -266,6 +332,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--baseline-src", type=Path)
     parser.add_argument("--candidate-src", type=Path, default=Path("src"))
+    parser.add_argument("--baseline-label", default="baseline",
+                        help="Display label; the imported package version and source identity are recorded separately")
+    parser.add_argument("--candidate-label", default="candidate")
     parser.add_argument("--corpus", choices=("synthetic", "locomo"), default="synthetic")
     parser.add_argument("--locomo-path")
     parser.add_argument("--max-queries", type=int, default=0)
@@ -289,10 +358,14 @@ def main() -> int:
         return 0 if report["source_unchanged"] else 2
     if args.baseline_src is None:
         parser.error("--baseline-src must identify the frozen baseline package source directory")
+    if not args.baseline_label.strip() or not args.candidate_label.strip() or args.baseline_label == args.candidate_label:
+        parser.error("baseline and candidate labels must be distinct and nonempty")
     engines = []
     with tempfile.TemporaryDirectory(prefix="memory-token-workers-", dir=Path.cwd().parent) as directory:
-        for label, source in (("v0.2.1", args.baseline_src), ("candidate", args.candidate_src)):
-            output = Path(directory) / (label + ".json")
+        for index, (label, source) in enumerate(((args.baseline_label, args.baseline_src),
+                                               (args.candidate_label, args.candidate_src))):
+            # User labels are presentation data, never filesystem paths.
+            output = Path(directory) / f"engine-{index}.json"
             command = [sys.executable, "-m", "benchmarks.token_compare", "--worker", "--engine-src", str(source.resolve()),
                        "--label", label, "--corpus", args.corpus, "--split", args.split, "--seed", str(args.seed),
                        "--projects", str(args.projects), "--limit", str(args.limit), "--repeats", str(args.repeats),
@@ -311,6 +384,7 @@ def main() -> int:
               "dataset": engines[0]["dataset"], "engines": engines,
               "methodology": [
                   "Both versions run in independent Python processes with identical records, query order, scope, result limit, page settings, and budgets.",
+                  "Display labels are caller-selected. Imported package versions, absolute source roots, Git base commits, dirty flags, and measured source hashes are recorded independently; dirty source bytes must not be attributed to the base commit.",
                   "Context tokens are actual tiktoken 0.12.0 counts for cl100k_base and o200k_base; they are reference encodings, not every provider's tokenizer or billed API usage.",
                   "Recall latency excludes token counting, ingestion, MCP, networking and model inference. Result caching is disabled; SQLite and OS caches are not flushed.",
                   "Fresh-process CLI measurements include Python startup, imports, database open, recall and JSON serialization, with warm disk caches; they are not cold-disk latency.",

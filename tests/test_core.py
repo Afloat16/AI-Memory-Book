@@ -291,10 +291,10 @@ class BookTests(unittest.TestCase):
         self.assertEqual(self.book.toc("alpha")["chapters"][0]["title"], "Target friendly name")
 
     def test_v1_migration_keeps_timestamps_pages_and_rebuilds_lexical_index(self):
-        from memory_book.store import SCHEMA
+        from memory_book.store import SCHEMA, SCHEMA_VERSION
         legacy_path = Path(self.temp.name) / "legacy.db"
         legacy = sqlite3.connect(legacy_path, isolation_level=None)
-        schema = SCHEMA.replace(" settings_json TEXT NOT NULL DEFAULT '{}',\n", "").replace("PRAGMA user_version = 2;", "PRAGMA user_version = 1;")
+        schema = SCHEMA.replace(" settings_json TEXT NOT NULL DEFAULT '{}',\n", "").replace(f"PRAGMA user_version = {SCHEMA_VERSION};", "PRAGMA user_version = 1;")
         legacy.executescript(schema)
         stamp = "2025-01-02T03:04:05+00:00"
         payload = session(answer="OAuth认证使用café测试账户。")
@@ -307,7 +307,7 @@ class BookTests(unittest.TestCase):
         legacy.execute("INSERT INTO pages_fts(rowid,title,question,body,directory) VALUES(1,'title','oauth认证','oauth认证','cache')")
         legacy.close()
         with MemoryBook(legacy_path) as migrated:
-            self.assertEqual(migrated.stats()["schema_version"], 2)
+            self.assertEqual(migrated.stats()["schema_version"], SCHEMA_VERSION)
             self.assertEqual(migrated.export()[0]["created_at"], stamp)
             self.assertEqual(migrated.read("legacy-page")["content"], "OAuth认证使用café测试账户。")
             self.assertIn("OAuth", migrated.recall("认证")["context"])

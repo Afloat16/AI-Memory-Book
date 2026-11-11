@@ -9,6 +9,7 @@ from __future__ import annotations
 import math
 import re
 import unicodedata
+from bisect import bisect_left, bisect_right
 from collections import Counter
 from itertools import islice
 
@@ -77,6 +78,32 @@ def is_followup(question: str) -> bool:
     return bool(re.match(r"^(那|它|这个|这项|该|继续|还有|为什么|那么|是否|可以|再|and\b|what about\b|why\b|how about\b|then\b|that\b|it\b|can we\b)", q))
 
 
+def _evidence_units(text: str, width: int) -> list[tuple[int, int]]:
+    """Prefer intact source lines, falling back to sentences inside long lines.
+
+    These are only excerpt boundaries, never synthesized or rewritten facts.
+    A short speaker-labelled line can contain a qualification in a different
+    sentence, so keep the whole line when it fits the available window.
+    """
+    units = []
+    for line in re.finditer(r"[^\n]+", text):
+        lo, hi = line.span()
+        if hi - lo <= width:
+            units.append((lo, hi))
+            continue
+        start = lo
+        for boundary in re.finditer(r"[。！？]|[.!?](?=\s|$)", line.group()):
+            end = lo + boundary.end()
+            if end - start <= width:
+                units.append((start, end))
+            start = end
+            while start < hi and text[start].isspace():
+                start += 1
+        if start < hi and hi - start <= width:
+            units.append((start, hi))
+    return units
+
+
 def excerpt(text: str, query: str, max_chars: int, *, prepared_terms: list[str] | None = None) -> tuple[str, list[tuple[int, int]]]:
     """Return one bounded original-text window and exact character offsets.
 
@@ -112,18 +139,57 @@ def excerpt(text: str, query: str, max_chars: int, *, prepared_terms: list[str] 
     for term in q:
         for match in islice(re.finditer(re.escape(term), lower), 40):
             positions.append((match.start() if source_positions is None else source_positions[match.start()], term))
+    positions.sort()
     starts = {0, max(0, len(text) - width)}
     for pos, _ in positions:
         starts.add(max(0, min(len(text) - width, pos - width // 3)))
-    best_start, best_score = 0, (-1.0, -1.0, -1)
+    # A keyword-centred window can cut off the start of a complete utterance
+    # even when that utterance fits. Add source-boundary alternatives and use
+    # complete-unit coverage to break equal-coverage ties before placement.
+    units = _evidence_units(text, width) if positions else []
+    unit_starts = [lo for lo, _ in units]
+    masks = {}
+    term_bits = {term: 1 << i for i, term in enumerate(dict.fromkeys(q))}
+    for pos, term in positions:
+        index = bisect_right(unit_starts, pos) - 1
+        if index >= 0 and pos < units[index][1]:
+            masks[index] = masks.get(index, 0) | term_bits[term]
+    matched_units = [(units[i][0], units[i][1], mask) for i, mask in sorted(masks.items())]
+    for lo, hi, _ in matched_units:
+        starts.add(min(lo, len(text) - width))
+        starts.add(max(0, hi - width))
+    unit_starts = [lo for lo, _, _ in matched_units]
+    unit_ends = [hi for _, hi, _ in matched_units]
+    best_start, best_score = 0, (-1.0, -1, -1.0, -1)
+    left = right = position_sum = 0
+    inside: Counter[str] = Counter()
     for start in sorted(starts):
-        local = [(p, t) for p, t in positions if start <= p < start + width]
-        inside = Counter(t for _, t in local)
+        # Candidate starts increase monotonically. Maintain the matching
+        # window instead of rescanning every occurrence for every start.
+        while right < len(positions) and positions[right][0] < start + width:
+            pos, term = positions[right]
+            inside[term] += 1
+            position_sum += pos
+            right += 1
+        while left < right and positions[left][0] < start:
+            pos, term = positions[left]
+            inside[term] -= 1
+            if not inside[term]:
+                del inside[term]
+            position_sum -= pos
+            left += 1
+        whole_terms = 0
+        first_unit = bisect_left(unit_starts, start)
+        last_unit = bisect_right(unit_ends, start + width)
+        for index in range(first_unit, last_unit):
+            whole_terms |= matched_units[index][2]
         # Equal keyword coverage must not prefer a window whose last few
         # characters merely begin the relevant sentence. Leave room after the
         # matched topic for its value, qualification, or following answer.
-        placement = abs(sum(p - start for p, _ in local) / len(local) / width - 1 / 3) if local else 1.0
-        score = (sum(1 + math.log1p(n) * 0.08 for n in inside.values()), -placement, -start)
+        count = right - left
+        placement = abs((position_sum / count - start) / width - 1 / 3) if count else 1.0
+        score = (math.fsum(1 + math.log1p(n) * 0.08 for n in inside.values()),
+                 whole_terms.bit_count(), -placement, -start)
         if score > best_score:
             best_start, best_score = start, score
     end = min(len(text), best_start + width)
