@@ -70,7 +70,9 @@ async def measure(label, root, dataset, work, encodings, repeats, budget):
         raise RuntimeError(prepared.stderr)
     rows, startups, schemas, instructions, detail_costs = [], [], [], [], []
     keys = [(case.query, case.project) for case in dataset.queries]
-    assert len(keys) == len(set(keys)), "First-call fixture must contain unique query/scope pairs"
+    assert len(dataset.queries) == len({case.id for case in dataset.queries}), "Fixture query IDs must be unique"
+    distinct_pairs = len(set(keys))
+    duplicate_cache_clears = 0
     for repetition in range(repeats):
         with sqlite3.connect(database) as connection:
             connection.execute("DELETE FROM recall_cache")
@@ -90,11 +92,23 @@ async def measure(label, root, dataset, work, encodings, repeats, budget):
                 supports_details = any(tool.name == "recall_memory" and
                     "details" in tool.inputSchema.get("properties", {}) for tool in tools.tools)
                 compact_results = {}
+                seen_pairs = set()
                 cases = list(dataset.queries)
                 random.Random(740 + repetition).shuffle(cases)
                 for case in cases:
                     arguments = {"query": case.query, "project": case.project,
                                  "budget_chars": budget, "limit": 5}
+                    pair = (case.query, case.project)
+                    duplicate_pair = pair in seen_pairs
+                    if duplicate_pair:
+                        # A separate annotation can ask the same question.
+                        # Keep its ID, but do not time a previous row's cached
+                        # response as a first call. Commit before starting the
+                        # clock; the following immediate repeat remains hot.
+                        with sqlite3.connect(database) as connection:
+                            connection.execute("DELETE FROM recall_cache")
+                        duplicate_cache_clears += 1
+                    seen_pairs.add(pair)
                     for state in ("first_call_after_cache_clear", "immediate_repeat"):
                         before = time.perf_counter_ns()
                         response = await client.call_tool("recall_memory", arguments)
@@ -106,9 +120,13 @@ async def measure(label, root, dataset, work, encodings, repeats, budget):
                         envelope = response.model_dump_json(exclude_none=True)
                         context = body["context"]
                         assert len(context) <= budget
+                        if state == "first_call_after_cache_clear":
+                            assert body.get("cache_hit") is not True, "First-call measurement returned a cached response"
                         compact_results[case.id] = (arguments, body, text)
                         row = {"query_id": case.id, "category": case.category,
                                "repeat": repetition, "state": state,
+                               "duplicate_pair_cache_clear": duplicate_pair and state == "first_call_after_cache_clear",
+                               "reported_cache_hit": body.get("cache_hit"),
                                "wall_ms": elapsed, "context_chars": len(context),
                                "result_count": len(body.get("results", [])),
                                "context_sha256": hashlib.sha256(context.encode()).hexdigest(),
@@ -146,6 +164,10 @@ async def measure(label, root, dataset, work, encodings, repeats, budget):
                        for name in encodings}}
     return {"label": label, "engine_sha256": source_hash, "startup_to_initialize_ms": summarize(startups),
             "tool_list_json_tokens": schemas, "initialization_instruction_tokens": instructions,
+            "query_pair_counts": {"query_rows": len(keys),
+                                  "distinct_query_project_pairs": distinct_pairs,
+                                  "duplicate_query_project_rows": len(keys) - distinct_pairs,
+                                  "duplicate_pair_cache_clears": duplicate_cache_clears},
             "aggregate": aggregate, "rows": rows, "same_evidence_detail_comparison": detail_costs}
 
 
@@ -178,6 +200,7 @@ async def main_async(args):
               "scope": ["Actual official-SDK subprocess stdio, not a hand-written wire approximation.",
                         "Indexing and tokenization are excluded from call latency; startup is reported separately.",
                         "First calls disable prior query-result entries; OS/SQLite caches are not flushed.",
+                        "All query IDs are retained. Each repeated exact (query, project) pair clears recall_cache through a separate SQLite connection before its timed first call; cache clearing is excluded from call latency and recorded per row.",
                         "Immediate repeats retain cache entries. This is not a guarantee for novel questions.",
                         "Token counts are exact for named reference encodings, not provider billing or host prompt formats.",
                         "Tool schemas/instructions are counted separately; hosts decide how often to include them.",

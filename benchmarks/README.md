@@ -1,5 +1,58 @@
 # Retrieval experiments
 
+## Recall-quality continuation and recovery
+
+The [continuation report](RESULTS-recall-quality.md) completes the interrupted
+`perf/recall-quality-budget` work. Its source identity, development choices,
+reserved seeds, public regression/expansion cohorts, native component costs and
+remaining limitations are separate from the historical v0.3.0 records below.
+
+[recall_quality_plan.json](recall_quality_plan.json) records the evaluation
+rules and seeds 211/509 selected before their results.
+[recall_quality_corpora.json](recall_quality_corpora.json) lists the exact six
+corpus selections for structural preflight. The full public split includes the
+previous 256-query regression sample; the report separates the remaining 759
+queries and does not call the whole split unseen data.
+
+[recall_quality_manifest.json](recall_quality_manifest.json) executes all final
+measurements sequentially. From this checkout, prepare sibling baseline
+worktrees at `../baseline-v0.3` (commit
+`3ee40946c5407e65fd375a8d47472066a82ae472`) and `../baseline-v0.2` (commit
+`a05f88a79ce20be3fd5912c62fc020f8b11ba4a9`). Install `.[mcp,clients,benchmark]`,
+use Node 24+, and download the pinned LoCoMo file described below to
+`.artifacts/data/locomo10.json`. Prepare the optional competitor cache once:
+
+```bash
+python - <<'PY'
+from pathlib import Path
+from benchmarks.competitors.billion import prepare as prepare_billion
+from benchmarks.competitors.ai_memory import prepare, prepare_models
+cache = Path('.artifacts/competitors')
+prepare_billion(cache / 'billion-context')
+prepare(cache)
+prepare_models(cache)
+PY
+export TIKTOKEN_CACHE_DIR="$PWD/.artifacts/tiktoken"
+python -m benchmarks.resume \
+  --manifest benchmarks/recall_quality_manifest.json \
+  --checkpoint .artifacts/recall-quality-checkpoint.json
+```
+
+The same command resumes an interrupted run. Completed stages are reused only
+after their output hashes and JSON validation pass. Missing/corrupt reports
+invalidate the affected stage and its successors. Source, corpus, manifest,
+Python, installed dependency, SQLite or Node changes require a new checkpoint;
+results from different implementations must not be mixed. The checkpoint uses
+an atomic write and an operating-system lock. On POSIX, failed/interrupted
+stage process groups are cleaned up before another stage can start.
+
+Paired and component reports retain diagnostic output but exit unsuccessfully
+for recorded source changes or context/token-budget violations. Passing these
+invariants does not mean a quality target passed. Full-corpus MCP timing retains
+duplicate query IDs and clears the result cache outside timing before repeated
+query/scope pairs, preserving an uncached first call and a separately measured
+immediate repeat for each row.
+
 ## v0.3.0 measurement records
 
 The [release interpretation](RESULTS-v0.3.0.md) discusses improvements, remaining

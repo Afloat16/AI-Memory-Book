@@ -27,7 +27,8 @@ from datetime import datetime, timezone
 
 from benchmarks.run import _normalized, engine_source_hash, original_turn_texts
 from benchmarks.token_compare import (ENCODINGS, TokenCounter, latency_summary,
-    checkout_provenance, load_dataset, pack_whole_blocks, score_row, summarize_rows)
+    checkout_provenance, load_dataset, pack_whole_blocks, score_row, summarize_rows,
+    validation_markdown, validation_status)
 
 
 BASELINE_ENGINES = frozenset({"baseline", "v0.2.1"})
@@ -120,11 +121,12 @@ def export_frozen(args) -> dict:
                               "source_refs": page["source_refs"], "breadcrumb": page["breadcrumb"],
                               "created_at": page["created_at"]})
         stats = book.stats()
-    if before != engine_source_hash(source_root):
-        raise RuntimeError("Frozen source changed during page export")
+    after = engine_source_hash(source_root)
     bundle = {"documents": documents, "dataset": dataset.description(),
               "label": args.baseline_label, "engine_version": __version__,
               "source_provenance": checkout_provenance(source_root),
+              "source_sha256_before": before, "source_sha256_after": after,
+              "source_unchanged": before == after,
               "frozen_source_sha256": before, "stats": stats, "ingestion_ms": ingest_ms,
               "evidence_attainability": evidence_attainability(dataset, documents),
               "documents_sha256": hashlib.sha256(canonical_json(documents).encode()).hexdigest()}
@@ -159,8 +161,9 @@ class CoreBook:
 
     def close(self):
         self.book.close()
-        if self.source_hash != engine_source_hash(self.source_root):
-            raise RuntimeError("Candidate source changed during component measurement")
+        after = engine_source_hash(self.source_root)
+        self.metadata.update(source_sha256_after=after,
+                             source_unchanged=self.source_hash == after)
 
 
 def measure_component(args) -> dict:
@@ -277,6 +280,8 @@ def measure_component(args) -> dict:
 def markdown(report):
     lines = ["# Shared-page retrieval component comparison", "",
              "Actual upstream kernels/executables; no generated answers. Scope and transport differ as documented below.", "",
+             *validation_markdown(report.get("validation", validation_status(
+                 [report.get("frozen_corpus", {}), *report["engines"]]))),
              "| Engine | Tokenizer | Token cap | Evidence recall | Complete evidence | Mean context tokens | Adapter p50 ms | Adapter p95 ms |",
              "|---|---|---:|---:|---:|---:|---:|---:|"]
     for engine in report["engines"]:
@@ -341,8 +346,9 @@ def main():
         parser.error("baseline and v0.2.1 select the same ranker; use only one")
     if args.worker:
         result = export_frozen(args) if args.worker == "export" else measure_component(args)
+        result["validation"] = validation_status([result])
         args.output.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
-        return 0
+        return 0 if result["validation"]["passed"] else 2
     common = ["--baseline-src", str(args.baseline_src.resolve()), "--cache", str(args.cache.resolve()),
               "--baseline-label", args.baseline_label, "--candidate-label", args.candidate_label,
               "--corpus", args.corpus, "--split", args.split, "--seed", str(args.seed),
@@ -359,15 +365,21 @@ def main():
         bundle, frozen_db, output = root / "pages.json", root / "frozen.db", root / "worker.json"
         command = [sys.executable, "-m", "benchmarks.component_eval", *common,
                    "--bundle", str(bundle), "--database", str(frozen_db), "--output", str(output)]
-        subprocess.run([*command, "--worker", "export", "--engine-src", str(args.baseline_src.resolve())], check=True)
+        completed = subprocess.run([*command, "--worker", "export", "--engine-src", str(args.baseline_src.resolve())], check=False)
         frozen = json.loads(output.read_text())
-        for name in args.engines:
+        frozen["worker_exit_code"] = getattr(completed, "returncode", 0)
+        # A changed exporter cannot supply a valid common corpus. Preserve its
+        # record and skip rankers instead of discarding the diagnostic on exit.
+        for name in args.engines if validation_status([frozen])["passed"] else []:
             database = root / (name + ".db")
             shutil.copyfile(frozen_db, database)
             source = args.baseline_src if name in BASELINE_ENGINES else args.candidate_src
-            subprocess.run([*command, "--worker", "measure", "--engine", name,
-                            "--engine-src", str(source.resolve()), "--database", str(database)], check=True)
-            engines.append(json.loads(output.read_text()))
+            output.unlink()
+            completed = subprocess.run([*command, "--worker", "measure", "--engine", name,
+                            "--engine-src", str(source.resolve()), "--database", str(database)], check=False)
+            result = json.loads(output.read_text())
+            result["worker_exit_code"] = getattr(completed, "returncode", 0)
+            engines.append(result)
             print(f"{name}: measured {engines[-1]['dataset']['queries']} shared-page queries", file=sys.stderr, flush=True)
     report = {"schema_version": 1, "evaluator_version": "shared-components-1.0",
               "created_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -389,9 +401,10 @@ def main():
                   "The two measured tiktoken encodings are references, not every provider's tokenizer. Packing and full-read costs are additional to retrieval and separately reported.",
                   "Evidence coverage requires complete annotated text and source identity/span. It is not generated-answer accuracy, semantic equivalence, or a hallucination metric.",
                   "Public LoCoMo data remains outside git under CC BY-NC 4.0. Published reports contain IDs and metrics only. Synthetic heldout templates are not an independent domain test."]}
+    report["validation"] = validation_status([frozen, *engines])
     write_report(report, args.output)
     print(markdown(report))
-    return 0
+    return 0 if report["validation"]["passed"] else 2
 
 
 if __name__ == "__main__":

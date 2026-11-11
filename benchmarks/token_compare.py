@@ -180,6 +180,56 @@ def summarize_rows(rows: list[dict]) -> dict:
     return result
 
 
+def validation_status(records: list[dict]) -> dict:
+    """Gate recorded measurement invariants, never retrieval quality scores.
+
+    Records may be paired engines, component engines, or a frozen page export.
+    Only recorded checks are inspected, so old reports and external components
+    without Python source fingerprints are not mistaken for changed sources.
+    """
+    failures = []
+    for record in records:
+        label = record.get("label", "frozen corpus")
+
+        def fail(check, observed, configuration=None):
+            item = {"label": label, "check": check, "observed": observed}
+            if configuration is not None:
+                item["configuration"] = configuration
+            failures.append(item)
+
+        for source in (record, record.get("metadata", {})):
+            before = source.get("source_sha256_before", source.get("source_sha256"))
+            after = source.get("source_sha256_after")
+            if source.get("source_unchanged") is False or (
+                    before is not None and after is not None and before != after):
+                fail("source_unchanged", {"before": before, "after": after})
+        for field in ("configurations", "packed_configurations"):
+            for index, config in enumerate(record.get(field, [])):
+                identity = {"collection": field, "index": index,
+                            **{key: config[key] for key in
+                               ("budget_chars", "tokenizer", "budget_tokens") if key in config}}
+                for check in ("budget_violations", "context_size_mismatches"):
+                    count = config.get("metrics", {}).get(check, 0)
+                    if count:
+                        fail(check, count, identity)
+                count = config.get("token_budget_violations", 0)
+                if count:
+                    fail("token_budget_violations", count, identity)
+        if record.get("worker_exit_code", 0):
+            fail("worker_exit_code", record["worker_exit_code"])
+    return {"passed": not failures, "failures": failures}
+
+
+def validation_markdown(status: dict) -> list[str]:
+    if status["passed"]:
+        return ["## Measurement validation", "",
+                "Passed recorded source-stability and context/token-budget checks. This is not a quality threshold.", ""]
+    return ["## Measurement validation", "",
+            "**FAILED: these measurements are diagnostic and must not be published as a valid comparison.**", "",
+            *[f"- {failure['label']}: {failure['check']} = {failure['observed']}"
+              for failure in status["failures"]], ""]
+
+
 def score_row(case, response, source_texts, counters, *, public: bool) -> dict:
     row = evaluate_response(case, response, response["budget_chars"], source_texts)
     row["context_tokens"] = {name: counter.count(response["context"]) for name, counter in counters.items()}
@@ -284,6 +334,7 @@ def comparison_markdown(report: dict) -> str:
         return "n/a" if value is None else f"{value:.2%}"
     lines = ["# Paired retrieval and token-cost measurements", "",
              "These measurements evaluate source-evidence retrieval, not model answers or complete competitor products.", "",
+             *validation_markdown(report.get("validation", validation_status(report["engines"]))),
              "## Same character-budget retrieval", "",
              "| Engine | Character cap | Evidence recall | Complete evidence | Mean cl100k tokens | Mean o200k tokens | Recall p50 ms | Recall p95 ms |",
              "|---|---:|---:|---:|---:|---:|---:|---:|"]
@@ -354,8 +405,9 @@ def main() -> int:
         parser.error("budgets, repeats and limit must be positive; character caps need at least 128")
     if args.worker:
         report = measure_engine(args)
+        report["validation"] = validation_status([report])
         args.output.write_text(json.dumps(report, ensure_ascii=False), encoding="utf-8")
-        return 0 if report["source_unchanged"] else 2
+        return 0 if report["validation"]["passed"] else 2
     if args.baseline_src is None:
         parser.error("--baseline-src must identify the frozen baseline package source directory")
     if not args.baseline_label.strip() or not args.candidate_label.strip() or args.baseline_label == args.candidate_label:
@@ -373,8 +425,12 @@ def main() -> int:
                        "--budget-chars", *map(str, args.budget_chars), "--token-budgets", *map(str, args.token_budgets)]
             if args.locomo_path:
                 command += ["--locomo-path", str(Path(args.locomo_path).resolve())]
-            subprocess.run(command, check=True)
-            engines.append(json.loads(output.read_text()))
+            completed = subprocess.run(command, check=False)
+            result = json.loads(output.read_text())
+            # Invariant failures still produce a complete worker record. Keep
+            # it outside the temporary directory in the diagnostic report.
+            result["worker_exit_code"] = getattr(completed, "returncode", 0)
+            engines.append(result)
             print(f"{label}: measured {engines[-1]['dataset']['queries']} queries", file=sys.stderr, flush=True)
     if engines[0]["dataset"]["sha256"] != engines[1]["dataset"]["sha256"]:
         raise RuntimeError("Engines did not receive identical datasets")
@@ -392,9 +448,10 @@ def main() -> int:
                   "Evidence requires original source identity and span plus the complete annotated text in the actual returned context. Unanswerable nonempty retrieval is not a hallucination rate.",
                   "Synthetic heldout seeds were reserved after development selection; shared templates still limit generalization. Public LoCoMo data remains separately downloaded under CC BY-NC 4.0; reports contain IDs and metrics, not dataset text.",
                   "This paired version comparison does not execute external competitor products. See the separate component comparison for any measured upstream kernels."]}
+    report["validation"] = validation_status(engines)
     write_artifacts(report, args.output)
     print(comparison_markdown(report))
-    return 0
+    return 0 if report["validation"]["passed"] else 2
 
 
 if __name__ == "__main__":
