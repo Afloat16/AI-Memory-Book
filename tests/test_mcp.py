@@ -76,6 +76,20 @@ class MCPTests(unittest.IsolatedAsyncioTestCase):
                 decoded = json.loads(body)
                 self.assertNotIn("text", decoded["results"][0])
                 self.assertLessEqual(len(decoded["context"]), 4000)
+                self.assertNotIn("excerpt_spans", decoded["results"][0])
+                self.assertEqual(set(decoded["results"][0]["source_refs"][0]),
+                                 {"project", "session_id", "turn_index"})
+                detailed = await client.call_tool("recall_memory", {
+                    "query": "callback retry delay", "project": "payments", "budget_chars": 4000,
+                    "details": True,
+                })
+                detailed_text = "\n".join(part.text for part in detailed.content if part.type == "text")
+                full = json.loads(detailed_text)
+                self.assertEqual(full["context"], decoded["context"])
+                self.assertTrue(full["results"][0]["excerpt_spans"])
+                self.assertIn("turn_start", full["results"][0]["source_refs"][0])
+                self.assertLess(len(body), len(detailed_text))
+                self.assertIsNone(detailed.structuredContent)
                 projects = await client.call_tool("browse_projects", {})
                 self.assertFalse(projects.isError, projects)
                 self.assertIn("payments", str(projects))

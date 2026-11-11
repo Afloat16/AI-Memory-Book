@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.3.0 — 2026-11-11
+
+### Retrieval and context cost
+
+- Reused lexical preparation across excerpts, added offset-preserving ASCII/Unicode fast paths, cached repeated title normalization within a recall, and fetched selected pages in one SQL query. Original text, source IDs, and exact source spans remain available.
+- Shortened context citation headers while retaining page, project, session, and date identity. Full hierarchy titles remain in page metadata and directory tools.
+- Improved equal-coverage excerpt placement so text following a matching topic is less likely to be cut off. Added a bounded query-term novelty bonus to reduce redundant pages crowding out complementary evidence.
+- Added conservative timestamp preference for explicit current/latest queries within the same chapter and identical lexical coverage. Historical/date-bound queries keep relevance order; this heuristic does not resolve conflicting facts authoritatively.
+- Incremented the retrieval cache version to invalidate old results. The database schema remains version 2; no source migration or reindex is needed.
+
+### MCP response contract
+
+- All tools now return one compact JSON text block, avoiding SDK pretty-printing overhead. `browse_projects` contains a JSON array in that block.
+- `recall_memory` defaults to compact `project`/`session_id`/`turn_index` references. Pass `details: true` to obtain exact source coordinates, excerpt spans, and diagnostics. `read_page` keeps full provenance; CLI and HTTP JSON responses retain their detailed fields.
+- Shortened initialization instructions without removing source trust, scope, optional navigation, or write-replacement rules. Added actual stdio checks that compact and detailed modes preserve identical evidence.
+
+### Reproducible evaluation
+
+- Added paired v0.2.1/current evaluation with exact `cl100k_base` and `o200k_base` token counting, shared whole-evidence token caps, fresh-process measurements, and actual MCP stdio cost measurement. Tokenizers are an optional benchmark dependency, not a runtime requirement.
+- Added pinned, hash-verified LoCoMo data loading, download instructions, and a conversation-level development/heldout split. Public data, expected answers, model weights, and competitor binaries are not bundled in the MIT package.
+- Added adapters that execute the actual pinned billion-context search kernel and ai-memory v3.4.5 native APIs, including its local MiniLM hybrid MCP mode. Shared-page results distinguish ranking, native payload/read cost, and transport boundaries. claude-mem remains unmeasured.
+- Published complete result curves and category failures in the release evaluation report; retrieval evidence coverage is not an LLM answer-quality score or a universal product-performance claim.
+
 ## 0.2.1 — 2026-11-11
 
 ### Agent-first operation

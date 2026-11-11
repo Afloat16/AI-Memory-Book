@@ -10,19 +10,19 @@ creates an isolated environment with the `mcp` and `clients` extras. It does not
 require Node.js, an embedding server, a database server, or a memory-service API
 key. Your AI client's own model and account requirements remain separate.
 
-## Install v0.2.1
+## Install v0.3.0
 
 ### macOS / Linux
 
 ```bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.2.1/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.0/scripts/install.sh
 bash install-memory-book.sh
 ```
 
 ### Windows PowerShell
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.2.1/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.0/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ```
 
@@ -37,7 +37,7 @@ live under the data directory's `install` subdirectory. The usual POSIX launcher
 is `~/.local/bin/memory-book`; Windows uses the data directory's `bin` directory.
 Custom `--prefix`, `--bin-dir`, or `MEMORY_BOOK_HOME` can change these locations.
 
-The downloaded helper accepts `--version v0.2.1`, a full commit SHA, or
+The downloaded helper accepts `--version v0.3.0`, a full commit SHA, or
 `--source /absolute/path/to/checkout-or-wheel`. `--without-extras` installs only
 the core and therefore omits MCP/client integration. Installation stages a new
 environment before switching its managed launcher; previous environments and
@@ -69,13 +69,13 @@ itself enable transcript capture.
 Use a persistent tool environment and a pinned Git release:
 
 ```bash
-uv tool install "ai-memory-book[mcp,clients] @ git+https://github.com/Afloat16/AI-Memory-Book.git@v0.2.1"
+uv tool install "ai-memory-book[mcp,clients] @ git+https://github.com/Afloat16/AI-Memory-Book.git@v0.3.0"
 ```
 
 Or:
 
 ```bash
-pipx install "ai-memory-book[mcp,clients] @ git+https://github.com/Afloat16/AI-Memory-Book.git@v0.2.1"
+pipx install "ai-memory-book[mcp,clients] @ git+https://github.com/Afloat16/AI-Memory-Book.git@v0.3.0"
 ```
 
 These Git URL forms require Git. Their syntax follows the official
@@ -93,7 +93,7 @@ indexes; this is not an offline installation promise.
 ### Source checkout
 
 ```bash
-git clone --branch v0.2.1 https://github.com/Afloat16/AI-Memory-Book.git
+git clone --branch v0.3.0 https://github.com/Afloat16/AI-Memory-Book.git
 cd AI-Memory-Book
 python -m venv .venv
 source .venv/bin/activate

@@ -65,9 +65,8 @@ a local memory service sharing one configured database.
 |---|---|
 | `context` | The assembled evidence to read, with page IDs, source sessions, and dates |
 | `results[].id` | An exact page ID accepted by `read_page` |
-| `results[].source_refs` | Project/session identity, turn indices, message indices, and source spans |
-| `results[].excerpt_spans` | Character ranges in the original page selected for the excerpt |
-| `results[].truncated` | Whether the returned excerpt omits part of that page |
+| `results[].source_refs` | Compact project/session identity and zero-based turn indices |
+| `results[].truncated` | Present and `true` when the excerpt omits part of that page |
 | `context_chars` / `budget_chars` | Actual assembled context size and requested limit |
 | `warnings` | Budget, project-scope, or conflicting-history cautions |
 | `revision` | The database revision associated with this response |
@@ -78,7 +77,14 @@ page ID. If displaying turns as “question 1,” convert index 0 to 1 explicitl
 do not change the stored reference. Distinguish what the source says from any
 new inference you make.
 
-`source_refs.start` and `end` are half-open character offsets within the full
+Since v0.3.0, MCP responses use compact JSON and omit routine diagnostics and
+exact coordinates by default. Evidence text is not removed by this formatting
+change. Set `"details": true` on `recall_memory` to retrieve the full reference
+coordinates, `excerpt_spans`, and diagnostics, or use `read_page` for a selected
+page. CLI and HTTP responses continue to expose their full fields. All MCP tools
+return one JSON text block; `browse_projects` contains a JSON array.
+
+In detailed responses and page reads, `source_refs.start` and `end` are half-open character offsets within the full
 page, while `turn_start` and `turn_end` locate the same text in the assembled
 turn. They are not byte offsets in the vendor's original JSON file or offsets
 in the shortened excerpt. `message_indices` refer to the normalized source

@@ -1,0 +1,15 @@
+{
+  "dataset": "LoCoMo locomo10.json",
+  "repository": "https://github.com/snap-research/locomo",
+  "commit": "3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376",
+  "url": "https://raw.githubusercontent.com/snap-research/locomo/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/data/locomo10.json",
+  "sha256": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+  "bytes": 2805274,
+  "license": "CC-BY-NC-4.0",
+  "license_url": "https://github.com/snap-research/locomo/blob/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/LICENSE.txt",
+  "split_procedure": "Sort sample_id, shuffle with random.Random(20261111), reserve first two conversations for development and remaining eight for heldout. Frozen before evaluating retrieval outcomes.",
+  "split_seed": 20261111,
+  "development": ["conv-47", "conv-49"],
+  "heldout": ["conv-50", "conv-26", "conv-41", "conv-42", "conv-30", "conv-44", "conv-43", "conv-48"],
+  "query_selection": "For a bounded run, sort eligible query IDs by SHA256('locomo-query-order-v1:' + query_id), then keep the first max_queries. Selection is independent of question text, answer labels, and outcomes."
+}

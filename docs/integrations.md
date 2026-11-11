@@ -213,7 +213,13 @@ values; page reads expose source spans. `budget_chars` defaults to 4,000 and
 bounds the assembled evidence context, including citation headings. It does
 **not** bound outer JSON metadata, tool declarations, or exact model tokens.
 Recall returns one copy of the context rather than duplicating it in text and
-structured content. Check conflicting source dates and statements instead of
+structured content. Since v0.3.0, all MCP tools return one compact JSON text
+block. Default recall references contain `project`, `session_id`, and
+`turn_index`; pass `"details": true` for exact offsets, message indices,
+excerpt ranges, and retrieval diagnostics. `read_page` retains full provenance.
+`browse_projects` returns a JSON array within its single text block. Consumers
+that depended on v0.2.x's detailed recall fields should request `details`.
+Check conflicting source dates and statements instead of
 assuming the top result is the current authoritative decision.
 
 `remember_session` replaces the full session identified by `(project,

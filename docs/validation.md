@@ -1,8 +1,39 @@
 # Release validation
 
-This document separates measured behavior from configuration compatibility. All
-fixtures, examples, screenshots, and capture measurements are synthetic. No
-private user conversation history was used in development or published.
+This document separates measured behavior from configuration compatibility.
+Product fixtures, examples, screenshots, and capture measurements are synthetic;
+v0.3.0 also evaluates an independently published LoCoMo text corpus. No private
+user conversation history was used in development or published.
+
+## v0.3.0: retrieval and actual response costs
+
+The complete local suite passed **174 tests** with MCP, client, and benchmark
+extras, including real-tokenizer CJK/Unicode packing checks. Current CI status is
+available in [GitHub Actions](https://github.com/Afloat16/AI-Memory-Book/actions).
+Measured quality, response cost, and regressions are in the
+[v0.3.0 results](../benchmarks/RESULTS-v0.3.0.md).
+
+The retrieval changes are covered by source-offset, complementary-evidence,
+current-versus-historical, and excerpt-boundary regressions. Actual official-SDK
+stdio checks verify that compact and detailed recall return identical evidence,
+that detailed mode retains exact provenance, and that responses do not duplicate
+the context in `structuredContent`.
+
+The new evaluation separates paired core retrieval, fresh-process CLI startup,
+actual MCP subprocess calls, and external retrieval components. It uses exact
+named tokenizers, frozen sources, new synthetic seeds, and an independent public
+conversation split. The external adapters execute pinned upstream code or release
+binaries; ai-memory's local MiniLM embeddings are active and completely indexed.
+See [the comparison protocol](comparison-protocol.md) and
+[reproduction commands](../benchmarks/README.md) for metric and transport limits.
+
+The public text-evidence scores require full annotated utterances and matching
+source coordinates. They are not generated-answer accuracy. External shared-page
+scores preserve each ranker's implementation while controlling page content,
+project scope, candidate count, and packing; they do not evaluate each product's
+capture or summarization pipeline. Native ai-memory cost totals use the explicit
+policy of reading every mapped top-k page once, not an optimized agent's minimum
+required follow-up calls.
 
 ## v0.2.1: agent workflow and headless default
 
@@ -146,5 +177,7 @@ and [browser run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/429916
   system. Browser coverage is Chrome/Chromium at the stated sizes.
 - Lexical retrieval does not guarantee semantic recall, authoritative conflict
   resolution, automatic host injection, or end-to-end model answer quality.
-- Related memory projects were researched, not installed and benchmarked against
-  this implementation. No competitor performance claim is made.
+- The v0.3.0 billion-context and ai-memory comparisons cover the specific pinned
+  retrieval components and common-page policy. Their full capture, observer,
+  proxy, consolidation, and agent-answer workflows are not compared; claude-mem
+  remains unmeasured. Reported transport boundaries also differ.

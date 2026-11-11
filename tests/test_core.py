@@ -65,6 +65,51 @@ class BookTests(unittest.TestCase):
         result = self.book.recall("报价缓存失效", project="alpha")
         self.assertEqual({r["session_id"] for h in result["results"] for r in h["source_refs"]}, {"s1", "s2"})
 
+    def test_complementary_query_facets_survive_similar_results(self):
+        for facet, answer in (
+            ("temperature", "Sensor temperature is stable. Sensor temperature allowance is 21 degrees."),
+            ("pressure", "Sensor pressure allowance is 18 pascals."),
+        ):
+            for i in range(6):
+                self.book.ingest({
+                    "project": "lab", "session_id": f"{facet}-{i}",
+                    "task_id": "sensors", "title": f"Sensor {facet}",
+                    "created_at": "2025-01-01T00:00:00Z",
+                    "messages": [{"role": "user", "content": f"Sensor {facet}?"},
+                                 {"role": "assistant", "content": answer}],
+                })
+        result = self.book.recall("sensor temperature pressure", project="lab", limit=2)
+        self.assertIn("21 degrees", result["context"])
+        self.assertIn("18 pascals", result["context"])
+        self.assertEqual(len(result["results"]), 2)
+
+    def test_current_query_prefers_equivalent_revision_without_changing_history(self):
+        def record(sid, date, answer):
+            self.book.ingest({
+                "project": "archive", "session_id": sid, "task_id": "parcel-policy",
+                "title": "Parcel policy", "created_at": date,
+                "messages": [{"role": "user", "content": "Parcel retention?"},
+                             {"role": "assistant", "content": answer}],
+            })
+        record("original", "2024-01-01T00:00:00Z",
+               "Original parcel retention is 7 days. Parcel retention, parcel retention, parcel retention.")
+        record("revision", "2025-01-01T00:00:00Z", "Parcel retention is 19 days.")
+        # A newer, incomplete topic match is not a revision of the requested fact.
+        self.book.ingest({
+            "project": "archive", "session_id": "audit", "task_id": "parcel-policy",
+            "title": "Audit", "created_at": "2026-01-01T00:00:00Z",
+            "messages": [{"role": "user", "content": "Parcel audit?"},
+                         {"role": "assistant", "content": "Parcel access checks are audited."}],
+        })
+        current = self.book.recall("What is the current parcel retention?", project="archive", limit=1)
+        self.assertIn("19 days", current["context"])
+        self.assertTrue(current["warnings"])
+        for query in ("parcel retention", "What was the original parcel retention?",
+                      "What was the current parcel retention as of 2024?"):
+            with self.subTest(query=query):
+                historical = self.book.recall(query, project="archive", limit=1)
+                self.assertIn("7 days", historical["context"])
+
     def test_no_implicit_cross_session_merge(self):
         self.book.ingest(session(task=""))
         self.book.ingest(session(sid="s2", task=""))
@@ -114,6 +159,21 @@ class BookTests(unittest.TestCase):
             self.assertEqual(len(result["context"]), result["context_chars"])
             for hit in result["results"]:
                 self.assertIn(hit["id"], result["context"])
+
+    def test_compact_citation_keeps_source_identity_and_full_metadata(self):
+        payload = session()
+        payload["project_name"] = "A descriptive project name"
+        payload["task_title"] = "A descriptive chapter name"
+        self.book.ingest(payload)
+        result = self.book.recall("缓存", project="alpha")
+        hit = result["results"][0]
+        header = result["context"].splitlines()[0]
+        for identifier in (hit["id"], "alpha", "s1", hit["created_at"]):
+            self.assertIn(identifier, header)
+        self.assertEqual(hit["breadcrumb"][0]["title"], payload["project_name"])
+        self.assertEqual(hit["breadcrumb"][1]["title"], payload["task_title"])
+        self.assertEqual(hit["source_refs"][0]["project"], "alpha")
+        self.assertEqual(self.book.read(hit["id"])["content"], hit["text"])
 
     def test_long_answer_reconstructs_without_losing_characters(self):
         payload = session(answer="前段信息\n\n" * 300 + "关键结论targetvalue\n" + "尾部说明" * 500)
@@ -357,6 +417,24 @@ class TextTests(unittest.TestCase):
         self.assertIn("target", value)
         self.assertLessEqual(len(value), 120)
         self.assertEqual(value.strip("…"), text[spans[0][0]:spans[0][1]])
+
+    def test_excerpt_leaves_room_for_the_value_after_matched_terms(self):
+        text = "Background details. " * 12 + "The nozzle diameter is 37 millimetres. " + "Additional notes. " * 4
+        value, spans = excerpt(text, "nozzle diameter", 270)
+        self.assertIn("37 millimetres", value)
+        self.assertLessEqual(len(value), 270)
+        self.assertEqual(value.strip("…"), text[spans[0][0]:spans[0][1]])
+
+    def test_unicode_excerpt_offsets_refer_to_original_characters(self):
+        for phrase, query in (("缓存最长保留23分钟", "缓存最长"),
+                              ("café Straße policy is 23 minutes", "cafe strasse"),
+                              ("cafe\u0301 policy is 23 minutes", "cafe policy")):
+            with self.subTest(phrase=phrase):
+                text = "unrelated prefix " * 30 + phrase + " trailing text" * 30
+                value, spans = excerpt(text, query, 100)
+                self.assertIn(phrase, value)
+                self.assertEqual(value.strip("…"), text[spans[0][0]:spans[0][1]])
+                self.assertLessEqual(len(value), 100)
 
     def test_tokenize_chinese_and_identifiers(self):
         self.assertIn("缓存", query_terms("为什么缓存失效？"))

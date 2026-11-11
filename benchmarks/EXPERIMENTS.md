@@ -1,6 +1,12 @@
 # Experiment record and default selection
 
-All measurements in this record use synthetic conversations authored for this
+This file preserves the historical v0.2 segmentation/default-selection record.
+The v0.3 paired-version, exact-tokenizer, independent public-corpus, and actual
+upstream-component protocol is documented in [the benchmark guide](README.md).
+The historical heldout seeds below became prior evidence for later work and
+are not fresh heldout evaluation of v0.3.
+
+All measurements in this historical record use synthetic conversations authored for this
 project. They test the local retrieval implementation, not an LLM's answer
 quality and not the performance of other open-source memory systems. The full
 per-query evidence records are retained in deterministic gzip archives beside

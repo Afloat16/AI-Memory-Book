@@ -1,5 +1,160 @@
 # Retrieval experiments
 
+## v0.3.0 measurement records
+
+The [release interpretation](RESULTS-v0.3.0.md) discusses improvements, remaining
+failures, and comparison limits. Complete curves and per-query records are
+retained in these reports:
+
+- Paired synthetic heldout 113: [report](results/paired-heldout-113.md),
+  [summary](results/paired-heldout-113.summary.json), [full records](results/paired-heldout-113.json.gz).
+- Paired synthetic heldout 307: [report](results/paired-heldout-307.md),
+  [summary](results/paired-heldout-307.summary.json), [full records](results/paired-heldout-307.json.gz).
+- Paired public LoCoMo heldout: [report](results/paired-locomo-heldout.md),
+  [summary](results/paired-locomo-heldout.summary.json), [full records](results/paired-locomo-heldout.json.gz).
+- Actual shared-page components, public development: [report](results/components-locomo-development.md),
+  [summary](results/components-locomo-development.summary.json), [full records](results/components-locomo-development.json.gz).
+- Actual shared-page components, public heldout: [report](results/components-locomo-heldout.md),
+  [summary](results/components-locomo-heldout.summary.json), [full records](results/components-locomo-heldout.json.gz).
+- [Evidence-structure preflight](results/evidence-preflight.json) verifies zero
+  annotations split across canonical pages in every newly evaluated corpus,
+  for both baseline and candidate. No labels were removed to obtain that result.
+
+Each report has a matching `.summary.json` and complete `.json.gz` beside it.
+Synthetic tests are controlled regressions; public LoCoMo is a text-evidence
+adaptation; upstream tests are bounded retrieval-component comparisons. None
+is a generated-answer accuracy benchmark or proof of universal superiority.
+
+## Version, tokenizer, and public-data comparison
+
+The new `token_compare` harness runs an immutable baseline and the candidate in
+independent Python processes. It measures the returned context with actual
+`tiktoken==0.12.0` encodings (`cl100k_base` and `o200k_base`), with no character
+estimate fallback. These are reference encodings, not all providers' tokenizers
+or billed API usage. The production package still has no tokenizer dependency.
+
+```bash
+python -m pip install tiktoken==0.12.0
+git archive a05f88a79ce20be3fd5912c62fc020f8b11ba4a9 | tar -x -C /path/to/frozen-v0.2.1
+python -m benchmarks.token_compare \
+  --baseline-src /path/to/frozen-v0.2.1/src --candidate-src src \
+  --split development --seed 61 --projects 8 --repeats 3 \
+  --budget-chars 2000 8000 --token-budgets 512 1024 2048 \
+  --output benchmarks/results/paired-development-61
+```
+
+Create the destination directory before `git archive`. Tokenizer downloads may
+occur on first use; set `TIKTOKEN_CACHE_DIR` to reuse a prepopulated cache offline.
+Source fingerprints before and after each worker detect edits during a run.
+Synthetic seeds **113 and 307** were reserved before this optimization round;
+seed **61** is development. The older 11/29/47 experiments below are historical
+development evidence and must not be reused as fresh heldout evidence.
+
+The paired report separates two questions. The same character caps compare
+the real retrieval API directly. A second, explicitly additional stage applies
+the identical whole-evidence-block token packer to each engine's single
+8,000-character retrieval. It retains blocks in rank order when they fit, may
+skip a large block to fit a later one, and never consults evidence labels. It
+does not trim source spans or make additional recall calls. Packing latency is
+reported separately. This is an evaluation policy, not a native production
+token-budget feature.
+
+Recall timings exclude ingestion, token counting, startup, MCP transport, and
+model inference. Separate fresh Python CLI timings include startup/imports,
+database open, recall, and JSON serialization, with warm OS/disk caches. Real
+MCP initialization, tool definitions, and full serialized responses are
+measured separately by `benchmarks.mcp_costs`; neither core API JSON nor context
+alone is a substitute for those costs.
+
+### External LoCoMo corpus
+
+[LoCoMo](https://github.com/snap-research/locomo) by Maharana et al. provides an
+independent public benchmark of persona-agent-generated conversations. These
+are generated dialogues, not genuine human-user histories. The upstream data has a
+[CC BY-NC 4.0 license](https://github.com/snap-research/locomo/blob/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/LICENSE.txt),
+which is separate from this repository's MIT code license. Download it outside
+this repository, in accordance with that license. No dataset text is vendored
+or included in our result files.
+
+```bash
+curl -L https://raw.githubusercontent.com/snap-research/locomo/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/data/locomo10.json \
+  -o /path/to/locomo10.json
+python -m benchmarks.token_compare \
+  --baseline-src /path/to/frozen-v0.2.1/src --candidate-src src \
+  --corpus locomo --locomo-path /path/to/locomo10.json \
+  --split heldout --max-queries 256 --repeats 3 \
+  --output benchmarks/results/paired-locomo-heldout
+```
+
+The loader verifies the pinned file's SHA-256 and size. `locomo_split.json`
+records the upstream commit and the conversation-level split, frozen before
+outcomes were inspected: two development conversations and eight heldout
+conversations. Bounded query selection sorts the SHA-256 hashes of stable query
+IDs; it does not select favorable questions or outcomes. `--max-queries 0` uses
+all eligible questions. Reports contain IDs, counts, and metrics, never raw
+questions, answers, or source quotes.
+
+This is a **text-evidence retrieval adaptation**, not the original LoCoMo
+generated-answer benchmark. Each dialogue utterance becomes one source turn
+with its speaker name; summaries, answer labels, image captions, and images are
+not indexed. We exclude answerable questions with missing/invalid evidence IDs
+or image-bearing required evidence, and report every exclusion count. A hit
+requires the complete annotated utterance and correct source span; this is
+stricter than simply retrieving a relevant page and does not measure whether an
+LLM could answer from a smaller fragment. Category 5 questions are retained as
+unanswerable diagnostics. The other category IDs remain the upstream IDs.
+Source date/time lacks a timezone; UTC is used only as a deterministic indexing
+convention. Public conversations, independent wording, and conversation-level
+splits reduce synthetic-template leakage but do not establish performance for
+every domain or client.
+
+### Actual upstream retrieval components
+
+`component_eval` exports the frozen baseline's adaptive pages once and executes
+the pinned Billion-context search kernel and the official ai-memory release
+against the same pages and project scopes. It also runs MemoryBook against a
+copy of that frozen database. Every selected page passes through the same full
+source-page assembler and whole-block token packer. The book keeps its native
+hierarchy/FTS fields, so only page granularity and source content are shared;
+this does not remove every indexing-feature difference.
+
+```bash
+python -m benchmarks.component_eval \
+  --baseline-src /path/to/frozen-v0.2.1/src --candidate-src src \
+  --engines candidate billion-context ai-memory-hybrid \
+  --cache /path/to/competitor-cache \
+  --corpus locomo --locomo-path /path/to/locomo10.json \
+  --split development --max-queries 128 --repeats 3 \
+  --output benchmarks/results/components-locomo-development
+```
+
+The first execution downloads verified pinned upstream code/binaries and, for
+ai-memory hybrid, the default local MiniLM model. `--offline` requires those
+cache files to exist and prevents downloads. See
+[competitor adapter documentation](competitors/README.md) for pins, setup,
+native search routes, and model verification. No provider keys or paid model
+calls are used. The shipped native embedding backfill must finish without
+errors before retrieval. A separate post-measurement diagnostic verifies the
+active native search streams, without adding explain fields to measured
+payloads.
+
+This comparison reports source coverage under a common context budget, native
+preview payload costs, and actual ai-memory full-read costs separately. A short
+preview does not receive credit for evidence available only after a read.
+The native read-cost policy always reads all mapped top-k pages, even if a
+preview already contains enough evidence. It is a fixed, reproducible policy,
+not a minimum-read strategy or a token-budget-adaptive native policy; a
+preview-only consumer can spend less.
+Native auto-generated metadata pages consume top-k positions and tokens but
+earn no evidence. MemoryBook timing includes in-process recall/context
+assembly; Billion exposes kernel and IPC roundtrip timings; ai-memory uses its
+actual HTTP/MCP transport. These boundaries differ. It does not benchmark
+Billion's summarization/proxy workflow, Claude-mem's full pipeline, paid model
+inference, or end-to-end agent answer quality. Lower tokens in a preview alone
+cannot establish a superior complete memory system.
+
+## Historical segmentation experiments
+
 This harness compares `session`, `turn`, and `adaptive` segmentation, each with
 `flat` and `book` ranking. It exercises the same `MemoryBook.recall` implementation
 and budgets for all six configurations. It does **not** execute external memory

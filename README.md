@@ -2,13 +2,13 @@
 
 **Background memory for AI agents. Projects become books, tasks become chapters, and agents retrieve the cited evidence they need to continue working.**
 
-[简体中文](README.zh-CN.md) · [Agent guide](docs/agent-guide.md) · [Installation & background mode](docs/deployment.md) · [Client compatibility](docs/integrations.md) · [Measured results](benchmarks/EXPERIMENTS.md) · [Releases](https://github.com/Afloat16/AI-Memory-Book/releases)
+[简体中文](README.zh-CN.md) · [Agent guide](docs/agent-guide.md) · [Installation & background mode](docs/deployment.md) · [Client compatibility](docs/integrations.md) · [Measured results](benchmarks/RESULTS-v0.3.0.md) · [Releases](https://github.com/Afloat16/AI-Memory-Book/releases)
 
 AI-Memory-Book gives AI agents a shared, local memory of earlier work. After you connect a client and opt in to capture, a background worker indexes supported conversations. When a task depends on a previous decision, constraint, or unfinished step, the agent can call MCP once, receive bounded original evidence with source references, and continue the task. It does not need to read a directory or an entire conversation first.
 
 The primary interface is **MCP for the agent**. Background capture runs headlessly by default; the optional web reader is for inspecting and debugging the archive. The server supplies guidance for conditional recall, while the host and model control tool invocation and permissions. Automatic use in every client or on every question is not guaranteed.
 
-**v0.2.1 · Experimental · MIT · Local storage · No memory-service API key**
+**v0.3.0 · Experimental · MIT · Local storage · No memory-service API key**
 
 ## Get started
 
@@ -17,7 +17,7 @@ You need **Python 3.10+ with SQLite FTS5**. The installer creates an isolated en
 ### macOS / Linux
 
 ```bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.2.1/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.0/scripts/install.sh
 bash install-memory-book.sh
 ```
 
@@ -26,7 +26,7 @@ The installer prints the exact launcher path and any PATH instructions. Use that
 ### Windows PowerShell
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.2.1/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.0/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ```
 
@@ -79,7 +79,7 @@ For example, an agent continuing the fictional `atlas` project's cache work can 
 }
 ```
 
-The response contains `context`, page IDs, and source references such as `project`, `session_id`, `turn_index`, and character spans. With the [example archive](examples/conversations.json), the cache review records a change from 300 to 45 seconds while retaining revision invalidation. The agent can cite `atlas / atlas-cache-review / turn 0`, check the source date, and use that decision in the implementation. Historical text remains evidence to assess, including possible outdated or conflicting decisions.
+The response contains `context`, page IDs, and compact source references: `project`, `session_id`, and `turn_index`. Request `details: true` or use `read_page` for exact character spans. With the [example archive](examples/conversations.json), the cache review records a change from 300 to 45 seconds while retaining revision invalidation. The agent can cite `atlas / atlas-cache-review / turn 0`, check the source date, and use that decision in the implementation. Historical text remains evidence to assess, including possible outdated or conflicting decisions.
 
 The agent can navigate the hierarchy when a direct recall leaves a concrete gap:
 
@@ -146,7 +146,7 @@ git clone https://github.com/Afloat16/AI-Memory-Book.git
 cd AI-Memory-Book
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install -e ".[mcp,clients]"
+python -m pip install -e ".[mcp,clients,benchmark]"
 
 memory-book import examples/conversations.json
 memory-book recall "搜索缓存为什么改成45秒？" --project atlas
@@ -205,19 +205,44 @@ The named volume persists the archive across server processes. No HTTP port is p
 
 ## Evidence, costs, and limitations
 
-The published **v0.1.0 retrieval experiments** compare session, turn, and adaptive segmentation under identical budgets. Two heldout synthetic datasets each contain 112 sessions, 1,408 user turns, 168 queries, and about 1.143 million source characters. At an 8,000-character budget:
+**v0.3.0 reduces actual MCP response tokens by 46.2–54.9% versus v0.2.1 on the two measured workloads.** It also improves short-budget evidence delivery and core retrieval latency. The public comparison is close; it does not establish universal superiority over other memory products.
 
-| Segmentation | Evidence recall | Complete evidence | Mean context chars | Uncached local p95 |
-|---|---:|---:|---:|---:|
-| Session | 69.32–69.89% | 73.68–74.34% | 5,411 | 112.87–141.15 ms |
-| Turn | 64.77–65.34% | 59.87–60.53% | 3,879–3,881 | 22.41–24.03 ms |
-| Adaptive | **77.27%** | **78.95%** | **3,701–3,706** | **7.42–7.46 ms** |
+![Measured evidence and MCP response costs](docs/assets/v0.3.0-cost-quality.png)
 
-Ranges show two individual seeds, not confidence intervals. Timings disable result caching but retain SQLite/OS page caches; they exclude startup, watcher work, MCP transport, networking, and model inference. Each retrieved unit contributes one relevant window; an unmeasured whole-session multi-window implementation could narrow the gap. These are synthetic retrieval results, not comparisons against other memory products or LLM answer scores. v0.2.0 added deployment and capture; v0.2.1 makes the agent workflow and headless default explicit. Neither relabels earlier retrieval measurements as new benchmarks.
+### Paired version measurements
 
-Measured limits remain: low-overlap paraphrases had zero recall; distant two-fact queries retrieved only 25% of required evidence and completed none; old evidence preceded current evidence in half of current-decision queries. Directory re-ranking did not improve aggregate recall. The 2,000-character budget did not show a universal win. [Full experiments, failures, and raw results](benchmarks/EXPERIMENTS.md).
+| Measured workload | v0.2.1 | v0.3.0 |
+|---|---:|---:|
+| Public LoCoMo evidence recall, 2,000-character context cap | 26.18% | **45.03%** |
+| Public LoCoMo evidence recall, 8,000-character context cap | **73.30%** | 72.77% |
+| Public LoCoMo actual MCP response tokens, mean | 3,219.4 | **1,451.9** |
+| Public LoCoMo actual MCP new-query p50 | 9.061 ms | **7.668 ms** |
+| Synthetic actual MCP response tokens, mean | 2,186.7 | **1,177.3** |
+| Synthetic actual MCP new-query p95 | **13.406 ms** | 15.491 ms |
 
-`--budget` limits the assembled context in **characters**, including citation headings, not transport JSON or exact model tokens. The engine uses lexical FTS rather than embeddings. It has no authoritative conflict resolver, cloud sync, public multi-user server, or guaranteed automatic context injection. Client permission decisions remain in the client.
+The public sample uses eight heldout conversations and 256 independently selected queries (176 answerable, 191 required utterances). It is a text-only adaptation of the public persona-agent-generated [LoCoMo benchmark](https://github.com/snap-research/locomo), not an evaluation on private user histories. Evidence requires complete annotated text with correct source coordinates; it is not generated-answer accuracy. The 8,000-character public regression loses one required utterance. Both evidence and latency regressions remain visible.
+
+MCP token counts cover actual returned JSON text, including metadata, using `o200k_base`; they are not provider billing. The public MCP row uses an 8,000-character cap; the synthetic row uses 2,000. Process startup is excluded and reported separately. For all 298 distinct measured queries, `details: true` preserved identical context and page IDs. Compact mode retains project/session/turn references; exact coordinates remain available on demand.
+
+Two additional bilingual synthetic heldouts each contain 112 sessions and 1,408 turns. At 2,000 characters, evidence recall improves from 71.02–72.16% to 77.84–78.41%, with core p50 falling from 5.755–5.906 ms to 3.479–3.844 ms. These ranges describe two seeds, not confidence intervals. [Complete paired results and actual MCP measurements](benchmarks/RESULTS-v0.3.0.md).
+
+### Real external retrieval components
+
+The adapters execute the pinned billion-context search kernel and the official ai-memory v3.4.5 binary with native MiniLM hybrid retrieval. With the same frozen pages, project scope, top-five limit, and shared 1,024-token `cl100k_base` assembly:
+
+| Retrieval component | Evidence recall | Complete evidence | Mean context tokens |
+|---|---:|---:|---:|
+| AI-Memory-Book v0.3.0 | 72.77% | 75.00% | 815.7 |
+| billion-context | 73.30% | 73.86% | 862.3 |
+| ai-memory, native local hybrid | 71.73% | 72.16% | **772.0** |
+
+This is a shared-page component comparison. The book keeps native hierarchy/index metadata; the test does not reproduce every product's capture, observer, or proxy workflow. billion-context's kernel is faster in this sample. ai-memory's native HTTP/MCP query has a 29.972 ms median; AI-Memory-Book's separate actual stdio MCP measurement has a 7.668 ms median, with different transport and response boundaries. Native page-read costs and all 512/1,024/2,048-token curves are reported separately. **claude-mem remains unmeasured.** [Protocol, pins, failures, and full results](benchmarks/RESULTS-v0.3.0.md#3-actual-external-retrieval-components).
+
+### Remaining limits
+
+Low-overlap paraphrases still have zero recall in the synthetic heldouts; distant multi-section queries recover 25% of required evidence and complete none at 8,000 characters. Unsupported questions often return some context, so the agent must still check whether the evidence answers the question. Current-state ordering is a conservative heuristic, not authoritative conflict resolution. [Failures and historical segmentation experiments](benchmarks/EXPERIMENTS.md).
+
+`--budget` limits assembled context in **characters**, including citations, not outer JSON or exact model tokens. The benchmark's token packer is not a native production option. The engine uses lexical FTS without embeddings and does not provide cloud sync, public multi-user hosting, or guaranteed automatic context injection. Client permission decisions remain in the client.
 
 ## Optional archive inspection
 
@@ -232,12 +257,12 @@ It opens an HTTP listener at [http://127.0.0.1:8765](http://127.0.0.1:8765); ope
 ## Development and verification
 
 ```bash
-python -m pip install -e ".[mcp,clients]"
+python -m pip install -e ".[mcp,clients,benchmark]"
 python -m unittest discover -s tests -v
 python tests/installer_smoke.py --with-extras
 ```
 
-The **v0.2.0** candidate passed [all nine CI jobs](https://github.com/Afloat16/AI-Memory-Book/actions/runs/42998379672), including the 158-test suite with optional extras, Python 3.10/3.12/3.13 core checks, actual MCP stdio communication, browser interactions, Linux/macOS/Windows installers, and container MCP/reader/volume behavior. These counts describe that candidate; [validation details](docs/validation.md) track subsequent patch verification. Native service definitions and configuration merges have focused tests; successful configuration generation does not prove every vendor app or login manager accepted it. [GitHub Actions](https://github.com/Afloat16/AI-Memory-Book/actions).
+The v0.3.0 local suite passed **174 tests** with MCP, client, and benchmark extras. CI checks Python 3.10/3.12/3.13 core behavior, actual MCP stdio, browser interactions, Linux/macOS/Windows installers, and container persistence. [GitHub Actions status](https://github.com/Afloat16/AI-Memory-Book/actions) · [Validation details and historical runs](docs/validation.md). Configuration fixtures do not establish that every vendor application or login manager has been interactively verified.
 
 ## Design references
 

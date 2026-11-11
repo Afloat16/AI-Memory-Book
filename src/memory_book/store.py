@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 import sqlite3
 import time
 from datetime import datetime, timezone
@@ -15,9 +16,11 @@ from .segmentation import make_turns, segment
 from .text import estimate_tokens, excerpt, headline, index_text, query_terms, terms
 
 SCHEMA_VERSION = 2
-INDEX_VERSION = 2
+INDEX_VERSION = 3
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
+CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
+HISTORICAL_QUERY = re.compile(r"\b(?:original|initial|previous|earlier|before|history|historical|formerly|old|as of)\b|最初|最早|之前|以前|原来|原始|历史|旧|\b(?:19|20)\d{2}\b", re.IGNORECASE)
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 INSERT OR IGNORE INTO meta VALUES ('revision', '0');
@@ -454,6 +457,7 @@ class MemoryBook:
             if val is not None:
                 _string(val, key)
         qt = query_terms(query)
+        current_query = bool(CURRENT_QUERY.search(query) and not HISTORICAL_QUERY.search(query))
         # A read snapshot ties candidates, sources, and the cache revision together.
         self.db.execute("BEGIN")
         try:
@@ -484,7 +488,7 @@ class MemoryBook:
                 # never treated as evidence. Select only metadata for candidate
                 # ranking; large source bodies are loaded for selected pages.
                 expression = f"({expression}) AND body : ({expression})"
-                rows = self.db.execute("""SELECT p.id,p.project_id,p.chapter_id,p.section_id,p.title,
+                rows = self.db.execute("""SELECT p.id,p.rid,p.project_id,p.chapter_id,p.section_id,p.title,
                   pr.name project_name,c.title chapter_title,sec.title section_title,
                   s.external_id session_id,s.title session_title,s.created_at,
                   bm25(pages_fts,2.0,2.0,1.0,0.25) rank
@@ -493,15 +497,57 @@ class MemoryBook:
                   JOIN sections sec ON sec.id=p.section_id JOIN sessions s ON s.id=p.session_pk
                   WHERE pages_fts MATCH ?""" + where + " ORDER BY rank,p.id LIMIT 96", [expression, *params]).fetchall()
                 qset = set(qt)
+                directory_terms = {}
                 for row in rows:
                     item = dict(row)
-                    title_overlap = len(qset & set(terms(item["chapter_title"] + " " + item["session_title"], query=True))) / len(qset)
+                    title_overlap = 0.0
+                    if strategy == "book":
+                        directory = item["chapter_title"] + " " + item["session_title"]
+                        if directory not in directory_terms:
+                            directory_terms[directory] = set(terms(directory, query=True))
+                        title_overlap = len(qset & directory_terms[directory]) / len(qset)
                     item["score"] = -item["rank"] * (1 + 0.15 * title_overlap if strategy == "book" else 1)
                     candidates.append(item)
                 candidates.sort(key=lambda item: (-item["score"], item["id"]))
-                for item in candidates[:limit]:
-                    source = self.db.execute("SELECT content,source_refs FROM pages WHERE id=?", (item["id"],)).fetchone()
-                    item.update(dict(source))
+                if strategy == "book" and candidates and (current_query or (len(qt) > 1 and limit > 1)):
+                    # Rerank a bounded pool using the FTS body's existing
+                    # tokens. Complementary query facets can otherwise be
+                    # crowded out by several almost-identical high scores.
+                    pool = candidates[:limit * 4]
+                    ids = [item["rid"] for item in pool]
+                    matched = {row["rowid"]: qset.intersection(row["body"].split())
+                               for row in self.db.execute(
+                                   "SELECT rowid,body FROM pages_fts WHERE rowid IN (" +
+                                   ",".join("?" for _ in ids) + ")", ids)}
+                    if current_query:
+                        # Timestamp preference is confined to the same task
+                        # and identical matched query terms. Preserve each
+                        # group's relevance positions so a recent unrelated
+                        # task cannot displace a stronger topic match.
+                        groups = {}
+                        for i, item in enumerate(pool):
+                            key = (item["chapter_id"], frozenset(matched[item["rid"]]))
+                            groups.setdefault(key, []).append(i)
+                        for positions in groups.values():
+                            scores = [pool[i]["score"] for i in positions]
+                            revisions = sorted((pool[i] for i in positions), key=lambda item: item["created_at"], reverse=True)
+                            for i, item, score in zip(positions, revisions, scores):
+                                pool[i], item["score"] = item, score
+                    chosen, pending = [pool[0]], pool[1:]
+                    covered = set(matched[pool[0]["rid"]])
+                    while pending and len(chosen) < limit:
+                        best = max(range(len(pending)), key=lambda i: pending[i]["score"] *
+                                   (1 + len(matched[pending[i]["rid"]] - covered) / len(qset)))
+                        item = pending.pop(best)
+                        chosen.append(item)
+                        covered.update(matched[item["rid"]])
+                    candidates = chosen + pending + candidates[len(pool):]
+                if candidates:
+                    selected_ids = [item["id"] for item in candidates[:limit]]
+                    sources = {row["id"]: dict(row) for row in self.db.execute(
+                        "SELECT id,content,source_refs FROM pages WHERE id IN (" + ",".join("?" for _ in selected_ids) + ")", selected_ids)}
+                    for item in candidates[:limit]:
+                        item.update(sources[item["id"]])
             self.db.execute("COMMIT")
         except BaseException:
             self.db.execute("ROLLBACK")
@@ -512,8 +558,11 @@ class MemoryBook:
         selected = candidates[:limit]
         for i, row in enumerate(selected):
             crumbs = self._breadcrumb(row)
-            short_path = " / ".join(headline(c["title"], 48) for c in crumbs[:3])
-            header = f'[{row["id"]}] {short_path}\nsource: {row["session_id"]} | {row["created_at"]}\n'
+            # The address and date are sufficient for agent recall. Display
+            # names remain in breadcrumb metadata and exact read_page results;
+            # repeating three long titles in every context block crowds out
+            # evidence at small budgets without adding source identity.
+            header = f'[{row["id"]}] {row["project_id"]} / {row["session_id"]} | {row["created_at"]}\n'
             separator = 2 if blocks else 0
             if remaining <= len(header) + separator + 8:
                 break
@@ -521,7 +570,7 @@ class MemoryBook:
             # Share budget, let short pages leave more room for later pages.
             allowance = max(120, remaining // max(1, slots) - len(header) - separator)
             allowance = min(allowance, remaining - len(header) - separator)
-            text, spans = excerpt(row["content"], query, allowance)
+            text, spans = excerpt(row["content"], query, allowance, prepared_terms=qt)
             block = header + text
             refs = self._refs(row, spans)
             coverage = len(set(qt) & set(terms(text, query=True))) / len(qt) if qt else 0.0
@@ -532,7 +581,7 @@ class MemoryBook:
         warnings = []
         if project is None and len({r["breadcrumb"][0]["id"] for r in results}) > 1:
             warnings.append("Results span projects; supply project to disambiguate.")
-        if results and any(term in query.casefold() for term in ("latest", "current", "now", "当前", "现在", "最终", "最新")):
+        if results and CURRENT_QUERY.search(query):
             warnings.append("Historical evidence can conflict. Check source timestamps; retrieval does not resolve which decision is authoritative.")
         if not results and candidates:
             warnings.append("Budget too small to return an evidence block including its citation.")

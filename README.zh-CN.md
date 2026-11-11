@@ -2,11 +2,11 @@
 
 **给 AI Agent 使用的后台记忆。项目成书，任务成章，AI 按需取回有出处的原文，然后继续完成任务。**
 
-[English — 主 README](README.md) · [Agent 使用指南](docs/agent-guide.md) · [部署与后台运行](docs/deployment.md) · [客户端兼容表](docs/integrations.md) · [完整实验](benchmarks/EXPERIMENTS.md)
+[English — 主 README](README.md) · [Agent 使用指南](docs/agent-guide.md) · [部署与后台运行](docs/deployment.md) · [客户端兼容表](docs/integrations.md) · [新版实测](benchmarks/RESULTS-v0.3.0.md)
 
 AI-Memory-Book 的主要使用者是 AI。接入客户端并选择开启采集后，后台把受支持的会话整理成可检索记忆。当任务依赖之前的决定、约束或未完成步骤时，AI 可以通过 MCP 直接取回预算内的原文和出处，接着处理当前任务。它不需要每次先读目录，也不需要加载完整历史会话。
 
-当前版本 **v0.2.1**，MIT 开源、实验版本。主入口是供 Agent 调用的 **MCP 工具**；后台默认无界面运行，不启动 HTTP 阅读器。网页只作为可选的检查与调试工具。核心检索不需要 API key、模型调用或向量数据库。
+当前版本 **v0.3.0**，MIT 开源、实验版本。主入口是供 Agent 调用的 **MCP 工具**；后台默认无界面运行，不启动 HTTP 阅读器。网页只作为可选的检查与调试工具。核心检索不需要 API key、模型调用或向量数据库。
 
 服务向 AI 提供按需读取策略，但是否调用工具仍由宿主和模型决定。项目不承诺每个客户端都会自动调用，也不要求每次提问都读取记忆。
 
@@ -17,14 +17,14 @@ AI-Memory-Book 的主要使用者是 AI。接入客户端并选择开启采集�
 macOS / Linux：
 
 ```bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.2.1/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.0/scripts/install.sh
 bash install-memory-book.sh
 ```
 
 Windows PowerShell：
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.2.1/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.0/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ```
 
@@ -72,7 +72,7 @@ memory-book setup --client codex --capture --workspace /absolute/path/to/project
 }
 ```
 
-返回的 `context` 包含预算内证据，结果还提供页 ID、`project`、`session_id`、`turn_index` 和字符区间。在[示例归档](examples/conversations.json)中，缓存复核记录把有效期从 300 秒改为 45 秒，并保留 revision 失效机制。AI 可以引用 `atlas / atlas-cache-review / turn 0`，核对来源时间，再据此继续实现。历史证据可能已经过时或互相冲突，不能直接当成当前指令。
+返回的 `context` 包含预算内证据，结果还提供页 ID、`project`、`session_id`、`turn_index` ；精确字符区间通过 `details: true` 或 `read_page` 按需获取。在[示例归档](examples/conversations.json)中，缓存复核记录把有效期从 300 秒改为 45 秒，并保留 revision 失效机制。AI 可以引用 `atlas / atlas-cache-review / turn 0`，核对来源时间，再据此继续实现。历史证据可能已经过时或互相冲突，不能直接当成当前指令。
 
 目录是 AI 可选的定位工具。直接召回不足以确认项目、章节或上下文时，再按需要展开：
 
@@ -125,13 +125,28 @@ memory-book service uninstall
 
 ## 实测与限制
 
-**v0.1.0 历史检索实验**公开了六种组合的开发及留出结果。两组留出集各有 112 会话、1,408 次提问、约 114 万原文字符。在 8,000 字符预算下，自适应分节证据召回为 77.27%，完整证据率 78.95%，本地关闭结果缓存的检索 P95 为 7.42–7.46 ms；平均上下文比整会话少约 31.5%。v0.2.0 增加部署和采集，v0.2.1 明确 AI 工作流和后台默认行为；这些改动没有将旧测量冒充新版本实测。
+**v0.3.0 已增加真实 MCP token 测量、两个新合成留出集、公开 LoCoMo 长对话留出集，以及实际运行的外部检索组件对照。** 仍然面向 AI Agent 使用，默认通过 MCP 按需读取，后台采集保持无界面。
 
-数据为合成语料，计时保留 SQLite/操作系统页缓存，不包括进程启动、客户端、采集、模型、网络或 MCP 传输。低词面重叠改写、远距离双证据和新旧决定仍有明显不足；目录重排未证明独立总体收益。所有失败保留在[实验记录](benchmarks/EXPERIMENTS.md)。预算以包含引用标题的字符数计，不是整个传输 JSON 或精确模型 token 上限。
+| 实测项 | v0.2.1 | v0.3.0 |
+|---|---:|---:|
+| 公开样本，2,000 字符预算的证据召回 | 26.18% | **45.03%** |
+| 公开样本，8,000 字符预算的证据召回 | **73.30%** | 72.77% |
+| 公开样本，实际 MCP 返回平均 token | 3,219.4 | **1,451.9（减少 54.9%）** |
+| 公开样本，MCP 新查询耗时中位数 | 9.061 ms | **7.668 ms** |
+| 合成样本，实际 MCP 返回平均 token | 2,186.7 | **1,177.3（减少 46.2%）** |
+| 合成样本，MCP 新查询 P95 | **13.406 ms** | 15.491 ms |
 
-**v0.2.0 采集样本**使用 300 个合成文件，八次未变更扫描的中位时间为 36.95 ms，均无重复导入；改动一个文件后更新一个会话、跳过 299 个文件。扫描仍写入状态和心跳。这是小规模热缓存样本，不能推出零 CPU、零磁盘开销或实际大档案性能。[方法与原始结果](docs/validation.md#v020-capture-overhead-sample)。
+公开测试选取八个留出会话中的 256 个问题，其中 176 个可回答，共需 191 条证据；数据来自独立公开、由 persona agents 生成的 LoCoMo，不是用户私人会话。召回要求完整标注语句及正确来源位置，不能当成大模型回答准确率。8,000 字符预算下新版少找回一条证据，合成样本的 MCP P95 也有退步，均保留在报告中。
 
-**v0.2.0 候选版本**通过了[九项 CI 作业](https://github.com/Afloat16/AI-Memory-Book/actions/runs/42998379672)，包括安装可选依赖后的 158 项测试，以及实际 MCP、浏览器、三平台安装器和 Docker 验证。这些数量属于该候选版本；v0.2.1 的后续验证单独记录在[发布验证](docs/validation.md)，不等于每个厂商应用和登录环境均已实测。
+Token 按 `o200k_base` 实际计数，覆盖 MCP 返回 JSON 文本与元数据，不是厂商账单。公开样本用 8,000 字符预算，合成 MCP 样本用 2,000 字符；不把启动时间算入调用时间。默认紧凑返回保留项目、会话、turn 引用；`details: true` 或 `read_page` 可获取精确来源位置。298 个不同查询验证了紧凑/详细模式的证据正文和页 ID 完全一致。
+
+外部对照运行了 billion-context 的原生搜索内核，以及 ai-memory v3.4.5 的真实 MiniLM 混合 MCP 检索。在相同页面、作用域、top-5 和 1,024 `cl100k_base` token 上限下，新版 / billion-context / ai-memory 的证据召回分别为 **72.77% / 73.30% / 71.73%**，完整证据率为 **75.00% / 73.86% / 72.16%**。三者各有得失；billion-context 内核仍更快，ai-memory 的公共证据打包平均 token 更少。各产品传输及完整工作流不同，**不能宣称已全面超越竞品；claude-mem 尚未实测**。
+
+核心仍是无额外运行时依赖的 SQLite 词法检索。低词面重叠、远距离多证据、无依据问题的拒答和权威事实版本判断仍需改进。分节策略不变；旧实验继续作为历史证据保存。
+
+[完整新版报告与复现命令](benchmarks/RESULTS-v0.3.0.md) · [外部对照协议](docs/comparison-protocol.md) · [历史分节实验](benchmarks/EXPERIMENTS.md)
+
+本地完整套件通过 **174 项测试**，包括真实 MCP、Unicode 精确来源、互补证据、历史与当前查询、token 预算及分节评估正确性。跨平台安装、容器和其他检查由 [GitHub Actions](https://github.com/Afloat16/AI-Memory-Book/actions) 执行；[发布验证](docs/validation.md) 说明实际覆盖范围。
 
 原始文本和缓存保存在本地未加密文件中；模型调用工具时返回的证据会进入客户端模型上下文。项目不绕过工具授权。支持文本，不恢复图片、音频或完整结构化工具日志。
 

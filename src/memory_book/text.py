@@ -15,15 +15,18 @@ from itertools import islice
 CJK = r"\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff"
 RUNS = re.compile(rf"[{CJK}]+|[^\W_{CJK}]+(?:[_./:-][^\W_{CJK}]+)*", re.UNICODE)
 CJK_RUN = re.compile(rf"^[{CJK}]+$")
+CJK_CHARACTER = re.compile(rf"[{CJK}]")
 STOP = frozenset("a an the is are was were be been to of in on at for from and or it this that these those with as by what which who when where why how do does did can could would should please tell me we our you your i my about now current latest final s t re ve ll d m".split())
 ZH_STOP = frozenset("什么 怎么 如何 为什么 哪个 哪些 是否 现在 当前 最后 最终 我们 这个 那个 一个 一下 请问 告诉 多少 了吗 的是 是什 么的 如何 何时 怎样".split())
 
 
 def terms(text: str, *, query: bool = False) -> list[str]:
     """NFKC text -> English words/identifier pieces and Chinese bigrams."""
-    text = unicodedata.normalize("NFKC", text)
+    if not text.isascii():
+        text = unicodedata.normalize("NFKC", text)
     text = re.sub(r"([a-z])([A-Z])", r"\1 \2", text).casefold()
-    text = "".join(c for c in unicodedata.normalize("NFKD", text) if unicodedata.category(c) != "Mn")
+    if not text.isascii():
+        text = "".join(c for c in unicodedata.normalize("NFKD", text) if unicodedata.category(c) != "Mn")
     if query:
         # Remove complete Chinese question phrases before bigramming; otherwise
         # 为什么 leaves the meaningless fragment 为什 as a retrieval feature.
@@ -53,7 +56,7 @@ def query_terms(text: str) -> list[str]:
 
 def estimate_tokens(text: str) -> int:
     """Size heuristic only. Never presented as a model tokenizer's exact count."""
-    cjk = sum(bool(CJK_RUN.fullmatch(c)) for c in text)
+    cjk = len(CJK_CHARACTER.findall(text))
     return cjk + math.ceil((len(text) - cjk) / 4)
 
 
@@ -74,7 +77,7 @@ def is_followup(question: str) -> bool:
     return bool(re.match(r"^(那|它|这个|这项|该|继续|还有|为什么|那么|是否|可以|再|and\b|what about\b|why\b|how about\b|then\b|that\b|it\b|can we\b)", q))
 
 
-def excerpt(text: str, query: str, max_chars: int) -> tuple[str, list[tuple[int, int]]]:
+def excerpt(text: str, query: str, max_chars: int, *, prepared_terms: list[str] | None = None) -> tuple[str, list[tuple[int, int]]]:
     """Return one bounded original-text window and exact character offsets.
 
     Every segmentation baseline uses the same function. Whole-session baselines
@@ -87,25 +90,40 @@ def excerpt(text: str, query: str, max_chars: int) -> tuple[str, list[tuple[int,
     if max_chars < 8:
         return text[:max_chars], [(0, max_chars)]
     width = max_chars - 2  # reserve potential leading and trailing ellipses
-    q = query_terms(query)
+    q = query_terms(query) if prepared_terms is None else prepared_terms
     # Keep a source map through accent folding and expansions such as ß -> ss.
-    folded, source_positions = [], []
-    for index, character in enumerate(text):
-        piece = "".join(c for c in unicodedata.normalize("NFKD", character).casefold() if unicodedata.category(c) != "Mn")
-        folded.append(piece)
-        source_positions.extend([index] * len(piece))
-    lower = "".join(folded)
+    lower = text.casefold()
+    # ASCII and the common CJK/Latin case need no per-character source map.
+    # Only use identity offsets when normalization leaves the folded string
+    # unchanged, case folding preserves length, and no removable mark exists.
+    identity_offsets = (len(lower) == len(text) and
+                        (text.isascii() or
+                         (unicodedata.normalize("NFKD", text).casefold() == lower and
+                          not any(unicodedata.category(c) == "Mn" for c in set(lower)))))
+    source_positions = None
+    if not identity_offsets:
+        folded, source_positions = [], []
+        for index, character in enumerate(text):
+            piece = "".join(c for c in unicodedata.normalize("NFKD", character).casefold() if unicodedata.category(c) != "Mn")
+            folded.append(piece)
+            source_positions.extend([index] * len(piece))
+        lower = "".join(folded)
     positions: list[tuple[int, str]] = []
     for term in q:
         for match in islice(re.finditer(re.escape(term), lower), 40):
-            positions.append((source_positions[match.start()], term))
+            positions.append((match.start() if source_positions is None else source_positions[match.start()], term))
     starts = {0, max(0, len(text) - width)}
     for pos, _ in positions:
         starts.add(max(0, min(len(text) - width, pos - width // 3)))
-    best_start, best_score = 0, (-1.0, -1)
+    best_start, best_score = 0, (-1.0, -1.0, -1)
     for start in sorted(starts):
-        inside = Counter(t for p, t in positions if start <= p < start + width)
-        score = (sum(1 + math.log1p(n) * 0.08 for n in inside.values()), -start)
+        local = [(p, t) for p, t in positions if start <= p < start + width]
+        inside = Counter(t for _, t in local)
+        # Equal keyword coverage must not prefer a window whose last few
+        # characters merely begin the relevant sentence. Leave room after the
+        # matched topic for its value, qualification, or following answer.
+        placement = abs(sum(p - start for p, _ in local) / len(local) / width - 1 / 3) if local else 1.0
+        score = (sum(1 + math.log1p(n) * 0.08 for n in inside.values()), -placement, -start)
         if score > best_score:
             best_start, best_score = start, score
     end = min(len(text), best_start + width)
