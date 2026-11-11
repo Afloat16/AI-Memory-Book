@@ -1,0 +1,25 @@
+run upgrade-synthetic
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/scratch/5ff84b411581/AI-Memory-Book/benchmarks/upgrade_costs.py", line 298, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/workspace/scratch/5ff84b411581/AI-Memory-Book/benchmarks/upgrade_costs.py", line 225, in main
+    result = prepare_baseline(args) if args.worker == "prepare" else measure_upgrade(args)
+                                                                     ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/5ff84b411581/AI-Memory-Book/benchmarks/upgrade_costs.py", line 173, in measure_upgrade
+    raise RuntimeError("Candidate did not upgrade the schema; choose an older baseline checkout")
+RuntimeError: Candidate did not upgrade the schema; choose an older baseline checkout
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/scratch/5ff84b411581/AI-Memory-Book/benchmarks/upgrade_costs.py", line 298, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/workspace/scratch/5ff84b411581/AI-Memory-Book/benchmarks/upgrade_costs.py", line 249, in main
+    subprocess.run([*common, "--worker", "upgrade", "--engine-src", str(args.candidate_src.resolve()),
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/workspace/scratch/5ff84b411581/AI-Memory-Book/.venv/bin/python', '-m', 'benchmarks.upgrade_costs', '--corpus', 'synthetic', '--split', 'development', '--seed', '61', '--projects', '8', '--max-queries', '0', '--worker', 'upgrade', '--engine-src', '/workspace/scratch/5ff84b411581/AI-Memory-Book/src', '--database', '/workspace/scratch/5ff84b411581/AI-Memory-Book/.artifacts/memory-upgrade-costs-udr_313i/upgrade-0.db', '--label', 'score-aware-recall', '--output', '/workspace/scratch/5ff84b411581/AI-Memory-Book/.artifacts/memory-upgrade-costs-udr_313i/worker-result.json']' returned non-zero exit status 1.
+Benchmark stopped: Command '['/workspace/scratch/5ff84b411581/AI-Memory-Book/.venv/bin/python', '-m', 'benchmarks.upgrade_costs', '--baseline-src', '../baseline-recall/src', '--candidate-src', 'src', '--baseline-label', 'first-round-recall', '--candidate-label', 'score-aware-recall', '--seed', '61', '--split', 'development', '--projects', '8', '--repeats', '3', '--work-dir', '.artifacts', '--output', 'benchmarks/reports/recall-score-final-upgrade-synthetic.json']' returned non-zero exit status 1.
