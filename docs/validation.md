@@ -7,6 +7,41 @@ user conversation history was used in development or published.
 
 ## Unreleased: recall-quality continuation
 
+### Optional coverage and real-answer evaluation
+
+The final wrapper uses runtime SHA-256
+`88f5f749be55dd4f1094d236340bec645edb6b9306fd45c720dbebac91767e57`.
+Its full local suite passes **266 tests with no failures or skips** with MCP,
+client and benchmark extras. The recorded run took 16.969 seconds while a
+separate equivalence check was running; this is a test-run observation, not a
+product performance result. New checks include actual MCP stdio and CLI
+coverage opt-in, mode-specific caches, invalid parameters, provider errors,
+credential echoes, HTTP disconnects, missing usage and model identity changes.
+
+The [complete-payload equivalence check](../benchmarks/reports/coverage-mode-equivalence.json)
+compares 1,387 queries at two character caps for each mode. All **2,774 default
+payloads** equal the score-aware baseline; all **2,774 opt-in payloads** equal
+the frozen automatic-clause experiment. Only `latency_ms` is excluded; source
+text, scores, result ordering, references, warnings and truncation participate.
+The query sets are regression checks, not new heldout evidence.
+
+The earlier automatic-clause runtime is publicly preserved at
+[`7a472ce`](https://github.com/Afloat16/AI-Memory-Book/commit/7a472ce35698360382d8d15a1be101343d8a2c3b).
+Its Git tree equals locally measured `1cdaf8f`; this API publication changes the
+commit identity, not the source bytes. Its **11 sequential stages, 29 output
+hashes and 68 frozen input hashes** are recorded in the
+[integrity record](../benchmarks/reports/conjunctive-integrity.json).
+The experiment's timings describe that frozen automatic variant. They are not
+relabeled as timings of the final opt-in API. See the
+[full report](../benchmarks/RESULTS-conjunctive-recall.md).
+
+[Answer-evaluation readiness](../benchmarks/reports/answer-eval-readiness.json)
+records 128 paired public-development contexts (83 answerable, 45 unsupported)
+and **zero actual generation calls**. HTTP test fixtures verify plumbing only.
+Generated answers, native observer workflows and full memory costs remain
+unmeasured. The older CI links below refer to their named historical snapshots;
+the publication's GitHub Actions runs must be checked separately.
+
 ### Score-aware continuation
 
 The second-round runtime is frozen at

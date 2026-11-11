@@ -8,16 +8,50 @@ AI-Memory-Book gives AI agents a shared, local memory of earlier work. After you
 
 The primary interface is **MCP for the agent**. Background capture runs headlessly by default; the optional web reader is for inspecting and debugging the archive. The server supplies guidance for conditional recall, while the host and model control tool invocation and permissions. Automatic use in every client or on every question is not guaranteed.
 
-**v0.3.0 · Experimental · MIT · Local storage · No memory-service API key**
+**v0.3 development · Experimental · MIT · Local storage · No memory-service API key**
+
+## Why use AI-Memory-Book?
+
+AI-Memory-Book is built for continuing project work with a small, inspectable memory service:
+
+| Advantage | What you get |
+|---|---|
+| **No model call to create or search memory** | Local Python + SQLite indexing and lexical retrieval; no per-turn summarization bill, embedding download, or separate database service in the core. Your answering model remains your choice. |
+| **Original evidence with citations** | Recall returns source text and project/session/turn references. Exact character spans and full pages remain available when you need to verify a decision. |
+| **Useful context in one MCP call** | `recall_memory` assembles bounded evidence directly. Project, chapter and session filters help the agent focus on the work at hand. |
+| **One archive across clients** | Supported clients point to the same local database. Opt-in background capture keeps supported text transcripts available for later tasks. |
+| **A small operational footprint** | The default worker and MCP server run without an HTTP listener; the optional reader, export tools, and source-preserving migrations make the archive inspectable. |
+
+See the [agent workflow](docs/agent-guide.md), [capture and deployment guide](docs/deployment.md), and [source/migration checks](benchmarks/RESULTS-recall-score-quality.md#8-source-preserving-schema-migration).
+
+### Measured retrieval advantage
+
+The frozen development runtime [`0ab49d4`](https://github.com/Afloat16/AI-Memory-Book/commit/0ab49d4f2be6aabe5e51c3314bb9369041af5369) delivers more complete evidence than both tested native retrieval components under the same **1,024-token `cl100k_base` context cap**:
+
+| Native retrieval component | Evidence recall ↑ | Complete evidence ↑ | Mean context tokens ↓ |
+|---|---:|---:|---:|
+| **AI-Memory-Book** | **69.54%** | **72.88%** | 827.2 |
+| [billion-context](https://github.com/ranxianglei/billion-context/tree/dc041dd1ab1a014efa352ba47a6f31fc47f55284) search kernel | 65.48% | 68.72% | 862.6 |
+| [ai-memory](https://github.com/akitaonrails/ai-memory/tree/ee73c04c542fa41ca629b046deb4ac108518f407) v3.4.5 local hybrid | 64.47% | 66.72% | **779.3** |
+
+That is **+4.16 percentage points of complete evidence versus billion-context** and **+6.16 points versus ai-memory**; mean context is also **4.1% smaller than billion-context** at this setting. Across both reference tokenizers and all three caps (512 / 1,024 / 2,048), Book leads both evidence metrics in **12/12 comparisons** and uses fewer mean context tokens in **6/12**.
+
+**What this measures:** all 1,015 eligible text-only LoCoMo questions (649 answerable), identical supplied source pages, project scope, top-five candidates, and a shared citation/whole-page packer. Evidence recall counts intact required source utterances; complete evidence requires every required utterance for an answerable question. These are source-delivery results from regression data, with different native indexes and transport boundaries. They do not measure generated-answer accuracy or each product's complete memory workflow. Billion's measured search boundary is faster; ai-memory uses fewer common-context tokens at 1,024 and 2,048 tokens. [Full curves, version pins, native costs and per-query results](benchmarks/RESULTS-recall-score-quality.md#6-native-components-common-context-and-their-cost-boundaries).
+
+The same frozen Book version also returns **54.7% fewer actual MCP response tokens** than main v0.2.1 on the public workload (3,233.5 → 1,465.1, `o200k_base`), with observed first-call p50 **8.371 → 5.764 ms**. This is a comparison with our older version under the same real stdio boundary. [Measurement details and retained regressions](#evidence-costs-and-limitations).
+
+The development branch keeps score-aware recall as its default. It also offers an explicit [experimental coverage option](#optional-coverage-for-multi-fact-questions) for questions asking for several facts; that experiment has its own results and tradeoffs.
 
 ## Get started
 
 You need **Python 3.10+ with SQLite FTS5**. The installer creates an isolated environment and includes MCP and client-configuration dependencies. This route does not require a Git checkout, Node.js, an embedding server, or a database server.
 
+The commands below install the **published experimental release v0.2.1**. The measured v0.3 improvements above are on the **unreleased development branch**; use the [development source checkout](#try-it-without-connecting-a-client) to try that work. A `v0.3.0` release tag is not available yet.
+
 ### macOS / Linux
 
 ```bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.0/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.2.1/scripts/install.sh
 bash install-memory-book.sh
 ```
 
@@ -26,11 +60,11 @@ The installer prints the exact launcher path and any PATH instructions. Use that
 ### Windows PowerShell
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.0/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.2.1/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ```
 
-The shared Python installer also works on macOS/Linux. A PowerShell wrapper is available in [`scripts/install.ps1`](scripts/install.ps1). Installation does not change your shell profile or execution policy.
+The shared Python installer also works on macOS/Linux. A [v0.2.1 PowerShell wrapper](https://github.com/Afloat16/AI-Memory-Book/blob/v0.2.1/scripts/install.ps1) is also available. Installation does not change your shell profile or execution policy.
 
 ### Connect your agent and enable background memory
 
@@ -139,10 +173,10 @@ A reproducible **v0.2.0** local sample with 300 synthetic files measured unchang
 
 ## Try it without connecting a client
 
-From a source checkout:
+From the current **development branch** (the branch can advance beyond the frozen benchmark commit):
 
 ```bash
-git clone https://github.com/Afloat16/AI-Memory-Book.git
+git clone --branch perf/recall-quality-budget https://github.com/Afloat16/AI-Memory-Book.git
 cd AI-Memory-Book
 python -m venv .venv
 source .venv/bin/activate
@@ -152,7 +186,7 @@ memory-book import examples/conversations.json
 memory-book recall "搜索缓存为什么改成45秒？" --project atlas
 ```
 
-On Windows, activate `.venv\Scripts\Activate.ps1`, or call `.venv\Scripts\python.exe` directly. The dependency-free core remains installable with `pip install -e .`; MCP and TOML configuration are optional extras. This project is not published to PyPI, so an unqualified `pip install ai-memory-book` is not the documented installation method. [uv, pipx, and installer alternatives](docs/deployment.md).
+On Windows, activate `.venv\Scripts\Activate.ps1`, or call `.venv\Scripts\python.exe` directly. To reproduce the frozen measurements, check out `0ab49d4f2be6aabe5e51c3314bb9369041af5369` before installing and follow the [benchmark preparation guide](benchmarks/RESULTS-recall-score-quality.md#11-reproduction-and-artifact-index). The dependency-free core remains installable with `pip install -e .`; MCP and TOML configuration are optional extras. This project is not published to PyPI, so an unqualified `pip install ai-memory-book` is not the documented installation method. [uv, pipx, and installer alternatives](docs/deployment.md).
 
 ## Bring your own conversations
 
@@ -205,7 +239,7 @@ The named volume persists the archive across server processes. No HTTP port is p
 
 ## Evidence, costs, and limitations
 
-**The unreleased score-aware continuation improves public source-evidence delivery.** In the current full public run, actual MCP response tokens are **54.7% lower** and median first-call latency is **31.1% lower** than main v0.2.1. Against the already optimized preserved v0.3 branch, response tokens are slightly higher (+0.38%) and the observed median is 15.5% lower. These are different baselines; universal lower cost and equal-or-better generated answers are not established.
+**The frozen score-aware continuation improves public source-evidence delivery.** In that full public run, actual MCP response tokens are **54.7% lower** and median first-call latency is **31.1% lower** than main v0.2.1. Against the already optimized preserved v0.3 branch, response tokens are slightly higher (+0.38%) and the observed median is 15.5% lower. These are different baselines; the figures belong to `0ab49d4`, not to every later development revision.
 
 ![Measured evidence and MCP response costs](docs/assets/recall-score-quality-costs.png)
 
@@ -230,23 +264,48 @@ MCP tokens count actual returned JSON text and metadata using `o200k_base`, not 
 
 The full public comparison executes the pinned billion-context search kernel and official ai-memory v3.4.5 binary with native MiniLM hybrid retrieval. It controls supplied pages, project scope, top-five limit, and whole-block packing at 512 / 1,024 / 2,048 tokens. Native search responses and ai-memory page reads are counted separately. The timing boundaries differ across components and transports; shared-context scores do not establish a full-product latency or token advantage. **claude-mem and generated-answer quality remain unmeasured.** [Complete component curves, native costs, pins, and protocol](benchmarks/RESULTS-recall-score-quality.md).
 
-At the common 1,024-token `cl100k_base` cap on all 1,015 public questions:
+The [comparison near the top of this README](#measured-retrieval-advantage) shows the 1,024-token setting. Token savings vary by setting: Book uses less common-context text than Billion at 1,024/2,048 tokens, and less than ai-memory at 512, for both tokenizers. It uses more than Billion at 512 and more than ai-memory at 1,024/2,048. The common-context counts exclude native metadata; actual MCP counts include it.
 
-| Native retrieval component | Evidence recall | Complete evidence | Mean common-context tokens |
-|---|---:|---:|---:|
-| AI-Memory-Book score-aware | **69.54%** | **72.88%** | 827.2 |
-| billion-context kernel | 65.48% | 68.72% | 862.6 |
-| ai-memory local hybrid | 64.47% | 66.72% | **779.3** |
-
-The score-aware candidate leads both evidence metrics in all 12 competitor × tokenizer × cap comparisons, while mean common-context tokens are lower in 6/12. Billion's measured search boundary remains faster. The table counts the common context; the actual MCP counts above also include metadata and use `o200k_base`.
+For the separately measured policy **one ai-memory search plus full reads of every mapped top-five page**, native returned content averages 2,574.6 `o200k_base` tokens. Book's one actual MCP recall averages 1,465.1, **43.1% fewer returned tokens under those policies**. An agent that stops at a sufficient preview or reads fewer pages can spend less with ai-memory. Billion's 569.2-token native preview excludes unmeasured decompression. These observations preserve each delivery policy; they do not establish the minimum cost or final-answer quality of another product.
 
 The second rule retains exact BM25 score margins while allowing bounded word-form assistance. It passed development gates before the new reserved seeds 883/1297 were measured. At 8,000 characters, their complete-evidence rate improves from the first round's **81.58% to 84.21%**, with lookup coverage restored to 24/24. The previously observed 211/509 regression populations show the same recovery. Source spans, citation-inclusive budgets, and compact/detailed evidence remain checked.
 
-Tradeoffs remain. Public core retrieval is slower than preserved v0.3, even though the MCP connection-lifetime work reduces protocol overhead. Synthetic MCP p95 remains worse than preserved v0.3. Low-overlap paraphrases still fail, and multi-section partial evidence falls from the first round's 34.375% to 25% on the reserved synthetic workloads; none of those multi-section queries becomes complete. Low-token repacking can also lose evidence. Every public unanswerable question returns some context; this measures nonempty retrieval, not an answering model's abstention or hallucination rate. Current-state ordering remains a conservative heuristic.
+### What remains to improve
+
+The frozen run preserves the failures that guide further work:
+
+| Gap | Recorded result and next validation |
+|---|---|
+| Low-overlap paraphrases and distant evidence | All eight low-overlap questions per verification seed have zero recall; multi-section partial coverage falls from 34.375% to 25%, with no multi-section question receiving complete evidence. New retrieval routes need separate category and per-query checks. |
+| Very small context budgets | At 512 tokens, complete evidence falls from 66.72% to **66.26%** with `cl100k_base`, and 67.03% to **66.72%** with `o200k_base`, versus the first frozen Book round. Budget work must report both gains and losses. |
+| Full answer and memory-workflow costs | No fixed generative model or authentic end-to-end competitor capture/summary traces were measured. A paired run must count ingestion, summary generation, retrieval, follow-up reads and answering, with the same answer-scoring procedure. |
+| Generalization | The 1,015 public questions are regression data. Newly reserved synthetic seeds share templates. A separate corpus and independently authored question families are still needed. |
+
+Public core retrieval and synthetic MCP p95 also retain regressions against the preserved v0.3 branch. Every public unanswerable question returns some context; this measures nonempty retrieval, not an answering model's abstention or hallucination rate. Current-state ordering remains a conservative heuristic. [Category results, per-query losses and workflow prerequisites](benchmarks/RESULTS-recall-score-quality.md#7-remaining-failures-and-interpretation-limits).
 
 `--budget` limits assembled context in **characters**, including citations, not outer JSON or exact model tokens. The benchmark's token packer is not a native production option. The core uses local lexical FTS without embeddings or an API key. It does not provide cloud sync, public multi-user hosting, or guaranteed automatic context injection. Client permission decisions remain in the client.
 
-[Current report and resumable reproduction](benchmarks/RESULTS-recall-score-quality.md) · [First frozen round](benchmarks/RESULTS-recall-quality.md) · [Historical v0.3.0 measurements](benchmarks/RESULTS-v0.3.0.md) · [Earlier segmentation experiments](benchmarks/EXPERIMENTS.md)
+### Optional coverage for multi-fact questions
+
+The development version adds **`coverage=True` / `--coverage`**, disabled by default. It recognizes explicit `and`, `和`, `以及` and `并且` clauses, preserves the original top result, and reserves results for additional clauses within the scoped candidate set. This can help when several pages repeat one subject while another requested fact is missing:
+
+```bash
+memory-book recall "cache expiry and retry window" --project atlas --coverage --budget 2000
+```
+
+MCP callers set `"coverage": true` on `recall_memory`; Python callers pass `coverage=True` to `MemoryBook.recall`. The option requires book ranking and cannot be combined with CLI `--flat`.
+
+In the [frozen automatic-clause experiment](benchmarks/RESULTS-conjunctive-recall.md), multi-section complete evidence improves **0/16 → 8/16** per synthetic regression seed at 8,000 characters. But public complete evidence stays **72.88%**, and common-full-page completeness at 512 `cl100k_base` tokens declines **66.26% → 65.79%**. The public MCP p95 also rises **9.564 → 13.510 ms**. The new 36-question authored diagnostic has equal complete evidence (**86.67%**) in both versions. These tradeoffs are why coverage is explicit rather than the default. This is a clause-coverage heuristic, with no demonstrated semantic paraphrase gain. Frozen automatic-mode timings are separate from the final opt-in API build.
+
+[Independent mode checks](benchmarks/reports/coverage-mode-equivalence.json) compare **2,774 complete payloads per mode** against the prior default and frozen experiment, with **zero differences** after excluding only latency. The prior 512-token deficit remains a separate improvement target.
+
+### Ready for a real answer evaluation
+
+The new [paired answer-evaluation guide](docs/answer-evaluation.md) provides `prepare` and `run` commands for an explicitly configured real model endpoint. It freezes each version's returned evidence, keeps scoring labels out of the index and model input, records actual provider usage when reported, and retains failed attempts and unknown costs. Model identity and experiment hashes are checked. A real generative endpoint and authentic competitor observer/compression traces are still required to establish generated-answer quality and complete memory-workflow costs; HTTP fixtures are only transport tests.
+
+[Preparation is verified for 128 public development questions](benchmarks/reports/answer-eval-readiness.json), pairing the first round with the final default: **83 answerable, 45 unsupported, zero actual model calls**. Answer quality and provider cost remain unmeasured.
+
+[Coverage experiment and reproducible artifacts](benchmarks/RESULTS-conjunctive-recall.md) · [Score-aware default report](benchmarks/RESULTS-recall-score-quality.md) · [First frozen round](benchmarks/RESULTS-recall-quality.md) · [Historical v0.3.0 measurements](benchmarks/RESULTS-v0.3.0.md) · [Earlier segmentation experiments](benchmarks/EXPERIMENTS.md)
 
 ## Optional archive inspection
 
@@ -266,7 +325,7 @@ python -m unittest discover -s tests -v
 python tests/installer_smoke.py --with-extras
 ```
 
-The continuation local suite passed **244 tests** with MCP, client, and benchmark extras. The verified [CI run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43044450305) passed all **9 jobs**, including all **13 actual browser checks**. CI checks Python 3.10/3.12/3.13 core behavior, actual MCP stdio, browser interactions, Linux/macOS/Windows installers, and container persistence. [GitHub Actions status](https://github.com/Afloat16/AI-Memory-Book/actions) · [Validation details and historical runs](docs/validation.md). Configuration fixtures do not establish that every vendor application or login manager has been interactively verified.
+The final local suite passed **266 tests**, with no failures or skips, using MCP, client, and benchmark extras. [Current PR checks](https://github.com/Afloat16/AI-Memory-Book/pull/1/checks) track validation of the published branch head. The [previous CI run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43044450305) passed **9 jobs**, including **13 actual browser checks**, across Python 3.10/3.12/3.13, actual MCP stdio, Linux/macOS/Windows installers, and container persistence; these remain historical checks. [GitHub Actions status](https://github.com/Afloat16/AI-Memory-Book/actions) · [Validation details and historical runs](docs/validation.md). Configuration fixtures do not establish that every vendor application or login manager has been interactively verified.
 
 ## Design references
 

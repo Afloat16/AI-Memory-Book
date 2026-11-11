@@ -43,7 +43,9 @@ def parser() -> argparse.ArgumentParser:
     recall.add_argument("--session")
     recall.add_argument("--budget", type=int, default=4000, help="Hard character limit on the assembled context, including citations")
     recall.add_argument("--limit", type=int, default=5)
-    recall.add_argument("--flat", action="store_true", help="Disable directory ranking signal (evaluation baseline)")
+    recall_mode = recall.add_mutually_exclusive_group()
+    recall_mode.add_argument("--flat", action="store_true", help="Disable directory ranking signal (evaluation baseline)")
+    recall_mode.add_argument("--coverage", action="store_true", help="Opt in to experimental explicit-clause coverage; adds search work and can reduce small-budget completeness")
     recall.add_argument("--no-cache", action="store_true")
     recall.add_argument("--json", action="store_true")
     toc = sub.add_parser("toc", help="Browse a project's chapter directory")
@@ -288,7 +290,7 @@ def main(argv: list[str] | None = None) -> int:
                 sessions = [session for file in args.files for session in load_sessions(file, format=args.format, project=args.project, task_id=args.task)]
                 _print([book.ingest(session) for session in sessions])
             elif args.command == "recall":
-                result = book.recall(args.query, project=args.project, chapter=args.chapter, session=args.session, budget_chars=args.budget, limit=args.limit, strategy="flat" if args.flat else "book", use_cache=not args.no_cache)
+                result = book.recall(args.query, project=args.project, chapter=args.chapter, session=args.session, budget_chars=args.budget, limit=args.limit, strategy="flat" if args.flat else "book", use_cache=not args.no_cache, coverage=args.coverage)
                 if args.json:
                     _print(result)
                 else:

@@ -213,7 +213,7 @@ values; page reads expose source spans. `budget_chars` defaults to 4,000 and
 bounds the assembled evidence context, including citation headings. It does
 **not** bound outer JSON metadata, tool declarations, or exact model tokens.
 Recall returns one copy of the context rather than duplicating it in text and
-structured content. Since v0.3.0, all MCP tools return one compact JSON text
+structured content. On the v0.3 development branch, all MCP tools return one compact JSON text
 block. Default recall references contain `project`, `session_id`, and
 `turn_index`; pass `"details": true` for exact offsets, message indices,
 excerpt ranges, and retrieval diagnostics. `read_page` retains full provenance.

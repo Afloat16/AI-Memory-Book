@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased — optional multi-fact coverage and answer evaluation
+
+- Add experimental `coverage=True` to Python/MCP recall and `--coverage` to the CLI. It can retain evidence for separate explicit clauses, while the default score-aware behavior remains intact. Coverage adds search work and can reduce completeness under very small token caps; it is not enabled automatically.
+- Keep the two modes in separate version-9 recall-cache entries, reject ambiguous flag values and incompatible flat ranking, and verify actual CLI/MCP opt-in behavior. Complete non-timing payloads match the previous default and the frozen automatic-clause experiment in 2,774 comparisons per mode.
+- Retain all eleven frozen experiment stages, source/output hashes, gains and losses. Four previously observed synthetic seeds improve multi-section completeness from 0/16 to 8/16 with coverage, while public 512-token common-page packing falls from 66.26% to 65.79% (`cl100k_base`). These tradeoffs are why coverage is optional. A new 36-question, six-domain diagnostic shows no improvement and does not establish generalization.
+- Add a real-endpoint paired-answer runner with frozen source/context/label/evaluator hashes, explicit model identity checks, error-preserving usage accounting and credential-safe traces. Prepare 128 public development questions; no generative model was called and no full-workflow cost advantage is claimed.
+- Move measured capabilities and pinned native-component comparisons toward the top of both READMEs. Correct installer defaults and published installation links to existing v0.2.1; document the separate unreleased source checkout.
+- See the [coverage experiment and final API decision](benchmarks/RESULTS-conjunctive-recall.md), [answer evaluation guide](docs/answer-evaluation.md), and [validation record](docs/validation.md).
+
 ## Unreleased — recall quality continuation
 
 - Continue the preserved v0.3.0 performance branch with bounded English word-form retrieval. Keep exact FTS and add SQLite's local Porter index. When the routes differ, combine their max-normalized BM25 scores with a fixed 2:1 exact/stem weight, preserving score margins that rank-only fusion discarded; invalidate prior recall caches with retrieval version 7. No model, embedding package, network request, or provider key is added to the core.
@@ -14,7 +23,7 @@
 - Make budget, source-stability and size-accounting failures fail evaluation while preserving diagnostics. Add explicit corpus plans and a sequential checkpointed runner that validates source/data/runtime identity and completed artifacts before resuming.
 - See [the continuation report](benchmarks/RESULTS-recall-quality.md) for measured quality, costs, regressions, and the distinction between retrieval evidence and generated answers.
 
-## 0.3.0 — 2026-11-11
+## 0.3.0 development — 2026-11-11 (unreleased)
 
 ### Retrieval and context cost
 

@@ -77,7 +77,7 @@ page ID. If displaying turns as “question 1,” convert index 0 to 1 explicitl
 do not change the stored reference. Distinguish what the source says from any
 new inference you make.
 
-Since v0.3.0, MCP responses use compact JSON and omit routine diagnostics and
+On the v0.3 development branch, MCP responses use compact JSON and omit routine diagnostics and
 exact coordinates by default. Evidence text is not removed by this formatting
 change. Set `"details": true` on `recall_memory` to retrieve the full reference
 coordinates, `excerpt_spans`, and diagnostics, or use `read_page` for a selected
@@ -123,6 +123,32 @@ happened. The rank order is also not an authoritative decision timeline. If
 evidence remains missing or contradictory, state that limit instead of inventing
 memory. Source updates can invalidate a page ID; recall again when a formerly
 returned page is reported missing or changed.
+
+### Optional coverage for multiple facts
+
+On the unreleased development branch, `recall_memory` accepts
+`"coverage": true` when a question explicitly combines several subjects and
+the initial evidence misses one of them. The default is `false`. For example:
+
+```json
+{
+  "query": "rotor calibration offset and receiver tolerance",
+  "project": "lab",
+  "budget_chars": 8000,
+  "limit": 5,
+  "coverage": true
+}
+```
+
+The CLI equivalent is `memory-book recall "rotor calibration offset and receiver tolerance" --project lab --budget 8000 --coverage`.
+Python callers use `book.recall(query, project="lab", coverage=True)`.
+This is a limited lexical coverage option. It can add a missing subject, but
+it adds search work and has measured completeness losses at a 512-token
+evaluation cap. It does not resolve semantic paraphrases, guarantee that every
+clause fits, or replace a necessary source read. Use the default when this
+tradeoff is not useful. `--coverage` and the evaluation-only `--flat` option
+cannot be combined. The [experiment report](../benchmarks/RESULTS-conjunctive-recall.md)
+keeps the successful cases and the losses together.
 
 ## Writing memory
 

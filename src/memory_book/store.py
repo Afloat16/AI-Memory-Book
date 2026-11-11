@@ -18,7 +18,7 @@ from .text import estimate_tokens, excerpt, headline, index_text, query_terms, t
 
 SCHEMA_VERSION = 3
 INDEX_VERSION = 3
-RECALL_VERSION = 8
+RECALL_VERSION = 9
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -571,13 +571,17 @@ class MemoryBook:
         values["revision"], values["schema_version"] = self.revision, SCHEMA_VERSION
         return values
 
-    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True) -> dict:
+    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False) -> dict:
         started = time.perf_counter_ns()
         query = _string(query, "query", maximum=8000, required=False)
         _integer(budget_chars, "budget_chars", 0, 100_000)
         _integer(limit, "limit", 1, 50)
         if strategy not in {"book", "flat"}:
             raise ValueError("strategy must be book or flat")
+        if not isinstance(coverage, bool):
+            raise ValueError("coverage must be a boolean")
+        if coverage and strategy != "book":
+            raise ValueError("coverage requires the book strategy")
         for key, val in (("project", project), ("chapter", chapter), ("session", session)):
             if val is not None:
                 _string(val, key)
@@ -588,7 +592,7 @@ class MemoryBook:
         self.db.execute("BEGIN")
         try:
             revision = self.revision
-            cache_key = hashlib.sha256(_json([INDEX_VERSION, RECALL_VERSION, query, project, chapter, session, budget_chars, limit, strategy]).encode()).hexdigest()
+            cache_key = hashlib.sha256(_json([INDEX_VERSION, RECALL_VERSION, query, project, chapter, session, budget_chars, limit, strategy, coverage]).encode()).hexdigest()
             cached = self.db.execute("SELECT payload FROM recall_cache WHERE key=? AND revision=?", (cache_key, revision)).fetchone() if use_cache and self.cache_size else None
             if cached:
                 result = json.loads(cached[0])
@@ -719,7 +723,7 @@ class MemoryBook:
                         chosen.append(item)
                         covered.update(matched[item["rid"]])
                     candidates = chosen + pending + candidates[len(pool):]
-                facets = (_query_facets(query) if strategy == "book" and limit > 1 and
+                facets = (_query_facets(query) if coverage and strategy == "book" and limit > 1 and
                           not CURRENT_QUERY.search(query) and not HISTORICAL_QUERY.search(query) else [])
                 if candidates and facets:
                     # A whole-query OR score can fill every result slot with

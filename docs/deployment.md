@@ -10,24 +10,29 @@ creates an isolated environment with the `mcp` and `clients` extras. It does not
 require Node.js, an embedding server, a database server, or a memory-service API
 key. Your AI client's own model and account requirements remain separate.
 
-## Install v0.3.0
+## Install the published version
+
+The latest published experimental release is **v0.2.1**. The v0.3 performance
+work lives on the unreleased `perf/recall-quality-budget` branch; no `v0.3.0`
+release tag is available yet. Use the commands below for the published version,
+or the [development checkout](#development-checkout) for the new behavior.
 
 ### macOS / Linux
 
 ```bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.0/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.2.1/scripts/install.sh
 bash install-memory-book.sh
 ```
 
 ### Windows PowerShell
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.0/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.2.1/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ```
 
 The shared Python installer also works on macOS/Linux. A PowerShell wrapper is
-available at [`scripts/install.ps1`](../scripts/install.ps1). Neither wrapper
+available at [the v0.2.1 `scripts/install.ps1`](https://github.com/Afloat16/AI-Memory-Book/blob/v0.2.1/scripts/install.ps1). Neither wrapper
 changes your shell profile or PowerShell execution policy. Use Python 3.10 or
 newer; some Linux distributions package `venv` separately.
 
@@ -37,7 +42,7 @@ live under the data directory's `install` subdirectory. The usual POSIX launcher
 is `~/.local/bin/memory-book`; Windows uses the data directory's `bin` directory.
 Custom `--prefix`, `--bin-dir`, or `MEMORY_BOOK_HOME` can change these locations.
 
-The downloaded helper accepts `--version v0.3.0`, a full commit SHA, or
+The downloaded helper accepts `--version v0.2.1`, a full commit SHA, or
 `--source /absolute/path/to/checkout-or-wheel`. `--without-extras` installs only
 the core and therefore omits MCP/client integration. Installation stages a new
 environment before switching its managed launcher; previous environments and
@@ -69,13 +74,13 @@ itself enable transcript capture.
 Use a persistent tool environment and a pinned Git release:
 
 ```bash
-uv tool install "ai-memory-book[mcp,clients] @ git+https://github.com/Afloat16/AI-Memory-Book.git@v0.3.0"
+uv tool install "ai-memory-book[mcp,clients] @ git+https://github.com/Afloat16/AI-Memory-Book.git@v0.2.1"
 ```
 
 Or:
 
 ```bash
-pipx install "ai-memory-book[mcp,clients] @ git+https://github.com/Afloat16/AI-Memory-Book.git@v0.3.0"
+pipx install "ai-memory-book[mcp,clients] @ git+https://github.com/Afloat16/AI-Memory-Book.git@v0.2.1"
 ```
 
 These Git URL forms require Git. Their syntax follows the official
@@ -93,7 +98,7 @@ indexes; this is not an offline installation promise.
 ### Source checkout
 
 ```bash
-git clone --branch v0.3.0 https://github.com/Afloat16/AI-Memory-Book.git
+git clone --branch v0.2.1 https://github.com/Afloat16/AI-Memory-Book.git
 cd AI-Memory-Book
 python -m venv .venv
 source .venv/bin/activate
@@ -105,6 +110,32 @@ On Windows, use `.venv\Scripts\Activate.ps1` or invoke
 `.venv\Scripts\python.exe` directly. The dependency-free core can be installed
 with `python -m pip install -e .`; TOML merging needs the `clients` extra and MCP
 needs the `mcp` extra.
+
+### Development checkout
+
+To use the work described by this branch's README, replace the source checkout
+command with:
+
+```bash
+git clone --branch perf/recall-quality-budget https://github.com/Afloat16/AI-Memory-Book.git
+```
+
+Then use the same virtual-environment and editable-install commands above.
+The branch is mutable. The published score-aware measurements refer specifically
+to `0ab49d4f2be6aabe5e51c3314bb9369041af5369`; check out that commit before installing
+when reproducing those results. Follow the [frozen benchmark instructions](../benchmarks/RESULTS-recall-score-quality.md#11-reproduction-and-artifact-index)
+for its separate data and evaluator requirements.
+
+For a managed launcher from a local development checkout, run the helper with an
+explicit source, so it does not attempt to download an unreleased version tag:
+
+```bash
+python scripts/install.py --source .
+```
+
+After changing the installed environment, re-run `setup` and reinstall any
+configured background service so their absolute Python paths point to that
+environment.
 
 ## Data and configuration paths
 

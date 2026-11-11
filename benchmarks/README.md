@@ -1,6 +1,28 @@
 # Retrieval experiments
 
-## Current score-aware continuation
+## Current: optional coverage and real-answer evaluation
+
+The [latest report](RESULTS-conjunctive-recall.md) retains the complete frozen
+automatic-clause experiment and explains the final opt-in API decision. All
+eleven stages completed: four existing synthetic regressions, the new authored
+transfer diagnostic, public comparisons, real MCP calls and both pinned native
+competitors. Gains and small-budget/latency losses remain visible.
+
+Final `coverage=False` restores the previous score-aware default. The mode
+[equivalence record](reports/coverage-mode-equivalence.json) verifies 2,774
+complete non-timing payloads for each of default and explicit coverage against
+their corresponding frozen runtimes. See the report's reproduction section:
+running `conjunctive_manifest.json` against the final default source would test
+a different mode from the original automatic-clause experiment. Its original
+checkpoint is immutable evidence and cannot be resumed after changing source.
+
+The [real-answer guide](../docs/answer-evaluation.md) documents `prepare` and
+`run`, exact/reference token accounting, missing usage, errors and model
+identity. The [readiness record](reports/answer-eval-readiness.json) contains
+128 prepared development cases and no model calls. This is infrastructure for
+the missing experiment, not an answer-quality result.
+
+## Previous score-aware continuation
 
 The [score-aware report](RESULTS-recall-score-quality.md) evaluates runtime
 `0ab49d4f2be6aabe5e51c3314bb9369041af5369`. It preserves the first frozen round

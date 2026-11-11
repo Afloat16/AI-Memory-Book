@@ -167,17 +167,21 @@ def create_server(db_path: str | Path, allow_write: bool = False) -> FastMCP:
         budget_chars: int = 4000,
         limit: int = 5,
         details: bool = False,
+        coverage: bool = False,
     ) -> str:
         """Recall cited history. Compact by default; details adds exact spans and diagnostics.
 
         budget_chars limits context including citations, not outer JSON metadata.
+        coverage opts into experimental coverage of explicit and/和-style clauses.
+        It can recover additional subjects but adds search work and can reduce
+        evidence completeness under small budgets. It is disabled by default.
         """
         _range(budget_chars, "budget_chars", 0, 100000)
         _range(limit, "limit", 1, 50)
         with acquire_book() as book:
             result = book.recall(
                 query, project=project, chapter=chapter, session=session,
-                budget_chars=budget_chars, limit=limit,
+                budget_chars=budget_chars, limit=limit, coverage=coverage,
             )
         return _json(recall_payload(result, details=details))
 

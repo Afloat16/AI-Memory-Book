@@ -25,7 +25,8 @@ import tempfile
 from urllib.parse import quote
 
 
-DEFAULT_VERSION = "v0.3.0"
+# Keep the default on an existing release; development is installed with --source.
+DEFAULT_VERSION = "v0.2.1"
 REPOSITORY = "https://github.com/Afloat16/AI-Memory-Book"
 
 
@@ -64,7 +65,7 @@ def package_spec(source: Path | None, version: str, extras: bool) -> str:
         tag = version if version.startswith("v") else "v" + version
         archive = f"{REPOSITORY}/archive/refs/tags/{quote(tag, safe='')}.zip"
     else:
-        raise ValueError("--version must be a release tag such as v0.3.0 or a full 40-character commit SHA; use --source for a development checkout.")
+        raise ValueError("--version must be a release tag such as v0.2.1 or a full 40-character commit SHA; use --source for a development checkout.")
     return f"{name} @ {archive}"
 
 

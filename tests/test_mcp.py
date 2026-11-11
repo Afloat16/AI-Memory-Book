@@ -117,6 +117,41 @@ class MCPTests(unittest.IsolatedAsyncioTestCase):
         second = json.loads(second[0].text)
         self.assertNotEqual(first["pages"][0]["id"], second["pages"][0]["id"])
 
+    async def test_coverage_requires_explicit_stdio_argument(self):
+        from memory_book.store import MemoryBook
+        from tests.test_conjunctive_recall import seed_conjunctive_book
+        with MemoryBook(self.database, segmentation="turn", max_page_chars=3000,
+                        min_page_chars=0) as book:
+            primary, secondary, _ = seed_conjunctive_book(book)
+        source = Path(__file__).resolve().parents[1] / "src"
+        parameters = StdioServerParameters(
+            command=sys.executable,
+            args=["-c", "import sys; from memory_book.mcp_server import serve; serve(sys.argv[1])", self.database],
+            env={"PYTHONPATH": str(source), "PYTHONUNBUFFERED": "1"},
+        )
+        async with stdio_client(parameters) as (reader, writer):
+            async with ClientSession(reader, writer, read_timeout_seconds=timedelta(seconds=15)) as client:
+                await client.initialize()
+                listed = await client.list_tools()
+                tool = next(tool for tool in listed.tools if tool.name == "recall_memory")
+                field = tool.inputSchema["properties"]["coverage"]
+                self.assertEqual(field["type"], "boolean")
+                self.assertFalse(field["default"])
+                arguments = {"query": "rotor calibration offset and receiver tolerance",
+                             "project": "lab", "limit": 2, "budget_chars": 600}
+                outputs = []
+                for extra in ({}, {"coverage": False}, {"coverage": True}):
+                    response = await client.call_tool("recall_memory", {**arguments, **extra})
+                    self.assertFalse(response.isError, response)
+                    outputs.append(json.loads("\n".join(part.text for part in response.content
+                                                        if part.type == "text")))
+                self.assertEqual(outputs[0], outputs[1])
+                self.assertIn(primary, outputs[0]["context"])
+                self.assertNotIn(secondary, outputs[0]["context"])
+                self.assertIn(primary, outputs[2]["context"])
+                self.assertIn(secondary, outputs[2]["context"])
+                self.assertEqual(set(outputs[0]), set(outputs[2]))
+
     async def test_write_enabled_server_ingests_through_sdk(self):
         from memory_book.mcp_server import create_server
         from memory_book.store import MemoryBook

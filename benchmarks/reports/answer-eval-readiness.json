@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-11-11T17:57:37.886465+00:00",
+  "status": "paired_contexts_prepared_generation_not_run",
+  "private_artifact": {
+    "path": ".artifacts/answer-eval/public-dev128-first-round-vs-final-default.prepared.json",
+    "sha256": "b7e9d15dc95741bf610e24efc714a60573619f363cb2ff5e3396645b31e2586e",
+    "bytes": 1835030,
+    "visibility": "ignored private working artifact; contains licensed source text and answers; not committed"
+  },
+  "corpus": {
+    "name": "LoCoMo text-evidence development",
+    "input_file_sha256": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+    "case_sha256": "0f4d8c154d52763052cbd0916f9eeeae2fffa551c671e5a04ebc8ab115177538",
+    "query_and_label_sha256": "53cea9aa65663c3e049105d159fa13c53076a9c6a24e7b16f6e773adb7df526a",
+    "queries": 128,
+    "answerable_queries": 83,
+    "unsupported_queries": 45,
+    "evaluation_status": "previously observed public development regression; not unseen generalization"
+  },
+  "parameters": {
+    "budget_chars": 8000,
+    "budget_tokens": 1024,
+    "limit": 5,
+    "max_page_chars": 900,
+    "min_page_chars": 400,
+    "packing": "rank-order whole blocks",
+    "segmentation": "adaptive",
+    "similarity_threshold": 0.12
+  },
+  "tokenizer": {
+    "name": "cl100k_base",
+    "version": "0.12.0"
+  },
+  "runtime": {
+    "python": "3.12.14",
+    "sqlite": "3.53.1",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41"
+  },
+  "evaluator": "answer-eval-1.0",
+  "evaluator_source_sha256": "b7f0026081d4699fa1165c761cd3551e653d2ef003d3003014f5617dad8a7c3b",
+  "evaluator_files": {
+    "answer_eval.py": "7b2949d67b348608145425ce93d773c46df1b5b49407864b8a8c75dbfa9f2ab3",
+    "data.py": "090d0460a6887eff32b3adb89d1684da9b7c9094f96246e187c1298051b64625",
+    "public_data.py": "269625183d8bef8f3b34f534d1c6d52ce7c623f795015e3e1508835c3eee08e8",
+    "run.py": "e557475d5701ea7271de9103aa8267e204796336b5277352fad015d9399521a4",
+    "token_compare.py": "ea1ecd5649bd17e4359908d407631cad3b20e546e3a8d1e80ab7df737fdfcbac"
+  },
+  "engines": [
+    {
+      "label": "first-round",
+      "git_base_commit": "6f5299004642618e606d001b4c574e1bae572a7e",
+      "source_dirty": false,
+      "commit_identifies_source": true,
+      "python_source_sha256": "191d0bf023fa3589c4832440cde86482563e223bec8a79a25b2b4fe020f2fb85",
+      "python_source_sha256_after": "191d0bf023fa3589c4832440cde86482563e223bec8a79a25b2b4fe020f2fb85",
+      "queries_prepared": 128,
+      "source_unchanged_during_preparation": true
+    },
+    {
+      "label": "final-default",
+      "git_base_commit": "3c8fda5d8ad2d164741a3dd093c17a5a9f5006ea",
+      "source_dirty": true,
+      "commit_identifies_source": false,
+      "python_source_sha256": "88f5f749be55dd4f1094d236340bec645edb6b9306fd45c720dbebac91767e57",
+      "python_source_sha256_after": "88f5f749be55dd4f1094d236340bec645edb6b9306fd45c720dbebac91767e57",
+      "queries_prepared": 128,
+      "source_unchanged_during_preparation": true
+    }
+  ],
+  "execution": {
+    "endpoint_configured": false,
+    "model_configured": false,
+    "configuration_check": "No endpoint/model arguments were supplied; ANSWER_BASE_URL, OPENAI_BASE_URL, ANSWER_MODEL and OPENAI_MODEL are unset.",
+    "generated_calls": 0,
+    "status": "not_measured_missing_actual_endpoint_and_served_model",
+    "answer_scores": null,
+    "provider_usage": null,
+    "full_workflow_cost": null
+  },
+  "publication_boundary": {
+    "contains_source_text": false,
+    "contains_expected_answers": false,
+    "contains_preparation_timings": false,
+    "performance_claim": null,
+    "answer_quality_claim": null,
+    "note": "Preparation timings are retained only in the private package. They are not end-to-end measurements. This readiness record proves no generated-answer or competitor full-workflow result."
+  }
+}
