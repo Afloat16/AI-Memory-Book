@@ -8,6 +8,7 @@ This is a reproducible local microbenchmark on generated conversations. It is **
 - Fingerprint: `4fa1e2556205411227f0216e20a6187ec2289c55c0c95c216236806f4b65c67f`.
 - Size: 8 projects, 112 sessions, 1408 user turns, 1,143,305 source characters, 168 queries (152 answerable).
 - Python 3.12.14; SQLite 3.53.1; Linux-6.18.57-x86_64-with-glibc2.41.
+- Engine Python source fingerprint: `c36022d40452c009b559bfa3c2a6524494d89297e6539ec74679c15f4c7d286a`.
 - Run: 2026-11-11T08:37:34.036216+00:00 to 2026-11-11T08:41:00.241731+00:00.
 - Result limit: 5; uncached repeats: 3; page settings: max=900, min=400, similarity=0.12.
 

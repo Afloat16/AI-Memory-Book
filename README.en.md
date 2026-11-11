@@ -2,7 +2,7 @@
 
 **Projects become books. Tasks become chapters. Recall jumps directly to cited evidence pages.**
 
-[中文](README.md) · [Architecture](docs/architecture.md) · [Integrations](docs/integrations.md) · [Benchmarks](benchmarks/README.md)
+[中文](README.md) · [Architecture](docs/architecture.md) · [Integrations](docs/integrations.md) · [Measured results](benchmarks/EXPERIMENTS.md) · [Release validation](docs/validation.md)
 
 AI-Memory-Book is an experimental, local conversation memory engine. A navigable table of contents organizes history, while indexed retrieval returns evidence in one call. Reading the directory first is optional.
 
@@ -84,6 +84,16 @@ python -m unittest discover -s tests -v
 python -m benchmarks.run --split heldout --seed 29 --budget-chars 2000 8000
 ```
 
-Read [the measured reports](benchmarks/README.md), including failures. These are synthetic local retrieval experiments, not comparisons against other memory products or measurements of LLM answer quality. Low-overlap semantic paraphrases remain difficult; directory ranking is not presumed superior. A single-machine reader is not a public multi-user service. Historical contradictions require source inspection, and large code blocks may span pages.
+With parameters frozen, two heldout seeds each contain 8 projects, 112 sessions, 1,408 user turns, 168 queries, and about 1.143 million source characters. At an 8,000-character context budget, using the same `book` ranking and excerpt algorithm:
+
+| Segmentation | Evidence recall | Complete evidence | Mean context chars | Uncached p95 |
+|---|---:|---:|---:|---:|
+| Session | 69.32–69.89% | 73.68–74.34% | 5,411 | 112.87–141.15 ms |
+| Turn | 64.77–65.34% | 59.87–60.53% | 3,879–3,881 | 22.41–24.03 ms |
+| Adaptive | **77.27%** | **78.95%** | **3,701–3,706** | **7.42–7.46 ms** |
+
+Ranges are the two individual seeds, not confidence intervals. Main timings disable result caching without flushing SQLite/OS page caches. They exclude model inference, networking, and MCP transport. Each retrieval unit contributes one query-centered window; a whole-session retriever extracting several independent windows is not measured and might narrow the gap. Adaptive uses about 31.5% less context here, but does not win every quality metric at the 2,000-character budget. `book` and `flat` have the same aggregate recall, so there is no demonstrated independent accuracy gain from directory ranking.
+
+Read [the complete experiment record](benchmarks/EXPERIMENTS.md), [seed 29](benchmarks/results/heldout-29-v2-900.md), and [seed 47](benchmarks/results/heldout-47-v2-900.md), including failures. Low-overlap paraphrases have zero recall; distant two-fact queries retrieve only 25% of required evidence and complete none of those queries. Old evidence ranks before current evidence in half of current-decision queries. These are synthetic local retrieval experiments, not comparisons against other memory products or measurements of LLM answer quality. See [the reproduction guide](benchmarks/README.md). A single-machine reader is not a public multi-user service. Historical contradictions require source inspection, and large code blocks may span pages.
 
 The implementation was independently written after studying [claude-mem](https://github.com/thedotmack/claude-mem), [billion-context](https://github.com/ranxianglei/billion-context), [ai-memory](https://github.com/akitaonrails/ai-memory), [PageIndex](https://github.com/VectifyAI/PageIndex), and [RAPTOR](https://arxiv.org/abs/2401.18059). See [research notes](docs/research.md). Licensed under [MIT](LICENSE).

@@ -473,6 +473,19 @@ def to_markdown(report: dict[str, Any]) -> str:
         "| Segmentation | Retrieval | Budget (chars) | Evidence recall | Complete | MRR | Mean chars | Uncached p50 ms | Uncached p95 ms |",
         "|---|---|---:|---:|---:|---:|---:|---:|---:|",
     ]
+    if report.get("release_stage"):
+        provenance = [f"**Release stage:** {report['release_stage']}.", ""]
+        if report.get("source_integrity_note"):
+            provenance += [report["source_integrity_note"], ""]
+        elif report.get("release_verification"):
+            check = report["release_verification"]
+            provenance += [
+                f"Fresh Python process: {check['fresh_python_process']}; "
+                f"package source unchanged during run: "
+                f"{report['runtime'].get('engine_source_unchanged_during_run')}; "
+                f"per-query quality differences from pre-release: "
+                f"{check['quality_differences_from_pre_release']}.", ""]
+        lines[4:4] = provenance
     for config in report["configurations"]:
         metrics, latency = config["metrics"], config["uncached_latency"]
         lines.append(f"| {config['segmentation']} | {config['strategy']} | {config['budget_chars']} "

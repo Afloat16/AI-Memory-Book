@@ -8,10 +8,13 @@ This is a reproducible local microbenchmark on generated conversations. It is **
 - Fingerprint: `4fa1e2556205411227f0216e20a6187ec2289c55c0c95c216236806f4b65c67f`.
 - Size: 8 projects, 112 sessions, 1408 user turns, 1,143,305 source characters, 168 queries (152 answerable).
 - Python 3.12.14; SQLite 3.53.1; Linux-6.18.57-x86_64-with-glibc2.41.
+- Engine Python source fingerprint: `c36022d40452c009b559bfa3c2a6524494d89297e6539ec74679c15f4c7d286a`.
 - Run: 2026-11-11T08:36:36.168687+00:00 to 2026-11-11T08:36:48.115936+00:00.
 - Result limit: 5; uncached repeats: 3; page settings: max=3600, min=400, similarity=0.12.
 
 Task identifiers are supplied input metadata. Every configuration uses the same source records, tokenizer/search implementation, project scope and context budget. Source evidence, rather than generated page IDs, determines correctness.
+
+Both ranking strategies use the same metadata-aware FTS index. `book` adds soft directory-overlap reranking to `flat`; this experiment does not compare hierarchy against an index stripped of all directory metadata.
 
 ## Main results
 

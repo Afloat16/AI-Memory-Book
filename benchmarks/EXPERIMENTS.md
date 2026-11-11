@@ -130,5 +130,85 @@ and the separate hot-cache diagnostic. No algorithm changes are selected from
 these results. The supplied task identifiers and the limited set of synthetic
 source templates remain limitations even when seeds and query wording differ.
 
-Heldout reports and their final interpretation are recorded below after the
-measurements finish.
+### Release verification versus parameter tuning
+
+Release review found additional correctness issues in preserving project/chapter
+display names and migrating older database schemas. It also moved an invariant
+heading computation outside a continuation-page loop, eliminating unnecessary
+work on unusually long questions without changing the generated pages. These
+changes were not selected from heldout scores or used to tune retrieval.
+
+The early heldout runs are preserved as
+[seed 29 pre-release](results/heldout-29-v2-900-pre-release.md) and
+[seed 47 pre-release](results/heldout-47-v2-900-pre-release.md). Because those runs
+shared imported modules while source files changed on disk, they are explicitly
+labelled pre-release and are not the final release timing evidence.
+
+The final runs use a separate fresh Python process for each seed, hash package
+Python source before and after the experiment, and compare per-query quality
+against the corresponding pre-release record. The published final tables use
+those release measurements. Full reports include `release_verification` and
+`engine_source_unchanged_during_run` so these checks can be inspected.
+
+## Final heldout results
+
+Each heldout seed contains 8 projects, 112 sessions, 1,408 user turns and 168
+queries, with approximately 1.143 million source characters. Both final runs
+verified unchanged package source with SHA-256
+`57c1d2d0ac42530b17757ea5b0278bf394ebc3e631ca541c832117edc2371a60`.
+There were zero per-query quality differences from their pre-release counterparts.
+Both seeds had zero context-budget violations and zero context-size mismatches.
+
+The table shows `book`; `flat` again had the same aggregate evidence recall and
+complete-evidence rates. This does not establish a separate accuracy benefit
+from the directory-overlap ranking adjustment.
+
+| Seed | Segmentation | Budget | Evidence recall | Complete evidence | Mean context chars | Uncached p95 ms |
+|---:|---|---:|---:|---:|---:|---:|
+| 29 | Session | 2,000 | 68.75% | 73.03% | 1,903 | 107.37 |
+| 29 | Turn | 2,000 | 56.25% | 54.61% | 1,706 | 23.61 |
+| 29 | Adaptive | 2,000 | 72.73% | 73.68% | 1,949 | 9.90 |
+| 47 | Session | 2,000 | 68.75% | 73.03% | 1,904 | 161.23 |
+| 47 | Turn | 2,000 | 56.25% | 54.61% | 1,706 | 26.00 |
+| 47 | Adaptive | 2,000 | 71.59% | 72.37% | 1,948 | 10.17 |
+| 29 | Session | 8,000 | 69.89% | 74.34% | 5,411 | 112.87 |
+| 29 | Turn | 8,000 | 65.34% | 60.53% | 3,879 | 22.41 |
+| 29 | Adaptive | 8,000 | 77.27% | 78.95% | 3,706 | 7.42 |
+| 47 | Session | 8,000 | 69.32% | 73.68% | 5,411 | 141.15 |
+| 47 | Turn | 8,000 | 64.77% | 59.87% | 3,881 | 24.03 |
+| 47 | Adaptive | 8,000 | 77.27% | 78.95% | 3,701 | 7.46 |
+
+At the 8,000-character budget, adaptive segmentation uses about 31.5% less
+context than the session baseline while retrieving more required evidence.
+Its observed uncached p95 is 7.42–7.46 ms, versus 112.87–141.15 ms for session
+segmentation in these runs. These are local API timings on this generated
+workload, not end-to-end model latency or a promise for other hardware.
+The immediately repeated adaptive hot-cache p95 is 0.277–0.309 ms; that is a
+best-case cache-hit diagnostic and should not replace uncached figures.
+
+At the smaller 2,000-character budget, adaptive returns slightly more text than
+the session baseline. Its complete-evidence rate is slightly higher for seed
+29 and slightly lower for seed 47. There is no universal win at every budget
+or on every quality metric.
+
+The heldout adaptive evidence recall of 77.27% is substantially below the
+92.61% development result. The separate wording bank exposes limited lexical
+generalization. Low-overlap paraphrases have zero recall; the two-fact
+`multi_section` category recovers only 25% of its required evidence and completes
+none of those two-fact queries; and the
+natural long-answer middle category recovers 75%. These failures are retained
+in the raw records, not removed from the reported average.
+
+All unanswerable heldout questions return nonempty context. That demonstrates
+the need to distinguish related material from evidence of an answer; this
+benchmark does not measure a model's hallucination rate. In half of the
+current-decision queries, adaptive ranks old evidence before current evidence,
+although it returns the current fact as well. Source dates are therefore
+necessary, and authoritative version resolution remains outside this lexical
+retriever's guarantees.
+
+Full results: [heldout seed 29](results/heldout-29-v2-900.md) and
+[heldout seed 47](results/heldout-47-v2-900.md). Each report links the complete
+gzip archive and a compact JSON summary. The published default is supported by
+the development tradeoff and these bounded heldout observations; it is not a
+claim that directory organization alone solves semantic memory retrieval.

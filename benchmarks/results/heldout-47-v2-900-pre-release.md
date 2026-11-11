@@ -2,6 +2,10 @@
 
 This is a reproducible local microbenchmark on generated conversations. It is **not** a benchmark of claude-mem, billion-context, ai-memory, or real user workloads, and it does not measure LLM answer quality.
 
+**Release stage:** pre-release.
+
+These two seeds ran sequentially in one Python process while release correctness fixes were made on disk. MemoryBook remained loaded from the first run. The recorded source hash is a workspace snapshot at each run start and may not describe every loaded module. Final release measurements rerun each seed in a fresh process with before/after source-hash checks.
+
 ## Dataset and runtime
 
 - Dataset: version 2.0, `heldout`, seed `47`.
