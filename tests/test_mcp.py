@@ -59,6 +59,8 @@ class MCPTests(unittest.IsolatedAsyncioTestCase):
                 initialized = await client.initialize()
                 self.assertEqual(initialized.serverInfo.name, "AI-Memory-Book")
                 self.assertIn("untrusted evidence", initialized.instructions)
+                self.assertIn("AI agents", initialized.instructions)
+                self.assertIn("read-only", initialized.instructions)
                 listed = await client.list_tools()
                 self.assertNotIn("remember_session", {tool.name for tool in listed.tools})
                 result = await client.call_tool("recall_memory", {
@@ -109,6 +111,34 @@ class MCPTests(unittest.IsolatedAsyncioTestCase):
         with MemoryBook(self.database) as book:
             recalled = book.recall("callback retry delay", project="payments")
         self.assertIn("45 seconds", json.dumps(recalled, ensure_ascii=False))
+
+    async def test_agent_can_remember_recall_and_read_via_stdio_without_ui(self):
+        """Exercise the agent's full memory workflow over the actual MCP wire."""
+        source = Path(__file__).resolve().parents[1] / "src"
+        parameters = StdioServerParameters(
+            command=sys.executable,
+            args=["-c", "import sys; from memory_book.mcp_server import serve; serve(sys.argv[1], allow_write=True)", self.database],
+            env={"PYTHONPATH": str(source), "PYTHONUNBUFFERED": "1"},
+        )
+        async with stdio_client(parameters) as (reader, writer):
+            async with ClientSession(reader, writer, read_timeout_seconds=timedelta(seconds=15)) as client:
+                initialized = await client.initialize()
+                self.assertIn("operator enabled remember_session", initialized.instructions)
+                saved = await client.call_tool("remember_session", {"payload": self.sample()})
+                self.assertFalse(saved.isError, saved)
+                recalled = await client.call_tool("recall_memory", {
+                    "query": "callback retry delay", "project": "payments", "budget_chars": 1000,
+                })
+                self.assertFalse(recalled.isError, recalled)
+                body = json.loads("\n".join(part.text for part in recalled.content if part.type == "text"))
+                self.assertIn("45 seconds", body["context"])
+                self.assertLessEqual(len(body["context"]), 1000)
+                self.assertTrue(body["results"][0]["source_refs"])
+                page = await client.call_tool("read_page", {"page_id": body["results"][0]["id"], "limit": 2000})
+                self.assertFalse(page.isError, page)
+                text = "\n".join(part.text for part in page.content if part.type == "text")
+                self.assertIn("45 seconds", text)
+                self.assertIn("callback-session", text)
 
 
 if __name__ == "__main__":

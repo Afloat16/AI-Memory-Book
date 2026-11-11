@@ -141,7 +141,7 @@ class SyncConfig:
     poll_interval: float = 5.0
     sources: tuple[WatchSource, ...] = ()
     max_file_bytes: int = MAX_IMPORT_BYTES
-    reader_enabled: bool = True
+    reader_enabled: bool = False
     reader_host: str = "127.0.0.1"
     reader_port: int = 8765
 

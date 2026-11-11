@@ -6,6 +6,7 @@ import io
 import json
 import os
 import plistlib
+import socket
 import subprocess
 import sys
 import tempfile
@@ -42,6 +43,7 @@ class SetupTests(unittest.TestCase):
     def test_dry_run_does_not_create_client_config_or_capture_state(self):
         result = self.setup_client(capture=True, dry_run=True)
         self.assertTrue(result["dry_run"])
+        self.assertFalse(result["reader_enabled"])
         self.assertEqual(result["capture_sources"][0]["path"], str(self.home / ".claude" / "projects"))
         self.assertFalse((self.home / ".claude.json").exists())
         self.assertFalse(self.config.exists())
@@ -224,9 +226,13 @@ class DaemonProcessTests(unittest.TestCase):
                 "messages": [{"role": "user", "content": "What is the memory marker?"},
                              {"role": "assistant", "content": "The marker is nebula-218."}]}), encoding="utf-8")
             database = root / "requested.db"
+            occupied_port = socket.socket()
+            self.addCleanup(occupied_port.close)
+            occupied_port.bind(("127.0.0.1", 0))
+            occupied_port.listen(1)
             config = SyncConfig(root / "configured.db", root / "state.json", poll_interval=0.05,
                                 sources=(WatchSource("test", source, "canonical", project="smoke"),),
-                                reader_enabled=False)
+                                reader_port=occupied_port.getsockname()[1])
             path = root / "config.json"
             save_config(config, path)
             environment = os.environ.copy()

@@ -28,11 +28,11 @@ The indexing, capture, and retrieval core makes no external requests and has no 
 
 ## HTTP, containers, and MCP
 
-The HTTP reader binds to loopback by default, validates the `Host` header, and requires a same-origin `Origin` plus a per-start token for imports. Historical content is rendered as text. These measures reduce browser-origin attacks; they do not authenticate local users. Do not expose the reader publicly or to an untrusted network.
+New background configurations are headless. The optional HTTP reader starts only through `serve` or an enabled `reader_enabled` setting. When started, it binds to loopback by default, validates the `Host` header, and requires a same-origin `Origin` plus a per-start token for imports. Historical content is rendered as text. These measures reduce browser-origin attacks; they do not authenticate local users. Do not expose the reader publicly or to an untrusted network.
 
 Containers may explicitly opt in to an internal `0.0.0.0` bind using `--container-bind`. The supplied Compose configuration publishes the port on **host loopback only**, `127.0.0.1:8765:8765`, while retaining local Host/Origin checks. An unrestricted port publication, a public reverse proxy, or additional peers on the container network changes the exposure boundary. The flag adds no authentication, project authorization, or TLS and is not a public or multi-user hosting mode. Docker also requires explicit mounts and capture configuration before it can read host transcripts; use narrowly scoped, read-only source mounts.
 
-The MCP server communicates over stdio and is read-only unless `--allow-write` is supplied. It has no deletion tool. A host allowed to call its tools can read the database available to that process; enabling write access also allows supported imports and task-link operations. Retain the host's normal tool-approval policies when selecting access.
+The MCP server communicates over stdio and is read-only unless `--allow-write` is supplied. It has no deletion tool. A host allowed to call its tools can read the database available to that process; enabling write access exposes `remember_session`, which can create or atomically replace a complete session. Retain the host's normal tool-approval policies when selecting access.
 
 ## Untrusted historical content
 

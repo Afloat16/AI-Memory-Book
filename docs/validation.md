@@ -4,6 +4,26 @@ This document separates measured behavior from configuration compatibility. All
 fixtures, examples, screenshots, and capture measurements are synthetic. No
 private user conversation history was used in development or published.
 
+## v0.2.1: agent workflow and headless default
+
+The updated local suite passed **159 tests** with MCP and client extras. A new
+official-SDK stdio test performs the agent workflow end to end:
+`remember_session` → `recall_memory` with a bounded project query → `read_page`
+using the returned page ID. It verifies the write-enabled initialization policy,
+the remembered fact, character budget, and source identity without a browser.
+The read-only handshake verifies its distinct instructions and tool visibility.
+
+The real-daemon regression now leaves `reader_enabled` at its default while
+another socket occupies the configured reader port. Capture, configuration
+reload, explicit database selection, and clean termination still succeed. This
+checks that new background configurations do not require an HTTP listener.
+Existing saved reader preferences remain explicit configuration values.
+
+These checks establish the MCP protocol path and headless behavior. They do not
+establish that every host model chooses the right tool without prompting; host
+approval policies and model tool selection still apply. The
+[agent operating guide](agent-guide.md) documents the actual contract.
+
 ## v0.2.0: verified implementation
 
 The release candidate at `1d6a881faeb811504941d9bbb0682f587d5de344` passed

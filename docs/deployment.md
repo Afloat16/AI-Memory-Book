@@ -1,23 +1,28 @@
 # Installation and background operation
 
+AI-Memory-Book runs behind your AI client. The client starts its **stdio MCP
+server** to retrieve relevant project evidence; an optional capture worker keeps
+the same local archive up to date. Neither process requires a browser. New
+background configurations are headless by default, with no HTTP listener.
+
 AI-Memory-Book needs **Python 3.10+ with SQLite FTS5**. The release installer
 creates an isolated environment with the `mcp` and `clients` extras. It does not
 require Node.js, an embedding server, a database server, or a memory-service API
 key. Your AI client's own model and account requirements remain separate.
 
-## Install v0.2.0
+## Install v0.2.1
 
 ### macOS / Linux
 
 ```bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.2.0/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.2.1/scripts/install.sh
 bash install-memory-book.sh
 ```
 
 ### Windows PowerShell
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.2.0/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.2.1/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ```
 
@@ -32,7 +37,7 @@ live under the data directory's `install` subdirectory. The usual POSIX launcher
 is `~/.local/bin/memory-book`; Windows uses the data directory's `bin` directory.
 Custom `--prefix`, `--bin-dir`, or `MEMORY_BOOK_HOME` can change these locations.
 
-The downloaded helper accepts `--version v0.2.0`, a full commit SHA, or
+The downloaded helper accepts `--version v0.2.1`, a full commit SHA, or
 `--source /absolute/path/to/checkout-or-wheel`. `--without-extras` installs only
 the core and therefore omits MCP/client integration. Installation stages a new
 environment before switching its managed launcher; previous environments and
@@ -46,7 +51,14 @@ memory-book setup --client claude-code
 memory-book doctor
 ```
 
-See [client compatibility](integrations.md) for all 12 profiles, custom config
+Restart the selected client so it loads the new MCP connection. The server sends
+concise operating instructions at initialization; it does not preload your
+memory directory or conversation history. The agent can call `recall_memory`
+directly for a relevant past decision and read exact pages only when more
+evidence is needed. Host approvals and the model's tool choices still apply.
+
+See the [AI agent operating guide](agent-guide.md) for the retrieval policy and
+[client compatibility](integrations.md) for all 12 profiles, custom config
 paths, backups, and manual handling of JSONC. Installing the package does not
 itself enable transcript capture.
 
@@ -57,13 +69,13 @@ itself enable transcript capture.
 Use a persistent tool environment and a pinned Git release:
 
 ```bash
-uv tool install "ai-memory-book[mcp,clients] @ git+https://github.com/Afloat16/AI-Memory-Book.git@v0.2.0"
+uv tool install "ai-memory-book[mcp,clients] @ git+https://github.com/Afloat16/AI-Memory-Book.git@v0.2.1"
 ```
 
 Or:
 
 ```bash
-pipx install "ai-memory-book[mcp,clients] @ git+https://github.com/Afloat16/AI-Memory-Book.git@v0.2.0"
+pipx install "ai-memory-book[mcp,clients] @ git+https://github.com/Afloat16/AI-Memory-Book.git@v0.2.1"
 ```
 
 These Git URL forms require Git. Their syntax follows the official
@@ -81,7 +93,7 @@ indexes; this is not an offline installation promise.
 ### Source checkout
 
 ```bash
-git clone --branch v0.2.0 https://github.com/Afloat16/AI-Memory-Book.git
+git clone --branch v0.2.1 https://github.com/Afloat16/AI-Memory-Book.git
 cd AI-Memory-Book
 python -m venv .venv
 source .venv/bin/activate
@@ -219,25 +231,30 @@ memory-book service uninstall
 
 These are user/login services, not privileged system services guaranteed to run
 before login. Uninstall removes the managed service but keeps memory, watch
-configuration, and client MCP entries. The service launches the capture daemon
-and, by default, the reader on `http://127.0.0.1:8765`.
+configuration, and client MCP entries. The service launches the capture daemon.
+With a new v0.2.1 configuration, it runs **headlessly**: `reader_enabled` is
+`false`, and no reader port is opened. Each AI client starts its own stdio MCP
+process against the shared database; it does not connect to this daemon over
+HTTP.
 
 If no usable user service manager is available, run the daemon under your own
 supervisor or use one-pass sync:
 
 ```bash
+# Continuous capture with configuration reloads; headless by default.
 memory-book daemon --config /absolute/path/config.json
+
+# One capture pass, with no reader.
 memory-book sync --once --config /absolute/path/config.json
 ```
 
 `memory-book sync` without `--once` polls continuously without starting the
-reader. A running daemon reloads changes to its config, including removed or
-narrowed sources. An invalid or deleted config stops the old capture cycle
-rather than continuing with stale scope. The top-level `reader_enabled` setting
-can disable its reader; `reader_port` changes the port. A separate `serve`
-process is unnecessary if the daemon already owns that port.
+reader, even if the configuration enables the optional daemon reader. A running
+daemon reloads changes to its config, including removed or narrowed sources. An
+invalid or deleted config stops the old capture cycle rather than continuing
+with stale scope.
 
-Release candidate [CI run 42998379672](https://github.com/Afloat16/AI-Memory-Book/actions/runs/42998379672)
+The v0.2.0 release candidate [CI run 42998379672](https://github.com/Afloat16/AI-Memory-Book/actions/runs/42998379672)
 passed actual installer jobs on Linux, macOS, and Windows, plus MCP, Docker,
 browser, and core checks. Installer jobs used a locally built wheel and tested
 extras, reinstall, failed-install recovery, and paths containing spaces/Unicode.
@@ -245,6 +262,37 @@ Native service definitions and command flows have focused tests, and a real
 daemon subprocess was tested. Actual login/logout service execution across all
 three operating systems and interactive acceptance by every vendor client were
 **not** tested. See [validation details](validation.md).
+
+## Optional browser inspection
+
+The reader helps a person inspect imported sources and the book structure. AI
+retrieval uses MCP directly and does not require it. To open a separate local
+reader explicitly, run:
+
+```bash
+memory-book serve
+```
+
+Open `http://127.0.0.1:8765` while that process is running. If you use a custom
+database, select the same path with
+`memory-book --db /absolute/data/memory.db serve`. Closing the reader process
+does not stop a separately running capture worker or an AI client's MCP server.
+
+Alternatively, let the daemon run the reader by editing the following fields
+in its **existing** background configuration, preserving its database, state,
+and sources. This is a fragment, not a replacement configuration:
+
+```json
+{
+  "reader_enabled": true,
+  "reader_host": "127.0.0.1",
+  "reader_port": 8765
+}
+```
+
+The daemon reloads the change. Set `reader_enabled` back to `false` to return it
+to headless operation. Run one reader per port; a separate `serve` process is
+unnecessary when the daemon already provides that reader.
 
 ## Upgrading
 
@@ -268,6 +316,16 @@ updated. Existing watch sources remain in the background config; repeating
 `--client-config` or `--config` paths when rerunning setup. Restart the clients to
 release old MCP processes. Do not remove an old environment while a client or
 service still references it.
+
+### Upgrading from v0.2.0
+
+v0.2.1 defaults **new** configurations, and configurations without a
+`reader_enabled` field, to `false`. An existing explicit `true` or `false`
+remains in effect; the installer and repeated setup do not silently change that
+choice. A configuration created by v0.2.0 may therefore still start the reader.
+Set its `reader_enabled` to `false` if you want capture to run headlessly. This
+changes only the optional reader; capture sources, the archive, and MCP remain
+available.
 
 ### Upgrading from v0.1.0
 
@@ -298,19 +356,18 @@ store it with the same care as the database.
 
 ## Docker
 
-From a source checkout with Docker Compose available:
+Build the image from the pinned source checkout:
 
 ```bash
-docker compose up -d --build reader
+docker build -t ai-memory-book:local .
 ```
 
-The reader is published only on host loopback at `127.0.0.1:8765`. Compose uses
-the persistent named volume **`ai-memory-book-data`**, mounted at `/data`, and
-the image defaults to `/data/memory.db`. The image runs as UID/GID `10001` and
-includes MCP/client dependencies. Its default command is read-only **stdio MCP**;
-Compose's reader service overrides that command to start the web reader.
+The image's default command is read-only **stdio MCP**, with no HTTP listener or
+port mapping. It runs as UID/GID `10001`, includes MCP/client dependencies, and
+defaults to `/data/memory.db`. The examples share the persistent named volume
+**`ai-memory-book-data`**, mounted at `/data`.
 
-An MCP host can start a container against the same volume. This is a manual
+An MCP host starts a container against that volume. This is a manual
 `mcpServers` example; adapt the host schema and Docker executable path:
 
 ```json
@@ -342,6 +399,16 @@ read-only source mounts, a background config using container paths, and a
 and write its database directory. The supplied named volume avoids a host-home
 mount by default.
 
+For optional browser inspection, start the Compose reader explicitly:
+
+```bash
+docker compose up -d --build reader
+```
+
+That service shares the same named volume and publishes only host loopback at
+`127.0.0.1:8765`. Its explicit command overrides the image's MCP default with
+`serve --host 0.0.0.0 --container-bind`; the host-facing port remains local.
+
 `docker compose down` retains the named volume; adding `--volumes` deletes it.
 The reader is a local single-user interface, not a public multi-user deployment.
 
@@ -354,6 +421,7 @@ The reader is a local single-user interface, not a public multi-user deployment.
 | JSONC/config merge refused | Keep the existing file; merge the printed snippet manually using the host's documented layout |
 | No new memory appears | Check `watch list`, run `sync --once`, and inspect `doctor`; MCP setup alone does not enable capture |
 | Background service is unavailable | Run `daemon` under your supervisor or use `sync --once` |
+| No reader opens after background setup | Expected for a new headless configuration; use MCP in your AI client, or run `memory-book serve` for optional inspection |
 | Reader port is already in use | Stop the duplicate reader or change `reader_port` in the background config |
 | Old project appears empty after upgrade | Select the old database explicitly or perform the v0.1 export/import above |
 | Host sees no tools despite successful local recall | Refresh MCP, inspect host approvals, and check its tool-capable model/configuration |

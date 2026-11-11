@@ -3,4 +3,4 @@
 from .store import MemoryBook
 
 __all__ = ["MemoryBook"]
-__version__ = "0.2.0"
+__version__ = "0.2.1"

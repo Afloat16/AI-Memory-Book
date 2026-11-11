@@ -122,6 +122,7 @@ def setup_clients(names: list[str], *, config_path: str | Path | None = None,
     config = replace(config, sources=tuple(sources.values()))
     result = {"version": __version__, "ok": True, "database": str(config.database),
               "background_config": str(config_file), "dry_run": dry_run,
+              "reader_enabled": config.reader_enabled,
               "clients": [plan.as_dict() for plan in plans],
               "capture_sources": [{"id": s.id, "path": str(s.path), "format": s.format,
                                    "project": s.project, "project_mode": s.project_mode,

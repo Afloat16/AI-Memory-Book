@@ -1,12 +1,14 @@
 # AI-Memory-Book
 
-**One local memory library for your AI tools. Projects become books, tasks become chapters, and recall jumps straight to cited evidence.**
+**Background memory for AI agents. Projects become books, tasks become chapters, and agents retrieve the cited evidence they need to continue working.**
 
-[简体中文](README.zh-CN.md) · [Installation & background mode](docs/deployment.md) · [Client compatibility](docs/integrations.md) · [Measured results](benchmarks/EXPERIMENTS.md) · [Releases](https://github.com/Afloat16/AI-Memory-Book/releases)
+[简体中文](README.zh-CN.md) · [Agent guide](docs/agent-guide.md) · [Installation & background mode](docs/deployment.md) · [Client compatibility](docs/integrations.md) · [Measured results](benchmarks/EXPERIMENTS.md) · [Releases](https://github.com/Afloat16/AI-Memory-Book/releases)
 
-AI-Memory-Book keeps conversation history organized and searchable across local AI clients. Connect a client once, optionally enable background capture, and ask it to recall earlier work when needed. Reading an entire directory or conversation before every question is optional.
+AI-Memory-Book gives AI agents a shared, local memory of earlier work. After you connect a client and opt in to capture, a background worker indexes supported conversations. When a task depends on a previous decision, constraint, or unfinished step, the agent can call MCP once, receive bounded original evidence with source references, and continue the task. It does not need to read a directory or an entire conversation first.
 
-**v0.2.0 · Experimental · MIT · Local storage · No memory-service API key**
+The primary interface is **MCP for the agent**. Background capture runs headlessly by default; the optional web reader is for inspecting and debugging the archive. The server supplies guidance for conditional recall, while the host and model control tool invocation and permissions. Automatic use in every client or on every question is not guaranteed.
+
+**v0.2.1 · Experimental · MIT · Local storage · No memory-service API key**
 
 ## Get started
 
@@ -15,7 +17,7 @@ You need **Python 3.10+ with SQLite FTS5**. The installer creates an isolated en
 ### macOS / Linux
 
 ```bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.2.0/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.2.1/scripts/install.sh
 bash install-memory-book.sh
 ```
 
@@ -24,27 +26,26 @@ The installer prints the exact launcher path and any PATH instructions. Use that
 ### Windows PowerShell
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.2.0/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.2.1/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ```
 
 The shared Python installer also works on macOS/Linux. A PowerShell wrapper is available in [`scripts/install.ps1`](scripts/install.ps1). Installation does not change your shell profile or execution policy.
 
-### Connect your client
+### Connect your agent and enable background memory
 
 ```bash
-# Choose a profile: claude-code, codex, gemini, kimi, cursor, and more
-memory-book setup --client claude-code
-
-# For supported transcript formats, add quiet background capture at login
+# Configure MCP and opt in to supported transcript capture at login
+# The background service has no HTTP listener by default
 memory-book setup --client claude-code --capture --background
 
 memory-book doctor
+memory-book service status
 ```
 
-Restart the client or refresh its MCP servers. The client may still ask you to approve its connection or tools. Ask it: **“Use memory-book to find the cache decision from our earlier work, and cite the source.”**
+Restart the client or refresh its MCP servers. The client may still ask you to approve its connection or tools. Continue working in that client: the intended agent workflow is to recall relevant history when the current task needs it, use its sources, and proceed. To check the connection explicitly, ask: **“Use memory-book to find the cache decision from our earlier work, cite the source, and continue the implementation.”**
 
-`--capture` explicitly enables reading existing and future supported text transcripts from the paths displayed by setup. Without it, setup only configures MCP. Use `--dry-run` to inspect changes first. Configure several clients with repeated `--client`, or use `--all` for detected clients.
+`--capture` explicitly enables reading existing and future supported text transcripts from the paths displayed by setup. `memory-book setup --client claude-code` configures MCP alone, for an archive populated by another source or explicit imports. Use `--dry-run` to inspect changes first. Configure several clients with repeated `--client`, or use `--all` for detected clients.
 
 ```bash
 memory-book setup --client claude-code --client codex --capture --background
@@ -59,6 +60,40 @@ memory-book setup --client codex --capture --workspace /absolute/path/to/project
 ```
 
 Setup preserves existing settings, backs up changed files, and updates an owned entry without duplicating it. It leaves malformed/JSONC files untouched and prints a manual snippet. See [configuration behavior and host checks](docs/integrations.md).
+
+## How an agent uses memory
+
+The normal path is **client setup → background capture → conditional MCP recall → bounded cited evidence → continue the task**. Capture updates the archive independently of the agent's retrieval call. A self-contained question needs no memory lookup; a task that refers to previous work usually does.
+
+For example, an agent continuing the fictional `atlas` project's cache work can call `recall_memory` on the `memory-book` MCP server. These are the parameters of a `tools/call` request; the client's displayed server/tool prefix may differ:
+
+```json
+{
+  "name": "recall_memory",
+  "arguments": {
+    "query": "搜索缓存最终保留多久？为什么从300秒调整？",
+    "project": "atlas",
+    "budget_chars": 2000,
+    "limit": 5
+  }
+}
+```
+
+The response contains `context`, page IDs, and source references such as `project`, `session_id`, `turn_index`, and character spans. With the [example archive](examples/conversations.json), the cache review records a change from 300 to 45 seconds while retaining revision invalidation. The agent can cite `atlas / atlas-cache-review / turn 0`, check the source date, and use that decision in the implementation. Historical text remains evidence to assess, including possible outdated or conflicting decisions.
+
+The agent can navigate the hierarchy when a direct recall leaves a concrete gap:
+
+| Address level | Meaning | MCP tool |
+|---|---|---|
+| Bookshelf | Discover project IDs when the project is unknown | `browse_projects` |
+| Book | One project namespace and its chapters | `browse_book(project)` |
+| Chapter | Sessions sharing an explicit task ID | `browse_chapter(chapter_id)` |
+| Section | Related consecutive questions within a session | `browse_section(section_id)` |
+| Page | Bounded original text with exact source references | `read_page(page_id)` |
+
+These are optional navigation tools for the agent, not a mandatory sequence before recall. Pass IDs returned by the server to open a chapter, section, or page. Known project/chapter/session filters narrow retrieval directly. Short follow-ups can stay together; long answers receive continuation pages. The default adaptive page cap is 900 characters, and cross-session chapters use explicit task IDs.
+
+The [agent guide](docs/agent-guide.md) covers when to recall, how to use citations and budgets, what to do when evidence is missing or contradictory, and how to treat imported instructions as untrusted historical text. No vendor lifecycle hooks or forced context injection are installed.
 
 ## Client compatibility
 
@@ -83,7 +118,7 @@ MCP access and automatic transcript capture are separate capabilities. Profiles 
 
 ## What runs in the background?
 
-The MCP client starts its own stdio server when it needs tools. A separate, optional user service polls configured transcript directories, imports changed conversations, and serves the local reader. It does not call an LLM to summarize every turn.
+The MCP client starts its own stdio server when it needs tools. A separate, optional user service polls configured transcript directories and imports changed conversations. **New background configurations are headless by default**: no web reader or HTTP listener is required for capture or agent recall. The worker does not call an LLM to summarize every turn.
 
 - Linux: `systemd --user`.
 - macOS: a per-user LaunchAgent.
@@ -100,23 +135,7 @@ Uninstalling the service keeps your database and client settings. Removing a wat
 
 Unchanged, successfully imported files are skipped. The worker skips symlinks and known credential/config files, retries incomplete active logs, isolates malformed files, and never deletes memory just because a source file disappears. Source text is stored locally; when a model calls a memory tool, the returned evidence becomes part of that client's model context. [Capture scope and operations](docs/deployment.md).
 
-A reproducible local sample with 300 synthetic files measured unchanged scans at a **36.95 ms median** across eight cycles, with zero reimports; changing one file updated one session and skipped 299. Scans still write state/heartbeat data. This is a small warm-cache measurement, not a CPU, battery, or large-archive guarantee. [Method and raw results](docs/validation.md#v020-capture-overhead-sample).
-
-## A book you can browse
-
-| Level | Meaning |
-|---|---|
-| Bookshelf | Your project collection |
-| Book | One project namespace |
-| Chapter | Sessions sharing an explicit task ID |
-| Section | Related consecutive questions in a session |
-| Page | A bounded original-text excerpt with source references |
-
-Short follow-ups can stay together; long answers receive continuation pages. The default adaptive page cap is 900 characters. Each hit points back to its original session, user turn, message positions, and character spans. Chapters across sessions use explicit task IDs; unrelated tasks are not silently merged.
-
-![Local reader with project-scoped search and source evidence](docs/assets/reader-desktop-en.png)
-
-The screenshot uses fictional conversations. The interface defaults to English, or Chinese for a Chinese-language browser; the **EN / 中文** switch remembers your choice. Original conversation text, titles, and evidence retain their original language. The reader is available at [http://127.0.0.1:8765](http://127.0.0.1:8765) while the service or `memory-book serve` is running.
+A reproducible **v0.2.0** local sample with 300 synthetic files measured unchanged scans at a **36.95 ms median** across eight cycles, with zero reimports; changing one file updated one session and skipped 299. Scans still write state/heartbeat data. This is a small warm-cache measurement, not a CPU, battery, or large-archive guarantee, and has not been relabeled as a v0.2.1 measurement. [Method and raw results](docs/validation.md#v020-capture-overhead-sample).
 
 ## Try it without connecting a client
 
@@ -131,7 +150,6 @@ python -m pip install -e ".[mcp,clients]"
 
 memory-book import examples/conversations.json
 memory-book recall "搜索缓存为什么改成45秒？" --project atlas
-memory-book serve
 ```
 
 On Windows, activate `.venv\Scripts\Activate.ps1`, or call `.venv\Scripts\python.exe` directly. The dependency-free core remains installable with `pip install -e .`; MCP and TOML configuration are optional extras. This project is not published to PyPI, so an unqualified `pip install ai-memory-book` is not the documented installation method. [uv, pipx, and installer alternatives](docs/deployment.md).
@@ -174,13 +192,16 @@ Set `MEMORY_BOOK_HOME` for a portable data directory, `MEMORY_BOOK_DB` for a dat
 
 ## Docker
 
-For a containerized reader with a persistent local volume:
+The image's default command is a headless stdio MCP server. From a source checkout, build it and configure your MCP host to launch the following `docker run` command:
 
 ```bash
-docker compose up -d --build reader
+docker build -t ai-memory-book:local .
+docker run --rm -i \
+  --mount type=volume,src=ai-memory-book-data,dst=/data \
+  ai-memory-book:local mcp
 ```
 
-Compose publishes the reader on host loopback only. The image also supports stdio MCP with `docker run --rm -i`; a shared named volume lets clients and the reader use one database. Docker does not automatically gain access to host transcripts. [Docker commands and MCP configuration](docs/deployment.md#docker).
+The named volume persists the archive across server processes. No HTTP port is published for MCP. Docker does not automatically gain access to host transcripts: capture requires explicit source mounts and configuration. The optional Compose reader shares this volume and publishes only on host loopback. [Docker commands and MCP configuration](docs/deployment.md#docker).
 
 ## Evidence, costs, and limitations
 
@@ -192,11 +213,21 @@ The published **v0.1.0 retrieval experiments** compare session, turn, and adapti
 | Turn | 64.77–65.34% | 59.87–60.53% | 3,879–3,881 | 22.41–24.03 ms |
 | Adaptive | **77.27%** | **78.95%** | **3,701–3,706** | **7.42–7.46 ms** |
 
-Ranges show two individual seeds, not confidence intervals. Timings disable result caching but retain SQLite/OS page caches; they exclude startup, watcher work, MCP transport, networking, and model inference. Each retrieved unit contributes one relevant window; an unmeasured whole-session multi-window implementation could narrow the gap. These are synthetic retrieval results, not comparisons against other memory products or LLM answer scores. v0.2.0 adds deployment and capture functionality; it does not relabel earlier measurements as new benchmarks.
+Ranges show two individual seeds, not confidence intervals. Timings disable result caching but retain SQLite/OS page caches; they exclude startup, watcher work, MCP transport, networking, and model inference. Each retrieved unit contributes one relevant window; an unmeasured whole-session multi-window implementation could narrow the gap. These are synthetic retrieval results, not comparisons against other memory products or LLM answer scores. v0.2.0 added deployment and capture; v0.2.1 makes the agent workflow and headless default explicit. Neither relabels earlier retrieval measurements as new benchmarks.
 
 Measured limits remain: low-overlap paraphrases had zero recall; distant two-fact queries retrieved only 25% of required evidence and completed none; old evidence preceded current evidence in half of current-decision queries. Directory re-ranking did not improve aggregate recall. The 2,000-character budget did not show a universal win. [Full experiments, failures, and raw results](benchmarks/EXPERIMENTS.md).
 
 `--budget` limits the assembled context in **characters**, including citation headings, not transport JSON or exact model tokens. The engine uses lexical FTS rather than embeddings. It has no authoritative conflict resolver, cloud sync, public multi-user server, or guaranteed automatic context injection. Client permission decisions remain in the client.
+
+## Optional archive inspection
+
+For human inspection or troubleshooting, start the local reader explicitly:
+
+```bash
+memory-book serve
+```
+
+It opens an HTTP listener at [http://127.0.0.1:8765](http://127.0.0.1:8765); open that address in your browser. Agent capture and MCP recall work without it. The **EN / 中文** switch changes interface labels while original conversations retain their language. [Desktop screenshot using fictional conversations](docs/assets/reader-desktop-en.png) · [Container reader setup](docs/deployment.md#docker).
 
 ## Development and verification
 
@@ -206,10 +237,10 @@ python -m unittest discover -s tests -v
 python tests/installer_smoke.py --with-extras
 ```
 
-CI exercises the core on Python 3.10/3.12/3.13, real MCP stdio communication, browser interactions, installers on Linux/macOS/Windows, and container MCP/reader/volume behavior. Native service definitions and configuration merges have focused tests; successful configuration generation does not prove every vendor app or login manager accepted it. [Validation details](docs/validation.md) · [GitHub Actions](https://github.com/Afloat16/AI-Memory-Book/actions).
+The **v0.2.0** candidate passed [all nine CI jobs](https://github.com/Afloat16/AI-Memory-Book/actions/runs/42998379672), including the 158-test suite with optional extras, Python 3.10/3.12/3.13 core checks, actual MCP stdio communication, browser interactions, Linux/macOS/Windows installers, and container MCP/reader/volume behavior. These counts describe that candidate; [validation details](docs/validation.md) track subsequent patch verification. Native service definitions and configuration merges have focused tests; successful configuration generation does not prove every vendor app or login manager accepted it. [GitHub Actions](https://github.com/Afloat16/AI-Memory-Book/actions).
 
 ## Design references
 
-We studied [claude-mem](https://github.com/thedotmack/claude-mem), [billion-context](https://github.com/ranxianglei/billion-context), [ai-memory](https://github.com/akitaonrails/ai-memory), [PageIndex](https://github.com/VectifyAI/PageIndex), and [RAPTOR](https://arxiv.org/abs/2401.18059). v0.2.0 adopts one setup command, client-specific configuration, and an optional background worker. This implementation uses local transcript polling plus on-demand MCP retrieval; it does not claim to reproduce another project's hooks, request proxy, observer model, or session-start injection. See [research notes](docs/research.md).
+We studied [claude-mem](https://github.com/thedotmack/claude-mem), [billion-context](https://github.com/ranxianglei/billion-context), [ai-memory](https://github.com/akitaonrails/ai-memory), [PageIndex](https://github.com/VectifyAI/PageIndex), and [RAPTOR](https://arxiv.org/abs/2401.18059). The agent-facing design combines hierarchical source addresses, one setup command, an optional capture worker, and budgeted MCP recall. This implementation uses local transcript polling plus on-demand retrieval; it does not claim to reproduce another project's hooks, request proxy, observer model, or session-start injection. See [research notes](docs/research.md).
 
 Independently implemented under the [MIT License](LICENSE). Contributions with a minimal reproduction and measurable validation are welcome: [CONTRIBUTING.md](CONTRIBUTING.md).

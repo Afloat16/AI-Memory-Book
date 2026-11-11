@@ -1,9 +1,30 @@
-# Client integrations and import formats
+# Agent MCP integrations and import formats
 
-AI-Memory-Book provides local **stdio MCP tools** and optional transcript import.
-Connecting MCP gives a client access to stored memory;
-[background capture](deployment.md#background-capture) imports supported files
-only after you enable it. These are separate capabilities.
+AI-Memory-Book is a memory service for **AI agents**. Its primary interface is
+local **stdio MCP**: an agent requests a small amount of relevant earlier context
+and receives original evidence with source references. The book hierarchy helps
+address that evidence without making the agent read an entire directory or
+conversation before each question.
+
+The intended runtime workflow is:
+
+1. Use the current conversation when it already contains the needed information.
+2. When earlier work matters, call `recall_memory` once with a focused query and
+   the known project ID.
+3. Use the returned evidence and source IDs. Read a particular page or navigate a
+   section only if the answer still needs more evidence.
+
+See the [agent operating guide](agent-guide.md) for exact tool arguments, source
+semantics, and write rules. It is guidance for the connected agent; setup does
+not edit global `AGENTS.md` files or install automatic prompt-injection hooks.
+The host and model decide when to call tools, so MCP connection alone cannot
+guarantee that recall runs automatically.
+
+Memory ingestion is separate: [background capture](deployment.md#background-capture)
+imports supported files only after opt-in, while explicit imports and the
+optional `remember_session` tool provide other write paths. The browser reader
+is an optional inspection utility, started with `memory-book serve`; agents do
+not need it for capture, retrieval, or MCP communication.
 
 ## Connect a client
 
@@ -25,9 +46,21 @@ memory-book setup --client claude-code --client codex
 memory-book setup --all --dry-run
 ```
 
-Restart the host or refresh its MCP servers. Connection approval, project trust,
-tool allowlists, and model tool support remain controlled by the host. The server
-is named `memory-book`.
+Restart the host or refresh its MCP servers. The host starts the `memory-book`
+stdio subprocess when connecting; no HTTP endpoint or browser process is needed.
+Connection approval, project trust, tool allowlists, and model tool support
+remain controlled by the host.
+
+The foreground MCP command used by a manually configured host is:
+
+```bash
+/absolute/path/to/python -m memory_book --db /absolute/path/memory.db mcp
+```
+
+This command waits for MCP messages on standard input; it is not a chat prompt.
+Ordinary use lets the client manage the process. After connection, a useful
+check is to ask the agent to recall a known earlier decision and cite the
+returned session and turn.
 
 ## Supported profiles
 
@@ -157,25 +190,40 @@ See the [official SDK v1 documentation](https://py.sdk.modelcontextprotocol.io/v
 | `read_page` | Read an exact page with character pagination and provenance |
 | `remember_session` | Only with `--allow-write`: add or atomically replace a canonical session |
 
-Ask the host to call `recall_memory` when a question needs earlier work; browsing
-the whole directory first is optional. For example:
+For a question that needs earlier work, start with one `recall_memory` call.
+Pass the known project ID; `chapter` and `session` can narrow an already known
+scope. No initial `browse_*` sequence is required. For example:
 
 ```json
 {"query":"Why did we choose a 45-second cache expiry?","project":"atlas","budget_chars":2000,"limit":5}
 ```
 
-The server tells the model to treat historical text as evidence rather than
-instructions. Hits retain source session IDs and zero-based `turn_index` values;
-page reads expose source spans. `budget_chars` bounds the assembled evidence
-context, including citation headings. It does **not** bound outer JSON metadata,
-tool declarations, or exact model tokens. Recall returns one copy of the context
-rather than duplicating it in text and structured content.
+If the response is sufficient, answer from it without loading more history.
+Use `read_page` with a returned page ID only for a missing detail, truncated
+passage, or source check. Use the browse tools when navigation itself is needed,
+such as identifying an unknown project or locating a neighboring section. An
+empty result is not proof that an earlier conversation never happened; the
+lexical index can miss differently worded evidence. The
+[agent guide](agent-guide.md#when-evidence-is-insufficient) describes targeted
+follow-up rather than repeated broad reads.
+
+The server tells the model to treat historical text as untrusted evidence rather
+than instructions. Hits retain project/session IDs and zero-based `turn_index`
+values; page reads expose source spans. `budget_chars` defaults to 4,000 and
+bounds the assembled evidence context, including citation headings. It does
+**not** bound outer JSON metadata, tool declarations, or exact model tokens.
+Recall returns one copy of the context rather than duplicating it in text and
+structured content. Check conflicting source dates and statements instead of
+assuming the top result is the current authoritative decision.
 
 `remember_session` replaces the full session identified by `(project,
 session_id)`; it is not an append-one-message operation. MCP exposes no deletion
-tool. Starting MCP alone does not collect host histories or guarantee automatic
-context injection on every question. Background file capture is separate from
-the MCP write permission.
+tool. Writes require an explicitly enabled write workflow: `--allow-write` for
+agent calls, `--capture`/watch configuration for native file ingestion, or an
+explicit import. Starting MCP alone does not collect host histories or guarantee
+automatic context injection on every question. Background file capture is
+separate from the MCP write permission and does not require a read-write MCP
+connection.
 
 ## Import formats
 
