@@ -596,7 +596,7 @@ class MemoryBook:
         values["revision"], values["schema_version"] = self.revision, SCHEMA_VERSION
         return values
 
-    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False) -> dict:
+    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False, project_local_fts_statistics: bool = False) -> dict:
         started = time.perf_counter_ns()
         query = _string(query, "query", maximum=8000, required=False)
         _integer(budget_chars, "budget_chars", 0, 100_000)
@@ -617,6 +617,10 @@ class MemoryBook:
             raise ValueError("semantic must be a boolean")
         if semantic and strategy != "book":
             raise ValueError("semantic recall requires the book strategy")
+        if not isinstance(project_local_fts_statistics, bool):
+            raise ValueError("project_local_fts_statistics must be a boolean")
+        if project_local_fts_statistics and project is None:
+            raise ValueError("project_local_fts_statistics requires project")
         for key, val in (("project", project), ("chapter", chapter), ("session", session)):
             if val is not None:
                 _string(val, key)
@@ -629,6 +633,9 @@ class MemoryBook:
         try:
             revision = self.revision
             cache_options = [INDEX_VERSION, RECALL_VERSION, query, project, chapter, session, budget_chars, limit, strategy, coverage]
+            if project_local_fts_statistics:
+                from .scoped import POLICY_VERSION, project_tables
+                cache_options.extend(["project_local_fts_statistics", POLICY_VERSION])
             if semantic_model is not None:
                 from .semantic import FUSION_VERSION, SEMANTIC_VERSION, check_index, fuse_candidates, rank_pages
                 check_index(self.db, revision, semantic_model)
@@ -667,8 +674,11 @@ class MemoryBook:
                 # Directory joins are needed only for the bounded candidates;
                 # display-only fields are deferred to the final page fetch.
                 scope_join = " JOIN sessions s ON s.id=p.session_pk" if session is not None else ""
+                fts_tables = (project_tables(self.db, project, revision) if project_local_fts_statistics
+                              else ("pages_fts", "pages_stem_fts"))
+                search_tables = fts_tables if use_stem else fts_tables[:1]
                 routes = []
-                for table in (("pages_fts", "pages_stem_fts") if use_stem else ("pages_fts",)):
+                for table in search_tables:
                     # Table identifiers are fixed above; query text and every
                     # caller-supplied scope remain bound SQL parameters.
                     statement = (f"""SELECT p.rid,p.id,bm25({table},2.0,2.0,1.0,0.25) rank
@@ -783,7 +793,7 @@ class MemoryBook:
                         clause = " OR ".join('"' + token.replace('"', '""') + '"' for token in facet)
                         clause = f"({clause}) AND body : ({clause})"
                         scores = []
-                        for table in (("pages_fts", "pages_stem_fts") if use_stem else ("pages_fts",)):
+                        for table in search_tables:
                             # Unary + keeps SQLite from executing MATCH once
                             # per rowid in the IN-list. FTS scans the clause
                             # once, then applies the identical integer filter.
@@ -904,6 +914,8 @@ class MemoryBook:
         if not results and candidates:
             warnings.append("Budget too small to return an evidence block including its citation.")
         result = {"query": query, "results": results, "context": context, "context_chars": len(context), "estimated_tokens": estimate_tokens(context), "candidate_count": len(candidates), "revision": revision, "cache_hit": False, "warnings": warnings, "strategy": strategy, "budget_chars": budget_chars, "truncated": len(candidates) > len(results) or any(r["truncated"] for r in results)}
+        if project_local_fts_statistics:
+            result["project_local_fts_statistics"] = True
         if semantic_model is not None:
             result.update(semantic=True, semantic_model_fingerprint=semantic_model.fingerprint)
         if token_counter is not None:
