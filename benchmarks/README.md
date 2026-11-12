@@ -1,6 +1,48 @@
 # Retrieval experiments
 
-## Current: round-two implementation and measurements
+## Current: v0.3.1 and the completed third round
+
+The shipped candidate is frozen at
+[`2d199b9`](https://github.com/Afloat16/AI-Memory-Book/commit/2d199b93f650eccd3dd239178822b31001b880e3),
+with runtime SHA256
+`9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46`.
+It preserves default lexical results and global ranking statistics while
+reducing FTS work for eligible project envelopes. Q2 and indexed MCP references
+remain separate explicit options.
+
+| Completed experiment | Evidence | Decision and full records |
+|---|---|---|
+| Same-output retrieval performance | 47,320 calls, 16 workers, four balanced rounds, ten pooled cells | p95 geometric mean −11.3587%; public native −26.0501%, actual MCP −19.8677%. [All results and startup review](../docs/round3-performance-review.md) |
+| Startup resource review | Original empty-database mean +4.8384 ms / +14.0423%; separate 80-sample diagnostic | Explicitly accept disclosed cost; original automatic `accepted: false` stays intact. [Decision](experiments/round3-startup-resource-decision.json) |
+| Project-local statistics screen | All eight workers and 8,082 original calls recovered without retrieval replay | Reject after 14 loss checks; not shipped. [Recovery and quality review](../docs/round3-quality-review.md) |
+| Native APIs and current supplied-page components | Ten stages, 256 questions, 607 required annotations, 9,216 searches | `complete-verified`; full default payload equality for 1,536 native and 768 component pairs. [Complete matrix](results/round3-comparison-43267797247-1/report.md), [assessment](results/round3-comparison-43267797247-1/assessment.json) |
+| Independent final evidence audit | Actual summary hashes, stage/call inventory, identity and Git ancestry checks; no extra scoring | [Audit and scope limits](reports/round3-final-evidence-audit.json) |
+
+At 1,024 cl100k tokens in the common whole-page view, default Book complete
+evidence is **52.34%**, Q2 **54.69%**, claude-mem **45.31%**, ai-memory **55.86%**
+and billion-context **58.20%**. Book has a clear advantage over claude-mem in this
+view; ai-memory and billion-context retain higher quality, and billion's kernel
+is faster. Component transport boundaries differ, so timings are not a
+whole-product speed ratio. Q2 loses native 512-token completeness under both
+tokenizers and remains optional.
+
+The single executed run is
+[43267797247](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43267797247),
+with immutable final result
+[`c99f205`](https://github.com/Afloat16/AI-Memory-Book/commit/c99f20531053b1c164fc5a5d3fa8e0c831eeb4de).
+[Reconciliation](../docs/round3-reconciliation.md) retains two unused
+preparations separately. Candidate, evaluator, dependency, model and upstream
+identities precede selection; these 256 IDs exclude all 384 historical IDs.
+This is the same public HotpotQA domain, and the first score makes these IDs
+regression data. All questions are answerable; this experiment does not measure
+answer generation or abstention.
+
+[Completed optimization record](../docs/optimization-round3.md) ·
+[Current comparison and project landscape](../docs/comparison.md) ·
+[Release notes](../docs/releases/v0.3.1.md) ·
+[Original plan](experiments/round3-plan.json).
+
+## Historical: v0.3.0 round-two implementation and measurements
 
 The selected runtime is
 [`cbf6260`](https://github.com/Afloat16/AI-Memory-Book/commit/cbf626037b42f11f8bc5b6d46f56caac771e54ba),
@@ -36,10 +78,10 @@ complete evidence is 57.81%, claude-mem FTS 48.83%, ai-memory 53.91%, and
 billion-context 61.72%. The current implementation is not the best component
 on every metric; the complete comparison retains that result and all costs.
 
-[Current comparison and project landscape](../docs/comparison.md) ·
+[Preserved v0.3.0 comparison and project landscape](../docs/comparison-v0.3.0.md) ·
 [Round-two status and source identities](../docs/optimization-round2.md).
 
-## Separate research: bounded novelty
+## Historical research: bounded novelty
 
 The [complete old-data probe](../docs/novelty-probe.md) preserves **12,123
 calls** across four old cohorts, three budgets and three fixed formulas.
