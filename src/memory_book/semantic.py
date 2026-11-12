@@ -11,7 +11,6 @@ from __future__ import annotations
 import hashlib
 import importlib.metadata
 import json
-import math
 from pathlib import Path
 import sqlite3
 import time
@@ -21,7 +20,7 @@ from typing import Any
 SEMANTIC_VERSION = 1
 # Retrieval ordering has its own cache identity. Changing fusion alone must
 # neither change the verified model fingerprint nor rebuild identical vectors.
-FUSION_VERSION = 2
+FUSION_VERSION = 3
 MODEL_REPOSITORY = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 MODEL_REVISION = "e8f8c211226b894fcb81acc59f3b34ba3efd5f42"
 MODEL_FILES = (
@@ -35,7 +34,6 @@ MAX_TOKENS = 128
 OVERLAP_TOKENS = 32
 CANDIDATE_LIMIT = 96
 RRF_K = 60
-LEXICAL_WEIGHT = 0.75
 
 
 class SemanticIndexError(RuntimeError):
@@ -276,44 +274,26 @@ def rank_pages(db: sqlite3.Connection, model: SemanticModel, query: str,
 
 
 def fuse_candidates(lexical: list[dict], semantic: list[dict]) -> list[dict]:
-    """Fuse score margins without adding inference or changing source pages.
+    """Preserve the existing lexical leader and the remaining RRF order.
 
-    Q1 is fixed before development scoring: lexical scores are divided by
-    their nonnegative maximum, and cosine scores use their returned range.
-    Missing routes and degenerate score ranges supply no evidence. The 3:1
-    weight preserves a lexical maximum whose margin exceeds 1.5 times every
-    competitor, even when only the competitor receives the semantic bonus.
-    This is a score-order property, not a claim that a score proves relevance.
+    Equal-weight RRF(k=60) supplies each page's unchanged diagnostic score.
+    The first existing lexical candidate is then promoted once; every other
+    candidate keeps its RRF relative order. Scores need not be monotonic after
+    this priority rule. No labels, thresholds, extra model calls or new pages
+    are used, and pure-semantic retrieval remains unchanged.
     """
-    values = []
-    for route, field in ((lexical, "score"), (semantic, "semantic_similarity")):
-        scores = {}
-        for row in route:
-            if row["id"] in scores:
-                raise ValueError("A fusion route contains duplicate page identities")
-            score = float(row[field])
-            if not math.isfinite(score):
-                raise ValueError("A fusion route contains a non-finite score")
-            scores[row["id"]] = score
-        values.append(scores)
-    if not lexical:
-        # Preserve the existing pure-semantic ordering, including equal scores.
-        return [{**row, "score": 1 / (RRF_K + rank)}
-                for rank, row in enumerate(semantic, 1)]
-    if not semantic:
-        return [dict(row) for row in lexical]
-    lexical_scores, semantic_scores = values
-    lexical_scale = max(0.0, *lexical_scores.values())
-    semantic_min, semantic_max = min(semantic_scores.values()), max(semantic_scores.values())
-    semantic_range = semantic_max - semantic_min
-    combined = {row["id"]: dict(row) for row in lexical}
-    for row in semantic:
-        combined.setdefault(row["id"], dict(row))["semantic_similarity"] = row["semantic_similarity"]
-    positions = {row["id"]: rank for rank, row in enumerate(lexical)}
-    for page_id, row in combined.items():
-        left = max(0.0, lexical_scores.get(page_id, 0.0)) / lexical_scale if lexical_scale else 0.0
-        right = ((semantic_scores[page_id] - semantic_min) / semantic_range
-                 if page_id in semantic_scores and semantic_range else 0.0)
-        row["score"] = LEXICAL_WEIGHT * left + (1 - LEXICAL_WEIGHT) * right
-    return sorted(combined.values(), key=lambda row: (
-        -row["score"], positions.get(row["id"], len(positions)), row["id"]))
+    combined: dict[str, dict] = {}
+    for route in (lexical, semantic):
+        for rank, row in enumerate(route, 1):
+            page_id = row["id"]
+            if page_id not in combined:
+                combined[page_id] = {**row, "score": 0.0}
+            combined[page_id]["score"] += 1 / (RRF_K + rank)
+            if "semantic_similarity" in row:
+                combined[page_id]["semantic_similarity"] = row["semantic_similarity"]
+    ranked = sorted(combined.values(), key=lambda row: (-row["score"], row["id"]))
+    if lexical and semantic:
+        position = next(index for index, row in enumerate(ranked) if row["id"] == lexical[0]["id"])
+        if position:
+            ranked.insert(0, ranked.pop(position))
+    return ranked
