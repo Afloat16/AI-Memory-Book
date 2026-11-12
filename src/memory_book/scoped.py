@@ -54,11 +54,11 @@ def project_tables(db: sqlite3.Connection, project: str, revision: int) -> tuple
     # fails and an outer caller elects to recover without aborting its read.
     db.execute("SAVEPOINT memory_book_project_statistics_build")
     try:
-        for table in TABLES:
+        for table, source in zip(TABLES, ("pages_fts", "pages_stem_fts")):
             db.execute(f"DELETE FROM temp.{table}")
             db.execute(f"""INSERT INTO temp.{table}(rowid,title,question,body,directory)
                 SELECT f.rowid,f.title,f.question,f.body,f.directory
-                FROM main.pages_fts f JOIN main.pages p ON p.rid=f.rowid
+                FROM main.{source} f JOIN main.pages p ON p.rid=f.rowid
                 WHERE p.project_id=?""", (project,))
         count = db.execute("SELECT COUNT(*) FROM main.pages WHERE project_id=?", (project,)).fetchone()[0]
         elapsed = (time.perf_counter_ns() - started) / 1e6

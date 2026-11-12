@@ -621,6 +621,8 @@ class MemoryBook:
             raise ValueError("project_local_fts_statistics must be a boolean")
         if project_local_fts_statistics and project is None:
             raise ValueError("project_local_fts_statistics requires project")
+        if project_local_fts_statistics and strategy != "book":
+            raise ValueError("project_local_fts_statistics requires the book strategy")
         for key, val in (("project", project), ("chapter", chapter), ("session", session)):
             if val is not None:
                 _string(val, key)

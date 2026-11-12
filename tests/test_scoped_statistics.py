@@ -82,6 +82,8 @@ class ProjectStatisticsTests(unittest.TestCase):
                 self.book.recall("alpha", project="wanted", project_local_fts_statistics=bad)
         with self.assertRaisesRegex(ValueError, "requires project"):
             self.book.recall("alpha", project_local_fts_statistics=True)
+        with self.assertRaisesRegex(ValueError, "book strategy"):
+            self.book.recall("alpha", project="wanted", strategy="flat", project_local_fts_statistics=True)
         with patch("memory_book.scoped.project_tables", side_effect=AssertionError("default called helper")):
             implicit = self.book.recall("alpha beta", project="wanted", use_cache=False)
             explicit = self.book.recall("alpha beta", project="wanted", use_cache=False,
