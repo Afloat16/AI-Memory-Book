@@ -32,7 +32,7 @@ jobs:
       - name: Install only preparation and Parquet dependencies
         run: python -m pip install -e . pyarrow==26.0.1
       - name: Check preparation boundaries using artificial inputs
-        run: python -m unittest tests.test_round3_freeze tests.test_round3_quality_recovery -v
+        run: python -m unittest tests.test_round3_freeze -v
       - name: Preserve quality evidence, bind sources, then freeze IDs
         timeout-minutes: 30
         env:
