@@ -93,9 +93,17 @@ def compare_rows(before, after):
 def audit(final_commit):
     old_cp, old_input = checkpoint(INITIAL_COMMIT, INITIAL_RUN)
     new_cp, new_input = checkpoint(final_commit, RECOVERY_RUN)
-    require(old_cp["status"] == "failed" and new_cp["status"] == "completed", "Initial/recovery status differs")
+    require(old_cp["status"] == "failed" and new_cp["status"] == "complete-verified-snapshot"
+            and new_cp["assessment_exit_code"] == 0, "Initial/recovery status differs")
     require(new_cp["source_commit"] == RECOVERY_SOURCE and new_cp["binding_sha256"] == RECOVERY_BINDING,
             "Unregistered recovery source or binding")
+    final_prefix = "benchmarks/results/round2-" + RECOVERY_RUN + "/"
+    assessed = {final_prefix + name: blob(final_commit, final_prefix + name) for name in ("assessment.json", "report.md")}
+    require({name: raw_sha(raw) for name, raw in assessed.items()} == new_cp["assessment_outputs"],
+            "Published strict assessment hashes differ")
+    assessment = json.loads(assessed[final_prefix + "assessment.json"])
+    require(assessment["status"] == "complete-verified-snapshot" and assessment["run_id"] == RECOVERY_RUN
+            and assessment["source_commit"] == RECOVERY_SOURCE, "Strict assessment identity/status differs")
     require(all(old_cp[k] == new_cp[k] for k in ("plan_sha256", "cohort_manifest_sha256")), "Frozen selection or plan changed")
     require(len(new_cp["stages"]) == 10 and all(r["status"] == "completed" for r in new_cp["stages"].values()),
             "Recovery is not the complete registered matrix")
