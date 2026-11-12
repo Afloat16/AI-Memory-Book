@@ -1,6 +1,6 @@
 # Round two: optimization and independent comparison
 
-Status: in progress. The stable main branch remains `cb7486b4937a3ecb7ccbf94a746c0bbbf44eb41f` until the chosen implementation, complete measurements and final CI are verified.
+Status: implementation and registered measurements complete. The selected runtime is `cbf626037b42f11f8bc5b6d46f56caac771e54ba`, source SHA-256 `d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57`. Publication retains this tested runtime and the complete results; final integration is gated by ordinary CI. This is a measured improvement release, not a claim to lead every repository on every metric.
 
 ## Objective and acceptance
 
@@ -28,7 +28,7 @@ The source IDs, sampling policy and measurement matrix were saved at [`87e28c09`
 
 All cases are answerable and use supplied distractor paragraphs. This adds independent multi-hop evidence; it does not cover unrestricted Wikipedia retrieval, abstention, all domains or generated-answer accuracy.
 
-## Preservation and next gate
+## Preservation and completed gates
 
 Source, plans and completed result files are saved in Git; hosted jobs write public, source-free measurements to separate result branches. Model weights and licensed raw conversations remain outside the repository. An interrupted run must retain its attempt state and completed samples. Report-only audit fixes must re-use the saved raw observations, rather than selecting a new faster run.
 
@@ -44,8 +44,19 @@ The failed [checkpoint](../benchmarks/reports/round2-43201620535-1-checkpoint.js
 
 Recovery keeps the exact candidate source, cohort, upstream locks, budgets, repetitions and optional-mode choice. The [explicit registration](../benchmarks/round2_recovery.json), original binding bytes, helper diff, failed first fixture and successful second fixture are saved. Each of the three real external adapters passed two invented scoped questions, three repetitions, six budget projections and strict response/source/payload/read verification before another scored run. No source check or scoring formula was relaxed.
 
-The recovery binding at [`cb64db8`](https://github.com/Afloat16/AI-Memory-Book/commit/cb64db805f8f822fee00cc453c523cfa06c2ce8f) fixes all 58 evaluator files and the original runtime. Its [ordinary CI](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43207565883) passed all nine jobs. [Run 43207732852](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43207732852) executes the entire matrix on one new host, with a separate result branch and checkpoints. Observations from the two hosts will not be pooled or selected by speed. The cohort is now regression data relative to any future algorithm development.
+The recovery binding at [`cb64db8`](https://github.com/Afloat16/AI-Memory-Book/commit/cb64db805f8f822fee00cc453c523cfa06c2ce8f) fixes all 58 evaluator files and the original runtime. Its [ordinary CI](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43207565883) passed all nine jobs. [Run 43207732852](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43207732852) completed all 10 stages and strict assessment on one new host. All **32,256 timed calls** and **23 final files** are saved at [`057b814`](https://github.com/Afloat16/AI-Memory-Book/commit/057b814ab809dec57d4fa4c75fe540d59a0f0027). Observations from the two hosts are not pooled or selected by speed. The cohort is now regression data relative to any future algorithm development.
 
 The indexed-format measurement is complete at result commit [`01191a1`](https://github.com/Afloat16/AI-Memory-Book/commit/01191a1439b9cdadd72ee31a2443ddb3bba2d9e9), with successful hosted and local audits of the same raw data. Default object responses match the original actual-SDK compact response hashes. Mean first-call savings do not imply every question saves tokens; every synthetic configuration includes first-call losses, and pooled p95 changes range from -0.88% to +0.96% across the 12 configurations. No provider billing or generated-answer claim follows from these reference counts.
 
-Next: complete the registered comparison recovery, then update the final comparison, README and main after CI. The old complete-validation record remains valid for its own fixed source snapshot.
+The [independent strict verification](../benchmarks/reports/round2-recovery-independent-verification.json) confirms all file hashes and reproduces the exact report and assessment except its audit timestamp. Root separately recomputed all four paired comparison sets and the report without modifying any original file. The [cost audit](../benchmarks/reports/round2-43207732852-1-component-cost-audit.md) passes 1,536 first-pass cost records across six components. The [cross-run audit](round2-recovery-audit.md) preserves zero differences in 9,216 query/configuration rows and 19,968 repeated non-timing samples, but records five copies of one differing full original-store snapshot hash as `completed_with_differences`. Automatic write-time metadata is a plausible explanation; the retained public evidence does not prove it is the only cause.
+
+## Current decisions and remaining limits
+
+- The default lexical path preserves all 3,072 native contexts and improves p50/p95 in every current native configuration. Its measured source ingestion falls from 6.550 to 4.884 seconds. The separately balanced old-data performance report remains the broader latency evidence.
+- Q2 is optional. In the 1,024-cl100k shared-page view it reaches 57.81% complete evidence, ahead of claude-mem FTS (48.83%) and ai-memory (53.91%), below billion-context (61.72%). The native API uses different packing and reaches 57.42% at 8,000 characters. The complete comparison includes all budgets and interfaces.
+- The small-budget limit remains real: at native 8,000 characters / 512 o200k tokens, Q2 changes completeness from 42.19% to 41.02%. The older 66.72% to 66.26% LoCoMo whole-page regression remains an unchanged historical observation, not relabeled as this native-budget experiment.
+- The latest low-overlap group has only nine questions. Paragraph-to-session/chapter mapping is a multi-source retrieval test, not private conversational transfer or unrestricted Wikipedia retrieval.
+- Real generated answers and the native Book/ai-memory workflow were executed in the earlier fixed-model diagnostics. Their failures and costs remain preserved. This round does not remeasure current Q2/indexed-format answer quality or complete claude-mem/billion-context observation/compression workflows.
+- Both READMEs display current configurations and the latest complete component matrix. Historical versions, unsuccessful experiments, all small-budget losses and full cost/resource boundaries stay in the detailed records.
+
+Further ranking investigations use separate plans, source commits and old development data. They do not alter this frozen candidate or replace unfavorable rows in its report. The previous complete-validation record remains valid for its own fixed source snapshot.

@@ -11,15 +11,53 @@ useful lexical matches. It does not guarantee complete evidence, resolve old
 versus current decisions, or establish final-answer accuracy. Keep using the
 returned source references to check the original conversation.
 
-## Measured outcomes — 2026-11-12
+## Current fixed-source validation — 2026-11-12
+
+The current integrated runtime is frozen at
+[`cbf6260`](https://github.com/Afloat16/AI-Memory-Book/commit/cbf626037b42f11f8bc5b6d46f56caac771e54ba).
+The complete [256-question comparison](../benchmarks/results/round2-43207732852-1/report.md)
+contains both native and shared-page semantic stages, every budget, and three
+actual repetitions. The candidate and all settings remain unchanged through
+the [explicit evaluator recovery](round2-recovery.md).
+
+| Current view, cl100k_base | Lexical complete evidence | Q2 complete evidence | Complete-question gains / losses |
+|---|---:|---:|---:|
+| Native, 8,000 chars, 512 tokens | 41.41% | 41.41% | 16 / 16 |
+| Native, 8,000 chars, 1,024 tokens | 51.95% | 57.42% | 23 / 9 |
+| Native, 8,000 chars, 2,048 tokens | 51.95% | 57.81% | 24 / 9 |
+| Shared-page component, 512 tokens | 41.41% | 42.19% | 16 / 14 |
+| Shared-page component, 1,024 tokens | 51.95% | 57.81% | 24 / 9 |
+| Shared-page component, 2,048 tokens | 51.95% | 57.81% | 24 / 9 |
+
+Q2 still has small-budget losses. With 512 `o200k_base` tokens, native
+completeness falls 24.22% to 23.83% at 2,000 characters and 42.19% to 41.02%
+at 8,000. The 512-cl100k native complete rates tie while annotation recall
+decreases. The current shared-page Q2 result at 1,024 cl100k tokens exceeds
+claude-mem FTS and ai-memory, but remains below billion-context's 61.72%.
+
+The nine-question low-overlap group has native 1,024-token completeness
+1/9 lexical versus 2/9 Q2; the corresponding component scores are 1/9 and
+2/9. At 512 tokens the component scores are both 0/9. All 256 cases combine
+evidence across supplied paragraphs mapped into sessions/chapters; this is not
+a new real-conversation corpus or proof that general semantic memory is solved.
+
+Costs remain substantial: native 1,024-token / 8,000-character p50/p95 is
+6.150/9.841 ms lexical and 15.517/24.227 ms Q2. Q2 builds 4,566 windows over
+3,769 pages in 207.559 s, with 7,013,376 vector bytes and a separate 1.029 s
+model load. Sampled query process-tree RSS is 280.68 MiB lexical and 1,041.29
+MiB Q2, including the evaluator and corpus; the [comparison guide](comparison.md)
+also retains OS worker peaks, cache downloads, live state and exact interfaces.
+These are fresh-build observations; compatible existing vectors remain reusable.
+
+## Development selection on old data
 
 The Q2 development matrix has completed actual local inference:
 **1,347 questions × 3 token budgets × 4 modes × 3 repetitions = 48,492 recalls**.
 The four paired modes are lexical, original RRF, frozen Q1 score fusion and Q2.
 All questions below are old development/regression data. These results do not
 establish new-domain generalization or generated-answer accuracy. The default
-remains lexical; Q2 is the selected replacement candidate for the explicitly
-enabled semantic route. Q1 remains a research comparison.
+remains lexical; Q2 is the current policy for the explicitly enabled semantic
+route. Q1 remains a historical research comparison.
 
 | Old cohort, 512 cl100k_base tokens | Lexical complete evidence | Current Q2 complete evidence |
 |---|---:|---:|

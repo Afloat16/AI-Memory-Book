@@ -13,14 +13,28 @@ fusion and indexed references are separate, explicit options.
 | Default retrieval and ingestion | 56,784 actual calls; four balanced rounds; 12 configurations; complete payloads and source/index content unchanged | [Performance, ingestion, replay, memory and individual-round losses](../docs/default-recall-performance.md) |
 | Optional Q2 semantic fusion | 48,492 actual recalls; four old cohorts, three budgets, four paired modes, three repetitions | [Full development matrix](reports/round2-anchor-development.md), [selection and losses](reports/round2-anchor-decision.md), [current semantic setup](../docs/semantic-retrieval.md) |
 | Indexed MCP references | 56,784 actual SDK calls; 7,098 distinct complete payload pairs; every one of 6,868 archived reference entries checked | [Both tokenizers, complete metadata costs, all 12 timing configurations and per-question losses](../docs/indexed-references.md) |
-| Current native components | Fixed 256-question matrix, current pinned claude-mem FTS, ai-memory local hybrid and billion-context kernel; complete recovery execution is in progress | [Frozen protocol](../docs/round2-validation.md), [explicit recovery](../docs/round2-recovery.md), [run 43207732852](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43207732852) |
+| Current native components | 10 completed stages, 32,256 timed calls, 256 questions; current pinned claude-mem FTS, ai-memory local hybrid and billion-context kernel | [Complete matrix](results/round2-43207732852-1/report.md), [assessment](results/round2-43207732852-1/assessment.json), [run 43207732852](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43207732852) |
 
 The initial 256-question run stopped at an evaluator response-field error;
 its [failed checkpoint](reports/round2-43201620535-1-checkpoint.json) and all 13
-public output files remain preserved. The registered recovery keeps the
-original candidate, data and settings, reruns every stage on one new host,
-and does not pool or select timings from different runs. That selection is
-already scored and must not become a tuning set labeled as unseen validation.
+public output files remain preserved. The completed registered recovery keeps
+the original candidate, data and settings, runs every stage on one new host,
+and does not pool or select timings from different runs. All 23 final files
+were [independently verified](reports/round2-recovery-independent-verification.json).
+The [numeric cost audit](reports/round2-43207732852-1-component-cost-audit.md)
+passes all six components and 1,536 first-pass records. The separate
+[cross-run audit](../docs/round2-recovery-audit.md) preserves the difference in
+the full original-store snapshot hash while showing identical supplied pages,
+9,216 complete query/configuration rows and 19,968 repeated non-timing samples.
+That selection is already scored and must not become a tuning set labeled as
+unseen validation.
+
+Default lexical quality is unchanged in all 3,072 native baseline/candidate
+query/configuration pairs. Current Q2 improves several completeness settings,
+with small-budget losses retained. In the 1,024-cl100k component view, Q2
+complete evidence is 57.81%, claude-mem FTS 48.83%, ai-memory 53.91%, and
+billion-context 61.72%. The current implementation is not the best component
+on every metric; the complete comparison retains that result and all costs.
 
 [Current comparison and project landscape](../docs/comparison.md) ·
 [Round-two status and source identities](../docs/optimization-round2.md).
