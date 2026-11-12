@@ -1,0 +1,348 @@
+{
+  "all_24_paired_comparisons_recomputed": true,
+  "all_36_configuration_aggregates_recomputed": true,
+  "audit": "passed_with_documented_presentation_order_failure",
+  "auditor_sha256": "1897bea58e5652d0b15fb69398984dd8b89970b7b5eeb69268aa0be63ab3e25e",
+  "evaluator_commit": "848c0eb812e87e1cb5e3fb715c48459dcd1c4de8",
+  "full_report_sha256": "eedc953a3bd7dab84e36918e007c68da51f3a6be76dedfedfd7b10b8287e5ed9",
+  "measurement_rerun": false,
+  "old_data_identity": {
+    "all_three_hotpot_workers_match_old_manifest": true,
+    "cohorts": {
+      "authored36": {
+        "queries": 36,
+        "sha256": "ecc46c474d5184995938419fa985b8e08c0ddb51560da49990247465db6db0b0"
+      },
+      "hotpot128": {
+        "queries": 128,
+        "sha256": "0791515aca6bccf19a97895cad681e06a07536d6c08050d54189cc64cb819822"
+      },
+      "public1015": {
+        "queries": 1015,
+        "sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857"
+      },
+      "synthetic61": {
+        "queries": 168,
+        "sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26"
+      }
+    },
+    "evidence_boundary": "Original pinned preparation filters Parquet by the old manifest before normalization. All recorded Hotpot IDs and cohort fingerprints match that old manifest. This audit reads only saved probe records and the old manifest; it does not load any question text, corpus, new256 manifest or new256 result, and makes no operating-system file-access-trace claim.",
+    "old_hotpot_queries": 128,
+    "old_manifest_sha256": "ad0aba557e98cac6925ff5bdb8048a1a04a5f708847007f33ddf03d88650b69d"
+  },
+  "original_artifacts": {
+    "benchmarks/reports/novelty-probe-43214192647-1.completion.json": {
+      "bytes": 1984,
+      "git_blob": "b8166c4657ef41b713a52ddfe461a9f18f6ac86b",
+      "sha256": "3ecc2e38b568d6d49abe2c859745f71027f13cf5f1683e47f71597b1157f6e37"
+    },
+    "benchmarks/reports/novelty-probe-43214192647-1.json.gz": {
+      "bytes": 6997642,
+      "git_blob": "e32642249d5739acbacf079d4674fc0bbfe55b1b",
+      "sha256": "b656e0eb286421f7a51357cb3aaa9d2bac191b87b9430531953d3713bf80a5f9"
+    },
+    "benchmarks/reports/novelty-probe-43214192647-1.md": {
+      "bytes": 3358,
+      "git_blob": "b50059323751829f38a90138de9d9d2856ac8d3f",
+      "sha256": "4289b01e623e2d449b1329be0c3d44d3a6d3d70cbe3b98ab4138c7ff3bda4349"
+    },
+    "benchmarks/reports/novelty-probe-43214192647-1.summary.json": {
+      "bytes": 805022,
+      "git_blob": "a961d809f1e617098ee3d32822373f045a22414b",
+      "sha256": "98cdd3d4113b477bc1fe4024ba70c3a41d855fae56fddbd0b7c32ef74a53f1e6"
+    }
+  },
+  "original_artifacts_modified": false,
+  "original_completion_status": "failed_or_incomplete",
+  "original_outcomes": {
+    "audit": "failure",
+    "measure": "success",
+    "prepare": "success",
+    "source": "success"
+  },
+  "presentation": {
+    "canonical_key_order_rendering_sha256": "beb9a5b235232911e262f1112e59428cd2c8ef89f154c086947d37e450111382",
+    "deserialized_order": [
+      "capped_novelty_025",
+      "no_novelty"
+    ],
+    "exact_diff": "--- original_saved\n+++ reconstructed_sorted_json\n@@ -37,5 +37,5 @@\n \n All groups, including small groups and negative cases, remain in the JSON; each original per-question score, elapsed sample and paired gain/loss is retained in the gzip. The screen is conservative and is not a statistical test.\n \n+- capped_novelty_025: further validation = True; declared loss checks = 0; aggregate improved metrics = 2.\n - no_novelty: further validation = False; declared loss checks = 20; aggregate improved metrics = 5.\n-- capped_novelty_025: further validation = True; declared loss checks = 0; aggregate improved metrics = 2.\n",
+    "original_audit_byte_comparison_passed": false,
+    "original_markdown_sha256": "4289b01e623e2d449b1329be0c3d44d3a6d3d70cbe3b98ab4138c7ff3bda4349",
+    "passed": true,
+    "registered_order": [
+      "no_novelty",
+      "capped_novelty_025"
+    ],
+    "registered_order_reproduces_original_bytes": true
+  },
+  "result_commit": "0f6b5da03b80f6119f050cd0d4116f19274cda07",
+  "runtime_sources": {
+    "capped_novelty_025": {
+      "changed_runtime_files": [
+        "src/memory_book/store.py"
+      ],
+      "commit": "506f1c6140e7ff4a1106f05e049b5285438e7268",
+      "python_files": 16,
+      "runtime_files": 17,
+      "source_sha256": "8dbebff4035e653de8a6ffa1e01e0f8201b9d29f53df9f78c92f3e55e8b465f1",
+      "store_sha256": "9b377453210e58c9e9ff7b2f77da1f7994eb11766ccad4b88b0e9fed340d93c7"
+    },
+    "default": {
+      "changed_runtime_files": [],
+      "commit": "cbf626037b42f11f8bc5b6d46f56caac771e54ba",
+      "python_files": 16,
+      "runtime_files": 17,
+      "source_sha256": "d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57",
+      "store_sha256": "af60949771472428478c6df32b90b8d5aaab543af8f97aa27d264039d99549b8"
+    },
+    "no_novelty": {
+      "changed_runtime_files": [
+        "src/memory_book/store.py"
+      ],
+      "commit": "38d4c5cf678907974035923ea1c179d50c5769c8",
+      "python_files": 16,
+      "runtime_files": 17,
+      "source_sha256": "62dca4f100b16060bbbc1761662af4f961a69df4d33d5e1ab8777073956de31b",
+      "store_sha256": "76cd40c00c8fb337eb8dd767586b222fb7b649d9277493d687b3c5813c0f256c"
+    }
+  },
+  "scope": "Independent read-only execution of the unchanged numerical gates plus Git/source/old-cohort binding and an exact registered-order Markdown check. Source-evidence retrieval only; no retrieval, generated answer or final performance experiment is executed.",
+  "screening_recomputed": {
+    "candidates": {
+      "capped_novelty_025": {
+        "aggregate_gains": [
+          {
+            "after": 0.6687211093990755,
+            "before": 0.6640986132511556,
+            "budget_tokens": 512,
+            "cohort": "public1015",
+            "metric": "complete_evidence_rate"
+          },
+          {
+            "after": 0.6256345177664975,
+            "before": 0.6218274111675127,
+            "budget_tokens": 512,
+            "cohort": "public1015",
+            "metric": "evidence_recall"
+          }
+        ],
+        "declared_screen_losses": [],
+        "worth_further_validation": true
+      },
+      "no_novelty": {
+        "aggregate_gains": [
+          {
+            "after": 0.674884437596302,
+            "before": 0.6640986132511556,
+            "budget_tokens": 512,
+            "cohort": "public1015",
+            "metric": "complete_evidence_rate"
+          },
+          {
+            "after": 0.6307106598984772,
+            "before": 0.6218274111675127,
+            "budget_tokens": 512,
+            "cohort": "public1015",
+            "metric": "evidence_recall"
+          },
+          {
+            "after": 0.7303543913713405,
+            "before": 0.7288135593220338,
+            "budget_tokens": 1024,
+            "cohort": "public1015",
+            "metric": "complete_evidence_rate"
+          },
+          {
+            "after": 0.7318952234206472,
+            "before": 0.7288135593220338,
+            "budget_tokens": 2048,
+            "cohort": "public1015",
+            "metric": "complete_evidence_rate"
+          },
+          {
+            "after": 0.6967005076142132,
+            "before": 0.6954314720812182,
+            "budget_tokens": 2048,
+            "cohort": "public1015",
+            "metric": "evidence_recall"
+          }
+        ],
+        "declared_screen_losses": [
+          {
+            "after": 0.8421052631578947,
+            "before": 0.8552631578947368,
+            "budget_tokens": 512,
+            "cohort": "synthetic61",
+            "group": "all",
+            "metric": "complete_evidence_rate"
+          },
+          {
+            "after": 0.8409090909090909,
+            "before": 0.8636363636363636,
+            "budget_tokens": 512,
+            "cohort": "synthetic61",
+            "group": "all",
+            "metric": "evidence_recall"
+          },
+          {
+            "after": 0.3333333333333333,
+            "before": 0.4166666666666667,
+            "budget_tokens": 512,
+            "cohort": "synthetic61",
+            "group": "multiple_required_evidence",
+            "metric": "complete_evidence_rate"
+          },
+          {
+            "after": 0.5833333333333334,
+            "before": 0.6666666666666666,
+            "budget_tokens": 512,
+            "cohort": "synthetic61",
+            "group": "multiple_required_evidence",
+            "metric": "evidence_recall"
+          },
+          {
+            "after": 0.9144736842105263,
+            "before": 0.9210526315789473,
+            "budget_tokens": 1024,
+            "cohort": "synthetic61",
+            "group": "all",
+            "metric": "complete_evidence_rate"
+          },
+          {
+            "after": 0.9261363636363636,
+            "before": 0.9318181818181818,
+            "budget_tokens": 1024,
+            "cohort": "synthetic61",
+            "group": "all",
+            "metric": "evidence_recall"
+          },
+          {
+            "after": 0.9144736842105263,
+            "before": 0.9210526315789473,
+            "budget_tokens": 2048,
+            "cohort": "synthetic61",
+            "group": "all",
+            "metric": "complete_evidence_rate"
+          },
+          {
+            "after": 0.9261363636363636,
+            "before": 0.9318181818181818,
+            "budget_tokens": 2048,
+            "cohort": "synthetic61",
+            "group": "all",
+            "metric": "evidence_recall"
+          },
+          {
+            "after": 0.2890625,
+            "before": 0.3515625,
+            "budget_tokens": 512,
+            "cohort": "hotpot128",
+            "group": "all",
+            "metric": "complete_evidence_rate"
+          },
+          {
+            "after": 0.6437908496732027,
+            "before": 0.6699346405228758,
+            "budget_tokens": 512,
+            "cohort": "hotpot128",
+            "group": "all",
+            "metric": "evidence_recall"
+          },
+          {
+            "after": 0.2890625,
+            "before": 0.3515625,
+            "budget_tokens": 512,
+            "cohort": "hotpot128",
+            "group": "multiple_required_evidence",
+            "metric": "complete_evidence_rate"
+          },
+          {
+            "after": 0.6437908496732027,
+            "before": 0.6699346405228758,
+            "budget_tokens": 512,
+            "cohort": "hotpot128",
+            "group": "multiple_required_evidence",
+            "metric": "evidence_recall"
+          },
+          {
+            "after": 0.2890625,
+            "before": 0.3515625,
+            "budget_tokens": 512,
+            "cohort": "hotpot128",
+            "group": "cross_session",
+            "metric": "complete_evidence_rate"
+          },
+          {
+            "after": 0.6437908496732027,
+            "before": 0.6699346405228758,
+            "budget_tokens": 512,
+            "cohort": "hotpot128",
+            "group": "cross_session",
+            "metric": "evidence_recall"
+          },
+          {
+            "after": 0.2890625,
+            "before": 0.3515625,
+            "budget_tokens": 512,
+            "cohort": "hotpot128",
+            "group": "cross_chapter",
+            "metric": "complete_evidence_rate"
+          },
+          {
+            "after": 0.6437908496732027,
+            "before": 0.6699346405228758,
+            "budget_tokens": 512,
+            "cohort": "hotpot128",
+            "group": "cross_chapter",
+            "metric": "evidence_recall"
+          },
+          {
+            "after": 0.4453125,
+            "before": 0.484375,
+            "budget_tokens": 1024,
+            "cohort": "hotpot128",
+            "group": "all",
+            "metric": "complete_evidence_rate"
+          },
+          {
+            "after": 0.7254901960784313,
+            "before": 0.7450980392156863,
+            "budget_tokens": 1024,
+            "cohort": "hotpot128",
+            "group": "all",
+            "metric": "evidence_recall"
+          },
+          {
+            "after": 0.4453125,
+            "before": 0.484375,
+            "budget_tokens": 2048,
+            "cohort": "hotpot128",
+            "group": "all",
+            "metric": "complete_evidence_rate"
+          },
+          {
+            "after": 0.7254901960784313,
+            "before": 0.7450980392156863,
+            "budget_tokens": 2048,
+            "cohort": "hotpot128",
+            "group": "all",
+            "metric": "evidence_recall"
+          }
+        ],
+        "worth_further_validation": false
+      }
+    },
+    "latency_is_development_only": true,
+    "product_default_changed": false,
+    "status": "followup_candidate_exists"
+  },
+  "validation": {
+    "expected_samples": 12123,
+    "expected_workers": 12,
+    "issues": [],
+    "passed": true,
+    "query_configuration_mode_samples": 12123,
+    "workers": 12
+  }
+}
