@@ -7,6 +7,58 @@ user conversation history was used in development or published.
 
 ## Unreleased: recall-quality continuation
 
+### Recovered native-budget checkpoint: e70bc3d
+
+The interrupted continuation was already preserved on the remote branch at
+[`e70bc3d2581ff96959711509b3eef11ab14f564d`](https://github.com/Afloat16/AI-Memory-Book/commit/e70bc3d2581ff96959711509b3eef11ab14f564d).
+It includes the native token-budget API from
+[`c73b5f8`](https://github.com/Afloat16/AI-Memory-Book/commit/c73b5f8aa086e597a3c921bf6340c385b350e332),
+registered semantic and local-answer plans, the external HotpotQA input freeze,
+and the native-budget development report. Those plans are not implementation or
+model-result claims.
+
+For that exact head, both the
+[push workflow](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43152979344)
+and [pull-request workflow](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43152987680)
+completed **9/9 jobs successfully**: Python 3.10/3.12/3.13 core checks, actual
+MCP stdio, the browser reader, Linux/macOS/Windows installers, and container
+persistence. The [push MCP job](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43152979344/job/130966302150)
+records **294 tests in 17.972 seconds, OK**. This exact committed-tree count
+supersedes neither the earlier 266-test snapshot nor an uncommitted-workspace
+count mentioned in the checkpoint message.
+
+The checked continuation was merged into `main` through
+[PR #1](https://github.com/Afloat16/AI-Memory-Book/pull/1), at merge commit
+[`ce7837f`](https://github.com/Afloat16/AI-Memory-Book/commit/ce7837fb8db7c221f39e27a531f2383385782eb1).
+The CI links above identify the reviewed `e70bc3d` source head, not a claim about
+every future `main` revision. The published installer remains pinned to v0.2.1.
+
+The token API's focused checks cover citation-inclusive character and token
+caps, both supported encodings, old-block preservation, source reconstruction,
+code-fence boundaries, literal special-token strings, isolated caches and strict
+numeric validation over real MCP stdio. See
+[token API tests](../tests/test_token_budget.py),
+[MCP token tests](../tests/test_token_budget_mcp.py), and
+[API contract](token-budget.md).
+
+The [frozen 128-question development report](../benchmarks/results/native-token-dev128-frozen.md)
+passes its measurement gates and retains every per-query change. At 8,000
+characters and 512 tokens, complete evidence rises 71.08% → 73.49% against the
+prior native-excerpt packer in both tokenizers: two complete-question gains,
+zero losses and zero missing previously accepted blocks. Total local p95 rises
+4.690 → 11.460 ms (`cl100k_base`) and 4.728 → 17.230 ms (`o200k_base`). The
+separate historical whole-page policy achieves 75.90% on this development
+subset. These are distinct policies; this result cannot be substituted for the
+full-public 66.72% → 66.26% historical comparison.
+
+The [external sentence preflight](../benchmarks/reports/hotpot-sentence-preflight.json)
+checks all 128 frozen HotpotQA problems and all 306 supporting facts. It records
+1,272 sessions, 5,195 original sentence turns and 1,915 pages, with no supporting
+fact structurally unattainable by the strict single-page metric. It is a source
+attainability check performed before candidate scoring, not a retrieval or
+generated-answer result. The [registered protocol](native-budget-evaluation.md)
+separates regression, external transfer, generation and complete workflow costs.
+
 ### Optional coverage and real-answer evaluation
 
 The final wrapper uses runtime SHA-256

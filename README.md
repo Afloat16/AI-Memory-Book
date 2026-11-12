@@ -19,6 +19,7 @@ AI-Memory-Book is built for continuing project work with a small, inspectable me
 | **No model call to create or search memory** | Local Python + SQLite indexing and lexical retrieval; no per-turn summarization bill, embedding download, or separate database service in the core. Your answering model remains your choice. |
 | **Original evidence with citations** | Recall returns source text and project/session/turn references. Exact character spans and full pages remain available when you need to verify a decision. |
 | **Useful context in one MCP call** | `recall_memory` assembles bounded evidence directly. Project, chapter and session filters help the agent focus on the work at hand. |
+| **Exact context limits when you need them** | An optional named-tokenizer cap includes citations and separators, alongside the character cap. Fitting original evidence blocks stay intact; remaining capacity can carry additional source sentences. |
 | **One archive across clients** | Supported clients point to the same local database. Opt-in background capture keeps supported text transcripts available for later tasks. |
 | **A small operational footprint** | The default worker and MCP server run without an HTTP listener; the optional reader, export tools, and source-preserving migrations make the archive inspectable. |
 
@@ -40,7 +41,7 @@ That is **+4.16 percentage points of complete evidence versus billion-context** 
 
 The same frozen Book version also returns **54.7% fewer actual MCP response tokens** than main v0.2.1 on the public workload (3,233.5 → 1,465.1, `o200k_base`), with observed first-call p50 **8.371 → 5.764 ms**. This is a comparison with our older version under the same real stdio boundary. [Measurement details and retained regressions](#evidence-costs-and-limitations).
 
-The development branch keeps score-aware recall as its default. It also offers an explicit [experimental coverage option](#optional-coverage-for-multi-fact-questions) for questions asking for several facts; that experiment has its own results and tradeoffs.
+The current source keeps score-aware recall as its default. It also offers an explicit [experimental coverage option](#optional-coverage-for-multi-fact-questions) for questions asking for several facts; that experiment has its own results and tradeoffs.
 
 ## Get started
 
@@ -51,10 +52,10 @@ You need **Python 3.10+ with SQLite FTS5**. The installer creates an isolated en
 | Version | What you get | How to use it |
 |---|---|---|
 | **Published experimental release v0.2.1** | Agent-first MCP, shared local memory and optional headless background capture | Use the pinned installers below. |
-| **Available v0.3 development source** | Score-aware retrieval, compact cited evidence, optional multi-fact coverage and the paired-answer evaluation runner | Use the [development source checkout](#try-it-without-connecting-a-client) on `perf/recall-quality-budget`. |
+| **Available v0.3 development source** | Score-aware retrieval, compact cited evidence, optional exact token budgets, multi-fact coverage and the paired-answer evaluation runner | Use the [source checkout](#try-it-without-connecting-a-client) on `main`. |
 | **Frozen comparison runtime `0ab49d4`** | The exact source used for the retrieval and MCP cost figures above | Follow the [reproduction guide](benchmarks/RESULTS-recall-score-quality.md#11-reproduction-and-artifact-index). |
 
-The development source is available on GitHub in [PR #1](https://github.com/Afloat16/AI-Memory-Book/pull/1), which has not been merged into `main`. The installers below use **v0.2.1**; a `v0.3.0` release tag is not available yet. Use the development checkout to try the additional capabilities.
+The validated continuation, including exact token budgets, was merged into `main` through [PR #1](https://github.com/Afloat16/AI-Memory-Book/pull/1) at [`ce7837f`](https://github.com/Afloat16/AI-Memory-Book/commit/ce7837fb8db7c221f39e27a531f2383385782eb1). The installers below still use the published **v0.2.1**; there is no `v0.3.0` release tag yet. Use the `main` source checkout to try the additional capabilities.
 
 ### macOS / Linux
 
@@ -123,7 +124,17 @@ For example, an agent continuing the fictional `atlas` project's cache work can 
 
 The response contains `context`, page IDs, and compact source references: `project`, `session_id`, and `turn_index`. Request `details: true` or use `read_page` for exact character spans. With the [example archive](examples/conversations.json), the cache review records a change from 300 to 45 seconds while retaining revision invalidation. The agent can cite `atlas / atlas-cache-review / turn 0`, check the source date, and use that decision in the implementation. Historical text remains evidence to assess, including possible outdated or conflicting decisions.
 
-**Choose the context budget:** `budget_chars` in Python/MCP and `--budget` in the CLI cap the assembled context in characters, including citations and separators. Outer JSON metadata falls outside that cap. The Python/detailed response field `estimated_tokens` and the CLI's approximate token count are estimates, not tokenizer-enforced limits. The exact 512 / 1,024 / 2,048-token caps in the comparison tables are applied by the benchmark packer using the named tokenizer; the available runtime has no native exact token-budget parameter. See [budget tradeoffs](#what-remains-to-improve) before choosing a very small context.
+**Choose the context budget:** `budget_chars` in Python/MCP and `--budget` in the CLI cap the assembled context in characters. The development source also supports an **exact optional token cap** with `budget_tokens` / `--budget-tokens` and either `cl100k_base` or `o200k_base`. Both caps include citations and separators in `context`; outer JSON metadata, tool schemas and the rest of the conversation are outside them. Install the `tokens` extra and add these arguments to the recall call:
+
+```bash
+python -m pip install -e ".[tokens]"
+memory-book recall "cache expiry and retry window" --project atlas \
+  --budget 4000 --budget-tokens 512 --tokenizer cl100k_base --json
+```
+
+For MCP, add `"budget_tokens": 512` and `"tokenizer": "cl100k_base"` to `arguments`; Python uses the same parameter names. The response reports the exact `context_tokens` and tokenizer version. `estimated_tokens` remains a character-based estimate. Without the optional token cap, the dependency-free character path is unchanged. First-time vocabulary initialization may require a public download; offline deployments should preload it. [API, offline setup, source-preservation contract and costs](docs/token-budget.md).
+
+The historical competitor tables use a shared **whole-page benchmark packer**. The new API assembles **native excerpts and intact source units**; its results have a separate baseline and do not retroactively change those tables. See [budget measurements and remaining gaps](#what-remains-to-improve).
 
 The agent can navigate the hierarchy when a direct recall leaves a concrete gap:
 
@@ -186,7 +197,7 @@ A reproducible **v0.2.0** local sample with 300 synthetic files measured unchang
 From the current **development branch** (the branch can advance beyond the frozen benchmark commit):
 
 ```bash
-git clone --branch perf/recall-quality-budget https://github.com/Afloat16/AI-Memory-Book.git
+git clone --branch main https://github.com/Afloat16/AI-Memory-Book.git
 cd AI-Memory-Book
 python -m venv .venv
 source .venv/bin/activate
@@ -293,7 +304,21 @@ The frozen run preserves the failures that guide further work:
 
 Public core retrieval and synthetic MCP p95 also retain regressions against the preserved v0.3 branch. Every public unanswerable question returns some context; this measures nonempty retrieval, not an answering model's abstention or hallucination rate. Current-state ordering remains a conservative heuristic. [Category results, per-query losses and workflow prerequisites](benchmarks/RESULTS-recall-score-quality.md#7-remaining-failures-and-interpretation-limits).
 
-Native exact token-budget assembly remains a next step; the available API uses the [character budget described above](#how-an-agent-uses-memory). The core uses local lexical FTS without embeddings or an API key. It does not provide cloud sync, public multi-user hosting, or guaranteed automatic context injection. Client permission decisions remain in the client.
+Native exact token-budget assembly is now available as an [explicit API option](docs/token-budget.md). It preserves every original block accepted by the same native whole-block packer and supplements unused space with intact source units. This preservation contract is separate from the historical full-page comparison. The default core uses local lexical FTS without embeddings or an API key. It does not provide cloud sync, public multi-user hosting, or guaranteed automatic context injection. Client permission decisions remain in the client.
+
+### Exact token budgets: saved development result
+
+The native budget implementation is preserved at [`c73b5f8`](https://github.com/Afloat16/AI-Memory-Book/commit/c73b5f8aa086e597a3c921bf6340c385b350e332), with [frozen 128-question development results](benchmarks/results/native-token-dev128-frozen.md) saved in `e70bc3d`. At **8,000 characters and 512 tokens**, compared with the prior native excerpts followed by whole-block packing:
+
+| Development setting | Prior native excerpts | Native token API |
+|---|---:|---:|
+| Complete evidence, both tokenizers | 71.08% | **73.49%** |
+| Newly completed / lost questions, each tokenizer | — | **2 / 0** |
+| Missing previously fitting source blocks, every measured setting | — | **0** |
+| Total local p95, `cl100k_base` | **4.690 ms** | 11.460 ms |
+| Total local p95, `o200k_base` | **4.728 ms** | 17.230 ms |
+
+These are development results, including the added CPU cost. The historical whole-page policy reaches **75.90%** on the same development questions, so this experiment does **not** resolve the separately reported 66.72% → 66.26% regression. The [registered evaluation protocol](docs/native-budget-evaluation.md) requires the full regression matrix, exact caps, source checks and per-query gains/losses. A separately frozen **128-question HotpotQA** transfer cohort contains all 1,272 supplied paragraphs and 306 supporting facts; its [preflight](benchmarks/reports/hotpot-sentence-preflight.json) verifies source attainability, not retrieval performance.
 
 ### Optional coverage for multi-fact questions
 
@@ -337,7 +362,7 @@ python tests/installer_smoke.py --with-extras
 
 The runtime at [`b36f044`](https://github.com/Afloat16/AI-Memory-Book/commit/b36f044651553d75485bd26801ef3f1f65e393bb) passed **266 tests**, with no failures or skips, using MCP, client, and benchmark extras. Its [push workflow](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43075055048) and [PR workflow](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43075068353) each passed **9/9 jobs**, covering Python 3.10/3.12/3.13, actual MCP stdio, the browser reader, Linux/macOS/Windows installers, and container persistence. The PR workflow succeeded after its initially cancelled macOS job was retried.
 
-[Current PR checks](https://github.com/Afloat16/AI-Memory-Book/pull/1/checks) track subsequent branch updates; the test counts and benchmark figures above remain attributed to their named commits. [GitHub Actions status](https://github.com/Afloat16/AI-Memory-Book/actions) · [Validation details and historical runs](docs/validation.md). Configuration fixtures do not establish that every vendor application or login manager has been interactively verified.
+The later native-budget checkpoint [`e70bc3d`](https://github.com/Afloat16/AI-Memory-Book/commit/e70bc3d2581ff96959711509b3eef11ab14f564d) passed **294 tests** in its MCP CI job. Its [push workflow](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43152979344) and [PR workflow](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43152987680) each passed **9/9 jobs**. That checked continuation is now on `main` through [PR #1](https://github.com/Afloat16/AI-Memory-Book/pull/1); test counts and benchmark figures remain attributed to their named commits. [GitHub Actions status](https://github.com/Afloat16/AI-Memory-Book/actions) · [Validation details and historical runs](docs/validation.md). Configuration fixtures do not establish that every vendor application or login manager has been interactively verified.
 
 ## Design references
 
