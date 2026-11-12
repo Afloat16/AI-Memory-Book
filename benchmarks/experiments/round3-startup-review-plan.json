@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "protocol": "round3-startup-cause-diagnostic-v1",
+  "purpose": "Explain the existing startup-resource review without repeating retrieval or replacing its formal result.",
+  "original": {
+    "result_commit": "35b8618a078fe377ecd6c5acc331c1281dbf61e7",
+    "report_sha256": "5999670d4e4f96c879ba18556198ea600638866d32b5415510796ceeeebe5a12",
+    "public_native_open_baseline_mean_ms": 34.4557195,
+    "public_native_open_candidate_mean_ms": 39.29410325,
+    "public_native_open_mean_change_percent": 14.042323945665958,
+    "accepted": false
+  },
+  "sources": {
+    "baseline": {
+      "commit": "dd2f88be742ed330269e7dd5915b6f75089d7fef",
+      "runtime_sha256": "d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57"
+    },
+    "candidate": {
+      "commit": "2d199b93f650eccd3dd239178822b31001b880e3",
+      "runtime_sha256": "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46"
+    }
+  },
+  "schedule": {
+    "order": [
+      "baseline",
+      "candidate",
+      "candidate",
+      "baseline"
+    ],
+    "plain_blocks": 16,
+    "instrumented_blocks": 4,
+    "total_processes": 80
+  },
+  "input": "Fresh empty database in a fresh directory on the same filesystem for every subprocess. No corpus is ingested and recall is never invoked. No result cache, model, network, or generated answer.",
+  "measurements": "Separate plain and instrumented phases. Both record constructor-plus-context-enter wall time and process CPU. The instrumented phase adds SQLite connect/execute/executescript timings and timestamped SQL trace. Instrumentation overhead is included only in that phase and is never combined with plain or original timings.",
+  "evidence": "Verify the pinned complete runtime hashes before and after the run. Independently compare unchanged constructor, context-enter, validation, schema definitions and every other store method except the registered recall change. Preserve every start, finish, worker and failure record. Never overwrite or retry a started trial.",
+  "decision": "This is a causal diagnostic, not a replacement performance gate or a claim of startup speedup. Report every phase and every sample, including negative values. Even matching code and current I/O-wait evidence cannot prove the OS cause of a historical single long sample. An independent review must explicitly retain that causal limit and the original +14.0423% startup mean before deciding whether the bounded cost is acceptable. No automatic override of the original accepted=false."
+}
