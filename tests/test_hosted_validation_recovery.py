@@ -6,6 +6,7 @@ from pathlib import Path
 import shutil
 import signal
 import subprocess
+import sys
 import tempfile
 import time
 import unittest
@@ -83,6 +84,28 @@ class HostedRecoveryTests(unittest.TestCase):
         self.assertEqual(marker["status"], "interrupted")
         self.assertEqual(marker["interruption"], "execution_deadline")
         self.assertEqual(marker["execution_deadline"]["registered_answer_generate_timeout_seconds"], 28800)
+
+
+    @unittest.skipUnless(os.name == "posix" and hasattr(signal, "setitimer"), "Owned POSIX child cleanup")
+    def test_pending_deadline_does_not_interrupt_child_cleanup(self):
+        script = ("import signal, sys, time\n"
+                  "def stop(signum, frame):\n"
+                  "    time.sleep(.06)\n"
+                  "    sys.exit(0)\n"
+                  "signal.signal(signal.SIGINT, stop)\n"
+                  "print('ready', flush=True)\n"
+                  "time.sleep(3)\n")
+        with subprocess.Popen([sys.executable, "-c", script], stdout=subprocess.PIPE,
+                              text=True, start_new_session=True) as process:
+            try:
+                self.assertEqual(process.stdout.readline().strip(), "ready")
+                with hosted.execution_timer(.01):
+                    hosted.stop_process(process)
+                self.assertEqual(process.poll(), 0)
+            finally:
+                if process.poll() is None:
+                    process.kill()
+                    process.wait()
 
     def test_expired_command_deadline_never_starts_a_child(self):
         hosted._DEADLINE = time.monotonic() - 1

@@ -89,31 +89,36 @@ def execution_timer(seconds):
 
 
 def stop_process(process):
-    if process.poll() is None:
-        if os.name == "nt":
-            process.terminate()
-        else:
-            process.send_signal(signal.SIGINT)
-        try:
-            process.wait(timeout=15)
-        except subprocess.TimeoutExpired:
-            process.terminate()
+    # A subprocess wait deadline and the in-process alarm can expire together.
+    # Disarm the latter before draining the child so it cannot interrupt cleanup.
+    if hasattr(signal, "setitimer"):
+        signal.setitimer(signal.ITIMER_REAL, 0)
+    with cleanup_signals():
+        if process.poll() is None:
+            if os.name == "nt":
+                process.terminate()
+            else:
+                process.send_signal(signal.SIGINT)
             try:
-                process.wait(timeout=5)
+                process.wait(timeout=15)
             except subprocess.TimeoutExpired:
-                process.kill()
-                process.wait()
-    if os.name != "nt":
-        # The process owns this group; terminate only its possible descendants.
-        try:
-            os.killpg(process.pid, signal.SIGTERM)
-        except ProcessLookupError:
-            return
-        time.sleep(.1)
-        try:
-            os.killpg(process.pid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
+                process.terminate()
+                try:
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait()
+        if os.name != "nt":
+            # The process owns this group; terminate only its possible descendants.
+            try:
+                os.killpg(process.pid, signal.SIGTERM)
+            except ProcessLookupError:
+                return
+            time.sleep(.1)
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
 
 def now():
     return datetime.now(timezone.utc).isoformat()
