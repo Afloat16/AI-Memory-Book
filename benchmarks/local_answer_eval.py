@@ -1,0 +1,165 @@
+"""Prepare the registered local-answer cohorts and export source-free evidence.
+
+Original passages, questions, gold answers and raw model replies remain in the
+ignored working directory. Public exports retain their hashes, scores, usage,
+source coordinates, preparation costs and complete attempt accounting.
+"""
+from __future__ import annotations
+
+import argparse
+import gzip
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+from benchmarks import answer_eval
+from benchmarks.hotpot_data import load_hotpot
+from benchmarks.token_compare import TokenCounter
+
+
+ROOT = Path(__file__).resolve().parents[1]
+PLAN = ROOT / "benchmarks/experiments/local-answer-plan.json"
+
+
+def file_hash(path):
+    value = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            value.update(block)
+    return value.hexdigest()
+
+
+def prepare(args):
+    plan = json.loads(PLAN.read_text())
+    destination = args.work_dir / args.cohort
+    destination.mkdir(parents=True, exist_ok=True)
+    output = destination / "prepared.json"
+    engines = plan["engines"]
+    options = ["--source-options", engines[1] + '={"native_token_budget":true}',
+               "--source-options", engines[2] + "=" + json.dumps({"native_token_budget": True,
+                                       "semantic_model_dir": str(args.model_dir.resolve())})]
+    command = [sys.executable, "-m", "benchmarks.answer_eval", "prepare",
+               "--source", engines[0] + "=" + str(args.baseline_src.resolve()),
+               "--source", engines[1] + "=" + str(args.candidate_src.resolve()),
+               "--source", engines[2] + "=" + str(args.candidate_src.resolve()),
+               "--expected-queries", "128", "--budget-chars", "8000", "--budget-tokens", "512",
+               "--tokenizer", "cl100k_base", "--limit", "5", "--output", str(output), *options]
+    if args.cohort == "locomo":
+        command += ["--locomo-path", str(args.data_dir / "locomo10.json"), "--split", "heldout",
+                    "--max-queries", "128", "--cohort-label", "Known public retrieval regression; first actual generation measurement"]
+    else:
+        source = args.data_dir / "hotpotqa-dev-distractor.json"
+        dataset = load_hotpot(source)
+        labels = {row["_id"]: row for row in json.loads(source.read_bytes())}
+        cases = {"sessions": dataset.sessions, "queries": [{"id": case.id, "query": case.query,
+                 "project": case.project, "answerable": True, "answers": [str(labels[case.id]["answer"])],
+                 "category": case.category} for case in dataset.queries], "provenance": dataset.provenance}
+        private_cases = destination / "cases.json"
+        if private_cases.exists():
+            if json.loads(private_cases.read_bytes()) != cases:
+                raise ValueError("Existing private cases differ; preserve them and choose a new work directory")
+        else:
+            answer_eval.save_new(private_cases, cases)
+        command += ["--cases", str(private_cases), "--cohort-label", "Frozen external HotpotQA scoped-distractor diagnostic"]
+    subprocess.run(command, cwd=ROOT, check=True)
+    print(json.dumps({"prepared": str(output), "cohort": args.cohort, "generative_calls": 0}))
+
+
+def export(args):
+    prepared_path = args.work_dir / args.cohort / "prepared.json"
+    prepared = json.loads(prepared_path.read_bytes())
+    answer_eval.validate_prepared(prepared, TokenCounter(prepared["tokenizer"]["name"]))
+    trace = Path(str(args.run_prefix) + ".jsonl")
+    summary = json.loads(Path(str(args.run_prefix) + ".summary.json").read_bytes())
+    if summary["trace_sha256"] != file_hash(trace):
+        raise ValueError("Raw trace hash differs from the completed summary")
+    if summary["run"]["prepared_sha256"] != file_hash(prepared_path):
+        raise ValueError("Answer summary used different prepared inputs")
+    if len(prepared["queries"]) != 128 or summary["run"]["repeats"] != 1:
+        raise ValueError("Registered cohort size or repeat count changed")
+    entries = [json.loads(line) for line in trace.read_bytes().splitlines()]
+    rows = [row for row in entries if row["kind"] == "request_finished"]
+    expected = {(engine["label"], case["id"], 0) for engine in prepared["engines"] for case in prepared["queries"]}
+    actual = [(row["engine"], row["id"], row["repetition"]) for row in rows]
+    if len(actual) != len(expected) or set(actual) != expected:
+        raise ValueError("Answer attempt matrix is incomplete or duplicated")
+    plan = json.loads(PLAN.read_bytes())
+    for entry, path in ((plan["model"], args.model_file), (plan["server"], args.server_archive)):
+        if path.stat().st_size != entry["bytes"] or file_hash(path) != entry["sha256"]:
+            raise ValueError("Actual local model/server artifact differs from the registered plan")
+    public_rows = []
+    for row in rows:
+        public = {key: value for key, value in row.items() if key != "answer"}
+        public["answer_sha256"] = answer_eval.digest(row["answer"]) if row.get("answer") is not None else None
+        public["answer_characters"] = len(row["answer"]) if row.get("answer") is not None else None
+        public_rows.append(public)
+    preparation = []
+    for engine in prepared["engines"]:
+        preparation.append({"engine": engine["label"], "source": engine["source"],
+                            "source_sha256": engine["source_sha256"],
+                            "source_sha256_after": engine["source_sha256_after"],
+                            "retrieval_options": engine["retrieval_options"],
+                            "packing_policy": engine["packing_policy"],
+                            "database_stats": engine["database_stats"],
+                            "ingestion_events": engine["ingestion_events"],
+                            "rows": [{key: value for key, value in row.items() if key != "context"}
+                                     for row in engine["rows"]]})
+    result = {"schema_version": 1, "cohort": args.cohort,
+              "status": "completed-real-local-model",
+              "plan_sha256": file_hash(PLAN), "plan": plan,
+              "artifact_verification": {"model_sha256": file_hash(args.model_file),
+                                        "server_archive_sha256": file_hash(args.server_archive)},
+              "prepared_sha256": file_hash(prepared_path), "raw_trace_sha256": file_hash(trace),
+              "evaluator_sources": prepared["evaluator_files"], "parameters": prepared["parameters"],
+              "corpus_provenance": prepared["corpus_provenance"],
+              "query_identities": [{"id": case["id"], "category": case.get("category"),
+                                    "answerable": case["answerable"],
+                                    "question_sha256": answer_eval.digest(case["query"]),
+                                    "accepted_answers_sha256": answer_eval.digest(case["answers"])}
+                                   for case in prepared["queries"]],
+              "preparation": preparation, "attempts": public_rows, "summary": summary,
+              "summary_phase": {"model_calls": 0, "reason": "Book's configured summaries are extractive; no model summarization stage is used."},
+              "privacy": "No upstream passages, question text, accepted-answer text, context text or model answer text is redistributed; hashes bind the private artifacts.",
+              "interpretation": "One small quantized CPU model. Fixed lexical answer metrics; not a semantic judge or official LoCoMo scoring. The separate native workflow experiment has different settings and is not merged into this report."}
+    raw = (json.dumps(result, ensure_ascii=False, indent=2) + "\n").encode()
+    output = Path(str(args.output) + ".json.gz")
+    summary_output = Path(str(args.output) + ".summary.json")
+    if output.exists() or summary_output.exists():
+        raise ValueError("Public outputs already exist; preserve the previous experiment")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_bytes(gzip.compress(raw, mtime=0))
+    compact = {key: value for key, value in result.items() if key not in {"preparation", "attempts"}}
+    compact["full_report_sha256"] = hashlib.sha256(raw).hexdigest()
+    compact["truncated_responses"] = sum(row.get("finish_reason") == "length" for row in rows)
+    summary_output.write_text(json.dumps(compact, ensure_ascii=False, indent=2) + "\n")
+    print(json.dumps({"published": str(output), "attempts": len(rows),
+                      "summary": str(summary_output), "truncated_responses": compact["truncated_responses"]}))
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    commands = parser.add_subparsers(dest="command", required=True)
+    for name in ("prepare", "export"):
+        command = commands.add_parser(name)
+        command.add_argument("--cohort", choices=("locomo", "hotpotqa"), required=True)
+        command.add_argument("--work-dir", type=Path, default=Path(".artifacts/local-answer-evaluation"))
+        if name == "prepare":
+            command.add_argument("--data-dir", type=Path, default=Path(".artifacts/data"))
+            command.add_argument("--baseline-src", type=Path, default=Path(".artifacts/native-baseline-5abc/src"))
+            command.add_argument("--candidate-src", type=Path, default=Path("src"))
+            command.add_argument("--model-dir", type=Path, default=Path(".artifacts/models/semantic"))
+        else:
+            command.add_argument("--run-prefix", type=Path, required=True)
+            command.add_argument("--output", type=Path, required=True)
+            command.add_argument("--model-file", type=Path,
+                                 default=Path(".artifacts/local-answer/qwen2.5-0.5b-instruct-q4_k_m.gguf"))
+            command.add_argument("--server-archive", type=Path,
+                                 default=Path(".artifacts/local-answer/llama-b12110-bin-ubuntu-x64.tar.gz"))
+    args = parser.parse_args()
+    (prepare if args.command == "prepare" else export)(args)
+
+
+if __name__ == "__main__":
+    main()

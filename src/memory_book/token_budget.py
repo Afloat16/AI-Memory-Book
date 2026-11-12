@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 from functools import lru_cache
-from typing import Any
+from typing import Any, Callable
 
 from .text import terms
 
@@ -38,6 +38,28 @@ class TokenCounter:
         # Historical text may literally contain <|endoftext|> or similar
         # strings. They are evidence, not privileged tokenizer control tokens.
         return len(self.encoding.encode(text, disallowed_special=()))
+
+    def count_after(self, prefix: str) -> Callable[[str], int]:
+        """Count appended text exactly without encoding the stable prefix again.
+
+        Token counts are not generally additive: an appended character can
+        change a token at the boundary. Ask the pinned tokenizer for its stable
+        prefix, and re-encode its remaining suffix together with each candidate.
+        This cache lives for one page's fit checks, never across recall calls.
+        """
+        stable, _ = self.encoding.encode_with_unstable(prefix, disallowed_special=())
+        prefix_bytes = prefix.encode("utf-8")
+        stable_bytes = self.encoding.decode_bytes(stable)
+        # The stable API promises a byte prefix, but keep a conservative full
+        # count fallback if a future tokenizer returns a partial code point.
+        try:
+            tail = prefix_bytes[len(stable_bytes):].decode("utf-8")
+        except UnicodeDecodeError:
+            return lambda text: self.count(prefix + text)
+        if not prefix_bytes.startswith(stable_bytes):
+            return lambda text: self.count(prefix + text)
+        stable_count = len(stable)
+        return lambda text: stable_count + self.count(tail + text)
 
 
 def source_units(text: str) -> list[tuple[int, int]]:
@@ -138,6 +160,7 @@ def assemble(
     kept: list[tuple[dict, str, str, list[tuple[int, int]]]] = []
     blocks: list[str] = []
     seen: set[str] = set()
+    term_cache: dict[str, set[str]] = {}
 
     def fits(block: str) -> bool:
         proposed = "\n\n".join([*blocks, block])
@@ -165,13 +188,21 @@ def assemble(
             text = _render(row["content"], start, end)
             if len(text) > remaining_chars:
                 continue
-            overlap = len(qset.intersection(terms(text, query=True)))
+            if text not in term_cache:
+                term_cache[text] = set(terms(text, query=True))
+            overlap = len(qset.intersection(term_cache[text]))
             choices.append((overlap, end - start, start, end, text))
         # Prefer the most relevant complete span, then retain as much of its
         # original surrounding evidence as fits. Bound expensive tokenization.
         choices.sort(key=lambda item: (-item[0], -item[1], item[2], item[3]))
+        if not choices:
+            continue
+        prefix = "\n\n".join([*blocks, header])
+        count_after_prefix = counter.count_after(prefix)
         for _, _, start, end, text in choices[:96]:
-            if fits(header + text):
+            # Character fit was checked above. Preserve the exact full-context
+            # token boundary while avoiding repeated work on accepted blocks.
+            if count_after_prefix(text) <= budget_tokens:
                 kept.append((row, header, text, [(start, end)]))
                 blocks.append(header + text)
                 seen.add(row["id"])

@@ -78,6 +78,15 @@ class AnswerResumeTests(unittest.TestCase):
                 call.assert_not_called()
             self.assertEqual(trace.read_bytes(), original + b'{"partial":')
 
+    def test_second_runner_is_rejected_before_sending_a_request(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            args = self.prepare(Path(temporary))
+            with evaluation._lock(Path(str(args.output) + ".jsonl")):
+                with patch.object(evaluation, "call_endpoint") as call:
+                    with self.assertRaisesRegex(RuntimeError, "active runner"):
+                        evaluation.run(args)
+                    call.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import random
 import subprocess
 import sys
 import tempfile
@@ -63,6 +64,24 @@ class TokenBudgetTests(unittest.TestCase):
                                min_page_chars=0)
         self.addCleanup(self.book.close)
         self.book.ingest(sample())
+
+    def test_reused_prefix_counts_boundary_merges_and_unicode_exactly(self):
+        from memory_book.token_budget import TokenCounter
+        # Arbitrary joins exercise BPE boundary changes as well as the actual
+        # newline-terminated citation prefixes used by the context assembler.
+        pieces = ["", "hello", " world", "'", "re", "123", ".", "\n", " \n\n",
+                  "咖啡", "缓存45秒。", "café", "e\u0301", "Straße", "👩🏽‍💻",
+                  "<|endoftext|>", "<|fim_prefix|>", "\t ", "```python\n"]
+        rng = random.Random(4421)
+        pairs = [(left, right) for left in pieces for right in pieces]
+        pairs += [("".join(rng.choices(pieces, k=8)), "".join(rng.choices(pieces, k=6)))
+                  for _ in range(64)]
+        for tokenizer in ("cl100k_base", "o200k_base"):
+            counter = TokenCounter(tokenizer)
+            prepared = {prefix: counter.count_after(prefix) for prefix in {p for p, _ in pairs}}
+            for prefix, suffix in pairs:
+                with self.subTest(tokenizer=tokenizer, prefix=prefix, suffix=suffix):
+                    self.assertEqual(prepared[prefix](suffix), counter.count(prefix + suffix))
 
     def test_default_never_initializes_tokenizer_or_adds_token_fields(self):
         with patch("memory_book.token_budget.TokenCounter", side_effect=AssertionError("tokenizer loaded")):

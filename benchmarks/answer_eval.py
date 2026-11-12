@@ -27,6 +27,7 @@ import unicodedata
 from urllib import error, parse, request
 
 from benchmarks.run import engine_source_hash
+from benchmarks.resume import _lock
 from benchmarks.query_guard import require_query_count
 from benchmarks.token_compare import (ENCODINGS, TokenCounter, checkout_provenance,
                                      latency_summary, pack_whole_blocks)
@@ -56,7 +57,7 @@ def digest(value) -> str:
 def evaluator_sources() -> dict:
     root = Path(__file__).parent
     return {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in
-            ("answer_eval.py", "token_compare.py", "query_guard.py", "run.py", "data.py", "public_data.py")}
+            ("answer_eval.py", "token_compare.py", "query_guard.py", "run.py", "data.py", "public_data.py", "resume.py")}
 
 
 def source_options(value: dict) -> dict:
@@ -577,6 +578,15 @@ def resume_ledger(path: Path, meta: dict, planned: list) -> tuple[dict, dict]:
 
 
 def run(args) -> dict:
+    prefix = args.output or Path(".artifacts/answer-eval") / ("run-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ"))
+    prefix.parent.mkdir(parents=True, exist_ok=True)
+    # A second process must not replay an intent while the first is still
+    # waiting for its model response. OS locks also survive safe file appends.
+    with _lock(Path(str(prefix) + ".jsonl")):
+        return _run_locked(args, prefix)
+
+
+def _run_locked(args, prefix: Path) -> dict:
     url = completion_url(args.base_url)
     if not args.model.strip():
         raise ValueError("An actual served model identifier is required")
@@ -587,7 +597,6 @@ def run(args) -> dict:
     prepared = json.loads(raw_prepared)
     counter = TokenCounter(prepared["tokenizer"]["name"])
     validate_prepared(prepared, counter)
-    prefix = args.output or Path(".artifacts/answer-eval") / ("run-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ"))
     trace_path, summary_path = Path(str(prefix) + ".jsonl"), Path(str(prefix) + ".summary.json")
     resume = getattr(args, "resume", False)
     if summary_path.exists() or (trace_path.exists() and not resume):

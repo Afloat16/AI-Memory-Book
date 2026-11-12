@@ -5,10 +5,20 @@ import tempfile
 import unittest
 
 from benchmarks.data import Evidence, QueryCase
-from benchmarks.semantic_eval import Progress, diagnostics, paired_changes, source_snapshot
+from benchmarks.semantic_eval import Progress, diagnostics, page_projection_errors, paired_changes, source_snapshot
 
 
 class SemanticEvaluationTests(unittest.TestCase):
+    def test_valid_source_substring_cannot_hide_invented_output_text(self):
+        result = {"id": "page", "excerpt_spans": [[0, 8]], "text": "original…"}
+        response = {"results": [result]}
+        self.assertEqual(page_projection_errors(response, {"page": "original sentence"}), 0)
+        result["text"] = "original invented conclusion"
+        self.assertEqual(page_projection_errors(response, {"page": "original sentence"}), 1)
+        result["text"] = "original…"
+        result["excerpt_spans"] = [[0, 999]]
+        self.assertEqual(page_projection_errors(response, {"page": "original sentence"}), 1)
+
     def test_resume_preserves_interruption_and_rejects_changed_source(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "progress.db"

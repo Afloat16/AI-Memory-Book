@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "purpose": "Complete the previously frozen native-token matrix after interruption, retaining original samples and adding an output-equivalent performance optimization.",
+  "source_baseline_commit": "5abc85eef00097555366f8524fc81f8b5711ad7a",
+  "source_previous_native_commit": "794489f82ea0f23e17b510bb107030706d8a3e8e",
+  "optimization": [
+    "Use tiktoken 0.12.0 encode_with_unstable to reuse only tokenizer-certified stable prefix tokens, and re-encode the remaining tail together with every appended candidate. Never add separately counted prefix and suffix token lengths.",
+    "Reuse exact rendered-text term sets only inside one assemble call. No persistent source-text cache or cross-request state is introduced.",
+    "Keep candidate order, 96-unit bound, character/token caps, source coordinates, baseline block preservation, and all selection rules unchanged."
+  ],
+  "development_validation": {
+    "script": "scripts/verify_native_optimization.py",
+    "corpus": "synthetic seed61 development",
+    "queries": 168,
+    "dataset_sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26",
+    "configurations": {
+      "budget_chars": [
+        2000,
+        8000
+      ],
+      "budget_tokens": [
+        512,
+        1024,
+        2048
+      ],
+      "tokenizers": [
+        "cl100k_base",
+        "o200k_base"
+      ]
+    },
+    "repeats": 1,
+    "gate": "All 2016 complete result payload hashes must match the previous native implementation, excluding only latency_ms. Both workers must retain unchanged runtime sources. Source texts are not published.",
+    "timing": "Sequential isolated worker processes on the same host, tokenizers initialized before measured calls; report all configuration p50/p95/mean. One pass is a development timing diagnostic, not a robust production latency guarantee."
+  },
+  "final_protocol": {
+    "manifest": "benchmarks/native-completion-manifest.json",
+    "checkpoint": "benchmarks/reports/native-completion-checkpoint.json",
+    "unchanged_from_original": [
+      "all 8 cohorts and frozen fingerprints",
+      "2 character caps, 3 token caps, 2 tokenizers",
+      "candidate limit 5",
+      "3 repeats",
+      "native old-block preservation and source/budget gates"
+    ],
+    "candidate_snapshot": ".artifacts/native-completion-candidate/src (detached worktree at the newly committed runtime; actual Git/source identity is recorded in every worker report)",
+    "baseline_snapshot": ".artifacts/native-baseline-5abc/src",
+    "preservation": "Do not overwrite benchmarks/native-final-manifest.json, native-final-checkpoint.json, or original native-final results. No heldout/external label inspection or parameter adjustment precedes this frozen completion run."
+  },
+  "limits": "The previously observed synthetic/public datasets are regressions. Hotpot128 is the independently authored frozen external transfer diagnostic; after this run it too becomes regression data. Context evidence scores remain distinct from generated-answer scores and full native competitor workflow costs."
+}

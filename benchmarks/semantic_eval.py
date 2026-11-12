@@ -57,6 +57,31 @@ def source_snapshot(db):
                    for table in ("projects", "chapters", "sessions", "turns", "sections", "pages")})
 
 
+def page_projection_errors(response, pages):
+    """Every returned excerpt must be a complete original page slice.
+
+    Source-ref substring checks alone would allow extra invented text alongside
+    one valid span. The runtime currently renders one contiguous excerpt per
+    result, with optional boundary ellipses. Check all of it, not just a needle.
+    """
+    errors = 0
+    for item in response["results"]:
+        original = pages.get(item["id"])
+        spans = item.get("excerpt_spans", [])
+        if original is None or len(spans) != 1:
+            errors += 1
+            continue
+        start, end = spans[0]
+        if type(start) is not int or type(end) is not int or not 0 <= start < end <= len(original):
+            errors += 1
+            continue
+        source = original[start:end]
+        rendered = ("…" if start else "") + source + ("…" if end < len(original) else "")
+        if item["text"] not in (source, rendered):
+            errors += 1
+    return errors
+
+
 def diagnostics(case, chapter_map):
     # Labels are only used by this evaluator, after recall. They never enter
     # ingestion, the embedding model, ranking, excerpt selection, or packing.
@@ -177,8 +202,8 @@ def summarize_samples(samples, query_ids, repeats):
     for row in rows:
         for group in row["diagnostic_groups"]:
             groups[group].append(row)
-    invariant_keys = ("token_budget_violation", "source_span_errors", "token_metadata_error", "scope_errors",
-                      "semantic_metadata_error")
+    invariant_keys = ("token_budget_violation", "source_span_errors", "page_projection_errors", "token_metadata_error",
+                      "scope_errors", "semantic_metadata_error")
     return {"metrics": summarize_rows(rows),
             "latency": latency_summary([s["elapsed_ms"] for s in samples]),
             "first_pass_latency": latency_summary([s["elapsed_ms"] for s in samples if s["repetition"] == 0]),
@@ -271,6 +296,8 @@ def write_report(report, output):
 
 def run(args):
     data = dataset_for(args)  # Fail on a wrong cohort before loading any engine/model.
+    if len({case.id for case in data.queries}) != len(data.queries):
+        raise ValueError("Semantic evaluation requires unique query IDs")
     sys.path.insert(0, str(args.engine_src.resolve()))
     from memory_book import MemoryBook
     from memory_book.semantic import verify_model_files
@@ -331,6 +358,7 @@ def run(args):
                     segment["resumed_model_load_ms"] = model.load_ms
                     progress.set("process_segments", segments)
                 chapters = [tuple(row) for row in book.db.execute("SELECT project_id,external_id,chapter_id FROM sessions")]
+                pages = {row["id"]: row["content"] for row in book.db.execute("SELECT id,content FROM pages")}
                 groups = {case.id: diagnostics(case, chapters) for case in data.queries}
                 completed = progress.completed()
                 for config in configs:
@@ -356,6 +384,7 @@ def run(args):
                                                block_hashes=block_ids(response),
                                                token_budget_violation=counter.count(response["context"]) > config["budget_tokens"],
                                                source_span_errors=source_errors(response, sources),
+                                               page_projection_errors=page_projection_errors(response, pages),
                                                token_metadata_error=any((response.get("context_tokens") != counter.count(response["context"]),
                                                    response.get("tokenizer") != config["tokenizer"],
                                                    response.get("budget_tokens") != config["budget_tokens"],

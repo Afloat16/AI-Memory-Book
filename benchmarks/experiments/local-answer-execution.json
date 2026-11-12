@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "status": "registered-before-first-real-answer-scoring",
+  "parent_plan": "benchmarks/experiments/local-answer-plan.json",
+  "baseline_runtime": "5abc85eef00097555366f8524fc81f8b5711ad7a",
+  "candidate_runtime": "Use the committed, output-equivalent token optimization and already frozen semantic candidate; record the complete source hash in prepared inputs.",
+  "server_argv": ["llama-server", "--model", "qwen2.5-0.5b-instruct-q4_k_m.gguf", "--alias", "qwen2.5-0.5b-instruct-q4_k_m", "--ctx-size", "4096", "--parallel", "1", "--threads", "4", "--threads-batch", "4", "--seed", "42", "--host", "127.0.0.1", "--port", "18080", "--no-cache-prompt", "--cache-ram", "0", "--offline"],
+  "server_choice": "The pinned llama.cpp b12110 help advertises --no-cache-prompt and --cache-ram 0. Disable prompt reuse before scoring so one engine cannot inherit another engine's encoded context; model loading and kernel warmup remain separate costs.",
+  "request_compatibility": {"output_token_field": "max_tokens", "max_output_tokens": 128, "temperature": 0.0, "repeats": 1, "timeout_seconds": 120},
+  "preparation": "benchmarks.local_answer_eval prepare constructs only the two already registered 128-question cohorts and the three already registered engines; baseline=5abc85e, candidate=current frozen runtime. Use exact cl100k_base 512-token context and 8000-character cap, top five. The optional local semantic index is built explicitly.",
+  "recovery": "answer_eval run --resume validates the exact prepared/request identity under an exclusive OS lock. Never replay an unfinished intent. Preserve its unknown cost and zero quality credit, then continue only never-started calls. Do not overwrite completed summaries or corrupt trace bytes.",
+  "publication": "local_answer_eval export checks the completed attempt matrix, trace/prepared/model/server hashes and publishes no source passage, question, gold answer, context or answer text. Publish scores, source coordinates, per-attempt hashes, reported model/usage, truncation counts and preparation timings. Preserve raw local ledgers for inspection while the workspace exists.",
+  "timing": "Do not overlap bulk generation with retrieval benchmark timing. All durations are observations on this host; provider token usage on a local server is not a dollar charge. The independently registered native competitor workflow uses a larger context and a different diagnostic cohort; report it separately."
+}
