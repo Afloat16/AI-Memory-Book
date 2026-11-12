@@ -43,6 +43,38 @@ The same frozen Book version also returns **54.7% fewer actual MCP response toke
 
 The current source keeps score-aware recall as its default. It also offers an explicit [experimental coverage option](#optional-coverage-for-multi-fact-questions) for questions asking for several facts; that experiment has its own results and tradeoffs.
 
+### Compare quality, speed and deployment
+
+The measured advantage is **more complete cited source evidence within a small
+context**, together with a local default memory path that needs no generative
+writer, embedding download or separate database service. The following
+historical timings keep each interface's work visible:
+
+| Frozen measured operation | p50 | p95 | Boundary |
+|---|---:|---:|---|
+| Book in-process recall | 2.945 ms | 4.555 ms | Recall plus native context assembly |
+| Book actual MCP recall | 5.764 ms | 9.181 ms | Official SDK, subprocess stdio and returned JSON |
+| billion-context search + bridge | 1.298 ms | 2.413 ms | Search only; native decompression excluded |
+| ai-memory v3.4.5 local hybrid | 29.720 ms | 37.315 ms | HTTP/MCP query; follow-up reads excluded |
+
+Billion is faster at its measured search boundary. These different interfaces
+do not justify a whole-product speed multiplier. Under the separately measured
+policy of one ai-memory search plus all mapped top-five page reads, Book's
+single MCP recall returns **43.1% fewer tokens** (1,465.1 vs 2,574.6);
+an agent choosing fewer reads can spend less with ai-memory.
+
+The [full comparison guide](docs/comparison.md) includes **claude-mem,
+ai-memory, Mem0, Graphiti, PageIndex and billion-context**, with dated star
+counts, official source links, architecture, quality, latency, returned-token
+and preparation boundaries. ai-memory also supports a zero-LLM default path,
+and claude-mem supports local model providers. Unexecuted product workflows
+are marked explicitly; architecture descriptions are not benchmark scores.
+
+The current source also offers [optional local semantic retrieval](docs/semantic-retrieval.md)
+for low-overlap wording. It uses an explicitly downloaded, verified model and
+an explicitly built index; the default remains lexical. Its model/index/query
+costs and quality changes are separate from the historical table above.
+
 ## Get started
 
 You need **Python 3.10+ with SQLite FTS5**. The installer creates an isolated environment and includes MCP and client-configuration dependencies. This route does not require a Git checkout, Node.js, an embedding server, or a database server.
@@ -52,7 +84,7 @@ You need **Python 3.10+ with SQLite FTS5**. The installer creates an isolated en
 | Version | What you get | How to use it |
 |---|---|---|
 | **Published experimental release v0.2.1** | Agent-first MCP, shared local memory and optional headless background capture | Use the pinned installers below. |
-| **Available v0.3 development source** | Score-aware retrieval, compact cited evidence, optional exact token budgets, multi-fact coverage and the paired-answer evaluation runner | Use the [source checkout](#try-it-without-connecting-a-client) on `main`. |
+| **Available v0.3 development source** | Score-aware retrieval, compact cited evidence, optional exact token budgets, multi-fact coverage, optional local semantic retrieval and the paired-answer evaluation runner | Use the [source checkout](#try-it-without-connecting-a-client) on `main`. |
 | **Frozen comparison runtime `0ab49d4`** | The exact source used for the retrieval and MCP cost figures above | Follow the [reproduction guide](benchmarks/RESULTS-recall-score-quality.md#11-reproduction-and-artifact-index). |
 
 The validated continuation, including exact token budgets, was merged into `main` through [PR #1](https://github.com/Afloat16/AI-Memory-Book/pull/1) at [`ce7837f`](https://github.com/Afloat16/AI-Memory-Book/commit/ce7837fb8db7c221f39e27a531f2383385782eb1). The installers below still use the published **v0.2.1**; there is no `v0.3.0` release tag yet. Use the `main` source checkout to try the additional capabilities.

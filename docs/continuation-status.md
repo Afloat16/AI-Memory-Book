@@ -3,6 +3,29 @@
 This record is a recovery entry point, not a benchmark result. Follow the exact
 committed reports before making quality, speed or cost claims.
 
+## Active hosted continuation
+
+The chat executor became unavailable again before synthetic883 produced a
+verifiable complete report. The existing saved cohorts and recovery plans were
+already on remote main at d858c8d. The interrupted attempt is retained as an
+explicit [failure record](../benchmarks/reports/native-environment-interruption-20261112.json);
+its partial output is not counted as a completed result.
+
+The remaining five native cohorts, four semantic cohorts, two actual-answer
+cohorts and the native Book/ai-memory workflow are now launched through
+[the hosted validation run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43178953381).
+The integrated runner passed its full unit-test gate; its standard
+[CI run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43178953345)
+also succeeded. Each cohort has its own VM and publishes an explicit
+validation result branch, so it continues independently of the chat workspace.
+
+The [hosted plan](../benchmarks/hosted-validation-plan.json) retains every
+registered source/model/data pin, cohort, budget, tokenizer and repetition.
+Within-cohort paired modes remain sequential. Hosts and dependencies are
+recorded for each cohort, and timings are not pooled across machines.
+Final aggregation checks raw reports against completed checkpoint hashes;
+a green implementation test is not a quality or workflow result.
+
 ## Fresh-workspace recovery checkpoint
 
 ### Current continuation: recovered `07a440b`, finishing the registered matrices

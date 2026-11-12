@@ -43,6 +43,23 @@ AI-Memory-Book 的主要使用者是 AI。接入客户端并选择开启采集�
 
 当前源码继续默认使用 score-aware 检索，同时新增供多事实问题显式开启的[实验性 coverage 选项](#可选多事实证据覆盖)，其效果和取舍单独记录。
 
+### 同时比较质量、速度与部署成本
+
+本项目的重点是**在较小上下文内交付更完整、可核对的原文证据**，并提供无需生成式记忆写入、embedding 下载和独立数据库服务的本地默认路径。下表补充同一历史固定报告中的速度，明确各自计时包含的工作：
+
+| 固定版本的被测操作 | p50 | p95 | 计时边界 |
+|---|---:|---:|---|
+| Book 进程内召回 | 2.945 ms | 4.555 ms | 检索及原生上下文组装 |
+| Book 实际 MCP 召回 | 5.764 ms | 9.181 ms | 官方 SDK、子进程 stdio 和返回 JSON |
+| billion-context 搜索及桥接 | 1.298 ms | 2.413 ms | 搜索；不含原生解压 |
+| ai-memory v3.4.5 本地混合检索 | 29.720 ms | 37.315 ms | HTTP/MCP query；不含后续全文读取 |
+
+billion-context 在其被测搜索边界更快。不同接口不能直接推导整个产品快多少倍。在另行测量的“ai-memory 一次检索并读取全部映射 top-five 页面”策略下，Book 一次实际 MCP 召回的返回 token **减少 43.1%**（1,465.1 对 2,574.6）；如果 Agent 选择少读页面，ai-memory 的实际用量也可以更低。
+
+[完整比较指南](docs/comparison.md)涵盖 **claude-mem、ai-memory、Mem0、Graphiti、PageIndex 和 billion-context**，列出带日期的星数、官方来源、架构、检索质量、延迟、返回 token 和准备成本。ai-memory 的默认路径同样可以零 LLM 运行；claude-mem 也支持本地模型。没有执行的完整产品流程明确标注，功能说明不会冒充性能实测。
+
+当前源码还提供[可选本地语义检索](docs/semantic-retrieval.md)，用于低词汇重合的表达。需要显式下载并校验模型、建立索引；默认仍是词法检索。模型加载、索引、查询成本与质量变化单独计量，不与上述历史表混为同一实验。
+
 ## 安装
 
 需要 Python 3.10+，并且 Python 的 SQLite 包含 FTS5。
@@ -52,7 +69,7 @@ AI-Memory-Book 的主要使用者是 AI。接入客户端并选择开启采集�
 | 版本 | 可用能力 | 使用方式 |
 |---|---|---|
 | **已发布的实验版本 v0.2.1** | 以 Agent 为主的 MCP、共享本地记忆和可选无界面后台采集 | 使用下方固定版本安装器。 |
-| **已推送的 v0.3 开发源码** | Score-aware 检索、紧凑的带出处证据、可选精确 token 预算、多事实 coverage 和配对回答评测工具 | 按[开发版源码安装](#开发版源码安装)检出 `main`。 |
+| **已推送的 v0.3 开发源码** | Score-aware 检索、紧凑的带出处证据、可选精确 token 预算、多事实 coverage、可选本地语义检索和配对回答评测工具 | 按[开发版源码安装](#开发版源码安装)检出 `main`。 |
 | **固定对比版本 `0ab49d4`** | 上方检索质量和 MCP 成本数字对应的原始代码 | 按[复现指南](benchmarks/RESULTS-recall-score-quality.md#11-reproduction-and-artifact-index)准备和运行。 |
 
 已验证的后续改进（包含精确 token 预算）已通过 [PR #1](https://github.com/Afloat16/AI-Memory-Book/pull/1) 合入 `main`，合并提交为 [`ce7837f`](https://github.com/Afloat16/AI-Memory-Book/commit/ce7837fb8db7c221f39e27a531f2383385782eb1)。下方安装器仍使用已发布的 **v0.2.1**，目前没有可下载的 `v0.3.0` 发布标签。体验新增能力请从 `main` 安装源码。
