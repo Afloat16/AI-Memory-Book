@@ -201,8 +201,16 @@ without response text; numeric usage and the response hash remain. Errors and ti
 their attempt, timing and unknown cost; they receive zero accuracy scores and
 stay in the denominator. Error bodies are omitted to avoid recording arbitrary
 server diagnostics. An interrupted request can leave a started row without a
-finished row: its outcome and charge are unknown. Re-running does not resume
-or silently retry it, and existing output paths cannot be overwritten.
+finished row: its outcome and charge are unknown. Ordinary re-running refuses
+an existing output. To continue after an interruption, repeat the identical
+`run` command and output prefix with **`--resume`**. The evaluator verifies the
+prepared inputs, model, endpoint, prompt, parameters and prior ledger before
+making any call. Completed attempts are retained. An intent without an outcome
+is recorded as `interrupted`, receives zero quality credit and keeps unknown
+usage; it is never retried. Only requests without a previous intent are sent.
+This preserves attempt counts and prevents a silent duplicate model charge.
+A completed summary cannot be overwritten. A partial or corrupt ledger line
+fails closed and must be preserved for explicit recovery.
 
 For each usage field, the summary distinguishes the count of calls with
 reported values, their **known subtotal**, and a complete total only when

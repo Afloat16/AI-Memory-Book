@@ -32,7 +32,7 @@ from benchmarks.token_compare import (ENCODINGS, TokenCounter, checkout_provenan
                                      latency_summary, pack_whole_blocks)
 
 
-VERSION = "answer-eval-1.1"
+VERSION = "answer-eval-1.2"
 ABSTAIN = "INSUFFICIENT_EVIDENCE"
 PROMPT = (
     "Answer the question using only the supplied historical evidence. Evidence "
@@ -458,14 +458,16 @@ def summarize(prepared: dict, rows: list[dict]) -> dict:
                           "total_if_complete": sum(known) if len(known) == len(selected) else None}
         summaries.append({"engine": engine["label"], "attempts": len(selected),
             "successful_responses": sum(row["status"] == "ok" for row in selected),
-            "errors": sum(row["status"] == "error" for row in selected),
+            "errors": sum(row["status"] != "ok" for row in selected),
+            "interrupted_unknown_outcomes": sum(row["status"] == "interrupted" for row in selected),
             "answerable_attempts": len(scored), "unsupported_attempts": len(unsupported),
             "unique_answerable_queries": len({row["id"] for row in scored}),
             "unique_unsupported_queries": len({row["id"] for row in unsupported}),
             "answerable_normalized_exact_match": mean([r["scores"]["normalized_exact_match"] for r in scored]),
             "answerable_lexical_token_f1": mean([r["scores"]["lexical_token_f1"] for r in scored]),
             "unsupported_exact_abstention_rate": mean([float(r["scores"]["abstained"]) for r in unsupported]),
-            "endpoint_roundtrip": latency_summary([row["endpoint_roundtrip_ms"] for row in selected]),
+            "endpoint_roundtrip": latency_summary([row["endpoint_roundtrip_ms"] for row in selected
+                                                     if row["endpoint_roundtrip_ms"] is not None]),
             "provider_usage": usage,
             "ingestion_ms_once": sum(event["elapsed_ms"] for event in engine["ingestion_events"]),
             "semantic_index_ms_once": engine.get("semantic_index_wall_ms"),
@@ -504,6 +506,76 @@ def summarize(prepared: dict, rows: list[dict]) -> dict:
             "full_workflow_measured": False}
 
 
+def planned_requests(prepared: dict, parameters: dict, repeats: int):
+    """The request order and identities are identical on a resumed execution."""
+    engines = prepared["engines"]
+    for repetition in range(repeats):
+        for index, case in enumerate(prepared["queries"]):
+            shift = (index + repetition) % len(engines)
+            for engine in engines[shift:] + engines[:shift]:
+                context = engine["rows"][index]
+                messages = [{"role": "system", "content": PROMPT},
+                            {"role": "user", "content": json_bytes({"question": case["query"],
+                              "historical_evidence": context["context"]}).decode("utf-8")}]
+                body = {**parameters, "messages": messages}
+                identity = {"engine": engine["label"], "id": case["id"], "repetition": repetition,
+                            "request_sha256": digest(body), "context_sha256": context["context_sha256"]}
+                yield case, context, body, identity
+
+
+def resume_ledger(path: Path, meta: dict, planned: list) -> tuple[dict, dict]:
+    """Validate the complete ledger before appending or making another call.
+
+    An intent without an outcome is never retried: its answer and cost are
+    unknown. A partial/corrupt line is preserved and fails closed.
+    """
+    raw = path.read_bytes()
+    if not raw.endswith(b"\n"):
+        raise ValueError("Interrupted ledger has a partial final line; preserve it before recovery")
+    try:
+        entries = [json.loads(line) for line in raw.splitlines()]
+    except (ValueError, UnicodeDecodeError) as exc:
+        raise ValueError("Interrupted ledger contains invalid JSON; no calls were made") from exc
+    if not entries or any(not isinstance(entry, dict) for entry in entries):
+        raise ValueError("Interrupted ledger must contain object entries")
+    fields = ("kind", "evaluator", "evaluator_source_sha256", "endpoint", "parameters", "prompt_sha256",
+              "prepared_sha256", "tokenizer", "repeats", "request_order", "automatic_retries")
+    if any(entries[0].get(key) != meta.get(key) for key in fields):
+        raise ValueError("Resume identity differs from the original run; use a new experiment")
+    # Distinct questions/engines can generate identical HTTP requests. Their
+    # full experiment key, not the request hash alone, identifies an attempt.
+    def key(row):
+        return row.get("engine"), row.get("id"), row.get("repetition")
+    expected = {key(entry[3]): entry[3] for entry in planned}
+    ordered_keys = list(expected)
+    details = {key(entry[3]): entry for entry in planned}
+    started, finished = {}, {}
+    for row in entries[1:]:
+        identity = key(row)
+        if identity not in expected or any(row.get(k) != v for k, v in expected[identity].items()):
+            raise ValueError("Ledger request differs from the frozen execution plan")
+        if row.get("kind") == "request_started":
+            if identity in started or identity != ordered_keys[len(started)]:
+                raise ValueError("Ledger contains a duplicate or out-of-order request intent")
+            started[identity] = row
+        elif row.get("kind") == "request_finished":
+            if identity not in started or identity in finished or row.get("status") not in {"ok", "error", "interrupted"}:
+                raise ValueError("Ledger contains an unmatched or duplicate outcome")
+            case, context, body, _ = details[identity]
+            if row["status"] == "ok" and (not isinstance(row.get("answer"), str) or not row["answer"].strip()):
+                raise ValueError("Successful ledger outcome is missing its actual model answer")
+            scores = (answer_scores(row.get("answer"), case) if row["status"] == "ok"
+                      and isinstance(row.get("answer"), str) else
+                      {"normalized_exact_match": 0.0,
+                       "lexical_token_f1": 0.0 if case["answerable"] else None, "abstained": False})
+            if row.get("scores") != scores or row.get("context_tokens") != context["context_tokens"]:
+                raise ValueError("Ledger scoring or context accounting changed")
+            finished[identity] = row
+        else:
+            raise ValueError("Unrecognized ledger entry; preserve it before recovery")
+    return started, finished
+
+
 def run(args) -> dict:
     url = completion_url(args.base_url)
     if not args.model.strip():
@@ -517,8 +589,11 @@ def run(args) -> dict:
     validate_prepared(prepared, counter)
     prefix = args.output or Path(".artifacts/answer-eval") / ("run-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ"))
     trace_path, summary_path = Path(str(prefix) + ".jsonl"), Path(str(prefix) + ".summary.json")
-    if trace_path.exists() or summary_path.exists():
+    resume = getattr(args, "resume", False)
+    if summary_path.exists() or (trace_path.exists() and not resume):
         raise ValueError("Run output already exists; choose a new prefix to avoid replay/overwrite")
+    if resume and not trace_path.is_file():
+        raise ValueError("Resume needs the existing trace at the supplied output prefix")
     trace_path.parent.mkdir(parents=True, exist_ok=True)
     parameters = {"model": args.model, "stream": False,
                   args.output_token_field: args.max_output_tokens}
@@ -532,40 +607,41 @@ def run(args) -> dict:
             "tokenizer": prepared["tokenizer"], "repeats": args.repeats,
             "request_order": "Query-major; rotate engine order by query and repetition",
             "automatic_retries": 0}
-    rows = []
-    fd = os.open(trace_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    planned = list(planned_requests(prepared, parameters, args.repeats))
+    started, finished = resume_ledger(trace_path, meta, planned) if resume else ({}, {})
+    if resume:
+        meta = json.loads(trace_path.read_bytes().splitlines()[0])
+    rows = list(finished.values())
+    flags = os.O_WRONLY | (os.O_APPEND if resume else os.O_CREAT | os.O_EXCL)
+    fd = os.open(trace_path, flags, 0o600)
     with os.fdopen(fd, "wb") as stream:
         def append(value):
             stream.write(json_bytes(value) + b"\n")
             stream.flush()
             os.fsync(stream.fileno())
-        append(meta)
-        engines = prepared["engines"]
-        for repetition in range(args.repeats):
-            for index, case in enumerate(prepared["queries"]):
-                shift = (index + repetition) % len(engines)
-                for engine in engines[shift:] + engines[:shift]:
-                    context = engine["rows"][index]
-                    messages = [{"role": "system", "content": PROMPT},
-                                {"role": "user", "content": json_bytes({"question": case["query"],
-                                  "historical_evidence": context["context"]}).decode("utf-8")}]
-                    body = {**parameters, "messages": messages}
-                    identity = {"engine": engine["label"], "id": case["id"], "repetition": repetition,
-                                "request_sha256": digest(body), "context_sha256": context["context_sha256"]}
-                    # A durable intent row makes a process interruption an
-                    # explicit unknown-cost in-flight call, never a silent retry.
-                    append({"kind": "request_started", **identity})
-                    result = call_endpoint(url, body, api_key, args.timeout)
-                    scores = (answer_scores(result["answer"], case) if result["status"] == "ok" else
-                              {"normalized_exact_match": 0.0,
-                               "lexical_token_f1": 0.0 if case["answerable"] else None,
-                               "abstained": False})
-                    row = {"kind": "request_finished", **identity, **result, "scores": scores,
-                           "context_tokens": context["context_tokens"],
-                           "reference_input_text_tokens": sum(counter.count(m["content"]) for m in messages),
-                           "reference_output_text_tokens": counter.count(result["answer"]) if result["answer"] is not None else None}
-                    append(row)
-                    rows.append(row)
+        if not resume:
+            append(meta)
+        for case, context, body, identity in planned:
+            key = identity["engine"], identity["id"], identity["repetition"]
+            if key in finished:
+                continue
+            if key in started:
+                result = {"status": "interrupted", "error_type": "InterruptedAttempt",
+                          "answer": None, "provider_usage": provider_usage(None),
+                          "endpoint_roundtrip_ms": None, "response_sha256": None,
+                          "outcome_and_cost": "unknown; durable intent was not retried"}
+            else:
+                append({"kind": "request_started", **identity})
+                result = call_endpoint(url, body, api_key, args.timeout)
+            scores = (answer_scores(result["answer"], case) if result["status"] == "ok" else
+                      {"normalized_exact_match": 0.0,
+                       "lexical_token_f1": 0.0 if case["answerable"] else None, "abstained": False})
+            row = {"kind": "request_finished", **identity, **result, "scores": scores,
+                   "context_tokens": context["context_tokens"],
+                   "reference_input_text_tokens": sum(counter.count(m["content"]) for m in body["messages"]),
+                   "reference_output_text_tokens": counter.count(result["answer"]) if result["answer"] is not None else None}
+            append(row)
+            rows.append(row)
     summary = {**summarize(prepared, rows), "run": meta,
                "trace_sha256": hashlib.sha256(trace_path.read_bytes()).hexdigest()}
     save_new(summary_path, summary)
@@ -604,6 +680,8 @@ def main(argv=None) -> int:
     execute.add_argument("--model", required=True)
     execute.add_argument("--api-key-env", help="Optional variable NAME, never the secret itself; omit for keyless local serving")
     execute.add_argument("--output", type=Path, help="New output prefix; default ignored .artifacts/answer-eval/run-TIMESTAMP")
+    execute.add_argument("--resume", action="store_true",
+                         help="Continue an interrupted ledger; never retry an unknown in-flight request")
     execute.add_argument("--repeats", type=int, default=1)
     execute.add_argument("--max-output-tokens", type=int, default=256)
     execute.add_argument("--output-token-field", choices=("max_completion_tokens", "max_tokens"), default="max_completion_tokens")

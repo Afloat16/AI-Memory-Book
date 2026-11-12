@@ -1,0 +1,50 @@
+# Resumable validation status — 2026-11-12
+
+This record is a recovery entry point, not a benchmark result. Follow the exact
+committed reports before making quality, speed or cost claims.
+
+## Recovered and published
+
+- `main` was advanced from `ce7837f` to `794489f` without rewriting history.
+  The latter preserves optional local semantic retrieval, its Python/CLI/MCP
+  interfaces, the prior native-token development matrix, and frozen plans.
+- Both workflows for `794489f` completed successfully before this promotion.
+- The historical native checkpoint is intentionally retained. It has only the
+  synthetic61 development stage completed; a stale `running` state for
+  synthetic211 is not a completed result.
+- Pinned MiniLM ONNX, Qwen2.5-0.5B GGUF, llama.cpp b12110, LoCoMo and HotpotQA
+  artifacts have been downloaded anew and verified against the existing hashes.
+
+## Work to finish in this continuation
+
+1. **Native budgets:** preserve token/character/source invariants, verify any
+   performance optimization against complete prior outputs on development
+   data, then finish the preregistered eight-cohort regression/transfer matrix.
+2. **Semantic candidates:** compare lexical and semantic modes with identical
+   packing on the four explicitly classified cohorts in
+   `benchmarks/semantic-final-plan.json`. Preserve gains, losses and costs.
+3. **Real answers:** run the existing frozen Qwen plan on 128 LoCoMo and 128
+   HotpotQA questions with the three registered retrieval modes. Keep raw
+   licensed source data outside Git and publish trace hashes and measurements.
+4. **Native workflow:** separately preregister and measure Book versus the
+   executable ai-memory observer/consolidation/retrieval/answer path using the
+   existing six-domain diagnostic. Different context settings and this cohort
+   must not be mixed with the frozen answer experiment.
+5. **Documentation:** update both primary READMEs and validation notes with
+   actual measurements, immutable source identities, reproduction commands,
+   comparator scope, and limitations. Merge verified work to `main`.
+
+The model answer runner now supports explicit `--resume` with exact experiment
+identity checks. Completed calls are retained. Interrupted in-flight requests
+remain unknown-cost failures and are never silently retried. A corrupt partial
+ledger fails closed. Reuse the existing output prefix only for this explicit
+resume mode, and preserve all old reports.
+
+## Interpretation rules
+
+The old public/synthetic/authored questions are regression data. The frozen
+HotpotQA cohort supplies an external diagnostic, then becomes regression data
+after its first scoring. Evidence completeness, generated-answer quality and
+end-to-end workflow costs are distinct measurements. Negative results remain
+part of the report. Completing this validation does not establish universal
+semantic memory or broad generalization.
