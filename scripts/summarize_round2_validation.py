@@ -287,12 +287,14 @@ def main(argv=None):
             distinct_queries=manifest["expected_queries"], stages=required,
             native_query_configuration_pairs=manifest["expected_queries"] * len(native_configurations(plan)),
             native_changes=paired,
+            component_changes=comparison(reports["baseline-component"], reports["candidate-component"]),
             native_complete_gains=sum(len(row["complete_question_gains"]) for row in paired),
             native_complete_losses=sum(len(row["complete_question_losses"]) for row in paired),
             source_free_reports={stage: checkpoint["stages"][stage]["outputs"] for stage in required},
             interpretation="Complete measurement integrity only. Quality gains/losses and native interface boundaries remain explicit; no whole-product speed multiplier.")
         if binding["optional_semantic"]:
             assessment["optional_semantic_native_changes"] = comparison(reports["candidate-native"], reports["candidate-semantic-native"])
+            assessment["optional_semantic_component_changes"] = comparison(reports["candidate-component"], reports["candidate-semantic-component"])
         text = markdown(assessment, reports)
         (result_dir / "report.md").write_text(text, encoding="utf-8")
         atomic(result_dir / "assessment.json", assessment)

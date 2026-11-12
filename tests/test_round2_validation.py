@@ -18,6 +18,7 @@ from benchmarks.round2_eval import (Ledger, PLAN, ROOT, component, component_hit
 from benchmarks.round2_resources import storage, tree_rss
 from benchmarks.token_compare import latency_summary
 from scripts.summarize_round2_validation import verify_configurations, verify_samples
+from scripts import run_round2_validation as controller
 
 
 class RoundTwoValidationTests(unittest.TestCase):
@@ -168,6 +169,39 @@ class RoundTwoValidationTests(unittest.TestCase):
         response["results"][0]["project"] = "other"
         with self.assertRaisesRegex(ValueError, "scope differs"):
             component_hits(response, documents, "p", "ai-memory-hybrid")
+
+    def test_stage_publication_preserves_private_files_and_refuses_another_writer(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root, remote = Path(directory) / "repo", Path(directory) / "remote.git"
+            root.mkdir()
+            def git(*arguments):
+                return subprocess.check_output(["git", *arguments], cwd=root, stderr=subprocess.DEVNULL, text=True).strip()
+            git("init", "--bare", str(remote))
+            git("init")
+            git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+                "commit", "--allow-empty", "-m", "initial")
+            git("remote", "add", "origin", str(remote))
+            parent = git("rev-parse", "HEAD")
+            checkpoint = root / "benchmarks/reports/round2-123-1-checkpoint.json"
+            checkpoint.parent.mkdir(parents=True)
+            checkpoint.write_text('{"status":"running"}')
+            result_dir = root / "benchmarks/results/round2-123-1"
+            result_dir.mkdir(parents=True)
+            (result_dir / "baseline-native.summary.json").write_text('{}')
+            (result_dir / "private-log.txt").write_text('must stay local')
+            private = root / ".artifacts/private-source.txt"
+            private.parent.mkdir()
+            private.write_text('must stay local')
+            env = {"GITHUB_REPOSITORY": "Afloat16/AI-Memory-Book", "GITHUB_RUN_ID": "123", "GITHUB_RUN_ATTEMPT": "1"}
+            with patch.object(controller, "ROOT", root), patch.dict(os.environ, env):
+                published = controller.publish(checkpoint, result_dir, parent)
+                names = git("ls-tree", "--name-only", "-r", published).splitlines()
+                self.assertEqual(names, ['benchmarks/reports/round2-123-1-checkpoint.json',
+                    'benchmarks/results/round2-123-1/baseline-native.summary.json'])
+                self.assertEqual(git("diff", "--name-only", "--cached"), "")
+                self.assertEqual(git("rev-parse", "HEAD"), parent)
+                with self.assertRaisesRegex(ValueError, "Another writer changed"):
+                    controller.publish(checkpoint, result_dir, parent)
 
     @unittest.skipUnless(importlib.util.find_spec("tiktoken"), "optional reference tokenizer not installed")
     def test_invented_archive_native_and_component_survive_strict_assessment(self):
