@@ -57,7 +57,10 @@ For a controlled stop, the controller first asks its owned child to stop, allowi
 existing evaluators to flush their ledgers and close their owned model servers.
 It then terminates remaining processes in that child's group. An execution
 deadline produces status interrupted and reason execution_deadline. Raw exception
-messages are not written to the public marker.
+messages are not written to the public marker. Marker fields and nested environment
+metadata have their own whitelist. Legacy pip-freeze strings and command arguments
+are represented by hashes; private URLs, source fields and credential values are
+not copied into the new publication.
 
 Both the controller's finally block and the workflow's always step call the same
 finalizer. The latter can be invoked independently:

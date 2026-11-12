@@ -111,6 +111,37 @@ class HostedRecoveryTests(unittest.TestCase):
         self.assertEqual(self.marker()["interruption"], "cleanup_after_unfinished_runner")
         self.assertNotIn("PRIVATE_", first.decode())
 
+
+    def test_legacy_marker_drops_private_packages_and_hashes_command_text(self):
+        secret = "PRIVATE_TOKEN_EXACT_VALUE"
+        legacy = {
+            "stage": self.stage, "status": "running",
+            "argv": ["server", "--prompt", "PRIVATE_PROMPT", "--token", secret],
+            "environment": {
+                "python": "3.12.1", "source": "PRIVATE_SOURCE",
+                "platform": secret, "packages": [
+                    "private @ https://user:" + secret + "@example.invalid/package",
+                    ["safe-package", "1.2.3"], ["suspicious", secret]]},
+            "phase_exit_codes": {"prepare": 0, "source": "PRIVATE_SOURCE"},
+            "execution_deadline": {"seconds_available_at_runner_start": 123,
+                                   "scope": "PRIVATE_PROMPT", "model": "PRIVATE_MODEL"}}
+        marker = hosted.marker_path(self.stage)
+        hosted.atomic(marker, legacy)
+        with patch.dict(os.environ, {"TEST_API_KEY": secret}):
+            hosted.finalize(self.stage)
+            first = marker.read_bytes()
+            hosted.finalize(self.stage)
+        self.assertEqual(first, marker.read_bytes())
+        value = json.loads(first)
+        self.assertNotIn("PRIVATE_", first.decode())
+        self.assertNotIn("example.invalid", first.decode())
+        self.assertNotIn("argv", value)
+        self.assertEqual(len(value["argv_sha256"]), 64)
+        self.assertEqual(len(value["environment_omissions_sha256"]), 64)
+        self.assertEqual(value["environment"], {"python": "3.12.1", "packages": [["safe-package", "1.2.3"]]})
+        self.assertEqual(value["phase_exit_codes"], {"prepare": 0})
+        self.assertNotIn("model", value["execution_deadline"])
+
     def test_existing_attempt_is_not_replayed_or_overwritten(self):
         marker = hosted.marker_path(self.stage)
         hosted.atomic(marker, {"stage": self.stage, "status": "interrupted"})

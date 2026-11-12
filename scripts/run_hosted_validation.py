@@ -378,6 +378,94 @@ def publish(stage, marker, paths):
     return commit
 
 
+
+def public_marker(stage, metadata):
+    """Whitelist marker fields, including legacy nested environment records."""
+    from benchmarks.export_interrupted_validation import sensitive_environment_values
+    secrets = sensitive_environment_values()
+    def object_hash(value):
+        return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    def text(value, pattern=None, limit=512):
+        return (isinstance(value, str) and len(value) <= limit
+                and not any(secret in value for secret in secrets)
+                and (re.fullmatch(pattern, value) is not None if pattern else
+                     "\n" not in value and "\r" not in value and "://" not in value))
+    def numeric(value):
+        return ((isinstance(value, int) and not isinstance(value, bool))
+                or (isinstance(value, float) and math.isfinite(value)))
+    output = {"schema_version": 2, "stage": stage}
+    if isinstance(metadata.get("status"), str) and metadata["status"] in {"running", "completed", "failed", "interrupted"}:
+        output["status"] = metadata["status"]
+    for field in ("started_at", "prepared_at", "finished_at"):
+        if text(metadata.get(field), r"[0-9TZ:+.-]+", 48):
+            output[field] = metadata[field]
+    if text(metadata.get("source_commit"), r"[0-9a-f]{40}"):
+        output["source_commit"] = metadata["source_commit"]
+    for field in ("prior_marker_sha256", "parent_manifest_sha256", "argv_sha256",
+                  "environment_omissions_sha256"):
+        if isinstance(metadata.get(field), str) and re.fullmatch(r"[0-9a-f]{64}", metadata[field]):
+            output[field] = metadata[field]
+    if "argv" in metadata:
+        output["argv_sha256"] = object_hash(metadata["argv"])
+    if isinstance(metadata.get("parent_manifest"), str) and metadata["parent_manifest"] in {NATIVE, SEMANTIC, ANSWERS}:
+        output["parent_manifest"] = metadata["parent_manifest"]
+    for field in ("error_type", "diagnostic_export_error_type"):
+        if text(metadata.get(field), r"[A-Za-z_][A-Za-z_0-9]*", 100):
+            output[field] = metadata[field]
+    for field in ("exit_code", "assessment_exit_code"):
+        if isinstance(metadata.get(field), int) and not isinstance(metadata[field], bool):
+            output[field] = metadata[field]
+    if isinstance(metadata.get("phase_exit_codes"), dict):
+        output["phase_exit_codes"] = {
+            key: value for key, value in metadata["phase_exit_codes"].items()
+            if key in {"prepare", "generate", "export"} and isinstance(value, int) and not isinstance(value, bool)}
+    known_reasons = {"execution_deadline", "registered_phase_timeout", "signal_SIGINT",
+                     "signal_SIGTERM", "KeyboardInterrupt", "invalid_prior_marker",
+                     "runner_marker_missing", "cleanup_after_unfinished_runner"}
+    if isinstance(metadata.get("interruption"), str) and metadata["interruption"] in known_reasons:
+        output["interruption"] = metadata["interruption"]
+    if metadata.get("publication_incomplete") is True:
+        output["publication_incomplete"] = True
+    if "timing_boundary" in metadata:
+        output["timing_boundary"] = ("One isolated hosted runner; paired modes are sequential. "
+                                     "Do not pool timings across hosts.")
+    deadline = metadata.get("execution_deadline")
+    if isinstance(deadline, dict):
+        output["execution_deadline"] = {
+            key: value for key, value in deadline.items()
+            if key in {"seconds_available_at_runner_start", "hosted_job_hard_limit_seconds",
+                       "registered_answer_generate_timeout_seconds"}
+            and (value is None or numeric(value))}
+        output["execution_deadline"]["scope"] = (
+            "Execution deadline only; no model, prompt, cohort, budget or scoring parameter changes. "
+            "Expiry is interrupted, never complete.")
+    environment = metadata.get("environment")
+    if isinstance(environment, dict):
+        cleaned = {key: value for key, value in environment.items()
+                   if key in {"python", "sqlite", "platform", "cpu_model", "runner_os", "runner_arch",
+                              "image_os", "image_version"} and (value is None or text(value))}
+        if isinstance(environment.get("logical_cpus"), int) and not isinstance(environment["logical_cpus"], bool):
+            cleaned["logical_cpus"] = environment["logical_cpus"]
+        packages = environment.get("packages")
+        if isinstance(packages, (list, tuple)):
+            cleaned["packages"] = [list(pair) for pair in packages
+                if isinstance(pair, (list, tuple)) and len(pair) == 2
+                and text(pair[0], r"[A-Za-z0-9_.-]+") and text(pair[1], r"[A-Za-z0-9_.+!-]+")]
+        if object_hash(cleaned) != object_hash(environment):
+            output["environment_omissions_sha256"] = object_hash(environment)
+        output["environment"] = cleaned
+    allowed = set(public_paths(stage)) | {str(path.relative_to(ROOT)) for path in diagnostic_paths(stage)}
+    for field in ("missing_outputs", "diagnostic_outputs"):
+        if isinstance(metadata.get(field), list):
+            output[field] = [path for path in metadata[field] if isinstance(path, str) and path in allowed]
+    hashes = metadata.get("public_output_sha256")
+    if isinstance(hashes, dict):
+        output["public_output_sha256"] = {
+            key: value for key, value in hashes.items()
+            if key in allowed and isinstance(value, str) and re.fullmatch(r"[0-9a-f]{64}", value)}
+    return output
+
+
 def finalize(stage, do_publish=False, metadata=None):
     marker = marker_path(stage)
     if metadata is None:
@@ -392,16 +480,7 @@ def finalize(stage, do_publish=False, metadata=None):
         else:
             metadata = {"schema_version": 2, "stage": stage, "status": "interrupted",
                         "interruption": "runner_marker_missing"}
-    # Marker schema is fixed. In particular, legacy error_message and arbitrary
-    # fields are not public audit evidence.
-    permitted = {"schema_version", "stage", "status", "started_at", "finished_at",
-                 "prepared_at", "source_commit", "environment", "timing_boundary",
-                 "execution_deadline", "parent_manifest", "parent_manifest_sha256",
-                 "argv", "phase_exit_codes", "assessment_exit_code", "exit_code",
-                 "missing_outputs", "interruption", "error_type", "prior_marker_sha256",
-                 "diagnostic_outputs", "diagnostic_export_error_type",
-                 "publication_incomplete", "public_output_sha256"}
-    metadata = {key: value for key, value in metadata.items() if key in permitted}
+    metadata = public_marker(stage, metadata)
     if metadata.get("status") not in {"completed", "failed", "interrupted"}:
         metadata.update(status="interrupted", interruption="cleanup_after_unfinished_runner")
     metadata.setdefault("finished_at", now())
@@ -466,7 +545,7 @@ def main(argv=None):
                         "started_at": now(),
                         "timing_boundary": "One isolated hosted runner; paired modes are sequential. Do not pool timings across hosts."}
             # Durable intent precedes environment collection, downloads or model work.
-            atomic(marker, metadata)
+            atomic(marker, public_marker(args.stage, metadata))
             exit_code = 1
             try:
                 with interrupt_handlers(), ExitStack() as resources:
@@ -477,7 +556,7 @@ def main(argv=None):
                             "hosted_job_hard_limit_seconds": 21600 if os.environ.get("GITHUB_ACTIONS") == "true" else None,
                             "registered_answer_generate_timeout_seconds": 28800,
                             "scope": "Execution deadline only; no model, prompt, cohort, budget or scoring parameter changes. Expiry is interrupted, never complete."})
-                    atomic(marker, metadata)
+                    atomic(marker, public_marker(args.stage, metadata))
                     if budget is not None and budget <= 0:
                         raise ValidationInterrupted("execution_deadline")
                     resources.enter_context(execution_timer(budget))
@@ -486,11 +565,11 @@ def main(argv=None):
                         publish(args.stage, marker, [])
                     prepare(args.stage)
                     metadata["prepared_at"] = now()
-                    atomic(marker, metadata)
+                    atomic(marker, public_marker(args.stage, metadata))
                     if args.stage.startswith(("native-", "semantic-")):
                         command, _, parent = manifest_stage(args.stage)
                         metadata.update(parent_manifest=parent, parent_manifest_sha256=sha(ROOT / parent), argv=command)
-                        atomic(marker, metadata)
+                        atomic(marker, public_marker(args.stage, metadata))
                         exit_code = run(command, check=False)
                     elif args.stage.startswith("answers-"):
                         codes, _ = answer_stage(args.stage)
