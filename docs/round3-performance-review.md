@@ -106,3 +106,27 @@ reported. No timing rerun is needed or justified to choose a faster result.
 This is a review of the performance candidate only. It does not decide the
 separate project-statistics quality experiment, qualify optional semantics,
 or complete the release by itself.
+
+## Cross-verification of the existing startup diagnostic
+
+The separately registered [startup-only diagnostic](../benchmarks/reports/round3-startup-review-43266672875-1/summary.json)
+had already completed as run `43266672875`, attempt 1. Its original result
+commit is `a129e324fb4af9e821325a797edb882beecc30a4`; the subsequent
+[resource decision](../benchmarks/experiments/round3-startup-resource-decision.json)
+at `e1a17c2f04a806e8a8d214c2d46c841749dfd266` agrees with this review.
+An additional [independent offline check](../benchmarks/reports/round3-recovery/startup-diagnostic-cross-verification.json)
+recomputed all 80 samples and verified each original worker's Git blob and
+SHA256 identity, the fixed schedule, registered files, pinned sources, empty
+databases, matching SQL/schema, and 64 unchanged startup AST components.
+This check executed no new startup measurements or retrieval calls. The prior
+preparation failure's measurement step was confirmed as skipped.
+
+The separate diagnostic retains a **+0.4799% plain startup mean** and
+**+5.8219% plain p95** change; the instrumented mean changes **−0.4883%**.
+Schema initialization accounts for approximately **94.4%** of instrumented
+wall time, including **13.5–13.8 ms** beyond process CPU. This supports a
+wait-dominated unchanged initialization stage, without identifying the OS
+cause of the historical long sample. These observations are not pooled with
+or substituted for the original formal results. The original **+14.0423%**
+mean, automatic `accepted: false`, and strict-audit scope remain unchanged;
+the resource decision explicitly accepts that disclosed cost.
