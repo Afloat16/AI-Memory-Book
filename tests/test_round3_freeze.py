@@ -1,4 +1,5 @@
 """Preparation safety tests use temporary Git and invented data; no downloads."""
+import io
 import json
 import os
 from pathlib import Path
@@ -131,6 +132,116 @@ class RoundThreeFreezeTests(unittest.TestCase):
                 self.assertEqual((root / "unrelated.txt").read_text(), "never publish")
                 with self.assertRaisesRegex(ValueError, "Another writer"):
                     freeze.publish(checkpoint, [binding], parent, "123-1", "fixture")
+
+    def test_helper_failure_exposes_only_fixed_component_and_exit(self):
+        with patch.object(freeze.subprocess, "run") as call, patch("sys.stderr", new_callable=io.StringIO) as output:
+            call.return_value.returncode = 7
+            call.return_value.stderr = b"private source and credential material"
+            call.return_value.stdout = b"private model output"
+            with self.assertRaises(ValueError):
+                freeze.helper(["scripts/prepare_semantic_model.py", "--output", "private-argument"])
+            diagnostic = json.loads(output.getvalue())
+            self.assertEqual(diagnostic["helper"], "prepare_semantic_model.py")
+            self.assertEqual(diagnostic["exit_code"], 7)
+            self.assertNotIn("private", output.getvalue())
+        with patch.object(freeze.subprocess, "run",
+                side_effect=subprocess.TimeoutExpired(["private-command"], 5, stderr=b"private-response")), \
+                patch("sys.stderr", new_callable=io.StringIO) as output:
+            with self.assertRaises(RuntimeError):
+                freeze.helper(["scripts/prepare_semantic_model.py"], timeout=5)
+            self.assertEqual(json.loads(output.getvalue())["status"], "timeout")
+            self.assertNotIn("private", output.getvalue())
+
+    def test_bootstrap_and_binding_are_published_before_selection_inputs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            binding = root / "benchmarks/experiments/round3-validation-binding.json"
+            manifest = root / "benchmarks/experiments/round3-hotpot256-manifest.json"
+            inventory = root / "benchmarks/experiments/round3-quality-recovery.json"
+            plan = root / "plan.json"
+            plan.write_text("{}")
+            quality = root / freeze.QUALITY
+            proof = quality / "recovery-proof.json"
+            published, events = [], []
+            current = ["a" * 40]
+            def git(*args, **_):
+                if args == ("rev-parse", "HEAD"):
+                    return current[0]
+                if args == ("rev-parse", "--show-toplevel"):
+                    return str(root)
+                if args == ("status", "--porcelain", "--untracked-files=no"):
+                    return ""
+                self.fail("Unexpected Git operation in artificial preparation flow")
+            def committed(path):
+                self.assertTrue(published)
+                self.assertIn(path.relative_to(root).as_posix(), published[-1]["outputs_sha256"])
+            def publish(checkpoint, outputs, parent, run, token):
+                value = json.loads(checkpoint.read_bytes())
+                self.assertEqual(set(value["outputs_sha256"]),
+                                 {path.relative_to(root).as_posix() for path in outputs})
+                published.append(value)
+                current[0] = str(len(published)).zfill(40)
+                return current[0]
+            def helper(arguments, **_):
+                component = arguments[0]
+                if component == "scripts/bootstrap_round3_quality_manifest.py":
+                    events.append("bootstrap")
+                    inventory.parent.mkdir(parents=True)
+                    inventory.write_text('{"fixture":"inventory"}')
+                elif component == "-m":
+                    committed(inventory)
+                    events.append("quality-fixtures")
+                elif component == "scripts/recover_round3_quality.py":
+                    committed(inventory)
+                    quality.mkdir(parents=True)
+                    proof.write_text('{"fixture":"recovered-public-evidence"}')
+                    events.append("recovery")
+                elif component == "scripts/prepare_semantic_model.py":
+                    committed(proof)
+                    events.append("model-bytes")
+                elif component == "scripts/round3_comparison.py":
+                    committed(inventory)
+                    committed(proof)
+                    events.append("bind")
+                    binding.write_text('{"fixture":"binding"}')
+                else:
+                    self.fail("Unexpected helper; no scoring or inference is allowed")
+            def durable(path, parent, run, token):
+                self.assertEqual(current[0], parent)
+                committed(path)
+                events.append("durable-binding")
+            def download(_url, path, _hash, _bytes):
+                committed(binding)
+                events.append("parquet")
+                path.parent.mkdir(parents=True)
+                path.write_bytes(b"artificial, unscored input")
+            def select(_data, frozen_binding, path):
+                committed(frozen_binding)
+                events.append("select")
+                path.write_text('{"fixture":"selection"}')
+            with patch.dict(os.environ, {**self.environment(), "GH_TOKEN": "fixture-token"}, clear=True), \
+                    patch.object(freeze, "ROOT", root), patch.object(freeze.comparison, "BINDING", binding), \
+                    patch.object(freeze.comparison, "MANIFEST", manifest), patch.object(freeze.comparison, "PLAN", plan), \
+                    patch.object(freeze, "git", side_effect=git), patch.object(freeze, "authorized_origin"), \
+                    patch.object(freeze, "remote_head", return_value=None), patch.object(freeze, "claim", return_value="c" * 40), \
+                    patch.object(freeze.comparison, "registered_plan", return_value={"protocol": "fixture"}), \
+                    patch.object(freeze, "publish", side_effect=publish), patch.object(freeze, "helper", side_effect=helper), \
+                    patch.object(freeze, "quality_disposition", return_value=([proof], {"qualified": False})), \
+                    patch.object(freeze, "snapshot"), patch.object(freeze.comparison, "verify_model"), \
+                    patch.object(freeze.comparison, "model_identity", return_value={}), \
+                    patch.object(freeze, "require_durable_binding", side_effect=durable), \
+                    patch.object(freeze.round3_data, "baseline_bytes", return_value=json.dumps({
+                        "source_url": "fixture://unused", "upstream_sha256": "fixture", "upstream_bytes": 0}).encode()), \
+                    patch.object(freeze, "checked_download", side_effect=download), \
+                    patch.object(freeze.round3_data, "freeze", side_effect=select), \
+                    patch.object(freeze.comparison, "require_committed", side_effect=committed):
+                self.assertEqual(freeze.run(), 0)
+            self.assertEqual(events, ["bootstrap", "quality-fixtures", "recovery", "model-bytes", "bind",
+                                     "durable-binding", "parquet", "durable-binding", "select"])
+            self.assertEqual(published[-1]["status"], "frozen-ready-for-comparison")
+            self.assertEqual(published[-1]["retrieval_calls"], 0)
+            self.assertEqual(published[-1]["model_inference_calls"], 0)
+            self.assertEqual(published[-1]["answer_calls"], 0)
 
 
 if __name__ == "__main__":

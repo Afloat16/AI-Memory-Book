@@ -31,7 +31,8 @@ CANDIDATE = "2d199b93f650eccd3dd239178822b31001b880e3"
 QUALITY = "benchmarks/reports/round3-project-stats-recovered"
 EXTRAS = ("scripts/run_round3_freeze.py", "tests/test_round3_freeze.py",
           ".github/workflows/round3-freeze.yml", "scripts/recover_round3_quality.py",
-          "tests/test_round3_quality_recovery.py", "benchmarks/experiments/round3-quality-recovery.json",
+          "scripts/bootstrap_round3_quality_manifest.py", "tests/test_round3_quality_recovery.py",
+          "benchmarks/experiments/round3-quality-recovery.json",
           "scripts/prepare_semantic_model.py", "benchmarks/prepare_native_data.py")
 
 
@@ -154,8 +155,21 @@ def publish(checkpoint_path, outputs, parent, run_id, token):
 
 
 def helper(arguments, timeout=600):
-    result = subprocess.run([sys.executable, *arguments], cwd=ROOT, env=clean_environment(),
-                            capture_output=True, timeout=timeout)
+    names = {path: Path(path).name for path in (
+        "scripts/bootstrap_round3_quality_manifest.py", "scripts/recover_round3_quality.py",
+        "scripts/prepare_semantic_model.py", "scripts/round3_comparison.py")}
+    component = "quality-recovery-fixtures" if arguments[:2] == ["-m", "unittest"] else names.get(
+        arguments[0] if arguments else "", "unrecognized-helper")
+    try:
+        result = subprocess.run([sys.executable, *arguments], cwd=ROOT, env=clean_environment(),
+                                capture_output=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        print(json.dumps({"event": "round3_preparation_helper_failure", "helper": component,
+            "status": "timeout", "timeout_seconds": timeout}), file=sys.stderr, flush=True)
+        raise RuntimeError("Preparation helper timed out; captured output omitted") from None
+    if result.returncode:
+        print(json.dumps({"event": "round3_preparation_helper_failure", "helper": component,
+            "status": "failed", "exit_code": result.returncode}), file=sys.stderr, flush=True)
     comparison.require(result.returncode == 0, "Preparation helper failed; captured output omitted")
 
 
@@ -253,7 +267,9 @@ def run():
             record["status"] = "completed"
             return value
         except BaseException as error:
-            record.update(status="failed", error_type=type(error).__name__)
+            record.update(status="failed", error_type=type(error).__name__,
+                failure=comparison.failure_diagnostic(error, stage="preparation:" + name,
+                    check="preparation_exception"))
             raise
         finally:
             record.update(finished_at=comparison.reused.now(), wall_ms=(time.perf_counter_ns() - started) / 1e6)
@@ -261,6 +277,18 @@ def run():
 
     success = False
     try:
+        def bootstrap_quality():
+            quality_manifest = ROOT / "benchmarks/experiments/round3-quality-recovery.json"
+            comparison.require(not quality_manifest.is_symlink(), "Unsafe recovery manifest")
+            if not quality_manifest.exists():
+                helper(["scripts/bootstrap_round3_quality_manifest.py"])
+            comparison.require(quality_manifest.is_file(), "Recovery manifest bootstrap did not complete")
+            preserve([quality_manifest])
+        # The generated inventory is committed before its fixture tests and
+        # recovery consume it, and remains immutable throughout binding.
+        stage("bootstrap_and_publish_quality_inventory", bootstrap_quality)
+        stage("check_quality_recovery_fixtures",
+              lambda: helper(["-m", "unittest", "tests.test_round3_quality_recovery", "-v"], timeout=180))
         def recover():
             helper(["scripts/recover_round3_quality.py"])
             files, disposition = quality_disposition(quality)
@@ -296,7 +324,8 @@ def run():
         checkpoint.update(status="frozen-ready-for-comparison", finished_at=comparison.reused.now())
         success = True
     except BaseException as error:
-        checkpoint.update(status="failed-incomplete", error_type=type(error).__name__, finished_at=comparison.reused.now())
+        checkpoint.update(status="failed-incomplete", error_type=type(error).__name__, finished_at=comparison.reused.now(),
+            failure=comparison.failure_diagnostic(error, stage="freeze-controller", check="controller_exception"))
     finally:
         persist()
     print(json.dumps({"status": checkpoint["status"], "result_branch": checkpoint["result_branch"],
@@ -310,5 +339,5 @@ if __name__ == "__main__":
         raise SystemExit(run())
     except Exception as error:
         # Do not echo subprocess exceptions, URLs, model bytes or credentials.
-        print(json.dumps({"status": "preparation-controller-error", "error_type": type(error).__name__}), file=sys.stderr)
+        comparison.failure_diagnostic(error, stage="freeze-controller", check="preparation_boundary")
         raise SystemExit(2)
