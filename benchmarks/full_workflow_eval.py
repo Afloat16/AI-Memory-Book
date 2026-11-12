@@ -19,7 +19,6 @@ import secrets
 import socket
 import statistics
 import subprocess
-import tarfile
 import threading
 import time
 from urllib import error, parse, request
@@ -31,6 +30,7 @@ from benchmarks.answer_eval import (PROMPT, NoRedirect, answer_scores, call_endp
 from benchmarks.competitors.ai_memory import LOCK_PATH, prepare, prepare_models
 from benchmarks.run import engine_source_hash
 from benchmarks.resume import _lock
+from benchmarks.local_answer_server import verified_runtime
 from benchmarks.token_compare import TokenCounter, checkout_provenance, latency_summary
 from benchmarks.transfer_data import DATA, load_transfer
 
@@ -72,30 +72,17 @@ def model_server(args, root):
         yield {"ownership": "external", "artifact_verification": "unverified external process",
                "endpoint": args.base_url}
         return
-    pinned = json.loads((HERE / "experiments/local-answer-plan.json").read_bytes())
     cache = args.model_cache.resolve()
-    model = cache / pinned["model"]["file"]
-    archive = cache / pinned["server"]["asset"]
-    if (model.stat().st_size != pinned["model"]["bytes"] or file_sha256(model) != pinned["model"]["sha256"]
-            or archive.stat().st_size != pinned["server"]["bytes"] or file_sha256(archive) != pinned["server"]["sha256"]):
-        raise ValueError("Pinned generation artifact integrity failed")
-    binary_root = cache / pinned["server"]["tag"]
-    # Check every extracted regular runtime file against the verified archive.
-    # This includes dependent shared libraries, not just the launcher executable.
-    with tarfile.open(archive, "r:gz") as package:
-        for member in package.getmembers():
-            if member.isfile():
-                path = (binary_root / member.name).resolve()
-                path.relative_to(binary_root.resolve())
-                stream = package.extractfile(member)
-                if stream is None or file_sha256(path) != hashlib.sha256(stream.read()).hexdigest():
-                    raise ValueError("Extracted llama runtime differs from its pinned archive")
-    binaries = list(binary_root.rglob("llama-server"))
-    if len(binaries) != 1:
-        raise ValueError("Expected one pinned llama-server")
-    binary = binaries[0]
+    # Share the strict file/link verifier with the answer experiment. Its
+    # 4096-context command is not launched here: this workflow retains its
+    # independently registered 16384-context command below.
+    runtime = verified_runtime(cache)
+    binary = Path(runtime["argv"][0])
+    model = Path(runtime["argv"][runtime["argv"].index("--model") + 1])
     endpoint = parse.urlsplit(args.base_url)
-    if endpoint.hostname != "127.0.0.1" or endpoint.port is None or endpoint.path != "/v1":
+    if (endpoint.scheme != "http" or endpoint.hostname != "127.0.0.1"
+            or endpoint.port is None or endpoint.path != "/v1"
+            or endpoint.username or endpoint.password or endpoint.query or endpoint.fragment):
         raise ValueError("Self-launch needs an explicit http://127.0.0.1:PORT/v1 endpoint")
     with socket.socket() as probe:
         probe.bind(("127.0.0.1", endpoint.port))
@@ -105,12 +92,15 @@ def model_server(args, root):
     log_path = root / "llama-server.log"
     with log_path.open("ab") as log:
         start = time.perf_counter()
-        options = {"pass_fds": (args.lock_fd,)} if os.name != "nt" else {}
+        lock_fd = getattr(args, "lock_fd", None)
+        options = {"pass_fds": (lock_fd,)} if os.name != "nt" and lock_fd is not None else {}
         process = subprocess.Popen(argv, stdout=log, stderr=log,
             env={"PATH": os.defpath, "LANG": "C.UTF-8", "LD_LIBRARY_PATH": str(binary.parent)}, **options)
         metadata = {"ownership": "spawned_by_this_runner", "argv": argv,
-                    "model_sha256": file_sha256(model), "archive_sha256": file_sha256(archive),
-                    "extracted_binary_sha256": file_sha256(binary), "server_pid": process.pid}
+                    "model_sha256": runtime["model_sha256"], "archive_sha256": runtime["server_archive_sha256"],
+                    "extracted_binary_sha256": file_sha256(binary), "server_pid": process.pid,
+                    "runtime_files": runtime["runtime_files"], "runtime_symlinks": runtime["runtime_symlinks"],
+                    "runtime_unchanged": None, "completed": False}
         try:
             deadline = time.monotonic() + 120
             opener = request.build_opener(request.ProxyHandler({}), NoRedirect())
@@ -129,6 +119,9 @@ def model_server(args, root):
                 time.sleep(.1)
             metadata["ready_ms"] = (time.perf_counter() - start) * 1000
             yield metadata
+            if process.poll() is not None:
+                raise RuntimeError("Owned workflow model server exited during evaluation")
+            metadata["completed"] = True
         finally:
             if process.poll() is None:
                 process.terminate()
@@ -140,6 +133,18 @@ def model_server(args, root):
             log.flush()
             metadata["log_sha256"] = file_sha256(log_path)
             metadata["exit_code"] = process.returncode
+            try:
+                metadata["runtime_unchanged"] = verified_runtime(cache) == runtime
+                if not metadata["runtime_unchanged"]:
+                    raise ValueError("Owned workflow model runtime changed during evaluation")
+            except BaseException:
+                metadata["runtime_unchanged"] = False
+                metadata["completed"] = False
+                raise
+            finally:
+                # Preserve final verification even when a failure prevents the
+                # outer workflow from producing its normal completion report.
+                append(root / "model-server-verification.jsonl", metadata)
 
 
 def inputs():
@@ -573,7 +578,8 @@ def run_locked(args):
     files = [Path(__file__), PLAN, ANSWERS, HERE / "answer_eval.py", HERE / "token_compare.py",
              HERE / "transfer_data.py", HERE / "data.py", HERE / "run.py", HERE / "resume.py", DATA, LOCK_PATH,
              HERE / "competitors/ai_memory.py", HERE / "competitors/download.py",
-             HERE / "experiments/local-answer-plan.json"]
+             HERE / "experiments/local-answer-plan.json", HERE / "local_answer_server.py",
+             HERE / "experiments/local-answer-execution.json"]
     identity = {"source_sha256": engine_source_hash(source), "inputs": {str(p.relative_to(HERE.parent)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files},
                 "registered_checkout_source_sha256": engine_source_hash(HERE.parent / "src"),
                 "sessions_sha256": digest(sessions), "model": args.model, "endpoint": args.base_url,

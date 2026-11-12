@@ -402,12 +402,25 @@ def call_endpoint(url: str, body: dict, api_key: str | None, timeout: float) -> 
                   "provider_usage": provider_usage(response.get("usage")),
                   "response_sha256": hashlib.sha256(raw).hexdigest()}
     except (error.URLError, HTTPException, TimeoutError, OSError, ValueError, KeyError, TypeError) as exc:
+        # Failed HTTP responses can still report consumed tokens. Read only
+        # the bounded body and retain numeric usage, never arbitrary error text.
+        if isinstance(exc, error.HTTPError):
+            try:
+                with exc:
+                    raw = exc.read(MAX_RESPONSE_BYTES + 1)
+                if len(raw) <= MAX_RESPONSE_BYTES:
+                    response = json.loads(raw)
+            except (OSError, HTTPException, ValueError, TypeError):
+                pass
         # Never log arbitrary server/error text, request headers, or credentials.
         result = {"status": "error", "error_type": type(exc).__name__,
                   "http_status": exc.code if isinstance(exc, error.HTTPError) else None,
                   "answer": None, "provider_usage": provider_usage(
                       response.get("usage") if isinstance(response, dict) else None),
                   "response_sha256": hashlib.sha256(raw).hexdigest() if raw else None}
+        if len(raw) > MAX_RESPONSE_BYTES:
+            # This digest binds the captured prefix, not the complete body.
+            result["response_body_truncated"] = True
         if contains_secret(response, api_key):
             result["error_reason"] = "credential_echo_in_response"
     result["endpoint_roundtrip_ms"] = (time.perf_counter_ns() - start) / 1e6

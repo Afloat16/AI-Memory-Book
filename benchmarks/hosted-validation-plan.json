@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "registered_at": "2026-11-12",
+  "reason": "Continue exact registered measurements after the chat executor disconnected; historical completed artifacts remain immutable.",
+  "runtime_pins": {
+    "baseline": "5abc85eef00097555366f8524fc81f8b5711ad7a",
+    "candidate": "407cda1c5f1dac0e67dfe527d3c23febdad5e818"
+  },
+  "stages": [
+    "native-regression-synthetic883",
+    "native-regression-synthetic1297",
+    "native-regression-public1015",
+    "native-regression-authored36",
+    "native-external-hotpot128",
+    "semantic-development-synthetic61",
+    "semantic-regression-authored36",
+    "semantic-regression-public1015",
+    "semantic-external-hotpot128",
+    "answers-locomo",
+    "answers-hotpotqa",
+    "workflow-transfer36"
+  ],
+  "measurement_rule": "Each cohort uses its own VM. Paired modes stay sequential. Cohorts, budgets, tokenizers, sources, models and repetitions remain unchanged. Record platform/packages per cohort; never pool latencies across hosts.",
+  "publication": "Each job stages only explicit public reports, checkpoints and completion/failure markers, then pushes a unique validation result branch with its repository-scoped Actions token. Raw datasets, prompts, weights and credentials are excluded. Root review integrates results into main.",
+  "failures": "A failed or interrupted stage is not complete. No automatic replay of ambiguous model requests. Original checkpoints/results stay immutable.",
+  "prerequisite": "Hosted runners and verified data/model downloads are infrastructure changes, not a new retrieval policy."
+}

@@ -1,0 +1,84 @@
+name: Complete registered memory validation
+
+on:
+  push:
+    branches: ['ci/complete-memory-validation']
+    paths:
+      - '.github/workflows/complete-validation.yml'
+      - 'scripts/run_hosted_validation.py'
+      - 'benchmarks/hosted-validation-plan.json'
+      - 'benchmarks/answer_eval.py'
+      - 'benchmarks/full_workflow_eval.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: complete-memory-validation
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    outputs:
+      stages: ${{ steps.plan.outputs.stages }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e ".[mcp,clients,tokens,semantic]" pyarrow
+      - run: python -m unittest discover -s tests -v
+      - id: plan
+        run: |
+          python - <<'PY'
+          import json, os
+          from scripts.run_hosted_validation import choices
+          plan = json.load(open("benchmarks/hosted-validation-plan.json"))
+          stages = plan["stages"]
+          if len(stages) != len(set(stages)) or any(stage not in choices() for stage in stages):
+              raise ValueError("Invalid or duplicate registered stage")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write("stages=" + json.dumps(stages, separators=(",", ":")) + "\n")
+          PY
+
+  cohort:
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        stage: ${{ fromJSON(needs.verify.outputs.stages) }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e ".[mcp,clients,tokens,semantic]" pyarrow
+      - name: Run and save the registered cohort
+        env:
+          VALIDATION_STAGE: ${{ matrix.stage }}
+        run: python -u scripts/run_hosted_validation.py --stage "$VALIDATION_STAGE" --publish
+      - name: Preserve public diagnostic outputs even after failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: public-${{ matrix.stage }}-${{ github.run_attempt }}
+          path: |
+            benchmarks/reports/hosted-*
+            benchmarks/results/native-completion-*
+            benchmarks/results/semantic-final-*
+            benchmarks/results/local-answer-final-*
+            benchmarks/results/full-workflow-transfer36*
+            benchmarks/RESULTS-full-workflow.md
+          if-no-files-found: warn
+          retention-days: 30
