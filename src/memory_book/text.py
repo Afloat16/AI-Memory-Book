@@ -15,6 +15,7 @@ from itertools import islice
 
 CJK = r"\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff"
 RUNS = re.compile(rf"[{CJK}]+|[^\W_{CJK}]+(?:[_./:-][^\W_{CJK}]+)*", re.UNICODE)
+ASCII_RUNS = re.compile(r"[a-z0-9]+")
 CJK_RUN = re.compile(rf"^[{CJK}]+$")
 CJK_CHARACTER = re.compile(rf"[{CJK}]")
 CAMEL_BOUNDARY = re.compile(r"([a-z])([A-Z])")
@@ -24,13 +25,26 @@ STOP = frozenset("a an the is are was were be been to of in on at for from and o
 ZH_STOP = frozenset("什么 怎么 如何 为什么 哪个 哪些 是否 现在 当前 最后 最终 我们 这个 那个 一个 一下 请问 告诉 多少 了吗 的是 是什 么的 如何 何时 怎样".split())
 
 
+def _strip_nonspacing_marks(text: str) -> str:
+    """Remove category Mn without changing the caller's normalization order."""
+    removed = {ord(c): None for c in set(text) if unicodedata.category(c) == "Mn"}
+    return text.translate(removed) if removed else text
+
+
 def terms(text: str, *, query: bool = False) -> list[str]:
     """NFKC text -> English words/identifier pieces and Chinese bigrams."""
     if not text.isascii():
         text = unicodedata.normalize("NFKC", text)
     text = CAMEL_BOUNDARY.sub(r"\1 \2", text).casefold()
     if not text.isascii():
-        text = "".join(c for c in unicodedata.normalize("NFKD", text) if unicodedata.category(c) != "Mn")
+        # Normalize the whole string first: canonical ordering can cross
+        # character boundaries. Only the category lookup/deletion is reused.
+        text = _strip_nonspacing_marks(unicodedata.normalize("NFKD", text))
+    if text.isascii():
+        # After case folding, the Unicode/identifier rule reduces exactly to
+        # lowercase ASCII alphanumeric runs; its separators never add tokens.
+        parts = ASCII_RUNS.findall(text)
+        return [part for part in parts if part not in STOP] if query else parts
     if query:
         # Remove complete Chinese question phrases before bigramming; otherwise
         # 为什么 leaves the meaningless fragment 为什 as a retrieval feature.
@@ -107,6 +121,30 @@ def _evidence_units(text: str, width: int) -> list[tuple[int, int]]:
     return units
 
 
+def _fold_excerpt_source(text: str) -> tuple[str, list[int]]:
+    """Reuse the existing per-character fold while retaining exact offsets.
+
+    This is intentionally the historical source-map transform, not whole-text
+    NFKD. The local cache retains no text between excerpts or recall calls.
+    """
+    folded, positions = [], []
+    character_folds: dict[str, tuple[str, int]] = {}
+    for index, character in enumerate(text):
+        entry = character_folds.get(character)
+        if entry is None:
+            piece = "".join(c for c in unicodedata.normalize("NFKD", character).casefold()
+                            if unicodedata.category(c) != "Mn")
+            entry = (piece, len(piece))
+            character_folds[character] = entry
+        piece, size = entry
+        folded.append(piece)
+        if size == 1:
+            positions.append(index)
+        elif size:
+            positions.extend([index] * size)
+    return "".join(folded), positions
+
+
 def excerpt(text: str, query: str, max_chars: int, *, prepared_terms: list[str] | None = None) -> tuple[str, list[tuple[int, int]]]:
     """Return one bounded original-text window and exact character offsets.
 
@@ -132,12 +170,7 @@ def excerpt(text: str, query: str, max_chars: int, *, prepared_terms: list[str] 
                           not any(unicodedata.category(c) == "Mn" for c in set(lower)))))
     source_positions = None
     if not identity_offsets:
-        folded, source_positions = [], []
-        for index, character in enumerate(text):
-            piece = "".join(c for c in unicodedata.normalize("NFKD", character).casefold() if unicodedata.category(c) != "Mn")
-            folded.append(piece)
-            source_positions.extend([index] * len(piece))
-        lower = "".join(folded)
+        lower, source_positions = _fold_excerpt_source(text)
     positions: list[tuple[int, str]] = []
     for term in q:
         for match in islice(re.finditer(re.escape(term), lower), 40):
