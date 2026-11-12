@@ -1,0 +1,29 @@
+{
+  "protocol": "indexed-source-references-operator-v1",
+  "registration": "Operator-level adjustment registered after the separate per-call-parameter prototype and before implementation or formal operator-mode measurement.",
+  "prototype_result_commit": "e96fca24bf80f38d0aa857a2ea11c8037a79a1ae",
+  "prototype_report_sha256": "9cdc8713d01fd1bc1ea925a12c63f5c92207070a944ed9268a5ce3b5d761d109",
+  "unchanged_default_runtime_reference": "841cedb0cc52ff2b199e7c24832b64973a2e306d",
+  "change": "create_server/serve source_format defaults to objects; memory-book mcp --source-format indexed explicitly selects indexed-v1 for recall results. HTTP serve and existing client configurations are unchanged. No per-query tool parameter or automatic selection is introduced.",
+  "encoding": "After the complete existing compact/details projection, source_sessions lists distinct [project,session_id] pairs. Each source_refs entry is [session_index,turn_index] or [session_index,turn_index,all_other_original_fields]. Only indexed responses add source_format=indexed-v1.",
+  "compatibility_gates": [
+    "Default objects tool schemas, instructions and serialized payloads stay byte-compatible with the frozen original SDK and payload fixtures.",
+    "Indexed and objects tool schemas and arguments are identical. Only indexed initialization instructions explain the table, version and optional extras.",
+    "Every indexed value decodes to the complete objects JSON value. Actual independent SDK calls may differ only in the existing latency_ms diagnostic.",
+    "All source refs, offsets, message indices, roles, context, warnings and page IDs are preserved; no source ranking, storage or token-budget changes."
+  ],
+  "runtime_files_allowed": ["src/memory_book/mcp_server.py", "src/memory_book/cli.py"],
+  "measurement": {
+    "cohorts": ["synthetic61", "public1015"],
+    "queries": [168, 1015],
+    "budget_chars": [2000, 4000, 8000],
+    "details": [false, true],
+    "tokenizers": ["cl100k_base", "o200k_base"],
+    "rounds": 4,
+    "order": "objects/indexed in even rounds, indexed/objects in odd rounds; sequential workers on one hosted VM, identical shuffled query order per paired setting",
+    "cache": "Clear and commit recall_cache before every timed actual SDK stdio call; exclude the clear, retain the ordinary server cache-write cost.",
+    "costs": "Measure actual schema, initialization instructions, unchanged arguments, response text and SDK envelope. First-call net savings include all added metadata; report all per-query losses, detailed-mode outcomes and later-call costs with metadata reuse. Host prompt formatting/billing is not inferred.",
+    "latency": "All rounds and all 12 configurations retained, including regressions. No model calls or new blind data. Old performance reports and prototype results remain immutable."
+  },
+  "sequence": "Save and test the complete runtime implementation first for source freeze. The independent full transport measurement follows on that frozen runtime and saves new reports; results do not retune the implementation."
+}
