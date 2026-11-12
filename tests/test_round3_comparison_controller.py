@@ -1,6 +1,7 @@
 """Fake-flow and local bare-Git tests; no source cohort, model or remote calls."""
 import copy
 import gzip
+import io
 import json
 import os
 from pathlib import Path
@@ -31,7 +32,7 @@ class RoundThreeControllerTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     controller.actions_identity()
 
-    def run_fake_flow(self, root, *, interrupted):
+    def run_fake_flow(self, root, *, interrupted, error_message="fabricated process termination"):
         binding = {"optional_project_statistics": False,
             "baseline": {"commit": "b" * 40}, "candidate": {"commit": "c" * 40}}
         declaration = {"protocol": "fixture"}
@@ -52,7 +53,7 @@ class RoundThreeControllerTests(unittest.TestCase):
             state.mkdir(parents=True)
             (state / "attempts.jsonl").write_text('{"event":"started","id":"invented"}\n')
             if interrupted:
-                raise TimeoutError("fabricated process termination")
+                raise TimeoutError(error_message)
             if len(commands) > 1:
                 previous = c.stages(binding)[len(commands) - 2]
                 self.assertEqual(published[-1]["stages"][previous]["status"], "completed")
@@ -81,9 +82,11 @@ class RoundThreeControllerTests(unittest.TestCase):
         return code, published, commands, audit
 
     def test_timeout_preserves_partial_ledger_and_stops_later_workers(self):
-        with tempfile.TemporaryDirectory() as directory:
+        sensitive = "QUERY:private-source ANSWER:unpublished-value TOKEN:secret-provider-token"
+        stderr = io.StringIO()
+        with tempfile.TemporaryDirectory() as directory, patch("sys.stderr", stderr):
             root = Path(directory)
-            code, published, commands, audit = self.run_fake_flow(root, interrupted=True)
+            code, published, commands, audit = self.run_fake_flow(root, interrupted=True, error_message=sensitive)
             self.assertEqual(code, 2)
             self.assertEqual(len(commands), 1)
             audit.assert_not_called()
@@ -93,6 +96,18 @@ class RoundThreeControllerTests(unittest.TestCase):
             output = next(iter(checkpoint["stages"]["export"]["outputs"]))
             self.assertTrue(output.endswith(".attempts.jsonl.gz"))
             self.assertEqual(gzip.decompress((root / output).read_bytes()), b'{"event":"started","id":"invented"}\n')
+            diagnostics = [checkpoint["stages"]["export"]["failure"], checkpoint["failure"]]
+            emitted = [json.loads(line) for line in stderr.getvalue().splitlines()]
+            self.assertEqual(emitted, [{"event": "round3_failure", **item} for item in diagnostics])
+            self.assertNotIn(sensitive, json.dumps(published) + stderr.getvalue())
+            for item in diagnostics:
+                self.assertEqual(set(item), {"check", "stage", "error_type", "frames"})
+                self.assertEqual(item["error_type"], "TimeoutError")
+                for frame in item["frames"]:
+                    self.assertEqual(set(frame), {"file", "line", "function"})
+                    self.assertFalse(Path(frame["file"]).is_absolute())
+                    self.assertNotIn("..", Path(frame["file"]).parts)
+                    self.assertIsInstance(frame["line"], int)
 
     def test_every_worker_is_durable_before_next_and_exact_source_mapping(self):
         with tempfile.TemporaryDirectory() as directory:
