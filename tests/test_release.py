@@ -1,7 +1,9 @@
 """Small release-integrity fixtures; no GitHub calls or package installations."""
 import copy
 import io
+import os
 from pathlib import Path
+import subprocess
 import tarfile
 import tempfile
 import unittest
@@ -12,6 +14,104 @@ from scripts import release
 
 
 class ReleaseTests(unittest.TestCase):
+    def test_creation_uses_returned_id_without_a_listing_or_write_retry(self):
+        draft = {"id": 17, "tag_name": "v0.3.1", "target_commitish": "a" * 40,
+                 "draft": True, "prerelease": True}
+        with patch.object(release, "api", return_value=draft) as api, \
+                patch.object(release, "find_release", side_effect=AssertionError("must use returned ID")):
+            self.assertEqual(release.create_draft("v0.3.1", "a" * 40, "notes\nwith lines"), draft)
+            api.assert_called_once_with("releases", body={"tag_name": "v0.3.1", "target_commitish": "a" * 40,
+                "name": "v0.3.1", "body": "notes\nwith lines", "draft": True, "prerelease": True, "make_latest": "false"})
+        with patch.object(release, "api", side_effect=ValueError("write failed")) as api, \
+                self.assertRaises(ValueError):
+            release.create_draft("v0.3.1", "a" * 40, "notes")
+        self.assertEqual(api.call_count, 1)
+
+    def test_tag_visibility_poll_is_bounded_and_never_retries_writes(self):
+        tag = {"object": {"sha": "a" * 40, "type": "commit"}}
+        with patch.object(release, "api", side_effect=[None, tag]) as api, patch.object(release.time, "sleep") as sleep:
+            self.assertEqual(release.visible_tag("v0.3.1", "a" * 40), tag)
+            self.assertEqual(api.call_count, 2)
+            self.assertTrue(all(call.kwargs == {"missing": True} for call in api.call_args_list))
+            sleep.assert_called_once_with(1)
+        with patch.object(release, "api", return_value=None) as api, patch.object(release.time, "sleep"), \
+                self.assertRaisesRegex(ValueError, "no write was retried"):
+            release.visible_tag("v0.3.1", "a" * 40)
+        self.assertEqual(api.call_count, 4)
+        with patch.object(release, "api", return_value=tag), patch.object(release.time, "sleep") as sleep, \
+                self.assertRaises(ValueError):
+            release.visible_tag("v0.3.1", "b" * 40)
+        sleep.assert_not_called()
+
+    def test_release_visibility_checks_identity_and_waits_only_for_expected_state(self):
+        draft = {"id": 17, "tag_name": "v0.3.1", "target_commitish": "a" * 40,
+                 "draft": True, "assets": []}
+        complete = {**draft, "assets": [{"name": "one.whl", "state": "uploaded"}]}
+        with patch.object(release, "api", side_effect=[None, draft, complete]) as api, \
+                patch.object(release.time, "sleep") as sleep:
+            self.assertEqual(release.visible_release(17, "v0.3.1", "a" * 40, draft=True,
+                                                    asset_names={"one.whl"}), complete)
+            self.assertEqual(api.call_count, 3)
+            self.assertEqual([call.args for call in sleep.call_args_list], [(1,), (2,)])
+            self.assertTrue(all("body" not in call.kwargs for call in api.call_args_list))
+        for bad in ({**draft, "target_commitish": "b" * 40}, {**draft, "draft": False},
+                    {**draft, "assets": [{"name": "unexpected", "state": "uploaded"}]}):
+            with self.subTest(bad=bad), patch.object(release, "api", return_value=bad) as api, \
+                    patch.object(release.time, "sleep") as sleep, self.assertRaises(ValueError):
+                release.visible_release(17, "v0.3.1", "a" * 40, draft=True, asset_names={"one.whl"})
+            api.assert_called_once()
+            sleep.assert_not_called()
+        published = {**complete, "draft": False}
+        with patch.object(release, "api", side_effect=[complete, published]), patch.object(release.time, "sleep"):
+            self.assertEqual(release.visible_release(17, "v0.3.1", "a" * 40, draft=False), published)
+
+    def test_an_already_published_release_only_reconciles_without_any_remote_write(self):
+        identity = {"version": "0.3.1", "tag": "v0.3.1", "commit": "a" * 40}
+        names = ["asset-" + str(i) for i in range(7)]
+        published = {"id": 17, "tag_name": identity["tag"], "target_commitish": identity["commit"],
+                     "draft": False, "prerelease": True, "html_url": "https://github.com/example/release",
+                     "assets": [{"name": name, "state": "uploaded"} for name in names]}
+        def read_api(path, **kwargs):
+            self.assertNotIn("body", kwargs)
+            if path.startswith("git/ref/"):
+                return {"object": {"sha": identity["commit"], "type": "commit"}}
+            self.assertEqual(path, "releases/17")
+            return published
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            output = root / "assets"
+            output.mkdir()
+            for name in names:
+                (output / name).write_bytes(b"fixture")
+            notes = root / "docs/releases/v0.3.1.md"
+            notes.parent.mkdir(parents=True)
+            notes.write_text("Release fixture")
+            job_output = root / "outputs"
+            env = {"GITHUB_ACTIONS": "true", "GITHUB_REPOSITORY": release.REPOSITORY,
+                   "GITHUB_EVENT_NAME": "push", "GITHUB_SHA": identity["commit"],
+                   "GITHUB_REF": "refs/heads/release/v0.3.1", "GITHUB_OUTPUT": str(job_output)}
+            with patch.object(release, "ROOT", root), patch.dict(os.environ, env), \
+                    patch.object(release.sys, "argv", ["release.py", "--output", str(output)]), \
+                    patch.object(release, "source_identity", return_value=(identity, {})), \
+                    patch.object(release, "command", return_value=subprocess.CompletedProcess([], 0, b"gh version 2.1.0", b"")) as command, \
+                    patch.object(release, "api", side_effect=read_api), \
+                    patch.object(release, "ci_gate", return_value={"html_url": "https://github.com/ci"}), \
+                    patch.object(release, "find_release", return_value=published), \
+                    patch.object(release, "prepare", return_value=identity), \
+                    patch.object(release, "verify_remote_assets") as verify, \
+                    patch.object(release, "create_draft", side_effect=AssertionError("must not create")), \
+                    patch.object(release.sys, "stdout", new_callable=io.StringIO) as stdout:
+                release.main()
+                self.assertIn('"reconciled_read_only": true', stdout.getvalue())
+            command.assert_called_once_with(["gh", "--version"], check=False)
+            verify.assert_called_once_with(published, output, complete=True)
+            self.assertEqual(job_output.read_text(), f"tag=v0.3.1\nversion=0.3.1\ncommit={identity['commit']}\n")
+
+    def test_failure_diagnostic_contains_status_but_not_response_secrets(self):
+        result = subprocess.CompletedProcess([], 1, b"", b"HTTP 403\nAuthorization: secret-token https://private.invalid/path")
+        self.assertEqual(release.failure_summary(result, "GitHub API releases"),
+                         "GitHub API releases failed (exit=1, http=403)")
+
     def test_draft_lookup_paginates_and_rejects_duplicate_tags(self):
         first = [{"id": i + 1, "tag_name": "other-" + str(i)} for i in range(100)]
         draft = {"id": 101, "tag_name": "v0.3.0", "draft": True, "target_commitish": "a" * 40}

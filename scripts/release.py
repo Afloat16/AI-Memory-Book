@@ -21,6 +21,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import time
 from urllib.parse import quote
 import zipfile
 
@@ -32,6 +33,7 @@ EXPECTED_JOBS = {"core (3.10)", "core (3.12)", "core (3.13)", "mcp", "reader-bro
                  "installers (windows-latest)", "container"}
 MAX_ARCHIVE_BYTES = 10 * 1024 * 1024
 INSTALLERS = ("install.py", "install.sh", "install.ps1")
+READ_DELAYS = (1, 2, 4)
 
 
 def require(value, message):
@@ -51,6 +53,12 @@ def clean_environment():
     return env
 
 
+def failure_summary(result, stage):
+    """Keep exit/status diagnostics without echoing response bodies or tokens."""
+    status = re.search(rb"HTTP(?:/\d(?:\.\d)?)?\s+(\d{3})", result.stderr)
+    return f"{stage} failed (exit={result.returncode}, http={status[1].decode() if status else 'unavailable'})"
+
+
 def command(argv, *, cwd=ROOT, env=None, data=None, check=True):
     result = subprocess.run(argv, cwd=cwd, env=env, input=data, capture_output=True, timeout=300)
     if check and result.returncode:
@@ -62,7 +70,7 @@ def command(argv, *, cwd=ROOT, env=None, data=None, check=True):
                     tail = tail.replace(os.environ[name], "[redacted]")
             print(tail, file=sys.stderr)
         # GitHub responses, credential URLs and headers are never echoed.
-        raise RuntimeError("Command failed: " + Path(argv[0]).name + " " + str(argv[1]))
+        raise RuntimeError(failure_summary(result, Path(argv[0]).name + " " + str(argv[1])))
     return result
 
 
@@ -79,7 +87,7 @@ def api(path, *, body=None, missing=False):
     result = command(argv, data=data, check=False)
     if result.returncode and missing and b"HTTP 404" in result.stderr:
         return None
-    require(result.returncode == 0, "GitHub API request failed: " + path.split("?")[0])
+    require(result.returncode == 0, failure_summary(result, "GitHub API " + path.split("?")[0]))
     return json.loads(result.stdout)
 
 
@@ -103,6 +111,66 @@ def release_by_id(release_id, tag, head, *, draft):
             and value["target_commitish"] == head and value["draft"] is draft,
             "Release ID/tag/source/state differs")
     return value
+
+
+def visible_tag(tag, head):
+    """Poll only GET visibility after creation; never repeat a write."""
+    for attempt in range(len(READ_DELAYS) + 1):
+        value = api("git/ref/tags/" + quote(tag), missing=True)
+        if value is not None:
+            require(value["object"]["sha"] == head and value["object"]["type"] == "commit",
+                    "Existing tag must directly identify this exact commit; never move tags")
+            return value
+        if attempt < len(READ_DELAYS):
+            time.sleep(READ_DELAYS[attempt])
+    raise ValueError("Created tag is not yet readable; no write was retried")
+
+
+def visible_release(release_id, tag, head, *, draft, asset_names=None):
+    require(type(release_id) is int and release_id > 0, "Expected a release ID")
+    for attempt in range(len(READ_DELAYS) + 1):
+        value = api(f"releases/{release_id}", missing=True)
+        if value is not None:
+            require(value["id"] == release_id and value["tag_name"] == tag
+                    and value["target_commitish"] == head, "Release ID/tag/source differs")
+            require(not (draft and not value["draft"]), "Refuse to mutate a public release")
+            ready = value["draft"] is draft
+            if asset_names is not None:
+                names = [a["name"] for a in value["assets"]]
+                require(len(names) == len(set(names)) and set(names) <= set(asset_names),
+                        "Unexpected or duplicate release asset; never overwrite")
+                ready = ready and set(names) == set(asset_names) and all(
+                    a["state"] == "uploaded" for a in value["assets"])
+            if ready:
+                return value
+        if attempt < len(READ_DELAYS):
+            time.sleep(READ_DELAYS[attempt])
+    raise ValueError("Release state/assets are not yet readable; no write was retried")
+
+
+def create_draft(tag, head, notes):
+    """The creation response is authoritative; listing can lag behind it."""
+    value = api("releases", body={"tag_name": tag, "target_commitish": head,
+        "name": tag, "body": notes, "draft": True, "prerelease": True, "make_latest": "false"})
+    require(type(value.get("id")) is int and value["id"] > 0 and value["tag_name"] == tag
+            and value["target_commitish"] == head and value["draft"] and value["prerelease"],
+            "Created draft does not match the requested release")
+    return value
+
+
+def finish_release(identity, release, output, *, reconciled=False):
+    """Final reconciliation is read-only, including after an interrupted publish."""
+    head, tag = identity["commit"], identity["tag"]
+    require(not release["draft"] and release["prerelease"], "Published release must remain experimental")
+    require(release["target_commitish"] == head and release["tag_name"] == tag,
+            "Published release identity differs")
+    visible_tag(tag, head)
+    verify_remote_assets(release, output, complete=True)
+    if os.environ.get("GITHUB_OUTPUT"):
+        with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as stream:
+            stream.write(f"tag={tag}\nversion={identity['version']}\ncommit={head}\n")
+    print(json.dumps({"published": release["html_url"], "tag": tag, "commit": head,
+                      "assets": 7, "reconciled_read_only": reconciled}))
 
 
 def successful_ci(runs, head):
@@ -316,11 +384,14 @@ def main():
     head, tag = identity["commit"], identity["tag"]
     require(os.environ.get("GITHUB_SHA") == head and os.environ.get("GITHUB_REF") == "refs/heads/release/" + tag,
             "Release ref/version/head mismatch")
+    version_output = command(["gh", "--version"], check=False).stdout
+    version_match = re.search(rb"gh version [0-9]+\.[0-9]+\.[0-9]+", version_output)
+    print(version_match[0].decode() if version_match else "gh version unavailable")
     require(api("git/ref/heads/main")["object"]["sha"] == head, "main must point to the exact release commit")
     run = ci_gate(head)
     release = find_release(tag)
-    require(release is None or (release["draft"] and release["target_commitish"] == head),
-            "Refuse a public release or a draft belonging to another commit")
+    require(release is None or release["target_commitish"] == head,
+            "Refuse a release belonging to another commit")
     ref = api("git/ref/tags/" + quote(tag), missing=True)
     require(ref is None or (ref["object"]["sha"] == head and ref["object"]["type"] == "commit"),
             "Existing tag must directly identify this exact commit; never move tags")
@@ -328,36 +399,36 @@ def main():
     require(notes.is_file(), "Committed release notes are required")
     prepare(root, output)
     require(api("git/ref/heads/main")["object"]["sha"] == head, "main advanced during preparation; no publication")
+    if release and not release["draft"]:
+        require(ref is not None, "A public release must already have the exact tag")
+        published = visible_release(release["id"], tag, head, draft=False,
+                                    asset_names={p.name for p in output.iterdir()})
+        finish_release(identity, published, output, reconciled=True)
+        return
     if release:
         verify_remote_assets(release, output, complete=False)
     if ref is None:
         api("git/refs", body={"ref": "refs/tags/" + tag, "sha": head})
+        visible_tag(tag, head)
     final_notes = output.parent / "release-notes.md"
     final_notes.write_text(notes.read_text() + f"\n\nSource commit: `{head}`.\n\nCI: {run['html_url']}\n\n"
                           + "Release workflow: https://github.com/" + REPOSITORY + "/actions/runs/" + os.environ["GITHUB_RUN_ID"] + "\n")
     if release is None:
-        command(["gh", "release", "create", tag, "--repo", REPOSITORY, "--verify-tag", "--target", head,
-                 "--title", tag, "--draft", "--prerelease", "--notes-file", str(final_notes)])
-        release = find_release(tag)
-        require(release is not None, "New draft was not found in the authenticated release list")
+        release = create_draft(tag, head, final_notes.read_text())
     release_id = release["id"]
-    release = release_by_id(release_id, tag, head, draft=True)
+    release = visible_release(release_id, tag, head, draft=True)
     present = {a["name"] for a in release["assets"]}
     for artifact in sorted(output.iterdir()):
         if artifact.name not in present:
             command(["gh", "release", "upload", tag, str(artifact), "--repo", REPOSITORY])
-    release = release_by_id(release_id, tag, head, draft=True)
+    release = visible_release(release_id, tag, head, draft=True,
+                              asset_names={p.name for p in output.iterdir()})
     verify_remote_assets(release, output, complete=True)
     command(["gh", "release", "edit", tag, "--repo", REPOSITORY, "--draft=false", "--prerelease",
              "--notes-file", str(final_notes)])
-    release = release_by_id(release_id, tag, head, draft=False)
-    require(release["prerelease"], "Published release must remain experimental")
-    require(api("git/ref/tags/" + quote(tag))["object"]["sha"] == head, "Published tag identity differs")
-    verify_remote_assets(release, output, complete=True)
-    if os.environ.get("GITHUB_OUTPUT"):
-        with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as stream:
-            stream.write(f"tag={tag}\nversion={identity['version']}\ncommit={head}\n")
-    print(json.dumps({"published": release["html_url"], "tag": tag, "commit": head, "assets": 7}))
+    release = visible_release(release_id, tag, head, draft=False,
+                              asset_names={p.name for p in output.iterdir()})
+    finish_release(identity, release, output)
 
 
 if __name__ == "__main__":

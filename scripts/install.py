@@ -25,8 +25,9 @@ import tempfile
 from urllib.parse import quote
 
 
-# Keep the default on an existing release; development is installed with --source.
-DEFAULT_VERSION = "v0.3.0"
+# Pin the packaged release; development checkouts are installed with --source.
+DEFAULT_VERSION = "v0.3.1"
+WHEEL_RELEASES = {"v0.3.0", "v0.3.1"}
 REPOSITORY = "https://github.com/Afloat16/AI-Memory-Book"
 
 
@@ -63,12 +64,12 @@ def package_spec(source: Path | None, version: str, extras: bool) -> str:
         artifact = f"{REPOSITORY}/archive/{version.lower()}.zip"
     elif re.fullmatch(r"v?\d+\.\d+\.\d+[A-Za-z0-9.+-]*", version):
         tag = version if version.startswith("v") else "v" + version
-        if tag == "v0.3.0":
-            artifact = f"{REPOSITORY}/releases/download/v0.3.0/ai_memory_book-0.3.0-py3-none-any.whl"
+        if tag in WHEEL_RELEASES:
+            artifact = f"{REPOSITORY}/releases/download/{tag}/ai_memory_book-{tag[1:]}-py3-none-any.whl"
         else:
             artifact = f"{REPOSITORY}/archive/refs/tags/{quote(tag, safe='')}.zip"
     else:
-        raise ValueError("--version must be a release tag such as v0.3.0 or a full 40-character commit SHA; use --source for a development checkout.")
+        raise ValueError("--version must be a release tag such as v0.3.1 or a full 40-character commit SHA; use --source for a development checkout.")
     return f"{name} @ {artifact}"
 
 

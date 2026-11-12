@@ -2,8 +2,8 @@
 
 The release workflow publishes an exact commit as a GitHub **prerelease**. It
 does not publish to PyPI or enable GitHub's immutable-release repository setting.
-The current `v0.3.0` runtime remains the verified lexical/Q2 implementation;
-rejected research candidates are not enabled by packaging.
+Only accepted, source-bound runtime improvements enter a release; rejected
+research candidates are not enabled by packaging. Published tags stay fixed.
 
 ## Prepare and authorize the source
 
@@ -76,8 +76,15 @@ No tag or draft is created until source, CI, package and clean-install checks
 pass. The tag must identify exactly the tested commit; existing tags are never
 forced or moved. An existing public release is never edited. An existing draft
 can be continued only if it belongs to the same exact SHA.
-Draft discovery uses the authenticated, paginated release list and rejects
-duplicate tags; subsequent state checks address the unique release ID.
+Existing-draft discovery uses the authenticated, paginated release list and
+rejects duplicate tags. A newly created draft uses the ID returned directly by
+the [Release API](https://docs.github.com/en/rest/releases/releases#create-a-release),
+without depending on immediate list visibility. Subsequent checks address that
+unique ID. After writes, only GET visibility is polled, at 1, 2 and 4 seconds;
+tag/source mismatches fail immediately. Creation and uploads are never blindly
+repeated. Failure messages include the stage, exit code and available HTTP
+status without exposing response bodies or credentials; the workflow records
+the GitHub CLI version.
 
 Before resuming a draft, every existing asset must have an expected name, an
 uploaded state, the expected size and the exact downloaded SHA-256. Extra,
@@ -90,7 +97,12 @@ The workflow preserves built assets and final notes through an `always()`
 artifact step. If publication fails while the release is still a matching draft,
 rerun the failed publishing job after fixing the external problem; deterministic
 rebuilding must match existing bytes. Do not delete or replace mismatched assets
-to bypass the check. A public release cannot be republished by this script.
+to bypass the check. If publication succeeded but its final verification was
+interrupted, rerunning the publishing job takes a **read-only reconciliation**
+path: it checks the same main/CI/tag/source gates, rebuilds deterministic local
+assets, verifies the public prerelease and all seven downloaded hashes, and
+restores job outputs. It never edits, recreates, uploads to or republishes that
+public release.
 
 After publication, a separate job with only `contents: read` downloads the real
 public tagged `install.py`, checks its hash against the published manifest, and
@@ -111,5 +123,6 @@ python scripts/release.py --prepare-only \
 The output directory must not already exist. Inspect `release-manifest.json`
 and `SHA256SUMS`; exact file sizes and hashes come from the built assets, not a
 repository-size estimate. The small unit fixtures in `tests/test_release.py`
-check CI failure gates, lossless archive normalization and refusal to overwrite
-or accept mismatched remote assets.
+check CI failure gates, lossless archive normalization, bounded GET-only
+visibility polling, interruption reconciliation without remote writes, safe
+error diagnostics, and refusal to overwrite or accept mismatched remote assets.
