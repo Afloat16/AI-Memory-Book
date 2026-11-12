@@ -1,0 +1,120 @@
+name: Measure indexed reference operator costs and actual MCP latency
+
+on:
+  push:
+    branches: ['transport/round2-indexed-references']
+    paths:
+      - '.github/workflows/indexed-references-operator.yml'
+      - 'scripts/benchmark_indexed_references.py'
+      - 'benchmarks/experiments/indexed-references-operator-plan.json'
+      - 'benchmarks/experiments/indexed-references-operator-binding.json'
+      - 'tests/test_indexed_reference_benchmark.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  operator:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 100
+    env:
+      TIKTOKEN_CACHE_DIR: ${{ github.workspace }}/.artifacts/tiktoken
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - name: Install the pinned SDK and reference tokenizers
+        run: python -m pip install 'mcp==1.30.0' 'tiktoken==0.12.0' 'pydantic==2.14.3'
+      - name: Bind the integrated runtime and prepare only the old inputs
+        id: prepare
+        timeout-minutes: 5
+        run: |
+          git fetch origin cbf626037b42f11f8bc5b6d46f56caac771e54ba
+          git fetch origin 27975628863c2b95a0bb33e2147fec35416e2ebe
+          git fetch origin 558bac15d09dbd7ec659d97c0b686a74097f91f1
+          mkdir -p .artifacts
+          git worktree add --detach .artifacts/operator-source cbf626037b42f11f8bc5b6d46f56caac771e54ba
+          git diff --exit-code 27975628863c2b95a0bb33e2147fec35416e2ebe cbf626037b42f11f8bc5b6d46f56caac771e54ba -- src/memory_book/cli.py src/memory_book/mcp_server.py
+          git show 558bac15d09dbd7ec659d97c0b686a74097f91f1:benchmarks/reports/round2-default-recall-43194664986-1.json.gz > .artifacts/default-reference.json.gz
+          python - <<'PY'
+          import gzip,hashlib,json,pathlib,subprocess,urllib.request
+          import tiktoken
+          from benchmarks.run import engine_source_hash
+          binding=json.loads(pathlib.Path('benchmarks/experiments/indexed-references-operator-binding.json').read_text())
+          runtime=pathlib.Path('.artifacts/operator-source').resolve()
+          commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=runtime,text=True).strip()
+          if commit!=binding['runtime_commit'] or engine_source_hash(runtime/'src/memory_book')!=binding['runtime_source_sha256']:
+              raise ValueError('Integrated runtime does not match the premeasurement binding')
+          reference=gzip.decompress(pathlib.Path('.artifacts/default-reference.json.gz').read_bytes())
+          if hashlib.sha256(reference).hexdigest()!=binding['reference_report_sha256']:
+              raise ValueError('Old default-performance reference report hash changed')
+          manifest=json.loads(pathlib.Path('benchmarks/locomo_split.json').read_text())
+          with urllib.request.urlopen(manifest['url'],timeout=90) as response:
+              raw=response.read(manifest['bytes']+1)
+          if len(raw)!=manifest['bytes'] or hashlib.sha256(raw).hexdigest()!=manifest['sha256']:
+              raise ValueError('Old public corpus does not match its frozen byte count and hash')
+          pathlib.Path('.artifacts/operator-locomo10.json').write_bytes(raw)
+          for name in ('cl100k_base','o200k_base'):
+              tiktoken.get_encoding(name)
+          print(json.dumps({'runtime_commit':commit,'runtime_source_sha256':binding['runtime_source_sha256'],
+                            'format_files_identical':True,'old_public_corpus_sha256':manifest['sha256'],
+                            'reference_report_sha256':binding['reference_report_sha256']}))
+          PY
+      - name: Measure all paired operator modes on one sequential host
+        id: measure
+        timeout-minutes: 80
+        run: |
+          python scripts/benchmark_indexed_references.py \
+            --runtime-src .artifacts/operator-source/src \
+            --locomo-path .artifacts/operator-locomo10.json \
+            --reference-report .artifacts/default-reference.json.gz \
+            --output "benchmarks/reports/indexed-references-operator-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json.gz"
+      - name: Independently audit saved hashes, axes, payloads and cost summaries
+        id: audit
+        timeout-minutes: 5
+        run: |
+          git -C .artifacts/operator-source diff --exit-code HEAD -- src
+          python scripts/benchmark_indexed_references.py \
+            --audit "benchmarks/reports/indexed-references-operator-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json.gz"
+      - name: Save complete or failed attempt without replacing earlier reports
+        if: always()
+        env:
+          PREPARE: ${{ steps.prepare.outcome }}
+          MEASURE: ${{ steps.measure.outcome }}
+          AUDIT: ${{ steps.audit.outcome }}
+        run: |
+          python - <<'PY'
+          from datetime import datetime,timezone
+          import hashlib,json,os,pathlib,subprocess
+          run=os.environ['GITHUB_RUN_ID']+'-'+os.environ['GITHUB_RUN_ATTEMPT']
+          prefix='benchmarks/reports/indexed-references-operator-'+run
+          paths=[prefix+s for s in ('.json.gz','.summary.json') if pathlib.Path(prefix+s).is_file()]
+          marker=pathlib.Path(prefix+'.completion.json')
+          marker.parent.mkdir(parents=True,exist_ok=True)
+          binding=json.loads(pathlib.Path('benchmarks/experiments/indexed-references-operator-binding.json').read_text())
+          complete=(os.environ.get('PREPARE')==os.environ.get('MEASURE')==os.environ.get('AUDIT')=='success' and len(paths)==2)
+          value={'status':'complete' if complete else 'failed_or_incomplete',
+                 'preparation_outcome':os.environ.get('PREPARE'),'measurement_outcome':os.environ.get('MEASURE'),
+                 'audit_outcome':os.environ.get('AUDIT'),'evaluator_commit':os.environ['GITHUB_SHA'],
+                 'runtime_commit':binding['runtime_commit'],'runtime_source_sha256':binding['runtime_source_sha256'],
+                 'created_at':datetime.now(timezone.utc).isoformat(),
+                 'workflow_run_url':os.environ['GITHUB_SERVER_URL']+'/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID'],
+                 'report_sha256':{p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() for p in paths},
+                 'scope':'Old synthetic61/public1015 only; actual SDK operator modes, default lexical recall, four balanced paired rounds on one sequential hosted VM. Full schema/instructions/arguments and response costs retained, including losses. No model or new blind-data evaluation.'}
+          marker.write_text(json.dumps(value,indent=2)+'\n')
+          paths.append(str(marker))
+          def call(*a):subprocess.run(a,check=True)
+          call('git','config','user.name','github-actions[bot]')
+          call('git','config','user.email','41898282+github-actions[bot]@users.noreply.github.com')
+          call('git','add','--',*paths)
+          call('git','commit','-m','bench: preserve actual indexed-reference operator costs and latency')
+          branch='validation/indexed-reference-operator-'+run
+          call('git','push','origin','HEAD:refs/heads/'+branch)
+          print(json.dumps({'branch':branch,'status':value['status'],'saved_paths':paths}))
+          PY

@@ -45,19 +45,18 @@ Book 的完整证据率相对 claude-mem FTS **高 2.77 个百分点**，相对 
 
 ### 速度、响应大小与运行成本
 
-| 实际执行的操作 | p50 | p95 | 平均返回 `o200k_base` token | 边界 |
-|---|---:|---:|---:|---|
-| Book 进程内召回 | 2.945 ms | 4.555 ms | — | 检索及原生上下文组装 |
-| **Book 实际 MCP 召回** | **5.764 ms** | **9.181 ms** | **1,465.1** | 官方 SDK、子进程 stdio、JSON 与证据 |
-| billion-context 搜索及桥接 | 1.298 ms | 2.413 ms | 569.2 | 搜索预览；不含解压 |
-| ai-memory 本地混合检索 | 29.720 ms | 37.315 ms | 942.5 | HTTP/MCP 搜索；不含后续读页 |
-| claude-mem 原生 FTS 及 Bun 桥接 | 59.664 ms | 100.450 ms | 1,691.3 | 完整 observation 行 JSON；不含 MCP/observer |
+当前源码的**可选索引引用格式**已完成独立实测。在全部 1,015 道公开会话题、默认 4,000 字符上限下，实际 MCP 返回文本的 `o200k_base` token **减少 19.63%**；计入完整工具 schema、初始化说明和调用参数后，首次调用的参考 token 总量仍**减少 8.15%**。
 
-上述原生返回大小与上方有预算的公共上下文分别计量。billion-context 在其被测搜索边界更快；宿主、接口及省略阶段不同，不能据此换算完整产品快多少倍。另行测量的 ai-memory“读取全部五个结果”策略增加 1,913.7 payload token，合计 2,856.2；Agent 少读页面时可以更低。
+| 当前 MCP 格式 | p50 | p95 | 平均响应文本 token | 首次调用参考 token |
+|---|---:|---:|---:|---:|
+| 默认 `objects` | 5.503 ms | 7.126 ms | 1,464.8 | 2,621.0 |
+| **显式启用 `indexed`** | **5.466 ms** | 7.131 ms | **1,177.2** | **2,407.4** |
 
-Book 的**默认记忆写入和检索为零模型调用**：本地 Python 与 SQLite，无强制 embedding 下载、生成式总结或独立数据库服务；回答模型由使用者选择。可选精确 token 预算包含引用和分隔符，原始来源地址可随时核对。
+两行使用**相同固定实现**、官方 SDK 和源归档，交替顺序测量四轮，每次清空查询结果缓存。上下文、页 ID 和完整来源字段均可原样还原。此 encoding 下，索引格式增加 74 个初始化说明 token，工具 schema 和每次参数不增加；默认客户端不承担这项增量。1,015 题中有 1,014 题的首次调用净 token 更少。引用较少时仍可能增加；此格式也不承诺提速，表中 p95 增加 0.005 ms。参考 token 计数对应实测 SDK 文本与元数据，不是服务商账单。[全部 12 配置、两种 tokenizer、逐题损失及复现方式](docs/indexed-references.md)。
 
-[完整成本指标](docs/comparison.md#returned-tokens-follow-up-reads-preparation-and-storage)还列出写入/建索引、模型准备、原生响应、存储和已测 RSS，逐项说明范围。[项目比较](docs/comparison.md#popular-projects-and-the-workload-they-address)进一步覆盖 **Mem0、Graphiti、PageIndex 和 Letta**，提供官方来源及带日期的热度记录。ai-memory 默认路径同样可以零 LLM 运行；claude-mem 也支持本地模型。
+**默认核心优化**另有保持完整输出一致的成对实测：12 组“语料/接口/字符上限”配置的合并样本 p95 均降低，**进程内降低 1.32%–13.65%，真实 MCP 降低 1.25%–9.50%**。公开语料的首次写入耗时**降低 46.45%**，未变化会话的重复导入耗时**降低 61.38%**；返回 token 和来源/索引内容保持一致。[完整报告](docs/default-recall-performance.md)保留所有轮次和少数单轮的小幅耗时退步。
+
+默认记忆写入和词法检索为**零模型调用**，无需 embedding 下载或独立数据库服务；可选语义模式另有模型、索引及查询成本。回答模型由使用者选择。[完整组件成本与部署比较](docs/comparison.md)覆盖 **claude-mem、ai-memory 和 billion-context**，分别列清原生搜索/读页、准备、存储和 RSS 边界，也依据官方来源比较 **Mem0、Graphiti、PageIndex 与 Letta**。ai-memory 默认路径同样可以零 LLM 运行；claude-mem 也支持本地模型。
 
 ## 安装
 
