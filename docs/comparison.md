@@ -11,7 +11,31 @@ component, and an actual capture/summary/retrieval/answer workflow. A fast
 search function is not a complete memory workflow, and source-evidence recall
 is not the accuracy of a generated answer.
 
-## Current implementation and evidence
+## Current: v0.3.1 evidence
+
+The current candidate runtime is
+[`2d199b9`](https://github.com/Afloat16/AI-Memory-Book/commit/2d199b93f650eccd3dd239178822b31001b880e3).
+Its [47,320-call balanced performance experiment](optimization-round3.md)
+preserves complete output while improving the geometric mean of ten pooled p95
+ratios by 11.36%. The original startup flag remains visible alongside its
+[separate accepted resource review](round3-startup-resource-review.md).
+
+The **new** [256-question comparison](round3-comparison.md) completed all ten
+stages in [run 43267797247](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43267797247).
+At common 1,024 `cl100k_base` tokens, default Book completeness is 52.34%, versus
+claude-mem FTS 45.31%, ai-memory hybrid 55.86% and billion-context's search kernel
+58.20%. Book has a clear measured quality/latency advantage over claude-mem FTS
+in this view; ai-memory has higher completeness, and billion leads the displayed
+quality and latency metrics. Different component interfaces prevent whole-product
+speed-ratio claims. All budgets, Q2 losses, page reads, setup and resource costs
+are included in the new report.
+
+The selected project-statistics research candidate failed the old-data screen
+and was excluded before new-cohort selection. Q2 remains the unchanged optional
+mode. **The sections below retain earlier v0.3.0 and historical experiments;
+their sample identities and numbers must not be mixed with round three.**
+
+## Historical v0.3.0 implementation and evidence
 
 The selected implementation is frozen at
 [`cbf6260`](https://github.com/Afloat16/AI-Memory-Book/commit/cbf626037b42f11f8bc5b6d46f56caac771e54ba).
@@ -31,7 +55,9 @@ pins and interface boundaries. They are regression evidence. The new upstream
 pins claude-mem 15.18.1, ai-memory v3.4.5 and the current billion-context kernel
 for the independent comparison without rewriting those historical records.
 
-## Current frozen 256-question comparison
+<a id="current-frozen-256-question-comparison"></a>
+
+## Historical v0.3.0 frozen 256-question comparison
 
 The complete [same-host report](../benchmarks/results/round2-43207732852-1/report.md) measures the current source at `cbf6260` and the upstream revisions in the [registration](../benchmarks/experiments/round2-upstream-registration.json). It contains **10 completed stages and 32,256 timed search calls**, including 3,072 distinct lexical baseline/candidate native query/configuration pairs. Default contexts and their evidence scores are identical in all those pairs. The two lexical component modes also have identical quality. No generative model calls are configured in this retrieval experiment.
 

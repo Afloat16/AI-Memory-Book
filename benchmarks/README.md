@@ -1,6 +1,44 @@
 # Retrieval experiments
 
-## Current: round-two implementation and measurements
+## Current: v0.3.1 third-round completion
+
+The final candidate runtime is frozen at
+[`2d199b9`](https://github.com/Afloat16/AI-Memory-Book/commit/2d199b93f650eccd3dd239178822b31001b880e3),
+SHA-256 `9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46`.
+The final integration and packages must retain those bytes. The default is
+lexical; Q2 and indexed references remain explicit options. The experimental
+project-statistics axis was rejected and is absent.
+
+| Completed experiment | Evidence and count | Decision and report |
+|---|---|---|
+| Formal default recall performance | 47,320 original calls, 16 workers, four ABBA rounds, ten cells; full payload/source/index checks | [11.36% geometric-mean p95 improvement, every cell and loss](../docs/optimization-round3.md); [original summary](reports/round3-performance-43246417515-1/report.summary.json) |
+| Startup resource review | Original +14.04% / +4.838 ms retained; 80 separate fresh empty-DB diagnostics | [Independent documented acceptance](../docs/round3-startup-resource-review.md); original `accepted=false` unchanged |
+| Recovered project-statistics research | Eight workers, 8,082 original calls, original ledgers and incomplete aggregate prefix; zero new calls | [Rejected decision](reports/round3-project-stats-recovery-43266603949-1/decision.json), [recovery manifest](reports/round3-project-stats-recovery-43266603949-1/recovery-manifest.json) |
+| New frozen source-evidence comparison | 256 questions / 607 annotations, zero overlap with prior 384; ten stages, 4,608 native calls + 4,608 component searches; 1,280 extra ai-memory reads | [Interpretation and full costs](../docs/round3-comparison.md), [generated matrix](results/round3-comparison-43267797247-1/report.md), [complete assessment](results/round3-comparison-43267797247-1/assessment.json) |
+
+The [comparison run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43267797247)
+finished successfully. Default native payloads match v0.3.0 in all 1,536 pairs;
+component payloads match in all 768 pairs. Source, scope, budget, metadata and
+ledger checks pass. These integrity checks do not claim all modes beat all
+competitors. On common 1,024-token packing, default Book completeness is 52.34%,
+claude-mem 45.31%, ai-memory 55.86%, and billion-context kernel 58.20%.
+
+The [binding](experiments/round3-validation-binding.json), [selection manifest](experiments/round3-hotpot256-manifest.json),
+[asset verification](reports/round3-freeze-43267320737-1/asset-verification.json),
+[execution claim](reports/round3-comparison-claim-740361f1767a942887bdb7639b1be0223ae1c6dc2fc3b941f845d038884f842f.json)
+and [checkpoint](reports/round3-comparison-43267797247-1-checkpoint.json) fix the
+order of registration, selection and execution. Six offline projections do not
+increase the number of quality samples or searches. The new selection is from
+the same HotpotQA source and becomes regression data after this evaluation.
+
+Run the [final audit workflow](../.github/workflows/round3-final-audit.yml) on the
+exact integration commit to recheck saved evidence and immutable original blobs.
+It uses no model/tokenizer or new retrieval calls. The
+[package preparation workflow](../.github/workflows/release-prepare.yml) verifies
+both distributions and default-extras installation without publishing a release.
+Exact-commit Actions results and prepared assets are attached to the delivery PR.
+
+## Historical: v0.3.0 round-two implementation and measurements
 
 The selected runtime is
 [`cbf6260`](https://github.com/Afloat16/AI-Memory-Book/commit/cbf626037b42f11f8bc5b6d46f56caac771e54ba),
@@ -8,12 +46,12 @@ source SHA-256 `d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57
 The default remains lexical with object-form MCP references. Q2 semantic
 fusion and indexed references are separate, explicit options.
 
-| Current experiment | Verified measurement | Complete evidence and costs |
+| Round-two experiment | Verified measurement | Complete evidence and costs |
 |---|---|---|
 | Default retrieval and ingestion | 56,784 actual calls; four balanced rounds; 12 configurations; complete payloads and source/index content unchanged | [Performance, ingestion, replay, memory and individual-round losses](../docs/default-recall-performance.md) |
 | Optional Q2 semantic fusion | 48,492 actual recalls; four old cohorts, three budgets, four paired modes, three repetitions | [Full development matrix](reports/round2-anchor-development.md), [selection and losses](reports/round2-anchor-decision.md), [current semantic setup](../docs/semantic-retrieval.md) |
 | Indexed MCP references | 56,784 actual SDK calls; 7,098 distinct complete payload pairs; every one of 6,868 archived reference entries checked | [Both tokenizers, complete metadata costs, all 12 timing configurations and per-question losses](../docs/indexed-references.md) |
-| Current native components | 10 completed stages, 32,256 timed calls, 256 questions; current pinned claude-mem FTS, ai-memory local hybrid and billion-context kernel | [Complete matrix](results/round2-43207732852-1/report.md), [assessment](results/round2-43207732852-1/assessment.json), [run 43207732852](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43207732852) |
+| Round-two native components | 10 completed stages, 32,256 timed calls, 256 questions; current pinned claude-mem FTS, ai-memory local hybrid and billion-context kernel | [Complete matrix](results/round2-43207732852-1/report.md), [assessment](results/round2-43207732852-1/assessment.json), [run 43207732852](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43207732852) |
 
 The initial 256-question run stopped at an evaluator response-field error;
 its [failed checkpoint](reports/round2-43201620535-1-checkpoint.json) and all 13
