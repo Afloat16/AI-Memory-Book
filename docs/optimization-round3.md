@@ -1,5 +1,12 @@
 # v0.3.1 optimization protocol
 
+**Completed:** the guarded default-query optimization is accepted with the
+original startup resource exception disclosed. The project-statistics candidate
+is rejected. The new 256-question comparison is `complete-verified`; its full
+results, recovery history and release gates are indexed in the
+[completion checkpoint](round3-continuation.md). The registered protocol below
+is retained as written and is not an instruction to repeat completed runs.
+
 Baseline: published **v0.3.0**, commit `dd2f88be742ed330269e7dd5915b6f75089d7fef`.
 The machine-readable [registered plan](../benchmarks/experiments/round3-plan.json)
 is authoritative. This round has two separate hypotheses.

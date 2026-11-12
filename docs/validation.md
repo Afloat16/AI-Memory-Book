@@ -2,10 +2,49 @@
 
 This document separates measured behavior from configuration compatibility.
 Product fixtures, examples, screenshots, and capture measurements are synthetic;
-v0.3.0 also evaluates an independently published LoCoMo text corpus. No private
+the published experiments also evaluate LoCoMo and HotpotQA text corpora. No private
 user conversation history was used in development or published.
 
-## Current completed continuation — 2026-11-12
+## Current: v0.3.1 completed measurement and recovery
+
+The [round-three checkpoint](../benchmarks/reports/round3-comparison-43267797247-1-checkpoint.json)
+is **complete-verified**: ten completed stages, 4,608 native calls and 4,608
+component searches. All 1,536 complete default native payload pairs and 768
+component payload pairs match. Independent offline recomputation verifies the
+original assessment and report, all 32 result blobs and all 71 prebound
+evaluator file hashes, with no retrieval replay. The
+[independent verification](../benchmarks/reports/round3-recovery/comparison-cross-verification.json)
+retains every Q2 gain/loss cell and exact report/checkpoint identities.
+
+The separate [formal performance review](round3-performance-review.md) checks
+47,320 original calls from four balanced rounds and ten configurations. Its
+query-speed and exact-output checks pass. Original startup mean +14.04%, the
+automatic `accepted: false` flag and all individual regressions stay intact;
+the explicit resource review accepts the guarded query change with that cost
+disclosed. The existing startup-only diagnostic is independently reconstructed
+from all 80 original samples, not a replacement performance run.
+
+The [quality-screen recovery](round3-quality-review.md) reconstructs 8,082
+original calls from preserved workers without scoring again. All 20 recovered
+files match the canonical hosted recovery. The project-local statistics
+candidate fails 14 registered checks and remains excluded from the release.
+See [source/code review](round3-code-review.md),
+[registration reconciliation](round3-reconciliation.md), and the
+[full result index](../benchmarks/README.md).
+
+The final release process requires all nine **Tests** jobs on the exact
+candidate commit, then the same commit on `main` and `release/v0.3.1`.
+[Current CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml)
+and [release runs](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/release.yml)
+record those gates. Publication builds and checks seven assets, verifies every
+downloaded hash and then installs the actual public tagged installer in a clean
+environment. The [release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.1)
+includes its exact source SHA and successful CI link. See
+[publishing procedure](releasing.md) for the checks and interruption handling.
+
+The dated sections below retain evidence for their historical source pins.
+
+## Historical completed continuation — 2026-11-12
 
 The [strict final audit](../benchmarks/reports/hosted-final-aggregation.json)
 has status `complete-verified-snapshot`: 80 fixed inputs checked, eight

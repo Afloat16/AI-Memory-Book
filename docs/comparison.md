@@ -11,7 +11,145 @@ component, and an actual capture/summary/retrieval/answer workflow. A fast
 search function is not a complete memory workflow, and source-evidence recall
 is not the accuracy of a generated answer.
 
-## Current implementation and evidence
+## v0.3.1 comparison
+
+The accepted runtime is frozen at
+[`2d199b9`](https://github.com/Afloat16/AI-Memory-Book/commit/2d199b93f650eccd3dd239178822b31001b880e3),
+Python-source SHA-256
+`9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46`.
+It preserves the default lexical ranking while using a guarded project rowid
+range to reduce FTS work. Q2 and indexed MCP references remain optional. The
+project-local statistics research candidate failed its gate and is excluded.
+
+The [complete round-three report](../benchmarks/results/round3-comparison-43267797247-1/report.md)
+and [assessment](../benchmarks/results/round3-comparison-43267797247-1/assessment.json)
+have status **complete-verified**. All ten stages completed on one host: **4,608
+native calls and 4,608 component searches**. All **1,536 native default payload
+pairs and 768 component default payload pairs** match after excluding only
+the measured `latency_ms` field. An
+[independent offline audit](../benchmarks/reports/round3-recovery/comparison-cross-verification.json)
+recomputed the unchanged evaluator's assessment and report, checked all 32
+result blobs and all 71 bound evaluator files, and performed no new searches.
+
+### Shared-page evidence and measured search
+
+The 256 selected HotpotQA questions exclude the previous 128-question and
+256-question selections. They retain 2,559 supplied paragraphs, 3,896 canonical
+pages and 607 required evidence annotations. This is a new selection from the
+same public source, not a new domain. Every component receives the same source
+pages, scope, top-five limit, citation format and whole-block packer.
+
+The view below uses **1,024 cl100k_base tokens**. Quality uses the first result
+per question; latency includes all three actual searches. Search p50/p95 uses
+the recorded `native_search_latency` surface. The generated report separately
+lists adapter roundtrips and first-search-plus-all-reads, so its adapter column
+is not substituted for this native-search column.
+
+| Component | Evidence recall | Complete evidence | Packed-context MRR | Mean context tokens | Search p50 / p95 ms |
+|---|---:|---:|---:|---:|---:|
+| Book — default lexical | 76.28% | 52.34% | 0.8132 | 719.8 | 1.766 / 2.784 |
+| Book — optional Q2 | 76.77% | 54.69% | 0.8239 | 739.0 | 7.415 / 11.226 |
+| claude-mem 15.18.1 FTS | 70.68% | 45.31% | 0.7674 | 715.8 | 11.494 / 22.484 |
+| ai-memory v3.4.5 local hybrid | 77.27% | 55.86% | 0.8182 | 716.8 | 21.168 / 27.545 |
+| billion-context 9674cfa kernel | 78.91% | 58.20% | 0.8277 | 762.3 | 0.189 / 0.793 |
+
+Default Book exceeds claude-mem complete evidence by **7.03 percentage points**
+and has lower recorded search p95 than claude-mem and ai-memory. Q2 exceeds
+Book's default by **2.34 points** and claude-mem by **9.38 points**. ai-memory
+has higher completeness than both Book modes. Billion-context leads displayed
+recall, completeness, MRR and search latency. These results support specific
+advantages; they do not establish overall product superiority.
+
+![Current component comparison and separate paired performance study](assets/v0.3.1-comparison.svg)
+
+Book measures in-process Python retrieval including native context assembly;
+claude-mem uses SQLite/Bun; ai-memory uses local HTTP/MCP; billion-context uses
+its supplied-source Node search kernel. Book's component **2.784 ms** p95 is
+not its actual MCP p95. Full capture, compression, generation, preparation and
+common packing are separate; no whole-product speed ratio follows.
+
+### Native budgets and retained losses
+
+Native Book uses excerpt assembly, an 8,000-character cap, a top-five limit,
+both tokenizers, budgets 512/1,024/2,048, no result cache and one repetition.
+Default baseline/candidate output and quality remain identical in every
+registered cell. The native single-pass speed measurements do not replace
+the separate balanced-order release performance gate.
+
+| Native view | Default complete evidence | Q2 complete evidence | Interpretation |
+|---|---:|---:|---|
+| 512 cl100k_base | 35.94% | 33.59% | Q2 evidence recall also falls: 65.73% → 64.74% |
+| 512 o200k_base | 35.55% | 33.20% | Q2 evidence recall also falls: 65.73% → 64.58% |
+| 1,024 or 2,048, either tokenizer | 52.34% | 54.69% | Aggregate gain; each cell still has 18 complete-question losses and 30 annotation losses |
+
+Q2 remains optional. The full assessment records every gain/loss identity for
+native and common-packed responses; their 512-token values differ because
+the packing policies differ. Only **six questions** are in the low-lexical-
+overlap diagnostic. All 256 questions are answerable. This run does not
+measure abstention, hallucination rates or generated-answer accuracy, and
+mapping encyclopedia paragraphs to sessions does not establish transfer to
+private conversations. Once scored, these questions are regression data.
+
+### Response, read and setup costs
+
+These are **o200k_base reference tokens**, averaged over first-pass questions.
+Payload tokens describe native returned objects, not the common capped
+evidence context. Latency sums each question's first search and all its reads
+before computing a percentile; separate p95 values are never added.
+
+| Component | Search payload tokens | Extra read payload tokens | Reads/query | First search + all reads p95 ms |
+|---|---:|---:|---:|---:|
+| Book — default | 3998.4 | 0.0 | 0 | 2.818 |
+| Book — Q2 | 4112.5 | 0.0 | 0 | 11.046 |
+| claude-mem FTS | 1625.7 | 0.0 | 0 | 22.931 |
+| ai-memory hybrid | 1023.4 | 1834.9 | 5 | 30.532 |
+| billion-context kernel | 575.8 | 0.0 | 0 | 1.480 |
+
+Default Book returns a larger full native JSON object at this boundary. Its
+separately measured optional indexed MCP representation must not be inserted
+into this table. ai-memory reads all five mapped pages under the registered
+policy; an agent could request fewer. Native text, native payload and common
+packed context stay separate throughout the complete summaries.
+
+Book native fresh ingestion is **4.214 s**. Q2 native preparation separately
+records **4.148 s** ingestion, **0.863 s** model loading and **110.094 s** index
+construction for 4,831 windows; its vector payload is 7,420,416 bytes.
+ai-memory's full registered setup takes **644.735 s**. These preparation
+operations differ and are not an end-to-end ingestion race. All configured
+generative-model calls are zero; Q2 and hybrid modes still perform embedding
+work. Full model/download/state costs remain in the original summaries.
+Sampled worker-plus-descendants RSS includes evaluator and corpus memory,
+can double-count shared pages and is an observed lower bound, not pure
+product RAM. Reference-token counts are not provider bills.
+
+### Separate baseline efficiency and release decisions
+
+The original [47,320-call ABBA study](round3-performance-review.md) compares
+v0.3.0 with this runtime across two regression corpora, four balanced rounds
+and ten configurations. It preserves complete evidence payloads and gives
+**11.36% geometric mean pooled p95 improvement**. On the public cohort at
+4,000 characters, native p95 falls **5.054 → 3.737 ms (26.05%)**, and actual
+SDK MCP p95 falls **7.409 → 5.937 ms (19.87%)**. Synthetic 512-token p95 rises
+0.12%; no pooled p50/p95 regression exceeds 5%.
+
+The original startup mean rises **34.46 → 39.29 ms (+14.04%)** and its
+automatic `accepted: false` is preserved. Independent source/resource review
+accepts the query optimization with the startup observation disclosed.
+An existing 80-sample startup-only diagnostic is supplemental; it does not
+replace the original run or prove its exact operating-system cause.
+
+The [quality recovery review](round3-quality-review.md) reconstructs 8,082
+original calls without rerunning scoring and matches the canonical hosted
+recovery. The project-local FTS-statistics candidate fails 14 registered
+checks and remains unshipped. The [reconciliation record](round3-reconciliation.md)
+preserves the authoritative earlier registration, the unused later local
+binding, the raw-source exposure disclosure, and the interruption history.
+No completed result was rerun to select better timings or scores.
+
+## Historical: v0.3.0 implementation and evidence
+
+The following round-two sections retain their original measurements. Their
+uses of “current” refer to that historical source, not the v0.3.1 view above.
 
 The selected implementation is frozen at
 [`cbf6260`](https://github.com/Afloat16/AI-Memory-Book/commit/cbf626037b42f11f8bc5b6d46f56caac771e54ba).
