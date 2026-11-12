@@ -101,6 +101,25 @@ def main():
         and quality["new_measurement_calls"] == 0
         and quality["original_evaluator_audit"] == "passed",
         "The excluded optional candidate lacks its full audited rejection")
+    resource_decision = plan["resource_decision"]
+    require(re.fullmatch("[0-9a-f]{40}", resource_decision["commit"])
+        and resource_decision["path"].startswith("benchmarks/experiments/")
+        and ".." not in Path(resource_decision["path"]).parts, "Unsafe resource decision reference")
+    if git("cat-file", "-e", resource_decision["commit"] + "^{commit}", check=False).returncode:
+        git("fetch", "--no-tags", "origin", resource_decision["commit"])
+    resource_ref = resource_decision["commit"] + ":" + resource_decision["path"]
+    require(git("rev-parse", resource_ref) == resource_decision["git_blob_sha"],
+            "Resource decision identity differs")
+    resource_raw = subprocess.check_output(["git", "show", resource_ref], cwd=ROOT, timeout=30)
+    resource_review = json.loads(resource_raw)
+    require(resource_review["accepted"] is True
+        and resource_review["original_numeric_gate_passed"] is True
+        and resource_review["original_resource_review_retained"] is True
+        and resource_review["original_report_accepted"] is False
+        and resource_review["retrieval_calls_repeated"] == 0
+        and resource_review["inputs"]["candidate"]["commit"] == plan["candidate_commit"]
+        and resource_review["inputs"]["candidate"]["runtime_sha256"] == plan["candidate_runtime_sha256"],
+        "Candidate lacks its independently documented startup tradeoff review")
     installed = {name: importlib.metadata.version(name) for name in comparison.PACKAGES}
     require(installed == comparison.PACKAGES, "Preparation dependencies differ from registered pins")
     public = ROOT / "benchmarks/reports" / ("round3-freeze-" + run_id + "-1")
@@ -169,6 +188,7 @@ def main():
             "upstream_locks_sha256": {name: comparison.file_sha(ROOT / path) for name, path in locks.items()},
             "preparation": record["stages"], "verified_at": comparison.reused.now(),
             "quality_decision": {**decision, "sha256": comparison.sha(decision_raw)},
+            "resource_decision": {**resource_decision, "sha256": comparison.sha(resource_raw)},
             "question_content_read": False, "measurement_calls": 0})
         parent = commit_and_publish([preflight], branch, parent,
             "bench: verify round-three assets before binding or selection")
@@ -185,10 +205,12 @@ def main():
             "bench: freeze exact round-three runtime and evaluator before new IDs")
         comparison.frozen_inputs()
         source_data = json.loads((ROOT / "benchmarks/hotpot_manifest.json").read_bytes())
-        parquet = private / "hotpot-dev-distractor.parquet"
+        input_directory = private / "input"
+        input_directory.mkdir()
+        parquet = input_directory / "hotpot-dev-distractor.parquet"
         measured("verified_parquet_download",
             lambda: checked_download(source_data["source_url"], parquet,
-                source_data["upstream_sha256"], source_data["upstream_bytes"]), parquet)
+                source_data["upstream_sha256"], source_data["upstream_bytes"]), input_directory)
         manifest = round3_data.freeze(parquet, comparison.BINDING)
         record.update(status="frozen-not-scored", binding_commit=parent,
             binding_sha256=comparison.file_sha(comparison.BINDING),
