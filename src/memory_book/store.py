@@ -433,6 +433,7 @@ class MemoryBook:
             for turn in turns:
                 self.db.execute("INSERT INTO turns VALUES(?,?,?,?,?,?)", (_id("t_", session_pk, str(turn.index)), session_pk, turn.index, turn.question, turn.content, _json(turn.message_indices)))
             page_count = 0
+            indexed_directory = index_text(source["task_title"] + " " + source["title"])
             for i, section in enumerate(sections):
                 section_id = _id("sec_", session_pk, str(i), section.title)
                 self.db.execute("INSERT INTO sections VALUES(?,?,?,?,?,?)", (section_id, session_pk, chapter_id, section.title, section.summary, i))
@@ -440,7 +441,7 @@ class MemoryBook:
                     page_id = _id("p_", session_pk, str(i), str(j), page.content)
                     refs = [{**ref, "session_id": external, "project": project, "created_at": created} for ref in page.refs]
                     cur = self.db.execute("INSERT INTO pages(id,section_id,session_pk,chapter_id,project_id,title,question,content,source_refs,ordinal) VALUES(?,?,?,?,?,?,?,?,?,?)", (page_id, section_id, session_pk, chapter_id, project, page.title, page.question, page.content, _json(refs), j))
-                    indexed = (cur.lastrowid, index_text(page.title), index_text(page.question), index_text(page.content), index_text(source["task_title"] + " " + source["title"]))
+                    indexed = (cur.lastrowid, index_text(page.title), index_text(page.question), index_text(page.content), indexed_directory)
                     self.db.execute("INSERT INTO pages_fts(rowid,title,question,body,directory) VALUES(?,?,?,?,?)", indexed)
                     self.db.execute("INSERT INTO pages_stem_fts(rowid,title,question,body,directory) VALUES(?,?,?,?,?)", indexed)
                     page_count += 1
