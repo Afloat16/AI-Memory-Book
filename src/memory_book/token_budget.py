@@ -27,6 +27,21 @@ def _encoding(name: str):
     return tiktoken.get_encoding(name), tiktoken.__version__
 
 
+class _PrefixTokenCounter:
+    """An exact append counter with a conservative nonnegative lower bound."""
+
+    __slots__ = ("minimum_tokens", "_count", "_prefix")
+
+    def __init__(self, count: Callable[[str], int], prefix: str,
+                 minimum_tokens: int = 0):
+        self.minimum_tokens = minimum_tokens
+        self._count = count
+        self._prefix = prefix
+
+    def __call__(self, text: str) -> int:
+        return self.minimum_tokens + self._count(self._prefix + text)
+
+
 class TokenCounter:
     def __init__(self, name: str):
         if not isinstance(name, str) or name not in TOKENIZERS:
@@ -37,15 +52,17 @@ class TokenCounter:
     def count(self, text: str) -> int:
         # Historical text may literally contain <|endoftext|> or similar
         # strings. They are evidence, not privileged tokenizer control tokens.
-        return len(self.encoding.encode(text, disallowed_special=()))
+        return len(self.encoding.encode_ordinary(text))
 
-    def count_after(self, prefix: str) -> Callable[[str], int]:
+    def count_after(self, prefix: str) -> _PrefixTokenCounter:
         """Count appended text exactly without encoding the stable prefix again.
 
         Token counts are not generally additive: an appended character can
         change a token at the boundary. Ask the pinned tokenizer for its stable
         prefix, and re-encode its remaining suffix together with each candidate.
         This cache lives for one page's fit checks, never across recall calls.
+        Its minimum_tokens counts only certified stable tokens; fallback paths
+        expose zero, since a full prefix's token count is not a safe bound.
         """
         stable, _ = self.encoding.encode_with_unstable(prefix, disallowed_special=())
         prefix_bytes = prefix.encode("utf-8")
@@ -55,11 +72,11 @@ class TokenCounter:
         try:
             tail = prefix_bytes[len(stable_bytes):].decode("utf-8")
         except UnicodeDecodeError:
-            return lambda text: self.count(prefix + text)
+            return _PrefixTokenCounter(self.count, prefix)
         if not prefix_bytes.startswith(stable_bytes):
-            return lambda text: self.count(prefix + text)
+            return _PrefixTokenCounter(self.count, prefix)
         stable_count = len(stable)
-        return lambda text: stable_count + self.count(tail + text)
+        return _PrefixTokenCounter(self.count, tail, stable_count)
 
 
 def source_units(text: str) -> list[tuple[int, int]]:
@@ -206,6 +223,10 @@ def assemble(
             # tokens only after rejection, when several fit checks remain.
             if index == 1 and len(choices) > 3:
                 count_after_prefix = counter.count_after(prefix)
+                # Every remaining prepared count adds a nonnegative suffix.
+                # Preserve the first full count and existing lazy setup rule.
+                if count_after_prefix.minimum_tokens > budget_tokens:
+                    break
             count = (count_after_prefix(text) if count_after_prefix is not None
                      else counter.count(prefix + text))
             if count <= budget_tokens:

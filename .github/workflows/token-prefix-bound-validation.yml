@@ -1,0 +1,153 @@
+name: Validate token prefix bound equivalence and timing
+
+on:
+  push:
+    branches: ['perf/token-prefix-bound']
+    paths:
+      - '.github/workflows/token-prefix-bound-validation.yml'
+      - 'src/memory_book/token_budget.py'
+      - 'tests/test_token_prefix_bound.py'
+      - 'benchmarks/experiments/token-prefix-bound-performance-plan.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: token-prefix-bound-development
+  cancel-in-progress: false
+
+jobs:
+  development:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      TIKTOKEN_CACHE_DIR: .artifacts/tiktoken
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - name: Install pinned token dependency and benchmark tooling
+        run: python -m pip install -e ".[mcp,clients,tokens]"
+      - name: Exercise exact counts, conservative fallbacks and control flow
+        run: python -m unittest discover -s tests -p 'test_token*.py' -v
+      - name: Prepare frozen baseline and verify experiment scope
+        run: |
+          git fetch origin 407cda1c5f1dac0e67dfe527d3c23febdad5e818
+          mkdir -p .artifacts
+          git worktree add --detach .artifacts/token-prefix-bound-baseline 407cda1c5f1dac0e67dfe527d3c23febdad5e818
+          python - <<'PY'
+          import json, pathlib, subprocess
+          baseline="407cda1c5f1dac0e67dfe527d3c23febdad5e818"
+          tooling="d102fb0ed70bcbbefbad2b2ab8dce2b2260487b8"
+          plan=json.loads(pathlib.Path("benchmarks/experiments/token-prefix-bound-performance-plan.json").read_text())
+          assert plan["registered_baseline_commit"]==baseline
+          assert plan["tooling_base_commit"]==tooling
+          assert plan["validation"]["repeats"]==3
+          assert plan["validation"]["unique_payload_comparisons"]==2016
+          changed=set(subprocess.check_output(["git","diff","--name-only",baseline,"HEAD","--","src"],text=True).splitlines())
+          assert changed=={"src/memory_book/token_budget.py"}, changed
+          frozen=["scripts/verify_native_optimization.py","benchmarks/run.py",
+                  "benchmarks/token_compare.py","benchmarks/data.py","benchmarks/public_data.py"]
+          subprocess.run(["git","diff","--exit-code",tooling,"HEAD","--",*frozen],check=True)
+          print("Frozen runtime scope and unchanged development evaluator verified.")
+          PY
+      - name: Compare every development payload and paired timings
+        id: measure
+        shell: bash
+        run: |
+          set -o pipefail
+          python -u scripts/verify_native_optimization.py \
+            --baseline-src .artifacts/token-prefix-bound-baseline/src \
+            --candidate-src src \
+            --repeats 3 \
+            --output "benchmarks/reports/native-prefix-bound-development-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json.gz" \
+            2>&1 | tee .artifacts/token-prefix-bound-measure.log
+      - name: Audit saved equivalence matrix
+        id: audit
+        run: |
+          python - <<'PY'
+          import gzip, hashlib, json, os, pathlib
+          prefix="benchmarks/reports/native-prefix-bound-development-"+os.environ["GITHUB_RUN_ID"]+"-"+os.environ["GITHUB_RUN_ATTEMPT"]
+          raw=gzip.decompress(pathlib.Path(prefix+".json.gz").read_bytes())
+          report=json.loads(raw)
+          summary=json.loads(pathlib.Path(prefix+".summary.json").read_text())
+          assert summary["full_report_sha256"]==hashlib.sha256(raw).hexdigest()
+          assert report["validation"]["passed"] is True
+          assert report["repeats"]==3
+          axes={(c,n,t) for c in (2000,8000) for n in ("cl100k_base","o200k_base") for t in (512,1024,2048)}
+          actual={(c["budget_chars"],c["tokenizer"],c["budget_tokens"]) for c in report["comparisons"]}
+          assert actual==axes and len(report["comparisons"])==12
+          assert sum(c["queries"] for c in report["comparisons"])==2016
+          for c in report["comparisons"]:
+              assert c["queries"]==168 and c["payload_mismatches"]==[]
+              assert c["baseline_latency"]["samples"]==504
+              assert c["candidate_latency"]["samples"]==504
+          assert len(report["engines"])==2
+          expected_commits=("407cda1c5f1dac0e67dfe527d3c23febdad5e818",os.environ["GITHUB_SHA"])
+          for engine,commit in zip(report["engines"],expected_commits,strict=True):
+              assert engine["source_unchanged"] is True
+              assert engine["source_provenance"]["git_commit"]==commit
+              assert engine["dataset"]["sha256"]=="117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26"
+              assert len(engine["configurations"])==12
+              for c in engine["configurations"]:
+                  assert c["repeat_payload_mismatches"]==[]
+                  assert len(c["query_results"])==168
+                  assert len({r["id"] for r in c["query_results"]})==168
+          expected={k:v for k,v in report.items() if k!="engines"}
+          expected["sources"]=[{k:v for k,v in e.items() if k!="configurations"} for e in report["engines"]]
+          expected["full_report_sha256"]=hashlib.sha256(raw).hexdigest()
+          assert expected==summary
+          print(json.dumps({"validation":"passed","unique_payload_comparisons":2016,
+                            "timed_calls_per_engine":6048,"all_12_timing_rows_retained":True}))
+          PY
+      - name: Preserve reports and explicit attempt outcome in Git
+        if: always()
+        env:
+          MEASUREMENT_OUTCOME: ${{ steps.measure.outcome }}
+          AUDIT_OUTCOME: ${{ steps.audit.outcome }}
+        run: |
+          python - <<'PY'
+          from datetime import datetime, timezone
+          import hashlib, json, os, pathlib, subprocess
+          run=os.environ["GITHUB_RUN_ID"]+"-"+os.environ["GITHUB_RUN_ATTEMPT"]
+          prefix="benchmarks/reports/native-prefix-bound-development-"+run
+          paths=[prefix+s for s in (".json.gz",".summary.json") if pathlib.Path(prefix+s).is_file()]
+          plan=pathlib.Path("benchmarks/experiments/token-prefix-bound-performance-plan.json")
+          success=(os.environ.get("MEASUREMENT_OUTCOME")=="success"
+                   and os.environ.get("AUDIT_OUTCOME")=="success")
+          marker=pathlib.Path("benchmarks/reports/native-prefix-bound-completion-"+run+".json")
+          marker.parent.mkdir(parents=True,exist_ok=True)
+          value={"status":"completed" if success else "failed_or_not_completed",
+                 "measurement_outcome":os.environ.get("MEASUREMENT_OUTCOME"),
+                 "audit_outcome":os.environ.get("AUDIT_OUTCOME"),
+                 "created_at":datetime.now(timezone.utc).isoformat(),
+                 "candidate_commit":os.environ["GITHUB_SHA"],
+                 "baseline_commit":"407cda1c5f1dac0e67dfe527d3c23febdad5e818",
+                 "plan_sha256":hashlib.sha256(plan.read_bytes()).hexdigest(),
+                 "public_sha256":{p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() for p in paths},
+                 "interpretation":"Development equivalence and host-specific timing only. Every setting, including regressions, is retained. No main promotion or frozen quality-matrix replacement."}
+          marker.write_text(json.dumps(value,indent=2)+"\n")
+          paths.append(str(marker))
+          def call(*args): subprocess.run(args,check=True)
+          call("git","config","user.name","github-actions[bot]")
+          call("git","config","user.email","41898282+github-actions[bot]@users.noreply.github.com")
+          call("git","add","--",*paths)
+          call("git","commit","-m","bench: preserve token prefix bound development attempt")
+          branch="validation/native-prefix-bound-"+run
+          call("git","push","origin","HEAD:refs/heads/"+branch)
+          print(json.dumps({"result_branch":branch,"status":value["status"]}))
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: token-prefix-bound-development-${{ github.run_attempt }}
+          path: |
+            benchmarks/reports/native-prefix-bound-development-*
+            benchmarks/reports/native-prefix-bound-completion-*
+            .artifacts/token-prefix-bound-measure.log
+          if-no-files-found: warn
+          retention-days: 30

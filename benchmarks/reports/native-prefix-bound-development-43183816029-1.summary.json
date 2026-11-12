@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-11-12T08:35:40.296249+00:00",
+  "purpose": "Complete native-token payload equivalence and development timing; latency_ms alone is excluded from payload hashes.",
+  "runtime": {
+    "python": "3.12.16",
+    "sqlite": "3.45.1",
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39"
+  },
+  "methodology": "Independent sequential workers; no result cache; random query order with seed 61 + 1009 * repetition. Model/tokenizer loading is outside timed calls. Warm OS/SQLite caches; timing is host-specific.",
+  "repeats": 3,
+  "evaluator_sha256": "f64af77698eec5f7253431d36f73d2cf7d99389c4f03329dce1ddec33dd1970f",
+  "comparisons": [
+    {
+      "budget_chars": 2000,
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 512,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 504,
+        "p50_ms": 11.294577499999999,
+        "p95_ms": 34.0345751,
+        "mean_ms": 14.36994343452381
+      },
+      "candidate_latency": {
+        "samples": 504,
+        "p50_ms": 10.538463499999999,
+        "p95_ms": 29.25871895,
+        "mean_ms": 12.85680823015873
+      }
+    },
+    {
+      "budget_chars": 2000,
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 1024,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 504,
+        "p50_ms": 10.910806000000001,
+        "p95_ms": 29.370194599999998,
+        "mean_ms": 12.838173253968256
+      },
+      "candidate_latency": {
+        "samples": 504,
+        "p50_ms": 10.257335999999999,
+        "p95_ms": 26.780848449999997,
+        "mean_ms": 11.803214761904762
+      }
+    },
+    {
+      "budget_chars": 2000,
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 2048,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 504,
+        "p50_ms": 8.484100999999999,
+        "p95_ms": 20.128641899999998,
+        "mean_ms": 10.113914759920634
+      },
+      "candidate_latency": {
+        "samples": 504,
+        "p50_ms": 8.291257,
+        "p95_ms": 19.393255349999997,
+        "mean_ms": 9.830658503968253
+      }
+    },
+    {
+      "budget_chars": 2000,
+      "tokenizer": "o200k_base",
+      "budget_tokens": 512,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 504,
+        "p50_ms": 11.7458015,
+        "p95_ms": 32.6416336,
+        "mean_ms": 14.795883799603175
+      },
+      "candidate_latency": {
+        "samples": 504,
+        "p50_ms": 11.213332999999999,
+        "p95_ms": 27.92417935,
+        "mean_ms": 13.167128083333333
+      }
+    },
+    {
+      "budget_chars": 2000,
+      "tokenizer": "o200k_base",
+      "budget_tokens": 1024,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 504,
+        "p50_ms": 10.2668895,
+        "p95_ms": 25.584963199999997,
+        "mean_ms": 11.97205506547619
+      },
+      "candidate_latency": {
+        "samples": 504,
+        "p50_ms": 10.232789,
+        "p95_ms": 24.853755749999998,
+        "mean_ms": 11.706445067460317
+      }
+    },
+    {
+      "budget_chars": 2000,
+      "tokenizer": "o200k_base",
+      "budget_tokens": 2048,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 504,
+        "p50_ms": 8.9045475,
+        "p95_ms": 20.367234049999997,
+        "mean_ms": 10.493394069444445
+      },
+      "candidate_latency": {
+        "samples": 504,
+        "p50_ms": 9.122585,
+        "p95_ms": 20.86203055,
+        "mean_ms": 10.717215696428571
+      }
+    },
+    {
+      "budget_chars": 8000,
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 512,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 504,
+        "p50_ms": 11.791442,
+        "p95_ms": 25.741176,
+        "mean_ms": 13.009022371031746
+      },
+      "candidate_latency": {
+        "samples": 504,
+        "p50_ms": 11.069244999999999,
+        "p95_ms": 23.220989649999996,
+        "mean_ms": 12.391598081349207
+      }
+    },
+    {
+      "budget_chars": 8000,
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 1024,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 504,
+        "p50_ms": 9.859898999999999,
+        "p95_ms": 27.7325743,
+        "mean_ms": 11.732416047619047
+      },
+      "candidate_latency": {
+        "samples": 504,
+        "p50_ms": 9.513166,
+        "p95_ms": 24.437634499999998,
+        "mean_ms": 10.754972890873015
+      }
+    },
+    {
+      "budget_chars": 8000,
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 2048,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 504,
+        "p50_ms": 8.19862,
+        "p95_ms": 21.9693502,
+        "mean_ms": 9.720980853174604
+      },
+      "candidate_latency": {
+        "samples": 504,
+        "p50_ms": 8.331669999999999,
+        "p95_ms": 22.079513049999996,
+        "mean_ms": 9.92161998015873
+      }
+    },
+    {
+      "budget_chars": 8000,
+      "tokenizer": "o200k_base",
+      "budget_tokens": 512,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 504,
+        "p50_ms": 13.2147045,
+        "p95_ms": 26.96545045,
+        "mean_ms": 14.516240603174603
+      },
+      "candidate_latency": {
+        "samples": 504,
+        "p50_ms": 12.726563500000001,
+        "p95_ms": 24.879934949999996,
+        "mean_ms": 13.862561162698412
+      }
+    },
+    {
+      "budget_chars": 8000,
+      "tokenizer": "o200k_base",
+      "budget_tokens": 1024,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 504,
+        "p50_ms": 10.037742000000001,
+        "p95_ms": 27.389872349999997,
+        "mean_ms": 12.165744317460318
+      },
+      "candidate_latency": {
+        "samples": 504,
+        "p50_ms": 10.377475,
+        "p95_ms": 26.63094135,
+        "mean_ms": 12.156648472222221
+      }
+    },
+    {
+      "budget_chars": 8000,
+      "tokenizer": "o200k_base",
+      "budget_tokens": 2048,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 504,
+        "p50_ms": 8.627718999999999,
+        "p95_ms": 24.91687015,
+        "mean_ms": 10.377641886904762
+      },
+      "candidate_latency": {
+        "samples": 504,
+        "p50_ms": 8.9390015,
+        "p95_ms": 25.436900549999997,
+        "mean_ms": 10.578333845238095
+      }
+    }
+  ],
+  "validation": {
+    "passed": true
+  },
+  "sources": [
+    {
+      "source_provenance": {
+        "source_root": "/home/runner/work/AI-Memory-Book/AI-Memory-Book/.artifacts/token-prefix-bound-baseline/src/memory_book",
+        "repository_root": "/home/runner/work/AI-Memory-Book/AI-Memory-Book/.artifacts/token-prefix-bound-baseline",
+        "git_commit": "407cda1c5f1dac0e67dfe527d3c23febdad5e818",
+        "git_dirty": false,
+        "source_dirty": false,
+        "commit_identifies_source": true,
+        "python_files_differing_from_commit": []
+      },
+      "source_sha256_before": "63cb5eb55cc0356e9c94499739a9d8dcca0307fd6e7a00188b4e25d59fc6a625",
+      "dataset": {
+        "kind": "synthetic",
+        "version": "2.0",
+        "variant": "long_sessions_v2",
+        "seed": 61,
+        "split": "development",
+        "sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26",
+        "projects": 8,
+        "sessions": 112,
+        "turns": 1408,
+        "source_characters": 1143252,
+        "source_utf8_bytes": 1578382,
+        "queries": 168,
+        "answerable_queries": 152,
+        "categories": {
+          "long_answer_middle": 8,
+          "long_answer_natural_middle": 16,
+          "long_answer_natural_late": 16,
+          "cross_project_name": 8,
+          "topic_change": 16,
+          "multi_section": 16,
+          "lookup": 24,
+          "unanswerable_unrelated": 8,
+          "low_overlap_paraphrase": 8,
+          "latest_decision": 8,
+          "short_followup": 8,
+          "similar_task": 8,
+          "unanswerable_related": 8,
+          "cross_session": 8,
+          "historical": 8
+        }
+      },
+      "ingestion_ms": 1155.075144,
+      "source_sha256_after": "63cb5eb55cc0356e9c94499739a9d8dcca0307fd6e7a00188b4e25d59fc6a625",
+      "source_unchanged": true
+    },
+    {
+      "source_provenance": {
+        "source_root": "/home/runner/work/AI-Memory-Book/AI-Memory-Book/src/memory_book",
+        "repository_root": "/home/runner/work/AI-Memory-Book/AI-Memory-Book",
+        "git_commit": "e8a878ec2d8c4b0930e9a5cff20ce954f7ac6818",
+        "git_dirty": false,
+        "source_dirty": false,
+        "commit_identifies_source": true,
+        "python_files_differing_from_commit": []
+      },
+      "source_sha256_before": "6fdad7b9bf0eef50ec925ceeed3ca45fe84d2eb22973c753118df2d0f67f6ba2",
+      "dataset": {
+        "kind": "synthetic",
+        "version": "2.0",
+        "variant": "long_sessions_v2",
+        "seed": 61,
+        "split": "development",
+        "sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26",
+        "projects": 8,
+        "sessions": 112,
+        "turns": 1408,
+        "source_characters": 1143252,
+        "source_utf8_bytes": 1578382,
+        "queries": 168,
+        "answerable_queries": 152,
+        "categories": {
+          "long_answer_middle": 8,
+          "long_answer_natural_middle": 16,
+          "long_answer_natural_late": 16,
+          "cross_project_name": 8,
+          "topic_change": 16,
+          "multi_section": 16,
+          "lookup": 24,
+          "unanswerable_unrelated": 8,
+          "low_overlap_paraphrase": 8,
+          "latest_decision": 8,
+          "short_followup": 8,
+          "similar_task": 8,
+          "unanswerable_related": 8,
+          "cross_session": 8,
+          "historical": 8
+        }
+      },
+      "ingestion_ms": 1121.245599,
+      "source_sha256_after": "6fdad7b9bf0eef50ec925ceeed3ca45fe84d2eb22973c753118df2d0f67f6ba2",
+      "source_unchanged": true
+    }
+  ],
+  "full_report_sha256": "e68aba13a89ca3b8ce0c2d777690ceb1cf405e1a2a16432149c25bf44ac1e0c9"
+}
