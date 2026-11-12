@@ -275,7 +275,7 @@ def manifest_value(inputs, summary):
     source = inputs.source
     return {"schema_version": 1, "protocol": VERSION,
         "status_at_freeze": "source-and-evaluator-bound-before-selection-not-scored",
-        "human_content_inspection": "ID-only selection; no questions, answers or source passages displayed; no outcome filtering.",
+        "human_content_inspection": "ID-only deterministic selection; no selected question or outcome used to tune the candidate or filter IDs. A preparatory download accidentally printed encoded Parquet bytes; see the bound preselection disclosure.",
         "plan_sha256": inputs.plan_sha256, "binding_sha256": inputs.binding_sha256,
         "evaluator_commit": inputs.binding["evaluator_commit"],
         "sources": {key: inputs.binding[key] for key in ("baseline", "candidate")},
