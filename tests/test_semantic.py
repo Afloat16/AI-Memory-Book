@@ -146,6 +146,34 @@ class SemanticLifecycleTests(unittest.TestCase):
         self.assertEqual([tuple(row) for row in self.book.db.execute("SELECT * FROM semantic_vectors")], before)
         self.assertFalse(self.book.db.in_transaction)
 
+    def test_ranker_upgrade_separates_persisted_semantic_cache_and_reuses_vectors(self):
+        self.book.build_semantic_index()
+        originals, revision = self.book.export(), self.book.revision
+        before = {table: [tuple(row) for row in self.book.db.execute(f"SELECT * FROM {table}")]
+                  for table in ("semantic_meta", "semantic_vectors")}
+        with patch("memory_book.store.RECALL_VERSION", 10), \
+                patch("memory_book.semantic.rank_pages", return_value=[]):
+            self.assertFalse(self.book.recall("source", semantic=True)["cache_hit"])
+            self.assertTrue(self.book.recall("source", semantic=True)["cache_hit"])
+        self.book.close()
+        self.book = MemoryBook(self.path, semantic_model_dir=self.temp.name)
+        self.book._semantic_model = FixtureEncoder()
+        self.assertEqual(self.book.stats()["cache_entries"], 1)
+
+        with patch.object(self.book._semantic_model, "encode_pages", side_effect=AssertionError("must reuse index")), \
+                patch("memory_book.semantic.rank_pages", return_value=[]) as rank:
+            fresh = self.book.recall("source", semantic=True)
+            self.assertFalse(fresh["cache_hit"])
+            cached = self.book.recall("source", semantic=True)
+            self.assertTrue(cached["cache_hit"])
+            self.assertEqual(cached["context"], fresh["context"])
+            self.assertEqual(rank.call_count, 1)
+        self.assertEqual(self.book.stats()["cache_entries"], 2)
+        self.assertEqual({table: [tuple(row) for row in self.book.db.execute(f"SELECT * FROM {table}")]
+                          for table in before}, before)
+        self.assertEqual(self.book.export(), originals)
+        self.assertEqual(self.book.revision, revision)
+
     def test_old_writer_deletion_invalidates_index_and_cascades_vectors(self):
         self.book.build_semantic_index()
         with MemoryBook(self.path) as writer:

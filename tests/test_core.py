@@ -9,6 +9,7 @@ import tempfile
 import threading
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from memory_book import MemoryBook
 from memory_book.cli import export_book, main
@@ -126,6 +127,26 @@ class BookTests(unittest.TestCase):
         self.assertFalse(result["cache_hit"])
         self.assertIn("72秒", result["context"])
         self.assertNotIn("45秒", result["context"])
+
+    def test_ranker_upgrade_ignores_persisted_v10_results_without_reimport(self):
+        self.book.ingest(session())
+        originals, revision = self.book.export(), self.book.revision
+        with patch("memory_book.store.RECALL_VERSION", 10):
+            self.assertFalse(self.book.recall("缓存")["cache_hit"])
+            self.assertTrue(self.book.recall("缓存")["cache_hit"])
+        self.book.close()
+        self.book = MemoryBook(self.path)
+        self.assertEqual(self.book.stats()["cache_entries"], 1)
+
+        fresh = self.book.recall("缓存")
+        self.assertFalse(fresh["cache_hit"])
+        self.assertIn("45秒", fresh["context"])
+        cached = self.book.recall("缓存")
+        self.assertTrue(cached["cache_hit"])
+        self.assertEqual(cached["context"], fresh["context"])
+        self.assertEqual(self.book.stats()["cache_entries"], 2)
+        self.assertEqual(self.book.export(), originals)
+        self.assertEqual(self.book.revision, revision)
 
     def test_updated_page_address_does_not_resolve_to_new_text(self):
         self.book.ingest(session())
