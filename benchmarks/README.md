@@ -48,7 +48,11 @@ complementary-facet test. Capping its bonus at 0.25 gains three complete
 LoCoMo questions at 512 tokens, with no observed complete-question or
 annotation losses in the twelve development settings. Other quality values
 are unchanged; some contexts, payload costs and single-pass timings change.
-The cap is a candidate for separate qualification, not the product default.
+The subsequent [strict regression qualification](../docs/novelty-cap-qualification.md)
+completed 4,096 small-budget calls and **rejected the cap**: every one of eight
+paired default/Q2 settings loses complete questions. The 1,024/2,048-token
+phase was not run under the registered stop rule. Neither experimental formula
+is adopted; the current product and README comparison remain unchanged.
 
 The original measurement files and failed final presentation audit remain
 unchanged. An [independent supplemental audit](reports/novelty-probe-43214192647-1.supplemental-audit.json)
