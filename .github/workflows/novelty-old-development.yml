@@ -1,0 +1,117 @@
+name: Two frozen novelty probes on old development data
+
+on:
+  push:
+    branches: ['quality/novelty-probe-20261112']
+    paths:
+      - '.github/workflows/novelty-old-development.yml'
+      - 'scripts/run_novelty_probe.py'
+      - 'tests/test_novelty_probe.py'
+      - 'benchmarks/experiments/novelty-probe-plan.json'
+      - 'benchmarks/experiments/novelty-probe-binding.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: novelty-old-development
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      TIKTOKEN_CACHE_DIR: ${{ github.workspace }}/.artifacts/novelty-tokenizers
+      PYTHONHASHSEED: '0'
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - name: Install native scoring and old-source conversion dependencies
+        run: python -m pip install 'tiktoken==0.12.0' 'pyarrow==26.0.1'
+      - name: Verify numerical gates and bind all immutable runtime sources
+        id: source
+        run: |
+          python -m unittest tests.test_novelty_probe -v
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          python - <<'PY'
+          import json,pathlib,subprocess
+          from scripts.run_novelty_probe import verify_source
+          binding=json.loads(pathlib.Path('benchmarks/experiments/novelty-probe-binding.json').read_text())
+          root=pathlib.Path('.artifacts/novelty-sources')
+          root.mkdir(parents=True,exist_ok=True)
+          for mode in ('default','no_novelty','capped_novelty_025'):
+              commit=binding['modes'][mode]['commit']
+              subprocess.run(['git','fetch','origin',commit],check=True)
+              subprocess.run(['git','worktree','add','--detach',str(root/mode),commit],check=True)
+              verify_source((root/mode/'src').resolve(),mode,binding)
+          PY
+      - name: Prepare pinned old cohorts with the old 128-ID filter before conversion
+        id: prepare
+        timeout-minutes: 15
+        run: |
+          python scripts/run_novelty_probe.py --prepare-data .artifacts/novelty-inputs
+          python - <<'PY'
+          import tiktoken
+          for name in ('cl100k_base','o200k_base'):
+              tiktoken.get_encoding(name)
+          PY
+      - name: Run one complete old-data pass and save each completed worker to Git
+        id: measure
+        timeout-minutes: 60
+        run: |
+          python scripts/run_novelty_probe.py \
+            --data-dir .artifacts/novelty-inputs \
+            --sources-root .artifacts/novelty-sources \
+            --output "benchmarks/reports/novelty-probe-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json.gz" \
+            --publish-branch "validation/novelty-probe-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+      - name: Recompute the saved matrix, all paired gains/losses and declared screen
+        id: audit
+        timeout-minutes: 5
+        run: |
+          python scripts/run_novelty_probe.py \
+            --audit "benchmarks/reports/novelty-probe-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json.gz"
+      - name: Preserve final outcome including failed or interrupted attempts
+        if: always()
+        timeout-minutes: 5
+        env:
+          SOURCE: ${{ steps.source.outcome }}
+          PREPARE: ${{ steps.prepare.outcome }}
+          MEASURE: ${{ steps.measure.outcome }}
+          AUDIT: ${{ steps.audit.outcome }}
+        run: |
+          python - <<'PY'
+          from datetime import datetime,timezone
+          import hashlib,json,os,pathlib,subprocess
+          run=os.environ['GITHUB_RUN_ID']+'-'+os.environ['GITHUB_RUN_ATTEMPT']
+          prefix='benchmarks/reports/novelty-probe-'+run
+          paths=[prefix+s for s in ('.json.gz','.summary.json','.md') if pathlib.Path(prefix+s).is_file()]
+          binding=json.loads(pathlib.Path('benchmarks/experiments/novelty-probe-binding.json').read_text())
+          outcomes={key.lower():os.environ.get(key) for key in ('SOURCE','PREPARE','MEASURE','AUDIT')}
+          complete=all(value=='success' for value in outcomes.values()) and len(paths)==3
+          marker=pathlib.Path(prefix+'.completion.json')
+          marker.parent.mkdir(parents=True,exist_ok=True)
+          value={'status':'complete' if complete else 'failed_or_incomplete','outcomes':outcomes,
+                 'evaluator_commit':os.environ['GITHUB_SHA'],'runtime_bindings':binding['modes'],
+                 'created_at':datetime.now(timezone.utc).isoformat(),
+                 'workflow_run_url':os.environ['GITHUB_SERVER_URL']+'/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID'],
+                 'files_sha256':{p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() for p in paths},
+                 'scope':'Two predeclared novelty variants versus cbf6260; old synthetic61/authored36/LoCoMo1015/Hotpot128 only; one repetition, all budgets and groups retained. Development latency only; default and prior frozen comparison unchanged.'}
+          marker.write_text(json.dumps(value,indent=2)+'\n')
+          paths.append(str(marker))
+          def call(*args):subprocess.run(args,check=True)
+          call('git','config','user.name','github-actions[bot]')
+          call('git','config','user.email','41898282+github-actions[bot]@users.noreply.github.com')
+          call('git','add','--',*paths)
+          call('git','commit','-m','bench: preserve complete novelty probe or explicit failed attempt')
+          branch='validation/novelty-probe-'+run
+          call('git','push','origin','HEAD:refs/heads/'+branch)
+          print(json.dumps({'branch':branch,'status':value['status'],'files':paths}))
+          PY
