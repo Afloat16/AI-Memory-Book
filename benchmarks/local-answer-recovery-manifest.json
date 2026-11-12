@@ -1,0 +1,212 @@
+{
+  "version": 1,
+  "cwd": "..",
+  "runtime_commands": [
+    [
+      "{python}",
+      "--version"
+    ]
+  ],
+  "inputs": [
+    {
+      "path": ".artifacts/native-baseline-5abc/src",
+      "pattern": "**/*.py"
+    },
+    {
+      "path": ".artifacts/native-completion-candidate/src",
+      "pattern": "**/*.py"
+    },
+    {
+      "path": "benchmarks/answer_eval.py"
+    },
+    {
+      "path": "benchmarks/local_answer_eval.py"
+    },
+    {
+      "path": "benchmarks/local_answer_server.py"
+    },
+    {
+      "path": "benchmarks/token_compare.py"
+    },
+    {
+      "path": "benchmarks/run.py"
+    },
+    {
+      "path": "benchmarks/data.py"
+    },
+    {
+      "path": "benchmarks/public_data.py"
+    },
+    {
+      "path": "benchmarks/hotpot_data.py"
+    },
+    {
+      "path": "benchmarks/query_guard.py"
+    },
+    {
+      "path": "benchmarks/resume.py"
+    },
+    {
+      "path": "benchmarks/experiments/local-answer-plan.json"
+    },
+    {
+      "path": "benchmarks/experiments/local-answer-execution.json"
+    },
+    {
+      "path": "benchmarks/locomo_split.json"
+    },
+    {
+      "path": "benchmarks/hotpot_manifest.json"
+    },
+    {
+      "path": ".artifacts/data/locomo10.json"
+    },
+    {
+      "path": ".artifacts/data/hotpotqa-dev-distractor.json"
+    },
+    {
+      "path": ".artifacts/models/semantic/onnx/model_quint8_avx2.onnx"
+    },
+    {
+      "path": ".artifacts/models/semantic/tokenizer.json"
+    },
+    {
+      "path": ".artifacts/local-answer/qwen2.5-0.5b-instruct-q4_k_m.gguf"
+    },
+    {
+      "path": ".artifacts/local-answer/llama-b12110-bin-ubuntu-x64.tar.gz"
+    },
+    {
+      "path": "scripts/summarize_local_answers.py"
+    }
+  ],
+  "stages": [
+    {
+      "id": "prepare-locomo",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.local_answer_eval",
+        "prepare",
+        "--cohort",
+        "locomo",
+        "--candidate-src",
+        ".artifacts/native-completion-candidate/src"
+      ],
+      "outputs": [
+        ".artifacts/local-answer-evaluation/locomo/prepared.json",
+        ".artifacts/local-answer-evaluation/locomo/preparation-binding.json"
+      ],
+      "timeout_seconds": 7200
+    },
+    {
+      "id": "generate-locomo",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.local_answer_eval",
+        "run",
+        "--cohort",
+        "locomo",
+        "--run-prefix",
+        ".artifacts/local-answer-evaluation/locomo/registered-run"
+      ],
+      "outputs": [
+        ".artifacts/local-answer-evaluation/locomo/registered-run.jsonl",
+        ".artifacts/local-answer-evaluation/locomo/registered-run.summary.json",
+        ".artifacts/local-answer-evaluation/locomo/registered-run.server.json"
+      ],
+      "timeout_seconds": 28800
+    },
+    {
+      "id": "export-locomo",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.local_answer_eval",
+        "export",
+        "--cohort",
+        "locomo",
+        "--run-prefix",
+        ".artifacts/local-answer-evaluation/locomo/registered-run",
+        "--output",
+        "benchmarks/results/local-answer-final-locomo"
+      ],
+      "outputs": [
+        "benchmarks/results/local-answer-final-locomo.json.gz",
+        "benchmarks/results/local-answer-final-locomo.summary.json"
+      ],
+      "timeout_seconds": 300
+    },
+    {
+      "id": "prepare-hotpotqa",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.local_answer_eval",
+        "prepare",
+        "--cohort",
+        "hotpotqa",
+        "--candidate-src",
+        ".artifacts/native-completion-candidate/src"
+      ],
+      "outputs": [
+        ".artifacts/local-answer-evaluation/hotpotqa/prepared.json",
+        ".artifacts/local-answer-evaluation/hotpotqa/preparation-binding.json"
+      ],
+      "timeout_seconds": 7200
+    },
+    {
+      "id": "generate-hotpotqa",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.local_answer_eval",
+        "run",
+        "--cohort",
+        "hotpotqa",
+        "--run-prefix",
+        ".artifacts/local-answer-evaluation/hotpotqa/registered-run"
+      ],
+      "outputs": [
+        ".artifacts/local-answer-evaluation/hotpotqa/registered-run.jsonl",
+        ".artifacts/local-answer-evaluation/hotpotqa/registered-run.summary.json",
+        ".artifacts/local-answer-evaluation/hotpotqa/registered-run.server.json"
+      ],
+      "timeout_seconds": 28800
+    },
+    {
+      "id": "export-hotpotqa",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.local_answer_eval",
+        "export",
+        "--cohort",
+        "hotpotqa",
+        "--run-prefix",
+        ".artifacts/local-answer-evaluation/hotpotqa/registered-run",
+        "--output",
+        "benchmarks/results/local-answer-final-hotpotqa"
+      ],
+      "outputs": [
+        "benchmarks/results/local-answer-final-hotpotqa.json.gz",
+        "benchmarks/results/local-answer-final-hotpotqa.summary.json"
+      ],
+      "timeout_seconds": 300
+    },
+    {
+      "id": "assess-both-cohorts",
+      "argv": [
+        "{python}",
+        "scripts/summarize_local_answers.py"
+      ],
+      "outputs": [
+        "benchmarks/results/local-answer-final-assessment.json",
+        "benchmarks/RESULTS-local-answers.md"
+      ],
+      "timeout_seconds": 300
+    }
+  ],
+  "description": "Execute the unchanged registered 128+128 question, three-engine answer experiment in a recovered workspace. Generation owns and verifies the pinned real local process. The general manifest runner is for first execution/stage bookkeeping only; an interrupted generation MUST be resumed with the exact local_answer_eval run argv plus --resume before advancing the manifest. Never blindly replay a failed generation or overwrite a completed trace. Prior immutable source snapshots are baseline 5abc85e and candidate 407cda1. Raw copyrighted text and model outputs remain in ignored .artifacts; public exports are source-free hashes and measurements."
+}

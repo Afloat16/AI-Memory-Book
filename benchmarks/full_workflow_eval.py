@@ -687,6 +687,9 @@ def run_locked(args):
     public = {"evaluator": VERSION, "identity": identity, "identity_sha256": identity_hash,
               "status": report["status"], "summary": report["summary"], "answers": list(report["answers"].values()),
               "stage_statuses": {k: {f: v for f, v in r.items() if f != "result"} for k, r in report["stages"].items()},
+              "capture_results": {k: r.get("result") for k, r in report["stages"].items()
+                                  if k.startswith("native-capture:")},
+              "embedding_result": report["stages"].get("native-embed", {}).get("result"),
               "consolidation_outputs": {k: r.get("result") for k, r in report["stages"].items() if k.startswith("native-consolidate:")},
               "contexts": {k: {f: v for f, v in r.get("result", {}).items() if f not in {"search", "reads"}}
                            for k, r in report["stages"].items() if k.startswith("context:")},
