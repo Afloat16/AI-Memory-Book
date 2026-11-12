@@ -39,6 +39,22 @@ on every metric; the complete comparison retains that result and all costs.
 [Current comparison and project landscape](../docs/comparison.md) ·
 [Round-two status and source identities](../docs/optimization-round2.md).
 
+## Separate research: bounded novelty
+
+The [complete old-data probe](../docs/novelty-probe.md) preserves **12,123
+calls** across four old cohorts, three budgets and three fixed formulas.
+Removing the query-term novelty bonus loses evidence and fails an existing
+complementary-facet test. Capping its bonus at 0.25 gains three complete
+LoCoMo questions at 512 tokens, with no observed complete-question or
+annotation losses in the twelve development settings. Other quality values
+are unchanged; some contexts, payload costs and single-pass timings change.
+The cap is a candidate for separate qualification, not the product default.
+
+The original measurement files and failed final presentation audit remain
+unchanged. An [independent supplemental audit](reports/novelty-probe-43214192647-1.supplemental-audit.json)
+recomputes the full numerical matrix and proves the Markdown difference is
+only the order of two final candidate notes. No retrieval was rerun to repair it.
+
 ## Historical: earlier completed memory validation
 
 The earlier 2026-11-12 continuation is **complete for its named source pins**. The

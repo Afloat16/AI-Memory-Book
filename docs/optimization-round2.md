@@ -60,3 +60,30 @@ The [independent strict verification](../benchmarks/reports/round2-recovery-inde
 - Both READMEs display current configurations and the latest complete component matrix. Historical versions, unsuccessful experiments, all small-budget losses and full cost/resource boundaries stay in the detailed records.
 
 Further ranking investigations use separate plans, source commits and old development data. They do not alter this frozen candidate or replace unfavorable rows in its report. The previous complete-validation record remains valid for its own fixed source snapshot.
+
+## Separate bounded ranking follow-up
+
+The [old-data novelty probe](novelty-probe.md) is complete: 12,123 actual calls,
+both fixed alternatives, every budget/group/loss and the original presentation
+audit failure are preserved. Removing the novelty bonus is rejected. The
+0.25 cap gains three complete LoCoMo questions and three annotations at 512
+tokens; the other eleven development cells have equal quality, with zero
+individual evidence losses in these twelve cells. This does not establish
+unchanged payloads, faster operation or generalization. The current default
+and README comparison remain unchanged.
+
+Before qualification scoring, a separate source at
+[`b7d3cb9`](https://github.com/Afloat16/AI-Memory-Book/commit/b7d3cb90ce71017ebb2c34b1bf172652e1d102e4)
+adds the necessary recall-cache version increment to the unchanged cap
+formula. Persisted version-10 lexical and semantic results must miss after
+upgrading; new results remain cacheable, original data stays unchanged and
+compatible semantic vectors remain reusable. Two disk-reopen regression
+tests pass, and forcing version 10 makes both fail at the expected cache-hit
+check. This correction does not change the cache-disabled old probe.
+
+The next qualification has its own source binding and explicit stopping rule:
+all 512-token axes first, then larger budgets only if every configuration has
+zero individual complete-question and annotation losses. It uses the already
+scored 256 questions as regression data. The cap is not adopted automatically;
+any failed qualification is retained and stops this candidate without further
+parameter tuning.
