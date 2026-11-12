@@ -36,7 +36,12 @@ def control_reproduction(current, prior):
                 raise ValueError("Control query sets differ")
             modes.append({"mode": current_mode["mode"],
                           "changed_context_ids": [key for key in old if old[key]["context_sha256"] != new[key]["context_sha256"]],
-                          "changed_evidence_ids": [key for key in old if old[key]["evidence_ranks"] != new[key]["evidence_ranks"]]})
+                          "changed_evidence_ids": [key for key in old if old[key]["evidence_ranks"] != new[key]["evidence_ranks"]],
+                          "changed_annotation_presence_ids": [key for key in old if
+                              [rank is not None for rank in old[key]["evidence_ranks"]] !=
+                              [rank is not None for rank in new[key]["evidence_ranks"]]],
+                          "complete_question_gains": [key for key in old if new[key]["complete"] and not old[key]["complete"]],
+                          "complete_question_losses": [key for key in old if old[key]["complete"] and not new[key]["complete"]]})
         comparisons.append({"budget_tokens": after["budget_tokens"], "modes": modes})
     return comparisons
 
@@ -220,12 +225,13 @@ def markdown(report):
     lines.extend(["", "Accepted reports passed source/index-address stability, source-span projection, project scope, character/token caps, token/model metadata, result-cache isolation and repeat-context checks. These are measurement checks, not evidence of universal semantic memory.", "",
                   "## Repeated controls across experiments", "",
                   "This compares each current lexical/RRF/Q1 context and evidence outcome with the completed Q1 experiment. Differences are retained as diagnostics; timings are never pooled across runs or hosts. The JSON separately records verified model identity, recorded runtime environment and indexed page-text/ID fingerprint agreement. A hardware or numerical cause for any changes is not established by these records. The quality conclusions above use the four modes paired within the current run.", "",
-                  "| Old cohort | Cap | Control | Changed contexts | Changed evidence outcomes |",
-                  "|---|---:|---|---:|---:|"])
+                  "| Old cohort | Cap | Control | Changed contexts | Changed evidence ranks | Changed annotation presence | Complete gains | Complete losses |",
+                  "|---|---:|---|---:|---:|---:|---:|---:|"])
     for cohort in report["cohorts"]:
         for config in cohort["control_reproduction"]:
             for mode in config["modes"]:
-                lines.append(f"| {cohort['cohort']} | {config['budget_tokens']} | {mode['mode']} | {len(mode['changed_context_ids'])} | {len(mode['changed_evidence_ids'])} |")
+                lines.append(f"| {cohort['cohort']} | {config['budget_tokens']} | {mode['mode']} | {len(mode['changed_context_ids'])} | {len(mode['changed_evidence_ids'])} | "
+                             f"{len(mode['changed_annotation_presence_ids'])} | {len(mode['complete_question_gains'])} | {len(mode['complete_question_losses'])} |")
     lines.extend(["", "Public raw and summary reports remain linked below; private source datasets and model artifacts are not part of Git publication.", "", "## Reports", ""])
     for cohort in report["cohorts"]:
         provenance = cohort["provenance"]
