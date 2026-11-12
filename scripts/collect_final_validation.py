@@ -262,6 +262,7 @@ def main(argv=None):
              "timing_policy": "Retain each cohort's measured environment; never pool host timings."}
     aggregate.atomic(root / AUDIT, audit)
     success, authorized, aggregation_started = False, False, False
+    previous_aggregation_sha = None
     try:
         event = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_bytes())
         declared = event_identity(event, os.environ)
@@ -284,13 +285,16 @@ def main(argv=None):
             aggregate.atomic(root / AUDIT, audit)
         command = [sys.executable, str(root / "scripts/aggregate_hosted_validation.py")]
         # Do not spoof GITHUB_REF or use the manual aggregator's --publish guard.
+        previous_aggregation_sha = (aggregate.sha(root / aggregate.AUDIT)
+                                    if (root / aggregate.AUDIT).is_file() else None)
         aggregation_started = True
         outcome = subprocess.run(command, cwd=root, check=False, timeout=900)
         audit["aggregation_exit_code"] = outcome.returncode
         if outcome.returncode:
             raise CollectionError("strict_aggregation_failed")
         verified = aggregate.read(root, aggregate.AUDIT)
-        if verified.get("status") != "complete-verified-snapshot":
+        if (verified.get("status") != "complete-verified-snapshot"
+                or aggregate.sha(root / aggregate.AUDIT) == previous_aggregation_sha):
             raise CollectionError("strict_aggregation_has_no_complete_audit")
         audit["matrix"] = aggregate.verify_assessments(root)
         for entry in audit["collected"]:
@@ -309,10 +313,17 @@ def main(argv=None):
         aggregate.atomic(root / AUDIT, audit)
         if args.publish and authorized:
             files = {AUDIT, *(name for entry in audit["collected"] for name in entry["imported_sha256"])}
-            if aggregation_started and (root / aggregate.AUDIT).is_file():
+            if (aggregation_started and (root / aggregate.AUDIT).is_file()
+                    and aggregate.sha(root / aggregate.AUDIT) != previous_aggregation_sha):
                 files.add(aggregate.AUDIT)
             if success:
                 files.update(aggregate.OUTPUTS)
+            if any(not (root / name).is_file() or aggregate.sha(root / name) != digest
+                   for entry in audit["collected"] for name, digest in entry["imported_sha256"].items()):
+                success = False
+                audit.update(status="failed", reason="canonical_input_changed_before_publication")
+                files = {AUDIT}
+                aggregate.atomic(root / AUDIT, audit)
             try:
                 audit["publication_branch"] = publish(root, source, files)
             except Exception as exc:
