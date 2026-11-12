@@ -1,0 +1,53 @@
+name: Prepare and freeze round three without scoring
+
+on:
+  push:
+    branches: ['ci/v031-round3-freeze']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: round3-registered-preparation-and-freeze
+  cancel-in-progress: false
+
+jobs:
+  freeze:
+    if: github.repository == 'Afloat16/AI-Memory-Book' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    permissions:
+      contents: write
+    env:
+      ORT_DISABLE_TELEMETRY: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - name: Install only preparation and Parquet dependencies
+        run: python -m pip install -e . pyarrow==26.0.1
+      - name: Check preparation boundaries using artificial inputs
+        run: python -m unittest tests.test_round3_freeze tests.test_round3_quality_recovery -v
+      - name: Preserve quality evidence, bind sources, then freeze IDs
+        timeout-minutes: 30
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python -u scripts/run_round3_freeze.py
+      - name: Preserve public checkpoint and frozen metadata
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: round3-freeze-public-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            benchmarks/reports/round3-freeze-*-checkpoint.json
+            benchmarks/reports/round3-freeze-claim-*.json
+            benchmarks/reports/round3-project-stats-recovered/
+            benchmarks/experiments/round3-validation-binding.json
+            benchmarks/experiments/round3-hotpot256-manifest.json
+          if-no-files-found: warn
+          retention-days: 30
