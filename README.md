@@ -45,19 +45,44 @@ The [full comparison](docs/comparison.md) records the exact source revisions, al
 
 ### Speed, response size and operating costs
 
-| Executed operation | p50 | p95 | Mean returned `o200k_base` tokens | Boundary |
-|---|---:|---:|---:|---|
-| Book in-process recall | 2.945 ms | 4.555 ms | — | Retrieval and native context assembly |
-| **Book actual MCP recall** | **5.764 ms** | **9.181 ms** | **1,465.1** | Official SDK, subprocess stdio, JSON and evidence |
-| billion-context search + bridge | 1.298 ms | 2.413 ms | 569.2 | Search preview; decompression excluded |
-| ai-memory local hybrid | 29.720 ms | 37.315 ms | 942.5 | HTTP/MCP search; full reads excluded |
-| claude-mem native FTS + Bun bridge | 59.664 ms | 100.450 ms | 1,691.3 | Full observation-row JSON; MCP/observer excluded |
+The current source has a separately verified **lossless indexed-reference mode**.
+On all 1,015 public-conversation questions at the default 4,000-character cap,
+actual MCP response text uses **19.63% fewer `o200k_base` tokens**. Including the
+complete tool schema, initialization instructions and call arguments, the
+first-call reference count falls **8.15%**.
 
-These native response sizes are separate from the bounded common context above. Billion is faster at its measured search boundary. Hosts, interfaces and omitted phases differ, so these rows do not imply a whole-product speed multiplier. Under the separately measured policy of reading all five ai-memory results, its full-read payload adds 1,913.7 tokens, for 2,856.2 total; an agent choosing fewer reads can spend less.
+| Current MCP format | p50 | p95 | Mean response-text tokens | First-call reference tokens |
+|---|---:|---:|---:|---:|
+| Default `objects` | 5.503 ms | 7.126 ms | 1,464.8 | 2,621.0 |
+| **Opt-in `indexed`** | **5.466 ms** | 7.131 ms | **1,177.2** | **2,407.4** |
 
-Book's **default memory writing and retrieval use zero model calls**: local Python and SQLite, no mandatory embedding download, no generative summarizer and no separate database service. Your answering model remains your choice. Optional exact token budgets include citations and separators; original source addresses remain available for verification.
+Both rows run the **same frozen implementation**, official SDK and source
+archive, with four balanced rounds and cleared query-result caches. Context,
+page IDs and complete source fields are recoverable without alteration. The
+indexed setting adds 74 initialization tokens in this encoding and no tool-schema
+or argument tokens; default clients incur none of that increment. First-call
+net tokens improve on 1,014 of 1,015 questions. Sparse references can cost more,
+and this format does not promise a speed improvement: the displayed p95 changes
+by +0.005 ms. Reference counts are measured SDK text/metadata surfaces, not a
+provider billing estimate. [All 12 configurations, both tokenizers, per-query
+losses and reproduction](docs/indexed-references.md).
 
-[All measured costs](docs/comparison.md#returned-tokens-follow-up-reads-preparation-and-storage) include import/index time, model preparation, native response sizes, storage and available RSS measurements, with each boundary labeled. The [project comparison](docs/comparison.md#popular-projects-and-the-workload-they-address) also covers **Mem0, Graphiti, PageIndex and Letta** using official sources and dated popularity snapshots. ai-memory also supports a zero-LLM default path; claude-mem supports local model providers.
+The **default core optimization** has its own paired, identical-output test:
+all 12 cohort/interface/character-budget configurations have lower pooled p95,
+by **1.32%–13.65% in process** and **1.25%–9.50% through actual MCP**. On the
+public corpus, fresh ingestion is **46.45% faster** and unchanged-session replay
+is **61.38% faster**. Those improvements retain the same returned tokens and
+source/index content; the [full report](docs/default-recall-performance.md)
+keeps every round and the small individual-round regressions.
+
+Default memory writing and lexical retrieval use **zero model calls** and
+require no embedding download or separate database service. Optional local
+semantics has its own model, index and query costs. Your answering model remains
+your choice. [Full component costs and deployment comparison](docs/comparison.md)
+cover **claude-mem, ai-memory and billion-context**, with separately labeled
+native search/read, preparation, storage and RSS boundaries. The same guide
+covers **Mem0, Graphiti, PageIndex and Letta** using official sources. ai-memory
+also supports a zero-LLM default path; claude-mem supports local model providers.
 
 ## Get started
 
