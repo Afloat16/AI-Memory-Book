@@ -2,8 +2,11 @@ import copy
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import sqlite3
+import subprocess
+import sys
 import tempfile
 from types import SimpleNamespace
 import unittest
@@ -168,6 +171,15 @@ class RoundTwoValidationTests(unittest.TestCase):
 
     @unittest.skipUnless(importlib.util.find_spec("tiktoken"), "optional reference tokenizer not installed")
     def test_invented_archive_native_and_component_survive_strict_assessment(self):
+        if os.environ.get("ROUND2_FIXTURE_WORKER") != "1":
+            result = subprocess.run([sys.executable, "-m", "unittest",
+                "tests.test_round2_validation.RoundTwoValidationTests.test_invented_archive_native_and_component_survive_strict_assessment"],
+                cwd=ROOT, env={**os.environ, "ROUND2_FIXTURE_WORKER": "1", "PYTHONPATH": str(ROOT / "src")},
+                capture_output=True, text=True, timeout=90)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            return
+        import memory_book
+        self.assertEqual(Path(memory_book.__file__).resolve().parent, ROOT / "src/memory_book")
         from benchmarks.run import engine_source_hash
         from benchmarks.token_compare import checkout_provenance
         source = ROOT / "src/memory_book"

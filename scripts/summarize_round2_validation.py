@@ -144,6 +144,9 @@ def verify_stage(root, result_dir, stage, checkpoint, plan, binding, manifest):
             and report["configured_generative_model_calls"] == 0, "Stage measurement validation failed")
     verify_samples(report, plan, manifest["selected_ids"])
     verify_configurations(report, plan, manifest["selected_ids"])
+    require(all(config["metrics"]["answerable_queries"] == manifest["expected_queries"]
+                and config["metrics"]["required_evidence"] == manifest["required_evidence"]
+                for config in report["configurations"]), "Registered question or evidence denominator changed")
     metadata = report.get("metadata", {})
     if stage.startswith(("baseline-", "candidate-")):
         expected = plan["baseline"] if stage.startswith("baseline-") else binding["candidate"]
@@ -156,6 +159,11 @@ def verify_stage(root, result_dir, stage, checkpoint, plan, binding, manifest):
     if stage in upstream:
         lock = json.loads((root / binding["upstream_locks"][upstream[stage]]).read_bytes())
         require(metadata["commit"] == lock["commit"], "Measured upstream commit differs")
+        if stage == "ai-memory-hybrid":
+            require(metadata["binary_sha256"] == lock["binary_sha256"]
+                    and metadata["embedding_provider"] == "local"
+                    and metadata["embedding_model"]["files"] == lock["embedding_model"]["files"],
+                    "Native ai-memory binary/model boundary differs")
     require(report["resources"]["sampling_interval_ms"] == 20
             and report["resources"]["samples"].get("setup", 0) > 0, "RSS measurement missing")
     if stage != "export":
