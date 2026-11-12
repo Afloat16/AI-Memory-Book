@@ -4,9 +4,9 @@
 
 项目是书，任务是章，之前的决定可以跨会话、跨客户端保留。AI 通过一次 MCP 调用，取得预算范围内的相关原文，用来继续当前任务。
 
-[English](README.md) · [快速开始](#快速开始) · [实测结果](#实测结果) · [文档导航](#文档导航) · [v0.3.0 发布页](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.0)
+[English](README.md) · [快速开始](#快速开始) · [实测结果](#实测结果) · [文档导航](#文档导航) · [v0.3.1 发布页](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.1)
 
-**v0.3.0 · 实验性版本 · MIT · Python 3.10+ · 本地 SQLite**
+**v0.3.1 · 实验性版本 · MIT · Python 3.10+ · 本地 SQLite**
 
 ## 如何运作
 
@@ -38,14 +38,14 @@ flowchart TD
 **macOS / Linux**
 
 ```bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.0/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.1/scripts/install.sh
 bash install-memory-book.sh
 ```
 
 **Windows PowerShell**
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.0/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.1/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ```
 
@@ -64,35 +64,35 @@ memory-book doctor
 
 ## 实测结果
 
-以下展示 **v0.3.0 所采用实现**的已验证结果。完整协议、源码哈希、逐题得失和历史实验保留在[基准索引](benchmarks/README.md)。
+**v0.3.1 减少查询开销，同时保留默认检索输出。** 成对性能测试以 v0.3.0 为基线。源码身份、完整测量及未通过的实验保留在[基准索引](benchmarks/README.md)。
 
 ### 效率优势
 
 | 已验证改进 | 结果 | 测量范围 |
 |---|---|---|
-| **相同输出，默认检索更快** | 实际 MCP 合并 p95 **降低 1.25%–9.50%** | 四轮平衡成对测试，共 56,784 次调用，覆盖原生/MCP、两组旧语料和三档字符预算。[报告](docs/default-recall-performance.md) |
-| **减少导入与重复处理耗时** | 首次导入**降低 46.45%**；未变化会话重放**降低 61.38%** | 公开会话语料，优化前后原文和索引内容一致。[报告](docs/default-recall-performance.md) |
-| **可选精简 MCP 引用** | 响应文本 token **减少 19.63%**；首次调用参考总量**减少 8.15%** | 1,015 道公开会话问题、4,000 字符、compact 响应、`o200k_base`。[报告](docs/indexed-references.md) |
+| **输出相同，尾部延迟降低** | 十组设置的合并 p95 几何均值**降低 11.36%** | 47,320 次调用，两组旧语料，原生与真实 SDK MCP，字符与 token 预算，四轮平衡测试。[报告](docs/round3-performance-review.md) |
+| **公开会话检索更快** | 原生 p95 **5.054 → 3.737 ms（−26.05%）**；真实 MCP **7.409 → 5.937 ms（−19.87%）** | 1,015 道问题，4,000 字符预算，同一机器，不复用检索结果。[原始测量](benchmarks/reports/round3-performance-43246417515-1/report.summary.json) |
+| **保留可选精简引用** | 响应文本 token **减少 19.63%**；首次调用参考总量**减少 8.15%** | 之前的 1,015 题测量，4,000 字符、compact 响应、`o200k_base`；此选项未改变。[报告](docs/indexed-references.md) |
 
-精简引用保留相同上下文，并可还原全部来源字段。首次调用计数包含完整工具 schema、初始化说明和参数；参考 tokenizer 计数不等于服务商账单。引用稀少时可能增加 token。这是体积优化：该设置的 p95 为 **7.126 ms → 7.131 ms**，不宣称提速。
+完整非计时输出保持一致。一组合成语料的 512-token 设置 **p95 增加 0.125%**；公开语料工作进程中新空数据库的平均打开耗时增加 **4.838 ms（+14.04%）**，经独立复核明确接受这一代价。所有轮次及原始自动资源标记保留在[性能结果与复核记录](docs/round3-performance-review.md)。
+
+精简引用保留相同上下文，并可还原全部来源字段。首次调用计数包含 schema、初始化说明和参数；参考 tokenizer 计数不等于服务商账单。引用稀少时可能增加 token。之前的格式对比测得 **p95 为 7.126 → 7.131 ms**，不宣称此选项提速。
 
 ### 当前开源组件对比
 
-**同一机器，256 道 HotpotQA 多跳题，相同原始页面、top-5 和整页打包器，上限为 1,024 个 `cl100k_base` token。** 证据召回、完整证据率和 MRR 越高越好，延迟越低越好。
+冻结的 **256 道 HotpotQA 问题**排除了前两轮使用的 384 道题。下表采用相同原始页面、前五条结果及统一的完整块打包器，预算为 **1,024 个 `cl100k_base` token**，测量返回的来源证据。[完整报告](benchmarks/results/round3-comparison-43267797247-1/report.md)保留所有预算、原生调用及逐题得失。
 
-| 检索组件 | 证据召回 ↑ | 完整证据 ↑ | MRR ↑ | 平均上下文 token | 搜索 p50 / p95 ms |
+| 实测组件 | 证据召回率 | 完整证据率 | 打包后 MRR | 平均上下文 token | 搜索适配器 p95 |
 |---|---:|---:|---:|---:|---:|
-| **Book：默认词法** | 75.41% | 51.95% | 0.8596 | 712.9 | **4.712 / 8.301** |
-| **Book：可选 Q2 语义** | 78.66% | 57.81% | **0.8686** | 727.8 | 14.014 / 22.523 |
-| [claude-mem 15.18.1](https://github.com/thedotmack/claude-mem)：原生 FTS | 72.31% | 48.83% | 0.8348 | 704.5 | 16.254 / 29.948 |
-| [ai-memory v3.4.5](https://github.com/akitaonrails/ai-memory)：本地混合检索 | 76.22% | 53.91% | 0.8633 | 704.0 | 25.947 / 33.251 |
-| [billion-context 9674cfa](https://github.com/ranxianglei/billion-context)：搜索内核 | **80.94%** | **61.72%** | 0.8622 | 751.3 | **0.349 / 1.092** |
+| **Book v0.3.1 · 默认词法** | 76.28% | 52.34% | 0.8132 | 719.8 | 2.784 ms |
+| **Book v0.3.1 · 可选 Q2** | 76.77% | 54.69% | 0.8239 | 739.0 | 11.226 ms |
+| claude-mem 15.18.1 · 原生 FTS | 70.68% | 45.31% | 0.7674 | 715.8 | 22.826 ms |
+| ai-memory v3.4.5 · 本地混合检索 | 77.27% | 55.86% | 0.8182 | 716.8 | 27.545 ms |
+| billion-context `9674cfa` · 搜索内核 | **78.91%** | **58.20%** | **0.8277** | 762.3 | **1.010 ms** |
 
-此设置下，Book Q2 的完整证据率比 claude-mem FTS **高 8.98 个百分点**、比 ai-memory **高 3.91 个百分点**，打包后证据 MRR 最高；Book 默认路径保持零模型调用，实测 p95 低于这两项组件。**billion-context 在该设置的证据召回、完整度和搜索延迟上领先。**
+在这个切片上，Book 默认词法的完整证据率比 claude-mem FTS **高 7.03 个百分点**，两种 Book 模式的搜索适配器 p95 都低于 claude-mem 和 ai-memory。**ai-memory 的召回率和完整率仍然更高；billion-context 在这三个质量指标及搜索延迟上领先。** 适配器分别跨越 Python、SQLite/Bun、HTTP/MCP 和 Node 等不同边界，因此不能据此推导整套产品的倍数优势。ai-memory 首次搜索加全部原文读取的 p95 为 **30.532 ms**；读取响应与初始化成本另行记录。
 
-质量按每题一个结果计，延迟来自三次实际重复。接口分别是 Book Python/原生上下文组装、claude-mem Bun/SQLite、ai-memory HTTP/MCP、billion-context Node 内核。这些是**检索组件指标**，不等于最终回答准确率或完整产品速度倍数；准备和额外读页另计。ai-memory 首次搜索加全部读页的 p95 为 **37.613 ms**。[完整对比](docs/comparison.md#current-frozen-256-question-comparison)保留所有预算/tokenizer、平均与尾部延迟、响应/读页 token、索引、下载、RSS 和存储指标。
-
-**按任务选择可选模式。** Q2 增加本地模型与索引成本，小预算下可能丢失证据：512 个 `o200k_base` token / 8,000 字符时，原生完整证据率为**词法 42.19% → Q2 41.02%**。公开或复用题目属于回归数据，不构成跨领域泛化证明。之前的[生成回答](benchmarks/RESULTS-local-answers.md)和[完整工作流](benchmarks/RESULTS-full-workflow.md)诊断保留各自源码与模型设置，不作为本版回答质量得分。
+这个预算下，Q2 相对 Book 默认词法的完整率提高 **2.34 个百分点**，同时需要模型、索引初始化、内存和查询成本。在原生 API 的 512-token 预算下，完整率反而从 **35.94% 降至 33.59%**（`cl100k_base`）、从 **35.55% 降至 33.20%**（`o200k_base`），所以保持主动开启。所有题目都有答案，且来自同一公开数据域；结果不衡量答案生成、幻觉或私人会话迁移能力。
 
 [部署与架构对比](docs/comparison.md#popular-projects-and-the-workload-they-address)还包括 **Mem0、Graphiti、PageIndex 和 Letta**，与实跑基准明确区分。ai-memory 也支持默认零 LLM 路径；claude-mem 支持本地模型供应端。
 
@@ -107,6 +107,6 @@ memory-book doctor
 | 在浏览器检查归档 | 运行 `memory-book serve`，打开 [127.0.0.1:8765](http://127.0.0.1:8765) |
 | 查看完整实验或参与开发 | [基准索引](benchmarks/README.md) · [验证记录](docs/validation.md) · [贡献指南](CONTRIBUTING.md) · [更新日志](CHANGELOG.md) |
 
-归档是本地未加密数据；返回给 AI 客户端的证据会进入该客户端的模型上下文。网页阅读器用于检查归档，正常 MCP 和采集无需 HTTP 端口。[数据与配置位置](docs/deployment.md#data-and-configuration-paths)。
+可选 Q2 运行时会主动退出 ONNX Runtime 遥测。归档是本地未加密数据；返回给 AI 客户端的证据会进入该客户端的模型上下文。网页阅读器用于检查归档，正常 MCP 和采集无需 HTTP 端口。[数据与配置位置](docs/deployment.md#data-and-configuration-paths)。
 
 [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml)覆盖 Python 3.10/3.12/3.13、真实 MCP stdio、网页阅读器、Linux/macOS/Windows 安装器和容器持久化。配置样本测试不代表每款厂商应用都完成交互认证。项目独立实现，采用 [MIT 许可证](LICENSE)。

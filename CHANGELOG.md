@@ -1,5 +1,58 @@
 # Changelog
 
+## 0.3.1 — 2026-11-13
+
+An experimental release that reduces project-scoped query work while preserving
+the existing default retrieval policy, source references and context budgets.
+
+### Recall performance
+
+- For eligible project-scoped requests, use indexed project rowid bounds and an
+  explicit FTS outer loop to skip unrelated postings. Project envelopes exceeding half the archive range, and
+  session-scoped recalls, retain the original query plan. Global BM25 statistics, scope filters,
+  deterministic ordering, candidate limits and default cache identity stay intact.
+- Complete all 47,320 registered calls over two old corpora, five settings and
+  four balanced rounds. Full non-timing outputs match. The geometric mean of
+  pooled p95 across ten cells improves 11.36% versus v0.3.0.
+- On the 1,015-question public corpus at 4,000 characters, native p95 falls
+  5.054 → 3.737 ms (26.05%) and actual SDK MCP p95 falls
+  7.409 → 5.937 ms (19.87%). Keep the synthetic 512-token p95 increase of 0.125%.
+- Accept a documented startup tradeoff after independent review: the public workers' mean
+  fresh empty-database opening time increases 4.838 ms (14.04%). The original performance report
+  retains its automatic resource-review flag and `accepted: false`; the explicit
+  review is a separate decision, not a rewritten benchmark result.
+
+### Evidence and experiment recovery
+
+- Restore and audit all eight workers and 8,082 calls of the registered
+  project-statistics screen with zero retrieval replays. Preserve original
+  worker/ledger bytes, aggregate identities and the interruption record.
+  Fourteen loss checks reject the candidate; it is not included in this release.
+- Complete the single registered new-256 comparison, run `43267797247-1`:
+  4,608 native calls and 4,608 component searches pass integrity checks.
+  Baseline/default outputs match across 1,536 native pairs and 768 component
+  pairs after removing only `latency_ms`. The selection excludes all 384 earlier
+  question IDs. At 1,024 `cl100k_base` tokens, default lexical complete evidence
+  is 52.34% versus claude-mem FTS 45.31%; optional Q2 reaches 54.69%.
+  ai-memory remains higher at 55.86%, and billion-context leads at 58.20%.
+  Retain Q2's native 512-token completeness regressions under both tokenizers,
+  every per-question loss, separate search/read costs and the original run's
+  exact binding. Separate unexecuted registrations do not replace that binding.
+
+### Local model behavior and installation
+
+- Opt out of ONNX Runtime telemetry before its import and through its runtime
+  API when initializing Book's optional Q2 model.
+- Retain the small universal-wheel installer, one-command MCP setup and optional
+  background capture. Pin installer examples and defaults to v0.3.1; the core
+  adds no required dependencies or database-schema migration.
+- Keep source/plan checkpoints and completed-worker evidence in Git, including
+  failed attempts. Model and dataset downloads remain explicit preparation steps.
+
+[Release notes](docs/releases/v0.3.1.md) · [Round-three protocol and results](docs/optimization-round3.md) ·
+[Performance and resource review](docs/round3-performance-review.md) ·
+[Current component comparison](docs/comparison.md) · [Upgrade guide](docs/deployment.md#upgrading)
+
 ## 0.3.0 — 2026-11-12
 
 An experimental release of the verified round-two implementation. Default
