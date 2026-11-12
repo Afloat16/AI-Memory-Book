@@ -4,6 +4,7 @@ import io
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tarfile
 import tempfile
 import unittest
@@ -14,6 +15,52 @@ from scripts import release
 
 
 class ReleaseTests(unittest.TestCase):
+    @unittest.skipIf(sys.version_info < (3, 11), "Release preparation uses Python 3.12 and tomllib")
+    def test_v031_packaging_refuses_a_changed_but_committed_runtime(self):
+        """A fresh commit/version alone must not silently replace measured code."""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "pyproject.toml").write_text(
+                '[project]\nname = "ai-memory-book"\nversion = "0.3.1"\n',
+                encoding="utf-8")
+            sources = sorted((release.ROOT / "src/memory_book").rglob("*.py"))
+            sources.append(release.ROOT / "src/memory_book/static/index.html")
+            names = []
+            for source in sources:
+                relative = source.relative_to(release.ROOT).as_posix()
+                target = root / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(source.read_bytes())
+                names.append(relative)
+
+            def committed_snapshot(checkout, *args):
+                self.assertEqual(checkout, root)
+                if args == ("rev-parse", "HEAD"):
+                    return b"a" * 40
+                if args == ("status", "--porcelain", "--untracked-files=no"):
+                    return b""
+                if args == ("ls-tree", "-r", "--name-only", "a" * 40, "src/memory_book"):
+                    return ("\n".join(names) + "\n").encode()
+                if args == ("rev-parse", "HEAD^{tree}"):
+                    return b"b" * 40
+                if args == ("show", "-s", "--format=%ct", "a" * 40):
+                    return b"1760000000"
+                if len(args) == 2 and args[0] == "show":
+                    head, path = args[1].split(":", 1)
+                    self.assertEqual(head, "a" * 40)
+                    return (root / path).read_bytes()
+                self.fail("Unexpected Git read: " + repr(args))
+
+            with patch.object(release, "git", side_effect=committed_snapshot):
+                identity, _ = release.source_identity(root)
+                self.assertEqual(identity["version"], "0.3.1")
+                self.assertEqual(identity["runtime_sha256"],
+                    "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46")
+                path = root / "src/memory_book/store.py"
+                path.write_bytes(path.read_bytes() + b"\n# Different committed runtime fixture.\n")
+                with self.assertRaisesRegex(ValueError, "v0.3.1 runtime differs from the approved source"):
+                    release.source_identity(root)
+
     def test_creation_uses_returned_id_without_a_listing_or_write_retry(self):
         draft = {"id": 17, "tag_name": "v0.3.1", "target_commitish": "a" * 40,
                  "draft": True, "prerelease": True}
