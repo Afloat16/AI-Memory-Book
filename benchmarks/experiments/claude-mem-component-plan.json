@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "status": "registered-before-claude-mem-public-component-scoring",
+  "name": "claude-mem supplied-source SQLite FTS retrieval component",
+  "upstream_commit": "2cfed7620c1b44db87c7f04cbf073ec37efca38d",
+  "source_lock": "benchmarks/competitors/claude-mem-lock.json",
+  "corpus": {
+    "queries": 1015,
+    "answerable_queries": 649,
+    "documents": 1339,
+    "dataset_sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857",
+    "documents_sha256": "54aa61fd41b7b4058d07fd018bb6d99c6d34a7d73134fb567b67c56536df972a",
+    "exporter_commit": "6f5299004642618e606d001b4c574e1bae572a7e",
+    "exporter_source_sha256": "191d0bf023fa3589c4832440cde86482563e223bec8a79a25b2b4fe020f2fb85",
+    "historical_report": "benchmarks/results/recall-score-final-components-public.json.gz",
+    "status": "all eligible text-only LoCoMo heldout conversations, already observed regression data",
+    "historical_report_git_blob_sha": "38026a15e8eb04c94274b46d2e87cec44d034dfc"
+  },
+  "representation": "Native SessionStore schema and SessionSearch FTS. Harness bulk INSERT supplies original title/text/project/date, empty subtitle/narrative/facts/concepts. One synthetic parent session per page satisfies foreign keys. Source annotations and answers never enter the backend.",
+  "native_entry": "Unchanged SessionSearch.searchObservations(original_query, {project, limit:5, orderBy:'relevance'}). Native AND/substring/any-term handling is not replaced.",
+  "retrieval": {
+    "limit": 5,
+    "repeats": 3,
+    "shuffle_seed": 61,
+    "shuffle": "random.Random(61 + 1009 * repetition)",
+    "caches": "Persistent native process; natural SQLite/process warming; no adapter result cache and no OS-cold-cache claim"
+  },
+  "assembly": {
+    "assembler": "benchmarks.component_eval.shared_response",
+    "packer": "benchmarks.token_compare.pack_whole_blocks",
+    "tokenizers": [
+      "cl100k_base",
+      "o200k_base"
+    ],
+    "token_budgets": [
+      512,
+      1024,
+      2048
+    ],
+    "policy": "Identical original full pages and citation overhead, rank-order whole blocks; not Book's newer native token API"
+  },
+  "boundaries": [
+    "Supplied-source SQLite FTS component only, no observer/Chroma/worker/MCP/timeline/session-injection/final-answer measurement.",
+    "Native returned row-array JSON tokens include actual native metadata; not a production MCP payload.",
+    "Separate native function/JSON bridge latency, source/runtime preparation, process startup, native schema, supplied page load/FTS, checkpoint, DB/WAL/SHM bytes and RSS.",
+    "Compare quality to verified historical shared-page reports, but retain historical timing environment and boundaries; no cross-product full-workflow speed ratio."
+  ],
+  "durability": "Attempt-start and completed query rows are fsynced to a new per-run ledger. Preserve failures and IDs; do not mix interrupted timing runs into a fresh run or silently regenerate an existing output.",
+  "validation": "Exact dataset, documents and exporter hashes/counts; exact original source and project on every native returned row; all six caps; source stability and native process success.",
+  "failure_policy": "All first-pass query IDs remain in denominators with empty evidence on a failed call. Any native error, source/scope mismatch or failed gate invalidates performance claims; failed ledger is preserved. No outcome-informed parameter changes.",
+  "publication": "Reports publish source IDs, hashes, counts and metrics, not copyrighted public source or question text."
+}
