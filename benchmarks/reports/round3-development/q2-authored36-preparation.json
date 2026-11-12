@@ -1,0 +1,76 @@
+{
+  "cohort": "authored36",
+  "dataset_sha256": "ecc46c474d5184995938419fa985b8e08c0ddb51560da49990247465db6db0b0",
+  "queries": 36,
+  "source_sha256": "d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57",
+  "model": {
+    "repository": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+    "files": [
+      {
+        "path": "onnx/model_quint8_avx2.onnx",
+        "bytes": 118453870,
+        "sha256": "98a01d88b7de996cdea58c32ca71208c09968d143798814b2ea09d3439dc334f"
+      },
+      {
+        "path": "tokenizer.json",
+        "bytes": 9081518,
+        "sha256": "2c3387be76557bd40970cec13153b3bbf80407865484b209e655e5e4729076b8"
+      }
+    ],
+    "dimensions": 384,
+    "max_sequence_tokens": 128,
+    "overlap_tokens": 32,
+    "pooling": "attention-mask mean pooling followed by L2 normalization",
+    "semantic_version": 1
+  },
+  "semantic_index": {
+    "revision": 42,
+    "model_fingerprint": "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25",
+    "model": {
+      "repository": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+      "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "files": [
+        {
+          "path": "onnx/model_quint8_avx2.onnx",
+          "bytes": 118453870,
+          "sha256": "98a01d88b7de996cdea58c32ca71208c09968d143798814b2ea09d3439dc334f"
+        },
+        {
+          "path": "tokenizer.json",
+          "bytes": 9081518,
+          "sha256": "2c3387be76557bd40970cec13153b3bbf80407865484b209e655e5e4729076b8"
+        }
+      ],
+      "dimensions": 384,
+      "max_sequence_tokens": 128,
+      "overlap_tokens": 32,
+      "pooling": "attention-mask mean pooling followed by L2 normalization",
+      "semantic_version": 1
+    },
+    "runtime": {
+      "onnxruntime": "1.31.1",
+      "tokenizers": "0.23.3",
+      "numpy": "2.5.4"
+    },
+    "model_load_ms": 2265.315562,
+    "pages": 42,
+    "windows": 42,
+    "vector_bytes": 64512,
+    "source_chars": 6507,
+    "source_sha256": "0a046bb7a4958c0150f055cf61f9d0f21b4b93abf64548cdf00513cd351d1318",
+    "inference_threads": 1,
+    "build_ms": 594.086949
+  },
+  "originals_sha256": "dbdc53a7cc34e4e1e2a82152131267e8ccc2a81c9cb20866fae1336a5f11663a",
+  "vectors": {
+    "sha256": "c1cecaacdf47d7db3a790e46589a03e3d895aabbe7fb4069a65c050f7efd0a2e",
+    "rows": 42,
+    "vector_bytes": 64512,
+    "revision": 42,
+    "model_fingerprint": "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25",
+    "boundary": "All semantic_vectors columns in primary-key order, length-prefixed JSON identity/offset fields and exact BLOB bytes. No semantic_meta timestamps or model rerun."
+  },
+  "method": "Baseline builds one index, then SQLite backup gives both sources identical persisted vectors.",
+  "interpretation": "Correctness preparation only; no performance inference."
+}

@@ -1,0 +1,96 @@
+{
+  "status": "passed",
+  "interpretation": "Previously-scored Q2 regression compatibility only; no speed or generalization claim.",
+  "comparison": "Full returned JSON SHA256 after removing latency_ms only; no result/score/context fields removed.",
+  "query_embedding_boundary": "Pinned model files/settings and equal output payloads; persisted index-vector equality does not assert separately measured query-embedding identity.",
+  "sources": {
+    "baseline": {
+      "commit": "dd2f88be742ed330269e7dd5915b6f75089d7fef",
+      "runtime_sha256": "d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57"
+    },
+    "candidate": {
+      "commit": "6fbee6051b0a2f61cf69b22e35a5e914650ab0c7",
+      "runtime_sha256": "799f3960cefd2dbe2d88f571e141a92d35a1e4cf97d1b22bc3ccc698d8c3be39"
+    }
+  },
+  "historical_helpers_verified": 58,
+  "settings": {
+    "semantic": true,
+    "coverage": false,
+    "budget_chars": 8000,
+    "token_budgets": [
+      512,
+      1024,
+      2048
+    ],
+    "tokenizer": "cl100k_base",
+    "limit": 5,
+    "cache_size": 0,
+    "use_cache": false,
+    "repetitions": 1
+  },
+  "cohorts": [
+    {
+      "cohort": "authored36",
+      "dataset_sha256": "ecc46c474d5184995938419fa985b8e08c0ddb51560da49990247465db6db0b0",
+      "queries": 36,
+      "calls": 216,
+      "payload_pairs": 108,
+      "payload_differences": 0,
+      "invariant_errors": 0,
+      "cells": [
+        {
+          "budget_tokens": 512,
+          "pairs": 36,
+          "payload_differences": 0
+        },
+        {
+          "budget_tokens": 1024,
+          "pairs": 36,
+          "payload_differences": 0
+        },
+        {
+          "budget_tokens": 2048,
+          "pairs": 36,
+          "payload_differences": 0
+        }
+      ],
+      "vectors": {
+        "sha256": "c1cecaacdf47d7db3a790e46589a03e3d895aabbe7fb4069a65c050f7efd0a2e",
+        "rows": 42,
+        "vector_bytes": 64512,
+        "revision": 42,
+        "model_fingerprint": "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25",
+        "boundary": "All semantic_vectors columns in primary-key order, length-prefixed JSON identity/offset fields and exact BLOB bytes. No semantic_meta timestamps or model rerun."
+      },
+      "originals_sha256": "dbdc53a7cc34e4e1e2a82152131267e8ccc2a81c9cb20866fae1336a5f11663a"
+    }
+  ],
+  "calls": 216,
+  "payload_pairs": 108,
+  "payload_differences": 0,
+  "invariant_errors": 0,
+  "public_files": {
+    "q2-authored36-preparation.json": {
+      "bytes": 2895,
+      "sha256": "ffd1f57ae0a98bc25828aecbbe38b7eed8c954e81a40df91bc67a206bd82bcf8"
+    },
+    "q2-authored36-baseline.json.gz": {
+      "bytes": 8613,
+      "sha256": "495046994c6d6de0a487c674bcd9098507286bbbaf810b5b0df1ce1c677e59fe"
+    },
+    "q2-authored36-baseline.json.gz.attempts.jsonl.gz": {
+      "bytes": 7654,
+      "sha256": "fac8ed029734908458c764155854a20522dadef831acf4422909744aba2bb9e0"
+    },
+    "q2-authored36-candidate.json.gz": {
+      "bytes": 8619,
+      "sha256": "326606eaae4ae2d48a2ec400b0e9ae1723e4e28e1ddfce9614031d182f2467ab"
+    },
+    "q2-authored36-candidate.json.gz.attempts.jsonl.gz": {
+      "bytes": 7654,
+      "sha256": "fac8ed029734908458c764155854a20522dadef831acf4422909744aba2bb9e0"
+    }
+  },
+  "audit_script_sha256": "0f08e28046e7972f9d1bf1b1a046b299b9b1d90d017692568ef5fe6a1b655a9f"
+}

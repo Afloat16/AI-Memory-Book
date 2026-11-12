@@ -1,0 +1,32 @@
+{
+  "status": "interrupted-before-recall",
+  "cohort": "hotpot128",
+  "tool_session_id": 44126,
+  "stage": "sentinel-prepare",
+  "observed_private_database": {
+    "sessions": 1272,
+    "pages": 1915,
+    "semantic_vectors_table_present": false,
+    "semantic_meta_table_present": false
+  },
+  "public_preparation_report_present": false,
+  "recall_workers_started": 0,
+  "recall_calls": 0,
+  "reason": "Automatic approval review rejected a dependency HTTPS attempt to a Microsoft telemetry endpoint because its payload was not established as metadata-only. No permission to transmit corpus data was granted; the rejected call was not retried.",
+  "original_state_retained": ".artifacts/round3-sentinel/hotpot128",
+  "safe_recovery": {
+    "state": ".artifacts/round3-sentinel/hotpot128-telemetry-disabled",
+    "environment_before_process_launch": {"ORT_DISABLE_TELEMETRY": "1"},
+    "official_reference": "https://github.com/microsoft/onnxruntime/blob/main/docs/Privacy.md",
+    "reference_checked": "2026-11-12",
+    "reference_scope": "The documented environment switch prevents 1DS uploader, events, and persistent identifier creation for the process lifetime. Calling disable_telemetry_events only after import can be too late for initialization telemetry.",
+    "installed_dependency": "onnxruntime 1.31.1",
+    "installed_binary_switch_verified": true,
+    "runtime_sources_changed": false,
+    "model_changed": false,
+    "recall_settings_changed": false,
+    "authored36_replayed": false,
+    "planned_remaining_recall_calls": 768
+  },
+  "interpretation": "An infrastructure interruption during preparation, not a failed quality comparison. This record does not assert that a blocked request was transmitted or identify its contents. The original interrupted state is retained; recovery uses a fresh path."
+}
