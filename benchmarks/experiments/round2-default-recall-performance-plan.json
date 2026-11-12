@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "status": "registered-before-default-recall-optimization",
+  "baseline_commit": "cb7486b4937a3ecb7ccbf94a746c0bbbf44eb41f",
+  "baseline_source_sha256": "6fdad7b9bf0eef50ec925ceeed3ca45fe84d2eb22973c753118df2d0f67f6ba2",
+  "candidate_branch": "perf/round2-default-recall",
+  "runtime_files_allowed": ["src/memory_book/store.py", "src/memory_book/text.py"],
+  "hypotheses": [
+    "Keep whole-string NFKD and case-fold ordering unchanged; remove category Mn through a mapping of unique decomposed characters instead of repeated per-character category checks.",
+    "Reuse deterministic single-character folds only inside the already existing excerpt source-map fallback; preserve its historical per-character transform and every output source coordinate.",
+    "Compute identical directory index text once per changed ingest rather than once per page; keep index schema, SQL insertion order and all indexed values unchanged."
+  ],
+  "preserve": [
+    "all complete recall fields except latency_ms",
+    "exact compact MCP tool response bytes and envelope fields",
+    "query terms, ranking, candidate limits, citations, character caps and source coordinates",
+    "existing source normalization order, Unicode category Mn policy and combining-class distinctions",
+    "default token-budget-disabled and semantic-disabled behavior",
+    "existing token_budget.py, semantic.py, MCP server and historical reports"
+  ],
+  "cohorts": [
+    {"name": "synthetic61", "queries": 168, "seed": 61, "split": "development", "projects": 8, "sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26"},
+    {"name": "public1015", "queries": 1015, "split": "heldout", "max_queries": 0, "sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857"}
+  ],
+  "measurement": {
+    "budget_chars": [2000, 4000, 8000],
+    "limit": 5,
+    "rounds": 4,
+    "engine_order": "baseline,candidate in even rounds; candidate,baseline in odd rounds",
+    "query_order": "random.Random(61 + 1009 * round + budget_chars), same for paired engines",
+    "native_cache": "MemoryBook(cache_size=0), recall(use_cache=False)",
+    "mcp_cache": "One official-SDK stdio server; DELETE recall_cache and commit before every timed call through an external SQLite connection. No result reuse; normal server cache-write cost remains included.",
+    "scope": "Independent hosted VM; sequential isolated engine workers; no concurrent benchmark processes. Warm OS/SQLite caches, not an OS-cold-cache claim.",
+    "record": ["all per-query payload hashes and elapsed samples", "p50/p95/mean for every configuration and every round", "actual compact MCP bytes and both reference-tokenizer counts", "fresh ingestion and unchanged reingestion costs", "process RSS/high-water RSS and native MCP child high-water RSS", "logical DB and live DB/WAL/SHM bytes", "indexed-content hashes", "source/evaluator/protocol hashes"],
+    "exclude_from_recall_timing": ["source loading", "ingestion", "MCP startup", "cache clearing", "payload hashing", "reference token counting"]
+  },
+  "validation": {
+    "unique_query_config_pairs_per_surface": 3549,
+    "per_engine_calls_per_surface": 14196,
+    "surfaces": ["in-process complete recall", "official-SDK compact MCP stdio"],
+    "gate": "All complete payloads match across engines and rounds; corpus/query counts, exact source stability, candidate source diff scope and identical indexed content pass. Failed or missing rows invalidate completion.",
+    "tests": ["Mn versus nonzero combining-class distinctions", "whole-string canonical reordering stays unchanged", "cached fallback folds and every source offset match the historical per-character algorithm", "ASCII, CJK, accents, case-fold expansions and deterministic Unicode fuzz", "directory index reuse preserves both indexes and metadata updates"]
+  },
+  "durability": "Checkpoint every completed worker and publish new run-specific reports, never overwrite historical reports. Retain all rounds and regressions; do not select the fastest round.",
+  "limits": "Old synthetic/public regression data only. Do not read new blinded Hotpot256 or run model/answer experiments. No promise of universal latency, memory, indexing or product superiority follows from these measurements."
+}
