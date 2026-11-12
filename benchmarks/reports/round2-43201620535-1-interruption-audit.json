@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "assessed_at": "2026-11-12T10:49:01.051008+00:00",
+  "status": "incomplete-run-preserved-not-valid-full-comparison",
+  "original_run_id": 43201620535,
+  "original_attempt": 1,
+  "original_source_commit": "364d8d4b7013c8c22ff06285d2bce969c7965717",
+  "original_results_commit": "150d37799098aa1fb1ddcebe5b42b18954adc035",
+  "candidate": {
+    "commit": "cbf626037b42f11f8bc5b6d46f56caac771e54ba",
+    "source_sha256": "d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57"
+  },
+  "verified_completed_stages": {
+    "export": {
+      "attempts_started": 0,
+      "attempts_finished": 0,
+      "configurations": 0
+    },
+    "baseline-native": {
+      "attempts_started": 9216,
+      "attempts_finished": 9216,
+      "configurations": 12
+    },
+    "candidate-native": {
+      "attempts_started": 9216,
+      "attempts_finished": 9216,
+      "configurations": 12
+    },
+    "baseline-component": {
+      "attempts_started": 768,
+      "attempts_finished": 768,
+      "configurations": 6
+    },
+    "candidate-component": {
+      "attempts_started": 768,
+      "attempts_finished": 768,
+      "configurations": 6
+    }
+  },
+  "failed_stage": {
+    "stage": "claude-mem-fts",
+    "attempts_started": 1,
+    "attempts_finished": 0,
+    "error_type": "KeyError",
+    "static_reproduction": "Claude returns hit_ids and native_payload without results; both component_hits and eager payload default access results. Reproduced using invented adapter-shaped response only.",
+    "native_source_unchanged": true,
+    "native_process_exit_code": 0
+  },
+  "preserved_file_sha256": {
+    "benchmarks/results/round2-43201620535-1/baseline-component.json.gz": "7a76ecdd69846d5803ec0e9f9826a51b3d501693040731e9969c186da7315a38",
+    "benchmarks/results/round2-43201620535-1/baseline-component.summary.json": "97f0b357af43b9f97ae9770fd514da039f933390773b2c4db2f7d3c1ec532660",
+    "benchmarks/results/round2-43201620535-1/baseline-native.json.gz": "3320ebf980ad56301abdfce6880d7d3f03d298ab72ef73f738848b338fa9f2a9",
+    "benchmarks/results/round2-43201620535-1/baseline-native.summary.json": "7bf33c72b6acf7d197b79a7f58192f80d852073789924c7a76c2eb389bd78e96",
+    "benchmarks/results/round2-43201620535-1/candidate-component.json.gz": "a928eab2c4ad15f20d832fd312072d79a2ff046a47e344e9a383656775f88193",
+    "benchmarks/results/round2-43201620535-1/candidate-component.summary.json": "e3d0e9a41b8169be8820a51cddafbc7d7b4d52a87ded63a6c2961e6656df3c4d",
+    "benchmarks/results/round2-43201620535-1/candidate-native.json.gz": "84cdb6e1a07aeae4367a52bb21e77e93ee0e54317d71075176777e5fee175d98",
+    "benchmarks/results/round2-43201620535-1/candidate-native.summary.json": "bc8ea1bde91dde80c896181ffc73b59128c85bf5721fe401eea4cee8bca9688a",
+    "benchmarks/results/round2-43201620535-1/claude-mem-fts.json.gz": "6bb4fffbca5df3b128ef8a9b350e17918e2afecd9fa095027c4a26d2e8bd5f1b",
+    "benchmarks/results/round2-43201620535-1/claude-mem-fts.summary.json": "6f8da08f35372e9fd373411febc802f95f1d3493972753037ac41012f748a260",
+    "benchmarks/results/round2-43201620535-1/export.json.gz": "a9a2a7ef8976d3fba0680a812d554db72649e5ba34db07ced6b06ae184237aa6",
+    "benchmarks/results/round2-43201620535-1/export.summary.json": "cbebc560246d0d630c48d490232d515718de08daf77e363167daebe96f406a41",
+    "benchmarks/reports/round2-43201620535-1-checkpoint.json": "aef5ceeef0bce18f6a5111164c5057eeba83bc79d3e24d09d126eb14efb646f5"
+  },
+  "remaining_stages_not_run": [
+    "ai-memory-hybrid",
+    "billion-context",
+    "candidate-semantic-native",
+    "candidate-semantic-component"
+  ],
+  "recovery_constraint": "Preserve this run; fixed candidate, original selection and all budgets/repeats. A new complete matrix must have its own host identity; no cross-host timing pooling or fastest-run selection."
+}

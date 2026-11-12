@@ -138,6 +138,9 @@ def verify_stage(root, result_dir, stage, checkpoint, plan, binding, manifest):
             and report["binding_sha256"] == checkpoint["binding_sha256"]
             and report["cohort_manifest_sha256"] == checkpoint["cohort_manifest_sha256"]
             and report["evaluator_sha256"] == binding["evaluator_sha256"], "Stage source/host identity differs")
+    require(report.get("candidate_binding_status", "frozen-before-scoring") == binding["status"]
+            and report.get("recovery_registration_sha256") == binding.get("recovery_registration_sha256"),
+            "Stage initial/recovery attribution differs")
     require(report["dataset"]["sha256"] == manifest["dataset_sha256"]
             and report["dataset"]["queries"] == manifest["expected_queries"], "Stage dataset differs")
     require(report["validation"] == {"passed": True, "failures": []}
@@ -189,6 +192,15 @@ def markdown(assessment, reports):
         "## Native API: complete evidence and latency", "",
         "| Mode | Characters | Tokenizer | Tokens | Evidence recall | Complete evidence | Context tokens | p50 ms | p95 ms |",
         "|---|---:|---|---:|---:|---:|---:|---:|---:|"]
+    if assessment.get("recovery"):
+        recovery = assessment["recovery"]
+        lines[0] = "# Round two: fixed-candidate protocol recovery on one host"
+        lines[2] = ("The original run stopped at the first claude-mem request because the evaluator expected another adapter's response field. "
+            "The complete matrix below was rerun on one new host after a registered interface-only correction. "
+            "The candidate, source versions, 256 IDs, all budgets and repetitions remain exactly as first frozen; "
+            "the selection had already been scored and this report is not an unseen tuning validation. "
+            "The prior incomplete results and their timing attribution are retained, without pooling or choosing faster rows. "
+            f"Original run: `{recovery['original_run_id']}`; preserved results: `{recovery['original_results_commit']}`.")
     for stage, report in reports.items():
         if not stage.endswith("native"):
             continue
@@ -292,6 +304,14 @@ def main(argv=None):
             native_complete_losses=sum(len(row["complete_question_losses"]) for row in paired),
             source_free_reports={stage: checkpoint["stages"][stage]["outputs"] for stage in required},
             interpretation="Complete measurement integrity only. Quality gains/losses and native interface boundaries remain explicit; no whole-product speed multiplier.")
+        if binding["status"] == "fixed-candidate-protocol-recovery":
+            from benchmarks.round2_eval import RECOVERY
+            registration = json.loads(RECOVERY.read_bytes())
+            assessment["recovery"] = {key: registration[key] for key in (
+                "original_run_id", "original_attempt", "original_results_commit", "original_binding_sha256",
+                "selection_previously_scored", "runtime_retuned", "full_matrix_new_host",
+                "pool_prior_timings", "run_selection_by_score_or_latency")}
+            assessment["recovery"]["registration_sha256"] = binding["recovery_registration_sha256"]
         if binding["optional_semantic"]:
             assessment["optional_semantic_native_changes"] = comparison(reports["candidate-native"], reports["candidate-semantic-native"])
             assessment["optional_semantic_component_changes"] = comparison(reports["candidate-component"], reports["candidate-semantic-component"])
