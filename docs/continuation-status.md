@@ -5,6 +5,41 @@ committed reports before making quality, speed or cost claims.
 
 ## Fresh-workspace recovery checkpoint
 
+### Latest recovery: published work preserved, remaining measurements running
+
+The next recovery found remote `main` at `794489f` and the feature branch at
+`1054301`, nine commits ahead with no divergence. The exact feature head's
+[CI run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43172460295)
+passed all nine jobs. Those already verified commits were fast-forwarded to
+`main` without rewriting history. A fresh local check passed **332 tests** with
+no failures, errors, or skips; its evidence is in
+`benchmarks/reports/recovery-2026-11-12-tests.json`.
+
+The published synthetic61 and synthetic211 native reports remain immutable.
+`benchmarks/native-recovery-manifest.json` continues only the six missing
+cohorts; `benchmarks/reports/native-recovery-audit.json` records their input
+identities and the preserved results' hashes. Its checkpoint is separate from
+both interrupted historical checkpoints. The corresponding semantic recovery
+manifest uses the same four preregistered cohorts and the frozen `407cda1`
+source snapshot. Pinned datasets, embedding models, generation model, native
+ai-memory binary, and llama.cpp runtime have been prepared and verified again.
+
+**At this checkpoint:** the six remaining native cohorts are running. Semantic,
+generated-answer, and full-workflow scoring are still pending. Model downloads,
+runner implementation, and transport fixtures are not completed measurements.
+No bulk model inference runs concurrently with the retrieval timing stages.
+Completed stages are committed and published separately so a later workspace
+can recover their results without rerunning them.
+
+The live upstream landscape audit also distinguishes current product features
+from the versions pinned by our measurements. In particular, current ai-memory
+has a zero-LLM default capture/search path; the registered v3.4.5 consolidation
+experiment is an explicitly enabled generative workflow, not a claim about
+every default deployment. A claude-mem supplied-page FTS component comparison
+is being prepared separately from native observer/workflow measurements.
+
+### Previous recovery record
+
 On 2026-11-12 this continuation recovered remote `main` at `794489f` and
 `feat/semantic-memory-validation` at `4356339` (six additional commits, zero
 behind). The latter's CI run `43169559387` passed all nine jobs. Those six

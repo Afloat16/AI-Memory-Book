@@ -1,0 +1,409 @@
+{
+  "version": 1,
+  "cwd": "..",
+  "runtime_commands": [
+    [
+      "{python}",
+      "--version"
+    ]
+  ],
+  "inputs": [
+    {
+      "path": ".artifacts/native-completion-candidate/src",
+      "pattern": "**/*.py"
+    },
+    {
+      "path": ".artifacts/native-baseline-5abc/src",
+      "pattern": "**/*.py"
+    },
+    {
+      "path": "benchmarks/native_budget_eval.py"
+    },
+    {
+      "path": "benchmarks/component_eval.py"
+    },
+    {
+      "path": "benchmarks/token_compare.py"
+    },
+    {
+      "path": "benchmarks/run.py"
+    },
+    {
+      "path": "benchmarks/data.py"
+    },
+    {
+      "path": "benchmarks/long_data.py"
+    },
+    {
+      "path": "benchmarks/public_data.py"
+    },
+    {
+      "path": "benchmarks/transfer_data.py"
+    },
+    {
+      "path": "benchmarks/hotpot_data.py"
+    },
+    {
+      "path": "benchmarks/query_guard.py"
+    },
+    {
+      "path": "benchmarks/resume.py"
+    },
+    {
+      "path": "benchmarks/native_budget_plan.json"
+    },
+    {
+      "path": "benchmarks/native_budget_dataset_freeze.json"
+    },
+    {
+      "path": "benchmarks/locomo_split.json"
+    },
+    {
+      "path": "benchmarks/transfer_cases.json"
+    },
+    {
+      "path": "benchmarks/transfer_manifest.json"
+    },
+    {
+      "path": "benchmarks/hotpot_manifest.json"
+    },
+    {
+      "path": ".artifacts/data/locomo10.json"
+    },
+    {
+      "path": ".artifacts/data/hotpotqa-dev-distractor.json"
+    },
+    {
+      "path": "benchmarks/experiments/native-token-performance-plan.json"
+    },
+    {
+      "path": "benchmarks/results/native-completion-development-synthetic61.json.gz"
+    },
+    {
+      "path": "benchmarks/results/native-completion-development-synthetic61.summary.json"
+    },
+    {
+      "path": "benchmarks/results/native-completion-development-synthetic61.md"
+    },
+    {
+      "path": "benchmarks/results/native-completion-regression-synthetic211.json.gz"
+    },
+    {
+      "path": "benchmarks/results/native-completion-regression-synthetic211.summary.json"
+    },
+    {
+      "path": "benchmarks/results/native-completion-regression-synthetic211.md"
+    }
+  ],
+  "stages": [
+    {
+      "id": "regression-synthetic509",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.native_budget_eval",
+        "--baseline-src",
+        ".artifacts/native-baseline-5abc/src",
+        "--candidate-src",
+        ".artifacts/native-completion-candidate/src",
+        "--baseline-label",
+        "prior-default-5abc85e",
+        "--candidate-label",
+        "native-token-stable-prefix-v1",
+        "--expected-queries",
+        "168",
+        "--expected-dataset-sha256",
+        "64e1d01df200f00110694e9618db38745ad83bd940c491e686bde5040d91f1b7",
+        "--budget-chars",
+        "2000",
+        "8000",
+        "--token-budgets",
+        "512",
+        "1024",
+        "2048",
+        "--tokenizers",
+        "cl100k_base",
+        "o200k_base",
+        "--limit",
+        "5",
+        "--repeats",
+        "3",
+        "--archive-existing-output",
+        "--corpus",
+        "synthetic",
+        "--seed",
+        "509",
+        "--split",
+        "heldout",
+        "--output",
+        "benchmarks/results/native-completion-regression-synthetic509"
+      ],
+      "outputs": [
+        "benchmarks/results/native-completion-regression-synthetic509.json.gz",
+        "benchmarks/results/native-completion-regression-synthetic509.summary.json",
+        "benchmarks/results/native-completion-regression-synthetic509.md"
+      ],
+      "timeout_seconds": 2400
+    },
+    {
+      "id": "regression-synthetic883",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.native_budget_eval",
+        "--baseline-src",
+        ".artifacts/native-baseline-5abc/src",
+        "--candidate-src",
+        ".artifacts/native-completion-candidate/src",
+        "--baseline-label",
+        "prior-default-5abc85e",
+        "--candidate-label",
+        "native-token-stable-prefix-v1",
+        "--expected-queries",
+        "168",
+        "--expected-dataset-sha256",
+        "3d373490f5fb4bec0e66a19a2c1cc256084492e1a66cfe0df9695339893e5df1",
+        "--budget-chars",
+        "2000",
+        "8000",
+        "--token-budgets",
+        "512",
+        "1024",
+        "2048",
+        "--tokenizers",
+        "cl100k_base",
+        "o200k_base",
+        "--limit",
+        "5",
+        "--repeats",
+        "3",
+        "--archive-existing-output",
+        "--corpus",
+        "synthetic",
+        "--seed",
+        "883",
+        "--split",
+        "heldout",
+        "--output",
+        "benchmarks/results/native-completion-regression-synthetic883"
+      ],
+      "outputs": [
+        "benchmarks/results/native-completion-regression-synthetic883.json.gz",
+        "benchmarks/results/native-completion-regression-synthetic883.summary.json",
+        "benchmarks/results/native-completion-regression-synthetic883.md"
+      ],
+      "timeout_seconds": 2400
+    },
+    {
+      "id": "regression-synthetic1297",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.native_budget_eval",
+        "--baseline-src",
+        ".artifacts/native-baseline-5abc/src",
+        "--candidate-src",
+        ".artifacts/native-completion-candidate/src",
+        "--baseline-label",
+        "prior-default-5abc85e",
+        "--candidate-label",
+        "native-token-stable-prefix-v1",
+        "--expected-queries",
+        "168",
+        "--expected-dataset-sha256",
+        "54352d304f62a1bb64cb95bab5c9edb95fe805a36bedf60f562a7169b9d9aff6",
+        "--budget-chars",
+        "2000",
+        "8000",
+        "--token-budgets",
+        "512",
+        "1024",
+        "2048",
+        "--tokenizers",
+        "cl100k_base",
+        "o200k_base",
+        "--limit",
+        "5",
+        "--repeats",
+        "3",
+        "--archive-existing-output",
+        "--corpus",
+        "synthetic",
+        "--seed",
+        "1297",
+        "--split",
+        "heldout",
+        "--output",
+        "benchmarks/results/native-completion-regression-synthetic1297"
+      ],
+      "outputs": [
+        "benchmarks/results/native-completion-regression-synthetic1297.json.gz",
+        "benchmarks/results/native-completion-regression-synthetic1297.summary.json",
+        "benchmarks/results/native-completion-regression-synthetic1297.md"
+      ],
+      "timeout_seconds": 2400
+    },
+    {
+      "id": "regression-public1015",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.native_budget_eval",
+        "--baseline-src",
+        ".artifacts/native-baseline-5abc/src",
+        "--candidate-src",
+        ".artifacts/native-completion-candidate/src",
+        "--baseline-label",
+        "prior-default-5abc85e",
+        "--candidate-label",
+        "native-token-stable-prefix-v1",
+        "--expected-queries",
+        "1015",
+        "--expected-dataset-sha256",
+        "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857",
+        "--budget-chars",
+        "2000",
+        "8000",
+        "--token-budgets",
+        "512",
+        "1024",
+        "2048",
+        "--tokenizers",
+        "cl100k_base",
+        "o200k_base",
+        "--limit",
+        "5",
+        "--repeats",
+        "3",
+        "--archive-existing-output",
+        "--corpus",
+        "locomo",
+        "--split",
+        "heldout",
+        "--max-queries",
+        "0",
+        "--locomo-path",
+        ".artifacts/data/locomo10.json",
+        "--output",
+        "benchmarks/results/native-completion-regression-public1015"
+      ],
+      "outputs": [
+        "benchmarks/results/native-completion-regression-public1015.json.gz",
+        "benchmarks/results/native-completion-regression-public1015.summary.json",
+        "benchmarks/results/native-completion-regression-public1015.md"
+      ],
+      "timeout_seconds": 2400
+    },
+    {
+      "id": "regression-authored36",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.native_budget_eval",
+        "--baseline-src",
+        ".artifacts/native-baseline-5abc/src",
+        "--candidate-src",
+        ".artifacts/native-completion-candidate/src",
+        "--baseline-label",
+        "prior-default-5abc85e",
+        "--candidate-label",
+        "native-token-stable-prefix-v1",
+        "--expected-queries",
+        "36",
+        "--expected-dataset-sha256",
+        "ecc46c474d5184995938419fa985b8e08c0ddb51560da49990247465db6db0b0",
+        "--budget-chars",
+        "2000",
+        "8000",
+        "--token-budgets",
+        "512",
+        "1024",
+        "2048",
+        "--tokenizers",
+        "cl100k_base",
+        "o200k_base",
+        "--limit",
+        "5",
+        "--repeats",
+        "3",
+        "--archive-existing-output",
+        "--corpus",
+        "transfer",
+        "--output",
+        "benchmarks/results/native-completion-regression-authored36"
+      ],
+      "outputs": [
+        "benchmarks/results/native-completion-regression-authored36.json.gz",
+        "benchmarks/results/native-completion-regression-authored36.summary.json",
+        "benchmarks/results/native-completion-regression-authored36.md"
+      ],
+      "timeout_seconds": 2400
+    },
+    {
+      "id": "external-hotpot128",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.native_budget_eval",
+        "--baseline-src",
+        ".artifacts/native-baseline-5abc/src",
+        "--candidate-src",
+        ".artifacts/native-completion-candidate/src",
+        "--baseline-label",
+        "prior-default-5abc85e",
+        "--candidate-label",
+        "native-token-stable-prefix-v1",
+        "--expected-queries",
+        "128",
+        "--expected-dataset-sha256",
+        "0791515aca6bccf19a97895cad681e06a07536d6c08050d54189cc64cb819822",
+        "--budget-chars",
+        "2000",
+        "8000",
+        "--token-budgets",
+        "512",
+        "1024",
+        "2048",
+        "--tokenizers",
+        "cl100k_base",
+        "o200k_base",
+        "--limit",
+        "5",
+        "--repeats",
+        "3",
+        "--archive-existing-output",
+        "--corpus",
+        "hotpotqa",
+        "--hotpot-path",
+        ".artifacts/data/hotpotqa-dev-distractor.json",
+        "--output",
+        "benchmarks/results/native-completion-external-hotpot128"
+      ],
+      "outputs": [
+        "benchmarks/results/native-completion-external-hotpot128.json.gz",
+        "benchmarks/results/native-completion-external-hotpot128.summary.json",
+        "benchmarks/results/native-completion-external-hotpot128.md"
+      ],
+      "timeout_seconds": 2400
+    }
+  ],
+  "description": "Fresh-workspace recovery from 1054301: execute only six remaining frozen native-budget cohorts. Preserve completed synthetic61 and synthetic211 outputs and both prior interrupted checkpoints. Axes, commands, fixed source identities, datasets and repetitions are unchanged. Aggregate all eight stages through native-completion-manifest.json. Timings remain host-specific and belong to their original run segments.",
+  "retained_stages": [
+    {
+      "id": "development-synthetic61",
+      "outputs_sha256": {
+        "benchmarks/results/native-completion-development-synthetic61.json.gz": "8909d90b7c28a161548dac0e8700e3bb938c69354bfa55aa630564dae31f0078",
+        "benchmarks/results/native-completion-development-synthetic61.summary.json": "644d8ccfb6887a9a57c33f4acca5aff8000587ac3f8d7cbf3e71c0c21210799d",
+        "benchmarks/results/native-completion-development-synthetic61.md": "42e05d01291715eb6d824ec752b5bc81d4104e7d8d908e80ae4572c38a09dab0"
+      }
+    },
+    {
+      "id": "regression-synthetic211",
+      "outputs_sha256": {
+        "benchmarks/results/native-completion-regression-synthetic211.json.gz": "16d6addebcaa04cd4f78f33e992998da298f338d18f120c1e9bd1224ed8707e1",
+        "benchmarks/results/native-completion-regression-synthetic211.summary.json": "665bc2e2e8e127aec7cecb4c2f76124c3592c93409d6e2dbfe3938561616df4d",
+        "benchmarks/results/native-completion-regression-synthetic211.md": "07727ea6e8fc29deea724409c099b4e224f46a20b05d8feac44cb86d7b6dac85"
+      }
+    }
+  ]
+}
