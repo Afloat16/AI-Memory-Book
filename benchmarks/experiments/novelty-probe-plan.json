@@ -1,0 +1,30 @@
+{
+  "protocol": "bounded-novelty-old-development-v1",
+  "status": "registered-before-development-scoring",
+  "registered_at": "2026-11-12",
+  "baseline_commit": "cbf626037b42f11f8bc5b6d46f56caac771e54ba",
+  "baseline_source_sha256": "d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57",
+  "purpose": "A separate bounded follow-up probe of the existing lexical query-term novelty reranker. The completed round-two frozen result remains authoritative and unchanged. This does not implement scoped IDF or copy an upstream ranker.",
+  "modes": [
+    {"name": "default", "formula": "score * (1 + newly_covered_query_terms / query_terms)", "maximum_multiplier": 2.0},
+    {"name": "no_novelty", "formula": "score * (1 + 0.0)", "maximum_multiplier": 1.0},
+    {"name": "capped_novelty_025", "formula": "score * (1 + min(0.25, newly_covered_query_terms / query_terms))", "maximum_multiplier": 1.25}
+  ],
+  "rationale": "The default additive fraction can double a page's relevance solely for unweighted new query terms. The no-novelty ablation isolates this contribution. The sole bounded alternative retains small existing boosts but caps the multiplier at 1.25; within this greedy selection, a candidate more than 25% stronger in positive pre-novelty score cannot be overtaken solely by this bonus. The bound is fixed before scoring, not selected by grid search or copied from another repository.",
+  "runtime_change_scope": ["src/memory_book/store.py: the single novelty fraction expression inside the existing bounded greedy reranker"],
+  "preserve": ["default mode and main branch", "first selected page", "original candidate scores and tie ordering", "current-query temporal revision handling", "per-route candidate limit 96", "novelty pool limit*4", "lexical exact/stem fusion and metadata weights", "all source text and coordinates", "native token assembler and budgets", "semantic=false", "coverage=false", "all frozen evaluators and prior reports"],
+  "cohorts": [
+    {"name": "synthetic61", "corpus": "synthetic", "split": "development", "queries": 168, "sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26"},
+    {"name": "authored36", "corpus": "transfer", "split": "development", "queries": 36, "sha256": "ecc46c474d5184995938419fa985b8e08c0ddb51560da49990247465db6db0b0"},
+    {"name": "public1015", "corpus": "locomo", "split": "heldout", "queries": 1015, "sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857"},
+    {"name": "hotpot128", "corpus": "hotpotqa", "split": "heldout", "queries": 128, "sha256": "0791515aca6bccf19a97895cad681e06a07536d6c08050d54189cc64cb819822"}
+  ],
+  "parameters": {"seed": 61, "projects": 8, "max_queries": 0, "budget_chars": 8000, "token_budgets": [512, 1024, 2048], "tokenizers": ["cl100k_base"], "limit": 5, "repeats": 1, "max_page_chars": 900, "cache_size": 0, "use_cache": false, "semantic": false, "coverage": false},
+  "execution": "Twelve isolated sequential cohort/mode workers on one hosted VM; mode order rotates by cohort index. Each uses the exact committed source for that mode, a fresh identically ingested archive, one repetition and random.Random(61) query order at every budget. Native recall timing excludes ingestion, source scoring, token recounting and report writing. No full-process latency improvement claim follows from this one-pass development probe.",
+  "data_access": "Only these four registered old cohorts. Never import round2_data or read the new round2_hotpot256 manifest, IDs, questions or per-question results. The pinned original Hotpot Parquet may be downloaded and hash-checked, but is filtered with the old hotpot_manifest selected_ids before conversion; only the old 128 question rows become a Dataset and its original fingerprint must match.",
+  "metrics": ["native strict source-evidence recall and complete evidence", "all original category groups", "low_lexical_overlap_le_0.25", "multiple_required_evidence", "cross_session", "cross_chapter", "unsupported nonempty responses", "all per-question and annotation gains/losses", "context and returned-payload reference tokens", "single-pass per-query wall time and p50/p95/p99", "source/page projection, scope, cache and budget invariants"],
+  "screening_rule": "Conservative follow-up gate, not a statistical significance claim: a candidate is worth further validation only if its complete-evidence rate and evidence recall do not decline on any of the 12 cohort/budget cells, it does not increase unsupported nonempty counts, and at 512 tokens it has no decline on any named primary diagnostic group with at least 10 questions. It must improve at least one aggregate evidence or complete-evidence value. Every smaller group and every negative case is still reported. If neither of the two fixed candidates passes, stop this probe; do not add candidates, tune the bound, inspect new256 or change the product default.",
+  "primary_diagnostic_groups": ["low_lexical_overlap_le_0.25", "multiple_required_evidence", "cross_session", "cross_chapter"],
+  "durability": "Save this plan before measurement, then source commits and a binding file before running. Save every complete worker and publish all raw results, summaries, negative changes and incomplete/failure markers under new run-specific paths. No overwrite of prior results or README update.",
+  "interpretation": "Old development/regression retrieval evidence only. No generated-answer, cross-domain generalization, final latency or whole-product superiority claim. The current published frozen comparison is neither replaced nor withdrawn."
+}
