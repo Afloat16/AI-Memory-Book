@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "registered_at_utc": "2026-11-12",
+  "status": "registered-before-any-project-statistics-quality-scoring",
+  "parent_plan": "benchmarks/experiments/round3-plan.json",
+  "parent_plan_sha256": "93d24dc520984eb07ace81c815ba8573f29498116f73eced863609cd45bcb5f4",
+  "finding": "Reading the existing synthetic generator and counting scope metadata found eight of the 168 old synthetic61 queries have project=null. No retrieval or quality scoring was performed to discover this. Authored36 has no unscoped queries; the existing public and Hotpot converters assign a project to every query.",
+  "rule": "In the candidate mode, pass project_local_fts_statistics=True exactly when case.project is not None. Otherwise omit the option and call the unchanged global path. Never infer a project, inspect question content to choose a route, omit a case or change the query.",
+  "reported_applied": "applied=true identifies the explicitly selected policy, not a guarantee that an index was needed: empty normalized queries still return without constructing FTS. Derived builds/reuse/not-needed events are recorded separately.",
+  "baseline_calls": 4041,
+  "candidate_calls": 4041,
+  "candidate_applied_calls": 4017,
+  "candidate_unscoped_global_calls": 24,
+  "total_calls": 8082,
+  "unscoped_calls_by_cohort": {
+    "synthetic61": 24,
+    "authored36": 0,
+    "public1015": 0,
+    "hotpot128": 0
+  },
+  "additional_invariant": "The 24 paired unscoped calls must have identical complete native payloads after removing only latency_ms. All original cases, their quality scores and all gains/losses remain included in the original 12-cell screen.",
+  "unchanged": "The parent plan, eight workers, three token budgets, tokenizer, limits, source commits, candidate algorithm, primary groups, quality gates and stop rule remain unchanged. This is an input-scope clarification, not a candidate or threshold change."
+}
