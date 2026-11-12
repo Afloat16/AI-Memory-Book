@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "purpose": "Fictional two-page scope and native metadata interface smoke, before any new Hotpot256 retrieval. Not a performance or quality benchmark.",
+  "at": "2026-11-12T10:00:47.173762+00:00",
+  "dataset": "two invented pages in separate projects; no external cohort content",
+  "upstream_lock_sha256": "77edebbd68ca4f190065b9795481c524f50e3af73b10f05334a6d76d2c4cbd4c",
+  "queries": [
+    {
+      "project": "round2-toy-alpha",
+      "hit_ids": [
+        "r2-toy-a"
+      ],
+      "mapped_hit_ids": [
+        "r2-toy-a"
+      ],
+      "native_result_id_sha256": [
+        "35490b5b8d76af7730294623e44942af6e249f7b6c7b37a977bb0add7c779534"
+      ],
+      "unmapped_metadata_hits": 0,
+      "native_hit_field_names": [
+        "id",
+        "path",
+        "rank",
+        "snippet",
+        "title"
+      ]
+    },
+    {
+      "project": "round2-toy-beta",
+      "hit_ids": [
+        "r2-toy-b"
+      ],
+      "mapped_hit_ids": [
+        "r2-toy-b"
+      ],
+      "native_result_id_sha256": [
+        "7caec0a386280f429a522519621ed7c92d2d10cb9c12b43799b107c7522d1d5f"
+      ],
+      "unmapped_metadata_hits": 0,
+      "native_hit_field_names": [
+        "id",
+        "path",
+        "rank",
+        "snippet",
+        "title"
+      ]
+    },
+    {
+      "project": "round2-toy-alpha",
+      "hit_ids": [
+        "r2-toy-a"
+      ],
+      "mapped_hit_ids": [
+        "r2-toy-a"
+      ],
+      "native_result_id_sha256": [
+        "35490b5b8d76af7730294623e44942af6e249f7b6c7b37a977bb0add7c779534"
+      ],
+      "unmapped_metadata_hits": 0,
+      "native_hit_field_names": [
+        "id",
+        "path",
+        "rank",
+        "snippet",
+        "title"
+      ]
+    }
+  ],
+  "configured_generation_calls": 0,
+  "smoke_harness_notes": [
+    "The first inventory export encountered SQLite BLOB IDs and failed JSON serialization after native calls. This repeat hashes BLOB identity bytes. Adapter, ranking, and frozen cohort are unchanged; no heldout call occurred."
+  ],
+  "native_database_inventory": [
+    {
+      "file_name": "memory.sqlite",
+      "page_count": 2,
+      "id_representation": "SHA256 of SQLite BLOB bytes",
+      "page_identity_and_scope": [
+        {
+          "id": "4efa44fdccd4c58bd738be59a64781d0e31a05a9955af1cc496b897e996f1532",
+          "path": "pages/24c224bee9c8d8a156c3ad2e96ba8d2fc2c5f991074349117ef1097dd8a70e33.md"
+        },
+        {
+          "id": "1a2e7237665ce4db4519474b11f967377feb1419c2f5d3dc8bc7ca76b945f857",
+          "path": "pages/4c1b2bd90380add5949d5b17b41f55fddee9f59d783194740b870309c27456b5.md"
+        }
+      ]
+    }
+  ],
+  "streams_active": [
+    "fts",
+    "entity",
+    "vector",
+    "graph",
+    "observation"
+  ],
+  "validation": {
+    "passed": true,
+    "failures": []
+  },
+  "metadata": {
+    "name": "ai-memory native MCP hybrid with local MiniLM",
+    "repository": "akitaonrails/ai-memory",
+    "version": "v3.4.5",
+    "commit": "ee73c04c542fa41ca629b046deb4ac108518f407",
+    "asset_url": "https://github.com/akitaonrails/ai-memory/releases/download/v3.4.5/ai-memory-linux-x86_64.tar.gz",
+    "archive_sha256": "43af583f2c1c22949cecc89ad99027a076bd2510d7ba3dabff04e735e03eab76",
+    "binary_sha256": "a30d113e0e4ba35ffa1706c9093876ee1f9ae71769586a4a8400d0f3729028ef",
+    "license": "MIT",
+    "implementation": "unmodified official release executable",
+    "comparison_scope": "shared-page retrieval component",
+    "search_route": "/mcp tools/call memory_query",
+    "embedding_provider": "local",
+    "embedding_model": {
+      "name": "all-MiniLM-L6-v2",
+      "dimensions": 384,
+      "input_token_limit": 512,
+      "files": [
+        {
+          "name": "model.safetensors",
+          "bytes": 90868376,
+          "sha256": "53aa51172d142c89d9012cce15ae4d6cc0ca6895895114379cacb4fab128d9db"
+        },
+        {
+          "name": "tokenizer.json",
+          "bytes": 466247,
+          "sha256": "be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037"
+        },
+        {
+          "name": "config.json",
+          "bytes": 612,
+          "sha256": "953f9c0d463486b10a6871cc2fd59f223b2c70184f49815e7efbcab5d8908b41"
+        }
+      ],
+      "downloaded_bytes": 0,
+      "prepare_ms": 63.887938998959726
+    },
+    "embedding_backfill_report": {
+      "embedded": 0,
+      "skipped": 2,
+      "failed": 0,
+      "would_embed": 0,
+      "provider": "local",
+      "model": "all-MiniLM-L6-v2",
+      "dim": 384
+    },
+    "embedding_backfill_ms": 0.967563000813243,
+    "llm_provider": "none (upstream default)",
+    "watcher": "disabled; writes index through native HTTP route",
+    "native_page_tier": "episodic",
+    "documents": 2,
+    "startup_ms": 816.9167949999974,
+    "ingest_ms": 54.61869399914576,
+    "setup_ms": 873.1312439995236,
+    "latency_scope": "persistent loopback HTTP client through native response decode"
+  }
+}
