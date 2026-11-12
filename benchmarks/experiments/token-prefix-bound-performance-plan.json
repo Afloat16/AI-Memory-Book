@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "status": "registered-before-token-prefix-bound-development-execution",
+  "name": "Output-equivalent token-counter fast path and stable-prefix lower bound",
+  "registered_baseline_commit": "407cda1c5f1dac0e67dfe527d3c23febdad5e818",
+  "tooling_base_commit": "d102fb0ed70bcbbefbad2b2ab8dce2b2260487b8",
+  "candidate_branch": "perf/token-prefix-bound",
+  "source_constraint": "All src/ Git blobs at the tooling base equal the frozen baseline. Only src/memory_book/token_budget.py may differ in this experiment; candidate Git/source hashes are recorded at execution.",
+  "changes": [
+    {
+      "operation": "Use Encoding.encode_ordinary for TokenCounter.count",
+      "proof": "tiktoken 0.12.0 documents equivalence to encode(text, disallowed_special=()); both use the same surrogate repair. This removes special-token scanning without changing literal evidence treatment.",
+      "source": "https://github.com/openai/tiktoken/blob/0.12.0/tiktoken/core.py#L63-L77"
+    },
+    {
+      "operation": "Expose the existing stable-prefix count as a conservative minimum and stop an impossible page after existing lazy preparation",
+      "proof": "The current prepared count is stable_count + count(tail + candidate), whose second term is nonnegative. If stable_count > budget_tokens, every remaining candidate on that page would be rejected. Unicode-tail or byte-prefix fallback supplies minimum_tokens=0.",
+      "preserve": "First candidate uses a full exact count. Prefix preparation remains index == 1 and len(choices) > 3. Only strict > rejects; equality must continue."
+    }
+  ],
+  "unchanged": [
+    "candidate ranking and selection order",
+    "96-candidate limit",
+    "source units, coordinates and citations",
+    "token and character caps",
+    "legacy-block preservation",
+    "all payload fields except already excluded latency_ms",
+    "registered quality/evaluation axes",
+    "previous frozen performance and quality reports"
+  ],
+  "validation": {
+    "script": "scripts/verify_native_optimization.py",
+    "script_changes": "None; use its existing complete-payload equivalence and sequential worker timing.",
+    "corpus": "synthetic seed 61 development",
+    "queries": 168,
+    "dataset_sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26",
+    "budget_chars": [
+      2000,
+      8000
+    ],
+    "tokenizers": [
+      "cl100k_base",
+      "o200k_base"
+    ],
+    "budget_tokens": [
+      512,
+      1024,
+      2048
+    ],
+    "limit": 5,
+    "repeats": 3,
+    "unique_payload_comparisons": 2016,
+    "timed_calls_per_engine": 6048,
+    "gate": "Every complete result payload hash must match the frozen baseline after excluding only latency_ms; repeated payloads must remain identical; sources/evaluator must remain unchanged.",
+    "focused_tests": [
+      "ordinary counts equal the previous public tokenizer entry point, including literal specials and malformed surrogates",
+      "stable minimum never exceeds exact full counts across Unicode/boundary joins",
+      "partial UTF-8 and non-prefix stable-byte fallbacks expose zero and preserve full count",
+      "first-choice success and short-list full counting stay lazy",
+      "over-budget stable minimum skips only impossible candidates; equality does not prune",
+      "96-candidate bound and accepted legacy entries remain unchanged"
+    ]
+  },
+  "execution": {
+    "workflow": ".github/workflows/token-prefix-bound-validation.yml",
+    "runtime": "Independent GitHub Actions ubuntu-24.04 VM, Python 3.12, tiktoken 0.12.0.",
+    "method": "Frozen baseline then candidate in sequential isolated worker processes on one host; each initializes tokenizers before timed queries; no result cache; original deterministic query shuffle; 3 repetitions.",
+    "output_prefix": "benchmarks/reports/native-prefix-bound-development-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}",
+    "durability": "Commit registration, implementation/tests and workflow in separate stages. Always publish available reports and explicit failed/success status to a run-specific validation branch; never overwrite previous attempts.",
+    "old_reports_preserved": [
+      "benchmarks/reports/native-optimization-development.json.gz",
+      "benchmarks/reports/native-optimization-lazy-development.json.gz"
+    ],
+    "no_extra_runs": "Do not rerun the completed native quality matrix, external transfer cohort, competitor benchmarks or generated-answer jobs."
+  },
+  "interpretation": "Report every setting's baseline/candidate p50, p95 and mean, including ties and regressions. Sequential engine order, naturally warm OS/SQLite caches and one host limit timing conclusions. Passing equivalence is not evidence of a speed gain; promotion to main requires review of measured benefit. Do not adjust parameters or select questions based on outcomes."
+}
