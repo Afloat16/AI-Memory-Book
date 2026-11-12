@@ -76,6 +76,8 @@ No tag or draft is created until source, CI, package and clean-install checks
 pass. The tag must identify exactly the tested commit; existing tags are never
 forced or moved. An existing public release is never edited. An existing draft
 can be continued only if it belongs to the same exact SHA.
+Draft discovery uses the authenticated, paginated release list and rejects
+duplicate tags; subsequent state checks address the unique release ID.
 
 Before resuming a draft, every existing asset must have an expected name, an
 uploaded state, the expected size and the exact downloaded SHA-256. Extra,

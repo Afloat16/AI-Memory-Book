@@ -12,6 +12,21 @@ from scripts import release
 
 
 class ReleaseTests(unittest.TestCase):
+    def test_draft_lookup_paginates_and_rejects_duplicate_tags(self):
+        first = [{"id": i + 1, "tag_name": "other-" + str(i)} for i in range(100)]
+        draft = {"id": 101, "tag_name": "v0.3.0", "draft": True, "target_commitish": "a" * 40}
+        with patch.object(release, "api", side_effect=[first, [draft]]) as api:
+            self.assertEqual(release.find_release("v0.3.0"), draft)
+            self.assertEqual([call.args[0] for call in api.call_args_list],
+                             ["releases?per_page=100&page=1", "releases?per_page=100&page=2"])
+        first[0] = {**draft, "id": 1}
+        with patch.object(release, "api", side_effect=[first, [draft]]), self.assertRaises(ValueError):
+            release.find_release("v0.3.0")
+        with patch.object(release, "api", return_value=draft):
+            self.assertEqual(release.release_by_id(101, "v0.3.0", "a" * 40, draft=True), draft)
+            with self.assertRaises(ValueError):
+                release.release_by_id(101, "v0.3.0", "a" * 40, draft=False)
+
     def test_exact_commit_push_ci_and_all_nine_successful_jobs_required(self):
         head = "a" * 40
         run = {"id": 7, "head_sha": head, "event": "push", "status": "completed",
