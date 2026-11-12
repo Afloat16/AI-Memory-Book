@@ -13,8 +13,8 @@ key. Your AI client's own model and account requirements remain separate.
 ## Install the published version
 
 Download the pinned installer, run it, and connect your AI client. The installer
-uses the small **v0.3.0 wheel** from the
-[GitHub release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.0),
+uses the small **v0.3.1 wheel** from the
+[GitHub release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.1),
 so you do not need Git or a source checkout. The wheel excludes the repository's
 historical benchmark reports. MCP and client configuration dependencies are
 included in the installation; capture and the browser reader remain optional.
@@ -22,19 +22,19 @@ included in the installation; capture and the browser reader remain optional.
 ### macOS / Linux
 
 ```bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.0/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.1/scripts/install.sh
 bash install-memory-book.sh
 ```
 
 ### Windows PowerShell
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.0/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.1/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ```
 
 The shared Python installer also works on macOS/Linux. A PowerShell wrapper is
-available at [the v0.3.0 `scripts/install.ps1`](https://github.com/Afloat16/AI-Memory-Book/blob/v0.3.0/scripts/install.ps1). Neither wrapper
+available at [the v0.3.1 `scripts/install.ps1`](https://github.com/Afloat16/AI-Memory-Book/blob/v0.3.1/scripts/install.ps1). Neither wrapper
 changes your shell profile or PowerShell execution policy. Use Python 3.10 or
 newer; some Linux distributions package `venv` separately.
 
@@ -44,14 +44,14 @@ live under the data directory's `install` subdirectory. The usual POSIX launcher
 is `~/.local/bin/memory-book`; Windows uses the data directory's `bin` directory.
 Custom `--prefix`, `--bin-dir`, or `MEMORY_BOOK_HOME` can change these locations.
 
-The downloaded helper defaults to `--version v0.3.0`. It also accepts an older
+The downloaded helper defaults to `--version v0.3.1`. It also accepts an older
 release tag, a full commit SHA, or `--source /absolute/path/to/checkout-or-wheel`.
 `--without-extras` installs only
 the core and therefore omits MCP/client integration. Installation stages a new
 environment before switching its managed launcher; previous environments and
 memory data are retained. An unrelated existing launcher is not overwritten.
-The v0.3.0 route uses the pinned wheel; other release tags and commit SHAs keep
-the source-archive installation path.
+The v0.3.0 and v0.3.1 routes use their pinned release wheels; other release tags
+and commit SHAs keep the source-archive installation path.
 
 Once installed:
 
@@ -61,7 +61,7 @@ memory-book setup --client claude-code
 memory-book doctor
 ```
 
-The version should be `0.3.0`. Replace `claude-code` with your client profile,
+The version should be `0.3.1`. Replace `claude-code` with your client profile,
 such as `codex`; add `--dry-run` to setup if you want to preview configuration
 changes. Restart the selected client so it loads the new MCP connection. The
 server sends concise operating instructions at initialization; it does not preload your
@@ -84,13 +84,13 @@ and reconnect clients to the new environment.
 Use a persistent tool environment and the same pinned release wheel:
 
 ```bash
-uv tool install "ai-memory-book[mcp,clients] @ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.3.0/ai_memory_book-0.3.0-py3-none-any.whl"
+uv tool install "ai-memory-book[mcp,clients] @ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.3.1/ai_memory_book-0.3.1-py3-none-any.whl"
 ```
 
 Or:
 
 ```bash
-pipx install "ai-memory-book[mcp,clients] @ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.3.0/ai_memory_book-0.3.0-py3-none-any.whl"
+pipx install "ai-memory-book[mcp,clients] @ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.3.1/ai_memory_book-0.3.1-py3-none-any.whl"
 ```
 
 These wheel URLs do not require Git. The persistent tool workflows are described
@@ -109,7 +109,7 @@ indexes; this is not an offline installation promise.
 ### Source checkout
 
 ```bash
-git clone --branch v0.3.0 https://github.com/Afloat16/AI-Memory-Book.git
+git clone --branch v0.3.1 https://github.com/Afloat16/AI-Memory-Book.git
 cd AI-Memory-Book
 python -m venv .venv
 source .venv/bin/activate
@@ -323,16 +323,18 @@ unnecessary when the daemon already provides that reader.
 
 ## Upgrading
 
-To upgrade to **v0.3.0**, download and run the v0.3.0 installer shown above,
+To upgrade to **v0.3.1**, download and run the v0.3.1 installer shown above,
 using the same `--prefix`, `--bin-dir`, or `MEMORY_BOOK_HOME` overrides if you
 originally selected them. Download the new helper rather than reusing a helper
 that defaults to an older release. For uv, pipx, or a source checkout, use your
-original installation method with the pinned v0.3.0 URL or tag.
+original installation method with the pinned v0.3.1 URL or tag.
 
-Back up an existing archive before opening it with v0.3.0. Its source-preserving
-schema 3 migration has no automatic downgrade; an older binary needs the
-pre-upgrade database backup for rollback. Use SQLite's backup facility for a
-consistent snapshot, including data still in the WAL.
+v0.3.1 retains schema 3 and introduces no new schema migration. When upgrading
+from a version before v0.3.0, back up the archive before opening it with the new
+binary: the source-preserving schema 3 migration introduced in v0.3.0 has no
+automatic downgrade, and a pre-v0.3.0 binary needs the pre-upgrade database backup
+for rollback. Use SQLite's backup facility for a consistent snapshot, including
+data still in the WAL.
 
 The bundled installer retains older environments and preserves your memory
 directory. Client and service definitions contain absolute Python paths, so a
@@ -347,7 +349,7 @@ memory-book setup --client claude-code --client codex
 memory-book doctor
 ```
 
-Confirm that the new launcher prints `0.3.0`. If you already use background
+Confirm that the new launcher prints `0.3.1`. If you already use background
 capture, update its service to the new environment:
 
 ```bash
