@@ -1,0 +1,894 @@
+{
+  "audit_version": 1,
+  "status": "passed",
+  "created_at": "2026-11-12T11:49:05.154929+00:00",
+  "run_id": "43207732852-1",
+  "results_commit": "057b814ab809dec57d4fa4c75fe540d59a0f0027",
+  "auditor_sha256": "1358b1d41199d92bc24fcd1db69d576f3de9506b9a19c759f2cc2cdbf4acb068",
+  "prerequisite_files": {
+    "benchmarks/reports/round2-43207732852-1-checkpoint.json": "8056b41ddc3320710cf19d3973eeab01e174aefdfd64c2d42460cd2a12a1ea34",
+    "benchmarks/results/round2-43207732852-1/assessment.json": "c0ca7ee50535a0b054cdbaed0f45df6db5c06475e8ba843cb4f64f32acc8296a"
+  },
+  "components": 6,
+  "first_pass_records": 1536,
+  "tokenizers": [
+    "cl100k_base",
+    "o200k_base"
+  ],
+  "stages": [
+    {
+      "stage": "baseline-component",
+      "first_pass_query_ids_sha256": "750b88a7a2e77e8bbcb234582081ba7b81073b3f179d1bab4e0b2dd844c7e79f",
+      "selected_original_cost_rows_sha256": "b27437d0661be04625576b60f61d21cab51d98f4cd5560126ac2b12a7f09c74d",
+      "recomputed_native_costs": {
+        "queries": 256,
+        "unmapped_native_hits": 0,
+        "queries_with_unmapped_native_hits": 0,
+        "mean_read_calls": 0.0,
+        "mean_read_ms": 0.0,
+        "mean_search_payload_tokens": {
+          "cl100k_base": 3983.5234375,
+          "o200k_base": 4001.7890625
+        },
+        "mean_search_content_tokens": {
+          "cl100k_base": 802.8046875,
+          "o200k_base": 801.3125
+        },
+        "mean_read_payload_tokens": {
+          "cl100k_base": 0.0,
+          "o200k_base": 0.0
+        },
+        "mean_read_content_tokens": {
+          "cl100k_base": 0.0,
+          "o200k_base": 0.0
+        }
+      },
+      "first_pass_search_bridge_latency": {
+        "samples": 256,
+        "p50_ms": 5.1156334999999995,
+        "p95_ms": 8.522644249999999,
+        "mean_ms": 5.29149803515625
+      },
+      "first_pass_search_plus_all_reads_latency": {
+        "samples": 256,
+        "p50_ms": 5.1156334999999995,
+        "p95_ms": 8.522644249999999,
+        "mean_ms": 5.29149803515625
+      },
+      "first_pass_native_search_latency": {
+        "samples": 256,
+        "p50_ms": 5.1156334999999995,
+        "p95_ms": 8.522644249999999,
+        "mean_ms": 5.29149803515625
+      },
+      "native_content_availability": {
+        "search_payload_tokens": {
+          "available": 256,
+          "missing": 0
+        },
+        "search_content_tokens": {
+          "available": 256,
+          "missing": 0
+        },
+        "read_payload_tokens": {
+          "available": 256,
+          "missing": 0
+        },
+        "read_content_tokens": {
+          "available": 256,
+          "missing": 0
+        }
+      },
+      "additional_per_query_sum_means": {
+        "search_plus_read_payload_tokens": {
+          "cl100k_base": 3983.5234375,
+          "o200k_base": 4001.7890625
+        },
+        "search_plus_read_content_tokens": {
+          "cl100k_base": 802.8046875,
+          "o200k_base": 801.3125
+        }
+      },
+      "common_packed_context": [
+        {
+          "budget_tokenizer": "cl100k_base",
+          "budget_tokens": 512,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 450.51953125,
+            "o200k_base": 446.66796875
+          }
+        },
+        {
+          "budget_tokenizer": "cl100k_base",
+          "budget_tokens": 1024,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 712.8671875,
+            "o200k_base": 706.203125
+          }
+        },
+        {
+          "budget_tokenizer": "cl100k_base",
+          "budget_tokens": 2048,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 713.60546875,
+            "o200k_base": 706.94140625
+          }
+        },
+        {
+          "budget_tokenizer": "o200k_base",
+          "budget_tokens": 512,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 451.37109375,
+            "o200k_base": 447.30859375
+          }
+        },
+        {
+          "budget_tokenizer": "o200k_base",
+          "budget_tokens": 1024,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 712.8671875,
+            "o200k_base": 706.203125
+          }
+        },
+        {
+          "budget_tokenizer": "o200k_base",
+          "budget_tokens": 2048,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 713.60546875,
+            "o200k_base": 706.94140625
+          }
+        }
+      ],
+      "validation": {
+        "passed": true,
+        "all_native_cost_means_equal": true,
+        "read_and_metadata_counts_equal": true,
+        "per_query_sum_latency_equal": true,
+        "common_context_means_equal": true
+      },
+      "host_id": "43207732852-1",
+      "dataset_sha256": "19aa783140212cc6532581c2791e6384769b0647dd4f08e2db29687400a798ae",
+      "supplied_documents_sha256": "f630cff91ae3e1cd9611512755f4c7a4b7026bd3e3d2a70eb676a5d30bf127aa",
+      "candidate_binding_status": "fixed-candidate-protocol-recovery",
+      "input_files": {
+        "benchmarks/results/round2-43207732852-1/baseline-component.json.gz": "82dcd65cce75c7ebceddb1d89dc27443a353718a6eae60444252c3001e95e511",
+        "benchmarks/results/round2-43207732852-1/baseline-component.summary.json": "c020016ed8c5fb4d5b0d4c6ee332f19e9b42cc69c903e2ff0408e1c3cb656859"
+      },
+      "decompressed_original_sha256": "d19238a0750078403b46504b531fb264217de22cf543000d14f4eb573750a0b3"
+    },
+    {
+      "stage": "candidate-component",
+      "first_pass_query_ids_sha256": "750b88a7a2e77e8bbcb234582081ba7b81073b3f179d1bab4e0b2dd844c7e79f",
+      "selected_original_cost_rows_sha256": "910280067e3364aefe7340a55fb71d328d63c28169d16d41e6d21ec27ee43161",
+      "recomputed_native_costs": {
+        "queries": 256,
+        "unmapped_native_hits": 0,
+        "queries_with_unmapped_native_hits": 0,
+        "mean_read_calls": 0.0,
+        "mean_read_ms": 0.0,
+        "mean_search_payload_tokens": {
+          "cl100k_base": 3983.52734375,
+          "o200k_base": 4001.79296875
+        },
+        "mean_search_content_tokens": {
+          "cl100k_base": 802.8046875,
+          "o200k_base": 801.3125
+        },
+        "mean_read_payload_tokens": {
+          "cl100k_base": 0.0,
+          "o200k_base": 0.0
+        },
+        "mean_read_content_tokens": {
+          "cl100k_base": 0.0,
+          "o200k_base": 0.0
+        }
+      },
+      "first_pass_search_bridge_latency": {
+        "samples": 256,
+        "p50_ms": 4.7133199999999995,
+        "p95_ms": 8.395951,
+        "mean_ms": 4.93663758984375
+      },
+      "first_pass_search_plus_all_reads_latency": {
+        "samples": 256,
+        "p50_ms": 4.7133199999999995,
+        "p95_ms": 8.395951,
+        "mean_ms": 4.93663758984375
+      },
+      "first_pass_native_search_latency": {
+        "samples": 256,
+        "p50_ms": 4.7133199999999995,
+        "p95_ms": 8.395951,
+        "mean_ms": 4.93663758984375
+      },
+      "native_content_availability": {
+        "search_payload_tokens": {
+          "available": 256,
+          "missing": 0
+        },
+        "search_content_tokens": {
+          "available": 256,
+          "missing": 0
+        },
+        "read_payload_tokens": {
+          "available": 256,
+          "missing": 0
+        },
+        "read_content_tokens": {
+          "available": 256,
+          "missing": 0
+        }
+      },
+      "additional_per_query_sum_means": {
+        "search_plus_read_payload_tokens": {
+          "cl100k_base": 3983.52734375,
+          "o200k_base": 4001.79296875
+        },
+        "search_plus_read_content_tokens": {
+          "cl100k_base": 802.8046875,
+          "o200k_base": 801.3125
+        }
+      },
+      "common_packed_context": [
+        {
+          "budget_tokenizer": "cl100k_base",
+          "budget_tokens": 512,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 450.51953125,
+            "o200k_base": 446.66796875
+          }
+        },
+        {
+          "budget_tokenizer": "cl100k_base",
+          "budget_tokens": 1024,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 712.8671875,
+            "o200k_base": 706.203125
+          }
+        },
+        {
+          "budget_tokenizer": "cl100k_base",
+          "budget_tokens": 2048,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 713.60546875,
+            "o200k_base": 706.94140625
+          }
+        },
+        {
+          "budget_tokenizer": "o200k_base",
+          "budget_tokens": 512,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 451.37109375,
+            "o200k_base": 447.30859375
+          }
+        },
+        {
+          "budget_tokenizer": "o200k_base",
+          "budget_tokens": 1024,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 712.8671875,
+            "o200k_base": 706.203125
+          }
+        },
+        {
+          "budget_tokenizer": "o200k_base",
+          "budget_tokens": 2048,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 713.60546875,
+            "o200k_base": 706.94140625
+          }
+        }
+      ],
+      "validation": {
+        "passed": true,
+        "all_native_cost_means_equal": true,
+        "read_and_metadata_counts_equal": true,
+        "per_query_sum_latency_equal": true,
+        "common_context_means_equal": true
+      },
+      "host_id": "43207732852-1",
+      "dataset_sha256": "19aa783140212cc6532581c2791e6384769b0647dd4f08e2db29687400a798ae",
+      "supplied_documents_sha256": "f630cff91ae3e1cd9611512755f4c7a4b7026bd3e3d2a70eb676a5d30bf127aa",
+      "candidate_binding_status": "fixed-candidate-protocol-recovery",
+      "input_files": {
+        "benchmarks/results/round2-43207732852-1/candidate-component.json.gz": "3c85d2e6fd03f159e60b90a55e1855f87d8af56694cb52e14bb6d39deb87eba4",
+        "benchmarks/results/round2-43207732852-1/candidate-component.summary.json": "b78adfe7414606591d3dd11e0a2811af29a8bf5678d29300af1a690c8a59c201"
+      },
+      "decompressed_original_sha256": "de85054e8f539248cf3a9d72928c97c4ecdc90fed861bcd93c1d4fc543e202f9"
+    },
+    {
+      "stage": "claude-mem-fts",
+      "first_pass_query_ids_sha256": "750b88a7a2e77e8bbcb234582081ba7b81073b3f179d1bab4e0b2dd844c7e79f",
+      "selected_original_cost_rows_sha256": "4ed85cafb280d806d25e15b2eb9d0eeef0533e6a4dd949b32e9130f7f48b6c3b",
+      "recomputed_native_costs": {
+        "queries": 256,
+        "unmapped_native_hits": 0,
+        "queries_with_unmapped_native_hits": 0,
+        "mean_read_calls": 0.0,
+        "mean_read_ms": 0.0,
+        "mean_search_payload_tokens": {
+          "cl100k_base": 1626.60546875,
+          "o200k_base": 1612.2734375
+        },
+        "mean_search_content_tokens": null,
+        "mean_read_payload_tokens": {
+          "cl100k_base": 0.0,
+          "o200k_base": 0.0
+        },
+        "mean_read_content_tokens": {
+          "cl100k_base": 0.0,
+          "o200k_base": 0.0
+        }
+      },
+      "first_pass_search_bridge_latency": {
+        "samples": 256,
+        "p50_ms": 16.217838999978085,
+        "p95_ms": 30.0559877499893,
+        "mean_ms": 17.04141211718757
+      },
+      "first_pass_search_plus_all_reads_latency": {
+        "samples": 256,
+        "p50_ms": 16.217838999978085,
+        "p95_ms": 30.0559877499893,
+        "mean_ms": 17.04141211718757
+      },
+      "first_pass_native_search_latency": {
+        "samples": 256,
+        "p50_ms": 15.810122999999862,
+        "p95_ms": 29.608075000000326,
+        "mean_ms": 16.644304648437515
+      },
+      "native_content_availability": {
+        "search_payload_tokens": {
+          "available": 256,
+          "missing": 0
+        },
+        "search_content_tokens": {
+          "available": 0,
+          "missing": 256
+        },
+        "read_payload_tokens": {
+          "available": 256,
+          "missing": 0
+        },
+        "read_content_tokens": {
+          "available": 256,
+          "missing": 0
+        }
+      },
+      "additional_per_query_sum_means": {
+        "search_plus_read_payload_tokens": {
+          "cl100k_base": 1626.60546875,
+          "o200k_base": 1612.2734375
+        },
+        "search_plus_read_content_tokens": null
+      },
+      "common_packed_context": [
+        {
+          "budget_tokenizer": "cl100k_base",
+          "budget_tokens": 512,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 451.81640625,
+            "o200k_base": 448.1953125
+          }
+        },
+        {
+          "budget_tokenizer": "cl100k_base",
+          "budget_tokens": 1024,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 704.4609375,
+            "o200k_base": 698.01171875
+          }
+        },
+        {
+          "budget_tokenizer": "cl100k_base",
+          "budget_tokens": 2048,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 705.5625,
+            "o200k_base": 699.10546875
+          }
+        },
+        {
+          "budget_tokenizer": "o200k_base",
+          "budget_tokens": 512,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 453.51953125,
+            "o200k_base": 449.62890625
+          }
+        },
+        {
+          "budget_tokenizer": "o200k_base",
+          "budget_tokens": 1024,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 704.4609375,
+            "o200k_base": 698.01171875
+          }
+        },
+        {
+          "budget_tokenizer": "o200k_base",
+          "budget_tokens": 2048,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 705.5625,
+            "o200k_base": 699.10546875
+          }
+        }
+      ],
+      "validation": {
+        "passed": true,
+        "all_native_cost_means_equal": true,
+        "read_and_metadata_counts_equal": true,
+        "per_query_sum_latency_equal": true,
+        "common_context_means_equal": true
+      },
+      "host_id": "43207732852-1",
+      "dataset_sha256": "19aa783140212cc6532581c2791e6384769b0647dd4f08e2db29687400a798ae",
+      "supplied_documents_sha256": "f630cff91ae3e1cd9611512755f4c7a4b7026bd3e3d2a70eb676a5d30bf127aa",
+      "candidate_binding_status": "fixed-candidate-protocol-recovery",
+      "input_files": {
+        "benchmarks/results/round2-43207732852-1/claude-mem-fts.json.gz": "623e668920c4ac159e07626c10ddece7b651291e470acd55d8e2fbcb23f3463b",
+        "benchmarks/results/round2-43207732852-1/claude-mem-fts.summary.json": "550d04312ce4865f5d3ae6c85e0ed91b46328b90797783835e9b3bb91d4cdeaa"
+      },
+      "decompressed_original_sha256": "57d8896cdd3f84d7c0f6a6301e1a1c081514596adc82719c48146f03f09f81de"
+    },
+    {
+      "stage": "ai-memory-hybrid",
+      "first_pass_query_ids_sha256": "750b88a7a2e77e8bbcb234582081ba7b81073b3f179d1bab4e0b2dd844c7e79f",
+      "selected_original_cost_rows_sha256": "00da470c2945c379c122ef6d7aaddc6b27360d6c1e2ebc36530e5b4d5417510e",
+      "recomputed_native_costs": {
+        "queries": 256,
+        "unmapped_native_hits": 0,
+        "queries_with_unmapped_native_hits": 0,
+        "mean_read_calls": 4.9765625,
+        "mean_read_ms": 4.294158492194278,
+        "mean_search_payload_tokens": {
+          "cl100k_base": 1018.8984375,
+          "o200k_base": 1016.3125
+        },
+        "mean_search_content_tokens": {
+          "cl100k_base": 955.01171875,
+          "o200k_base": 950.44140625
+        },
+        "mean_read_payload_tokens": {
+          "cl100k_base": 1818.609375,
+          "o200k_base": 1811.51953125
+        },
+        "mean_read_content_tokens": {
+          "cl100k_base": 1603.6640625,
+          "o200k_base": 1591.625
+        }
+      },
+      "first_pass_search_bridge_latency": {
+        "samples": 256,
+        "p50_ms": 25.97499199998765,
+        "p95_ms": 33.288364999975784,
+        "mean_ms": 26.630384035160937
+      },
+      "first_pass_search_plus_all_reads_latency": {
+        "samples": 256,
+        "p50_ms": 30.291703499869982,
+        "p95_ms": 37.612843749855074,
+        "mean_ms": 30.924542527355214
+      },
+      "first_pass_native_search_latency": {
+        "samples": 256,
+        "p50_ms": 25.97499199998765,
+        "p95_ms": 33.288364999975784,
+        "mean_ms": 26.630384035160937
+      },
+      "native_content_availability": {
+        "search_payload_tokens": {
+          "available": 256,
+          "missing": 0
+        },
+        "search_content_tokens": {
+          "available": 256,
+          "missing": 0
+        },
+        "read_payload_tokens": {
+          "available": 256,
+          "missing": 0
+        },
+        "read_content_tokens": {
+          "available": 256,
+          "missing": 0
+        }
+      },
+      "additional_per_query_sum_means": {
+        "search_plus_read_payload_tokens": {
+          "cl100k_base": 2837.5078125,
+          "o200k_base": 2827.83203125
+        },
+        "search_plus_read_content_tokens": {
+          "cl100k_base": 2558.67578125,
+          "o200k_base": 2542.06640625
+        }
+      },
+      "common_packed_context": [
+        {
+          "budget_tokenizer": "cl100k_base",
+          "budget_tokens": 512,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 452.03125,
+            "o200k_base": 448.26171875
+          }
+        },
+        {
+          "budget_tokenizer": "cl100k_base",
+          "budget_tokens": 1024,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 704.0390625,
+            "o200k_base": 697.66796875
+          }
+        },
+        {
+          "budget_tokenizer": "cl100k_base",
+          "budget_tokens": 2048,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 704.7734375,
+            "o200k_base": 698.40234375
+          }
+        },
+        {
+          "budget_tokenizer": "o200k_base",
+          "budget_tokens": 512,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 455.73046875,
+            "o200k_base": 451.640625
+          }
+        },
+        {
+          "budget_tokenizer": "o200k_base",
+          "budget_tokens": 1024,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 704.0390625,
+            "o200k_base": 697.66796875
+          }
+        },
+        {
+          "budget_tokenizer": "o200k_base",
+          "budget_tokens": 2048,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 704.7734375,
+            "o200k_base": 698.40234375
+          }
+        }
+      ],
+      "validation": {
+        "passed": true,
+        "all_native_cost_means_equal": true,
+        "read_and_metadata_counts_equal": true,
+        "per_query_sum_latency_equal": true,
+        "common_context_means_equal": true
+      },
+      "host_id": "43207732852-1",
+      "dataset_sha256": "19aa783140212cc6532581c2791e6384769b0647dd4f08e2db29687400a798ae",
+      "supplied_documents_sha256": "f630cff91ae3e1cd9611512755f4c7a4b7026bd3e3d2a70eb676a5d30bf127aa",
+      "candidate_binding_status": "fixed-candidate-protocol-recovery",
+      "input_files": {
+        "benchmarks/results/round2-43207732852-1/ai-memory-hybrid.json.gz": "6693090e9135c8960ae60071c69594934f1443f211cd3f9c65b36425763b8d16",
+        "benchmarks/results/round2-43207732852-1/ai-memory-hybrid.summary.json": "b1646e50748777213bad6b8a541ba11435f5e5a9b8f3b9ffeb0b4486465139c8"
+      },
+      "decompressed_original_sha256": "231f6186356b56935346f2e37d00fc01aaa0c0b645539253f687761565a99d05"
+    },
+    {
+      "stage": "billion-context",
+      "first_pass_query_ids_sha256": "750b88a7a2e77e8bbcb234582081ba7b81073b3f179d1bab4e0b2dd844c7e79f",
+      "selected_original_cost_rows_sha256": "78264f4ebc3b40e6c5c3413f8ffa3b9ec1c16cc5a63d8ddb26ce5cbb87942990",
+      "recomputed_native_costs": {
+        "queries": 256,
+        "unmapped_native_hits": 0,
+        "queries_with_unmapped_native_hits": 0,
+        "mean_read_calls": 0.0,
+        "mean_read_ms": 0.0,
+        "mean_search_payload_tokens": {
+          "cl100k_base": 585.6640625,
+          "o200k_base": 579.328125
+        },
+        "mean_search_content_tokens": null,
+        "mean_read_payload_tokens": {
+          "cl100k_base": 0.0,
+          "o200k_base": 0.0
+        },
+        "mean_read_content_tokens": {
+          "cl100k_base": 0.0,
+          "o200k_base": 0.0
+        }
+      },
+      "first_pass_search_bridge_latency": {
+        "samples": 256,
+        "p50_ms": 0.7561385000371956,
+        "p95_ms": 1.4104912499988131,
+        "mean_ms": 0.8759669882749677
+      },
+      "first_pass_search_plus_all_reads_latency": {
+        "samples": 256,
+        "p50_ms": 0.7561385000371956,
+        "p95_ms": 1.4104912499988131,
+        "mean_ms": 0.8759669882749677
+      },
+      "first_pass_native_search_latency": {
+        "samples": 256,
+        "p50_ms": 0.5911985000000044,
+        "p95_ms": 1.2023422499999938,
+        "mean_ms": 0.6742432109375012
+      },
+      "native_content_availability": {
+        "search_payload_tokens": {
+          "available": 256,
+          "missing": 0
+        },
+        "search_content_tokens": {
+          "available": 0,
+          "missing": 256
+        },
+        "read_payload_tokens": {
+          "available": 256,
+          "missing": 0
+        },
+        "read_content_tokens": {
+          "available": 256,
+          "missing": 0
+        }
+      },
+      "additional_per_query_sum_means": {
+        "search_plus_read_payload_tokens": {
+          "cl100k_base": 585.6640625,
+          "o200k_base": 579.328125
+        },
+        "search_plus_read_content_tokens": null
+      },
+      "common_packed_context": [
+        {
+          "budget_tokenizer": "cl100k_base",
+          "budget_tokens": 512,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 452.2109375,
+            "o200k_base": 448.296875
+          }
+        },
+        {
+          "budget_tokenizer": "cl100k_base",
+          "budget_tokens": 1024,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 751.33203125,
+            "o200k_base": 744.58203125
+          }
+        },
+        {
+          "budget_tokenizer": "cl100k_base",
+          "budget_tokens": 2048,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 752.4296875,
+            "o200k_base": 745.671875
+          }
+        },
+        {
+          "budget_tokenizer": "o200k_base",
+          "budget_tokens": 512,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 456.19140625,
+            "o200k_base": 452.08203125
+          }
+        },
+        {
+          "budget_tokenizer": "o200k_base",
+          "budget_tokens": 1024,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 751.33203125,
+            "o200k_base": 744.58203125
+          }
+        },
+        {
+          "budget_tokenizer": "o200k_base",
+          "budget_tokens": 2048,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 752.4296875,
+            "o200k_base": 745.671875
+          }
+        }
+      ],
+      "validation": {
+        "passed": true,
+        "all_native_cost_means_equal": true,
+        "read_and_metadata_counts_equal": true,
+        "per_query_sum_latency_equal": true,
+        "common_context_means_equal": true
+      },
+      "host_id": "43207732852-1",
+      "dataset_sha256": "19aa783140212cc6532581c2791e6384769b0647dd4f08e2db29687400a798ae",
+      "supplied_documents_sha256": "f630cff91ae3e1cd9611512755f4c7a4b7026bd3e3d2a70eb676a5d30bf127aa",
+      "candidate_binding_status": "fixed-candidate-protocol-recovery",
+      "input_files": {
+        "benchmarks/results/round2-43207732852-1/billion-context.json.gz": "7fc69ff09337baa3d25acdf617d25e093deb29456ce0505db21a00c2046f4838",
+        "benchmarks/results/round2-43207732852-1/billion-context.summary.json": "3675d9d683a40bcca71a9fae45c138720cc00cf7f5126c372a37e10b15f4cc6a"
+      },
+      "decompressed_original_sha256": "3484720addd6a0582c66b1ea08bceea80e31e4d51b0f18383262c45e13238f36"
+    },
+    {
+      "stage": "candidate-semantic-component",
+      "first_pass_query_ids_sha256": "750b88a7a2e77e8bbcb234582081ba7b81073b3f179d1bab4e0b2dd844c7e79f",
+      "selected_original_cost_rows_sha256": "7a19c473b393ba4af19394e92fc812b582a451dc6679a6c3799a440df39fc5fe",
+      "recomputed_native_costs": {
+        "queries": 256,
+        "unmapped_native_hits": 0,
+        "queries_with_unmapped_native_hits": 0,
+        "mean_read_calls": 0.0,
+        "mean_read_ms": 0.0,
+        "mean_search_payload_tokens": {
+          "cl100k_base": 4079.90625,
+          "o200k_base": 4099.1171875
+        },
+        "mean_search_content_tokens": {
+          "cl100k_base": 819.1171875,
+          "o200k_base": 817.765625
+        },
+        "mean_read_payload_tokens": {
+          "cl100k_base": 0.0,
+          "o200k_base": 0.0
+        },
+        "mean_read_content_tokens": {
+          "cl100k_base": 0.0,
+          "o200k_base": 0.0
+        }
+      },
+      "first_pass_search_bridge_latency": {
+        "samples": 256,
+        "p50_ms": 13.8953425,
+        "p95_ms": 22.5301745,
+        "mean_ms": 14.659641640625
+      },
+      "first_pass_search_plus_all_reads_latency": {
+        "samples": 256,
+        "p50_ms": 13.8953425,
+        "p95_ms": 22.5301745,
+        "mean_ms": 14.659641640625
+      },
+      "first_pass_native_search_latency": {
+        "samples": 256,
+        "p50_ms": 13.8953425,
+        "p95_ms": 22.5301745,
+        "mean_ms": 14.659641640625
+      },
+      "native_content_availability": {
+        "search_payload_tokens": {
+          "available": 256,
+          "missing": 0
+        },
+        "search_content_tokens": {
+          "available": 256,
+          "missing": 0
+        },
+        "read_payload_tokens": {
+          "available": 256,
+          "missing": 0
+        },
+        "read_content_tokens": {
+          "available": 256,
+          "missing": 0
+        }
+      },
+      "additional_per_query_sum_means": {
+        "search_plus_read_payload_tokens": {
+          "cl100k_base": 4079.90625,
+          "o200k_base": 4099.1171875
+        },
+        "search_plus_read_content_tokens": {
+          "cl100k_base": 819.1171875,
+          "o200k_base": 817.765625
+        }
+      },
+      "common_packed_context": [
+        {
+          "budget_tokenizer": "cl100k_base",
+          "budget_tokens": 512,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 453.8359375,
+            "o200k_base": 450.1171875
+          }
+        },
+        {
+          "budget_tokenizer": "cl100k_base",
+          "budget_tokens": 1024,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 727.84765625,
+            "o200k_base": 721.328125
+          }
+        },
+        {
+          "budget_tokenizer": "cl100k_base",
+          "budget_tokens": 2048,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 729.91796875,
+            "o200k_base": 723.39453125
+          }
+        },
+        {
+          "budget_tokenizer": "o200k_base",
+          "budget_tokens": 512,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 454.9296875,
+            "o200k_base": 450.9609375
+          }
+        },
+        {
+          "budget_tokenizer": "o200k_base",
+          "budget_tokens": 1024,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 727.84765625,
+            "o200k_base": 721.328125
+          }
+        },
+        {
+          "budget_tokenizer": "o200k_base",
+          "budget_tokens": 2048,
+          "queries": 256,
+          "mean_context_tokens": {
+            "cl100k_base": 729.91796875,
+            "o200k_base": 723.39453125
+          }
+        }
+      ],
+      "validation": {
+        "passed": true,
+        "all_native_cost_means_equal": true,
+        "read_and_metadata_counts_equal": true,
+        "per_query_sum_latency_equal": true,
+        "common_context_means_equal": true
+      },
+      "host_id": "43207732852-1",
+      "dataset_sha256": "19aa783140212cc6532581c2791e6384769b0647dd4f08e2db29687400a798ae",
+      "supplied_documents_sha256": "f630cff91ae3e1cd9611512755f4c7a4b7026bd3e3d2a70eb676a5d30bf127aa",
+      "candidate_binding_status": "fixed-candidate-protocol-recovery",
+      "input_files": {
+        "benchmarks/results/round2-43207732852-1/candidate-semantic-component.json.gz": "bb7b786a9dd9cdf4e15cdc2908dbfa343352c380a3412dd5270eca680b2e40d9",
+        "benchmarks/results/round2-43207732852-1/candidate-semantic-component.summary.json": "e02dc5687e057cae787bfd6fe530ce5ca5c71f2769536fb66a442e8c728a1e82"
+      },
+      "decompressed_original_sha256": "d22c6412f75545a2fda90c2b28cf9c7507b622df4961eb21f7920f7b584a6028"
+    }
+  ],
+  "scope": "Independent aggregation of saved numeric first-pass records only. No new query, scoring, model, source-text inspection or upstream retokenization; no prior-run timing pooled.",
+  "boundaries": {
+    "native_payload": "Stored canonical native JSON payload counts. Book, Bun/SQLite FTS, HTTP/MCP and Node return different native shapes; this is not one interchangeable whole-product interface or universal wire-envelope count.",
+    "native_content": "Separately exposed native text content counts when available. Missing content remains null; it is never filled with zero or inferred by deleting payload fields.",
+    "reads": "Original per-query read_ms and read token counts already sum all declared native reads. This audit recomputes means from those stored sums; individual read timers and original text are not retained here and are not reconstructed.",
+    "combined_latency": "For each first-pass query, bridge_ms + read_ms; then linear-interpolated p50/p95 and arithmetic mean. Percentiles are never added to each other.",
+    "common_context": "Whole-block evidence context after the shared supplied-source packer, at each declared budget and tokenizer. It is neither native content nor native payload and must not substitute for either cost.",
+    "zero_and_null": "Zero reads means no extra read calls in this registered component policy, not a claim of a free or supported native feature. Null means the text-only surface was not available for an all-query mean.",
+    "billing": "Reference-encoding counts of these surfaces; no provider billing, model prompt/history overhead or complete memory write/summarize/generate lifecycle claim."
+  }
+}
