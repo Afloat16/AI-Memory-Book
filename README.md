@@ -70,7 +70,7 @@ Replace `claude-code` with your [client profile](docs/integrations.md#supported-
 
 | Verified improvement | Result | Measurement |
 |---|---|---|
-| **Identical output, less tail latency** | Pooled p95 geometric mean **−11.36%** across ten settings | 47,320 calls, two old corpora, native/actual SDK MCP, character/token budgets and four balanced rounds. [Report](docs/round3-performance-review.md) |
+| **Identical non-timing output, less tail latency** | Pooled p95 geometric mean **−11.36%** across ten settings | 47,320 calls, two old corpora, native/actual SDK MCP, character/token budgets and four balanced rounds. [Report](docs/round3-performance-review.md) |
 | **Faster public-conversation recall** | Native p95 **5.054 → 3.737 ms (−26.05%)**; actual MCP **7.409 → 5.937 ms (−19.87%)** | 1,015 questions, 4,000-character cap, same host, no reuse of recall results. [Original measurements](benchmarks/reports/round3-performance-43246417515-1/report.summary.json) |
 | **Optional indexed references, retained** | Response-text tokens **−19.63%**; first-call reference total **−8.15%** | Earlier 1,015-question measurement, 4,000 characters, compact responses, `o200k_base`; this option is unchanged. [Report](docs/indexed-references.md) |
 
@@ -90,7 +90,7 @@ A frozen **256-question HotpotQA** selection excludes the 384 questions used in 
 | ai-memory v3.4.5 · local hybrid | 77.27% | 55.86% | 0.8182 | 716.8 | 27.545 ms |
 | billion-context `9674cfa` · search kernel | **78.91%** | **58.20%** | **0.8277** | 762.3 | **1.010 ms** |
 
-Book's default returns complete evidence **7.03 percentage points more often than claude-mem FTS** in this slice. Both Book modes have lower measured search-adapter p95 than claude-mem and ai-memory. **ai-memory retains higher recall and completeness; billion-context leads these three quality metrics and search latency.** The adapters use different Python, SQLite/Bun, HTTP/MCP and Node boundaries, so the timings do not establish whole-product speed ratios. ai-memory's first search plus all source reads has p95 **30.532 ms**; read payloads and setup costs are recorded separately.
+Book's default returns complete evidence **7.03 percentage points more often than claude-mem FTS** in this slice. Default Book's measured search-adapter p95 is **87.80% lower than claude-mem's and 89.89% lower than ai-memory's**; Q2 also has lower p95 than both. **ai-memory retains higher recall and completeness; billion-context leads these three quality metrics and search latency.** The adapters use different Python, SQLite/Bun, HTTP/MCP and Node boundaries, so the timings do not establish whole-product speed ratios. ai-memory's first search plus all source reads has p95 **30.532 ms**; read payloads and setup costs are recorded separately.
 
 Q2 raises completeness by **2.34 percentage points** over Book's default at this budget, with model/index setup, memory and query costs. At the native API's 512-token budget it lowers completeness from **35.94% to 33.59%** (`cl100k_base`) and **35.55% to 33.20%** (`o200k_base`). It stays opt-in. All questions are answerable and come from the same public HotpotQA source; this is not a measurement of answer generation, hallucinations or private-conversation transfer.
 

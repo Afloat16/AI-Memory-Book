@@ -99,7 +99,10 @@ reports **`complete-verified`**, 4,608 native calls, 4,608 component searches,
 and no validation failures. The [independent final evidence audit](../benchmarks/reports/round3-final-evidence-audit.json)
 checks the saved summaries, identities, inventories and commit ancestry without
 new scoring. Complete default payload equivalence passes for
-1,536 native and 768 component baseline/candidate pairs.
+1,536 native and 768 component baseline/candidate pairs. A
+[separate local replay of the frozen verifier](../benchmarks/reports/round3-comparison-independent-audit.json)
+reproduces the assessment and Markdown from all saved raw results, verifies
+71 evaluator files and 34 artifact hashes, and makes no new scoring calls.
 
 Candidate/evaluator/dependency/model/upstream identities were committed before
 selecting 256 IDs with the plan's fixed salted ID-only algorithm. Both prior

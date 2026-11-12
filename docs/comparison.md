@@ -55,7 +55,11 @@ calls and 4,608 component searches. Its immutable result is
 The [strict assessment](../benchmarks/results/round3-comparison-43267797247-1/assessment.json)
 is `complete-verified`, with no validation failures. All **1,536 native
 baseline/candidate pairs and 768 component pairs** have identical complete
-non-timing payload hashes.
+non-timing payload hashes. A [separate local read-only replay](../benchmarks/reports/round3-comparison-independent-audit.json)
+reproduces the published assessment and Markdown from all saved raw results,
+checks 71 frozen evaluator files and 34 preserved artifacts, and collects no
+new scoring calls. It reuses the exact frozen verifier; this is not an
+independently implemented scoring algorithm.
 
 Runtime, evaluator, upstream, dependency and model identities were committed
 before the ID selection. The 256 questions exclude both earlier selections and
@@ -153,7 +157,7 @@ the raw reports and ledgers.
 
 ### Setup, memory and persistent state
 
-Book native setup freshly ingests source. Book component setup copies a
+The corpus contains **3,896 canonical pages**. Book native setup freshly ingests source. Book component setup copies a
 canonical archive; Q2 additionally loads its model and builds the index.
 The different setup operations are not a common ingestion-speed race.
 
@@ -166,6 +170,18 @@ The different setup operations are not a common ingestion-speed race.
 | claude-mem FTS | 1.590 | 675.75 | 635.18 | 20,626,650 |
 | ai-memory hybrid | 644.735 | 716.75 | 714.48 | 73,818,921 |
 | billion-context kernel | 0.163 | 558.29 | 675.97 | 0 |
+
+Default native ingestion takes **4.214 s**, versus **4.056 s** for v0.3.0 in
+this run; it supplies no ingestion-speedup claim. Native Q2 loads its model
+in **0.863 s** and builds **4,831 windows in 110.094 s**. Its verified model
+cache adds **127,535,388 bytes** outside the state table.
+
+The [ai-memory summary](../benchmarks/results/round3-comparison-43267797247-1/ai-memory-hybrid.summary.json)
+attributes **643.023 s** of setup to 3,896 sequential native page writes,
+including indexing and embedding. Its later **0.829 s** backfill records zero
+newly embedded pages, 3,896 skipped and zero failures. This is native ingestion
+cost, not a second embedding pass. Its zero after-close state reflects
+temporary-directory cleanup; the table reports live state before close.
 
 RSS is sampled worker-plus-descendants every 20 ms. It includes evaluator/data
 memory, may count shared pages more than once, and is an observed lower bound;
