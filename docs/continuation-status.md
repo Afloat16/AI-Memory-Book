@@ -37,8 +37,10 @@ a default change.
   execution were integrated at `4193623`; its
   [standard CI](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43178953345)
   passed all nine jobs.
-- Main `419795c` already published the tested hosted runner and the first
-  expanded English/Chinese comparison documentation.
+- Main `419795c` published the tested hosted runner and the first expanded
+  English/Chinese comparison documentation; the later `d102fb0` checkpoint
+  includes completed retrieval cohorts, the claude-mem run, LoCoMo answers and
+  final aggregation tools. Its standard CI passed all nine jobs.
 - Integration `e894fea` preserves all eight native and four semantic cohorts,
   the claude-mem harness and its actual completed reports. Original cohort
   branches remain accessible with the pattern

@@ -25,42 +25,38 @@ AI-Memory-Book is built for continuing project work with a small, inspectable me
 
 See the [agent workflow](docs/agent-guide.md), [capture and deployment guide](docs/deployment.md), and [source/migration checks](benchmarks/RESULTS-recall-score-quality.md#8-source-preserving-schema-migration).
 
-### Measured retrieval advantage
+### Latest verified comparison
 
-At a **1,024-token `cl100k_base` cap**, Book delivers more complete original evidence than all three tested native retrieval components:
+With the same **1,024-token `cl100k_base` context cap**, Book delivers more complete original evidence than the three tested native retrieval components:
 
-| Frozen retrieval component | Evidence recall ↑ | Complete evidence ↑ | Mean context tokens ↓ |
+| Retrieval component | Evidence recall ↑ | Complete evidence ↑ | Mean context tokens ↓ |
 |---|---:|---:|---:|
-| **AI-Memory-Book, score-aware `0ab49d4`** | **69.54%** | **72.88%** | 827.2 |
-| [claude-mem `2cfed76`](benchmarks/results/claude-mem-components-public.md), native SQLite FTS | 66.24% | 70.11% | 804.8 |
-| [billion-context `dc041dd`](benchmarks/RESULTS-recall-score-quality.md#6-native-components-common-context-and-their-cost-boundaries), search kernel | 65.48% | 68.72% | 862.6 |
-| [ai-memory v3.4.5](benchmarks/RESULTS-recall-score-quality.md#6-native-components-common-context-and-their-cost-boundaries), local hybrid | 64.47% | 66.72% | **779.3** |
+| **AI-Memory-Book, score-aware** | **69.54%** | **72.88%** | 827.2 |
+| [claude-mem](docs/claude-mem-component-evaluation.md), native SQLite FTS | 66.24% | 70.11% | 804.8 |
+| [billion-context](docs/comparison.md), search kernel | 65.48% | 68.72% | 862.6 |
+| [ai-memory](docs/comparison.md), local hybrid | 64.47% | 66.72% | **779.3** |
 
-Complete evidence is **2.77 percentage points higher than claude-mem FTS**, **4.16 points higher than billion-context**, and **6.16 points higher than ai-memory** at this setting. Book uses 4.1% fewer context tokens than billion-context; claude-mem and ai-memory use fewer than Book.
+Book's complete-evidence advantage is **+2.77 percentage points over claude-mem FTS**, **+4.16 over billion-context**, and **+6.16 over ai-memory**. Its context is 4.1% smaller than billion-context at this setting; claude-mem and ai-memory use fewer context tokens.
 
-**Comparable quality inputs:** the same 1,339 source pages, all 1,015 eligible text-only LoCoMo questions, project scope, top-five candidates, and one citation/whole-page packer. Complete evidence is scored over **649 answerable questions**; evidence recall over **788 required source utterances**; mean tokens over all 1,015 questions. Every required utterance must survive intact with its original source span. The 366 unsupported questions remain in the reports; a nonempty retrieval is not an answer or abstention score.
+**Scope:** all 1,015 eligible text-only LoCoMo questions, the same 1,339 supplied source pages, project scope, top-five candidates, and one citation/whole-page packer. Complete evidence uses 649 answerable questions; evidence recall uses 788 required source utterances; mean tokens use all 1,015 questions. Evidence must survive intact with its original source span. This measures source delivery, separately from generated answers and complete product workflows.
 
-The claude-mem experiment executes unmodified upstream `SessionStore` / `SessionSearch` under pinned Bun, with **3,045 successful native calls** and six tokenizer/budget settings. Its observer, Chroma, host injection, MCP serialization and generated answers are outside this component test. The other two component results retain their own pinned implementations and boundaries. [Complete comparison and all costs](docs/comparison.md) · [claude-mem method and report](docs/claude-mem-component-evaluation.md).
+The [full comparison](docs/comparison.md) records the exact source revisions, all six tokenizer/budget settings, MRR and unsupported-query behavior. The latest added claude-mem measurement executes unmodified upstream `SessionStore` / `SessionSearch`, with **3,045 successful native calls**. Its observer, Chroma, host injection and generation are outside that component test. The native token-budget API has a separate packing policy and report.
 
-These are **source-delivery measurements on regression data**, not whole-product rankings. The current native token API and optional semantic mode have separate packing/ranking experiments below; their scores do not replace this frozen table.
+### Speed, response size and operating costs
 
-### Compare quality, speed and deployment
+| Executed operation | p50 | p95 | Mean returned `o200k_base` tokens | Boundary |
+|---|---:|---:|---:|---|
+| Book in-process recall | 2.945 ms | 4.555 ms | — | Retrieval and native context assembly |
+| **Book actual MCP recall** | **5.764 ms** | **9.181 ms** | **1,465.1** | Official SDK, subprocess stdio, JSON and evidence |
+| billion-context search + bridge | 1.298 ms | 2.413 ms | 569.2 | Search preview; decompression excluded |
+| ai-memory local hybrid | 29.720 ms | 37.315 ms | 942.5 | HTTP/MCP search; full reads excluded |
+| claude-mem native FTS + Bun bridge | 59.664 ms | 100.450 ms | 1,691.3 | Full observation-row JSON; MCP/observer excluded |
 
-The default memory path needs **no generative writer, embedding download or separate database service**. It preserves original source addresses and delivers bounded evidence in one MCP recall. That operational combination is useful independently of any single benchmark win.
+Billion is faster at its measured search boundary. Hosts, interfaces and omitted phases differ, so these rows do not imply a whole-product speed multiplier. Under the separately measured policy of reading all five ai-memory results, its full-read payload adds 1,913.7 tokens, for 2,856.2 total; an agent choosing fewer reads can spend less.
 
-| Executed operation | p50 | p95 | Measured boundary |
-|---|---:|---:|---|
-| Book in-process recall, historical frozen run | 2.945 ms | 4.555 ms | Recall and native context assembly |
-| **Book actual MCP recall**, same historical run | **5.764 ms** | **9.181 ms** | Official SDK, subprocess stdio and returned JSON |
-| billion-context search + bridge, historical run | 1.298 ms | 2.413 ms | Search; native decompression excluded |
-| ai-memory v3.4.5 local hybrid, historical run | 29.720 ms | 37.315 ms | HTTP/MCP query; follow-up reads excluded |
-| claude-mem native FTS + Bun bridge, 2026-11-12 runner | 59.664 ms | 100.450 ms | Full observation-row JSON; MCP and observer excluded |
+Book's **default memory writing and retrieval use zero model calls**: local Python and SQLite, no mandatory embedding download, no generative summarizer and no separate database service. Your answering model remains your choice. Optional exact token budgets include citations and separators; original source addresses remain available for verification.
 
-Billion is faster at its measured search boundary. The claude-mem run used a different host from the historical rows. Different hosts and interfaces do not establish a whole-product speed multiplier.
-
-Against **our own v0.2.1 at the same actual MCP boundary**, the frozen Book runtime returns **54.7% fewer response tokens** (3,233.5 → 1,465.1 `o200k_base`) and has a **31.1% lower observed first-call p50** (8.371 → 5.764 ms). Under ai-memory's separately measured search-plus-all-five-reads policy, mean payload tokens are 942.5 + 1,913.7 = **2,856.2**; its content-only tokens are **2,574.6**. An agent can choose fewer reads. Those two token surfaces are labeled separately in the [cost table](docs/comparison.md); the old 43.1% mixed-surface comparison is not used as a complete-response saving claim.
-
-The comparison guide also covers **Mem0, Graphiti, PageIndex and Letta**, with dated popularity snapshots, official sources and operational boundaries. Their unexecuted workflows have no invented scores. ai-memory also supports a zero-LLM default path; claude-mem supports local model providers.
+[All measured costs](docs/comparison.md#returned-tokens-follow-up-reads-preparation-and-storage) include import/index time, model preparation, native response sizes, storage and available RSS measurements, with each boundary labeled. The [project comparison](docs/comparison.md#popular-projects-and-the-workload-they-address) also covers **Mem0, Graphiti, PageIndex and Letta** using official sources and dated popularity snapshots. ai-memory also supports a zero-LLM default path; claude-mem supports local model providers.
 
 ## Get started
 
@@ -72,9 +68,8 @@ You need **Python 3.10+ with SQLite FTS5**. The installer creates an isolated en
 |---|---|---|
 | **Published experimental release v0.2.1** | Agent-first MCP, shared local memory and optional headless background capture | Use the pinned installers below. |
 | **Available v0.3 development source** | Score-aware retrieval, compact cited evidence, optional exact token budgets, multi-fact coverage, optional local semantic retrieval and the paired-answer evaluation runner | Use the [source checkout](#try-it-without-connecting-a-client) on `main`. |
-| **Frozen comparison runtime `0ab49d4`** | The exact source used for the retrieval and MCP cost figures above | Follow the [reproduction guide](benchmarks/RESULTS-recall-score-quality.md#11-reproduction-and-artifact-index). |
 
-The validated continuation, including exact token budgets, was merged into `main` through [PR #1](https://github.com/Afloat16/AI-Memory-Book/pull/1) at [`ce7837f`](https://github.com/Afloat16/AI-Memory-Book/commit/ce7837fb8db7c221f39e27a531f2383385782eb1). The installers below still use the published **v0.2.1**; there is no `v0.3.0` release tag yet. Use the `main` source checkout to try the additional capabilities.
+The installers below still use the published **v0.2.1**; there is no `v0.3.0` release tag yet. Use the `main` source checkout to try the additional capabilities.
 
 ### macOS / Linux
 
@@ -153,7 +148,7 @@ memory-book recall "cache expiry and retry window" --project atlas \
 
 For MCP, add `"budget_tokens": 512` and `"tokenizer": "cl100k_base"` to `arguments`; Python uses the same parameter names. The response reports the exact `context_tokens` and tokenizer version. `estimated_tokens` remains a character-based estimate. Without the optional token cap, the dependency-free character path is unchanged. First-time vocabulary initialization may require a public download; offline deployments should preload it. [API, offline setup, source-preservation contract and costs](docs/token-budget.md).
 
-The historical competitor tables use a shared **whole-page benchmark packer**. The new API assembles **native excerpts and intact source units**; its results have a separate baseline and do not retroactively change those tables. See [budget measurements and remaining gaps](#what-remains-to-improve).
+The historical competitor tables use a shared **whole-page benchmark packer**. The new API assembles **native excerpts and intact source units**; its results have a separate baseline and do not retroactively change those tables. See [budget verification and measured tradeoffs](#validation-and-optional-modes).
 
 The agent can navigate the hierarchy when a direct recall leaves a concrete gap:
 
@@ -277,73 +272,38 @@ docker run --rm -i \
 
 The named volume persists the archive across server processes. No HTTP port is published for MCP. Docker does not automatically gain access to host transcripts: capture requires explicit source mounts and configuration. The optional Compose reader shares this volume and publishes only on host loopback. [Docker commands and MCP configuration](docs/deployment.md#docker).
 
-## Evidence, costs, and limitations
+## Validation and optional modes
 
-### Completed native token-budget matrix
+The current recommendation is **default score-aware lexical recall**. Optional
+exact token limits, multi-fact coverage and local semantic candidates are
+explicit choices for a workload and context budget.
 
-The frozen candidate `407cda1` was measured against `5abc85e` across **eight cohorts, 2,019 query instances, and 24,228 paired query/configuration cases**: five synthetic seeds, the 1,015-question public set, the 36-question authored diagnostic and 128 external HotpotQA questions. Each cohort covers two character caps, both reference tokenizers, three token caps and three repetitions.
+The native token-budget validation covers **eight cohorts, 2,019 query
+instances and 24,228 query/configuration pairs**. It records **251
+complete-evidence gains, zero complete-evidence losses and zero losses of
+previously fitting baseline blocks**. These are configuration-level counts.
+Source, exact-budget, context-size and repetition checks passed. Filling more
+of a small budget adds work; each report retains the paired latency costs.
 
-Across these paired cases, **251 gain complete evidence, zero lose complete evidence, and zero lose a baseline block that already fitted**. These are query/configuration counts, not 251 distinct questions. Every cohort's source, scope, exact-budget and repetition checks passed.
+| Capability | Current verification |
+|---|---|
+| Exact token budgets | Both reference tokenizers, three token caps, two character caps, source-preserving assembly and complete paired results |
+| Optional semantic candidates | Four complete local-model cohorts; default stays lexical because the quality/cost tradeoff depends on the workload |
+| Optional multi-fact coverage | Explicit `coverage=True` / `--coverage`; tested default/optional mode equivalence and published category-level results |
+| Native competitor components | Executed claude-mem FTS, ai-memory hybrid and billion-context search with pinned source/runtime versions |
 
-At **8,000 characters and 512 `cl100k_base` tokens**:
+[All result tables and reproducible artifacts](benchmarks/README.md) ·
+[Native token-budget protocol](docs/native-budget-evaluation.md) ·
+[Semantic setup and measured tradeoffs](docs/semantic-retrieval.md) ·
+[Coverage details](benchmarks/RESULTS-conjunctive-recall.md) ·
+[Real-answer evaluation](docs/answer-evaluation.md).
 
-| Cohort | Baseline complete evidence | Native token API | Paired p95, baseline → candidate |
-|---|---:|---:|---:|
-| Public LoCoMo, 649 answerable / 1,015 total | 65.33% | **66.41%** | 7.120 → 10.076 ms |
-| Synthetic regression seed 883, 152 answerable / 168 total | 68.42% | **84.21%** | 12.550 → 26.448 ms |
-| Authored diagnostic, 30 answerable / 36 total | 86.67% | 86.67% | 1.644 → 1.721 ms |
-| External HotpotQA, all 128 answerable | 34.38% | **35.16%** | 7.873 → 9.188 ms |
-
-Public `o200k_base` at 512 tokens improves **65.95% → 66.72%**, with five complete-question gains and no losses. At 1,024 and 2,048 tokens, public complete evidence remains 72.88%. The API spends otherwise unused space on intact source units; the CPU cost is real. Keep the timings within each paired cohort: the cohorts ran on different hosts.
-
-[Protocol and reproduction](docs/native-budget-evaluation.md) · [Public native report](benchmarks/results/native-completion-regression-public1015.md) · [External native report](benchmarks/results/native-completion-external-hotpot128.md).
-
-### Optional local semantic retrieval: measured tradeoffs
-
-Semantic candidates are **explicitly enabled**; the default remains lexical. The four registered cohorts now have actual local MiniLM measurements. At 512 `cl100k_base` tokens and 8,000 characters:
-
-| Cohort | Lexical complete evidence | Semantic complete evidence |
-|---|---:|---:|
-| Synthetic development seed 61 | **85.53%** | 63.16% |
-| Authored diagnostic, 30 answerable | 86.67% | **100.00%** |
-| Public LoCoMo, 649 answerable | **66.41%** | 62.56% |
-| External HotpotQA, 128 answerable | **35.16%** | 33.59% |
-
-The authored low-overlap subset improves **2/6 → 6/6**. On public low-overlap questions, complete evidence improves **46.01% → 47.55%**, and cross-session complete evidence **10.53% → 15.79%**. Those subset gains coexist with **39 complete-question gains and 64 losses overall** on the public 512-token setting. At 1,024 tokens, external HotpotQA improves **48.44% → 50.00%**, while public complete evidence falls **72.88% → 71.49%**. Synthetic low-overlap questions remain unresolved.
-
-Costs are separate: the pinned model/tokenizer download totals **127,535,388 bytes**. On the public semantic runner, model load took 1.271 s and index build 116.554 s; lexical/semantic query p50 was **8.078 / 18.074 ms**, p95 **10.184 / 22.691 ms** at 512 tokens. This is not evidence for making semantic mode the default.
-
-[Setup, measured cases and model/index costs](docs/semantic-retrieval.md) · [Public semantic report](benchmarks/results/semantic-final-regression-public1015.md) · [External semantic report](benchmarks/results/semantic-final-external-hotpot128.md).
-
-### What remains to improve
-
-The historical **whole-page** 512-token regression, **66.72% → 66.26%** with `cl100k_base`, remains in its original report. The native API above uses another delivery policy and a separate baseline; its no-loss contract does not erase that historical result. Some synthetic tail latencies rise substantially.
-
-Low-overlap semantics and evidence spread across distant sessions are still difficult. The semantic experiment exposes gains and losses rather than establishing a general semantic memory system. A retrieved context may be nonempty even when no answer is supported; only a generation experiment can assess the answering model's response.
-
-The public questions and repeated synthetic templates are regression data. The frozen HotpotQA transfer cohort contributes **128 independently authored multi-hop questions, 1,272 supplied paragraphs and 306 support facts**, with all supplied distractor paragraphs retained. It is a scoped external diagnostic; all questions are answerable, and neither its size nor its domain mix establishes universal generalization. Once inspected, it becomes regression evidence for further tuning.
-
-### Optional coverage for multi-fact questions
-
-The development version adds **`coverage=True` / `--coverage`**, disabled by default. It recognizes explicit `and`, `和`, `以及` and `并且` clauses, preserves the original top result, and reserves results for additional clauses within the scoped candidate set. This can help when several pages repeat one subject while another requested fact is missing:
-
-```bash
-memory-book recall "cache expiry and retry window" --project atlas --coverage --budget 2000
-```
-
-MCP callers set `"coverage": true` on `recall_memory`; Python callers pass `coverage=True` to `MemoryBook.recall`. The option requires book ranking and cannot be combined with CLI `--flat`.
-
-In the [frozen automatic-clause experiment](benchmarks/RESULTS-conjunctive-recall.md), multi-section complete evidence improves **0/16 → 8/16** per synthetic regression seed at 8,000 characters. But public complete evidence stays **72.88%**, and common-full-page completeness at 512 `cl100k_base` tokens declines **66.26% → 65.79%**. The public MCP p95 also rises **9.564 → 13.510 ms**. The new 36-question authored diagnostic has equal complete evidence (**86.67%**) in both versions. These tradeoffs are why coverage is explicit rather than the default. This is a clause-coverage heuristic, with no demonstrated semantic paraphrase gain. Frozen automatic-mode timings are separate from the final opt-in API build.
-
-[Independent mode checks](benchmarks/reports/coverage-mode-equivalence.json) compare **2,774 complete payloads per mode** against the prior default and frozen experiment, with **zero differences** after excluding only latency. The prior 512-token deficit remains a separate improvement target.
-
-### Actual generated answers and native workflow
-
-The registered local-model jobs are executing independently of the chat workspace: 128 LoCoMo and 128 HotpotQA questions, three retrieval modes and **768 planned actual answer attempts**. A separate 42-session/36-question Book-versus-native-ai-memory workflow measures capture, explicitly enabled consolidation, retrieval, follow-up reads and **72 planned answer attempts**. These stages use the pinned Qwen2.5-0.5B model and verified llama.cpp process; transport fixtures are not counted as model calls.
-
-Results will be claimed only after the strict report assessors check the completed matrices, request ledgers, model proofs and cost accounting. The [continuation record](docs/continuation-status.md) identifies the live jobs and durable result branches. The [answer guide](docs/answer-evaluation.md) gives the exact registered commands.
-
-[Historical score-aware report](benchmarks/RESULTS-recall-score-quality.md) · [Coverage experiment](benchmarks/RESULTS-conjunctive-recall.md) · [First frozen round](benchmarks/RESULTS-recall-quality.md) · [Comparison and token-surface clarification](docs/comparison.md).
+The comparison above uses a fixed shared-page policy. Native API packing,
+semantic ranking, generated-answer scores and capture/consolidation workflows
+are measured separately. Public and reused synthetic questions are regression
+data; the externally authored HotpotQA diagnostic broadens coverage within a
+defined scope. Full reports retain the measured limitations, unsupported
+questions, errors, negative results and historical comparisons.
 
 ## Optional archive inspection
 
@@ -363,9 +323,9 @@ python -m unittest discover -s tests -v
 python tests/installer_smoke.py --with-extras
 ```
 
-The runtime at [`b36f044`](https://github.com/Afloat16/AI-Memory-Book/commit/b36f044651553d75485bd26801ef3f1f65e393bb) passed **266 tests**, with no failures or skips, using MCP, client, and benchmark extras. Its [push workflow](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43075055048) and [PR workflow](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43075068353) each passed **9/9 jobs**, covering Python 3.10/3.12/3.13, actual MCP stdio, the browser reader, Linux/macOS/Windows installers, and container persistence. The PR workflow succeeded after its initially cancelled macOS job was retried.
+The test matrix covers Python 3.10/3.12/3.13, actual MCP stdio, the browser reader, Linux/macOS/Windows installers and container persistence. The latest validated checkpoint passed [all nine jobs](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43182357230). [Current CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml) · [Detailed validation and reproduction](docs/validation.md).
 
-The later native-budget checkpoint [`e70bc3d`](https://github.com/Afloat16/AI-Memory-Book/commit/e70bc3d2581ff96959711509b3eef11ab14f564d) passed **294 tests** in its MCP CI job. Its [push workflow](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43152979344) and [PR workflow](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43152987680) each passed **9/9 jobs**. That checked continuation is now on `main` through [PR #1](https://github.com/Afloat16/AI-Memory-Book/pull/1); test counts and benchmark figures remain attributed to their named commits. [GitHub Actions status](https://github.com/Afloat16/AI-Memory-Book/actions) · [Validation details and historical runs](docs/validation.md). Configuration fixtures do not establish that every vendor application or login manager has been interactively verified.
+Implementation tests and benchmark experiments have separate records. Configuration fixtures do not establish an interactive test in every vendor application.
 
 ## Design references
 

@@ -49,7 +49,7 @@ jobs:
   cohort:
     needs: verify
     runs-on: ubuntu-24.04
-    timeout-minutes: 240
+    timeout-minutes: 360
     permissions:
       contents: write
     strategy:
@@ -57,19 +57,38 @@ jobs:
       matrix:
         stage: ${{ fromJSON(needs.verify.outputs.stages) }}
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - name: Reserve time for interrupted-attempt publication
+        run: |
+          python3 - <<'PY'
+          import os, time
+          with open(os.environ["GITHUB_ENV"], "a") as output:
+              print("MEMORY_VALIDATION_DEADLINE_UNIX=" + str(time.time() + 330 * 60), file=output)
+          PY
+      - timeout-minutes: 5
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+      - timeout-minutes: 5
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
         with:
           python-version: '3.12'
-      - run: python -m pip install -e ".[mcp,clients,tokens,semantic]" pyarrow
+      - name: Install measurement dependencies
+        timeout-minutes: 20
+        run: python -m pip install -e ".[mcp,clients,tokens,semantic]" pyarrow
       - name: Run and save the registered cohort
+        timeout-minutes: 340
         env:
           VALIDATION_STAGE: ${{ matrix.stage }}
-        run: python -u scripts/run_hosted_validation.py --stage "$VALIDATION_STAGE" --publish
+        run: python -u scripts/run_hosted_validation.py --stage "$VALIDATION_STAGE" --wall-time-seconds 19800 --publish
+      - name: Finalize source-free diagnostics and publish without replay
+        if: always()
+        timeout-minutes: 15
+        env:
+          VALIDATION_STAGE: ${{ matrix.stage }}
+        run: python -u scripts/run_hosted_validation.py --stage "$VALIDATION_STAGE" --finalize --publish
       - name: Preserve public diagnostic outputs even after failure
         if: always()
+        timeout-minutes: 5
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: public-${{ matrix.stage }}-${{ github.run_attempt }}
