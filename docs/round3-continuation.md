@@ -6,6 +6,24 @@ at `dd2f88be742ed330269e7dd5915b6f75089d7fef`. The older
 `continuation-status.md` describes the completed earlier experiment, not this
 unfinished round.
 
+## Current reconciled checkpoint
+
+Both original experiments are now fully audited without replay. The formal
+query-speed gate passed and its startup resource exception is independently
+reviewed. The quality candidate failed 14 registered checks and remains
+excluded; all 8,082 calls were recovered and independently matched against the
+canonical hosted recovery byte for byte.
+
+An earlier hosted registration appeared during recovery. Its existing
+[comparison run 43267797247](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43267797247)
+is authoritative. The later local selection reproduced its exact IDs/dataset
+but was never scored. See [reconciliation](round3-reconciliation.md),
+[performance review](round3-performance-review.md), and
+[quality recovery review](round3-quality-review.md).
+
+The lists below retain the initial recovery inventory and planned completion
+order; they are not a second request to rerun completed measurements.
+
 ## Recovered work
 
 - Runtime, plan, frozen performance evaluator, comparison evaluator and

@@ -1,6 +1,7 @@
 """Artificial interface/measurement fixtures; never open a real cohort."""
 import copy
 import gzip
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -231,6 +232,8 @@ class RoundThreeComparisonTests(unittest.TestCase):
                 c.worker(SimpleNamespace())
             inputs.assert_not_called()
 
+    @unittest.skipUnless(importlib.util.find_spec("tiktoken"),
+        "requires optional tiktoken; covered by MCP and frozen comparison jobs")
     def test_real_book_export_native_and_component_in_fresh_module_process(self):
         # A subprocess avoids imports from unrelated unit modules selecting a
         # site-packages MemoryBook before the source-provenance guard runs.
