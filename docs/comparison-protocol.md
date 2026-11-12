@@ -16,7 +16,7 @@ category's name in a report or README.
 | billion-context | dc041dd1ab1a014efa352ba47a6f31fc47f55284 | Native searchBlocks(), default hybrid lexical ranker, native previews and document-feature cache | Search kernel over supplied common pages |
 | ai-memory | v3.4.5; ee73c04c542fa41ca629b046deb4ac108518f407 | Official Linux x86-64 release, native write-page, CLI/HTTP FTS5 search, native page read | Page retrieval through a running server |
 | ai-memory with local embeddings | Same release | Native MCP memory_query and memory_read_page, default all-MiniLM-L6-v2, native vector/FTS/entity/graph fusion | Default local-provider retrieval over supplied common pages |
-| claude-mem | Source inspected at 6b779c06796138aeb4b0ee2fa7dbd25912e4f7fb | Not executed by these adapters | Unmeasured |
+| claude-mem native FTS | 2cfed7620c1b44db87c7f04cbf073ec37efca38d; package 15.18.0 | Separate runner executes unmodified SessionStore / SessionSearch under Bun 1.3.13 | Supplied-page SQLite FTS component; observer/Chroma/workflow excluded |
 
 The external source is not rewritten into Python or replaced with a
 similarly named algorithm. For billion-context, the runner downloads the
@@ -219,11 +219,19 @@ autonomous agent selecting tools or deciding when to decompress a block.
 A real MCP retrieval call still does not make the whole capture-to-answer
 pipeline an end-to-end evaluation.
 
-claude-mem is currently unmeasured. Its full observer and search workflow
-has not been reproduced here. A handwritten FTS query, or an adapter seeded
-with artificial observations while bypassing the observer, must not be
-labeled a full claude-mem result. If such a native component is added
-later, it needs its own explicit scope and provenance.
+The separate [claude-mem native component experiment](claude-mem-component-evaluation.md)
+is now complete: its unchanged upstream SQLite FTS implementation receives
+the exact supplied source pages and original queries. The source/runtime,
+native smoke, 3,045 calls and six packing configurations are verified.
+Its observer, Chroma, host injection and complete product workflow remain
+outside that result.
+
+The separately registered [Book/ai-memory native workflow](../benchmarks/RESULTS-full-workflow.md)
+also has actual capture, consolidation, retrieval/read and answering records.
+It explicitly enables v3.4.5 generative consolidation with the fixed small
+local model. Its 35 truncated consolidation failures remain counted and do
+not characterize every current ai-memory deployment, whose default can use
+zero LLM calls.
 
 It is valid to say a measured configuration used fewer context tokens at
 the same delivered-evidence level on a specified corpus. It is not valid

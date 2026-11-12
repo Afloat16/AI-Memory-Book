@@ -1,32 +1,39 @@
 # Retrieval experiments
 
-## Current: frozen native, semantic, answer and workflow continuation
+## Current: completed memory validation
 
-The 2026-11-12 continuation recovered the already committed runtime before
-running any missing cohort. All original raw reports and source/model/data
-pins remain unchanged. Completed cohorts publish their own Git result branch,
-independently of the chat workspace.
+The 2026-11-12 continuation is **complete**. The
+[final strict audit](reports/hosted-final-aggregation.json) verifies 80 fixed
+input files and eight derived reports; all four summarizers passed. Completed
+source results retain their original hashes and independent Git branches.
 
-| Experiment | Published progress | Results or execution record |
+| Experiment | Completed measurement | Full report |
 |---|---|---|
-| Native token budgets | 8/8 cohorts; 24,228 paired query/configuration cases; 251 complete-case gains, zero losses | [Public report](results/native-completion-regression-public1015.md), [external report](results/native-completion-external-hotpot128.md), [protocol](../docs/native-budget-evaluation.md) |
-| Optional local semantics | 4/4 cohorts; 24,246 actual recalls; gains and losses retained | [Public report](results/semantic-final-regression-public1015.md), [external report](results/semantic-final-external-hotpot128.md), [setup and outcomes](../docs/semantic-retrieval.md) |
-| claude-mem native FTS | 1,015 questions × 3 actual calls; all six context configurations pass | [Full result](results/claude-mem-components-public.md), [four-component comparison](../docs/comparison.md) |
-| Real local answers | LoCoMo 384/384 attempts saved; HotpotQA job running | [LoCoMo summary](results/local-answer-final-locomo.summary.json), [registered answer guide](../docs/answer-evaluation.md) |
-| Book / ai-memory native workflow | Registered 42-session / 36-question job running | [Plan](experiments/full-workflow-plan.json), [continuation status](../docs/continuation-status.md) |
+| Native token budgets | 8 cohorts; 24,228 paired query/configuration cases; 251 complete-case gains and zero losses | [Evidence and cost matrix](RESULTS-native-token-budget.md) |
+| Optional local semantics | 4 cohorts; 24,246 actual recalls; all gains and losses retained | [Semantic results](RESULTS-semantic-retrieval.md) |
+| Actual generated answers | 768 calls over 128 LoCoMo and 128 HotpotQA questions, each in three modes | [Answer scores, latency and usage](RESULTS-local-answers.md) |
+| Book / ai-memory native workflow | 42 captured sessions; 42 native model consolidations; 72 answers; complete with recorded failures | [Full workflow](RESULTS-full-workflow.md) |
+| claude-mem native FTS | 1,015 questions × 3 actual native calls; all six context configurations verified | [Component report](results/claude-mem-components-public.md) |
+| Latest exact-output performance change | 2,016 identical payloads; 6,048 calls per source; all 12 timing settings retained | [Performance report](../docs/token-prefix-performance.md) |
 
-The [final aggregation workflow](../docs/final-validation-aggregation.md)
-requires every registered input and verifies hashes, full matrices, model
-proofs and cost accounting before issuing an overall completion record.
-It does not run new retrieval or replay model requests. Model generation
-quality is separate from intact source-evidence recall. Negative results
-remain published, and timings stay attributed to each original host.
+The native workflow's 35 failed consolidations are actual native
+`truncated-response` errors under the fixed 0.5B model / 1,000-output-token
+configuration; all requests, failed usage and later answers remain counted.
+A passing integrity audit does not turn these into successful consolidations
+or assert a universal quality improvement.
 
-Historical results below refer to their named source versions and policies.
+[Completion record and source identities](../docs/continuation-status.md) ·
+[Four-component and high-star project comparison](../docs/comparison.md) ·
+[Exact aggregate inventory](../docs/final-validation-aggregation.md) ·
+[Interruption recovery](../docs/hosted-validation-recovery.md).
+
+The default remains lexical. Semantic results, generated answers and complete
+workflow costs have distinct boundaries. Historical records below retain the
+findings available at their named source versions.
 
 ## Historical: optional coverage and answer readiness
 
-The [latest report](RESULTS-conjunctive-recall.md) retains the complete frozen
+The [coverage report](RESULTS-conjunctive-recall.md) retains the complete frozen
 automatic-clause experiment and explains the final opt-in API decision. All
 eleven stages completed: four existing synthetic regressions, the new authored
 transfer diagnostic, public comparisons, real MCP calls and both pinned native

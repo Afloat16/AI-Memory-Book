@@ -134,3 +134,21 @@ initial vocabulary loading separately from first uncached recall and repeated
 cached recall. Measure full MCP response tokens separately from `context_tokens`.
 New evidence-delivery results do not imply generated-answer accuracy or an
 end-to-end cost advantage.
+
+## Completed measurements
+
+The [eight-cohort validation](../benchmarks/RESULTS-native-token-budget.md)
+contains 24,228 query/configuration pairs, 251 complete-evidence gains, zero
+complete-evidence losses and zero losses of previously fitting baseline
+blocks. This includes public regression and independently authored external
+questions, with every original timing boundary retained.
+
+The [latest counting optimization](token-prefix-performance.md) preserves all
+2,016 complete development payloads. Its four 512-token settings have p95
+reductions of 7.73%–14.45%; all 12 settings and larger-budget tradeoffs are
+published. Only the exact counting/fit-check path changes, not ranking,
+source units, citation rules or context budgets.
+
+[Real generated-answer results](../benchmarks/RESULTS-local-answers.md) are
+reported separately: more delivered evidence is not automatically a higher
+answer score.

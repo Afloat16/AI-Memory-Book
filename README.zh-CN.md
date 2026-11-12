@@ -52,7 +52,7 @@ Book 的完整证据率相对 claude-mem FTS **高 2.77 个百分点**，相对 
 | ai-memory 本地混合检索 | 29.720 ms | 37.315 ms | 942.5 | HTTP/MCP 搜索；不含后续读页 |
 | claude-mem 原生 FTS 及 Bun 桥接 | 59.664 ms | 100.450 ms | 1,691.3 | 完整 observation 行 JSON；不含 MCP/observer |
 
-billion-context 在其被测搜索边界更快。宿主、接口及省略阶段不同，不能据此换算完整产品快多少倍。另行测量的 ai-memory“读取全部五个结果”策略增加 1,913.7 payload token，合计 2,856.2；Agent 少读页面时可以更低。
+上述原生返回大小与上方有预算的公共上下文分别计量。billion-context 在其被测搜索边界更快；宿主、接口及省略阶段不同，不能据此换算完整产品快多少倍。另行测量的 ai-memory“读取全部五个结果”策略增加 1,913.7 payload token，合计 2,856.2；Agent 少读页面时可以更低。
 
 Book 的**默认记忆写入和检索为零模型调用**：本地 Python 与 SQLite，无强制 embedding 下载、生成式总结或独立数据库服务；回答模型由使用者选择。可选精确 token 预算包含引用和分隔符，原始来源地址可随时核对。
 
@@ -68,9 +68,8 @@ Book 的**默认记忆写入和检索为零模型调用**：本地 Python 与 SQ
 |---|---|---|
 | **已发布的实验版本 v0.2.1** | 以 Agent 为主的 MCP、共享本地记忆和可选无界面后台采集 | 使用下方固定版本安装器。 |
 | **已推送的 v0.3 开发源码** | Score-aware 检索、紧凑的带出处证据、可选精确 token 预算、多事实 coverage、可选本地语义检索和配对回答评测工具 | 按[开发版源码安装](#开发版源码安装)检出 `main`。 |
-| **固定对比版本 `0ab49d4`** | 上方检索质量和 MCP 成本数字对应的原始代码 | 按[复现指南](benchmarks/RESULTS-recall-score-quality.md#11-reproduction-and-artifact-index)准备和运行。 |
 
-已验证的后续改进（包含精确 token 预算）已通过 [PR #1](https://github.com/Afloat16/AI-Memory-Book/pull/1) 合入 `main`，合并提交为 [`ce7837f`](https://github.com/Afloat16/AI-Memory-Book/commit/ce7837fb8db7c221f39e27a531f2383385782eb1)。下方安装器仍使用已发布的 **v0.2.1**，目前没有可下载的 `v0.3.0` 发布标签。体验新增能力请从 `main` 安装源码。
+下方安装器仍使用已发布的 **v0.2.1**，目前没有可下载的 `v0.3.0` 发布标签。体验新增能力请从 `main` 安装源码。
 
 macOS / Linux：
 
@@ -156,7 +155,7 @@ memory-book recall "cache expiry and retry window" --project atlas \
 
 MCP 在 `arguments` 中加入 `"budget_tokens": 512` 和 `"tokenizer": "cl100k_base"`；Python 使用相同参数名。响应返回精确的 `context_tokens` 和 tokenizer 版本；`estimated_tokens` 仍是按字符估算的字段。不传 token 上限时，原来无依赖的字符预算路径保持不变。首次加载词表可能需要公开下载，离线部署应预先缓存。[API、离线准备、原文保留约定与成本](docs/token-budget.md)。
 
-历史竞品表使用共同的**整页评测打包器**；新 API 组装**原生摘录和完整原文单元**，两者基线不同，新结果不会替换历史对比口径。见[预算验证与实测取舍](#验证与可选模式)。
+组件对比使用共同的**整页评测打包器**；新 API 组装**原生摘录和完整原文单元**，两者基线不同，新结果不会替换历史对比口径。见[预算验证与实测取舍](#验证与可选模式)。
 
 目录是 AI 可选的定位工具。直接召回不足以确认项目、章节或上下文时，再按需要展开：
 
@@ -221,8 +220,10 @@ memory-book service uninstall
 | 可选语义候选 | 四组真实本地模型实验；质量/成本取决于任务，默认继续使用词法模式 |
 | 可选多事实 coverage | 显式 `coverage=True` / `--coverage`，默认/可选模式等价核验及分类结果已公开 |
 | 原生对比组件 | 实际执行固定版本的 claude-mem FTS、ai-memory 混合检索及 billion-context 搜索 |
+| 真实生成回答 | 两组固定题目，768 次已完成调用；模型身份、usage 与逐题评分均已验证 |
+| 原生完整流程诊断 | 42 个捕获会话、42 次整合尝试及 72 次回答；原生失败及成本全部保留 |
 
-[完整结果与复现材料](benchmarks/README.md) · [原生预算方案](docs/native-budget-evaluation.md) · [语义设置与实测取舍](docs/semantic-retrieval.md) · [coverage 详情](benchmarks/RESULTS-conjunctive-recall.md) · [真实回答评测](docs/answer-evaluation.md) · [代码验证](docs/validation.md)。
+[完整结果与复现材料](benchmarks/README.md) · [原生预算方案](docs/native-budget-evaluation.md) · [语义设置与实测取舍](docs/semantic-retrieval.md) · [coverage 详情](benchmarks/RESULTS-conjunctive-recall.md) · [真实回答结果](benchmarks/RESULTS-local-answers.md) · [原生流程结果](benchmarks/RESULTS-full-workflow.md) · [完成审计](docs/continuation-status.md) · [代码验证](docs/validation.md)。
 
 上方对比使用固定的共同页面打包规则；原生 API、语义排名、生成回答和捕获/总结流程分别测量。公开题与重复模板属于回归数据，外部独立编写的 HotpotQA 诊断提供限定范围的补充。完整评测文档保留限制、无答案题、错误、负结果与历史对比。
 

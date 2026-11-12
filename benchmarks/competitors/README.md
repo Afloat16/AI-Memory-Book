@@ -15,6 +15,7 @@ their measurements in a claim.
 | BillionKernel | billion-context's unchanged searchBlocks() and shipped default hybrid BM25 + fuzzy ranker | Node 24+ |
 | AiMemoryNative, fts | ai-memory's official v3.4.5 executable; the /admin/search route used by its search CLI | Linux x86-64 |
 | AiMemoryNative, hybrid | The same executable, native MCP memory_query, and its default local all-MiniLM-L6-v2 model | Linux x86-64; approximately 92 MB of model files |
+| claude-mem FTS component | Unmodified upstream SessionStore / SessionSearch at 2cfed762, package 15.18.0 | Pinned Bun 1.3.13, Linux x86-64 |
 
 The TypeScript adapter uses Node's syntax eraser. It does not translate or
 reimplement ranking logic. The Python files provide transport, process
@@ -27,6 +28,20 @@ the shipped local provider and waits for a successful native embedding
 backfill, so unavailable embeddings fail the run instead of becoming an
 unreported lexical fallback. The server and temporary store are removed on
 normal exit.
+
+## Completed claude-mem component and native workflow
+
+The separate `benchmarks.claude_mem_component_eval` runner has completed
+1,015 queries × 3 repetitions over the same 1,339 supplied source pages.
+See [its execution guide](../../docs/claude-mem-component-evaluation.md) and
+[all actual results](../results/claude-mem-components-public.md). It executes
+native SQLite FTS; it does not synthesize observer records with an LLM or
+claim to measure Chroma, host injection or the complete claude-mem product.
+
+The [Book/ai-memory workflow report](../RESULTS-full-workflow.md) separately
+covers 42 native capture/consolidation sessions and 72 actual answers,
+including every failed consolidation and its usage. Component and complete
+workflow reports have different inputs and scope.
 
 ## Run
 

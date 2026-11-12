@@ -176,26 +176,91 @@ This claude-mem component makes zero generative calls; full observer/write/
 summary/answer model usage remains unknown. Unknown provider dollar costs,
 energy, production concurrency and watcher overhead are not zero.
 
-## Reading the continued measurements
+## Actual generated answers and native workflow
 
-The [continuation status](continuation-status.md) and registered plans identify
-the pending or completed native-budget, semantic, generated-answer and native
-workflow cohorts. Only completed reports with matching source/model/data
-identities supply numerical results. Public and repeated synthetic questions
-remain regression data; the frozen HotpotQA cohort is an externally authored,
-scoped multi-hop diagnostic rather than a broad generalization proof.
+The missing model measurements are complete and have their own reports.
+[The answer experiment](../benchmarks/RESULTS-local-answers.md) records
+**768 real calls** using pinned Qwen2.5-0.5B Q4_K_M / llama.cpp b12110, a
+4,096-token model context and a 512-token cl100k_base evidence cap. There
+is one generation per question/mode and no transport errors or truncated
+responses. Lexical EM/F1 are distinct from evidence completeness and are
+not semantic-judge or original LoCoMo answer scores.
 
-The claude-mem supplied-source SQLite FTS comparison is **completed and
-validated**; [workflow 43179914071](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43179914071)
-and [result commit 5c268dc](https://github.com/Afloat16/AI-Memory-Book/commit/5c268dc8d0bd9a3d75fce0ca63badba969a3280c)
-preserve the actual execution and outputs. Its original observer, Chroma
-retrieval, timeline/detail selection, host injection and complete workflow
-remain outside this experiment. Mem0, Graphiti and PageIndex appear in the
-official architecture comparison above; no local performance number is
-invented for an unexecuted product.
+| Cohort | Retrieval mode | Answer EM | Lexical F1 | Answer p50 / p95 |
+|---|---|---:|---:|---:|
+| LoCoMo, 86 answerable / 42 unsupported | Prior native excerpts | 4.65% | 25.58% | 2,606.0 / 3,109.2 ms |
+| LoCoMo | Native token budget | 3.49% | 24.07% | 2,879.8 / 3,271.9 ms |
+| LoCoMo | Semantic + native budget | 3.49% | 25.13% | 2,865.5 / 3,253.8 ms |
+| HotpotQA, 128 answerable | Prior native excerpts | 10.16% | 19.72% | 4,797.1 / 5,825.3 ms |
+| HotpotQA | Native token budget | 10.94% | 20.02% | 4,951.2 / 5,847.1 ms |
+| HotpotQA | Semantic + native budget | 9.38% | 17.46% | 4,993.1 / 5,852.1 ms |
 
-A useful evaluation reports source correctness, complete evidence, paired
-gains/losses, context and actual response tokens, p50/p95/tail latency, model
-loading/index build, capture/consolidation/reads/answering, storage, errors and
-unknown costs. The repository keeps those boundaries visible rather than
-turning one favorable figure into a universal ranking.
+Exact unsupported abstention is 0/42 for all three LoCoMo modes. A small
+model and strict lexical scoring do not establish a general answer-quality
+ranking. The two cohorts used separate hosts; timings stay within their
+paired cohort. Full reports include prompt/output usage, preparation,
+storage, changed question IDs and verified process identity.
+
+The separate [native Book/ai-memory workflow](../benchmarks/RESULTS-full-workflow.md)
+uses 42 fictional source sessions, 36 previously authored questions
+(30 answerable / 6 unsupported), a separately registered 16,384 context
+and 1,000-output-token consolidation cap. Both engines later answer with
+the same pinned model and 512-token evidence budget.
+
+| Measured item | Book | ai-memory v3.4.5, generative consolidation enabled |
+|---|---:|---:|
+| Accepted source sessions | 42/42 | 42/42 |
+| Generative consolidation calls | 0 | 42 |
+| Validated native consolidations | Not a model-writing phase | 7/42 |
+| Actual answer calls | 36 | 36 |
+| Answer EM / lexical F1 | 13.33% / 40.37% | 0.00% / 10.99% |
+| Retrieval p50 / p95 | 2.27 / 15.05 ms | 147.12 / 158.91 ms |
+| Answer p50 / p95 | 3,713.90 / 5,365.71 ms | 4,975.25 / 5,514.40 ms |
+| Mean evidence tokens | 269.11 | 498.08 |
+| Mean native returned tokens | 1,392.53 | 5,116.67 |
+| Answer-model prompt / output tokens | 14,877 / 982 | 25,827 / 680 |
+| Consolidation prompt / output tokens | 0 / 0 | 103,797 / 36,706 |
+
+This result is **completed_with_failures**. All 35 unsuccessful native
+consolidations report `truncated-response`; each corresponding model
+response hits the configured 1,000-token output limit. The 7 model
+responses ending normally correspond to the 7 successful consolidations.
+All 114 model requests and their usage are recorded. The 35 failed
+consolidations alone use **121,508 tokens**, included in the **140,503-token**
+consolidation total; failures are not free or silently retried. Each engine
+also has one truncated answer, retained in scoring.
+
+Book import takes 46.24 ms for all 42 sessions. Native capture takes
+10,147.88 ms, consolidation 1,981,084.49 ms and embedding backfill 22.98 ms.
+These are different native phase boundaries, not interchangeable indexing
+operations. Book's closed SQLite files total 376,832 bytes; the native
+sandbox totals 2,243,214 bytes including logs and wiki Git history, excluding
+the shared model symlink. Full stage clocks, p99 and storage definitions
+remain in the workflow report.
+
+Current ai-memory's default can also run without an LLM. This fixed
+small-model consolidation diagnostic does not measure its best possible
+configuration or show that every deployment incurs those costs or failures.
+claude-mem's observer/Chroma and billion-context's full compression workflow
+are not covered by this experiment.
+
+## Completed continuation and interpretation
+
+The [completion record](continuation-status.md) and
+[strict audit](../benchmarks/reports/hosted-final-aggregation.json) verify
+the full native, semantic, answer and workflow matrices. The
+[latest performance optimization](token-prefix-performance.md) preserves
+all 2,016 development payloads and improves all four 512-token p95 settings;
+its larger-budget tradeoffs are retained separately.
+
+Public and reused synthetic questions remain regression data. The fixed
+HotpotQA cohort contributes independently authored scoped multi-hop
+questions, then becomes regression evidence after inspection. Mem0,
+Graphiti, PageIndex and Letta appear in the official architecture comparison;
+unexecuted product configurations have no invented performance scores.
+
+A defensible comparison keeps source correctness, evidence completeness,
+generated-answer scores, exact abstention, latency, native payload/context
+tokens, preparation, capture/consolidation/read phases, storage, model usage,
+errors and unknown costs distinct. Production concurrency, adaptive agent
+policies, provider billing and electricity remain unmeasured.
