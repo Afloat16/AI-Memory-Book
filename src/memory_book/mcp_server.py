@@ -46,7 +46,7 @@ Use task_id only when a cross-session task relationship is known.
 
 INDEXED_REFERENCE_INSTRUCTIONS = """recall_memory uses indexed-v1: source_sessions lists [project,session_id].
 Its source_refs entries are [session_index,turn_index] or
-[session_index,turn_index,extra_fields]. Resolve session_index with source_sessions
+[session_index,turn_index,extra_fields]. Resolve zero-based session_index with source_sessions
 and merge extra_fields to recover each full source reference.
 Context and page IDs are unchanged. read_page keeps object references.
 """
