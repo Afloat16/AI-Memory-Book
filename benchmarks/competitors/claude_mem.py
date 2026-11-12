@@ -86,12 +86,13 @@ def directory_fingerprint(root, expected):
     return digest(json.dumps(hashes, sort_keys=True, separators=(",", ":")).encode())
 
 
-def prepare(cache_dir, *, offline=False):
+def prepare(cache_dir, *, offline=False, lock_path=None):
     if platform.system() != "Linux" or platform.machine() not in {"x86_64", "AMD64"}:
         raise RuntimeError("The pinned Bun adapter requires Linux x86-64")
     root = Path(cache_dir).resolve()
     root.mkdir(parents=True, exist_ok=True)
-    lock = json.loads(LOCK_PATH.read_text())
+    lock_path = Path(lock_path) if lock_path is not None else LOCK_PATH
+    lock = json.loads(lock_path.read_text())
     begin = time.perf_counter()
     source_archive = checked_download(root, lock["source_archive"], offline=offline)
     runtime_archive = checked_download(root, lock["runtime"], offline=offline)
@@ -128,7 +129,7 @@ def prepare(cache_dir, *, offline=False):
         "source_archive_sha256": lock["source_archive"]["sha256"],
         "runtime_archive_sha256": lock["runtime"]["sha256"],
         "runtime_binary_sha256": lock["runtime"]["binary_sha256"],
-        "lock_sha256": digest(LOCK_PATH.read_bytes()),
+        "lock_sha256": digest(lock_path.read_bytes()),
         "source_sha256": fingerprint, "verified_source_files": len(expected),
         "preparation_ms": (time.perf_counter() - begin) * 1000
     }
@@ -154,7 +155,7 @@ def validate_native_rows(response, documents, project, limit):
 
 
 class ClaudeMemFTS:
-    def __init__(self, documents, cache_dir, state_dir, *, offline=False, timeout=120):
+    def __init__(self, documents, cache_dir, state_dir, *, offline=False, timeout=120, lock_path=None):
         docs = list(documents)
         self.documents = {doc["id"]: doc for doc in docs}
         if len(self.documents) != len(docs):
@@ -168,7 +169,8 @@ class ClaudeMemFTS:
         database = self.state_dir / "claude-mem.db"
         if database.exists():
             raise FileExistsError("Use a fresh state directory; measured runs never overwrite a DB")
-        binary, self.source_root, self.expected, self.metadata = prepare(cache_dir, offline=offline)
+        binary, self.source_root, self.expected, self.metadata = prepare(
+            cache_dir, offline=offline, lock_path=lock_path)
         self.timeout = timeout
         self._id = 0
         self._closed = False
