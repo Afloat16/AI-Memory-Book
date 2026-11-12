@@ -50,6 +50,10 @@ def parser() -> argparse.ArgumentParser:
     recall_mode.add_argument("--coverage", action="store_true", help="Opt in to experimental explicit-clause coverage; adds search work and can reduce small-budget completeness")
     recall.add_argument("--no-cache", action="store_true")
     recall.add_argument("--json", action="store_true")
+    recall.add_argument("--semantic", action="store_true", help="Opt in to local semantic candidates; requires an explicitly built, current semantic index")
+    recall.add_argument("--semantic-model-dir", help="Local pinned semantic model directory; used only with --semantic")
+    semantic_index = sub.add_parser("semantic-index", help="Explicitly build or refresh the optional local semantic index")
+    semantic_index.add_argument("--semantic-model-dir", required=True, help="Local pinned model directory; no implicit model download")
     toc = sub.add_parser("toc", help="Browse a project's chapter directory")
     toc.add_argument("project")
     chapter = sub.add_parser("chapter", help="Browse a chapter's sessions, sections and page addresses")
@@ -87,6 +91,7 @@ def parser() -> argparse.ArgumentParser:
     web.add_argument("--container-bind", action="store_true", help="Allow 0.0.0.0 inside a container; publish its port on host loopback only")
     mcp = sub.add_parser("mcp", help="Start the optional official-SDK MCP stdio server")
     mcp.add_argument("--allow-write", action="store_true", help="Also expose remember_session to the connected agent")
+    mcp.add_argument("--semantic-model-dir", help="Operator-selected local model directory for explicit semantic recall; build its index separately")
     sub.add_parser("clients", help="List supported client profiles and detected installations; never reads conversation history")
     setup = sub.add_parser("setup", help="Configure client MCP connections and optional background capture")
     setup.add_argument("--client", action="append", default=[], help="Client profile; repeat for multiple clients (see 'memory-book clients')")
@@ -273,18 +278,21 @@ def main(argv: list[str] | None = None) -> int:
             return 0 if result["ok"] else 1
         if args.command == "mcp":
             from .mcp_server import serve
-            serve(args.db, allow_write=args.allow_write)
+            serve(args.db, allow_write=args.allow_write, semantic_model_dir=args.semantic_model_dir)
             return 0
         if args.command == "serve":
             from .web import serve
             serve(args.db, host=args.host, port=args.port, container_bind=args.container_bind)
             return 0
         mode = getattr(args, "mode", "adaptive")
-        with MemoryBook(args.db, segmentation=mode, max_page_chars=getattr(args, "page_chars", 900)) as book:
+        with MemoryBook(args.db, segmentation=mode, max_page_chars=getattr(args, "page_chars", 900),
+                        semantic_model_dir=getattr(args, "semantic_model_dir", None)) as book:
             if args.command in {"init", "stats"}:
                 _print(book.stats())
             elif args.command == "projects":
                 _print(book.projects())
+            elif args.command == "semantic-index":
+                _print(book.build_semantic_index())
             elif args.command == "import":
                 from .importers import load_sessions
                 # Parse all files before changing the database; session-level
@@ -292,7 +300,7 @@ def main(argv: list[str] | None = None) -> int:
                 sessions = [session for file in args.files for session in load_sessions(file, format=args.format, project=args.project, task_id=args.task)]
                 _print([book.ingest(session) for session in sessions])
             elif args.command == "recall":
-                result = book.recall(args.query, project=args.project, chapter=args.chapter, session=args.session, budget_chars=args.budget, limit=args.limit, strategy="flat" if args.flat else "book", use_cache=not args.no_cache, coverage=args.coverage, budget_tokens=args.budget_tokens, tokenizer=args.tokenizer)
+                result = book.recall(args.query, project=args.project, chapter=args.chapter, session=args.session, budget_chars=args.budget, limit=args.limit, strategy="flat" if args.flat else "book", use_cache=not args.no_cache, coverage=args.coverage, budget_tokens=args.budget_tokens, tokenizer=args.tokenizer, semantic=args.semantic)
                 if args.json:
                     _print(result)
                 else:

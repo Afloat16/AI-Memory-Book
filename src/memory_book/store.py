@@ -226,7 +226,7 @@ class MemoryBook:
     query text is transmitted by that vocabulary initialization.
     """
 
-    def __init__(self, path: str | Path = ".memory-book/memory.db", *, segmentation: str = "adaptive", max_page_chars: int = 900, min_page_chars: int = 400, similarity_threshold: float = 0.12, cache_size: int = 128):
+    def __init__(self, path: str | Path = ".memory-book/memory.db", *, segmentation: str = "adaptive", max_page_chars: int = 900, min_page_chars: int = 400, similarity_threshold: float = 0.12, cache_size: int = 128, semantic_model_dir: str | Path | None = None):
         if segmentation not in {"adaptive", "turn", "session"}:
             raise ValueError("segmentation must be adaptive, turn, or session")
         _integer(max_page_chars, "max_page_chars", 128, 100_000)
@@ -238,6 +238,10 @@ class MemoryBook:
         self.segmentation, self.max_page_chars = segmentation, max_page_chars
         self.min_page_chars, self.similarity_threshold = min_page_chars, similarity_threshold
         self.cache_size = cache_size
+        if semantic_model_dir is not None and (not isinstance(semantic_model_dir, (str, Path)) or not str(semantic_model_dir).strip()):
+            raise ValueError("semantic_model_dir must be an explicit local model directory")
+        self.semantic_model_dir = Path(semantic_model_dir).expanduser().resolve() if semantic_model_dir is not None else None
+        self._semantic_model = None
         # Directory text is immutable as a key: a rename or a concurrent
         # writer naturally gets a new entry. Cache only within this connection
         # and bound retained text independently of result-cache settings.
@@ -280,6 +284,24 @@ class MemoryBook:
             self.db.close()
         finally:
             self._directory_tokens.cache_clear()
+            self._semantic_model = None
+
+    def _semantic_encoder(self):
+        if self.semantic_model_dir is None:
+            raise ValueError("Semantic recall requires an explicit semantic_model_dir")
+        if self._semantic_model is None:
+            from .semantic import SemanticModel
+            self._semantic_model = SemanticModel(self.semantic_model_dir)
+        return self._semantic_model
+
+    def build_semantic_index(self) -> dict:
+        """Explicitly build optional local vectors without changing sources.
+
+        Any ingestion, deletion or relinking makes the index stale. Semantic
+        recall fails until this method succeeds; lexical recall remains usable.
+        """
+        from .semantic import build_index
+        return build_index(self.db, self._semantic_encoder())
 
     def _stem_guard_ready(self) -> bool:
         """Also recognize schema-3 development databases created before the guard."""
@@ -573,7 +595,7 @@ class MemoryBook:
         values["revision"], values["schema_version"] = self.revision, SCHEMA_VERSION
         return values
 
-    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base") -> dict:
+    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False) -> dict:
         started = time.perf_counter_ns()
         query = _string(query, "query", maximum=8000, required=False)
         _integer(budget_chars, "budget_chars", 0, 100_000)
@@ -590,17 +612,26 @@ class MemoryBook:
             raise ValueError("coverage must be a boolean")
         if coverage and strategy != "book":
             raise ValueError("coverage requires the book strategy")
+        if not isinstance(semantic, bool):
+            raise ValueError("semantic must be a boolean")
+        if semantic and strategy != "book":
+            raise ValueError("semantic recall requires the book strategy")
         for key, val in (("project", project), ("chapter", chapter), ("session", session)):
             if val is not None:
                 _string(val, key)
         qt = query_terms(query)
         current_query = bool(CURRENT_QUERY.search(query) and not HISTORICAL_QUERY.search(query))
         use_stem = strategy == "book" and any(ASCII_WORD.search(token) for token in qt)
+        semantic_model = self._semantic_encoder() if semantic else None
         # A read snapshot ties candidates, sources, and the cache revision together.
         self.db.execute("BEGIN")
         try:
             revision = self.revision
             cache_options = [INDEX_VERSION, RECALL_VERSION, query, project, chapter, session, budget_chars, limit, strategy, coverage]
+            if semantic_model is not None:
+                from .semantic import SEMANTIC_VERSION, check_index, fuse_candidates, rank_pages
+                check_index(self.db, revision, semantic_model)
+                cache_options.extend(["semantic", SEMANTIC_VERSION, semantic_model.fingerprint])
             if token_counter is not None:
                 cache_options.extend([budget_tokens, tokenizer, token_counter.version])
             cache_key = hashlib.sha256(_json(cache_options).encode()).hexdigest()
@@ -625,7 +656,7 @@ class MemoryBook:
             candidates: list[dict] = []
             allocations: list[tuple[dict, str, int]] = []
             selected_pages: list[dict] = []
-            if qt and budget_chars:
+            if (qt or (semantic and query)) and budget_chars:
                 expression = " OR ".join('"' + token.replace('"', '""') + '"' for token in qt)
                 # The index enforces a body match, so a chapter name alone is
                 # never treated as evidence. Select only metadata for candidate
@@ -649,7 +680,7 @@ class MemoryBook:
                           FROM (""" + statement + """) hits JOIN pages p ON p.rid=hits.rid
                           JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk
                           ORDER BY hits.rank,p.id"""
-                    routes.append(self.db.execute(statement, [expression, *params]).fetchall())
+                    routes.append(self.db.execute(statement, [expression, *params]).fetchall() if qt else [])
                 exact_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[0])}
                 stem_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[1])} if use_stem else {}
                 exact_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[0]}
@@ -774,6 +805,8 @@ class MemoryBook:
                             preferred.append(candidates[original_positions[leader]])
                             seen.add(leader)
                     candidates = preferred + [item for item in candidates if item["rid"] not in seen]
+                if semantic_model is not None:
+                    candidates = fuse_candidates(candidates, rank_pages(self.db, semantic_model, query, where, params))
                 if candidates:
                     selected_ids = [item["id"] for item in candidates[:limit]]
                     sources = {row["id"]: dict(row) for row in self.db.execute(
@@ -870,6 +903,8 @@ class MemoryBook:
         if not results and candidates:
             warnings.append("Budget too small to return an evidence block including its citation.")
         result = {"query": query, "results": results, "context": context, "context_chars": len(context), "estimated_tokens": estimate_tokens(context), "candidate_count": len(candidates), "revision": revision, "cache_hit": False, "warnings": warnings, "strategy": strategy, "budget_chars": budget_chars, "truncated": len(candidates) > len(results) or any(r["truncated"] for r in results)}
+        if semantic_model is not None:
+            result.update(semantic=True, semantic_model_fingerprint=semantic_model.fingerprint)
         if token_counter is not None:
             result.update(budget_tokens=budget_tokens, tokenizer=tokenizer,
                           tokenizer_version=token_counter.version,

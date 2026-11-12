@@ -13,11 +13,12 @@ from typing import TYPE_CHECKING, Any
 from .store import MemoryBook
 
 try:
-    from pydantic import StrictInt
+    from pydantic import StrictBool, StrictInt
 except ImportError:
     # Importing payload helpers must remain possible without the optional MCP
     # extra. A working FastMCP installation includes Pydantic and StrictInt.
     StrictInt = int
+    StrictBool = bool
 
 if TYPE_CHECKING:
     from mcp.server.fastmcp import FastMCP
@@ -72,7 +73,8 @@ def recall_payload(result: dict[str, Any], *, details: bool = False) -> dict[str
         hits.append(hit)
     return {"context": result["context"], "results": hits,
             **{key: result[key] for key in ("context_chars", "budget_chars", "revision", "truncated", "warnings")},
-            **{key: result[key] for key in ("budget_tokens", "tokenizer", "tokenizer_version", "context_tokens")
+            **{key: result[key] for key in ("budget_tokens", "tokenizer", "tokenizer_version", "context_tokens",
+                                           "semantic", "semantic_model_fingerprint")
                if key in result}}
 
 
@@ -108,7 +110,8 @@ class _BookResource:
             book.close()
 
 
-def create_server(db_path: str | Path, allow_write: bool = False) -> FastMCP:
+def create_server(db_path: str | Path, allow_write: bool = False, *,
+                  semantic_model_dir: str | Path | None = None) -> FastMCP:
     """Create an MCP server; knowledge writes must be explicitly enabled."""
     try:
         from mcp.server.fastmcp import FastMCP
@@ -142,14 +145,14 @@ def create_server(db_path: str | Path, allow_write: bool = False) -> FastMCP:
             # Direct SDK calls have no transport lifespan. A future SDK may
             # also offload tools to worker threads. Both keep the original
             # safe, temporary connection behavior and SQLite's thread guard.
-            with MemoryBook(database) as book:
+            with MemoryBook(database, semantic_model_dir=semantic_model_dir) as book:
                 yield book
             return
         identity = _database_identity(database)
         if owned.book is not None and identity != owned.identity:
             owned.close()
         if owned.book is None:
-            book = MemoryBook(database)
+            book = MemoryBook(database, semantic_model_dir=semantic_model_dir)
             after_open = _database_identity(database)
             if identity is None or identity != after_open:
                 # A new file or a concurrent replacement has no stable
@@ -179,6 +182,7 @@ def create_server(db_path: str | Path, allow_write: bool = False) -> FastMCP:
         coverage: bool = False,
         budget_tokens: StrictInt | None = None,
         tokenizer: str = "cl100k_base",
+        semantic: StrictBool = False,
     ) -> str:
         """Recall cited history. Compact by default; details adds exact spans and diagnostics.
 
@@ -189,6 +193,9 @@ def create_server(db_path: str | Path, allow_write: bool = False) -> FastMCP:
         coverage opts into experimental coverage of explicit and/和-style clauses.
         It can recover additional subjects but adds search work and can reduce
         evidence completeness under small budgets. It is disabled by default.
+        semantic explicitly enables local embedding candidates if the operator
+        configured a model and built a current index. It never downloads a model
+        or rebuilds an index. Default lexical recall requires no model.
         """
         _range(budget_chars, "budget_chars", 0, 100000)
         _range(limit, "limit", 1, 50)
@@ -197,6 +204,7 @@ def create_server(db_path: str | Path, allow_write: bool = False) -> FastMCP:
                 query, project=project, chapter=chapter, session=session,
                 budget_chars=budget_chars, limit=limit, coverage=coverage,
                 budget_tokens=budget_tokens, tokenizer=tokenizer,
+                semantic=semantic,
             )
         return _json(recall_payload(result, details=details))
 
@@ -250,6 +258,7 @@ def create_server(db_path: str | Path, allow_write: bool = False) -> FastMCP:
     return server
 
 
-def serve(db_path: str | Path, allow_write: bool = False) -> None:
+def serve(db_path: str | Path, allow_write: bool = False, *,
+          semantic_model_dir: str | Path | None = None) -> None:
     """Run the SDK's stdio transport. No HTTP listener is created."""
-    create_server(db_path, allow_write=allow_write).run(transport="stdio")
+    create_server(db_path, allow_write=allow_write, semantic_model_dir=semantic_model_dir).run(transport="stdio")
