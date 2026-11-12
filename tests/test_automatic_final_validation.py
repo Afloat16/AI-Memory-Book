@@ -1,7 +1,6 @@
 """Fixed-run collection rejects changed identities, arbitrary code and partial data."""
 from __future__ import annotations
 
-import copy
 import hashlib
 import json
 import os
@@ -88,8 +87,13 @@ class FixedRunIdentityTests(unittest.TestCase):
             payload = root / "event.json"
             payload.write_text(json.dumps(event()), encoding="utf-8")
             def collected(_root, stage):
-                return {"stage": stage, "imported_sha256": {name: "a" * 64 for name in
-                        (*collector.BODIES[stage], collector.marker_path(stage))}}
+                hashes = {}
+                for name in (*collector.BODIES[stage], collector.marker_path(stage)):
+                    path = root / name
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_bytes(name.encode())
+                    hashes[name] = collector.aggregate.sha(path)
+                return {"stage": stage, "imported_sha256": hashes}
             def failed(*args, **kwargs):
                 collector.aggregate.atomic(root / collector.aggregate.AUDIT, {"status": "failed"})
                 return subprocess.CompletedProcess(args[0], 1)
@@ -110,6 +114,48 @@ class FixedRunIdentityTests(unittest.TestCase):
             self.assertIn(collector.aggregate.AUDIT, saved[0])
             self.assertIn(collector.AUDIT, saved[0])
             self.assertEqual(len(saved[0]), 10)
+
+
+    def test_launch_failure_does_not_republish_a_previous_success_audit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            payload = root / "event.json"
+            payload.write_text(json.dumps(event()), encoding="utf-8")
+            collector.aggregate.atomic(root / collector.aggregate.AUDIT,
+                                       {"status": "complete-verified-snapshot", "old": True})
+            saved = []
+            with patch.object(collector, "ROOT", root), \
+                    patch.object(collector, "checked_out_main", return_value="a" * 40), \
+                    patch.object(collector, "read_attempt", return_value=collector.identity(run_record())), \
+                    patch.object(collector, "collect_stage", return_value={"imported_sha256": {}}), \
+                    patch.object(collector.subprocess, "run", side_effect=OSError("cannot launch")), \
+                    patch.object(collector, "publish", side_effect=lambda r, s, files: saved.append(set(files))), \
+                    patch.dict(os.environ, {**environment(), "GITHUB_EVENT_PATH": str(payload)}):
+                self.assertEqual(collector.main(["--publish"]), 1)
+            self.assertEqual(saved, [{collector.AUDIT}])
+
+    def test_mutated_input_on_a_failed_assessment_is_not_published(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            payload = root / "event.json"
+            payload.write_text(json.dumps(event()), encoding="utf-8")
+            name = collector.BODIES["answers-locomo"][0]
+            path = root / name
+            path.parent.mkdir(parents=True)
+            path.write_bytes(b"modified input")
+            record = {"imported_sha256": {name: hashlib.sha256(b"original input").hexdigest()}}
+            saved = []
+            with patch.object(collector, "ROOT", root), \
+                    patch.object(collector, "checked_out_main", return_value="a" * 40), \
+                    patch.object(collector, "read_attempt", return_value=collector.identity(run_record())), \
+                    patch.object(collector, "collect_stage", return_value=record), \
+                    patch.object(collector.subprocess, "run", return_value=subprocess.CompletedProcess([], 1)), \
+                    patch.object(collector, "publish", side_effect=lambda r, s, files: saved.append(set(files))), \
+                    patch.dict(os.environ, {**environment(), "GITHUB_EVENT_PATH": str(payload)}):
+                self.assertEqual(collector.main(["--publish"]), 1)
+            self.assertEqual(saved, [{collector.AUDIT}])
+            audit = json.loads((root / collector.AUDIT).read_bytes())
+            self.assertEqual(audit["reason"], "canonical_input_changed_before_publication")
 
 
 @unittest.skipUnless(shutil.which("git"), "Git fixture integration")
