@@ -5,7 +5,40 @@ Product fixtures, examples, screenshots, and capture measurements are synthetic;
 v0.3.0 also evaluates an independently published LoCoMo text corpus. No private
 user conversation history was used in development or published.
 
-## Current completed continuation — 2026-11-12
+## Current candidate: v0.3.1 third-round completion — 2026-11-13
+
+The candidate's runtime SHA-256 is
+`9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46`,
+matching measured commit
+[`2d199b9`](https://github.com/Afloat16/AI-Memory-Book/commit/2d199b93f650eccd3dd239178822b31001b880e3).
+Final documentation and packaging changes do not change those runtime bytes.
+
+| Validation | Completed result | Evidence |
+|---|---|---|
+| Formal performance | 47,320 calls / 16 workers; numeric gate passes; full non-timing output unchanged; all ten cells retained | [Optimization report](optimization-round3.md), [original run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43246417515) |
+| Original startup flag | Original automatic `accepted=false` preserved; disclosed +4.838 ms / +14.04% accepted in a separate review after 80 fresh startup diagnostics | [Resource review](round3-startup-resource-review.md), [diagnostic run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43266672875) |
+| Interrupted quality experiment | Original 8,082 calls / eight workers reconstructed from intact chunks, audited without new retrieval, candidate rejected | [Decision](../benchmarks/reports/round3-project-stats-recovery-43266603949-1/decision.json), [recovery run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43266603949) |
+| New frozen comparison | All ten stages complete; 4,608 native calls + 4,608 component searches; no budget/source/scope failures; 1,536 native and 768 component payload pairs identical | [Assessment](../benchmarks/results/round3-comparison-43267797247-1/assessment.json), [run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43267797247) |
+
+The new 256-question selection excludes the prior 384 question IDs. It uses
+607 support annotations from the same public HotpotQA source, all answerable.
+It measures retrieval evidence, not generated-answer accuracy, abstention or
+generalization. The [full comparison](round3-comparison.md) retains both the
+advantage over claude-mem FTS and the quality/latency losses against other
+components, including Q2's small-budget regressions.
+
+Final integration checks use all nine normal CI jobs, the
+[read-only evidence audit](../.github/workflows/round3-final-audit.yml) and
+[prepare-only packages](../.github/workflows/release-prepare.yml).
+The audit pins original result Git blobs and input SHA-256 values, runs the
+original report auditors, and verifies that it changed no inputs and executed
+no retrieval/model/timing calls. Packaging binds the runtime hash, checks the
+wheel and sdist in separate clean environments, and installs the produced wheel
+with MCP/client extras. The delivery PR records the exact final source commit,
+Actions results and artifact. This candidate documentation does not imply that
+a public v0.3.1 tag or release already exists.
+
+## Historical completed continuation — 2026-11-12
 
 The [strict final audit](../benchmarks/reports/hosted-final-aggregation.json)
 has status `complete-verified-snapshot`: 80 fixed inputs checked, eight
@@ -41,7 +74,7 @@ Integrity/completeness gates do not assert that every quality metric improved.
 
 The dated sections below describe the evidence available at those older commits.
 
-## Unreleased: recall-quality continuation
+## Historical recall-quality continuation
 
 ### Recovered native-budget checkpoint: e70bc3d
 

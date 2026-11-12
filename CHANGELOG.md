@@ -1,5 +1,70 @@
 # Changelog
 
+## 0.3.1 candidate — 2026-11-13
+
+This candidate completes the third optimization round. Its measured runtime is
+`2d199b93f650eccd3dd239178822b31001b880e3`, SHA-256
+`9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46`.
+Default retrieval stays lexical. A candidate build is not a published tag.
+
+### Retrieval performance
+
+- Narrow FTS work with a safe project rowid envelope only when it is selective.
+  Keep scope predicates before the 96-candidate limit, global BM25 statistics,
+  deterministic ordering and all evidence/source fields. Session-scoped and
+  nonselective layouts retain the previous query path.
+- Compute bounds inside the existing read transaction without caching them;
+  cover cross-process insert/delete/relink, interleaved projects, Unicode and
+  candidate-limit behavior in tests.
+- Preserve complete non-timing output in the registered 47,320-call, four-round
+  ABBA matrix. Ten pooled p95 ratios improve by 11.36% geometrically on average;
+  public native p95 improves 26.05% and actual MCP p95 19.87%. The synthetic
+  512-token cell regresses 0.13%. No pooled p50/p95 cell regresses over 5%.
+- Retain the original empty-database startup flag: +4.838 ms / +14.04%.
+  The original report still says `accepted=false`; a separate, documented
+  resource decision accepts that cost after 80 fresh startup diagnostics.
+  No original retrieval call was repeated or replaced.
+- Disable ONNX Runtime telemetry before optional model initialization.
+  No schema migration, new core dependency or default semantic mode is added.
+
+### Completed evidence and rejected work
+
+- Recover all eight original project-statistics workers and 8,082 calls from
+  intact uploaded chunks and ledgers. Preserve the interrupted aggregate prefix,
+  verify it against the reconstruction, and execute zero new retrievals.
+  The candidate fails the registered no-loss screen and remains excluded.
+- Freeze candidate/evaluator/model/upstream identities before selecting 256
+  additional HotpotQA IDs with zero overlap against the prior 384. Complete all
+  ten stages: 4,608 native calls, 4,608 component searches and 1,280 additional
+  ai-memory page reads. All source and budget checks pass; 1,536 native and 768
+  component default payload pairs match v0.3.0 after removing timing only.
+- On common top-five, 1,024-token packing, default Book completeness is 52.34%
+  versus claude-mem FTS 45.31%, with measured search roundtrip p95 2.784 ms
+  versus 22.826 ms. ai-memory (55.86%) and billion-context's search kernel
+  (58.20%) lead Book completeness here; billion is also faster. Preserve every
+  budget, subgroup, Q2 loss and component interface boundary.
+- Keep Q2 optional: it gains six complete questions at 1,024/2,048-token native
+  caps but loses six at 512 under each tokenizer on this new selection.
+  These are evidence retrieval results, not final-answer or abstention scores.
+- Add a read-only final evidence audit with immutable result blobs, exact-HEAD
+  runtime hashing, original auditors and zero retrieval/model/timing calls.
+
+### Packaging and documentation
+
+- Set package and installer versions to 0.3.1 and bind release preparation to
+  the measured runtime hash. Reject changed runtime bytes before packaging.
+- Prepare seven small release assets, verify wheel and sdist in separate clean
+  environments, and install the produced wheel with default MCP/client extras.
+  Preparation-only workflows do not publish GitHub releases.
+- Update English/Chinese README, release notes, deployment and comparison
+  documentation with current evidence and explicit historical labels.
+  No source/index/archive migration is needed for this runtime change.
+
+See [optimization and all ten timing cells](docs/optimization-round3.md),
+[new component comparison](docs/round3-comparison.md),
+[startup resource decision](docs/round3-startup-resource-review.md) and
+[candidate installation](docs/deployment.md#try-the-v031-candidate-before-publication).
+
 ## 0.3.0 — 2026-11-12
 
 An experimental release of the verified round-two implementation. Default
