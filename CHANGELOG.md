@@ -1,5 +1,75 @@
 # Changelog
 
+## 0.3.1 — 2026-11-13
+
+An experimental patch for faster project-scoped recall with identical evidence
+and interfaces. Default retrieval stays lexical, with no model dependency.
+
+### Retrieval performance
+
+- Add a guarded project-rowid envelope and explicit FTS outer loop. Read bounds
+  in the existing snapshot; apply the optimization only when the project's span
+  is at most half the archive's span. Preserve global BM25 statistics, exact
+  project/chapter/session filters, candidate limits, ties, ranking, cache
+  identity, source references and context-budget behavior.
+- Complete the frozen 47,320-call, 16-worker performance experiment across two
+  old regression corpora, ten configurations and four balanced rounds. Full
+  non-timing payload/source/scope/budget checks pass. Geometric-mean pooled p95
+  improves 11.36%; public native 4,000-character p95 improves 26.05%, and actual
+  MCP stdio p95 improves 19.87%. The synthetic 512-token cell retains a 0.12%
+  p95 regression; all pooled p50/p95 changes meet the registered 5% limit.
+- Accept the retrieval improvement after explicit review of the public
+  workers' empty-database startup mean: 34.456 ms to 39.294 ms, an increase of
+  4.838 ms or 14.04%. Preserve the original automatic `accepted: false` report
+  and every sample. This is a disclosed resource exception, with no startup
+  speedup or universal startup non-regression claim.
+
+### Local runtime privacy
+
+- Set `ORT_DISABLE_TELEMETRY=1` before optional ONNX Runtime import and call
+  `disable_telemetry_events()` before inference-session construction. Keep the
+  existing model, vector/index and Q2 fusion identities. Document the process
+  startup setting needed when an embedding application imports ORT first.
+
+### Installation and release recovery
+
+- Pin installers and package version to v0.3.1, selecting its universal wheel
+  while preserving the explicit v0.3.0 wheel route and historical source routes.
+- Use the returned draft-release ID, bounded read-only visibility checks and
+  exact asset verification during publication. Reconcile an already published
+  exact release with read-only checks after interruption. Preserve existing
+  tags and assets; ambiguous publication writes are not blindly retried.
+
+### Validation and limits
+
+- Recover all 8,082 original calls and eight workers for the single optional
+  project-statistics screen, with zero new retrieval calls. Archive its
+  rejection on 14 registered loss checks; the candidate is not shipped or
+  retuned. Keep earlier rejected novelty experiments closed.
+- Preserve frozen source/evaluator/model/upstream identities and durable
+  per-stage ledgers for the completed 256-question comparison. The authoritative
+  [run 43267797247](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43267797247)
+  and offline audit are `complete-verified`: 4,608 native calls, 4,608 component
+  searches, and zero complete non-timing payload differences across 1,536 native
+  and 768 component baseline/candidate pairs.
+- Publish all six budget/tokenizer views and component costs. At common
+  1,024-token `cl100k_base` packing, Book lexical/Q2 completeness is
+  52.34%/54.69%, compared with claude-mem FTS 45.31%, ai-memory 55.86% and
+  billion-context 58.20%. Native search p95 is 2.784/11.226 ms for Book
+  lexical/Q2, versus 22.484 ms, 27.545 ms and 0.793 ms for those components.
+  ai-memory has higher completeness than Q2; billion-context leads this
+  displayed recall/completeness/MRR/timing view. Interfaces and costs differ.
+- Retain Q2's small-budget losses, including native 512-token `o200k_base`
+  completeness of 35.55% lexical versus 33.20% Q2. The disjoint ID selection
+  comes from the same public HotpotQA source and becomes regression data after
+  first scoring; it is not a new domain.
+- Retain experimental status and explicit measurement boundaries. Default
+  quality is preserved; component evidence recall is not generated-answer
+  accuracy or proof of universal product superiority.
+
+[Release notes](docs/releases/v0.3.1.md) · [Performance/resource review](docs/round3-performance-review.md) ·
+[Registered round-three protocol](docs/optimization-round3.md) · [Upgrade guide](docs/deployment.md#upgrading)
+
 ## 0.3.0 — 2026-11-12
 
 An experimental release of the verified round-two implementation. Default

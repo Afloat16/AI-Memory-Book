@@ -1,6 +1,44 @@
 # Retrieval experiments
 
-## Current: round-two implementation and measurements
+## Current: v0.3.1 / round three
+
+The accepted runtime is
+[`2d199b9`](https://github.com/Afloat16/AI-Memory-Book/commit/2d199b93f650eccd3dd239178822b31001b880e3),
+Python-source SHA-256 `9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46`.
+Default lexical ranking is unchanged; a guarded project rowid range reduces
+FTS work. Q2 and indexed MCP references remain optional. The project-local
+statistics candidate is rejected and is not shipped.
+
+| Experiment | Verified measurement | Complete evidence |
+|---|---|---|
+| Default performance | 47,320 calls, 16 workers, four balanced rounds, ten cells; strict full-payload audit passes; geometric mean pooled p95 improvement 11.36% | [Independent resource/performance review](../docs/round3-performance-review.md), [original summary](reports/round3-performance-43246417515-1/report.summary.json) |
+| Startup resource exception | Original public startup mean +14.04% and automatic rejection remain intact; existing 80-sample diagnostic independently verified | [Original and supplemental evidence](../docs/round3-startup-resource-review.md), [independent 80-sample verification](reports/round3-recovery/startup-diagnostic-cross-verification.json) |
+| Project-local statistics quality screen | 8,082 original calls recovered without replay; 14 registered checks fail; candidate excluded | [Recovery and decision](../docs/round3-quality-review.md), [byte comparison](reports/round3-recovery/quality-cross-verification.json) |
+| New 256-question comparison | Ten complete stages, 4,608 native calls plus 4,608 component searches; all 1,536 native and 768 component default payload pairs match | [Full report](results/round3-comparison-43267797247-1/report.md), [assessment](results/round3-comparison-43267797247-1/assessment.json), [checkpoint](reports/round3-comparison-43267797247-1-checkpoint.json), [independent offline verification](reports/round3-recovery/comparison-cross-verification.json) |
+
+The new comparison has status **complete-verified**. Source, evaluator, model,
+dependencies and upstream revisions were bound before selection. These 256
+HotpotQA questions exclude both previous selections but use the same source;
+after scoring they are regression data. No generated-answer call is configured.
+
+At the common 1,024-cl100k whole-block view, complete evidence is **52.34% Book
+default, 54.69% Book Q2, 45.31% claude-mem, 55.86% ai-memory and 58.20%
+billion-context**. Book default has lower recorded component search p95 than
+claude-mem and ai-memory; billion-context leads the displayed quality and
+search-speed measures. Q2 loses native completeness at both 512-token settings.
+All costs, individual losses and interface boundaries stay in the full report.
+
+The original authoritative hosted registration appeared during recovery. Its
+one existing comparison was adopted; the later local binding/selection was
+archived unused and no duplicate scoring run was started. See
+[reconciliation](../docs/round3-reconciliation.md),
+[completion checkpoint](../docs/round3-continuation.md), and the
+[current comparison](../docs/comparison.md#v031-comparison).
+
+## Historical: v0.3.0 / round-two implementation and measurements
+
+The “current” labels within this historical section refer to its named
+round-two source and measurement, not the v0.3.1 comparison above.
 
 The selected runtime is
 [`cbf6260`](https://github.com/Afloat16/AI-Memory-Book/commit/cbf626037b42f11f8bc5b6d46f56caac771e54ba),
