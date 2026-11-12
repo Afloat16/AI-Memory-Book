@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "status": "registered-before-round2-development-scoring",
+  "registered_at": "2026-11-12",
+  "candidate": "Q1-score-aware-semantic-fusion",
+  "baseline_commit": "cb7486b4937a3ecb7ccbf94a746c0bbbf44eb41f",
+  "purpose": "Isolate the effect of retaining lexical and semantic score margins; do not attribute every semantic failure to rank fusion or change the default lexical path.",
+  "default_semantic": false,
+  "frozen_policy": {
+    "lexical_weight": 0.75,
+    "semantic_weight": 0.25,
+    "lexical_score": "max(original lexical score, 0) divided by the maximum nonnegative lexical score; zero when every score is zero",
+    "semantic_score": "(cosine - minimum returned cosine) / (maximum returned cosine - minimum returned cosine); zero when the range is zero",
+    "absent_route_contribution": 0,
+    "combined_score": "0.75 * lexical_score + 0.25 * semantic_score",
+    "tie_order": ["original lexical position", "page id"],
+    "empty_lexical_route": "Preserve the original semantic order and legacy single-route reciprocal-rank scores.",
+    "empty_semantic_route": "Preserve the original lexical order and scores.",
+    "invalid_scores": "Reject non-finite scores and duplicate identities within either route instead of assigning confidence to malformed candidates.",
+    "scope": "Fusion only. No new query decomposition, prompt, learned gate, source rewrite, model call, candidate expansion or packing policy. Existing lexical novelty/current/coverage ordering may still be affected by fusion; report the measured outcome.",
+    "cache_identity": "Advance SEMANTIC_VERSION so an existing optional semantic result cache cannot return the old fusion policy. The model artifact bytes and embedding algorithm remain unchanged. Existing semantic indexes must be rebuilt explicitly after the version change."
+  },
+  "model": {
+    "plan": "benchmarks/experiments/semantic-local-plan.json",
+    "repository": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+    "dimensions": 384,
+    "max_tokens": 128,
+    "overlap_tokens": 32,
+    "candidate_limit": 96,
+    "inference_threads": 1,
+    "query_inference": "One existing encode_query operation for each explicitly semantic recall; no model use on lexical calls."
+  },
+  "reference_modes": ["lexical_native_token_budget", "legacy_rrf_k60", "q1_score_075"],
+  "legacy_reference": "Use the exact original fuse_candidates function body from the baseline semantic.py with RRF_K=60; verify the function body against the baseline Git object before scoring. Both semantic modes share the same verified vectors and source archive.",
+  "development_cohorts": [
+    {"label": "development-synthetic61", "corpus": "synthetic", "seed": 61, "queries": 168, "sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26"},
+    {"label": "regression-authored36", "corpus": "transfer", "queries": 36, "sha256": "ecc46c474d5184995938419fa985b8e08c0ddb51560da49990247465db6db0b0"},
+    {"label": "regression-public1015", "corpus": "locomo", "split": "heldout", "queries": 1015, "sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857"},
+    {"label": "regression-hotpot128", "corpus": "hotpotqa", "queries": 128, "sha256": "0791515aca6bccf19a97895cad681e06a07536d6c08050d54189cc64cb819822"}
+  ],
+  "parameters": {"budget_chars": 8000, "token_budgets": [512, 1024, 2048], "tokenizers": ["cl100k_base"], "limit": 5, "repeats": 3, "max_page_chars": 900, "cache_size": 0, "use_cache": false},
+  "execution": "All three modes execute for every query/configuration/repetition. Rotate mode order by query position plus repetition. Retain deterministic seed+1009*repetition query permutation, committed attempt intents, failure records, source/model/configuration identities and all repeated timings. Index and model preparation are outside query latency but reported separately. Do not overlap timed measurements with other CPU benchmarks on this host.",
+  "comparisons": ["Q1 versus legacy RRF", "Q1 versus lexical"],
+  "required_outputs": ["all per-query annotation and complete-evidence gains/losses", "low lexical overlap", "multiple required evidence", "cross-session and cross-chapter groups", "unsupported-query behavior", "context tokens and returned payload tokens", "p50/p95/p99 and first/repeat-pass timings", "source/budget/scope/cache/repeat invariants", "preparation costs and preserved interruptions"],
+  "selection_rule": "No weight grid or post-result threshold tuning in Q1. Publish every old development/regression cohort and budget, including negative results. Keep semantic=false as the product default. If Q1 quality is unstable, it may be rejected rather than presented as a general improvement.",
+  "external_validation": "A separate agent freezes and owns a new 256-question HotpotQA sample excluding the old 128. This agent must not inspect its questions or per-query results. Freeze the selected candidate source and parameters before one external evaluation; do not tune on that result or replay it to select a better score.",
+  "interpretation": "Old synthetic, authored, public and Hotpot128 questions are development/regression evidence. Source retrieval metrics do not establish answer correctness, general semantic memory or a whole-product ranking. No fixed case IDs, answers, annotations or gold evidence may enter runtime rules.",
+  "primary_references": [
+    "https://arxiv.org/abs/2210.11934",
+    "https://cormack.uwaterloo.ca/cormacksigir09-rrf.pdf"
+  ]
+}
