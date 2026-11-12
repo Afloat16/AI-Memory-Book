@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "protocol": "round2-unseen-hotpot256-v1",
+  "registered_at": "2026-11-12",
+  "status": "registered-before-candidate-binding-and-scoring",
+  "baseline": {
+    "commit": "cb7486b4937a3ecb7ccbf94a746c0bbbf44eb41f",
+    "source_sha256": "6fdad7b9bf0eef50ec925ceeed3ca45fe84d2eb22973c753118df2d0f67f6ba2"
+  },
+  "candidate_binding": "benchmarks/round2_candidate.json",
+  "cohort": {
+    "manifest": "benchmarks/round2_hotpot256_manifest.json",
+    "source_manifest": "benchmarks/hotpot_manifest.json",
+    "queries": 256,
+    "seed": 23017,
+    "selection_prefix": "memory-book-round2-hotpot256-seed-23017:",
+    "selection": "Exclude every prior Hotpot128 ID, then take the first 256 IDs sorted by SHA256(prefix + ID); no question, answer, difficulty or outcome filtering.",
+    "role": "New externally authored, previously uninspected selection for this round; the source corpus is the previously used HotpotQA distractor dev corpus.",
+    "privacy": "Publish only IDs, hashes, counts and source-free metrics. Questions, answers, original text and raw native payloads remain in ignored local files. Do not send individual cases or results to implementation agents."
+  },
+  "native": {
+    "engines": ["baseline-native", "candidate-native"],
+    "optional_engine": "candidate-semantic-native",
+    "budget_chars": [2000, 8000],
+    "tokenizers": ["cl100k_base", "o200k_base"],
+    "token_budgets": [512, 1024, 2048],
+    "paired_query_configuration_cases": 3072
+  },
+  "components": {
+    "engines": ["baseline-component", "candidate-component", "claude-mem-fts", "ai-memory-hybrid", "billion-context"],
+    "optional_engine": "candidate-semantic-component",
+    "tokenizers": ["cl100k_base", "o200k_base"],
+    "token_budgets": [512, 1024, 2048],
+    "book_ranking_character_cap": 100000,
+    "packing": "The unchanged shared_response and whole-block first-fit packer from benchmarks.component_eval/token_compare; one fixed page corpus, citation format and top-five limit for all rankers.",
+    "native_read_policy": "For ai-memory, read every mapped top-five page on repetition 0 and verify exact original bytes. Report this declared search-plus-all-reads cost separately from search and common harness packing. Other components have no additional native read calls in this experiment.",
+    "boundary": "Executed native retrieval components only. Book includes its Python context assembly; claude-mem includes native SQLite FTS and Bun bridge; ai-memory uses its HTTP/MCP local hybrid; billion-context uses its search kernel and Node bridge. Same host does not make these whole-product latency boundaries equivalent."
+  },
+  "common": {
+    "limit": 5,
+    "repeats": 3,
+    "max_page_chars": 900,
+    "cache_size": 0,
+    "use_cache": false,
+    "coverage": false,
+    "tokenizer_version": "0.12.0",
+    "query_permutation": "random.Random(23017 + 1009 * repetition).shuffle; identical order for every engine",
+    "optional_semantic": "Bind enabled/disabled and the candidate commit before the first heldout score. If enabled, use the already pinned local multilingual MiniLM model and the candidate's committed semantic policy; no generation calls."
+  },
+  "metrics": {
+    "quality": ["complete_evidence_rate", "evidence_recall", "MRR", "per-annotation and per-query gains/losses"],
+    "groups": ["all", "original category", "low lexical overlap <= 0.25", "multiple required evidence", "cross session", "cross chapter"],
+    "group_policy": "Compute group membership with the frozen baseline's term analysis and source hierarchy, once before any scored call; labels never enter ranking or indexing.",
+    "latency": ["native/API elapsed p50,p95,mean", "bridge roundtrip p50,p95,mean", "first pass", "repeated passes", "independent common packing time", "declared full-read cost"],
+    "tokens": ["exact cl100k_base and o200k_base final context", "native returned payload", "native text content", "full-read payload and content separately"],
+    "preparation": ["download/preparation wall time", "native process startup/setup", "source ingestion", "embedding/index build", "source and model cache bytes"],
+    "resources": ["sampled worker-plus-descendant RSS peak at 20ms interval, separately for setup and queries", "worker ru_maxrss", "state directory bytes excluding symlinked model caches", "SQLite main/WAL/SHM bytes", "semantic vector bytes when reported"]
+  },
+  "execution": {
+    "measurement_host": "All engine stages run sequentially in one Linux job; each engine has an independent worker and state. No concurrent CPU benchmark. Record one run host identity plus each engine process metadata.",
+    "ledger": "Write a started intent and finished source-free sample for every query/repetition. Preserve failures and interrupted intents. Persist each completed stage to a dedicated validation result branch before the next stage.",
+    "recovery": "No implicit replay of an existing measurement. A completed identical stage may be verified and reused only with its original host attribution; a different host starts a distinct performance run and is never pooled.",
+    "freeze_gate": "No worker may score until both the cohort manifest and candidate binding are committed, their file hashes match the binding, and both runtime source hashes match their pinned commits.",
+    "failures": "Missing engines, budgets, repetitions, queries, failed requests or invariant violations prevent a complete validation status. Preserve negative quality outcomes; passing integrity is not a quality improvement."
+  },
+  "interpretation": [
+    "The 256 IDs are disjoint from the prior 128, but come from the same external encyclopedia corpus. This tests a new selection, not new-domain conversational-memory generalization.",
+    "All HotpotQA cases are answerable; this cohort does not measure abstention or hallucination.",
+    "Retain every supplied distractor paragraph and every selected query, including structurally difficult or unattainable evidence labels.",
+    "After the first scored run, this cohort becomes regression data. Do not tune a policy from these outcomes and relabel another run as the same heldout validation.",
+    "This round performs retrieval and resource measurements only; it does not replay prior generated-answer or complete model-workflow experiments.",
+    "RSS sampling is a lower-bound observation; summing process RSS may count shared mappings more than once. It is not unique physical memory or a provider bill."
+  ]
+}
