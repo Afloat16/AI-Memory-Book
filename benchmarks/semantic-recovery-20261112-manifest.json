@@ -1,0 +1,267 @@
+{
+  "version": 1,
+  "cwd": "..",
+  "runtime_commands": [
+    [
+      "{python}",
+      "--version"
+    ]
+  ],
+  "inputs": [
+    {
+      "path": ".artifacts/native-completion-candidate/src",
+      "pattern": "**/*.py"
+    },
+    {
+      "path": "benchmarks/semantic_eval.py"
+    },
+    {
+      "path": "benchmarks/semantic-final-plan.json"
+    },
+    {
+      "path": "benchmarks/native_budget_eval.py"
+    },
+    {
+      "path": "benchmarks/token_compare.py"
+    },
+    {
+      "path": "benchmarks/component_eval.py"
+    },
+    {
+      "path": "benchmarks/run.py"
+    },
+    {
+      "path": "benchmarks/data.py"
+    },
+    {
+      "path": "benchmarks/long_data.py"
+    },
+    {
+      "path": "benchmarks/public_data.py"
+    },
+    {
+      "path": "benchmarks/hotpot_data.py"
+    },
+    {
+      "path": "benchmarks/transfer_data.py"
+    },
+    {
+      "path": "benchmarks/query_guard.py"
+    },
+    {
+      "path": "benchmarks/resume.py"
+    },
+    {
+      "path": "benchmarks/experiments/semantic-local-plan.json"
+    },
+    {
+      "path": "benchmarks/locomo_split.json"
+    },
+    {
+      "path": "benchmarks/hotpot_manifest.json"
+    },
+    {
+      "path": "benchmarks/transfer_cases.json"
+    },
+    {
+      "path": "benchmarks/transfer_manifest.json"
+    },
+    {
+      "path": ".artifacts/data/locomo10.json"
+    },
+    {
+      "path": ".artifacts/data/hotpotqa-dev-distractor.json"
+    },
+    {
+      "path": ".artifacts/models/semantic/onnx/model_quint8_avx2.onnx"
+    },
+    {
+      "path": ".artifacts/models/semantic/tokenizer.json"
+    }
+  ],
+  "stages": [
+    {
+      "id": "development-synthetic61",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.semantic_eval",
+        "--engine-src",
+        ".artifacts/native-completion-candidate/src",
+        "--model-dir",
+        ".artifacts/models/semantic",
+        "--corpus",
+        "synthetic",
+        "--split",
+        "development",
+        "--seed",
+        "61",
+        "--expected-queries",
+        "168",
+        "--expected-dataset-sha256",
+        "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26",
+        "--budget-chars",
+        "8000",
+        "--token-budgets",
+        "512",
+        "1024",
+        "2048",
+        "--tokenizers",
+        "cl100k_base",
+        "--limit",
+        "5",
+        "--repeats",
+        "3",
+        "--state-dir",
+        ".artifacts/semantic-recovery-20261112/development-synthetic61",
+        "--output",
+        "benchmarks/results/semantic-final-development-synthetic61"
+      ],
+      "outputs": [
+        "benchmarks/results/semantic-final-development-synthetic61.json.gz",
+        "benchmarks/results/semantic-final-development-synthetic61.summary.json",
+        "benchmarks/results/semantic-final-development-synthetic61.md"
+      ],
+      "timeout_seconds": 7200
+    },
+    {
+      "id": "regression-authored36",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.semantic_eval",
+        "--engine-src",
+        ".artifacts/native-completion-candidate/src",
+        "--model-dir",
+        ".artifacts/models/semantic",
+        "--corpus",
+        "transfer",
+        "--split",
+        "development",
+        "--seed",
+        "61",
+        "--expected-queries",
+        "36",
+        "--expected-dataset-sha256",
+        "ecc46c474d5184995938419fa985b8e08c0ddb51560da49990247465db6db0b0",
+        "--budget-chars",
+        "8000",
+        "--token-budgets",
+        "512",
+        "1024",
+        "2048",
+        "--tokenizers",
+        "cl100k_base",
+        "--limit",
+        "5",
+        "--repeats",
+        "3",
+        "--state-dir",
+        ".artifacts/semantic-recovery-20261112/regression-authored36",
+        "--output",
+        "benchmarks/results/semantic-final-regression-authored36"
+      ],
+      "outputs": [
+        "benchmarks/results/semantic-final-regression-authored36.json.gz",
+        "benchmarks/results/semantic-final-regression-authored36.summary.json",
+        "benchmarks/results/semantic-final-regression-authored36.md"
+      ],
+      "timeout_seconds": 7200
+    },
+    {
+      "id": "regression-public1015",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.semantic_eval",
+        "--engine-src",
+        ".artifacts/native-completion-candidate/src",
+        "--model-dir",
+        ".artifacts/models/semantic",
+        "--corpus",
+        "locomo",
+        "--split",
+        "heldout",
+        "--seed",
+        "61",
+        "--expected-queries",
+        "1015",
+        "--expected-dataset-sha256",
+        "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857",
+        "--budget-chars",
+        "8000",
+        "--token-budgets",
+        "512",
+        "1024",
+        "2048",
+        "--tokenizers",
+        "cl100k_base",
+        "--limit",
+        "5",
+        "--repeats",
+        "3",
+        "--state-dir",
+        ".artifacts/semantic-recovery-20261112/regression-public1015",
+        "--output",
+        "benchmarks/results/semantic-final-regression-public1015",
+        "--locomo-path",
+        ".artifacts/data/locomo10.json",
+        "--max-queries",
+        "0"
+      ],
+      "outputs": [
+        "benchmarks/results/semantic-final-regression-public1015.json.gz",
+        "benchmarks/results/semantic-final-regression-public1015.summary.json",
+        "benchmarks/results/semantic-final-regression-public1015.md"
+      ],
+      "timeout_seconds": 7200
+    },
+    {
+      "id": "external-hotpot128",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.semantic_eval",
+        "--engine-src",
+        ".artifacts/native-completion-candidate/src",
+        "--model-dir",
+        ".artifacts/models/semantic",
+        "--corpus",
+        "hotpotqa",
+        "--split",
+        "development",
+        "--seed",
+        "61",
+        "--expected-queries",
+        "128",
+        "--expected-dataset-sha256",
+        "0791515aca6bccf19a97895cad681e06a07536d6c08050d54189cc64cb819822",
+        "--budget-chars",
+        "8000",
+        "--token-budgets",
+        "512",
+        "1024",
+        "2048",
+        "--tokenizers",
+        "cl100k_base",
+        "--limit",
+        "5",
+        "--repeats",
+        "3",
+        "--state-dir",
+        ".artifacts/semantic-recovery-20261112/external-hotpot128",
+        "--output",
+        "benchmarks/results/semantic-final-external-hotpot128",
+        "--hotpot-path",
+        ".artifacts/data/hotpotqa-dev-distractor.json"
+      ],
+      "outputs": [
+        "benchmarks/results/semantic-final-external-hotpot128.json.gz",
+        "benchmarks/results/semantic-final-external-hotpot128.summary.json",
+        "benchmarks/results/semantic-final-external-hotpot128.md"
+      ],
+      "timeout_seconds": 7200
+    }
+  ],
+  "description": "Fresh workspace recovery from published 07a440b, after recovery of the unmerged feature tip. Preserve semantic-final-manifest.json and semantic-recovery-manifest.json. The original four registered cohorts, ordering, models, 8000-character cap, three cl100k_base token caps, top-five limit, three repeats and scoring are unchanged. Engine source is the immutable 407cda1 snapshot. No scored semantic reports existed at recovery; only per-query state directories and this manifest/checkpoint identity change."
+}

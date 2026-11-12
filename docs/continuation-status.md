@@ -5,6 +5,35 @@ committed reports before making quality, speed or cost claims.
 
 ## Fresh-workspace recovery checkpoint
 
+### Current continuation: recovered `07a440b`, finishing the registered matrices
+
+This workspace recovered `main` at `1054301` and found two additional published
+commits on `feat/semantic-memory-validation`, ending at `07a440b`. Its
+[CI run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43175193060)
+completed successfully. Those existing commits have now been fast-forwarded
+to remote `main`; no history was rewritten. A fresh local run passed all
+**332 tests** in 48.632 seconds, with no failures or skips.
+
+The complete synthetic61, synthetic211, and synthetic509 native reports have
+been recovered and their original checkpoint/output hashes verified. This
+continuation therefore executes only the **five** missing native stages in
+`benchmarks/native-recovery-20261112-manifest.json`. The separate audit and
+checkpoint use the same `native-recovery-20261112` prefix. The four semantic
+cohorts use `benchmarks/semantic-recovery-20261112-manifest.json`; all original
+cohort selections, budgets, model pins and repetition counts are unchanged.
+
+Public datasets, both embedding models, the Qwen generation model, llama.cpp
+and the native ai-memory binary have been downloaded and hash-verified in this
+workspace. Their availability is preparation evidence, not a measured score.
+CPU timing workloads run sequentially. Each completed cohort is committed
+and published before moving to the final documentation update. Original
+checkpoint files and completed reports remain immutable.
+
+The actual answer and native workflow runners remain the registered ones.
+A separate supplied-source claude-mem FTS component experiment is being
+prepared with its own pinned native code and explicit scope; it must not be
+presented as a native observer or complete-product result.
+
 ### Latest recovery: published work preserved, remaining measurements running
 
 The next recovery found remote `main` at `794489f` and the feature branch at
