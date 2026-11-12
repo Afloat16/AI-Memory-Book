@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "status": "registered-before-Q2-development-scoring",
+  "registered_at": "2026-11-12",
+  "candidate": "Q2-single-lexical-anchor-with-original-RRF-tail",
+  "baseline_commit": "cb7486b4937a3ecb7ccbf94a746c0bbbf44eb41f",
+  "purpose": "Test whether promoting only the existing lexical first page reduces small-budget first-fit losses while preserving RRF ordering for all remaining candidates. Q1 showed old LoCoMo gains but old Hotpot and 512-token synthetic regressions; retain every Q1 result.",
+  "default_semantic": false,
+  "frozen_policy": {
+    "rank_fusion": "Compute exactly the original equal-weight RRF(k=60) on the lexical and semantic candidate routes.",
+    "anchor": "When lexical candidates exist, promote lexical[0] to position 0. This is the existing lexical order after its unmodified novelty/current/optional-coverage logic; do not recompute its leader from BM25 score.",
+    "remaining_order": "Keep every non-anchor candidate in exactly its original RRF relative order. Candidate membership is unchanged. At a top-five limit, at most one prior top-five candidate is displaced by an outside anchor.",
+    "score": "Retain each page original RRF score and semantic similarity. Do not assign another page score to it and do not blend in BM25 magnitude. Returned order need not be monotonic in score, as with existing novelty/coverage priority.",
+    "empty_routes": "The original RRF result is retained when either route is empty; pure-semantic routing remains available.",
+    "cache_identity": "Keep SEMANTIC_VERSION=1 and the original model/index fingerprint. FUSION_VERSION=3 isolates Q2 result caches without re-encoding existing vectors.",
+    "scope": "One page promotion only. No weight/threshold search, learned gate, extra inference, candidate expansion, data-set routing, query decomposition, source rewriting or token-assembler changes.",
+    "mechanism_limit": "Current character allocation and token assembly do not read numeric scores. The intervention acts through top-limit selection and first-fit order, not by changing numeric allocation weights.",
+    "risks": [
+      "A wrong lexical first page can take budget from a useful semantic first page.",
+      "An anchor outside the original top-five can displace a useful fifth page.",
+      "Preserving tail order does not guarantee complete multi-hop evidence or semantic correctness."
+    ]
+  },
+  "model": {
+    "plan": "benchmarks/experiments/semantic-local-plan.json",
+    "repository": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+    "dimensions": 384,
+    "max_tokens": 128,
+    "overlap_tokens": 32,
+    "candidate_limit": 96,
+    "inference_threads": 1,
+    "query_inference": "One existing encode_query operation for each explicitly semantic recall; no model use on lexical calls."
+  },
+  "reference_modes": [
+    "lexical_native_token_budget",
+    "legacy_rrf_k60",
+    "q1_score_075",
+    "q2_lexical_anchor"
+  ],
+  "legacy_reference": "Validate the original RRF function body and k=60 against baseline cb7486b; validate the frozen Q1 function body and .75 lexical weight against ca27acfe. All four modes share one candidate source archive, model/index and token assembler.",
+  "development_cohorts": [
+    {
+      "label": "development-synthetic61",
+      "corpus": "synthetic",
+      "seed": 61,
+      "queries": 168,
+      "sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26"
+    },
+    {
+      "label": "regression-authored36",
+      "corpus": "transfer",
+      "queries": 36,
+      "sha256": "ecc46c474d5184995938419fa985b8e08c0ddb51560da49990247465db6db0b0"
+    },
+    {
+      "label": "regression-public1015",
+      "corpus": "locomo",
+      "split": "heldout",
+      "queries": 1015,
+      "sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857"
+    },
+    {
+      "label": "regression-hotpot128",
+      "corpus": "hotpotqa",
+      "queries": 128,
+      "sha256": "0791515aca6bccf19a97895cad681e06a07536d6c08050d54189cc64cb819822"
+    }
+  ],
+  "parameters": {
+    "budget_chars": 8000,
+    "token_budgets": [
+      512,
+      1024,
+      2048
+    ],
+    "tokenizers": [
+      "cl100k_base"
+    ],
+    "limit": 5,
+    "repeats": 3,
+    "max_page_chars": 900,
+    "cache_size": 0,
+    "use_cache": false
+  },
+  "execution": "All four modes execute for every old query/configuration/repetition: 48,492 recalls, at most 36,369 encode_query operations. Rotate the four-mode order by query position plus repetition. Retain seed+1009*repetition query permutation, all three repeats, committed attempt intents, failures and source/model/configuration identities. Setup, scoring and checkpoint/export I/O are outside query timing; actual query-encoding counters are included equally for each semantic mode. Independent hosted VM per cohort. No data-set or score-dependent branching.",
+  "comparisons": [
+    "Q2 versus lexical",
+    "Q2 versus original RRF",
+    "Q2 versus frozen Q1"
+  ],
+  "required_outputs": [
+    "all per-query annotation and complete-evidence gains/losses",
+    "low lexical overlap",
+    "multiple required evidence",
+    "cross-session and cross-chapter groups",
+    "unsupported-query behavior",
+    "context tokens and returned payload tokens",
+    "p50/p95/p99 and first/repeat-pass timings",
+    "source/budget/scope/cache/repeat invariants",
+    "preparation costs and preserved interruptions"
+  ],
+  "selection_rule": "Publish every old development/regression cohort and budget including negative results. Do not tune the frozen Q2 rule after observing its scores. Keep semantic=false by default. Q1/Q2 are development candidates, not automatic product replacements; select or reject using the full cost/quality record before any one blind validation.",
+  "external_validation": "A separate agent freezes and owns a new 256-question HotpotQA sample excluding the old 128. This agent must not inspect its questions or per-query results. Freeze the selected candidate source and parameters before one external evaluation; do not tune on that result or replay it to select a better score.",
+  "interpretation": "Old synthetic, authored, public and Hotpot128 questions are development/regression evidence. Source retrieval metrics do not establish answer correctness, general semantic memory or a whole-product ranking. No fixed case IDs, answers, annotations or gold evidence may enter runtime rules.",
+  "primary_references": [
+    "https://arxiv.org/abs/2210.11934",
+    "https://cormack.uwaterloo.ca/cormacksigir09-rrf.pdf"
+  ],
+  "q1_reference_commit": "ca27acfe028a33d9337047ceebb91b2eb32d85c8",
+  "q1_full_results_commit": "82d10914ea41d152c537d8d501fd3295c141faef",
+  "q2_basis": "Narrow ordering ablation motivated by first-fit code and Q1 development failures, not a new literature performance claim."
+}
