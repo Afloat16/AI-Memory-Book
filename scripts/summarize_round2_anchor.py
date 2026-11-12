@@ -133,7 +133,12 @@ def collect(directory, allow_partial=False):
                                                      for name, changes in config["paired_changes"].items()}})
         reports.append({"cohort": cohort["label"], "dataset": report["dataset"], "provenance": provenance,
                         "environment": identity["runtime"], "preparation": report["preparation"], "configurations": configs,
-                        "previous_q1_run_provenance": prior_provenance, "control_reproduction": reproduced})
+                        "previous_q1_run_provenance": prior_provenance, "control_reproduction": reproduced,
+                        "cross_run_controls": {
+                            "model_identity_equal": identity["model"] == prior["identity"]["model"],
+                            "recorded_environment_equal": identity["runtime"] == prior["identity"]["runtime"],
+                            "indexed_page_text_and_ids_equal": report["preparation"]["semantic_index"]["source_sha256"] == prior["preparation"]["semantic_index"]["source_sha256"],
+                            "interpretation": "Within-run comparisons share one actual index. Cross-run semantic changes are retained; a hardware/numerical cause is not established. Full source snapshots also include lifecycle timestamps, so they are not used as cross-run text fingerprints."}})
     if missing and not allow_partial:
         raise ValueError("Do not claim completion before all four old development cohorts are present: " + ", ".join(missing))
     return {"schema_version": 1, "status": "partial" if missing else "completed",
@@ -214,7 +219,7 @@ def markdown(report):
                          " | ".join(percent(item["unanswerable_nonempty_rate"]) for item in data) + " |")
     lines.extend(["", "Accepted reports passed source/index-address stability, source-span projection, project scope, character/token caps, token/model metadata, result-cache isolation and repeat-context checks. These are measurement checks, not evidence of universal semantic memory.", "",
                   "## Repeated controls across experiments", "",
-                  "This compares each current lexical/RRF/Q1 context and evidence outcome with the completed Q1 experiment. Differences would be retained as diagnostics; timings are never pooled across runs or hosts.", "",
+                  "This compares each current lexical/RRF/Q1 context and evidence outcome with the completed Q1 experiment. Differences are retained as diagnostics; timings are never pooled across runs or hosts. The JSON separately records verified model identity, recorded runtime environment and indexed page-text/ID fingerprint agreement. A hardware or numerical cause for any changes is not established by these records. The quality conclusions above use the four modes paired within the current run.", "",
                   "| Old cohort | Cap | Control | Changed contexts | Changed evidence outcomes |",
                   "|---|---:|---|---:|---:|"])
     for cohort in report["cohorts"]:
