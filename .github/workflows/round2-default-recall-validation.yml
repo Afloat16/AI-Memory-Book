@@ -1,0 +1,157 @@
+name: Validate default recall payloads and paired performance
+
+on:
+  push:
+    branches: ['perf/round2-default-recall']
+    paths:
+      - '.github/workflows/round2-default-recall-validation.yml'
+      - 'scripts/benchmark_default_recall.py'
+      - 'tests/test_default_recall_performance.py'
+      - 'tests/test_default_recall_measurement.py'
+      - 'benchmarks/experiments/round2-default-recall-performance-plan.json'
+      - 'src/memory_book/text.py'
+      - 'src/memory_book/store.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: round2-default-recall-performance
+  cancel-in-progress: false
+
+jobs:
+  measurement:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      TIKTOKEN_CACHE_DIR: .artifacts/tiktoken
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - name: Install the actual SDK and pinned reference tokenizers
+        run: python -m pip install -e '.[mcp,clients,benchmark]' 'mcp==1.30.0'
+      - name: Exercise lexical equivalence, offsets and measurement failure gates
+        run: python -m unittest tests.test_default_recall_performance tests.test_default_recall_measurement tests.test_excerpt_boundaries tests.test_lexical_cache -v
+      - name: Prepare the frozen source and only the old regression data
+        run: |
+          git fetch origin cb7486b4937a3ecb7ccbf94a746c0bbbf44eb41f
+          mkdir -p .artifacts
+          git worktree add --detach .artifacts/round2-default-baseline cb7486b4937a3ecb7ccbf94a746c0bbbf44eb41f
+          python - <<'PY'
+          import hashlib, json, pathlib, subprocess, urllib.request
+          baseline='cb7486b4937a3ecb7ccbf94a746c0bbbf44eb41f'
+          plan=json.loads(pathlib.Path('benchmarks/experiments/round2-default-recall-performance-plan.json').read_text())
+          assert plan['baseline_commit']==baseline
+          assert plan['measurement']['rounds']==4
+          assert plan['measurement']['budget_chars']==[2000,4000,8000]
+          changed=subprocess.check_output(['git','diff','--name-only',baseline,'HEAD','--','src'],text=True).splitlines()
+          assert sorted(changed)==sorted(plan['runtime_files_allowed']),changed
+          frozen=['benchmarks/data.py','benchmarks/public_data.py','benchmarks/run.py',
+                  'benchmarks/token_compare.py','benchmarks/locomo_split.json']
+          subprocess.run(['git','diff','--exit-code',baseline,'HEAD','--',*frozen],check=True)
+          manifest=json.loads(pathlib.Path('benchmarks/locomo_split.json').read_text())
+          with urllib.request.urlopen(manifest['url'],timeout=90) as response:
+              raw=response.read(manifest['bytes']+1)
+          assert len(raw)==manifest['bytes']
+          assert hashlib.sha256(raw).hexdigest()==manifest['sha256']
+          pathlib.Path('.artifacts/round2-default-locomo10.json').write_bytes(raw)
+          import tiktoken
+          assert tiktoken.__version__=='0.12.0'
+          for name in ('cl100k_base','o200k_base'):
+              tiktoken.get_encoding(name).encode('Initialize outside all timed workers.')
+          print('Frozen source, two-file runtime scope and old dataset hash verified.')
+          PY
+      - name: Measure every paired round on this isolated VM
+        id: measure
+        shell: bash
+        run: |
+          set -o pipefail
+          python -u scripts/benchmark_default_recall.py \
+            --baseline-src .artifacts/round2-default-baseline/src \
+            --candidate-src src \
+            --locomo-path .artifacts/round2-default-locomo10.json \
+            --output "benchmarks/reports/round2-default-recall-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json.gz" \
+            2>&1 | tee .artifacts/round2-default-recall.log
+      - name: Independently verify the saved complete matrix and report hashes
+        id: audit
+        run: |
+          python - <<'PY'
+          import gzip, hashlib, json, os, pathlib
+          from scripts.benchmark_default_recall import comparisons, strict_validation
+          prefix='benchmarks/reports/round2-default-recall-'+os.environ['GITHUB_RUN_ID']+'-'+os.environ['GITHUB_RUN_ATTEMPT']
+          compressed=pathlib.Path(prefix+'.json.gz').read_bytes()
+          raw=gzip.decompress(compressed)
+          report=json.loads(raw)
+          summary=json.loads(pathlib.Path(prefix+'.summary.json').read_text())
+          assert summary['full_report_sha256']==hashlib.sha256(raw).hexdigest()
+          assert summary['compressed_report_sha256']==hashlib.sha256(compressed).hexdigest()
+          assert report['validation']==strict_validation(report)
+          assert report['validation']['passed'] is True,report['validation']
+          assert report['validation']['workers']==16
+          assert report['validation']['timed_calls']==56784
+          assert report['validation']['unique_payload_pairs_per_surface']==3549
+          assert len(report['comparisons'])==12
+          assert report['comparisons']==comparisons(report)
+          assert report['sources']['candidate']['git_commit']==os.environ['GITHUB_SHA']
+          assert report['environment']['mcp']=='1.30.0'
+          assert report['environment']['tiktoken']=='0.12.0'
+          for worker in report['workers']:
+              assert worker['mcp_server_memory_after_calls']['available'] is True
+          expected={k:v for k,v in report.items() if k not in ('workers','cohorts')}
+          expected['cohorts']={name:{k:v for k,v in c.items() if not k.startswith('query_ids')}
+                               for name,c in report['cohorts'].items()}
+          expected['workers']=[{k:v for k,v in w.items() if k!='configurations'} for w in report['workers']]
+          expected['full_report_sha256']=hashlib.sha256(raw).hexdigest()
+          expected['compressed_report_sha256']=hashlib.sha256(compressed).hexdigest()
+          assert expected==summary
+          print(json.dumps(report['validation']))
+          PY
+      - name: Preserve the attempt and its reports in Git
+        if: always()
+        env:
+          MEASUREMENT_OUTCOME: ${{ steps.measure.outcome }}
+          AUDIT_OUTCOME: ${{ steps.audit.outcome }}
+        run: |
+          python - <<'PY'
+          from datetime import datetime,timezone
+          import hashlib,json,os,pathlib,subprocess
+          run=os.environ['GITHUB_RUN_ID']+'-'+os.environ['GITHUB_RUN_ATTEMPT']
+          prefix='benchmarks/reports/round2-default-recall-'+run
+          paths=[prefix+s for s in ('.json.gz','.summary.json') if pathlib.Path(prefix+s).is_file()]
+          success=(os.environ.get('MEASUREMENT_OUTCOME')=='success' and os.environ.get('AUDIT_OUTCOME')=='success')
+          marker=pathlib.Path('benchmarks/reports/round2-default-recall-completion-'+run+'.json')
+          marker.parent.mkdir(parents=True,exist_ok=True)
+          value={'status':'completed' if success else 'failed_or_not_completed',
+                 'measurement_outcome':os.environ.get('MEASUREMENT_OUTCOME'),'audit_outcome':os.environ.get('AUDIT_OUTCOME'),
+                 'created_at':datetime.now(timezone.utc).isoformat(),'candidate_commit':os.environ['GITHUB_SHA'],
+                 'baseline_commit':'cb7486b4937a3ecb7ccbf94a746c0bbbf44eb41f',
+                 'report_sha256':{p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() for p in paths},
+                 'scope':'Old regression payload equivalence and one-host performance; every round and configuration retained, including regressions. No blind-data or generated-answer quality claim.'}
+          marker.write_text(json.dumps(value,indent=2)+'\n')
+          paths.append(str(marker))
+          def call(*args):subprocess.run(args,check=True)
+          call('git','config','user.name','github-actions[bot]')
+          call('git','config','user.email','41898282+github-actions[bot]@users.noreply.github.com')
+          call('git','add','--',*paths)
+          call('git','commit','-m','bench: preserve default recall paired measurement attempt')
+          branch='validation/round2-default-perf-'+run
+          call('git','push','origin','HEAD:refs/heads/'+branch)
+          print(json.dumps({'result_branch':branch,'status':value['status']}))
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: round2-default-recall-${{ github.run_attempt }}
+          path: |
+            benchmarks/reports/round2-default-recall-*
+            .artifacts/round2-default-recall.log
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30
