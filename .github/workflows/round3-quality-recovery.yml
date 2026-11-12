@@ -1,0 +1,53 @@
+name: Recover original round three quality evidence
+
+on:
+  push:
+    branches: ['ci/v031-quality-recovery-run']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: round3-quality-evidence-recovery
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    if: github.repository == 'Afloat16/AI-Memory-Book' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: write
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - name: Install audit dependency
+        run: python -m pip install tiktoken==0.12.0
+      - name: Fetch exact immutable evidence commits
+        run: |
+          git fetch --no-tags --depth=1 origin 36dbd82c4070968bfb7d7e2b93e1e4793907145e 2bd5f27d1ae478c1735f36b5354fddd81114182b
+      - name: Verify recovery integrity fixtures
+        run: python -m unittest tests.test_round3_quality_recovery -v
+      - name: Reconstruct without executing any retrieval
+        run: python scripts/recover_round3_project_stats.py --output-dir "benchmarks/reports/round3-project-stats-recovery-${{ github.run_id }}-${{ github.run_attempt }}"
+      - name: Persist original evidence, rejection and recovery audit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "benchmarks/reports/round3-project-stats-recovery-${{ github.run_id }}-${{ github.run_attempt }}"
+          git commit -m "bench: recover complete original project-statistics screen without rerunning"
+          git push origin "HEAD:refs/heads/validation/v031-quality-recovered-${{ github.run_id }}-${{ github.run_attempt }}"
+      - name: Preserve recovery artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: round3-quality-recovery-${{ github.run_id }}-${{ github.run_attempt }}
+          path: benchmarks/reports/round3-project-stats-recovery-${{ github.run_id }}-${{ github.run_attempt }}/
+          if-no-files-found: warn
+          retention-days: 30
