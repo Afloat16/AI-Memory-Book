@@ -4,7 +4,9 @@ import asyncio
 import gzip
 import importlib.util
 import json
+import os
 from pathlib import Path
+import subprocess
 import tempfile
 from types import SimpleNamespace
 import unittest
@@ -236,6 +238,146 @@ class PerformanceGateTests(unittest.TestCase):
                 self.assertEqual(len(saved["comparisons"]), 10)
                 self.assertFalse(saved["acceptance"]["accepted"])
                 self.assertTrue(path.with_name("partial.summary.json").is_file())
+
+    def test_public_copy_retains_both_ledgers_and_is_directly_auditable(self):
+        report = fixture()
+        with tempfile.TemporaryDirectory() as directory:
+            state, public = Path(directory) / "state", Path(directory) / "public"
+            output = public / "report.json.gz"
+            bench.exclusive(state / "run.json", report["run"])
+            bench.exclusive(state / "controller-attempts/0001.started.json", {"fixture": "started"})
+            for worker in report["workers"]:
+                save_worker(state, worker, report["run"])
+            report["worker_artifacts_sha256"] = bench.artifact_hashes(state, report["run"])
+            bench.save_report(output, report)
+            args = SimpleNamespace(state_dir=state, output=output)
+            bench.export_checkpoint(args)
+            bench.export_checkpoint(args)  # Existing completed copies remain identical.
+            self.assertEqual(bench.artifact_hashes(public, report["run"]), report["worker_artifacts_sha256"])
+            self.assertEqual(len(list((public / "workers").glob("*.attempts.jsonl"))), 16)
+            self.assertEqual(len(list((public / "workers").glob("*.attempts.jsonl.gz"))), 16)
+            self.assertTrue((public / "controller-attempts/0001.started.json").is_file())
+            with patch.object(bench, "load_plan", return_value=report["plan"]), \
+                    patch.object(bench, "file_hashes", return_value=report["run"]["evaluator_files"]):
+                self.assertEqual(bench.audit(output, public)["retrieval_calls_executed"], 0)
+
+    def test_publication_is_limited_to_original_workflow_and_this_run_ref(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            relative = "benchmarks/reports/round3-performance-123-1"
+            args = SimpleNamespace(publish_branch="validation/v031-round3-performance-123-1",
+                                   output=root / relative / "report.json.gz")
+            environment = {"GITHUB_RUN_ID": "123", "GITHUB_RUN_ATTEMPT": "1",
+                           "GITHUB_SHA": "d" * 40, "GITHUB_REPOSITORY": "Afloat16/AI-Memory-Book"}
+            changed = [relative + "/report.json.gz"]
+            def git(*values):
+                if values[0] == "remote":
+                    return b"https://github.com/Afloat16/AI-Memory-Book.git\n"
+                if values[0] == "merge-base":
+                    return b""
+                return ("\n".join(changed) + "\n").encode()
+            with patch.object(bench, "ROOT", root), patch.dict(os.environ, environment), \
+                    patch.object(bench, "git", side_effect=git):
+                identity = bench.publication_identity(args)
+                self.assertEqual(identity["workflow_commit"], environment["GITHUB_SHA"])
+                args.publish_branch = "main"
+                with self.assertRaisesRegex(ValueError, "exact Actions attempt"):
+                    bench.publication_identity(args)
+                args.publish_branch = identity["branch"]
+                changed[:] = ["src/memory_book/store.py"]
+                with self.assertRaisesRegex(ValueError, "only this attempt"):
+                    bench.publication_identity(args)
+                changed[:] = [relative + "/report.json.gz"]
+                with patch.dict(os.environ, {"GITHUB_REPOSITORY": "someone/else"}):
+                    with self.assertRaisesRegex(ValueError, "authorized repository"):
+                        bench.publication_identity(args)
+
+    def test_publication_refuses_unrelated_staging_and_does_not_retry_push(self):
+        identity = {"branch": "validation/v031-round3-performance-123-1",
+                    "directory": "benchmarks/reports/round3-performance-123-1"}
+        args, run = SimpleNamespace(), {"publication": identity}
+        with patch.object(bench, "publication_identity", return_value=identity), \
+                patch.object(bench, "export_checkpoint"), \
+                patch.object(bench, "git", return_value=b"README.md\n"), \
+                patch.object(bench.subprocess, "run") as command:
+            with self.assertRaisesRegex(bench.CheckpointPublicationError, "Unrelated staged"):
+                bench.publish_checkpoint(args, run, "fixture")
+            command.assert_not_called()
+        calls = []
+        def command(argv, **kwargs):
+            calls.append(argv)
+            if argv[1] == "push":
+                raise subprocess.CalledProcessError(1, argv)
+        with patch.object(bench, "publication_identity", return_value=identity), \
+                patch.object(bench, "export_checkpoint"), \
+                patch.object(bench, "git", side_effect=[b"", b"result\n"]), \
+                patch.object(bench.subprocess, "run", side_effect=command):
+            with self.assertRaisesRegex(bench.CheckpointPublicationError, "publication failed"):
+                bench.publish_checkpoint(args, run, "fixture")
+        self.assertEqual(sum(argv[1] == "push" for argv in calls), 1)
+        self.assertFalse(any("--force" in argv or "--force-with-lease" in argv for argv in calls))
+
+    def test_failed_start_or_complete_checkpoint_stops_before_next_worker(self):
+        for fail_phase in ("started", "completed"):
+            original = fixture()
+            plan, binding = original["plan"], original["run"]["binding"]
+            with self.subTest(phase=fail_phase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                args = SimpleNamespace(baseline_src=root / "baseline", candidate_src=root / "candidate",
+                    locomo_path=root / "artificial-input", binding=root / "binding.json",
+                    output=root / "public/report.json.gz", state_dir=root / "state", resume=False,
+                    publish_branch="validation/v031-round3-performance-123-1")
+                args.locomo_path.write_bytes(b"artificial data; never parsed")
+                args.binding.write_bytes(bench.json_bytes(binding))
+                publication = {"branch": args.publish_branch, "workflow_commit": "d" * 40}
+                events = []
+                def dataset(plan, name, path):
+                    spec = original["run"]["cohorts"][name]
+                    return SimpleNamespace(fingerprint=spec["sha256"],
+                        queries=[SimpleNamespace(id=identity) for identity in spec["query_ids_original_order"]])
+                def publish(arguments, run, phase):
+                    events.append(phase)
+                    key, state = phase.rsplit(" ", 1)
+                    prefix = arguments.state_dir / "workers" / key
+                    self.assertTrue(Path(str(prefix) + ".started.json").is_file())
+                    if state == "completed":
+                        self.assertTrue(Path(str(prefix) + ".attempts.jsonl.gz").is_file())
+                    if state == fail_phase:
+                        raise bench.CheckpointPublicationError("artificial push failure")
+                def spawn(command, **kwargs):
+                    key = command[command.index("--worker") + 1]
+                    events.append(key + " launched")
+                    run = json.loads((args.state_dir / "run.json").read_bytes())
+                    worker = copy.deepcopy(next(w for w in original["workers"] if w["key"] == key))
+                    worker["run_identity_sha256"] = bench.digest(run)
+                    prefix = args.state_dir / "workers" / key
+                    bench.atomic(Path(str(prefix) + ".json.gz"), worker, compressed=True)
+                    ledger = ledger_bytes(worker)
+                    Path(str(prefix) + ".attempts.jsonl").write_bytes(ledger)
+                    Path(str(prefix) + ".attempts.jsonl.gz").write_bytes(gzip.compress(ledger, mtime=0))
+                with patch.object(bench, "host_identity", return_value={"packages": bench.PACKAGES, "boot": "fixture"}), \
+                        patch.object(bench, "source_identity", side_effect=lambda path: binding["sources"][path.name]), \
+                        patch.object(bench, "dataset", side_effect=dataset), \
+                        patch.object(bench, "file_hashes", return_value=original["run"]["evaluator_files"]), \
+                        patch.object(bench, "publication_identity", return_value=publication), \
+                        patch.object(bench, "publish_checkpoint", side_effect=publish) as publisher, \
+                        patch.object(bench.subprocess, "run", side_effect=spawn) as process, \
+                        patch.dict(os.environ, {"GITHUB_SHA": "d" * 40}):
+                    self.assertEqual(bench.controller_locked(args, plan, binding), 2)
+                completed = int(fail_phase == "completed")
+                self.assertEqual(process.call_count, completed)
+                self.assertEqual(publisher.call_count, 1 + completed)
+                saved = json.loads(gzip.decompress(args.output.read_bytes()))
+                self.assertEqual(len(saved["workers"]), completed)
+                self.assertEqual(saved["error"]["type"], "CheckpointPublicationError")
+                self.assertEqual(saved["run"]["workflow_commit"], "d" * 40)
+                self.assertFalse(saved["validation"]["passed"])
+                self.assertFalse(saved["acceptance"]["accepted"])
+                self.assertEqual(len(list((args.state_dir / "workers").glob("*.started.json"))), 1)
+                self.assertTrue((args.output.parent / "controller-attempts/0001.finished.json").is_file())
+                key = original["workers"][0]["key"]
+                expected = [key + " started"] + ([key + " launched", key + " completed"] if completed else [])
+                self.assertEqual(events, expected)
 
     def test_full_source_projection_rejects_invented_excerpt_and_wrong_scope(self):
         case = SimpleNamespace(id="fixture", category="fixture", query="alpha", project="p")

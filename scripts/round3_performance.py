@@ -19,6 +19,8 @@ import os
 from pathlib import Path
 import platform
 import random
+import re
+import shutil
 import sqlite3
 import statistics
 import subprocess
@@ -50,7 +52,8 @@ HELPERS = ("scripts/benchmark_default_recall.py", "benchmarks/__init__.py",
     "benchmarks/long_data.py", "benchmarks/transfer_data.py",
     "benchmarks/hotpot_data.py", "benchmarks/query_guard.py", "benchmarks/resume.py",
     "benchmarks/locomo_split.json")
-TOOLS = ("scripts/round3_performance.py", "tests/test_round3_performance.py")
+TOOLS = ("scripts/round3_performance.py", "tests/test_round3_performance.py",
+         ".github/workflows/round3-performance.yml")
 INVARIANTS = ("cache_error", "source_span_errors", "source_scope_errors",
     "page_projection_errors", "context_reconstruction_error", "metadata_error",
     "character_budget_error", "token_budget_error", "token_metadata_error",
@@ -677,6 +680,83 @@ def resume_prefix(state, run, plan):
     return complete
 
 
+class CheckpointPublicationError(RuntimeError):
+    """Stop measurement when a durable checkpoint cannot be published."""
+
+
+def publication_identity(args):
+    """Restrict writes to this Actions attempt's fresh result directory/ref."""
+    if not args.publish_branch:
+        return None
+    run_id, attempt = os.environ.get("GITHUB_RUN_ID", ""), os.environ.get("GITHUB_RUN_ATTEMPT", "")
+    workflow_commit = os.environ.get("GITHUB_SHA", "")
+    require(re.fullmatch(r"[1-9][0-9]*", run_id) and re.fullmatch(r"[1-9][0-9]*", attempt)
+            and re.fullmatch(r"[0-9a-f]{40}", workflow_commit), "Publication requires an exact Actions attempt")
+    require(os.environ.get("GITHUB_REPOSITORY") == "Afloat16/AI-Memory-Book",
+            "Publish only from the authorized repository")
+    suffix = run_id + "-" + attempt
+    branch = "validation/v031-round3-performance-" + suffix
+    relative = "benchmarks/reports/round3-performance-" + suffix
+    require(args.publish_branch == branch and args.output.resolve() == (ROOT / relative / "report.json.gz").resolve(),
+            "Publication branch/output must identify this exact Actions attempt")
+    require(git("remote", "get-url", "origin").decode().strip() in
+            ("https://github.com/Afloat16/AI-Memory-Book", "https://github.com/Afloat16/AI-Memory-Book.git",
+             "git@github.com:Afloat16/AI-Memory-Book.git"), "Publication origin is not the authorized repository")
+    git("merge-base", "--is-ancestor", workflow_commit, "HEAD")
+    changed = git("diff", "--name-only", workflow_commit, "HEAD").decode().splitlines()
+    require(all(name.startswith(relative + "/") for name in changed),
+            "Checkpoint commits may change only this attempt's result directory")
+    return {"branch": branch, "directory": relative, "workflow_commit": workflow_commit,
+            "run_id": run_id, "run_attempt": attempt}
+
+
+def export_checkpoint(args):
+    """Copy the audit-ready state; retain both original and compressed ledgers."""
+    state, public = args.state_dir.resolve(), args.output.resolve().parent
+    public.mkdir(parents=True, exist_ok=True)
+    for name in ("run.json", "checkpoint.json"):
+        if (state / name).is_file():
+            shutil.copyfile(state / name, public / name)
+    history = state / "controller-attempts"
+    if history.is_dir():
+        shutil.copytree(history, public / "controller-attempts", dirs_exist_ok=True)
+    for source in sorted((state / "workers").glob("*")):
+        if source.is_file() and source.name.endswith((".started.json", ".json.gz", ".attempts.jsonl", ".attempts.jsonl.gz")):
+            destination = public / "workers" / source.name
+            destination.parent.mkdir(exist_ok=True)
+            shutil.copyfile(source, destination)
+
+
+def publish_checkpoint(args, run, phase):
+    """Synchronous Git I/O outside timing; never retry or force a ref update."""
+    try:
+        identity = publication_identity(args)
+        require(identity is not None and identity == run["publication"], "Publication identity changed")
+        export_checkpoint(args)
+        prefix = identity["directory"] + "/"
+        staged = git("diff", "--cached", "--name-only").decode().splitlines()
+        require(all(name.startswith(prefix) for name in staged), "Unrelated staged changes must not enter the result commit")
+        subprocess.run(["git", "add", "--", identity["directory"]], cwd=ROOT, check=True)
+        if git("diff", "--cached", "--name-only").strip():
+            subprocess.run(["git", "-c", "user.name=github-actions[bot]", "-c",
+                "user.email=41898282+github-actions[bot]@users.noreply.github.com", "commit", "-m",
+                "bench: preserve round3 performance " + phase], cwd=ROOT, check=True)
+        subprocess.run(["git", "push", "origin", "HEAD:refs/heads/" + identity["branch"]], cwd=ROOT, check=True)
+    except (OSError, ValueError, subprocess.CalledProcessError) as error:
+        raise CheckpointPublicationError("Durable checkpoint publication failed: " + str(error)) from error
+
+
+def checkpoint(args, report):
+    run, state = report["run"], args.state_dir.resolve()
+    report["evaluator_unchanged"] = file_hashes() == run["evaluator_files"] and sha(PLAN.read_bytes()) == run["plan_sha256"]
+    report["worker_artifacts_sha256"] = artifact_hashes(state, run)
+    save_report(args.output, report)
+    atomic(state / "checkpoint.json", {"run_identity_sha256": digest(run),
+        "completed_workers": [w["key"] for w in report["workers"]],
+        "report_sha256": sha(args.output.read_bytes()), "status": report["status"],
+        "error": report["error"], "at": now()})
+
+
 def controller_locked(args, plan, binding):
     require(args.baseline_src and args.candidate_src and args.locomo_path and args.output and args.state_dir,
             "Measurement needs both sources, old LoCoMo input, output and state directory")
@@ -694,10 +774,12 @@ def controller_locked(args, plan, binding):
         require(len(ids) == len(set(ids)), "Duplicate input query IDs")
         cohorts[name] = {"sha256": data.fingerprint, "queries": len(ids),
                          "query_ids": sorted(ids), "query_ids_original_order": ids}
+    publication = publication_identity(args)
     run = {"evaluator": VERSION, "plan_sha256": sha(PLAN.read_bytes()), "binding": binding,
         "binding_sha256": sha(args.binding.read_bytes()), "evaluator_files": file_hashes(),
         "source_paths": paths, "host": host, "cohorts": cohorts, "schedule": schedule(plan),
-        "locomo_file_sha256": sha(args.locomo_path.read_bytes()), "output": str(args.output.resolve())}
+        "locomo_file_sha256": sha(args.locomo_path.read_bytes()), "output": str(args.output.resolve()),
+        "workflow_commit": os.environ.get("GITHUB_SHA"), "publication": publication}
     state = args.state_dir.resolve()
     if args.resume:
         require(json.loads((state / "run.json").read_bytes()) == run,
@@ -727,39 +809,47 @@ def controller_locked(args, plan, binding):
             "timing": "Registered ABBA schedule, four fresh process rounds pooled. First/repeat means round 0 versus rounds 1-3, not cold OS caches.",
             "resources": "Linux process snapshots and high-water values; native evaluator imports and live MCP child are separately labeled. Fresh ingest/replay measured every worker, identical indexed-content digests required.",
             "resume": "Same-boot completed worker prefix only; no resampling of an incomplete or completed worker."}}
+    publication_failed = False
     try:
         report["workers"] = resume_prefix(state, run, plan)
         for item in run["schedule"][len(report["workers"]):]:
             exclusive(state / "workers" / (item["key"] + ".started.json"),
                       {"worker": item, "run_identity_sha256": digest(run)})
+            checkpoint(args, report)
+            if publication is not None:
+                publish_checkpoint(args, run, item["key"] + " started")
             command = [sys.executable, str(Path(__file__).resolve()), "--worker", item["key"],
                 "--binding", str(args.binding.resolve()), "--state-dir", str(state),
                 "--locomo-path", str(args.locomo_path.resolve())]
             subprocess.run(command, check=True, env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1", "PYTHONHASHSEED": "0"})
             report["workers"].append(load_completed(state, item, run, plan))
-            report["evaluator_unchanged"] = file_hashes() == run["evaluator_files"]
-            report["worker_artifacts_sha256"] = artifact_hashes(state, run)
-            save_report(args.output, report)
-            atomic(state / "checkpoint.json", {"run_identity_sha256": digest(run),
-                "completed_workers": [w["key"] for w in report["workers"]],
-                "report_sha256": sha(args.output.read_bytes()), "status": "running", "at": now()})
+            checkpoint(args, report)
+            if publication is not None:
+                publish_checkpoint(args, run, item["key"] + " completed")
             print(json.dumps({"worker_completed": item["key"], "completed_workers": len(report["workers"])}), flush=True)
         report["status"] = "measurements_completed"
     except BaseException as error:
         report["status"] = "failed_or_interrupted"
         report["error"] = {"type": type(error).__name__, "message": str(error)}
+        publication_failed = isinstance(error, CheckpointPublicationError)
     finally:
-        report["evaluator_unchanged"] = file_hashes() == run["evaluator_files"] and sha(PLAN.read_bytes()) == run["plan_sha256"]
         report["finished_at"] = now()
-        report["worker_artifacts_sha256"] = artifact_hashes(state, run)
-        save_report(args.output, report)
-        atomic(state / "checkpoint.json", {"run_identity_sha256": digest(run),
-            "completed_workers": [w["key"] for w in report["workers"]], "report_sha256": sha(args.output.read_bytes()),
-            "status": report["status"], "error": report["error"], "at": now()})
+        checkpoint(args, report)
+        if publication is not None and not publication_failed:
+            try:
+                publish_checkpoint(args, run, "controller finished")
+            except CheckpointPublicationError as error:
+                report["status"] = "failed_or_interrupted"
+                report["error"] = {"type": type(error).__name__, "message": str(error)}
+                checkpoint(args, report)
         exclusive(history / f"{attempt:04d}.finished.json", {"run_identity_sha256": digest(run),
             "status": report["status"], "error": report["error"], "at": now(),
             "report_sha256": sha(args.output.read_bytes()), "validation": report["validation"],
             "accepted": report["acceptance"]["accepted"]})
+        if publication is not None:
+            # Keep local/public failure evidence for the workflow's always-run
+            # export/upload step even if the one synchronous push failed.
+            export_checkpoint(args)
     print(json.dumps({"output": str(args.output), "validation": report["validation"],
                       "accepted": report["acceptance"]["accepted"]}))
     return 2 if not report["validation"]["passed"] else (0 if report["acceptance"]["accepted"] else 3)
@@ -804,6 +894,7 @@ def main(argv=None):
     parser.add_argument("--output", type=Path)
     parser.add_argument("--state-dir", type=Path)
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--publish-branch", help="Optional exact run-specific validation ref; stop if any checkpoint push fails")
     parser.add_argument("--audit", type=Path, help="Verify existing source-free rows without retrieval")
     parser.add_argument("--worker", help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
