@@ -80,3 +80,9 @@ after its first scoring. Evidence completeness, generated-answer quality and
 end-to-end workflow costs are distinct measurements. Negative results remain
 part of the report. Completing this validation does not establish universal
 semantic memory or broad generalization.
+
+## Published progress in this recovery
+
+- Recovery plan published at `3bb9541`; model/process identity and workflow gate fixes at `e5e3ef1`. The latter passed all nine CI jobs in run `43172009568`.
+- Native synthetic211 is complete with all registered validation gates passing. The already saved synthetic61 report remains unchanged; six further native stages are still pending.
+- Semantic, actual answer, and native-workflow scoring have not started in this recovery at this checkpoint.
