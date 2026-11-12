@@ -1,5 +1,6 @@
 """Preparation safety tests use temporary Git and invented data; no downloads."""
 import io
+from contextlib import ExitStack
 import json
 import os
 from pathlib import Path
@@ -219,22 +220,26 @@ class RoundThreeFreezeTests(unittest.TestCase):
                 committed(frozen_binding)
                 events.append("select")
                 path.write_text('{"fixture":"selection"}')
-            with patch.dict(os.environ, {**self.environment(), "GH_TOKEN": "fixture-token"}, clear=True), \
-                    patch.object(freeze, "ROOT", root), patch.object(freeze.comparison, "BINDING", binding), \
-                    patch.object(freeze.comparison, "MANIFEST", manifest), patch.object(freeze.comparison, "PLAN", plan), \
-                    patch.object(freeze, "git", side_effect=git), patch.object(freeze, "authorized_origin"), \
-                    patch.object(freeze, "remote_head", return_value=None), patch.object(freeze, "claim", return_value="c" * 40), \
-                    patch.object(freeze.comparison, "registered_plan", return_value={"protocol": "fixture"}), \
-                    patch.object(freeze, "publish", side_effect=publish), patch.object(freeze, "helper", side_effect=helper), \
-                    patch.object(freeze, "quality_disposition", return_value=([proof], {"qualified": False})), \
-                    patch.object(freeze, "snapshot"), patch.object(freeze.comparison, "verify_model"), \
-                    patch.object(freeze.comparison, "model_identity", return_value={}), \
-                    patch.object(freeze, "require_durable_binding", side_effect=durable), \
+            with ExitStack() as stack:
+                for manager in (
+                    patch.dict(os.environ, {**self.environment(), "GH_TOKEN": "fixture-token"}, clear=True),
+                    patch.object(freeze, "ROOT", root), patch.object(freeze.comparison, "BINDING", binding),
+                    patch.object(freeze.comparison, "MANIFEST", manifest), patch.object(freeze.comparison, "PLAN", plan),
+                    patch.object(freeze, "git", side_effect=git), patch.object(freeze, "authorized_origin"),
+                    patch.object(freeze, "remote_head", return_value=None), patch.object(freeze, "claim", return_value="c" * 40),
+                    patch.object(freeze.comparison, "registered_plan", return_value={"protocol": "fixture"}),
+                    patch.object(freeze, "publish", side_effect=publish), patch.object(freeze, "helper", side_effect=helper),
+                    patch.object(freeze, "quality_disposition", return_value=([proof], {"qualified": False})),
+                    patch.object(freeze, "snapshot"), patch.object(freeze.comparison, "verify_model"),
+                    patch.object(freeze.comparison, "model_identity", return_value={}),
+                    patch.object(freeze, "require_durable_binding", side_effect=durable),
                     patch.object(freeze.round3_data, "baseline_bytes", return_value=json.dumps({
-                        "source_url": "fixture://unused", "upstream_sha256": "fixture", "upstream_bytes": 0}).encode()), \
-                    patch.object(freeze, "checked_download", side_effect=download), \
-                    patch.object(freeze.round3_data, "freeze", side_effect=select), \
-                    patch.object(freeze.comparison, "require_committed", side_effect=committed):
+                        "source_url": "fixture://unused", "upstream_sha256": "fixture", "upstream_bytes": 0}).encode()),
+                    patch.object(freeze, "checked_download", side_effect=download),
+                    patch.object(freeze.round3_data, "freeze", side_effect=select),
+                    patch.object(freeze.comparison, "require_committed", side_effect=committed),
+                ):
+                    stack.enter_context(manager)
                 self.assertEqual(freeze.run(), 0)
             self.assertEqual(events, ["bootstrap", "quality-fixtures", "recovery", "model-bytes", "bind",
                                      "durable-binding", "parquet", "durable-binding", "select"])
