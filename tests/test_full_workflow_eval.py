@@ -1,12 +1,13 @@
 import importlib.util
 from pathlib import Path
+import shutil
 import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
 from benchmarks.full_workflow_eval import (hook_events, inputs, native_recall,
-                                          operation_succeeded, pack_native, run,
+                                          active_source_root, main, operation_succeeded, pack_native, run,
                                           usage_summary, wall_summary)
 from benchmarks.resume import _lock
 from benchmarks.token_compare import TokenCounter
@@ -84,6 +85,31 @@ class NativeWorkflowProtocolTests(unittest.TestCase):
         dry = {'status': 'completed', 'result': {'ok': True, 'decoded': {'dry_run': True, 'page_id': None}}}
         self.assertFalse(operation_succeeded('native-consolidate:test', dry))
         self.assertFalse(operation_succeeded('native-embed', {'status': 'completed', 'result': {'failed': 1}}))
+
+    def test_shadow_installed_runtime_cannot_be_attributed_to_current_checkout(self):
+        import memory_book
+        expected = Path(__file__).resolve().parents[1] / 'src/memory_book'
+        actual = Path(memory_book.__file__).resolve().parent
+        self.assertEqual(active_source_root(), actual)
+        with patch.object(memory_book, '__file__', '/unrelated/site-packages/memory_book/__init__.py'):
+            with self.assertRaisesRegex(ValueError, 'Imported memory_book runtime'):
+                active_source_root()
+        with tempfile.TemporaryDirectory() as directory:
+            installed = Path(directory) / 'site-packages/memory_book'
+            shutil.copytree(expected, installed, ignore=shutil.ignore_patterns('__pycache__'))
+            with patch.object(memory_book, '__file__', str(installed / '__init__.py')), patch(
+                    'benchmarks.full_workflow_eval.inspect.getfile', return_value=str(installed / 'store.py')):
+                self.assertEqual(active_source_root(), installed)
+                with (installed / 'store.py').open('a') as stream:
+                    stream.write('\n# changed installed runtime\n')
+                with self.assertRaisesRegex(ValueError, 'Imported memory_book runtime'):
+                    active_source_root()
+
+    def test_cli_fails_for_incomplete_or_failed_workflows(self):
+        for status, expected in [('completed', 0), ('completed_with_failures', 2), ('incomplete', 2)]:
+            with patch('sys.argv', ['full_workflow_eval']), patch(
+                    'benchmarks.full_workflow_eval.run', return_value={'status': status}):
+                self.assertEqual(main(), expected)
 
 
 if __name__ == '__main__':

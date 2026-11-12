@@ -565,6 +565,8 @@ def resume_ledger(path: Path, meta: dict, planned: list) -> tuple[dict, dict]:
             case, context, body, _ = details[identity]
             if row["status"] == "ok" and (not isinstance(row.get("answer"), str) or not row["answer"].strip()):
                 raise ValueError("Successful ledger outcome is missing its actual model answer")
+            if row["status"] == "ok" and row.get("served_model") != meta["parameters"]["model"]:
+                raise ValueError("Successful ledger outcome used a different or unreported model")
             scores = (answer_scores(row.get("answer"), case) if row["status"] == "ok"
                       and isinstance(row.get("answer"), str) else
                       {"normalized_exact_match": 0.0,
@@ -643,6 +645,12 @@ def _run_locked(args, prefix: Path) -> dict:
             else:
                 append({"kind": "request_started", **identity})
                 result = call_endpoint(url, body, api_key, args.timeout)
+                if result["status"] == "ok" and result.get("served_model") != args.model:
+                    # A stable, consistently wrong model is not a valid pair.
+                    # Retain the actual response and usage, with zero quality
+                    # credit, instead of silently scoring it as the request.
+                    result.update(status="error", error_type="ModelIdentityMismatch",
+                                  error_reason="served_model_does_not_match_requested_model")
             scores = (answer_scores(result["answer"], case) if result["status"] == "ok" else
                       {"normalized_exact_match": 0.0,
                        "lexical_token_f1": 0.0 if case["answerable"] else None, "abstained": False})

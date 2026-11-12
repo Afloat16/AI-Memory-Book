@@ -10,6 +10,7 @@ import argparse
 from contextlib import contextmanager
 import hashlib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import inspect
 import json
 import os
 from pathlib import Path
@@ -543,6 +544,23 @@ def run(args):
         return run_locked(args)
 
 
+def active_source_root():
+    """Accept only imported package bytes matching the registered checkout."""
+    import memory_book
+    from memory_book import MemoryBook
+    expected = (HERE.parent / "src/memory_book").resolve()
+    imported_package = Path(memory_book.__file__).resolve()
+    imported_class = Path(inspect.getfile(MemoryBook)).resolve()
+    actual = imported_package.parent
+    if (not imported_package.is_file() or imported_package.name != "__init__.py"
+            or imported_class != actual / "store.py"
+            or engine_source_hash(actual) != engine_source_hash(expected)):
+        raise ValueError("Imported memory_book runtime is not the source tree recorded by this workflow")
+    # Hash only the imported package, never the entire site-packages directory.
+    # A byte-identical installed wheel is valid and reports its actual path.
+    return actual
+
+
 def run_locked(args):
     from memory_book import MemoryBook
     plan, sessions, cases = inputs()
@@ -551,12 +569,13 @@ def run_locked(args):
     root = args.output.resolve()
     root.mkdir(parents=True, exist_ok=True)
     checkpoint, trace = root / "checkpoint.json", root / "native-model-trace.jsonl"
-    source = Path(__file__).parents[1] / "src"
+    source = active_source_root()
     files = [Path(__file__), PLAN, ANSWERS, HERE / "answer_eval.py", HERE / "token_compare.py",
              HERE / "transfer_data.py", HERE / "data.py", HERE / "run.py", HERE / "resume.py", DATA, LOCK_PATH,
              HERE / "competitors/ai_memory.py", HERE / "competitors/download.py",
              HERE / "experiments/local-answer-plan.json"]
     identity = {"source_sha256": engine_source_hash(source), "inputs": {str(p.relative_to(HERE.parent)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files},
+                "registered_checkout_source_sha256": engine_source_hash(HERE.parent / "src"),
                 "sessions_sha256": digest(sessions), "model": args.model, "endpoint": args.base_url,
                 "launch_server": args.launch_server,
                 "plan": plan, "source_provenance": checkout_provenance(source)}
@@ -683,6 +702,7 @@ def run_locked(args):
     public["native_http_trace_sha256"] = file_sha256(root / "ai-memory/native-http-trace.jsonl")
     atomic(args.summary, public)
     print(json.dumps({"status": report["status"], "summary": report["summary"]}, ensure_ascii=False))
+    return report
 
 
 def main():
@@ -704,8 +724,10 @@ def main():
                           "answers_sha256": hashlib.sha256(ANSWERS.read_bytes()).hexdigest(),
                           "model_calls": 0}, ensure_ascii=False))
     else:
-        run(args)
+        report = run(args)
+        return 0 if report["status"] == "completed" else 2
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

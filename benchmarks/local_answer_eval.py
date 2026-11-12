@@ -13,8 +13,10 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+from types import SimpleNamespace
 
 from benchmarks import answer_eval
+from benchmarks import local_answer_server
 from benchmarks.hotpot_data import load_hotpot
 from benchmarks.token_compare import TokenCounter
 
@@ -34,7 +36,7 @@ def file_hash(path):
 
 def preparation_sources():
     return {str(path.relative_to(ROOT)): file_hash(path) for path in
-            (Path(__file__).resolve(), PLAN, EXECUTION, ROOT / "benchmarks/hotpot_data.py",
+            (Path(__file__).resolve(), Path(local_answer_server.__file__), PLAN, EXECUTION, ROOT / "benchmarks/hotpot_data.py",
              ROOT / "benchmarks/hotpot_manifest.json", ROOT / "benchmarks/locomo_split.json")}
 
 
@@ -80,6 +82,38 @@ def prepare(args):
     print(json.dumps({"prepared": str(output), "cohort": args.cohort, "generative_calls": 0}))
 
 
+def run(args):
+    prepared = args.work_dir / args.cohort / "prepared.json"
+    binding = json.loads((prepared.parent / "preparation-binding.json").read_bytes())
+    if binding != {"sources": preparation_sources(), "prepared_sha256": file_hash(prepared), "cohort": args.cohort}:
+        raise ValueError("Cohort preparation code, plans or prepared inputs changed before execution")
+    data = json.loads(prepared.read_bytes())
+    answer_eval.validate_prepared(data, TokenCounter(data["tokenizer"]["name"]))
+    plan = json.loads(PLAN.read_bytes())
+    prefix = args.run_prefix
+    prefix.parent.mkdir(parents=True, exist_ok=True)
+    # This lock also passes to the owned server: an orphan model process
+    # cannot silently overlap a new launch after a parent interruption.
+    with answer_eval._lock(Path(str(prefix) + ".server.json")) as lock:
+        if Path(str(prefix) + ".summary.json").exists():
+            raise ValueError("Completed answer result exists; never replay a completed run")
+        trace = Path(str(prefix) + ".jsonl")
+        if trace.exists() != args.resume:
+            raise ValueError("New runs require a new prefix; resume requires an existing answer ledger")
+        with local_answer_server.owned_server(args.model_cache, prepared, prefix,
+                                             resume=args.resume, lock_fd=lock.fileno()) as endpoint:
+            summary = answer_eval.run(SimpleNamespace(
+                prepared=prepared, output=prefix, base_url=endpoint,
+                model=plan["model"]["served_alias"], api_key_env=None,
+                output_token_field="max_tokens", max_output_tokens=128,
+                omit_temperature=False, temperature=0.0, repeats=1,
+                timeout=120, resume=args.resume))
+    errors = sum(engine["errors"] for engine in summary["engines"])
+    print(json.dumps({"cohort": args.cohort, "errors": errors,
+                      "server_proof": str(prefix) + ".server.json"}))
+    return 2 if errors else 0
+
+
 def export(args):
     prepared_path = args.work_dir / args.cohort / "prepared.json"
     prepared = json.loads(prepared_path.read_bytes())
@@ -89,6 +123,11 @@ def export(args):
     answer_eval.validate_prepared(prepared, TokenCounter(prepared["tokenizer"]["name"]))
     trace = Path(str(args.run_prefix) + ".jsonl")
     summary = json.loads(Path(str(args.run_prefix) + ".summary.json").read_bytes())
+    if args.model_file.resolve().parent != args.server_archive.resolve().parent:
+        raise ValueError("Pinned local model and server must share their verified artifact cache")
+    server_proof = local_answer_server.validate_proof(
+        Path(str(args.run_prefix) + ".server.json"), prepared_path, args.run_prefix,
+        args.model_file.resolve().parent)
     if summary["trace_sha256"] != file_hash(trace):
         raise ValueError("Raw trace hash differs from the completed summary")
     if summary["run"]["prepared_sha256"] != file_hash(prepared_path):
@@ -152,6 +191,7 @@ def export(args):
               "execution_plan": json.loads(EXECUTION.read_bytes()),
               "artifact_verification": {"model_sha256": file_hash(args.model_file),
                                         "server_archive_sha256": file_hash(args.server_archive)},
+              "owned_server_proof": server_proof,
               "prepared_sha256": file_hash(prepared_path), "raw_trace_sha256": file_hash(trace),
               "preparation_binding": binding,
               "evaluator_sources": prepared["evaluator_files"], "parameters": prepared["parameters"],
@@ -183,7 +223,7 @@ def export(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
-    for name in ("prepare", "export"):
+    for name in ("prepare", "run", "export"):
         command = commands.add_parser(name)
         command.add_argument("--cohort", choices=("locomo", "hotpotqa"), required=True)
         command.add_argument("--work-dir", type=Path, default=Path(".artifacts/local-answer-evaluation"))
@@ -192,6 +232,10 @@ def main():
             command.add_argument("--baseline-src", type=Path, default=Path(".artifacts/native-baseline-5abc/src"))
             command.add_argument("--candidate-src", type=Path, default=Path("src"))
             command.add_argument("--model-dir", type=Path, default=Path(".artifacts/models/semantic"))
+        elif name == "run":
+            command.add_argument("--run-prefix", type=Path, required=True)
+            command.add_argument("--model-cache", type=Path, default=Path(".artifacts/local-answer"))
+            command.add_argument("--resume", action="store_true")
         else:
             command.add_argument("--run-prefix", type=Path, required=True)
             command.add_argument("--output", type=Path, required=True)
@@ -200,8 +244,8 @@ def main():
             command.add_argument("--server-archive", type=Path,
                                  default=Path(".artifacts/local-answer/llama-b12110-bin-ubuntu-x64.tar.gz"))
     args = parser.parse_args()
-    (prepare if args.command == "prepare" else export)(args)
+    return {"prepare": prepare, "run": run, "export": export}[args.command](args)
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

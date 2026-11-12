@@ -176,7 +176,11 @@ assistant choice. Local servers with the older output-limit field can use
 controlled. There is no silent parameter fallback or automatic retry.
 
 The prompt, request parameters, requested model and tokenizer remain fixed for
-the whole pair. The server's reported model identity is checked separately.
+the whole pair. Every successful response must report the exact requested
+model identifier. A different or absent identifier is a recorded error with
+zero quality credit; its actual response hash and reported usage are retained.
+If a provider resolves aliases to snapshot names, request the exact served
+snapshot name for this evaluation.
 Query-major execution rotates the engine order between questions and
 repetitions to reduce a fixed first-engine ordering effect. Temperature zero
 does not guarantee bitwise reproducibility. `--repeats 3` records three actual
@@ -221,8 +225,7 @@ They are not provider usage or billed dollars. Returned model names and system
 fingerprints are checked across the pair. Differing IDs mark model comparability
 `incomparable`; absent identities, missing fingerprints or failed attempts mark
 it `unverified`. Stable model/fingerprint reports produce `same_reported_identity`,
-which still does not establish deterministic inference. The requested alias need
-not equal the returned model name. Scores remain visible in every case, but a
+which still does not establish deterministic inference. Scores remain visible in every case, but a
 changing or unverified backend prevents attributing their differences solely
 to retrieval.
 
@@ -244,3 +247,47 @@ needs blinded human assessment or a separately validated semantic judge and
 confidence intervals. Broader cost claims still need genuine native capture,
 observer/consolidation and follow-up-read traces for each compared product,
 as specified in the [comparison protocol](comparison-protocol.md).
+
+## 4. Run the registered local model with verified process ownership
+
+The separately frozen [local answer plan](../benchmarks/experiments/local-answer-plan.json)
+uses Qwen2.5-0.5B-Instruct Q4_K_M through llama.cpp b12110. Download and verify
+the artifacts, prepare the registered cohorts, and use the owned launcher:
+
+```bash
+python scripts/prepare_local_answer_model.py
+python -m benchmarks.local_answer_eval prepare --cohort locomo
+python -m benchmarks.local_answer_eval run --cohort locomo \
+  --run-prefix .artifacts/local-answer-evaluation/locomo/answers
+python -m benchmarks.local_answer_eval export --cohort locomo \
+  --run-prefix .artifacts/local-answer-evaluation/locomo/answers \
+  --output benchmarks/results/local-answer-locomo128
+```
+
+Repeat with `--cohort hotpotqa` and distinct run/output prefixes for the other
+128-question cohort. Preparation requires the pinned external source data,
+baseline checkout and semantic model documented in the
+[native evaluation protocol](native-budget-evaluation.md).
+
+`local_answer_eval run` starts only the verified local binary with the exact
+registered 4,096-token context, four inference threads, one slot, fixed seed,
+and disabled prompt caching. It verifies the model, archive, every extracted
+runtime file and library symlink, then records the actual process arguments,
+startup time, log hash and exit status. It stops only the process it owns.
+The `.server.json` proof binds the actual answer ledger and summary hashes to
+these artifacts and settings; export rejects a missing proof, changed runtime,
+edited result or unverified external endpoint. Downloaded model files alone
+are insufficient evidence that an endpoint used those files.
+
+Use the same owned `run` command with `--resume` after an interruption; existing
+completed answers are never replayed. An inherited process lock prevents a
+new run from overlapping a still-running orphan server. This experiment's
+server settings remain separate from the 16,384-token native consolidation
+workflow. Protocol fixture tests do not provide any generated-answer scores.
+
+If interruption occurs after the final answer summary is saved but before
+the server proof is finalized, keep that ledger and summary as retained
+diagnostic evidence. The launcher refuses to replay completed answers, and
+export refuses to invent a completed process proof. This narrow recovery case
+requires an explicitly documented audit of the retained process artifacts;
+it is not silently marked complete or rerun under the old output prefix.

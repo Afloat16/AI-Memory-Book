@@ -87,6 +87,39 @@ class AnswerResumeTests(unittest.TestCase):
                         evaluation.run(args)
                     call.assert_not_called()
 
+    def test_wrong_served_model_keeps_costs_but_receives_no_quality_credit(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            args = self.prepare(Path(temporary))
+            wrong = {**self.response(), "served_model": "different-weights"}
+            with patch.object(evaluation, "call_endpoint", return_value=wrong) as call:
+                summary = evaluation.run(args)
+            self.assertEqual(call.call_count, 4)
+            self.assertEqual(sum(e["errors"] for e in summary["engines"]), 4)
+            self.assertEqual(sum(e["provider_usage"]["total_tokens"]["known_subtotal"]
+                                 for e in summary["engines"]), 52)
+            for engine in summary["engines"]:
+                self.assertEqual(engine["answerable_normalized_exact_match"], 0)
+            rows = [json.loads(line) for line in Path(str(args.output) + ".jsonl").read_bytes().splitlines()]
+            outcomes = [row for row in rows if row["kind"] == "request_finished"]
+            self.assertTrue(all(row["error_type"] == "ModelIdentityMismatch" for row in outcomes))
+            self.assertTrue(all(row["response_sha256"] == "fixture-response" for row in outcomes))
+
+    def test_ledger_rejects_wrong_model_disguised_as_a_success(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            args = self.prepare(Path(temporary))
+            with patch.object(evaluation, "call_endpoint", side_effect=[self.response(), KeyboardInterrupt]):
+                with self.assertRaises(KeyboardInterrupt):
+                    evaluation.run(args)
+            trace = Path(str(args.output) + ".jsonl")
+            rows = [json.loads(line) for line in trace.read_bytes().splitlines()]
+            rows[2]["served_model"] = "another-model"
+            trace.write_bytes(b"".join(evaluation.json_bytes(row) + b"\n" for row in rows))
+            args.resume = True
+            with patch.object(evaluation, "call_endpoint") as call:
+                with self.assertRaisesRegex(ValueError, "different or unreported model"):
+                    evaluation.run(args)
+                call.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()
