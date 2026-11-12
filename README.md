@@ -4,9 +4,9 @@
 
 Projects become books, tasks become chapters, and earlier decisions stay available across sessions and clients. One MCP call returns relevant evidence within a context budget so the agent can continue your work.
 
-[简体中文](README.zh-CN.md) · [Quick start](#quick-start) · [Measured results](#measured-results) · [Documentation](#documentation) · [v0.3.0 release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.0)
+[简体中文](README.zh-CN.md) · [Quick start](#quick-start) · [Measured results](#measured-results) · [Documentation](#documentation) · [v0.3.1 release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.1)
 
-**v0.3.0 · Experimental · MIT · Python 3.10+ · Local SQLite**
+**v0.3.1 · Experimental · MIT · Python 3.10+ · Local SQLite**
 
 ## How it works
 
@@ -38,14 +38,14 @@ You need **Python 3.10+ with SQLite FTS5**. The installer downloads the release 
 **macOS / Linux**
 
 ```bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.0/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.1/scripts/install.sh
 bash install-memory-book.sh
 ```
 
 **Windows PowerShell**
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.0/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.1/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ```
 
@@ -64,35 +64,35 @@ Replace `claude-code` with your [client profile](docs/integrations.md#supported-
 
 ## Measured results
 
-These results describe the **implementation shipped in v0.3.0**. Full protocols, source hashes, per-question losses and historical experiments remain in the [benchmark index](benchmarks/README.md).
+**v0.3.1 reduces query work while preserving the default retrieval output.** The paired performance baseline is v0.3.0. Source identities, full measurements and unsuccessful experiments remain in the [benchmark index](benchmarks/README.md).
 
 ### Efficiency highlights
 
 | Verified improvement | Result | Measurement |
 |---|---|---|
-| **Faster default recall, identical output** | Actual MCP pooled p95 **1.25%–9.50% lower** | Four balanced rounds; 56,784 paired calls across native/MCP, two old corpora and three character caps. [Report](docs/default-recall-performance.md) |
-| **Less ingestion work** | Fresh-ingestion time **−46.45%**; unchanged-session replay time **−61.38%** | Public corpus, same source/index content; paired before/after core optimization. [Report](docs/default-recall-performance.md) |
-| **Smaller MCP responses, optional** | Response-text tokens **−19.63%**; first-call reference total **−8.15%** | 1,015 public-conversation questions, 4,000 characters, compact responses, `o200k_base`. [Report](docs/indexed-references.md) |
+| **Identical output, less tail latency** | Pooled p95 geometric mean **−11.36%** across ten settings | 47,320 calls, two old corpora, native/actual SDK MCP, character/token budgets and four balanced rounds. [Report](docs/round3-performance-review.md) |
+| **Faster public-conversation recall** | Native p95 **5.054 → 3.737 ms (−26.05%)**; actual MCP **7.409 → 5.937 ms (−19.87%)** | 1,015 questions, 4,000-character cap, same host, no reuse of recall results. [Original measurements](benchmarks/reports/round3-performance-43246417515-1/report.summary.json) |
+| **Optional indexed references, retained** | Response-text tokens **−19.63%**; first-call reference total **−8.15%** | Earlier 1,015-question measurement, 4,000 characters, compact responses, `o200k_base`; this option is unchanged. [Report](docs/indexed-references.md) |
 
-Indexed references preserve the same context and reconstruct every source field. The first-call count includes the full tool schema, initialization instructions and arguments; these reference-token counts are not provider bills. Sparse references can cost more. This is a size option: displayed p95 is **7.126 ms → 7.131 ms**, with no speedup claim.
+Complete non-timing outputs matched. One synthetic 512-token setting has **0.125% higher p95**. Mean public-corpus startup time increased **4.838 ms (+14.04%)**; independent review explicitly accepted that tradeoff. All rounds and the original automatic resource flag remain recorded in the [performance report and review](docs/round3-performance-review.md).
+
+Indexed references preserve context and reconstruct every source field. The first-call count includes schema, instructions and arguments; reference-token counts are not provider bills. Sparse references can cost more. The earlier format comparison measured **7.126 → 7.131 ms p95**, with no speedup claim.
 
 ### Current open-source component comparison
 
-**Same host, 256 HotpotQA multi-hop questions, identical source pages, top-five limit and common whole-page packing within 1,024 `cl100k_base` tokens.** Higher is better for evidence recall, completeness and MRR; lower is better for latency.
+A frozen **256-question HotpotQA** selection excludes the 384 questions used in earlier rounds. The table uses the same supplied pages, top five results and common whole-block packing at **1,024 `cl100k_base` tokens**. It measures source evidence; the [full report](benchmarks/results/round3-comparison-43267797247-1/report.md) retains every budget, native call, gain and loss.
 
-| Retrieval component | Evidence recall ↑ | Complete evidence ↑ | MRR ↑ | Mean context tokens | Search p50 / p95 ms |
+| Measured component | Evidence recall | Complete evidence | Packed MRR | Mean context tokens | Search adapter p95 |
 |---|---:|---:|---:|---:|---:|
-| **Book — default lexical** | 75.41% | 51.95% | 0.8596 | 712.9 | **4.712 / 8.301** |
-| **Book — optional Q2 semantics** | 78.66% | 57.81% | **0.8686** | 727.8 | 14.014 / 22.523 |
-| [claude-mem 15.18.1](https://github.com/thedotmack/claude-mem) — native FTS | 72.31% | 48.83% | 0.8348 | 704.5 | 16.254 / 29.948 |
-| [ai-memory v3.4.5](https://github.com/akitaonrails/ai-memory) — local hybrid | 76.22% | 53.91% | 0.8633 | 704.0 | 25.947 / 33.251 |
-| [billion-context 9674cfa](https://github.com/ranxianglei/billion-context) — search kernel | **80.94%** | **61.72%** | 0.8622 | 751.3 | **0.349 / 1.092** |
+| **Book v0.3.1 · default lexical** | 76.28% | 52.34% | 0.8132 | 719.8 | 2.784 ms |
+| **Book v0.3.1 · optional Q2** | 76.77% | 54.69% | 0.8239 | 739.0 | 11.226 ms |
+| claude-mem 15.18.1 · native FTS | 70.68% | 45.31% | 0.7674 | 715.8 | 22.826 ms |
+| ai-memory v3.4.5 · local hybrid | 77.27% | 55.86% | 0.8182 | 716.8 | 27.545 ms |
+| billion-context `9674cfa` · search kernel | **78.91%** | **58.20%** | **0.8277** | 762.3 | **1.010 ms** |
 
-Book Q2 finds complete evidence **8.98 percentage points more often than claude-mem FTS** and **3.91 points more often than ai-memory**, with the highest packed-context MRR in this view. Book's default path keeps zero-model operation and lower measured p95 than those two components. **billion-context leads recall, completeness and search latency in this setting.**
+Book's default returns complete evidence **7.03 percentage points more often than claude-mem FTS** in this slice. Both Book modes have lower measured search-adapter p95 than claude-mem and ai-memory. **ai-memory retains higher recall and completeness; billion-context leads these three quality metrics and search latency.** The adapters use different Python, SQLite/Bun, HTTP/MCP and Node boundaries, so the timings do not establish whole-product speed ratios. ai-memory's first search plus all source reads has p95 **30.532 ms**; read payloads and setup costs are recorded separately.
 
-Quality uses one result per question; latency uses three actual repetitions. Interfaces differ: Book Python/native context assembly, claude-mem Bun/SQLite, ai-memory HTTP/MCP and billion-context's Node kernel. These are **retrieval-component measurements**, not final-answer accuracy or whole-product speed ratios. Preparation and additional reads are separate; ai-memory's first-search-plus-all-reads p95 is **37.613 ms**. The [full comparison](docs/comparison.md#current-frozen-256-question-comparison) includes all budgets/tokenizers, mean and tail latency, response/read tokens, indexing, downloads, RSS and storage.
-
-**Choose optional modes for your workload.** Q2 adds local model/index costs and can lose evidence at small budgets: at 512 `o200k_base` tokens / 8,000 characters, native completeness is **42.19% lexical → 41.02% Q2**. Public/reused questions are regression data; these results do not establish cross-domain generalization. Earlier [generated-answer](benchmarks/RESULTS-local-answers.md) and [full-workflow](benchmarks/RESULTS-full-workflow.md) diagnostics retain their own source/model settings; they are not v0.3.0 answer-quality scores.
+Q2 raises completeness by **2.34 percentage points** over Book's default at this budget, with model/index setup, memory and query costs. At the native API's 512-token budget it lowers completeness from **35.94% to 33.59%** (`cl100k_base`) and **35.55% to 33.20%** (`o200k_base`). It stays opt-in. All questions are answerable and come from the same public HotpotQA source; this is not a measurement of answer generation, hallucinations or private-conversation transfer.
 
 The [deployment and architecture comparison](docs/comparison.md#popular-projects-and-the-workload-they-address) also covers **Mem0, Graphiti, PageIndex and Letta**, clearly separated from executed benchmarks. ai-memory also supports a zero-LLM default; claude-mem supports local model providers.
 
@@ -107,6 +107,6 @@ The [deployment and architecture comparison](docs/comparison.md#popular-projects
 | Inspect the archive in a browser | Run `memory-book serve`, then open [127.0.0.1:8765](http://127.0.0.1:8765) |
 | Review full measurements or contribute | [Benchmarks](benchmarks/README.md) · [Validation](docs/validation.md) · [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) |
 
-The archive is local, unencrypted data. Evidence returned to an AI client enters that client's model context. The optional reader is for inspection; normal MCP and capture need no HTTP listener. [Data and configuration](docs/deployment.md#data-and-configuration-paths).
+The optional Q2 runtime opts out of ONNX Runtime telemetry. The archive is local, unencrypted data. Evidence returned to an AI client enters that client's model context. The optional reader is for inspection; normal MCP and capture need no HTTP listener. [Data and configuration](docs/deployment.md#data-and-configuration-paths).
 
 [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml) covers Python 3.10/3.12/3.13, actual MCP stdio, the browser reader, Linux/macOS/Windows installers and container persistence. Client configuration fixtures do not certify interactive behavior in every vendor app. Independently implemented under the [MIT License](LICENSE).
