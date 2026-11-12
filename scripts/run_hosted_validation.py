@@ -126,12 +126,12 @@ def now():
 def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
-def atomic(path, value):
+def atomic(path, value, *, sort_keys=False):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(path.name + ".partial")
     with temporary.open("w", encoding="utf-8") as stream:
-        json.dump(value, stream, ensure_ascii=False, indent=2)
+        json.dump(value, stream, ensure_ascii=False, indent=2, sort_keys=sort_keys)
         stream.write("\n")
         stream.flush()
         os.fsync(stream.fileno())
@@ -499,7 +499,7 @@ def finalize(stage, do_publish=False, metadata=None):
         if metadata["status"] == "completed":
             metadata["publication_incomplete"] = True
     metadata["public_output_sha256"] = {p: sha(ROOT / p) for p in paths if (ROOT / p).is_file()}
-    atomic(marker, metadata)
+    atomic(marker, metadata, sort_keys=True)
     if do_publish:
         publish(stage, marker, paths)
     return metadata
@@ -550,7 +550,7 @@ def main(argv=None):
                         "started_at": now(),
                         "timing_boundary": "One isolated hosted runner; paired modes are sequential. Do not pool timings across hosts."}
             # Durable intent precedes environment collection, downloads or model work.
-            atomic(marker, public_marker(args.stage, metadata))
+            atomic(marker, public_marker(args.stage, metadata), sort_keys=True)
             exit_code = 1
             try:
                 with interrupt_handlers(), ExitStack() as resources:
@@ -561,7 +561,7 @@ def main(argv=None):
                             "hosted_job_hard_limit_seconds": 21600 if os.environ.get("GITHUB_ACTIONS") == "true" else None,
                             "registered_answer_generate_timeout_seconds": 28800,
                             "scope": "Execution deadline only; no model, prompt, cohort, budget or scoring parameter changes. Expiry is interrupted, never complete."})
-                    atomic(marker, public_marker(args.stage, metadata))
+                    atomic(marker, public_marker(args.stage, metadata), sort_keys=True)
                     if budget is not None and budget <= 0:
                         raise ValidationInterrupted("execution_deadline")
                     resources.enter_context(execution_timer(budget))
@@ -570,11 +570,11 @@ def main(argv=None):
                         publish(args.stage, marker, [])
                     prepare(args.stage)
                     metadata["prepared_at"] = now()
-                    atomic(marker, public_marker(args.stage, metadata))
+                    atomic(marker, public_marker(args.stage, metadata), sort_keys=True)
                     if args.stage.startswith(("native-", "semantic-")):
                         command, _, parent = manifest_stage(args.stage)
                         metadata.update(parent_manifest=parent, parent_manifest_sha256=sha(ROOT / parent), argv=command)
-                        atomic(marker, public_marker(args.stage, metadata))
+                        atomic(marker, public_marker(args.stage, metadata), sort_keys=True)
                         exit_code = run(command, check=False)
                     elif args.stage.startswith("answers-"):
                         codes, _ = answer_stage(args.stage)
