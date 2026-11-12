@@ -17,6 +17,7 @@ remain separate explicit options.
 | Project-local statistics screen | All eight workers and 8,082 original calls recovered without retrieval replay | Reject after 14 loss checks; not shipped. [Recovery and quality review](../docs/round3-quality-review.md) |
 | Native APIs and current supplied-page components | Ten stages, 256 questions, 607 required annotations, 9,216 searches | `complete-verified`; full default payload equality for 1,536 native and 768 component pairs. [Complete matrix](results/round3-comparison-43267797247-1/report.md), [assessment](results/round3-comparison-43267797247-1/assessment.json) |
 | Independent final evidence audit | Actual summary hashes, stage/call inventory, identity and Git ancestry checks; no extra scoring | [Audit and scope limits](reports/round3-final-evidence-audit.json) |
+| Supplemental offline recomputation and figure | All 32 result blobs and 71 original bound evaluator files; unchanged original assessor reproduces assessment and Markdown exactly | [Independent verification](reports/round3-recovery/comparison-cross-verification.json), [reproducible figure script](../scripts/plot_round3_overview.py), [published release and audit provenance](../docs/round3-continuation.md#published-release-and-supplemental-audit) |
 
 At 1,024 cl100k tokens in the common whole-page view, default Book complete
 evidence is **52.34%**, Q2 **54.69%**, claude-mem **45.31%**, ai-memory **55.86%**

@@ -36,6 +36,16 @@ The historical v0.3.0 guide is preserved byte for byte as
 generated-answer experiments and the earlier small-model workflow remain
 available there with their original sources, limitations and negative results.
 
+![Current component and separate baseline performance results](assets/v0.3.1-comparison.svg)
+
+The figure uses the recorded search-adapter boundary, matching the current
+README and generated report. Native-search-only timings remain separate in
+the raw summaries. The [supplemental offline verification](../benchmarks/reports/round3-recovery/comparison-cross-verification.json)
+checks all 32 result blobs, all 71 original bound evaluator hashes and exact
+assessment/report recomputation. A separate [release byte comparison](../benchmarks/reports/round3-recovery/published-release-cross-verification.json)
+confirms that the published source preserves all 71 bound evaluator files and
+all 17 runtime/static files exactly.
+
 ## Current frozen 256-question comparison
 
 [Run 43267797247](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43267797247)

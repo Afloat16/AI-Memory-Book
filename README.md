@@ -94,6 +94,10 @@ Book's default returns complete evidence **7.03 percentage points more often tha
 
 Q2 raises completeness by **2.34 percentage points** over Book's default at this budget, with model/index setup, memory and query costs. At the native API's 512-token budget it lowers completeness from **35.94% to 33.59%** (`cl100k_base`) and **35.55% to 33.20%** (`o200k_base`). It stays opt-in. All questions are answerable and come from the same public HotpotQA source; this is not a measurement of answer generation, hallucinations or private-conversation transfer.
 
+![v0.3.1 evidence completeness, search-adapter latency and separate paired performance](docs/assets/v0.3.1-comparison.svg)
+
+The figure uses the same saved measurements as the tables. An additional [offline verification](benchmarks/reports/round3-recovery/comparison-cross-verification.json) checks all 32 result files and exactly reproduces the original assessment and report without new retrieval calls. [Audit and release provenance](docs/round3-continuation.md#published-release-and-supplemental-audit).
+
 The [deployment and architecture comparison](docs/comparison.md#popular-projects-and-the-workload-they-address) also covers **Mem0, Graphiti, PageIndex and Letta**, clearly separated from executed benchmarks. ai-memory also supports a zero-LLM default; claude-mem supports local model providers.
 
 ## Documentation

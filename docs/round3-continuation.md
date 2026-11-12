@@ -45,3 +45,36 @@ The [release procedure](releasing.md) separately requires nine successful CI
 jobs on the exact final commit, a matching main/tag, seven checked assets and
 installation through the real public release URL. The release manifest supplies
 the final source, package and installer hashes.
+
+## Published release and supplemental audit
+
+The existing publication completed during the parallel final review. The
+immutable [v0.3.1 prerelease](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.1)
+uses source commit `7b7a5d7336b9350a128f5e0a888811b1b3015e68`.
+[All nine exact-commit CI jobs](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43273167370)
+passed. The [release workflow](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43273455233)
+completed both publication and installation through the actual public tagged
+installer. All seven assets and their downloaded hashes were verified. The
+runtime remains the same frozen candidate; this supplemental documentation
+commit does not move the tag, rebuild assets or republish the release.
+
+A parallel [documentation/audit checkpoint](https://github.com/Afloat16/AI-Memory-Book/commit/2e31bc07fe433b3fc638eab8d9fb8aa76efe7541)
+adds a separate [offline cross-verification](../benchmarks/reports/round3-recovery/comparison-cross-verification.json).
+Using the original executed evaluator and immutable result `c99f205`, it checks
+all 32 original result blobs, all 71 bound evaluator file hashes, the complete
+9,216-call inventory and every registered Q2 gain/loss cell. The original audit
+command reproduces the existing assessment and Markdown exactly, without any
+new retrieval, timing or model calls. A subsequent
+[read-only release comparison](../benchmarks/reports/round3-recovery/published-release-cross-verification.json)
+confirms that published commit `7b7a5d7` preserves all 71 bound evaluator files,
+all 17 runtime/static files and the exact result/checkpoint Git objects.
+
+The supplement preserves the published release notes, current comparison and
+all three preparation histories. Its [figure script](../scripts/plot_round3_overview.py)
+reads only saved complete summaries and checks their hashes. The displayed
+latency uses the search-adapter surface to match the published README; the
+native-search surface remains available separately in the raw summaries.
+The original native-search figure and alternate documentation remain in the
+parallel checkpoint's immutable history. Future continuation should inspect
+current `main` and release records, then do new work without repeating these
+completed measurements.
