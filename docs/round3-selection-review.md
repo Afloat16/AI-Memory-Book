@@ -1,4 +1,11 @@
-# Round-three independent selection record
+# Round-three independent selection reproduction record
+
+**Disposition:** later read-only reproduction, unused for scoring. The earlier
+hosted binding and manifest at `a0d67b35d074077f43b5cea77954921802d51f44`
+are authoritative for run `43267797247`. Their selected ID array/order and
+dataset match this independent invocation exactly. See
+[the reconciliation record](round3-reconciliation.md); no second comparison
+was started.
 
 The independent reviewer ran the existing deterministic selector **once**, on
 2026-11-13 (Asia/Shanghai), after the binding was committed at
