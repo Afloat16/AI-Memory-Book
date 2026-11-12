@@ -83,6 +83,28 @@ def api(path, *, body=None, missing=False):
     return json.loads(result.stdout)
 
 
+def find_release(tag):
+    """Authenticated listing includes drafts; the tag endpoint is published-only."""
+    matches, page = [], 1
+    while True:
+        batch = api(f"releases?per_page=100&page={page}")
+        require(isinstance(batch, list), "Unexpected release-list response")
+        matches.extend(item for item in batch if item["tag_name"] == tag)
+        require(len(matches) <= 1, "Multiple releases use this tag; refuse an ambiguous draft")
+        if len(batch) < 100:
+            return matches[0] if matches else None
+        page += 1
+
+
+def release_by_id(release_id, tag, head, *, draft):
+    require(type(release_id) is int and release_id > 0, "Expected a release ID")
+    value = api(f"releases/{release_id}")
+    require(value["id"] == release_id and value["tag_name"] == tag
+            and value["target_commitish"] == head and value["draft"] is draft,
+            "Release ID/tag/source/state differs")
+    return value
+
+
 def successful_ci(runs, head):
     completed = [r for r in runs if r.get("head_sha") == head and r.get("event") == "push"
                  and r.get("status") == "completed" and r.get("head_repository", {}).get("full_name") == REPOSITORY]
@@ -296,7 +318,7 @@ def main():
             "Release ref/version/head mismatch")
     require(api("git/ref/heads/main")["object"]["sha"] == head, "main must point to the exact release commit")
     run = ci_gate(head)
-    release = api("releases/tags/" + quote(tag), missing=True)
+    release = find_release(tag)
     require(release is None or (release["draft"] and release["target_commitish"] == head),
             "Refuse a public release or a draft belonging to another commit")
     ref = api("git/ref/tags/" + quote(tag), missing=True)
@@ -316,19 +338,20 @@ def main():
     if release is None:
         command(["gh", "release", "create", tag, "--repo", REPOSITORY, "--verify-tag", "--target", head,
                  "--title", tag, "--draft", "--prerelease", "--notes-file", str(final_notes)])
-        release = api("releases/tags/" + quote(tag))
+        release = find_release(tag)
+        require(release is not None, "New draft was not found in the authenticated release list")
+    release_id = release["id"]
+    release = release_by_id(release_id, tag, head, draft=True)
     present = {a["name"] for a in release["assets"]}
     for artifact in sorted(output.iterdir()):
         if artifact.name not in present:
             command(["gh", "release", "upload", tag, str(artifact), "--repo", REPOSITORY])
-    release = api("releases/tags/" + quote(tag))
-    require(release["draft"] and release["target_commitish"] == head, "Draft identity changed during upload")
+    release = release_by_id(release_id, tag, head, draft=True)
     verify_remote_assets(release, output, complete=True)
     command(["gh", "release", "edit", tag, "--repo", REPOSITORY, "--draft=false", "--prerelease",
              "--notes-file", str(final_notes)])
-    release = api("releases/tags/" + quote(tag))
-    require(not release["draft"] and release["prerelease"] and release["target_commitish"] == head,
-            "Published release identity differs")
+    release = release_by_id(release_id, tag, head, draft=False)
+    require(release["prerelease"], "Published release must remain experimental")
     require(api("git/ref/tags/" + quote(tag))["object"]["sha"] == head, "Published tag identity differs")
     verify_remote_assets(release, output, complete=True)
     if os.environ.get("GITHUB_OUTPUT"):
