@@ -69,6 +69,14 @@ def source_members(archive):
 
 
 def directory_fingerprint(root, expected):
+    if root.is_symlink():
+        raise ValueError("Source root cannot be a symlink")
+    entries = list(root.rglob("*"))
+    if any(p.is_symlink() for p in entries):
+        raise ValueError("Symlink in verified source directory")
+    actual_files = {p.relative_to(root).as_posix() for p in entries if p.is_file()}
+    if actual_files != set(expected):
+        raise ValueError("Verified source directory has missing or unexpected files")
     hashes = {}
     for name, data in sorted(expected.items()):
         actual = (root / name).read_bytes()
@@ -89,8 +97,12 @@ def prepare(cache_dir, *, offline=False):
     runtime_archive = checked_download(root, lock["runtime"], offline=offline)
     expected = source_members(source_archive)
     source_root = root / "verified-source"
+    if source_root.is_symlink():
+        raise ValueError("Source root cannot be a symlink")
     for name, data in expected.items():
         target = source_root / name
+        if target.is_symlink() or any(p.is_symlink() for p in target.parents if p != source_root.parent):
+            raise ValueError("Symlink in prepared source path")
         if target.exists():
             if target.read_bytes() != data:
                 raise ValueError(f"Modified cached source: {name}")
@@ -194,6 +206,7 @@ class ClaudeMemFTS:
                 latency_scope="native function and persistent Python/Bun JSON bridge separately",
                 representation="original page title/text; empty semantic fields; harness bulk INSERT with native FTS triggers",
                 native_payload_surface="unmodified returned observation row array; not MCP or viewer presentation",
+                payload_serialization="canonical compact key-sorted JSON of returned rows; bridge envelope excluded",
                 result_cache="no adapter result cache; SQLite and process caches warm naturally",
                 ready=ready)
         except BaseException:

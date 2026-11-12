@@ -93,6 +93,9 @@ def export_bundle(args):
 def historical_rows(plan):
     path = Path(plan["corpus"]["historical_report"])
     data = path.read_bytes()
+    blob_sha = hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest()
+    if blob_sha != plan["corpus"]["historical_report_git_blob_sha"]:
+        raise ValueError("Historical report bytes differ from the registered Git blob")
     report = json.loads(gzip.decompress(data))
     frozen = report["frozen_corpus"]
     if (frozen["documents_sha256"] != plan["corpus"]["documents_sha256"]
@@ -236,7 +239,10 @@ def run(args):
                         "read_calls":0, "read_ms":0, "status":"ok"}
                 except Exception as error:
                     ids = []
-                    record = {"id":case.id, "hit_ids":[], "status":"failed", "error":str(error)}
+                    record = {"id":case.id, "hit_ids":[], "status":"failed",
+                              "error_type":type(error).__name__, "error_sha256":sha(str(error).encode())}
+                    append(ledger, {"event":"error_detail", "repetition":repetition,
+                                    "query_id":case.id, "error":str(error)})
                     failures.append({"repetition":repetition, **record})
                 append(ledger, {"event":"finished", "repetition":repetition, **record})
                 if repetition == 0:
