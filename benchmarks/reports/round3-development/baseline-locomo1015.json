@@ -1,0 +1,637 @@
+{
+  "label": "v0.3.0 baseline old-data development profile only",
+  "source_sha256": "d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57",
+  "dataset": {
+    "kind": "public",
+    "version": "locomo-text-evidence-1.0",
+    "variant": "locomo_text_evidence_v1",
+    "seed": 20261111,
+    "split": "heldout",
+    "sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857",
+    "projects": 8,
+    "sessions": 216,
+    "turns": 4684,
+    "source_characters": 616994,
+    "source_utf8_bytes": 617094,
+    "queries": 1015,
+    "answerable_queries": 649,
+    "categories": {
+      "locomo_category_4": 434,
+      "locomo_category_5": 366,
+      "locomo_category_2": 126,
+      "locomo_category_3": 24,
+      "locomo_category_1": 65
+    },
+    "provenance": {
+      "dataset": "LoCoMo locomo10.json",
+      "repository": "https://github.com/snap-research/locomo",
+      "commit": "3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376",
+      "url": "https://raw.githubusercontent.com/snap-research/locomo/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/data/locomo10.json",
+      "sha256": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+      "bytes": 2805274,
+      "license": "CC-BY-NC-4.0",
+      "license_url": "https://github.com/snap-research/locomo/blob/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/LICENSE.txt",
+      "split_seed": 20261111,
+      "sample_ids": [
+        "conv-50",
+        "conv-26",
+        "conv-41",
+        "conv-42",
+        "conv-30",
+        "conv-44",
+        "conv-43",
+        "conv-48"
+      ],
+      "all_qa_in_split": 1600,
+      "all_qa_categories": {
+        "2": 254,
+        "1": 225,
+        "3": 70,
+        "4": 685,
+        "5": 366
+      },
+      "eligible_qa_in_split": 1015,
+      "selected_queries": 1015,
+      "max_queries": 0,
+      "excluded_qa": {
+        "image_bearing_evidence": 576,
+        "invalid_evidence_id": 5,
+        "missing_evidence": 4
+      },
+      "selection": "sha256(locomo-query-order-v1: + query_id) ascending",
+      "evidence_metric": "complete annotated utterance text and original source span",
+      "indexing": "one dialogue utterance per canonical user-role turn; speaker prefix; text only",
+      "date_time_convention": "source local clock represented as UTC for deterministic ordering"
+    }
+  },
+  "budget_chars": 4000,
+  "use_cache": false,
+  "cache_size": 0,
+  "warmup": "one full deterministic dataset pass before measured and profiled passes",
+  "fresh_ingest_seconds": 0.41195704999699956,
+  "book_stats": {
+    "projects": 8,
+    "chapters": 8,
+    "sessions": 216,
+    "turns": 4684,
+    "sections": 1339,
+    "pages": 1339,
+    "chars": 645098,
+    "page_chars": 651788,
+    "cache_entries": 0,
+    "database_bytes": 12881920,
+    "revision": 216,
+    "schema_version": 3
+  },
+  "unprofiled_ms": {
+    "p50": 1.620205,
+    "p95": 2.3941903,
+    "mean": 1.7545526472906403
+  },
+  "payload_sha256": "0a7673161fffc18f23b92673cfc02acd382fbdb045950cf320fde486e13a80ee",
+  "profile_total_seconds": 2.0239629410000006,
+  "top_self": [
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'execute' of 'sqlite3.Connection' objects>",
+      "primitive_calls": 8143,
+      "total_calls": 8143,
+      "self_seconds": 0.906378152,
+      "cumulative_seconds": 0.906378152
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/store.py",
+      "line": 599,
+      "function": "recall",
+      "primitive_calls": 1015,
+      "total_calls": 1015,
+      "self_seconds": 0.40343688400000005,
+      "cumulative_seconds": 2.023943291
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'fetchall' of 'sqlite3.Cursor' objects>",
+      "primitive_calls": 3068,
+      "total_calls": 3068,
+      "self_seconds": 0.157392805,
+      "cumulative_seconds": 0.157392805
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'findall' of 're.Pattern' objects>",
+      "primitive_calls": 6876,
+      "total_calls": 6876,
+      "self_seconds": 0.049438153000000006,
+      "cumulative_seconds": 0.049438153000000006
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/text.py",
+      "line": 34,
+      "function": "terms",
+      "primitive_calls": 6088,
+      "total_calls": 6088,
+      "self_seconds": 0.049347593,
+      "cumulative_seconds": 0.150993592
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'intersection' of 'set' objects>",
+      "primitive_calls": 20233,
+      "total_calls": 20233,
+      "self_seconds": 0.048485278,
+      "cumulative_seconds": 0.048485278
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'split' of 'str' objects>",
+      "primitive_calls": 20662,
+      "total_calls": 20662,
+      "self_seconds": 0.04832264,
+      "cumulative_seconds": 0.04832264
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'get' of 'dict' objects>",
+      "primitive_calls": 407211,
+      "total_calls": 407211,
+      "self_seconds": 0.030717385000000003,
+      "cumulative_seconds": 0.030717385000000003
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'sub' of 're.Pattern' objects>",
+      "primitive_calls": 6315,
+      "total_calls": 6315,
+      "self_seconds": 0.028646584000000003,
+      "cumulative_seconds": 0.028646584000000003
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<built-in method builtins.max>",
+      "primitive_calls": 218508,
+      "total_calls": 218508,
+      "self_seconds": 0.028483049000000003,
+      "cumulative_seconds": 0.054719053000000004
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<built-in method builtins.len>",
+      "primitive_calls": 445688,
+      "total_calls": 445688,
+      "self_seconds": 0.024598747,
+      "cumulative_seconds": 0.024598747
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/store.py",
+      "line": 729,
+      "function": "<lambda>",
+      "primitive_calls": 100192,
+      "total_calls": 100192,
+      "self_seconds": 0.02368202,
+      "cumulative_seconds": 0.036807690000000004
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'update' of 'dict' objects>",
+      "primitive_calls": 109801,
+      "total_calls": 109801,
+      "self_seconds": 0.021025334,
+      "cumulative_seconds": 0.021025334
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/store.py",
+      "line": 764,
+      "function": "<lambda>",
+      "primitive_calls": 70783,
+      "total_calls": 70783,
+      "self_seconds": 0.020081728,
+      "cumulative_seconds": 0.026236004
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/store.py",
+      "line": 509,
+      "function": "_refs",
+      "primitive_calls": 5073,
+      "total_calls": 5073,
+      "self_seconds": 0.017561528,
+      "cumulative_seconds": 0.058851339
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'sort' of 'list' objects>",
+      "primitive_calls": 1064,
+      "total_calls": 1064,
+      "self_seconds": 0.013264411,
+      "cumulative_seconds": 0.050437612
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'join' of 'str' objects>",
+      "primitive_calls": 7179,
+      "total_calls": 7179,
+      "self_seconds": 0.012938890000000002,
+      "cumulative_seconds": 0.021609432
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'append' of 'list' objects>",
+      "primitive_calls": 153924,
+      "total_calls": 153924,
+      "self_seconds": 0.012773103000000001,
+      "cumulative_seconds": 0.012773103000000001
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/store.py",
+      "line": 168,
+      "function": "_context_allocations",
+      "primitive_calls": 1015,
+      "total_calls": 1015,
+      "self_seconds": 0.009424939,
+      "cumulative_seconds": 0.015662126000000002
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'extend' of 'list' objects>",
+      "primitive_calls": 25643,
+      "total_calls": 25643,
+      "self_seconds": 0.006425836000000001,
+      "cumulative_seconds": 0.010218259
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'split' of 're.Pattern' objects>",
+      "primitive_calls": 25643,
+      "total_calls": 25643,
+      "self_seconds": 0.005062345,
+      "cumulative_seconds": 0.005062345
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'fullmatch' of 're.Pattern' objects>",
+      "primitive_calls": 25643,
+      "total_calls": 25643,
+      "self_seconds": 0.004603795,
+      "cumulative_seconds": 0.004603795
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/store.py",
+      "line": 704,
+      "function": "<genexpr>",
+      "primitive_calls": 105743,
+      "total_calls": 105743,
+      "self_seconds": 0.004424197,
+      "cumulative_seconds": 0.004424197
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/text.py",
+      "line": 148,
+      "function": "excerpt",
+      "primitive_calls": 5073,
+      "total_calls": 5073,
+      "self_seconds": 0.004212566,
+      "cumulative_seconds": 0.007854336
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<built-in method builtins.min>",
+      "primitive_calls": 29323,
+      "total_calls": 29323,
+      "self_seconds": 0.0038940550000000004,
+      "cumulative_seconds": 0.0038940550000000004
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/text.py",
+      "line": 62,
+      "function": "<genexpr>",
+      "primitive_calls": 40961,
+      "total_calls": 40961,
+      "self_seconds": 0.003792423,
+      "cumulative_seconds": 0.003792423
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'search' of 're.Pattern' objects>",
+      "primitive_calls": 3046,
+      "total_calls": 3046,
+      "self_seconds": 0.0037176320000000002,
+      "cumulative_seconds": 0.0037176320000000002
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'group' of 're.Match' objects>",
+      "primitive_calls": 26072,
+      "total_calls": 26072,
+      "self_seconds": 0.003221559,
+      "cumulative_seconds": 0.003221559
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'match' of 're.Pattern' objects>",
+      "primitive_calls": 10146,
+      "total_calls": 10146,
+      "self_seconds": 0.002754832,
+      "cumulative_seconds": 0.002754832
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'casefold' of 'str' objects>",
+      "primitive_calls": 6196,
+      "total_calls": 6196,
+      "self_seconds": 0.002244761,
+      "cumulative_seconds": 0.002244761
+    }
+  ],
+  "top_cumulative": [
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/store.py",
+      "line": 599,
+      "function": "recall",
+      "primitive_calls": 1015,
+      "total_calls": 1015,
+      "self_seconds": 0.40343688400000005,
+      "cumulative_seconds": 2.023943291
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'execute' of 'sqlite3.Connection' objects>",
+      "primitive_calls": 8143,
+      "total_calls": 8143,
+      "self_seconds": 0.906378152,
+      "cumulative_seconds": 0.906378152
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'fetchall' of 'sqlite3.Cursor' objects>",
+      "primitive_calls": 3068,
+      "total_calls": 3068,
+      "self_seconds": 0.157392805,
+      "cumulative_seconds": 0.157392805
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/text.py",
+      "line": 34,
+      "function": "terms",
+      "primitive_calls": 6088,
+      "total_calls": 6088,
+      "self_seconds": 0.049347593,
+      "cumulative_seconds": 0.150993592
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/store.py",
+      "line": 509,
+      "function": "_refs",
+      "primitive_calls": 5073,
+      "total_calls": 5073,
+      "self_seconds": 0.017561528,
+      "cumulative_seconds": 0.058851339
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<built-in method builtins.max>",
+      "primitive_calls": 218508,
+      "total_calls": 218508,
+      "self_seconds": 0.028483049000000003,
+      "cumulative_seconds": 0.054719053000000004
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'sort' of 'list' objects>",
+      "primitive_calls": 1064,
+      "total_calls": 1064,
+      "self_seconds": 0.013264411,
+      "cumulative_seconds": 0.050437612
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'findall' of 're.Pattern' objects>",
+      "primitive_calls": 6876,
+      "total_calls": 6876,
+      "self_seconds": 0.049438153000000006,
+      "cumulative_seconds": 0.049438153000000006
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'intersection' of 'set' objects>",
+      "primitive_calls": 20233,
+      "total_calls": 20233,
+      "self_seconds": 0.048485278,
+      "cumulative_seconds": 0.048485278
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'split' of 'str' objects>",
+      "primitive_calls": 20662,
+      "total_calls": 20662,
+      "self_seconds": 0.04832264,
+      "cumulative_seconds": 0.04832264
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/store.py",
+      "line": 729,
+      "function": "<lambda>",
+      "primitive_calls": 100192,
+      "total_calls": 100192,
+      "self_seconds": 0.02368202,
+      "cumulative_seconds": 0.036807690000000004
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'get' of 'dict' objects>",
+      "primitive_calls": 407211,
+      "total_calls": 407211,
+      "self_seconds": 0.030717385000000003,
+      "cumulative_seconds": 0.030717385000000003
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'sub' of 're.Pattern' objects>",
+      "primitive_calls": 6315,
+      "total_calls": 6315,
+      "self_seconds": 0.028646584000000003,
+      "cumulative_seconds": 0.028646584000000003
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/store.py",
+      "line": 764,
+      "function": "<lambda>",
+      "primitive_calls": 70783,
+      "total_calls": 70783,
+      "self_seconds": 0.020081728,
+      "cumulative_seconds": 0.026236004
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<built-in method builtins.len>",
+      "primitive_calls": 445688,
+      "total_calls": 445688,
+      "self_seconds": 0.024598747,
+      "cumulative_seconds": 0.024598747
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'join' of 'str' objects>",
+      "primitive_calls": 7179,
+      "total_calls": 7179,
+      "self_seconds": 0.012938890000000002,
+      "cumulative_seconds": 0.021609432
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'update' of 'dict' objects>",
+      "primitive_calls": 109801,
+      "total_calls": 109801,
+      "self_seconds": 0.021025334,
+      "cumulative_seconds": 0.021025334
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/store.py",
+      "line": 168,
+      "function": "_context_allocations",
+      "primitive_calls": 1015,
+      "total_calls": 1015,
+      "self_seconds": 0.009424939,
+      "cumulative_seconds": 0.015662126000000002
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'append' of 'list' objects>",
+      "primitive_calls": 153924,
+      "total_calls": 153924,
+      "self_seconds": 0.012773103000000001,
+      "cumulative_seconds": 0.012773103000000001
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'extend' of 'list' objects>",
+      "primitive_calls": 25643,
+      "total_calls": 25643,
+      "self_seconds": 0.006425836000000001,
+      "cumulative_seconds": 0.010218259
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/text.py",
+      "line": 75,
+      "function": "estimate_tokens",
+      "primitive_calls": 1015,
+      "total_calls": 1015,
+      "self_seconds": 0.0011753710000000001,
+      "cumulative_seconds": 0.009301237
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/store.py",
+      "line": 104,
+      "function": "_json",
+      "primitive_calls": 1015,
+      "total_calls": 1015,
+      "self_seconds": 0.000779735,
+      "cumulative_seconds": 0.009241544
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/text.py",
+      "line": 148,
+      "function": "excerpt",
+      "primitive_calls": 5073,
+      "total_calls": 5073,
+      "self_seconds": 0.004212566,
+      "cumulative_seconds": 0.007854336
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/text.py",
+      "line": 70,
+      "function": "query_terms",
+      "primitive_calls": 1015,
+      "total_calls": 1015,
+      "self_seconds": 0.001735893,
+      "cumulative_seconds": 0.0070958160000000004
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'split' of 're.Pattern' objects>",
+      "primitive_calls": 25643,
+      "total_calls": 25643,
+      "self_seconds": 0.005062345,
+      "cumulative_seconds": 0.005062345
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/store.py",
+      "line": 370,
+      "function": "revision",
+      "primitive_calls": 1015,
+      "total_calls": 1015,
+      "self_seconds": 0.001096365,
+      "cumulative_seconds": 0.0048652140000000005
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<method 'fullmatch' of 're.Pattern' objects>",
+      "primitive_calls": 25643,
+      "total_calls": 25643,
+      "self_seconds": 0.004603795,
+      "cumulative_seconds": 0.004603795
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/store.py",
+      "line": 704,
+      "function": "<genexpr>",
+      "primitive_calls": 105743,
+      "total_calls": 105743,
+      "self_seconds": 0.004424197,
+      "cumulative_seconds": 0.004424197
+    },
+    {
+      "path": "~",
+      "line": 0,
+      "function": "<built-in method builtins.min>",
+      "primitive_calls": 29323,
+      "total_calls": 29323,
+      "self_seconds": 0.0038940550000000004,
+      "cumulative_seconds": 0.0038940550000000004
+    },
+    {
+      "path": "/workspace/scratch/0baa2543dd3a/default-equivalence-v031/src/memory_book/text.py",
+      "line": 62,
+      "function": "<genexpr>",
+      "primitive_calls": 40961,
+      "total_calls": 40961,
+      "self_seconds": 0.003792423,
+      "cumulative_seconds": 0.003792423
+    }
+  ]
+}

@@ -22,6 +22,7 @@ jobs:
       TIKTOKEN_CACHE_DIR: .artifacts/tiktoken
       PYTHONDONTWRITEBYTECODE: '1'
       PYTHONHASHSEED: '0'
+      ORT_DISABLE_TELEMETRY: '1'
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
@@ -41,6 +42,17 @@ jobs:
           from scripts.round3_performance import load_binding, load_plan
           plan = load_plan()
           binding = load_binding(pathlib.Path('benchmarks/experiments/round3-performance-binding.json'))
+          # Preserve the exact local commit named by the immutable development
+          # reports. A tiny bundle contains only its two-file source change.
+          original = json.loads(pathlib.Path('benchmarks/experiments/round3-development-source.json').read_bytes())
+          bundle = pathlib.Path('benchmarks/experiments/round3-development-source.bundle')
+          assert len(bundle.read_bytes()) == original['bundle_bytes']
+          assert hashlib.sha256(bundle.read_bytes()).hexdigest() == original['bundle_sha256']
+          assert original['ref'] == 'refs/heads/source/v031-rowid-development'
+          assert original['commit'] == '6fbee6051b0a2f61cf69b22e35a5e914650ab0c7'
+          subprocess.run(['git', 'bundle', 'verify', str(bundle)], check=True)
+          subprocess.run(['git', 'fetch', str(bundle), original['ref'] + ':' + original['ref']], check=True)
+          subprocess.run(['git', 'push', 'origin', original['commit'] + ':' + original['ref']], check=True)
           for label, source in binding['sources'].items():
               assert label in ('baseline', 'candidate') and re.fullmatch(r'[0-9a-f]{40}', source['commit'])
               subprocess.run(['git', 'fetch', 'origin', source['commit']], check=True)
@@ -78,7 +90,8 @@ jobs:
         if: always() && steps.prepare.outcome == 'success'
         run: |
           python scripts/round3_performance.py --audit \
-            "benchmarks/reports/round3-performance-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT/report.json.gz"
+            "benchmarks/reports/round3-performance-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT/report.json.gz" \
+            --state-dir ".artifacts/round3-performance-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
       - name: Preserve the complete attempt in a new Git branch
         if: always()
         env:
@@ -96,6 +109,8 @@ jobs:
               for name in ('run.json', 'checkpoint.json'):
                   if (state / name).is_file():
                       shutil.copyfile(state / name, public / name)
+              if (state / 'controller-attempts').is_dir():
+                  shutil.copytree(state / 'controller-attempts', public / 'controller-attempts')
               workers = public / 'workers'
               workers.mkdir(exist_ok=True)
               for source in sorted((state / 'workers').glob('*')):

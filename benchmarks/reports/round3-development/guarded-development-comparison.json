@@ -1,0 +1,110 @@
+{
+  "status": "development-equivalence-passed",
+  "interpretation": "Two balanced development pairs on old data; formal controller remains separate",
+  "candidate_commit": "6fbee6051b0a2f61cf69b22e35a5e914650ab0c7",
+  "mismatches": [],
+  "cells": [
+    {
+      "cohort": "synthetic61",
+      "budget_chars": 2000,
+      "pairs": 336,
+      "latency": {
+        "baseline": {
+          "p50_ms": 2.4262385,
+          "p95_ms": 6.755724750000001
+        },
+        "candidate": {
+          "p50_ms": 2.333737,
+          "p95_ms": 6.505797
+        }
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "budget_chars": 4000,
+      "pairs": 336,
+      "latency": {
+        "baseline": {
+          "p50_ms": 2.431378,
+          "p95_ms": 8.87215375
+        },
+        "candidate": {
+          "p50_ms": 2.0274825,
+          "p95_ms": 6.18716625
+        }
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "budget_chars": 8000,
+      "pairs": 336,
+      "latency": {
+        "baseline": {
+          "p50_ms": 1.9887805,
+          "p95_ms": 4.6379405
+        },
+        "candidate": {
+          "p50_ms": 2.0415894999999997,
+          "p95_ms": 8.8194685
+        }
+      }
+    },
+    {
+      "cohort": "public1015",
+      "budget_chars": 2000,
+      "pairs": 2030,
+      "latency": {
+        "baseline": {
+          "p50_ms": 2.0875285,
+          "p95_ms": 3.46372555
+        },
+        "candidate": {
+          "p50_ms": 1.888192,
+          "p95_ms": 2.8723108999999996
+        }
+      }
+    },
+    {
+      "cohort": "public1015",
+      "budget_chars": 4000,
+      "pairs": 2030,
+      "latency": {
+        "baseline": {
+          "p50_ms": 1.7162354999999998,
+          "p95_ms": 3.3457314499999984
+        },
+        "candidate": {
+          "p50_ms": 1.4165345,
+          "p95_ms": 2.226640749999999
+        }
+      }
+    },
+    {
+      "cohort": "public1015",
+      "budget_chars": 8000,
+      "pairs": 2030,
+      "latency": {
+        "baseline": {
+          "p50_ms": 1.6459679999999999,
+          "p95_ms": 2.7488527999999994
+        },
+        "candidate": {
+          "p50_ms": 1.4231894999999999,
+          "p95_ms": 2.0165606499999997
+        }
+      }
+    }
+  ],
+  "timed_calls": 14196,
+  "warmup_calls": 4732,
+  "total_recall_calls": 18928,
+  "comparison_pairs": 7098,
+  "no_performance_pass_claim": true,
+  "observed_negative": "Synthetic61 at 8000 characters: candidate round1 p95 15.1923734 ms vs round0 4.5552303 ms; pooled candidate p95 8.8194685 ms vs baseline 4.6379405 ms. All rows retained; no outlier removal or threshold adjustment.",
+  "raw_files_sha256": {
+    "guarded-baseline-r0.json.gz": "9539e3c3c26390832a89887197a6457f4b44a8dd8f454ba6bf8f7635d426b6da",
+    "guarded-baseline-r1.json.gz": "a5df9ae53a2b5c12af1934955272adf6ccb956a62ff3628ae4473cb638bfddd8",
+    "guarded-candidate-r0.json.gz": "187ede27295ae1756f7bf02ed570cca4b5aa850d5ab01c3ad54b90ab3ce7d0b3",
+    "guarded-candidate-r1.json.gz": "489027c95834bee67802e752a15ef1dc4ab51ff3f0c704ee3fa3b76ba5787372"
+  }
+}

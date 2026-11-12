@@ -1,0 +1,471 @@
+{
+  "label": "old-data development SQL diagnostic, no runtime changes",
+  "reports": [
+    {
+      "cohort": "synthetic61",
+      "sqlite_version": "3.53.1",
+      "explain": {
+        "pages_fts/project": {
+          "baseline": [
+            [
+              5,
+              0,
+              156,
+              "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4"
+            ],
+            [
+              10,
+              0,
+              45,
+              "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+            ],
+            [
+              27,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ],
+          "cross_join": [
+            [
+              5,
+              0,
+              156,
+              "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4"
+            ],
+            [
+              10,
+              0,
+              45,
+              "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+            ],
+            [
+              27,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ]
+        },
+        "pages_fts/none": {
+          "baseline": [
+            [
+              5,
+              0,
+              156,
+              "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4"
+            ],
+            [
+              10,
+              0,
+              45,
+              "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+            ],
+            [
+              25,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ],
+          "cross_join": [
+            [
+              5,
+              0,
+              156,
+              "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4"
+            ],
+            [
+              10,
+              0,
+              45,
+              "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+            ],
+            [
+              25,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ]
+        },
+        "pages_stem_fts/project": {
+          "baseline": [
+            [
+              5,
+              0,
+              156,
+              "SCAN pages_stem_fts VIRTUAL TABLE INDEX 0:M4"
+            ],
+            [
+              10,
+              0,
+              45,
+              "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+            ],
+            [
+              27,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ],
+          "cross_join": [
+            [
+              5,
+              0,
+              156,
+              "SCAN pages_stem_fts VIRTUAL TABLE INDEX 0:M4"
+            ],
+            [
+              10,
+              0,
+              45,
+              "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+            ],
+            [
+              27,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ]
+        },
+        "pages_stem_fts/none": {
+          "baseline": [
+            [
+              5,
+              0,
+              156,
+              "SCAN pages_stem_fts VIRTUAL TABLE INDEX 0:M4"
+            ],
+            [
+              10,
+              0,
+              45,
+              "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+            ],
+            [
+              25,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ],
+          "cross_join": [
+            [
+              5,
+              0,
+              156,
+              "SCAN pages_stem_fts VIRTUAL TABLE INDEX 0:M4"
+            ],
+            [
+              10,
+              0,
+              45,
+              "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+            ],
+            [
+              25,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ]
+        }
+      },
+      "routes": {
+        "pages_fts/project": {
+          "baseline": {
+            "samples": 168,
+            "p50_ms": 0.5767765,
+            "p95_ms": 1.6619257,
+            "mean_ms": 0.7484269226190475
+          },
+          "cross_join": {
+            "samples": 168,
+            "p50_ms": 0.5746875,
+            "p95_ms": 1.60074935,
+            "mean_ms": 0.7468382321428572
+          }
+        },
+        "pages_fts/none": {
+          "baseline": {
+            "samples": 168,
+            "p50_ms": 0.7842644999999999,
+            "p95_ms": 2.28325885,
+            "mean_ms": 1.0452512202380952
+          },
+          "cross_join": {
+            "samples": 168,
+            "p50_ms": 0.7092970000000001,
+            "p95_ms": 2.22273275,
+            "mean_ms": 1.0380778928571428
+          }
+        },
+        "pages_stem_fts/project": {
+          "baseline": {
+            "samples": 168,
+            "p50_ms": 0.5657695,
+            "p95_ms": 1.4117741000000001,
+            "mean_ms": 0.7088887738095239
+          },
+          "cross_join": {
+            "samples": 168,
+            "p50_ms": 0.5535209999999999,
+            "p95_ms": 1.36646225,
+            "mean_ms": 0.6977557738095238
+          }
+        },
+        "pages_stem_fts/none": {
+          "baseline": {
+            "samples": 168,
+            "p50_ms": 0.8290725,
+            "p95_ms": 3.726962900000006,
+            "mean_ms": 1.4874129345238094
+          },
+          "cross_join": {
+            "samples": 168,
+            "p50_ms": 0.845477,
+            "p95_ms": 2.5259842500000005,
+            "mean_ms": 1.5923511071428573
+          }
+        }
+      },
+      "row_mismatches": []
+    },
+    {
+      "cohort": "locomo1015",
+      "sqlite_version": "3.53.1",
+      "explain": {
+        "pages_fts/project": {
+          "baseline": [
+            [
+              5,
+              0,
+              156,
+              "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4"
+            ],
+            [
+              10,
+              0,
+              45,
+              "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+            ],
+            [
+              27,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ],
+          "cross_join": [
+            [
+              5,
+              0,
+              156,
+              "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4"
+            ],
+            [
+              10,
+              0,
+              45,
+              "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+            ],
+            [
+              27,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ]
+        },
+        "pages_fts/none": {
+          "baseline": [
+            [
+              5,
+              0,
+              156,
+              "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4"
+            ],
+            [
+              10,
+              0,
+              45,
+              "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+            ],
+            [
+              25,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ],
+          "cross_join": [
+            [
+              5,
+              0,
+              156,
+              "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4"
+            ],
+            [
+              10,
+              0,
+              45,
+              "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+            ],
+            [
+              25,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ]
+        },
+        "pages_stem_fts/project": {
+          "baseline": [
+            [
+              5,
+              0,
+              156,
+              "SCAN pages_stem_fts VIRTUAL TABLE INDEX 0:M4"
+            ],
+            [
+              10,
+              0,
+              45,
+              "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+            ],
+            [
+              27,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ],
+          "cross_join": [
+            [
+              5,
+              0,
+              156,
+              "SCAN pages_stem_fts VIRTUAL TABLE INDEX 0:M4"
+            ],
+            [
+              10,
+              0,
+              45,
+              "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+            ],
+            [
+              27,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ]
+        },
+        "pages_stem_fts/none": {
+          "baseline": [
+            [
+              5,
+              0,
+              156,
+              "SCAN pages_stem_fts VIRTUAL TABLE INDEX 0:M4"
+            ],
+            [
+              10,
+              0,
+              45,
+              "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+            ],
+            [
+              25,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ],
+          "cross_join": [
+            [
+              5,
+              0,
+              156,
+              "SCAN pages_stem_fts VIRTUAL TABLE INDEX 0:M4"
+            ],
+            [
+              10,
+              0,
+              45,
+              "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+            ],
+            [
+              25,
+              0,
+              0,
+              "USE TEMP B-TREE FOR ORDER BY"
+            ]
+          ]
+        }
+      },
+      "routes": {
+        "pages_fts/project": {
+          "baseline": {
+            "samples": 1015,
+            "p50_ms": 0.347735,
+            "p95_ms": 0.6599035999999999,
+            "mean_ms": 0.3798594039408867
+          },
+          "cross_join": {
+            "samples": 1015,
+            "p50_ms": 0.350559,
+            "p95_ms": 0.6601492999999999,
+            "mean_ms": 0.38170058128078815
+          }
+        },
+        "pages_fts/none": {
+          "baseline": {
+            "samples": 1015,
+            "p50_ms": 0.469321,
+            "p95_ms": 1.0170921,
+            "mean_ms": 0.5624953753694582
+          },
+          "cross_join": {
+            "samples": 1015,
+            "p50_ms": 0.482158,
+            "p95_ms": 1.0231536999999997,
+            "mean_ms": 0.5495658206896552
+          }
+        },
+        "pages_stem_fts/project": {
+          "baseline": {
+            "samples": 1015,
+            "p50_ms": 0.383481,
+            "p95_ms": 0.73002,
+            "mean_ms": 0.42341226403940885
+          },
+          "cross_join": {
+            "samples": 1015,
+            "p50_ms": 0.385013,
+            "p95_ms": 0.7275434999999999,
+            "mean_ms": 0.4230161911330049
+          }
+        },
+        "pages_stem_fts/none": {
+          "baseline": {
+            "samples": 1015,
+            "p50_ms": 0.561751,
+            "p95_ms": 1.2117150999999995,
+            "mean_ms": 0.6476841300492611
+          },
+          "cross_join": {
+            "samples": 1015,
+            "p50_ms": 0.558266,
+            "p95_ms": 1.2317493999999998,
+            "mean_ms": 0.6498343704433498
+          }
+        }
+      },
+      "row_mismatches": []
+    }
+  ]
+}

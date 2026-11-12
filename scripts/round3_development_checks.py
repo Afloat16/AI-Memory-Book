@@ -1,0 +1,295 @@
+"""Old-data development diagnostics and Q2 compatibility; never a speed gate.
+
+Run each source in a fresh process. Source text, model files and SQLite state
+stay outside the published reports. This does not modify historical helpers.
+"""
+from __future__ import annotations
+
+import argparse
+import cProfile
+import gzip
+import hashlib
+import json
+import os
+from pathlib import Path
+import pstats
+import sqlite3
+import statistics
+import sys
+import time
+from types import SimpleNamespace
+
+ROOT = Path(__file__).resolve().parents[1]
+COHORTS = {
+    "authored36": ("transfer", 36, "ecc46c474d5184995938419fa985b8e08c0ddb51560da49990247465db6db0b0"),
+    "hotpot128": ("hotpotqa", 128, "0791515aca6bccf19a97895cad681e06a07536d6c08050d54189cc64cb819822"),
+}
+MODEL = "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25"
+BUDGETS = (512, 1024, 2048)
+
+
+def digest(value):
+    return hashlib.sha256(json.dumps(value, ensure_ascii=False, sort_keys=True,
+                                    separators=(",", ":")).encode()).hexdigest()
+
+
+def write(path, value):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    raw = (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode()
+    if path.suffix == ".gz":
+        raw = gzip.compress(raw, mtime=0)
+    temporary = path.with_name(path.name + ".partial")
+    temporary.write_bytes(raw)
+    temporary.replace(path)
+
+
+def engine(args):
+    sys.path.insert(0, str(args.source.resolve()))
+    sys.path.insert(1, str(ROOT))
+    import memory_book
+    from benchmarks.run import engine_source_hash
+    package = Path(memory_book.__file__).resolve().parent
+    if package != (args.source / "memory_book").resolve():
+        raise ValueError("Imported another source")
+    if engine_source_hash(package) != args.expected_source_sha:
+        raise ValueError("Runtime source pin differs")
+    return memory_book.MemoryBook, package, engine_source_hash
+
+
+def sentinel_data(args):
+    from benchmarks.semantic_eval import dataset_for
+    corpus, count, fingerprint = COHORTS[args.cohort]
+    return dataset_for(SimpleNamespace(corpus=corpus, seed=61, split="heldout", projects=8,
+        locomo_path=None, hotpot_path=str(args.hotpot_path), max_queries=0,
+        expected_queries=count, expected_dataset_sha256=fingerprint))
+
+
+def prepare(args):
+    MemoryBook, package, source_hash = engine(args)
+    from benchmarks.semantic_eval import source_snapshot
+    from scripts.novelty_cap_qualification import vectors_digest
+    from memory_book.semantic import verify_model_files
+    data = sentinel_data(args)
+    args.state.mkdir(parents=True, exist_ok=False)
+    path = args.state / "prepared.db"
+    with MemoryBook(path, max_page_chars=900, cache_size=0,
+                    semantic_model_dir=args.model_dir) as book:
+        for session in data.sessions:
+            book.ingest(session)
+        before = source_snapshot(book.db)
+        index = book.build_semantic_index()
+        if index["model_fingerprint"] != MODEL or index["inference_threads"] != 1:
+            raise ValueError("Model/thread pin differs")
+        if before != source_snapshot(book.db):
+            raise ValueError("Index construction changed originals")
+        vectors = vectors_digest(path)
+        for label in ("baseline", "candidate"):
+            with sqlite3.connect(args.state / (label + ".db")) as target:
+                book.db.backup(target)
+    if source_hash(package) != args.expected_source_sha:
+        raise ValueError("Source changed during preparation")
+    write(args.output, {"cohort": args.cohort, "dataset_sha256": data.fingerprint,
+        "queries": len(data.queries), "source_sha256": args.expected_source_sha,
+        "ort_disable_telemetry": os.environ.get("ORT_DISABLE_TELEMETRY"),
+        "model": verify_model_files(args.model_dir), "semantic_index": index,
+        "originals_sha256": before, "vectors": vectors,
+        "method": "Baseline builds one index, then SQLite backup gives both sources identical persisted vectors.",
+        "interpretation": "Correctness preparation only; no performance inference."})
+    print(json.dumps({"prepared": args.cohort, "vector_rows": vectors["rows"]}), flush=True)
+
+
+def sentinel(args):
+    MemoryBook, package, source_hash = engine(args)
+    from benchmarks.run import original_turn_texts
+    from benchmarks.semantic_eval import page_projection_errors, source_snapshot
+    from benchmarks.native_budget_eval import source_errors
+    from benchmarks.token_compare import TokenCounter
+    from scripts.novelty_cap_qualification import vectors_digest
+    from memory_book.semantic import verify_model_files
+    data = sentinel_data(args)
+    preparation = json.loads(args.preparation.read_bytes())
+    counter = TokenCounter("cl100k_base")
+    if counter.version != "0.12.0":
+        raise ValueError("Tokenizer pin differs")
+    counter.count("readiness")
+    path = args.state / (args.label + ".db")
+    report = {"status": "running", "cohort": args.cohort, "label": args.label,
+        "runtime_sha256": args.expected_source_sha, "dataset_sha256": data.fingerprint,
+        "ort_disable_telemetry": os.environ.get("ORT_DISABLE_TELEMETRY"),
+        "model": verify_model_files(args.model_dir), "configured_generative_model_calls": 0,
+        "expected_calls": len(data.queries) * len(BUDGETS), "attempts_started": 0,
+        "attempts_finished": 0, "rows": [],
+        "settings": {"semantic": True, "coverage": False, "budget_chars": 8000,
+                     "token_budgets": list(BUDGETS), "tokenizer": "cl100k_base", "limit": 5,
+                     "cache_size": 0, "use_cache": False, "repetitions": 1},
+        "interpretation": "Previously-scored regression compatibility only; no timing claim."}
+    ledger_path = args.output.with_name(args.output.name + ".attempts.jsonl")
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    if args.output.exists() or ledger_path.exists():
+        raise ValueError("Never overwrite an executed sentinel")
+    sources = original_turn_texts(data)
+    try:
+        with ledger_path.open("x", encoding="utf-8") as ledger, MemoryBook(path,
+                max_page_chars=900, cache_size=0, semantic_model_dir=args.model_dir) as book:
+            def event(value):
+                ledger.write(json.dumps(value, separators=(",", ":")) + "\n")
+                ledger.flush()
+                os.fsync(ledger.fileno())
+            before = source_snapshot(book.db)
+            vectors = vectors_digest(path)
+            if before != preparation["originals_sha256"] or vectors != preparation["vectors"]:
+                raise ValueError("Sources/index differ from prepared snapshot")
+            if report["model"] != preparation["model"]:
+                raise ValueError("Model files differ")
+            pages = {row["id"]: row["content"] for row in book.db.execute("SELECT id,content FROM pages")}
+            for budget in BUDGETS:
+                for case in data.queries:
+                    event({"state": "started", "query_id": case.id, "budget_tokens": budget})
+                    report["attempts_started"] += 1
+                    response = book.recall(case.query, project=case.project, budget_chars=8000,
+                        budget_tokens=budget, tokenizer="cl100k_base", limit=5,
+                        use_cache=False, coverage=False, semantic=True)
+                    response.pop("latency_ms")
+                    errors = {"source": source_errors(response, sources),
+                        "projection": page_projection_errors(response, pages),
+                        "scope": sum(r["breadcrumb"][0]["id"] != case.project for r in response["results"])
+                            if case.project is not None else 0,
+                        "token": int(response["context_tokens"] != counter.count(response["context"])
+                                     or response["context_tokens"] > budget),
+                        "metadata": int(response.get("semantic_model_fingerprint") != MODEL
+                                        or response.get("semantic") is not True or response["cache_hit"])}
+                    if any(errors.values()):
+                        raise ValueError("Source/scope/budget/model invariant failed")
+                    row = {"query_id": case.id, "budget_tokens": budget,
+                        "payload_sha256": digest(response), "context_sha256": digest(response["context"]),
+                        "errors": errors}
+                    report["rows"].append(row)
+                    report["attempts_finished"] += 1
+                    event({"state": "finished", **row})
+            if source_snapshot(book.db) != before or vectors_digest(path) != vectors:
+                raise ValueError("Read-only recall changed sources/vectors")
+            if source_hash(package) != args.expected_source_sha:
+                raise ValueError("Runtime changed")
+            report.update(status="completed", originals_sha256=before, vectors=vectors)
+    except BaseException as error:
+        report.update(status="failed-incomplete", error_type=type(error).__name__)
+        raise
+    finally:
+        if ledger_path.exists():
+            report["ledger_sha256"] = hashlib.sha256(ledger_path.read_bytes()).hexdigest()
+        write(args.output, report)
+    print(json.dumps({"cohort": args.cohort, "label": args.label,
+                      "finished": report["attempts_finished"], "status": report["status"]}), flush=True)
+
+
+def native_development(args):
+    """Reproduce one source/round of the saved AB/BA development payload probe."""
+    MemoryBook, package, source_hash = engine(args)
+    from scripts.benchmark_default_recall import dataset, cases_for, indexed_content
+    from benchmarks.run import percentile
+    report = {"label": args.label, "round": args.round, "runtime_sha256": source_hash(package),
+        "interpretation": "Old-data development/regression diagnostic; not formal performance validation.", "cohorts": {}}
+    for name, filename in (("synthetic61", "synthetic61"), ("public1015", "locomo1015")):
+        data = dataset(name, args.locomo_path)
+        with MemoryBook(args.state / ("baseline-" + filename + ".db"), cache_size=0) as book:
+            before = indexed_content(book.db)
+            for case in data.queries:
+                book.recall(case.query, project=case.project, budget_chars=4000, use_cache=False)
+            configurations = []
+            for budget in (2000, 4000, 8000):
+                rows = []
+                for case in cases_for(data, args.round, budget):
+                    start = time.perf_counter_ns()
+                    response = book.recall(case.query, project=case.project, budget_chars=budget, use_cache=False)
+                    elapsed = (time.perf_counter_ns() - start) / 1e6
+                    response.pop("latency_ms")
+                    rows.append({"id": case.id, "payload_sha256": digest(response), "wall_ms": elapsed})
+                values = [row["wall_ms"] for row in rows]
+                configurations.append({"budget_chars": budget, "rows": rows,
+                    "latency": {"p50_ms": percentile(values, .5), "p95_ms": percentile(values, .95),
+                                "mean_ms": statistics.fmean(values)}})
+            if indexed_content(book.db) != before:
+                raise ValueError("Index projection changed")
+            report["cohorts"][name] = {"dataset_sha256": data.fingerprint,
+                "configurations": configurations, "index_projection": before}
+    write(args.output, report)
+
+
+def native_profile(args):
+    """Rebuild old input databases and reproduce the initial cProfile check."""
+    MemoryBook, package, source_hash = engine(args)
+    from scripts.benchmark_default_recall import dataset
+    from benchmarks.run import percentile
+    args.state.mkdir(parents=True, exist_ok=True)
+    reports = {}
+    for name, filename in (("synthetic61", "synthetic61"), ("public1015", "locomo1015")):
+        data = dataset(name, args.locomo_path)
+        path = args.state / ("baseline-" + filename + ".db")
+        if path.exists():
+            raise ValueError("Profile preparation requires new database paths")
+        with MemoryBook(path, cache_size=0) as book:
+            started = time.perf_counter()
+            for session in data.sessions:
+                book.ingest(session)
+            ingestion = time.perf_counter() - started
+            for case in data.queries:
+                book.recall(case.query, project=case.project, budget_chars=4000, use_cache=False)
+            elapsed = []
+            for case in data.queries:
+                start = time.perf_counter_ns()
+                book.recall(case.query, project=case.project, budget_chars=4000, use_cache=False)
+                elapsed.append((time.perf_counter_ns() - start) / 1e6)
+            profile = cProfile.Profile()
+            profile.enable()
+            for case in data.queries:
+                book.recall(case.query, project=case.project, budget_chars=4000, use_cache=False)
+            profile.disable()
+            stats = pstats.Stats(profile)
+            functions = [{"path": path, "line": line, "function": function,
+                "primitive_calls": primitive, "total_calls": total, "self_seconds": own,
+                "cumulative_seconds": cumulative}
+                for (path, line, function), (primitive, total, own, cumulative, _) in stats.stats.items()
+                if "/memory_book/" in path or path == "~"]
+            reports[name] = {"dataset": data.description(), "source_sha256": source_hash(package),
+                "fresh_ingest_seconds": ingestion, "book_stats": book.stats(),
+                "unprofiled_ms": {"p50": percentile(elapsed, .5), "p95": percentile(elapsed, .95),
+                                  "mean": statistics.fmean(elapsed)},
+                "profile_total_seconds": stats.total_tt,
+                "top_self": sorted(functions, key=lambda row: row["self_seconds"], reverse=True)[:30],
+                "top_cumulative": sorted(functions, key=lambda row: row["cumulative_seconds"], reverse=True)[:30]}
+    write(args.output, {"interpretation": "Old-data development profile only", "reports": reports})
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("mode", choices=("sentinel-prepare", "sentinel-worker", "native-worker", "native-profile"))
+    parser.add_argument("--source", type=Path, required=True)
+    parser.add_argument("--expected-source-sha", required=True)
+    parser.add_argument("--state", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--cohort", choices=tuple(COHORTS))
+    parser.add_argument("--label", choices=("baseline", "candidate"))
+    parser.add_argument("--model-dir", type=Path)
+    parser.add_argument("--hotpot-path", type=Path)
+    parser.add_argument("--locomo-path")
+    parser.add_argument("--preparation", type=Path)
+    parser.add_argument("--round", type=int, default=0)
+    args = parser.parse_args()
+    if args.mode.startswith("sentinel") and not (args.cohort and args.model_dir and args.hotpot_path):
+        parser.error("Sentinel requires --cohort, --model-dir and --hotpot-path")
+    if args.mode.startswith("sentinel") and os.environ.get("ORT_DISABLE_TELEMETRY") != "1":
+        parser.error("Set ORT_DISABLE_TELEMETRY=1 before process launch; local data must not enable runtime telemetry")
+    if args.mode == "sentinel-worker" and not (args.label and args.preparation):
+        parser.error("Sentinel worker requires --label and --preparation")
+    if args.mode == "sentinel-prepare":
+        prepare(args)
+    elif args.mode == "sentinel-worker":
+        sentinel(args)
+    elif args.mode == "native-worker":
+        native_development(args)
+    else:
+        native_profile(args)
+
+
+if __name__ == "__main__":
+    main()

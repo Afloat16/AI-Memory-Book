@@ -1,0 +1,24 @@
+{
+  "status": "rejected-diagnostic-formulation",
+  "variant": "rowid range constraints with ordinary JOIN and no fixed FTS outer loop",
+  "runtime_changes": false,
+  "completed_cohort": "synthetic61",
+  "repetitions": 4,
+  "route_pairs": 1344,
+  "row_rank_order_mismatches": 0,
+  "exact_sql_ms": {
+    "baseline_p50": 0.696004,
+    "baseline_p95": 2.3104154,
+    "range_p50": 33.254983,
+    "range_p95": 97.4767778
+  },
+  "stem_sql_ms": {
+    "baseline_p50": 0.6945715,
+    "baseline_p95": 2.3344443,
+    "range_p50": 30.2837195,
+    "range_p95": 91.82638575
+  },
+  "cause": "EXPLAIN: pages_project drives the outer loop; FTS virtual index 0:=M4 restarts MATCH for each candidate page. The guarded candidate fixes FTS outermost and uses index 0:M4><.",
+  "continuation": "The LoCoMo portion of this rejected SQL-only diagnostic was interrupted after the synthetic result and query plan confirmed the problem. No complete LoCoMo result or missing sample count is inferred.",
+  "evidence_limit": "This initial exploratory diagnostic recorded aggregates, not per-query timing rows. The later full-recall development comparison preserves every measured row."
+}

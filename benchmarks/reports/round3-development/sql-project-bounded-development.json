@@ -1,0 +1,393 @@
+{
+  "label": "old-data development SQL-only project rid-range with fixed FTS outer loop; no runtime changes",
+  "reports": [
+    {
+      "cohort": "synthetic61",
+      "routes": {
+        "pages_fts": {
+          "plans": {
+            "base": [
+              [
+                5,
+                0,
+                156,
+                "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4"
+              ],
+              [
+                10,
+                0,
+                45,
+                "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+              ],
+              [
+                27,
+                0,
+                0,
+                "USE TEMP B-TREE FOR ORDER BY"
+              ]
+            ],
+            "bounded": [
+              [
+                5,
+                0,
+                156,
+                "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4><"
+              ],
+              [
+                9,
+                0,
+                0,
+                "SCALAR SUBQUERY 1"
+              ],
+              [
+                14,
+                9,
+                53,
+                "SEARCH pages USING COVERING INDEX pages_project (project_id=?)"
+              ],
+              [
+                32,
+                0,
+                0,
+                "SCALAR SUBQUERY 2"
+              ],
+              [
+                37,
+                32,
+                53,
+                "SEARCH pages USING COVERING INDEX pages_project (project_id=?)"
+              ],
+              [
+                57,
+                0,
+                0,
+                "REUSE SUBQUERY 1"
+              ],
+              [
+                61,
+                0,
+                0,
+                "REUSE SUBQUERY 2"
+              ],
+              [
+                64,
+                0,
+                45,
+                "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+              ],
+              [
+                81,
+                0,
+                0,
+                "USE TEMP B-TREE FOR ORDER BY"
+              ]
+            ]
+          },
+          "timings": {
+            "base": {
+              "calls": 672,
+              "mean_ms": 0.7695134717261906,
+              "p50_ms": 0.540298,
+              "p95_ms": 1.5939516999999988
+            },
+            "bounded": {
+              "calls": 672,
+              "mean_ms": 0.7309443645833333,
+              "p50_ms": 0.48711800000000005,
+              "p95_ms": 1.4419597499999999
+            }
+          }
+        },
+        "pages_stem_fts": {
+          "plans": {
+            "base": [
+              [
+                5,
+                0,
+                156,
+                "SCAN pages_stem_fts VIRTUAL TABLE INDEX 0:M4"
+              ],
+              [
+                10,
+                0,
+                45,
+                "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+              ],
+              [
+                27,
+                0,
+                0,
+                "USE TEMP B-TREE FOR ORDER BY"
+              ]
+            ],
+            "bounded": [
+              [
+                5,
+                0,
+                156,
+                "SCAN pages_stem_fts VIRTUAL TABLE INDEX 0:M4><"
+              ],
+              [
+                9,
+                0,
+                0,
+                "SCALAR SUBQUERY 1"
+              ],
+              [
+                14,
+                9,
+                53,
+                "SEARCH pages USING COVERING INDEX pages_project (project_id=?)"
+              ],
+              [
+                32,
+                0,
+                0,
+                "SCALAR SUBQUERY 2"
+              ],
+              [
+                37,
+                32,
+                53,
+                "SEARCH pages USING COVERING INDEX pages_project (project_id=?)"
+              ],
+              [
+                57,
+                0,
+                0,
+                "REUSE SUBQUERY 1"
+              ],
+              [
+                61,
+                0,
+                0,
+                "REUSE SUBQUERY 2"
+              ],
+              [
+                64,
+                0,
+                45,
+                "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+              ],
+              [
+                81,
+                0,
+                0,
+                "USE TEMP B-TREE FOR ORDER BY"
+              ]
+            ]
+          },
+          "timings": {
+            "base": {
+              "calls": 672,
+              "mean_ms": 0.6575555089285714,
+              "p50_ms": 0.519537,
+              "p95_ms": 1.2805178499999998
+            },
+            "bounded": {
+              "calls": 672,
+              "mean_ms": 0.5656134464285715,
+              "p50_ms": 0.46165999999999996,
+              "p95_ms": 1.1758074
+            }
+          }
+        }
+      },
+      "mismatches": []
+    },
+    {
+      "cohort": "locomo1015",
+      "routes": {
+        "pages_fts": {
+          "plans": {
+            "base": [
+              [
+                5,
+                0,
+                156,
+                "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4"
+              ],
+              [
+                10,
+                0,
+                45,
+                "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+              ],
+              [
+                27,
+                0,
+                0,
+                "USE TEMP B-TREE FOR ORDER BY"
+              ]
+            ],
+            "bounded": [
+              [
+                5,
+                0,
+                156,
+                "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4><"
+              ],
+              [
+                9,
+                0,
+                0,
+                "SCALAR SUBQUERY 1"
+              ],
+              [
+                14,
+                9,
+                53,
+                "SEARCH pages USING COVERING INDEX pages_project (project_id=?)"
+              ],
+              [
+                32,
+                0,
+                0,
+                "SCALAR SUBQUERY 2"
+              ],
+              [
+                37,
+                32,
+                53,
+                "SEARCH pages USING COVERING INDEX pages_project (project_id=?)"
+              ],
+              [
+                57,
+                0,
+                0,
+                "REUSE SUBQUERY 1"
+              ],
+              [
+                61,
+                0,
+                0,
+                "REUSE SUBQUERY 2"
+              ],
+              [
+                64,
+                0,
+                45,
+                "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+              ],
+              [
+                81,
+                0,
+                0,
+                "USE TEMP B-TREE FOR ORDER BY"
+              ]
+            ]
+          },
+          "timings": {
+            "base": {
+              "calls": 4060,
+              "mean_ms": 0.4503750958128079,
+              "p50_ms": 0.373367,
+              "p95_ms": 0.6867759999999999
+            },
+            "bounded": {
+              "calls": 4060,
+              "mean_ms": 0.33212332857142857,
+              "p50_ms": 0.3051545,
+              "p95_ms": 0.48208650000000003
+            }
+          }
+        },
+        "pages_stem_fts": {
+          "plans": {
+            "base": [
+              [
+                5,
+                0,
+                156,
+                "SCAN pages_stem_fts VIRTUAL TABLE INDEX 0:M4"
+              ],
+              [
+                10,
+                0,
+                45,
+                "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+              ],
+              [
+                27,
+                0,
+                0,
+                "USE TEMP B-TREE FOR ORDER BY"
+              ]
+            ],
+            "bounded": [
+              [
+                5,
+                0,
+                156,
+                "SCAN pages_stem_fts VIRTUAL TABLE INDEX 0:M4><"
+              ],
+              [
+                9,
+                0,
+                0,
+                "SCALAR SUBQUERY 1"
+              ],
+              [
+                14,
+                9,
+                53,
+                "SEARCH pages USING COVERING INDEX pages_project (project_id=?)"
+              ],
+              [
+                32,
+                0,
+                0,
+                "SCALAR SUBQUERY 2"
+              ],
+              [
+                37,
+                32,
+                53,
+                "SEARCH pages USING COVERING INDEX pages_project (project_id=?)"
+              ],
+              [
+                57,
+                0,
+                0,
+                "REUSE SUBQUERY 1"
+              ],
+              [
+                61,
+                0,
+                0,
+                "REUSE SUBQUERY 2"
+              ],
+              [
+                64,
+                0,
+                45,
+                "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)"
+              ],
+              [
+                81,
+                0,
+                0,
+                "USE TEMP B-TREE FOR ORDER BY"
+              ]
+            ]
+          },
+          "timings": {
+            "base": {
+              "calls": 4060,
+              "mean_ms": 0.5808916172413793,
+              "p50_ms": 0.42659199999999997,
+              "p95_ms": 1.0232395999999995
+            },
+            "bounded": {
+              "calls": 4060,
+              "mean_ms": 0.4010474721674877,
+              "p50_ms": 0.3144935,
+              "p95_ms": 0.6007086499999994
+            }
+          }
+        }
+      },
+      "mismatches": []
+    }
+  ]
+}
