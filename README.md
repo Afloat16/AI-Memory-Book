@@ -274,6 +274,8 @@ The named volume persists the archive across server processes. No HTTP port is p
 
 ## Validation and optional modes
 
+The latest token-packing optimization reduces **p95 by 7.73%–14.45% across all four 512-token development configurations**, while preserving **all 2,016 complete payloads** against the frozen reference (timing excluded). The [full 12-configuration performance report](docs/token-prefix-performance.md) includes source identities, reproduction and the larger-budget tradeoffs.
+
 The current recommendation is **default score-aware lexical recall**. Optional
 exact token limits, multi-fact coverage and local semantic candidates are
 explicit choices for a workload and context budget.
