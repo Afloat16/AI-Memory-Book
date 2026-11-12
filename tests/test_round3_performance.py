@@ -252,6 +252,11 @@ class PerformanceGateTests(unittest.TestCase):
             return bench.make_row(case, native, 1, bench.dump(native), None, native, config,
                 counters, {("p", "s", 0): text}, {"page": text}, 0, 0, bench.BASELINE_HASH)
         self.assertFalse(any(measure()["invariants"].values()))
+        # Registered synthetic cases also contain unscoped queries. None
+        # permits genuine project references without disabling source checks.
+        case.project = None
+        self.assertFalse(any(measure()["invariants"].values()))
+        case.project = "p"
         native["results"][0]["text"] += " invented"
         self.assertTrue(measure()["invariants"]["page_projection_errors"])
         native["results"][0]["source_refs"][0]["project"] = "foreign"
