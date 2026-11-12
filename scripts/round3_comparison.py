@@ -539,6 +539,7 @@ def component(args, plan, binding, data, bundle, report, ledger, resources):
             "packing_latency": latency_summary([row["elapsed_ms"] for row in packing]),
             "invariants": {key: sum(int(row[key]) for row in rows) for key in reused.INVARIANTS}})
     report["repeat_hit_changes"] = repeat_changes
+    report["repeat_hit_changes_boundary"] = "Changes in mapped supplied-page ID lists, including None positions. Original native result IDs are retained as SHA256 values; metadata identity changes within an unchanged None slot are not counted here."
     report["quality_boundary"] = "First response only, six offline whole-block projections. Every native top-five slot, including ai-memory metadata None, and all three search repetitions remain recorded. No extra diagnostic or replacement query."
     report.update(component_costs(report["timing_rows"], old_shape_plan(plan, binding, args.stage)["components"]["native_read_policy"]))
     report["validation"] = {"passed": True, "failures": []}
