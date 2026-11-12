@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -24,9 +25,16 @@ class TokenBudgetMCPTests(unittest.IsolatedAsyncioTestCase):
             database = str(Path(directory) / "memory.db")
             with MemoryBook(database) as book:
                 book.ingest(sample())
+            environment = {"PYTHONPATH": str(Path(__file__).resolve().parents[1] / "src"),
+                           "PYTHONUNBUFFERED": "1"}
+            # The MCP SDK deliberately passes a small environment allowlist.
+            # Keep this real subprocess on an explicitly preloaded vocabulary
+            # cache, just like the parent TokenCounter, when testing offline.
+            if "TIKTOKEN_CACHE_DIR" in os.environ:
+                environment["TIKTOKEN_CACHE_DIR"] = os.environ["TIKTOKEN_CACHE_DIR"]
             parameters = StdioServerParameters(command=sys.executable,
                 args=["-c", "import sys; from memory_book.mcp_server import serve; serve(sys.argv[1])", database],
-                env={"PYTHONPATH": str(Path(__file__).resolve().parents[1] / "src"), "PYTHONUNBUFFERED": "1"})
+                env=environment)
             async with stdio_client(parameters) as (reader, writer):
                 async with ClientSession(reader, writer, read_timeout_seconds=timedelta(seconds=30)) as client:
                     await client.initialize()
