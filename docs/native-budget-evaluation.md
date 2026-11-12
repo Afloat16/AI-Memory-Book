@@ -24,8 +24,11 @@ and [complete result index](../benchmarks/README.md). Three older completed
 cohorts retain their original checkpoints; five newly completed cohorts each
 have a hosted checkpoint and publication hashes. Hosts differ across cohorts;
 only the paired measurements within one cohort share a timing environment.
-Final aggregation rechecks the full raw/summary/checkpoint matrix without
-rerunning retrieval.
+The [completed aggregate](../benchmarks/reports/hosted-final-aggregation.json)
+rechecked the full raw/summary/checkpoint matrix without rerunning retrieval.
+The [latest performance-only change](token-prefix-performance.md) has a separate
+source pin and output-equivalence report; its timings do not replace these
+frozen cohort measurements.
 
 ## Freeze and resume
 

@@ -1,95 +1,120 @@
-# Validation continuation status — 2026-11-12
+# Completed validation and recovery record — 2026-11-12
 
-This is the recovery entry point. Numerical claims come from the linked
-completed reports; an implemented runner or downloaded model is not a score.
+**The registered continuation is complete.** All fixed cohorts have published
+results, and the [strict final audit](../benchmarks/reports/hosted-final-aggregation.json)
+is `complete-verified-snapshot`: **80 input files checked, eight derived
+reports verified, all four strict summarizers exited successfully**.
 
-## Current checkpoint
+The native workflow is correctly recorded as `completed_with_failures`.
+Its full attempt matrix exists; 35 model consolidations reached the fixed
+output limit and were rejected by the native product. Those outcomes remain
+part of the measurement, rather than missing work or an infrastructure pass.
 
-The original chat executor disconnected again. Work continues through isolated
-GitHub Actions jobs, and completed results are committed to durable Git branches.
-The [registered hosted run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43178953381)
-preserves all source, model, dataset, budget, tokenizer and repetition settings.
+## Completed work
 
-| Work item | Current state |
+| Work item | Verified result | Evidence |
+|---|---|---|
+| Native token-budget matrix | 8 cohorts; 2,019 query instances; 24,228 paired query/configuration cases; 251 complete-case gains, zero complete-case or fitting-block losses | [Native report](../benchmarks/RESULTS-native-token-budget.md) |
+| Optional local semantics | 4 cohorts; 1,347 questions; 24,246 actual recall calls; all gains and losses retained | [Semantic report](../benchmarks/RESULTS-semantic-retrieval.md) |
+| Actual local answers | 128 LoCoMo + 128 HotpotQA questions × 3 modes = 768 completed model calls; zero transport errors or truncated responses | [Answer report](../benchmarks/RESULTS-local-answers.md) |
+| Native Book / ai-memory workflow | 42 accepted capture sessions, 42 consolidation-model calls and 72 answer calls; all usage known; 7/42 consolidations succeed under the fixed model/output cap | [Workflow report](../benchmarks/RESULTS-full-workflow.md) |
+| claude-mem native FTS | 1,015 questions × 3 repetitions = 3,045 native calls; six context configurations, fixed source/runtime and identical supplied pages | [Component report](../benchmarks/results/claude-mem-components-public.md) |
+| Latest token-counting optimization | All 2,016 complete development payloads unchanged; p95 improves 7.73%–14.45% in every 512-token setting; larger-budget costs retained | [Performance report](token-prefix-performance.md) |
+
+The two main READMEs now show the recommended default and latest verified
+comparison, rather than a chronological sequence of intermediate results.
+Detailed curves, unsuccessful cases, token-surface corrections and historical
+records remain in the linked reports and [comparison guide](comparison.md).
+
+## Decisions from the four original concerns
+
+1. **Semantic paraphrases and distant evidence.** The optional model improves
+   the authored low-overlap diagnostic from 2/6 to 6/6, and some public
+   low-overlap/multi-session subsets. It also loses useful lexical matches:
+   public 512-token completeness is 66.41% lexical versus 62.56% semantic.
+   Default retrieval therefore stays lexical. This is a measured tradeoff,
+   not a claim that general semantic memory is solved.
+2. **Small budgets and tails.** Native assembly preserves every previously
+   fitting block across the registered matrix. The separate latest
+   exact-output optimization reduces p95 in all four 512-token development
+   settings. Three 2,048-token settings have p95 regressions of 0.50%–2.43%.
+   The original whole-page 66.72% to 66.26% regression has a different baseline
+   and remains recorded; it is not erased by the native API result.
+3. **Generated answers and full workflow costs.** These now have actual
+   measurements: 768 answer calls plus 114 calls in the separate workflow,
+   with fixed models, process ownership, source/request/response hashes,
+   usage, timings, failed attempts and explicit phase boundaries.
+   The small Qwen model does not establish a stable general answer-quality
+   gain, and native consolidation failures under its 1,000-output-token cap
+   cannot be generalized to other model configurations.
+4. **Independent transfer.** The fixed HotpotQA diagnostic contains 128
+   independently authored multi-hop questions, all 1,272 supplied paragraphs
+   and 306 support facts. It broadens the evidence beyond synthetic templates,
+   within a scoped-distractor setting. All 128 are answerable, and model
+   pretraining overlap is unknown. After inspection it is regression data,
+   not a new untouched test set for further tuning.
+
+## Source and experiment identities
+
+| Identity | Fixed value / role |
 |---|---|
-| Native token budgets | All eight cohorts completed; 24,228 paired cases; all cohort integrity gates passed |
-| Optional local semantic retrieval | All four cohorts completed, including measured negative results |
-| claude-mem supplied-page native FTS | Completed 3,045 native calls and all six context configurations; [run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43179914071) succeeded |
-| Actual answers, LoCoMo | All 384 attempts completed; source-free export and model proof saved |
-| Actual answers, HotpotQA | Running independently in the registered hosted run |
-| Book / native ai-memory workflow | Running independently in the registered hosted run |
-| Final aggregate | Tested strict runner ready; activate after both remaining jobs publish their results |
+| Common-page Book comparison | `0ab49d4f2be6aabe5e51c3314bb9369041af5369`; its original shared-packing report is retained |
+| Native baseline | `5abc85eef00097555366f8524fc81f8b5711ad7a` |
+| Frozen native/semantic/answer candidate | `407cda1c5f1dac0e67dfe527d3c23febdad5e818`; src hash `63cb5eb55cc0356e9c94499739a9d8dcca0307fd6e7a00188b4e25d59fc6a625` |
+| Latest exact-output performance candidate | `e8a878ec2d8c4b0930e9a5cff20ce954f7ac6818`; src hash `6fdad7b9bf0eef50ec925ceeed3ca45fe84d2eb22973c753118df2d0f67f6ba2` |
+| claude-mem component | `2cfed7620c1b44db87c7f04cbf073ec37efca38d`, package 15.18.0, Bun 1.3.13 |
+| Generated answers | Qwen2.5-0.5B-Instruct Q4_K_M, llama.cpp b12110, 4 CPU threads; 4,096 context for the 768-answer experiment |
+| Native workflow | Same model artifact, separately registered 16,384 context and 1,000-token consolidation limit; maximum 128 answer tokens |
 
-The source tree remains frozen at
-`407cda1c5f1dac0e67dfe527d3c23febdad5e818`,
-SHA-256 `63cb5eb55cc0356e9c94499739a9d8dcca0307fd6e7a00188b4e25d59fc6a625`.
-The native baseline is `5abc85eef00097555366f8524fc81f8b5711ad7a`.
-Default retrieval remains lexical. Optional semantic results do not justify
-a default change.
+Only `src/memory_book/token_budget.py` changes between the frozen candidate
+and the latest performance candidate; the other 16 source files match.
+The development proof compares every returned payload field except latency.
+Its timings are not substituted into the older public or synthetic regression
+reports. The semantic mode, ranking parameters, source corpus and scored
+generation requests were not retuned or replayed.
 
-## What is already safely published
+## Published execution and verification
 
-- The previous interrupted work was recovered from `07a440b` and fast-forwarded
-  to main after its existing CI passed. A fresh local check passed 332 tests
-  before the executor disconnected.
-- Initial recovery manifests and audit records were saved at `d858c8d`.
-- Native integrity fixes, semantic cost/model-process checks and hosted
-  execution were integrated at `4193623`; its
-  [standard CI](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43178953345)
-  passed all nine jobs.
-- Main `419795c` published the tested hosted runner and the first expanded
-  English/Chinese comparison documentation; the later `d102fb0` checkpoint
-  includes completed retrieval cohorts, the claude-mem run, LoCoMo answers and
-  final aggregation tools. Its standard CI passed all nine jobs.
-- Integration `e894fea` preserves all eight native and four semantic cohorts,
-  the claude-mem harness and its actual completed reports. Original cohort
-  branches remain accessible with the pattern
-  `validation/20261112-<stage>-43178953381-1`.
-- LoCoMo actual answers are saved at `7e99a9050a5db36ba654dfb09fc3e2dee058c169`,
-  branch `validation/20261112-answers-locomo-43178953381-1`.
-- The claude-mem result is `5c268dc8d0bd9a3d75fce0ca63badba969a3280c`,
-  branch `validation/20261112-claude-mem-43179914071-1`.
-- Strict final aggregation tools at `c26391d` passed
-  [all nine CI jobs](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43181437030).
-  Their workflow only activates on `ci/aggregate-memory-validation`.
+- [Hosted measurements](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43178953381):
+  every registered cohort produced its reports. The workflow job's failure
+  conclusion preserves the 35 native consolidation rejections; its dedicated
+  assessor accepted the complete recorded attempt matrix.
+- [claude-mem actual native run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43179914071):
+  successful source/runtime checks, native smoke and full 3,045-call run.
+- [Latest exact-output performance run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43183816029):
+  successful equivalence and all 12 timing configurations.
+- [Final strict aggregation](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43185554831):
+  success; reports saved at `dbdb38084d65b69700e1e1ff2fa3b6408c7d786f`.
+- [Integrated code CI](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43185554873):
+  all nine jobs passed. [Current main CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml)
+  tracks subsequent documentation and recovery-tool integration.
 
-## Continue without duplicating completed work
+## Recovery and reproduction
 
-1. Check the two running model jobs in the hosted run above. Do not replay them
-   or modify their registered inputs. Each job saves public results and its
-   completion/failure marker to its own branch.
-2. Integrate the exact report blobs and original marker from each finished
-   result branch. Preserve failures and unknown request outcomes.
-3. Once all required inputs are present, follow
-   [final aggregation](final-validation-aggregation.md). It verifies all
-   eight native cohorts, four semantic cohorts, 768 actual answer attempts,
-   the 72-attempt/42-session workflow and the claude-mem result, then saves
-   the eight derived reports and one audit to another Git result branch.
-4. Integrate that verified snapshot, update both READMEs and this status file
-   with actual generated-answer/workflow scores, and confirm the final main CI.
+Completed data remains in Git with its original hashes and result branches;
+no large model or dataset download is needed to audit the saved reports.
+From a checkout containing all results:
 
-The original manifests and old completed checkpoints are immutable evidence.
-The earlier workspace interruption is recorded in
-[its failure audit](../benchmarks/reports/native-environment-interruption-20261112.json).
-Only three native cohorts used those older completed checkpoints; the other
-five use explicit hosted checkpoints. Never treat an old stale `running`
-entry as a completed measurement.
+```bash
+python -m pip install -e ".[mcp,clients,tokens,semantic]" pyarrow
+python scripts/aggregate_hosted_validation.py
+```
 
-## Interpretation rules
+This derives the reports without retrieval or generation calls. See
+[the exact aggregation inventory](final-validation-aggregation.md) and
+[hosted interruption recovery](hosted-validation-recovery.md) and
+[fixed-run automatic result collection](automatic-final-validation.md).
+The collector executes trusted main code, imports only verified public files,
+and publishes its own result branch; it never replays model requests or moves main.
+This completed snapshot does not require another collector run.
+New generation experiments must use fresh state and output prefixes; unknown
+in-flight requests must not be silently replayed.
 
-Native block preservation, semantic retrieval quality, actual answer quality,
-and complete-workflow costs are distinct claims. Source/budget checks passing
-does not mean quality improved. The historical whole-page 512-token regression
-remains recorded separately from the native API's improvements. Public and
-reused synthetic questions are regression data; the external HotpotQA diagnostic
-is bounded and becomes regression data after inspection.
-
-The [comparison guide](comparison.md) includes claude-mem, ai-memory,
-billion-context and high-star related architectures. claude-mem's native FTS
-experiment does not measure its observer or Chroma pipeline. The ai-memory
-workflow explicitly enables generative consolidation; its current default can
-also operate without an LLM.
-
-Content-only token counts, native payload tokens and full MCP response tokens
-are different surfaces. The historical 43.1% mixed-surface wording is corrected
-in the comparison guide without rewriting any frozen raw report.
+The continuation recovered prior published commits through `07a440b`,
+saved recovery plans at `d858c8d`, moved execution off the disconnected chat
+workspace at `4193623`, and retained every completed cohort separately.
+The original failure record remains in
+[the interruption audit](../benchmarks/reports/native-environment-interruption-20261112.json).
+All registered work above is now finished; broad semantic capability,
+larger-model answer quality, production concurrency, watcher overhead,
+provider billing and electricity remain outside the established results.

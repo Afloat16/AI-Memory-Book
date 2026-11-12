@@ -5,25 +5,41 @@ Product fixtures, examples, screenshots, and capture measurements are synthetic;
 v0.3.0 also evaluates an independently published LoCoMo text corpus. No private
 user conversation history was used in development or published.
 
-## Current hosted continuation — 2026-11-12
+## Current completed continuation — 2026-11-12
 
-The recovered runtime is frozen at `407cda1`; all eight native-budget cohorts
-and four semantic cohorts now have completed reports. The separately pinned
-claude-mem component completed 3,045 actual calls with all identity, source,
-FTS, scope, repetition and budget gates passing. The LoCoMo local-answer
-cohort has 384 completed attempts; HotpotQA answers and the native workflow
-are still executing independently of the chat workspace.
+The [strict final audit](../benchmarks/reports/hosted-final-aggregation.json)
+has status `complete-verified-snapshot`: 80 fixed inputs checked, eight
+derived reports verified, all four summarizers successful. It covers eight
+native-budget cohorts, four semantic cohorts, 768 actual generated answers,
+the 42-session/72-answer native workflow, and the completed claude-mem
+component experiment.
 
-[Result index](../benchmarks/README.md) ·
-[Durable recovery status](continuation-status.md) ·
-[Final strict aggregation](final-validation-aggregation.md).
+The latest source includes a separate exact-output token-counting optimization:
+2,016 development payloads match the frozen reference, while all four
+512-token configurations improve p95 by 7.73%–14.45%. All 12 settings,
+including larger-budget regressions, remain in the
+[performance report](token-prefix-performance.md).
 
-The hosted-run implementation passed
-[all nine CI jobs](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43178953345).
-The final aggregation implementation separately passed
-[all nine jobs](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43181437030).
+The integrated runtime/report tools passed
+[all nine CI jobs](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43185554873).
+The [final aggregation job](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43185554831)
+also succeeded after testing its verification code. The separately reviewed
+automatic recovery collector passed
+[all nine jobs](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43186469865).
+[Current main CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml)
+records the final integrated head.
+
+The native workflow is a complete measurement **with failures**: 42/42
+capture sessions and all 72 answer requests completed; 35 of 42 native
+consolidations were rejected after the fixed model reached its 1,000-token
+output limit. Their full usage and later answer scores remain counted.
 Integrity/completeness gates do not assert that every quality metric improved.
-The dated sections below retain the evidence available at those older commits.
+
+[Completed result index](../benchmarks/README.md) ·
+[Source identities and recovery record](continuation-status.md) ·
+[Exact final aggregation](final-validation-aggregation.md).
+
+The dated sections below describe the evidence available at those older commits.
 
 ## Unreleased: recall-quality continuation
 
@@ -375,7 +391,10 @@ and [browser run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/429916
   system. Browser coverage is Chrome/Chromium at the stated sizes.
 - Lexical retrieval does not guarantee semantic recall, authoritative conflict
   resolution, automatic host injection, or end-to-end model answer quality.
-- The v0.3.0 billion-context and ai-memory comparisons cover the specific pinned
-  retrieval components and common-page policy. Their full capture, observer,
-  proxy, consolidation, and agent-answer workflows are not compared; claude-mem
-  remains unmeasured. Reported transport boundaries also differ.
+- Component comparisons cover pinned implementations and common supplied pages.
+  claude-mem's observer/Chroma workflow and billion-context's full proxy
+  compression/decompression remain unmeasured. The separate Book/ai-memory
+  workflow does measure native capture, explicitly enabled consolidation and
+  answers under its fixed small model, including native truncation failures.
+  These results do not establish another configuration's quality or cost,
+  and the declared transport boundaries differ.

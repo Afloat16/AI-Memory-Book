@@ -1,15 +1,24 @@
 # Paired answer evaluation with a real model
 
-`benchmarks.answer_eval` makes the next answer experiment runnable. It prepares
-identical question cohorts against two or more Book source trees, freezes the
-actual evidence each version returns, and sends each context to one explicitly
-configured generative endpoint. **Adding this runner does not establish answer
-quality or complete memory-workflow cost.** No real answering endpoint was
-available for the continuation that introduced it.
+The registered local evaluation is complete: **768 actual Qwen2.5-0.5B
+answer attempts**, across 128 LoCoMo and 128 HotpotQA questions with three
+retrieval modes. Model/archive/runtime identity, process ownership, prepared
+inputs, request/response hashes, usage and failure accounting are verified.
 
-The HTTP fixtures in `tests/test_answer_eval.py` test transport, failed-call
-accounting, credential handling and label isolation. Their canned replies are
-not model evaluations and must not appear in benchmark result tables.
+[Completed answer scores and costs](../benchmarks/RESULTS-local-answers.md) ·
+[Separate native capture/consolidation/answer workflow](../benchmarks/RESULTS-full-workflow.md) ·
+[Completion audit](continuation-status.md).
+
+`benchmarks.answer_eval` freezes the evidence delivered by each source tree,
+keeps scoring labels out of the model input, and calls an explicitly configured
+real endpoint. The guide below documents that reusable process. The old
+128-question readiness fixture contains no model calls and is retained only
+as historical preparation evidence.
+
+HTTP fixtures in `tests/test_answer_eval.py` verify transport and accounting;
+they are separate from the actual model results. Lexical EM/F1, unsupported
+exact abstention, source-evidence completeness and complete-workflow cost
+have distinct definitions and reports.
 
 ## What it measures
 

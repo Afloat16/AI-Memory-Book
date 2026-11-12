@@ -52,7 +52,7 @@ The [full comparison](docs/comparison.md) records the exact source revisions, al
 | ai-memory local hybrid | 29.720 ms | 37.315 ms | 942.5 | HTTP/MCP search; full reads excluded |
 | claude-mem native FTS + Bun bridge | 59.664 ms | 100.450 ms | 1,691.3 | Full observation-row JSON; MCP/observer excluded |
 
-Billion is faster at its measured search boundary. Hosts, interfaces and omitted phases differ, so these rows do not imply a whole-product speed multiplier. Under the separately measured policy of reading all five ai-memory results, its full-read payload adds 1,913.7 tokens, for 2,856.2 total; an agent choosing fewer reads can spend less.
+These native response sizes are separate from the bounded common context above. Billion is faster at its measured search boundary. Hosts, interfaces and omitted phases differ, so these rows do not imply a whole-product speed multiplier. Under the separately measured policy of reading all five ai-memory results, its full-read payload adds 1,913.7 tokens, for 2,856.2 total; an agent choosing fewer reads can spend less.
 
 Book's **default memory writing and retrieval use zero model calls**: local Python and SQLite, no mandatory embedding download, no generative summarizer and no separate database service. Your answering model remains your choice. Optional exact token budgets include citations and separators; original source addresses remain available for verification.
 
@@ -148,7 +148,7 @@ memory-book recall "cache expiry and retry window" --project atlas \
 
 For MCP, add `"budget_tokens": 512` and `"tokenizer": "cl100k_base"` to `arguments`; Python uses the same parameter names. The response reports the exact `context_tokens` and tokenizer version. `estimated_tokens` remains a character-based estimate. Without the optional token cap, the dependency-free character path is unchanged. First-time vocabulary initialization may require a public download; offline deployments should preload it. [API, offline setup, source-preservation contract and costs](docs/token-budget.md).
 
-The historical competitor tables use a shared **whole-page benchmark packer**. The new API assembles **native excerpts and intact source units**; its results have a separate baseline and do not retroactively change those tables. See [budget verification and measured tradeoffs](#validation-and-optional-modes).
+The component comparison uses a shared **whole-page benchmark packer**. The new API assembles **native excerpts and intact source units**; its results have a separate baseline and do not retroactively change those tables. See [budget verification and measured tradeoffs](#validation-and-optional-modes).
 
 The agent can navigate the hierarchy when a direct recall leaves a concrete gap:
 
@@ -293,12 +293,16 @@ of a small budget adds work; each report retains the paired latency costs.
 | Optional semantic candidates | Four complete local-model cohorts; default stays lexical because the quality/cost tradeoff depends on the workload |
 | Optional multi-fact coverage | Explicit `coverage=True` / `--coverage`; tested default/optional mode equivalence and published category-level results |
 | Native competitor components | Executed claude-mem FTS, ai-memory hybrid and billion-context search with pinned source/runtime versions |
+| Actual generated answers | 768 completed calls across two fixed cohorts; verified model identity, usage and per-question scores |
+| Native workflow diagnostic | 42 captured sessions, 42 consolidation attempts and 72 answers; native failures and their costs retained |
 
 [All result tables and reproducible artifacts](benchmarks/README.md) ·
 [Native token-budget protocol](docs/native-budget-evaluation.md) ·
 [Semantic setup and measured tradeoffs](docs/semantic-retrieval.md) ·
 [Coverage details](benchmarks/RESULTS-conjunctive-recall.md) ·
-[Real-answer evaluation](docs/answer-evaluation.md).
+[Real-answer results](benchmarks/RESULTS-local-answers.md) ·
+[Native workflow results](benchmarks/RESULTS-full-workflow.md) ·
+[Completion audit](docs/continuation-status.md).
 
 The comparison above uses a fixed shared-page policy. Native API packing,
 semantic ranking, generated-answer scores and capture/consolidation workflows
@@ -325,7 +329,7 @@ python -m unittest discover -s tests -v
 python tests/installer_smoke.py --with-extras
 ```
 
-The test matrix covers Python 3.10/3.12/3.13, actual MCP stdio, the browser reader, Linux/macOS/Windows installers and container persistence. The latest validated checkpoint passed [all nine jobs](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43182357230). [Current CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml) · [Detailed validation and reproduction](docs/validation.md).
+The test matrix covers Python 3.10/3.12/3.13, actual MCP stdio, the browser reader, Linux/macOS/Windows installers and container persistence. [Current CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml) · [Completed validation and reproduction](docs/validation.md).
 
 Implementation tests and benchmark experiments have separate records. Configuration fixtures do not establish an interactive test in every vendor application.
 

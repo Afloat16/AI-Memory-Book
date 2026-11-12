@@ -42,6 +42,7 @@ local embedding CPU work and downloaded artifacts are still costs.
 [Public results](../benchmarks/results/semantic-final-regression-public1015.md) ·
 [Authored diagnostic](../benchmarks/results/semantic-final-regression-authored36.md) ·
 [External results](../benchmarks/results/semantic-final-external-hotpot128.md) ·
+[Completed four-cohort aggregate](../benchmarks/RESULTS-semantic-retrieval.md) ·
 [Result index](../benchmarks/README.md).
 
 ## Prepare and build explicitly
