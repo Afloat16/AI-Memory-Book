@@ -1,0 +1,21 @@
+{
+  "protocol": "indexed-source-references-prototype-v1",
+  "status": "prototype-only, no production API changed",
+  "baseline_commit": "841cedb0cc52ff2b199e7c24832b64973a2e306d",
+  "baseline_source_sha256": "a7c3a3e39677770809022a3289d8337c54b3bfec992cf1fef4779fd081fc8bdb",
+  "reference_report_sha256": "ded0d6908fd1f5926b3ac379e496c9e05df7fea63cb0ed5e1d3f1b8b93a6d77d",
+  "cohorts": [
+    {"name": "synthetic61", "queries": 168, "sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26"},
+    {"name": "public1015", "queries": 1015, "sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857"}
+  ],
+  "budget_chars": [2000, 4000, 8000],
+  "details": [false, true],
+  "tokenizers": ["cl100k_base", "o200k_base"],
+  "limit": 5,
+  "encoding": {"source_format": "indexed-v1", "source_sessions": "Ordered unique [project,session_id] pairs", "source_refs": "[session_index,turn_index] or [session_index,turn_index,all_other_original_fields]"},
+  "compatibility": "Existing objects projection remains untouched. Every default compact response/envelope must exactly match the previously measured official-SDK response hash. Indexed projection must decode to the entire original JSON value; original object serialization must remain unchanged.",
+  "metadata_projection": "Generate a proposed Literal[objects,indexed] field and added decoding description through the real FastMCP SDK. Keep global instructions unchanged. Compare the full SDK ListToolsResult JSON and instructions before/after; report their deltas separately.",
+  "cost_boundaries": "For both text and SDK envelope surfaces, first-call net savings subtract the complete added tool-schema/instruction cost and the added source_format argument cost. Report the full first-call total, per-query win/loss distributions, and later-call net assuming metadata reuse. If hosts include uncached schema every call, use first-call accounting every call. Reference encoding counts are not provider billing.",
+  "gates": {"expected_configurations": 12, "expected_payload_projections": 7098, "expected_compact_sdk_matches": 3549, "all_refs_and_fields_reversible": true, "runtime_modified": false},
+  "limits": "Old regression data only; no blind256, new ranking, model calls, latency claims or live API changes. Decide whether an optional API is worthwhile only after preserving all costs and negative results."
+}
