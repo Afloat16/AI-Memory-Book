@@ -98,8 +98,13 @@ def collect(directory, allow_partial=False):
             raise ValueError("Cohorts used different runtime/model/evaluator/configuration identities")
         configs = []
         for config in report["configurations"]:
+            modes = []
+            for mode in config["modes"]:
+                projected = {key: value for key, value in mode.items() if key not in {"query_results", "by_group"}}
+                projected["by_group"] = {group: mode["by_group"][group] for group in GROUPS if group in mode["by_group"]}
+                modes.append(projected)
             configs.append({**{key: config[key] for key in ("budget_chars", "budget_tokens", "tokenizer", "limit")},
-                            "modes": [{key: value for key, value in mode.items() if key != "query_results"} for mode in config["modes"]],
+                            "modes": modes,
                             "paired_change_counts": {name: {key: len(value) for key, value in changes.items()}
                                                      for name, changes in config["paired_changes"].items()}})
         reports.append({"cohort": cohort["label"], "dataset": report["dataset"], "provenance": provenance,
