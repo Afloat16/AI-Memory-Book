@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "evaluator": "round3-default-performance-1",
+  "status": "awaiting-final-candidate-and-committed-evaluator",
+  "baseline": {
+    "release": "v0.3.0",
+    "commit": "dd2f88be742ed330269e7dd5915b6f75089d7fef",
+    "runtime_sha256": "d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57"
+  },
+  "candidate": null,
+  "packages": {"mcp": "1.30.0", "pydantic": "2.14.3", "tiktoken": "0.12.0"},
+  "binding_command": "python scripts/round3_performance.py --bind benchmarks/experiments/round3-performance-binding.json --baseline-src /absolute/baseline/src --candidate-src /absolute/final-candidate/src",
+  "instructions": "This template is intentionally not executable. Commit the evaluator and tests, freeze the final candidate, generate a NEW binding with --bind, then commit that binding before formal timing. Do not replace the registered plan or historical reports."
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "registered_at_utc": "2026-11-12",
+  "status": "recorded-before-formal-performance-and-new-selection-freeze",
+  "plan_commit": "2ce405408d323aac61fa9e9f536a704dd5f2b372",
+  "reason": "An automatic approval review blocked a local optional-semantic sentinel after an ONNX Runtime dependency attempted telemetry access. The affected Hotpot preparation had not reached any recall call. Its original state and interruption record are retained. The completed authored sentinel is not replayed.",
+  "official_source": "https://github.com/microsoft/onnxruntime/blob/main/docs/Privacy.md",
+  "safe_execution": "Set ORT_DISABLE_TELEMETRY=1 in the environment before starting Python/ORT for every remaining semantic benchmark and competitor subprocess. This explicitly disables the 1DS uploader rather than retrying the denied endpoint. Existing completed records keep their original settings and attribution.",
+  "product_fix": "SemanticModel sets ORT_DISABLE_TELEMETRY=1 before importing onnxruntime and calls its disable_telemetry_events API before creating a session. The API also suppresses API-controlled events on older/Windows backends. Applications that import ORT themselves before AI-Memory-Book must set the environment variable before process initialization to prevent earlier events.",
+  "source_scope": ["src/memory_book/semantic.py: optional runtime initialization only", "tests/test_semantic_privacy.py: artificial dependency/import-order fixtures"],
+  "unchanged": ["model bytes and fingerprints", "inference windowing/pooling/options", "persistent vector/index versions and contents", "fusion/ranking/scoring rules", "all predeclared quality/performance gates", "the 58 historical helpers and reports"],
+  "interpretation": "This is a separate privacy correction discovered during validation, not another retrieval candidate or a change of acceptance thresholds. The final candidate binding includes these runtime bytes. New-selection Q2 validation runs the final source with telemetry disabled."
+}
