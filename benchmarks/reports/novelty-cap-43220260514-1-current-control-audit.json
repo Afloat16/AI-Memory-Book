@@ -1,0 +1,76 @@
+{
+  "axes": {
+    "budget_chars": [
+      2000,
+      8000
+    ],
+    "budget_tokens": [
+      512
+    ],
+    "tokenizers": [
+      "cl100k_base",
+      "o200k_base"
+    ]
+  },
+  "boundary": "This is a content/evidence control reproduction check. It does not compare full response payload bytes, original database snapshots, query embeddings or timing values. No timings from different runs are pooled.",
+  "checked_fields": [
+    "context_sha256",
+    "block_hashes",
+    "complete",
+    "evidence_ranks"
+  ],
+  "comparisons": [
+    {
+      "changes": [],
+      "mode": "default",
+      "query_configuration_rows": 1024
+    },
+    {
+      "changes": [],
+      "mode": "q2",
+      "query_configuration_rows": 1024
+    }
+  ],
+  "inputs": [
+    {
+      "bytes": 3911518,
+      "git_blob": "d944cbf95cde841ded1ea56be5bb2de918352489",
+      "immutable_commit": "057b814ab809dec57d4fa4c75fe540d59a0f0027",
+      "matches_immutable_bytes": true,
+      "path": "benchmarks/results/round2-43207732852-1/candidate-native.json.gz",
+      "sha256": "b9e96c15426c08b610d4299c3f44032a6b2e73efd81e401b1d936d9f4411af74"
+    },
+    {
+      "bytes": 704450,
+      "git_blob": "9b597b0339632fb2dd04892d0c2b52dc1e5732fd",
+      "immutable_commit": "6e3fa539ae24aaa83886294e7bc4eef374b31c6d",
+      "matches_immutable_bytes": true,
+      "path": "benchmarks/results/novelty-cap-43220260514-1/A-current-default.json.gz",
+      "sha256": "25f8eeefbd59ab3d9d8c7448b2160590acd02b5dbeb3ff2d9f3a72ba4f2d472d"
+    },
+    {
+      "bytes": 3924464,
+      "git_blob": "6f1dd0551c74ced0657e199c5505e5d463b8b523",
+      "immutable_commit": "057b814ab809dec57d4fa4c75fe540d59a0f0027",
+      "matches_immutable_bytes": true,
+      "path": "benchmarks/results/round2-43207732852-1/candidate-semantic-native.json.gz",
+      "sha256": "db3649cc507022d36052fa44af24877ebd3662cba5674cb494385fba23729d1f"
+    },
+    {
+      "bytes": 705229,
+      "git_blob": "f233a42761a29356d92caee717768b2284ac7660",
+      "immutable_commit": "6e3fa539ae24aaa83886294e7bc4eef374b31c6d",
+      "matches_immutable_bytes": true,
+      "path": "benchmarks/results/novelty-cap-43220260514-1/A-current-q2.json.gz",
+      "sha256": "b38cf242b923f94ec34cc1712ead562ebe27dcc0afbd85d55c2963b67ec03297"
+    }
+  ],
+  "method": "Read immutable gzip bytes from both committed experiments; verify identical dataset/page bundle/source identity, all four 512-token configurations and all 256 question IDs per configuration; compare every declared context/order/completeness/evidence-rank field exactly. No retrieval or model call was executed.",
+  "prior_result_commit": "057b814ab809dec57d4fa4c75fe540d59a0f0027",
+  "protocol": "qualification-current-control-content-audit-v1",
+  "qualification_result_commit": "6e3fa539ae24aaa83886294e7bc4eef374b31c6d",
+  "runtime_commit": "cbf626037b42f11f8bc5b6d46f56caac771e54ba",
+  "runtime_sha256": "d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57",
+  "status": "passed",
+  "total_query_configuration_rows": 2048
+}

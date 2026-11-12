@@ -92,8 +92,7 @@ passed before scoring. Its explicit stopping rule is:
 all 512-token axes first, then larger budgets only if every configuration has
 zero individual complete-question and annotation losses. It uses the already
 scored 256 questions as regression data. The cap is not adopted automatically;
-any failed qualification is retained and stops this candidate without further
-parameter tuning.
+a failed qualification stops this candidate without further parameter tuning.
 
 The controller saves a run checkpoint before preparation, then raw records,
 summaries and a separate compressed attempt ledger after each worker. Failed
@@ -101,4 +100,25 @@ or interrupted workers retain any completed attempt records. The two Q2
 workers must also have identical index vector bytes. A rejection leaves the
 later phase explicitly `not-run`; it is never labeled a completed larger-budget
 comparison. The [single-run result branch](https://github.com/Afloat16/AI-Memory-Book/tree/validation/novelty-cap-43220260514-1)
-preserves progress while the qualification is running.
+preserves the completed outcome and every original file.
+
+**Final follow-up decision: reject cap 0.25 and retain the current product.**
+All 4,096 stage-A calls completed. Every one of the eight paired settings loses
+complete questions (one to three per configuration), with no complete-question
+gains. Annotation recall also decreases in every setting. Stage B's 8,192
+planned calls were not run under the registered stop rule; no further tuning
+or performance study is started for this candidate.
+
+The [complete qualification report](novelty-cap-qualification.md) retains all
+eight quality/timing/context rows and all four resource records. The
+[independent strict verification](../benchmarks/reports/novelty-cap-43220260514-1-independent-verification.json)
+passes all 19 original files, ledgers, source and budget checks, and reproduces
+the exact gate. A separate standard-library review independently reproduces
+all per-ID losses. The workflow's exit 2 is the planned quality rejection,
+with all five workers exiting 0 and artifacts saved successfully.
+
+The [current-control content audit](../benchmarks/reports/novelty-cap-43220260514-1-current-control-audit.json)
+also reproduces the previous complete run's context hashes, block order,
+completeness and evidence ranks for all 1,024 current lexical and 1,024 current
+Q2 query/configuration rows. The runtime remains `cbf6260` / `d4558f6`; both
+READMEs retain that verified implementation and its complete component results.
