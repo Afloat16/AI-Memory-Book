@@ -301,6 +301,30 @@ class Round3ProjectStatisticsTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     runner.run(args)
 
+    def test_started_attempt_without_any_child_files_is_not_resumable(self):
+        declaration, binding, report = fixture()
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "round3-project-stats-unstarted-child.json.gz"
+            binding_path = Path(directory) / "binding.json"
+            runner.write_json(binding_path, binding)
+            report["binding_sha256"] = runner.sha(binding_path.read_bytes())
+            report["workers"] = []
+            report["attempted_workers"] = [{"cohort": runner.COHORTS[0], "mode": runner.MODES[0], "status": "started"}]
+            report["sources"] = {mode: {"fixture": mode} for mode in runner.MODES}
+            runner.save_report(output, report)
+            args = SimpleNamespace(binding=binding_path, baseline_src=Path(directory) / "baseline",
+                candidate_src=Path(directory) / "candidate", data_dir=Path(directory), output=output,
+                resume=True, publish_branch=None)
+            original = output.read_bytes()
+            with patch.object(runner, "registered", return_value=(declaration, binding)), \
+                    patch.object(runner, "verify_source", side_effect=lambda path, mode, binding: {"fixture": mode}), \
+                    patch.object(runner, "helper_hashes", return_value=report["evaluator_hashes"]), \
+                    patch.object(runner.subprocess, "run") as launch:
+                with self.assertRaisesRegex(ValueError, "untouched suffix"):
+                    runner.run(args)
+                launch.assert_not_called()
+            self.assertEqual(output.read_bytes(), original)
+
     @unittest.skipUnless(importlib.util.find_spec("tiktoken"), "native worker fixture needs optional exact tokenizers")
     def test_real_worker_on_three_artificial_queries_including_unscoped_and_empty_terms(self):
         from benchmarks.data import Dataset, Evidence, QueryCase

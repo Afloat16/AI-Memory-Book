@@ -418,6 +418,10 @@ def validate(report, *, ledger_root=None):
     observed = [(w["cohort"], w["mode"]) for w in workers]
     if observed != expected_order():
         issues.append("worker_matrix_or_order")
+    attempts = report["attempted_workers"]
+    if ([(a["cohort"], a["mode"]) for a in attempts] != observed
+            or any(a["status"] != "completed" or a.get("exit_code") != 0 for a in attempts)):
+        issues.append("worker_attempts")
     if report.get("error") or not report.get("evaluator_unchanged"):
         issues.append("incomplete_or_changed_evaluator")
     for w in workers:
@@ -749,6 +753,9 @@ def run(args):
         observed = [(w["cohort"], w["mode"]) for w in report["workers"]]
         require(observed == expected_order()[:len(observed)] and not report.get("error"),
                 "Resume requires an intact completed prefix, not a failed/repeated attempt")
+        require([(a["cohort"], a["mode"]) for a in report["attempted_workers"]] == observed
+                and all(a["status"] == "completed" and a.get("exit_code") == 0 for a in report["attempted_workers"]),
+                "An attempted worker is not an untouched suffix; refuse to launch it again")
         for saved in report["workers"]:
             require(saved["status"] == "completed" and saved["worker_exit_code"] == 0, "Do not rerun a failed worker")
             verify_worker_files(saved, args.output.parent)
