@@ -42,7 +42,8 @@ and indexed MCP references are explicit options.
   default. Historical tags, exact commits and explicit local sources retain their
   existing routes. Managed installation preserves the archive and old environment.
 - Publish wheel/source distributions, installer files, SHA-256 checksums and
-  source/CI provenance. Publication requires all nine exact-commit CI jobs.
+  source/build provenance. Publication requires all nine exact-commit CI jobs,
+  linked from the release notes.
 - Replace the long READMEs with bilingual workflow diagrams, one quick-start path,
   current results and links to detailed operating and evaluation guides.
 

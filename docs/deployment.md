@@ -329,6 +329,11 @@ originally selected them. Download the new helper rather than reusing a helper
 that defaults to an older release. For uv, pipx, or a source checkout, use your
 original installation method with the pinned v0.3.0 URL or tag.
 
+Back up an existing archive before opening it with v0.3.0. Its source-preserving
+schema 3 migration has no automatic downgrade; an older binary needs the
+pre-upgrade database backup for rollback. Use SQLite's backup facility for a
+consistent snapshot, including data still in the WAL.
+
 The bundled installer retains older environments and preserves your memory
 directory. Client and service definitions contain absolute Python paths, so a
 new environment does not automatically move existing connections to it.
