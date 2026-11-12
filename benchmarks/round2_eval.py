@@ -64,6 +64,7 @@ def evaluator_sources(root=ROOT):
               if path.suffix in {".py", ".mjs", ".ts", ".json"}]
     paths += [root / name for name in (
         "scripts/run_round2_validation.py", "scripts/summarize_round2_validation.py", "scripts/bind_round2_candidate.py",
+        "scripts/prepare_semantic_model.py",
         ".github/workflows/round2-validation.yml", "benchmarks/round2_plan.json",
         "benchmarks/round2_hotpot256_manifest.json", "benchmarks/hotpot_manifest.json",
         "benchmarks/experiments/semantic-local-plan.json", "benchmarks/experiments/round2-upstream-registration.json")]
