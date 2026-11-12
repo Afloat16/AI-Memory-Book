@@ -125,10 +125,18 @@ python scripts/prepare_semantic_model.py --output /absolute/path/to/semantic-mod
 Preparation downloads **127,535,388 bytes** of model and tokenizer data in
 total, plus the separately installed Python dependencies. It checks the exact
 size and SHA-256 of each artifact before using it. No memory or query text is
-sent with the download. Runtime loading, index building and querying use those
-local files and make no endpoint calls. See the
+sent with the download. Embedding computation, index building and querying use
+those local files, without a model-provider endpoint. See the
 [predeclared model and retrieval plan](../benchmarks/experiments/semantic-local-plan.json)
 for the repository, revision, file hashes and Apache-2.0 model license.
+
+From v0.3.1, Book sets `ORT_DISABLE_TELEMETRY=1` before importing ONNX Runtime
+and calls `disable_telemetry_events()` before creating an inference session.
+Normal CLI and MCP use needs no extra setting. If another application imports
+ONNX Runtime before Book, set that environment variable before starting the
+application: an opt-out made after import cannot undo an initialization event.
+This follows [ONNX Runtime's privacy guidance](https://github.com/microsoft/onnxruntime/blob/main/docs/Privacy.md)
+and does not change the model, vectors or ranking policy.
 
 ```python
 from memory_book import MemoryBook
