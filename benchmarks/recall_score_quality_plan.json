@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "purpose": "Validate one development-selected score-aware fusion continuation after preserving the completed first frozen round",
+  "recovered_commit": "7ffb5ee17a35118dd104e52484e917f48326a34e",
+  "primary_baseline_commit": "6f5299004642618e606d001b4c574e1bae572a7e",
+  "main_baseline_commit": "a05f88a79ce20be3fd5912c62fc020f8b11ba4a9",
+  "development": {
+    "synthetic_seeds": [
+      61
+    ],
+    "projects": 8,
+    "locomo_split": "development",
+    "locomo_max_queries": 128
+  },
+  "reserved_before_results": {
+    "synthetic_seeds": [
+      883,
+      1297
+    ],
+    "projects": 8,
+    "note": "Reserved before any second-round heldout execution. Shared templates still limit generalization; no later quality change will be selected using these outcomes."
+  },
+  "public_verification": {
+    "regression_queries": 256,
+    "expanded_max_queries": 0,
+    "split": "heldout",
+    "cohort_reporting": [
+      "previously published 256 queries",
+      "remaining eligible queries",
+      "all eligible queries"
+    ],
+    "note": "All public heldout questions were measured in the first frozen round and are now regression data. No query wording or per-query heldout outcome selected the new formula; its acceptance used only dev61 and public-dev128."
+  },
+  "measurement": {
+    "repeats": 3,
+    "character_budgets": [
+      2000,
+      8000
+    ],
+    "reference_tokenizers": [
+      "cl100k_base",
+      "o200k_base"
+    ],
+    "common_token_budgets": [
+      512,
+      1024,
+      2048
+    ],
+    "candidate_limit": 5,
+    "parallel_timing": false,
+    "competitors": [
+      "billion-context pinned native kernel",
+      "ai-memory v3.4.5 native local hybrid"
+    ],
+    "correctness_gates": [
+      "unchanged source",
+      "zero character-budget violations",
+      "zero context-size mismatches",
+      "zero token-budget violations",
+      "unchanged archived sources during migration"
+    ]
+  },
+  "goal_assessment": {
+    "quality": "Compare delivered evidence recall and complete-evidence rate on identical queries and budgets; retain gains, losses and category regressions.",
+    "tokens": "Name the tokenizer and actual consumption surface; retain both shared-assembly and native-response costs including documented follow-up reads.",
+    "latency": "Report p50 and p95 with explicit boundaries; different transports or missing native read paths cannot establish end-to-end superiority.",
+    "answer_quality": "Not established by source-evidence retrieval. A fixed answering model and paired answer evaluation are required for that separate claim.",
+    "passing_invariants_is_not_goal_success": true
+  },
+  "preserved_baseline_commit": "3ee40946c5407e65fd375a8d47472066a82ae472",
+  "development_selection_record": "benchmarks/experiments/score-aware-fusion-selection.json",
+  "previously_observed_regression_seeds": [
+    211,
+    509
+  ],
+  "selection_rule": "One fixed formula, no weight sweep: 2 * normalized exact BM25 + normalized stem BM25 when routes differ. Three independent fixtures and zero dev complete-query losses plus no aggregate recall decrease required at both caps. Do not call validation gates proof of the overall product goal."
+}

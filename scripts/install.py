@@ -25,6 +25,7 @@ import tempfile
 from urllib.parse import quote
 
 
+# Keep the default on an existing release; development is installed with --source.
 DEFAULT_VERSION = "v0.2.1"
 REPOSITORY = "https://github.com/Afloat16/AI-Memory-Book"
 

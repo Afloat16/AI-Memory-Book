@@ -1,0 +1,112 @@
+--- a/src/memory_book/store.py
++++ b/src/memory_book/store.py
+@@ -18,7 +18,7 @@
+ 
+ SCHEMA_VERSION = 3
+ INDEX_VERSION = 3
+-RECALL_VERSION = 6
++RECALL_VERSION = 7
+ APPLICATION_ID = 0x4D424F4B
+ MAX_SESSION_CHARS = 8_000_000
+ CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
+@@ -621,6 +621,10 @@
+                     routes.append(self.db.execute(statement, [expression, *params]).fetchall())
+                 exact_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[0])}
+                 stem_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[1])} if use_stem else {}
++                exact_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[0]}
++                stem_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[1]} if use_stem else {}
++                exact_scale = max(exact_scores.values(), default=1.0) or 1.0
++                stem_scale = max(stem_scores.values(), default=1.0) or 1.0
+                 # Identical ordered routes add no candidate/ranking information.
+                 # Keep BM25's score scale so novelty selection does not change
+                 # merely because the same ranking was observed a second time.
+@@ -648,10 +652,12 @@
+                             directory_terms[directory] = self._directory_tokens(directory)
+                         title_overlap = len(qset & directory_terms[directory]) / len(qset)
+                     if fuse_routes:
+-                        # Exact matches retain twice the rank-fusion weight.
+-                        # A missing route contributes zero, never a fake rank.
+-                        relevance = ((2 / (1 + exact_ranks[item["id"]]) if item["id"] in exact_ranks else 0) +
+-                                     (1 / (1 + stem_ranks[item["id"]]) if item["id"] in stem_ranks else 0))
++                        # Development-only alternative: retain each route's
++                        # relative BM25 margins instead of only its ordinal rank.
++                        # Exact relevance retains the predeclared 2:1 preference.
++                        # An absent route contributes zero, never a fake score.
++                        relevance = (2 * exact_scores.get(item["id"], 0.0) / exact_scale +
++                                     stem_scores.get(item["id"], 0.0) / stem_scale)
+                     else:
+                         relevance = -item["rank"]
+                     item["score"] = relevance * (1 + 0.15 * title_overlap if strategy == "book" else 1)
+--- /dev/null
++++ b/tests/test_score_fusion_fixture.py
+@@ -0,0 +1,70 @@
++"""Independent fixtures fixed before the score-aware development comparison."""
++
++from __future__ import annotations
++
++import unittest
++
++from memory_book import MemoryBook
++
++
++class ControlledFusionTests(unittest.TestCase):
++    def setUp(self):
++        self.book = MemoryBook(":memory:", segmentation="turn", max_page_chars=3000,
++                               min_page_chars=0, cache_size=0)
++        self.addCleanup(self.book.close)
++
++    def add(self, sid, text, project="notes", title="Local record"):
++        self.book.ingest({
++            "project": project, "session_id": sid, "title": title,
++            "created_at": "2025-07-03T12:00:00Z",
++            "messages": [{"role": "user", "content": "An archived note"},
++                         {"role": "assistant", "content": text}],
++        })
++
++    def assert_source_and_budget(self, response, budget):
++        self.assertLessEqual(len(response["context"]), budget)
++        self.assertEqual(response["context_chars"], len(response["context"]))
++        for result in response["results"]:
++            page = self.book.read(result["id"])["content"]
++            for lo, hi in result["excerpt_spans"]:
++                self.assertIn(page[lo:hi], result["text"])
++            self.assertTrue(result["source_refs"])
++            for ref in result["source_refs"]:
++                self.assertIn(page[ref["start"]:ref["end"]], result["text"])
++
++    def test_exact_multi_term_fact_survives_porter_collision_distractors(self):
++        fact = "The universe expansion calibration uses a constant of 71."
++        self.add("cosmology", fact)
++        for number in range(12):
++            self.add(f"admissions-{number}",
++                     "University expansion calibration is discussed in the admissions orientation. " * 3,
++                     title="University expansion calibration")
++        response = self.book.recall("universe expansion calibration", project="notes",
++                                    limit=1, budget_chars=300, use_cache=False)
++        self.assertIn(fact, response["context"])
++        self.assertEqual(response["results"][0]["source_refs"][0]["session_id"], "cosmology")
++        self.assert_source_and_budget(response, 300)
++
++    def test_missing_exact_word_form_still_returns_original_evidence(self):
++        fact = "At the conference, Mira received badge Kestrel-42."
++        self.add("event", "Earlier travel notes remain archived for reference. " * 24 + "\n\n" + fact)
++        response = self.book.recall("conferences", project="notes", limit=1,
++                                    budget_chars=300, use_cache=False)
++        self.assertIn(fact, response["context"])
++        self.assert_source_and_budget(response, 300)
++
++    def test_scope_prevents_stronger_foreign_evidence_from_entering_results(self):
++        fact = "A conference in Tallinn issued badge Kestrel-42."
++        self.add("local", fact)
++        for number in range(12):
++            self.add(f"foreign-{number}", "Conference conferences conference.", project="other")
++        response = self.book.recall("conferences", project="notes", budget_chars=300,
++                                    limit=5, use_cache=False)
++        self.assertIn(fact, response["context"])
++        self.assertTrue(all(ref["project"] == "notes"
++                            for hit in response["results"] for ref in hit["source_refs"]))
++        self.assert_source_and_budget(response, 300)
++
++
++if __name__ == "__main__":
++    unittest.main(verbosity=2)

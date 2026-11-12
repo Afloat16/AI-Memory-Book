@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "registered_before_candidate_results": true,
+  "baseline_commit": "5abc85eef00097555366f8524fc81f8b5711ad7a",
+  "baseline_runtime_commit": "b36f044651553d75485bd26801ef3f1f65e393bb",
+  "candidate_freeze": "Record actual source hash and Git commit before final evaluation; never label a dirty source tree with its base commit.",
+  "development": [
+    {"corpus": "synthetic", "seed": 61, "split": "development", "projects": 8, "expected_queries": 168},
+    {"corpus": "locomo", "split": "development", "max_queries": 128, "expected_queries": 128, "selection": "existing locomo-query-order-v1 SHA-256 ordering"}
+  ],
+  "regression": [
+    {"corpus": "synthetic", "seed": 211, "split": "heldout", "projects": 8, "expected_queries": 168},
+    {"corpus": "synthetic", "seed": 509, "split": "heldout", "projects": 8, "expected_queries": 168},
+    {"corpus": "synthetic", "seed": 883, "split": "heldout", "projects": 8, "expected_queries": 168},
+    {"corpus": "synthetic", "seed": 1297, "split": "heldout", "projects": 8, "expected_queries": 168},
+    {"corpus": "locomo", "split": "heldout", "max_queries": 0, "expected_queries": 1015},
+    {"corpus": "transfer", "expected_queries": 36, "interpretation": "previously observed authored diagnostic, not independent heldout evidence"}
+  ],
+  "external_transfer": {
+    "dataset": "HotpotQA dev distractor v1",
+    "source": "https://github.com/hotpotqa/hotpot",
+    "license": "CC BY-SA 4.0",
+    "expected_queries": 128,
+    "selection": "Sort every original _id by SHA256('memory-book-transfer-v1:' + _id), retain first 128, without looking at model outputs; freeze source bytes and selected IDs before scoring.",
+    "indexing": "Index every supplied context paragraph in its own task chapter, within one project per original question. Question, answer and supporting-fact labels never enter index text.",
+    "metric": "Original supporting sentence with correct source identity and span; retain and report any annotation unattainable by the strict metric.",
+    "limits": "External authorship and a new domain test transfer beyond the existing templates, but 128 scoped distractor questions are not broad real-user memory or full-Wikipedia generalization. After the first scoring this selection becomes regression data.",
+    "failure_policy": "If downloading or validating the source fails, report blocked; do not substitute self-authored cases and call them independent."
+  },
+  "policies": [
+    "historical_whole_page_pack: baseline recall at 100000 characters, expand selected IDs to full pages with the historical common citation header, then apply the common token packer; this policy is a separate legacy comparison",
+    "native_excerpt_pack: actual baseline recall at each declared character cap, then rank-order whole-block first-fit token packing",
+    "native_token_budget: candidate recall with the same character cap, token cap, tokenizer, scope and limit; include citations and separators in the cap"
+  ],
+  "budgets": {"characters": [2000, 8000], "tokens": [512, 1024, 2048], "tokenizers": ["cl100k_base", "o200k_base"], "candidate_limit": 5},
+  "repeats": 3,
+  "correctness_gates": [
+    "Expected query count and exact dataset fingerprint match before any retrieval",
+    "No character-cap, token-cap, reported-size, source-span or tokenizer-version mismatch",
+    "Every old native block already fitting the same caps remains present in the candidate; compare every query, not only mean quality",
+    "Source bytes remain unchanged for the measured worker lifetime",
+    "Frozen completed outputs and source/data/runtime identity must match before resuming"
+  ],
+  "reporting": "Publish all per-query annotation gains/losses, complete-question gains/losses, category metrics and p50/p95 timings. Separate old native and historical common-page policies. Reject no correctness failures; do not silently discard quality regressions or unsuccessful generation attempts.",
+  "timing": "Independent sequential worker processes; random query order per repetition; no result cache for core quality measurements; warm OS/SQLite caches; record ingestion separately. MCP startup, first call and immediate repeat use real official SDK stdio and actual response serialization.",
+  "generation": {
+    "status_at_registration": "No configured endpoint/model or credentials found; previous HTTP fixtures and prepared contexts are not actual model results.",
+    "minimum_valid_run": "Explicit actual served model with frozen identity/artifact hashes, paired contexts, same prompt and scoring, measured usage/latency/error trace. A local model must be called and identified, not replaced by extraction fixtures.",
+    "full_cost": "Record ingestion/index, model-based summaries/observations if used, retrieval, follow-up reads and answer generation separately; absent authentic competitor observer/compression traces remain unmeasured, never zero-cost."
+  }
+}

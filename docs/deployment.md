@@ -10,7 +10,12 @@ creates an isolated environment with the `mcp` and `clients` extras. It does not
 require Node.js, an embedding server, a database server, or a memory-service API
 key. Your AI client's own model and account requirements remain separate.
 
-## Install v0.2.1
+## Install the published version
+
+The latest published experimental release is **v0.2.1**. The v0.3 performance
+work lives on the unreleased `perf/recall-quality-budget` branch; no `v0.3.0`
+release tag is available yet. Use the commands below for the published version,
+or the [development checkout](#development-checkout) for the new behavior.
 
 ### macOS / Linux
 
@@ -27,7 +32,7 @@ py -3 .\install-memory-book.py
 ```
 
 The shared Python installer also works on macOS/Linux. A PowerShell wrapper is
-available at [`scripts/install.ps1`](../scripts/install.ps1). Neither wrapper
+available at [the v0.2.1 `scripts/install.ps1`](https://github.com/Afloat16/AI-Memory-Book/blob/v0.2.1/scripts/install.ps1). Neither wrapper
 changes your shell profile or PowerShell execution policy. Use Python 3.10 or
 newer; some Linux distributions package `venv` separately.
 
@@ -105,6 +110,32 @@ On Windows, use `.venv\Scripts\Activate.ps1` or invoke
 `.venv\Scripts\python.exe` directly. The dependency-free core can be installed
 with `python -m pip install -e .`; TOML merging needs the `clients` extra and MCP
 needs the `mcp` extra.
+
+### Development checkout
+
+To use the work described by this branch's README, replace the source checkout
+command with:
+
+```bash
+git clone --branch perf/recall-quality-budget https://github.com/Afloat16/AI-Memory-Book.git
+```
+
+Then use the same virtual-environment and editable-install commands above.
+The branch is mutable. The published score-aware measurements refer specifically
+to `0ab49d4f2be6aabe5e51c3314bb9369041af5369`; check out that commit before installing
+when reproducing those results. Follow the [frozen benchmark instructions](../benchmarks/RESULTS-recall-score-quality.md#11-reproduction-and-artifact-index)
+for its separate data and evaluator requirements.
+
+For a managed launcher from a local development checkout, run the helper with an
+explicit source, so it does not attempt to download an unreleased version tag:
+
+```bash
+python scripts/install.py --source .
+```
+
+After changing the installed environment, re-run `setup` and reinstall any
+configured background service so their absolute Python paths point to that
+environment.
 
 ## Data and configuration paths
 

@@ -1,0 +1,503 @@
+{
+  "generated_at": "2026-11-11T17:46:53.021544+00:00",
+  "fixture": {
+    "kind": "synthetic",
+    "version": "2.0",
+    "variant": "long_sessions_v2",
+    "seed": 61,
+    "split": "development",
+    "sha256": "34c92537560a13ce2347988d5cecaf20d683239f1ea9bc5dfe0448f002bfcbac",
+    "projects": 2,
+    "sessions": 28,
+    "turns": 352,
+    "source_characters": 285642,
+    "source_utf8_bytes": 394394,
+    "queries": 42,
+    "answerable_queries": 38,
+    "categories": {
+      "topic_change": 4,
+      "lookup": 6,
+      "unanswerable_related": 2,
+      "long_answer_natural_late": 4,
+      "unanswerable_unrelated": 2,
+      "cross_session": 2,
+      "long_answer_middle": 2,
+      "low_overlap_paraphrase": 2,
+      "long_answer_natural_middle": 4,
+      "cross_project_name": 2,
+      "short_followup": 2,
+      "historical": 2,
+      "multi_section": 4,
+      "latest_decision": 2,
+      "similar_task": 2
+    }
+  },
+  "budget_chars": 2000,
+  "environment": {
+    "python": "3.12.14",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "sqlite": "3.53.1",
+    "mcp": "1.30.0",
+    "tiktoken": "0.12.0"
+  },
+  "scope": [
+    "Actual official-SDK subprocess stdio, not a hand-written wire approximation.",
+    "Indexing and tokenization are excluded from call latency; startup is reported separately.",
+    "First calls disable prior query-result entries; OS/SQLite caches are not flushed.",
+    "All query IDs are retained. Each repeated exact (query, project) pair clears recall_cache through a separate SQLite connection before its timed first call; cache clearing is excluded from call latency and recorded per row.",
+    "Immediate repeats retain cache entries. This is not a guarantee for novel questions.",
+    "Token counts are exact for named reference encodings, not provider billing or host prompt formats.",
+    "Tool schemas/instructions are counted separately; hosts decide how often to include them.",
+    "No model inference, network model call, or generated-answer quality is measured."
+  ],
+  "engines": [
+    {
+      "label": "score-aware-recall",
+      "engine_sha256": "a77f14b7f594ffcb2ab095f2f08a18b6e0bc89849a955fc2703bd3356025ceb0",
+      "startup_to_initialize_ms": {
+        "n": 3,
+        "mean": 360.5322066666667,
+        "p50": 344.956624,
+        "p95": 393.3511117,
+        "min": 337.911719,
+        "max": 398.728277
+      },
+      "tool_list_json_tokens": [
+        {
+          "cl100k_base": 710,
+          "o200k_base": 746
+        },
+        {
+          "cl100k_base": 710,
+          "o200k_base": 746
+        },
+        {
+          "cl100k_base": 710,
+          "o200k_base": 746
+        }
+      ],
+      "initialization_instruction_tokens": [
+        {
+          "cl100k_base": 168,
+          "o200k_base": 167
+        },
+        {
+          "cl100k_base": 168,
+          "o200k_base": 167
+        },
+        {
+          "cl100k_base": 168,
+          "o200k_base": 167
+        }
+      ],
+      "query_pair_counts": {
+        "query_rows": 42,
+        "distinct_query_project_pairs": 42,
+        "duplicate_query_project_rows": 0,
+        "duplicate_pair_cache_clears": 0
+      },
+      "aggregate": {
+        "first_call_after_cache_clear": {
+          "wall_ms": {
+            "n": 126,
+            "mean": 7.790278222222223,
+            "p50": 5.285152999999999,
+            "p95": 11.1342925,
+            "min": 1.29188,
+            "max": 219.237881
+          },
+          "tokens": {
+            "cl100k_base": {
+              "context": {
+                "n": 126,
+                "mean": 951.5238095238095,
+                "p50": 819.5,
+                "p95": 1629.0,
+                "min": 0,
+                "max": 1732
+              },
+              "response_text": {
+                "n": 126,
+                "mean": 1340.2619047619048,
+                "p50": 1383.5,
+                "p95": 1944.0,
+                "min": 29,
+                "max": 2119
+              },
+              "response_envelope_json": {
+                "n": 126,
+                "mean": 1422.5238095238096,
+                "p50": 1493.0,
+                "p95": 2038.0,
+                "min": 48,
+                "max": 2235
+              },
+              "tool_arguments_json": {
+                "n": 126,
+                "mean": 37.19047619047619,
+                "p50": 35.5,
+                "p95": 51.0,
+                "min": 26,
+                "max": 56
+              }
+            },
+            "o200k_base": {
+              "context": {
+                "n": 126,
+                "mean": 782.5238095238095,
+                "p50": 708.0,
+                "p95": 1226.0,
+                "min": 0,
+                "max": 1230
+              },
+              "response_text": {
+                "n": 126,
+                "mean": 1176.8095238095239,
+                "p50": 1274.0,
+                "p95": 1601.0,
+                "min": 29,
+                "max": 1619
+              },
+              "response_envelope_json": {
+                "n": 126,
+                "mean": 1254.6904761904761,
+                "p50": 1378.5,
+                "p95": 1698.0,
+                "min": 48,
+                "max": 1730
+              },
+              "tool_arguments_json": {
+                "n": 126,
+                "mean": 33.166666666666664,
+                "p50": 32.0,
+                "p95": 41.0,
+                "min": 26,
+                "max": 42
+              }
+            }
+          }
+        },
+        "immediate_repeat": {
+          "wall_ms": {
+            "n": 126,
+            "mean": 2.1362827301587304,
+            "p50": 1.517706,
+            "p95": 2.8933892500000002,
+            "min": 0.934918,
+            "max": 48.161403
+          },
+          "tokens": {
+            "cl100k_base": {
+              "context": {
+                "n": 126,
+                "mean": 951.5238095238095,
+                "p50": 819.5,
+                "p95": 1629.0,
+                "min": 0,
+                "max": 1732
+              },
+              "response_text": {
+                "n": 126,
+                "mean": 1340.2619047619048,
+                "p50": 1383.5,
+                "p95": 1944.0,
+                "min": 29,
+                "max": 2119
+              },
+              "response_envelope_json": {
+                "n": 126,
+                "mean": 1422.5238095238096,
+                "p50": 1493.0,
+                "p95": 2038.0,
+                "min": 48,
+                "max": 2235
+              },
+              "tool_arguments_json": {
+                "n": 126,
+                "mean": 37.19047619047619,
+                "p50": 35.5,
+                "p95": 51.0,
+                "min": 26,
+                "max": 56
+              }
+            },
+            "o200k_base": {
+              "context": {
+                "n": 126,
+                "mean": 782.5238095238095,
+                "p50": 708.0,
+                "p95": 1226.0,
+                "min": 0,
+                "max": 1230
+              },
+              "response_text": {
+                "n": 126,
+                "mean": 1176.8095238095239,
+                "p50": 1274.0,
+                "p95": 1601.0,
+                "min": 29,
+                "max": 1619
+              },
+              "response_envelope_json": {
+                "n": 126,
+                "mean": 1254.6904761904761,
+                "p50": 1378.5,
+                "p95": 1698.0,
+                "min": 48,
+                "max": 1730
+              },
+              "tool_arguments_json": {
+                "n": 126,
+                "mean": 33.166666666666664,
+                "p50": 32.0,
+                "p95": 41.0,
+                "min": 26,
+                "max": 42
+              }
+            }
+          }
+        }
+      },
+      "same_evidence_detail_comparison": {
+        "queries": 42,
+        "all_contexts_identical": true,
+        "mean_tokens": {
+          "cl100k_base": {
+            "compact_response_text": 1340.2619047619048,
+            "detailed_response_text": 1875.3095238095239
+          },
+          "o200k_base": {
+            "compact_response_text": 1176.8095238095239,
+            "detailed_response_text": 1707.642857142857
+          }
+        }
+      }
+    },
+    {
+      "label": "conjunctive-recall",
+      "engine_sha256": "ad83db568fb2fe70bf86626107a1e055297481d132f435d7cb5a1c4834708f0d",
+      "startup_to_initialize_ms": {
+        "n": 3,
+        "mean": 482.884908,
+        "p50": 359.746693,
+        "p95": 718.1736919,
+        "min": 330.909117,
+        "max": 757.998914
+      },
+      "tool_list_json_tokens": [
+        {
+          "cl100k_base": 710,
+          "o200k_base": 746
+        },
+        {
+          "cl100k_base": 710,
+          "o200k_base": 746
+        },
+        {
+          "cl100k_base": 710,
+          "o200k_base": 746
+        }
+      ],
+      "initialization_instruction_tokens": [
+        {
+          "cl100k_base": 168,
+          "o200k_base": 167
+        },
+        {
+          "cl100k_base": 168,
+          "o200k_base": 167
+        },
+        {
+          "cl100k_base": 168,
+          "o200k_base": 167
+        }
+      ],
+      "query_pair_counts": {
+        "query_rows": 42,
+        "distinct_query_project_pairs": 42,
+        "duplicate_query_project_rows": 0,
+        "duplicate_pair_cache_clears": 0
+      },
+      "aggregate": {
+        "first_call_after_cache_clear": {
+          "wall_ms": {
+            "n": 126,
+            "mean": 5.88413723015873,
+            "p50": 5.1089590000000005,
+            "p95": 11.236962,
+            "min": 1.255888,
+            "max": 16.946976
+          },
+          "tokens": {
+            "cl100k_base": {
+              "context": {
+                "n": 126,
+                "mean": 951.2619047619048,
+                "p50": 819.5,
+                "p95": 1629.0,
+                "min": 0,
+                "max": 1732
+              },
+              "response_text": {
+                "n": 126,
+                "mean": 1340.0,
+                "p50": 1383.5,
+                "p95": 1944.0,
+                "min": 29,
+                "max": 2119
+              },
+              "response_envelope_json": {
+                "n": 126,
+                "mean": 1422.3095238095239,
+                "p50": 1493.0,
+                "p95": 2038.0,
+                "min": 48,
+                "max": 2235
+              },
+              "tool_arguments_json": {
+                "n": 126,
+                "mean": 37.19047619047619,
+                "p50": 35.5,
+                "p95": 51.0,
+                "min": 26,
+                "max": 56
+              }
+            },
+            "o200k_base": {
+              "context": {
+                "n": 126,
+                "mean": 782.1428571428571,
+                "p50": 708.0,
+                "p95": 1226.0,
+                "min": 0,
+                "max": 1230
+              },
+              "response_text": {
+                "n": 126,
+                "mean": 1176.3809523809523,
+                "p50": 1274.0,
+                "p95": 1601.0,
+                "min": 29,
+                "max": 1619
+              },
+              "response_envelope_json": {
+                "n": 126,
+                "mean": 1254.3095238095239,
+                "p50": 1378.5,
+                "p95": 1698.0,
+                "min": 48,
+                "max": 1730
+              },
+              "tool_arguments_json": {
+                "n": 126,
+                "mean": 33.166666666666664,
+                "p50": 32.0,
+                "p95": 41.0,
+                "min": 26,
+                "max": 42
+              }
+            }
+          }
+        },
+        "immediate_repeat": {
+          "wall_ms": {
+            "n": 126,
+            "mean": 1.43085673015873,
+            "p50": 1.384727,
+            "p95": 1.83751675,
+            "min": 0.866467,
+            "max": 2.441759
+          },
+          "tokens": {
+            "cl100k_base": {
+              "context": {
+                "n": 126,
+                "mean": 951.2619047619048,
+                "p50": 819.5,
+                "p95": 1629.0,
+                "min": 0,
+                "max": 1732
+              },
+              "response_text": {
+                "n": 126,
+                "mean": 1340.0,
+                "p50": 1383.5,
+                "p95": 1944.0,
+                "min": 29,
+                "max": 2119
+              },
+              "response_envelope_json": {
+                "n": 126,
+                "mean": 1422.3095238095239,
+                "p50": 1493.0,
+                "p95": 2038.0,
+                "min": 48,
+                "max": 2235
+              },
+              "tool_arguments_json": {
+                "n": 126,
+                "mean": 37.19047619047619,
+                "p50": 35.5,
+                "p95": 51.0,
+                "min": 26,
+                "max": 56
+              }
+            },
+            "o200k_base": {
+              "context": {
+                "n": 126,
+                "mean": 782.1428571428571,
+                "p50": 708.0,
+                "p95": 1226.0,
+                "min": 0,
+                "max": 1230
+              },
+              "response_text": {
+                "n": 126,
+                "mean": 1176.3809523809523,
+                "p50": 1274.0,
+                "p95": 1601.0,
+                "min": 29,
+                "max": 1619
+              },
+              "response_envelope_json": {
+                "n": 126,
+                "mean": 1254.3095238095239,
+                "p50": 1378.5,
+                "p95": 1698.0,
+                "min": 48,
+                "max": 1730
+              },
+              "tool_arguments_json": {
+                "n": 126,
+                "mean": 33.166666666666664,
+                "p50": 32.0,
+                "p95": 41.0,
+                "min": 26,
+                "max": 42
+              }
+            }
+          }
+        }
+      },
+      "same_evidence_detail_comparison": {
+        "queries": 42,
+        "all_contexts_identical": true,
+        "mean_tokens": {
+          "cl100k_base": {
+            "compact_response_text": 1340.0,
+            "detailed_response_text": 1875.047619047619
+          },
+          "o200k_base": {
+            "compact_response_text": 1176.3809523809523,
+            "detailed_response_text": 1707.2142857142858
+          }
+        }
+      }
+    }
+  ],
+  "artifact": {
+    "path": "conjunctive-mcp-synthetic.json.gz",
+    "uncompressed_sha256": "91e9d3e2b5c018dccf7c85d01a9b1f1fe70a381c1f9472c4188de2a1f8e8a2d2"
+  }
+}

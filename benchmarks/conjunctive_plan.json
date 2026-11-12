@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "runtime_commit": "1cdaf8f36436087b72eb8c9fbd17880cac356f21",
+  "runtime_sha256": "f2af82a18e5b76094f1d30dd355b8bbf728b76d9eb26be8e237d66aec0df83aa",
+  "primary_baseline": "605d74e1b76fd471def8274c2a04e96e2d095075",
+  "first_round_baseline": "6f5299004642618e606d001b4c574e1bae572a7e",
+  "selection": "One fixed explicit-conjunction candidate selected on synthetic dev61 and public-dev128 only. Selection and query-plan repair recorded separately.",
+  "development_selection": "benchmarks/experiments/conjunctive-selection.json",
+  "regression": {
+    "synthetic_seeds": [
+      211,
+      509,
+      883,
+      1297
+    ],
+    "projects": 8,
+    "public": "all 1015 previously measured eligible LoCoMo heldout questions; regression, not fresh heldout"
+  },
+  "new_diagnostic": {
+    "manifest": "benchmarks/transfer_manifest.json",
+    "data_freeze_commit": "917bf88",
+    "queries": 36,
+    "domains": 6,
+    "prior_scoring": false,
+    "policy": "No algorithm selection on these outcomes; after this run it becomes regression data"
+  },
+  "budgets": {
+    "characters": [
+      2000,
+      8000
+    ],
+    "tokens": [
+      512,
+      1024,
+      2048
+    ],
+    "tokenizers": [
+      "cl100k_base",
+      "o200k_base"
+    ],
+    "candidate_limit": 5
+  },
+  "repeats": 3,
+  "timing": "Sequential stages on one machine, result-cache disabled; warm filesystem and SQLite; generation excluded.",
+  "quality_policy": "Publish gains, losses and category metrics for every budget, including no-answer nonempty context. Source and budget correctness gates are not a quality superiority claim.",
+  "scope": "Native competitors are pinned shared-page retrieval components. Real MCP measured separately. No new storage schema; no synthetic schema upgrade.",
+  "generation": "A real-endpoint runner is being added independently. No prepared endpoint/model or authentic competitor observer traces are available; no generated-answer or full-workflow savings claim."
+}

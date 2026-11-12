@@ -1,0 +1,510 @@
+{
+  "version": 1,
+  "cwd": "..",
+  "runtime_commands": [
+    [
+      "node",
+      "--version"
+    ]
+  ],
+  "inputs": [
+    {
+      "path": "src",
+      "pattern": "**/*.py"
+    },
+    {
+      "path": "../baseline-score/src",
+      "pattern": "**/*.py"
+    },
+    {
+      "path": "../baseline-recall/src",
+      "pattern": "**/*.py"
+    },
+    {
+      "path": "benchmarks/data.py"
+    },
+    {
+      "path": "benchmarks/long_data.py"
+    },
+    {
+      "path": "benchmarks/run.py"
+    },
+    {
+      "path": "benchmarks/token_compare.py"
+    },
+    {
+      "path": "benchmarks/component_eval.py"
+    },
+    {
+      "path": "benchmarks/mcp_costs.py"
+    },
+    {
+      "path": "benchmarks/public_data.py"
+    },
+    {
+      "path": "benchmarks/transfer_data.py"
+    },
+    {
+      "path": "benchmarks/preflight.py"
+    },
+    {
+      "path": "benchmarks/resume.py"
+    },
+    {
+      "path": "benchmarks/conjunctive_plan.json"
+    },
+    {
+      "path": "benchmarks/conjunctive_corpora.json"
+    },
+    {
+      "path": "benchmarks/transfer_cases.json"
+    },
+    {
+      "path": "benchmarks/transfer_manifest.json"
+    },
+    {
+      "path": "benchmarks/locomo_split.json"
+    },
+    {
+      "path": "benchmarks/experiments/conjunctive-selection.json"
+    },
+    {
+      "path": "benchmarks/competitors/billion-lock.json"
+    },
+    {
+      "path": "benchmarks/competitors/ai-memory-lock.json"
+    },
+    {
+      "path": "benchmarks/competitors",
+      "pattern": "*.py"
+    },
+    {
+      "path": "benchmarks/competitors",
+      "pattern": "*.mjs"
+    },
+    {
+      "path": ".artifacts/data/locomo10.json"
+    }
+  ],
+  "stages": [
+    {
+      "id": "preflight",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.preflight",
+        "--baseline-src",
+        "../baseline-score/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "score-aware-recall",
+        "--candidate-label",
+        "conjunctive-recall",
+        "--corpora-json",
+        "benchmarks/conjunctive_corpora.json",
+        "--locomo-path",
+        ".artifacts/data/locomo10.json",
+        "--output",
+        "benchmarks/results/conjunctive-preflight.json"
+      ],
+      "outputs": [
+        "benchmarks/results/conjunctive-preflight.json"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "transfer",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.token_compare",
+        "--baseline-src",
+        "../baseline-score/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "score-aware-recall",
+        "--candidate-label",
+        "conjunctive-recall",
+        "--corpus",
+        "transfer",
+        "--split",
+        "heldout",
+        "--repeats",
+        "3",
+        "--budget-chars",
+        "2000",
+        "8000",
+        "--token-budgets",
+        "512",
+        "1024",
+        "2048",
+        "--output",
+        "benchmarks/results/conjunctive-transfer"
+      ],
+      "outputs": [
+        "benchmarks/results/conjunctive-transfer.json.gz",
+        "benchmarks/results/conjunctive-transfer.summary.json",
+        "benchmarks/results/conjunctive-transfer.md"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "synthetic-211",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.token_compare",
+        "--baseline-src",
+        "../baseline-score/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "score-aware-recall",
+        "--candidate-label",
+        "conjunctive-recall",
+        "--corpus",
+        "synthetic",
+        "--split",
+        "heldout",
+        "--repeats",
+        "3",
+        "--budget-chars",
+        "2000",
+        "8000",
+        "--token-budgets",
+        "512",
+        "1024",
+        "2048",
+        "--seed",
+        "211",
+        "--projects",
+        "8",
+        "--output",
+        "benchmarks/results/conjunctive-synthetic-211"
+      ],
+      "outputs": [
+        "benchmarks/results/conjunctive-synthetic-211.json.gz",
+        "benchmarks/results/conjunctive-synthetic-211.summary.json",
+        "benchmarks/results/conjunctive-synthetic-211.md"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "synthetic-509",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.token_compare",
+        "--baseline-src",
+        "../baseline-score/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "score-aware-recall",
+        "--candidate-label",
+        "conjunctive-recall",
+        "--corpus",
+        "synthetic",
+        "--split",
+        "heldout",
+        "--repeats",
+        "3",
+        "--budget-chars",
+        "2000",
+        "8000",
+        "--token-budgets",
+        "512",
+        "1024",
+        "2048",
+        "--seed",
+        "509",
+        "--projects",
+        "8",
+        "--output",
+        "benchmarks/results/conjunctive-synthetic-509"
+      ],
+      "outputs": [
+        "benchmarks/results/conjunctive-synthetic-509.json.gz",
+        "benchmarks/results/conjunctive-synthetic-509.summary.json",
+        "benchmarks/results/conjunctive-synthetic-509.md"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "synthetic-883",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.token_compare",
+        "--baseline-src",
+        "../baseline-score/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "score-aware-recall",
+        "--candidate-label",
+        "conjunctive-recall",
+        "--corpus",
+        "synthetic",
+        "--split",
+        "heldout",
+        "--repeats",
+        "3",
+        "--budget-chars",
+        "2000",
+        "8000",
+        "--token-budgets",
+        "512",
+        "1024",
+        "2048",
+        "--seed",
+        "883",
+        "--projects",
+        "8",
+        "--output",
+        "benchmarks/results/conjunctive-synthetic-883"
+      ],
+      "outputs": [
+        "benchmarks/results/conjunctive-synthetic-883.json.gz",
+        "benchmarks/results/conjunctive-synthetic-883.summary.json",
+        "benchmarks/results/conjunctive-synthetic-883.md"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "synthetic-1297",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.token_compare",
+        "--baseline-src",
+        "../baseline-score/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "score-aware-recall",
+        "--candidate-label",
+        "conjunctive-recall",
+        "--corpus",
+        "synthetic",
+        "--split",
+        "heldout",
+        "--repeats",
+        "3",
+        "--budget-chars",
+        "2000",
+        "8000",
+        "--token-budgets",
+        "512",
+        "1024",
+        "2048",
+        "--seed",
+        "1297",
+        "--projects",
+        "8",
+        "--output",
+        "benchmarks/results/conjunctive-synthetic-1297"
+      ],
+      "outputs": [
+        "benchmarks/results/conjunctive-synthetic-1297.json.gz",
+        "benchmarks/results/conjunctive-synthetic-1297.summary.json",
+        "benchmarks/results/conjunctive-synthetic-1297.md"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "public",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.token_compare",
+        "--baseline-src",
+        "../baseline-score/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "score-aware-recall",
+        "--candidate-label",
+        "conjunctive-recall",
+        "--corpus",
+        "locomo",
+        "--split",
+        "heldout",
+        "--repeats",
+        "3",
+        "--budget-chars",
+        "2000",
+        "8000",
+        "--token-budgets",
+        "512",
+        "1024",
+        "2048",
+        "--locomo-path",
+        ".artifacts/data/locomo10.json",
+        "--max-queries",
+        "0",
+        "--output",
+        "benchmarks/results/conjunctive-public"
+      ],
+      "outputs": [
+        "benchmarks/results/conjunctive-public.json.gz",
+        "benchmarks/results/conjunctive-public.summary.json",
+        "benchmarks/results/conjunctive-public.md"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "public-vs-first",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.token_compare",
+        "--baseline-src",
+        "../baseline-recall/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "first-round-recall",
+        "--candidate-label",
+        "conjunctive-recall",
+        "--corpus",
+        "locomo",
+        "--split",
+        "heldout",
+        "--repeats",
+        "3",
+        "--budget-chars",
+        "2000",
+        "8000",
+        "--token-budgets",
+        "512",
+        "1024",
+        "2048",
+        "--locomo-path",
+        ".artifacts/data/locomo10.json",
+        "--max-queries",
+        "0",
+        "--output",
+        "benchmarks/results/conjunctive-public-vs-first"
+      ],
+      "outputs": [
+        "benchmarks/results/conjunctive-public-vs-first.json.gz",
+        "benchmarks/results/conjunctive-public-vs-first.summary.json",
+        "benchmarks/results/conjunctive-public-vs-first.md"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "mcp-synthetic",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.mcp_costs",
+        "--engine",
+        "score-aware-recall=../baseline-score",
+        "--engine",
+        "conjunctive-recall=.",
+        "--repeats",
+        "3",
+        "--budget-chars",
+        "2000",
+        "--work-dir",
+        ".artifacts",
+        "--seed",
+        "61",
+        "--projects",
+        "2",
+        "--split",
+        "development",
+        "--output",
+        "benchmarks/reports/conjunctive-mcp-synthetic.json.gz"
+      ],
+      "outputs": [
+        "benchmarks/reports/conjunctive-mcp-synthetic.json.gz",
+        "benchmarks/reports/conjunctive-mcp-synthetic.summary.json"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "mcp-public",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.mcp_costs",
+        "--engine",
+        "score-aware-recall=../baseline-score",
+        "--engine",
+        "conjunctive-recall=.",
+        "--repeats",
+        "3",
+        "--budget-chars",
+        "8000",
+        "--work-dir",
+        ".artifacts",
+        "--corpus",
+        "locomo",
+        "--locomo-path",
+        ".artifacts/data/locomo10.json",
+        "--split",
+        "heldout",
+        "--max-queries",
+        "0",
+        "--output",
+        "benchmarks/reports/conjunctive-mcp-public.json.gz"
+      ],
+      "outputs": [
+        "benchmarks/reports/conjunctive-mcp-public.json.gz",
+        "benchmarks/reports/conjunctive-mcp-public.summary.json"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "native-components",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.component_eval",
+        "--baseline-src",
+        "../baseline-score/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "score-aware-recall",
+        "--candidate-label",
+        "conjunctive-recall",
+        "--engines",
+        "baseline",
+        "candidate",
+        "billion-context",
+        "ai-memory-hybrid",
+        "--cache",
+        ".artifacts/competitors",
+        "--offline",
+        "--corpus",
+        "locomo",
+        "--locomo-path",
+        ".artifacts/data/locomo10.json",
+        "--split",
+        "heldout",
+        "--max-queries",
+        "0",
+        "--repeats",
+        "3",
+        "--token-budgets",
+        "512",
+        "1024",
+        "2048",
+        "--output",
+        "benchmarks/results/conjunctive-components-public"
+      ],
+      "outputs": [
+        "benchmarks/results/conjunctive-components-public.json.gz",
+        "benchmarks/results/conjunctive-components-public.summary.json",
+        "benchmarks/results/conjunctive-components-public.md"
+      ],
+      "timeout_seconds": 1800
+    }
+  ]
+}

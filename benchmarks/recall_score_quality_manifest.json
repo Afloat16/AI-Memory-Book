@@ -1,0 +1,595 @@
+{
+  "version": 1,
+  "cwd": "..",
+  "runtime_commands": [
+    [
+      "node",
+      "--version"
+    ]
+  ],
+  "inputs": [
+    {
+      "path": "src",
+      "pattern": "**/*.py"
+    },
+    {
+      "path": "benchmarks",
+      "pattern": "**/*.py"
+    },
+    {
+      "path": "benchmarks/recall_score_quality_plan.json"
+    },
+    {
+      "path": "benchmarks/recall_score_quality_corpora.json"
+    },
+    {
+      "path": "benchmarks/locomo_split.json"
+    },
+    {
+      "path": "benchmarks/competitors/billion-lock.json"
+    },
+    {
+      "path": "benchmarks/competitors/ai-memory-lock.json"
+    },
+    {
+      "path": "benchmarks/competitors",
+      "pattern": "*.mjs"
+    },
+    {
+      "path": "../baseline-v0.3/src",
+      "pattern": "**/*.py"
+    },
+    {
+      "path": "../baseline-v0.2/src",
+      "pattern": "**/*.py"
+    },
+    {
+      "path": ".artifacts/data/locomo10.json"
+    },
+    {
+      "path": "../baseline-recall/src",
+      "pattern": "**/*.py"
+    },
+    {
+      "path": "benchmarks/experiments/score-aware-fusion-selection.json"
+    }
+  ],
+  "stages": [
+    {
+      "id": "source-preflight",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.preflight",
+        "--baseline-src",
+        "../baseline-recall/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "first-round-recall",
+        "--candidate-label",
+        "score-aware-recall",
+        "--locomo-path",
+        ".artifacts/data/locomo10.json",
+        "--corpora-json",
+        "benchmarks/recall_score_quality_corpora.json",
+        "--output",
+        "benchmarks/results/recall-score-final-preflight.json"
+      ],
+      "outputs": [
+        "benchmarks/results/recall-score-final-preflight.json"
+      ],
+      "timeout_seconds": 900
+    },
+    {
+      "id": "paired-synthetic-61",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.token_compare",
+        "--baseline-src",
+        "../baseline-recall/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "first-round-recall",
+        "--candidate-label",
+        "score-aware-recall",
+        "--seed",
+        "61",
+        "--split",
+        "development",
+        "--projects",
+        "8",
+        "--repeats",
+        "3",
+        "--output",
+        "benchmarks/results/recall-score-final-synthetic-61"
+      ],
+      "outputs": [
+        "benchmarks/results/recall-score-final-synthetic-61.json.gz",
+        "benchmarks/results/recall-score-final-synthetic-61.summary.json",
+        "benchmarks/results/recall-score-final-synthetic-61.md"
+      ],
+      "timeout_seconds": 900
+    },
+    {
+      "id": "paired-synthetic-211",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.token_compare",
+        "--baseline-src",
+        "../baseline-recall/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "first-round-recall",
+        "--candidate-label",
+        "score-aware-recall",
+        "--seed",
+        "211",
+        "--split",
+        "heldout",
+        "--projects",
+        "8",
+        "--repeats",
+        "3",
+        "--output",
+        "benchmarks/results/recall-score-final-synthetic-211"
+      ],
+      "outputs": [
+        "benchmarks/results/recall-score-final-synthetic-211.json.gz",
+        "benchmarks/results/recall-score-final-synthetic-211.summary.json",
+        "benchmarks/results/recall-score-final-synthetic-211.md"
+      ],
+      "timeout_seconds": 900
+    },
+    {
+      "id": "paired-synthetic-509",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.token_compare",
+        "--baseline-src",
+        "../baseline-recall/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "first-round-recall",
+        "--candidate-label",
+        "score-aware-recall",
+        "--seed",
+        "509",
+        "--split",
+        "heldout",
+        "--projects",
+        "8",
+        "--repeats",
+        "3",
+        "--output",
+        "benchmarks/results/recall-score-final-synthetic-509"
+      ],
+      "outputs": [
+        "benchmarks/results/recall-score-final-synthetic-509.json.gz",
+        "benchmarks/results/recall-score-final-synthetic-509.summary.json",
+        "benchmarks/results/recall-score-final-synthetic-509.md"
+      ],
+      "timeout_seconds": 900
+    },
+    {
+      "id": "paired-synthetic-883",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.token_compare",
+        "--baseline-src",
+        "../baseline-recall/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "first-round-recall",
+        "--candidate-label",
+        "score-aware-recall",
+        "--seed",
+        "883",
+        "--split",
+        "heldout",
+        "--projects",
+        "8",
+        "--repeats",
+        "3",
+        "--output",
+        "benchmarks/results/recall-score-final-synthetic-883"
+      ],
+      "outputs": [
+        "benchmarks/results/recall-score-final-synthetic-883.json.gz",
+        "benchmarks/results/recall-score-final-synthetic-883.summary.json",
+        "benchmarks/results/recall-score-final-synthetic-883.md"
+      ],
+      "timeout_seconds": 900
+    },
+    {
+      "id": "paired-synthetic-1297",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.token_compare",
+        "--baseline-src",
+        "../baseline-recall/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "first-round-recall",
+        "--candidate-label",
+        "score-aware-recall",
+        "--seed",
+        "1297",
+        "--split",
+        "heldout",
+        "--projects",
+        "8",
+        "--repeats",
+        "3",
+        "--output",
+        "benchmarks/results/recall-score-final-synthetic-1297"
+      ],
+      "outputs": [
+        "benchmarks/results/recall-score-final-synthetic-1297.json.gz",
+        "benchmarks/results/recall-score-final-synthetic-1297.summary.json",
+        "benchmarks/results/recall-score-final-synthetic-1297.md"
+      ],
+      "timeout_seconds": 900
+    },
+    {
+      "id": "paired-public-development",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.token_compare",
+        "--baseline-src",
+        "../baseline-recall/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "first-round-recall",
+        "--candidate-label",
+        "score-aware-recall",
+        "--locomo-path",
+        ".artifacts/data/locomo10.json",
+        "--corpus",
+        "locomo",
+        "--split",
+        "development",
+        "--max-queries",
+        "128",
+        "--repeats",
+        "3",
+        "--output",
+        "benchmarks/results/recall-score-final-public-development"
+      ],
+      "outputs": [
+        "benchmarks/results/recall-score-final-public-development.json.gz",
+        "benchmarks/results/recall-score-final-public-development.summary.json",
+        "benchmarks/results/recall-score-final-public-development.md"
+      ],
+      "timeout_seconds": 900
+    },
+    {
+      "id": "paired-public-regression",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.token_compare",
+        "--baseline-src",
+        "../baseline-recall/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "first-round-recall",
+        "--candidate-label",
+        "score-aware-recall",
+        "--locomo-path",
+        ".artifacts/data/locomo10.json",
+        "--corpus",
+        "locomo",
+        "--split",
+        "heldout",
+        "--max-queries",
+        "256",
+        "--repeats",
+        "3",
+        "--output",
+        "benchmarks/results/recall-score-final-public-regression"
+      ],
+      "outputs": [
+        "benchmarks/results/recall-score-final-public-regression.json.gz",
+        "benchmarks/results/recall-score-final-public-regression.summary.json",
+        "benchmarks/results/recall-score-final-public-regression.md"
+      ],
+      "timeout_seconds": 900
+    },
+    {
+      "id": "paired-public-expanded",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.token_compare",
+        "--baseline-src",
+        "../baseline-recall/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "first-round-recall",
+        "--candidate-label",
+        "score-aware-recall",
+        "--locomo-path",
+        ".artifacts/data/locomo10.json",
+        "--corpus",
+        "locomo",
+        "--split",
+        "heldout",
+        "--max-queries",
+        "0",
+        "--repeats",
+        "3",
+        "--output",
+        "benchmarks/results/recall-score-final-public-expanded"
+      ],
+      "outputs": [
+        "benchmarks/results/recall-score-final-public-expanded.json.gz",
+        "benchmarks/results/recall-score-final-public-expanded.summary.json",
+        "benchmarks/results/recall-score-final-public-expanded.md"
+      ],
+      "timeout_seconds": 900
+    },
+    {
+      "id": "paired-preserved-expanded",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.token_compare",
+        "--baseline-src",
+        "../baseline-v0.3/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "preserved-v0.3",
+        "--candidate-label",
+        "score-aware-recall",
+        "--locomo-path",
+        ".artifacts/data/locomo10.json",
+        "--corpus",
+        "locomo",
+        "--split",
+        "heldout",
+        "--max-queries",
+        "0",
+        "--repeats",
+        "3",
+        "--output",
+        "benchmarks/results/recall-score-final-preserved-expanded"
+      ],
+      "outputs": [
+        "benchmarks/results/recall-score-final-preserved-expanded.json.gz",
+        "benchmarks/results/recall-score-final-preserved-expanded.summary.json",
+        "benchmarks/results/recall-score-final-preserved-expanded.md"
+      ],
+      "timeout_seconds": 900
+    },
+    {
+      "id": "paired-main-expanded",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.token_compare",
+        "--baseline-src",
+        "../baseline-v0.2/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "main-v0.2.1",
+        "--candidate-label",
+        "score-aware-recall",
+        "--locomo-path",
+        ".artifacts/data/locomo10.json",
+        "--corpus",
+        "locomo",
+        "--split",
+        "heldout",
+        "--max-queries",
+        "0",
+        "--repeats",
+        "3",
+        "--output",
+        "benchmarks/results/recall-score-final-main-expanded"
+      ],
+      "outputs": [
+        "benchmarks/results/recall-score-final-main-expanded.json.gz",
+        "benchmarks/results/recall-score-final-main-expanded.summary.json",
+        "benchmarks/results/recall-score-final-main-expanded.md"
+      ],
+      "timeout_seconds": 900
+    },
+    {
+      "id": "upgrade-synthetic",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.upgrade_costs",
+        "--baseline-src",
+        "../baseline-recall/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "first-round-recall",
+        "--candidate-label",
+        "score-aware-recall",
+        "--seed",
+        "61",
+        "--split",
+        "development",
+        "--projects",
+        "8",
+        "--repeats",
+        "3",
+        "--work-dir",
+        ".artifacts",
+        "--output",
+        "benchmarks/reports/recall-score-final-upgrade-synthetic.json"
+      ],
+      "outputs": [
+        "benchmarks/reports/recall-score-final-upgrade-synthetic.json"
+      ],
+      "timeout_seconds": 900
+    },
+    {
+      "id": "upgrade-public",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.upgrade_costs",
+        "--baseline-src",
+        "../baseline-recall/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "first-round-recall",
+        "--candidate-label",
+        "score-aware-recall",
+        "--locomo-path",
+        ".artifacts/data/locomo10.json",
+        "--corpus",
+        "locomo",
+        "--split",
+        "heldout",
+        "--max-queries",
+        "0",
+        "--repeats",
+        "3",
+        "--work-dir",
+        ".artifacts",
+        "--output",
+        "benchmarks/reports/recall-score-final-upgrade-public.json"
+      ],
+      "outputs": [
+        "benchmarks/reports/recall-score-final-upgrade-public.json"
+      ],
+      "timeout_seconds": 900
+    },
+    {
+      "id": "mcp-synthetic",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.mcp_costs",
+        "--engine",
+        "main-v0.2.1=../baseline-v0.2",
+        "--engine",
+        "preserved-v0.3=../baseline-v0.3",
+        "--engine",
+        "first-round-recall=../baseline-recall",
+        "--engine",
+        "score-aware-recall=.",
+        "--seed",
+        "61",
+        "--split",
+        "development",
+        "--projects",
+        "2",
+        "--repeats",
+        "3",
+        "--budget-chars",
+        "2000",
+        "--work-dir",
+        ".artifacts",
+        "--output",
+        "benchmarks/reports/recall-score-final-mcp-synthetic.json.gz"
+      ],
+      "outputs": [
+        "benchmarks/reports/recall-score-final-mcp-synthetic.json.gz",
+        "benchmarks/reports/recall-score-final-mcp-synthetic.summary.json"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "mcp-public",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.mcp_costs",
+        "--engine",
+        "main-v0.2.1=../baseline-v0.2",
+        "--engine",
+        "preserved-v0.3=../baseline-v0.3",
+        "--engine",
+        "first-round-recall=../baseline-recall",
+        "--engine",
+        "score-aware-recall=.",
+        "--locomo-path",
+        ".artifacts/data/locomo10.json",
+        "--corpus",
+        "locomo",
+        "--split",
+        "heldout",
+        "--max-queries",
+        "0",
+        "--repeats",
+        "3",
+        "--budget-chars",
+        "8000",
+        "--work-dir",
+        ".artifacts",
+        "--output",
+        "benchmarks/reports/recall-score-final-mcp-public.json.gz"
+      ],
+      "outputs": [
+        "benchmarks/reports/recall-score-final-mcp-public.json.gz",
+        "benchmarks/reports/recall-score-final-mcp-public.summary.json"
+      ],
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "native-components-public",
+      "argv": [
+        "{python}",
+        "-m",
+        "benchmarks.component_eval",
+        "--baseline-src",
+        "../baseline-recall/src",
+        "--candidate-src",
+        "src",
+        "--baseline-label",
+        "first-round-recall",
+        "--candidate-label",
+        "score-aware-recall",
+        "--locomo-path",
+        ".artifacts/data/locomo10.json",
+        "--engines",
+        "baseline",
+        "candidate",
+        "billion-context",
+        "ai-memory-hybrid",
+        "--cache",
+        ".artifacts/competitors",
+        "--offline",
+        "--corpus",
+        "locomo",
+        "--split",
+        "heldout",
+        "--max-queries",
+        "0",
+        "--repeats",
+        "3",
+        "--output",
+        "benchmarks/results/recall-score-final-components-public"
+      ],
+      "outputs": [
+        "benchmarks/results/recall-score-final-components-public.json.gz",
+        "benchmarks/results/recall-score-final-components-public.summary.json",
+        "benchmarks/results/recall-score-final-components-public.md"
+      ],
+      "timeout_seconds": 1800
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "status": "registered-before-real-model-answer-scoring",
+  "purpose": "Measure actual generated answers and observed Book ingestion/retrieval/generation costs with a reproducible local endpoint; do not claim a complete native competitor-workflow comparison.",
+  "model": {
+    "repository": "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+    "revision": "9217f5db79a29953eb74d5343926648285ec7e67",
+    "file": "qwen2.5-0.5b-instruct-q4_k_m.gguf",
+    "bytes": 491400032,
+    "sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
+    "license": "Apache-2.0",
+    "served_alias": "qwen2.5-0.5b-instruct-q4_k_m"
+  },
+  "server": {
+    "repository": "ggml-org/llama.cpp",
+    "tag": "b12110",
+    "release_url": "https://github.com/ggml-org/llama.cpp/releases/tag/b12110",
+    "asset": "llama-b12110-bin-ubuntu-x64.tar.gz",
+    "bytes": 23051958,
+    "sha256": "368227edcc229be5f9bed16a2223d79b5e41d0ac2e19bcf5825e82291c060e55",
+    "host": "127.0.0.1",
+    "context_tokens": 4096,
+    "parallel_slots": 1,
+    "threads": 4,
+    "seed": 42
+  },
+  "cohorts": [
+    {"corpus": "locomo", "split": "heldout", "max_queries": 128, "expected_queries": 128, "selection": "existing locomo-query-order-v1 hash ordering", "interpretation": "known retrieval regression data; first actual generation measurement for this experiment"},
+    {"corpus": "hotpotqa", "expected_queries": 128, "selection": "the separately frozen external-transfer cohort", "interpretation": "external multi-hop diagnostic; base-model pretraining overlap is unknown"}
+  ],
+  "engines": ["baseline_native_excerpt_pack", "candidate_native_token_budget", "candidate_semantic_native_token_budget"],
+  "parameters": {"budget_chars": 8000, "budget_tokens": 512, "reference_tokenizer": "cl100k_base", "limit": 5, "temperature": 0.0, "max_output_tokens": 128, "repeats": 1, "timeout_seconds": 120},
+  "scoring": "Existing fixed answer_eval normalized exact match and lexical token F1 on answerable questions; exact INSUFFICIENT_EVIDENCE abstention on unsupported questions. Labels stay evaluator-side. These lexical metrics are not semantic-judge scores or the official LoCoMo answer metric.",
+  "execution": "Same fixed prompt and served artifact for all engines. Rotate engine order per query. Preserve failed/truncated/in-flight attempts and reported model identity/usage. Never replace real model outputs with fixtures. Keep raw upstream passages outside Git; publish per-query source/context/request/response hashes, answers, scores, usage and timing where licensing permits.",
+  "cost_boundary": "Separate once-per-corpus ingestion/index/model load from per-query retrieval/packing/generation. Book does not use model summarization, so its configured summary phase has zero model calls. Missing native competitor observer/compression/follow-up phases remain unknown. Local server token counts are not provider bills and no electricity/dollar advantage is inferred.",
+  "limitations": "One small quantized CPU model and two bounded cohorts cannot establish answer quality for other models, universal semantic memory, or broad domain generalization. Register any platform-driven server fallback before scoring and retain the original attempt."
+}

@@ -1,0 +1,825 @@
+{
+  "schema_version": 1,
+  "evaluator": "native-budget-1",
+  "created_at_utc": "2026-11-12T03:58:59.066459+00:00",
+  "runtime": {
+    "python": "3.12.14",
+    "sqlite": "3.53.1",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41"
+  },
+  "dataset": {
+    "kind": "public",
+    "version": "locomo-text-evidence-1.0",
+    "variant": "locomo_text_evidence_v1",
+    "seed": 20261111,
+    "split": "development",
+    "sha256": "9929b803fd08b6ecebccead76295590fb81a935ca1ea283f2dc0f9400bfee903",
+    "projects": 2,
+    "sessions": 56,
+    "turns": 1198,
+    "source_characters": 150660,
+    "source_utf8_bytes": 150758,
+    "queries": 128,
+    "answerable_queries": 83,
+    "categories": {
+      "locomo_category_5": 45,
+      "locomo_category_4": 53,
+      "locomo_category_1": 9,
+      "locomo_category_2": 13,
+      "locomo_category_3": 8
+    },
+    "provenance": {
+      "dataset": "LoCoMo locomo10.json",
+      "repository": "https://github.com/snap-research/locomo",
+      "commit": "3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376",
+      "url": "https://raw.githubusercontent.com/snap-research/locomo/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/data/locomo10.json",
+      "sha256": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+      "bytes": 2805274,
+      "license": "CC-BY-NC-4.0",
+      "license_url": "https://github.com/snap-research/locomo/blob/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/LICENSE.txt",
+      "split_seed": 20261111,
+      "sample_ids": [
+        "conv-47",
+        "conv-49"
+      ],
+      "all_qa_in_split": 386,
+      "all_qa_categories": {
+        "3": 26,
+        "2": 67,
+        "1": 57,
+        "4": 156,
+        "5": 80
+      },
+      "eligible_qa_in_split": 264,
+      "selected_queries": 128,
+      "max_queries": 128,
+      "excluded_qa": {
+        "image_bearing_evidence": 118,
+        "invalid_evidence_id": 4
+      },
+      "selection": "sha256(locomo-query-order-v1: + query_id) ascending",
+      "evidence_metric": "complete annotated utterance text and original source span",
+      "indexing": "one dialogue utterance per canonical user-role turn; speaker prefix; text only",
+      "date_time_convention": "source local clock represented as UTC for deterministic ordering"
+    }
+  },
+  "engines": [
+    {
+      "label": "prior-default",
+      "source_provenance": {
+        "source_root": "/workspace/scratch/5f6e3b3a7236/AI-Memory-Book-work/.artifacts/baseline-current/src/memory_book",
+        "repository_root": "/workspace/scratch/5f6e3b3a7236/AI-Memory-Book-work/.artifacts/baseline-current",
+        "git_commit": "5abc85eef00097555366f8524fc81f8b5711ad7a",
+        "git_dirty": false,
+        "source_dirty": false,
+        "commit_identifies_source": true,
+        "python_files_differing_from_commit": []
+      },
+      "source_sha256_before": "88f5f749be55dd4f1094d236340bec645edb6b9306fd45c720dbebac91767e57",
+      "dataset": {
+        "kind": "public",
+        "version": "locomo-text-evidence-1.0",
+        "variant": "locomo_text_evidence_v1",
+        "seed": 20261111,
+        "split": "development",
+        "sha256": "9929b803fd08b6ecebccead76295590fb81a935ca1ea283f2dc0f9400bfee903",
+        "projects": 2,
+        "sessions": 56,
+        "turns": 1198,
+        "source_characters": 150660,
+        "source_utf8_bytes": 150758,
+        "queries": 128,
+        "answerable_queries": 83,
+        "categories": {
+          "locomo_category_5": 45,
+          "locomo_category_4": 53,
+          "locomo_category_1": 9,
+          "locomo_category_2": 13,
+          "locomo_category_3": 8
+        },
+        "provenance": {
+          "dataset": "LoCoMo locomo10.json",
+          "repository": "https://github.com/snap-research/locomo",
+          "commit": "3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376",
+          "url": "https://raw.githubusercontent.com/snap-research/locomo/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/data/locomo10.json",
+          "sha256": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+          "bytes": 2805274,
+          "license": "CC-BY-NC-4.0",
+          "license_url": "https://github.com/snap-research/locomo/blob/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/LICENSE.txt",
+          "split_seed": 20261111,
+          "sample_ids": [
+            "conv-47",
+            "conv-49"
+          ],
+          "all_qa_in_split": 386,
+          "all_qa_categories": {
+            "3": 26,
+            "2": 67,
+            "1": 57,
+            "4": 156,
+            "5": 80
+          },
+          "eligible_qa_in_split": 264,
+          "selected_queries": 128,
+          "max_queries": 128,
+          "excluded_qa": {
+            "image_bearing_evidence": 118,
+            "invalid_evidence_id": 4
+          },
+          "selection": "sha256(locomo-query-order-v1: + query_id) ascending",
+          "evidence_metric": "complete annotated utterance text and original source span",
+          "indexing": "one dialogue utterance per canonical user-role turn; speaker prefix; text only",
+          "date_time_convention": "source local clock represented as UTC for deterministic ordering"
+        }
+      },
+      "configuration": {
+        "budget_chars": [
+          8000
+        ],
+        "token_budgets": [
+          512
+        ],
+        "tokenizers": [
+          "cl100k_base"
+        ],
+        "limit": 5,
+        "repeats": 1,
+        "semantic": false,
+        "coverage": false
+      },
+      "tokenizer_version": "0.12.0",
+      "configurations": [
+        {
+          "policy": "historical_whole_page_pack",
+          "budget_chars": 100000,
+          "tokenizer": "cl100k_base",
+          "budget_tokens": 512,
+          "metrics": {
+            "queries": 128,
+            "answerable_queries": 83,
+            "unanswerable_queries": 45,
+            "required_evidence": 107,
+            "matched_evidence": 78,
+            "evidence_recall": 0.7289719626168224,
+            "complete_evidence_rate": 0.7590361445783133,
+            "mrr": 0.7018072289156626,
+            "mean_context_characters": 1623.4453125,
+            "mean_answerable_context_characters": 1628.879518072289,
+            "mean_context_utf8_bytes": 1624.3515625,
+            "mean_duplicate_source_characters": 0.0,
+            "unanswerable_nonempty_rate": 1.0,
+            "latest_stale_only_rate": null,
+            "latest_stale_before_current_rate": null,
+            "budget_violations": 0,
+            "context_size_mismatches": 0,
+            "mean_context_tokens": {
+              "cl100k_base": 451.1796875,
+              "o200k_base": 440.84375
+            }
+          },
+          "latency": {
+            "samples": 128,
+            "p50_ms": 3.7763475,
+            "p95_ms": 4.5190665999999995,
+            "mean_ms": 3.7856224765625
+          },
+          "recall_latency": {
+            "samples": 128,
+            "p50_ms": 2.5952535,
+            "p95_ms": 3.2083181,
+            "mean_ms": 2.625088015625
+          },
+          "post_recall_packing_latency": {
+            "samples": 128,
+            "p50_ms": 1.1395515,
+            "p95_ms": 1.3575285,
+            "mean_ms": 1.15959565625
+          },
+          "by_category": {
+            "locomo_category_1": {
+              "queries": 9,
+              "answerable_queries": 9,
+              "unanswerable_queries": 0,
+              "required_evidence": 23,
+              "matched_evidence": 10,
+              "evidence_recall": 0.43478260869565216,
+              "complete_evidence_rate": 0.3333333333333333,
+              "mrr": 0.5,
+              "mean_context_characters": 1574.3333333333333,
+              "mean_answerable_context_characters": 1574.3333333333333,
+              "mean_context_utf8_bytes": 1575.2222222222222,
+              "mean_duplicate_source_characters": 0.0,
+              "unanswerable_nonempty_rate": null,
+              "latest_stale_only_rate": null,
+              "latest_stale_before_current_rate": null,
+              "budget_violations": 0,
+              "context_size_mismatches": 0,
+              "mean_context_tokens": {
+                "cl100k_base": 432.44444444444446,
+                "o200k_base": 422.1111111111111
+              }
+            },
+            "locomo_category_2": {
+              "queries": 13,
+              "answerable_queries": 13,
+              "unanswerable_queries": 0,
+              "required_evidence": 17,
+              "matched_evidence": 15,
+              "evidence_recall": 0.8823529411764706,
+              "complete_evidence_rate": 0.8461538461538461,
+              "mrr": 0.7307692307692307,
+              "mean_context_characters": 1553.5384615384614,
+              "mean_answerable_context_characters": 1553.5384615384614,
+              "mean_context_utf8_bytes": 1553.8461538461538,
+              "mean_duplicate_source_characters": 0.0,
+              "unanswerable_nonempty_rate": null,
+              "latest_stale_only_rate": null,
+              "latest_stale_before_current_rate": null,
+              "budget_violations": 0,
+              "context_size_mismatches": 0,
+              "mean_context_tokens": {
+                "cl100k_base": 444.9230769230769,
+                "o200k_base": 434.9230769230769
+              }
+            },
+            "locomo_category_3": {
+              "queries": 8,
+              "answerable_queries": 8,
+              "unanswerable_queries": 0,
+              "required_evidence": 11,
+              "matched_evidence": 5,
+              "evidence_recall": 0.45454545454545453,
+              "complete_evidence_rate": 0.375,
+              "mrr": 0.5625,
+              "mean_context_characters": 1554.75,
+              "mean_answerable_context_characters": 1554.75,
+              "mean_context_utf8_bytes": 1556.75,
+              "mean_duplicate_source_characters": 0.0,
+              "unanswerable_nonempty_rate": null,
+              "latest_stale_only_rate": null,
+              "latest_stale_before_current_rate": null,
+              "budget_violations": 0,
+              "context_size_mismatches": 0,
+              "mean_context_tokens": {
+                "cl100k_base": 433.625,
+                "o200k_base": 424.25
+              }
+            },
+            "locomo_category_4": {
+              "queries": 53,
+              "answerable_queries": 53,
+              "unanswerable_queries": 0,
+              "required_evidence": 56,
+              "matched_evidence": 48,
+              "evidence_recall": 0.8571428571428571,
+              "complete_evidence_rate": 0.8679245283018868,
+              "mrr": 0.75,
+              "mean_context_characters": 1667.811320754717,
+              "mean_answerable_context_characters": 1667.811320754717,
+              "mean_context_utf8_bytes": 1668.754716981132,
+              "mean_duplicate_source_characters": 0.0,
+              "unanswerable_nonempty_rate": null,
+              "latest_stale_only_rate": null,
+              "latest_stale_before_current_rate": null,
+              "budget_violations": 0,
+              "context_size_mismatches": 0,
+              "mean_context_tokens": {
+                "cl100k_base": 459.9811320754717,
+                "o200k_base": 449.7358490566038
+              }
+            },
+            "locomo_category_5": {
+              "queries": 45,
+              "answerable_queries": 0,
+              "unanswerable_queries": 45,
+              "required_evidence": 0,
+              "matched_evidence": 0,
+              "evidence_recall": null,
+              "complete_evidence_rate": null,
+              "mrr": null,
+              "mean_context_characters": 1613.4222222222222,
+              "mean_answerable_context_characters": null,
+              "mean_context_utf8_bytes": 1614.2666666666667,
+              "mean_duplicate_source_characters": 0.0,
+              "unanswerable_nonempty_rate": 1.0,
+              "latest_stale_only_rate": null,
+              "latest_stale_before_current_rate": null,
+              "budget_violations": 0,
+              "context_size_mismatches": 0,
+              "mean_context_tokens": {
+                "cl100k_base": 449.4888888888889,
+                "o200k_base": 438.77777777777777
+              }
+            }
+          },
+          "token_budget_violations": 0,
+          "source_span_errors": 0,
+          "token_metadata_errors": 0
+        },
+        {
+          "policy": "native_excerpt_pack",
+          "budget_chars": 8000,
+          "tokenizer": "cl100k_base",
+          "budget_tokens": 512,
+          "metrics": {
+            "queries": 128,
+            "answerable_queries": 83,
+            "unanswerable_queries": 45,
+            "required_evidence": 107,
+            "matched_evidence": 74,
+            "evidence_recall": 0.6915887850467289,
+            "complete_evidence_rate": 0.7108433734939759,
+            "mrr": 0.6947791164658634,
+            "mean_context_characters": 1553.0859375,
+            "mean_answerable_context_characters": 1544.2168674698796,
+            "mean_context_utf8_bytes": 1553.9453125,
+            "mean_duplicate_source_characters": 0.0,
+            "unanswerable_nonempty_rate": 1.0,
+            "latest_stale_only_rate": null,
+            "latest_stale_before_current_rate": null,
+            "budget_violations": 0,
+            "context_size_mismatches": 0,
+            "mean_context_tokens": {
+              "cl100k_base": 434.859375,
+              "o200k_base": 425.171875
+            }
+          },
+          "latency": {
+            "samples": 128,
+            "p50_ms": 3.6095815,
+            "p95_ms": 4.978939999999999,
+            "mean_ms": 3.6716375625
+          },
+          "recall_latency": {
+            "samples": 128,
+            "p50_ms": 2.674493,
+            "p95_ms": 3.7515597499999993,
+            "mean_ms": 2.73005553125
+          },
+          "post_recall_packing_latency": {
+            "samples": 128,
+            "p50_ms": 0.9000555,
+            "p95_ms": 1.2987252499999995,
+            "mean_ms": 0.9405990625
+          },
+          "by_category": {
+            "locomo_category_1": {
+              "queries": 9,
+              "answerable_queries": 9,
+              "unanswerable_queries": 0,
+              "required_evidence": 23,
+              "matched_evidence": 8,
+              "evidence_recall": 0.34782608695652173,
+              "complete_evidence_rate": 0.1111111111111111,
+              "mrr": 0.5,
+              "mean_context_characters": 1484.888888888889,
+              "mean_answerable_context_characters": 1484.888888888889,
+              "mean_context_utf8_bytes": 1485.5555555555557,
+              "mean_duplicate_source_characters": 0.0,
+              "unanswerable_nonempty_rate": null,
+              "latest_stale_only_rate": null,
+              "latest_stale_before_current_rate": null,
+              "budget_violations": 0,
+              "context_size_mismatches": 0,
+              "mean_context_tokens": {
+                "cl100k_base": 407.22222222222223,
+                "o200k_base": 397.55555555555554
+              }
+            },
+            "locomo_category_2": {
+              "queries": 13,
+              "answerable_queries": 13,
+              "unanswerable_queries": 0,
+              "required_evidence": 17,
+              "matched_evidence": 15,
+              "evidence_recall": 0.8823529411764706,
+              "complete_evidence_rate": 0.8461538461538461,
+              "mrr": 0.7307692307692307,
+              "mean_context_characters": 1523.3846153846155,
+              "mean_answerable_context_characters": 1523.3846153846155,
+              "mean_context_utf8_bytes": 1523.6923076923076,
+              "mean_duplicate_source_characters": 0.0,
+              "unanswerable_nonempty_rate": null,
+              "latest_stale_only_rate": null,
+              "latest_stale_before_current_rate": null,
+              "budget_violations": 0,
+              "context_size_mismatches": 0,
+              "mean_context_tokens": {
+                "cl100k_base": 438.61538461538464,
+                "o200k_base": 428.84615384615387
+              }
+            },
+            "locomo_category_3": {
+              "queries": 8,
+              "answerable_queries": 8,
+              "unanswerable_queries": 0,
+              "required_evidence": 11,
+              "matched_evidence": 5,
+              "evidence_recall": 0.45454545454545453,
+              "complete_evidence_rate": 0.375,
+              "mrr": 0.5625,
+              "mean_context_characters": 1450.0,
+              "mean_answerable_context_characters": 1450.0,
+              "mean_context_utf8_bytes": 1452.0,
+              "mean_duplicate_source_characters": 0.0,
+              "unanswerable_nonempty_rate": null,
+              "latest_stale_only_rate": null,
+              "latest_stale_before_current_rate": null,
+              "budget_violations": 0,
+              "context_size_mismatches": 0,
+              "mean_context_tokens": {
+                "cl100k_base": 408.875,
+                "o200k_base": 400.625
+              }
+            },
+            "locomo_category_4": {
+              "queries": 53,
+              "answerable_queries": 53,
+              "unanswerable_queries": 0,
+              "required_evidence": 56,
+              "matched_evidence": 46,
+              "evidence_recall": 0.8214285714285714,
+              "complete_evidence_rate": 0.8301886792452831,
+              "mrr": 0.7389937106918238,
+              "mean_context_characters": 1573.622641509434,
+              "mean_answerable_context_characters": 1573.622641509434,
+              "mean_context_utf8_bytes": 1574.566037735849,
+              "mean_duplicate_source_characters": 0.0,
+              "unanswerable_nonempty_rate": null,
+              "latest_stale_only_rate": null,
+              "latest_stale_before_current_rate": null,
+              "budget_violations": 0,
+              "context_size_mismatches": 0,
+              "mean_context_tokens": {
+                "cl100k_base": 437.2830188679245,
+                "o200k_base": 427.66037735849056
+              }
+            },
+            "locomo_category_5": {
+              "queries": 45,
+              "answerable_queries": 0,
+              "unanswerable_queries": 45,
+              "required_evidence": 0,
+              "matched_evidence": 0,
+              "evidence_recall": null,
+              "complete_evidence_rate": null,
+              "mrr": null,
+              "mean_context_characters": 1569.4444444444443,
+              "mean_answerable_context_characters": null,
+              "mean_context_utf8_bytes": 1570.2,
+              "mean_duplicate_source_characters": 0.0,
+              "unanswerable_nonempty_rate": 1.0,
+              "latest_stale_only_rate": null,
+              "latest_stale_before_current_rate": null,
+              "budget_violations": 0,
+              "context_size_mismatches": 0,
+              "mean_context_tokens": {
+                "cl100k_base": 441.06666666666666,
+                "o200k_base": 431.06666666666666
+              }
+            }
+          },
+          "token_budget_violations": 0,
+          "source_span_errors": 0,
+          "token_metadata_errors": 0
+        }
+      ],
+      "ingestion_ms": 240.249391,
+      "engine_stats": {
+        "projects": 2,
+        "chapters": 2,
+        "sessions": 56,
+        "turns": 1198,
+        "sections": 344,
+        "pages": 344,
+        "chars": 157848,
+        "page_chars": 159556,
+        "cache_entries": 0,
+        "database_bytes": 3297280,
+        "revision": 56,
+        "schema_version": 3
+      },
+      "source_sha256_after": "88f5f749be55dd4f1094d236340bec645edb6b9306fd45c720dbebac91767e57",
+      "source_unchanged": true
+    },
+    {
+      "label": "native-token",
+      "source_provenance": {
+        "source_root": "/workspace/scratch/5f6e3b3a7236/AI-Memory-Book-work/.artifacts/token-development-source/src/memory_book",
+        "repository_root": "/workspace/scratch/5f6e3b3a7236/AI-Memory-Book-work",
+        "git_commit": "7529f6e4885691821c20f9011d25ac47e036b40f",
+        "git_dirty": true,
+        "source_dirty": true,
+        "commit_identifies_source": false,
+        "python_files_differing_from_commit": [
+          ".artifacts/token-development-source/src/memory_book/__init__.py",
+          ".artifacts/token-development-source/src/memory_book/__main__.py",
+          ".artifacts/token-development-source/src/memory_book/cli.py",
+          ".artifacts/token-development-source/src/memory_book/clients.py",
+          ".artifacts/token-development-source/src/memory_book/importers.py",
+          ".artifacts/token-development-source/src/memory_book/integration.py",
+          ".artifacts/token-development-source/src/memory_book/mcp_server.py",
+          ".artifacts/token-development-source/src/memory_book/paths.py",
+          ".artifacts/token-development-source/src/memory_book/segmentation.py",
+          ".artifacts/token-development-source/src/memory_book/semantic.py",
+          ".artifacts/token-development-source/src/memory_book/service.py",
+          ".artifacts/token-development-source/src/memory_book/store.py",
+          ".artifacts/token-development-source/src/memory_book/sync.py",
+          ".artifacts/token-development-source/src/memory_book/text.py",
+          ".artifacts/token-development-source/src/memory_book/token_budget.py",
+          ".artifacts/token-development-source/src/memory_book/web.py"
+        ]
+      },
+      "source_sha256_before": "4f58719291d8bddebf2671a6455a034dc8541688c5813ba990c220c3f9f2d1ac",
+      "dataset": {
+        "kind": "public",
+        "version": "locomo-text-evidence-1.0",
+        "variant": "locomo_text_evidence_v1",
+        "seed": 20261111,
+        "split": "development",
+        "sha256": "9929b803fd08b6ecebccead76295590fb81a935ca1ea283f2dc0f9400bfee903",
+        "projects": 2,
+        "sessions": 56,
+        "turns": 1198,
+        "source_characters": 150660,
+        "source_utf8_bytes": 150758,
+        "queries": 128,
+        "answerable_queries": 83,
+        "categories": {
+          "locomo_category_5": 45,
+          "locomo_category_4": 53,
+          "locomo_category_1": 9,
+          "locomo_category_2": 13,
+          "locomo_category_3": 8
+        },
+        "provenance": {
+          "dataset": "LoCoMo locomo10.json",
+          "repository": "https://github.com/snap-research/locomo",
+          "commit": "3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376",
+          "url": "https://raw.githubusercontent.com/snap-research/locomo/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/data/locomo10.json",
+          "sha256": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+          "bytes": 2805274,
+          "license": "CC-BY-NC-4.0",
+          "license_url": "https://github.com/snap-research/locomo/blob/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/LICENSE.txt",
+          "split_seed": 20261111,
+          "sample_ids": [
+            "conv-47",
+            "conv-49"
+          ],
+          "all_qa_in_split": 386,
+          "all_qa_categories": {
+            "3": 26,
+            "2": 67,
+            "1": 57,
+            "4": 156,
+            "5": 80
+          },
+          "eligible_qa_in_split": 264,
+          "selected_queries": 128,
+          "max_queries": 128,
+          "excluded_qa": {
+            "image_bearing_evidence": 118,
+            "invalid_evidence_id": 4
+          },
+          "selection": "sha256(locomo-query-order-v1: + query_id) ascending",
+          "evidence_metric": "complete annotated utterance text and original source span",
+          "indexing": "one dialogue utterance per canonical user-role turn; speaker prefix; text only",
+          "date_time_convention": "source local clock represented as UTC for deterministic ordering"
+        }
+      },
+      "configuration": {
+        "budget_chars": [
+          8000
+        ],
+        "token_budgets": [
+          512
+        ],
+        "tokenizers": [
+          "cl100k_base"
+        ],
+        "limit": 5,
+        "repeats": 1,
+        "semantic": false,
+        "coverage": false
+      },
+      "tokenizer_version": "0.12.0",
+      "configurations": [
+        {
+          "policy": "native_token_budget",
+          "budget_chars": 8000,
+          "tokenizer": "cl100k_base",
+          "budget_tokens": 512,
+          "metrics": {
+            "queries": 128,
+            "answerable_queries": 83,
+            "unanswerable_queries": 45,
+            "required_evidence": 107,
+            "matched_evidence": 76,
+            "evidence_recall": 0.7102803738317757,
+            "complete_evidence_rate": 0.7349397590361446,
+            "mrr": 0.6977911646586346,
+            "mean_context_characters": 1707.671875,
+            "mean_answerable_context_characters": 1702.578313253012,
+            "mean_context_utf8_bytes": 1711.015625,
+            "mean_duplicate_source_characters": 0.0,
+            "unanswerable_nonempty_rate": 1.0,
+            "latest_stale_only_rate": null,
+            "latest_stale_before_current_rate": null,
+            "budget_violations": 0,
+            "context_size_mismatches": 0,
+            "mean_context_tokens": {
+              "cl100k_base": 491.1328125,
+              "o200k_base": 480.875
+            }
+          },
+          "latency": {
+            "samples": 128,
+            "p50_ms": 9.188994000000001,
+            "p95_ms": 12.827091949999998,
+            "mean_ms": 9.4904530546875
+          },
+          "recall_latency": {
+            "samples": 128,
+            "p50_ms": 9.187832,
+            "p95_ms": 12.825467399999997,
+            "mean_ms": 9.4890992109375
+          },
+          "post_recall_packing_latency": {
+            "samples": 128,
+            "p50_ms": 0.0005105,
+            "p95_ms": 0.0009174999999999999,
+            "mean_ms": 0.0005534609375
+          },
+          "by_category": {
+            "locomo_category_1": {
+              "queries": 9,
+              "answerable_queries": 9,
+              "unanswerable_queries": 0,
+              "required_evidence": 23,
+              "matched_evidence": 9,
+              "evidence_recall": 0.391304347826087,
+              "complete_evidence_rate": 0.2222222222222222,
+              "mrr": 0.5,
+              "mean_context_characters": 1703.2222222222222,
+              "mean_answerable_context_characters": 1703.2222222222222,
+              "mean_context_utf8_bytes": 1706.7777777777778,
+              "mean_duplicate_source_characters": 0.0,
+              "unanswerable_nonempty_rate": null,
+              "latest_stale_only_rate": null,
+              "latest_stale_before_current_rate": null,
+              "budget_violations": 0,
+              "context_size_mismatches": 0,
+              "mean_context_tokens": {
+                "cl100k_base": 485.6666666666667,
+                "o200k_base": 475.55555555555554
+              }
+            },
+            "locomo_category_2": {
+              "queries": 13,
+              "answerable_queries": 13,
+              "unanswerable_queries": 0,
+              "required_evidence": 17,
+              "matched_evidence": 15,
+              "evidence_recall": 0.8823529411764706,
+              "complete_evidence_rate": 0.8461538461538461,
+              "mrr": 0.7307692307692307,
+              "mean_context_characters": 1687.0,
+              "mean_answerable_context_characters": 1687.0,
+              "mean_context_utf8_bytes": 1689.7692307692307,
+              "mean_duplicate_source_characters": 0.0,
+              "unanswerable_nonempty_rate": null,
+              "latest_stale_only_rate": null,
+              "latest_stale_before_current_rate": null,
+              "budget_violations": 0,
+              "context_size_mismatches": 0,
+              "mean_context_tokens": {
+                "cl100k_base": 499.0769230769231,
+                "o200k_base": 488.3076923076923
+              }
+            },
+            "locomo_category_3": {
+              "queries": 8,
+              "answerable_queries": 8,
+              "unanswerable_queries": 0,
+              "required_evidence": 11,
+              "matched_evidence": 5,
+              "evidence_recall": 0.45454545454545453,
+              "complete_evidence_rate": 0.375,
+              "mrr": 0.5625,
+              "mean_context_characters": 1574.5,
+              "mean_answerable_context_characters": 1574.5,
+              "mean_context_utf8_bytes": 1578.0,
+              "mean_duplicate_source_characters": 0.0,
+              "unanswerable_nonempty_rate": null,
+              "latest_stale_only_rate": null,
+              "latest_stale_before_current_rate": null,
+              "budget_violations": 0,
+              "context_size_mismatches": 0,
+              "mean_context_tokens": {
+                "cl100k_base": 451.125,
+                "o200k_base": 442.0
+              }
+            },
+            "locomo_category_4": {
+              "queries": 53,
+              "answerable_queries": 53,
+              "unanswerable_queries": 0,
+              "required_evidence": 56,
+              "matched_evidence": 47,
+              "evidence_recall": 0.8392857142857143,
+              "complete_evidence_rate": 0.8490566037735849,
+              "mrr": 0.7437106918238994,
+              "mean_context_characters": 1725.622641509434,
+              "mean_answerable_context_characters": 1725.622641509434,
+              "mean_context_utf8_bytes": 1729.245283018868,
+              "mean_duplicate_source_characters": 0.0,
+              "unanswerable_nonempty_rate": null,
+              "latest_stale_only_rate": null,
+              "latest_stale_before_current_rate": null,
+              "budget_violations": 0,
+              "context_size_mismatches": 0,
+              "mean_context_tokens": {
+                "cl100k_base": 493.1320754716981,
+                "o200k_base": 483.0566037735849
+              }
+            },
+            "locomo_category_5": {
+              "queries": 45,
+              "answerable_queries": 0,
+              "unanswerable_queries": 45,
+              "required_evidence": 0,
+              "matched_evidence": 0,
+              "evidence_recall": null,
+              "complete_evidence_rate": null,
+              "mrr": null,
+              "mean_context_characters": 1717.0666666666666,
+              "mean_answerable_context_characters": null,
+              "mean_context_utf8_bytes": 1720.1777777777777,
+              "mean_duplicate_source_characters": 0.0,
+              "unanswerable_nonempty_rate": 1.0,
+              "latest_stale_only_rate": null,
+              "latest_stale_before_current_rate": null,
+              "budget_violations": 0,
+              "context_size_mismatches": 0,
+              "mean_context_tokens": {
+                "cl100k_base": 494.68888888888887,
+                "o200k_base": 484.1333333333333
+              }
+            }
+          },
+          "token_budget_violations": 0,
+          "source_span_errors": 0,
+          "token_metadata_errors": 0
+        }
+      ],
+      "ingestion_ms": 243.057781,
+      "engine_stats": {
+        "projects": 2,
+        "chapters": 2,
+        "sessions": 56,
+        "turns": 1198,
+        "sections": 344,
+        "pages": 344,
+        "chars": 157848,
+        "page_chars": 159556,
+        "cache_entries": 0,
+        "database_bytes": 3297280,
+        "revision": 56,
+        "schema_version": 3
+      },
+      "source_sha256_after": "4f58719291d8bddebf2671a6455a034dc8541688c5813ba990c220c3f9f2d1ac",
+      "source_unchanged": true
+    }
+  ],
+  "paired_changes": [
+    {
+      "budget_chars": 8000,
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 512,
+      "annotation_gains": [
+        {
+          "id": "conv-49-q0016",
+          "annotation": 1
+        },
+        {
+          "id": "conv-47-q0145",
+          "annotation": 0
+        }
+      ],
+      "annotation_losses": [],
+      "complete_question_gains": [
+        "conv-49-q0016",
+        "conv-47-q0145"
+      ],
+      "complete_question_losses": [],
+      "baseline_block_losses": []
+    }
+  ],
+  "methodology": "See benchmarks/native_budget_plan.json and docs/native-budget-evaluation.md. Historical common-page has its own 100000-character retrieval boundary; native policies share each declared character cap. No labels enter packing. Final-answer and full-workflow claims are excluded.",
+  "validation": {
+    "passed": true,
+    "failures": [],
+    "baseline_block_preservation_required": true
+  },
+  "full_report_sha256": "707de1037ce5b3a85a5330d8c4542e433fc87210846ae3fd999d16b20ce9e230"
+}

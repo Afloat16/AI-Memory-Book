@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "scope": "Read-only diagnosis of the existing whole-block 512-token packer on development data; not a new retrieval experiment or a causal attribution of public losses.",
+  "method": "Compare each answerable query in 8000-character retrieval and the existing 512-token packed view. Unused tokens = 512 minus exact count.",
+  "datasets": [
+    {
+      "corpus": "synthetic",
+      "input": "benchmarks/results/conjunctive-dev-synthetic.json.gz",
+      "input_sha256": "c3bbbcf83e34faad7dfd7be68cada89134d730121a2031dcfba7ce778b44f4f9",
+      "baseline": "score-baseline",
+      "dataset": {
+        "kind": "synthetic",
+        "version": "2.0",
+        "variant": "long_sessions_v2",
+        "seed": 61,
+        "split": "development",
+        "sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26",
+        "projects": 8,
+        "sessions": 112,
+        "turns": 1408,
+        "source_characters": 1143252,
+        "source_utf8_bytes": 1578382,
+        "queries": 168,
+        "answerable_queries": 152,
+        "categories": {
+          "long_answer_middle": 8,
+          "long_answer_natural_middle": 16,
+          "long_answer_natural_late": 16,
+          "cross_project_name": 8,
+          "topic_change": 16,
+          "multi_section": 16,
+          "lookup": 24,
+          "unanswerable_unrelated": 8,
+          "low_overlap_paraphrase": 8,
+          "latest_decision": 8,
+          "short_followup": 8,
+          "similar_task": 8,
+          "unanswerable_related": 8,
+          "cross_session": 8,
+          "historical": 8
+        }
+      },
+      "budgets": [
+        {
+          "tokenizer": "cl100k_base",
+          "answerable_queries": 152,
+          "complete_to_incomplete_ids": [
+            "orchid-journal-cedar-manual-middle",
+            "river-journal-indigo-manual-late",
+            "river-journal-cedar-multi-section",
+            "comet-journal-cedar-multi-section",
+            "pebble-journal-indigo-manual-middle",
+            "river-journal-indigo-multi-section",
+            "pebble-journal-indigo-multi-section",
+            "umber-poison",
+            "river-poison",
+            "orchid-journal-indigo-manual-late",
+            "orchid-journal-indigo-multi-section",
+            "umber-journal-cedar-manual-late",
+            "orchid-journal-cedar-manual-late",
+            "umber-journal-indigo-multi-section",
+            "umber-journal-cedar-multi-section",
+            "pebble-journal-cedar-manual-late",
+            "orchid-poison",
+            "umber-journal-indigo-manual-middle",
+            "river-journal-indigo-manual-middle",
+            "pebble-journal-cedar-multi-section",
+            "pebble-journal-cedar-manual-middle",
+            "orchid-journal-cedar-multi-section",
+            "pebble-journal-indigo-manual-late",
+            "umber-journal-indigo-manual-late",
+            "river-journal-cedar-manual-middle",
+            "xenon-journal-cedar-multi-section",
+            "umber-journal-cedar-manual-middle",
+            "orchid-journal-indigo-manual-middle",
+            "river-journal-cedar-manual-late",
+            "pebble-poison"
+          ],
+          "nonempty_to_empty_ids": [
+            "orchid-journal-cedar-manual-middle",
+            "river-journal-indigo-manual-late",
+            "pebble-journal-indigo-manual-middle",
+            "orchid-journal-indigo-manual-late",
+            "umber-journal-cedar-manual-late",
+            "orchid-journal-cedar-manual-late",
+            "pebble-journal-cedar-manual-late",
+            "umber-journal-indigo-manual-middle",
+            "river-journal-indigo-manual-middle",
+            "pebble-journal-cedar-manual-middle",
+            "pebble-journal-indigo-manual-late",
+            "umber-journal-indigo-manual-late",
+            "river-journal-cedar-manual-middle",
+            "umber-journal-cedar-manual-middle",
+            "orchid-journal-indigo-manual-middle",
+            "river-journal-cedar-manual-late"
+          ],
+          "mean_unused_tokens": 149.16447368421052
+        },
+        {
+          "tokenizer": "o200k_base",
+          "answerable_queries": 152,
+          "complete_to_incomplete_ids": [
+            "orchid-journal-cedar-manual-middle",
+            "river-journal-indigo-manual-late",
+            "river-journal-cedar-multi-section",
+            "comet-journal-cedar-multi-section",
+            "pebble-journal-indigo-manual-middle",
+            "river-journal-indigo-multi-section",
+            "pebble-journal-indigo-multi-section",
+            "orchid-journal-indigo-manual-late",
+            "orchid-journal-indigo-multi-section",
+            "umber-journal-cedar-manual-late",
+            "orchid-journal-cedar-manual-late",
+            "umber-journal-indigo-multi-section",
+            "umber-journal-cedar-multi-section",
+            "pebble-journal-cedar-manual-late",
+            "umber-journal-indigo-manual-middle",
+            "river-journal-indigo-manual-middle",
+            "pebble-journal-cedar-multi-section",
+            "pebble-journal-cedar-manual-middle",
+            "orchid-journal-cedar-multi-section",
+            "pebble-journal-indigo-manual-late",
+            "umber-journal-indigo-manual-late",
+            "river-journal-cedar-manual-middle",
+            "xenon-journal-cedar-multi-section",
+            "umber-journal-cedar-manual-middle",
+            "orchid-journal-indigo-manual-middle",
+            "river-journal-cedar-manual-late"
+          ],
+          "nonempty_to_empty_ids": [
+            "orchid-journal-cedar-manual-middle",
+            "river-journal-indigo-manual-late",
+            "pebble-journal-indigo-manual-middle",
+            "orchid-journal-indigo-manual-late",
+            "umber-journal-cedar-manual-late",
+            "orchid-journal-cedar-manual-late",
+            "pebble-journal-cedar-manual-late",
+            "umber-journal-indigo-manual-middle",
+            "river-journal-indigo-manual-middle",
+            "pebble-journal-cedar-manual-middle",
+            "pebble-journal-indigo-manual-late",
+            "umber-journal-indigo-manual-late",
+            "river-journal-cedar-manual-middle",
+            "umber-journal-cedar-manual-middle",
+            "orchid-journal-indigo-manual-middle",
+            "river-journal-cedar-manual-late"
+          ],
+          "mean_unused_tokens": 147.82236842105263
+        }
+      ]
+    },
+    {
+      "corpus": "public",
+      "input": "benchmarks/results/conjunctive-dev-public.json.gz",
+      "input_sha256": "9379b4c4459097859a0b8d31bf522a2c529426c1ae27c4cbe4b428fe0ef82cf5",
+      "baseline": "score-baseline",
+      "dataset": {
+        "kind": "public",
+        "version": "locomo-text-evidence-1.0",
+        "variant": "locomo_text_evidence_v1",
+        "seed": 20261111,
+        "split": "development",
+        "sha256": "9929b803fd08b6ecebccead76295590fb81a935ca1ea283f2dc0f9400bfee903",
+        "projects": 2,
+        "sessions": 56,
+        "turns": 1198,
+        "source_characters": 150660,
+        "source_utf8_bytes": 150758,
+        "queries": 128,
+        "answerable_queries": 83,
+        "categories": {
+          "locomo_category_5": 45,
+          "locomo_category_4": 53,
+          "locomo_category_1": 9,
+          "locomo_category_2": 13,
+          "locomo_category_3": 8
+        },
+        "provenance": {
+          "dataset": "LoCoMo locomo10.json",
+          "repository": "https://github.com/snap-research/locomo",
+          "commit": "3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376",
+          "url": "https://raw.githubusercontent.com/snap-research/locomo/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/data/locomo10.json",
+          "sha256": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+          "bytes": 2805274,
+          "license": "CC-BY-NC-4.0",
+          "license_url": "https://github.com/snap-research/locomo/blob/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/LICENSE.txt",
+          "split_seed": 20261111,
+          "sample_ids": [
+            "conv-47",
+            "conv-49"
+          ],
+          "all_qa_in_split": 386,
+          "all_qa_categories": {
+            "3": 26,
+            "2": 67,
+            "1": 57,
+            "4": 156,
+            "5": 80
+          },
+          "eligible_qa_in_split": 264,
+          "selected_queries": 128,
+          "max_queries": 128,
+          "excluded_qa": {
+            "image_bearing_evidence": 118,
+            "invalid_evidence_id": 4
+          },
+          "selection": "sha256(locomo-query-order-v1: + query_id) ascending",
+          "evidence_metric": "complete annotated utterance text and original source span",
+          "indexing": "one dialogue utterance per canonical user-role turn; speaker prefix; text only",
+          "date_time_convention": "source local clock represented as UTC for deterministic ordering"
+        }
+      },
+      "budgets": [
+        {
+          "tokenizer": "cl100k_base",
+          "answerable_queries": 83,
+          "complete_to_incomplete_ids": [
+            "conv-47-q0148",
+            "conv-49-q0016",
+            "conv-49-q0139",
+            "conv-47-q0106",
+            "conv-47-q0045",
+            "conv-47-q0145",
+            "conv-47-q0142"
+          ],
+          "nonempty_to_empty_ids": [],
+          "mean_unused_tokens": 80.50602409638554
+        },
+        {
+          "tokenizer": "o200k_base",
+          "answerable_queries": 83,
+          "complete_to_incomplete_ids": [
+            "conv-47-q0148",
+            "conv-49-q0016",
+            "conv-49-q0139",
+            "conv-47-q0106",
+            "conv-47-q0045",
+            "conv-47-q0145",
+            "conv-47-q0142"
+          ],
+          "nonempty_to_empty_ids": [],
+          "mean_unused_tokens": 72.57831325301204
+        }
+      ]
+    }
+  ]
+}

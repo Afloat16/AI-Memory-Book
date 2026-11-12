@@ -5,19 +5,40 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 import sqlite3
 import time
 from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
 from .segmentation import make_turns, segment
 from .text import estimate_tokens, excerpt, headline, index_text, query_terms, terms
 
-SCHEMA_VERSION = 2
-INDEX_VERSION = 2
+SCHEMA_VERSION = 3
+INDEX_VERSION = 3
+RECALL_VERSION = 10
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
+CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
+HISTORICAL_QUERY = re.compile(r"\b(?:original|initial|previous|earlier|before|history|historical|formerly|old|as of)\b|最初|最早|之前|以前|原来|原始|历史|旧|\b(?:19|20)\d{2}\b", re.IGNORECASE)
+ASCII_WORD = re.compile(r"[a-zA-Z]")
+QUERY_CONJUNCTION = re.compile(r"\band\b|以及|并且|和", re.IGNORECASE)
+STEM_INDEX_SQL = "CREATE VIRTUAL TABLE IF NOT EXISTS pages_stem_fts USING fts5(title, question, body, directory, tokenize='porter unicode61');"
+STEM_DELETE_SQL = """CREATE TRIGGER IF NOT EXISTS pages_delete_stem_fts AFTER DELETE ON pages BEGIN
+ DELETE FROM pages_stem_fts WHERE rowid = OLD.rid;
+END;"""
+STEM_REVISION_SQL = """CREATE TRIGGER IF NOT EXISTS meta_revision_sync_stem
+AFTER UPDATE OF value ON meta
+WHEN NEW.key='revision'
+ AND COALESCE((SELECT value FROM meta WHERE key='stem_revision'), '') != NEW.value
+BEGIN
+ DELETE FROM pages_stem_fts;
+ INSERT INTO pages_stem_fts(rowid,title,question,body,directory)
+  SELECT rowid,title,question,body,directory FROM pages_fts;
+ INSERT OR REPLACE INTO meta(key,value) VALUES('stem_revision',NEW.value);
+END;"""
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 INSERT OR IGNORE INTO meta VALUES ('revision', '0');
@@ -71,8 +92,12 @@ END;
 CREATE TABLE IF NOT EXISTS recall_cache (
  key TEXT PRIMARY KEY, revision INTEGER NOT NULL, payload TEXT NOT NULL, touched_ns INTEGER NOT NULL
 );
+""" + STEM_INDEX_SQL + "\n" + STEM_DELETE_SQL + """
+INSERT OR IGNORE INTO meta(key,value)
+ SELECT 'stem_revision',value FROM meta WHERE key='revision';
+""" + STEM_REVISION_SQL + """
 PRAGMA application_id = 1296191307;
-PRAGMA user_version = 2;
+PRAGMA user_version = 3;
 """
 
 
@@ -140,11 +165,65 @@ def normalize_session(payload: dict) -> dict:
     return {"project": project, "project_name": _string(payload.get("project_name") or project, "project_name", maximum=500), "session_id": session_id, "title": title, "task_id": task_id, "task_title": task_title, "created_at": created, "messages": normalized}
 
 
+def _context_allocations(pages: list[dict], budget: int) -> list[tuple[dict, str, int]]:
+    """Share the body budget after reserving citations and complete short pages.
+
+    Allocating while rendering only gives unused space to later results. That
+    can truncate an early page even when all selected pages fit. Reserve small
+    pages first, then share the remaining space between the longer pages. The
+    order of evidence is unchanged and no answer labels are consulted.
+    """
+    selected: list[tuple[dict, str]] = []
+    minimum, overhead = 0, 0
+    for row in pages:
+        header = f'[{row["id"]}] {row["project_id"]} / {row["session_id"]} | {row["created_at"]}\n'
+        citation_cost = len(header) + (2 if selected else 0)
+        required = citation_cost + min(120, len(row["content"]))
+        if minimum + required > budget:
+            # Keep the previous tiny-budget behavior: one useful cited
+            # fragment is preferable to several headers with almost no text.
+            if not selected and budget > citation_cost + 8:
+                selected.append((row, header))
+                overhead += citation_cost
+            break
+        selected.append((row, header))
+        minimum += required
+        overhead += citation_cost
+    allowances = [0] * len(selected)
+    remaining = budget - overhead
+    order = sorted(range(len(selected)), key=lambda i: len(selected[i][0]["content"]))
+    for position, i in enumerate(order):
+        allowance = min(len(selected[i][0]["content"]), remaining // (len(order) - position))
+        allowances[i] = allowance
+        remaining -= allowance
+    return [(row, header, allowances[i]) for i, (row, header) in enumerate(selected)]
+
+
+def _directory_tokens(text: str) -> frozenset[str]:
+    return frozenset(terms(text, query=True))
+
+
+def _query_facets(query: str) -> list[list[str]]:
+    """Recognize a small explicit conjunction, without semantic query rewriting.
+
+    Each side needs at least two lexical terms: a name such as ``research and
+    development`` is not automatically treated as two independent questions.
+    This is deliberately limited syntax support, not a claim to parse intent.
+    """
+    pieces = QUERY_CONJUNCTION.split(query)
+    if not 2 <= len(pieces) <= 3:
+        return []
+    facets = [query_terms(piece) for piece in pieces]
+    return facets if all(len(facet) >= 2 for facet in facets) else []
+
+
 class MemoryBook:
     """One SQLite connection per instance. Use a separate instance per thread.
 
-    The database and raw conversations stay on the caller's machine. Queries
-    never invoke a model, embedding provider, or network endpoint.
+    The database and raw conversations stay on the caller's machine. Lexical
+    recall invokes no model or embedding provider. Opt-in exact token budgets
+    may download the tokenizer's public vocabulary on first use; no source or
+    query text is transmitted by that vocabulary initialization.
     """
 
     def __init__(self, path: str | Path = ".memory-book/memory.db", *, segmentation: str = "adaptive", max_page_chars: int = 900, min_page_chars: int = 400, similarity_threshold: float = 0.12, cache_size: int = 128):
@@ -159,6 +238,10 @@ class MemoryBook:
         self.segmentation, self.max_page_chars = segmentation, max_page_chars
         self.min_page_chars, self.similarity_threshold = min_page_chars, similarity_threshold
         self.cache_size = cache_size
+        # Directory text is immutable as a key: a rename or a concurrent
+        # writer naturally gets a new entry. Cache only within this connection
+        # and bound retained text independently of result-cache settings.
+        self._directory_tokens = lru_cache(maxsize=512)(_directory_tokens)
         if self.path != ":memory:":
             Path(self.path).expanduser().resolve().parent.mkdir(parents=True, exist_ok=True)
             self.path = str(Path(self.path).expanduser())
@@ -171,21 +254,18 @@ class MemoryBook:
             app_id = self.db.execute("PRAGMA application_id").fetchone()[0]
             if app_id not in {0, APPLICATION_ID}:
                 raise ValueError("refusing to open a database belonging to another application")
-            if version not in {0, 1, SCHEMA_VERSION}:
+            if version not in {0, 1, 2, SCHEMA_VERSION}:
                 raise ValueError(f"unsupported database schema {version}; expected {SCHEMA_VERSION}")
             if version == 0:
                 existing = self.db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").fetchall()
                 if existing:
                     raise ValueError("refusing to initialize a non-Memory-Book database")
                 self.db.executescript(SCHEMA)
-            elif version == 1:
-                names = {row[0] for row in self.db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-                if not {"meta", "projects", "sessions", "pages", "pages_fts", "recall_cache"} <= names:
-                    raise ValueError("refusing to migrate a non-Memory-Book database")
-                self._migrate_v1()
+            elif version < SCHEMA_VERSION or not self._stem_guard_ready():
+                self._migrate_schema()
             self.db.execute("PRAGMA journal_mode=WAL")
             self.db.execute("PRAGMA synchronous=NORMAL")
-        except Exception:
+        except BaseException:
             self.db.close()
             raise
 
@@ -196,42 +276,88 @@ class MemoryBook:
         self.close()
 
     def close(self) -> None:
-        self.db.close()
+        try:
+            self.db.close()
+        finally:
+            self._directory_tokens.cache_clear()
 
-    def _migrate_v1(self) -> None:
-        """Preserve existing page addresses while rebuilding the lexical index.
+    def _stem_guard_ready(self) -> bool:
+        """Also recognize schema-3 development databases created before the guard."""
+        return bool(self.db.execute("""SELECT
+          EXISTS(SELECT 1 FROM sqlite_master WHERE type='trigger' AND name='meta_revision_sync_stem')
+          AND EXISTS(SELECT 1 FROM meta WHERE key='stem_revision')""").fetchone()[0])
 
-        Development schema 1 did not record custom pagination limits. Retain its
-        actual pages, and record the historical defaults for future relinking.
-        """
+    def _migrate_schema(self) -> None:
+        """Upgrade all derived indexes atomically without changing page addresses."""
         self.db.execute("BEGIN IMMEDIATE")
         try:
-            self.db.execute("ALTER TABLE sessions ADD COLUMN settings_json TEXT NOT NULL DEFAULT '{}'")
-            rows = self.db.execute("SELECT id,created_at,raw_json,segmentation FROM sessions").fetchall()
-            for row in rows:
-                source = json.loads(row["raw_json"])
-                source["created_at"] = source.get("created_at") or row["created_at"]
-                settings = {"segmentation": row["segmentation"], "max_page_chars": 1800, "min_page_chars": 400, "similarity_threshold": 0.12}
-                self.db.execute("UPDATE sessions SET raw_json=?,settings_json=? WHERE id=?", (_json(source), _json(settings), row["id"]))
-            self.db.execute("DELETE FROM pages_fts")
-            pages = self.db.execute("SELECT p.*,c.title chapter_title,s.title session_title FROM pages p JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk").fetchall()
-            for page in pages:
-                question = headline(page["question"], 1200)
-                self.db.execute("UPDATE pages SET question=? WHERE rid=?", (question, page["rid"]))
-                self.db.execute("INSERT INTO pages_fts(rowid,title,question,body,directory) VALUES(?,?,?,?,?)", (page["rid"], index_text(page["title"]), index_text(question), index_text(page["content"]), index_text(page["chapter_title"] + " " + page["session_title"])))
-            self._changed()
-            self.db.execute(f"PRAGMA application_id={APPLICATION_ID}")
-            self.db.execute(f"PRAGMA user_version={SCHEMA_VERSION}")
+            # Another connection may have upgraded while this one waited for
+            # the write lock. Never replay ALTER/backfill from a stale version.
+            version = self.db.execute("PRAGMA user_version").fetchone()[0]
+            app_id = self.db.execute("PRAGMA application_id").fetchone()[0]
+            if app_id not in {0, APPLICATION_ID}:
+                raise ValueError("refusing to migrate a database belonging to another application")
+            if version not in {1, 2, SCHEMA_VERSION}:
+                raise ValueError(f"unsupported database schema {version}; expected {SCHEMA_VERSION}")
+            if version < SCHEMA_VERSION or not self._stem_guard_ready():
+                names = {row[0] for row in self.db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+                if not {"meta", "projects", "sessions", "pages", "pages_fts", "recall_cache"} <= names:
+                    raise ValueError("refusing to migrate a non-Memory-Book database")
+                if version == 1:
+                    self._migrate_v1()
+                self._migrate_v2()
+                self._changed()
+                self.db.execute(f"PRAGMA application_id={APPLICATION_ID}")
+                self.db.execute(f"PRAGMA user_version={SCHEMA_VERSION}")
             self.db.execute("COMMIT")
         except BaseException:
             self.db.execute("ROLLBACK")
             raise
+
+    def _migrate_v1(self) -> None:
+        """Upgrade the development schema inside the caller's write transaction.
+
+        Schema 1 did not record custom pagination limits. Retain actual pages
+        and record the historical defaults for future relinking.
+        """
+        self.db.execute("ALTER TABLE sessions ADD COLUMN settings_json TEXT NOT NULL DEFAULT '{}'")
+        rows = self.db.execute("SELECT id,created_at,raw_json,segmentation FROM sessions").fetchall()
+        for row in rows:
+            source = json.loads(row["raw_json"])
+            source["created_at"] = source.get("created_at") or row["created_at"]
+            settings = {"segmentation": row["segmentation"], "max_page_chars": 1800, "min_page_chars": 400, "similarity_threshold": 0.12}
+            self.db.execute("UPDATE sessions SET raw_json=?,settings_json=? WHERE id=?", (_json(source), _json(settings), row["id"]))
+        self.db.execute("DELETE FROM pages_fts")
+        pages = self.db.execute("SELECT p.*,c.title chapter_title,s.title session_title FROM pages p JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk").fetchall()
+        for page in pages:
+            question = headline(page["question"], 1200)
+            self.db.execute("UPDATE pages SET question=? WHERE rid=?", (question, page["rid"]))
+            self.db.execute("INSERT INTO pages_fts(rowid,title,question,body,directory) VALUES(?,?,?,?,?)", (page["rid"], index_text(page["title"]), index_text(question), index_text(page["content"]), index_text(page["chapter_title"] + " " + page["session_title"])))
+
+    def _migrate_v2(self) -> None:
+        """Add the local stem index from existing tokens, preserving source bytes."""
+        self.db.execute(STEM_INDEX_SQL)
+        self.db.execute("DELETE FROM pages_stem_fts")
+        self.db.execute("""INSERT INTO pages_stem_fts(rowid,title,question,body,directory)
+          SELECT rowid,title,question,body,directory FROM pages_fts""")
+        self.db.execute(STEM_DELETE_SQL)
+        self.db.execute("""INSERT OR REPLACE INTO meta(key,value)
+          SELECT 'stem_revision',value FROM meta WHERE key='revision'""")
+        self.db.execute(STEM_REVISION_SQL)
 
     @property
     def revision(self) -> int:
         return int(self.db.execute("SELECT value FROM meta WHERE key='revision'").fetchone()[0])
 
     def _changed(self) -> None:
+        # Current writers already update both indexes in their transaction.
+        # Mark that work before advancing revision, so the database guard does
+        # nothing on the normal path. An already-open older writer advances
+        # only revision: the guard then rebuilds the entire stem index from
+        # exact tokens inside that same write transaction. This compatibility
+        # fallback is deliberately more expensive than current incremental writes.
+        self.db.execute("""INSERT OR REPLACE INTO meta(key,value)
+          SELECT 'stem_revision',CAST(value AS INTEGER)+1 FROM meta WHERE key='revision'""")
         self.db.execute("UPDATE meta SET value=CAST(value AS INTEGER)+1 WHERE key='revision'")
         self.db.execute("DELETE FROM recall_cache")
 
@@ -246,7 +372,9 @@ class MemoryBook:
                 title = self.db.execute("SELECT title FROM chapters WHERE id=?", (chapter_id,)).fetchone()[0]
                 pages = self.db.execute("SELECT p.rid,s.title FROM pages p JOIN sessions s ON s.id=p.session_pk WHERE p.chapter_id=?", (chapter_id,)).fetchall()
                 for page in pages:
-                    self.db.execute("UPDATE pages_fts SET directory=? WHERE rowid=?", (index_text(title + " " + page["title"]), page["rid"]))
+                    values = (index_text(title + " " + page["title"]), page["rid"])
+                    self.db.execute("UPDATE pages_fts SET directory=? WHERE rowid=?", values)
+                    self.db.execute("UPDATE pages_stem_fts SET directory=? WHERE rowid=?", values)
 
     def ingest(self, payload: dict) -> dict:
         source = normalize_session(payload)
@@ -290,7 +418,9 @@ class MemoryBook:
                     page_id = _id("p_", session_pk, str(i), str(j), page.content)
                     refs = [{**ref, "session_id": external, "project": project, "created_at": created} for ref in page.refs]
                     cur = self.db.execute("INSERT INTO pages(id,section_id,session_pk,chapter_id,project_id,title,question,content,source_refs,ordinal) VALUES(?,?,?,?,?,?,?,?,?,?)", (page_id, section_id, session_pk, chapter_id, project, page.title, page.question, page.content, _json(refs), j))
-                    self.db.execute("INSERT INTO pages_fts(rowid,title,question,body,directory) VALUES(?,?,?,?,?)", (cur.lastrowid, index_text(page.title), index_text(page.question), index_text(page.content), index_text(source["task_title"] + " " + source["title"])))
+                    indexed = (cur.lastrowid, index_text(page.title), index_text(page.question), index_text(page.content), index_text(source["task_title"] + " " + source["title"]))
+                    self.db.execute("INSERT INTO pages_fts(rowid,title,question,body,directory) VALUES(?,?,?,?,?)", indexed)
+                    self.db.execute("INSERT INTO pages_stem_fts(rowid,title,question,body,directory) VALUES(?,?,?,?,?)", indexed)
                     page_count += 1
             self._refresh_chapter(chapter_id, reindex_directory=bool(old_chapter and old_chapter["title"] != source["task_title"]))
             if old and old["chapter_id"] != chapter_id:
@@ -443,22 +573,37 @@ class MemoryBook:
         values["revision"], values["schema_version"] = self.revision, SCHEMA_VERSION
         return values
 
-    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True) -> dict:
+    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base") -> dict:
         started = time.perf_counter_ns()
         query = _string(query, "query", maximum=8000, required=False)
         _integer(budget_chars, "budget_chars", 0, 100_000)
         _integer(limit, "limit", 1, 50)
+        from .token_budget import TOKENIZERS, TokenCounter
+        if not isinstance(tokenizer, str) or tokenizer not in TOKENIZERS:
+            raise ValueError("tokenizer must be cl100k_base or o200k_base")
+        if budget_tokens is not None:
+            _integer(budget_tokens, "budget_tokens", 0, 100_000)
+        token_counter = TokenCounter(tokenizer) if budget_tokens is not None else None
         if strategy not in {"book", "flat"}:
             raise ValueError("strategy must be book or flat")
+        if not isinstance(coverage, bool):
+            raise ValueError("coverage must be a boolean")
+        if coverage and strategy != "book":
+            raise ValueError("coverage requires the book strategy")
         for key, val in (("project", project), ("chapter", chapter), ("session", session)):
             if val is not None:
                 _string(val, key)
         qt = query_terms(query)
+        current_query = bool(CURRENT_QUERY.search(query) and not HISTORICAL_QUERY.search(query))
+        use_stem = strategy == "book" and any(ASCII_WORD.search(token) for token in qt)
         # A read snapshot ties candidates, sources, and the cache revision together.
         self.db.execute("BEGIN")
         try:
             revision = self.revision
-            cache_key = hashlib.sha256(_json([INDEX_VERSION, query, project, chapter, session, budget_chars, limit, strategy]).encode()).hexdigest()
+            cache_options = [INDEX_VERSION, RECALL_VERSION, query, project, chapter, session, budget_chars, limit, strategy, coverage]
+            if token_counter is not None:
+                cache_options.extend([budget_tokens, tokenizer, token_counter.version])
+            cache_key = hashlib.sha256(_json(cache_options).encode()).hexdigest()
             cached = self.db.execute("SELECT payload FROM recall_cache WHERE key=? AND revision=?", (cache_key, revision)).fetchone() if use_cache and self.cache_size else None
             if cached:
                 result = json.loads(cached[0])
@@ -478,65 +623,257 @@ class MemoryBook:
                 params.append(session)
             where = " AND " + " AND ".join(clauses) if clauses else ""
             candidates: list[dict] = []
+            allocations: list[tuple[dict, str, int]] = []
+            selected_pages: list[dict] = []
             if qt and budget_chars:
                 expression = " OR ".join('"' + token.replace('"', '""') + '"' for token in qt)
                 # The index enforces a body match, so a chapter name alone is
                 # never treated as evidence. Select only metadata for candidate
                 # ranking; large source bodies are loaded for selected pages.
                 expression = f"({expression}) AND body : ({expression})"
-                rows = self.db.execute("""SELECT p.id,p.project_id,p.chapter_id,p.section_id,p.title,
-                  pr.name project_name,c.title chapter_title,sec.title section_title,
-                  s.external_id session_id,s.title session_title,s.created_at,
-                  bm25(pages_fts,2.0,2.0,1.0,0.25) rank
-                  FROM pages_fts JOIN pages p ON p.rid=pages_fts.rowid
-                  JOIN projects pr ON pr.id=p.project_id JOIN chapters c ON c.id=p.chapter_id
-                  JOIN sections sec ON sec.id=p.section_id JOIN sessions s ON s.id=p.session_pk
-                  WHERE pages_fts MATCH ?""" + where + " ORDER BY rank,p.id LIMIT 96", [expression, *params]).fetchall()
+                # Apply every requested scope before truncating the FTS hits.
+                # Directory joins are needed only for the bounded candidates;
+                # display-only fields are deferred to the final page fetch.
+                scope_join = " JOIN sessions s ON s.id=p.session_pk" if session is not None else ""
+                routes = []
+                for table in (("pages_fts", "pages_stem_fts") if use_stem else ("pages_fts",)):
+                    # Table identifiers are fixed above; query text and every
+                    # caller-supplied scope remain bound SQL parameters.
+                    statement = (f"""SELECT p.rid,p.id,bm25({table},2.0,2.0,1.0,0.25) rank
+                      FROM {table} JOIN pages p ON p.rid={table}.rowid""" + scope_join +
+                      f" WHERE {table} MATCH ?" + where + " ORDER BY rank,p.id LIMIT 96")
+                    if not use_stem:
+                        # Keep the single-route path to one candidate query.
+                        statement = """SELECT p.id,p.rid,p.project_id,p.chapter_id,
+                          c.title chapter_title,s.external_id session_id,s.title session_title,s.created_at,hits.rank
+                          FROM (""" + statement + """) hits JOIN pages p ON p.rid=hits.rid
+                          JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk
+                          ORDER BY hits.rank,p.id"""
+                    routes.append(self.db.execute(statement, [expression, *params]).fetchall())
+                exact_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[0])}
+                stem_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[1])} if use_stem else {}
+                exact_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[0]}
+                stem_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[1]} if use_stem else {}
+                exact_scale = max(exact_scores.values(), default=1.0) or 1.0
+                stem_scale = max(stem_scores.values(), default=1.0) or 1.0
+                # Identical ordered routes add no candidate/ranking information.
+                # Keep BM25's score scale so novelty selection does not change
+                # merely because the same ranking was observed a second time.
+                fuse_routes = use_stem and list(exact_ranks) != list(stem_ranks)
+                rows = {row["id"]: dict(row) for route in reversed(routes) for row in route}
+                if use_stem and rows:
+                    # Exact and stem routes commonly overlap. Fetch their
+                    # directory metadata once, after both bounded searches.
+                    ids = [row["rid"] for row in rows.values()]
+                    metadata = self.db.execute("""SELECT p.id,p.project_id,p.chapter_id,
+                      c.title chapter_title,s.external_id session_id,s.title session_title,s.created_at
+                      FROM pages p JOIN chapters c ON c.id=p.chapter_id
+                      JOIN sessions s ON s.id=p.session_pk WHERE p.rid IN (""" +
+                      ",".join("?" for _ in ids) + ")", ids).fetchall()
+                    for row in metadata:
+                        rows[row["id"]].update(dict(row))
                 qset = set(qt)
-                for row in rows:
+                directory_terms = {}
+                for row in rows.values():
                     item = dict(row)
-                    title_overlap = len(qset & set(terms(item["chapter_title"] + " " + item["session_title"], query=True))) / len(qset)
-                    item["score"] = -item["rank"] * (1 + 0.15 * title_overlap if strategy == "book" else 1)
+                    title_overlap = 0.0
+                    if strategy == "book":
+                        directory = item["chapter_title"] + " " + item["session_title"]
+                        if directory not in directory_terms:
+                            directory_terms[directory] = self._directory_tokens(directory)
+                        title_overlap = len(qset & directory_terms[directory]) / len(qset)
+                    if fuse_routes:
+                        # Retain each route's
+                        # relative BM25 margins instead of only its ordinal rank.
+                        # Exact relevance retains the predeclared 2:1 preference.
+                        # An absent route contributes zero, never a fake score.
+                        relevance = (2 * exact_scores.get(item["id"], 0.0) / exact_scale +
+                                     stem_scores.get(item["id"], 0.0) / stem_scale)
+                    else:
+                        relevance = -item["rank"]
+                    item["score"] = relevance * (1 + 0.15 * title_overlap if strategy == "book" else 1)
                     candidates.append(item)
-                candidates.sort(key=lambda item: (-item["score"], item["id"]))
-                for item in candidates[:limit]:
-                    source = self.db.execute("SELECT content,source_refs FROM pages WHERE id=?", (item["id"],)).fetchone()
-                    item.update(dict(source))
+                if fuse_routes:
+                    candidates.sort(key=lambda item: (-item["score"], exact_ranks.get(item["id"], 97),
+                                                      stem_ranks.get(item["id"], 97), item["id"]))
+                else:
+                    candidates.sort(key=lambda item: (-item["score"], item["id"]))
+                if strategy == "book" and candidates and (current_query or (len(qt) > 1 and limit > 1)):
+                    # Rerank a bounded pool using the FTS body's existing
+                    # tokens. Complementary query facets can otherwise be
+                    # crowded out by several almost-identical high scores.
+                    pool = candidates[:limit * 4]
+                    ids = [item["rid"] for item in pool]
+                    matched = {row["rowid"]: qset.intersection(row["body"].split())
+                               for row in self.db.execute(
+                                   "SELECT rowid,body FROM pages_fts WHERE rowid IN (" +
+                                   ",".join("?" for _ in ids) + ")", ids)}
+                    if current_query:
+                        # Timestamp preference is confined to the same task
+                        # and identical matched query terms. Preserve each
+                        # group's relevance positions so a recent unrelated
+                        # task cannot displace a stronger topic match.
+                        groups = {}
+                        for i, item in enumerate(pool):
+                            if not matched[item["rid"]]:
+                                # Empty exact-term sets on stem-only hits do
+                                # not establish equivalent factual revisions.
+                                continue
+                            key = (item["chapter_id"], frozenset(matched[item["rid"]]))
+                            groups.setdefault(key, []).append(i)
+                        for positions in groups.values():
+                            scores = [pool[i]["score"] for i in positions]
+                            revisions = sorted((pool[i] for i in positions), key=lambda item: item["created_at"], reverse=True)
+                            for i, item, score in zip(positions, revisions, scores):
+                                pool[i], item["score"] = item, score
+                    chosen, pending = [pool[0]], pool[1:]
+                    covered = set(matched[pool[0]["rid"]])
+                    while pending and len(chosen) < limit:
+                        best = max(range(len(pending)), key=lambda i: pending[i]["score"] *
+                                   (1 + len(matched[pending[i]["rid"]] - covered) / len(qset)))
+                        item = pending.pop(best)
+                        chosen.append(item)
+                        covered.update(matched[item["rid"]])
+                    candidates = chosen + pending + candidates[len(pool):]
+                facets = (_query_facets(query) if coverage and strategy == "book" and limit > 1 and
+                          not CURRENT_QUERY.search(query) and not HISTORICAL_QUERY.search(query) else [])
+                if candidates and facets:
+                    # A whole-query OR score can fill every result slot with
+                    # one requested subject. Rank each explicit clause over
+                    # the already scoped, bounded candidate union and reserve
+                    # its best page after the unchanged first result. No new
+                    # sources, generated text, or answer labels enter this path.
+                    candidate_ids = [item["rid"] for item in candidates]
+                    original_positions = {item["rid"]: i for i, item in enumerate(candidates)}
+                    preferred = [candidates[0]]
+                    seen = {candidates[0]["rid"]}
+                    for facet in facets:
+                        clause = " OR ".join('"' + token.replace('"', '""') + '"' for token in facet)
+                        clause = f"({clause}) AND body : ({clause})"
+                        scores = []
+                        for table in (("pages_fts", "pages_stem_fts") if use_stem else ("pages_fts",)):
+                            # Unary + keeps SQLite from executing MATCH once
+                            # per rowid in the IN-list. FTS scans the clause
+                            # once, then applies the identical integer filter.
+                            hits = self.db.execute(
+                                f"SELECT rowid,bm25({table},2.0,2.0,1.0,0.25) rank FROM {table} "
+                                f"WHERE {table} MATCH ? AND +rowid IN (" +
+                                ",".join("?" for _ in candidate_ids) + ") ORDER BY rank,rowid LIMIT 96",
+                                [clause, *candidate_ids]).fetchall()
+                            route = {row["rowid"]: max(0.0, -row["rank"]) for row in hits}
+                            scale = max(route.values(), default=1.0) or 1.0
+                            scores.append({rid: value / scale for rid, value in route.items()})
+                        found = set().union(*(route.keys() for route in scores))
+                        if not found:
+                            continue
+                        leader = max(found, key=lambda rid: (
+                            2 * scores[0].get(rid, 0.0) +
+                            (scores[1].get(rid, 0.0) if use_stem else 0.0),
+                            -original_positions[rid]))
+                        if leader not in seen:
+                            preferred.append(candidates[original_positions[leader]])
+                            seen.add(leader)
+                    candidates = preferred + [item for item in candidates if item["rid"] not in seen]
+                if candidates:
+                    selected_ids = [item["id"] for item in candidates[:limit]]
+                    sources = {row["id"]: dict(row) for row in self.db.execute(
+                        """SELECT p.id,p.title,p.section_id,p.session_pk,p.content,p.source_refs,
+                          pr.name project_name,sec.title section_title FROM pages p
+                          JOIN projects pr ON pr.id=p.project_id JOIN sections sec ON sec.id=p.section_id
+                          WHERE p.id IN (""" + ",".join("?" for _ in selected_ids) + ")", selected_ids)}
+                    for item in candidates[:limit]:
+                        item.update(sources[item["id"]])
+                    selected_pages = candidates[:limit]
+                    allocations = _context_allocations(selected_pages, budget_chars)
+                    truncated_ids = [item["rid"] for item, _, allowance in allocations
+                                     if allowance < len(item["content"])] if use_stem else []
+                    if truncated_ids:
+                        # Highlight the normalized indexed body only when an
+                        # actual excerpt needs word forms absent from the query.
+                        # Full pages need no extra read or term extraction.
+                        highlighted = self.db.execute("""SELECT rowid,
+                          highlight(pages_stem_fts,2,?,?) body FROM pages_stem_fts
+                          WHERE pages_stem_fts MATCH ? AND rowid IN (""" +
+                          ",".join("?" for _ in truncated_ids) + ")",
+                          ["\x01", "\x02", expression, *truncated_ids]).fetchall()
+                        forms = {}
+                        for row in highlighted:
+                            seen = set(qt)
+                            extra = []
+                            for match in re.finditer("\x01([^\x01\x02]+)\x02", row["body"]):
+                                # FTS can merge adjacent highlighted tokens.
+                                for form in match.group(1).split():
+                                    if form not in seen:
+                                        seen.add(form)
+                                        extra.append(form)
+                                        if len(extra) == 64:
+                                            break
+                                if len(extra) == 64:
+                                    break
+                            if extra:
+                                forms[row["rowid"]] = qt + extra
+                        for item, _, _ in allocations:
+                            if item["rid"] in forms:
+                                item["excerpt_terms"] = forms[item["rid"]]
+                    if token_counter is not None and budget_tokens:
+                        # Supplemental units are parsed in original turns so a
+                        # page boundary cannot turn a cut sentence/fence into a
+                        # purportedly complete new source unit. Read them under
+                        # the same snapshot as ranking and page coordinates.
+                        from .token_budget import projected_units
+                        wanted: dict[str, set[int]] = {}
+                        for row in selected_pages:
+                            wanted.setdefault(row["session_pk"], set()).update(
+                                ref["turn_index"] for ref in json.loads(row["source_refs"]))
+                        original_turns = {}
+                        for session_pk, ordinals in wanted.items():
+                            ordered = sorted(ordinals)
+                            for source in self.db.execute(
+                                "SELECT ordinal,content FROM turns WHERE session_pk=? AND ordinal IN (" +
+                                ",".join("?" for _ in ordered) + ")", [session_pk, *ordered]):
+                                original_turns[(session_pk, source["ordinal"])] = source["content"]
+                        unit_cache = {}
+                        for row in selected_pages:
+                            row["token_source_units"] = projected_units(row, original_turns, unit_cache)
             self.db.execute("COMMIT")
         except BaseException:
             self.db.execute("ROLLBACK")
             raise
+        legacy = []
+        for row, header, allowance in allocations:
+            text, spans = excerpt(row["content"], query, allowance, prepared_terms=row.get("excerpt_terms", qt))
+            legacy.append((row, header, text, spans))
+        assembled = legacy
+        if token_counter is not None:
+            from .token_budget import assemble
+            assembled = assemble(legacy, selected_pages, qt, budget_chars=budget_chars,
+                                 budget_tokens=budget_tokens, counter=token_counter)
         results, blocks = [], []
-        remaining = budget_chars
         # Limit the work/response, but do not force one task/chapter branch.
-        selected = candidates[:limit]
-        for i, row in enumerate(selected):
+        for row, header, text, spans in assembled:
             crumbs = self._breadcrumb(row)
-            short_path = " / ".join(headline(c["title"], 48) for c in crumbs[:3])
-            header = f'[{row["id"]}] {short_path}\nsource: {row["session_id"]} | {row["created_at"]}\n'
-            separator = 2 if blocks else 0
-            if remaining <= len(header) + separator + 8:
-                break
-            slots = len(selected) - i
-            # Share budget, let short pages leave more room for later pages.
-            allowance = max(120, remaining // max(1, slots) - len(header) - separator)
-            allowance = min(allowance, remaining - len(header) - separator)
-            text, spans = excerpt(row["content"], query, allowance)
+            # The address and date are sufficient for agent recall. Display
+            # names remain in breadcrumb metadata and exact read_page results;
+            # repeating three long titles in every context block crowds out
+            # evidence at small budgets without adding source identity.
             block = header + text
             refs = self._refs(row, spans)
             coverage = len(set(qt) & set(terms(text, query=True))) / len(qt) if qt else 0.0
             results.append({"id": row["id"], "title": row["title"], "text": text, "source_refs": refs, "breadcrumb": crumbs, "score": row["score"], "lexical_coverage": coverage, "created_at": row["created_at"], "truncated": len(text) < len(row["content"]), "page_chars": len(row["content"]), "excerpt_spans": [[a, b] for a, b in spans]})
             blocks.append(block)
-            remaining -= len(block) + separator
         context = "\n\n".join(blocks)
         warnings = []
         if project is None and len({r["breadcrumb"][0]["id"] for r in results}) > 1:
             warnings.append("Results span projects; supply project to disambiguate.")
-        if results and any(term in query.casefold() for term in ("latest", "current", "now", "当前", "现在", "最终", "最新")):
+        if results and CURRENT_QUERY.search(query):
             warnings.append("Historical evidence can conflict. Check source timestamps; retrieval does not resolve which decision is authoritative.")
         if not results and candidates:
             warnings.append("Budget too small to return an evidence block including its citation.")
         result = {"query": query, "results": results, "context": context, "context_chars": len(context), "estimated_tokens": estimate_tokens(context), "candidate_count": len(candidates), "revision": revision, "cache_hit": False, "warnings": warnings, "strategy": strategy, "budget_chars": budget_chars, "truncated": len(candidates) > len(results) or any(r["truncated"] for r in results)}
+        if token_counter is not None:
+            result.update(budget_tokens=budget_tokens, tokenizer=tokenizer,
+                          tokenizer_version=token_counter.version,
+                          context_tokens=token_counter.count(context))
         if use_cache and self.cache_size:
             # A concurrent ingestion must not be overwritten by an old cache.
             self.db.execute("BEGIN IMMEDIATE")

@@ -1,5 +1,51 @@
 # Changelog
 
+## Unreleased — optional multi-fact coverage and answer evaluation
+
+- Add experimental `coverage=True` to Python/MCP recall and `--coverage` to the CLI. It can retain evidence for separate explicit clauses, while the default score-aware behavior remains intact. Coverage adds search work and can reduce completeness under very small token caps; it is not enabled automatically.
+- Keep the two modes in separate version-9 recall-cache entries, reject ambiguous flag values and incompatible flat ranking, and verify actual CLI/MCP opt-in behavior. Complete non-timing payloads match the previous default and the frozen automatic-clause experiment in 2,774 comparisons per mode.
+- Retain all eleven frozen experiment stages, source/output hashes, gains and losses. Four previously observed synthetic seeds improve multi-section completeness from 0/16 to 8/16 with coverage, while public 512-token common-page packing falls from 66.26% to 65.79% (`cl100k_base`). These tradeoffs are why coverage is optional. A new 36-question, six-domain diagnostic shows no improvement and does not establish generalization.
+- Add a real-endpoint paired-answer runner with frozen source/context/label/evaluator hashes, explicit model identity checks, error-preserving usage accounting and credential-safe traces. Prepare 128 public development questions; no generative model was called and no full-workflow cost advantage is claimed.
+- Move measured capabilities and pinned native-component comparisons toward the top of both READMEs. Correct installer defaults and published installation links to existing v0.2.1; document the separate unreleased source checkout.
+- See the [coverage experiment and final API decision](benchmarks/RESULTS-conjunctive-recall.md), [answer evaluation guide](docs/answer-evaluation.md), and [validation record](docs/validation.md).
+
+## Unreleased — recall quality continuation
+
+- Continue the preserved v0.3.0 performance branch with bounded English word-form retrieval. Keep exact FTS and add SQLite's local Porter index. When the routes differ, combine their max-normalized BM25 scores with a fixed 2:1 exact/stem weight, preserving score margins that rank-only fusion discarded; invalidate prior recall caches with retrieval version 7. No model, embedding package, network request, or provider key is added to the core.
+- Preserve intact source lines or sentences when equally relevant excerpts fit. Reuse a sliding match window, reserve citations before sharing the body budget, and return unused short-page space to longer selected pages.
+- Prefer distinct query-term coverage and complete source units before repetition frequency, so a repeated keyword fragment cannot displace an equally covered intact fact. Increment the recall-cache version for this behavior change.
+- Reuse immutable directory tokens in a bounded connection-local cache and precompile lexical regular expressions without changing normalization or ranking. Clear retained directory text when the connection closes.
+- Reuse one lazy SQLite connection within an MCP transport lifespan, with owner-thread checks, file-replacement detection, lifecycle cleanup and temporary-connection fallback. Tool declarations and compact/detailed payload contracts are unchanged; external writes still invalidate cached results through the database revision.
+- Apply project/chapter/session scopes before each candidate cap and defer directory/display metadata until needed. Identical ordered retrieval routes retain the original BM25 scale and behavior.
+- Upgrade schema 1/2 to schema 3 transactionally without changing schema-2 source rows, page addresses, or source spans. A revision guard repairs the stem index if an already-open old writer commits after upgrade; current writers keep incremental index updates.
+- Separate retrieval cache versions from source/index settings. Only truncated pages need word-form highlight work; full-page reads and compact/detailed MCP contracts remain available.
+- Correct benchmark version labels and record the measured source bytes, Git identity, and uncommitted or ignored Python changes. Add a repeatable index-upgrade cost and source-preservation measurement.
+- Make budget, source-stability and size-accounting failures fail evaluation while preserving diagnostics. Add explicit corpus plans and a sequential checkpointed runner that validates source/data/runtime identity and completed artifacts before resuming.
+- See [the continuation report](benchmarks/RESULTS-recall-quality.md) for measured quality, costs, regressions, and the distinction between retrieval evidence and generated answers.
+
+## 0.3.0 development — 2026-11-11 (unreleased)
+
+### Retrieval and context cost
+
+- Reused lexical preparation across excerpts, added offset-preserving ASCII/Unicode fast paths, cached repeated title normalization within a recall, and fetched selected pages in one SQL query. Original text, source IDs, and exact source spans remain available.
+- Shortened context citation headers while retaining page, project, session, and date identity. Full hierarchy titles remain in page metadata and directory tools.
+- Improved equal-coverage excerpt placement so text following a matching topic is less likely to be cut off. Added a bounded query-term novelty bonus to reduce redundant pages crowding out complementary evidence.
+- Added conservative timestamp preference for explicit current/latest queries within the same chapter and identical lexical coverage. Historical/date-bound queries keep relevance order; this heuristic does not resolve conflicting facts authoritatively.
+- Incremented the retrieval cache version to invalidate old results. The database schema remains version 2; no source migration or reindex is needed.
+
+### MCP response contract
+
+- All tools now return one compact JSON text block, avoiding SDK pretty-printing overhead. `browse_projects` contains a JSON array in that block.
+- `recall_memory` defaults to compact `project`/`session_id`/`turn_index` references. Pass `details: true` to obtain exact source coordinates, excerpt spans, and diagnostics. `read_page` keeps full provenance; CLI and HTTP JSON responses retain their detailed fields.
+- Shortened initialization instructions without removing source trust, scope, optional navigation, or write-replacement rules. Added actual stdio checks that compact and detailed modes preserve identical evidence.
+
+### Reproducible evaluation
+
+- Added paired v0.2.1/current evaluation with exact `cl100k_base` and `o200k_base` token counting, shared whole-evidence token caps, fresh-process measurements, and actual MCP stdio cost measurement. Tokenizers are an optional benchmark dependency, not a runtime requirement.
+- Added pinned, hash-verified LoCoMo data loading, download instructions, and a conversation-level development/heldout split. Public data, expected answers, model weights, and competitor binaries are not bundled in the MIT package.
+- Added adapters that execute the actual pinned billion-context search kernel and ai-memory v3.4.5 native APIs, including its local MiniLM hybrid MCP mode. Shared-page results distinguish ranking, native payload/read cost, and transport boundaries. claude-mem remains unmeasured.
+- Published complete result curves and category failures in the release evaluation report; retrieval evidence coverage is not an LLM answer-quality score or a universal product-performance claim.
+
 ## 0.2.1 — 2026-11-11
 
 ### Agent-first operation

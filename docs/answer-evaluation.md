@@ -1,0 +1,238 @@
+# Paired answer evaluation with a real model
+
+`benchmarks.answer_eval` makes the next answer experiment runnable. It prepares
+identical question cohorts against two or more Book source trees, freezes the
+actual evidence each version returns, and sends each context to one explicitly
+configured generative endpoint. **Adding this runner does not establish answer
+quality or complete memory-workflow cost.** No real answering endpoint was
+available for the continuation that introduced it.
+
+The HTTP fixtures in `tests/test_answer_eval.py` test transport, failed-call
+accounting, credential handling and label isolation. Their canned replies are
+not model evaluations and must not appear in benchmark result tables.
+
+## What it measures
+
+| Stage | Recorded measurement | Boundary |
+| --- | --- | --- |
+| Canonical history import | One timed ingest event per session, input hash, database statistics | Book's local import; no native competitor observer |
+| Retrieval | One uncached recall per question, context, original source references, source hash | Python in-process call; no MCP transport |
+| Evidence packing | Exact reference-token count and packing time | Same whole-block packer and cap for every version |
+| Answer generation | Answer text, model name reported by server, request/response hashes, endpoint roundtrip time | One non-streaming HTTP call; includes network and inference |
+| Provider token usage | Reported input/output/total counts and supported numeric usage-detail fields | Unknown fields stay `null`; reference counts do not replace billing counts |
+| Answer scoring | Normalized exact match, lexical token F1, explicit unsupported-question abstention | String-based diagnostic; no semantic judge |
+
+Import and retrieval occur once during preparation. Repeating answer generation
+does not repeat or charge those preparation events again. The runner does not
+sum separately measured spans into an end-to-end wall-clock claim. Capture from
+client logs, native competitor observers/consolidation, adaptive tool selection,
+follow-up reads and provider billing are not measured. `full_workflow_cost` is
+therefore `null`, and `full_workflow_measured` remains `false`.
+
+## 1. Prepare a frozen pair
+
+Install the optional benchmark dependency and prepare the reference-tokenizer
+cache before going offline:
+
+```bash
+python -m pip install -e '.[benchmark]'
+```
+
+`tiktoken==0.12.0` is required. Its first tokenizer load may download the
+encoding assets; use an already populated `TIKTOKEN_CACHE_DIR` for offline
+preparation. No generative endpoint is called by `prepare`.
+
+Create a separate baseline checkout, using the exact prior continuation head:
+
+```bash
+git worktree add --detach ../answer-baseline 605d74e1b76fd471def8274c2a04e96e2d095075
+```
+
+Supply an independently authored canonical file with separate source history
+and expected answers. This example is only a format demonstration, not a
+generalization benchmark:
+
+```json
+{
+  "sessions": [
+    {
+      "project": "demo",
+      "session_id": "cache-review",
+      "created_at": "2026-01-01T12:00:00Z",
+      "messages": [
+        {"role": "user", "content": "What cache TTL did the review approve?"},
+        {"role": "assistant", "content": "The approved cache TTL is 45 seconds."}
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "id": "ttl",
+      "query": "How long does the cache remain valid?",
+      "project": "demo",
+      "answerable": true,
+      "answers": ["45 seconds", "45 s"]
+    },
+    {
+      "id": "owner",
+      "query": "Who is responsible for the cache?",
+      "project": "demo",
+      "answerable": false,
+      "answers": []
+    }
+  ]
+}
+```
+
+`answers` contains alternative acceptable **complete answers**, not fragments
+of a multi-part answer. An unsupported question must explicitly set
+`answerable: false` and `answers: []`. Only `sessions` are ingested: questions,
+expected answers and answerability labels never enter the memory index or the
+model prompt as scoring information.
+
+After saving the cases to `.artifacts/answer-cases.json`:
+
+```bash
+python -m benchmarks.answer_eval prepare \
+  --cases .artifacts/answer-cases.json \
+  --source baseline=../answer-baseline/src \
+  --source candidate=src \
+  --tokenizer cl100k_base --budget-tokens 1024 --budget-chars 8000 \
+  --cohort-label 'independently authored evaluation; describe authorship and prior exposure' \
+  --output .artifacts/answer-eval/prepared.json
+```
+
+Each engine runs in an independent subprocess with the same canonical data,
+query order, scope, page settings and top-five limit. The shared packer receives
+only actual retrieved evidence, preserves whole source blocks and caps the
+final context. Labels are not used to select evidence. Source hashes before
+and after preparation must match. Dirty source trees are identified by their
+actual bytes rather than attributed to a clean commit.
+
+The evaluator, corpus loader, shared packer and scorer source files are also
+hash-pinned in the prepared artifact. `run` rejects a changed harness or changed
+question/answer/context bytes. After a code change, prepare a new pair and
+identify it as a new experiment rather than reusing old prepared inputs.
+
+The pinned LoCoMo adapter is also available:
+
+```bash
+python -m benchmarks.answer_eval prepare \
+  --locomo-path .artifacts/data/locomo10.json \
+  --split development --max-queries 128 \
+  --source baseline=../answer-baseline/src --source candidate=src \
+  --cohort-label 'public development regression' \
+  --output .artifacts/answer-eval/locomo-prepared.json
+```
+
+This reuses the [text-evidence loader](../benchmarks/public_data.py) and its
+hash-pinned file, conversation split, image exclusions and question selection.
+The question's scalar `answer` supplies the scoring target; unsupported
+category-5 questions require the explicit abstention marker. Non-scalar
+answers are rejected rather than silently treated as alternative answers.
+The existing LoCoMo questions have already been observed: a split named
+`heldout` does not make them unseen again. This runner's lexical scores are
+not the original LoCoMo evaluation procedure. Source data remains subject to
+its [separate license](../benchmarks/locomo_split.json).
+
+## 2. Run a real answering model
+
+Start or select an actual served model first. The runner neither downloads nor
+launches a generative model and does not assume that an embedding service can
+answer questions. For a keyless local server:
+
+```bash
+python -m benchmarks.answer_eval run \
+  --prepared .artifacts/answer-eval/prepared.json \
+  --base-url http://127.0.0.1:1234/v1 \
+  --model ACTUAL_SERVED_MODEL \
+  --max-output-tokens 256 --temperature 0 \
+  --output .artifacts/answer-eval/local-model-run
+```
+
+Replace `ACTUAL_SERVED_MODEL` with the server's real model identifier. For a
+hosted compatible endpoint, supply an explicit HTTPS base URL, model and the
+**name** of the environment variable containing its key:
+
+```bash
+python -m benchmarks.answer_eval run \
+  --prepared .artifacts/answer-eval/prepared.json \
+  --base-url "$ANSWER_BASE_URL" --model "$ANSWER_MODEL" \
+  --api-key-env ANSWER_API_KEY \
+  --output .artifacts/answer-eval/hosted-model-run
+```
+
+`run` sends the prepared questions and evidence to that endpoint. There is no
+default remote host or implicit use of a provider key. Plain HTTP is accepted
+only on loopback, URLs cannot embed credentials, and HTTP redirects are not
+followed. Request headers and API keys are never written into the run trace.
+
+The transport follows the standard non-streaming
+[Chat Completions contract](https://developers.openai.com/api/reference/resources/chat):
+`POST <base-url>/chat/completions`, `messages`, a model identifier and one textual
+assistant choice. Local servers with the older output-limit field can use
+`--output-token-field max_tokens`. For models that reject temperature, use
+`--omit-temperature` explicitly; the resulting provider default is then not
+controlled. There is no silent parameter fallback or automatic retry.
+
+The prompt, request parameters, requested model and tokenizer remain fixed for
+the whole pair. The server's reported model identity is checked separately.
+Query-major execution rotates the engine order between questions and
+repetitions to reduce a fixed first-engine ordering effect. Temperature zero
+does not guarantee bitwise reproducibility. `--repeats 3` records three actual
+answer attempts per question/version and their full costs. Summaries distinguish
+attempt counts from unique questions; repetitions do not multiply the number
+of independent questions.
+
+## 3. Inspect the ledger and scores
+
+The command writes a `.jsonl` trace and a `.summary.json` report. Defaults are
+inside ignored `.artifacts/answer-eval`; new files use owner-only permissions
+on systems that support them. Prepared contexts and raw model replies can
+contain source text. They are private working artifacts, not files to commit
+or redistribute automatically.
+
+Every request writes a durable `request_started` row before HTTP and a
+`request_finished` row afterward. Successful rows retain the answer text,
+reported model/fingerprint, finish reason, numeric usage fields and a hash of
+the complete response. Arbitrary provider diagnostics are omitted. If a
+response echoes the explicit API key, the attempt is recorded as an error
+without response text; numeric usage and the response hash remain. Errors and timeouts retain
+their attempt, timing and unknown cost; they receive zero accuracy scores and
+stay in the denominator. Error bodies are omitted to avoid recording arbitrary
+server diagnostics. An interrupted request can leave a started row without a
+finished row: its outcome and charge are unknown. Re-running does not resume
+or silently retry it, and existing output paths cannot be overwritten.
+
+For each usage field, the summary distinguishes the count of calls with
+reported values, their **known subtotal**, and a complete total only when
+every attempted call reported that field. A missing field is never zero.
+Reference-token counts cover context, message text and answer text; message
+text counts omit chat framing, hidden reasoning and provider-specific rules.
+They are not provider usage or billed dollars. Returned model names and system
+fingerprints are checked across the pair. Differing IDs mark model comparability
+`incomparable`; absent identities, missing fingerprints or failed attempts mark
+it `unverified`. Stable model/fingerprint reports produce `same_reported_identity`,
+which still does not establish deterministic inference. The requested alias need
+not equal the returned model name. Scores remain visible in every case, but a
+changing or unverified backend prevents attributing their differences solely
+to retrieval.
+
+The lexical scorer applies Unicode NFKC normalization and case folding, uses
+punctuation/symbol boundaries, and tokenizes Han characters individually while
+keeping other letter/number runs. It does not delete English articles or
+understand synonyms, morphology, fact entailment or complete reasoning. Exact
+match compares the normalized token sequence; F1 measures token overlap with
+the best accepted answer. For Chinese this is a character-based overlap
+diagnostic, not word segmentation or a semantic score. Japanese, Thai and
+other scripts are not language-specialized. Unsupported-question success
+requires exactly `INSUFFICIENT_EVIDENCE` after surrounding whitespace is
+trimmed; other uncertainty wording is deliberately not inferred as abstention.
+
+Answerable exact/F1 and unsupported abstention rates are reported separately.
+A low F1 can reflect alternate valid phrasing, and a high overlap score can
+still describe a wrong answer. A defensible answer-quality claim additionally
+needs blinded human assessment or a separately validated semantic judge and
+confidence intervals. Broader cost claims still need genuine native capture,
+observer/consolidation and follow-up-read traces for each compared product,
+as specified in the [comparison protocol](comparison-protocol.md).

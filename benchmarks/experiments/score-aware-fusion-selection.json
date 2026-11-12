@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "status": "development gate passed; adopted after explicit authorization; formal reevaluation pending",
+  "kind": "one post-freeze development-only ranking experiment",
+  "base_runtime_commit": "6f5299004642618e606d001b4c574e1bae572a7e",
+  "variant_patch": "benchmarks/experiments/score-aware-fusion.patch",
+  "formula": {
+    "E": "max(0, -exact BM25(d)), or 0 when absent",
+    "S": "max(0, -stem BM25(d)), or 0 when absent",
+    "relevance": "2 * E(d)/max_exact_E + S(d)/max_stem_S",
+    "scope": "only when ordered exact and stem routes differ; identical-route behavior unchanged",
+    "unchanged": "candidate caps, scopes, titles, tie order, novelty selection, excerpt logic, context budgets and MCP payload",
+    "empty_or_zero_route_denominator": 1
+  },
+  "rationale": "Retain exact-score margins that ordinal rank fusion discards. Missing exact word forms may still contribute through the stem route. This is unmeasured; development lookup already has 24/24 successes.",
+  "development_only": [
+    {
+      "corpus": "synthetic",
+      "seed": 61,
+      "split": "development",
+      "projects": 8
+    },
+    {
+      "corpus": "locomo",
+      "split": "development",
+      "max_queries": 128
+    }
+  ],
+  "repeats": 1,
+  "character_budgets": [
+    2000,
+    8000
+  ],
+  "token_budgets": [
+    512,
+    1024,
+    2048
+  ],
+  "acceptance_gate": [
+    "all independent controlled morphology/Porter-collision fixtures pass",
+    "no individual development complete-evidence query loss relative to frozen6f at either character budget",
+    "no aggregate development evidence recall decrease relative to frozen6f at either character budget",
+    "zero budget violations, zero source changes during measurement, exact context-size accounting"
+  ],
+  "selection_rule": "Reject and stop this experiment if any gate fails; do not search weights or use heldout wording/outcomes to choose another variant.",
+  "runtime_adoption": "Explicitly authorized after the development gate passed; store.py uses the measured formula and recall cache version7. The development-only source comment was removed on adoption.",
+  "reports": [
+    "benchmarks/results/recall-score-fusion-synthetic-development",
+    "benchmarks/results/recall-score-fusion-public-development"
+  ],
+  "controlled_fixtures": {
+    "source_in_patch": "tests/test_score_fusion_fixture.py",
+    "sha256": "aee3dc387b03c62bb28485a93eacca1b26a892f086d7493b53ad2cc712c93761",
+    "count": 3,
+    "purpose": [
+      "exact multi-term fact against Porter universe/university collisions",
+      "genuine plural recall with original source spans",
+      "scope correctness under stronger foreign matches"
+    ]
+  },
+  "patch_sha256": "fccd545f188dc2f50ca82aa9bb0a6c2473e0e5bf1b42a1929c8088f92d12404d",
+  "controlled_fixture_result": {
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "duration_seconds": 0.013
+  },
+  "results": [
+    {
+      "corpus": "synthetic",
+      "reports_prefix": "benchmarks/results/recall-score-fusion-synthetic-development",
+      "queries": 168,
+      "source_sha256_baseline": "191d0bf023fa3589c4832440cde86482563e223bec8a79a25b2b4fe020f2fb85",
+      "source_sha256_variant": "e98b228eee1a7487f7c560d1328451fd38f010af83bb9c1a6e84b505e1d612ba",
+      "validation": {
+        "passed": true,
+        "failures": []
+      },
+      "checks": [
+        {
+          "budget_chars": 2000,
+          "baseline_evidence_recall": 0.9261363636363636,
+          "variant_evidence_recall": 0.9318181818181818,
+          "baseline_complete_evidence_rate": 0.9144736842105263,
+          "variant_complete_evidence_rate": 0.9210526315789473,
+          "complete_query_losses": [],
+          "complete_query_gains": [
+            "solstice-journal-cedar-multi-section"
+          ],
+          "no_complete_query_loss": true,
+          "no_aggregate_recall_decrease": true
+        },
+        {
+          "budget_chars": 8000,
+          "baseline_evidence_recall": 0.9261363636363636,
+          "variant_evidence_recall": 0.9318181818181818,
+          "baseline_complete_evidence_rate": 0.9144736842105263,
+          "variant_complete_evidence_rate": 0.9210526315789473,
+          "complete_query_losses": [],
+          "complete_query_gains": [
+            "solstice-journal-cedar-multi-section"
+          ],
+          "no_complete_query_loss": true,
+          "no_aggregate_recall_decrease": true
+        }
+      ]
+    },
+    {
+      "corpus": "public",
+      "reports_prefix": "benchmarks/results/recall-score-fusion-public-development",
+      "queries": 128,
+      "source_sha256_baseline": "191d0bf023fa3589c4832440cde86482563e223bec8a79a25b2b4fe020f2fb85",
+      "source_sha256_variant": "e98b228eee1a7487f7c560d1328451fd38f010af83bb9c1a6e84b505e1d612ba",
+      "validation": {
+        "passed": true,
+        "failures": []
+      },
+      "checks": [
+        {
+          "budget_chars": 2000,
+          "baseline_evidence_recall": 0.5233644859813084,
+          "variant_evidence_recall": 0.5233644859813084,
+          "baseline_complete_evidence_rate": 0.5421686746987951,
+          "variant_complete_evidence_rate": 0.5421686746987951,
+          "complete_query_losses": [],
+          "complete_query_gains": [],
+          "no_complete_query_loss": true,
+          "no_aggregate_recall_decrease": true
+        },
+        {
+          "budget_chars": 8000,
+          "baseline_evidence_recall": 0.7570093457943925,
+          "variant_evidence_recall": 0.7757009345794392,
+          "baseline_complete_evidence_rate": 0.7831325301204819,
+          "variant_complete_evidence_rate": 0.7951807228915663,
+          "complete_query_losses": [],
+          "complete_query_gains": [
+            "conv-47-q0142"
+          ],
+          "no_complete_query_loss": true,
+          "no_aggregate_recall_decrease": true
+        }
+      ]
+    }
+  ],
+  "acceptance_gate_passed": true,
+  "timing_scope": "Exploratory one-repeat development runs while unrelated assessment/publication preparation continued. These timings are not final performance evidence.",
+  "notes": [
+    "The formula and fixtures were fixed from a general score-margin rationale. Earlier frozen heldout results were already known; this variant was neither evaluated nor tuned on them.",
+    "Only the single predeclared formula was evaluated; no weight sweep or further variant was attempted.",
+    "All13 original frozen-suite stages and their reports remain retained unmodified. The adopted source requires its separate formal reevaluation.",
+    "The baseline was archived directly from6f52990; its source hash exactly matches the frozen runtime. Ignored archive paths show source_dirty because they are not tracked source paths, not because baseline bytes differ."
+  ],
+  "adopted_runtime_source_sha256": "c8f684da97bc104a392e3884390e9f4b0eca850ed26d36394b150f469aea2b46",
+  "adoption_tests": {
+    "targeted_tests": 20,
+    "targeted_passed": true,
+    "full_suite_tests": 244,
+    "full_suite_passed": true,
+    "full_suite_seconds": 26.498,
+    "log": ".artifacts/logs/score-fusion-tests.log"
+  }
+}

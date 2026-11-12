@@ -1,0 +1,126 @@
+{
+  "version": "authored-transfer-1",
+  "description": "Fictional, independently written operational conversations across six domains. Questions and full-turn evidence labels stay outside the search index.",
+  "domains": [
+    {
+      "project": "museum",
+      "sessions": [
+        {"id":"climate-before","title":"East gallery climate","task":"gallery-climate","date":"2025-06-01","question":"Set the east gallery humidity ceiling.","answer":"The east gallery humidity ceiling is 50 percent. This is a provisional setting pending the conservator's inspection."},
+        {"id":"climate-after","title":"East gallery climate","task":"gallery-climate","date":"2025-06-09","question":"Update the east gallery humidity ceiling.","answer":"The east gallery humidity ceiling is now 42 percent after inspection. The previous 50 percent ceiling is withdrawn; the display cases remain closed during adjustment."},
+        {"id":"arrival","title":"Unpacking loans","date":"2025-06-04","question":"What happens after the loan crates arrive?","answer":"Leave loan crates sealed in the receiving room for 24 hours before unpacking. Record the arrival time on the paper log; a courier signature alone does not start an early opening exception."},
+        {"id":"mounting","title":"Supporting brass artifacts","date":"2025-06-05","question":"Which mounting method is approved?","answer":"Secure brass artifact mounts with padded clamps attached to the plinth. Adhesive tape must not touch the artifact because removal can lift the surface patina."},
+        {"id":"access","title":"Reading in the dim room","date":"2025-06-06","question":"Visitors struggle with the small captions in low light.","answer":"Offer a large-print booklet at the gallery entrance. Do not increase illumination near the dyed textiles; the booklet contains the same captions in a more legible format."},
+        {"id":"intake","title":"Desk routing","date":"2025-06-07","question":"Which intake code should the desk use?","answer":"Use intake code MUSE-17 for objects awaiting condition review. Educational replicas go to the teaching cabinet and must not enter this queue."},
+        {"id":"labels","title":"Loan crate labels","date":"2025-06-08","question":"How are loan crates labelled after unpacking?","answer":"Retain the lender's crate labels and photograph each empty crate. Store the label images with the loan agreement; these photographs document packaging and do not replace object condition photographs."}
+      ],
+      "queries": [
+        {"id":"museum-lookup","query":"How long do loan crates remain sealed before unpacking?","category":"lookup","required":["arrival"]},
+        {"id":"museum-multi","query":"Bring together the opening delay for loan crates with the approved way of securing brass artifact mounts.","category":"multi_section","required":["arrival","mounting"]},
+        {"id":"museum-paraphrase","query":"What accommodation lets people with poor eyesight understand the exhibits without exposing fragile fabrics to brighter lamps?","category":"low_overlap_paraphrase","required":["access"]},
+        {"id":"museum-current","query":"What is the current east gallery humidity ceiling?","category":"current_decision","required":["climate-after"],"stale":["climate-before"]},
+        {"id":"museum-scope","query":"Which intake code should the desk use?","category":"scoped_lookup","required":["intake"]},
+        {"id":"museum-absent","query":"Who insured the painting shipment for its overnight flight?","category":"unanswerable","answerable":false}
+      ]
+    },
+    {
+      "project": "orchard",
+      "sessions": [
+        {"id":"water-before","title":"北坡灌溉计划","task":"north-irrigation","date":"2025-05-01","question":"北坡的灌溉间隔定多少？","answer":"北坡暂定每隔三天灌溉一次，先执行到土壤检测完成。每次开始前检查滴头有没有堵塞。"},
+        {"id":"water-after","title":"北坡灌溉计划","task":"north-irrigation","date":"2025-05-08","question":"北坡灌溉间隔调整结果是什么？","answer":"土壤检测后，北坡改为每隔五天灌溉一次，替代原来的三天间隔；遇到明显降雨时当次暂停，不能补浇两轮。"},
+        {"id":"harvest","title":"梨果采收","date":"2025-05-03","question":"梨果什么时候采收？","answer":"梨果在清晨露水干后采收，装入浅筐时只放两层。不要把落地果混进当天发货的筐里。"},
+        {"id":"cooling","title":"冷库接收","date":"2025-05-04","question":"采收后的梨果如何入冷库？","answer":"采收后的梨果先在阴凉棚散热两小时，再送入四摄氏度冷库。入库时给每筐贴上采收地块和日期，不要堵住风道。"},
+        {"id":"pollination","title":"花期作业安排","date":"2025-05-05","question":"花期喷药有哪些限制？","answer":"花期白天停止喷药，把必要作业安排在蜜蜂归巢后的傍晚。这样可减少授粉昆虫直接接触药液。"},
+        {"id":"intake","title":"Desk routing","date":"2025-05-06","question":"Which intake code should the desk use?","answer":"Use intake code ORCH-62 for field samples awaiting the orchard soil test. Fruit quality samples go into the harvest register instead."},
+        {"id":"crates","title":"浅筐清洁","date":"2025-05-07","question":"梨果浅筐怎样清洗？","answer":"梨果浅筐每天收工后用清水冲洗并倒置晾干。筐底破损的直接移出采收区，不允许贴胶带后继续装果。"}
+      ],
+      "queries": [
+        {"id":"orchard-lookup","query":"梨果进冷库前要散热多久？","category":"lookup","required":["cooling"]},
+        {"id":"orchard-multi","query":"梨果的采收时间、装筐层数以及入冷库前的处理要求是什么？","category":"multi_section","required":["harvest","cooling"]},
+        {"id":"orchard-paraphrase","query":"怎样避免害到帮助果树传粉的小动物？","category":"low_overlap_paraphrase","required":["pollination"]},
+        {"id":"orchard-current","query":"北坡现在的灌溉间隔是多少？","category":"current_decision","required":["water-after"],"stale":["water-before"]},
+        {"id":"orchard-scope","query":"Which intake code should the desk use?","category":"scoped_lookup","required":["intake"]},
+        {"id":"orchard-absent","query":"今年苹果的采购保底价格是多少？","category":"unanswerable","answerable":false}
+      ]
+    },
+    {
+      "project": "theatre",
+      "sessions": [
+        {"id":"call-before","title":"Evening company call","task":"company-call","date":"2025-07-01","question":"When is the evening company call?","answer":"The evening company call is provisionally 18:00. Wardrobe will use the first ten minutes for microphone belt checks."},
+        {"id":"call-after","title":"Evening company call","task":"company-call","date":"2025-07-09","question":"Confirm the revised evening company call.","answer":"The evening company call moves to 17:40 to allow the lift rehearsal. This replaces the provisional 18:00 time, while microphone belt checks still happen first."},
+        {"id":"blackout","title":"Scene change cue","date":"2025-07-03","question":"What triggers the blackout for the scene change?","answer":"The blackout follows the third bell from the stage manager. The lighting operator must wait for that bell even if the actors have already left the platform."},
+        {"id":"lift","title":"Platform interlock","date":"2025-07-04","question":"When may the platform lift move?","answer":"The platform lift may move only after both side gates report closed. A missing gate indicator requires a manual stop; a verbal assurance does not override the interlock."},
+        {"id":"quiet","title":"Audience accommodation","date":"2025-07-05","question":"Some patrons find sudden loud effects overwhelming.","answer":"The Saturday matinee uses reduced sound peaks and keeps a quiet room open beside the foyer. Patrons may leave and return through the side door during that performance."},
+        {"id":"intake","title":"Desk routing","date":"2025-07-06","question":"Which intake code should the desk use?","answer":"Use intake code STAGE-28 for props awaiting a safety inspection. Costume alterations are recorded by wardrobe rather than the props desk."},
+        {"id":"bells","title":"Bell inventory","date":"2025-07-07","question":"Where are the scene-change bells stored?","answer":"The scene-change bells are kept in the locked prompt cabinet after rehearsal. The spare bell is labelled green and must be returned before the next company arrives."}
+      ],
+      "queries": [
+        {"id":"theatre-lookup","query":"What bell triggers the scene-change blackout?","category":"lookup","required":["blackout"]},
+        {"id":"theatre-multi","query":"What triggers the scene-change blackout and what must be true before the platform lift moves?","category":"multi_section","required":["blackout","lift"]},
+        {"id":"theatre-paraphrase","query":"Which performance is suitable for someone sensitive to explosive noises who may need a break away from the crowd?","category":"low_overlap_paraphrase","required":["quiet"]},
+        {"id":"theatre-current","query":"When is the current evening company call?","category":"current_decision","required":["call-after"],"stale":["call-before"]},
+        {"id":"theatre-scope","query":"Which intake code should the desk use?","category":"scoped_lookup","required":["intake"]},
+        {"id":"theatre-absent","query":"How much is the understudy paid per performance?","category":"unanswerable","answerable":false}
+      ]
+    },
+    {
+      "project": "printshop",
+      "sessions": [
+        {"id":"trim-before","title":"画册裁切","task":"album-trim","date":"2025-08-01","question":"画册出血尺寸暂定多少？","answer":"画册出血暂定两毫米，排版人员先按这个尺寸检查图片是否覆盖到页边。印前确认后再锁定最终文件。"},
+        {"id":"trim-after","title":"画册裁切","task":"album-trim","date":"2025-08-09","question":"画册出血尺寸最终确认了吗？","answer":"画册出血最终改为三毫米，旧的两毫米设置不再使用。所有跨页图片重新检查，裁切线外不要放页码和署名。"},
+        {"id":"proof","title":"色样签字","date":"2025-08-03","question":"彩色封面开印前需要什么确认？","answer":"彩色封面开印前必须拿到客户签字的纸质色样。屏幕截图只能用于讨论构图，不能替代色样签字。"},
+        {"id":"binding","title":"胶装等待","date":"2025-08-04","question":"胶装后的成品多久能装箱？","answer":"胶装完成后平放十二小时再装箱，让书脊胶层充分稳定。等待期间不要把样书完全压平翻阅。"},
+        {"id":"grain","title":"折页方向","date":"2025-08-05","question":"内页纸纹应该朝哪个方向？","answer":"内页纸纹应平行于书脊，否则翻阅时页面不易摊开，折线也更容易开裂。裁纸之前先在边角料上做折叠检查。"},
+        {"id":"intake","title":"Desk routing","date":"2025-08-06","question":"Which intake code should the desk use?","answer":"Use intake code PRINT-43 for files awaiting prepress checks. Replacement toner requests belong in the supplies ledger and must not block the print queue."},
+        {"id":"boxes","title":"装箱清单","date":"2025-08-07","question":"画册装箱清单写什么？","answer":"画册装箱清单记录箱号、册数和印次。每箱放一张清单副本，整批出货再附一张总表。"}
+      ],
+      "queries": [
+        {"id":"print-lookup","query":"彩色封面开印前要拿到什么色样确认？","category":"lookup","required":["proof"]},
+        {"id":"print-multi","query":"从封面开印到胶装成品装箱，需要哪些签字材料和等待时间？","category":"multi_section","required":["proof","binding"]},
+        {"id":"print-paraphrase","query":"为了让读者翻书顺畅、接缝不破，材料的纤维走向怎么安排？","category":"low_overlap_paraphrase","required":["grain"]},
+        {"id":"print-current","query":"画册现在最终使用多少毫米出血？","category":"current_decision","required":["trim-after"],"stale":["trim-before"]},
+        {"id":"print-scope","query":"Which intake code should the desk use?","category":"scoped_lookup","required":["intake"]},
+        {"id":"print-absent","query":"运输车牌号和司机手机号是什么？","category":"unanswerable","answerable":false}
+      ]
+    },
+    {
+      "project": "observatory",
+      "sessions": [
+        {"id":"exposure-before","title":"Comet exposure plan","task":"comet-exposure","date":"2025-09-01","question":"Set the comet exposure duration.","answer":"The provisional comet exposure duration is 45 seconds. Use the guide camera for the entire sequence and retain the first frame for inspection."},
+        {"id":"exposure-after","title":"Comet exposure plan","task":"comet-exposure","date":"2025-09-09","question":"What is the revised comet exposure duration?","answer":"The comet exposure duration is now 20 seconds to reduce trailing. This supersedes the 45-second plan; keep the guide camera running throughout the sequence."},
+        {"id":"flats","title":"Flat-field calibration","date":"2025-09-03","question":"When should the flat-field frames be captured?","answer":"Capture flat-field frames at dusk with the same filter and camera rotation as the science frames. Rotating the camera afterward requires a new set of flats."},
+        {"id":"focus","title":"Focus check schedule","date":"2025-09-04","question":"How often should focus be checked?","answer":"Recheck focus whenever the air temperature changes by two degrees Celsius. Log the focuser position with the temperature so a shift can be distinguished from poor seeing."},
+        {"id":"dark","title":"Night vision at the telescope","date":"2025-09-05","question":"How should observers illuminate their notes?","answer":"Use a dim red torch for paper notes and cover white status lights. This preserves dark adaptation for observers looking through the eyepiece."},
+        {"id":"intake","title":"Desk routing","date":"2025-09-06","question":"Which intake code should the desk use?","answer":"Use intake code SKY-91 for detector frames awaiting calibration. Visitor photographs stay in the outreach archive and are not mixed with science frames."},
+        {"id":"filters","title":"Filter storage","date":"2025-09-07","question":"How do filters return to storage?","answer":"Return each filter to its numbered sleeve after the observing run. Record any surface marks before closing the cabinet; cleaning requires the optical technician's approval."}
+      ],
+      "queries": [
+        {"id":"sky-lookup","query":"When are flat-field frames captured, and must filter and rotation stay the same?","category":"lookup","required":["flats"]},
+        {"id":"sky-multi","query":"Give the requirements for flat-field calibration together with the temperature condition that requires a focus check.","category":"multi_section","required":["flats","focus"]},
+        {"id":"sky-paraphrase","query":"How can participants read handwriting without losing their ability to see faint objects?","category":"low_overlap_paraphrase","required":["dark"]},
+        {"id":"sky-current","query":"What is the current comet exposure duration?","category":"current_decision","required":["exposure-after"],"stale":["exposure-before"]},
+        {"id":"sky-scope","query":"Which intake code should the desk use?","category":"scoped_lookup","required":["intake"]},
+        {"id":"sky-absent","query":"Who discovered the comet and on what date?","category":"unanswerable","answerable":false}
+      ]
+    },
+    {
+      "project": "foodbank",
+      "sessions": [
+        {"id":"window-before","title":"周末领取时段","task":"weekend-pickup","date":"2025-10-01","question":"周末领取最晚几点结束？","answer":"周末领取暂定下午四点结束。结束前先清点未领取的预约袋，避免把已预约的物资当作剩余库存。"},
+        {"id":"window-after","title":"周末领取时段","task":"weekend-pickup","date":"2025-10-09","question":"周末领取结束时间变了吗？","answer":"周末领取现在延长到下午五点，替代原来的四点结束安排。预约袋仍需保留到该时段结束再清点。"},
+        {"id":"sorting","title":"捐赠面包分拣","date":"2025-10-03","question":"捐赠面包如何分拣？","answer":"捐赠面包按含坚果与不含坚果分开放置，并保留原包装上的配料表。包装破损而无法确认配料的批次暂停分发。"},
+        {"id":"delivery","title":"独居老人配送","date":"2025-10-04","question":"给独居老人配送时有哪些交接要求？","answer":"配送员到达后先敲门确认收件人在家，再把物资交到本人手中。无人应门时带回站点并登记，不把袋子留在门口。"},
+        {"id":"privacy","title":"领取登记方式","date":"2025-10-05","question":"怎样填写领取登记？","answer":"领取登记只填写预约编号和袋数，公开排队名单不展示姓名。需要联系时由值班负责人查看单独保存的联系方式。"},
+        {"id":"intake","title":"Desk routing","date":"2025-10-06","question":"Which intake code should the desk use?","answer":"Use intake code FOOD-35 for donations awaiting sorting. Volunteer travel reimbursements are handled in the accounts folder rather than the donation queue."},
+        {"id":"shelves","title":"面包货架整理","date":"2025-10-07","question":"面包货架多久整理一次？","answer":"面包货架每个发放时段结束后整理一次。把空周转箱收回库房，保留尚未发放批次的标签直到当日盘点完成。"}
+      ],
+      "queries": [
+        {"id":"food-lookup","query":"捐赠面包分拣时如何处理坚果和配料表？","category":"lookup","required":["sorting"]},
+        {"id":"food-multi","query":"准备给独居老人配送面包，分拣和上门交接各要遵守什么要求？","category":"multi_section","required":["sorting","delivery"]},
+        {"id":"food-paraphrase","query":"如何让接受援助的人不在众人面前暴露身份？","category":"low_overlap_paraphrase","required":["privacy"]},
+        {"id":"food-current","query":"周末领取现在最晚几点结束？","category":"current_decision","required":["window-after"],"stale":["window-before"]},
+        {"id":"food-scope","query":"Which intake code should the desk use?","category":"scoped_lookup","required":["intake"]},
+        {"id":"food-absent","query":"下个月的市政补助金额有多少？","category":"unanswerable","answerable":false}
+      ]
+    }
+  ]
+}
