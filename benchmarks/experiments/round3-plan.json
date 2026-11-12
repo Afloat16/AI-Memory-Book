@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "protocol": "v031-bounded-query-planning-and-project-statistics-v1",
+  "registered_at_utc": "2026-11-12",
+  "status": "registered-before-candidate-quality-scoring-and-formal-timing",
+  "baseline": {
+    "release": "v0.3.0",
+    "commit": "dd2f88be742ed330269e7dd5915b6f75089d7fef",
+    "runtime_sha256": "d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57"
+  },
+  "prior_diagnostics": "Old-data cProfile and raw SQL diagnostics preceded this registration. They identified SQLite execution as a substantial cost and suggested a project rowid envelope with an explicit FTS outer loop. They are development diagnostics, not formal timing. An artificial two-project example showed that global BM25 statistics can change within-project ranking; no project-statistics candidate has been scored on real questions.",
+  "preserve": [
+    "v0.3.0 tag, all historical reports, raw data and the 58 frozen round2 evaluator/helper files",
+    "existing lexical normalization, indexed text, BM25 weights, body-match requirement, per-route limit 96, deterministic ties, novelty and temporal handling",
+    "current Q2 model, vector/index identities and fusion rules",
+    "strict source spans, project/chapter/session boundaries, token and character caps, default cache and MCP schema contracts"
+  ],
+  "closed_experiments": "no_novelty and capped_novelty_025 remain rejected and closed. No retuning, rerun or reopening under this protocol.",
+  "performance_candidate": {
+    "hypothesis": "For project-scoped queries, the existing pages_project index can cheaply supply a safe MIN(rid)/MAX(rid) envelope. FTS rowid bounds with an explicit FTS outer loop can skip unrelated postings while retaining the full project/chapter/session predicate before LIMIT, identical global BM25 statistics and deterministic ordering.",
+    "guard": "The sole runtime candidate applies the envelope plus explicit FTS outer loop only when the project's inclusive rid span is at most half the full table's inclusive span. Otherwise keep the original statement. Read bounds through indexed MIN/MAX in the existing transaction; do not cache them. This structural guard was fixed after artificial tiny/interleaved diagnostics, before implementation or formal timing; it is not tuned on benchmark outcomes.",
+    "negative_diagnostics": "Unconditional range bounds slow projects interleaved across almost the entire table (about 18% SQL p50 in a 20,000-page artificial fixture), and range predicates without the explicit FTS outer loop can select a poor query plan. Those variants are rejected, not additional candidates.",
+    "allowed": ["one guarded main FTS query-plan change in store.py", "snapshot-local indexed bounds queries"],
+    "forbidden": ["ranking changes", "new default retrieval parameters", "persistent index or schema changes", "changed returned payload or cache identity", "result-cache reuse in timing"],
+    "development_equivalence": {"cohort": "synthetic61", "pairs": 2016, "repeats": 1, "helper": "scripts/verify_native_optimization.py", "interpretation": "Complete payload equality; fixed execution order is not formal timing."},
+    "formal": {
+      "cohorts": ["synthetic61", "public1015"],
+      "configs": [
+        {"id": "native-char4000", "surface": "native", "budget_chars": 4000, "budget_tokens": null},
+        {"id": "mcp-char4000", "surface": "official-sdk-mcp-stdio", "budget_chars": 4000, "budget_tokens": null},
+        {"id": "native-token512", "surface": "native", "budget_chars": 8000, "budget_tokens": 512, "tokenizer": "cl100k_base"},
+        {"id": "native-token1024", "surface": "native", "budget_chars": 8000, "budget_tokens": 1024, "tokenizer": "cl100k_base"},
+        {"id": "native-token2048", "surface": "native", "budget_chars": 8000, "budget_tokens": 2048, "tokenizer": "cl100k_base"}
+      ],
+      "rounds": 4,
+      "engine_order": [["baseline", "candidate"], ["candidate", "baseline"], ["candidate", "baseline"], ["baseline", "candidate"]],
+      "query_order": "random.Random(31061 + 1009 * round + config_index), equal for paired engines",
+      "calls": 47320,
+      "execution": "Sequential isolated workers on the same machine with no concurrent benchmark. Warm OS/SQLite caches; no OS-cold-cache claim. Native has cache_size=0 and use_cache=False. Real SDK MCP clears persistent recall_cache before each call, including its normal cache-write cost; clearing is outside timing.",
+      "record": ["every per-query sample and complete payload hash", "MCP text and actual envelope hash", "p50/p95/mean for every cell and every round, pooled and first/repeat rounds", "initialization, fresh ingestion, unchanged reingestion", "RSS/high-water RSS, logical and live DB/WAL/SHM size", "indexed-content digest and source/cache/scope/budget invariants", "both tokenizer counts computed outside timing"],
+      "gate": "No non-timing payload mismatch or invariant failure. Across all ten cohort/config cells, geometric-mean pooled p95 improves by at least 5%, at least one public native cell improves p95 by at least 10%, and no pooled cell p50 or p95 regresses by more than 5%. Retain every round, all negative cells and all resource measurements. A startup/ingestion/reingestion or RSS increase over 10% requires an explicit cause and review before accepting; never silently omit it.",
+      "failure_rule": "If the sole bounded candidate fails correctness, fix a demonstrated implementation bug and retain the failed attempt. If a valid candidate misses the performance gate, report it and do not advertise or ship it as a measured speedup. No selecting the fastest run."
+    }
+  },
+  "quality_candidate": {
+    "candidates": 1,
+    "name": "project_local_fts_statistics",
+    "behavior": "Explicit opt-in requiring project. Build one connection-local TEMP exact/stem FTS pair from the existing project's four indexed-text columns and original rowids. Native BM25 weights/query expressions/candidate limits and all later ranking/packing stages stay unchanged. The full project defines statistics even for chapter/session subsets; coverage facets use the same pair. The default global path stays unchanged.",
+    "cache": "Use a distinct result-cache policy identity. Store the active project/revision marker in TEMP SQL within the same transaction as the derived indexes, so rollback cannot leave a stale Python-only marker. Rebuild after the main revision changes; this is safe invalidation, not incremental derived-index maintenance.",
+    "correctness_before_scoring": ["independent single-project native FTS score equivalence", "other-project mutations do not change opted-in project scores/order", "current-project writes/deletes/relinks and external-connection writes invalidate correctly", "rollback and project switches", "exact/stem/Unicode/CJK, directory-only match exclusion, empty project and partial scopes", "default complete payload/cache behavior unchanged"],
+    "development": {
+      "cohorts": ["synthetic61", "authored36", "public1015", "hotpot128"],
+      "modes": ["global_default", "project_local_fts_statistics"],
+      "token_budgets": [512, 1024, 2048],
+      "tokenizers": ["cl100k_base"],
+      "budget_chars": 8000,
+      "limit": 5,
+      "repeats": 1,
+      "calls": 8082,
+      "cache_size": 0,
+      "use_cache": false,
+      "semantic": false,
+      "coverage": false,
+      "order": "Sequential fresh cohort/mode workers; alternate mode order by cohort index, random.Random(31061) question order at each budget.",
+      "gate": "Complete-evidence rate and annotation recall do not decline in any of the 12 cohort/budget cells. Unsupported nonempty responses do not increase. At 512 tokens, no decline in either metric in a primary diagnostic group with at least 10 questions. At least one aggregate evidence or complete-evidence value improves. Every per-question gain/loss and smaller group is retained; individual zero-loss is not assumed.",
+      "primary_groups": ["low_lexical_overlap_le_0.25", "multiple_required_evidence", "cross_session", "cross_chapter"],
+      "stop": "If the one candidate fails, retain the experiment and do not ship or tune it in this round. A passing candidate remains opt-in and must pass the independently selected cohort before acceptance."
+    },
+    "costs": "Record cold derived-index construction, warm calls, every rebuild and switch, CLI connection startup, RSS and temporary storage. Quality development times are not formal speed claims. No claim of zero-overlap semantic recall or generated-answer improvement."
+  },
+  "cohorts": [
+    {"name": "synthetic61", "queries": 168, "sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26", "role": "old development/regression"},
+    {"name": "authored36", "queries": 36, "sha256": "ecc46c474d5184995938419fa985b8e08c0ddb51560da49990247465db6db0b0", "role": "old authored development"},
+    {"name": "public1015", "queries": 1015, "sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857", "role": "old public regression"},
+    {"name": "hotpot128", "queries": 128, "sha256": "0791515aca6bccf19a97895cad681e06a07536d6c08050d54189cc64cb819822", "role": "old public regression"}
+  ],
+  "independent_validation": {
+    "freeze_before_selection": ["candidate and baseline exact commits/runtime hashes", "new evaluator and reused helper hashes", "verified model files", "component locks and source blobs"],
+    "cohort": {"name": "round3-hotpot256", "count": 256, "selection_prefix": "AI-Memory-Book/v031/round3/2026-11-12/", "selection": "SHA256(prefix + ID) order with ID tiebreak; exclude the union of original Hotpot128 and round2 Hotpot256 IDs. Read the upstream Parquet ID column first, then convert only selected rows. No question/answer/difficulty/outcome selection."},
+    "native": {"modes": ["v030_lexical", "candidate_lexical", "candidate_Q2"], "conditional_mode": "project_local_fts_statistics only if its old-data gate passed", "token_budgets": [512, 1024, 2048], "tokenizers": ["cl100k_base", "o200k_base"], "budget_chars": 8000, "limit": 5, "repeats": 1, "base_calls": 4608, "gate": "All strict source/scope/budget invariants pass. The default performance candidate must retain complete lexical payload equality. If the optional statistics candidate is present, its complete and annotation rates cannot decline in any of six new budget/tokenizer cells or in primary 512-token groups of at least 10 questions, unsupported nonempty cannot increase, and every individual gain/loss is retained."},
+    "components": {"modes": ["v030_lexical", "candidate_lexical", "candidate_Q2", "claude_mem_supplied_source_fts", "ai_memory_released_binary", "billion_locked_search_kernel"], "conditional_mode": "project_local_fts_statistics only if its old-data gate passed", "repeats": 3, "top_k": 5, "base_search_calls": 4608, "projection": "Each native search runs once per question/repetition. Apply the six common whole-block budget/tokenizer projections offline to the first response, do not repeat search just for packing.", "fairness": "Identical canonical pages/scopes and documents digest. ai-memory metadata hits consume top-5 slots with zero evidence credit and no replacement; mapped page reads are counted. Record search, reads, per-question search+all-reads, native content, native payload, common packed context, initialization/indexing/RSS/storage separately. Component boundaries differ; no whole-product speed ratio."},
+    "semantic_compatibility": "Before freezing, use only old authored36 and Hotpot128 as a Q2 compatibility sentinel; preserve model/vector/index/fusion identities. Keep all native Q2 budget losses in the final report.",
+    "interpretation": "This is a new selection from the same HotpotQA source, not a new domain. After its first scoring it becomes regression data. These are evidence retrieval measurements, not generated-answer accuracy or complete write/summarize/generate product costs."
+  },
+  "durability": "Commit this plan first, source and binding before formal scoring, and completed workers incrementally under new round3 paths. Preserve incomplete/failure markers and all negative data. Reuse verified Git blobs for large raw reports. Do not modify or overwrite previous manifests/results.",
+  "release": "Only accepted improvements enter the next release. README shows the latest recommended configuration and verified comparisons with necessary limitations; detailed historic reports stay linked. Keep deployment simple and the workflow diagram compact. All earlier tags remain unchanged."
+}
