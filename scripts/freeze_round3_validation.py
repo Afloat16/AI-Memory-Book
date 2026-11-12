@@ -85,6 +85,22 @@ def main():
             "Never replace a prior binding or selection")
     comparison.registered_plan()
     comparison.evaluator_files()
+    decision = plan["quality_decision"]
+    require(re.fullmatch("[0-9a-f]{40}", decision["commit"])
+        and decision["path"].startswith("benchmarks/reports/")
+        and ".." not in Path(decision["path"]).parts, "Unsafe quality evidence reference")
+    if git("cat-file", "-e", decision["commit"] + "^{commit}", check=False).returncode:
+        git("fetch", "--no-tags", "origin", decision["commit"])
+    decision_ref = decision["commit"] + ":" + decision["path"]
+    require(git("rev-parse", decision_ref) == decision["git_blob_sha"],
+            "Quality decision differs from its restored evidence")
+    decision_raw = subprocess.check_output(["git", "show", decision_ref], cwd=ROOT, timeout=30)
+    quality = json.loads(decision_raw)
+    require(quality["validation_passed"] is True and quality["calls"] == 8082
+        and quality["workers"] == 8 and quality["qualified"] is False
+        and quality["new_measurement_calls"] == 0
+        and quality["original_evaluator_audit"] == "passed",
+        "The excluded optional candidate lacks its full audited rejection")
     installed = {name: importlib.metadata.version(name) for name in comparison.PACKAGES}
     require(installed == comparison.PACKAGES, "Preparation dependencies differ from registered pins")
     public = ROOT / "benchmarks/reports" / ("round3-freeze-" + run_id + "-1")
@@ -152,6 +168,7 @@ def main():
             "model": comparison.model_identity(), "packages": installed,
             "upstream_locks_sha256": {name: comparison.file_sha(ROOT / path) for name, path in locks.items()},
             "preparation": record["stages"], "verified_at": comparison.reused.now(),
+            "quality_decision": {**decision, "sha256": comparison.sha(decision_raw)},
             "question_content_read": False, "measurement_calls": 0})
         parent = commit_and_publish([preflight], branch, parent,
             "bench: verify round-three assets before binding or selection")
