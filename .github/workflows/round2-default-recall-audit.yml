@@ -1,0 +1,52 @@
+name: Audit saved default recall performance
+
+on:
+  push:
+    branches: ['ci/round2-default-recall-audit']
+    paths:
+      - '.github/workflows/round2-default-recall-audit.yml'
+      - 'scripts/audit_default_recall_report.py'
+      - 'scripts/benchmark_default_recall.py'
+      - 'tests/test_default_recall_measurement.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - name: Verify the serialization fix and unchanged measurement inputs
+        run: |
+          python -m unittest tests.test_default_recall_measurement -v
+          git diff --exit-code 558bac15d09dbd7ec659d97c0b686a74097f91f1 HEAD -- src benchmarks/reports benchmarks/experiments/round2-default-recall-performance-plan.json
+      - name: Recompute all saved gates and summaries without retrieval
+        id: audit
+        run: |
+          python scripts/audit_default_recall_report.py \
+            --prefix benchmarks/reports/round2-default-recall-43194664986-1 \
+            --candidate-commit 841cedb0cc52ff2b199e7c24832b64973a2e306d \
+            --output "benchmarks/reports/round2-default-recall-audit-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
+      - name: Preserve the independent audit result
+        run: |
+          python - <<'PY'
+          import json,os,subprocess
+          run=os.environ['GITHUB_RUN_ID']+'-'+os.environ['GITHUB_RUN_ATTEMPT']
+          path='benchmarks/reports/round2-default-recall-audit-'+run+'.json'
+          def call(*args):subprocess.run(args,check=True)
+          call('git','config','user.name','github-actions[bot]')
+          call('git','config','user.email','41898282+github-actions[bot]@users.noreply.github.com')
+          call('git','add','--',path)
+          call('git','commit','-m','bench: verify unchanged default recall measurement after JSON roundtrip')
+          branch='validation/round2-default-audit-'+run
+          call('git','push','origin','HEAD:refs/heads/'+branch)
+          print(json.dumps({'result_branch':branch,'retrieval_calls_executed':0}))
+          PY

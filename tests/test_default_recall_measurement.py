@@ -1,10 +1,11 @@
 """Failure gates for complete-payload, all-round performance evidence."""
 import copy
+import json
 import random
 import unittest
 
-from scripts.benchmark_default_recall import (BASELINE, BUDGETS, SURFACES,
-    latency_summary, strict_validation)
+from scripts.benchmark_default_recall import (BASELINE, BUDGETS, ENCODINGS, SURFACES,
+    comparisons, latency_summary, strict_validation)
 
 
 def fixture():
@@ -37,6 +38,9 @@ def fixture():
                     random.Random(61 + 1009 * repetition + budget).shuffle(ids)
                     rows = [{"query_id": qid, "wall_ms": 1 + repetition / 10,
                              "cache_verified_empty": True, "context_chars": 10,
+                             "response_utf8_bytes": 50,
+                             "tokens": {name: {key: 10 for key in
+                                 ("context", "response_text", "response_envelope_json")} for name in ENCODINGS},
                              "payload_sha256": surface + str(budget) + qid,
                              "context_sha256": "same-context"} for qid in ids]
                     worker["configurations"].append({"surface": surface, "budget_chars": budget,
@@ -46,6 +50,19 @@ def fixture():
 
 
 class CompleteMeasurementGateTests(unittest.TestCase):
+    def test_sorted_key_json_roundtrip_keeps_registered_comparison_order(self):
+        report = fixture()
+        source_workers = report["workers"]
+        source_cohort = report["cohorts"]["fixture"]
+        report["plan"]["cohorts"] = [{"name": "z"}, {"name": "a"}]
+        report["cohorts"] = {name: copy.deepcopy(source_cohort) for name in ("z", "a")}
+        report["workers"] = [{**copy.deepcopy(worker), "cohort": name}
+                             for name in ("z", "a") for worker in source_workers]
+        saved = json.loads(json.dumps(report, sort_keys=True))
+        self.assertNotEqual(list(report["cohorts"]), list(saved["cohorts"]))
+        self.assertEqual(comparisons(report), comparisons(saved))
+        self.assertEqual(strict_validation(report), strict_validation(saved))
+
     def test_complete_balanced_matrix_and_repeated_payloads_pass(self):
         gate = strict_validation(fixture())
         self.assertTrue(gate["passed"], gate)
