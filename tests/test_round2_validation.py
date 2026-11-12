@@ -170,6 +170,60 @@ class RoundTwoValidationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "scope differs"):
             component_hits(response, documents, "p", "ai-memory-hybrid")
 
+    def test_four_adapter_row_shapes_and_empty_responses_are_distinct(self):
+        documents = {"page": {"project": "p"}}
+        cases = {
+            "claude-mem-fts": {"hit_ids": ["page"], "native_payload": [{"id": 7, "project": "p"}]},
+            "baseline-component": {"hit_ids": ["page"], "results": [{"id": "page"}], "native_payload": {"context": "fixture"}},
+            "ai-memory-hybrid": {"hit_ids": ["page"], "results": [{"id": 7, "project": "p"}], "native_payload": {"content": []}},
+            "billion-context": {"results": [{"ref": "page"}]},
+        }
+        for stage, response in cases.items():
+            self.assertEqual(component_hits(response, documents, "p", stage)[:2], (["page"], ["page"]))
+            empty = copy.deepcopy(response)
+            empty["native_payload" if stage == "claude-mem-fts" else "results"] = []
+            if "hit_ids" in empty:
+                empty["hit_ids"] = []
+            self.assertEqual(component_hits(empty, documents, "p", stage), ([], [], []))
+        with self.assertRaisesRegex(ValueError, "another project's page"):
+            component_hits(cases["claude-mem-fts"], documents, "missing-scope", "claude-mem-fts")
+
+    def test_claude_payload_only_empty_results_complete_all_packing_and_cost_paths(self):
+        from scripts.smoke_round2_components import fixture
+        class Counter:
+            def __init__(self, name):
+                self.name = name
+            def count(self, text):
+                return len(text)
+        class Engine:
+            metadata = {"source_unchanged": True}
+            def search(self, *_):
+                return {"hit_ids": [], "native_payload": [], "search_ms": 1.0, "bridge_ms": 1.5}
+            def close(self):
+                pass
+        data, bundle = fixture()
+        plan = json.loads(PLAN.read_bytes())
+        with tempfile.TemporaryDirectory() as directory:
+            ledger = Ledger(Path(directory) / "attempts")
+            report = {"stage": "claude-mem-fts", "timing_rows": [], "configurations": []}
+            try:
+                with patch("benchmarks.round2_eval.TokenCounter", Counter), patch(
+                        "benchmarks.round2_eval.component_engine", return_value=(Engine(), None)):
+                    component(SimpleNamespace(stage="claude-mem-fts"), plan, {}, data, bundle,
+                              report, ledger, SimpleNamespace(set_phase=lambda _: None))
+            finally:
+                ledger.close()
+            report.update(attempt_states=[json.loads(line) for line in (Path(directory) / "attempts").read_text().splitlines()],
+                ledger_sha256=sha(Path(directory) / "attempts"), attempts_started=ledger.started, attempts_finished=ledger.finished)
+            verify_samples(report, plan, [case.id for case in data.queries])
+            verify_configurations(report, plan, [case.id for case in data.queries])
+            self.assertEqual(ledger.finished, 6)
+            self.assertTrue(report["validation"]["passed"])
+            self.assertIsNone(report["native_costs"]["mean_search_content_tokens"])
+            self.assertEqual(report["native_costs"]["mean_search_payload_tokens"]["cl100k_base"], 2)
+            self.assertTrue(all(row["context_tokens"]["cl100k_base"] == 0
+                for config in report["configurations"] for row in config["query_results"]))
+
     def test_stage_publication_preserves_private_files_and_refuses_another_writer(self):
         with tempfile.TemporaryDirectory() as directory:
             root, remote = Path(directory) / "repo", Path(directory) / "remote.git"
@@ -202,6 +256,38 @@ class RoundTwoValidationTests(unittest.TestCase):
                 self.assertEqual(git("rev-parse", "HEAD"), parent)
                 with self.assertRaisesRegex(ValueError, "Another writer changed"):
                     controller.publish(checkpoint, result_dir, parent)
+
+    def test_recovery_requires_unchanged_candidate_and_original_checkpoint_bytes(self):
+        from benchmarks import round2_eval as evaluator
+        if not evaluator.RECOVERY.exists():
+            self.skipTest("No explicit recovery registration in this checkout")
+        plan = json.loads(PLAN.read_bytes())
+        original_raw = evaluator.INITIAL_BINDING.read_bytes()
+        original = json.loads(original_raw)
+        checkpoint_path = ROOT / "benchmarks/reports/round2-43201620535-1-checkpoint.json"
+        checkpoint_raw = checkpoint_path.read_bytes()
+        # Unit CI may use a shallow checkout. Supply immutable Git fixture bytes
+        # here; the real binder and scoring gate read actual historical commits.
+        def git_object(command, **_):
+            if command[2].startswith(evaluator.INITIAL_BINDING_COMMIT + ":"):
+                return original_raw
+            if command[2].startswith(evaluator.INITIAL_RESULTS_COMMIT + ":"):
+                return checkpoint_raw
+            raise AssertionError("Unexpected Git object request")
+        binding = {**original, "status": evaluator.RECOVERY_STATUS,
+            "initial_binding_sha256": evaluator.INITIAL_BINDING_SHA256,
+            "candidate_first_frozen_at": original["frozen_at"],
+            "recovery_registration_sha256": sha(evaluator.RECOVERY)}
+        with patch("subprocess.check_output", side_effect=git_object):
+            evaluator.recovery_inputs(plan, binding)
+            changed = {**binding, "optional_semantic": False}
+            with self.assertRaisesRegex(ValueError, "does not preserve"):
+                evaluator.recovery_inputs(plan, changed)
+        def changed_object(command, **kwargs):
+            return b"changed checkpoint" if command[2].startswith(evaluator.INITIAL_RESULTS_COMMIT + ":") else git_object(command, **kwargs)
+        with patch("subprocess.check_output", side_effect=changed_object):
+            with self.assertRaisesRegex(ValueError, "checkpoint differs from its immutable"):
+                evaluator.recovery_inputs(plan, binding)
 
     @unittest.skipUnless(importlib.util.find_spec("tiktoken"), "optional reference tokenizer not installed")
     def test_invented_archive_native_and_component_survive_strict_assessment(self):

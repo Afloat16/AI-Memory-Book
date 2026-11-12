@@ -37,7 +37,7 @@ def fixture():
         documents.append({"id": "fixture-page-" + suffix, "project": project, "title": "Ferry timetable",
             "text": body, "created_at": "2000-01-01T00:00:00Z", "breadcrumb": [{"id": project, "title": project}],
             "source_refs": [{"project": project, "session_id": session, "turn_index": 0,
-                             "turn_start": 0, "turn_end": len(body)}]})
+                             "turn_start": len("USER: "), "turn_end": len("USER: ") + len(body)}]})
         groups[identity] = {"diagnostic_groups": ["all", "category:fixture"],
                            "query_term_coverage_by_required_text": None, "required_chapters": 1}
     return data, {"documents": documents, "documents_sha256": digest(documents), "diagnostics": groups,

@@ -209,7 +209,7 @@ def markdown(assessment, reports):
             lines.append(f"| {stage} | {config['budget_chars']} | {config['tokenizer']} | {config['budget_tokens']} | {m['evidence_recall']:.2%} | {m['complete_evidence_rate']:.2%} | {m['mean_context_tokens'][config['tokenizer']]:.1f} | {t['p50_ms']:.3f} | {t['p95_ms']:.3f} |")
     lines += ["", "## Shared-page component quality", "",
         "Identical supplied pages, project scope, top-five limit, citation format and whole-block packer. Component quality is measured on the first pass; all three repetitions' native hits, timings and any repeat differences remain in the raw reports.", "",
-        "| Component | Tokenizer | Tokens | Evidence recall | Complete evidence | MRR | Context tokens |",
+        "| Component | Tokenizer | Tokens | Evidence recall | Complete evidence | Packed-context MRR | Context tokens |",
         "|---|---|---:|---:|---:|---:|---:|"]
     components = {stage: report for stage, report in reports.items() if stage != "export" and not stage.endswith("native")}
     for stage, report in components.items():
@@ -250,7 +250,7 @@ def markdown(assessment, reports):
         lines.append(f"| {stage} | {report['preparation']['engine_setup_wall_ms']:.3f} | {rss['setup']/1048576:.2f} | {rss['queries']/1048576:.2f} | {state['regular_file_bytes']} | {sqlite} |")
     lines += ["", "Setup is outside query timing. Native Book reports separate source ingestion and optional index construction; component Book opens a common frozen archive. Upstream metadata separately records native write/index/startup phases when available. Billion's supplied-source component keeps its index in memory. Preparation download/cache sizes and elapsed time are retained in the run checkpoint. No model generation calls are configured.", "",
         "RSS is the worker plus its descendants sampled every 20 ms, including the evaluator and loaded corpus. Sampling yields an observed lower bound and summed RSS can double-count shared pages; this is not unique physical memory. Native-state bytes exclude the harness attempt ledger and symlinked model caches. Full phase metadata, vector bytes and database statistics remain in the raw/summary reports.", "",
-        "Native ai-memory metadata pages retain their original top-k slots and complete native payload cost. Their missing supplied-document mapping is recorded as null and earns zero evidence credit; the evaluator does not replace them with extra hits. Unknown non-null supplied IDs, duplicated identities and scope mismatches fail integrity checks.", "",
+        "Native ai-memory metadata pages retain their original top-k slots and complete native payload cost. Their missing supplied-document mapping is recorded as null and earns zero evidence credit; the evaluator does not replace them with extra hits. Unknown non-null supplied IDs, duplicated identities and scope mismatches fail integrity checks. MRR describes evidence order in the packed context, after omitted metadata or oversized blocks; original native top-five positions remain in the raw hit records.", "",
         "## Provenance and limitations", "",
         f"- Run: `{assessment['run_id']}`; source: `{assessment['source_commit']}`.",
         f"- Dataset SHA256: `{assessment['dataset_sha256']}`; selected-ID SHA256: `{assessment['selected_ids_sha256']}`.",

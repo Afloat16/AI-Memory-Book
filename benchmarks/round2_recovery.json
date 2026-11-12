@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "status": "fixed-candidate-protocol-recovery",
+  "registered_at": "2026-11-12T11:12:41.746348+00:00",
+  "original_run_id": 43201620535,
+  "original_attempt": 1,
+  "original_binding_commit": "364d8d4b7013c8c22ff06285d2bce969c7965717",
+  "original_binding_sha256": "47a4ee0512e3e21f7722621dc3b1c155a664742ec28b30b18ae38d573abd0988",
+  "original_results_commit": "150d37799098aa1fb1ddcebe5b42b18954adc035",
+  "plan_sha256": "9988b748b4b86d6008b1c326cc0c534771cd7ad8fb85bfae3b3c9d32c3708824",
+  "cohort_manifest_sha256": "39bc56948be886df178f3ed0ee85acc551430f2deba4968261aa2591dded49dc",
+  "candidate": {
+    "commit": "cbf626037b42f11f8bc5b6d46f56caac771e54ba",
+    "source_sha256": "d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57"
+  },
+  "optional_semantic": true,
+  "coverage": false,
+  "upstream_locks": {
+    "claude-mem": "benchmarks/competitors/claude-mem-round2-lock.json",
+    "billion-context": "benchmarks/competitors/billion-round2-lock.json",
+    "ai-memory": "benchmarks/competitors/ai-memory-lock.json"
+  },
+  "full_matrix_new_host": true,
+  "selection_previously_scored": true,
+  "runtime_retuned": false,
+  "pool_prior_timings": false,
+  "run_selection_by_score_or_latency": false,
+  "frozen_parameters": {
+    "native": {
+      "engines": [
+        "baseline-native",
+        "candidate-native"
+      ],
+      "optional_engine": "candidate-semantic-native",
+      "budget_chars": [
+        2000,
+        8000
+      ],
+      "tokenizers": [
+        "cl100k_base",
+        "o200k_base"
+      ],
+      "token_budgets": [
+        512,
+        1024,
+        2048
+      ],
+      "paired_query_configuration_cases": 3072
+    },
+    "components": {
+      "engines": [
+        "baseline-component",
+        "candidate-component",
+        "claude-mem-fts",
+        "ai-memory-hybrid",
+        "billion-context"
+      ],
+      "optional_engine": "candidate-semantic-component",
+      "tokenizers": [
+        "cl100k_base",
+        "o200k_base"
+      ],
+      "token_budgets": [
+        512,
+        1024,
+        2048
+      ],
+      "book_ranking_character_cap": 100000,
+      "packing": "The unchanged shared_response and whole-block first-fit packer from benchmarks.component_eval/token_compare; one fixed page corpus, citation format and top-five limit for all rankers.",
+      "native_read_policy": "For ai-memory, read every mapped top-five page on repetition 0 and verify exact original bytes. Report this declared search-plus-all-reads cost separately from search and common harness packing. Other components have no additional native read calls in this experiment.",
+      "boundary": "Executed native retrieval components only. Book includes its Python context assembly; claude-mem includes native SQLite FTS and Bun bridge; ai-memory uses its HTTP/MCP local hybrid; billion-context uses its search kernel and Node bridge. Same host does not make these whole-product latency boundaries equivalent."
+    },
+    "common": {
+      "limit": 5,
+      "repeats": 3,
+      "max_page_chars": 900,
+      "cache_size": 0,
+      "use_cache": false,
+      "coverage": false,
+      "tokenizer_version": "0.12.0",
+      "query_permutation": "random.Random(23017 + 1009 * repetition).shuffle; identical order for every engine",
+      "optional_semantic": "Bind enabled/disabled and the candidate commit before the first heldout score. If enabled, use the already pinned local multilingual MiniLM model and the candidate's committed semantic policy; no generation calls."
+    }
+  },
+  "failure": "Evaluator accessed results although the existing Claude adapter returns native_payload rows; the first query has one started and zero finished intent. Native process/source/FTS checks passed.",
+  "correction": "Explicit adapter-specific row surface and explicit native_payload conditional. No runtime/ranking/scoring/budget change. Recovery guards and report attribution are the remaining helper changes.",
+  "helper_changes": {
+    "benchmarks/round2_eval.py": {
+      "before_sha256": "17b43c0bb07535c93e498575031a525a4f7ee47e5187476bbd90e019d643a914",
+      "after_sha256": "0aa7a3925bc57a6b14345ebdf4593a5bb2a260495e3da2e83ccb5f5686505757"
+    },
+    "scripts/bind_round2_recovery.py": {
+      "before_sha256": null,
+      "after_sha256": "05d47d7f774394df9437d78efa11e7d1767d8bda1b664d5fffefbb0508e7a9f3"
+    },
+    "scripts/smoke_round2_components.py": {
+      "before_sha256": null,
+      "after_sha256": "5bd0f0035c56973df083839823bc247c65f105e8e4a0671866c40cf8e06383ee"
+    },
+    "scripts/summarize_round2_validation.py": {
+      "before_sha256": "02f2bb8f1b12721d569dd5e52c93f114d1b112a6f72f4ae29e7f611ce73751c5",
+      "after_sha256": "73e789bba2ff24aa12e173af46f3f6252924635f5e6d1affcbc3061516f66937"
+    }
+  },
+  "helper_diff": {
+    "path": "benchmarks/reports/round2-recovery-helper.patch",
+    "sha256": "774e20d9d32a820adee3a44867356309e72cf3709d9c27eff68e44988306453d"
+  },
+  "preserved_file_sha256": {
+    "benchmarks/results/round2-43201620535-1/baseline-component.json.gz": "7a76ecdd69846d5803ec0e9f9826a51b3d501693040731e9969c186da7315a38",
+    "benchmarks/results/round2-43201620535-1/baseline-component.summary.json": "97f0b357af43b9f97ae9770fd514da039f933390773b2c4db2f7d3c1ec532660",
+    "benchmarks/results/round2-43201620535-1/baseline-native.json.gz": "3320ebf980ad56301abdfce6880d7d3f03d298ab72ef73f738848b338fa9f2a9",
+    "benchmarks/results/round2-43201620535-1/baseline-native.summary.json": "7bf33c72b6acf7d197b79a7f58192f80d852073789924c7a76c2eb389bd78e96",
+    "benchmarks/results/round2-43201620535-1/candidate-component.json.gz": "a928eab2c4ad15f20d832fd312072d79a2ff046a47e344e9a383656775f88193",
+    "benchmarks/results/round2-43201620535-1/candidate-component.summary.json": "e3d0e9a41b8169be8820a51cddafbc7d7b4d52a87ded63a6c2961e6656df3c4d",
+    "benchmarks/results/round2-43201620535-1/candidate-native.json.gz": "84cdb6e1a07aeae4367a52bb21e77e93ee0e54317d71075176777e5fee175d98",
+    "benchmarks/results/round2-43201620535-1/candidate-native.summary.json": "bc8ea1bde91dde80c896181ffc73b59128c85bf5721fe401eea4cee8bca9688a",
+    "benchmarks/results/round2-43201620535-1/claude-mem-fts.json.gz": "6bb4fffbca5df3b128ef8a9b350e17918e2afecd9fa095027c4a26d2e8bd5f1b",
+    "benchmarks/results/round2-43201620535-1/claude-mem-fts.summary.json": "6f8da08f35372e9fd373411febc802f95f1d3493972753037ac41012f748a260",
+    "benchmarks/results/round2-43201620535-1/export.json.gz": "a9a2a7ef8976d3fba0680a812d554db72649e5ba34db07ced6b06ae184237aa6",
+    "benchmarks/results/round2-43201620535-1/export.summary.json": "cbebc560246d0d630c48d490232d515718de08daf77e363167daebe96f406a41",
+    "benchmarks/reports/round2-43201620535-1-checkpoint.json": "aef5ceeef0bce18f6a5111164c5057eeba83bc79d3e24d09d126eb14efb646f5"
+  },
+  "fictional_smokes": {
+    "benchmarks/results/round2-recovery-smoke": {
+      "assessment": "failed",
+      "files_sha256": {
+        "benchmarks/results/round2-recovery-smoke/ai-memory-hybrid.json.gz": "cb6a4fa201385f7d94ea2e09a9f42cfe044f0c8a764966d7044a148023c22a7c",
+        "benchmarks/results/round2-recovery-smoke/ai-memory-hybrid.summary.json": "c7a24fdda8ca9b392d0f103815b4567dccd6ee72cb8e3dfa113f9be6415a0c87",
+        "benchmarks/results/round2-recovery-smoke/assessment.json": "2d6d865ac086c94f03220c46f8e94fbee98450d37987fa3a820bb5f5abebde6e",
+        "benchmarks/results/round2-recovery-smoke/billion-context.json.gz": "7dad673753de96c78ee9b9b29c400114d64ce3ddf31c83633d5d98c05084b714",
+        "benchmarks/results/round2-recovery-smoke/billion-context.summary.json": "435b9c8c281bc1dc729eea2c6398dcbb1a8fd250b9970e564c5f391fcce0f47b",
+        "benchmarks/results/round2-recovery-smoke/claude-mem-fts.json.gz": "2eac9f4b5273386f3295409d637e30ad880c0f6148a10a482966c3399041317c",
+        "benchmarks/results/round2-recovery-smoke/claude-mem-fts.summary.json": "4fd3faec9b1a6c6987f47184614aa26a1e236d98e09a1b58ebe8a8997d693d39"
+      }
+    },
+    "benchmarks/results/round2-recovery-smoke-2": {
+      "assessment": "passed",
+      "files_sha256": {
+        "benchmarks/results/round2-recovery-smoke-2/ai-memory-hybrid.json.gz": "7ecb312d8142f6bd932206c7ce4647741b14e41239f20af49a28245e81b79aec",
+        "benchmarks/results/round2-recovery-smoke-2/ai-memory-hybrid.summary.json": "5a53dfa45de511bb8ea372112a83cd375c430264b0402292132e6977d331fb2f",
+        "benchmarks/results/round2-recovery-smoke-2/assessment.json": "330d907a968382ec9157a78af950d2c4118d4e5fedaa83af5f8675df6725159d",
+        "benchmarks/results/round2-recovery-smoke-2/billion-context.json.gz": "b776a6bae68b93c7d60ec6774a7f54cf73dad883d14ad42d29e3e29ef0adf00d",
+        "benchmarks/results/round2-recovery-smoke-2/billion-context.summary.json": "5c2c93234a80fb2c6f9d1b025d8bfaad53697463c19b0ec48f5c226e6040d9a3",
+        "benchmarks/results/round2-recovery-smoke-2/claude-mem-fts.json.gz": "18aa35ffade0571a224cffa413b47bb86900dd2f8cae854ac8ccc8ff37344b8b",
+        "benchmarks/results/round2-recovery-smoke-2/claude-mem-fts.summary.json": "703c6e0eae2be11e8e2094afc6b5a19851b3c3785072841789ece2fb382bd1f7"
+      }
+    }
+  },
+  "recovery_run_policy": "Run all 10 stages and 32,256 timed search attempts sequentially on one new host. Preserve the first incomplete run, never combine timing hosts or choose a faster run. This selection is already scored; the originally frozen candidate and every registered parameter remain unchanged.",
+  "post_run_audit": "Independently verify the final strict assessment and compare the five shared stages query/configuration context, evidence and hit hashes against the initial run; retain differences and uncertainty without pooling timing samples."
+}
