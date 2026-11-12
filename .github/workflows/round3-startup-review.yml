@@ -1,0 +1,112 @@
+name: Diagnose frozen v0.3.1 startup resource review
+
+on:
+  push:
+    branches: ['ci/v031-startup-review-run']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v031-startup-resource-review
+  cancel-in-progress: false
+
+jobs:
+  diagnostic:
+    if: github.repository == 'Afloat16/AI-Memory-Book'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 1
+          sparse-checkout: |
+            src
+            scripts
+            tests
+            benchmarks/experiments
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - name: Check causal-identity and SQL-tracing safeguards
+        run: python -m unittest tests.test_round3_startup_review -v
+      - name: Verify registered diagnostic and original exact sources
+        id: prepare
+        run: |
+          python - <<'PY'
+          import hashlib, json, pathlib, subprocess
+          binding = json.loads(pathlib.Path('benchmarks/experiments/round3-startup-review-binding.json').read_bytes())
+          subprocess.run(['git', 'fetch', '--depth=1', 'origin', binding['tools_commit']], check=True)
+          for path in binding['registered_files']:
+              current = pathlib.Path(path).read_bytes()
+              registered = subprocess.check_output(['git', 'show', binding['tools_commit'] + ':' + path])
+              assert current == registered, path
+          plan = json.loads(pathlib.Path('benchmarks/experiments/round3-startup-review-plan.json').read_bytes())
+          for label, source in plan['sources'].items():
+              subprocess.run(['git', 'fetch', '--depth=1', 'origin', source['commit']], check=True)
+              location = pathlib.Path('.artifacts/round3-startup-' + label)
+              location.parent.mkdir(parents=True, exist_ok=True)
+              subprocess.run(['git', 'worktree', 'add', '--no-checkout', '--detach', str(location), source['commit']], check=True)
+              subprocess.run(['git', '-C', str(location), 'sparse-checkout', 'set', 'src'], check=True)
+              subprocess.run(['git', '-C', str(location), 'read-tree', '-mu', 'HEAD'], check=True)
+          original = plan['original']['result_commit']
+          subprocess.run(['git', 'fetch', '--depth=1', 'origin', original], check=True)
+          original_path = 'benchmarks/reports/round3-performance-43246417515-1/report.json.gz'
+          raw = subprocess.check_output(['git', 'show', original + ':' + original_path])
+          assert hashlib.sha256(raw).hexdigest() == '0b4c8dd968b1386818a99788c13e2a724c62c8119b2488ee959d2a6b8e96da86'
+          pathlib.Path('.artifacts/round3-startup-original-report.json.gz').write_bytes(raw)
+          print('Frozen startup-only diagnostic and original report verified; no retrieval is performed.')
+          PY
+      - name: Run every fixed ABBA startup sample on this isolated runner
+        id: diagnose
+        run: |
+          python -u scripts/round3_startup_review.py \
+            --plan benchmarks/experiments/round3-startup-review-plan.json \
+            --original-report .artifacts/round3-startup-original-report.json.gz \
+            --baseline-src .artifacts/round3-startup-baseline/src \
+            --candidate-src .artifacts/round3-startup-candidate/src \
+            --output-dir "benchmarks/reports/round3-startup-review-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+      - name: Preserve every result and failure without rewriting formal performance
+        if: always()
+        env:
+          DIAGNOSTIC_OUTCOME: ${{ steps.diagnose.outcome }}
+        run: |
+          python - <<'PY'
+          from datetime import datetime, timezone
+          import hashlib, json, os, pathlib, subprocess
+          suffix = os.environ['GITHUB_RUN_ID'] + '-' + os.environ['GITHUB_RUN_ATTEMPT']
+          public = pathlib.Path('benchmarks/reports/round3-startup-review-' + suffix)
+          public.mkdir(parents=True, exist_ok=True)
+          files = {str(p.relative_to(public)): hashlib.sha256(p.read_bytes()).hexdigest()
+                   for p in sorted(public.rglob('*')) if p.is_file()}
+          summary = public / 'summary.json'
+          value = json.loads(summary.read_bytes()) if summary.is_file() else {}
+          marker = {'created_at': datetime.now(timezone.utc).isoformat(), 'run_id': os.environ['GITHUB_RUN_ID'],
+              'run_attempt': os.environ['GITHUB_RUN_ATTEMPT'], 'workflow_commit': os.environ['GITHUB_SHA'],
+              'diagnostic_outcome': os.environ.get('DIAGNOSTIC_OUTCOME'),
+              'status': value.get('status', 'failed_or_incomplete'), 'files_sha256': files,
+              'original_report_accepted': False,
+              'scope': 'Supplemental startup-only causal diagnostic; never changes the original performance result.'}
+          (public / 'completion.json').write_text(json.dumps(marker, indent=2) + '\n')
+          def call(*args):
+              subprocess.run(args, check=True)
+          call('git', 'config', 'user.name', 'github-actions[bot]')
+          call('git', 'config', 'user.email', '41898282+github-actions[bot]@users.noreply.github.com')
+          call('git', 'add', '--sparse', '--', str(public))
+          call('git', 'commit', '-m', 'bench: preserve supplemental startup diagnostic ' + suffix)
+          branch = 'validation/v031-startup-review-' + suffix
+          call('git', 'push', 'origin', 'HEAD:refs/heads/' + branch)
+          print(json.dumps({'result_branch': branch, 'status': marker['status']}))
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: round3-startup-review-${{ github.run_id }}-${{ github.run_attempt }}
+          path: benchmarks/reports/round3-startup-review-${{ github.run_id }}-${{ github.run_attempt }}/
+          if-no-files-found: warn
+          retention-days: 30
