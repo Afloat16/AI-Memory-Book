@@ -1,6 +1,8 @@
 """Artificial interface/measurement fixtures; never open a real cohort."""
 import copy
 import gzip
+import importlib.util
+import io
 import json
 import os
 from pathlib import Path
@@ -83,6 +85,26 @@ class Engine:
 
 
 class RoundThreeComparisonTests(unittest.TestCase):
+    def test_failure_diagnostic_retains_only_code_locations_and_no_sensitive_message(self):
+        sensitive = "QUERY:private-source ANSWER:unpublished-value TOKEN:secret-provider-token"
+        stderr = io.StringIO()
+        try:
+            raise RuntimeError(sensitive)
+        except RuntimeError as error:
+            with patch("sys.stderr", stderr):
+                diagnostic = c.failure_diagnostic(error, stage="candidate-native", check="stage_exception")
+        self.assertEqual(json.loads(stderr.getvalue()), {"event": "round3_failure", **diagnostic})
+        self.assertNotIn(sensitive, json.dumps(diagnostic) + stderr.getvalue())
+        self.assertEqual(set(diagnostic), {"check", "stage", "error_type", "frames"})
+        self.assertEqual(diagnostic["error_type"], "RuntimeError")
+        self.assertTrue(diagnostic["frames"])
+        self.assertEqual(diagnostic["frames"][-1]["file"], "tests/test_round3_comparison.py")
+        for frame in diagnostic["frames"]:
+            self.assertEqual(set(frame), {"file", "line", "function"})
+            self.assertFalse(Path(frame["file"]).is_absolute())
+            self.assertNotIn("..", Path(frame["file"]).parts)
+            self.assertIsInstance(frame["line"], int)
+
     def run_component(self, stage, directory, *, empty=False):
         data, bundle = fixture()
         engine = Engine(stage, bundle, empty=empty)
@@ -231,6 +253,7 @@ class RoundThreeComparisonTests(unittest.TestCase):
                 c.worker(SimpleNamespace())
             inputs.assert_not_called()
 
+    @unittest.skipUnless(importlib.util.find_spec("tiktoken"), "Install .[tokens] for exact budget checks")
     def test_real_book_export_native_and_component_in_fresh_module_process(self):
         # A subprocess avoids imports from unrelated unit modules selecting a
         # site-packages MemoryBook before the source-provenance guard runs.
