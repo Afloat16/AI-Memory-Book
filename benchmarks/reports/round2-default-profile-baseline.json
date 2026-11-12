@@ -1,0 +1,1505 @@
+{
+  "baseline": "cb7486b4937a3ecb7ccbf94a746c0bbbf44eb41f",
+  "dataset": {
+    "kind": "synthetic",
+    "version": "2.0",
+    "variant": "long_sessions_v2",
+    "seed": 61,
+    "split": "development",
+    "sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26",
+    "projects": 8,
+    "sessions": 112,
+    "turns": 1408,
+    "source_characters": 1143252,
+    "source_utf8_bytes": 1578382,
+    "queries": 168,
+    "answerable_queries": 152,
+    "categories": {
+      "long_answer_middle": 8,
+      "long_answer_natural_middle": 16,
+      "long_answer_natural_late": 16,
+      "cross_project_name": 8,
+      "topic_change": 16,
+      "multi_section": 16,
+      "lookup": 24,
+      "unanswerable_unrelated": 8,
+      "low_overlap_paraphrase": 8,
+      "latest_decision": 8,
+      "short_followup": 8,
+      "similar_task": 8,
+      "unanswerable_related": 8,
+      "cross_session": 8,
+      "historical": 8
+    }
+  },
+  "profile_only_not_latency_measurement": true,
+  "stages": [
+    {
+      "stage": "fresh_ingestion",
+      "functions": [
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 401,
+          "function": "ingest",
+          "primitive_calls": 112,
+          "total_calls": 112,
+          "self_ms": 10.536483,
+          "cumulative_ms": 1005.7008780000001
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 27,
+          "function": "terms",
+          "primitive_calls": 10240,
+          "total_calls": 10240,
+          "self_ms": 221.567812,
+          "cumulative_ms": 653.9339080000001
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 52,
+          "function": "index_text",
+          "primitive_calls": 7648,
+          "total_calls": 7648,
+          "self_ms": 4.861373,
+          "cumulative_ms": 586.3314200000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'execute' of 'sqlite3.Connection' objects>",
+          "primitive_calls": 9848,
+          "total_calls": 9848,
+          "self_ms": 236.715324,
+          "cumulative_ms": 236.715324
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'join' of 'str' objects>",
+          "primitive_calls": 31699,
+          "total_calls": 33107,
+          "self_ms": 49.016243,
+          "cumulative_ms": 162.434119
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 33,
+          "function": "<genexpr>",
+          "primitive_calls": 667300,
+          "total_calls": 667300,
+          "self_ms": 72.809987,
+          "cumulative_ms": 109.494935
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'extend' of 'list' objects>",
+          "primitive_calls": 233870,
+          "total_calls": 233870,
+          "self_ms": 73.04397,
+          "cumulative_ms": 108.564902
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/segmentation.py",
+          "line": 107,
+          "function": "segment",
+          "primitive_calls": 112,
+          "total_calls": 112,
+          "self_ms": 2.9895080000000003,
+          "cumulative_ms": 104.54314500000001
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 72,
+          "function": "similarity",
+          "primitive_calls": 1296,
+          "total_calls": 1296,
+          "self_ms": 2.7238700000000002,
+          "cumulative_ms": 80.00977
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 374,
+          "function": "_changed",
+          "primitive_calls": 112,
+          "total_calls": 112,
+          "self_ms": 0.091907,
+          "cumulative_ms": 46.65355
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'split' of 're.Pattern' objects>",
+          "primitive_calls": 203827,
+          "total_calls": 203827,
+          "self_ms": 42.986920000000005,
+          "cumulative_ms": 42.986920000000005
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'fullmatch' of 're.Pattern' objects>",
+          "primitive_calls": 233870,
+          "total_calls": 233870,
+          "self_ms": 40.391017,
+          "cumulative_ms": 40.391017
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 104,
+          "function": "_json",
+          "primitive_calls": 8336,
+          "total_calls": 8336,
+          "self_ms": 2.4721640000000003,
+          "cumulative_ms": 39.216590000000004
+        },
+        {
+          "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/__init__.py",
+          "line": 183,
+          "function": "dumps",
+          "primitive_calls": 8336,
+          "total_calls": 8336,
+          "self_ms": 5.805313,
+          "cumulative_ms": 36.744426000000004
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method unicodedata.category>",
+          "primitive_calls": 660972,
+          "total_calls": 660972,
+          "self_ms": 36.684948,
+          "cumulative_ms": 36.684948
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method unicodedata.normalize>",
+          "primitive_calls": 12656,
+          "total_calls": 12656,
+          "self_ms": 33.14305400000001,
+          "cumulative_ms": 33.14305400000001
+        },
+        {
+          "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/encoder.py",
+          "line": 183,
+          "function": "encode",
+          "primitive_calls": 8336,
+          "total_calls": 8336,
+          "self_ms": 5.456968000000001,
+          "cumulative_ms": 29.661396000000003
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 108,
+          "function": "_id",
+          "primitive_calls": 4680,
+          "total_calls": 4680,
+          "self_ms": 3.508171,
+          "cumulative_ms": 26.266874
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'group' of 're.Match' objects>",
+          "primitive_calls": 233870,
+          "total_calls": 233870,
+          "self_ms": 25.38191,
+          "cumulative_ms": 25.38191
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 48,
+          "function": "<genexpr>",
+          "primitive_calls": 410781,
+          "total_calls": 410781,
+          "self_ms": 22.795961,
+          "cumulative_ms": 22.795961
+        },
+        {
+          "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/encoder.py",
+          "line": 205,
+          "function": "iterencode",
+          "primitive_calls": 8336,
+          "total_calls": 8336,
+          "self_ms": 21.704514,
+          "cumulative_ms": 21.704514
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'sub' of 're.Pattern' objects>",
+          "primitive_calls": 12832,
+          "total_calls": 12832,
+          "self_ms": 19.339453,
+          "cumulative_ms": 19.364471
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/segmentation.py",
+          "line": 86,
+          "function": "_pages",
+          "primitive_calls": 1136,
+          "total_calls": 1136,
+          "self_ms": 5.217557,
+          "cumulative_ms": 15.903825
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 43,
+          "function": "<genexpr>",
+          "primitive_calls": 262707,
+          "total_calls": 262707,
+          "self_ms": 12.724971000000002,
+          "cumulative_ms": 12.724971000000002
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/segmentation.py",
+          "line": 38,
+          "function": "make_turns",
+          "primitive_calls": 112,
+          "total_calls": 112,
+          "self_ms": 3.55316,
+          "cumulative_ms": 8.032209
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 131,
+          "function": "normalize_session",
+          "primitive_calls": 112,
+          "total_calls": 112,
+          "self_ms": 4.3804810000000005,
+          "cumulative_ms": 7.5334970000000006
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method builtins.len>",
+          "primitive_calls": 93267,
+          "total_calls": 93291,
+          "self_ms": 6.000856000000001,
+          "cumulative_ms": 6.004271
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 67,
+          "function": "headline",
+          "primitive_calls": 5088,
+          "total_calls": 5088,
+          "self_ms": 2.840717,
+          "cumulative_ms": 5.607029000000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'casefold' of 'str' objects>",
+          "primitive_calls": 10456,
+          "total_calls": 10456,
+          "self_ms": 3.9017830000000004,
+          "cumulative_ms": 3.9017830000000004
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 386,
+          "function": "_refresh_chapter",
+          "primitive_calls": 112,
+          "total_calls": 112,
+          "self_ms": 0.275895,
+          "cumulative_ms": 3.2713950000000005
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method _hashlib.openssl_sha256>",
+          "primitive_calls": 4792,
+          "total_calls": 4792,
+          "self_ms": 2.7608200000000003,
+          "cumulative_ms": 2.7608200000000003
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'finditer' of 're.Pattern' objects>",
+          "primitive_calls": 10240,
+          "total_calls": 10240,
+          "self_ms": 2.6950800000000004,
+          "cumulative_ms": 2.6950800000000004
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'encode' of 'str' objects>",
+          "primitive_calls": 4792,
+          "total_calls": 4792,
+          "self_ms": 2.458586,
+          "cumulative_ms": 2.458586
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/segmentation.py",
+          "line": 69,
+          "function": "_cuts",
+          "primitive_calls": 1136,
+          "total_calls": 1136,
+          "self_ms": 1.378765,
+          "cumulative_ms": 2.3907540000000003
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method builtins.isinstance>",
+          "primitive_calls": 26528,
+          "total_calls": 26528,
+          "self_ms": 2.352246,
+          "cumulative_ms": 2.352246
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/segmentation.py",
+          "line": 58,
+          "function": "_joined",
+          "primitive_calls": 1136,
+          "total_calls": 1136,
+          "self_ms": 1.342505,
+          "cumulative_ms": 1.9605080000000001
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/segmentation.py",
+          "line": 133,
+          "function": "<genexpr>",
+          "primitive_calls": 2544,
+          "total_calls": 2544,
+          "self_ms": 0.37824900000000006,
+          "cumulative_ms": 1.896155
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'isascii' of 'str' objects>",
+          "primitive_calls": 20480,
+          "total_calls": 20480,
+          "self_ms": 1.837026,
+          "cumulative_ms": 1.837026
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'append' of 'list' objects>",
+          "primitive_calls": 18745,
+          "total_calls": 18745,
+          "self_ms": 1.7636260000000001,
+          "cumulative_ms": 1.7636260000000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'hexdigest' of '_hashlib.HASH' objects>",
+          "primitive_calls": 4792,
+          "total_calls": 4792,
+          "self_ms": 1.383392,
+          "cumulative_ms": 1.383392
+        }
+      ]
+    },
+    {
+      "stage": "uncached_recall_2000",
+      "functions": [
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 598,
+          "function": "recall",
+          "primitive_calls": 168,
+          "total_calls": 168,
+          "self_ms": 70.28063000000002,
+          "cumulative_ms": 986.1655210000001
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 110,
+          "function": "excerpt",
+          "primitive_calls": 820,
+          "total_calls": 820,
+          "self_ms": 177.74545400000002,
+          "cumulative_ms": 399.706002
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'execute' of 'sqlite3.Connection' objects>",
+          "primitive_calls": 1356,
+          "total_calls": 1356,
+          "self_ms": 240.73623700000002,
+          "cumulative_ms": 240.73623700000002
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'join' of 'str' objects>",
+          "primitive_calls": 180662,
+          "total_calls": 180662,
+          "self_ms": 57.4203,
+          "cumulative_ms": 125.303112
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 27,
+          "function": "terms",
+          "primitive_calls": 1100,
+          "total_calls": 1100,
+          "self_ms": 33.413797,
+          "cumulative_ms": 115.86647
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'fetchall' of 'sqlite3.Cursor' objects>",
+          "primitive_calls": 524,
+          "total_calls": 524,
+          "self_ms": 79.82175500000001,
+          "cumulative_ms": 79.82175500000001
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 137,
+          "function": "<genexpr>",
+          "primitive_calls": 357116,
+          "total_calls": 357116,
+          "self_ms": 33.163045000000004,
+          "cumulative_ms": 44.842327000000004
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'extend' of 'list' objects>",
+          "primitive_calls": 209776,
+          "total_calls": 209776,
+          "self_ms": 25.675112,
+          "cumulative_ms": 34.452991000000004
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method unicodedata.normalize>",
+          "primitive_calls": 180438,
+          "total_calls": 180438,
+          "self_ms": 28.294558000000002,
+          "cumulative_ms": 28.294558000000002
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 33,
+          "function": "<genexpr>",
+          "primitive_calls": 129250,
+          "total_calls": 129250,
+          "self_ms": 14.291196000000001,
+          "cumulative_ms": 21.438162000000002
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method unicodedata.category>",
+          "primitive_calls": 307192,
+          "total_calls": 307192,
+          "self_ms": 18.826248,
+          "cumulative_ms": 18.826248
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method builtins.len>",
+          "primitive_calls": 306182,
+          "total_calls": 306488,
+          "self_ms": 18.667776,
+          "cumulative_ms": 18.717608
+        },
+        {
+          "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/re/__init__.py",
+          "line": 219,
+          "function": "finditer",
+          "primitive_calls": 9581,
+          "total_calls": 9581,
+          "self_ms": 3.3162220000000002,
+          "cumulative_ms": 18.568486000000004
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'casefold' of 'str' objects>",
+          "primitive_calls": 180562,
+          "total_calls": 180562,
+          "self_ms": 18.486921,
+          "cumulative_ms": 18.486921
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'append' of 'list' objects>",
+          "primitive_calls": 221804,
+          "total_calls": 221804,
+          "self_ms": 16.800063,
+          "cumulative_ms": 16.800063
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'split' of 'str' objects>",
+          "primitive_calls": 9298,
+          "total_calls": 9298,
+          "self_ms": 15.759535000000001,
+          "cumulative_ms": 15.759535000000001
+        },
+        {
+          "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/re/__init__.py",
+          "line": 280,
+          "function": "_compile",
+          "primitive_calls": 9584,
+          "total_calls": 9584,
+          "self_ms": 3.535921,
+          "cumulative_ms": 13.83458
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'intersection' of 'set' objects>",
+          "primitive_calls": 3230,
+          "total_calls": 3230,
+          "self_ms": 12.646294000000001,
+          "cumulative_ms": 12.646294000000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method math.fsum>",
+          "primitive_calls": 7459,
+          "total_calls": 7459,
+          "self_ms": 4.358691,
+          "cumulative_ms": 12.573520000000002
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method builtins.max>",
+          "primitive_calls": 37055,
+          "total_calls": 37055,
+          "self_ms": 5.0019290000000005,
+          "cumulative_ms": 9.371895
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 198,
+          "function": "<genexpr>",
+          "primitive_calls": 48934,
+          "total_calls": 48934,
+          "self_ms": 5.273231000000001,
+          "cumulative_ms": 8.214829
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 508,
+          "function": "_refs",
+          "primitive_calls": 820,
+          "total_calls": 820,
+          "self_ms": 2.141147,
+          "cumulative_ms": 7.874090000000001
+        },
+        {
+          "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/re/_compiler.py",
+          "line": 745,
+          "function": "compile",
+          "primitive_calls": 281,
+          "total_calls": 281,
+          "self_ms": 0.4989160000000001,
+          "cumulative_ms": 7.46161
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 84,
+          "function": "_evidence_units",
+          "primitive_calls": 648,
+          "total_calls": 648,
+          "self_ms": 4.615804000000001,
+          "cumulative_ms": 7.105001000000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'sort' of 'list' objects>",
+          "primitive_calls": 816,
+          "total_calls": 816,
+          "self_ms": 2.423185,
+          "cumulative_ms": 6.421272
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'fullmatch' of 're.Pattern' objects>",
+          "primitive_calls": 30659,
+          "total_calls": 30659,
+          "self_ms": 5.571903000000001,
+          "cumulative_ms": 5.571903000000001
+        },
+        {
+          "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/re/__init__.py",
+          "line": 255,
+          "function": "escape",
+          "primitive_calls": 8040,
+          "total_calls": 8040,
+          "self_ms": 2.163916,
+          "cumulative_ms": 5.428421
+        },
+        {
+          "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/__init__.py",
+          "line": 299,
+          "function": "loads",
+          "primitive_calls": 820,
+          "total_calls": 820,
+          "self_ms": 0.6843440000000001,
+          "cumulative_ms": 5.062353000000001
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 43,
+          "function": "<genexpr>",
+          "primitive_calls": 78855,
+          "total_calls": 78855,
+          "self_ms": 5.061008,
+          "cumulative_ms": 5.061008
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'split' of 're.Pattern' objects>",
+          "primitive_calls": 23038,
+          "total_calls": 23038,
+          "self_ms": 4.972853,
+          "cumulative_ms": 4.972853
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 56,
+          "function": "query_terms",
+          "primitive_calls": 168,
+          "total_calls": 168,
+          "self_ms": 0.325869,
+          "cumulative_ms": 4.894779
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 61,
+          "function": "estimate_tokens",
+          "primitive_calls": 168,
+          "total_calls": 168,
+          "self_ms": 0.462851,
+          "cumulative_ms": 4.8637310000000005
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 763,
+          "function": "<lambda>",
+          "primitive_calls": 11280,
+          "total_calls": 11280,
+          "self_ms": 3.3978050000000004,
+          "cumulative_ms": 4.366703
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'findall' of 're.Pattern' objects>",
+          "primitive_calls": 168,
+          "total_calls": 168,
+          "self_ms": 4.320674,
+          "cumulative_ms": 4.320674
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'group' of 're.Match' objects>",
+          "primitive_calls": 37068,
+          "total_calls": 37068,
+          "self_ms": 4.1891929999999995,
+          "cumulative_ms": 4.1891929999999995
+        },
+        {
+          "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py",
+          "line": 333,
+          "function": "decode",
+          "primitive_calls": 820,
+          "total_calls": 820,
+          "self_ms": 1.0235210000000001,
+          "cumulative_ms": 4.136204
+        },
+        {
+          "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/re/_parser.py",
+          "line": 969,
+          "function": "parse",
+          "primitive_calls": 281,
+          "total_calls": 281,
+          "self_ms": 0.39226300000000003,
+          "cumulative_ms": 3.8194830000000004
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'sub' of 're.Pattern' objects>",
+          "primitive_calls": 2200,
+          "total_calls": 2200,
+          "self_ms": 3.7177480000000003,
+          "cumulative_ms": 3.7177480000000003
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 48,
+          "function": "<genexpr>",
+          "primitive_calls": 42184,
+          "total_calls": 42184,
+          "self_ms": 3.7168710000000003,
+          "cumulative_ms": 3.7168710000000003
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 728,
+          "function": "<lambda>",
+          "primitive_calls": 8037,
+          "total_calls": 8037,
+          "self_ms": 2.4134680000000004,
+          "cumulative_ms": 3.440264
+        }
+      ]
+    },
+    {
+      "stage": "uncached_recall_4000",
+      "functions": [
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 598,
+          "function": "recall",
+          "primitive_calls": 168,
+          "total_calls": 168,
+          "self_ms": 70.83297800000001,
+          "cumulative_ms": 790.203427
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'execute' of 'sqlite3.Connection' objects>",
+          "primitive_calls": 1304,
+          "total_calls": 1304,
+          "self_ms": 243.483932,
+          "cumulative_ms": 243.483932
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 27,
+          "function": "terms",
+          "primitive_calls": 988,
+          "total_calls": 988,
+          "self_ms": 56.033447,
+          "cumulative_ms": 184.70883100000003
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 110,
+          "function": "excerpt",
+          "primitive_calls": 820,
+          "total_calls": 820,
+          "self_ms": 69.337872,
+          "cumulative_ms": 156.85921900000002
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'join' of 'str' objects>",
+          "primitive_calls": 72352,
+          "total_calls": 72352,
+          "self_ms": 32.923475,
+          "cumulative_ms": 84.79919000000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'fetchall' of 'sqlite3.Cursor' objects>",
+          "primitive_calls": 472,
+          "total_calls": 472,
+          "self_ms": 55.42326500000001,
+          "cumulative_ms": 55.42326500000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'extend' of 'list' objects>",
+          "primitive_calls": 125867,
+          "total_calls": 125867,
+          "self_ms": 24.503698,
+          "cumulative_ms": 38.58880200000001
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 33,
+          "function": "<genexpr>",
+          "primitive_calls": 203927,
+          "total_calls": 203927,
+          "self_ms": 21.233445,
+          "cumulative_ms": 32.319269000000006
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method unicodedata.normalize>",
+          "primitive_calls": 71879,
+          "total_calls": 71879,
+          "self_ms": 23.787702,
+          "cumulative_ms": 23.787702
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 137,
+          "function": "<genexpr>",
+          "primitive_calls": 141192,
+          "total_calls": 141192,
+          "self_ms": 13.129342000000001,
+          "cumulative_ms": 17.918773
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method unicodedata.category>",
+          "primitive_calls": 274019,
+          "total_calls": 274019,
+          "self_ms": 15.875255000000001,
+          "cumulative_ms": 15.875255000000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'split' of 'str' objects>",
+          "primitive_calls": 5937,
+          "total_calls": 5937,
+          "self_ms": 15.815275,
+          "cumulative_ms": 15.815275
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'intersection' of 'set' objects>",
+          "primitive_calls": 3230,
+          "total_calls": 3230,
+          "self_ms": 12.852785,
+          "cumulative_ms": 12.852785
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method builtins.len>",
+          "primitive_calls": 174856,
+          "total_calls": 174856,
+          "self_ms": 10.437190000000001,
+          "cumulative_ms": 10.437190000000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'fullmatch' of 're.Pattern' objects>",
+          "primitive_calls": 55271,
+          "total_calls": 55271,
+          "self_ms": 9.679036,
+          "cumulative_ms": 9.679036
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'split' of 're.Pattern' objects>",
+          "primitive_calls": 43621,
+          "total_calls": 43621,
+          "self_ms": 9.293576000000002,
+          "cumulative_ms": 9.293576000000002
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method math.fsum>",
+          "primitive_calls": 1316,
+          "total_calls": 1316,
+          "self_ms": 0.921023,
+          "cumulative_ms": 8.990245000000002
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method builtins.max>",
+          "primitive_calls": 30710,
+          "total_calls": 30710,
+          "self_ms": 4.317785,
+          "cumulative_ms": 8.575891
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 198,
+          "function": "<genexpr>",
+          "primitive_calls": 9384,
+          "total_calls": 9384,
+          "self_ms": 1.281125,
+          "cumulative_ms": 8.069222000000002
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 508,
+          "function": "_refs",
+          "primitive_calls": 820,
+          "total_calls": 820,
+          "self_ms": 2.1721030000000003,
+          "cumulative_ms": 8.023761
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'casefold' of 'str' objects>",
+          "primitive_calls": 71939,
+          "total_calls": 71939,
+          "self_ms": 7.977365,
+          "cumulative_ms": 7.977365
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'append' of 'list' objects>",
+          "primitive_calls": 97961,
+          "total_calls": 97961,
+          "self_ms": 7.660977,
+          "cumulative_ms": 7.660977
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 43,
+          "function": "<genexpr>",
+          "primitive_calls": 121865,
+          "total_calls": 121865,
+          "self_ms": 7.418443,
+          "cumulative_ms": 7.418443
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 61,
+          "function": "estimate_tokens",
+          "primitive_calls": 168,
+          "total_calls": 168,
+          "self_ms": 0.7417600000000001,
+          "cumulative_ms": 7.358052000000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method math.log1p>",
+          "primitive_calls": 8068,
+          "total_calls": 8068,
+          "self_ms": 6.7880970000000005,
+          "cumulative_ms": 6.7880970000000005
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 48,
+          "function": "<genexpr>",
+          "primitive_calls": 80395,
+          "total_calls": 80395,
+          "self_ms": 6.666661,
+          "cumulative_ms": 6.666661
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'findall' of 're.Pattern' objects>",
+          "primitive_calls": 168,
+          "total_calls": 168,
+          "self_ms": 6.532932,
+          "cumulative_ms": 6.532932
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'group' of 're.Match' objects>",
+          "primitive_calls": 57978,
+          "total_calls": 57978,
+          "self_ms": 6.193268,
+          "cumulative_ms": 6.193268
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'sub' of 're.Pattern' objects>",
+          "primitive_calls": 1976,
+          "total_calls": 1976,
+          "self_ms": 5.790927000000001,
+          "cumulative_ms": 5.790927000000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'sort' of 'list' objects>",
+          "primitive_calls": 443,
+          "total_calls": 443,
+          "self_ms": 2.036432,
+          "cumulative_ms": 5.769559
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 56,
+          "function": "query_terms",
+          "primitive_calls": 168,
+          "total_calls": 168,
+          "self_ms": 0.41822400000000004,
+          "cumulative_ms": 5.279779
+        },
+        {
+          "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/__init__.py",
+          "line": 299,
+          "function": "loads",
+          "primitive_calls": 820,
+          "total_calls": 820,
+          "self_ms": 0.691189,
+          "cumulative_ms": 5.161184
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 763,
+          "function": "<lambda>",
+          "primitive_calls": 11280,
+          "total_calls": 11280,
+          "self_ms": 3.270443,
+          "cumulative_ms": 4.258106000000001
+        },
+        {
+          "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py",
+          "line": 333,
+          "function": "decode",
+          "primitive_calls": 820,
+          "total_calls": 820,
+          "self_ms": 0.9938819999999999,
+          "cumulative_ms": 4.221728
+        },
+        {
+          "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/re/__init__.py",
+          "line": 219,
+          "function": "finditer",
+          "primitive_calls": 4212,
+          "total_calls": 4212,
+          "self_ms": 1.3779379999999999,
+          "cumulative_ms": 4.172742
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 728,
+          "function": "<lambda>",
+          "primitive_calls": 8037,
+          "total_calls": 8037,
+          "self_ms": 2.041139,
+          "cumulative_ms": 3.115721
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'get' of 'dict' objects>",
+          "primitive_calls": 35880,
+          "total_calls": 35880,
+          "self_ms": 2.7690120000000005,
+          "cumulative_ms": 2.7690120000000005
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 168,
+          "function": "_context_allocations",
+          "primitive_calls": 164,
+          "total_calls": 164,
+          "self_ms": 1.552903,
+          "cumulative_ms": 2.5951850000000003
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'update' of 'dict' objects>",
+          "primitive_calls": 12616,
+          "total_calls": 12616,
+          "self_ms": 2.569672,
+          "cumulative_ms": 2.569672
+        },
+        {
+          "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/re/__init__.py",
+          "line": 255,
+          "function": "escape",
+          "primitive_calls": 3662,
+          "total_calls": 3662,
+          "self_ms": 0.999855,
+          "cumulative_ms": 2.55126
+        }
+      ]
+    },
+    {
+      "stage": "uncached_recall_8000",
+      "functions": [
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 598,
+          "function": "recall",
+          "primitive_calls": 168,
+          "total_calls": 168,
+          "self_ms": 63.833238,
+          "cumulative_ms": 566.5286980000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'execute' of 'sqlite3.Connection' objects>",
+          "primitive_calls": 1244,
+          "total_calls": 1244,
+          "self_ms": 210.764588,
+          "cumulative_ms": 210.764588
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 27,
+          "function": "terms",
+          "primitive_calls": 988,
+          "total_calls": 988,
+          "self_ms": 57.91835100000001,
+          "cumulative_ms": 193.850199
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'join' of 'str' objects>",
+          "primitive_calls": 1616,
+          "total_calls": 1616,
+          "self_ms": 15.089423000000002,
+          "cumulative_ms": 50.988130000000005
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'extend' of 'list' objects>",
+          "primitive_calls": 59270,
+          "total_calls": 59270,
+          "self_ms": 20.367351000000003,
+          "cumulative_ms": 35.599229
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 33,
+          "function": "<genexpr>",
+          "primitive_calls": 217395,
+          "total_calls": 217395,
+          "self_ms": 22.651906000000004,
+          "cumulative_ms": 34.439809000000004
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'fetchall' of 'sqlite3.Cursor' objects>",
+          "primitive_calls": 412,
+          "total_calls": 412,
+          "self_ms": 22.213285000000003,
+          "cumulative_ms": 22.213285000000003
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method unicodedata.normalize>",
+          "primitive_calls": 1008,
+          "total_calls": 1008,
+          "self_ms": 17.357716000000003,
+          "cumulative_ms": 17.357716000000003
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'split' of 'str' objects>",
+          "primitive_calls": 3230,
+          "total_calls": 3230,
+          "self_ms": 15.237242000000002,
+          "cumulative_ms": 15.237242000000002
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'intersection' of 'set' objects>",
+          "primitive_calls": 3230,
+          "total_calls": 3230,
+          "self_ms": 12.684128000000001,
+          "cumulative_ms": 12.684128000000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method unicodedata.category>",
+          "primitive_calls": 216891,
+          "total_calls": 216891,
+          "self_ms": 11.787903,
+          "cumulative_ms": 11.787903
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'fullmatch' of 're.Pattern' objects>",
+          "primitive_calls": 59270,
+          "total_calls": 59270,
+          "self_ms": 10.140683000000001,
+          "cumulative_ms": 10.140683000000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'split' of 're.Pattern' objects>",
+          "primitive_calls": 46864,
+          "total_calls": 46864,
+          "self_ms": 9.957235,
+          "cumulative_ms": 9.957235
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 61,
+          "function": "estimate_tokens",
+          "primitive_calls": 168,
+          "total_calls": 168,
+          "self_ms": 0.6435190000000001,
+          "cumulative_ms": 8.42824
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 43,
+          "function": "<genexpr>",
+          "primitive_calls": 132361,
+          "total_calls": 132361,
+          "self_ms": 8.271543000000001,
+          "cumulative_ms": 8.271543000000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method builtins.max>",
+          "primitive_calls": 26647,
+          "total_calls": 26647,
+          "self_ms": 3.621093,
+          "cumulative_ms": 7.87842
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'findall' of 're.Pattern' objects>",
+          "primitive_calls": 168,
+          "total_calls": 168,
+          "self_ms": 7.716848,
+          "cumulative_ms": 7.716848
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 508,
+          "function": "_refs",
+          "primitive_calls": 820,
+          "total_calls": 820,
+          "self_ms": 2.0141270000000002,
+          "cumulative_ms": 7.4476770000000005
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 48,
+          "function": "<genexpr>",
+          "primitive_calls": 86364,
+          "total_calls": 86364,
+          "self_ms": 6.960335000000001,
+          "cumulative_ms": 6.960335000000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'group' of 're.Match' objects>",
+          "primitive_calls": 59270,
+          "total_calls": 59270,
+          "self_ms": 6.1968510000000006,
+          "cumulative_ms": 6.1968510000000006
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'sub' of 're.Pattern' objects>",
+          "primitive_calls": 1976,
+          "total_calls": 1976,
+          "self_ms": 5.9309970000000005,
+          "cumulative_ms": 5.9309970000000005
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'sort' of 'list' objects>",
+          "primitive_calls": 168,
+          "total_calls": 168,
+          "self_ms": 1.856198,
+          "cumulative_ms": 5.3182920000000005
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method builtins.len>",
+          "primitive_calls": 92478,
+          "total_calls": 92478,
+          "self_ms": 5.065997,
+          "cumulative_ms": 5.065997
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/text.py",
+          "line": 56,
+          "function": "query_terms",
+          "primitive_calls": 168,
+          "total_calls": 168,
+          "self_ms": 0.291296,
+          "cumulative_ms": 4.864086
+        },
+        {
+          "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/__init__.py",
+          "line": 299,
+          "function": "loads",
+          "primitive_calls": 820,
+          "total_calls": 820,
+          "self_ms": 0.5818090000000001,
+          "cumulative_ms": 4.743964000000001
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 763,
+          "function": "<lambda>",
+          "primitive_calls": 11280,
+          "total_calls": 11280,
+          "self_ms": 3.2789200000000003,
+          "cumulative_ms": 4.257327
+        },
+        {
+          "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py",
+          "line": 333,
+          "function": "decode",
+          "primitive_calls": 820,
+          "total_calls": 820,
+          "self_ms": 0.966786,
+          "cumulative_ms": 3.92612
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 728,
+          "function": "<lambda>",
+          "primitive_calls": 8037,
+          "total_calls": 8037,
+          "self_ms": 1.821525,
+          "cumulative_ms": 2.883112
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'update' of 'dict' objects>",
+          "primitive_calls": 12616,
+          "total_calls": 12616,
+          "self_ms": 2.528732,
+          "cumulative_ms": 2.528732
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'get' of 'dict' objects>",
+          "primitive_calls": 32968,
+          "total_calls": 32968,
+          "self_ms": 2.508808,
+          "cumulative_ms": 2.508808
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 168,
+          "function": "_context_allocations",
+          "primitive_calls": 164,
+          "total_calls": 164,
+          "self_ms": 1.4603320000000002,
+          "cumulative_ms": 2.4198690000000003
+        },
+        {
+          "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py",
+          "line": 344,
+          "function": "raw_decode",
+          "primitive_calls": 820,
+          "total_calls": 820,
+          "self_ms": 2.212646,
+          "cumulative_ms": 2.212646
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'append' of 'list' objects>",
+          "primitive_calls": 22035,
+          "total_calls": 22035,
+          "self_ms": 1.842241,
+          "cumulative_ms": 1.842241
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 104,
+          "function": "_json",
+          "primitive_calls": 168,
+          "total_calls": 168,
+          "self_ms": 0.12317499999999999,
+          "cumulative_ms": 1.480612
+        },
+        {
+          "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/__init__.py",
+          "line": 183,
+          "function": "dumps",
+          "primitive_calls": 168,
+          "total_calls": 168,
+          "self_ms": 0.337296,
+          "cumulative_ms": 1.3574370000000002
+        },
+        {
+          "file": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/encoder.py",
+          "line": 183,
+          "function": "encode",
+          "primitive_calls": 168,
+          "total_calls": 168,
+          "self_ms": 0.22601000000000002,
+          "cumulative_ms": 0.9565250000000001
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 370,
+          "function": "revision",
+          "primitive_calls": 168,
+          "total_calls": 168,
+          "self_ms": 0.20212300000000002,
+          "cumulative_ms": 0.945871
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'casefold' of 'str' objects>",
+          "primitive_calls": 988,
+          "total_calls": 988,
+          "self_ms": 0.851893,
+          "cumulative_ms": 0.851893
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method builtins.sorted>",
+          "primitive_calls": 437,
+          "total_calls": 437,
+          "self_ms": 0.450869,
+          "cumulative_ms": 0.735341
+        },
+        {
+          "file": "/workspace/scratch/0baa2543dd3a/round2-perf/src/memory_book/store.py",
+          "line": 660,
+          "function": "<genexpr>",
+          "primitive_calls": 2156,
+          "total_calls": 2156,
+          "self_ms": 0.46914000000000006,
+          "cumulative_ms": 0.669705
+        }
+      ]
+    }
+  ],
+  "source_sha256": "6fdad7b9bf0eef50ec925ceeed3ca45fe84d2eb22973c753118df2d0f67f6ba2",
+  "runtime": {
+    "python": "3.12.14",
+    "sqlite": "3.53.1",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41"
+  },
+  "selection": "Top 40 functions by cumulative cProfile time per stage; diagnostic overhead is included and these times are not recall latency claims."
+}
