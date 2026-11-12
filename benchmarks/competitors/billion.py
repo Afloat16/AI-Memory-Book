@@ -32,14 +32,16 @@ def _verify(data: bytes, entry: dict[str, Any]) -> None:
         raise ValueError(f"Upstream integrity check failed: {entry['path']}")
 
 
-def prepare(cache_dir: Path, *, node: str = "node", offline: bool = False) -> Path:
+def prepare(cache_dir: Path, *, node: str = "node", offline: bool = False,
+            lock_path: Path | None = None) -> Path:
     """Fetch exact upstream files, verify them, then erase TypeScript syntax.
 
     cache_dir is the upstream source root. An existing connector-populated
     cache works offline; a normal internet-connected runner fetches missing
     files from raw.githubusercontent.com at the immutable commit.
     """
-    lock = json.loads(LOCK_PATH.read_text(encoding="utf-8"))
+    lock_path = Path(lock_path) if lock_path is not None else LOCK_PATH
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
     source_root = Path(cache_dir).resolve()
     source_root.mkdir(parents=True, exist_ok=True)
     for entry in lock["files"]:
@@ -67,7 +69,7 @@ def prepare(cache_dir: Path, *, node: str = "node", offline: bool = False) -> Pa
             str(HERE / "compile_billion.mjs"),
             str(source_root),
             str(output_root),
-            str(LOCK_PATH),
+            str(lock_path),
         ],
         capture_output=True,
         text=True,
@@ -93,8 +95,10 @@ class BillionKernel:
         *,
         offline: bool = False,
         timeout: float = 60.0,
+        lock_path: Path | None = None,
     ) -> None:
-        lock = json.loads(LOCK_PATH.read_text(encoding="utf-8"))
+        lock_path = Path(lock_path) if lock_path is not None else LOCK_PATH
+        lock = json.loads(lock_path.read_text(encoding="utf-8"))
         docs = list(documents)
         ids: set[str] = set()
         for doc in docs:
@@ -105,7 +109,7 @@ class BillionKernel:
                 raise ValueError(f"Duplicate document id: {doc['id']}")
             ids.add(doc["id"])
         begin = time.perf_counter()
-        compiled = prepare(Path(cache_dir), node=node, offline=offline)
+        compiled = prepare(Path(cache_dir), node=node, offline=offline, lock_path=lock_path)
         self._timeout = timeout
         self._responses: queue.Queue[str | None] = queue.Queue()
         self._stderr: list[str] = []
@@ -140,7 +144,7 @@ class BillionKernel:
             "source_url": lock["source_url"],
             "license": lock["license"],
             "source_manifest_sha256": hashlib.sha256(
-                LOCK_PATH.read_bytes()
+                lock_path.read_bytes()
             ).hexdigest(),
             "implementation": "unchanged upstream TypeScript; Node syntax erasure",
             "comparison_scope": "shared-page lexical retrieval component",

@@ -3,7 +3,10 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-import resource
+try:
+    import resource
+except ImportError:  # The registered measurements run on Linux; imports remain portable.
+    resource = None
 import threading
 import time
 
@@ -71,21 +74,23 @@ class Resources:
         return {"sampling_interval_ms": self.interval * 1000,
                 "sampled_process_tree_peak_rss_bytes": dict(self.peaks),
                 "samples": dict(self.samples), "max_observed_processes": dict(self.max_processes),
-                "worker_peak_rss_bytes": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024,
+                "worker_peak_rss_bytes": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024 if resource else None,
                 "sampler_wall_ms": (time.perf_counter() - self.started) * 1000,
                 "boundary": "Linux worker plus live descendant RSS sampled every 20ms; shared mappings can be counted more than once. Peaks are observed lower bounds, not unique physical memory. Worker ru_maxrss includes the Python evaluator and loaded corpus. The sampler runs during all engine phases."}
 
 
-def storage(root):
+def storage(root, exclude_names=()):
     root = Path(root)
     sizes = {"regular_file_bytes": 0, "regular_files": 0,
              "sqlite_main_file_bytes": 0, "sqlite_wal_file_bytes": 0, "sqlite_shm_file_bytes": 0}
     if not root.exists():
         return {**sizes, "exists": False}
     for path in root.rglob("*"):
-        if path.is_symlink() or not path.is_file():
+        if path.name in exclude_names or path.is_symlink() or not path.is_file():
             continue
-        if any(parent.is_symlink() for parent in path.parents if parent != root.parent):
+        parents = list(path.parents)
+        within = parents[:parents.index(root)] if root in parents else parents
+        if any(parent.is_symlink() for parent in within):
             continue
         size = path.stat().st_size
         sizes["regular_files"] += 1
@@ -97,4 +102,5 @@ def storage(root):
         elif path.suffix in {".db", ".sqlite", ".sqlite3"}:
             sizes["sqlite_main_file_bytes"] += size
     return {**sizes, "exists": True,
+            "excluded_harness_files": sorted(exclude_names),
             "boundary": "Allocated content lengths of regular files, excluding symlinked caches; not filesystem allocated blocks. State can contain native source-page Markdown and logs in addition to database files."}

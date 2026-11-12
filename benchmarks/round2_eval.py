@@ -30,6 +30,9 @@ from benchmarks.token_compare import (ENCODINGS, TokenCounter, checkout_provenan
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / "benchmarks/round2_plan.json"
 BINDING = ROOT / "benchmarks/round2_candidate.json"
+UPSTREAM_LOCKS = {"claude-mem": "benchmarks/competitors/claude-mem-round2-lock.json",
+                  "billion-context": "benchmarks/competitors/billion-round2-lock.json",
+                  "ai-memory": "benchmarks/competitors/ai-memory-lock.json"}
 
 
 def sha(path):
@@ -60,10 +63,12 @@ def evaluator_sources(root=ROOT):
     paths += [path for path in (root / "benchmarks/competitors").iterdir()
               if path.suffix in {".py", ".mjs", ".ts", ".json"}]
     paths += [root / name for name in (
-        "scripts/run_round2_validation.py", "scripts/summarize_round2_validation.py",
+        "scripts/run_round2_validation.py", "scripts/summarize_round2_validation.py", "scripts/bind_round2_candidate.py",
         ".github/workflows/round2-validation.yml", "benchmarks/round2_plan.json",
         "benchmarks/round2_hotpot256_manifest.json", "benchmarks/hotpot_manifest.json",
-        "benchmarks/experiments/semantic-local-plan.json")]
+        "benchmarks/experiments/semantic-local-plan.json", "benchmarks/experiments/round2-upstream-registration.json")]
+    paths += [path for path in (root / "benchmarks").glob("round2*.json")
+              if path.name != "round2_candidate.json"]
     return {str(path.relative_to(root)): sha(path) for path in sorted(paths)}
 
 
@@ -85,6 +90,8 @@ def frozen_inputs():
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
     if (binding.get("status") != "frozen-before-scoring"
             or type(binding.get("optional_semantic")) is not bool
+            or binding.get("coverage") is not False
+            or binding.get("upstream_locks") != UPSTREAM_LOCKS
             or binding.get("plan_sha256") != sha(PLAN)
             or binding.get("cohort_manifest_sha256") != sha(round2_data.MANIFEST)
             or binding.get("evaluator_sha256") != evaluator_sources()):
@@ -119,8 +126,7 @@ def documents_from(book):
 
 
 def groups_for(data, book):
-    chapters = [(row["project_id"], row["id"], row["chapter_id"])
-                for row in book.db.execute("SELECT project_id,id,chapter_id FROM sessions")]
+    chapters = [tuple(row) for row in book.db.execute("SELECT project_id,external_id,chapter_id FROM sessions")]
     return {case.id: diagnostics(case, chapters) for case in data.queries}
 
 
@@ -142,6 +148,7 @@ def sample_score(case, response, sources, counters, config, groups, pages=None):
     row = score_row(case, response, sources, counters, public=True)
     row.update(groups[case.id], context_sha256=hashlib.sha256(response["context"].encode()).hexdigest(),
         block_hashes=block_ids(response),
+        context_size_error=not row["context_size_consistent"],
         token_budget_violation=row["context_tokens"][config["tokenizer"]] > config["budget_tokens"],
         source_span_errors=source_errors(response, sources),
         scope_errors=sum(item["breadcrumb"][0]["id"] != case.project for item in response["results"]),
@@ -152,7 +159,7 @@ def sample_score(case, response, sources, counters, config, groups, pages=None):
     return row
 
 
-INVARIANTS = ("token_budget_violation", "budget_violation", "source_span_errors", "scope_errors",
+INVARIANTS = ("token_budget_violation", "budget_violation", "context_size_error", "source_span_errors", "scope_errors",
               "page_projection_errors", "token_metadata_error")
 
 
@@ -199,7 +206,7 @@ def export(args, plan, binding, data, report, resources):
         atomic(args.bundle, bundle)
     report.update(frozen_corpus={key: value for key, value in bundle.items()
                                if key not in {"documents", "diagnostics"}},
-                  storage=storage(args.state), source_unchanged=engine_source_hash(source) == plan["baseline"]["source_sha256"])
+                  storage=storage(args.state, ("attempts.jsonl",)), source_unchanged=engine_source_hash(source) == plan["baseline"]["source_sha256"])
     report["validation"] = {"passed": report["source_unchanged"], "failures": []}
 
 
@@ -266,8 +273,8 @@ def native(args, plan, binding, data, bundle, report, ledger, resources):
                 "invariants": invariant_counts, "repeat_context_mismatches": mismatches})
         resources.set_phase("finalization")
         report["metadata"].update(originals_unchanged=originals == source_snapshot(book.db), stats_after=book.stats())
-        report["storage_before_close"] = storage(args.state)
-    report["storage_after_close"] = storage(args.state)
+        report["storage_before_close"] = storage(args.state, ("attempts.jsonl",))
+    report["storage_after_close"] = storage(args.state, ("attempts.jsonl",))
     report["metadata"].update(source_sha256_after=engine_source_hash(source),
                               source_unchanged=engine_source_hash(source) == expected["source_sha256"])
     failures = []
@@ -290,6 +297,9 @@ def component_engine(args, plan, binding, bundle):
         semantic = args.stage == "candidate-semantic-component"
         book = MemoryBook(args.state / "component.db", max_page_chars=900, cache_size=0,
                           **({"semantic_model_dir": args.model_dir} if semantic else {}))
+        if digest(documents_from(book)) != bundle["documents_sha256"]:
+            book.close()
+            raise ValueError("Opened component archive differs from the frozen supplied pages")
         class BookComponent:
             metadata = {"source_provenance": provenance, "source_sha256": expected["source_sha256"],
                 "comparison_scope": "shared-page Book ranker with native hierarchy metadata",
@@ -314,13 +324,41 @@ def component_engine(args, plan, binding, bundle):
         return engine, args.state
     if args.stage == "claude-mem-fts":
         from benchmarks.competitors.claude_mem import ClaudeMemFTS
-        return ClaudeMemFTS(bundle["documents"], args.cache / "claude-mem", args.state / "native", offline=True), args.state / "native"
+        return ClaudeMemFTS(bundle["documents"], args.cache / "claude-mem", args.state / "native", offline=True,
+                            lock_path=ROOT / binding["upstream_locks"]["claude-mem"]), args.state / "native"
     if args.stage == "ai-memory-hybrid":
         from benchmarks.competitors.ai_memory import AiMemoryNative
         engine = AiMemoryNative(bundle["documents"], args.cache / "ai-memory", offline=True, retrieval="hybrid")
         return engine, engine._data_dir
     from benchmarks.competitors.billion import BillionKernel
-    return BillionKernel(bundle["documents"], args.cache / "billion-context", offline=True), None
+    return BillionKernel(bundle["documents"], args.cache / "billion-context", offline=True,
+                         lock_path=ROOT / binding["upstream_locks"]["billion-context"]), None
+
+
+def component_hits(response, documents, project, stage):
+    ids = response.get("hit_ids")
+    if ids is None:
+        ids = [item["ref"] for item in response["results"]]
+    if len(ids) > 5 or len(ids) != len(response["results"]):
+        raise ValueError("Native top-five result count differs from its mapped IDs")
+    mapped = [identity for identity in ids if identity in documents]
+    if len(mapped) != len(set(mapped)):
+        raise ValueError("Native component duplicated a supplied page")
+    native_hashes = []
+    for identity, hit in zip(ids, response["results"], strict=True):
+        if identity not in documents and not (identity is None and stage == "ai-memory-hybrid"):
+            raise ValueError("Native component returned an unmapped page ID")
+        if identity in documents and documents[identity]["project"] != project:
+            raise ValueError("Native component returned another project's page")
+        if stage == "ai-memory-hybrid":
+            if hit.get("id") is None:
+                raise ValueError("Native metadata hit has no original identity")
+            if ("project" in hit and hit["project"] != project) or ("workspace" in hit and hit["workspace"] != "benchmark"):
+                raise ValueError("Native metadata result scope differs from the requested scope")
+        native_hashes.append(digest(hit.get("id", hit.get("ref", identity))))
+    if len(set(native_hashes)) != len(native_hashes):
+        raise ValueError("Native component duplicated a native result identity")
+    return list(ids), mapped, native_hashes
 
 
 def component(args, plan, binding, data, bundle, report, ledger, resources):
@@ -339,14 +377,7 @@ def component(args, plan, binding, data, bundle, report, ledger, resources):
             for case in cases:
                 seq = ledger.start(args.stage, "search", repetition, case.id)
                 response = engine.search(case.query, case.project, 5)
-                ids = response.get("hit_ids")
-                if ids is None:
-                    ids = [item["ref"] for item in response["results"]]
-                if len(ids) > 5 or len(ids) != len(set(ids)):
-                    raise ValueError("Native result limit or unique-ID invariant failed")
-                mapped = [identity for identity in ids if identity in documents]
-                if any(documents[identity]["project"] != case.project for identity in mapped):
-                    raise ValueError("Native component returned another project's page")
+                ids, mapped, native_hashes = component_hits(response, documents, case.project, args.stage)
                 payload = canonical_json(response.get("native_payload", response["results"]))
                 reads = []
                 if repetition == 0 and args.stage == "ai-memory-hybrid":
@@ -357,7 +388,9 @@ def component(args, plan, binding, data, bundle, report, ledger, resources):
                         reads.append(read)
                 read_payloads = [canonical_json(read.get("native_payload", read["result"])) for read in reads]
                 cost = {"id": case.id, "repetition": repetition, "status": "ok", "hit_ids": mapped,
+                    "native_hit_ids": ids, "native_result_id_sha256": native_hashes,
                     "unmapped_native_hits": len(ids) - len(mapped), "payload_sha256": hashlib.sha256(payload.encode()).hexdigest(),
+                    "read_payload_sha256": [hashlib.sha256(value.encode()).hexdigest() for value in read_payloads],
                     "search_payload_tokens": {name: counter.count(payload) for name, counter in counters.items()},
                     "search_content_tokens": {name: counter.count(response["native_text"]) for name, counter in counters.items()}
                         if response.get("native_text") is not None else None,
@@ -380,7 +413,7 @@ def component(args, plan, binding, data, bundle, report, ledger, resources):
                 "query_id": probe.id, "streams_active": info["decoded_native"].get("streams_active"),
                 "boundary": "One explicitly unscored diagnostic call after timed repetitions; not included in query costs."}
         resources.set_phase("finalization")
-        report["storage_before_close"] = storage(native_state) if native_state else {
+        report["storage_before_close"] = storage(native_state, ("attempts.jsonl",)) if native_state else {
             "regular_file_bytes": 0, "boundary": "This supplied-source search-kernel harness has an in-memory index and no persistent corpus store."}
     finally:
         engine.close()
@@ -404,7 +437,13 @@ def component(args, plan, binding, data, bundle, report, ledger, resources):
     report["first_pass_roundtrip_latency"] = latency_summary([row["bridge_ms"] for row in samples if row["repetition"] == 0])
     report["repeat_roundtrip_latency"] = latency_summary([row["bridge_ms"] for row in samples if row["repetition"] > 0])
     first = [row for row in samples if row["repetition"] == 0]
+    report["first_pass_search_plus_all_reads_latency"] = latency_summary(
+        [row["bridge_ms"] + row["read_ms"] for row in first])
+    report["search_plus_all_reads_boundary"] = "First-pass per-query adapter search roundtrip plus every declared native read roundtrip. Percentiles are computed from individual summed samples, never by adding percentiles; evaluator token counting and shared packing are excluded."
     report["native_costs"] = {"queries": len(first), "read_policy": plan["components"]["native_read_policy"],
+        "unmapped_native_hits": sum(row["unmapped_native_hits"] for row in first),
+        "queries_with_unmapped_native_hits": sum(row["unmapped_native_hits"] > 0 for row in first),
+        "native_metadata_policy": "ai-memory native metadata hits represented as None retain their original top-k position and complete native payload cost. They receive zero source-evidence credit, no full-page expansion, and no replacement retrieval. Unknown non-None IDs, duplicate identities and scope mismatches fail.",
         "mean_read_calls": statistics.fmean(row["read_calls"] for row in first),
         "mean_read_ms": statistics.fmean(row["read_ms"] for row in first),
         **{"mean_" + field: {name: statistics.fmean(row[field][name] for row in first) for name in ENCODINGS}
@@ -424,6 +463,7 @@ def component(args, plan, binding, data, bundle, report, ledger, resources):
 def summary_of(report, raw_sha):
     summary = copy.deepcopy(report)
     summary.pop("timing_rows", None)
+    summary.pop("attempt_states", None)
     for config in summary.get("configurations", []):
         config.pop("query_results", None)
     summary["full_report_sha256"] = raw_sha
@@ -486,6 +526,7 @@ def main(argv=None):
         ledger.close()
         report.update(finished_at=now(), resources=resources.close(), ledger_sha256=sha(args.state / "attempts.jsonl"),
                       attempts_started=ledger.started, attempts_finished=ledger.finished)
+        report["attempt_states"] = [json.loads(line) for line in (args.state / "attempts.jsonl").read_text().splitlines()]
         write_report(report, args.output)
     print(json.dumps({"stage": args.stage, "validation": report["validation"],
                       "attempts_started": ledger.started, "attempts_finished": ledger.finished}))
