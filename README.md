@@ -308,46 +308,35 @@ The named volume persists the archive across server processes. No HTTP port is p
 
 ## Validation and optional modes
 
-The latest default-path optimization preserves complete evidence payloads while
-reducing pooled p95 across all 12 measured cohort/interface/character-budget
-settings: **1.32%–13.65% in process and 1.25%–9.50% through actual MCP**.
-All 56,784 timed calls, unchanged source/index checks, balanced run orders and
-per-round exceptions remain in the [performance report](docs/default-recall-performance.md).
-
 The current recommendation is **default score-aware lexical recall**. Optional
 exact token limits, multi-fact coverage and local semantic candidates are
 explicit choices for a workload and context budget.
 
-The native token-budget validation covers **eight cohorts, 2,019 query
-instances and 24,228 query/configuration pairs**. It records **251
-complete-evidence gains, zero complete-evidence losses and zero losses of
-previously fitting baseline blocks**. These are configuration-level counts.
-Source, exact-budget, context-size and repetition checks passed. Filling more
-of a small budget adds work; each report retains the paired latency costs.
-
 | Capability | Current verification |
 |---|---|
-| Exact token budgets | Both reference tokenizers, three token caps, two character caps, source-preserving assembly and complete paired results |
-| Optional semantic candidates | Four complete local-model cohorts; default stays lexical because the quality/cost tradeoff depends on the workload |
-| Optional multi-fact coverage | Explicit `coverage=True` / `--coverage`; tested default/optional mode equivalence and published category-level results |
-| Native competitor components | Executed claude-mem FTS, ai-memory hybrid and billion-context search with pinned source/runtime versions |
-| Actual generated answers | 768 completed calls across two fixed cohorts; verified model identity, usage and per-question scores |
-| Native workflow diagnostic | 42 captured sessions, 42 consolidation attempts and 72 answers; native failures and their costs retained |
+| Default retrieval and ingestion | 56,784 actual paired calls; four balanced rounds; full payload, source and index equivalence; separate ingestion, replay, startup and resource measurements |
+| Optional indexed references | 56,784 actual SDK calls; 7,098 distinct complete payload pairs and all 6,868 archived reference entries; full metadata costs and per-question losses |
+| Optional Q2 semantic candidates | 48,492 development recalls across four old cohorts and four paired modes; all budgets, diagnostic groups, model/index costs and individual losses retained |
+| Native budgets and current competitors | Frozen 256-question protocol; two tokenizers, three token caps, two native character caps; separate Book, claude-mem FTS, ai-memory hybrid and billion-context boundaries |
 
 [All result tables and reproducible artifacts](benchmarks/README.md) ·
-[Native token-budget protocol](docs/native-budget-evaluation.md) ·
+[Current component/native protocol](docs/round2-validation.md) ·
 [Semantic setup and measured tradeoffs](docs/semantic-retrieval.md) ·
 [Coverage details](benchmarks/RESULTS-conjunctive-recall.md) ·
 [Real-answer results](benchmarks/RESULTS-local-answers.md) ·
-[Native workflow results](benchmarks/RESULTS-full-workflow.md) ·
-[Completion audit](docs/continuation-status.md).
+[Native workflow results](benchmarks/RESULTS-full-workflow.md).
 
-The comparison above uses a fixed shared-page policy. Native API packing,
-semantic ranking, generated-answer scores and capture/consolidation workflows
-are measured separately. Public and reused synthetic questions are regression
-data; the externally authored HotpotQA diagnostic broadens coverage within a
-defined scope. Full reports retain the measured limitations, unsupported
-questions, errors, negative results and historical comparisons.
+Q2 can improve paraphrase retrieval, but can displace useful lexical evidence
+and adds local model/index costs. An existing compatible semantic index can be
+reused when upgrading fusion; its result-cache version changes separately.
+Multi-fact coverage remains an explicit `coverage=True` / `--coverage` option.
+
+Generated-answer and capture/consolidation diagnostics retain their own fixed
+source versions, model settings and measured failures. They are separate from
+the current source-delivery and lossless-format measurements. Public/reused
+questions are regression data; supplied HotpotQA paragraphs do not establish
+private-conversation or universal-domain transfer. Full reports retain all
+budgets, errors, negative results and historical comparisons.
 
 ## Optional archive inspection
 
