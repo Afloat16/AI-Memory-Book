@@ -1,0 +1,186 @@
+{
+  "attempt_counts": {
+    "completed": 27405
+  },
+  "attempts_sha256": "631d3a200d5d2f057618ba35a9edbd7439950cf1c6818616a7db4bfc3e1249a5",
+  "complete_comparison": true,
+  "created_at_utc": "2026-11-12T09:51:58.686596+00:00",
+  "evaluator": "round2-quality-q1-1",
+  "identity": {
+    "configurations": [
+      {
+        "budget_chars": 8000,
+        "budget_tokens": 512,
+        "limit": 5,
+        "tokenizer": "cl100k_base"
+      },
+      {
+        "budget_chars": 8000,
+        "budget_tokens": 1024,
+        "limit": 5,
+        "tokenizer": "cl100k_base"
+      },
+      {
+        "budget_chars": 8000,
+        "budget_tokens": 2048,
+        "limit": 5,
+        "tokenizer": "cl100k_base"
+      }
+    ],
+    "dataset_sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857",
+    "evaluator": "round2-quality-q1-1",
+    "evaluator_files": {
+      "component_eval.py": "77970a7043ab909e475c4950f4e4019db7b89328028b35c0f76a06273375aef0",
+      "data.py": "090d0460a6887eff32b3adb89d1684da9b7c9094f96246e187c1298051b64625",
+      "experiments/round2-quality-plan.json": "1c9b3741a378152720e53c0b1bb36237b7032ff4935475e5e8fd3a7b775876ed",
+      "experiments/semantic-local-plan.json": "a8d9234d57fd853c8564e3061808e8423d4d6b30295869ebda324ca4aae7335c",
+      "hotpot_data.py": "5c206176665690044da9862bb70fe374b12348c4b5e6d0bdb0b098bb73c85760",
+      "hotpot_manifest.json": "ad0aba557e98cac6925ff5bdb8048a1a04a5f708847007f33ddf03d88650b69d",
+      "locomo_split.json": "a64086f1dc194c3fe9157e60f9696a77d3c650af836a60fab192f3db48c527f5",
+      "long_data.py": "85223c53740dc4a22530222886a4697c9a3c171530abdc1153363ca0587469bf",
+      "native_budget_eval.py": "737230950fd4ddd7f415aa93137f65cd59b5c61a72676c58ca854aee59682b1b",
+      "public_data.py": "269625183d8bef8f3b34f534d1c6d52ce7c623f795015e3e1508835c3eee08e8",
+      "query_guard.py": "c98285d97784513baa259e26514323e9f7a01b5b42196ebeb35e19a16039c1e6",
+      "resume.py": "7003368a60db4d07f2a72dd21a3a636abb103918a509f54741dcf6461c6d2dd8",
+      "round2_quality_eval.py": "fc6e3b113e1671778205e98db365f1aa6d3f7663955d93c12ebdf34cc600fc6b",
+      "run.py": "e557475d5701ea7271de9103aa8267e204796336b5277352fad015d9399521a4",
+      "semantic-final-plan.json": "a447ccb7aedadaf52f9ec36fcb202183a45091f0c235285868489d35bf8a6213",
+      "semantic_eval.py": "46fa3b3fd6298ba1669bd0b17f3ad6f77a2fdaf5b79ba25e4632012090ca0b4e",
+      "token_compare.py": "bb34650d947a89c17c87e179dc9e376fe44b6d10c0bf4bb70ca4cdfd46913f18",
+      "transfer_cases.json": "27c200ec2ac8b2dd55f281a2e7bbddfc1f47dbc38791e8caa61e603b215a16c5",
+      "transfer_data.py": "a532783fd2562f02846d6cd0604dc7d885f7dfa0b258d3fdca2e6c205ea4d57e",
+      "transfer_manifest.json": "322387859b110d8543fd26a033ddf72c2a78aeb465cec797b361132effe12106"
+    },
+    "fusion_version": 2,
+    "model": {
+      "dimensions": 384,
+      "files": [
+        {
+          "bytes": 118453870,
+          "path": "onnx/model_quint8_avx2.onnx",
+          "sha256": "98a01d88b7de996cdea58c32ca71208c09968d143798814b2ea09d3439dc334f"
+        },
+        {
+          "bytes": 9081518,
+          "path": "tokenizer.json",
+          "sha256": "2c3387be76557bd40970cec13153b3bbf80407865484b209e655e5e4729076b8"
+        }
+      ],
+      "max_sequence_tokens": 128,
+      "overlap_tokens": 32,
+      "pooling": "attention-mask mean pooling followed by L2 normalization",
+      "repository": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+      "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "semantic_version": 1
+    },
+    "modes": [
+      "lexical_native_token_budget",
+      "legacy_rrf_k60",
+      "q1_score_075"
+    ],
+    "reference": {
+      "commit": "cb7486b4937a3ecb7ccbf94a746c0bbbf44eb41f",
+      "control_scope": "Original RRF function inside the shared candidate runtime; not a separate whole-runtime comparison.",
+      "fusion_ast_sha256": "8d021dc32765ae1aa9ea5d5eb11b0b778ece20483899aecaeb5f628aa445759d",
+      "rrf_k": 60,
+      "semantic_file_sha256": "6f9cee761d8c8f88f22193423b3c499e247426478fd7fed3600ac8076378baa2"
+    },
+    "repeats": 3,
+    "runtime": {
+      "packages": {
+        "numpy": "2.5.4",
+        "onnxruntime": "1.31.1",
+        "tiktoken": "0.12.0",
+        "tokenizers": "0.23.3"
+      },
+      "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+      "python": "3.12.16",
+      "sqlite": "3.45.1"
+    },
+    "runtime_source_sha256": "49ee4fc04efa89e0110a066094d5d5519f65e588f0ebbcce5f96961e57b29759",
+    "seed": 61
+  },
+  "preparation": {
+    "configured_summary_model_calls": 0,
+    "engine_stats": {
+      "cache_entries": 0,
+      "chapters": 8,
+      "chars": 645098,
+      "database_bytes": 16830464,
+      "page_chars": 651788,
+      "pages": 1339,
+      "projects": 8,
+      "revision": 216,
+      "schema_version": 3,
+      "sections": 1339,
+      "sessions": 216,
+      "turns": 4684
+    },
+    "ingestion_is_resume": false,
+    "ingestion_ms": 1308.354023,
+    "originals_sha256": "0e52a4783449f4ea483abae336bd4936b825d9ad32167652cc0311afd2b528bc",
+    "semantic_index": {
+      "build_ms": 45990.730473,
+      "inference_threads": 1,
+      "model": {
+        "dimensions": 384,
+        "files": [
+          {
+            "bytes": 118453870,
+            "path": "onnx/model_quint8_avx2.onnx",
+            "sha256": "98a01d88b7de996cdea58c32ca71208c09968d143798814b2ea09d3439dc334f"
+          },
+          {
+            "bytes": 9081518,
+            "path": "tokenizer.json",
+            "sha256": "2c3387be76557bd40970cec13153b3bbf80407865484b209e655e5e4729076b8"
+          }
+        ],
+        "max_sequence_tokens": 128,
+        "overlap_tokens": 32,
+        "pooling": "attention-mask mean pooling followed by L2 normalization",
+        "repository": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+        "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+        "semantic_version": 1
+      },
+      "model_fingerprint": "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25",
+      "model_load_ms": 837.805646,
+      "pages": 1339,
+      "revision": 216,
+      "runtime": {
+        "numpy": "2.5.4",
+        "onnxruntime": "1.31.1",
+        "tokenizers": "0.23.3"
+      },
+      "source_chars": 651788,
+      "source_sha256": "a03385239b4a833e31247a14d1467d4b87c4f8ba29ad31b019528c8415ad0944",
+      "vector_bytes": 3121152,
+      "windows": 2032
+    }
+  },
+  "preparation_attempts": [
+    {
+      "finished_at": "2026-11-12T09:46:17.733177+00:00",
+      "started_at": "2026-11-12T09:45:29.474153+00:00",
+      "status": "completed"
+    }
+  ],
+  "process_segments": [
+    {
+      "finished_at": "2026-11-12T09:51:43.069137+00:00",
+      "source_provenance": {
+        "commit_identifies_source": true,
+        "git_commit": "973657b8c6ab29d2462c9d88303fb0baed2faf24",
+        "git_dirty": true,
+        "python_files_differing_from_commit": [],
+        "repository_root": "/home/runner/work/AI-Memory-Book/AI-Memory-Book",
+        "source_dirty": false,
+        "source_root": "/home/runner/work/AI-Memory-Book/AI-Memory-Book/src/memory_book"
+      },
+      "started_at": "2026-11-12T09:45:29.113799+00:00"
+    }
+  ],
+  "schema_version": 1,
+  "status": "completed",
+  "warning": "Uncommitted work has unknown latency and evidence outcome. No missing row is imputed, replayed or counted as complete."
+}
