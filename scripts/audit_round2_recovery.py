@@ -111,12 +111,16 @@ def audit(final_commit):
     for stage in SHARED:
         old, old_files = report(INITIAL_COMMIT, INITIAL_RUN, stage, old_cp)
         new, new_files = report(final_commit, RECOVERY_RUN, stage, new_cp)
-        stable_corpus = ("dataset", "documents_sha256", "diagnostics_sha256", "originals_sha256", "stats", "source_sha256", "evidence_attainability")
-        corpus_before = {k: old["frozen_corpus"][k] for k in stable_corpus}
-        corpus_after = {k: new["frozen_corpus"][k] for k in stable_corpus}
+        corpus_fields = ("dataset", "documents_sha256", "diagnostics_sha256", "originals_sha256", "stats", "source_sha256", "evidence_attainability")
+        corpus_before = {k: old["frozen_corpus"][k] for k in corpus_fields}
+        corpus_after = {k: new["frozen_corpus"][k] for k in corpus_fields}
         item = {"initial_files_sha256": old_files, "recovery_files_sha256": new_files,
             "frozen_corpus_identical": corpus_before == corpus_after,
             "frozen_corpus_before_sha256": digest(corpus_before), "frozen_corpus_after_sha256": digest(corpus_after),
+            "frozen_corpus_differences": {k: {"before_sha256": digest(corpus_before[k]), "after_sha256": digest(corpus_after[k])}
+                                          for k in corpus_fields if corpus_before[k] != corpus_after[k]},
+            "originals_snapshot_before_sha256": corpus_before["originals_sha256"],
+            "originals_snapshot_after_sha256": corpus_after["originals_sha256"],
             "configurations": []}
         require(len(old["configurations"]) == len(new["configurations"]), "Configuration count differs")
         for left, right in zip(old["configurations"], new["configurations"], strict=True):
@@ -149,7 +153,8 @@ def audit(final_commit):
         "repeated_sample_comparisons": sum(r["repeated_non_timing_samples"]["comparisons"] for r in results.values()),
         "query_row_differences": differences, "sample_differences": sample_differences, "aggregate_differences": aggregate_differences,
         "timings_combined": False, "run_selected_by_score_or_latency": False,
-        "interpretation": "Equality only covers five shared completed stages. The initial run did not complete the external or semantic stages. Timings, resource samples, model/preparation state and whole native payload hashes are deliberately excluded; final performance uses only the complete recovery host. Differences, if any, remain unresolved evidence rather than a basis for selecting a run."}
+        "interpretation": "Equality only covers five shared completed stages. The initial run did not complete the external or semantic stages. Timings, resource samples, model/preparation state and whole native payload hashes are deliberately excluded; final performance uses only the complete recovery host. Differences, if any, remain unresolved evidence rather than a basis for selecting a run.",
+        "database_snapshot_boundary": "source_snapshot in benchmarks/semantic_eval.py hashes SELECT * from projects, chapters, sessions, turns, sections and pages. The frozen runtime writes current ingest timestamps to project/chapter/session records. Fresh runs can therefore have different originals snapshot hashes even when all exported pages and scored evidence agree. Public reports do not contain the original databases, so this audit cannot establish that timestamps are the only cause of any snapshot difference; the differing hashes are retained."}
 
 
 def main():
