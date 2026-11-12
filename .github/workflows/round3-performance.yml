@@ -84,6 +84,7 @@ jobs:
             --locomo-path .artifacts/round3-locomo10.json \
             --state-dir ".artifacts/round3-performance-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" \
             --output "benchmarks/reports/round3-performance-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT/report.json.gz" \
+            --publish-branch "validation/v031-round3-performance-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" \
             2>&1 | tee .artifacts/round3-performance.log
       - name: Audit saved rows without repeating retrieval
         id: audit
@@ -100,25 +101,16 @@ jobs:
         run: |
           python - <<'PY'
           from datetime import datetime, timezone
-          import gzip, hashlib, json, os, pathlib, shutil, subprocess
+          import hashlib, json, os, pathlib, subprocess
+          from types import SimpleNamespace
+          from scripts.round3_performance import export_checkpoint
           run = os.environ['GITHUB_RUN_ID'] + '-' + os.environ['GITHUB_RUN_ATTEMPT']
           public = pathlib.Path('benchmarks/reports/round3-performance-' + run)
           public.mkdir(parents=True, exist_ok=True)
           state = pathlib.Path('.artifacts/round3-performance-' + run)
-          if state.is_dir():
-              for name in ('run.json', 'checkpoint.json'):
-                  if (state / name).is_file():
-                      shutil.copyfile(state / name, public / name)
-              if (state / 'controller-attempts').is_dir():
-                  shutil.copytree(state / 'controller-attempts', public / 'controller-attempts')
-              workers = public / 'workers'
-              workers.mkdir(exist_ok=True)
-              for source in sorted((state / 'workers').glob('*')):
-                  if source.is_file() and source.name.endswith(('.started.json', '.json.gz')):
-                      shutil.copyfile(source, workers / source.name)
-                  elif source.is_file() and source.name.endswith('.attempts.jsonl'):
-                      # Preserve even an interrupted ledger with no final gzip.
-                      (workers / (source.name + '.gz')).write_bytes(gzip.compress(source.read_bytes(), mtime=0))
+          # Same export as the per-worker Git checkpoint. Both ledger forms
+          # remain present so this public directory is directly audit-ready.
+          export_checkpoint(SimpleNamespace(state_dir=state, output=public / 'report.json.gz'))
           reports = {str(p): hashlib.sha256(p.read_bytes()).hexdigest()
                      for p in sorted(public.rglob('*')) if p.is_file()}
           summary = public / 'report.summary.json'
