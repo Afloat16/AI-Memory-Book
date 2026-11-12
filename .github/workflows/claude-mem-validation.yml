@@ -1,0 +1,104 @@
+name: Validate native claude-mem FTS component
+
+on:
+  push:
+    branches: ['ci/claude-mem-validation']
+    paths:
+      - '.github/workflows/claude-mem-validation.yml'
+      - 'benchmarks/claude_mem_component_eval.py'
+      - 'benchmarks/competitors/claude_mem*'
+      - 'benchmarks/competitors/claude-mem-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: claude-mem-component-validation
+  cancel-in-progress: false
+
+jobs:
+  component:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e ".[mcp,clients,tokens]" pyarrow
+      - run: python -m unittest discover -s tests -v
+      - name: Prepare exact source pages and verified native code
+        run: |
+          git fetch origin 6f5299004642618e606d001b4c574e1bae572a7e
+          mkdir -p .artifacts
+          git worktree add --detach .artifacts/claude-mem-baseline 6f5299004642618e606d001b4c574e1bae572a7e
+          python -m benchmarks.prepare_native_data
+          python -m benchmarks.competitors.claude_mem --cache .artifacts/competitors/claude-mem
+      - name: Run actual native scope and source smoke
+        run: python -m benchmarks.claude_mem_component_eval --smoke --offline --state-dir .artifacts/claude-mem-smoke
+      - name: Measure all registered public questions
+        id: measure
+        env:
+          TIKTOKEN_CACHE_DIR: .artifacts/tiktoken
+        run: python -u -m benchmarks.claude_mem_component_eval --offline --exporter-src .artifacts/claude-mem-baseline/src --locomo-path .artifacts/data/locomo10.json --cache .artifacts/competitors/claude-mem --state-dir .artifacts/claude-mem-public1015 --output benchmarks/results/claude-mem-components-public
+      - name: Publish explicit public results and attempt state
+        if: always()
+        env:
+          MEASUREMENT_OUTCOME: ${{ steps.measure.outcome }}
+        run: |
+          python - <<'PY'
+          from datetime import datetime, timezone
+          import hashlib, json, os, pathlib, shutil, subprocess
+          root=pathlib.Path(".")
+          public=[]
+          smoke=root/".artifacts/claude-mem-smoke/smoke.json"
+          if smoke.exists():
+              destination=root/"benchmarks/reports/claude-mem-native-smoke.json"
+              shutil.copyfile(smoke,destination)
+              public.append(str(destination))
+          for suffix in (".json.gz",".summary.json",".md"):
+              path=root/("benchmarks/results/claude-mem-components-public"+suffix)
+              if path.is_file(): public.append(str(path))
+          marker=root/"benchmarks/reports/hosted-claude-mem-completion.json"
+          value={"status":"completed" if os.environ.get("MEASUREMENT_OUTCOME")=="success" else "failed",
+                 "measurement_outcome":os.environ.get("MEASUREMENT_OUTCOME"),
+                 "created_at":datetime.now(timezone.utc).isoformat(),
+                 "source_commit":os.environ["GITHUB_SHA"],
+                 "public_sha256":{p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() for p in public},
+                 "scope":"Pinned supplied-source SQLite FTS component only, no observer or full product workflow."}
+          ledger=root/".artifacts/claude-mem-public1015/queries.jsonl"
+          if ledger.exists():
+              value["ledger_sha256"]=hashlib.sha256(ledger.read_bytes()).hexdigest()
+              events=[]
+              for line in ledger.read_text().splitlines():
+                  try:
+                      row=json.loads(line)
+                      events.append({k:row[k] for k in ("event","repetition","query_id","id","status","payload_sha256") if k in row})
+                  except ValueError:
+                      value["incomplete_tail"]=True
+                      break
+              value["attempt_states"]=events
+          marker.write_text(json.dumps(value,indent=2)+"\n")
+          public.append(str(marker))
+          def call(*args): subprocess.run(args,check=True)
+          call("git","config","user.name","github-actions[bot]")
+          call("git","config","user.email","41898282+github-actions[bot]@users.noreply.github.com")
+          call("git","add","--",*public)
+          call("git","commit","-m","bench: preserve native claude-mem component execution")
+          branch="validation/20261112-claude-mem-"+os.environ["GITHUB_RUN_ID"]+"-"+os.environ["GITHUB_RUN_ATTEMPT"]
+          call("git","push","origin","HEAD:refs/heads/"+branch)
+          print(json.dumps({"result_branch":branch,"status":value["status"]}))
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: claude-mem-public-${{ github.run_attempt }}
+          path: |
+            benchmarks/results/claude-mem-components-public*
+            benchmarks/reports/claude-mem-native-smoke.json
+            benchmarks/reports/hosted-claude-mem-completion.json
+          if-no-files-found: warn
+          retention-days: 30
