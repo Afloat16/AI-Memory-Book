@@ -19,7 +19,7 @@ Default retrieval stays lexical. A candidate build is not a published tag.
 - Preserve complete non-timing output in the registered 47,320-call, four-round
   ABBA matrix. Ten pooled p95 ratios improve by 11.36% geometrically on average;
   public native p95 improves 26.05% and actual MCP p95 19.87%. The synthetic
-  512-token cell regresses 0.13%. No pooled p50/p95 cell regresses over 5%.
+  512-token cell regresses 0.125%. No pooled p50/p95 cell regresses over 5%.
 - Retain the original empty-database startup flag: +4.838 ms / +14.04%.
   The original report still says `accepted=false`; a separate, documented
   resource decision accepts that cost after 80 fresh startup diagnostics.
@@ -43,8 +43,8 @@ Default retrieval stays lexical. A candidate build is not a published tag.
   versus 22.826 ms. ai-memory (55.86%) and billion-context's search kernel
   (58.20%) lead Book completeness here; billion is also faster. Preserve every
   budget, subgroup, Q2 loss and component interface boundary.
-- Keep Q2 optional: it gains six complete questions at 1,024/2,048-token native
-  caps but loses six at 512 under each tokenizer on this new selection.
+- Keep Q2 optional: it has a net gain of six complete questions at 1,024/2,048-token native
+  caps and a net loss of six at 512 under each tokenizer on this new selection.
   These are evidence retrieval results, not final-answer or abstention scores.
 - Add a read-only final evidence audit with immutable result blobs, exact-HEAD
   runtime hashing, original auditors and zero retrieval/model/timing calls.
