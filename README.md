@@ -94,8 +94,8 @@ losses and reproduction](docs/indexed-references.md).
 The **default core optimization** has its own paired, identical-output test:
 all 12 cohort/interface/character-budget configurations have lower pooled p95,
 by **1.32%–13.65% in process** and **1.25%–9.50% through actual MCP**. On the
-public corpus, fresh ingestion is **46.45% faster** and unchanged-session replay
-is **61.38% faster**. Those improvements retain the same returned tokens and
+public corpus, fresh-ingestion time falls **46.45%** and unchanged-session replay
+time falls **61.38%**. Those improvements retain the same returned tokens and
 source/index content; the [full report](docs/default-recall-performance.md)
 keeps every round and the small individual-round regressions.
 
