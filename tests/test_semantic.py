@@ -129,12 +129,12 @@ class SemanticLifecycleTests(unittest.TestCase):
         empty = self.book.build_semantic_index()
         self.assertEqual(empty["windows"], 0)
 
-    def test_fusion_is_rank_based_equal_weight_and_deterministic(self):
+    def test_fusion_preserves_score_margins_and_is_deterministic(self):
         lexical = [{"id": "a", "score": 1000}, {"id": "b", "score": 1}]
         semantic = [{"id": "c", "semantic_similarity": .99}, {"id": "b", "semantic_similarity": .4}]
         rows = fuse_candidates(lexical, semantic)
-        self.assertEqual([row["id"] for row in rows], ["b", "a", "c"])
-        self.assertAlmostEqual(rows[0]["score"], 2 / 62)
+        self.assertEqual([row["id"] for row in rows], ["a", "c", "b"])
+        self.assertAlmostEqual(rows[0]["score"], .75)
         self.assertEqual(lexical[0]["score"], 1000)
 
 
