@@ -5,6 +5,7 @@
   "source_previous_native_commit": "794489f82ea0f23e17b510bb107030706d8a3e8e",
   "optimization": [
     "Use tiktoken 0.12.0 encode_with_unstable to reuse only tokenizer-certified stable prefix tokens, and re-encode the remaining tail together with every appended candidate. Never add separately counted prefix and suffix token lengths.",
+    "A first-choice success uses one ordinary full-context encode. Stable-prefix enumeration is prepared lazily only after the first rejection when several candidates remain, avoiding setup work on short or immediately successful lists.",
     "Reuse exact rendered-text term sets only inside one assemble call. No persistent source-text cache or cross-request state is introduced.",
     "Keep candidate order, 96-unit bound, character/token caps, source coordinates, baseline block preservation, and all selection rules unchanged."
   ],
@@ -30,7 +31,9 @@
     },
     "repeats": 1,
     "gate": "All 2016 complete result payload hashes must match the previous native implementation, excluding only latency_ms. Both workers must retain unchanged runtime sources. Source texts are not published.",
-    "timing": "Sequential isolated worker processes on the same host, tokenizers initialized before measured calls; report all configuration p50/p95/mean. One pass is a development timing diagnostic, not a robust production latency guarantee."
+    "timing": "Sequential isolated worker processes on the same host, tokenizers initialized before measured calls; report all configuration p50/p95/mean. One pass is a development timing diagnostic, not a robust production latency guarantee.",
+    "preserved_initial_attempt": "benchmarks/reports/native-optimization-development.json.gz (initial eager prefix setup; all 2016 payloads match but some wall-clock tails regress)",
+    "final_attempt": "benchmarks/reports/native-optimization-lazy-development.json.gz (same 2016 comparisons after lazy prefix setup; source hashes identify each implementation)"
   },
   "final_protocol": {
     "manifest": "benchmarks/native-completion-manifest.json",

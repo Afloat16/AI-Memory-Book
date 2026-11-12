@@ -540,7 +540,7 @@ def resume_ledger(path: Path, meta: dict, planned: list) -> tuple[dict, dict]:
     if not entries or any(not isinstance(entry, dict) for entry in entries):
         raise ValueError("Interrupted ledger must contain object entries")
     fields = ("kind", "evaluator", "evaluator_source_sha256", "endpoint", "parameters", "prompt_sha256",
-              "prepared_sha256", "tokenizer", "repeats", "request_order", "automatic_retries")
+              "prepared_sha256", "tokenizer", "repeats", "timeout_seconds", "request_order", "automatic_retries")
     if any(entries[0].get(key) != meta.get(key) for key in fields):
         raise ValueError("Resume identity differs from the original run; use a new experiment")
     # Distinct questions/engines can generate identical HTTP requests. Their
@@ -614,6 +614,7 @@ def _run_locked(args, prefix: Path) -> dict:
             "endpoint": url, "parameters": parameters, "prompt": PROMPT,
             "prompt_sha256": digest(PROMPT), "prepared_sha256": hashlib.sha256(raw_prepared).hexdigest(),
             "tokenizer": prepared["tokenizer"], "repeats": args.repeats,
+            "timeout_seconds": args.timeout,
             "request_order": "Query-major; rotate engine order by query and repetition",
             "automatic_retries": 0}
     planned = list(planned_requests(prepared, parameters, args.repeats))

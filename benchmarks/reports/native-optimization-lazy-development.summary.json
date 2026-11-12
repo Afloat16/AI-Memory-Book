@@ -1,0 +1,345 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-11-12T06:29:24.681220+00:00",
+  "purpose": "Complete native-token payload equivalence and development timing; latency_ms alone is excluded from payload hashes.",
+  "runtime": {
+    "python": "3.12.14",
+    "sqlite": "3.53.1",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41"
+  },
+  "methodology": "Independent sequential workers; no result cache; random query order with seed 61 + 1009 * repetition. Model/tokenizer loading is outside timed calls. Warm OS/SQLite caches; timing is host-specific.",
+  "repeats": 1,
+  "evaluator_sha256": "f64af77698eec5f7253431d36f73d2cf7d99389c4f03329dce1ddec33dd1970f",
+  "comparisons": [
+    {
+      "budget_chars": 2000,
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 512,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 168,
+        "p50_ms": 20.375933500000002,
+        "p95_ms": 123.40464235000003,
+        "mean_ms": 42.816493898809526
+      },
+      "candidate_latency": {
+        "samples": 168,
+        "p50_ms": 17.568505000000002,
+        "p95_ms": 57.454981700000005,
+        "mean_ms": 25.56658724404762
+      }
+    },
+    {
+      "budget_chars": 2000,
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 1024,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 168,
+        "p50_ms": 18.873117999999998,
+        "p95_ms": 107.904963,
+        "mean_ms": 36.776634375
+      },
+      "candidate_latency": {
+        "samples": 168,
+        "p50_ms": 16.5335825,
+        "p95_ms": 50.86260345000001,
+        "mean_ms": 22.684984327380953
+      }
+    },
+    {
+      "budget_chars": 2000,
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 2048,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 168,
+        "p50_ms": 14.828381,
+        "p95_ms": 33.262996400000006,
+        "mean_ms": 17.317495416666667
+      },
+      "candidate_latency": {
+        "samples": 168,
+        "p50_ms": 11.9559465,
+        "p95_ms": 35.93956225,
+        "mean_ms": 15.08938075
+      }
+    },
+    {
+      "budget_chars": 2000,
+      "tokenizer": "o200k_base",
+      "budget_tokens": 512,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 168,
+        "p50_ms": 23.614015000000002,
+        "p95_ms": 129.48628275000002,
+        "mean_ms": 46.44571575595238
+      },
+      "candidate_latency": {
+        "samples": 168,
+        "p50_ms": 19.040141,
+        "p95_ms": 69.69532395000004,
+        "mean_ms": 28.870606720238097
+      }
+    },
+    {
+      "budget_chars": 2000,
+      "tokenizer": "o200k_base",
+      "budget_tokens": 1024,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 168,
+        "p50_ms": 11.2265465,
+        "p95_ms": 70.2914494,
+        "mean_ms": 19.758194648809525
+      },
+      "candidate_latency": {
+        "samples": 168,
+        "p50_ms": 16.797399,
+        "p95_ms": 42.116910700000005,
+        "mean_ms": 20.977533285714287
+      }
+    },
+    {
+      "budget_chars": 2000,
+      "tokenizer": "o200k_base",
+      "budget_tokens": 2048,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 168,
+        "p50_ms": 15.344145000000001,
+        "p95_ms": 52.03948310000002,
+        "mean_ms": 20.26322794642857
+      },
+      "candidate_latency": {
+        "samples": 168,
+        "p50_ms": 15.497940499999999,
+        "p95_ms": 33.5600726,
+        "mean_ms": 18.126198744047617
+      }
+    },
+    {
+      "budget_chars": 8000,
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 512,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 168,
+        "p50_ms": 29.5406845,
+        "p95_ms": 89.2651069,
+        "mean_ms": 37.30594919642857
+      },
+      "candidate_latency": {
+        "samples": 168,
+        "p50_ms": 20.6833275,
+        "p95_ms": 66.95628355000005,
+        "mean_ms": 26.364194958333336
+      }
+    },
+    {
+      "budget_chars": 8000,
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 1024,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 168,
+        "p50_ms": 9.9028725,
+        "p95_ms": 74.04375385,
+        "mean_ms": 23.033423672619048
+      },
+      "candidate_latency": {
+        "samples": 168,
+        "p50_ms": 15.5488,
+        "p95_ms": 49.259713100000006,
+        "mean_ms": 20.034845041666667
+      }
+    },
+    {
+      "budget_chars": 8000,
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 2048,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 168,
+        "p50_ms": 9.4675605,
+        "p95_ms": 26.818405700000003,
+        "mean_ms": 12.615816273809525
+      },
+      "candidate_latency": {
+        "samples": 168,
+        "p50_ms": 12.8114375,
+        "p95_ms": 36.44993745,
+        "mean_ms": 16.83884319047619
+      }
+    },
+    {
+      "budget_chars": 8000,
+      "tokenizer": "o200k_base",
+      "budget_tokens": 512,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 168,
+        "p50_ms": 37.8865555,
+        "p95_ms": 101.30934090000001,
+        "mean_ms": 47.91048838095238
+      },
+      "candidate_latency": {
+        "samples": 168,
+        "p50_ms": 28.829831499999997,
+        "p95_ms": 86.82651860000009,
+        "mean_ms": 35.24197541071429
+      }
+    },
+    {
+      "budget_chars": 8000,
+      "tokenizer": "o200k_base",
+      "budget_tokens": 1024,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 168,
+        "p50_ms": 16.9753285,
+        "p95_ms": 104.56564660000002,
+        "mean_ms": 36.4911475
+      },
+      "candidate_latency": {
+        "samples": 168,
+        "p50_ms": 19.323207,
+        "p95_ms": 60.242350750000014,
+        "mean_ms": 26.64425124404762
+      }
+    },
+    {
+      "budget_chars": 8000,
+      "tokenizer": "o200k_base",
+      "budget_tokens": 2048,
+      "queries": 168,
+      "payload_mismatches": [],
+      "baseline_latency": {
+        "samples": 168,
+        "p50_ms": 13.658785,
+        "p95_ms": 41.22211925,
+        "mean_ms": 17.217034821428573
+      },
+      "candidate_latency": {
+        "samples": 168,
+        "p50_ms": 18.904725499999998,
+        "p95_ms": 59.7775152,
+        "mean_ms": 25.374073422619045
+      }
+    }
+  ],
+  "validation": {
+    "passed": true
+  },
+  "sources": [
+    {
+      "source_provenance": {
+        "source_root": "/workspace/scratch/9b046cd88f2d/AI-Memory-Book/.artifacts/native-prior-794489f/src/memory_book",
+        "repository_root": "/workspace/scratch/9b046cd88f2d/AI-Memory-Book/.artifacts/native-prior-794489f",
+        "git_commit": "794489f82ea0f23e17b510bb107030706d8a3e8e",
+        "git_dirty": false,
+        "source_dirty": false,
+        "commit_identifies_source": true,
+        "python_files_differing_from_commit": []
+      },
+      "source_sha256_before": "fdf5b1c0e427842f01f0029f80909f98273171508683a73a7e57ea4b8c713ed9",
+      "dataset": {
+        "kind": "synthetic",
+        "version": "2.0",
+        "variant": "long_sessions_v2",
+        "seed": 61,
+        "split": "development",
+        "sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26",
+        "projects": 8,
+        "sessions": 112,
+        "turns": 1408,
+        "source_characters": 1143252,
+        "source_utf8_bytes": 1578382,
+        "queries": 168,
+        "answerable_queries": 152,
+        "categories": {
+          "long_answer_middle": 8,
+          "long_answer_natural_middle": 16,
+          "long_answer_natural_late": 16,
+          "cross_project_name": 8,
+          "topic_change": 16,
+          "multi_section": 16,
+          "lookup": 24,
+          "unanswerable_unrelated": 8,
+          "low_overlap_paraphrase": 8,
+          "latest_decision": 8,
+          "short_followup": 8,
+          "similar_task": 8,
+          "unanswerable_related": 8,
+          "cross_session": 8,
+          "historical": 8
+        }
+      },
+      "ingestion_ms": 2212.726637,
+      "source_sha256_after": "fdf5b1c0e427842f01f0029f80909f98273171508683a73a7e57ea4b8c713ed9",
+      "source_unchanged": true
+    },
+    {
+      "source_provenance": {
+        "source_root": "/workspace/scratch/9b046cd88f2d/AI-Memory-Book/src/memory_book",
+        "repository_root": "/workspace/scratch/9b046cd88f2d/AI-Memory-Book",
+        "git_commit": "1e90fe5b6c70e4e0b75c4fc2a8ef0944c6577057",
+        "git_dirty": true,
+        "source_dirty": true,
+        "commit_identifies_source": false,
+        "python_files_differing_from_commit": [
+          "src/memory_book/token_budget.py"
+        ]
+      },
+      "source_sha256_before": "63cb5eb55cc0356e9c94499739a9d8dcca0307fd6e7a00188b4e25d59fc6a625",
+      "dataset": {
+        "kind": "synthetic",
+        "version": "2.0",
+        "variant": "long_sessions_v2",
+        "seed": 61,
+        "split": "development",
+        "sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26",
+        "projects": 8,
+        "sessions": 112,
+        "turns": 1408,
+        "source_characters": 1143252,
+        "source_utf8_bytes": 1578382,
+        "queries": 168,
+        "answerable_queries": 152,
+        "categories": {
+          "long_answer_middle": 8,
+          "long_answer_natural_middle": 16,
+          "long_answer_natural_late": 16,
+          "cross_project_name": 8,
+          "topic_change": 16,
+          "multi_section": 16,
+          "lookup": 24,
+          "unanswerable_unrelated": 8,
+          "low_overlap_paraphrase": 8,
+          "latest_decision": 8,
+          "short_followup": 8,
+          "similar_task": 8,
+          "unanswerable_related": 8,
+          "cross_session": 8,
+          "historical": 8
+        }
+      },
+      "ingestion_ms": 1359.752054,
+      "source_sha256_after": "63cb5eb55cc0356e9c94499739a9d8dcca0307fd6e7a00188b4e25d59fc6a625",
+      "source_unchanged": true
+    }
+  ],
+  "full_report_sha256": "80bcb99c957fb1e25d237914a6170fbece75926bc99e1f281a5df7a65669807c"
+}

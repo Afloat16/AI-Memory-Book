@@ -21,6 +21,7 @@ from benchmarks.token_compare import TokenCounter
 
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / "benchmarks/experiments/local-answer-plan.json"
+EXECUTION = ROOT / "benchmarks/experiments/local-answer-execution.json"
 
 
 def file_hash(path):
@@ -31,7 +32,14 @@ def file_hash(path):
     return value.hexdigest()
 
 
+def preparation_sources():
+    return {str(path.relative_to(ROOT)): file_hash(path) for path in
+            (Path(__file__).resolve(), PLAN, EXECUTION, ROOT / "benchmarks/hotpot_data.py",
+             ROOT / "benchmarks/hotpot_manifest.json", ROOT / "benchmarks/locomo_split.json")}
+
+
 def prepare(args):
+    sources = preparation_sources()
     plan = json.loads(PLAN.read_text())
     destination = args.work_dir / args.cohort
     destination.mkdir(parents=True, exist_ok=True)
@@ -64,12 +72,20 @@ def prepare(args):
             answer_eval.save_new(private_cases, cases)
         command += ["--cases", str(private_cases), "--cohort-label", "Frozen external HotpotQA scoped-distractor diagnostic"]
     subprocess.run(command, cwd=ROOT, check=True)
+    if preparation_sources() != sources:
+        raise ValueError("Cohort preparation code or plans changed during execution; retain this attempt")
+    answer_eval.save_new(destination / "preparation-binding.json",
+                         {"sources": sources, "prepared_sha256": file_hash(output),
+                          "cohort": args.cohort})
     print(json.dumps({"prepared": str(output), "cohort": args.cohort, "generative_calls": 0}))
 
 
 def export(args):
     prepared_path = args.work_dir / args.cohort / "prepared.json"
     prepared = json.loads(prepared_path.read_bytes())
+    binding = json.loads((prepared_path.parent / "preparation-binding.json").read_bytes())
+    if binding != {"sources": preparation_sources(), "prepared_sha256": file_hash(prepared_path), "cohort": args.cohort}:
+        raise ValueError("Cohort preparation code, plans or prepared inputs changed after freezing")
     answer_eval.validate_prepared(prepared, TokenCounter(prepared["tokenizer"]["name"]))
     trace = Path(str(args.run_prefix) + ".jsonl")
     summary = json.loads(Path(str(args.run_prefix) + ".summary.json").read_bytes())
@@ -86,6 +102,29 @@ def export(args):
     if len(actual) != len(expected) or set(actual) != expected:
         raise ValueError("Answer attempt matrix is incomplete or duplicated")
     plan = json.loads(PLAN.read_bytes())
+    if [engine["label"] for engine in prepared["engines"]] != plan["engines"]:
+        raise ValueError("Prepared engines differ from the registered three-way comparison")
+    if prepared["parameters"] != {"budget_chars": 8000, "budget_tokens": 512, "limit": 5,
+                                  "packing": "per-engine packing_policy", "segmentation": "adaptive",
+                                  "max_page_chars": 900, "min_page_chars": 400, "similarity_threshold": .12}:
+        raise ValueError("Prepared retrieval parameters differ from the registered experiment")
+    if prepared["tokenizer"] != {"name": "cl100k_base", "version": "0.12.0"}:
+        raise ValueError("Reference tokenizer differs from the registered experiment")
+    options = [engine["retrieval_options"] for engine in prepared["engines"]]
+    if options != [{}, {"native_token_budget": True}, {"native_token_budget": True, "semantic": True}]:
+        raise ValueError("Prepared engine options differ from the registered experiment")
+    if summary["run"]["parameters"] != {"model": plan["model"]["served_alias"], "stream": False,
+                                        "max_tokens": 128, "temperature": 0.0}:
+        raise ValueError("Actual request parameters differ from the registered experiment")
+    if summary["run"].get("timeout_seconds") != 120:
+        raise ValueError("Actual request timeout differs from the registered experiment")
+    planned = list(answer_eval.planned_requests(prepared, summary["run"]["parameters"], 1))
+    started, completed = answer_eval.resume_ledger(trace, summary["run"], planned)
+    if len(started) != len(expected) or len(completed) != len(expected):
+        raise ValueError("Retained ledger has unresolved or missing model attempts")
+    recomputed = {**answer_eval.summarize(prepared, rows), "run": entries[0], "trace_sha256": file_hash(trace)}
+    if recomputed != summary:
+        raise ValueError("Completed summary does not reproduce from the retained actual attempts")
     for entry, path in ((plan["model"], args.model_file), (plan["server"], args.server_archive)):
         if path.stat().st_size != entry["bytes"] or file_hash(path) != entry["sha256"]:
             raise ValueError("Actual local model/server artifact differs from the registered plan")
@@ -109,9 +148,12 @@ def export(args):
     result = {"schema_version": 1, "cohort": args.cohort,
               "status": "completed-real-local-model",
               "plan_sha256": file_hash(PLAN), "plan": plan,
+              "execution_plan_sha256": file_hash(EXECUTION),
+              "execution_plan": json.loads(EXECUTION.read_bytes()),
               "artifact_verification": {"model_sha256": file_hash(args.model_file),
                                         "server_archive_sha256": file_hash(args.server_archive)},
               "prepared_sha256": file_hash(prepared_path), "raw_trace_sha256": file_hash(trace),
+              "preparation_binding": binding,
               "evaluator_sources": prepared["evaluator_files"], "parameters": prepared["parameters"],
               "corpus_provenance": prepared["corpus_provenance"],
               "query_identities": [{"id": case["id"], "category": case.get("category"),

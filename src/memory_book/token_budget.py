@@ -198,11 +198,17 @@ def assemble(
         if not choices:
             continue
         prefix = "\n\n".join([*blocks, header])
-        count_after_prefix = counter.count_after(prefix)
-        for _, _, start, end, text in choices[:96]:
+        count_after_prefix = None
+        for index, (_, _, start, end, text) in enumerate(choices[:96]):
             # Character fit was checked above. Preserve the exact full-context
             # token boundary while avoiding repeated work on accepted blocks.
-            if count_after_prefix(text) <= budget_tokens:
+            # A first-choice success needs one ordinary encode. Prepare reusable
+            # tokens only after rejection, when several fit checks remain.
+            if index == 1 and len(choices) > 3:
+                count_after_prefix = counter.count_after(prefix)
+            count = (count_after_prefix(text) if count_after_prefix is not None
+                     else counter.count(prefix + text))
+            if count <= budget_tokens:
                 kept.append((row, header, text, [(start, end)]))
                 blocks.append(header + text)
                 seen.add(row["id"])
