@@ -3,6 +3,27 @@
 This record is a recovery entry point, not a benchmark result. Follow the exact
 committed reports before making quality, speed or cost claims.
 
+## Fresh-workspace recovery checkpoint
+
+On 2026-11-12 this continuation recovered remote `main` at `794489f` and
+`feat/semantic-memory-validation` at `4356339` (six additional commits, zero
+behind). The latter's CI run `43169559387` passed all nine jobs. Those six
+commits were already safely published; no uncommitted previous workspace was
+available to recover.
+
+The current run re-created the exact baseline `5abc85e` and candidate
+`407cda1` checkouts and verified the pinned public datasets, semantic model,
+answer model, and native comparator downloads. The prior synthetic61
+completion report and both historical checkpoints remain immutable. The
+seven still-pending native cohorts are registered in
+`benchmarks/native-continuation-manifest.json`; its new checkpoint is
+`benchmarks/reports/native-continuation-checkpoint.json`. Final aggregation
+still covers all eight stages from the original completion manifest.
+
+Actual semantic, answer, and workflow results must be read from completed
+reports, not inferred from downloads or runner implementation. Runtime fixes
+and new evidence are checkpointed on the feature branch before integration.
+
 ## Recovered and published
 
 - `main` was advanced from `ce7837f` to `794489f` without rewriting history.
