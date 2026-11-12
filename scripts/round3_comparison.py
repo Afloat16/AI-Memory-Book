@@ -68,6 +68,26 @@ def require(condition, message):
         raise ValueError(message)
 
 
+def failure_diagnostic(error, *, stage, check):
+    """Record code locations only; exception messages and locals may contain data."""
+    frames = []
+    trace = error.__traceback__
+    while trace is not None:
+        filename = Path(trace.tb_frame.f_code.co_filename)
+        try:
+            relative = filename.resolve().relative_to(ROOT.resolve())
+        except (OSError, ValueError):
+            pass
+        else:
+            if filename.is_file():
+                frames.append({"file": relative.as_posix(), "line": trace.tb_lineno,
+                               "function": trace.tb_frame.f_code.co_name})
+        trace = trace.tb_next
+    value = {"check": check, "stage": stage, "error_type": type(error).__name__, "frames": frames}
+    print(json.dumps({"event": "round3_failure", **value}, ensure_ascii=True), file=sys.stderr, flush=True)
+    return value
+
+
 def sha(raw):
     return hashlib.sha256(raw).hexdigest()
 
@@ -778,7 +798,7 @@ def worker(args):
         report["status"] = "completed"
     except BaseException as error:
         report.update(status="failed-incomplete", validation={"passed": False,
-            "failures": [{"check": "stage_exception", "error_type": type(error).__name__}]})
+            "failures": [failure_diagnostic(error, stage=args.stage, check="stage_exception")]})
     finally:
         ledger.close()
         report.update(finished_at=reused.now(), resources=resources.close(),
@@ -790,7 +810,7 @@ def worker(args):
                 verify_report(report, plan, binding, [case.id for case in data.queries])
             except Exception as error:
                 report.update(status="failed-incomplete", validation={"passed": False,
-                    "failures": [{"check": "strict_stage_assessment", "error_type": type(error).__name__}]})
+                    "failures": [failure_diagnostic(error, stage=args.stage, check="strict_stage_assessment")]})
         save_ledger(args.state, args.output)
         write_report(report, args.output)
     print(json.dumps({"stage": args.stage, "status": report["status"], "validation": report["validation"],
@@ -1053,7 +1073,16 @@ def main(argv=None):
         return 0
     if args.command == "worker":
         signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(KeyboardInterrupt()))
-        return worker(args)
+        try:
+            return worker(args)
+        except BaseException as error:
+            # Covers registration, initialization or finalization failures
+            # outside the worker report's own try/finally boundary.
+            known = {"export", *NATIVE, *COMPONENTS,
+                     "candidate-statistics-native", "candidate-statistics-component"}
+            failure_diagnostic(error, stage=args.stage if args.stage in known else "unregistered-worker",
+                               check="worker_boundary_exception")
+            return 2
     assessment = assess(args.checkpoint, args.binding, args.manifest, verify_existing=args.verify_existing)
     print(json.dumps({"status": assessment["status"], "validation": assessment["validation"]}))
     return 0 if assessment["status"] == "complete-verified" else 2

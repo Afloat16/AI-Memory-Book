@@ -131,7 +131,9 @@ def prepare(directory, binding, checkpoint, persist):
             record["status"] = "completed"
             return value
         except BaseException as error:
-            record.update(status="failed", error_type=type(error).__name__)
+            record.update(status="failed", error_type=type(error).__name__,
+                failure=comparison.failure_diagnostic(error, stage="preparation:" + name,
+                                                      check="preparation_exception"))
             raise
         finally:
             record.update(wall_ms=(time.perf_counter_ns() - begin) / 1e6,
@@ -218,7 +220,8 @@ def run(args):
                 code = execute(command, deadline - time.monotonic() - 120, directory / (stage + ".log"))
                 record.update(status="completed" if code == 0 else "failed", exit_code=code)
             except BaseException as error:
-                record.update(status="interrupted", error_type=type(error).__name__)
+                record.update(status="interrupted", error_type=type(error).__name__,
+                    failure=comparison.failure_diagnostic(error, stage=stage, check="stage_execution_exception"))
                 raise
             finally:
                 comparison.save_ledger(state, prefix)
@@ -235,7 +238,8 @@ def run(args):
         checkpoint["assessment_exit_code"] = 0 if assessment["status"] == "complete-verified" else 2
         success = checkpoint["assessment_exit_code"] == 0
     except BaseException as error:
-        checkpoint.update(status="failed-incomplete", error_type=type(error).__name__)
+        checkpoint.update(status="failed-incomplete", error_type=type(error).__name__,
+            failure=comparison.failure_diagnostic(error, stage="controller", check="controller_exception"))
     finally:
         checkpoint["finished_at"] = comparison.reused.now()
         persist()
@@ -249,7 +253,12 @@ def main(argv=None):
     parser.add_argument("--binding", type=Path, default=comparison.BINDING)
     parser.add_argument("--manifest", type=Path, default=comparison.MANIFEST)
     parser.add_argument("--wall-time-seconds", type=int, default=10800)
-    return run(parser.parse_args(argv))
+    args = parser.parse_args(argv)
+    try:
+        return run(args)
+    except BaseException as error:
+        comparison.failure_diagnostic(error, stage="controller", check="controller_boundary_exception")
+        return 2
 
 
 if __name__ == "__main__":
