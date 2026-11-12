@@ -210,24 +210,20 @@ memory-book service uninstall
 
 ## 验证与可选模式
 
-最新默认路径优化保持完整证据载荷不变，在全部 12 组“语料/接口/字符上限”配置中降低合并样本的 p95：**进程内降低 1.32%–13.65%，真实 MCP 降低 1.25%–9.50%**。[完整性能报告](docs/default-recall-performance.md)保留全部 56,784 次计时调用、来源与索引一致性、交替测量顺序，以及单轮出现的小幅耗时退步。
-
 当前推荐使用**默认 score-aware 词法召回**。精确 token 上限、多事实 coverage 和本地语义候选，按实际工作负载与上下文预算显式选择。
-
-原生 token 预算已覆盖 **8 组、2,019 个问题实例、24,228 个问题/配置配对**，记录 **251 个完整证据获益、完整问题零损失、原先已容纳的证据块零丢失**。这些是配置级计数；来源、精确预算、上下文大小和重复一致性检查通过。更充分利用小预算会增加计算，各报告保留同组配对耗时。
 
 | 能力 | 当前验证 |
 |---|---|
-| 精确 token 预算 | 两种 tokenizer、三个 token 上限、两个字符上限，保留来源的组装及完整配对结果 |
-| 可选语义候选 | 四组真实本地模型实验；质量/成本取决于任务，默认继续使用词法模式 |
-| 可选多事实 coverage | 显式 `coverage=True` / `--coverage`，默认/可选模式等价核验及分类结果已公开 |
-| 原生对比组件 | 实际执行固定版本的 claude-mem FTS、ai-memory 混合检索及 billion-context 搜索 |
-| 真实生成回答 | 两组固定题目，768 次已完成调用；模型身份、usage 与逐题评分均已验证 |
-| 原生完整流程诊断 | 42 个捕获会话、42 次整合尝试及 72 次回答；原生失败及成本全部保留 |
+| 默认检索与写入 | 56,784 次真实成对调用、四轮交替顺序；完整载荷、来源、索引一致，另测首次写入、重复导入、启动及资源 |
+| 可选索引引用 | 56,784 次真实 SDK 调用、7,098 个不同的完整载荷配对、全部 6,868 条归档引用；计入完整元数据成本并保留逐题损失 |
+| 可选 Q2 语义候选 | 四组既有语料、四种同组模式，48,492 次开发测量；完整保留各预算、困难分组、模型/索引成本及逐题损失 |
+| 原生预算与当前对比组件 | 固定 256 题方案，两种 tokenizer、三个 token 上限、两个原生字符上限；分别测量 Book、claude-mem FTS、ai-memory 混合检索和 billion-context |
 
-[完整结果与复现材料](benchmarks/README.md) · [原生预算方案](docs/native-budget-evaluation.md) · [语义设置与实测取舍](docs/semantic-retrieval.md) · [coverage 详情](benchmarks/RESULTS-conjunctive-recall.md) · [真实回答结果](benchmarks/RESULTS-local-answers.md) · [原生流程结果](benchmarks/RESULTS-full-workflow.md) · [完成审计](docs/continuation-status.md) · [代码验证](docs/validation.md)。
+[完整结果与复现材料](benchmarks/README.md) · [当前组件/原生预算方案](docs/round2-validation.md) · [语义设置与实测取舍](docs/semantic-retrieval.md) · [coverage 详情](benchmarks/RESULTS-conjunctive-recall.md) · [真实回答结果](benchmarks/RESULTS-local-answers.md) · [原生流程结果](benchmarks/RESULTS-full-workflow.md) · [代码验证](docs/validation.md)。
 
-上方对比使用固定的共同页面打包规则；原生 API、语义排名、生成回答和捕获/总结流程分别测量。公开题与重复模板属于回归数据，外部独立编写的 HotpotQA 诊断提供限定范围的补充。完整评测文档保留限制、无答案题、错误、负结果与历史对比。
+Q2 可以改善改写问题的召回，也可能挤出有用的词法证据，并增加本地模型与索引成本。升级融合规则时可复用兼容的现有语义索引，结果缓存单独更新版本；多事实 coverage 继续通过 `coverage=True` / `--coverage` 显式启用。
+
+生成回答和捕获/总结流程诊断保留各自的固定源码、模型设置与实测失败，与当前原文交付、无损格式测量分别说明。公开题和重复使用的问题属于回归数据；给定 HotpotQA 段落不能证明私有会话迁移或所有领域泛化。完整报告保留全部预算、错误、负结果和历史比较。
 
 原文与缓存保存在本地未加密文件中；工具返回的证据会进入客户端模型上下文。支持文本，不恢复图片、音频或完整结构化工具日志。
 
