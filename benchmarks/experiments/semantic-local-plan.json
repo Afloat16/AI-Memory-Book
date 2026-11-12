@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "status": "candidate-fixed-before-semantic-scoring",
+  "baseline_runtime_commit": "b36f044651553d75485bd26801ef3f1f65e393bb",
+  "purpose": "Optional local semantic candidates for low-lexical-overlap evidence; no replacement of the default lexical route and no generalization guarantee.",
+  "model": {
+    "repository": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+    "license": "Apache-2.0",
+    "dimensions": 384,
+    "max_sequence_tokens": 128,
+    "pooling": "attention-mask mean pooling, then L2 normalization",
+    "files": [
+      {
+        "path": "onnx/model_quint8_avx2.onnx",
+        "bytes": 118453870,
+        "sha256": "98a01d88b7de996cdea58c32ca71208c09968d143798814b2ea09d3439dc334f"
+      },
+      {
+        "path": "tokenizer.json",
+        "bytes": 9081518,
+        "sha256": "2c3387be76557bd40970cec13153b3bbf80407865484b209e655e5e4729076b8"
+      }
+    ]
+  },
+  "index": {
+    "source": "current page content only; no benchmark queries, labels, or generated summaries",
+    "windows": "tokenizer-offset windows covering the complete page, at most 128 model tokens including special tokens",
+    "overlap_tokens": 32,
+    "build": "explicit command; encode a source snapshot outside the write transaction, publish only if its revision is still current",
+    "freshness": "database revision and model fingerprint must both match; stale or missing indexes raise a clear rebuild error",
+    "persistence": "derived vectors in separate SQLite tables; source rows, page IDs and source offsets are preserved"
+  },
+  "retrieval": {
+    "scope": "apply project/chapter/session filters before ranking or candidate limits",
+    "similarity": "maximum cosine similarity across each page's windows and the query's windows",
+    "candidate_limit": 96,
+    "fusion": "equal-weight reciprocal rank fusion with k=60 over lexical and semantic page ranks",
+    "tie_breaker": "page ID",
+    "default": "disabled",
+    "endpoint_calls": 0
+  },
+  "evaluation": {
+    "existing_public_and_synthetic_cases": "regression data, including the earlier six-domain diagnostic",
+    "new_independent_corpus": "must be separately frozen before scoring; disclose model pretraining overlap as unknown",
+    "report": ["per-query gains and losses", "low-overlap and multi-section categories", "source and budget invariants", "model load time", "download bytes", "index build time and vector bytes", "cold and warm query cost"],
+    "guard": "no parameter selection or question-specific synonym lists using held-out labels; a failed or slower candidate remains a reported result",
+    "limits": "Sentence embeddings do not establish final-answer quality, full competitor-workflow cost advantage, or general semantic-memory completion."
+  }
+}
