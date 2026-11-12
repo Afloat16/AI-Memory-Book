@@ -596,6 +596,26 @@ class MemoryBook:
         values["revision"], values["schema_version"] = self.revision, SCHEMA_VERSION
         return values
 
+    def _project_rowid_bounds(self, project: str | None) -> tuple[int, int] | None:
+        """Bound FTS iteration only when a project occupies a narrow rowid span.
+
+        These covering-index probes run in recall's existing read snapshot.
+        They retain no state across calls. Interleaved or archive-wide projects
+        keep the original query plan instead of paying for ineffective bounds.
+        """
+        if project is None:
+            return None
+        lo, hi, archive_lo, archive_hi = self.db.execute("""SELECT
+          (SELECT MIN(rid) FROM pages WHERE project_id=?),
+          (SELECT MAX(rid) FROM pages WHERE project_id=?),
+          (SELECT MIN(rid) FROM pages), (SELECT MAX(rid) FROM pages)""",
+          (project, project)).fetchone()
+        if lo is None:
+            return (0, -1)
+        if 2 * (hi - lo + 1) <= archive_hi - archive_lo + 1:
+            return (lo, hi)
+        return None
+
     def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False) -> dict:
         started = time.perf_counter_ns()
         query = _string(query, "query", maximum=8000, required=False)
@@ -667,13 +687,23 @@ class MemoryBook:
                 # Directory joins are needed only for the bounded candidates;
                 # display-only fields are deferred to the final page fetch.
                 scope_join = " JOIN sessions s ON s.id=p.session_pk" if session is not None else ""
+                project_bounds = self._project_rowid_bounds(project) if qt and session is None else None
                 routes = []
                 for table in (("pages_fts", "pages_stem_fts") if use_stem else ("pages_fts",)):
                     # Table identifiers are fixed above; query text and every
                     # caller-supplied scope remain bound SQL parameters.
+                    page_join = " CROSS JOIN" if project_bounds is not None else " JOIN"
                     statement = (f"""SELECT p.rid,p.id,bm25({table},2.0,2.0,1.0,0.25) rank
-                      FROM {table} JOIN pages p ON p.rid={table}.rowid""" + scope_join +
-                      f" WHERE {table} MATCH ?" + where + " ORDER BY rank,p.id LIMIT 96")
+                      FROM {table}""" + page_join + f" pages p ON p.rid={table}.rowid" + scope_join +
+                      f" WHERE {table} MATCH ?" + where)
+                    route_params = [expression, *params]
+                    if project_bounds is not None:
+                        # Keep FTS outermost so range constraints narrow one
+                        # posting scan, rather than restarting MATCH per page.
+                        # The original scope still filters before the LIMIT.
+                        statement += f" AND {table}.rowid BETWEEN ? AND ?"
+                        route_params.extend(project_bounds)
+                    statement += " ORDER BY rank,p.id LIMIT 96"
                     if not use_stem:
                         # Keep the single-route path to one candidate query.
                         statement = """SELECT p.id,p.rid,p.project_id,p.chapter_id,
@@ -681,7 +711,7 @@ class MemoryBook:
                           FROM (""" + statement + """) hits JOIN pages p ON p.rid=hits.rid
                           JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk
                           ORDER BY hits.rank,p.id"""
-                    routes.append(self.db.execute(statement, [expression, *params]).fetchall() if qt else [])
+                    routes.append(self.db.execute(statement, route_params).fetchall() if qt else [])
                 exact_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[0])}
                 stem_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[1])} if use_stem else {}
                 exact_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[0]}
