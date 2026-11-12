@@ -44,6 +44,13 @@ not overwrite a full session with an incomplete fragment or invent past messages
 Use task_id only when a cross-session task relationship is known.
 """
 
+INDEXED_REFERENCE_INSTRUCTIONS = """recall_memory uses indexed-v1: source_sessions lists [project,session_id].
+Its source_refs entries are [session_index,turn_index] or
+[session_index,turn_index,extra_fields]. Resolve session_index with source_sessions
+and merge extra_fields to recover each full source reference.
+Context and page IDs are unchanged. read_page keeps object references.
+"""
+
 
 def _json(value: Any) -> str:
     # FastMCP otherwise pretty-prints dictionaries with indent=2. Returning one
@@ -52,8 +59,34 @@ def _json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
 
 
-def recall_payload(result: dict[str, Any], *, details: bool = False) -> dict[str, Any]:
+def _indexed_references(payload: dict[str, Any]) -> dict[str, Any]:
+    sessions, positions, hits = [], {}, []
+    for item in payload["results"]:
+        references = []
+        for ref in item["source_refs"]:
+            identity = (ref["project"], ref["session_id"])
+            if identity not in positions:
+                positions[identity] = len(sessions)
+                sessions.append(list(identity))
+            value = [positions[identity], ref["turn_index"]]
+            extra = {key: value for key, value in ref.items()
+                     if key not in {"project", "session_id", "turn_index"}}
+            if extra:
+                value.append(extra)
+            references.append(value)
+        hits.append({**item, "source_refs": references})
+    return {**payload, "results": hits, "source_sessions": sessions, "source_format": "indexed-v1"}
+
+
+def recall_payload(result: dict[str, Any], *, details: bool = False,
+                   source_format: str = "objects") -> dict[str, Any]:
     """Keep evidence unchanged; load precise offsets/diagnostics only on demand."""
+    if source_format != "objects":
+        if source_format != "indexed":
+            raise ValueError("source_format must be objects or indexed")
+        # Apply the established compact/details projection first, then encode
+        # every reference field in that complete value without mutating it.
+        return _indexed_references(recall_payload(result, details=details))
     if details:
         return {**{key: value for key, value in result.items() if key != "results"},
                 "results": [{key: item[key] for key in ("id", "source_refs", "excerpt_spans", "truncated")}
@@ -111,8 +144,11 @@ class _BookResource:
 
 
 def create_server(db_path: str | Path, allow_write: bool = False, *,
-                  semantic_model_dir: str | Path | None = None) -> FastMCP:
+                  semantic_model_dir: str | Path | None = None,
+                  source_format: str = "objects") -> FastMCP:
     """Create an MCP server; knowledge writes must be explicitly enabled."""
+    if source_format not in ("objects", "indexed"):
+        raise ValueError("source_format must be objects or indexed")
     try:
         from mcp.server.fastmcp import FastMCP
         from mcp.types import ToolAnnotations
@@ -165,6 +201,8 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
 
     instructions = INSTRUCTIONS + (WRITE_INSTRUCTIONS if allow_write else
         "This connection is read-only; remember_session is not available.\n")
+    if source_format == "indexed":
+        instructions += INDEXED_REFERENCE_INSTRUCTIONS
     server = FastMCP("AI-Memory-Book", instructions=instructions, log_level="WARNING", lifespan=lifespan)
     read_only = ToolAnnotations(
         readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False
@@ -206,7 +244,7 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
                 budget_tokens=budget_tokens, tokenizer=tokenizer,
                 semantic=semantic,
             )
-        return _json(recall_payload(result, details=details))
+        return _json(recall_payload(result, details=details, source_format=source_format))
 
     @server.tool(annotations=read_only)
     def browse_projects() -> Any:
@@ -259,6 +297,8 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
 
 
 def serve(db_path: str | Path, allow_write: bool = False, *,
-          semantic_model_dir: str | Path | None = None) -> None:
+          semantic_model_dir: str | Path | None = None,
+          source_format: str = "objects") -> None:
     """Run the SDK's stdio transport. No HTTP listener is created."""
-    create_server(db_path, allow_write=allow_write, semantic_model_dir=semantic_model_dir).run(transport="stdio")
+    create_server(db_path, allow_write=allow_write, semantic_model_dir=semantic_model_dir,
+                  source_format=source_format).run(transport="stdio")

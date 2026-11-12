@@ -92,6 +92,8 @@ def parser() -> argparse.ArgumentParser:
     mcp = sub.add_parser("mcp", help="Start the optional official-SDK MCP stdio server")
     mcp.add_argument("--allow-write", action="store_true", help="Also expose remember_session to the connected agent")
     mcp.add_argument("--semantic-model-dir", help="Operator-selected local model directory for explicit semantic recall; build its index separately")
+    mcp.add_argument("--source-format", choices=("objects", "indexed"), default="objects",
+                     help="Recall reference format; indexed explicitly enables a lossless session table")
     sub.add_parser("clients", help="List supported client profiles and detected installations; never reads conversation history")
     setup = sub.add_parser("setup", help="Configure client MCP connections and optional background capture")
     setup.add_argument("--client", action="append", default=[], help="Client profile; repeat for multiple clients (see 'memory-book clients')")
@@ -278,7 +280,8 @@ def main(argv: list[str] | None = None) -> int:
             return 0 if result["ok"] else 1
         if args.command == "mcp":
             from .mcp_server import serve
-            serve(args.db, allow_write=args.allow_write, semantic_model_dir=args.semantic_model_dir)
+            serve(args.db, allow_write=args.allow_write, semantic_model_dir=args.semantic_model_dir,
+                  source_format=args.source_format)
             return 0
         if args.command == "serve":
             from .web import serve
