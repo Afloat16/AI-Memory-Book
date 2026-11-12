@@ -11,6 +11,26 @@ component, and an actual capture/summary/retrieval/answer workflow. A fast
 search function is not a complete memory workflow, and source-evidence recall
 is not the accuracy of a generated answer.
 
+## Current implementation and evidence
+
+The selected implementation is frozen at
+[`cbf6260`](https://github.com/Afloat16/AI-Memory-Book/commit/cbf626037b42f11f8bc5b6d46f56caac771e54ba).
+Its default path remains lexical. The latest verified development improvements
+have separate measurement boundaries:
+
+| Area | Completed evidence | Interpretation |
+|---|---|---|
+| Default retrieval and ingestion | [56,784-call paired performance report](default-recall-performance.md) | Identical complete evidence payloads; lower pooled p95 in all 12 configurations; fresh import and unchanged replay costs measured separately |
+| Optional semantic fusion | [48,492-call Q2 development matrix](../benchmarks/reports/round2-anchor-development.md) | Aggregate complete evidence and annotation recall meet or exceed original RRF in 12 old cohort/budget settings; individual and diagnostic-group losses remain visible |
+| Indexed MCP references | [Operator configuration and format](indexed-references.md) | Explicit, reversible representation; original context and detailed offsets preserved; default schemas and instructions unchanged |
+| New component comparison | [Frozen 256-question protocol](round2-validation.md) | Source, optional semantic choice, upstream versions and evaluator hashes bound before scoring; native and shared-context costs are separate |
+
+The older LoCoMo component measurements below retain their original source
+pins and interface boundaries. They are regression evidence. The new upstream
+[registration](../benchmarks/experiments/round2-upstream-registration.json)
+pins claude-mem 15.18.1, ai-memory v3.4.5 and the current billion-context kernel
+for the independent comparison without rewriting those historical records.
+
 ## Popular projects and the workload they address
 
 Popularity is a dated selection aid, not a quality score. The star counts below
