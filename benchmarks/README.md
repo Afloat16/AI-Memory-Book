@@ -1,6 +1,30 @@
 # Retrieval experiments
 
-## Current: optional coverage and real-answer evaluation
+## Current: frozen native, semantic, answer and workflow continuation
+
+The 2026-11-12 continuation recovered the already committed runtime before
+running any missing cohort. All original raw reports and source/model/data
+pins remain unchanged. Completed cohorts publish their own Git result branch,
+independently of the chat workspace.
+
+| Experiment | Published progress | Results or execution record |
+|---|---|---|
+| Native token budgets | 8/8 cohorts; 24,228 paired query/configuration cases; 251 complete-case gains, zero losses | [Public report](results/native-completion-regression-public1015.md), [external report](results/native-completion-external-hotpot128.md), [protocol](../docs/native-budget-evaluation.md) |
+| Optional local semantics | 4/4 cohorts; 24,246 actual recalls; gains and losses retained | [Public report](results/semantic-final-regression-public1015.md), [external report](results/semantic-final-external-hotpot128.md), [setup and outcomes](../docs/semantic-retrieval.md) |
+| claude-mem native FTS | 1,015 questions × 3 actual calls; all six context configurations pass | [Full result](results/claude-mem-components-public.md), [four-component comparison](../docs/comparison.md) |
+| Real local answers | LoCoMo 384/384 attempts saved; HotpotQA job running | [LoCoMo summary](results/local-answer-final-locomo.summary.json), [registered answer guide](../docs/answer-evaluation.md) |
+| Book / ai-memory native workflow | Registered 42-session / 36-question job running | [Plan](experiments/full-workflow-plan.json), [continuation status](../docs/continuation-status.md) |
+
+The [final aggregation workflow](../docs/final-validation-aggregation.md)
+requires every registered input and verifies hashes, full matrices, model
+proofs and cost accounting before issuing an overall completion record.
+It does not run new retrieval or replay model requests. Model generation
+quality is separate from intact source-evidence recall. Negative results
+remain published, and timings stay attributed to each original host.
+
+Historical results below refer to their named source versions and policies.
+
+## Historical: optional coverage and answer readiness
 
 The [latest report](RESULTS-conjunctive-recall.md) retains the complete frozen
 automatic-clause experiment and explains the final opt-in API decision. All

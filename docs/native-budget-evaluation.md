@@ -2,6 +2,31 @@
 
 The [registered plan](../benchmarks/native_budget_plan.json) separates three delivery policies: historical full-page packing, the existing native excerpts followed by token packing, and the new native token-budget API. The first two are different baselines. A score from one must not be presented as the other.
 
+## Completed frozen matrix — 2026-11-12
+
+All eight registered cohorts now have completed, published reports: **2,019
+query instances and 24,228 query/configuration pairs**. The frozen candidate
+`407cda1c5f1dac0e67dfe527d3c23febdad5e818` retains the source hash
+`63cb5eb55cc0356e9c94499739a9d8dcca0307fd6e7a00188b4e25d59fc6a625`.
+There are **251 complete-question configuration gains, zero complete-question
+losses, 258 annotated-evidence gains, zero annotation losses, and zero losses
+of previously fitting baseline blocks**. Repeated configurations are counted
+separately; these totals are not numbers of distinct questions.
+
+At 8,000 characters / 512 cl100k_base tokens, public complete evidence improves
+65.33% to 66.41% (7 gains / 0 losses), while p95 rises from 7.120 to 10.076 ms.
+External HotpotQA improves 34.38% to 35.16%, with p95 7.873 to 9.188 ms.
+The historical whole-page 66.72% to 66.26% regression remains a separate result.
+
+See the [public report](../benchmarks/results/native-completion-regression-public1015.md),
+[external report](../benchmarks/results/native-completion-external-hotpot128.md)
+and [complete result index](../benchmarks/README.md). Three older completed
+cohorts retain their original checkpoints; five newly completed cohorts each
+have a hosted checkpoint and publication hashes. Hosts differ across cohorts;
+only the paired measurements within one cohort share a timing environment.
+Final aggregation rechecks the full raw/summary/checkpoint matrix without
+rerunning retrieval.
+
 ## Freeze and resume
 
 1. Save this plan before examining candidate results. Development is synthetic seed 61 (168 questions) and the existing hash-selected LoCoMo development subset (exactly 128 questions).

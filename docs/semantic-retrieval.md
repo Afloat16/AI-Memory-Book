@@ -10,6 +10,40 @@ useful lexical matches. It does not guarantee complete evidence, resolve old
 versus current decisions, or establish final-answer accuracy. Keep using the
 returned source references to check the original conversation.
 
+## Measured outcomes — 2026-11-12
+
+The registered four-cohort matrix has completed actual local inference:
+**1,347 questions × 3 token budgets × 2 modes × 3 repetitions**. The default
+remains lexical because the measured quality tradeoff is not uniformly positive.
+
+| Cohort, 512 cl100k_base tokens | Lexical complete evidence | Semantic complete evidence |
+|---|---:|---:|
+| Synthetic development seed 61 | 85.53% | 63.16% |
+| Authored diagnostic, 30 answerable questions | 86.67% | 100.00% |
+| Public LoCoMo, 649 answerable questions | 66.41% | 62.56% |
+| External HotpotQA, 128 answerable questions | 35.16% | 33.59% |
+
+The authored low-overlap subset improves 2/6 to 6/6. Public low-overlap
+complete evidence improves 46.01% to 47.55%, and cross-session completeness
+10.53% to 15.79%, while overall public complete questions have **39 gains and
+64 losses**. At 1,024 tokens, HotpotQA improves 48.44% to 50.00%; public
+complete evidence decreases 72.88% to 71.49%. Synthetic low-overlap questions
+remain unresolved. A passing source/budget gate is not a quality-improvement
+claim.
+
+On the public cohort's runner, initial model loading takes 1.271 s and building
+2,032 windows over 1,339 pages takes 116.554 s. The 384-float vectors alone use
+3,121,152 bytes; SQLite and the original archive add overhead. At 512 tokens,
+lexical/semantic p50 is 8.078/18.074 ms and p95 is 10.184/22.691 ms.
+These times belong to that paired host, not to the other cohorts or historical
+MCP benchmarks. There are no endpoint model calls in this retrieval mode;
+local embedding CPU work and downloaded artifacts are still costs.
+
+[Public results](../benchmarks/results/semantic-final-regression-public1015.md) ·
+[Authored diagnostic](../benchmarks/results/semantic-final-regression-authored36.md) ·
+[External results](../benchmarks/results/semantic-final-external-hotpot128.md) ·
+[Result index](../benchmarks/README.md).
+
 ## Prepare and build explicitly
 
 From a source checkout, install the optional dependencies and download the
