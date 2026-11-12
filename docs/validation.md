@@ -5,6 +5,26 @@ Product fixtures, examples, screenshots, and capture measurements are synthetic;
 v0.3.0 also evaluates an independently published LoCoMo text corpus. No private
 user conversation history was used in development or published.
 
+## Current hosted continuation — 2026-11-12
+
+The recovered runtime is frozen at `407cda1`; all eight native-budget cohorts
+and four semantic cohorts now have completed reports. The separately pinned
+claude-mem component completed 3,045 actual calls with all identity, source,
+FTS, scope, repetition and budget gates passing. The LoCoMo local-answer
+cohort has 384 completed attempts; HotpotQA answers and the native workflow
+are still executing independently of the chat workspace.
+
+[Result index](../benchmarks/README.md) ·
+[Durable recovery status](continuation-status.md) ·
+[Final strict aggregation](final-validation-aggregation.md).
+
+The hosted-run implementation passed
+[all nine CI jobs](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43178953345).
+The final aggregation implementation separately passed
+[all nine jobs](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43181437030).
+Integrity/completeness gates do not assert that every quality metric improved.
+The dated sections below retain the evidence available at those older commits.
+
 ## Unreleased: recall-quality continuation
 
 ### Recovered native-budget checkpoint: e70bc3d
