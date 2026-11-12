@@ -126,6 +126,9 @@ def recovery_inputs(plan, binding=None):
     if registration.get("helper_changes") != expected_changes:
         raise ValueError("Recovery helper diff hashes differ from the explicit registration")
     checkpoint_path = ROOT / "benchmarks/reports/round2-43201620535-1-checkpoint.json"
+    historical_checkpoint = subprocess.check_output(["git", "show", INITIAL_RESULTS_COMMIT + ":" + str(checkpoint_path.relative_to(ROOT))], cwd=ROOT)
+    if checkpoint_path.read_bytes() != historical_checkpoint:
+        raise ValueError("Original checkpoint differs from its immutable results commit")
     checkpoint = json.loads(checkpoint_path.read_bytes())
     if checkpoint["source_commit"] != INITIAL_BINDING_COMMIT or checkpoint["status"] != "failed":
         raise ValueError("Original failed run checkpoint was changed")
