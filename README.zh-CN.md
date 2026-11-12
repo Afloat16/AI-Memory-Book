@@ -94,6 +94,10 @@ memory-book doctor
 
 这个预算下，Q2 相对 Book 默认词法的完整率提高 **2.34 个百分点**，同时需要模型、索引初始化、内存和查询成本。在原生 API 的 512-token 预算下，完整率反而从 **35.94% 降至 33.59%**（`cl100k_base`）、从 **35.55% 降至 33.20%**（`o200k_base`），所以保持主动开启。所有题目都有答案，且来自同一公开数据域；结果不衡量答案生成、幻觉或私人会话迁移能力。
 
+![v0.3.1 完整证据率、搜索适配器延迟与独立配对性能测量](docs/assets/v0.3.1-comparison.svg)
+
+图表使用与表格相同的已保存测量。新增的[离线复核](benchmarks/reports/round3-recovery/comparison-cross-verification.json)检查全部 32 个结果文件，并逐字节复现原始评估与报告，没有执行新检索。[审计与发布来源](docs/round3-continuation.md#published-release-and-supplemental-audit)。
+
 [部署与架构对比](docs/comparison.md#popular-projects-and-the-workload-they-address)还包括 **Mem0、Graphiti、PageIndex 和 Letta**，与实跑基准明确区分。ai-memory 也支持默认零 LLM 路径；claude-mem 支持本地模型供应端。
 
 ## 文档导航
