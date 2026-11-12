@@ -27,6 +27,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from benchmarks.data import generate_dataset
+from benchmarks.query_guard import require_query_count
 from benchmarks.run import percentile
 
 
@@ -50,7 +51,8 @@ def summarize(values):
             "min": min(values), "max": max(values)}
 
 
-async def measure(label, root, dataset, work, encodings, repeats, budget):
+async def measure(label, root, dataset, work, encodings, repeats, budget,
+                  budget_tokens=None, tokenizer="cl100k_base"):
     from mcp import ClientSession, StdioServerParameters
     from mcp.client.stdio import stdio_client
 
@@ -98,6 +100,8 @@ async def measure(label, root, dataset, work, encodings, repeats, budget):
                 for case in cases:
                     arguments = {"query": case.query, "project": case.project,
                                  "budget_chars": budget, "limit": 5}
+                    if budget_tokens is not None:
+                        arguments.update(budget_tokens=budget_tokens, tokenizer=tokenizer)
                     pair = (case.query, case.project)
                     duplicate_pair = pair in seen_pairs
                     if duplicate_pair:
@@ -120,6 +124,8 @@ async def measure(label, root, dataset, work, encodings, repeats, budget):
                         envelope = response.model_dump_json(exclude_none=True)
                         context = body["context"]
                         assert len(context) <= budget
+                        if budget_tokens is not None:
+                            assert len(encodings[tokenizer].encode(context, disallowed_special=())) <= budget_tokens
                         if state == "first_call_after_cache_clear":
                             assert body.get("cache_hit") is not True, "First-call measurement returned a cached response"
                         compact_results[case.id] = (arguments, body, text)
@@ -162,7 +168,9 @@ async def measure(label, root, dataset, work, encodings, repeats, budget):
             "tokens": {name: {key: summarize([row["tokens"][name][key] for row in selected])
                         for key in ("context", "response_text", "response_envelope_json", "tool_arguments_json")}
                        for name in encodings}}
-    return {"label": label, "engine_sha256": source_hash, "startup_to_initialize_ms": summarize(startups),
+    return {"label": label, "engine_sha256": source_hash,
+            "native_budget_tokens": budget_tokens, "native_tokenizer": tokenizer if budget_tokens is not None else None,
+            "startup_to_initialize_ms": summarize(startups),
             "tool_list_json_tokens": schemas, "initialization_instruction_tokens": instructions,
             "query_pair_counts": {"query_rows": len(keys),
                                   "distinct_query_project_pairs": distinct_pairs,
@@ -181,7 +189,12 @@ async def main_async(args):
         dataset = load_locomo(args.locomo_path, split=args.split, max_queries=args.max_queries)
     else:
         dataset = generate_dataset(seed=args.seed, split=args.split, projects=args.projects)
+    require_query_count(dataset, getattr(args, "expected_queries", None))
     results = []
+    native_labels = set(getattr(args, "native_token_engine", None) or [])
+    labels = {value.partition("=")[0] for value in args.engine}
+    if native_labels - labels:
+        raise ValueError("--native-token-engine names an unknown engine")
     with tempfile.TemporaryDirectory(prefix="mcp-costs-", dir=args.work_dir) as temporary:
         for index, value in enumerate(args.engine):
             label, separator, path = value.partition("=")
@@ -191,7 +204,9 @@ async def main_async(args):
             work = Path(temporary) / str(index)
             work.mkdir()
             print(f"Measuring {label} via real MCP stdio", file=sys.stderr, flush=True)
-            results.append(await measure(label, root, dataset, work, encodings, args.repeats, args.budget_chars))
+            token_cap = args.budget_tokens if label in native_labels else None
+            results.append(await measure(label, root, dataset, work, encodings, args.repeats, args.budget_chars,
+                                         budget_tokens=token_cap, tokenizer=getattr(args, "tokenizer", "cl100k_base")))
     report = {"generated_at": datetime.now(timezone.utc).isoformat(),
               "fixture": dataset.description(), "budget_chars": args.budget_chars,
               "environment": {"python": platform.python_version(), "platform": platform.platform(),
@@ -206,6 +221,8 @@ async def main_async(args):
                         "Tool schemas/instructions are counted separately; hosts decide how often to include them.",
                         "No model inference, network model call, or generated-answer quality is measured."],
               "engines": results}
+    if native_labels:
+        report["scope"].append("Native token caps apply only to named engines. Older engines retain their character-only MCP response; this actual transport comparison is distinct from common token-capped evidence evaluation.")
     args.output.parent.mkdir(parents=True, exist_ok=True)
     encoded = (json.dumps(report, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
     if args.output.name.endswith(".json.gz"):
@@ -242,15 +259,21 @@ def main():
     parser.add_argument("--split", choices=("development", "heldout"), default="development")
     parser.add_argument("--locomo-path", type=Path)
     parser.add_argument("--max-queries", type=int, default=256)
+    parser.add_argument("--expected-queries", type=int)
     parser.add_argument("--seed", type=int, default=61)
     parser.add_argument("--projects", type=int, default=2)
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--budget-chars", type=int, default=2000)
+    parser.add_argument("--budget-tokens", type=int)
+    parser.add_argument("--tokenizer", choices=("cl100k_base", "o200k_base"), default="cl100k_base")
+    parser.add_argument("--native-token-engine", action="append", help="Only this engine receives the native token cap")
     parser.add_argument("--work-dir", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.repeats < 1 or args.projects < 1 or args.max_queries < 0:
         parser.error("--repeats and --projects must be positive; --max-queries must be nonnegative")
+    if bool(args.native_token_engine) != (args.budget_tokens is not None) or (args.budget_tokens is not None and args.budget_tokens < 1):
+        parser.error("A positive --budget-tokens and at least one --native-token-engine must be supplied together")
     asyncio.run(main_async(args))
 
 

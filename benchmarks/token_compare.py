@@ -26,6 +26,7 @@ import time
 from datetime import datetime, timezone
 
 from benchmarks.data import generate_dataset
+from benchmarks.query_guard import require_query_count
 from benchmarks.run import (aggregate, engine_source_hash, evaluate_response,
                             original_turn_texts, percentile)
 
@@ -250,6 +251,7 @@ def measure_engine(args) -> dict:
     counters = {name: TokenCounter(name) for name in ENCODINGS}
     dataset = load_dataset(args.corpus, args.seed, args.split, args.projects,
                            args.locomo_path, args.max_queries)
+    require_query_count(dataset, getattr(args, "expected_queries", None))
     source_texts = original_turn_texts(dataset)
     source_root = Path(memory_book.__file__).parent
     source_hash = engine_source_hash(source_root)
@@ -392,6 +394,7 @@ def main() -> int:
     parser.add_argument("--corpus", choices=("synthetic", "locomo", "transfer"), default="synthetic")
     parser.add_argument("--locomo-path")
     parser.add_argument("--max-queries", type=int, default=0)
+    parser.add_argument("--expected-queries", type=int)
     parser.add_argument("--split", choices=("development", "heldout"), default="development")
     parser.add_argument("--seed", type=int, default=61)
     parser.add_argument("--projects", type=int, default=8)
@@ -428,6 +431,8 @@ def main() -> int:
                        "--budget-chars", *map(str, args.budget_chars), "--token-budgets", *map(str, args.token_budgets)]
             if args.locomo_path:
                 command += ["--locomo-path", str(Path(args.locomo_path).resolve())]
+            if args.expected_queries is not None:
+                command += ["--expected-queries", str(args.expected_queries)]
             completed = subprocess.run(command, check=False)
             result = json.loads(output.read_text())
             # Invariant failures still produce a complete worker record. Keep

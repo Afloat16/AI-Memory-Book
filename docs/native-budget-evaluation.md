@@ -26,3 +26,49 @@ The [registered plan](../benchmarks/native_budget_plan.json) separates three del
 The new transfer cohort uses the externally authored [HotpotQA dev distractor dataset](https://github.com/hotpotqa/hotpot), licensed CC BY-SA 4.0. The fixed selection rule is independent of questions, answers and outcomes: sort original IDs by `SHA256('memory-book-transfer-v1:' + id)` and retain 128. Freeze source hashes and selected IDs before running the candidate. Index all supplied paragraphs under separate task chapters, scoped to the original problem; keep the question and labels out of the index.
 
 This test probes cross-article evidence assembly on an outside question set. It does not represent a full archive, independently collected user conversations or a universal semantic-memory test. The old 36-question authored fixture remains separately labeled as regression. If external data is unavailable, record the block rather than relabeling synthetic data as independent evidence.
+
+The original CMU HTTP and HTTPS data endpoints returned 503 during preparation. The pinned HuggingFace conversion in [the source manifest](../benchmarks/hotpot_manifest.json) supplies the same named dev distractor cohort; its Parquet bytes and deterministic JSON conversion are hashed separately, with no claim that the JSON bytes equal the original CMU file. The selected 128 problems contain 1,272 supplied paragraphs: 127 problems have ten, one has two. Every supplied paragraph is retained. All 128 questions are answerable, so this cohort cannot establish abstention behavior.
+
+## Reproduce the frozen inputs
+
+Install `pyarrow` in the evaluation environment for the one-time Parquet conversion, then run:
+
+```bash
+python -m benchmarks.prepare_native_data
+python -m benchmarks.hotpot_data --path .artifacts/data/hotpotqa-dev-distractor.json
+```
+
+[The cohort freeze](../benchmarks/native_budget_dataset_freeze.json) records IDs, counts and source/evidence fingerprints for every development and final cohort. No upstream source text, questions or answers are published in these manifests.
+
+## Run the native comparison
+
+With a separate baseline checkout at the registered `5abc85e` revision:
+
+```bash
+python -m benchmarks.native_budget_eval \
+  --baseline-src .artifacts/baseline-current/src --candidate-src src \
+  --corpus locomo --locomo-path .artifacts/data/locomo10.json \
+  --split development --max-queries 128 --expected-queries 128 \
+  --output benchmarks/results/native-token-development
+```
+
+The default matrix is two character caps, both named tokenizers, three token caps and three repetitions. The historical policy retains its separate 100,000-character retrieval boundary. Every other policy uses each declared character cap. The compressed report keeps all per-query gains/losses, source references, source hashes and retained-block hashes. A semantic candidate can be measured separately with `--candidate-semantic-model-dir PATH`; it changes retrieval candidates, so its block losses against lexical retrieval are reported rather than treated as the token packer's preservation guarantee.
+
+## Prepare actual generated answers
+
+The paired runner accepts explicit per-source settings and records them with each frozen context:
+
+```bash
+python -m benchmarks.answer_eval prepare \
+  --locomo-path .artifacts/data/locomo10.json --split heldout \
+  --max-queries 128 --expected-queries 128 \
+  --source baseline=.artifacts/baseline-current/src \
+  --source token=src --source semantic=src \
+  --source-options 'token={"native_token_budget":true}' \
+  --source-options 'semantic={"native_token_budget":true,"semantic_model_dir":".artifacts/models/semantic"}' \
+  --budget-chars 8000 --budget-tokens 512 --tokenizer cl100k_base \
+  --cohort-label 'previously observed public regression; actual model comparison' \
+  --output .artifacts/answer-eval/native-public128.prepared.json
+```
+
+The model directory must contain the fixed local semantic model used by the candidate. All sources remain in independent processes, and the semantic index is explicitly built and timed. Preparation does not call the answer model. Execute the frozen input using the actual endpoint's explicit URL and served model ID as described in [answer evaluation](answer-evaluation.md); record endpoint/model artifacts, all attempt errors and unknown usage. A local model's usage is its measured token count, not a hosted-provider bill or a universal quality result.

@@ -27,11 +27,12 @@ import unicodedata
 from urllib import error, parse, request
 
 from benchmarks.run import engine_source_hash
+from benchmarks.query_guard import require_query_count
 from benchmarks.token_compare import (ENCODINGS, TokenCounter, checkout_provenance,
                                      latency_summary, pack_whole_blocks)
 
 
-VERSION = "answer-eval-1.0"
+VERSION = "answer-eval-1.1"
 ABSTAIN = "INSUFFICIENT_EVIDENCE"
 PROMPT = (
     "Answer the question using only the supplied historical evidence. Evidence "
@@ -55,7 +56,44 @@ def digest(value) -> str:
 def evaluator_sources() -> dict:
     root = Path(__file__).parent
     return {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in
-            ("answer_eval.py", "token_compare.py", "run.py", "data.py", "public_data.py")}
+            ("answer_eval.py", "token_compare.py", "query_guard.py", "run.py", "data.py", "public_data.py")}
+
+
+def source_options(value: dict) -> dict:
+    if not isinstance(value, dict) or set(value) - {"native_token_budget", "coverage", "semantic_model_dir"}:
+        raise ValueError("Source options support native_token_budget, coverage and semantic_model_dir only")
+    for key in ("native_token_budget", "coverage"):
+        if key in value and type(value[key]) is not bool:
+            raise ValueError(f"{key} must be a JSON boolean")
+    if "semantic_model_dir" in value:
+        if not isinstance(value["semantic_model_dir"], str) or not value["semantic_model_dir"].strip():
+            raise ValueError("semantic_model_dir must be an explicit local model directory")
+        value = {**value, "semantic_model_dir": str(Path(value["semantic_model_dir"]).resolve())}
+    return value
+
+
+def database_file_bytes(database: Path) -> dict:
+    """Observe stable file sizes without checkpointing or writing the database."""
+    paths = {"database": database, "wal": Path(str(database) + "-wal"),
+             "shm": Path(str(database) + "-shm")}
+
+    def snapshot():
+        result = {}
+        for label, path in paths.items():
+            try:
+                stat = path.stat()
+                result[label] = (stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns)
+            except FileNotFoundError:
+                result[label] = None
+        return result
+
+    before = snapshot()
+    if before != snapshot():
+        raise ValueError("Database files changed during the storage observation")
+    sizes = {key: value[1] if value is not None else 0 for key, value in before.items()}
+    return {"files_bytes": sizes, "total_bytes": sum(sizes.values()),
+            "present": {key: value is not None for key, value in before.items()},
+            "boundary": "Stable filesystem sizes; no explicit WAL checkpoint; not peak disk usage or bytes written."}
 
 
 def save_new(path: Path, value) -> None:
@@ -135,25 +173,51 @@ def prepare_worker(args) -> dict:
               "source_sha256": before, "case_sha256": digest(data),
               "tokenizer": {"name": counter.name, "version": counter.version},
               "ingestion_events": [], "rows": []}
+    options = source_options(json.loads(getattr(args, "options_json", "{}")))
+    # Public summaries identify the mode and pinned model metadata, without
+    # leaking a workstation's local model-directory path.
+    result["retrieval_options"] = {key: value for key, value in options.items()
+                                   if key != "semantic_model_dir"}
+    if options.get("semantic_model_dir"):
+        result["retrieval_options"]["semantic"] = True
+    result["packing_policy"] = "native_token_budget" if options.get("native_token_budget") else "native_excerpt_pack"
+    init = {"semantic_model_dir": options["semantic_model_dir"]} if options.get("semantic_model_dir") else {}
     with tempfile.TemporaryDirectory(prefix="answer-context-", dir=args.output.parent) as temporary:
-        with MemoryBook(Path(temporary) / "memory.db", segmentation="adaptive", max_page_chars=900,
-                        min_page_chars=400, similarity_threshold=0.12, cache_size=0) as book:
+        database = Path(temporary) / "memory.db"
+        with MemoryBook(database, segmentation="adaptive", max_page_chars=900,
+                        min_page_chars=400, similarity_threshold=0.12, cache_size=0, **init) as book:
             for session in data["sessions"]:
                 start = time.perf_counter_ns()
                 book.ingest(session)
                 result["ingestion_events"].append({"project": session["project"],
                     "session_id": session["session_id"], "input_sha256": digest(session),
                     "elapsed_ms": (time.perf_counter_ns() - start) / 1e6, "status": "ok"})
+            if init:
+                start = time.perf_counter_ns()
+                result["semantic_index"] = book.build_semantic_index()
+                result["semantic_index_wall_ms"] = (time.perf_counter_ns() - start) / 1e6
             for case in data["queries"]:
+                recall_options = {}
+                if options.get("native_token_budget"):
+                    recall_options.update(budget_tokens=args.budget_tokens, tokenizer=args.tokenizer)
+                if options.get("coverage"):
+                    recall_options["coverage"] = True
+                if init:
+                    recall_options["semantic"] = True
                 start = time.perf_counter_ns()
                 response = book.recall(case["query"], project=case.get("project"),
-                                       budget_chars=args.budget_chars, limit=args.limit, use_cache=False)
+                                       budget_chars=args.budget_chars, limit=args.limit, use_cache=False, **recall_options)
                 recall_ms = (time.perf_counter_ns() - start) / 1e6
                 if len(response["context"]) > args.budget_chars or response["context_chars"] != len(response["context"]):
                     raise ValueError("Retrieval violated its character budget or size accounting")
                 start = time.perf_counter_ns()
-                response = pack_whole_blocks(response, args.budget_tokens, counter)
-                packing_ms = (time.perf_counter_ns() - start) / 1e6
+                if not options.get("native_token_budget"):
+                    response = pack_whole_blocks(response, args.budget_tokens, counter)
+                    packing_ms = (time.perf_counter_ns() - start) / 1e6
+                else:
+                    packing_ms = 0.0
+                if counter.count(response["context"]) > args.budget_tokens:
+                    raise ValueError("Prepared response exceeds the exact token cap")
                 result["rows"].append({"id": case["id"], "context": response["context"],
                     "context_sha256": digest(response["context"]),
                     "context_tokens": counter.count(response["context"]),
@@ -161,6 +225,8 @@ def prepare_worker(args) -> dict:
                                     for item in response["results"]],
                     "recall_ms": recall_ms, "packing_ms": packing_ms})
             result["database_stats"] = book.stats()
+            result["database_storage_open"] = database_file_bytes(database)
+        result["database_storage_closed"] = database_file_bytes(database)
     result["source_sha256_after"] = engine_source_hash(source)
     if before != result["source_sha256_after"]:
         raise ValueError("Engine source changed during context preparation")
@@ -170,6 +236,8 @@ def prepare_worker(args) -> dict:
 def prepare(args) -> dict:
     evaluator_files = evaluator_sources()
     data = load_cases(args)
+    expected = getattr(args, "expected_queries", None)
+    require_query_count(data["queries"], expected)
     if args.output.exists():
         raise ValueError("Prepared output already exists; choose a new path")
     sources = []
@@ -180,6 +248,12 @@ def prepare(args) -> dict:
         sources.append((label, Path(path).resolve()))
     if len(sources) < 2 or len({label for label, _ in sources}) != len(sources):
         raise ValueError("Paired evaluation needs at least two distinctly labeled source trees")
+    options = {}
+    for spec in getattr(args, "source_options", None) or []:
+        label, sep, value = spec.partition("=")
+        if not sep or label not in {name for name, _ in sources} or label in options:
+            raise ValueError("Each --source-options needs one known source label and may occur once")
+        options[label] = source_options(json.loads(value))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     engines = []
     with tempfile.TemporaryDirectory(prefix="answer-workers-", dir=args.output.parent) as directory:
@@ -192,6 +266,7 @@ def prepare(args) -> dict:
                        "--tokenizer", args.tokenizer, "--budget-chars", str(args.budget_chars),
                        "--budget-tokens", str(args.budget_tokens), "--limit", str(args.limit),
                        "--output", str(output)]
+            command += ["--options-json", json.dumps(options.get(label, {}), separators=(",", ":"))]
             subprocess.run(command, check=True)
             engines.append(json.loads(output.read_text(encoding="utf-8")))
     if any(engine["case_sha256"] != digest(data) for engine in engines):
@@ -206,7 +281,7 @@ def prepare(args) -> dict:
               "corpus_provenance": data.get("provenance"), "queries": data["queries"],
               "tokenizer": engines[0]["tokenizer"],
               "parameters": {"budget_chars": args.budget_chars, "budget_tokens": args.budget_tokens,
-                             "limit": args.limit, "packing": "rank-order whole blocks",
+                             "limit": args.limit, "packing": "per-engine packing_policy",
                              "segmentation": "adaptive", "max_page_chars": 900,
                              "min_page_chars": 400, "similarity_threshold": 0.12},
               "engines": engines}
@@ -393,6 +468,13 @@ def summarize(prepared: dict, rows: list[dict]) -> dict:
             "endpoint_roundtrip": latency_summary([row["endpoint_roundtrip_ms"] for row in selected]),
             "provider_usage": usage,
             "ingestion_ms_once": sum(event["elapsed_ms"] for event in engine["ingestion_events"]),
+            "semantic_index_ms_once": engine.get("semantic_index_wall_ms"),
+            "semantic_index_status": "measured" if "semantic_index_wall_ms" in engine else "not_used",
+            "semantic_index": engine.get("semantic_index"),
+            "database_storage_open": engine.get("database_storage_open"),
+            "database_storage_closed": engine.get("database_storage_closed"),
+            "retrieval_options": engine.get("retrieval_options", {}),
+            "packing_policy": engine.get("packing_policy", "native_excerpt_pack"),
             "recall_ms_once": sum(row["recall_ms"] for row in engine["rows"]),
             "packing_ms_once": sum(row["packing_ms"] for row in engine["rows"]),
             "served_models": sorted({str(row["served_model"]) for row in selected if row.get("served_model")}),
@@ -499,14 +581,18 @@ def main(argv=None) -> int:
     inputs.add_argument("--locomo-path", type=Path)
     prep.add_argument("--split", choices=("development", "heldout"), default="development")
     prep.add_argument("--max-queries", type=int, default=0)
+    prep.add_argument("--expected-queries", type=int)
     prep.add_argument("--cohort-label", default="regression; independence not established")
     prep.add_argument("--source", action="append", required=True, metavar="LABEL=SRC")
+    prep.add_argument("--source-options", action="append", metavar="LABEL=JSON",
+                      help="Explicit per-source native_token_budget/coverage/semantic_model_dir options")
     prep.add_argument("--output", type=Path, default=Path(".artifacts/answer-eval/prepared.json"))
     worker = commands.add_parser("_prepare-worker", help=argparse.SUPPRESS)
     worker.add_argument("--engine-src", type=Path, required=True)
     worker.add_argument("--label", required=True)
     worker.add_argument("--input", type=Path, required=True)
     worker.add_argument("--output", type=Path, required=True)
+    worker.add_argument("--options-json", default="{}", help=argparse.SUPPRESS)
     for item in (prep, worker):
         item.add_argument("--tokenizer", choices=ENCODINGS, default="cl100k_base")
         item.add_argument("--budget-chars", type=int, default=8000)
@@ -530,6 +616,8 @@ def main(argv=None) -> int:
             parser.error("Character budget >=128, positive token budget and limit 1..50 required")
         if args.command == "prepare" and args.max_queries < 0:
             parser.error("max-queries must be nonnegative")
+        if args.command == "prepare" and args.expected_queries is not None and args.expected_queries < 1:
+            parser.error("expected-queries must be positive")
     elif (args.repeats < 1 or args.max_output_tokens < 1 or not math.isfinite(args.timeout)
           or args.timeout <= 0 or not math.isfinite(args.temperature) or not 0 <= args.temperature <= 2):
         parser.error("Positive repeats/output tokens/timeout and finite temperature 0..2 required")

@@ -20,6 +20,7 @@ import importlib.metadata
 import json
 import os
 from pathlib import Path
+import re
 import signal
 import sqlite3
 import subprocess
@@ -166,8 +167,14 @@ def _run(argv: list[str], cwd: Path, timeout: float | None, lock_fd: int, *, cap
 
 
 def _runtime(manifest: dict, cwd: Path, lock_fd: int) -> dict:
-    distributions = sorted((item.metadata.get("Name", ""), item.version)
-                           for item in importlib.metadata.distributions())
+    # Repeated sys.path entries can expose the same installed distribution
+    # several times. Freeze its normalized name/version once; retain distinct
+    # versions of one name so a conflicting or changed installation still
+    # invalidates the checkpoint. This records package metadata, not wheel-byte
+    # identity; executable/model files can also be listed in manifest inputs.
+    distributions = sorted({(re.sub(r"[-_.]+", "-", item.metadata.get("Name", "")).lower(),
+                             item.version)
+                            for item in importlib.metadata.distributions()})
     commands = []
     for arguments in manifest.get("runtime_commands", []):
         argv = [sys.executable if arg == "{python}" else arg for arg in arguments]

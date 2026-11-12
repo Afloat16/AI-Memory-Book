@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "kind": "source attainability, no candidate retrieval scored",
+  "representation": "original-sentences-v2",
+  "dataset_sha256": "0791515aca6bccf19a97895cad681e06a07536d6c08050d54189cc64cb819822",
+  "queries": 128,
+  "sessions": 1272,
+  "turns": 5195,
+  "pages": 1915,
+  "baseline_source_sha256": "88f5f749be55dd4f1094d236340bec645edb6b9306fd45c720dbebac91767e57",
+  "evidence_attainability": {
+    "evidence_labels_checked": 306,
+    "max_annotation_chars": 390,
+    "unattainable_single_page_labels": [],
+    "metric_limit": "each complete annotation must fit one page and matching original source span; cross-page union is not scored"
+  },
+  "previous_preflight": "benchmarks/reports/hotpot-preflight.json",
+  "amendment": "Before any candidate retrieval scores, changed every original article sentence to one canonical user turn, uniformly for all supplied source text. Original IDs, questions, contexts and support labels are unchanged. This preserves external sentence boundaries after the paragraph representation had 3/306 structurally unattainable labels.",
+  "policy": "Retain all 128 questions and 306 original supporting facts, including any sentence still unattainable by the strict single-page metric."
+}

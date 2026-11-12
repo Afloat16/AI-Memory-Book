@@ -163,6 +163,19 @@ class ResumeTests(unittest.TestCase):
                 self.run_stages()
         self.assertEqual([self.calls(name) for name in ("first", "second", "last")], [1, 1, 1])
 
+    def test_duplicate_distribution_paths_do_not_change_checkpoint_identity(self):
+        first = SimpleNamespace(metadata={"Name": "Some_Package"}, version="1.0")
+        duplicate = SimpleNamespace(metadata={"Name": "some-package"}, version="1.0")
+        with patch("benchmarks.resume.importlib.metadata.distributions", return_value=[first]):
+            self.run_stages()
+        with patch("benchmarks.resume.importlib.metadata.distributions", return_value=[duplicate, first, first]):
+            self.run_stages()
+        self.assertEqual([self.calls(name) for name in ("first", "second", "last")], [1, 1, 1])
+        conflicting = SimpleNamespace(metadata={"Name": "some.package"}, version="2.0")
+        with patch("benchmarks.resume.importlib.metadata.distributions", return_value=[first, conflicting]):
+            with self.assertRaisesRegex(RuntimeError, "identity changed"):
+                self.run_stages()
+
     def test_runtime_command_output_and_sqlite_version_are_frozen(self):
         version = self.root / "runtime-version.txt"
         version.write_text("runtime-1")
