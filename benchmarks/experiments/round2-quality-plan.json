@@ -18,7 +18,7 @@
     "empty_semantic_route": "Preserve the original lexical order and scores.",
     "invalid_scores": "Reject non-finite scores and duplicate identities within either route instead of assigning confidence to malformed candidates.",
     "scope": "Fusion only. No new query decomposition, prompt, learned gate, source rewrite, model call, candidate expansion or packing policy. Existing lexical novelty/current/coverage ordering may still be affected by fusion; report the measured outcome.",
-    "cache_identity": "Advance SEMANTIC_VERSION so an existing optional semantic result cache cannot return the old fusion policy. The model artifact bytes and embedding algorithm remain unchanged. Existing semantic indexes must be rebuilt explicitly after the version change."
+    "cache_identity": "Compatibility amendment before development scoring: retain SEMANTIC_VERSION=1 and the exact old model/index fingerprint; introduce FUSION_VERSION=2 only in semantic recall cache keys. Existing semantic indexes are reused without recomputing identical embeddings, while old fusion result caches are not reused."
   },
   "model": {
     "plan": "benchmarks/experiments/semantic-local-plan.json",

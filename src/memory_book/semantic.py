@@ -18,7 +18,10 @@ import time
 from typing import Any
 
 
-SEMANTIC_VERSION = 2
+SEMANTIC_VERSION = 1
+# Retrieval ordering has its own cache identity. Changing fusion alone must
+# neither change the verified model fingerprint nor rebuild identical vectors.
+FUSION_VERSION = 2
 MODEL_REPOSITORY = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 MODEL_REVISION = "e8f8c211226b894fcb81acc59f3b34ba3efd5f42"
 MODEL_FILES = (
