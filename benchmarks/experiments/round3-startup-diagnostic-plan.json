@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "protocol": "round3-startup-resource-review-v1",
+  "status": "registered-before-startup-only-diagnostic",
+  "original_measurement": {
+    "run_id": "43246417515",
+    "run_attempt": 1,
+    "result_commit": "35b8618a078fe377ecd6c5acc331c1281dbf61e7",
+    "report_summary_sha256": "b6f9391956a0231383687d383cb87b0579e2a79d8776e43105e4b172e2d875a1",
+    "timed_recall_calls": 47320,
+    "accepted": false,
+    "numeric_gate_passed": true,
+    "resource_review": "public1015 native_open_ms mean +14.042323945665958%, or +4.83838375 ms, across four starts per engine"
+  },
+  "sources": {
+    "baseline": {
+      "commit": "dd2f88be742ed330269e7dd5915b6f75089d7fef",
+      "runtime_sha256": "d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57"
+    },
+    "candidate": {
+      "commit": "2d199b93f650eccd3dd239178822b31001b880e3",
+      "runtime_sha256": "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46"
+    }
+  },
+  "corpus": {
+    "name": "public1015",
+    "split": "heldout",
+    "query_count": 1015,
+    "source_file_sha256": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+    "dataset_sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857",
+    "helper_sha256": {
+      "benchmarks/__init__.py": "82c1a9c2c4363d02d1ec7e504ce64a1c90051df12f852ec4978f32be5cf5bce0",
+      "benchmarks/data.py": "090d0460a6887eff32b3adb89d1684da9b7c9094f96246e187c1298051b64625",
+      "benchmarks/public_data.py": "269625183d8bef8f3b34f534d1c6d52ce7c623f795015e3e1508835c3eee08e8",
+      "benchmarks/locomo_split.json": "a64086f1dc194c3fe9157e60f9696a77d3c650af836a60fab192f3db48c527f5"
+    },
+    "policy": "Load and verify the same parsed public1015 corpus before each startup. Retain it in the worker until startup measurement finishes. Do not ingest it or execute recall. No substitute corpus."
+  },
+  "design": {
+    "blocks": 16,
+    "order_per_block": ["baseline", "candidate", "candidate", "baseline"],
+    "timed_starts": 64,
+    "starts_per_engine": 32,
+    "process": "One fresh sequential subprocess for every sample; one new empty SQLite database on the same filesystem. No concurrent benchmarks, explicit GC changes or cache dropping.",
+    "timed_boundary": "Immediately before with MemoryBook(db_path, cache_size=0), ending immediately after __enter__, as in the original native_open_ms. Import, source hashing, corpus loading, close and cleanup are excluded.",
+    "record": ["every wall-time sample", "process CPU time", "I/O block and context-switch deltas", "source hashes", "host/Python/SQLite identity", "full schedule and all failed/interrupted records"],
+    "traces": "After all timed samples, one additional untimed fresh subprocess per engine captures the empty-database SQL trace and initialization schema/AST identities. Trace instrumentation is never enabled in the timed samples.",
+    "durability": "Exclusively create a started manifest before the first sample; append, flush and fsync each sample to a JSONL ledger. Existing attempts must not be overwritten or repeated. Stop on the first failed sample and retain it."
+  },
+  "interpretation": {
+    "purpose": "Explain the concrete original startup resource flag without repeating the recall performance experiment.",
+    "not_a_replacement": "The original report, all 47320 recall calls, startup observations, accepted=false and numeric gate remain unchanged. This diagnostic does not add query speed evidence or certify the absence of a startup regression.",
+    "review": "Independent review must state the original +4.83838375 ms absolute change and retain the high candidate first sample. Compare all diagnostic samples, CPU/wall separation, source and SQL equality. If a systematic excess remains or initialization work differs, keep acceptance unresolved. Any inference of host/I/O variability must be labeled as an inference: a later host cannot identify the precise event during the original outlier.",
+    "scope": "A fresh startup diagnostic on the current host is a targeted investigation, not an identical replay of the original hosted machine, its GC state, operating-system caches or storage load. No automatic acceptance override."
+  }
+}
