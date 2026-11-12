@@ -46,7 +46,15 @@ AI-Memory-Book 的主要使用者是 AI。接入客户端并选择开启采集�
 
 需要 Python 3.10+，并且 Python 的 SQLite 包含 FTS5。
 
-以下命令安装**已发布的实验版本 v0.2.1**。上方实测改进属于**尚未发布的 v0.3 开发分支**，需要使用后面的[开发版源码安装](#开发版源码安装)。目前没有可下载的 `v0.3.0` 发布标签。
+### 选择版本
+
+| 版本 | 可用能力 | 使用方式 |
+|---|---|---|
+| **已发布的实验版本 v0.2.1** | 以 Agent 为主的 MCP、共享本地记忆和可选无界面后台采集 | 使用下方固定版本安装器。 |
+| **已推送的 v0.3 开发源码** | Score-aware 检索、紧凑的带出处证据、可选多事实 coverage 和配对回答评测工具 | 按[开发版源码安装](#开发版源码安装)检出 `perf/recall-quality-budget`。 |
+| **固定对比版本 `0ab49d4`** | 上方检索质量和 MCP 成本数字对应的原始代码 | 按[复现指南](benchmarks/RESULTS-recall-score-quality.md#11-reproduction-and-artifact-index)准备和运行。 |
+
+开发源码已推送到 GitHub，所对应的 [PR #1](https://github.com/Afloat16/AI-Memory-Book/pull/1) 尚未合入 `main`。下方安装器仍使用 **v0.2.1**，目前没有可下载的 `v0.3.0` 发布标签。体验新增能力请使用开发版源码安装。
 
 macOS / Linux：
 
@@ -121,6 +129,8 @@ memory-book setup --client codex --capture --workspace /absolute/path/to/project
 ```
 
 返回的 `context` 包含预算内证据，结果还提供页 ID、`project`、`session_id`、`turn_index` ；精确字符区间通过 `details: true` 或 `read_page` 按需获取。在[示例归档](examples/conversations.json)中，缓存复核记录把有效期从 300 秒改为 45 秒，并保留 revision 失效机制。AI 可以引用 `atlas / atlas-cache-review / turn 0`，核对来源时间，再据此继续实现。历史证据可能已经过时或互相冲突，不能直接当成当前指令。
+
+**设置上下文预算：**Python/MCP 的 `budget_chars` 和 CLI 的 `--budget` 限制组装后上下文的字符数，包含引用与分隔符；外层 JSON 元数据不在该上限内。Python/详细响应中的 `estimated_tokens` 字段与 CLI 显示的近似 token 数均为估算值，不提供由 tokenizer 执行的精确上限。对比表中的 512 / 1,024 / 2,048-token 上限由评测打包器按指定 tokenizer 执行，当前已推送的运行时代码没有原生精确 token 预算参数。选择极小预算前，请查看[已记录的取舍](#继续优化的四项差距)。
 
 目录是 AI 可选的定位工具。直接召回不足以确认项目、章节或上下文时，再按需要展开：
 
@@ -209,7 +219,7 @@ memory-book service uninstall
 
 公开集核心检索和合成 MCP P95 相对保留 v0.3 的退步也仍然保留。全部公开不可回答问题会返回非空上下文，这不等于模型的拒答或幻觉率。当前状态排序仍是保守启发式。[分类结果、逐题损失与全流程前提](benchmarks/RESULTS-recall-score-quality.md#7-remaining-failures-and-interpretation-limits)。
 
-核心仍是本地 SQLite 词法检索，无需模型、向量库或 API key。生产参数 `budget_chars` 限制的是带引用的上下文字符数，不包含外层 JSON；评测中的精确 token 打包器不是生产功能。
+原生精确 token 预算组装仍是后续工作，当前 API 使用[上方说明的字符预算](#ai-怎样使用这本记忆书)。核心仍是本地 SQLite 词法检索，无需模型、向量库或 API key。
 
 ### 可选：多事实证据覆盖
 
@@ -233,7 +243,9 @@ MCP 调用 `recall_memory` 时加入 `"coverage": true`；Python 调用 `MemoryB
 
 [本轮 coverage 实验与复现材料](benchmarks/RESULTS-conjunctive-recall.md) · [默认 score-aware 版本报告](benchmarks/RESULTS-recall-score-quality.md) · [第一轮完整记录](benchmarks/RESULTS-recall-quality.md) · [历史 v0.3.0 报告](benchmarks/RESULTS-v0.3.0.md) · [外部对照协议](docs/comparison-protocol.md)
 
-最终本地完整套件通过 **266 项测试**，无失败、无跳过。[当前 PR 检查](https://github.com/Afloat16/AI-Memory-Book/pull/1/checks)跟踪已发布分支最新提交的验证结果。[此前 CI](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43044450305) 的 **9 项作业全部通过**，含 **13 项真实浏览器检查**，以及 Python 3.10/3.12/3.13、实际 MCP、跨平台安装器和容器验证；这些仍属于历史验证。[验证记录](docs/validation.md) 说明实际覆盖范围。
+[`b36f044`](https://github.com/Afloat16/AI-Memory-Book/commit/b36f044651553d75485bd26801ef3f1f65e393bb) 的运行时代码通过 **266 项测试**，无失败、无跳过，包含 MCP、客户端和评测依赖。该提交的 [push 流水线](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43075055048)与 [PR 流水线](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43075068353)均为 **9/9 作业通过**，覆盖 Python 3.10/3.12/3.13、真实 MCP stdio、网页阅读器、Linux/macOS/Windows 安装器及容器持久化。PR 流水线最初被取消的 macOS 作业重试后已通过。
+
+[当前 PR 检查](https://github.com/Afloat16/AI-Memory-Book/pull/1/checks)跟踪后续分支更新；上方测试数和评测数字仍归属于各自明确标注的提交。[验证记录](docs/validation.md)说明实际覆盖范围。
 
 原始文本和缓存保存在本地未加密文件中；模型调用工具时返回的证据会进入客户端模型上下文。项目不绕过工具授权。支持文本，不恢复图片、音频或完整结构化工具日志。
 

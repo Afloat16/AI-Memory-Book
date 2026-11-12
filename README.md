@@ -46,7 +46,15 @@ The development branch keeps score-aware recall as its default. It also offers a
 
 You need **Python 3.10+ with SQLite FTS5**. The installer creates an isolated environment and includes MCP and client-configuration dependencies. This route does not require a Git checkout, Node.js, an embedding server, or a database server.
 
-The commands below install the **published experimental release v0.2.1**. The measured v0.3 improvements above are on the **unreleased development branch**; use the [development source checkout](#try-it-without-connecting-a-client) to try that work. A `v0.3.0` release tag is not available yet.
+### Choose a version
+
+| Version | What you get | How to use it |
+|---|---|---|
+| **Published experimental release v0.2.1** | Agent-first MCP, shared local memory and optional headless background capture | Use the pinned installers below. |
+| **Available v0.3 development source** | Score-aware retrieval, compact cited evidence, optional multi-fact coverage and the paired-answer evaluation runner | Use the [development source checkout](#try-it-without-connecting-a-client) on `perf/recall-quality-budget`. |
+| **Frozen comparison runtime `0ab49d4`** | The exact source used for the retrieval and MCP cost figures above | Follow the [reproduction guide](benchmarks/RESULTS-recall-score-quality.md#11-reproduction-and-artifact-index). |
+
+The development source is available on GitHub in [PR #1](https://github.com/Afloat16/AI-Memory-Book/pull/1), which has not been merged into `main`. The installers below use **v0.2.1**; a `v0.3.0` release tag is not available yet. Use the development checkout to try the additional capabilities.
 
 ### macOS / Linux
 
@@ -114,6 +122,8 @@ For example, an agent continuing the fictional `atlas` project's cache work can 
 ```
 
 The response contains `context`, page IDs, and compact source references: `project`, `session_id`, and `turn_index`. Request `details: true` or use `read_page` for exact character spans. With the [example archive](examples/conversations.json), the cache review records a change from 300 to 45 seconds while retaining revision invalidation. The agent can cite `atlas / atlas-cache-review / turn 0`, check the source date, and use that decision in the implementation. Historical text remains evidence to assess, including possible outdated or conflicting decisions.
+
+**Choose the context budget:** `budget_chars` in Python/MCP and `--budget` in the CLI cap the assembled context in characters, including citations and separators. Outer JSON metadata falls outside that cap. The Python/detailed response field `estimated_tokens` and the CLI's approximate token count are estimates, not tokenizer-enforced limits. The exact 512 / 1,024 / 2,048-token caps in the comparison tables are applied by the benchmark packer using the named tokenizer; the available runtime has no native exact token-budget parameter. See [budget tradeoffs](#what-remains-to-improve) before choosing a very small context.
 
 The agent can navigate the hierarchy when a direct recall leaves a concrete gap:
 
@@ -283,7 +293,7 @@ The frozen run preserves the failures that guide further work:
 
 Public core retrieval and synthetic MCP p95 also retain regressions against the preserved v0.3 branch. Every public unanswerable question returns some context; this measures nonempty retrieval, not an answering model's abstention or hallucination rate. Current-state ordering remains a conservative heuristic. [Category results, per-query losses and workflow prerequisites](benchmarks/RESULTS-recall-score-quality.md#7-remaining-failures-and-interpretation-limits).
 
-`--budget` limits assembled context in **characters**, including citations, not outer JSON or exact model tokens. The benchmark's token packer is not a native production option. The core uses local lexical FTS without embeddings or an API key. It does not provide cloud sync, public multi-user hosting, or guaranteed automatic context injection. Client permission decisions remain in the client.
+Native exact token-budget assembly remains a next step; the available API uses the [character budget described above](#how-an-agent-uses-memory). The core uses local lexical FTS without embeddings or an API key. It does not provide cloud sync, public multi-user hosting, or guaranteed automatic context injection. Client permission decisions remain in the client.
 
 ### Optional coverage for multi-fact questions
 
@@ -325,7 +335,9 @@ python -m unittest discover -s tests -v
 python tests/installer_smoke.py --with-extras
 ```
 
-The final local suite passed **266 tests**, with no failures or skips, using MCP, client, and benchmark extras. [Current PR checks](https://github.com/Afloat16/AI-Memory-Book/pull/1/checks) track validation of the published branch head. The [previous CI run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43044450305) passed **9 jobs**, including **13 actual browser checks**, across Python 3.10/3.12/3.13, actual MCP stdio, Linux/macOS/Windows installers, and container persistence; these remain historical checks. [GitHub Actions status](https://github.com/Afloat16/AI-Memory-Book/actions) · [Validation details and historical runs](docs/validation.md). Configuration fixtures do not establish that every vendor application or login manager has been interactively verified.
+The runtime at [`b36f044`](https://github.com/Afloat16/AI-Memory-Book/commit/b36f044651553d75485bd26801ef3f1f65e393bb) passed **266 tests**, with no failures or skips, using MCP, client, and benchmark extras. Its [push workflow](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43075055048) and [PR workflow](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43075068353) each passed **9/9 jobs**, covering Python 3.10/3.12/3.13, actual MCP stdio, the browser reader, Linux/macOS/Windows installers, and container persistence. The PR workflow succeeded after its initially cancelled macOS job was retried.
+
+[Current PR checks](https://github.com/Afloat16/AI-Memory-Book/pull/1/checks) track subsequent branch updates; the test counts and benchmark figures above remain attributed to their named commits. [GitHub Actions status](https://github.com/Afloat16/AI-Memory-Book/actions) · [Validation details and historical runs](docs/validation.md). Configuration fixtures do not establish that every vendor application or login manager has been interactively verified.
 
 ## Design references
 
