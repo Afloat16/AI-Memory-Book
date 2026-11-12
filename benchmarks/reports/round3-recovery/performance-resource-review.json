@@ -21,8 +21,8 @@
     "summary_and_raw_hashes_verified": true,
     "frozen_evaluator_files_match": true,
     "plan_matches_registration": true,
-    "original_worker_artifacts_reaudit_performed": false,
-    "scope": "Recomputed official validation, comparisons, acceptance and summary from original full report. Individual worker files were still being restored; their separate full-ledger audit is not claimed here."
+    "original_worker_artifacts_reaudit_performed": true,
+    "scope": "Recomputed official validation, comparisons, acceptance and summary from the original full report; separately restored original run identity, worker files and complete attempt ledgers and verified their hashes and equality with the aggregate through the frozen strict audit."
   },
   "validation": {
     "expected_calls": 47320,
@@ -105,5 +105,24 @@
   ],
   "no_samples_removed": true,
   "no_timing_rerun": true,
-  "review_document": "docs/round3-performance-review.md"
+  "review_document": "docs/round3-performance-review.md",
+  "strict_original_artifact_audit": {
+    "verified_at_utc": "2026-11-12T17:18:06.640775+00:00",
+    "command": ".venv/bin/python scripts/round3_performance.py --audit benchmarks/reports/round3-performance-43246417515-1/report.json.gz --state-dir benchmarks/reports/round3-performance-43246417515-1",
+    "exit_code": 0,
+    "result": {
+      "verified": true,
+      "validation": {
+        "expected_calls": 47320,
+        "expected_workers": 16,
+        "issues": [],
+        "passed": true,
+        "timed_calls": 47320,
+        "workers": 16
+      },
+      "accepted": false,
+      "full_report_sha256": "5999670d4e4f96c879ba18556198ea600638866d32b5415510796ceeeebe5a12",
+      "retrieval_calls_executed": 0
+    }
+  }
 }
