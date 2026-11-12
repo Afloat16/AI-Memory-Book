@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "audit": "independent-id-only-round3-selection-reconstruction",
+  "created_at_utc": "2026-11-12T17:23:09.698712+00:00",
+  "formal_run_id": "43267797247",
+  "freeze_commit": "a0d67b35d074077f43b5cea77954921802d51f44",
+  "prior_manifest_commit": "dd2f88be742ed330269e7dd5915b6f75089d7fef",
+  "algorithm": "First 256 eligible IDs sorted by (SHA256(UTF8(prefix + ID)).hexdigest(), ID); exclude union of baseline Hotpot128 and round2 Hotpot256 IDs.",
+  "selection_prefix": "AI-Memory-Book/v031/round3/2026-11-12/",
+  "decoded_parquet_columns": [
+    "id"
+  ],
+  "scoring_calls": 0,
+  "model_calls": 0,
+  "inputs": {
+    "manifest": {
+      "path": "benchmarks/experiments/round3-hotpot256-manifest.json",
+      "sha256": "b29545eb90f89744d86e3f8822b838c44a1846be057161b1905f6c977b7b1ae5",
+      "commit": "a0d67b35d074077f43b5cea77954921802d51f44"
+    },
+    "binding": {
+      "path": "benchmarks/experiments/round3-validation-binding.json",
+      "sha256": "740361f1767a942887bdb7639b1be0223ae1c6dc2fc3b941f845d038884f842f",
+      "commit": "a0d67b35d074077f43b5cea77954921802d51f44"
+    },
+    "plan": {
+      "path": "benchmarks/experiments/round3-plan.json",
+      "sha256": "93d24dc520984eb07ace81c815ba8573f29498116f73eced863609cd45bcb5f4",
+      "commit": "a0d67b35d074077f43b5cea77954921802d51f44"
+    },
+    "prior128": {
+      "path": "benchmarks/hotpot_manifest.json",
+      "sha256": "ad0aba557e98cac6925ff5bdb8048a1a04a5f708847007f33ddf03d88650b69d",
+      "commit": "dd2f88be742ed330269e7dd5915b6f75089d7fef"
+    },
+    "prior256": {
+      "path": "benchmarks/round2_hotpot256_manifest.json",
+      "sha256": "39bc56948be886df178f3ed0ee85acc551430f2deba4968261aa2591dded49dc",
+      "commit": "dd2f88be742ed330269e7dd5915b6f75089d7fef"
+    }
+  },
+  "parquet": {
+    "path": ".artifacts/upstream/hotpot_dev_distractor_v1.parquet",
+    "bytes": 27452575,
+    "sha256": "c20b638ca82b21d04fe12e14ff417ad05153d4d215a65de54497fca4e972f7c6",
+    "rows": 7405,
+    "unique_ids": 7405
+  },
+  "prior_counts": {
+    "original": 128,
+    "round2": 256,
+    "union": 384,
+    "intersection": 0
+  },
+  "selected": {
+    "count": 256,
+    "unique": 256,
+    "sha256": "ccca7b09ad37e74652d84c26c0c2a823ffaf9a64f9fd911cf72d0e468dec1d0f",
+    "overlap_original": 0,
+    "overlap_round2": 0
+  },
+  "candidate": {
+    "commit": "2d199b93f650eccd3dd239178822b31001b880e3",
+    "source_sha256": "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46"
+  },
+  "optional_project_statistics": false,
+  "checks": {
+    "upstream_bytes": true,
+    "upstream_sha256": true,
+    "upstream_rows": true,
+    "upstream_ids_unique": true,
+    "upstream_ids_nonempty_strings": true,
+    "prior128_exact_size": true,
+    "prior256_exact_size": true,
+    "prior_cohorts_disjoint": true,
+    "prior_ids_present_upstream": true,
+    "excluded_count": true,
+    "eligible_count": true,
+    "registered_prefix": true,
+    "registered_selection_count": true,
+    "selected_count_unique": true,
+    "selected_ids_and_order_match": true,
+    "selected_id_digest": true,
+    "prior128_id_digest": true,
+    "prior256_id_digest": true,
+    "excluded_id_digest": true,
+    "prior128_source_manifest_digest": true,
+    "prior256_source_manifest_digest": true,
+    "selected_zero_overlap_prior128": true,
+    "selected_zero_overlap_prior256": true,
+    "selected_zero_overlap_manifest": true,
+    "binding_digest": true,
+    "plan_digest": true,
+    "baseline_identity": true,
+    "candidate_identity": true,
+    "optional_project_statistics_disabled": true,
+    "model_identity_bound": true,
+    "evaluator_identity_bound": true
+  },
+  "passed": true,
+  "failed_checks": [],
+  "environment": {
+    "python": "3.12.14",
+    "pyarrow": "26.0.1"
+  },
+  "scope": "ID selection, exclusions and frozen identity only. No questions, answers, passages, scores or embeddings were decoded; no evidence-quality or model-output validation is implied."
+}
