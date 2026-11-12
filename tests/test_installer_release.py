@@ -15,8 +15,9 @@ SPEC.loader.exec_module(INSTALLER)
 class InstallerReleaseTests(unittest.TestCase):
     def test_pinned_wheel_and_legacy_source_routes(self):
         repository = "https://github.com/Afloat16/AI-Memory-Book"
-        wheel = repository + "/releases/download/v0.3.0/ai_memory_book-0.3.0-py3-none-any.whl"
-        for version in ("v0.3.0", "0.3.0"):
+        for version in ("v0.3.0", "0.3.0", "v0.3.1", "0.3.1"):
+            number = version.removeprefix("v")
+            wheel = repository + f"/releases/download/v{number}/ai_memory_book-{number}-py3-none-any.whl"
             for extras in (True, False):
                 with self.subTest(version=version, extras=extras):
                     name = "ai-memory-book[mcp,clients]" if extras else "ai-memory-book"
@@ -40,12 +41,12 @@ class InstallerReleaseTests(unittest.TestCase):
                 f"ai-memory-book @ {local_wheel.resolve().as_uri()}")
 
     def test_release_defaults_match_package_and_wrappers(self):
-        self.assertEqual(INSTALLER.DEFAULT_VERSION, "v0.3.0")
-        self.assertIn('version = "0.3.0"', (ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-        self.assertIn('installer_ref="v0.3.0"', (ROOT / "scripts/install.sh").read_text(encoding="utf-8"))
+        self.assertEqual(INSTALLER.DEFAULT_VERSION, "v0.3.1")
+        self.assertIn('version = "0.3.1"', (ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+        self.assertIn('installer_ref="v0.3.1"', (ROOT / "scripts/install.sh").read_text(encoding="utf-8"))
         powershell = (ROOT / "scripts/install.ps1").read_text(encoding="utf-8")
-        self.assertIn("[string]$Version = 'v0.3.0'", powershell)
-        self.assertIn("$InstallerRef = 'v0.3.0'", powershell)
+        self.assertIn("[string]$Version = 'v0.3.1'", powershell)
+        self.assertIn("$InstallerRef = 'v0.3.1'", powershell)
 
 
 if __name__ == "__main__":
