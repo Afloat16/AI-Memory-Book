@@ -12,7 +12,8 @@ remains authoritative and unchanged. This page records its completed decisions.
 For project-scoped recall, an indexed MIN/MAX query finds the project's page
 rowid envelope. The optimized statement applies those bounds and an explicit
 FTS outer loop only if the project spans at most half the table's inclusive
-rowid range. Broader or interleaved projects retain the original statement.
+rowid range. Projects whose rowid envelope exceeds half the archive range, and
+session-scoped recalls, retain the original statement.
 
 Bounds are read inside the existing transaction, without a Python cache.
 Global BM25, exact project/chapter/session filtering before LIMIT, deterministic
@@ -95,7 +96,9 @@ is saved at
 [`c99f20531053b1c164fc5a5d3fa8e0c831eeb4de`](https://github.com/Afloat16/AI-Memory-Book/commit/c99f20531053b1c164fc5a5d3fa8e0c831eeb4de).
 All ten stages completed. The [assessment](../benchmarks/results/round3-comparison-43267797247-1/assessment.json)
 reports **`complete-verified`**, 4,608 native calls, 4,608 component searches,
-and no validation failures. Complete default payload equivalence passes for
+and no validation failures. The [independent final evidence audit](../benchmarks/reports/round3-final-evidence-audit.json)
+checks the saved summaries, identities, inventories and commit ancestry without
+new scoring. Complete default payload equivalence passes for
 1,536 native and 768 component baseline/candidate pairs.
 
 Candidate/evaluator/dependency/model/upstream identities were committed before
