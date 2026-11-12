@@ -1,8 +1,33 @@
 # Retrieval experiments
 
-## Current: completed memory validation
+## Current: round-two implementation and measurements
 
-The 2026-11-12 continuation is **complete**. The
+The selected runtime is
+[`cbf6260`](https://github.com/Afloat16/AI-Memory-Book/commit/cbf626037b42f11f8bc5b6d46f56caac771e54ba),
+source SHA-256 `d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57`.
+The default remains lexical with object-form MCP references. Q2 semantic
+fusion and indexed references are separate, explicit options.
+
+| Current experiment | Verified measurement | Complete evidence and costs |
+|---|---|---|
+| Default retrieval and ingestion | 56,784 actual calls; four balanced rounds; 12 configurations; complete payloads and source/index content unchanged | [Performance, ingestion, replay, memory and individual-round losses](../docs/default-recall-performance.md) |
+| Optional Q2 semantic fusion | 48,492 actual recalls; four old cohorts, three budgets, four paired modes, three repetitions | [Full development matrix](reports/round2-anchor-development.md), [selection and losses](reports/round2-anchor-decision.md), [current semantic setup](../docs/semantic-retrieval.md) |
+| Indexed MCP references | 56,784 actual SDK calls; 7,098 distinct complete payload pairs; every one of 6,868 archived reference entries checked | [Both tokenizers, complete metadata costs, all 12 timing configurations and per-question losses](../docs/indexed-references.md) |
+| Current native components | Fixed 256-question matrix, current pinned claude-mem FTS, ai-memory local hybrid and billion-context kernel; complete recovery execution is in progress | [Frozen protocol](../docs/round2-validation.md), [explicit recovery](../docs/round2-recovery.md), [run 43207732852](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43207732852) |
+
+The initial 256-question run stopped at an evaluator response-field error;
+its [failed checkpoint](reports/round2-43201620535-1-checkpoint.json) and all 13
+public output files remain preserved. The registered recovery keeps the
+original candidate, data and settings, reruns every stage on one new host,
+and does not pool or select timings from different runs. That selection is
+already scored and must not become a tuning set labeled as unseen validation.
+
+[Current comparison and project landscape](../docs/comparison.md) ·
+[Round-two status and source identities](../docs/optimization-round2.md).
+
+## Historical: earlier completed memory validation
+
+The earlier 2026-11-12 continuation is **complete for its named source pins**. The
 [final strict audit](reports/hosted-final-aggregation.json) verifies 80 fixed
 input files and eight derived reports; all four summarizers passed. Completed
 source results retain their original hashes and independent Git branches.
@@ -14,7 +39,7 @@ source results retain their original hashes and independent Git branches.
 | Actual generated answers | 768 calls over 128 LoCoMo and 128 HotpotQA questions, each in three modes | [Answer scores, latency and usage](RESULTS-local-answers.md) |
 | Book / ai-memory native workflow | 42 captured sessions; 42 native model consolidations; 72 answers; complete with recorded failures | [Full workflow](RESULTS-full-workflow.md) |
 | claude-mem native FTS | 1,015 questions × 3 actual native calls; all six context configurations verified | [Component report](results/claude-mem-components-public.md) |
-| Latest exact-output performance change | 2,016 identical payloads; 6,048 calls per source; all 12 timing settings retained | [Performance report](../docs/token-prefix-performance.md) |
+| Earlier exact-output prefix optimization | 2,016 identical payloads; 6,048 calls per source; all 12 timing settings retained | [Performance report](../docs/token-prefix-performance.md) |
 
 The native workflow's 35 failed consolidations are actual native
 `truncated-response` errors under the fixed 0.5B model / 1,000-output-token
