@@ -87,13 +87,13 @@ records the original gate, resource review and rejected experiments; the
 |---|---|---|
 | **Faster default recall, identical output** | Public-corpus actual MCP p95 **7.409 → 5.937 ms (−19.87%)**; native p95 **5.054 → 3.737 ms (−26.05%)** | Four balanced ABBA rounds, 47,320 calls, 16 workers, ten corpus/configuration cells. [Report](docs/optimization-round3.md) |
 | **Improvement across the registered matrix** | Geometric-mean pooled p95 improvement **11.36%** | Equal weighting of ten cell ratios; this is not one pooled global percentile. No pooled p50/p95 cell regresses by more than 5%. [All ten cells](docs/optimization-round3.md) |
-| **Inherited v0.3.0 ingestion improvements** | Fresh ingestion **−46.45%**; unchanged-session replay **−61.38%** | Historical paired core optimization, not new v0.3.1 gains. [Report](docs/default-recall-performance.md) |
+| **Inherited v0.3.0 ingestion improvements** | Fresh ingestion **−46.45%**; unchanged-session replay **−61.38%** | Historical paired core optimization on the public1015 corpus, not new v0.3.1 gains. [Report](docs/default-recall-performance.md) |
 | **Optional indexed references, unchanged** | Response-text tokens **−19.63%**; first-call reference total **−8.15%** | Historical 1,015-question public corpus, 4,000 characters, compact responses, `o200k_base`. [Report](docs/indexed-references.md) |
 
 The new query planner narrows FTS work to a safe project rowid envelope while
 retaining global ranking statistics, scope predicates, candidate limits and
 complete evidence payloads. It introduces no schema migration or new core
-dependency. The synthetic 512-token cell has a **0.13% p95 regression**, which
+dependency. The synthetic 512-token cell has a **0.125% p95 regression**, which
 remains in the report.
 
 Original empty-database opening measured **34.456 → 39.294 ms (+14.04%, +4.838 ms)**,
@@ -146,9 +146,9 @@ not replace it.
 
 **Choose optional modes for your workload.** Q2 requires a local model
 (**127.5 MB** of pinned files) and an index; building this 3,896-page semantic
-index took about **110 seconds**. At native 512-token caps, Q2 loses six complete
+index took about **110 seconds**. At native 512-token caps, Q2 has a net loss of six complete
 questions under each tokenizer (for example, `cl100k_base` **35.94% → 33.59%**);
-at 1,024/2,048 it gains six (**52.34% → 54.69%**). The separate project-statistics
+at 1,024/2,048 it has a net gain of six (**52.34% → 54.69%**). The separate project-statistics
 experiment was rejected after recovery of its original 8,082 calls and is
 excluded from this version. Public/reused questions are regression data.
 This same-source, all-answerable cohort does not establish cross-domain
