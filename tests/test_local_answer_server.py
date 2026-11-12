@@ -6,6 +6,7 @@ import sys
 import tarfile
 import tempfile
 import unittest
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from benchmarks import local_answer_server as server
@@ -95,6 +96,39 @@ HTTPServer(('127.0.0.1', int(sys.argv[sys.argv.index('--port') + 1])), Handler).
             Path(str(prefix) + ".jsonl").write_text('{"changed":true}\n')
             with self.assertRaisesRegex(ValueError, "not bound to these actual answer results"):
                 server.validate_proof(proof_path, prepared, prefix, cache)
+
+    def test_workflow_reuses_artifact_verification_without_changing_its_context(self):
+        from benchmarks.full_workflow_eval import model_server
+        with tempfile.TemporaryDirectory() as directory:
+            cache, _, prefix, _ = self.fixture(directory)
+            runtime = server.verified_runtime(cache)
+            args = SimpleNamespace(launch_server=True, model_cache=cache,
+                                   base_url=runtime["endpoint"], model="fixture-alias")
+            with model_server(args, prefix.parent) as proof:
+                argv = proof["argv"]
+                self.assertEqual(argv[argv.index("--ctx-size") + 1], "16384")
+                self.assertEqual(proof["runtime_files"], runtime["runtime_files"])
+                self.assertEqual(proof["runtime_symlinks"], runtime["runtime_symlinks"])
+            self.assertTrue(proof["runtime_unchanged"])
+            self.assertTrue(proof["completed"])
+            records = (prefix.parent / "model-server-verification.jsonl").read_text().splitlines()
+            self.assertEqual(json.loads(records[-1]), proof)
+
+    def test_workflow_records_and_rejects_artifact_changes_after_shutdown(self):
+        from benchmarks.full_workflow_eval import model_server
+        with tempfile.TemporaryDirectory() as directory:
+            cache, _, prefix, library = self.fixture(directory)
+            args = SimpleNamespace(launch_server=True, model_cache=cache,
+                                   base_url=server.verified_runtime(cache)["endpoint"],
+                                   model="fixture-alias")
+            with self.assertRaisesRegex(ValueError, "Extracted local answer runtime"):
+                with model_server(args, prefix.parent):
+                    library.write_bytes(b"changed during workflow")
+            records = (prefix.parent / "model-server-verification.jsonl").read_text().splitlines()
+            final = json.loads(records[-1])
+            self.assertFalse(final["runtime_unchanged"])
+            self.assertFalse(final["completed"])
+            self.assertIsNotNone(final["exit_code"])
 
 
 if __name__ == "__main__":

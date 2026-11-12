@@ -30,6 +30,36 @@ def number(value):
     return "n/a" if value is None else f"{value:.3f}"
 
 
+def preparation_costs(report):
+    """Keep measured recovery work and unknown interrupted work visible.
+
+    This is a subtotal of the explicitly timed preparation phases, not process
+    wall time. An incomplete process segment or attempt can have unrecorded
+    work even when the final query matrix is complete.
+    """
+    preparation = report["preparation"]
+    index = preparation["semantic_index"]
+    segments = report.get("process_segments", [])
+    attempts = report.get("preparation_attempts", [])
+    incomplete = report.get("preserved_incomplete_attempts", [])
+    resumed_loads = [segment["resumed_model_load_ms"] for segment in segments
+                     if "resumed_model_load_ms" in segment]
+    known_initial_ms = preparation["ingestion_ms"] + index["model_load_ms"] + index["build_ms"]
+    unknown_preparation = sum(attempt.get("status") != "completed" for attempt in attempts)
+    unfinished_segments = sum("finished_at" not in segment for segment in segments)
+    return {"ingestion_ms": preparation["ingestion_ms"],
+            "model_load_ms": index["model_load_ms"], "index_build_ms": index["build_ms"],
+            "pages": index["pages"], "windows": index["windows"], "vector_bytes": index["vector_bytes"],
+            "logical_database_bytes": preparation["engine_stats"]["database_bytes"],
+            "process_segments": len(segments), "preserved_incomplete_attempts": len(incomplete),
+            "preparation_attempts": attempts, "resumed_model_loads": len(resumed_loads),
+            "resumed_model_load_ms": sum(resumed_loads),
+            "known_preparation_ms": known_initial_ms + sum(resumed_loads),
+            "unknown_preparation_attempts": unknown_preparation,
+            "unfinished_process_segments": unfinished_segments,
+            "has_unknown_interrupted_costs": bool(unknown_preparation or unfinished_segments or incomplete)}
+
+
 def load_reports(root, allow_partial=False):
     plan = json.loads((root / "benchmarks/semantic-final-plan.json").read_bytes())
     reports, missing = [], []
@@ -65,7 +95,7 @@ def load_reports(root, allow_partial=False):
     if not reports:
         raise ValueError("No completed semantic cohorts to summarize")
     identities = [item["report"]["identity"] for item in reports]
-    for key in ("runtime_source_sha256", "evaluator_files", "model", "configurations", "runtime", "repeats"):
+    for key in ("runtime_source_sha256", "evaluator_files", "model", "configurations", "repeats"):
         if any(identity[key] != identities[0][key] for identity in identities[1:]):
             raise ValueError(f"Incomparable cohort identity: {key}")
     return plan, reports, missing
@@ -107,19 +137,15 @@ def assess(root, allow_partial=False):
                                "lexical_complete": left["complete_evidence_rate"],
                                "semantic_complete": right["complete_evidence_rate"],
                                "lexical_recall": left["evidence_recall"], "semantic_recall": right["evidence_recall"]})
-        preparation = report["preparation"]
-        index = preparation["semantic_index"]
-        costs.append({"cohort": label, "ingestion_ms": preparation["ingestion_ms"],
-                      "model_load_ms": index["model_load_ms"], "index_build_ms": index["build_ms"],
-                      "pages": index["pages"], "windows": index["windows"], "vector_bytes": index["vector_bytes"],
-                      "logical_database_bytes": preparation["engine_stats"]["database_bytes"],
-                      "process_segments": len(report["process_segments"]),
-                      "preserved_incomplete_attempts": len(report["preserved_incomplete_attempts"]),
-                      "preparation_attempts": report["preparation_attempts"]})
+        costs.append({"cohort": label, **preparation_costs(report)})
     return {"schema_version": 1, "status": "partial" if missing else "complete-frozen-matrix",
             "plan_sha256": file_hash(root / "benchmarks/semantic-final-plan.json"),
             "runtime_source_sha256": reports[0]["report"]["identity"]["runtime_source_sha256"],
             "model": reports[0]["report"]["identity"]["model"],
+            "measured_environments": [{"cohort": item["cohort"]["label"],
+                                      **item["report"]["identity"]["runtime"]}
+                                     for item in reports],
+            "timing_comparison": "Each cohort pairs both modes on the same host/process; timings are never pooled across cohorts or hosts.",
             "completed_cohorts": len(reports), "missing_cohorts": missing,
             "quality": rows, "diagnostic_groups": groups, "preparation_costs": costs,
             "provenance": provenance, "methodology": plan["methodology"]}
@@ -169,6 +195,15 @@ def markdown(assessment):
                   "|---|---:|---:|---:|---:|---:|---:|"])
     for row in assessment["preparation_costs"]:
         lines.append(f"| {row['cohort']} | {number(row['ingestion_ms'])} | {number(row['model_load_ms'])} | {number(row['index_build_ms'])} | {row['pages']} / {row['windows']} | {row['vector_bytes']} | {row['logical_database_bytes']} |")
+    lines.extend(["", "### Recovery costs", "",
+                  "The table above shows the original successfully recorded preparation. A resumed process can load the model again; "
+                  "the following subtotal includes every recorded reload. Interrupted preparation or query attempts retain unknown costs. "
+                  "These subtotals exclude query time, scoring, checkpoint I/O, process startup and download time; they are not end-to-end wall time.", "",
+                  "| Cohort | Process segments | Recorded reload ms | Known preparation ms | Unrecorded interrupted costs |",
+                  "|---|---:|---:|---:|---|"])
+    for row in assessment["preparation_costs"]:
+        unknown = "yes; see preserved attempts" if row["has_unknown_interrupted_costs"] else "none recorded"
+        lines.append(f"| {row['cohort']} | {row['process_segments']} | {number(row['resumed_model_load_ms'])} | {number(row['known_preparation_ms'])} | {unknown} |")
     lines.extend(["", "## Interpretation and reproducibility", "",
                   "- Synthetic61 is development evidence with shared templates. The six-domain authored36 and LoCoMo1015 cohorts are known regression data.",
                   "- Hotpot128 was frozen separately before scoring. It is externally authored encyclopedia multi-hop QA in a scoped distractor setting; it is not full-Wikipedia retrieval or a representative conversation-memory population. Once scored, these IDs become regression data.",
@@ -177,11 +212,20 @@ def markdown(assessment):
                   "- Measurement validation covers exact token/character caps, entire original-page slice projection, source references, project scope, model metadata, source stability and deterministic repeated contexts. It is not a minimum quality guarantee.",
                   "- Book's configured extractive summaries make zero model calls. Model inference for embedding has real CPU/index costs; no electricity, provider-bill or full-workflow cost advantage is inferred.", "",
                   f"Measured runtime SHA-256: `{assessment['runtime_source_sha256']}`.", "",
-                  "The [frozen plan](semantic-final-plan.json), [execution manifest](semantic-final-manifest.json), "
+                  "The [frozen plan](semantic-final-plan.json), [original manifest](semantic-final-manifest.json), "
+                  "[fresh-workspace execution manifest](semantic-recovery-20261112-manifest.json), "
+                  "hosted execution checkpoints under reports/hosted-semantic-*-checkpoint.json, "
                   "[machine-readable assessment](results/semantic-final-assessment.json) and raw reports preserve full identities and per-question gains/losses:", ""])
     for item in assessment["provenance"]:
         label = item["cohort"]["label"]
         lines.append(f"- {label}: [readable report](results/semantic-final-{label}.md), [summary](results/semantic-final-{label}.summary.json), [full metrics](results/semantic-final-{label}.json.gz).")
+    lines.extend(["", "## Measurement hosts", "",
+                  "The execution host can differ between cohorts. Runtime source, evaluator source, model, "
+                  "budgets and repeat counts must match across cohorts; both modes remain paired inside each cohort. "
+                  "There is no cross-host pooling or cross-cohort speed ratio. The complete recorded Python, SQLite, "
+                  "platform and package identities follow.", "", "hosted-semantic-<cohort>-checkpoint.json records "
+                  "the individual Actions execution; original local checkpoints are retained separately.", "",
+                  "```json", json.dumps(assessment["measured_environments"], ensure_ascii=False, indent=2), "```", ""])
     lines.extend(["", "Rebuild the assessment without making model calls:", "", "```bash",
                   "python scripts/summarize_semantic_completion.py", "```", ""])
     return "\n".join(lines)
