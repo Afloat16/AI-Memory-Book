@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "assessed_at": "2026-11-12T10:54:45.618611+00:00",
+  "scope": "Three actual pinned external adapters, two invented scoped queries and three repetitions each, complete component search/mapping/payload/full-read/six-budget packing/raw-summary/strict-assessment path. No external cohort content or generation calls.",
+  "helper_sha256": "f521d42430bec6544ad617f2d922faf5907251689f595a5d16d1d0783c39687a",
+  "script_sha256": "3bd3db9df74d058028c172a157996e790628d683c6a1123d4b2ac9def560ddbc",
+  "upstream_locks": {
+    "claude-mem": {
+      "path": "benchmarks/competitors/claude-mem-round2-lock.json",
+      "sha256": "49267441d4a1292bdd6232abfd78a109fc97fcfcfcf740a51a84d767d6c3edae"
+    },
+    "billion-context": {
+      "path": "benchmarks/competitors/billion-round2-lock.json",
+      "sha256": "0f56614fb56f3f269f6e40eb28646a8939fdf4e6dddcc93187465d31311dfd69"
+    },
+    "ai-memory": {
+      "path": "benchmarks/competitors/ai-memory-lock.json",
+      "sha256": "77edebbd68ca4f190065b9795481c524f50e3af73b10f05334a6d76d2c4cbd4c"
+    }
+  },
+  "records": [
+    {
+      "stage": "claude-mem-fts",
+      "passed": false,
+      "failures": [
+        {
+          "error_type": "AssertionError",
+          "reason": "{'passed': False, 'failures': [{'check': 'packed_source_scope_budget_invariants'}]}"
+        }
+      ],
+      "attempts_started": 6,
+      "attempts_finished": 6,
+      "configurations": 6,
+      "native_commit": "c4a9f5725f420bf9c6e866cdd3b94bd36498af09",
+      "source_unchanged": true,
+      "outputs": {
+        "benchmarks/results/round2-recovery-smoke/claude-mem-fts.json.gz": "2eac9f4b5273386f3295409d637e30ad880c0f6148a10a482966c3399041317c",
+        "benchmarks/results/round2-recovery-smoke/claude-mem-fts.summary.json": "4fd3faec9b1a6c6987f47184614aa26a1e236d98e09a1b58ebe8a8997d693d39"
+      }
+    },
+    {
+      "stage": "ai-memory-hybrid",
+      "passed": false,
+      "failures": [
+        {
+          "error_type": "AssertionError",
+          "reason": "{'passed': False, 'failures': [{'check': 'packed_source_scope_budget_invariants'}]}"
+        }
+      ],
+      "attempts_started": 6,
+      "attempts_finished": 6,
+      "configurations": 6,
+      "native_commit": "ee73c04c542fa41ca629b046deb4ac108518f407",
+      "source_unchanged": null,
+      "outputs": {
+        "benchmarks/results/round2-recovery-smoke/ai-memory-hybrid.json.gz": "cb6a4fa201385f7d94ea2e09a9f42cfe044f0c8a764966d7044a148023c22a7c",
+        "benchmarks/results/round2-recovery-smoke/ai-memory-hybrid.summary.json": "c7a24fdda8ca9b392d0f103815b4567dccd6ee72cb8e3dfa113f9be6415a0c87"
+      }
+    },
+    {
+      "stage": "billion-context",
+      "passed": false,
+      "failures": [
+        {
+          "error_type": "AssertionError",
+          "reason": "{'passed': False, 'failures': [{'check': 'packed_source_scope_budget_invariants'}]}"
+        }
+      ],
+      "attempts_started": 6,
+      "attempts_finished": 6,
+      "configurations": 6,
+      "native_commit": "9674cfafbc78c50245ae0d887483d3d6ce880c15",
+      "source_unchanged": null,
+      "outputs": {
+        "benchmarks/results/round2-recovery-smoke/billion-context.json.gz": "7dad673753de96c78ee9b9b29c400114d64ce3ddf31c83633d5d98c05084b714",
+        "benchmarks/results/round2-recovery-smoke/billion-context.summary.json": "435b9c8c281bc1dc729eea2c6398dcbb1a8fd250b9970e564c5f391fcce0f47b"
+      }
+    }
+  ]
+}
