@@ -343,7 +343,8 @@ def strict_validation(report):
 
 def comparisons(report):
     result = []
-    for cohort in report["cohorts"]:
+    # The protocol owns matrix order; sorted-key JSON can reorder mappings.
+    for cohort in (c["name"] for c in report["plan"]["cohorts"]):
         for surface in SURFACES:
             for budget in BUDGETS:
                 selected = [w for w in report["workers"] if w["cohort"] == cohort]
