@@ -1,0 +1,103 @@
+name: Preserve indexed reference prototype and complete costs
+
+on:
+  push:
+    branches: ['transport/round2-indexed-references']
+    paths:
+      - '.github/workflows/indexed-references-prototype.yml'
+      - 'scripts/prototype_indexed_references.py'
+      - 'benchmarks/experiments/indexed-references-prototype-plan.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  prototype:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      TIKTOKEN_CACHE_DIR: .artifacts/tiktoken
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[mcp,tokens]' 'mcp==1.30.0'
+      - name: Verify unchanged runtime and prepare only the old inputs
+        run: |
+          git diff --exit-code 841cedb0cc52ff2b199e7c24832b64973a2e306d HEAD -- src
+          git fetch origin 558bac15d09dbd7ec659d97c0b686a74097f91f1
+          mkdir -p .artifacts
+          git show 558bac15d09dbd7ec659d97c0b686a74097f91f1:benchmarks/reports/round2-default-recall-43194664986-1.json.gz > .artifacts/default-reference.json.gz
+          python - <<'PY'
+          import hashlib,json,pathlib,urllib.request
+          manifest=json.loads(pathlib.Path('benchmarks/locomo_split.json').read_text())
+          with urllib.request.urlopen(manifest['url'],timeout=90) as response:
+              raw=response.read(manifest['bytes']+1)
+          assert len(raw)==manifest['bytes'] and hashlib.sha256(raw).hexdigest()==manifest['sha256']
+          pathlib.Path('.artifacts/prototype-locomo10.json').write_bytes(raw)
+          PY
+      - name: Measure reversible projections and full first-call costs
+        id: measure
+        run: |
+          python scripts/prototype_indexed_references.py \
+            --locomo-path .artifacts/prototype-locomo10.json \
+            --reference-report .artifacts/default-reference.json.gz \
+            --output "benchmarks/reports/indexed-references-prototype-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json.gz"
+      - name: Recompute all cost cells and check the complete projection matrix
+        id: audit
+        run: |
+          python - <<'PY'
+          import gzip,hashlib,json,os,pathlib
+          from scripts.prototype_indexed_references import summarize
+          prefix='benchmarks/reports/indexed-references-prototype-'+os.environ['GITHUB_RUN_ID']+'-'+os.environ['GITHUB_RUN_ATTEMPT']
+          compressed=pathlib.Path(prefix+'.json.gz').read_bytes()
+          raw=gzip.decompress(compressed)
+          report=json.loads(raw)
+          summary=json.loads(pathlib.Path(prefix+'.summary.json').read_text())
+          assert report['validation']=={'passed':True,'configurations':12,'payload_projections':7098,'decoded_refs':110880,'actual_prior_sdk_compact_responses_matched':3549,'runtime_modified':False}
+          axes={(n,b,d) for n in ('synthetic61','public1015') for b in (2000,4000,8000) for d in (False,True)}
+          assert {(c['cohort'],c['budget_chars'],c['details']) for c in report['configurations']}==axes
+          for c in report['configurations']:
+              assert c['metrics']==summarize(c['rows'])
+              assert len(c['rows'])==len({r['id'] for r in c['rows']})==c['dataset']['queries']
+              assert all(r['reversible'] and r['baseline_value_sha256']==r['restored_value_sha256'] for r in c['rows'])
+          expected={**report,'configurations':[{k:v for k,v in c.items() if k!='rows'} for c in report['configurations']],
+                    'full_report_sha256':hashlib.sha256(raw).hexdigest(),'compressed_report_sha256':hashlib.sha256(compressed).hexdigest()}
+          assert expected==summary
+          print(json.dumps({'validation':'passed','response_projections':7098,'first_call_costs_include_schema_instructions_and_arguments':True}))
+          PY
+      - name: Save prototype reports and explicit attempt status
+        if: always()
+        env:
+          MEASURE: ${{ steps.measure.outcome }}
+          AUDIT: ${{ steps.audit.outcome }}
+        run: |
+          python - <<'PY'
+          from datetime import datetime,timezone
+          import hashlib,json,os,pathlib,subprocess
+          run=os.environ['GITHUB_RUN_ID']+'-'+os.environ['GITHUB_RUN_ATTEMPT']
+          prefix='benchmarks/reports/indexed-references-prototype-'+run
+          paths=[prefix+s for s in ('.json.gz','.summary.json') if pathlib.Path(prefix+s).is_file()]
+          marker=pathlib.Path(prefix+'.completion.json')
+          marker.parent.mkdir(parents=True,exist_ok=True)
+          value={'status':'complete' if os.environ.get('MEASURE')==os.environ.get('AUDIT')=='success' else 'failed_or_incomplete',
+                 'measurement_outcome':os.environ.get('MEASURE'),'audit_outcome':os.environ.get('AUDIT'),
+                 'source_commit':os.environ['GITHUB_SHA'],'created_at':datetime.now(timezone.utc).isoformat(),
+                 'report_sha256':{p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() for p in paths},
+                 'scope':'Old-cohort reversible encoding prototype only; runtime/API unchanged. Full metadata and argument overhead included, all negative outcomes retained. No latency claims.'}
+          marker.write_text(json.dumps(value,indent=2)+'\n')
+          paths.append(str(marker))
+          def call(*a):subprocess.run(a,check=True)
+          call('git','config','user.name','github-actions[bot]')
+          call('git','config','user.email','41898282+github-actions[bot]@users.noreply.github.com')
+          call('git','add','--',*paths)
+          call('git','commit','-m','bench: preserve indexed-reference prototype costs and reversibility')
+          branch='validation/indexed-reference-prototype-'+run
+          call('git','push','origin','HEAD:refs/heads/'+branch)
+          print(json.dumps({'branch':branch,'status':value['status']}))
+          PY
