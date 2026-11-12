@@ -1,8 +1,23 @@
 # Round two: frozen selection and fair component boundaries
 
+**Completed:** [run 43207732852](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43207732852),
+all 10 stages and 32,256 timed calls, result commit
+[`057b814`](https://github.com/Afloat16/AI-Memory-Book/commit/057b814ab809dec57d4fa4c75fe540d59a0f0027).
+See the [complete matrix](../benchmarks/results/round2-43207732852-1/report.md),
+[current comparison](comparison.md), [explicit interface-only recovery](round2-recovery.md)
+and [independent recovery audit](round2-recovery-audit.md). The protocol below
+retains its original selection and measurement rules.
+
 The new protocol is registered in [`round2_plan.json`](../benchmarks/round2_plan.json). Its 256-question HotpotQA selection excludes every ID from the previous 128-question evaluation. The selection and data hashes were published before candidate binding or any scored retrieval. Source content remains in ignored local files; the public manifest contains only IDs, counts, hashes and provenance.
 
 The IDs are sorted by SHA256 of a fixed prefix and ID after excluding the previous set. There is no question, answer, difficulty or outcome filtering. All 2,539 supplied paragraphs and 614 support annotations remain in the denominators. This is a new selection from the same external distractor corpus. It does not establish generalization to a new domain or private conversational memory. Model pretraining overlap is unknown.
+
+Each supplied paragraph is imported as a separate source session/chapter. The
+cross-session and cross-chapter diagnostics describe evidence spread across
+that fixed paragraph mapping, rather than a new collection of real multi-session
+conversations. These groups overlap with the multiple-required-evidence group;
+their counts must not be added together as independent questions. Low-overlap
+membership is derived with the frozen baseline and is used only for reporting.
 
 ## What is fixed
 
@@ -13,7 +28,7 @@ The IDs are sorted by SHA256 of a fixed prefix and ID after excluding the previo
 | Common-page components | Book baseline, Book candidate, claude-mem native FTS, ai-memory local hybrid, billion-context native search kernel |
 | Optional semantic route | Bind enabled or disabled before scoring; if enabled, add a separate candidate native stage and component stage |
 | Component quality | Identical supplied pages, project scope, top-five limit, citation format and whole-block packer; 6 token configurations |
-| Quality diagnostics | Complete evidence, evidence recall, MRR, annotation/query gains and losses, frozen-baseline low-overlap and source-hierarchy groups |
+| Quality diagnostics | Complete evidence, evidence recall, packed-context MRR, annotation/query gains and losses, frozen-baseline low-overlap and source-hierarchy groups |
 | Latency | Native and adapter p50/p95/mean, first and repeated passes, independent packing, declared search plus all reads |
 | Tokens | Exact final context for both tokenizers; native returned envelope, native text and full-read envelope/text separately |
 | Preparation | Downloads and cache bytes; native source ingestion, startup/setup, optional embedding/index build |
@@ -65,6 +80,11 @@ claude-mem executes unchanged native SQLite FTS through a Bun bridge. ai-memory 
 ai-memory reads every mapped top-five result on the first pass and checks the full body against the supplied original bytes. Its combined first-pass latency is calculated per query as adapter search roundtrip plus the sum of its read roundtrips, then summarized; two percentiles are never added together. It excludes evaluator verification, reference token counting and common packing. An application could choose fewer reads. Native envelope tokens and text-only tokens describe different surfaces and are not interchangeable with the common evidence budget.
 
 Native ai-memory metadata pages have no mapping to a supplied original page. They still consume their original top-five positions and native payload tokens; the raw report retains null mapping positions and native ID hashes, and the summary counts every such hit. They earn zero source-evidence credit, are not expanded as full source pages, and never cause the evaluator to retrieve replacements. Unknown non-null IDs, duplicate identities and cross-scope results remain hard errors. This policy is fixed before scoring and follows the historical component evaluator's metadata-page treatment.
+
+MRR describes the first required evidence found in the **packed context**.
+Metadata pages and oversized source blocks omitted by packing do not occupy a
+position in that delivered context. The original top-five native positions stay
+in the raw records; the reported value is not an MRR over those native slots.
 
 RSS includes the evaluator and loaded source corpus. Sampling observes a lower bound; summed process RSS can count shared mappings more than once. This is not unique physical memory. State bytes exclude the harness attempt ledger and symlinked model caches; cache/model downloads remain separately accounted. Zero persisted state for a kernel does not imply zero in-memory index cost.
 

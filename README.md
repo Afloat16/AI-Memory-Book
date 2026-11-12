@@ -28,20 +28,44 @@ See the [agent workflow](docs/agent-guide.md), [capture and deployment guide](do
 
 ### Latest verified comparison
 
-With the same **1,024-token `cl100k_base` context cap**, Book delivers more complete original evidence than the three tested native retrieval components:
+The current version provides a **model-free lexical default** and an explicit
+**Q2 local semantic mode**. The latest fixed-source comparison runs both
+alongside three pinned upstream components on **one host**, using the same
+**1,024-token `cl100k_base` common-context cap**:
 
-| Retrieval component | Evidence recall ↑ | Complete evidence ↑ | Mean context tokens ↓ |
-|---|---:|---:|---:|
-| **AI-Memory-Book, score-aware** | **69.54%** | **72.88%** | 827.2 |
-| [claude-mem](docs/claude-mem-component-evaluation.md), native SQLite FTS | 66.24% | 70.11% | 804.8 |
-| [billion-context](docs/comparison.md), search kernel | 65.48% | 68.72% | 862.6 |
-| [ai-memory](docs/comparison.md), local hybrid | 64.47% | 66.72% | **779.3** |
+| Current retrieval component | Evidence recall ↑ | Complete evidence ↑ | Packed-context MRR ↑ | Mean context tokens | Search p50 / p95 ms |
+|---|---:|---:|---:|---:|---:|
+| **Book, default lexical** | 75.41% | 51.95% | 0.8596 | 712.9 | 4.712 / 8.301 |
+| **Book, optional Q2 semantics** | **78.66%** | **57.81%** | **0.8686** | 727.8 | 14.014 / 22.523 |
+| [claude-mem 15.18.1](docs/comparison.md), native SQLite FTS | 72.31% | 48.83% | 0.8348 | 704.5 | 16.254 / 29.948 |
+| [ai-memory v3.4.5](docs/comparison.md), local hybrid | 76.22% | 53.91% | 0.8633 | 704.0 | 25.947 / 33.251 |
+| [billion-context 9674cfa](docs/comparison.md), search kernel | 80.94% | 61.72% | 0.8622 | 751.3 | 0.349 / 1.092 |
 
-Book's complete-evidence advantage is **+2.77 percentage points over claude-mem FTS**, **+4.16 over billion-context**, and **+6.16 over ai-memory**. Its context is 4.1% smaller than billion-context at this setting; claude-mem and ai-memory use fewer context tokens.
+At this setting, Book Q2 delivers complete evidence **8.98 percentage points
+more often than claude-mem FTS** and **3.91 points more often than ai-memory**;
+it also has the highest packed-context MRR in this view. The default Book path
+keeps model-free operation and lower measured component p95 than those two
+components. **billion-context leads evidence recall, completeness and search
+latency in this particular slice.** The full current result remains visible.
 
-**Scope:** all 1,015 eligible text-only LoCoMo questions, the same 1,339 supplied source pages, project scope, top-five candidates, and one citation/whole-page packer. Complete evidence uses 649 answerable questions; evidence recall uses 788 required source utterances; mean tokens use all 1,015 questions. Evidence must survive intact with its original source span. This measures source delivery, separately from generated answers and complete product workflows.
+**Scope:** 256 preselected, answerable HotpotQA multi-hop questions; all 2,539
+supplied paragraphs, 3,769 canonical pages and 614 support annotations;
+identical project scope, top-five limit and citation/whole-page packing.
+Quality uses one result per question; timings use three actual repetitions.
+MRR measures evidence order after packing. Native Book excerpt packing has a
+separate matrix: at 1,024 cl100k tokens and 8,000 characters, completeness is
+**51.95% lexical / 57.42% Q2**.
 
-The [full comparison](docs/comparison.md) records the exact source revisions, all six tokenizer/budget settings, MRR and unsupported-query behavior. The latest added claude-mem measurement executes unmodified upstream `SessionStore` / `SessionSearch`, with **3,045 successful native calls**. Its observer, Chroma, host injection and generation are outside that component test. The native token-budget API has a separate packing policy and report.
+Search timings retain their interfaces: Book Python with native context
+assembly, claude-mem Bun/SQLite FTS, ai-memory HTTP/MCP, and billion-context's
+Node search kernel. Common packing and preparation are separate. ai-memory's
+declared first-search-plus-all-reads p95 is **37.613 ms**, with **4.98 reads per
+question**. These are component measurements, not whole-product speed ratios
+or final-answer scores. The [full current comparison](docs/comparison.md)
+includes every budget/tokenizer, mean/first/repeated latency, native returned
+tokens, indexing, downloads, RSS and storage. All **32,256 timed calls** passed
+the [complete fixed-source recovery](docs/round2-recovery.md); its original
+failed attempt is preserved.
 
 ### Speed, response size and operating costs
 
@@ -317,7 +341,7 @@ explicit choices for a workload and context budget.
 | Default retrieval and ingestion | 56,784 actual paired calls; four balanced rounds; full payload, source and index equivalence; separate ingestion, replay, startup and resource measurements |
 | Optional indexed references | 56,784 actual SDK calls; 7,098 distinct complete payload pairs and all 6,868 archived reference entries; full metadata costs and per-question losses |
 | Optional Q2 semantic candidates | 48,492 development recalls across four old cohorts and four paired modes; all budgets, diagnostic groups, model/index costs and individual losses retained |
-| Native budgets and current competitors | Frozen 256-question protocol; two tokenizers, three token caps, two native character caps; separate Book, claude-mem FTS, ai-memory hybrid and billion-context boundaries |
+| Native budgets and current competitors | 10 completed stages and 32,256 actual calls over 256 questions; all 3,072 lexical baseline/candidate query/configuration contexts unchanged; full native/component quality, latency, token and resource records |
 
 [All result tables and reproducible artifacts](benchmarks/README.md) ·
 [Current component/native protocol](docs/round2-validation.md) ·
@@ -327,7 +351,10 @@ explicit choices for a workload and context budget.
 [Native workflow results](benchmarks/RESULTS-full-workflow.md).
 
 Q2 can improve paraphrase retrieval, but can displace useful lexical evidence
-and adds local model/index costs. An existing compatible semantic index can be
+and adds local model/index costs. In the current native 8,000-character view
+at **512 o200k tokens**, completeness changes **42.19% lexical → 41.02% Q2**;
+all small-budget and per-question losses remain in the complete report.
+An existing compatible semantic index can be
 reused when upgrading fusion; its result-cache version changes separately.
 Multi-fact coverage remains an explicit `coverage=True` / `--coverage` option.
 

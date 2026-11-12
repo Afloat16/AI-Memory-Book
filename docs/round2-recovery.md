@@ -1,5 +1,14 @@
 # Fixed-candidate recovery of the round-two protocol
 
+**Completed:** [run 43207732852](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43207732852)
+passed the complete 10-stage matrix and strict assessment, with 32,256 started
+and finished timed searches. All 23 public files are saved at
+[`057b814`](https://github.com/Afloat16/AI-Memory-Book/commit/057b814ab809dec57d4fa4c75fe540d59a0f0027).
+The [independent strict verification and cross-run analysis](round2-recovery-audit.md)
+retain identical evidence/query records and the differing full original-store
+snapshot hash. The [separate cost audit](../benchmarks/reports/round2-43207732852-1-component-cost-audit.md)
+recomputes every recorded native cost mean for all six components.
+
 The first run, [43201620535](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43201620535), stopped at the first claude-mem query. Its evaluator assumed every adapter returned `results`, while the existing claude-mem adapter returns its unchanged observation rows in `native_payload`. An eagerly evaluated fallback also accessed the missing field. This was an evaluator interface error; the native process loaded all 3,769 pages, passed its FTS check, preserved all 983 verified source files, and exited normally.
 
 All 13 public files from that run remain at commit `150d37799098aa1fb1ddcebe5b42b18954adc035`. The independent interruption audit verifies the raw/summary hashes and complete matrices for export, baseline native, candidate native and both Book components. The failed claude-mem stage retains one started intent and zero finished samples. It is not a completed component comparison.

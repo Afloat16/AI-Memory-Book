@@ -23,13 +23,107 @@ have separate measurement boundaries:
 | Default retrieval and ingestion | [56,784-call paired performance report](default-recall-performance.md) | Identical complete evidence payloads; lower pooled p95 in all 12 configurations; fresh import and unchanged replay costs measured separately |
 | Optional semantic fusion | [48,492-call Q2 development matrix](../benchmarks/reports/round2-anchor-development.md) | Aggregate complete evidence and annotation recall meet or exceed original RRF in 12 old cohort/budget settings; individual and diagnostic-group losses remain visible |
 | Indexed MCP references | [Operator configuration and format](indexed-references.md) | Explicit, reversible representation; original context and detailed offsets preserved; default schemas and instructions unchanged |
-| New component comparison | [Frozen 256-question protocol](round2-validation.md) | Source, optional semantic choice, upstream versions and evaluator hashes bound before scoring; native and shared-context costs are separate |
+| Current component comparison | [Complete 32,256-call same-host matrix](../benchmarks/results/round2-43207732852-1/report.md) | Fixed-source recovery completed; all budgets, native/shared-context costs, source checks and negative results preserved |
 
 The older LoCoMo component measurements below retain their original source
 pins and interface boundaries. They are regression evidence. The new upstream
 [registration](../benchmarks/experiments/round2-upstream-registration.json)
 pins claude-mem 15.18.1, ai-memory v3.4.5 and the current billion-context kernel
 for the independent comparison without rewriting those historical records.
+
+## Current frozen 256-question comparison
+
+The complete [same-host report](../benchmarks/results/round2-43207732852-1/report.md) measures the current source at `cbf6260` and the upstream revisions in the [registration](../benchmarks/experiments/round2-upstream-registration.json). It contains **10 completed stages and 32,256 timed search calls**, including 3,072 distinct lexical baseline/candidate native query/configuration pairs. Default contexts and their evidence scores are identical in all those pairs. The two lexical component modes also have identical quality. No generative model calls are configured in this retrieval experiment.
+
+The 256 preselected HotpotQA questions retain all 2,539 supplied paragraphs, 3,769 canonical pages and 614 required annotations. All questions are answerable. One annotation cannot be fully represented by a single canonical page under the fixed scorer; it stays in the denominator. Each paragraph maps to a separate source session/chapter, so the multi-hop groups do not establish transfer to private conversations. This is another selection from the previously used external distractor corpus, not a new-domain generalization claim.
+
+### Current shared-page quality and search latency
+
+This display uses **1,024 cl100k_base tokens**. The complete report retains both encodings at all three budgets. Every component sees the same source pages, project scope, top-five limit, citations and whole-block packer. Quality uses the first result for each question; search timings pool all three repetitions. MRR measures the first evidence position in the packed context, after metadata or oversized blocks omitted by packing.
+
+| Current component | Evidence recall | Complete evidence | Packed-context MRR | Mean context tokens | Search p50 / p95 / mean ms |
+|---|---:|---:|---:|---:|---:|
+| Book — default lexical | 75.41% | 51.95% | 0.8596 | 712.9 | 4.712 / 8.301 / 4.919 |
+| Book — optional Q2 | 78.66% | 57.81% | 0.8686 | 727.8 | 14.014 / 22.523 / 14.638 |
+| claude-mem 15.18.1 FTS | 72.31% | 48.83% | 0.8348 | 704.5 | 16.254 / 29.948 / 17.076 |
+| ai-memory v3.4.5 hybrid | 76.22% | 53.91% | 0.8633 | 704.0 | 25.947 / 33.251 / 26.516 |
+| billion-context 9674cfa kernel | 80.94% | 61.72% | 0.8622 | 751.3 | 0.349 / 1.092 / 0.505 |
+
+Q2 improves complete evidence by **5.86 percentage points over the current lexical default**, **8.98 points over claude-mem FTS**, and **3.91 points over ai-memory** in this view. It has the highest packed-context MRR here. Billion-context has higher annotation recall and complete evidence and a faster search kernel. Default Book remains the model-free recommendation; optional Q2 adds model/index costs and does not improve every question or budget.
+
+Book measures Python retrieval and native context assembly; claude-mem executes unchanged Bun/SQLite FTS; ai-memory uses local HTTP/MCP; billion-context executes its Node search kernel. Common packing, preparation, full product observation/compression and answer generation are separate. These same-host component timings are not interchangeable whole-product speed ratios. First-pass and repeat-pass values remain in each complete summary; no fastest repeat is selected.
+
+### Native API packing and small-budget tradeoffs
+
+Native Book assembles excerpts and original source units rather than the shared whole-page benchmark response. At the same displayed 1,024 cl100k budget its exact measurements are:
+
+| Current native mode | Character cap | Complete evidence | Evidence recall | Mean context tokens | p50 / p95 ms |
+|---|---:|---:|---:|---:|---:|
+| Book native — default lexical | 2000 | 28.52% | 59.12% | 674.1 | 7.931 / 13.325 |
+| Book native — default lexical | 8000 | 51.95% | 75.57% | 801.7 | 6.150 / 9.841 |
+| Book native — optional Q2 | 2000 | 32.81% | 60.75% | 674.6 | 17.177 / 28.208 |
+| Book native — optional Q2 | 8000 | 57.42% | 78.50% | 816.2 | 15.517 / 24.227 |
+
+The current lexical implementation preserves all 3,072 baseline contexts and lowers p50 and p95 in every one of the 12 native configurations on this host: p50 by **4.53%–5.97%**, p95 by **1.88%–4.49%**. Its source ingestion takes **4.884 s versus 6.550 s** for the baseline. The separate [balanced-order regression performance study](default-recall-performance.md) supplies four-round evidence on the old synthetic/public cohorts.
+
+Q2 native completeness at 8,000 characters / 1,024 cl100k tokens has **23 gains and 9 losses** against lexical; the component view has **24 gains and 9 losses**. At **512 o200k tokens**, native completeness falls **24.22% → 23.83%** with 2,000 characters and **42.19% → 41.02%** with 8,000. At 512 cl100k tokens the native complete rates tie, while annotation recall decreases. These losses are retained, and Q2 stays optional.
+
+The low-overlap group contains only **nine questions**. At 1,024 cl100k tokens / 8,000 characters, native lexical/Q2 completeness is **1/9 → 2/9**. With shared whole-page packing it is **1/9 lexical, 2/9 Q2, 2/9 claude-mem, 3/9 ai-memory and 3/9 billion-context**. At 512 tokens the component Q2 result is still **0/9**. These small overlapping diagnostics do not show that low-overlap or multi-hop memory is solved.
+
+### Returned payloads and declared full reads
+
+The following are **o200k_base reference tokens**, averaged over the 256 first-pass questions. Native payload and native text are separate surfaces; neither is the common capped context above. The [independent cost audit](../benchmarks/reports/round2-43207732852-1-component-cost-audit.md) recomputes every numerical cost field for both tokenizers and all 36 component/context configurations.
+
+| Current component | Search payload tokens | Native text tokens | Extra read payload tokens | Extra read text tokens | Reads/query | Mean read ms | First search + all reads p50 / p95 ms |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Book — default lexical | 4001.8 | 801.3 | 0.0 | 0.0 | 0.0000 | 0.000 | 4.713 / 8.396 |
+| Book — optional Q2 | 4099.1 | 817.8 | 0.0 | 0.0 | 0.0000 | 0.000 | 13.895 / 22.530 |
+| claude-mem 15.18.1 FTS | 1612.3 | unavailable | 0.0 | 0.0 | 0.0000 | 0.000 | 16.218 / 30.056 |
+| ai-memory v3.4.5 hybrid | 1016.3 | 950.4 | 1811.5 | 1591.6 | 4.9766 | 4.294 | 30.292 / 37.613 |
+| billion-context 9674cfa kernel | 579.3 | unavailable | 0.0 | 0.0 | 0.0000 | 0.000 | 0.756 / 1.410 |
+
+Book here returns the full Python recall object; its native text is the context at the registered **100,000-character ranking cap before common packing**. It is not compact MCP output. ai-memory text is its actual MCP text content, which can still contain JSON/metadata; its payload is the MCP result envelope. Claude-mem and billion bridges do not expose a separate text surface, so unavailable stays unavailable. Default Book has a larger native JSON payload at this boundary; the separately measured [opt-in indexed MCP format](indexed-references.md) must not be substituted into this table.
+
+ai-memory reads every mapped top-five page on the first pass under the fixed policy. An agent could choose fewer reads. Its search-plus-read means are **2,827.8 payload tokens / 2,542.1 text tokens** under o200k_base. Combined latency first sums each question’s search roundtrip and all its reads, then computes percentiles; it never adds two p95 values. All six measured component modes, including baseline, have zero metadata hits and zero repeated-hit changes in this run. The native metadata-slot policy remains explicit and earns no evidence credit when such hits occur.
+
+### Preparation, memory and live state
+
+Every setup value excludes query time. Book native rows perform source ingestion; its component rows open/copy the already-ingested common archive, with an explicit index build for Q2. Those are different preparation operations and must not be presented as one ingestion-speed race.
+
+| Current mode | Setup s | Setup tree RSS MiB | Query tree RSS MiB | Worker peak RSS MiB | Live native state MiB |
+|---|---:|---:|---:|---:|---:|
+| Book native — default lexical | 4.941 | 333.63 | 280.68 | 844.18 | 35.50 |
+| Book native — optional Q2 | 213.432 | 1012.74 | 1041.29 | 1069.42 | 52.83 |
+| Book — default lexical | 0.226 | 333.62 | 224.00 | 844.18 | 30.62 |
+| Book — optional Q2 | 208.929 | 969.62 | 970.07 | 1011.91 | 48.93 |
+| claude-mem 15.18.1 FTS | 2.005 | 415.58 | 377.07 | 844.18 | 19.13 |
+| ai-memory v3.4.5 hybrid | 679.307 | 469.82 | 469.20 | 844.18 | 67.42 |
+| billion-context 9674cfa kernel | 0.173 | 333.51 | 401.94 | 844.18 | 0.00 |
+
+Tree RSS is sampled every 20 ms and includes the evaluator, loaded corpus and descendants. It is an observed lower bound and shared mappings can be counted more than once. Worker peak RSS is the separate OS high-water measurement, also including the harness; it is not pure product RAM. Live state includes product-specific native files/logs, excludes the attempt ledger and symlinked model caches, and is not peak disk usage. Billion’s zero persistent state describes this in-memory search-kernel harness, not its complete proxy. The full reports retain exact regular-file and SQLite main/WAL/SHM bytes before/after close.
+
+Current native Book ingestion is **4.884 s**. Q2 separately loads its model in **1.029 s** and builds **4,566 windows over 3,769 pages in 207.559 s**, with **7,013,376 vector bytes**; native setup totals 213.432 s. A compatible existing index can be reused across the fusion update. ai-memory’s native page ingestion takes **677.086 s**; its subsequent 1.172 s backfill reports zero new embeds and 3,770 skipped pages, so it is not a second full embedding-build measurement. Claude-mem’s cached source verification, startup, schema/FTS creation and supplied-page loading remain separate fields in its summary.
+
+Initial download/verification preparation began with empty measured caches. Cache bytes below include the resulting artifacts, and for some tasks extracted/compiled files; they are **not network-transfer bytes**. Python/Node provisioning and dependency installation are outside these task timers.
+
+| Preparation task | Measured wall s | Prepared regular-file bytes | Files |
+|---|---:|---:|---:|
+| verified hotpot download and conversion | 1.515 | 73,383,918 | 2 |
+| reference tokenizers | 1.408 | 5,295,048 | 2 |
+| ai memory binary and embedding | 1.994 | 174,868,526 | 6 |
+| claude mem source and bun | 4.657 | 178,639,496 | 986 |
+| billion context source | 1.968 | 163,611 | 31 |
+| book semantic model | 1.416 | 127,535,388 | 2 |
+
+The default lexical Book path has no semantic model requirement. Its optional pinned model consists of **127,535,388 verified bytes**. Tokenizer cache costs are needed for these exact-budget reference measurements; ordinary character-only retrieval has no tokenizer dependency. No API dollar cost, energy use or concurrent throughput is inferred from these phase measurements.
+
+### Fixed source, failure retention and independent checks
+
+The runtime was frozen at [`cbf6260`](https://github.com/Afloat16/AI-Memory-Book/commit/cbf626037b42f11f8bc5b6d46f56caac771e54ba) before the first score. The original run stopped at an adapter-field parsing error; all 13 original files remain preserved. The registered recovery changes that evaluator interface only, runs the entire matrix on one new host, and retains the original data, budgets, optional modes and source pins. The completed result commit is [`057b814`](https://github.com/Afloat16/AI-Memory-Book/commit/057b814ab809dec57d4fa4c75fe540d59a0f0027); [Actions 43207732852](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43207732852) succeeded.
+
+An independent strict recomputation verifies all 23 published files and every declared stage/axis/attempt. The [recovery audit](round2-recovery-audit.md) finds identical supplied pages, query/evidence/group records and repeated non-timing samples across the five shared completed stages. It also retains five copies of one differing full original-store snapshot hash. The snapshot includes automatic write-time metadata, but absent the old databases the cause cannot be proven to be only timestamps. That audit is explicitly `completed_with_differences`; no timing samples from the two hosts are pooled. The separate [numeric cost audit](../benchmarks/reports/round2-43207732852-1-component-cost-audit.json) passes all six components and 1,536 first-pass cost records.
+
+The candidate was not retuned from this selection. The questions become regression data after scoring. These checks establish measurement integrity within the stated boundaries; they do not establish final-answer accuracy, abstention on unanswerable queries, native observation/compression workflows for all products, or universal superiority.
 
 ## Popular projects and the workload they address
 
@@ -57,7 +151,7 @@ explicitly supports loopback endpoints without a commercial API key. Book's
 advantage is the combination of its default architecture and measured source
 delivery, not a claim that competitors universally require paid keys.
 
-## Frozen common-context retrieval results
+## Historical common-context retrieval results
 
 The [historical frozen report](../benchmarks/RESULTS-recall-score-quality.md#6-native-components-common-context-and-their-cost-boundaries)
 and the completed [claude-mem component report](../benchmarks/results/claude-mem-components-public.summary.json)
@@ -117,7 +211,7 @@ The historical whole-page policy is separate from the newer Book native
 token-budget API and its per-question block-preservation contract. Do not
 replace one policy's baseline with another.
 
-## Search and delivery latency, with the measured boundaries
+## Historical search and delivery latency
 
 The Book, billion-context and ai-memory rows retain their original historical
 run and transport boundaries. The claude-mem rows are from a **separate
@@ -151,7 +245,7 @@ first-call p50 falls **31.1%** (8.371 to 5.764 ms). Against the already optimize
 prior v0.3 branch, the same continuation uses 0.38% more response tokens and
 has a 15.5% lower observed median. These are distinct baselines.
 
-## Returned tokens, follow-up reads, preparation and storage
+## Historical returned tokens, preparation and storage
 
 The common packed context above is separate from each component's actual
 returned payload. Native payloads also have different serialization and
