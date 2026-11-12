@@ -1,6 +1,7 @@
 """Lifecycle and routing tests; these fixture vectors are not quality scores."""
 
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import struct
@@ -110,6 +111,32 @@ class SemanticLifecycleTests(unittest.TestCase):
         self.assertFalse(self.book.db.in_transaction)
         self.assertEqual(len(self.book.export()), 2)
 
+    def test_fusion_upgrade_reuses_old_index_but_not_old_result_cache(self):
+        from memory_book import store
+        from memory_book.semantic import FUSION_VERSION, SEMANTIC_VERSION
+        self.assertEqual(SEMANTIC_VERSION, 1)
+        self.assertEqual(FUSION_VERSION, 3)
+        self.book.build_semantic_index()
+        before = {table: [tuple(row) for row in self.book.db.execute(f"SELECT * FROM {table}")]
+                  for table in ("semantic_meta", "semantic_vectors")}
+        # Reproduce the original v1 key, which had no separate fusion version.
+        options = [store.INDEX_VERSION, store.RECALL_VERSION, "source", None,
+                   None, None, 4000, 5, "book", False, "semantic", 1,
+                   self.book._semantic_model.fingerprint]
+        old_key = hashlib.sha256(store._json(options).encode()).hexdigest()
+        self.book.db.execute("INSERT INTO recall_cache VALUES(?,?,?,?)",
+                             (old_key, self.book.revision, '{"legacy_only":true}', 0))
+        with patch.object(self.book._semantic_model, "encode_pages", side_effect=AssertionError("must reuse index")), \
+                patch("memory_book.semantic.rank_pages", return_value=[]):
+            fresh = self.book.recall("source", semantic=True)
+            self.assertFalse(fresh["cache_hit"])
+            self.assertNotIn("legacy_only", fresh)
+            self.assertTrue(self.book.recall("source", semantic=True)["cache_hit"])
+            with patch("memory_book.semantic.FUSION_VERSION", 4):
+                self.assertFalse(self.book.recall("source", semantic=True)["cache_hit"])
+        self.assertEqual({table: [tuple(row) for row in self.book.db.execute(f"SELECT * FROM {table}")]
+                          for table in before}, before)
+
     def test_encode_failure_keeps_existing_index(self):
         self.book.build_semantic_index()
         before = [tuple(row) for row in self.book.db.execute("SELECT * FROM semantic_vectors")]
@@ -129,12 +156,12 @@ class SemanticLifecycleTests(unittest.TestCase):
         empty = self.book.build_semantic_index()
         self.assertEqual(empty["windows"], 0)
 
-    def test_fusion_is_rank_based_equal_weight_and_deterministic(self):
+    def test_fusion_preserves_lexical_anchor_and_remaining_rrf_order(self):
         lexical = [{"id": "a", "score": 1000}, {"id": "b", "score": 1}]
         semantic = [{"id": "c", "semantic_similarity": .99}, {"id": "b", "semantic_similarity": .4}]
         rows = fuse_candidates(lexical, semantic)
-        self.assertEqual([row["id"] for row in rows], ["b", "a", "c"])
-        self.assertAlmostEqual(rows[0]["score"], 2 / 62)
+        self.assertEqual([row["id"] for row in rows], ["a", "b", "c"])
+        self.assertAlmostEqual(rows[0]["score"], 1 / 61)
         self.assertEqual(lexical[0]["score"], 1000)
 
 

@@ -18,6 +18,9 @@ from typing import Any
 
 
 SEMANTIC_VERSION = 1
+# Retrieval ordering has its own cache identity. Changing fusion alone must
+# neither change the verified model fingerprint nor rebuild identical vectors.
+FUSION_VERSION = 3
 MODEL_REPOSITORY = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 MODEL_REVISION = "e8f8c211226b894fcb81acc59f3b34ba3efd5f42"
 MODEL_FILES = (
@@ -271,7 +274,14 @@ def rank_pages(db: sqlite3.Connection, model: SemanticModel, query: str,
 
 
 def fuse_candidates(lexical: list[dict], semantic: list[dict]) -> list[dict]:
-    """Registered equal-weight rank fusion; no answer labels or thresholds."""
+    """Preserve the existing lexical leader and the remaining RRF order.
+
+    Equal-weight RRF(k=60) supplies each page's unchanged diagnostic score.
+    The first existing lexical candidate is then promoted once; every other
+    candidate keeps its RRF relative order. Scores need not be monotonic after
+    this priority rule. No labels, thresholds, extra model calls or new pages
+    are used, and pure-semantic retrieval remains unchanged.
+    """
     combined: dict[str, dict] = {}
     for route in (lexical, semantic):
         for rank, row in enumerate(route, 1):
@@ -281,4 +291,9 @@ def fuse_candidates(lexical: list[dict], semantic: list[dict]) -> list[dict]:
             combined[page_id]["score"] += 1 / (RRF_K + rank)
             if "semantic_similarity" in row:
                 combined[page_id]["semantic_similarity"] = row["semantic_similarity"]
-    return sorted(combined.values(), key=lambda row: (-row["score"], row["id"]))
+    ranked = sorted(combined.values(), key=lambda row: (-row["score"], row["id"]))
+    if lexical and semantic:
+        position = next(index for index, row in enumerate(ranked) if row["id"] == lexical[0]["id"])
+        if position:
+            ranked.insert(0, ranked.pop(position))
+    return ranked

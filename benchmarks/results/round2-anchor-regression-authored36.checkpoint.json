@@ -1,0 +1,191 @@
+{
+  "attempt_counts": {
+    "completed": 1296
+  },
+  "attempts_sha256": "c1e1a5bf9bc73fa413a1842fd7791c705e1c55446d1bef1387d6ea5dd147c155",
+  "complete_comparison": true,
+  "created_at_utc": "2026-11-12T10:04:06.384909+00:00",
+  "evaluator": "round2-anchor-q2-1",
+  "identity": {
+    "configurations": [
+      {
+        "budget_chars": 8000,
+        "budget_tokens": 512,
+        "limit": 5,
+        "tokenizer": "cl100k_base"
+      },
+      {
+        "budget_chars": 8000,
+        "budget_tokens": 1024,
+        "limit": 5,
+        "tokenizer": "cl100k_base"
+      },
+      {
+        "budget_chars": 8000,
+        "budget_tokens": 2048,
+        "limit": 5,
+        "tokenizer": "cl100k_base"
+      }
+    ],
+    "dataset_sha256": "ecc46c474d5184995938419fa985b8e08c0ddb51560da49990247465db6db0b0",
+    "evaluator": "round2-anchor-q2-1",
+    "evaluator_files": {
+      "component_eval.py": "77970a7043ab909e475c4950f4e4019db7b89328028b35c0f76a06273375aef0",
+      "data.py": "090d0460a6887eff32b3adb89d1684da9b7c9094f96246e187c1298051b64625",
+      "experiments/round2-anchor-plan.json": "622adeb87425ea05a254737ad91ecfc35ba63cab6774233ba3c0f187f9ef8eac",
+      "experiments/semantic-local-plan.json": "a8d9234d57fd853c8564e3061808e8423d4d6b30295869ebda324ca4aae7335c",
+      "hotpot_data.py": "5c206176665690044da9862bb70fe374b12348c4b5e6d0bdb0b098bb73c85760",
+      "hotpot_manifest.json": "ad0aba557e98cac6925ff5bdb8048a1a04a5f708847007f33ddf03d88650b69d",
+      "locomo_split.json": "a64086f1dc194c3fe9157e60f9696a77d3c650af836a60fab192f3db48c527f5",
+      "long_data.py": "85223c53740dc4a22530222886a4697c9a3c171530abdc1153363ca0587469bf",
+      "native_budget_eval.py": "737230950fd4ddd7f415aa93137f65cd59b5c61a72676c58ca854aee59682b1b",
+      "public_data.py": "269625183d8bef8f3b34f534d1c6d52ce7c623f795015e3e1508835c3eee08e8",
+      "query_guard.py": "c98285d97784513baa259e26514323e9f7a01b5b42196ebeb35e19a16039c1e6",
+      "resume.py": "7003368a60db4d07f2a72dd21a3a636abb103918a509f54741dcf6461c6d2dd8",
+      "round2_anchor_eval.py": "38c746e63bca9c25b1d76f347a9713c161846e6fdaa9c79b47e3a672826dee51",
+      "run.py": "e557475d5701ea7271de9103aa8267e204796336b5277352fad015d9399521a4",
+      "semantic-final-plan.json": "a447ccb7aedadaf52f9ec36fcb202183a45091f0c235285868489d35bf8a6213",
+      "semantic_eval.py": "46fa3b3fd6298ba1669bd0b17f3ad6f77a2fdaf5b79ba25e4632012090ca0b4e",
+      "token_compare.py": "bb34650d947a89c17c87e179dc9e376fe44b6d10c0bf4bb70ca4cdfd46913f18",
+      "transfer_cases.json": "27c200ec2ac8b2dd55f281a2e7bbddfc1f47dbc38791e8caa61e603b215a16c5",
+      "transfer_data.py": "a532783fd2562f02846d6cd0604dc7d885f7dfa0b258d3fdca2e6c205ea4d57e",
+      "transfer_manifest.json": "322387859b110d8543fd26a033ddf72c2a78aeb465cec797b361132effe12106"
+    },
+    "fusion_version": 3,
+    "model": {
+      "dimensions": 384,
+      "files": [
+        {
+          "bytes": 118453870,
+          "path": "onnx/model_quint8_avx2.onnx",
+          "sha256": "98a01d88b7de996cdea58c32ca71208c09968d143798814b2ea09d3439dc334f"
+        },
+        {
+          "bytes": 9081518,
+          "path": "tokenizer.json",
+          "sha256": "2c3387be76557bd40970cec13153b3bbf80407865484b209e655e5e4729076b8"
+        }
+      ],
+      "max_sequence_tokens": 128,
+      "overlap_tokens": 32,
+      "pooling": "attention-mask mean pooling followed by L2 normalization",
+      "repository": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+      "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "semantic_version": 1
+    },
+    "modes": [
+      "lexical_native_token_budget",
+      "legacy_rrf_k60",
+      "q1_score_075",
+      "q2_lexical_anchor"
+    ],
+    "reference": {
+      "commit": "cb7486b4937a3ecb7ccbf94a746c0bbbf44eb41f",
+      "control_scope": "Original RRF and frozen Q1 functions inside the shared Q2 runtime; not separate whole-runtime comparisons.",
+      "fusion_ast_sha256": "8d021dc32765ae1aa9ea5d5eb11b0b778ece20483899aecaeb5f628aa445759d",
+      "q1_commit": "ca27acfe028a33d9337047ceebb91b2eb32d85c8",
+      "q1_fusion_ast_sha256": "b73863cc7d13041ed1b6316acdbca8fb8b2f6b00d4af01c8f91fae11e97c47a1",
+      "q1_lexical_weight": 0.75,
+      "q1_semantic_file_sha256": "ca2b161f09f2ec8ac2045d4272519e2cb5aef33e9973fe3be4ac218d7e15ac28",
+      "rrf_k": 60,
+      "semantic_file_sha256": "6f9cee761d8c8f88f22193423b3c499e247426478fd7fed3600ac8076378baa2"
+    },
+    "repeats": 3,
+    "runtime": {
+      "packages": {
+        "numpy": "2.5.4",
+        "onnxruntime": "1.31.1",
+        "tiktoken": "0.12.0",
+        "tokenizers": "0.23.3"
+      },
+      "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+      "python": "3.12.16",
+      "sqlite": "3.45.1"
+    },
+    "runtime_source_sha256": "cce621cbe62b0e8d7a94fbdb023372e0ff2004ca390e2ffd5c01863596059b43",
+    "seed": 61
+  },
+  "preparation": {
+    "configured_summary_model_calls": 0,
+    "engine_stats": {
+      "cache_entries": 0,
+      "chapters": 36,
+      "chars": 6507,
+      "database_bytes": 442368,
+      "page_chars": 6507,
+      "pages": 42,
+      "projects": 6,
+      "revision": 42,
+      "schema_version": 3,
+      "sections": 42,
+      "sessions": 42,
+      "turns": 42
+    },
+    "ingestion_is_resume": false,
+    "ingestion_ms": 31.258029,
+    "originals_sha256": "65233df2564b86f9f8e763915db86307072ea3b83b78dc39ca323d892d215215",
+    "semantic_index": {
+      "build_ms": 454.893062,
+      "inference_threads": 1,
+      "model": {
+        "dimensions": 384,
+        "files": [
+          {
+            "bytes": 118453870,
+            "path": "onnx/model_quint8_avx2.onnx",
+            "sha256": "98a01d88b7de996cdea58c32ca71208c09968d143798814b2ea09d3439dc334f"
+          },
+          {
+            "bytes": 9081518,
+            "path": "tokenizer.json",
+            "sha256": "2c3387be76557bd40970cec13153b3bbf80407865484b209e655e5e4729076b8"
+          }
+        ],
+        "max_sequence_tokens": 128,
+        "overlap_tokens": 32,
+        "pooling": "attention-mask mean pooling followed by L2 normalization",
+        "repository": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+        "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+        "semantic_version": 1
+      },
+      "model_fingerprint": "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25",
+      "model_load_ms": 861.980886,
+      "pages": 42,
+      "revision": 42,
+      "runtime": {
+        "numpy": "2.5.4",
+        "onnxruntime": "1.31.1",
+        "tokenizers": "0.23.3"
+      },
+      "source_chars": 6507,
+      "source_sha256": "0a046bb7a4958c0150f055cf61f9d0f21b4b93abf64548cdf00513cd351d1318",
+      "vector_bytes": 64512,
+      "windows": 42
+    }
+  },
+  "preparation_attempts": [
+    {
+      "finished_at": "2026-11-12T10:03:55.872933+00:00",
+      "started_at": "2026-11-12T10:03:54.521088+00:00",
+      "status": "completed"
+    }
+  ],
+  "process_segments": [
+    {
+      "finished_at": "2026-11-12T10:04:05.534423+00:00",
+      "source_provenance": {
+        "commit_identifies_source": true,
+        "git_commit": "6286564e33f09db9863a80613771722c32ba363b",
+        "git_dirty": true,
+        "python_files_differing_from_commit": [],
+        "repository_root": "/home/runner/work/AI-Memory-Book/AI-Memory-Book",
+        "source_dirty": false,
+        "source_root": "/home/runner/work/AI-Memory-Book/AI-Memory-Book/src/memory_book"
+      },
+      "started_at": "2026-11-12T10:03:54.197988+00:00"
+    }
+  ],
+  "schema_version": 1,
+  "status": "completed",
+  "warning": "Uncommitted work has unknown latency and evidence outcome. No missing row is imputed, replayed or counted as complete."
+}
