@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import importlib.metadata
 import json
+import os
 from pathlib import Path
 import sqlite3
 import time
@@ -76,6 +77,10 @@ class SemanticModel:
     def __init__(self, directory: str | Path):
         started = time.perf_counter_ns()
         identity = verify_model_files(directory)
+        # Recent ORT builds can create a telemetry uploader during import.
+        # Set the process-lifetime opt-out before that initialization; the API
+        # alone cannot prevent an earlier initialization event.
+        os.environ["ORT_DISABLE_TELEMETRY"] = "1"
         try:
             import numpy as np
             import onnxruntime as ort
@@ -83,6 +88,9 @@ class SemanticModel:
         except ImportError as exc:
             raise RuntimeError("Semantic recall needs the optional 'semantic' dependencies; "
                                "install ai-memory-book[semantic] from the source checkout") from exc
+        # Also disable API-controlled events for older/Windows backends and
+        # hosts which had already imported ORT before creating this model.
+        ort.disable_telemetry_events()
         self.np = np
         self.identity = identity
         self.fingerprint = hashlib.sha256(_json(identity).encode()).hexdigest()
