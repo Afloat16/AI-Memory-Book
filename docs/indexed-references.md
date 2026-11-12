@@ -69,7 +69,7 @@ both modes. A response with few references, including an empty response, can
 cost more after adding the table and version marker. The representation is an
 explicit choice, not a guarantee of savings for every call.
 
-The [per-call-argument prototype](../benchmarks/experiments/indexed-references-prototype-plan.json) is a historical experiment that motivated the operator-only design. Its added tool-schema and per-call argument costs do not describe the final interface. The following formal evaluation uses the released startup option, actual SDK metadata and the frozen integrated runtime.
+The [per-call-argument prototype](../benchmarks/experiments/indexed-references-prototype-plan.json) is a historical experiment that motivated the operator-only design. Its added tool-schema and per-call argument costs do not describe the final interface. The following formal evaluation uses the final startup option, actual SDK metadata and the frozen integrated runtime.
 
 ## Formal operator evaluation
 
