@@ -30,6 +30,13 @@ from benchmarks.token_compare import (ENCODINGS, TokenCounter, checkout_provenan
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / "benchmarks/round2_plan.json"
 BINDING = ROOT / "benchmarks/round2_candidate.json"
+RECOVERY = ROOT / "benchmarks/round2_recovery.json"
+INITIAL_BINDING = ROOT / "benchmarks/round2_candidate_initial.json"
+INITIAL_BINDING_SHA256 = "47a4ee0512e3e21f7722621dc3b1c155a664742ec28b30b18ae38d573abd0988"
+INITIAL_BINDING_COMMIT = "364d8d4b7013c8c22ff06285d2bce969c7965717"
+INITIAL_RESULTS_COMMIT = "150d37799098aa1fb1ddcebe5b42b18954adc035"
+RECOVERY_STATUS = "fixed-candidate-protocol-recovery"
+RECOVERY_HELPERS = {"scripts/bind_round2_recovery.py", "scripts/smoke_round2_components.py"}
 UPSTREAM_LOCKS = {"claude-mem": "benchmarks/competitors/claude-mem-round2-lock.json",
                   "billion-context": "benchmarks/competitors/billion-round2-lock.json",
                   "ai-memory": "benchmarks/competitors/ai-memory-lock.json"}
@@ -70,6 +77,7 @@ def evaluator_sources(root=ROOT):
         "benchmarks/experiments/semantic-local-plan.json", "benchmarks/experiments/round2-upstream-registration.json")]
     paths += [path for path in (root / "benchmarks").glob("round2*.json")
               if path.name != "round2_candidate.json"]
+    paths += [root / name for name in RECOVERY_HELPERS if (root / name).is_file()]
     return {str(path.relative_to(root)): sha(path) for path in sorted(paths)}
 
 
@@ -78,6 +86,68 @@ def stages(plan, binding):
     if binding["optional_semantic"]:
         result += [plan["native"]["optional_engine"], plan["components"]["optional_engine"]]
     return result
+
+
+def recovery_inputs(plan, binding=None):
+    """One explicitly registered infrastructure recovery, with no retuning."""
+    import subprocess
+    original_raw = INITIAL_BINDING.read_bytes()
+    if hashlib.sha256(original_raw).hexdigest() != INITIAL_BINDING_SHA256:
+        raise ValueError("Original binding bytes were not preserved")
+    committed = subprocess.check_output(["git", "show", INITIAL_BINDING_COMMIT + ":benchmarks/round2_candidate.json"], cwd=ROOT)
+    if committed != original_raw:
+        raise ValueError("Historical binding differs from its immutable Git commit")
+    original = json.loads(original_raw)
+    registration = json.loads(RECOVERY.read_bytes())
+    identity = {"schema_version": 1, "status": RECOVERY_STATUS, "original_run_id": 43201620535,
+        "original_attempt": 1, "original_binding_commit": INITIAL_BINDING_COMMIT,
+        "original_binding_sha256": INITIAL_BINDING_SHA256, "original_results_commit": INITIAL_RESULTS_COMMIT,
+        "plan_sha256": original["plan_sha256"], "cohort_manifest_sha256": original["cohort_manifest_sha256"],
+        "candidate": original["candidate"], "optional_semantic": True, "coverage": False,
+        "upstream_locks": original["upstream_locks"], "full_matrix_new_host": True,
+        "selection_previously_scored": True, "runtime_retuned": False, "pool_prior_timings": False,
+        "run_selection_by_score_or_latency": False}
+    if (any(registration.get(key) != value for key, value in identity.items())
+            or original["candidate"] != {"commit": "cbf626037b42f11f8bc5b6d46f56caac771e54ba",
+                "source_sha256": "d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57"}
+            or sha(PLAN) != original["plan_sha256"]
+            or sha(round2_data.MANIFEST) != original["cohort_manifest_sha256"]
+            or registration.get("frozen_parameters") != {key: plan[key] for key in ("native", "components", "common")}):
+        raise ValueError("Recovery changed the fixed candidate, data or registered parameters")
+    files = evaluator_sources()
+    added = RECOVERY_HELPERS | {"benchmarks/round2_candidate_initial.json", "benchmarks/round2_recovery.json"}
+    if set(files) != set(original["evaluator_sha256"]) | added:
+        raise ValueError("Unregistered evaluator file added or removed during recovery")
+    changed = {name for name, before in original["evaluator_sha256"].items() if files[name] != before}
+    if changed - {"benchmarks/round2_eval.py", "scripts/summarize_round2_validation.py"}:
+        raise ValueError("Recovery changed a scoring, ranking or unrelated helper")
+    expected_changes = {name: {"before_sha256": original["evaluator_sha256"].get(name), "after_sha256": files[name]}
+                        for name in sorted(changed | RECOVERY_HELPERS)}
+    if registration.get("helper_changes") != expected_changes:
+        raise ValueError("Recovery helper diff hashes differ from the explicit registration")
+    checkpoint_path = ROOT / "benchmarks/reports/round2-43201620535-1-checkpoint.json"
+    historical_checkpoint = subprocess.check_output(["git", "show", INITIAL_RESULTS_COMMIT + ":" + str(checkpoint_path.relative_to(ROOT))], cwd=ROOT)
+    if checkpoint_path.read_bytes() != historical_checkpoint:
+        raise ValueError("Original checkpoint differs from its immutable results commit")
+    checkpoint = json.loads(checkpoint_path.read_bytes())
+    if checkpoint["source_commit"] != INITIAL_BINDING_COMMIT or checkpoint["status"] != "failed":
+        raise ValueError("Original failed run checkpoint was changed")
+    preserved = {str(checkpoint_path.relative_to(ROOT)): sha(checkpoint_path)}
+    for record in checkpoint["stages"].values():
+        for name, expected in record["outputs"].items():
+            if not name.startswith("benchmarks/results/round2-43201620535-1/") or sha(ROOT / name) != expected:
+                raise ValueError("Original published output was changed")
+            preserved[name] = expected
+    if len(preserved) != 13 or registration.get("preserved_file_sha256") != preserved:
+        raise ValueError("Original run's complete public evidence set was not preserved")
+    if binding is not None:
+        fixed = ("candidate", "optional_semantic", "coverage", "upstream_locks", "plan_sha256", "cohort_manifest_sha256")
+        if (binding.get("status") != RECOVERY_STATUS or any(binding.get(key) != original[key] for key in fixed)
+                or binding.get("initial_binding_sha256") != INITIAL_BINDING_SHA256
+                or binding.get("candidate_first_frozen_at") != original["frozen_at"]
+                or binding.get("recovery_registration_sha256") != sha(RECOVERY)):
+            raise ValueError("Recovery binding does not preserve the original candidate and protocol")
+    return original, registration
 
 
 def frozen_inputs():
@@ -89,7 +159,7 @@ def frozen_inputs():
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
     subprocess.run(["git", "diff", "--exit-code", "HEAD", "--", *names], cwd=ROOT,
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
-    if (binding.get("status") != "frozen-before-scoring"
+    if (binding.get("status") not in {"frozen-before-scoring", RECOVERY_STATUS}
             or type(binding.get("optional_semantic")) is not bool
             or binding.get("coverage") is not False
             or binding.get("upstream_locks") != UPSTREAM_LOCKS
@@ -97,6 +167,8 @@ def frozen_inputs():
             or binding.get("cohort_manifest_sha256") != sha(round2_data.MANIFEST)
             or binding.get("evaluator_sha256") != evaluator_sources()):
         raise ValueError("A committed, unchanged candidate and evaluator binding is required")
+    if RECOVERY.exists() or binding["status"] == RECOVERY_STATUS:
+        recovery_inputs(plan, binding)
     return plan, binding
 
 
@@ -337,16 +409,22 @@ def component_engine(args, plan, binding, bundle):
 
 
 def component_hits(response, documents, project, stage):
+    # Claude's existing adapter exposes the unchanged observation array as
+    # native_payload. The other adapters expose rows in results; Book and
+    # ai-memory native_payload are envelopes and must not be treated as rows.
+    native_rows = response["native_payload"] if stage == "claude-mem-fts" else response["results"]
+    if not isinstance(native_rows, list) or any(not isinstance(row, dict) for row in native_rows):
+        raise ValueError("Native component row representation differs from its adapter contract")
     ids = response.get("hit_ids")
     if ids is None:
-        ids = [item["ref"] for item in response["results"]]
-    if len(ids) > 5 or len(ids) != len(response["results"]):
+        ids = [item["ref"] for item in native_rows]
+    if len(ids) > 5 or len(ids) != len(native_rows):
         raise ValueError("Native top-five result count differs from its mapped IDs")
     mapped = [identity for identity in ids if identity in documents]
     if len(mapped) != len(set(mapped)):
         raise ValueError("Native component duplicated a supplied page")
     native_hashes = []
-    for identity, hit in zip(ids, response["results"], strict=True):
+    for identity, hit in zip(ids, native_rows, strict=True):
         if identity not in documents and not (identity is None and stage == "ai-memory-hybrid"):
             raise ValueError("Native component returned an unmapped page ID")
         if identity in documents and documents[identity]["project"] != project:
@@ -379,7 +457,7 @@ def component(args, plan, binding, data, bundle, report, ledger, resources):
                 seq = ledger.start(args.stage, "search", repetition, case.id)
                 response = engine.search(case.query, case.project, 5)
                 ids, mapped, native_hashes = component_hits(response, documents, case.project, args.stage)
-                payload = canonical_json(response.get("native_payload", response["results"]))
+                payload = canonical_json(response["native_payload"] if "native_payload" in response else response["results"])
                 reads = []
                 if repetition == 0 and args.stage == "ai-memory-hybrid":
                     for identity in mapped:
@@ -502,6 +580,8 @@ def main(argv=None):
         "cohort_manifest_sha256": sha(round2_data.MANIFEST), "evaluator_sha256": evaluator_sources(),
         "configurations": [], "timing_rows": [], "validation": {"passed": False, "failures": []},
         "configured_generative_model_calls": 0}
+    report["candidate_binding_status"] = binding["status"]
+    report["recovery_registration_sha256"] = binding.get("recovery_registration_sha256")
     ledger = Ledger(args.state / "attempts.jsonl")
     resources = Resources()
     try:
