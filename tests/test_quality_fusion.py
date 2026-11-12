@@ -1,10 +1,10 @@
-"""Fusion invariants; fixture scores are not retrieval-quality evidence."""
+"""Frozen Q1 reference invariants; fixture scores are not retrieval-quality evidence."""
 
 import copy
 import math
 import unittest
 
-from memory_book.semantic import fuse_candidates
+from benchmarks.round2_anchor_eval import q1_score_fusion as fuse_candidates
 
 
 class ScoreAwareFusionTests(unittest.TestCase):

@@ -115,7 +115,7 @@ class SemanticLifecycleTests(unittest.TestCase):
         from memory_book import store
         from memory_book.semantic import FUSION_VERSION, SEMANTIC_VERSION
         self.assertEqual(SEMANTIC_VERSION, 1)
-        self.assertEqual(FUSION_VERSION, 2)
+        self.assertEqual(FUSION_VERSION, 3)
         self.book.build_semantic_index()
         before = {table: [tuple(row) for row in self.book.db.execute(f"SELECT * FROM {table}")]
                   for table in ("semantic_meta", "semantic_vectors")}
@@ -132,7 +132,7 @@ class SemanticLifecycleTests(unittest.TestCase):
             self.assertFalse(fresh["cache_hit"])
             self.assertNotIn("legacy_only", fresh)
             self.assertTrue(self.book.recall("source", semantic=True)["cache_hit"])
-            with patch("memory_book.semantic.FUSION_VERSION", 3):
+            with patch("memory_book.semantic.FUSION_VERSION", 4):
                 self.assertFalse(self.book.recall("source", semantic=True)["cache_hit"])
         self.assertEqual({table: [tuple(row) for row in self.book.db.execute(f"SELECT * FROM {table}")]
                           for table in before}, before)
@@ -156,12 +156,12 @@ class SemanticLifecycleTests(unittest.TestCase):
         empty = self.book.build_semantic_index()
         self.assertEqual(empty["windows"], 0)
 
-    def test_fusion_preserves_score_margins_and_is_deterministic(self):
+    def test_fusion_preserves_lexical_anchor_and_remaining_rrf_order(self):
         lexical = [{"id": "a", "score": 1000}, {"id": "b", "score": 1}]
         semantic = [{"id": "c", "semantic_similarity": .99}, {"id": "b", "semantic_similarity": .4}]
         rows = fuse_candidates(lexical, semantic)
-        self.assertEqual([row["id"] for row in rows], ["a", "c", "b"])
-        self.assertAlmostEqual(rows[0]["score"], .75)
+        self.assertEqual([row["id"] for row in rows], ["a", "b", "c"])
+        self.assertAlmostEqual(rows[0]["score"], 1 / 61)
         self.assertEqual(lexical[0]["score"], 1000)
 
 
