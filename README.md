@@ -16,10 +16,11 @@ AI-Memory-Book is built for continuing project work with a small, inspectable me
 
 | Advantage | What you get |
 |---|---|
-| **No model call to create or search memory** | Local Python + SQLite indexing and lexical retrieval; no per-turn summarization bill, embedding download, or separate database service in the core. Your answering model remains your choice. |
+| **Model-free default memory path** | Local Python + SQLite indexing and lexical retrieval; no per-turn summarization bill, embedding download, or separate database service in the core. Your answering model remains your choice. |
 | **Original evidence with citations** | Recall returns source text and project/session/turn references. Exact character spans and full pages remain available when you need to verify a decision. |
 | **Useful context in one MCP call** | `recall_memory` assembles bounded evidence directly. Project, chapter and session filters help the agent focus on the work at hand. |
 | **Exact context limits when you need them** | An optional named-tokenizer cap includes citations and separators, alongside the character cap. Fitting original evidence blocks stay intact; remaining capacity can carry additional source sentences. |
+| **Optional indexed source references** | A response-wide session table encodes repeated references without losing their identities or detailed offsets. Enable it at MCP startup; default clients keep their existing schemas and instructions. |
 | **One archive across clients** | Supported clients point to the same local database. Opt-in background capture keeps supported text transcripts available for later tasks. |
 | **A small operational footprint** | The default worker and MCP server run without an HTTP listener; the optional reader, export tools, and source-preserving migrations make the archive inspectable. |
 
@@ -67,7 +68,7 @@ You need **Python 3.10+ with SQLite FTS5**. The installer creates an isolated en
 | Version | What you get | How to use it |
 |---|---|---|
 | **Published experimental release v0.2.1** | Agent-first MCP, shared local memory and optional headless background capture | Use the pinned installers below. |
-| **Available v0.3 development source** | Score-aware retrieval, compact cited evidence, optional exact token budgets, multi-fact coverage, optional local semantic retrieval and the paired-answer evaluation runner | Use the [source checkout](#try-it-without-connecting-a-client) on `main`. |
+| **Available v0.3 development source** | Faster local retrieval and ingestion, optional indexed references, exact token budgets, multi-fact coverage, local semantic retrieval and reproducible component/answer evaluation | Use the [source checkout](#try-it-without-connecting-a-client) on `main`. |
 
 The installers below still use the published **v0.2.1**; there is no `v0.3.0` release tag yet. Use the `main` source checkout to try the additional capabilities.
 
@@ -138,6 +139,13 @@ For example, an agent continuing the fictional `atlas` project's cache work can 
 
 The response contains `context`, page IDs, and compact source references: `project`, `session_id`, and `turn_index`. Request `details: true` or use `read_page` for exact character spans. With the [example archive](examples/conversations.json), the cache review records a change from 300 to 45 seconds while retaining revision invalidation. The agent can cite `atlas / atlas-cache-review / turn 0`, check the source date, and use that decision in the implementation. Historical text remains evidence to assess, including possible outdated or conflicting decisions.
 
+For reference-heavy workloads, the development MCP server also supports
+`memory-book mcp --source-format indexed`. It returns the same evidence with a
+versioned session table and reversible reference arrays. This operator setting
+adds no tool argument or schema cost to default clients. Indexed clients receive
+decoding instructions; small or empty responses can cost more. See the
+[format, client configuration and measured costs](docs/indexed-references.md).
+
 **Choose the context budget:** `budget_chars` in Python/MCP and `--budget` in the CLI cap the assembled context in characters. The development source also supports an **exact optional token cap** with `budget_tokens` / `--budget-tokens` and either `cl100k_base` or `o200k_base`. Both caps include citations and separators in `context`; outer JSON metadata, tool schemas and the rest of the conversation are outside them. Install the `tokens` extra and add these arguments to the recall call:
 
 ```bash
@@ -204,7 +212,8 @@ Uninstalling the service keeps your database and client settings. Removing a wat
 
 Unchanged, successfully imported files are skipped. The worker skips symlinks and known credential/config files, retries incomplete active logs, isolates malformed files, and never deletes memory just because a source file disappears. Source text is stored locally; when a model calls a memory tool, the returned evidence becomes part of that client's model context. [Capture scope and operations](docs/deployment.md).
 
-A reproducible **v0.2.0** local sample with 300 synthetic files measured unchanged scans at a **36.95 ms median** across eight cycles, with zero reimports; changing one file updated one session and skipped 299. Scans still write state/heartbeat data. This is a small warm-cache measurement, not a CPU, battery, or large-archive guarantee, and has not been relabeled as a v0.2.1 measurement. [Method and raw results](docs/validation.md#v020-capture-overhead-sample).
+Capture behavior and its historical overhead samples are retained in the
+[deployment verification](docs/validation.md#v020-capture-overhead-sample).
 
 ## Try it without connecting a client
 
@@ -221,7 +230,7 @@ memory-book import examples/conversations.json
 memory-book recall "搜索缓存为什么改成45秒？" --project atlas
 ```
 
-On Windows, activate `.venv\Scripts\Activate.ps1`, or call `.venv\Scripts\python.exe` directly. To reproduce the frozen measurements, check out `0ab49d4f2be6aabe5e51c3314bb9369041af5369` before installing and follow the [benchmark preparation guide](benchmarks/RESULTS-recall-score-quality.md#11-reproduction-and-artifact-index). The dependency-free core remains installable with `pip install -e .`; MCP and TOML configuration are optional extras. This project is not published to PyPI, so an unqualified `pip install ai-memory-book` is not the documented installation method. [uv, pipx, and installer alternatives](docs/deployment.md).
+On Windows, activate `.venv\Scripts\Activate.ps1`, or call `.venv\Scripts\python.exe` directly. Reproduce a measurement using the exact source commit and protocol linked in the [benchmark index](benchmarks/README.md); `main` can advance beyond those frozen commits. The dependency-free core remains installable with `pip install -e .`; MCP and TOML configuration are optional extras. This project is not published to PyPI, so an unqualified `pip install ai-memory-book` is not the documented installation method. [uv, pipx, and installer alternatives](docs/deployment.md).
 
 ## Bring your own conversations
 
@@ -274,7 +283,11 @@ The named volume persists the archive across server processes. No HTTP port is p
 
 ## Validation and optional modes
 
-The latest token-packing optimization reduces **p95 by 7.73%–14.45% across all four 512-token development configurations**, while preserving **all 2,016 complete payloads** against the frozen reference (timing excluded). The [full 12-configuration performance report](docs/token-prefix-performance.md) includes source identities, reproduction and the larger-budget tradeoffs.
+The latest default-path optimization preserves complete evidence payloads while
+reducing pooled p95 across all 12 measured cohort/interface/character-budget
+settings: **1.32%–13.65% in process and 1.25%–9.50% through actual MCP**.
+All 56,784 timed calls, unchanged source/index checks, balanced run orders and
+per-round exceptions remain in the [performance report](docs/default-recall-performance.md).
 
 The current recommendation is **default score-aware lexical recall**. Optional
 exact token limits, multi-fact coverage and local semantic candidates are

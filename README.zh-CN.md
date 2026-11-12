@@ -16,10 +16,11 @@ AI-Memory-Book 的主要使用者是 AI。接入客户端并选择开启采集�
 
 | 优势 | 带来的能力 |
 |---|---|
-| **创建与检索记忆不调用模型** | Python + SQLite 在本地索引和检索，核心不产生逐轮总结的模型费用，也无需下载 embedding 模型或部署独立数据库；回答模型由你的客户端选择。 |
+| **默认记忆路径不调用模型** | Python + SQLite 在本地索引和词法检索，核心不产生逐轮总结的模型费用，也无需下载 embedding 模型或部署独立数据库；回答模型由你的客户端选择。 |
 | **保留原文，引用可核对** | 直接返回原始证据及项目、会话、轮次；需要时可展开精确字符区间和完整页，检查决定的依据。 |
 | **一次 MCP 调用即可获得上下文** | `recall_memory` 直接组装预算内证据，可按项目、章节、会话限定范围，供 Agent 继续当前任务。 |
 | **按需使用精确上下文上限** | 可选指定 tokenizer 的 token 上限，与字符上限同时生效，包含引用与分隔符；已能放入的原文块保持完整，剩余空间可补入原文语句。 |
+| **可选的索引引用格式** | 用整次响应共用的会话表编码重复引用，来源身份与详细偏移均可还原；显式在 MCP 启动时启用，默认客户端的 schema 和初始化说明保持原样。 |
 | **多个客户端共用本地归档** | 支持的客户端连接同一数据库；选择开启后台采集后，受支持的文本会话会增量进入记忆。 |
 | **部署轻，归档易检查** | 默认后台与 MCP 均不需要 HTTP 监听；可选阅读器、导出工具和保留原文的迁移机制便于检查和维护。 |
 
@@ -67,7 +68,7 @@ Book 的**默认记忆写入和检索为零模型调用**：本地 Python 与 SQ
 | 版本 | 可用能力 | 使用方式 |
 |---|---|---|
 | **已发布的实验版本 v0.2.1** | 以 Agent 为主的 MCP、共享本地记忆和可选无界面后台采集 | 使用下方固定版本安装器。 |
-| **已推送的 v0.3 开发源码** | Score-aware 检索、紧凑的带出处证据、可选精确 token 预算、多事实 coverage、可选本地语义检索和配对回答评测工具 | 按[开发版源码安装](#开发版源码安装)检出 `main`。 |
+| **已推送的 v0.3 开发源码** | 更快的本地检索与写入、可选索引引用、精确 token 预算、多事实 coverage、本地语义检索及可复现的组件/回答评测 | 按[开发版源码安装](#开发版源码安装)检出 `main`。 |
 
 下方安装器仍使用已发布的 **v0.2.1**，目前没有可下载的 `v0.3.0` 发布标签。体验新增能力请从 `main` 安装源码。
 
@@ -99,7 +100,7 @@ source .venv/bin/activate
 python -m pip install -e ".[mcp,clients]"
 ```
 
-Windows 使用 `.venv\Scripts\Activate.ps1`，也可直接运行 `.venv\Scripts\python.exe`。复现上方固定结果时，在安装前执行 `git checkout 0ab49d4f2be6aabe5e51c3314bb9369041af5369`，再按[评测准备与运行说明](benchmarks/RESULTS-recall-score-quality.md#11-reproduction-and-artifact-index)准备数据。只需核心时可安装 `pip install -e .`。项目尚未发布到 PyPI，不使用无版本来源的 `pip install ai-memory-book`。
+Windows 使用 `.venv\Scripts\Activate.ps1`，也可直接运行 `.venv\Scripts\python.exe`。复现测量时，使用[评测索引](benchmarks/README.md)中对应实验锁定的源码提交和方案；`main` 会继续更新。只需核心时可安装 `pip install -e .`。项目尚未发布到 PyPI，不使用无版本来源的 `pip install ai-memory-book`。
 
 ## 接入 AI 并启用后台记忆
 
@@ -144,6 +145,8 @@ memory-book setup --client codex --capture --workspace /absolute/path/to/project
 ```
 
 返回的 `context` 包含预算内证据，结果还提供页 ID、`project`、`session_id`、`turn_index` ；精确字符区间通过 `details: true` 或 `read_page` 按需获取。在[示例归档](examples/conversations.json)中，缓存复核记录把有效期从 300 秒改为 45 秒，并保留 revision 失效机制。AI 可以引用 `atlas / atlas-cache-review / turn 0`，核对来源时间，再据此继续实现。历史证据可能已经过时或互相冲突，不能直接当成当前指令。
+
+引用较多的场景还可使用开发版的 `memory-book mcp --source-format indexed`。它保留相同证据，用带版本的会话表和可还原的数组表示引用。这个启动选项不会增加默认客户端的工具参数或 schema 成本；启用后会增加解码说明，引用较少或空响应可能更大。见[格式、客户端配置与实测成本](docs/indexed-references.md)。
 
 **设置上下文预算：**Python/MCP 的 `budget_chars` 和 CLI 的 `--budget` 限制组装后上下文的字符数。开发源码现已支持**可选的精确 token 上限**：`budget_tokens` / `--budget-tokens`，可选择 `cl100k_base` 或 `o200k_base`。两个上限同时约束 `context`，均包含引用与分隔符；外层 JSON 元数据、工具 schema 和其余对话不在上限内。安装 `tokens` 依赖后即可使用：
 
@@ -208,7 +211,7 @@ memory-book service uninstall
 
 ## 验证与可选模式
 
-最新 token 组装优化在开发集的**四个 512-token 配置中均降低 p95，幅度为 7.73%–14.45%**；与固定参考实现比较，**2,016 组完整返回载荷全部一致**（仅排除耗时）。[完整 12 配置性能报告](docs/token-prefix-performance.md)保留源码身份、复现方式及大预算下的取舍。
+最新默认路径优化保持完整证据载荷不变，在全部 12 组“语料/接口/字符上限”配置中降低合并样本的 p95：**进程内降低 1.32%–13.65%，真实 MCP 降低 1.25%–9.50%**。[完整性能报告](docs/default-recall-performance.md)保留全部 56,784 次计时调用、来源与索引一致性、交替测量顺序，以及单轮出现的小幅耗时退步。
 
 当前推荐使用**默认 score-aware 词法召回**。精确 token 上限、多事实 coverage 和本地语义候选，按实际工作负载与上下文预算显式选择。
 
