@@ -39,10 +39,11 @@
     "complete_question_losses_per_configuration": 0,
     "annotation_losses_per_configuration": 0,
     "source_scope_budget_token_metadata_errors": 0,
-    "runtime_and_historical_helper_changes": 0,
+    "unregistered_runtime_or_historical_helper_changes": 0,
     "explanation": "These per-question/per-annotation zero-loss gates are deliberately stricter than the prior development probe's aggregate non-regression gates. Gains cannot compensate for a loss. Diagnostic groups are retained, not used to select or filter questions."
   },
   "model": {"plan": "benchmarks/experiments/semantic-local-plan.json", "fingerprint": "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25", "inference_threads": 1},
-  "execution": "One registered Actions run/attempt. Export once, finish every A worker before assessing A. Any quality loss rejects the candidate and leaves B explicitly not-run. Infrastructure/integrity failures are failed/incomplete, also never permitting B. Only an entirely qualified A permits the full registered B. No retries, replacement samples, resumed hosts or run selection. Publish before and after every complete worker and phase gate.",
+  "execution": "One registered Actions run, attempt 1 only. Export once, finish every A worker before assessing A. Any quality loss rejects the candidate and leaves B explicitly not-run. Infrastructure/integrity failures are failed/incomplete, also never permitting B. Only an entirely qualified A permits the full registered B. No retries, replacement samples, resumed hosts or run selection. Publish before and after every complete worker and phase gate. Controller finally also compresses and publishes each source-free fsynced attempts.jsonl, including failed/interrupted workers; artifacts provide the same precise ledger fallback without private databases, corpus text or models.",
+  "semantic_control": "After each Q2 worker, read semantic_vectors ordered by primary key and hash every identity/offset field plus exact vector BLOB bytes. Current/cap digests, row counts, revision and model fingerprint must match within each phase; otherwise fail incomplete without attributing differences to ranking. This read-only control does not rerun the model or compare write-time metadata.",
   "limits": "Previously scored Hotpot256 only, with paragraph-to-session/chapter mapping; no unseen/domain-generalization claim. Single-pass latency/RSS/setup are diagnostics, not speed evidence. Qualification does not establish old-cohort Q2 compatibility, complete-product superiority or authorize a merge. If A and B both qualify, report and stop for the separately decided old-data compatibility/performance step."
 }

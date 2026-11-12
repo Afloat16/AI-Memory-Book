@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import re
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -41,6 +42,33 @@ VARIANTS = [
 def require(value, message):
     if not value:
         raise ValueError(message)
+
+
+def actions_identity():
+    run, attempt = os.environ.get("GITHUB_RUN_ID", ""), os.environ.get("GITHUB_RUN_ATTEMPT", "")
+    require(os.environ.get("GITHUB_ACTIONS") == "true"
+            and os.environ.get("GITHUB_REPOSITORY") == "Afloat16/AI-Memory-Book"
+            and os.environ.get("GITHUB_REF") == "refs/heads/ci/novelty-cap-qualification-run"
+            and run.isdigit() and attempt == "1", "Only the dedicated Actions ref and first attempt may score or publish")
+    return run + "-" + attempt
+
+
+def vectors_digest(path):
+    """Read-only digest of vector rows, excluding semantic_meta timing JSON."""
+    hasher = hashlib.sha256(b"semantic_vectors/page_id,ordinal,char_start,char_end,vector/v1\n")
+    rows = vector_bytes = 0
+    with sqlite3.connect(path.resolve().as_uri() + "?mode=ro", uri=True) as db:
+        columns = [row[1] for row in db.execute("PRAGMA table_info(semantic_vectors)")]
+        require(columns == ["page_id", "ordinal", "char_start", "char_end", "vector"], "Unexpected vector schema")
+        revision, fingerprint = db.execute("SELECT revision,model_fingerprint FROM semantic_meta WHERE singleton=1").fetchone()
+        for page, ordinal, start, end, vector in db.execute("SELECT page_id,ordinal,char_start,char_end,vector FROM semantic_vectors ORDER BY page_id,ordinal"):
+            header = json.dumps([page, ordinal, start, end], ensure_ascii=False, separators=(",", ":")).encode()
+            require(type(vector) is bytes and len(vector) == 384 * 4, "Unexpected vector representation")
+            hasher.update(len(header).to_bytes(8, "big") + header + len(vector).to_bytes(8, "big") + vector)
+            rows += 1; vector_bytes += len(vector)
+    return {"sha256": hasher.hexdigest(), "rows": rows, "vector_bytes": vector_bytes,
+        "revision": revision, "model_fingerprint": fingerprint,
+        "boundary": "All semantic_vectors columns in primary-key order, length-prefixed JSON identity/offset fields and exact BLOB bytes. No semantic_meta timestamps or model rerun."}
 
 
 def registered_inputs(require_binding=True):
@@ -125,6 +153,32 @@ def worker_spec(plan, phase_name, variant_name):
 
 def worker(args):
     plan, binding, manifest, _, _ = registered_inputs()
+    run_id = actions_identity()
+    require(args.host_id == run_id, "Worker host/run identity differs")
+    cp_path = ROOT / "benchmarks/reports" / ("novelty-cap-" + run_id + "-checkpoint.json")
+    cp = json.loads(cp_path.read_bytes())
+    result_dir = ROOT / "benchmarks/results" / ("novelty-cap-" + run_id)
+    worker_name = "export" if args.variant == "export" else args.phase + "-" + args.variant
+    private = ROOT / ".artifacts/novelty-cap" / run_id
+    role = "current" if args.variant == "export" else next(v["source"] for v in VARIANTS if v["name"] == args.variant)
+    require(cp["run_id"] == run_id and cp["host"]["id"] == run_id
+            and cp["source_commit"] == git("rev-parse", "HEAD") and cp["plan_sha256"] == sha(PLAN)
+            and cp["binding_sha256"] == sha(BINDING) and cp["workers"][worker_name]["status"] == "running",
+            "Worker lacks its registered running checkpoint")
+    require(args.output.resolve() == (result_dir / worker_name).resolve()
+            and args.state.resolve() == (private / "states" / worker_name).resolve()
+            and args.bundle.resolve() == (private / "bundle.json").resolve()
+            and args.source.resolve() == (private / role / "src").resolve()
+            and args.model_dir.resolve() == (private / "model").resolve(), "Worker paths differ from the registered run")
+    if args.variant != "export":
+        require(cp["phases"][args.phase]["status"] == "running", "Worker phase is not running")
+    if args.phase == "B":
+        require(cp["phases"]["A"]["status"] == "qualified", "B requires the saved A qualification")
+        gate_path = result_dir / "A-gate.json"
+        require(sha(gate_path) == cp["phases"]["A"]["gate_sha256"], "Saved A gate bytes differ")
+        verified_a = assess_phase(plan, binding, manifest, cp, plan["phases"][0], result_dir)
+        require(verified_a["status"] == "qualified" and json.loads(gate_path.read_bytes()) == verified_a,
+                "A gate does not match its verified same-run records")
     require(not args.state.exists() and not any(Path(str(args.output) + s).exists() for s in (".json.gz", ".summary.json")), "Fresh worker/output required")
     args.state.mkdir(parents=True)
     phase, variant = (None, None)
@@ -153,6 +207,8 @@ def worker(args):
                     and digest(bundle["diagnostics"]) == bundle["diagnostics_sha256"] == plan["cohort"]["diagnostics_sha256"], "Frozen pages/diagnostics differ")
             report["frozen_corpus"] = {k: v for k, v in bundle.items() if k not in {"documents", "diagnostics"}}
             native(args, hp, hb, data, bundle, report, ledger, resources)
+            if variant["semantic"] and report["validation"]["passed"]:
+                report["semantic_vectors_digest"] = vectors_digest(args.state / "native.db")
         registered_inputs()
     except BaseException as error:
         report["validation"] = {"passed": False, "failures": [{"check": "worker_exception", "error_type": type(error).__name__}]}
@@ -180,8 +236,7 @@ def compare_reports(before, after):
     return {"status": "rejected" if losses else "qualified", "comparisons": comparisons}
 
 
-def load_verified(plan, binding, manifest, cp, phase, variant, result_dir):
-    name = phase["name"] + "-" + variant["name"]
+def load_pair(cp, name, result_dir):
     prefix = result_dir / name
     record = cp["workers"][name]
     expected = {str(Path(str(prefix) + s).relative_to(ROOT)): sha(Path(str(prefix) + s)) for s in (".json.gz", ".summary.json")}
@@ -189,12 +244,44 @@ def load_verified(plan, binding, manifest, cp, phase, variant, result_dir):
     raw = gzip.decompress(Path(str(prefix) + ".json.gz").read_bytes())
     report = json.loads(raw)
     require(json.loads(Path(str(prefix) + ".summary.json").read_bytes()) == summary_of(report, hashlib.sha256(raw).hexdigest()), "Raw/summary projection differs")
+    ledger_path = result_dir / (name + ".attempts.jsonl.gz")
+    ledger = gzip.decompress(ledger_path.read_bytes())
+    require(cp["workers"][name]["ledger_output"] == {"path": str(ledger_path.relative_to(ROOT)),
+        "sha256": sha(ledger_path), "raw_sha256": hashlib.sha256(ledger).hexdigest(), "raw_bytes": len(ledger)}
+        and hashlib.sha256(ledger).hexdigest() == report["ledger_sha256"], "Published attempt ledger differs")
+    require([json.loads(line) for line in ledger.decode().splitlines()] == report["attempt_states"], "Attempt ledger projection differs")
+    return report
+
+
+def verify_identity(report, plan, binding, cp):
     require(report["validation"] == {"passed": True, "failures": []}
             and report["protocol"] == plan["protocol"] and report["host_id"] == cp["host"]["id"]
             and report["plan_sha256"] == sha(PLAN) and report["qualification_binding_sha256"] == sha(BINDING)
             and report["historical_files_sha256"] == binding["historical_files_sha256"]
             and report["new_files_sha256"] == binding["new_files_sha256"]
             and report["configured_generative_model_calls"] == 0, "Worker identity/integrity differs")
+
+
+def verify_export(plan, binding, manifest, cp, result_dir):
+    report = load_pair(cp, "export", result_dir)
+    verify_identity(report, plan, binding, cp)
+    corpus = report["frozen_corpus"]
+    require(report["stage"] == "export" and report["source_unchanged"] is True
+            and report["qualification"] == {"phase": "A", "variant": "export", "source": plan["sources"]["current"], "semantic": False}
+            and corpus["source_provenance"]["git_commit"] == plan["sources"]["current"]["commit"]
+            and corpus["source_sha256"] == plan["sources"]["current"]["source_sha256"]
+            and report["dataset"]["sha256"] == corpus["dataset"]["sha256"] == manifest["dataset_sha256"]
+            and corpus["documents_sha256"] == plan["cohort"]["documents_sha256"]
+            and corpus["diagnostics_sha256"] == plan["cohort"]["diagnostics_sha256"], "Export identity differs")
+    verify_samples(report, helper_plan(plan, plan["phases"][0]), manifest["selected_ids"])
+    verify_configurations(report, helper_plan(plan, plan["phases"][0]), manifest["selected_ids"])
+    return report
+
+
+def load_verified(plan, binding, manifest, cp, phase, variant, result_dir):
+    name = phase["name"] + "-" + variant["name"]
+    report = load_pair(cp, name, result_dir)
+    verify_identity(report, plan, binding, cp)
     source = plan["sources"][variant["source"]]
     require(report["qualification"] == {"phase": phase["name"], "variant": variant["name"], "source": source, "semantic": variant["semantic"]}
             and report["stage"] == variant["helper_stage"], "Source/mode mapping differs")
@@ -211,6 +298,9 @@ def load_verified(plan, binding, manifest, cp, phase, variant, result_dir):
         model = json.loads((ROOT / plan["model"]["plan"]).read_bytes())["model"]
         require(idx["model_fingerprint"] == plan["model"]["fingerprint"]
                 and idx["inference_threads"] == 1 and idx["model"]["files"] == model["files"], "Model identity differs")
+        vectors = report["semantic_vectors_digest"]
+        require(vectors["rows"] == idx["windows"] and vectors["vector_bytes"] == idx["vector_bytes"]
+                and vectors["revision"] == idx["revision"] and vectors["model_fingerprint"] == idx["model_fingerprint"], "Vector digest identity differs")
     hp = helper_plan(plan, phase)
     verify_samples(report, hp, manifest["selected_ids"])
     verify_configurations(report, hp, manifest["selected_ids"])
@@ -220,12 +310,16 @@ def load_verified(plan, binding, manifest, cp, phase, variant, result_dir):
 
 
 def assess_phase(plan, binding, manifest, cp, phase, result_dir):
+    verify_export(plan, binding, manifest, cp, result_dir)
     reports = {v["name"]: load_verified(plan, binding, manifest, cp, phase, v, result_dir) for v in VARIANTS}
     require(sum(r["attempts_started"] for r in reports.values()) == sum(r["attempts_finished"] for r in reports.values()) == phase["expected_calls"], "Phase call count differs")
     comparisons = {mode: compare_reports(reports["current-" + mode], reports["cap-" + mode]) for mode in ("default", "q2")}
+    require(reports["current-q2"]["semantic_vectors_digest"] == reports["cap-q2"]["semantic_vectors_digest"],
+            "Current and cap semantic vectors differ; do not attribute the result to the cap")
     return {"schema_version": 1, "phase": phase["name"], "status": "qualified" if all(r["status"] == "qualified" for r in comparisons.values()) else "rejected",
         "expected_calls": phase["expected_calls"], "actual_finished_calls": sum(r["attempts_finished"] for r in reports.values()),
         "plan_sha256": sha(PLAN), "binding_sha256": sha(BINDING), "comparisons": comparisons,
+        "semantic_vectors_digest": reports["current-q2"]["semantic_vectors_digest"],
         "gate": "Zero per-question complete-evidence losses and zero per-annotation losses in every configuration and both modes. Gains never offset losses. This is stricter than the development aggregate gate.",
         "interpretation": "Previously-scored regression qualification only; one pass is not performance evidence or proof of generalization."}
 
@@ -233,18 +327,15 @@ def assess_phase(plan, binding, manifest, cp, phase, result_dir):
 def public_names(cp_path, result_dir, plan):
     names = [cp_path]
     prefixes = ["export"] + [p["name"] + "-" + v["name"] for p in plan["phases"] for v in VARIANTS]
-    names += [Path(str(result_dir / p) + s) for p in prefixes for s in (".json.gz", ".summary.json")]
+    names += [Path(str(result_dir / p) + s) for p in prefixes for s in (".json.gz", ".summary.json", ".attempts.jsonl.gz")]
     names += [result_dir / (p["name"] + "-gate.json") for p in plan["phases"]]
     names += [result_dir / "qualification.json", result_dir / "report.md"]
     return [p for p in names if p.exists()]
 
 
 def publish(cp_path, result_dir, plan, parent):
-    run, attempt = os.environ.get("GITHUB_RUN_ID", ""), os.environ.get("GITHUB_RUN_ATTEMPT", "")
-    require(os.environ.get("GITHUB_REPOSITORY") == "Afloat16/AI-Memory-Book"
-            and os.environ.get("GITHUB_REF") == "refs/heads/ci/novelty-cap-qualification-run"
-            and run.isdigit() and attempt.isdigit(), "Publication requires the dedicated registered Actions ref")
-    branch = "refs/heads/validation/novelty-cap-" + run + "-" + attempt
+    run_id = actions_identity()
+    branch = "refs/heads/validation/novelty-cap-" + run_id
     files = public_names(cp_path, result_dir, plan)
     require(all(p.is_file() and not p.is_symlink() and p.resolve().is_relative_to((ROOT / "benchmarks").resolve()) for p in files), "Non-public publication path")
     existing = git("ls-remote", "--heads", "origin", branch)
@@ -265,9 +356,7 @@ def publish(cp_path, result_dir, plan, parent):
 def run(args):
     plan, binding, manifest, _, _ = registered_inputs()
     verify_source_delta(plan)
-    require(os.environ.get("GITHUB_ACTIONS") == "true", "Formal scoring runs only in the dedicated Actions workflow")
-    run_id = os.environ["GITHUB_RUN_ID"] + "-" + os.environ["GITHUB_RUN_ATTEMPT"]
-    require(re.fullmatch(r"[0-9]+-[0-9]+", run_id), "Invalid Actions identity")
+    run_id = actions_identity()
     private = ROOT / ".artifacts/novelty-cap" / run_id
     require(not private.exists(), "No implicit replay of an existing run")
     private.mkdir(parents=True)
@@ -316,9 +405,17 @@ def run(args):
                 record["finished_at"] = now()
                 record["outputs"] = {str(Path(str(prefix) + s).relative_to(ROOT)): sha(Path(str(prefix) + s))
                     for s in (".json.gz", ".summary.json") if Path(str(prefix) + s).is_file()}
+                ledger = private / "states" / name / "attempts.jsonl"
+                if ledger.is_file():
+                    raw = ledger.read_bytes()
+                    target = result_dir / (name + ".attempts.jsonl.gz")
+                    target.write_bytes(gzip.compress(raw, mtime=0))
+                    record["ledger_output"] = {"path": str(target.relative_to(ROOT)), "sha256": sha(target),
+                                               "raw_sha256": hashlib.sha256(raw).hexdigest(), "raw_bytes": len(raw)}
                 persist()
             require(record["status"] == "completed", "Worker failed; no replay")
         measured("A", "export", "current")
+        verify_export(plan, binding, manifest, cp, result_dir)
         for phase in plan["phases"]:
             name = phase["name"]
             require(name == "A" or cp["phases"]["A"]["status"] == "qualified", "B cannot run before A qualifies")

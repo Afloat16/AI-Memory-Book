@@ -40,5 +40,7 @@ jobs:
           path: |
             benchmarks/reports/novelty-cap-${{ github.run_id }}-${{ github.run_attempt }}-checkpoint.json
             benchmarks/results/novelty-cap-${{ github.run_id }}-${{ github.run_attempt }}/
+            .artifacts/novelty-cap/${{ github.run_id }}-${{ github.run_attempt }}/states/*/attempts.jsonl
+          include-hidden-files: true
           if-no-files-found: warn
           retention-days: 30
