@@ -762,7 +762,7 @@ class MemoryBook:
                     covered = set(matched[pool[0]["rid"]])
                     while pending and len(chosen) < limit:
                         best = max(range(len(pending)), key=lambda i: pending[i]["score"] *
-                                   (1 + len(matched[pending[i]["rid"]] - covered) / len(qset)))
+                                   (1 + min(0.25, len(matched[pending[i]["rid"]] - covered) / len(qset))))
                         item = pending.pop(best)
                         chosen.append(item)
                         covered.update(matched[item["rid"]])
