@@ -1,0 +1,444 @@
+{
+  "schema_version": 1,
+  "decision": "accept_with_explicit_startup_resource_tradeoff",
+  "formal_automatic_acceptance_unchanged": false,
+  "additional_formal_measurements": 0,
+  "original_result_commit": "35b8618a078fe377ecd6c5acc331c1281dbf61e7",
+  "baseline_commit": "dd2f88be742ed330269e7dd5915b6f75089d7fef",
+  "candidate_commit": "2d199b93f650eccd3dd239178822b31001b880e3",
+  "inputs": {
+    "summary_sha256": "b6f9391956a0231383687d383cb87b0579e2a79d8776e43105e4b172e2d875a1",
+    "completion_sha256": "5f0e556d093eb5f70dd0deafa66aee7fd95fc6ef1bb772a48af88c957100523e",
+    "raw_report_sha256": "5999670d4e4f96c879ba18556198ea600638866d32b5415510796ceeeebe5a12",
+    "compressed_report_sha256": "0b4c8dd968b1386818a99788c13e2a724c62c8119b2488ee959d2a6b8e96da86"
+  },
+  "formal_validation": {
+    "expected_calls": 47320,
+    "expected_workers": 16,
+    "issues": [],
+    "passed": true,
+    "timed_calls": 47320,
+    "workers": 16
+  },
+  "formal_numeric_gate_passed": true,
+  "geometric_mean_p95_improvement_percent": 11.358672815398762,
+  "best_public_native_p95_improvement_percent": 26.050113587640677,
+  "resource_exception": {
+    "baseline": {
+      "max": 38.258907,
+      "mean": 34.4557195,
+      "min": 30.283878,
+      "p50": 34.6400465,
+      "p95": 38.071251600000004,
+      "samples": 4
+    },
+    "candidate": {
+      "max": 56.659038,
+      "mean": 39.29410325,
+      "min": 33.283959,
+      "p50": 33.616708,
+      "p95": 53.21744279999999,
+      "samples": 4
+    },
+    "cohort": "public1015",
+    "mean_change_percent": 14.042323945665958,
+    "metric": "native_open_ms"
+  },
+  "startup_samples_ms": [
+    {
+      "round": 0,
+      "baseline": 30.283878,
+      "candidate": 56.659038,
+      "delta_ms": 26.37516,
+      "change_percent": 87.09307308661063
+    },
+    {
+      "round": 1,
+      "candidate": 33.518346,
+      "baseline": 37.007871,
+      "delta_ms": -3.4895250000000004,
+      "change_percent": -9.429142789651424
+    },
+    {
+      "round": 2,
+      "candidate": 33.283959,
+      "baseline": 38.258907,
+      "delta_ms": -4.974947999999998,
+      "change_percent": -13.003371999100754
+    },
+    {
+      "round": 3,
+      "baseline": 32.272222,
+      "candidate": 33.71507,
+      "delta_ms": 1.442847999999998,
+      "change_percent": 4.470866617117331
+    }
+  ],
+  "observed_mean_delta_ms": 4.838383749999998,
+  "startup_code_path_changed": false,
+  "specific_host_cause_identified": false,
+  "static_checks": [
+    {
+      "name": "MemoryBook.__init__",
+      "equal": true,
+      "baseline": {
+        "source_sha256": "910cef899cd70782bcca99d42d434dbd9c82cb4da45e93e6bfe98b8c9640d017",
+        "ast_sha256": "1dbee0f3a6cb1b4471f0801f0d6b033f368a6f42d6905d0aa42ce0833f299f3a"
+      },
+      "candidate": {
+        "source_sha256": "910cef899cd70782bcca99d42d434dbd9c82cb4da45e93e6bfe98b8c9640d017",
+        "ast_sha256": "1dbee0f3a6cb1b4471f0801f0d6b033f368a6f42d6905d0aa42ce0833f299f3a"
+      }
+    },
+    {
+      "name": "MemoryBook.__enter__",
+      "equal": true,
+      "baseline": {
+        "source_sha256": "ed8d2a4a6b88718fbbc108799521d04588db0f9e42cc3a52b689322c666138c5",
+        "ast_sha256": "fd5d62577647aedf375e53f89ea63df353f22d37af095c7083cdeffc4e6fb318"
+      },
+      "candidate": {
+        "source_sha256": "ed8d2a4a6b88718fbbc108799521d04588db0f9e42cc3a52b689322c666138c5",
+        "ast_sha256": "fd5d62577647aedf375e53f89ea63df353f22d37af095c7083cdeffc4e6fb318"
+      }
+    },
+    {
+      "name": "_integer",
+      "equal": true,
+      "baseline": {
+        "source_sha256": "14634c06a7210b0f22a765f2befb24564f794a5138dcde467d8ebe2722958294",
+        "ast_sha256": "3bc9ff272dd1a4727cc413327b2daf802bbe96fddd296dde4e70735bceca003f"
+      },
+      "candidate": {
+        "source_sha256": "14634c06a7210b0f22a765f2befb24564f794a5138dcde467d8ebe2722958294",
+        "ast_sha256": "3bc9ff272dd1a4727cc413327b2daf802bbe96fddd296dde4e70735bceca003f"
+      }
+    },
+    {
+      "name": "_directory_tokens",
+      "equal": true,
+      "baseline": {
+        "source_sha256": "3ac445eb41169b9c2c4a8f0ad1cfcadcc62fed5c267896fa7bf6cf6c2c69e240",
+        "ast_sha256": "1cd6a42c12fff2415071b1a24cc21b0fb34f916ee41efb7668a80b6c25a6b883"
+      },
+      "candidate": {
+        "source_sha256": "3ac445eb41169b9c2c4a8f0ad1cfcadcc62fed5c267896fa7bf6cf6c2c69e240",
+        "ast_sha256": "1cd6a42c12fff2415071b1a24cc21b0fb34f916ee41efb7668a80b6c25a6b883"
+      }
+    },
+    {
+      "name": "SCHEMA",
+      "equal": true,
+      "baseline": {
+        "source_sha256": "f2c511ac1cbe2edf88bdd49938f97ab3a598617da27b6899f04e5e7cd05ea5fd",
+        "ast_sha256": "81f2d999ca9a4b6a51b765e6ea21de3b8528c7cf4fb31fbefb3aae4693170460"
+      },
+      "candidate": {
+        "source_sha256": "f2c511ac1cbe2edf88bdd49938f97ab3a598617da27b6899f04e5e7cd05ea5fd",
+        "ast_sha256": "81f2d999ca9a4b6a51b765e6ea21de3b8528c7cf4fb31fbefb3aae4693170460"
+      }
+    },
+    {
+      "name": "SCHEMA_VERSION",
+      "equal": true,
+      "baseline": {
+        "source_sha256": "53a1f6485212aab77917eb5d6c4bd1c49c78794b5e6b1a814925e6eeb2361140",
+        "ast_sha256": "6d39089e83c6949526ccfd1dc6ff57cb772e8401dfb28d2d646aa049afe0222d"
+      },
+      "candidate": {
+        "source_sha256": "53a1f6485212aab77917eb5d6c4bd1c49c78794b5e6b1a814925e6eeb2361140",
+        "ast_sha256": "6d39089e83c6949526ccfd1dc6ff57cb772e8401dfb28d2d646aa049afe0222d"
+      }
+    },
+    {
+      "name": "INDEX_VERSION",
+      "equal": true,
+      "baseline": {
+        "source_sha256": "1de648550ac552f43adc10441181684dc5460d08678d41c867253996cc34d694",
+        "ast_sha256": "93c145b98cc8015577c610ad42c04a4e210bb3777531149bf25362a3e3f53a90"
+      },
+      "candidate": {
+        "source_sha256": "1de648550ac552f43adc10441181684dc5460d08678d41c867253996cc34d694",
+        "ast_sha256": "93c145b98cc8015577c610ad42c04a4e210bb3777531149bf25362a3e3f53a90"
+      }
+    },
+    {
+      "name": "APPLICATION_ID",
+      "equal": true,
+      "baseline": {
+        "source_sha256": "0a5f4411ae3b88f04e4444b83fb1a65243163371f9a3b9e8467b379bc24652b3",
+        "ast_sha256": "094c2f019718aebe9c4954672522272ee872b96f9e4e9208e90c1ad644f4965c"
+      },
+      "candidate": {
+        "source_sha256": "0a5f4411ae3b88f04e4444b83fb1a65243163371f9a3b9e8467b379bc24652b3",
+        "ast_sha256": "094c2f019718aebe9c4954672522272ee872b96f9e4e9208e90c1ad644f4965c"
+      }
+    },
+    {
+      "name": "STEM_INDEX_SQL",
+      "equal": true,
+      "baseline": {
+        "source_sha256": "6483afd34bd42c6eff1ee338e57299011ca518fc7eee74e6009f8a07f172914c",
+        "ast_sha256": "0f5150e09022cc3ed4adb1f658233a8a8e3090e961d0fee2413b55271c55e1d9"
+      },
+      "candidate": {
+        "source_sha256": "6483afd34bd42c6eff1ee338e57299011ca518fc7eee74e6009f8a07f172914c",
+        "ast_sha256": "0f5150e09022cc3ed4adb1f658233a8a8e3090e961d0fee2413b55271c55e1d9"
+      }
+    },
+    {
+      "name": "STEM_DELETE_SQL",
+      "equal": true,
+      "baseline": {
+        "source_sha256": "c4b11c0f68f091596375d796673b2416edeba2effba3e82ae230c1657f2398b8",
+        "ast_sha256": "84df89cb9990f479148dcba600ec7f2c372bda94322e608b9e28df676bf2601f"
+      },
+      "candidate": {
+        "source_sha256": "c4b11c0f68f091596375d796673b2416edeba2effba3e82ae230c1657f2398b8",
+        "ast_sha256": "84df89cb9990f479148dcba600ec7f2c372bda94322e608b9e28df676bf2601f"
+      }
+    },
+    {
+      "name": "STEM_REVISION_SQL",
+      "equal": true,
+      "baseline": {
+        "source_sha256": "2e40dbc20fafb38ecb81a098be220d90a75d53632e27b703ee54a86997eb28ca",
+        "ast_sha256": "3d9d0d8489f2bb82eacbf42732bf5ddd98e8fba23aae0759583940036c1a2e3a"
+      },
+      "candidate": {
+        "source_sha256": "2e40dbc20fafb38ecb81a098be220d90a75d53632e27b703ee54a86997eb28ca",
+        "ast_sha256": "3d9d0d8489f2bb82eacbf42732bf5ddd98e8fba23aae0759583940036c1a2e3a"
+      }
+    },
+    {
+      "name": "text.py",
+      "equal": true,
+      "sha256": {
+        "baseline": "e2b5dff3fc5527ffd7098e57d5f6dd81e954618c311a541ecd3794fdd9731389",
+        "candidate": "e2b5dff3fc5527ffd7098e57d5f6dd81e954618c311a541ecd3794fdd9731389"
+      }
+    },
+    {
+      "name": "segmentation.py",
+      "equal": true,
+      "sha256": {
+        "baseline": "773cb62777bb11a66f1d2318bd75601f9ac38ea0fb6e7a534c1d8844a1a16e75",
+        "candidate": "773cb62777bb11a66f1d2318bd75601f9ac38ea0fb6e7a534c1d8844a1a16e75"
+      }
+    }
+  ],
+  "cause_analysis": "The threshold is driven by the longer round-zero observation in an unchanged empty-database initialization path. The retrieval optimization and semantic model construction are outside that timed boundary. No per-SQL, scheduling or storage trace was recorded; the specific host cause is unknown.",
+  "decision_scope": "Accept the observed +4.84 ms mean empty-database opening cost as an explicit tradeoff for verified retrieval improvements. Do not claim startup non-regression, discard any round, change the failed Actions conclusion, or replace the original accepted=false. This separate review does not make the original automatic gate pass.",
+  "cells": [
+    {
+      "cohort": "synthetic61",
+      "configuration": "native-char4000",
+      "baseline": {
+        "mean_ms": 5.828517793154762,
+        "p50_ms": 4.4587575,
+        "p95_ms": 13.500916649999997,
+        "samples": 672
+      },
+      "candidate": {
+        "mean_ms": 5.522061453869047,
+        "p50_ms": 4.313898,
+        "p95_ms": 12.842840449999999,
+        "samples": 672
+      },
+      "candidate_change_percent": {
+        "mean_ms": -5.257877734295146,
+        "p50_ms": -3.2488759480640006,
+        "p95_ms": -4.874307553035651
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "configuration": "mcp-char4000",
+      "baseline": {
+        "mean_ms": 8.13918190922619,
+        "p50_ms": 6.7177475,
+        "p95_ms": 16.011964499999998,
+        "samples": 672
+      },
+      "candidate": {
+        "mean_ms": 7.859213648809525,
+        "p50_ms": 6.6086225,
+        "p95_ms": 15.423507049999998,
+        "samples": 672
+      },
+      "candidate_change_percent": {
+        "mean_ms": -3.4397592232126795,
+        "p50_ms": -1.6244284263437936,
+        "p95_ms": -3.6751108834896518
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "configuration": "native-token512",
+      "baseline": {
+        "mean_ms": 10.56648278720238,
+        "p50_ms": 9.6510865,
+        "p95_ms": 21.05244885,
+        "samples": 672
+      },
+      "candidate": {
+        "mean_ms": 10.293761114583333,
+        "p50_ms": 9.231456,
+        "p95_ms": 21.07872905,
+        "samples": 672
+      },
+      "candidate_change_percent": {
+        "mean_ms": -2.5810071157202352,
+        "p50_ms": -4.348013044956134,
+        "p95_ms": 0.12483203349522576
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "configuration": "native-token1024",
+      "baseline": {
+        "mean_ms": 10.1363423125,
+        "p50_ms": 8.5497695,
+        "p95_ms": 23.71012275,
+        "samples": 672
+      },
+      "candidate": {
+        "mean_ms": 9.817502285714287,
+        "p50_ms": 7.877921000000001,
+        "p95_ms": 23.64349415,
+        "samples": 672
+      },
+      "candidate_change_percent": {
+        "mean_ms": -3.145513607926631,
+        "p50_ms": -7.858089039710359,
+        "p95_ms": -0.2810133068585685
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "configuration": "native-token2048",
+      "baseline": {
+        "mean_ms": 8.979163299107142,
+        "p50_ms": 7.447319,
+        "p95_ms": 20.872049599999997,
+        "samples": 672
+      },
+      "candidate": {
+        "mean_ms": 8.672813699404761,
+        "p50_ms": 6.5565169999999995,
+        "p95_ms": 20.68210895,
+        "samples": 672
+      },
+      "candidate_change_percent": {
+        "mean_ms": -3.411783364412624,
+        "p50_ms": -11.961378316143046,
+        "p95_ms": -0.9100239489656881
+      }
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "native-char4000",
+      "baseline": {
+        "mean_ms": 3.60514216773399,
+        "p50_ms": 3.4555795,
+        "p95_ms": 5.0538509000000005,
+        "samples": 4060
+      },
+      "candidate": {
+        "mean_ms": 3.0589307802955665,
+        "p50_ms": 3.0362065,
+        "p95_ms": 3.7373169999999996,
+        "samples": 4060
+      },
+      "candidate_change_percent": {
+        "mean_ms": -15.150897302386957,
+        "p50_ms": -12.136112047197866,
+        "p95_ms": -26.050113587640677
+      }
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "mcp-char4000",
+      "baseline": {
+        "mean_ms": 5.874507621182266,
+        "p50_ms": 5.731659,
+        "p95_ms": 7.4088026,
+        "samples": 4060
+      },
+      "candidate": {
+        "mean_ms": 5.156317048522168,
+        "p50_ms": 5.1140305,
+        "p95_ms": 5.9368406,
+        "samples": 4060
+      },
+      "candidate_change_percent": {
+        "mean_ms": -12.225544998366333,
+        "p50_ms": -10.775737007383023,
+        "p95_ms": -19.867744890382145
+      }
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "native-token512",
+      "baseline": {
+        "mean_ms": 6.0604727497536945,
+        "p50_ms": 5.9595994999999995,
+        "p95_ms": 7.619916099999999,
+        "samples": 4060
+      },
+      "candidate": {
+        "mean_ms": 5.540059869950738,
+        "p50_ms": 5.524515,
+        "p95_ms": 6.40808605,
+        "samples": 4060
+      },
+      "candidate_change_percent": {
+        "mean_ms": -8.587001398927274,
+        "p50_ms": -7.300566086697591,
+        "p95_ms": -15.903456601051024
+      }
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "native-token1024",
+      "baseline": {
+        "mean_ms": 5.195506664285714,
+        "p50_ms": 5.080905,
+        "p95_ms": 6.705824949999999,
+        "samples": 4060
+      },
+      "candidate": {
+        "mean_ms": 4.681911959852217,
+        "p50_ms": 4.6722175,
+        "p95_ms": 5.50439725,
+        "samples": 4060
+      },
+      "candidate_change_percent": {
+        "mean_ms": -9.88536321132999,
+        "p50_ms": -8.043596563997934,
+        "p95_ms": -17.916180469339558
+      }
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "native-token2048",
+      "baseline": {
+        "mean_ms": 5.19887266453202,
+        "p50_ms": 5.07561,
+        "p95_ms": 6.6839042,
+        "samples": 4060
+      },
+      "candidate": {
+        "mean_ms": 4.676144704679803,
+        "p50_ms": 4.6524065,
+        "p95_ms": 5.397919549999999,
+        "samples": 4060
+      },
+      "candidate_change_percent": {
+        "mean_ms": -10.05464056502855,
+        "p50_ms": -8.337983020760076,
+        "p95_ms": -19.24002217147278
+      }
+    }
+  ]
+}
