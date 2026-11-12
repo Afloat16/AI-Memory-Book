@@ -81,9 +81,24 @@ compatible semantic vectors remain reusable. Two disk-reopen regression
 tests pass, and forcing version 10 makes both fail at the expected cache-hit
 check. This correction does not change the cache-disabled old probe.
 
-The next qualification has its own source binding and explicit stopping rule:
+The [qualification plan](../benchmarks/experiments/novelty-cap-qualification-plan.json)
+and [source binding](../benchmarks/experiments/novelty-cap-qualification-binding.json)
+were frozen at
+[`186283d`](https://github.com/Afloat16/AI-Memory-Book/commit/186283dd0a2511b80e50ae185a03f488ac974c30)
+before [run 43220260514](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43220260514),
+attempt 1. The original 58 helpers remain unchanged; four new files have a
+separate binding. Twelve invented workflow/gate tests and independent review
+passed before scoring. Its explicit stopping rule is:
 all 512-token axes first, then larger budgets only if every configuration has
 zero individual complete-question and annotation losses. It uses the already
 scored 256 questions as regression data. The cap is not adopted automatically;
 any failed qualification is retained and stops this candidate without further
 parameter tuning.
+
+The controller saves a run checkpoint before preparation, then raw records,
+summaries and a separate compressed attempt ledger after each worker. Failed
+or interrupted workers retain any completed attempt records. The two Q2
+workers must also have identical index vector bytes. A rejection leaves the
+later phase explicitly `not-run`; it is never labeled a completed larger-budget
+comparison. The [single-run result branch](https://github.com/Afloat16/AI-Memory-Book/tree/validation/novelty-cap-43220260514-1)
+preserves progress while the qualification is running.

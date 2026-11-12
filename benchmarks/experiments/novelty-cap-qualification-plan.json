@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "protocol": "novelty-cap-regression-qualification-v1",
+  "status": "frozen-before-regression-qualification",
+  "purpose": "One finite regression qualification. Reject this fixed candidate on any registered loss; no tuning, automatic merge, competitor rerun, generated answers or performance claim.",
+  "development_source": "506f1c6140e7ff4a1106f05e049b5285438e7268",
+  "sources": {
+    "current": {"commit": "cbf626037b42f11f8bc5b6d46f56caac771e54ba", "source_sha256": "d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57"},
+    "cap": {"commit": "b7d3cb90ce71017ebb2c34b1bf172652e1d102e4", "source_sha256": "b3bab146b37346dfcaf80457d8b7372834a4b04eec676ab926516a3d051378db"}
+  },
+  "source_delta": "Only the novelty multiplier gains min(0.25, ...) and RECALL_VERSION changes from 10 to 11. The cache-version correction is frozen before qualification scoring; the original 506f development observations remain unchanged.",
+  "historical_binding_sha256": "39f18e8294a21d750d11ddc59e1bb309d409a067fd1b0974b78285f9834bbb82",
+  "historical_helper_count": 58,
+  "cohort": {
+    "status": "previously-scored-regression",
+    "seed": 23017,
+    "manifest": "benchmarks/round2_hotpot256_manifest.json",
+    "manifest_sha256": "39bc56948be886df178f3ed0ee85acc551430f2deba4968261aa2591dded49dc",
+    "dataset_sha256": "19aa783140212cc6532581c2791e6384769b0647dd4f08e2db29687400a798ae",
+    "selected_ids_sha256": "912e3c8d0f26f1a247de321709a9528e76d08f8ad70f9d7c9169b97c638be11a",
+    "queries": 256,
+    "required_evidence": 614,
+    "documents_sha256": "f630cff91ae3e1cd9611512755f4c7a4b7026bd3e3d2a70eb676a5d30bf127aa",
+    "diagnostics_sha256": "bc6042dc7270da90f908a151c0ed0200e23ebde1d0d4bd3e4720bdb86cb4b0a9"
+  },
+  "native": {"budget_chars": [2000, 8000], "tokenizers": ["cl100k_base", "o200k_base"]},
+  "common": {"repeats": 1, "limit": 5, "max_page_chars": 900, "cache_size": 0, "use_cache": false, "coverage": false, "default_semantic": false, "tokenizer_version": "0.12.0"},
+  "variants": [
+    {"name": "current-default", "source": "current", "semantic": false, "helper_stage": "candidate-native"},
+    {"name": "cap-default", "source": "cap", "semantic": false, "helper_stage": "candidate-native"},
+    {"name": "current-q2", "source": "current", "semantic": true, "helper_stage": "candidate-semantic-native"},
+    {"name": "cap-q2", "source": "cap", "semantic": true, "helper_stage": "candidate-semantic-native"}
+  ],
+  "phases": [
+    {"name": "A", "token_budgets": [512], "expected_calls": 4096},
+    {"name": "B", "token_budgets": [1024, 2048], "expected_calls": 8192, "requires": "A qualified"}
+  ],
+  "gates": {
+    "complete_question_losses_per_configuration": 0,
+    "annotation_losses_per_configuration": 0,
+    "source_scope_budget_token_metadata_errors": 0,
+    "unregistered_runtime_or_historical_helper_changes": 0,
+    "explanation": "These per-question/per-annotation zero-loss gates are deliberately stricter than the prior development probe's aggregate non-regression gates. Gains cannot compensate for a loss. Diagnostic groups are retained, not used to select or filter questions."
+  },
+  "model": {"plan": "benchmarks/experiments/semantic-local-plan.json", "fingerprint": "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25", "inference_threads": 1},
+  "execution": "One registered Actions run, attempt 1 only. Export once, finish every A worker before assessing A. Any quality loss rejects the candidate and leaves B explicitly not-run. Infrastructure/integrity failures are failed/incomplete, also never permitting B. Only an entirely qualified A permits the full registered B. No retries, replacement samples, resumed hosts or run selection. Publish before and after every complete worker and phase gate. Controller finally also compresses and publishes each source-free fsynced attempts.jsonl, including failed/interrupted workers; artifacts provide the same precise ledger fallback without private databases, corpus text or models.",
+  "semantic_control": "After each Q2 worker, read semantic_vectors ordered by primary key and hash every identity/offset field plus exact vector BLOB bytes. Current/cap digests, row counts, revision and model fingerprint must match within each phase; otherwise fail incomplete without attributing differences to ranking. This read-only control does not rerun the model or compare write-time metadata.",
+  "limits": "Previously scored Hotpot256 only, with paragraph-to-session/chapter mapping; no unseen/domain-generalization claim. Single-pass latency/RSS/setup are diagnostics, not speed evidence. Qualification does not establish old-cohort Q2 compatibility, complete-product superiority or authorize a merge. If A and B both qualify, report and stop for the separately decided old-data compatibility/performance step."
+}
