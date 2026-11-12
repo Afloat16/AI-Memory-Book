@@ -24,15 +24,17 @@ class AnchorSummaryTests(unittest.TestCase):
 
     def test_cross_run_differences_remain_visible_instead_of_being_imputed(self):
         prior = {"configurations": [{"budget_tokens": 512, "modes": [
-            {"mode": mode, "query_results": [{"id": "q", "context_sha256": "a", "evidence_ranks": [None]}]}
+            {"mode": mode, "query_results": [{"id": "q", "context_sha256": "a", "evidence_ranks": [None], "complete": False}]}
             for mode in summary.MODES[:3]]}]}
         current = copy.deepcopy(prior)
-        current["configurations"][0]["modes"][1]["query_results"][0].update(context_sha256="b", evidence_ranks=[1])
+        current["configurations"][0]["modes"][1]["query_results"][0].update(context_sha256="b", evidence_ranks=[1], complete=True)
         current["configurations"][0]["modes"].append({"mode": summary.MODES[3], "query_results": []})
         result = summary.control_reproduction(current, prior)
         self.assertEqual(result[0]["modes"][0]["changed_context_ids"], [])
         self.assertEqual(result[0]["modes"][1]["changed_context_ids"], ["q"])
         self.assertEqual(result[0]["modes"][1]["changed_evidence_ids"], ["q"])
+        self.assertEqual(result[0]["modes"][1]["changed_annotation_presence_ids"], ["q"])
+        self.assertEqual(result[0]["modes"][1]["complete_question_gains"], ["q"])
         current["configurations"][0]["modes"][0]["query_results"][0]["id"] = "other"
         with self.assertRaisesRegex(ValueError, "query sets"):
             summary.control_reproduction(current, prior)
