@@ -9,8 +9,12 @@ worker files, ledgers, and automatic `accepted: false` decision remain intact.
 The separate [machine-readable review](../benchmarks/reports/round3-recovery/performance-resource-review.json)
 records source identities and an independent recomputation of the full
 report's validation, all comparisons, automatic acceptance, summary, and
-hashes. That recomputation executed zero retrieval calls; it does not itself
-claim an additional audit of each separately stored worker ledger.
+hashes. The subsequent frozen strict audit also verified the original run
+identity, every worker artifact hash, all complete attempt ledgers, and
+equality between the original workers and the aggregate. It exited
+successfully with `verified: true`, 47,320 validated calls, 16 validated
+workers, and **zero retrieval calls executed**. The audit correctly retained
+the original `accepted: false`; it did not replace the resource review.
 
 ## Retrieval result
 
