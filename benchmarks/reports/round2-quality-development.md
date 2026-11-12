@@ -1,6 +1,6 @@
 # Q1 score-aware semantic fusion: old development record
 
-Status: **partial**. This is a fusion-policy experiment; lexical remains the product default.
+Status: **completed**. This is a fusion-policy experiment; lexical remains the product default.
 
 Frozen runtime `49ee4fc04efa89e0110a066094d5d5519f65e588f0ebbcce5f96961e57b29759` at [973657b](https://github.com/Afloat16/AI-Memory-Book/commit/973657b8c6ab29d2462c9d88303fb0baed2faf24); [hosted execution](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43194168722).
 
@@ -20,6 +20,9 @@ Each cell is **complete evidence / annotation recall**. All budgets and negative
 | regression-authored36 | 512 | 86.67% / 88.89% | 100.00% / 100.00% | 100.00% / 100.00% |
 | regression-authored36 | 1024 | 86.67% / 88.89% | 100.00% / 100.00% | 100.00% / 100.00% |
 | regression-authored36 | 2048 | 86.67% / 88.89% | 100.00% / 100.00% | 100.00% / 100.00% |
+| regression-public1015 | 512 | 66.41% / 62.18% | 62.40% / 59.77% | 69.65% / 66.12% |
+| regression-public1015 | 1024 | 72.88% / 69.54% | 70.88% / 68.27% | 76.43% / 73.48% |
+| regression-public1015 | 2048 | 72.88% / 69.54% | 70.88% / 68.40% | 76.43% / 73.48% |
 | regression-hotpot128 | 512 | 35.16% / 66.99% | 32.81% / 62.42% | 30.47% / 64.38% |
 | regression-hotpot128 | 1024 | 48.44% / 74.51% | 50.78% / 74.18% | 47.66% / 74.18% |
 | regression-hotpot128 | 2048 | 48.44% / 74.51% | 50.78% / 74.18% | 47.66% / 74.18% |
@@ -42,6 +45,12 @@ Counts below are paired questions/annotations; full reports retain their IDs eve
 | regression-authored36 | 1024 | q1_vs_legacy_rrf | 0 | 0 | 0 | 0 |
 | regression-authored36 | 2048 | q1_vs_lexical | 4 | 0 | 4 | 0 |
 | regression-authored36 | 2048 | q1_vs_legacy_rrf | 0 | 0 | 0 | 0 |
+| regression-public1015 | 512 | q1_vs_lexical | 32 | 11 | 47 | 16 |
+| regression-public1015 | 512 | q1_vs_legacy_rrf | 62 | 15 | 73 | 23 |
+| regression-public1015 | 1024 | q1_vs_lexical | 27 | 4 | 38 | 7 |
+| regression-public1015 | 1024 | q1_vs_legacy_rrf | 46 | 10 | 57 | 16 |
+| regression-public1015 | 2048 | q1_vs_lexical | 27 | 4 | 38 | 7 |
+| regression-public1015 | 2048 | q1_vs_legacy_rrf | 46 | 10 | 57 | 17 |
 | regression-hotpot128 | 512 | q1_vs_lexical | 2 | 8 | 4 | 12 |
 | regression-hotpot128 | 512 | q1_vs_legacy_rrf | 7 | 10 | 24 | 18 |
 | regression-hotpot128 | 1024 | q1_vs_lexical | 7 | 8 | 9 | 10 |
@@ -76,6 +85,15 @@ These overlapping evaluator groups are fixed diagnostics, not a new independent 
 | regression-authored36 | 2048 | multiple_required_evidence | 6 | 100.00% | 100.00% | 100.00% |
 | regression-authored36 | 2048 | cross_session | 6 | 100.00% | 100.00% | 100.00% |
 | regression-authored36 | 2048 | cross_chapter | 6 | 100.00% | 100.00% | 100.00% |
+| regression-public1015 | 512 | low_lexical_overlap_le_0.25 | 326 | 46.01% | 47.55% | 52.15% |
+| regression-public1015 | 512 | multiple_required_evidence | 104 | 16.35% | 18.27% | 20.19% |
+| regression-public1015 | 512 | cross_session | 76 | 10.53% | 13.16% | 13.16% |
+| regression-public1015 | 1024 | low_lexical_overlap_le_0.25 | 326 | 54.91% | 56.75% | 59.51% |
+| regression-public1015 | 1024 | multiple_required_evidence | 104 | 25.00% | 25.96% | 32.69% |
+| regression-public1015 | 1024 | cross_session | 76 | 18.42% | 18.42% | 22.37% |
+| regression-public1015 | 2048 | low_lexical_overlap_le_0.25 | 326 | 54.91% | 56.75% | 59.51% |
+| regression-public1015 | 2048 | multiple_required_evidence | 104 | 25.00% | 25.96% | 32.69% |
+| regression-public1015 | 2048 | cross_session | 76 | 18.42% | 18.42% | 22.37% |
 | regression-hotpot128 | 512 | low_lexical_overlap_le_0.25 | 3 | 0.00% | 33.33% | 0.00% |
 | regression-hotpot128 | 512 | multiple_required_evidence | 128 | 35.16% | 32.81% | 30.47% |
 | regression-hotpot128 | 512 | cross_session | 128 | 35.16% | 32.81% | 30.47% |
@@ -115,6 +133,15 @@ Payload tokens count stable compact JSON for the entire response, including repe
 | regression-authored36 | 2048 | lexical_native_token_budget | 188.5 | 949.1 | 1.554 | 2.630 | 2.774 | 0 |
 | regression-authored36 | 2048 | legacy_rrf_k60 | 485.9 | 2315.9 | 9.472 | 14.900 | 15.694 | 108 |
 | regression-authored36 | 2048 | q1_score_075 | 485.9 | 2315.8 | 9.458 | 15.052 | 15.477 | 108 |
+| regression-public1015 | 512 | lexical_native_token_budget | 491.9 | 2415.6 | 4.366 | 5.699 | 6.627 | 0 |
+| regression-public1015 | 512 | legacy_rrf_k60 | 492.6 | 2465.3 | 9.382 | 12.204 | 15.179 | 3045 |
+| regression-public1015 | 512 | q1_score_075 | 492.7 | 2456.3 | 9.488 | 12.199 | 14.034 | 3045 |
+| regression-public1015 | 1024 | lexical_native_token_budget | 861.1 | 4071.0 | 3.911 | 5.357 | 6.448 | 0 |
+| regression-public1015 | 1024 | legacy_rrf_k60 | 864.7 | 4121.8 | 9.981 | 12.548 | 14.522 | 3045 |
+| regression-public1015 | 1024 | q1_score_075 | 871.2 | 4132.8 | 10.065 | 12.689 | 15.247 | 3045 |
+| regression-public1015 | 2048 | lexical_native_token_budget | 867.1 | 4093.7 | 3.903 | 5.318 | 5.929 | 0 |
+| regression-public1015 | 2048 | legacy_rrf_k60 | 872.4 | 4151.2 | 9.944 | 12.663 | 14.741 | 3045 |
+| regression-public1015 | 2048 | q1_score_075 | 877.6 | 4157.4 | 10.056 | 12.759 | 15.521 | 3045 |
 | regression-hotpot128 | 512 | lexical_native_token_budget | 479.4 | 2417.9 | 6.899 | 10.032 | 10.845 | 0 |
 | regression-hotpot128 | 512 | legacy_rrf_k60 | 480.6 | 2465.4 | 17.992 | 25.568 | 31.775 | 384 |
 | regression-hotpot128 | 512 | q1_score_075 | 476.7 | 2454.5 | 18.049 | 25.947 | 30.792 | 384 |
@@ -133,6 +160,7 @@ Fresh indexing here is experimental preparation, not an upgrade requirement for 
 |---|---:|---:|---:|---:|---:|
 | development-synthetic61 | 842.9 | 897.3 | 95831.0 | 4093 | 6286848 |
 | regression-authored36 | 34.9 | 1293.7 | 1161.7 | 42 | 64512 |
+| regression-public1015 | 1308.4 | 837.8 | 45990.7 | 2032 | 3121152 |
 | regression-hotpot128 | 2310.9 | 1239.7 | 131998.8 | 2323 | 3568128 |
 
 ## Unsupported questions and validity
@@ -147,6 +175,9 @@ A nonempty context on an unsupported question is a retrieval diagnostic. This ex
 | regression-authored36 | 512 | 6 | 33.33% | 100.00% | 100.00% |
 | regression-authored36 | 1024 | 6 | 33.33% | 100.00% | 100.00% |
 | regression-authored36 | 2048 | 6 | 33.33% | 100.00% | 100.00% |
+| regression-public1015 | 512 | 366 | 100.00% | 100.00% | 100.00% |
+| regression-public1015 | 1024 | 366 | 100.00% | 100.00% | 100.00% |
+| regression-public1015 | 2048 | 366 | 100.00% | 100.00% | 100.00% |
 | regression-hotpot128 | 512 | 0 | — | — | — |
 | regression-hotpot128 | 1024 | 0 | — | — | — |
 | regression-hotpot128 | 2048 | 0 | — | — | — |
@@ -157,4 +188,5 @@ Accepted reports passed source/index-address stability, source-span projection, 
 
 - development-synthetic61: [full rows](../results/round2-quality-development-synthetic61.json.gz) · [summary](../results/round2-quality-development-synthetic61.summary.json)
 - regression-authored36: [full rows](../results/round2-quality-regression-authored36.json.gz) · [summary](../results/round2-quality-regression-authored36.summary.json)
+- regression-public1015: [full rows](../results/round2-quality-regression-public1015.json.gz) · [summary](../results/round2-quality-regression-public1015.summary.json)
 - regression-hotpot128: [full rows](../results/round2-quality-regression-hotpot128.json.gz) · [summary](../results/round2-quality-regression-hotpot128.summary.json)
