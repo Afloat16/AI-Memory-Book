@@ -15,7 +15,7 @@ is not the accuracy of a generated answer.
 
 The selected implementation is frozen at
 [`cbf6260`](https://github.com/Afloat16/AI-Memory-Book/commit/cbf626037b42f11f8bc5b6d46f56caac771e54ba).
-Its default path remains lexical. The latest verified development improvements
+Its default path remains lexical. The improvements included in v0.3.0
 have separate measurement boundaries:
 
 | Area | Completed evidence | Interpretation |

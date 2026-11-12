@@ -26,7 +26,7 @@ from urllib.parse import quote
 
 
 # Keep the default on an existing release; development is installed with --source.
-DEFAULT_VERSION = "v0.2.1"
+DEFAULT_VERSION = "v0.3.0"
 REPOSITORY = "https://github.com/Afloat16/AI-Memory-Book"
 
 
@@ -60,13 +60,16 @@ def package_spec(source: Path | None, version: str, extras: bool) -> str:
             raise ValueError("--source must be a source directory or a local wheel file.")
         return f"{name} @ {source.as_uri()}"
     if re.fullmatch(r"[0-9a-fA-F]{40}", version):
-        archive = f"{REPOSITORY}/archive/{version.lower()}.zip"
+        artifact = f"{REPOSITORY}/archive/{version.lower()}.zip"
     elif re.fullmatch(r"v?\d+\.\d+\.\d+[A-Za-z0-9.+-]*", version):
         tag = version if version.startswith("v") else "v" + version
-        archive = f"{REPOSITORY}/archive/refs/tags/{quote(tag, safe='')}.zip"
+        if tag == "v0.3.0":
+            artifact = f"{REPOSITORY}/releases/download/v0.3.0/ai_memory_book-0.3.0-py3-none-any.whl"
+        else:
+            artifact = f"{REPOSITORY}/archive/refs/tags/{quote(tag, safe='')}.zip"
     else:
-        raise ValueError("--version must be a release tag such as v0.2.1 or a full 40-character commit SHA; use --source for a development checkout.")
-    return f"{name} @ {archive}"
+        raise ValueError("--version must be a release tag such as v0.3.0 or a full 40-character commit SHA; use --source for a development checkout.")
+    return f"{name} @ {artifact}"
 
 
 @contextmanager

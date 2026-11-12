@@ -77,7 +77,7 @@ page ID. If displaying turns as “question 1,” convert index 0 to 1 explicitl
 do not change the stored reference. Distinguish what the source says from any
 new inference you make.
 
-On the v0.3 development branch, MCP responses use compact JSON and omit routine diagnostics and
+In v0.3.0, MCP responses use compact JSON and omit routine diagnostics and
 exact coordinates by default. Evidence text is not removed by this formatting
 change. Set `"details": true` on `recall_memory` to retrieve the full reference
 coordinates, `excerpt_spans`, and diagnostics, or use `read_page` for a selected
@@ -126,7 +126,7 @@ returned page is reported missing or changed.
 
 ### Optional coverage for multiple facts
 
-On the unreleased development branch, `recall_memory` accepts
+In v0.3.0, `recall_memory` accepts
 `"coverage": true` when a question explicitly combines several subjects and
 the initial evidence misses one of them. The default is `false`. For example:
 

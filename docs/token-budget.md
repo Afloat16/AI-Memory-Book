@@ -1,6 +1,6 @@
 # Exact context token budgets
 
-The development source exposes an optional exact token limit in Python, CLI,
+v0.3.0 exposes an optional exact token limit in Python, CLI,
 and MCP. It uses a named reference tokenizer and retains the existing character
 limit. Both limits include citations and separators in the returned `context`.
 The outer JSON, tool schema, other conversation messages and model output are
@@ -8,10 +8,10 @@ outside this context budget.
 
 ## Install and initialize
 
-From a checkout of the development branch:
+From a checkout of the pinned release:
 
 ```bash
-git clone --branch perf/recall-quality-budget https://github.com/Afloat16/AI-Memory-Book.git
+git clone --branch v0.3.0 https://github.com/Afloat16/AI-Memory-Book.git
 cd AI-Memory-Book
 python -m venv .venv
 source .venv/bin/activate
@@ -20,7 +20,7 @@ python -m pip install -e ".[mcp,clients,tokens]"
 
 On Windows, use `.venv\Scripts\Activate.ps1`. The `tokens` extra pins
 `tiktoken==0.12.0`; the `benchmark` and `all` extras also include that version.
-The project is not published to PyPI, so install from the source checkout.
+The project is distributed through GitHub releases, not PyPI. This checkout route also provides the tokenizer preparation examples; see the [deployment guide](deployment.md) for wheel installation.
 The dependency-free character-budget path does not initialize a tokenizer.
 
 On its first use of an encoding, tiktoken may download its public vocabulary
