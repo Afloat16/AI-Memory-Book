@@ -42,6 +42,8 @@ def parser() -> argparse.ArgumentParser:
     recall.add_argument("--chapter")
     recall.add_argument("--session")
     recall.add_argument("--budget", type=int, default=4000, help="Hard character limit on the assembled context, including citations")
+    recall.add_argument("--budget-tokens", type=int, help="Optional exact token limit on the same context, including citations; requires the tokens extra")
+    recall.add_argument("--tokenizer", choices=("cl100k_base", "o200k_base"), default="cl100k_base", help="Reference tokenizer for --budget-tokens")
     recall.add_argument("--limit", type=int, default=5)
     recall_mode = recall.add_mutually_exclusive_group()
     recall_mode.add_argument("--flat", action="store_true", help="Disable directory ranking signal (evaluation baseline)")
@@ -290,12 +292,14 @@ def main(argv: list[str] | None = None) -> int:
                 sessions = [session for file in args.files for session in load_sessions(file, format=args.format, project=args.project, task_id=args.task)]
                 _print([book.ingest(session) for session in sessions])
             elif args.command == "recall":
-                result = book.recall(args.query, project=args.project, chapter=args.chapter, session=args.session, budget_chars=args.budget, limit=args.limit, strategy="flat" if args.flat else "book", use_cache=not args.no_cache, coverage=args.coverage)
+                result = book.recall(args.query, project=args.project, chapter=args.chapter, session=args.session, budget_chars=args.budget, limit=args.limit, strategy="flat" if args.flat else "book", use_cache=not args.no_cache, coverage=args.coverage, budget_tokens=args.budget_tokens, tokenizer=args.tokenizer)
                 if args.json:
                     _print(result)
                 else:
                     print(result["context"] or "No matching evidence within this budget.")
-                    print(f'{len(result["results"])} pages · {result["context_chars"]}/{args.budget} characters · ~{result["estimated_tokens"]} tokens (estimate) · {result["latency_ms"]:.2f} ms · cache={result["cache_hit"]}', file=sys.stderr)
+                    token_status = (f'{result["context_tokens"]}/{result["budget_tokens"]} tokens ({result["tokenizer"]})'
+                                    if "context_tokens" in result else f'~{result["estimated_tokens"]} tokens (estimate)')
+                    print(f'{len(result["results"])} pages · {result["context_chars"]}/{args.budget} characters · {token_status} · {result["latency_ms"]:.2f} ms · cache={result["cache_hit"]}', file=sys.stderr)
                     for warning in result["warnings"]:
                         print(warning, file=sys.stderr)
             elif args.command == "toc":

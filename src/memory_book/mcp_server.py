@@ -12,6 +12,13 @@ from typing import TYPE_CHECKING, Any
 
 from .store import MemoryBook
 
+try:
+    from pydantic import StrictInt
+except ImportError:
+    # Importing payload helpers must remain possible without the optional MCP
+    # extra. A working FastMCP installation includes Pydantic and StrictInt.
+    StrictInt = int
+
 if TYPE_CHECKING:
     from mcp.server.fastmcp import FastMCP
 
@@ -64,7 +71,9 @@ def recall_payload(result: dict[str, Any], *, details: bool = False) -> dict[str
             hit["truncated"] = True
         hits.append(hit)
     return {"context": result["context"], "results": hits,
-            **{key: result[key] for key in ("context_chars", "budget_chars", "revision", "truncated", "warnings")}}
+            **{key: result[key] for key in ("context_chars", "budget_chars", "revision", "truncated", "warnings")},
+            **{key: result[key] for key in ("budget_tokens", "tokenizer", "tokenizer_version", "context_tokens")
+               if key in result}}
 
 
 def _range(value: int, name: str, minimum: int, maximum: int) -> None:
@@ -168,10 +177,15 @@ def create_server(db_path: str | Path, allow_write: bool = False) -> FastMCP:
         limit: int = 5,
         details: bool = False,
         coverage: bool = False,
+        budget_tokens: StrictInt | None = None,
+        tokenizer: str = "cl100k_base",
     ) -> str:
         """Recall cited history. Compact by default; details adds exact spans and diagnostics.
 
         budget_chars limits context including citations, not outer JSON metadata.
+        budget_tokens optionally adds an exact tokenizer limit on that same
+        context, including citations/separators; requires the tokens extra.
+        tokenizer must be cl100k_base or o200k_base. Both caps apply together.
         coverage opts into experimental coverage of explicit and/和-style clauses.
         It can recover additional subjects but adds search work and can reduce
         evidence completeness under small budgets. It is disabled by default.
@@ -182,6 +196,7 @@ def create_server(db_path: str | Path, allow_write: bool = False) -> FastMCP:
             result = book.recall(
                 query, project=project, chapter=chapter, session=session,
                 budget_chars=budget_chars, limit=limit, coverage=coverage,
+                budget_tokens=budget_tokens, tokenizer=tokenizer,
             )
         return _json(recall_payload(result, details=details))
 

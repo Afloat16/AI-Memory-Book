@@ -18,7 +18,7 @@ from .text import estimate_tokens, excerpt, headline, index_text, query_terms, t
 
 SCHEMA_VERSION = 3
 INDEX_VERSION = 3
-RECALL_VERSION = 9
+RECALL_VERSION = 10
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -220,8 +220,10 @@ def _query_facets(query: str) -> list[list[str]]:
 class MemoryBook:
     """One SQLite connection per instance. Use a separate instance per thread.
 
-    The database and raw conversations stay on the caller's machine. Queries
-    never invoke a model, embedding provider, or network endpoint.
+    The database and raw conversations stay on the caller's machine. Lexical
+    recall invokes no model or embedding provider. Opt-in exact token budgets
+    may download the tokenizer's public vocabulary on first use; no source or
+    query text is transmitted by that vocabulary initialization.
     """
 
     def __init__(self, path: str | Path = ".memory-book/memory.db", *, segmentation: str = "adaptive", max_page_chars: int = 900, min_page_chars: int = 400, similarity_threshold: float = 0.12, cache_size: int = 128):
@@ -571,11 +573,17 @@ class MemoryBook:
         values["revision"], values["schema_version"] = self.revision, SCHEMA_VERSION
         return values
 
-    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False) -> dict:
+    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base") -> dict:
         started = time.perf_counter_ns()
         query = _string(query, "query", maximum=8000, required=False)
         _integer(budget_chars, "budget_chars", 0, 100_000)
         _integer(limit, "limit", 1, 50)
+        from .token_budget import TOKENIZERS, TokenCounter
+        if not isinstance(tokenizer, str) or tokenizer not in TOKENIZERS:
+            raise ValueError("tokenizer must be cl100k_base or o200k_base")
+        if budget_tokens is not None:
+            _integer(budget_tokens, "budget_tokens", 0, 100_000)
+        token_counter = TokenCounter(tokenizer) if budget_tokens is not None else None
         if strategy not in {"book", "flat"}:
             raise ValueError("strategy must be book or flat")
         if not isinstance(coverage, bool):
@@ -592,7 +600,10 @@ class MemoryBook:
         self.db.execute("BEGIN")
         try:
             revision = self.revision
-            cache_key = hashlib.sha256(_json([INDEX_VERSION, RECALL_VERSION, query, project, chapter, session, budget_chars, limit, strategy, coverage]).encode()).hexdigest()
+            cache_options = [INDEX_VERSION, RECALL_VERSION, query, project, chapter, session, budget_chars, limit, strategy, coverage]
+            if token_counter is not None:
+                cache_options.extend([budget_tokens, tokenizer, token_counter.version])
+            cache_key = hashlib.sha256(_json(cache_options).encode()).hexdigest()
             cached = self.db.execute("SELECT payload FROM recall_cache WHERE key=? AND revision=?", (cache_key, revision)).fetchone() if use_cache and self.cache_size else None
             if cached:
                 result = json.loads(cached[0])
@@ -613,6 +624,7 @@ class MemoryBook:
             where = " AND " + " AND ".join(clauses) if clauses else ""
             candidates: list[dict] = []
             allocations: list[tuple[dict, str, int]] = []
+            selected_pages: list[dict] = []
             if qt and budget_chars:
                 expression = " OR ".join('"' + token.replace('"', '""') + '"' for token in qt)
                 # The index enforces a body match, so a chapter name alone is
@@ -765,13 +777,14 @@ class MemoryBook:
                 if candidates:
                     selected_ids = [item["id"] for item in candidates[:limit]]
                     sources = {row["id"]: dict(row) for row in self.db.execute(
-                        """SELECT p.id,p.title,p.section_id,p.content,p.source_refs,
+                        """SELECT p.id,p.title,p.section_id,p.session_pk,p.content,p.source_refs,
                           pr.name project_name,sec.title section_title FROM pages p
                           JOIN projects pr ON pr.id=p.project_id JOIN sections sec ON sec.id=p.section_id
                           WHERE p.id IN (""" + ",".join("?" for _ in selected_ids) + ")", selected_ids)}
                     for item in candidates[:limit]:
                         item.update(sources[item["id"]])
-                    allocations = _context_allocations(candidates[:limit], budget_chars)
+                    selected_pages = candidates[:limit]
+                    allocations = _context_allocations(selected_pages, budget_chars)
                     truncated_ids = [item["rid"] for item, _, allowance in allocations
                                      if allowance < len(item["content"])] if use_stem else []
                     if truncated_ids:
@@ -802,19 +815,47 @@ class MemoryBook:
                         for item, _, _ in allocations:
                             if item["rid"] in forms:
                                 item["excerpt_terms"] = forms[item["rid"]]
+                    if token_counter is not None and budget_tokens:
+                        # Supplemental units are parsed in original turns so a
+                        # page boundary cannot turn a cut sentence/fence into a
+                        # purportedly complete new source unit. Read them under
+                        # the same snapshot as ranking and page coordinates.
+                        from .token_budget import projected_units
+                        wanted: dict[str, set[int]] = {}
+                        for row in selected_pages:
+                            wanted.setdefault(row["session_pk"], set()).update(
+                                ref["turn_index"] for ref in json.loads(row["source_refs"]))
+                        original_turns = {}
+                        for session_pk, ordinals in wanted.items():
+                            ordered = sorted(ordinals)
+                            for source in self.db.execute(
+                                "SELECT ordinal,content FROM turns WHERE session_pk=? AND ordinal IN (" +
+                                ",".join("?" for _ in ordered) + ")", [session_pk, *ordered]):
+                                original_turns[(session_pk, source["ordinal"])] = source["content"]
+                        unit_cache = {}
+                        for row in selected_pages:
+                            row["token_source_units"] = projected_units(row, original_turns, unit_cache)
             self.db.execute("COMMIT")
         except BaseException:
             self.db.execute("ROLLBACK")
             raise
+        legacy = []
+        for row, header, allowance in allocations:
+            text, spans = excerpt(row["content"], query, allowance, prepared_terms=row.get("excerpt_terms", qt))
+            legacy.append((row, header, text, spans))
+        assembled = legacy
+        if token_counter is not None:
+            from .token_budget import assemble
+            assembled = assemble(legacy, selected_pages, qt, budget_chars=budget_chars,
+                                 budget_tokens=budget_tokens, counter=token_counter)
         results, blocks = [], []
         # Limit the work/response, but do not force one task/chapter branch.
-        for row, header, allowance in allocations:
+        for row, header, text, spans in assembled:
             crumbs = self._breadcrumb(row)
             # The address and date are sufficient for agent recall. Display
             # names remain in breadcrumb metadata and exact read_page results;
             # repeating three long titles in every context block crowds out
             # evidence at small budgets without adding source identity.
-            text, spans = excerpt(row["content"], query, allowance, prepared_terms=row.get("excerpt_terms", qt))
             block = header + text
             refs = self._refs(row, spans)
             coverage = len(set(qt) & set(terms(text, query=True))) / len(qt) if qt else 0.0
@@ -829,6 +870,10 @@ class MemoryBook:
         if not results and candidates:
             warnings.append("Budget too small to return an evidence block including its citation.")
         result = {"query": query, "results": results, "context": context, "context_chars": len(context), "estimated_tokens": estimate_tokens(context), "candidate_count": len(candidates), "revision": revision, "cache_hit": False, "warnings": warnings, "strategy": strategy, "budget_chars": budget_chars, "truncated": len(candidates) > len(results) or any(r["truncated"] for r in results)}
+        if token_counter is not None:
+            result.update(budget_tokens=budget_tokens, tokenizer=tokenizer,
+                          tokenizer_version=token_counter.version,
+                          context_tokens=token_counter.count(context))
         if use_cache and self.cache_size:
             # A concurrent ingestion must not be overwritten by an old cache.
             self.db.execute("BEGIN IMMEDIATE")
