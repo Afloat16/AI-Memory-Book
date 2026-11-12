@@ -319,12 +319,14 @@ def native(args, plan, binding, data, bundle, report, ledger, resources):
         documents = reused.documents_from(book)
         require(reused.digest(documents) == bundle["documents_sha256"], "Native pages differ from common corpus")
         originals, index, vectors = source_snapshot(book.db), indexed_content(book.db), vectors_digest(path)
-        require(originals == bundle["originals_sha256"], "Native source addresses differ from common corpus")
+        require(index == bundle["indexed_content"], "Native original/index projections differ from common corpus")
         pages = {doc["id"]: doc["text"] for doc in documents}
         report["metadata"] = {"source_provenance": provenance, "source_sha256_before": expected["source_sha256"],
             "semantic": flags["semantic"], "project_local_fts_statistics": flags["statistics"], "coverage": False,
             "comparison_scope": "Native Python recall including native context and exact token assembly; source ingest/index setup separate.",
-            "originals_sha256": originals, "indexed_content_before": index, "vectors_before": vectors, "stats": book.stats()}
+            "originals_sha256": originals, "documents_sha256": reused.digest(documents),
+            "cross_archive_source_boundary": "Canonical pages/addresses and the unchanged indexed_content projection must match. Fresh-ingest project created_at/updated_at and chapter/session updated_at are host-time metadata; the complete source_snapshot is instead checked before/after within each worker.",
+            "indexed_content_before": index, "vectors_before": vectors, "stats": book.stats()}
         resources.set_phase("queries")
         adapted = old_shape_plan(plan, binding, args.stage)
         for config in reused.native_configurations(adapted):
@@ -405,7 +407,7 @@ class BookComponent:
                 require(self.vectors == args.reference_vectors,
                         "Component Q2 vectors differ from native Q2; cannot attribute comparison to retrieval boundaries")
             self.metadata.update(originals_sha256=self.originals, indexed_content_before=self.index,
-                                 vectors_before=self.vectors, stats=self.book.stats())
+                                 documents_sha256=bundle["documents_sha256"], vectors_before=self.vectors, stats=self.book.stats())
         except BaseException:
             self.book.close()
             raise
@@ -677,6 +679,12 @@ def verify_report(report, plan, binding, query_ids):
                 and metadata["source_unchanged"] is True and metadata["originals_unchanged"] is True
                 and metadata["indexed_content_before"] == metadata["indexed_content_after"]
                 and metadata["vectors_before"] == metadata["vectors_after"], "Book source/index/vector provenance differs")
+        require(metadata["indexed_content_before"] == report["frozen_corpus"]["indexed_content"]
+                and metadata["documents_sha256"] == report["frozen_corpus"]["documents_sha256"],
+                "Book stable source/index projection differs from canonical corpus")
+        if not stage.endswith("native"):
+            require(metadata["originals_sha256"] == report["frozen_corpus"]["originals_sha256"],
+                    "Copied component source metadata differs from canonical corpus")
         require(metadata["semantic"] == flags["semantic"]
                 and metadata["project_local_fts_statistics"] == flags["statistics"] and metadata["coverage"] is False,
                 "Book policy metadata differs")

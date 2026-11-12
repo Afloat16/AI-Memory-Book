@@ -77,7 +77,7 @@ def public_commit(paths, parent, message):
 
 def claim(binding_path, source, run_id, manifest_path):
     """A dedicated immutable branch prevents another push from rescoring one binding."""
-    actions_identity()
+    comparison.require(actions_identity() == run_id, "Execution claim run identity differs")
     authorized_origin()
     fingerprint = comparison.file_sha(binding_path)
     branch = "refs/heads/validation/round3-comparison-claim-" + fingerprint
