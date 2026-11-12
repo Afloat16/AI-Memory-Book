@@ -17,6 +17,17 @@ committed reports before making quality, speed or cost claims.
 
 ## Work to finish in this continuation
 
+The runtime is now frozen at `407cda1c5f1dac0e67dfe527d3c23febdad5e818`
+(source SHA-256 `63cb5eb55cc0356e9c94499739a9d8dcca0307fd6e7a00188b4e25d59fc6a625`).
+Both performance candidates preserve all 2,016 complete development payloads,
+excluding only their measured latency. Both original development reports are
+retained; some tail-latency regressions remain and are not hidden. The local
+integrated worktree passed 323 tests before native workflow locking was added;
+the exact frozen runtime's [CI run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43168645993)
+also passed. The eight-stage `native-completion-manifest.json` is now running
+against a detached candidate snapshot; its new checkpoint must not be confused
+with the old interrupted checkpoint.
+
 1. **Native budgets:** preserve token/character/source invariants, verify any
    performance optimization against complete prior outputs on development
    data, then finish the preregistered eight-cohort regression/transfer matrix.

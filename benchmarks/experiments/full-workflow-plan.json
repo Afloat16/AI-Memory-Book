@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "status": "registered-before-native-workflow-scoring",
+  "purpose": "A small actual capture, consolidation, retrieval and paired-answer diagnostic for Book and the pinned native ai-memory release. Complete within this explicit replay policy, not a universal product ranking or an interactive host test.",
+  "corpus": {
+    "path": "benchmarks/transfer_cases.json",
+    "sha256": "27c200ec2ac8b2dd55f281a2e7bbddfc1f47dbc38791e8caa61e603b215a16c5",
+    "queries": 36,
+    "answerable": 30,
+    "sessions": 42,
+    "projects": 6,
+    "selection": "All existing authored-transfer-v1 cases, in source order; observed regression data, not a new generalization test.",
+    "answers": "benchmarks/experiments/full-workflow-answers.json",
+    "answer_authorship": "Manually written short answers from the original supporting source, frozen before model outputs. Multiple-fact references include all requested facts. Reuse answer_eval normalized exact/F1 and exact abstention; no semantic judge."
+  },
+  "model": {
+    "plan": "benchmarks/experiments/local-answer-plan.json",
+    "gguf_sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
+    "served_alias": "qwen2.5-0.5b-instruct-q4_k_m",
+    "context_tokens": 16384,
+    "threads": 4,
+    "parallel_slots": 1,
+    "seed": 42,
+    "server_cache_flags": ["--no-cache-prompt", "--cache-ram", "0"],
+    "launch": "Explicit --launch-server starts only the verified pinned runtime at 127.0.0.1:18081. Check archive/model hashes and all extracted regular runtime files, record actual argv, ready time and final log hash; stop only the process created by the runner. Without this flag the endpoint is labeled externally owned and its process artifacts unverified.",
+    "separate_experiment": "The larger context is preregistered for native consolidation's minimum prompt budget. It does not alter or replace the earlier frozen 4096-context answer experiment."
+  },
+  "book": {
+    "input": "The same source sessions, with original date prepended to each message in both engines; original source hash and transformed input hash are recorded.",
+    "capture": "Canonical import, measured per session. No vendor host or filesystem watcher is instantiated.",
+    "retrieval": "Default lexical Book recall with native token budget, 8000 characters / 512 cl100k_base tokens, limit 5, semantic=false, coverage=false.",
+    "summary": "No generative summary phase in this configured product path; zero summary model calls is verified by the local endpoint ledger.",
+    "transport": "Python API, with import and recall timing explicitly identified; no cross-product pure search-speed ratio."
+  },
+  "ai_memory": {
+    "lock": "benchmarks/competitors/ai-memory-lock.json",
+    "version": "v3.4.5",
+    "commit": "ee73c04c542fa41ca629b046deb4ac108518f407",
+    "capture": "Official unmodified binary, authenticated loopback /hook/batch. Per source session: session-start, user-prompt-submit, stop with explicit assistant-capture opt-in, session-end. Original short turns are kept under native privacy caps; retry only explicitly unaccepted events up to the upstream evaluator's 60 passes, never duplicate accepted events or silently omit rejections.",
+    "consolidation": "Call native memory_consolidate once per original session_id, dry_run=false, multi_page=false. No hand-authored replacement observations or summaries. Preserve failed/truncated/retried calls and any native fallback. Do not bypass admission checks.",
+    "consolidation_budget": {"max_input_tokens": 10000, "max_output_tokens": 1000, "input_token_safety_margin": 0.8},
+    "embedding": "Native all-MiniLM-L6-v2 with upstream hashes, explicit local mode and backfill verification.",
+    "retrieval": "Native scoped MCP memory_query(limit=5, answer=false), followed by native full reads of every distinct returned page path and every distinct raw-hit source session using memory_read_session_observations. Preserve both native hits/raw_hits arrays; the API can return up to five of each. Do not silently discard raw observations or look up source gold.",
+    "context": "Native page hits first, then raw session hits in returned order. Deduplicate paths/session IDs. Fit complete native blocks first; for an oversized block fit complete paragraphs/sentences in source order, with path/session and character-span headers, to 512 cl100k_base tokens and 8000 characters. Never truncate a sentence, rank with gold, or rewrite native text. Keep native search/read payload tokens separate from the resulting answer context. This fixed read-all policy is not an optimal adaptive agent.",
+    "transport": "Persistent loopback HTTP/MCP, including native response decoding."
+  },
+  "generation": {
+    "prompt": "Reuse benchmarks.answer_eval.PROMPT for both answer engines; native consolidation uses ai-memory's unchanged production prompt/schema.",
+    "temperature": 0.0,
+    "max_output_tokens": 128,
+    "repeats": 1,
+    "order": "Rotate Book/ai-memory order per query; sequential requests; no retry by the answer harness.",
+    "failure_policy": "Keep errors, truncated answers, unknown usage and model identity mismatch in the ledger and denominators. Never tune references or configurations after inspecting answers."
+  },
+  "costs": "Retain startup and verified cached preparation, capture/import, consolidation including all real model calls, embedding/index, retrieval, each full read, packing, and answer generation separately. A local proxy records actual request/response hashes, usage and wall time for native consolidation. The answering endpoint returns its own usage. Report known subtotals and unknowns; no provider dollar, energy, or universal speed claim.",
+  "durability": "Write stage records and each attempted answer immediately. Persist the native sandbox database and raw prompt/output trace under .artifacts. Publish exact contexts, generated native summaries/model responses, observed usage, hashes and attempt states with the compact report; original prompts remain reproducible from pinned native source plus the fictional input. An interrupted in-flight generation remains unknown; completed contexts and answers must not be silently regenerated.",
+  "excluded": [
+    "Billion full proxy compression and native decompression are not executed by this runner; the existing search-kernel result remains separately labeled.",
+    "claude-mem observations and worker runtime are not executed here. Its official OpenAI-compatible local provider exists; missing measurements are not a claim that a commercial key is required.",
+    "No automatic host hooks, long-running watcher overhead, adaptive agent decisions, broad generalization, larger-model answer-quality inference, or cross-product same-boundary speed ranking."
+  ],
+  "primary_sources": [
+    "https://github.com/akitaonrails/ai-memory/blob/ee73c04c542fa41ca629b046deb4ac108518f407/evals/src/retrieval/ingest.rs",
+    "https://github.com/akitaonrails/ai-memory/blob/ee73c04c542fa41ca629b046deb4ac108518f407/docs/llm-providers.md",
+    "https://github.com/akitaonrails/ai-memory/blob/ee73c04c542fa41ca629b046deb4ac108518f407/crates/ai-memory-mcp/src/server.rs"
+  ]
+}
