@@ -88,9 +88,11 @@ checkpoint is immutable evidence and cannot be resumed after changing source.
 
 The [real-answer guide](../docs/answer-evaluation.md) documents `prepare` and
 `run`, exact/reference token accounting, missing usage, errors and model
-identity. The [readiness record](reports/answer-eval-readiness.json) contains
-128 prepared development cases and no model calls. This is infrastructure for
-the missing experiment, not an answer-quality result.
+identity. At that historical checkpoint, the
+[readiness record](reports/answer-eval-readiness.json) contained 128 prepared
+development cases and no model calls. It records preparation only. The later
+768 real answer attempts and their failures are documented in the
+[completed answer evaluation](../docs/answer-evaluation.md).
 
 ## Previous score-aware continuation
 

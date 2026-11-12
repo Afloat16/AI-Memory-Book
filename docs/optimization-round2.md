@@ -22,7 +22,7 @@ README should present the current recommended implementation and its latest veri
 
 ## New cohort boundary
 
-The independently authored HotpotQA diagnostic contains 256 questions, excludes every ID in the previously inspected 128-question cohort, and includes all 2,539 supplied paragraphs and 614 required support facts. Its ID digest is `912e3c8d0f26f1a247de321709a9528e76d08f8ad70f9d7c9169b97c638be11a`; its converted dataset digest is `19aa783140212cc6532581c2791e6384769b0647dd4f08e2db29687400a798ae`.
+The fixed 256-question selection from the official HotpotQA distractor validation set excludes every ID in the previously inspected 128-question cohort and includes all 2,539 supplied paragraphs and 614 required support facts. Its ID digest is `912e3c8d0f26f1a247de321709a9528e76d08f8ad70f9d7c9169b97c638be11a`; its converted dataset digest is `19aa783140212cc6532581c2791e6384769b0647dd4f08e2db29687400a798ae`.
 
 The source IDs, sampling policy and measurement matrix were saved at [`87e28c09`](https://github.com/Afloat16/AI-Memory-Book/commit/87e28c0977cf572f87fcf88181d88b55185360be) before candidate scoring. Algorithm development uses only the old synthetic, authored, public-conversation and original Hotpot cohorts. The new cohort is evaluated after the candidate source and protocol hashes are frozen. After that first evaluation it becomes regression evidence, not a new tuning set with an untouched label.
 
