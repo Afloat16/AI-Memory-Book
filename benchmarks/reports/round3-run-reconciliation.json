@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "status": "existing_execution_adopted_no_additional_scoring",
+  "existing_execution": {
+    "run_id": 43267797247,
+    "source_commit": "a0d67b35d074077f43b5cea77954921802d51f44",
+    "binding_sha256": "740361f1767a942887bdb7639b1be0223ae1c6dc2fc3b941f845d038884f842f",
+    "cohort_manifest_sha256": "b29545eb90f89744d86e3f8822b838c44a1846be057161b1905f6c977b7b1ae5",
+    "result_branch": "validation/round3-comparison-43267797247-1",
+    "first_native_scoring_started_at_utc": "2026-11-12T17:18:56Z"
+  },
+  "unexecuted_preparation": {
+    "commit": "383127451c3c3db65b516d44e60a3dbe4fb8f8ff",
+    "freeze_run_id": 43268234536,
+    "binding_sha256": "fcf73eaffb22b72ecd4629716982784e2831161595696ad7d5a423a0a633f11f",
+    "cohort_manifest_sha256": "89eb73c0b61c7b5d05bb15a4472b04556ee48c8e28463d39cb0d3ebaa9100914",
+    "status": "superseded-unexecuted-retained",
+    "retrieval_calls": 0,
+    "model_inference_calls": 0
+  },
+  "candidate": {
+    "commit": "2d199b93f650eccd3dd239178822b31001b880e3",
+    "runtime_sha256": "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46"
+  },
+  "cohort": {
+    "dataset_sha256": "8470e4913f858788809b421acbc6a07bb0701daadc11062909b45d102dd9f79a",
+    "selected_ids_sha256": "ccca7b09ad37e74652d84c26c0c2a823ffaf9a64f9fd911cf72d0e468dec1d0f",
+    "selected_ids_identical": true,
+    "canonical_source_identical": true,
+    "manifest_only_differing_fields": [
+      "binding_sha256",
+      "evaluator_commit",
+      "frozen_at"
+    ]
+  },
+  "evaluator_review": {
+    "identical_function_names": [
+      "require",
+      "sha",
+      "file_sha",
+      "git",
+      "relative_file",
+      "require_committed",
+      "registered_plan",
+      "evaluator_files",
+      "model_identity",
+      "verify_model",
+      "source_identity",
+      "check_old_statistics_gate",
+      "bind",
+      "frozen_inputs",
+      "stages",
+      "old_shape_plan",
+      "mode",
+      "vectors_digest",
+      "counters_for",
+      "payload_hash",
+      "statistics_state",
+      "native",
+      "component_engine",
+      "component_costs",
+      "component",
+      "export",
+      "host_record",
+      "public_paths",
+      "summary_of",
+      "save_ledger",
+      "write_report",
+      "read_report",
+      "finite",
+      "verify_report",
+      "comparisons",
+      "statistics_gate",
+      "default_equivalence",
+      "markdown",
+      "assess"
+    ],
+    "changed_function_names": [
+      "worker",
+      "main",
+      "failure_diagnostic"
+    ],
+    "difference_scope": "Added source-free failure diagnostics and exception boundaries; native/component/export and all quality, cost and assessment functions are unchanged. Successful-path samples retain the original evaluator identity."
+  },
+  "disposition": "Keep the only already-executed run and its original binding, manifest, source and host identities. Do not start the second binding on the same questions, relabel existing rows, select a faster run, or retune after first scoring. Both preparation histories remain in Git.",
+  "completion_status": "The original execution is still running; final acceptance requires all ten stages and its strict complete-data assessment.",
+  "independent_preparation_audit": "benchmarks/reports/round3-pre-comparison-audit.json"
+}
