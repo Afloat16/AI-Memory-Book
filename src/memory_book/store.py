@@ -630,9 +630,9 @@ class MemoryBook:
             revision = self.revision
             cache_options = [INDEX_VERSION, RECALL_VERSION, query, project, chapter, session, budget_chars, limit, strategy, coverage]
             if semantic_model is not None:
-                from .semantic import SEMANTIC_VERSION, check_index, fuse_candidates, rank_pages
+                from .semantic import FUSION_VERSION, SEMANTIC_VERSION, check_index, fuse_candidates, rank_pages
                 check_index(self.db, revision, semantic_model)
-                cache_options.extend(["semantic", SEMANTIC_VERSION, semantic_model.fingerprint])
+                cache_options.extend(["semantic", SEMANTIC_VERSION, semantic_model.fingerprint, FUSION_VERSION])
             if token_counter is not None:
                 cache_options.extend([budget_tokens, tokenizer, token_counter.version])
             cache_key = hashlib.sha256(_json(cache_options).encode()).hexdigest()

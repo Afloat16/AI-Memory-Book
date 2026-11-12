@@ -2,6 +2,7 @@
 
 Semantic retrieval adds candidates for paraphrases with little shared wording.
 It is explicitly enabled and uses a local, pinned multilingual sentence model.
+The current optional ranking policy is **Q2: one lexical anchor with an RRF tail**.
 The default Python, CLI and MCP path remains lexical SQLite retrieval, with no
 model download, embedding computation or semantic index requirement.
 
@@ -12,37 +13,65 @@ returned source references to check the original conversation.
 
 ## Measured outcomes — 2026-11-12
 
-The registered four-cohort matrix has completed actual local inference:
-**1,347 questions × 3 token budgets × 2 modes × 3 repetitions**. The default
-remains lexical because the measured quality tradeoff is not uniformly positive.
+The Q2 development matrix has completed actual local inference:
+**1,347 questions × 3 token budgets × 4 modes × 3 repetitions = 48,492 recalls**.
+The four paired modes are lexical, original RRF, frozen Q1 score fusion and Q2.
+All questions below are old development/regression data. These results do not
+establish new-domain generalization or generated-answer accuracy. The default
+remains lexical; Q2 is the selected replacement candidate for the explicitly
+enabled semantic route. Q1 remains a research comparison.
 
-| Cohort, 512 cl100k_base tokens | Lexical complete evidence | Semantic complete evidence |
+| Old cohort, 512 cl100k_base tokens | Lexical complete evidence | Current Q2 complete evidence |
 |---|---:|---:|
-| Synthetic development seed 61 | 85.53% | 63.16% |
+| Synthetic development seed 61 | 85.53% | 81.58% |
 | Authored diagnostic, 30 answerable questions | 86.67% | 100.00% |
-| Public LoCoMo, 649 answerable questions | 66.41% | 62.56% |
-| External HotpotQA, 128 answerable questions | 35.16% | 33.59% |
+| Public LoCoMo regression, 649 answerable questions | 66.41% | 68.10% |
+| HotpotQA regression, 128 answerable questions | 35.16% | 34.38% |
 
-The authored low-overlap subset improves 2/6 to 6/6. Public low-overlap
-complete evidence improves 46.01% to 47.55%, and cross-session completeness
-10.53% to 15.79%, while overall public complete questions have **39 gains and
-64 losses**. At 1,024 tokens, HotpotQA improves 48.44% to 50.00%; public
-complete evidence decreases 72.88% to 71.49%. Synthetic low-overlap questions
-remain unresolved. A passing source/budget gate is not a quality-improvement
-claim.
+At 512 tokens, LoCoMo complete questions have **30 gains and 19 losses** against
+lexical retrieval. Its 326-question low-overlap group improves 46.01% to 50.00%.
+Its 76 cross-session questions improve 10.53% to 11.84% against lexical, but
+regress against original RRF: **9/76 versus 10/76**, with one gain and two losses.
+At 1024/2048 tokens, Q2 reaches 74.27% overall LoCoMo completeness versus lexical
+72.88%, and 50.78% on Hotpot versus lexical 48.44%. Synthetic low-overlap
+completeness remains 68.75%, below lexical's 75%; synthetic and Hotpot overall
+512-token completeness also remain below lexical. A passing source/budget gate
+is not a claim of universal quality improvement.
 
-On the public cohort's runner, initial model loading takes 1.271 s and building
-2,032 windows over 1,339 pages takes 116.554 s. The 384-float vectors alone use
-3,121,152 bytes; SQLite and the original archive add overhead. At 512 tokens,
-lexical/semantic p50 is 8.078/18.074 ms and p95 is 10.184/22.691 ms.
-These times belong to that paired host, not to the other cohorts or historical
-MCP benchmarks. There are no endpoint model calls in this retrieval mode;
-local embedding CPU work and downloaded artifacts are still costs.
+The Q2 report separately records model loading, full index construction,
+window/vector storage and query latency. On the public cohort's paired runner,
+512-token lexical/Q2 p50 is **5.846/13.527 ms** and p95 is **7.364/16.997 ms**.
+Initial model loading took 1.054 s and building 2,032 windows over 1,339 pages
+took 94.516 s. The vectors alone used 3,121,152 bytes, before SQLite and original
+archive storage. These fresh-build costs are not an upgrade requirement for an
+existing compatible index.
+These timings belong to that pair, not to other hosts or historical MCP results.
+Q2 adds no embedding operation relative to original RRF: each semantic mode
+performed 12,123 query encodes across the complete matrix, versus zero for
+lexical. There are no endpoint model calls in this retrieval mode; local CPU
+work, model files and index storage remain costs.
 
-[Public results](../benchmarks/results/semantic-final-regression-public1015.md) ·
-[Authored diagnostic](../benchmarks/results/semantic-final-regression-authored36.md) ·
-[External results](../benchmarks/results/semantic-final-external-hotpot128.md) ·
-[Completed four-cohort aggregate](../benchmarks/RESULTS-semantic-retrieval.md) ·
+Some semantic control contexts and evidence differ between the Q1 and Q2 runs
+despite matching verified model and indexed page-text/ID fingerprints. The
+cause is not established. The new report retains those differences and uses
+the four modes sharing one actual index within the Q2 run for its main
+comparisons. Repeated contexts within each run passed their consistency checks.
+
+[Current Q2 comparison, all budgets and costs](../benchmarks/reports/round2-anchor-development.md) ·
+[Q2 selection and limitations](../benchmarks/reports/round2-anchor-decision.md) ·
+[Q2 registered policy](../benchmarks/experiments/round2-anchor-plan.json) ·
+[Q1 research comparison and regressions](../benchmarks/reports/round2-quality-development.md).
+
+### Historical original-RRF results
+
+The reports below measured the earlier **unanchored, equal-weight RRF** policy.
+They remain audit records and are **not measurements of current Q2**. The old
+Hotpot128 cohort is regression data in this optimization round.
+
+[Historical public results](../benchmarks/results/semantic-final-regression-public1015.md) ·
+[Historical authored diagnostic](../benchmarks/results/semantic-final-regression-authored36.md) ·
+[Historical Hotpot128 results](../benchmarks/results/semantic-final-external-hotpot128.md) ·
+[Historical four-cohort aggregate](../benchmarks/RESULTS-semantic-retrieval.md) ·
 [Result index](../benchmarks/README.md).
 
 ## Prepare and build explicitly
@@ -108,14 +137,21 @@ returning a cached answer. Missing, stale or mismatched indexes raise
 results. Rebuild explicitly after capture has updated the archive. Lexical
 retrieval continues to work while the semantic index is stale.
 
-This first implementation rebuilds the complete index. A continuously changing
+The embedding/model identity remains `SEMANTIC_VERSION=1`. Q2 uses the separate
+`FUSION_VERSION=3` in semantic result-cache keys. **A compatible existing v1
+embedding index does not need to be rebuilt solely because fusion changed.**
+Old fusion-result cache entries are not reused, while lexical cache behavior
+remains unchanged. Changes to source revision, model artifacts or embedding
+rules still require the explicit rebuild described above.
+
+The current index builder rebuilds the complete index. A continuously changing
 capture archive therefore needs a deliberate rebuild schedule; it does not yet
 have an incremental embedding worker. The build holds the source snapshot and
 derived vectors in memory until publication.
 
 ## Ranking and cost boundary
 
-The registered candidate uses the quantized ONNX model
+The semantic route uses the quantized ONNX model
 `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` at revision
 `e8f8c211226b894fcb81acc59f3b34ba3efd5f42`. It produces normalized 384-dimensional
 float32 vectors with attention-mask mean pooling. Long pages and queries are
@@ -125,9 +161,22 @@ special tokens, with a 32-token overlap. No beginning-only truncation is used.
 Project, chapter and session filters are applied before semantic ranking and
 the 96-page candidate limit. Page similarity is the maximum cosine similarity
 over its windows and the query windows. The existing lexical page order and
-the semantic order are combined by equal-weight reciprocal rank fusion with
-`k=60`; ties use page IDs. The top requested pages pass through the existing
-original-text excerpt and budget assembly. The model never rewrites evidence.
+the semantic order first undergo equal-weight reciprocal rank fusion with
+`k=60`; ties use page IDs. When both routes have candidates, **Q2 then promotes
+the first candidate from the existing lexical order to the first position**.
+The lexical ordering already includes its current novelty/current/optional
+coverage priorities. Every other candidate retains its original RRF relative
+order, and no candidate is added or removed by fusion itself. If the lexical
+route is empty, the original pure-semantic route remains available.
+
+Each page retains its own original RRF score and semantic similarity. Scores
+therefore need not be monotonic after the anchor promotion; they are diagnostic
+values, not answer probabilities. Current character allocation and token
+assembly do not use those numeric scores. Q2 acts through the top-page limit
+and rank-order first-fit packing. An anchor outside the previous top-five may
+displace a useful fifth page, and a wrong lexical leader can consume scarce
+budget. The top requested pages pass through the existing original-text
+excerpt and budget assembly. The model never rewrites evidence.
 
 There is no learned abstention threshold. Semantic ranking can return an
 unrelated nearest page when the requested fact is absent. A returned page is
@@ -152,7 +201,10 @@ separately from retrieval, and retain quality losses and tail-latency costs.
 
 `tests/test_semantic.py` checks explicit opt-in, unchanged lexical behavior,
 source and address preservation, stale/mismatched index rejection, concurrent
-publication, failure rollback, cache isolation and scope before candidate
-limits. Its deterministic fixture vectors test implementation correctness and
+publication, failure rollback, reuse of compatible indexes across fusion
+upgrades, result-cache isolation and scope before candidate limits.
+`tests/test_anchor_fusion.py` checks lexical-leader preservation, unchanged
+per-page RRF scores, non-anchor relative order and candidate membership.
+These deterministic fixtures test implementation correctness and
 are not semantic quality evidence. Real-model experiments must use the pinned
 artifacts and report their source/model hashes and actual results separately.

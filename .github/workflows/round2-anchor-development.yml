@@ -1,0 +1,85 @@
+name: Q2 frozen old development comparison
+
+on:
+  push:
+    branches: ['ci/round2-anchor-development']
+    paths:
+      - '.github/workflows/round2-anchor-development.yml'
+      - 'scripts/run_round2_anchor.py'
+      - 'benchmarks/round2_anchor_eval.py'
+      - 'benchmarks/experiments/round2-anchor-plan.json'
+      - 'src/memory_book/semantic.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: round2-anchor-development
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/ci/round2-anchor-development'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[semantic,tokens]'
+      - run: python -m unittest tests.test_semantic tests.test_quality_fusion tests.test_anchor_fusion tests.test_round2_anchor_eval tests.test_round2_anchor_hosted -v
+      - run: python -c 'from benchmarks.round2_anchor_eval import verify_reference; print(verify_reference())'
+
+  cohort:
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        stage: [development-synthetic61, regression-authored36, regression-public1015, regression-hotpot128]
+    steps:
+      - name: Reserve cleanup time without altering scoring or model settings
+        run: |
+          python3 - <<'PY'
+          import os, time
+          with open(os.environ['GITHUB_ENV'], 'a') as stream:
+              print('ROUND2_ANCHOR_DEADLINE_UNIX=' + str(time.time() + 330 * 60), file=stream)
+          PY
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - name: Install frozen measurement dependencies
+        timeout-minutes: 20
+        run: python -m pip install -e '.[semantic,tokens]' pyarrow
+      - name: Run all four modes, budgets and repetitions on this independent VM
+        timeout-minutes: 340
+        env:
+          ANCHOR_STAGE: ${{ matrix.stage }}
+        run: python -u scripts/run_round2_anchor.py --stage "$ANCHOR_STAGE" --publish
+      - name: Save public results or interrupted ledger without replay
+        if: always()
+        timeout-minutes: 15
+        env:
+          ANCHOR_STAGE: ${{ matrix.stage }}
+        run: python -u scripts/run_round2_anchor.py --stage "$ANCHOR_STAGE" --finalize --publish
+      - name: Retain only source-free public files
+        if: always()
+        timeout-minutes: 5
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: round2-anchor-${{ matrix.stage }}-${{ github.run_attempt }}
+          path: |
+            benchmarks/results/round2-anchor-${{ matrix.stage }}*
+            benchmarks/reports/round2-anchor-${{ matrix.stage }}-hosted.json
+          if-no-files-found: warn
+          retention-days: 30
