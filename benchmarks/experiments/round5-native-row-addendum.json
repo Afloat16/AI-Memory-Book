@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "candidate": "G",
+  "status": "registered-before-native-row-source-edit-or-measurement",
+  "base_commit": "c67757305d6334b74d98c34ffbfab9b8ebdd6e27",
+  "base_runtime_sha256": "bdfb117368c937ad4da9076c71a2f454eba49ae85ed0057872eac199c3022c16",
+  "reason": "A-D preserve output but have not qualified; E has no registered GC improvement; F's separately bound 4096-call recovery diagnostic preserves 2048 payload pairs but regresses pooled p95 geometric mean by 6.6392 percent. Preserve all earlier evidence. G starts from D and includes neither E's lifetime change nor F's overlap specialization.",
+  "hypothesis": "Candidate queries currently create sqlite3.Row objects and repeatedly inspect the same cursor column shape for every row before positional ranking. A certified native sqlite3.Cursor can expose its known column shape once and return plain tuples without changing SQL or values. This may reduce materialization and validation overhead while preserving the original mapping fallback.",
+  "scope": [
+    "Only the bounded exact/stem candidate route and their bounded directory metadata reads may use this path; no SQL, route limits, scoring, sorting, candidate counts, source reads, schemas, index contents or query semantics change.",
+    "Certify exact native cursor type, original sqlite3.Row factory, exact ordered cursor description, and primitive key/rank contracts before positional operations. Do not assume arbitrary custom cursor/factory/row/values are ordinary.",
+    "For every uncertified or mixed route, retain original named-mapping reads, full eager conversion, duplicate first-insertion/last-value semantics, metadata sequential updates and exception order. Native tuples can be restored to their original Row representation before fallback using the same cursor description.",
+    "Do not change the public connection row_factory or expose internal tuple rows in API output. Temporary cursor-local changes must not affect future queries or user-visible source reads.",
+    "Retain all A-D custom-row, duplicate-column, malformed-length, metadata-overlay and concurrency fixtures; add actual native cursor and mixed/custom factory regressions before development calls.",
+    "No result cache, derived cross-call cache, query/source retention, embedding/model changes, benchmark identifiers, labels or quality parameters in the runtime."
+  ],
+  "development": "After reviewed source and correctness checks, separately bind the exact G source, unchanged old data, rebuilt recovery snapshots, original profile/paired helpers and fresh output paths before the original 4732-call profile and 4096-call balanced paired diagnostic. Preserve every observation and unsuccessful attempt. No corpus timing before that binding and no repeat selected for speed.",
+  "formal_and_release": "All numeric 14-cell formal performance, historical/Q2 compatibility and release gates in round5-plan.json remain unchanged. A new scope or development speed observation is not a waiver or formal acceptance. Any combined T1 runtime requires its own source freeze and applicable quality and performance verification."
+}

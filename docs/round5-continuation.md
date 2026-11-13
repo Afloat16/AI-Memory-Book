@@ -2,6 +2,15 @@
 
 ## Recovered continuation — after F profile checkpoint
 
+The new recovery diagnostic is complete: eight workers, 4,096 calls and 2,048
+complete non-timing payload pairs, all equal. Every worker was remotely
+checkpointed before the next, ending at `cc913431c3f32d76270696e5a25b49a139801b77`.
+The eight-cell p95 geometric mean regresses 6.6392%; public native character
+p95 regresses 33.5911%. Other slower cells and both rounds remain in
+`benchmarks/reports/round5-recovery-f/`. F is not selected for formal timing or
+release. This is a separately bound recovery diagnostic; the unavailable old
+database snapshots and original attempt identity are not misrepresented.
+
 This workspace recovered the existing development branch at
 `4c2d3bf1f663f4db8c47f78153e5558edd7a65d5`, rather than restarting from main.
 F's complete 4,732-call profile and its audit are already durable. They are not
