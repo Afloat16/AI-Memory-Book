@@ -242,3 +242,14 @@ Independent source review confirms unchanged 107 SQL ASTs, original seven
 fallback assignments and exact v0.3.2 route/metadata mapping operations. Every
 premeasurement failure and repair remains in prior commits and the complete
 correctness log. D development timing has not started at this source checkpoint.
+
+## Candidate D profile completed
+
+Final source `c67757305d6334b74d98c34ffbfab9b8ebdd6e27` passes all nine hosted
+CI jobs in run `43386089073`. Development intent
+`46d59045d7da09b6413889c403a04f0b5fb100c2` preceded the fixed profile. All 4,732
+complete payload hashes match the saved v0.3.2 profile, and the eight compressed
+cells reconstruct the original report byte for byte. The profile includes
+profiler overhead and an earlier baseline; no elapsed-speed claim is made.
+The separate registered 4,096-call paired diagnostic has not started at this
+checkpoint. No formal or historical/Q2 compatibility attempt has started.
