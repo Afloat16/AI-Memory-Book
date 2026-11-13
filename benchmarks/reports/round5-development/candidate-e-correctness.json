@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "status": "passed-before-gc-diagnostic-and-development-measurements",
+  "created_at": "2026-11-13T08:07:24.379122+00:00",
+  "registered_scope_commit": "10b04c8fdcfd0ecc95492e17b2a764c62a0651f1",
+  "registered_scope_sha256": "3bead725a2761d184ba62d76e07d7d9a06573a21f139764f6b34da21c09f142e",
+  "prior_candidate_commit": "c67757305d6334b74d98c34ffbfab9b8ebdd6e27",
+  "prior_runtime_sha256": "bdfb117368c937ad4da9076c71a2f454eba49ae85ed0057872eac199c3022c16",
+  "runtime_sha256": "5caa9a72d73eef7121e81f4823f583dc35fc246a1b61b792829bdd275787127b",
+  "files_sha256": {
+    "src/memory_book/store.py": "bcb6cc6027af9ead835115627be2e5faff73f3676942c3b9c08c12358a4bf820",
+    "tests/test_round5_materialization.py": "2a652356adff1de9344ed4fea904caee7e8b58b1ac4266d73553fc1520c74a9d",
+    "benchmarks/reports/round5-development/candidate-e-correctness.log": "556f6f25d571251923ddce2af68330e0b25e39d92c4a4da799df379620cd51df",
+    ".artifacts/round5-candidate-e-runtime-tests.log": "556f6f25d571251923ddce2af68330e0b25e39d92c4a4da799df379620cd51df"
+  },
+  "tests": {
+    "passed": 79,
+    "total": 79,
+    "materialization": 29,
+    "adjacent": 50,
+    "skipped": 0,
+    "errors": 0,
+    "failures": 0
+  },
+  "test_modules": [
+    "tests.test_round5_materialization",
+    "tests.test_lexical_cache",
+    "tests.test_recall_quality",
+    "tests.test_conjunctive_recall",
+    "tests.test_round4_token_work",
+    "tests.test_semantic"
+  ],
+  "static_checks": {
+    "exactly_one_clear_expression_added": true,
+    "clear_after_complete_prefix_loop_within_late_materialize": true,
+    "no_ranked_rows_read_after_clear": true,
+    "removing_exact_clear_line_restores_D_bytes": true,
+    "removing_exact_clear_expression_restores_D_AST": true,
+    "unchanged_sql_call_asts": 107,
+    "other_runtime_python_files_byte_identical": 15,
+    "other_runtime_files_sha256": {
+      "src/memory_book/__init__.py": "3b91357e9271f1abbe7d2dd4c01f0067ca5b5a65d6065844c850328d49e6aad7",
+      "src/memory_book/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+      "src/memory_book/cli.py": "d6eb141ab066d27637538c8423a12e379d1d8668e2145b23064aae315022b6aa",
+      "src/memory_book/clients.py": "c87c2ebd4dbd6b193b186f493586f53183a38e8108fd7011df3aa474f9b2058f",
+      "src/memory_book/importers.py": "f61aabfaa3e1fd2f46010e3c745e3275bb0d84c6d8e1b83317fda9e6b5cd7b76",
+      "src/memory_book/integration.py": "88ed9bf5a0ee90b93516dc9ded0e0a8f1459354f25fbcc5afe70197b9444c6c5",
+      "src/memory_book/mcp_server.py": "f9d4ee7f5eebd0eb76a7ca260a62bd98526b445e25e618bd6b77dff1de425fd3",
+      "src/memory_book/paths.py": "37fd4089455082aa680b1fb3dcef8645e558bb43b7d27285ef32997629622bf4",
+      "src/memory_book/segmentation.py": "773cb62777bb11a66f1d2318bd75601f9ac38ea0fb6e7a534c1d8844a1a16e75",
+      "src/memory_book/semantic.py": "41df86bced1b613deea2f1b1361eba9f32c3786f5185a06253fbfd32270ac91e",
+      "src/memory_book/service.py": "55bd05f45cafc5dcd6c1fc5ceceade85f005a85a850b908c7bb155cff5a3584f",
+      "src/memory_book/sync.py": "89b2ac4b30b9b14ac564c3d328a51fbba97b2efc8a8dd1997892fc4142501291",
+      "src/memory_book/text.py": "e2b5dff3fc5527ffd7098e57d5f6dd81e954618c311a541ecd3794fdd9731389",
+      "src/memory_book/token_budget.py": "505ece57e7227ee1955d76883411362a1f462c28a2e8964984be818395266180",
+      "src/memory_book/web.py": "4e2cbfa33434322c78f57624c8faa32f4be9fb7fc29c8ffc4ed916e244446dcc"
+    },
+    "materialization_fixtures_byte_identical_to_D": true,
+    "retained_owners_and_loop_variables": [
+      "routes",
+      "rows",
+      "metadata_by_id",
+      "metadata_ids",
+      "row",
+      "metadata",
+      "item"
+    ]
+  },
+  "independent_reviews": [
+    "root"
+  ],
+  "behavior": "Only ranked_rows.clear() is added after successful complete prefix materialization. Candidate count, prefix dictionaries, native Row owners, loop variables and all existing guards/fallbacks remain unchanged. No subsequent ranked_rows reads exist.",
+  "scope": "Correctness and exact source-diff proof only. No E lifetime probe, corpus GC-frequency diagnostic, development performance, formal, or historical lexical/Q2 compatibility execution. No performance or quality improvement claim.",
+  "independent_review_scope": "Root independently compared exact D Git bytes, removed the sole added clear line, verified AST equality and all other15runtime files, and checked complete79-test log/hash. No repeated functional or benchmark call."
+}

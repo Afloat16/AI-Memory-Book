@@ -312,3 +312,14 @@ all original 4,732 profile queries/configurations per source, every payload hash
 and generation/phase collection counts. Artificial lifetime inspection is kept
 in separate processes. No runtime edit or diagnostic execution precedes this
 registration; the original formal and release requirements remain unchanged.
+
+## Candidate E source checkpoint
+
+The E runtime is
+`5caa9a72d73eef7121e81f4823f583dc35fc246a1b61b792829bdd275787127b`.
+Its sole change from final D is `ranked_rows.clear()` immediately after prefix
+materialization. Removing that one line restores D bytes and AST exactly; the
+other 15 runtime Python files and all 107 SQL expressions are unchanged.
+All 79 existing functional checks pass once, with no failures or skips. Root
+independently verifies the source diff and complete log. No E lifetime probe,
+corpus GC-frequency diagnostic or timing run has started at this checkpoint.

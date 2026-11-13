@@ -894,6 +894,7 @@ class MemoryBook:
                             item.update(zip(metadata_columns, metadata))
                         item["score"] = score
                         candidates.append(item)
+                    ranked_rows.clear()
                 elif fuse_routes:
                     candidates.sort(key=lambda item: (-item["score"], exact_ranks.get(item["id"], 97),
                                                       stem_ranks.get(item["id"], 97), item["id"]))
