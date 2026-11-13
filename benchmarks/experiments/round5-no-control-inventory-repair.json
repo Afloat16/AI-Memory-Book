@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "status": "prospective-control-integration-inventory-repair",
+  "created_at_utc": "2026-11-13 19:12:20 UTC",
+  "affected_integration_commit": "d4aa4beab656ce9b646e64a664fe2e11f3b2c720",
+  "complete_integration_ci_run": 43489128578,
+  "measurement_source_commit": "4a0ad4dc6aec33a91231d419239b7e90b160c695",
+  "measurement_unchanged": true,
+  "observed_extra_runtime_file": {
+    "path": "src/memory_book/_query_overlap.py",
+    "git_blob": "6b2192321b6122a8aadb548f73e082ca8bfe2e6a",
+    "sha256": "4e2d7cd383dc546a591dee38e4744ffc4ac4dd1b381574e7d307a29139e47262",
+    "bytes": 6075
+  },
+  "existing_test": {
+    "path": "tests/test_round5_query_overlap.py",
+    "git_blob": "379d1a0354353df51284fffd0cd5435f3e2babca",
+    "sha256": "8c5b23d726e11ac71b2ad789be639658e66f14809ab91cc6644b911db274cb0e"
+  },
+  "reason": "The control branch retained the rejected F private module, although all36 copied NO source/proof files matched their frozen donor. Therefore copying selected files alone did not make the entire src subtree equal to the measured source. Exact src-tree checking caught this before any final selection or formal trigger.",
+  "repair": [
+    "Preserve exact historical F module bytes as tests/fixtures/round5_rejected_query_overlap.txt; remove only its unselected runtime path.",
+    "Change the existing F test module only to load the SHA-pinned historical fixture in setUpClass. Retain all six consumer tests and every existing rejected-candidate assertion.",
+    "Require complete src Git subtree equality with4a0ad4 after repair, in addition to all18 runtime SHA checks and seventeen registered NO test/support identities.",
+    "Run a new integrated full CI at the repaired commit, preserving the earlier integration and its CI outcome."
+  ],
+  "final_runtime_selected": false,
+  "formal_started": false,
+  "fresh_rows_decoded": 0,
+  "release_accepted": false,
+  "implementation_applied": false
+}
