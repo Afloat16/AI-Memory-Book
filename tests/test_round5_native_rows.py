@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import sqlite3
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -180,7 +182,10 @@ class RecallFactoryTransitionTests(unittest.TestCase):
 
         def trace(statement):
             nonlocal route_count
-            statements.append(statement)
+            # FTS emits additional internal data_version reads on first use;
+            # compare the actual application queries and transaction order.
+            if not statement.startswith("--"):
+                statements.append(statement)
             if statement.startswith("SELECT p.rid,p.id,bm25("):
                 route_count += 1
                 if route_count == (1 if boundary == "route" else 2):
@@ -278,6 +283,44 @@ class RecallFactoryTransitionTests(unittest.TestCase):
                 self.assertIsNone(wrapped._native_db)
         self.book.close()
         self.assertIsNone(self.book._native_db)
+
+    def test_public_sqlite_alias_replacements_before_import_keep_original_factories(self):
+        script = r'''
+import sqlite3
+import sys
+native_connect, native_row = sqlite3.connect, sqlite3.Row
+mode = sys.argv[1]
+if mode == "connect":
+    def connect(*args, **kwargs):
+        kwargs["detect_types"] = sqlite3.PARSE_DECLTYPES
+        return native_connect(*args, **kwargs)
+    sqlite3.connect = connect
+else:
+    def row(cursor, values):
+        return native_row(cursor, values)
+    sqlite3.Row = row
+from memory_book import MemoryBook, store
+with MemoryBook(":memory:", segmentation="turn", cache_size=0) as book:
+    book.ingest({"project": "lab", "session_id": "one",
+                 "messages": [{"role": "user", "content": "The relay is orbiting."}]})
+    if mode == "connect":
+        assert book._native_db is None, "An import-time connect wrapper is not a native constructor"
+    original = store._candidate_rows
+    certificates = []
+    def watch(cursor, description, connection=None):
+        rows, certificate = original(cursor, description, connection)
+        certificates.append(certificate)
+        return rows, certificate
+    store._candidate_rows = watch
+    assert book.recall("orbiting", project="lab", use_cache=False)["results"]
+    assert certificates and all(item is None for item in certificates), "An import-time factory replacement was bypassed"
+    assert book.db.row_factory is sqlite3.Row
+'''
+        for mode in ("connect", "row"):
+            with self.subTest(mode=mode):
+                child = subprocess.run([sys.executable, "-c", script, mode],
+                                       capture_output=True, text=True)
+                self.assertEqual(child.returncode, 0, child.stdout + child.stderr)
 
 
 if __name__ == "__main__":

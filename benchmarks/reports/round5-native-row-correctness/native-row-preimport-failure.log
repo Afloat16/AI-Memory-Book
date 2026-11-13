@@ -1,0 +1,30 @@
+test_public_sqlite_alias_replacements_before_import_keep_original_factories (tests.test_round5_native_rows.RecallFactoryTransitionTests.test_public_sqlite_alias_replacements_before_import_keep_original_factories) ... 
+  test_public_sqlite_alias_replacements_before_import_keep_original_factories (tests.test_round5_native_rows.RecallFactoryTransitionTests.test_public_sqlite_alias_replacements_before_import_keep_original_factories) (mode='connect') ... FAIL
+  test_public_sqlite_alias_replacements_before_import_keep_original_factories (tests.test_round5_native_rows.RecallFactoryTransitionTests.test_public_sqlite_alias_replacements_before_import_keep_original_factories) (mode='row') ... FAIL
+
+======================================================================
+FAIL: test_public_sqlite_alias_replacements_before_import_keep_original_factories (tests.test_round5_native_rows.RecallFactoryTransitionTests.test_public_sqlite_alias_replacements_before_import_keep_original_factories) (mode='connect')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/481743406be9/AI-Memory-Book/.artifacts/round5-candidate-g/tests/test_round5_native_rows.py", line 323, in test_public_sqlite_alias_replacements_before_import_keep_original_factories
+    self.assertEqual(child.returncode, 0, child.stdout + child.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 20, in <module>
+AssertionError: An import-time connect wrapper is not a native constructor
+
+
+======================================================================
+FAIL: test_public_sqlite_alias_replacements_before_import_keep_original_factories (tests.test_round5_native_rows.RecallFactoryTransitionTests.test_public_sqlite_alias_replacements_before_import_keep_original_factories) (mode='row')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/481743406be9/AI-Memory-Book/.artifacts/round5-candidate-g/tests/test_round5_native_rows.py", line 323, in test_public_sqlite_alias_replacements_before_import_keep_original_factories
+    self.assertEqual(child.returncode, 0, child.stdout + child.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 29, in <module>
+AssertionError: An import-time factory replacement was bypassed
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.192s
+
+FAILED (failures=2)
