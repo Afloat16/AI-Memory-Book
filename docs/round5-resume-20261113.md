@@ -1,5 +1,43 @@
 # Round-five recovery — 2026-11-13
 
+## Latest checkpoint — NO development and exact integration
+
+The current machine-readable recovery entry is [round5-current-state-20261113.json](round5-current-state-20261113.json). Earlier sections below retain historical decisions and failures; they do not override a later checkpoint.
+
+The unique NO development run [43488212773](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43488212773) completed once on frozen source `4a0ad4dc6aec33a91231d419239b7e90b160c695`, runtime `77310a7971677c2cebf8cd01d0aa36ab4562b55d1a3826b7fa7de895840abb32`. Final raw result commit is `a2a7b4fa61b9d930b6ea16a6599e9af6e96675a9`. Controller `8b7c721fb033c69ecb3ce07c55385f742b41c20f` was frozen after 31 artificial protocol checks and independent launch review.
+
+Independent audits reproduced all 4,096 timings, 2,048 full non-timing payload digest pairs and 32 premeasurement query-order hashes, with no mismatch. A separate read-only audit compared all 4,732 profile payload digests with the eight frozen v0.3.2/C2 reference artifacts; all matched. Complete reports are committed at `986633dc77bcff54292050f942c929ac960b48aa` in [independent-raw-audit.json](../benchmarks/reports/round5-candidate-no-development-1/independent-raw-audit.json). The profile audit is independently stored at `68a2de797842a3a611755f9785ae5f69703f648b`.
+
+All eight development cells improved in both p50 and p95 against v0.3.2 in this paired run:
+
+| Cohort | Configuration | p50 reduction | p95 reduction |
+|---|---|---:|---:|
+| synthetic61 | native-char4000 | 9.5739% | 4.1409% |
+| synthetic61 | native-token512 | 10.1816% | 18.1386% |
+| synthetic61 | native-token1024 | 5.7959% | 18.2440% |
+| synthetic61 | native-token2048 | 6.3814% | 14.5558% |
+| public1015 | native-char4000 | 10.1519% | 8.7630% |
+| public1015 | native-token512 | 5.3281% | 6.9237% |
+| public1015 | native-token1024 | 8.9138% | 8.6081% |
+| public1015 | native-token2048 | 8.4519% | 9.3358% |
+
+The geometric pooled p95 reduction is **11.2264%**. Public native char4000 p95 reduction is **8.7630%**, still below the separate formal 10% target; its individual rounds improved 8.8278% and 7.4370%. These are development observations, not formal acceptance, and cannot be added to or subtracted from other hosts' candidate timings. N/O were not separately timed.
+
+The bounded next step is the already registered single LM SQLite attribution diagnostic. Its exact observer/controller at `108124188381a199735022abf21b9a0b9c812a54` passed 35 artificial fixtures and independent implementation reviews. The real native-wrapper counterexample, previous publisher-handoff defect and raw-span-topology gap remain recorded. Final source binding and root launch review are required before the sole diagnostic trigger. Partial observed native C spans cannot be described as full SQL cost; the residual includes Python, unobserved SQLite, scheduling and observation overhead. This diagnostic is used only to identify a possible narrow optimization, with no replay of NO or change to formal gates.
+
+### Control integration is exact and tested
+
+Copying the 36 reviewed source/proof files at `d4aa4beab656ce9b646e64a664fe2e11f3b2c720` initially left an old, excluded F module in the control branch. Both the complete source-tree audit and an existing source-inventory test rejected it. The fixed NO measurement source never contained that module.
+
+Prospective repair `6be287b0fc48a5e8cebd5990677ed2ca0f1bd9f0` and implementation `af5ac6a9bc89c158abca02c0445cfb8ea28809b4` move its exact bytes to `tests/fixtures/round5_rejected_query_overlap.txt`, retain all 13 original historical/consumer assertions, and load the SHA-pinned fixture only from the test harness. The entire `src` Git subtree then equals the measured donor: `0f60fb1a6f7207261c44f129ce5b1d8ac2b25fd5`.
+
+The integration also needed the already-tested donor revision of `tests/test_indexed_references.py`, which checks the exact approved T1 opt-in schema addition while preserving all old schema fields and the historical fixture. That exact blob was copied at `8a2323ef0419a360937edb618b85c4a4dc3de866`; no runtime code or new relaxed assertion was authored. The earlier integration CI failures and their raw logs remain in `benchmarks/reports/round5-no-control-integration-ci/`.
+
+[Integrated CI 43490569140](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43490569140) passed all nine jobs at exact `8a2323e`. The MCP job ran 1,211 tests with 15 declared optional skips, including all 218 registered NO cases with zero skips, all 13 retained F cases and the exact schema/source-inventory checks. The passing raw log and receipt were preserved at `4f52de82840e044da09e8256d942b1a39a49c162`.
+
+No final runtime selection, formal timing, fresh metadata/content access, main update, tag or release has occurred. The existing formal 66,248-call/14-cell gates, resource review, historical 5,120-call lexical and 1,968-call Q2 checks, fresh quality/cost/component evaluation and release checks remain unchanged.
+
+
 ## Durable starting point
 
 Resume `optimization/v0.3.3-round5` at `1b2e7df01dde509c5a8e02dc465daca63090b3a1`.
