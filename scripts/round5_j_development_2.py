@@ -199,17 +199,18 @@ def correctness_inventory(directory, identity, before):
         errors.append("A frozen source or fixture file changed or disappeared")
     if any(path.is_symlink() for path in directory.rglob("*")):
         errors.append("Correctness export contains a symlink")
+    expected_caches = {
+        Path(importlib.util.cache_from_source(str(directory / source))).relative_to(directory).as_posix(): source
+        for source in identity["files_sha256"] if source.endswith(".py")}
     for name in full_difference["added"]:
         path = directory / name
-        valid_name = (path.parent == directory / "src/memory_book/__pycache__"
-                      and path.name.endswith("." + sys.implementation.cache_tag + ".pyc"))
-        if not valid_name:
+        source_name = expected_caches.get(name)
+        if source_name is None:
             errors.append("Unexpected added file: " + name)
             continue
-        candidate = path.parent.parent / (path.name.split("." + sys.implementation.cache_tag, 1)[0] + ".py")
-        source_name = candidate.relative_to(directory).as_posix()
+        candidate = directory / source_name
         raw = path.read_bytes()
-        if source_name not in identity["files_sha256"] or len(raw) < 16 or raw[:4] != importlib.util.MAGIC_NUMBER:
+        if len(raw) < 16 or raw[:4] != importlib.util.MAGIC_NUMBER:
             errors.append("Unexpected added file: " + name)
         else:
             bytecode[name] = {"sha256": sha(path), "bytes": len(raw),
@@ -991,6 +992,24 @@ class IsolationTests(unittest.TestCase):
             with tarfile.open(archive_path, "r:gz") as archive:
                 member = "correctness-export/" + cache.relative_to(tested).as_posix()
                 self.assertEqual(archive.extractfile(member).read(), cache.read_bytes())
+
+    def test_duplicate_cache_tag_is_not_a_real_source_cache_path(self):
+        import py_compile
+        with tempfile.TemporaryDirectory() as name:
+            tested, measured, identity = self.invented_sources(Path(name))
+            before = full_export_files(tested)
+            source = tested / "src/memory_book/sample.py"
+            py_compile.compile(str(source), doraise=True)
+            cache = Path(importlib.util.cache_from_source(str(source)))
+            bogus = cache.with_name("sample." + sys.implementation.cache_tag
+                                    + ".extra." + sys.implementation.cache_tag + ".pyc")
+            cache.rename(bogus)
+            evidence = correctness_inventory(tested, identity, before)
+            self.assertTrue(evidence["errors"])
+            self.assertEqual(evidence["generated_bytecode"], {})
+            self.assertIn(bogus.relative_to(tested).as_posix(), evidence["difference"]["added"])
+            self.assertTrue(bogus.exists())
+            verify_exact_source(measured, identity)
 
     def test_changed_missing_or_unknown_source_is_never_accepted(self):
         for change in ("changed", "missing", "unknown-python", "unknown-binary", "changed-fixture"):
