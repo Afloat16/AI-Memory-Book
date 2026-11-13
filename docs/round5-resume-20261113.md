@@ -1,6 +1,32 @@
 # Round-five recovery — 2026-11-13
 
-## Latest checkpoint — NO development and exact integration
+## Latest checkpoint — final NO source selected; formal evaluation running
+
+The machine-readable recovery entry is [round5-current-state-20261113.json](round5-current-state-20261113.json). This section supersedes the earlier “next step” paragraphs below while preserving every historical failure and measurement.
+
+Selected runtime: `4a0ad4dc6aec33a91231d419239b7e90b160c695`, SHA256 `77310a7971677c2cebf8cd01d0aa36ab4562b55d1a3826b7fa7de895840abb32`. The immutable choice and its development evidence are in [round5-selected-runtime.json](../benchmarks/experiments/round5-selected-runtime.json), committed at `f438d0a2b40a9ff8a3bdaab534977f34eb0d3ba3`. Do not select another source or tune this source using the formal timings.
+
+The source-free interface/binding run [43494353078](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43494353078) completed at `195ab7145db184b1696287606dda6e9cb877b6f4`, without creating a database or executing retrieval. Exact certificate SHA256 is `8380233302a011a25fc520d8dc3b19c429cc9ee530b0e4189195c1c7a22400c8`; exact formal binding SHA256 is `1d5af43c6c9b3e826ce11814f29320f9838c3ad603a80b1a36eb9d122fc6b247`. Independent review `cdcf8f267555c348358ef0af9b5aa145a6277d33` confirmed all legacy schemas/instructions remain equal after removing only the approved optional `follow_titles=false` increment. The actual added tool-schema cost is **72 tokens with each reference tokenizer**, with zero instruction-token change.
+
+### Active fixed attempts
+
+| Attempt | Launch / run | Result and boundary |
+|---|---|---|
+| Formal performance | `cfe8a749efa4add1c62c516aa299ab18ee89b92c`; [43496488712](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43496488712) | `validation/v033-round5-performance-v2-43496488712-1`; 66,248 calls, 16 sequential workers, 4 rounds, 14 cells; first attempt running. |
+| Historical lexical | `be5879400b2f05a250e97b00ce9b488f00413ccb`; [43497150881](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43497150881) | `validation/v033-lexical-compat-hosted-1`; 5,120 calls including the 2,048 char100000 calls; first attempt running. |
+| Historical Q2 | Same launch; [43497153581](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43497153581) | First attempt failed before attempt claim, model/data assets, database construction or retrieval. Recovery job `132133552713` reported `Preparation evaluator identity changed` in `static_preflight`. Preserve this failure; do not recreate or replay its trigger. |
+
+The formal original gates remain 10% pooled p95 geometric improvement, 10% public native char4000 p95 improvement, 5% public actual-MCP char4000 p95 improvement, and no cell p50/p95 regression above 5%. All 28 resource comparisons and 64 storage snapshots require review under their original boundaries. A missed performance gate is retained and reported; it does not become an accepted speedup. [Root launch decision](../benchmarks/reports/round5-final-formal-root-launch-review.json) and [prospective independent raw-audit plan](../benchmarks/reports/round5-formal-independent-raw-audit-plan.json) are committed.
+
+### Completed diagnostic and pending fresh evaluation
+
+The only LM SQLite attribution attempt completed at `f4a684233adee2da0e2b0c1c093a8b3f806561a7`. Independent audit `f29e4871d14a89e2b5626190a84a4832266121eb` verified all **4,732** primary-cell payload digests against original C2 results and all **80,051** spans. All eight individual cell gzips and eight C2 reference gzips were directly hash-checked. The monolithic gzip was not independently readable through the connector; that limit is explicit. These partial instrumented native spans are a mechanism diagnostic, not an end-to-end speed comparison; residual and bookkeeping are not subtracted. See [independent raw audit](../benchmarks/reports/round5-lm-sql-attribution-1/independent-raw-audit.json).
+
+The final fresh authorization has **not** been created. No new fresh metadata, question IDs or content have been selected or read. A source-only [374-file code inventory](../benchmarks/reports/round5-fresh-authorization-inventory.json) was computed against `be5879400b2f05a250e97b00ce9b488f00413ccb`; it is preparation, not fresh authorization. If any relevant tracked file changes during a Q2 controller repair, rebuild the manifest from the actual final tree and author the exact 11-key authorization last. Keep fresh metadata closed while formal acceptance remains unknown.
+
+Next: inspect the Q2 missing/different evaluator-file identity without weakening the original manifest or vector/payload gates; preserve any concrete controller repair in a separately identified prospective validation. Independently audit completed formal and historical raw outputs, retain all adverse results, and then decide the registered fresh evaluation. **Main, tag and release are not accepted or advanced.**
+
+## Earlier checkpoint — NO development and exact integration
 
 The current machine-readable recovery entry is [round5-current-state-20261113.json](round5-current-state-20261113.json). Earlier sections below retain historical decisions and failures; they do not override a later checkpoint.
 
