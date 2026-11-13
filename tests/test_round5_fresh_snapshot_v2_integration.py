@@ -104,7 +104,7 @@ class FreshV2SourceIntegrationTests(unittest.TestCase):
                 wrong = {**bundle, "source_snapshot": "0" * 64}
                 with self.assertRaisesRegex(ValueError, "canonical pages/index/sources"):
                     component.BookComponent(package.parent, expected, root / "bad-copy.db", wrong, False)
-                comparison = {"state": "component-state"}
+                comparison = {"state": "component-state", "output": "component-output"}
                 path = component.canonical_bundle(comparison)
                 component.save(path, bundle, exclusive=True)
                 report = {"bundle_sha256": component.sha(path),
