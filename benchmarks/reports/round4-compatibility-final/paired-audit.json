@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "audited_at_utc": "2026-11-13T03:31:50.662626+00:00",
+  "method": "Independent read-only audit of saved reports, every original start/finish event, lossless ledger archives, committed source/evaluator blobs, current SQLite originals/vector snapshots and pinned model bytes. No retrieval, inference or timing repeated.",
+  "sources": {
+    "baseline": {
+      "commit": "7b7a5d7336b9350a128f5e0a888811b1b3015e68",
+      "runtime_sha256": "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46",
+      "python_files": 16,
+      "bytes_match_commit": true
+    },
+    "candidate": {
+      "commit": "2d7b5e38839fb21724ad3beec6b6ebabbda45636",
+      "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93",
+      "python_files": 16,
+      "bytes_match_commit": true
+    }
+  },
+  "complete_calls": 1968,
+  "exact_full_payload_pairs": 984,
+  "paired_keys": [
+    "cohort",
+    "tokenizer",
+    "budget_tokens",
+    "query_id"
+  ],
+  "cohorts": {
+    "authored36": {
+      "queries": 36,
+      "dataset_sha256": "ecc46c474d5184995938419fa985b8e08c0ddb51560da49990247465db6db0b0",
+      "calls": 432,
+      "pairs": 216,
+      "vector_rows": 42,
+      "vector_sha256": "c1cecaacdf47d7db3a790e46589a03e3d895aabbe7fb4069a65c050f7efd0a2e"
+    },
+    "hotpot128": {
+      "queries": 128,
+      "dataset_sha256": "0791515aca6bccf19a97895cad681e06a07536d6c08050d54189cc64cb819822",
+      "calls": 1536,
+      "pairs": 768,
+      "vector_rows": 2323,
+      "vector_sha256": "1210b9947a05448f6bc420a83ec4ddb72cf940589fac8b2f5b24910fca7aeec3"
+    }
+  },
+  "invariant_error_totals": {
+    "source": 0,
+    "projection": 0,
+    "scope": 0,
+    "token": 0,
+    "metadata": 0
+  },
+  "checks": {
+    "exact_complete_query_budget_tokenizer_matrix": true,
+    "every_full_non_latency_payload_and_context_hash_matches": true,
+    "every_start_has_one_matching_finish": true,
+    "raw_and_compressed_ledger_hashes_match": true,
+    "preparation_cohort_and_dataset_identity": true,
+    "evaluator_bytes_match_committed_candidate": true,
+    "runtime_bytes_match_named_commits": true,
+    "actual_model_files_match_recorded_pins": true,
+    "model_vectors_and_originals_unchanged": true,
+    "result_caches_empty": true
+  },
+  "current_databases": {
+    "authored36/baseline": {
+      "sources_match_preparation": true,
+      "vectors_match_preparation": true,
+      "cache_rows": 0,
+      "vector_rows": 42
+    },
+    "authored36/candidate": {
+      "sources_match_preparation": true,
+      "vectors_match_preparation": true,
+      "cache_rows": 0,
+      "vector_rows": 42
+    },
+    "hotpot128/baseline": {
+      "sources_match_preparation": true,
+      "vectors_match_preparation": true,
+      "cache_rows": 0,
+      "vector_rows": 2323
+    },
+    "hotpot128/candidate": {
+      "sources_match_preparation": true,
+      "vectors_match_preparation": true,
+      "cache_rows": 0,
+      "vector_rows": 2323
+    }
+  },
+  "model_fingerprint": "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25",
+  "file_sha256": {
+    "authored36-preparation.json": "0fb2e417f465fd4748d35a327aaa928f58ae40a3eb9d07d884b5d1ca1bd3e5a9",
+    "authored36-baseline-cl100k_base.json.gz": "bcd38ac0a7e5d03740ffe67cf4cd581022962a23ab745a2f8f541afb93dafe74",
+    "authored36-baseline-cl100k_base.json.gz.attempts.jsonl": "34de9036129dc27032f7b4a17503785191bdaf346711614217f34037766c8106",
+    "authored36-baseline-cl100k_base.json.gz.attempts.jsonl.gz": "fac8ed029734908458c764155854a20522dadef831acf4422909744aba2bb9e0",
+    "authored36-baseline-o200k_base.json.gz": "87aa3929c9d7fb1324c49ba5330fca8188d2bc93015df7b2d8912fc616ad1efc",
+    "authored36-baseline-o200k_base.json.gz.attempts.jsonl": "77c62659960dd9095c03017af817f7fe0350baeecb110f5b9932de90d747fe49",
+    "authored36-baseline-o200k_base.json.gz.attempts.jsonl.gz": "af45e42277055dd3a4f924881e1921ab8e2854275be5bd3f2e2c199366058e14",
+    "authored36-candidate-cl100k_base.json.gz": "bfac1a777512701ebd427144bfb8e36b0d0be761b48ec1f81af221b287d623f4",
+    "authored36-candidate-cl100k_base.json.gz.attempts.jsonl": "34de9036129dc27032f7b4a17503785191bdaf346711614217f34037766c8106",
+    "authored36-candidate-cl100k_base.json.gz.attempts.jsonl.gz": "fac8ed029734908458c764155854a20522dadef831acf4422909744aba2bb9e0",
+    "authored36-candidate-o200k_base.json.gz": "014f6c55eab411de174c2e7aaccb82986ccef740548ebba2ba5d6d0c9a1f69c3",
+    "authored36-candidate-o200k_base.json.gz.attempts.jsonl": "77c62659960dd9095c03017af817f7fe0350baeecb110f5b9932de90d747fe49",
+    "authored36-candidate-o200k_base.json.gz.attempts.jsonl.gz": "af45e42277055dd3a4f924881e1921ab8e2854275be5bd3f2e2c199366058e14",
+    "hotpot128-preparation.json": "e16ec2b31633fff438971e48fd4dd7394442018ce16d82d33df4808e684739d5",
+    "hotpot128-baseline-cl100k_base.json.gz": "6b9b20a61c3daa2d3aa1416e218f09db0cf53a164b44ce83bc1432cf4a549cbc",
+    "hotpot128-baseline-cl100k_base.json.gz.attempts.jsonl": "53dd9ecc74497656305523473d2bfc0d6bb7a444cc06fc8f2e31a1611ca611a7",
+    "hotpot128-baseline-cl100k_base.json.gz.attempts.jsonl.gz": "db235b7b6be7025bf472bd33854530ba0739b9f2c0c1134daf99d29c2c236eec",
+    "hotpot128-baseline-o200k_base.json.gz": "b207e6d70752eac2cc5554360729e611c09786ed5b679d61c3af0f062be11597",
+    "hotpot128-baseline-o200k_base.json.gz.attempts.jsonl": "12c207f5425187a5c8ab54b389b77178461854ff7bc42da50ba16abf745d5498",
+    "hotpot128-baseline-o200k_base.json.gz.attempts.jsonl.gz": "04aaa0505beb740c80778f1f3262bc50a98b2325f7d31f0633d4d7868eb428e8",
+    "hotpot128-candidate-cl100k_base.json.gz": "cde2c84b9b33131ad0fe40756d599bdb7d5b83a31e71344c9b8a1e916c9fb04e",
+    "hotpot128-candidate-cl100k_base.json.gz.attempts.jsonl": "53dd9ecc74497656305523473d2bfc0d6bb7a444cc06fc8f2e31a1611ca611a7",
+    "hotpot128-candidate-cl100k_base.json.gz.attempts.jsonl.gz": "db235b7b6be7025bf472bd33854530ba0739b9f2c0c1134daf99d29c2c236eec",
+    "hotpot128-candidate-o200k_base.json.gz": "c9978d38a218fed7b80e6b6ec12c551ed359e68e9650dde4016b4c3ef251921f",
+    "hotpot128-candidate-o200k_base.json.gz.attempts.jsonl": "12c207f5425187a5c8ab54b389b77178461854ff7bc42da50ba16abf745d5498",
+    "hotpot128-candidate-o200k_base.json.gz.attempts.jsonl.gz": "04aaa0505beb740c80778f1f3262bc50a98b2325f7d31f0633d4d7868eb428e8"
+  },
+  "retrieval_calls_executed_by_audit": 0,
+  "inference_calls_executed_by_audit": 0,
+  "limits": [
+    "These are previously scored regression cohorts; this audit does not establish new-cohort quality gains or performance.",
+    "Reports retain complete payload hashes, context hashes and recorded invariant results, not full response text. The audit verifies their pairing and ledger integrity; it does not independently recompute token counts or provenance from omitted response bodies.",
+    "The helper checks token count/budget, source spans, projection, project scope and semantic/model/cache metadata. Character limits, result-count limits and every token metadata field are not separately represented as per-row error flags; exact full-payload equality covers compatibility with baseline but is not a new independent validation of those baseline properties."
+  ]
+}

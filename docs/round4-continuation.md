@@ -128,3 +128,30 @@ unchanged. Older project-statistics and novelty candidates remain rejected.
 Progress is preserved on `optimization/v0.3.2-round4`. Never overwrite original
 experiment files or repeat a completed measurement to select a faster result.
 Read the latest branch and this checkpoint before resuming after interruption.
+
+## Final-source compatibility and interruption checkpoint
+
+The final C2 source is immutable at `2d7b5e38839fb21724ad3beec6b6ebabbda45636`;
+its exact nine-job CI run `43358743472` passed. The final Q2 compatibility
+workers completed 1,968 calls and 984 complete non-latency payload pairs across
+authored36 and historical Hotpot128, both named tokenizers and all three token
+budgets. Independent offline audit verified every pair, ordered ledger event,
+source/vector/model identity and recorded budget/provenance invariant without
+retrieval. Reports, losslessly compressed ledgers and the paired audit live in
+`benchmarks/reports/round4-compatibility-final/`. This is compatibility evidence,
+not new quality or performance evidence.
+
+The historical first-use native diagnostic lost its local execution session
+after the first baseline worker completed 512 calls. The candidate worker had
+zero attempted queries and an incomplete database import. Its original running
+markers, raw report and ledgers are preserved losslessly under
+`round4-development/final-hotpot-first-use-interrupted/`, with an explicit
+interruption receipt. Do not count the incomplete attempt as paired speed
+evidence or overwrite/replay its completed worker. No formal timing has run.
+
+The independently reviewed `scripts/round4_mcp_development.py` is ready for one
+separate 512-call old-public actual-SDK diagnostic. It captures every returned
+envelope, text and native-payload hash, including validation failures, with
+cache deletion outside the clock and normal server cache writes inside it.
+The formal run will use the dedicated hosted workflow and per-worker remote
+Git checkpoints, reducing dependence on a long-lived local tool session.

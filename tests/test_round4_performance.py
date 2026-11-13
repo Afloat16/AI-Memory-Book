@@ -203,6 +203,41 @@ class PerformanceGateTests(unittest.TestCase):
             del changed[key]
             self.assertIn(key + "_changed", bench.validation(changed)["issues"])
 
+    def test_new_runtime_preflight_fixtures_are_required_in_binding(self):
+        names = ("tests/test_round4_token_work.py", "tests/test_round4_sealed_counts.py",
+                 "tests/test_round4_highlight.py")
+        hashes = bench.file_hashes()
+        workflow = (bench.ROOT / ".github/workflows/round4-performance.yml").read_text()
+        for name in names:
+            self.assertIn(name, bench.TOOLS)
+            self.assertNotIn(name, bench.HELPERS)
+            self.assertEqual(hashes[name], bench.sha((bench.ROOT / name).read_bytes()))
+            self.assertIn(name.removesuffix(".py").replace("/", "."), workflow)
+        report = fixture()
+        value = {"status": "frozen-before-formal-timing", "evaluator": bench.VERSION,
+                 "development_addendum": report["development_addendum"],
+                 "counting_addendum": report["counting_addendum"],
+                 "plan_sha256": bench.sha(bench.PLAN.read_bytes()),
+                 "evaluator_files": hashes, "packages": bench.PACKAGES,
+                 "sources": report["run"]["binding"]["sources"], "evaluator_commit": "f" * 40}
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "binding.json"
+            with patch.object(bench, "registered_addendum", return_value=report["development_addendum"]), \
+                    patch.object(bench, "registered_counting_addendum", return_value=report["counting_addendum"]), \
+                    patch.object(bench, "git") as git:
+                for name in names:
+                    for omitted in (True, False):
+                        changed = copy.deepcopy(value)
+                        if omitted:
+                            del changed["evaluator_files"][name]
+                        else:
+                            changed["evaluator_files"][name] = "0" * 64
+                        path.write_bytes(bench.json_bytes(changed))
+                        with self.subTest(name=name, omitted=omitted), \
+                                self.assertRaisesRegex(ValueError, "Plan/evaluator/packages differ from binding"):
+                            bench.load_binding(path)
+                git.assert_not_called()
+
     def test_registered_matrix_and_seed_are_the_new_round_four_axes(self):
         plan = json.loads(bench.PLAN.read_bytes())
         formal = plan["performance_candidate"]["formal"]
