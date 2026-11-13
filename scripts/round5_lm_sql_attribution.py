@@ -553,6 +553,173 @@ def artificial_calibration(catalog):
         "interpretation": "Invented callback/clock illustration only; never subtract from corpus spans or infer engine speed."}
 
 
+
+def pack_bytes(path, raw):
+    """Exclusive, lossless storage; never overwrite an earlier cell or partial."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + ".partial")
+    if path.exists() or temporary.exists():
+        raise ValueError("Preserve the existing observation storage")
+    compressed = gzip.compress(raw, mtime=0)
+    with temporary.open("xb") as stream:
+        stream.write(compressed)
+        stream.flush()
+        os.fsync(stream.fileno())
+    if gzip.decompress(temporary.read_bytes()) != raw:
+        raise ValueError("Lossless observation storage failed")
+    temporary.replace(path)
+    return {"path": path.relative_to(ROOT).as_posix() if path.is_relative_to(ROOT) else path.name,
+        "raw_bytes": len(raw), "raw_sha256": hashlib.sha256(raw).hexdigest(),
+        "bytes": len(compressed), "sha256": hashlib.sha256(compressed).hexdigest()}
+
+
+def pack_value(path, value):
+    return pack_bytes(path, (json.dumps(value, ensure_ascii=False, indent=2,
+        allow_nan=False) + "\n").encode("utf-8"))
+
+
+def append_ledger(stream, value):
+    raw = (json.dumps(value, ensure_ascii=False, sort_keys=True,
+        separators=(",", ":"), allow_nan=False) + "\n").encode("utf-8")
+    stream.write(raw)
+    stream.flush()
+    os.fsync(stream.fileno())
+
+
+def cell_paths(cohort, configuration):
+    if cohort not in COHORTS or configuration not in CONFIG_NAMES:
+        raise ValueError("Unregistered diagnostic cell")
+    name = cohort + "-" + configuration
+    return {
+        "name": name, "intent": PUBLIC / "cells" / (name + ".intent.json"),
+        "output": PUBLIC / "cells" / (name + ".json.gz"),
+        "ledger": STATE / "ledgers" / (name + ".jsonl"),
+        "saved_ledger": PUBLIC / "cells" / (name + ".ledger.jsonl.gz"),
+        "storage": PUBLIC / "cells" / (name + ".storage.json"),
+    }
+
+
+def claim_cell(cohort, configuration, binding_sha, expected_calls):
+    paths = cell_paths(cohort, configuration)
+    if any(path.exists() for key, path in paths.items() if key != "name"):
+        raise ValueError("A diagnostic cell was already started; replay is forbidden")
+    save(paths["intent"], {"attempt": ATTEMPT, "cell": paths["name"], "status": "started",
+        "created_at": stamp(), "binding_sha256": binding_sha, "expected_calls": expected_calls,
+        "corpus": "previously registered old cohort only", "replay_permitted": False})
+    publish("bench: claim SQL attribution cell " + paths["name"])
+    # publish() checks exact remote HEAD after its one non-force push.
+    paths["ledger"].parent.mkdir(parents=True, exist_ok=True)
+    return paths
+
+
+def save_cell(paths, cell, sites):
+    """Called by the worker after observation, including incomplete/failed cells."""
+    cell["sites"] = list(sites)
+    cell["callsite_summary"] = summarize_observations(cell["rows"], sites)
+    storage = {"cell": pack_value(paths["output"], cell)}
+    if paths["ledger"].exists():
+        storage["ledger"] = pack_bytes(paths["saved_ledger"], paths["ledger"].read_bytes())
+    save(paths["storage"], storage)
+    publish("bench: preserve SQL attribution cell " + paths["name"])
+    return storage
+
+
+def audit_observation(value, sites):
+    if (value.get("valid") is not True or value.get("started") is not True
+            or value.get("finished") is not True or value.get("callback_failure") is not None
+            or value.get("open_sequences") != []):
+        raise ValueError("Invalid or incomplete native observation")
+    rows = value["spans"]
+    if [row["sequence"] for row in rows] != list(range(len(rows))):
+        raise ValueError("Native call sequence changed")
+    native_events = Counter()
+    for row in rows:
+        if row["site_id"] not in range(len(sites)) or row["method"] != sites[row["site_id"]]["method"]:
+            raise ValueError("Native source site identity changed")
+        if row["status"] not in ("returned", "exception") or type(row.get("wrapper_is")) is not bool:
+            raise ValueError("Unclosed native span or missing wrapper observation")
+        for field in ("start_ns", "end_ns", "inclusive_ns", "child_inclusive_ns", "exclusive_ns"):
+            if type(row[field]) is not int or row[field] < 0:
+                raise ValueError("Invalid native span clock")
+        if (row["end_ns"] - row["start_ns"] != row["inclusive_ns"]
+                or row["inclusive_ns"] - row["child_inclusive_ns"] != row["exclusive_ns"]):
+            raise ValueError("Native span arithmetic does not reconcile")
+        parent = row["parent_sequence"]
+        if parent is not None:
+            if type(parent) is not int or not 0 <= parent < row["sequence"]:
+                raise ValueError("Invalid native nesting")
+            ancestor = rows[parent]
+            if not ancestor["start_ns"] <= row["start_ns"] <= row["end_ns"] <= ancestor["end_ns"]:
+                raise ValueError("Native child lies outside parent")
+        native_events["c_call"] += 1
+        native_events["c_exception" if row["status"] == "exception" else "c_return"] += 1
+    for row in rows:
+        if row["child_inclusive_ns"] != sum(child["inclusive_ns"] for child in rows
+                if child["parent_sequence"] == row["sequence"]):
+            raise ValueError("Native exclusive sums double-count or omit children")
+    if dict(native_events) != value["target_events"]:
+        raise ValueError("Native event counts do not reconcile")
+    if (any(type(n) is not int or n < 0 for n in value["events"].values())
+            or any(value["events"].get(kind, 0) < n for kind, n in native_events.items())
+            or value["non_target_events"] != sum(value["events"].values()) - sum(native_events.values())):
+        raise ValueError("Callback event counters do not reconcile")
+    exclusive = sum(row["exclusive_ns"] for row in rows)
+    wall = value["recall_wall_ns_including_observer"]
+    if (type(wall) is not int or wall < exclusive or value["observed_exclusive_builtin_ns"] != exclusive
+            or value["unattributed_wall_ns"] != wall - exclusive
+            or type(value["callback_bookkeeping_ns"]) is not int or value["callback_bookkeeping_ns"] < 0):
+        raise ValueError("Observed and unattributed wall accounting changed")
+    return True
+
+
+def audit_cell(candidate, baseline, cohort, configuration, expected):
+    for cell in (candidate, baseline):
+        ids = [row["query_id"] for row in cell["rows"]]
+        if (cell.get("status") != "completed" or cell.get("cohort") != cohort
+                or cell.get("configuration") != configuration
+                or cell.get("dataset_sha256") != expected["dataset_sha256"]
+                or cell.get("queries") != expected["queries"] or len(ids) != expected["queries"]
+                or len(set(ids)) != len(ids)
+                or digest(ids) != expected["profile_query_order_sha256"]):
+            raise ValueError("Profile data, count or complete order mismatch")
+    mismatches = []
+    for left, right in zip(baseline["rows"], candidate["rows"]):
+        if left["query_id"] != right["query_id"]:
+            raise ValueError("Reference and diagnostic rows were paired differently")
+        for row in (left, right):
+            if re.fullmatch(r"[0-9a-f]{64}", row["non_timing_payload_sha256"]) is None:
+                raise ValueError("Invalid full non-timing payload digest")
+        audit_observation(right["observation"], candidate["sites"])
+        if left["non_timing_payload_sha256"] != right["non_timing_payload_sha256"]:
+            mismatches.append({"cohort": cohort, "configuration": configuration,
+                "query_id": right["query_id"], "baseline": left["non_timing_payload_sha256"],
+                "observed": right["non_timing_payload_sha256"]})
+    return {"cohort": cohort, "configuration": configuration, "queries": expected["queries"],
+        "query_order_sha256": expected["profile_query_order_sha256"], "mismatches": mismatches,
+        "all_full_non_timing_payloads_equal": not mismatches}
+
+
+def profile_audit(value, old, references, producer_sha):
+    """Retain all original profile predicates; the new producer identity is explicit."""
+    if (value.get("status") != "completed" or value.get("expected_calls") != 4732
+            or value.get("attempted_calls") != 4732 or value.get("completed_calls") != 4732
+            or value.get("runtime_source_sha256") != RUNTIME_SHA
+            or value.get("script_sha256") != producer_sha or value.get("scope_sha256") != SCOPE_SHA
+            or value.get("helpers_sha256") != old["helpers_sha256"]
+            or value.get("helper_dependency_sha256") != old["helper_dependency_sha256"]):
+        raise ValueError("Incomplete or differently sourced diagnostic profile")
+    expected_cells = [(cohort, config) for cohort in COHORTS for config in CONFIG_NAMES]
+    if ([(c["cohort"], c["configuration"]) for c in value["cells"]] != expected_cells
+            or len(references) != len(expected_cells)):
+        raise ValueError("Complete diagnostic/reference cell inventory changed")
+    records = [audit_cell(candidate, baseline, cohort, config, old["cohorts"][cohort])
+        for candidate, baseline, (cohort, config) in zip(value["cells"], references, expected_cells)]
+    mismatches = [row for cell in records for row in cell["mismatches"]]
+    return {"attempt": ATTEMPT, "calls": 4732, "cells": records, "mismatches": mismatches,
+        "all_full_non_timing_payloads_equal_to_v032_c2": not mismatches,
+        "retrieval_calls_executed_by_audit": 0, "speed_claim": False, "fresh_rows_decoded": 0}
+
+
 def require_binding():
     # First action in run(): no Git claim, download, import or corpus call.
     if not SOURCE_BINDING.is_file():
