@@ -15,6 +15,7 @@ from typing import Any
 
 from .segmentation import make_turns, segment
 from .text import estimate_tokens, excerpt, headline, index_text, query_terms, terms
+from ._query_overlap import query_overlap
 
 SCHEMA_VERSION = 3
 INDEX_VERSION = 3
@@ -894,7 +895,6 @@ class MemoryBook:
                             item.update(zip(metadata_columns, metadata))
                         item["score"] = score
                         candidates.append(item)
-                    ranked_rows.clear()
                 elif fuse_routes:
                     candidates.sort(key=lambda item: (-item["score"], exact_ranks.get(item["id"], 97),
                                                       stem_ranks.get(item["id"], 97), item["id"]))
@@ -1062,7 +1062,7 @@ class MemoryBook:
             # evidence at small budgets without adding source identity.
             block = header + text
             refs = self._refs(row, spans)
-            coverage = len(set(qt) & set(terms(text, query=True))) / len(qt) if qt else 0.0
+            coverage = query_overlap(set(qt), text, terms) / len(qt) if qt else 0.0
             results.append({"id": row["id"], "title": row["title"], "text": text, "source_refs": refs, "breadcrumb": crumbs, "score": row["score"], "lexical_coverage": coverage, "created_at": row["created_at"], "truncated": len(text) < len(row["content"]), "page_chars": len(row["content"]), "excerpt_spans": [[a, b] for a, b in spans]})
             blocks.append(block)
         context = "\n\n".join(blocks)
