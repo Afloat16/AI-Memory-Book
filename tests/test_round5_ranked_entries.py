@@ -19,7 +19,7 @@ import sqlite3
 import struct
 import textwrap
 import unittest
-from types import SimpleNamespace
+from types import CodeType, SimpleNamespace
 from unittest.mock import patch
 
 from memory_book import MemoryBook
@@ -53,13 +53,34 @@ def restored_source():
     source = source.rstrip() + "\n"
     if hashlib.sha256(source.encode()).hexdigest() != BASE_RECALL_SHA256:
         raise AssertionError("Literal base recall changed outside the three registered replacements")
-    return textwrap.dedent(source)
+    return source
+
+
+def legacy_suite():
+    # Do not dedent: that changes indentation inside multiline SQL literals.
+    return "if True:\n" + restored_source()
 
 
 def legacy_recall():
     namespace = dict(vars(store))
-    exec(compile(restored_source(), LEGACY_FILENAME, "exec"), namespace)
+    exec(compile(legacy_suite(), LEGACY_FILENAME, "exec"), namespace)
     return namespace["recall"]
+
+
+
+def string_constants(code):
+    result = []
+    def visit(value):
+        if type(value) is str:
+            result.append(value)
+        elif isinstance(value, CodeType):
+            for child in value.co_consts:
+                visit(child)
+        elif type(value) is tuple:
+            for child in value:
+                visit(child)
+    visit(code)
+    return sorted(result)
 
 
 def exact(value):
@@ -107,7 +128,7 @@ class TailMustNotCompare:
 
 class RankedEntryRepresentationTests(unittest.TestCase):
     def test_only_three_registered_changes_restore_literal_base_method(self):
-        old = ast.parse(restored_source())
+        old = ast.parse(legacy_suite())
         new = ast.parse(textwrap.dedent(inspect.getsource(CANDIDATE_RECALL)))
         keys = lambda tree: [node for node in ast.walk(tree) if isinstance(node, ast.Lambda)
                              and node.args.args and node.args.args[0].arg == "entry"]
@@ -120,6 +141,9 @@ class RankedEntryRepresentationTests(unittest.TestCase):
         self.assertEqual(sorts[0].args, [])
         self.assertEqual(sorts[0].keywords, [])
         self.assertEqual(set(candidate_expressions()), {False, True})
+        # In particular every actual SQL string retains all whitespace bytes.
+        self.assertEqual(string_constants(legacy_recall().__code__),
+                         string_constants(CANDIDATE_RECALL.__code__))
 
     def compare_vectors(self, scores, fused, order):
         code = candidate_expressions()[fused]
@@ -274,11 +298,24 @@ class RankedEntryRecallTests(unittest.TestCase):
                 self.assertEqual(actual["candidate_count"], 3)
 
     def test_custom_row_factories_and_subclasses_keep_old_named_mapping_payloads(self):
-        for factory in (fixtures.RowLike, fixtures.NamedLookupRow):
-            with self.subTest(factory=factory):
+        self.book.db.row_factory = fixtures.RowLike
+        try:
+            self.compare("orbiting relay", project="lab", budget_chars=100000)
+        finally:
+            self.book.db.row_factory = sqlite3.Row
+        for boundary in ("route", "metadata"):
+            with self.subTest(boundary=boundary):
+                def factory(cursor, values):
+                    names = {column[0] for column in cursor.description}
+                    selected = ("rank" in names if boundary == "route"
+                                else "chapter_title" in names and "rank" not in names)
+                    return (fixtures.NamedLookupRow if selected else sqlite3.Row)(cursor, values)
+                # Aggregate/source Rows keep their existing iteration contract;
+                # the adversarial subclass applies at the intended boundary.
                 self.book.db.row_factory = factory
                 try:
-                    self.compare("orbiting relay", project="lab", budget_chars=100000)
+                    self.compare("orbiting relay", project="lab", budget_chars=100000,
+                                 strategy="flat" if boundary == "route" else "book")
                 finally:
                     self.book.db.row_factory = sqlite3.Row
 
@@ -357,7 +394,7 @@ class RankedEntryRecallTests(unittest.TestCase):
         helper = fixtures.WideCandidateMaterializationTests()
         helper.setUp()
         self.addCleanup(helper.doCleanups)
-        key_lines = {node.lineno for node in ast.walk(ast.parse(restored_source()))
+        key_lines = {node.lineno for node in ast.walk(ast.parse(legacy_suite()))
                      if isinstance(node, ast.Lambda) and node.args.args
                      and node.args.args[0].arg == "entry"}
         observations = []
