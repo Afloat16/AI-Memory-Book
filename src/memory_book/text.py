@@ -32,6 +32,13 @@ _NORMALIZATION_IDENTITY = re.compile(
     r"[\x00-\x7f\u3400-\u4dbf\u4e00-\u9fff\u3001-\u3003"
     r"\u3008-\u3011\u3014-\u301f\u2010\u2012-\u2015"
     r"\u2018-\u201f\u2022\u30fb]*")
+# These compatibility scalars map only into the certified identity alphabet.
+# Translate the complete eligible string before CamelCase separation: a newly
+# ASCII capital (for example alphaＢeta) must create the historical boundary.
+_NORMALIZATION_COMPATIBILITY = re.compile(
+    _NORMALIZATION_IDENTITY.pattern[:-2] + r"\uff01-\uff5e\u3000\u2011\u2026]*")
+_NORMALIZATION_TRANSLATION = {code: code - 0xFEE0 for code in range(0xFF01, 0xFF5F)}
+_NORMALIZATION_TRANSLATION.update({0x3000: 0x20, 0x2011: 0x2010, 0x2026: "..."})
 _NORMALIZATION_UCD_VERSIONS = frozenset(("13.0.0", "14.0.0", "15.0.0", "15.1.0", "16.0.0"))
 _ORDINARY_NORMALIZE = unicodedata.normalize
 _ORDINARY_CATEGORY = unicodedata.category
@@ -51,13 +58,18 @@ def terms(text: str, *, query: bool = False) -> list[str]:
     """NFKC text -> English words/identifier pieces and Chinese bigrams."""
     identity_source = False
     if not text.isascii():
-        identity_source = (type(text) is str
+        ordinary_source = (type(text) is str
             and unicodedata.unidata_version in _NORMALIZATION_UCD_VERSIONS
             and unicodedata.normalize is _ORDINARY_NORMALIZE
             and unicodedata.category is _ORDINARY_CATEGORY
             and CAMEL_BOUNDARY is _ORDINARY_CAMEL_BOUNDARY
-            and _strip_nonspacing_marks is _ORDINARY_STRIP_NONSPACING
-            and _NORMALIZATION_IDENTITY.fullmatch(text) is not None)
+            and _strip_nonspacing_marks is _ORDINARY_STRIP_NONSPACING)
+        if ordinary_source:
+            if _NORMALIZATION_IDENTITY.fullmatch(text) is not None:
+                identity_source = True
+            elif _NORMALIZATION_COMPATIBILITY.fullmatch(text) is not None:
+                text = text.translate(_NORMALIZATION_TRANSLATION)
+                identity_source = True
         if not identity_source:
             text = unicodedata.normalize("NFKC", text)
     text = CAMEL_BOUNDARY.sub(r"\1 \2", text).casefold()

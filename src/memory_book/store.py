@@ -973,22 +973,30 @@ class MemoryBook:
                         relevance = -(row[-1] if late_materialize else item["rank"])
                     score = relevance * factor
                     if late_materialize:
-                        ranked_rows.append((page_id, score, row, item))
+                        # Carry the unchanged complete sort key in the entry.
+                        # Retain score itself, including signed zero and NaNs.
+                        if fuse_routes:
+                            ranked_rows.append((-score, exact_ranks.get(page_id, 97),
+                                                stem_ranks.get(page_id, 97), page_id, score, row, item))
+                        else:
+                            ranked_rows.append((-score, page_id, score, row, item))
                     else:
                         item["score"] = score
                         candidates.append(item)
                 if late_materialize:
-                    if fuse_routes:
-                        ranked_rows.sort(key=lambda entry: (-entry[1], exact_ranks.get(entry[0], 97),
-                                                            stem_ranks.get(entry[0], 97), entry[0]))
-                    else:
-                        ranked_rows.sort(key=lambda entry: (-entry[1], entry[0]))
+                    # Exact str IDs were deduplicated in rows. The complete old
+                    # key distinguishes every entry before the payload tail, so
+                    # comparisons never reach score, route rows or metadata.
+                    ranked_rows.sort()
                     candidate_count = len(ranked_rows)
                     # The unchanged temporal/novelty pass can only select from
                     # this prefix. Coverage and semantic fusion use all rows.
                     prefix_size = (limit * 4 if strategy == "book" and
                                    (current_query or (len(qt) > 1 and limit > 1)) else limit)
-                    for _, score, row, metadata in ranked_rows[:prefix_size]:
+                    for ranked in ranked_rows[:prefix_size]:
+                        score = ranked[-3]
+                        row = ranked[-2]
+                        metadata = ranked[-1]
                         item = dict(zip(route_columns, row))
                         if use_stem:
                             item.update(zip(metadata_columns, metadata))
