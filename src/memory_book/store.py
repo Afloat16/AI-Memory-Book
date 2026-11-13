@@ -319,6 +319,7 @@ class MemoryBook:
                 self._migrate_schema()
             self.db.execute("PRAGMA journal_mode=WAL")
             self.db.execute("PRAGMA synchronous=NORMAL")
+            self.db.execute("PRAGMA main.cache_size=-8192")
         except BaseException:
             self.db.close()
             raise
