@@ -1,7 +1,8 @@
 """Registered round-four complete-payload performance comparison.
 
-Only old synthetic61/public1015 data is accepted. Binding and an explicit run
-command are required; importing this module or running tests never measures.
+Only old synthetic61/public1015 data is accepted. Formal measurement requires a
+binding and claimed first-attempt hosted publication; unclaimed local runs are
+not supported. Importing this module or running tests never measures.
 Completed workers are immutable. Resume can continue an untouched suffix on the
 same boot, but an incomplete worker is preserved and never measured again.
 """
@@ -41,6 +42,10 @@ from benchmarks.token_compare import (ENCODINGS, TokenCounter,
 
 PLAN = ROOT / "benchmarks/experiments/round4-plan.json"
 PLAN_COMMIT = "4f239eaab6e1ab7bfb8910819a74a6fab195629c"
+ADDENDUM_PATH = "benchmarks/experiments/round4-development-addendum.json"
+ADDENDUM = ROOT / ADDENDUM_PATH
+ADDENDUM_COMMIT = "fbfc6c56ae047abfd765e6149ba748c9e18adc42"
+ADDENDUM_SHA256 = "da8ccb8e4855493d2f32ed7cd2efec3a029bca346de064fb9b21399cb046b705"
 BASELINE = "7b7a5d7336b9350a128f5e0a888811b1b3015e68"
 BASELINE_HASH = "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46"
 VERSION = "round4-default-performance-1"
@@ -67,6 +72,9 @@ HELPERS = ("scripts/benchmark_default_recall.py", "benchmarks/__init__.py",
     "benchmarks/locomo_split.json")
 TOOLS = ("scripts/round4_performance.py", "tests/test_round4_performance.py",
          ".github/workflows/round4-performance.yml")
+# These preregistrations belong to round four, so they must not be mistaken
+# for historical helpers that are checked against the v0.3.1 source tree.
+REGISTERED_DOCUMENTS = (ADDENDUM_PATH,)
 INVARIANTS = ("cache_error", "source_span_errors", "source_scope_errors",
     "page_projection_errors", "context_reconstruction_error", "metadata_error",
     "character_budget_error", "token_budget_error", "token_metadata_error",
@@ -124,7 +132,21 @@ def git(*args, root=ROOT):
 
 
 def file_hashes():
-    return {name: sha((ROOT / name).read_bytes()) for name in (*HELPERS, *TOOLS)}
+    return {name: sha((ROOT / name).read_bytes()) for name in (*HELPERS, *TOOLS, *REGISTERED_DOCUMENTS)}
+
+
+def registered_addendum():
+    """Load the exact document committed before candidate B implementation."""
+    raw = ADDENDUM.read_bytes()
+    require(sha(raw) == ADDENDUM_SHA256
+            and raw == git("show", ADDENDUM_COMMIT + ":" + ADDENDUM_PATH),
+            "The preregistered development addendum bytes or commit changed")
+    document = json.loads(raw)
+    require(document["original_plan_commit"] == PLAN_COMMIT
+            and document["status"] == "registered-before-candidate-b-implementation-and-measurement",
+            "The development addendum does not extend the original registered plan")
+    return {"path": ADDENDUM_PATH, "commit": ADDENDUM_COMMIT, "sha256": ADDENDUM_SHA256,
+            "document": document}
 
 
 def load_plan():
@@ -154,6 +176,7 @@ def source_identity(src):
 
 def bind(args):
     plan = load_plan()
+    addendum = registered_addendum()
     require(args.baseline_src and args.candidate_src, "Binding needs both exact source checkouts")
     sources = {label: source_identity(path) for label, path in
                (("baseline", args.baseline_src), ("candidate", args.candidate_src))}
@@ -169,6 +192,7 @@ def bind(args):
                 "A reused frozen helper changed: " + name)
     value = {"schema_version": 1, "evaluator": VERSION, "status": "frozen-before-formal-timing",
         "created_at": now(), "plan_sha256": sha(PLAN.read_bytes()),
+        "development_addendum": addendum,
         "sources": sources, "evaluator_commit": tool_commit, "evaluator_files": hashes,
         "packages": PACKAGES, "policy": "One registered candidate; preserve every attempt and all rounds."}
     exclusive(args.bind, value)
@@ -180,6 +204,8 @@ def load_binding(path):
     value = json.loads(path.read_bytes())
     require(value["status"] == "frozen-before-formal-timing" and value["evaluator"] == VERSION,
             "Candidate is not frozen")
+    require(value.get("development_addendum") == registered_addendum(),
+            "Binding development addendum differs from its exact preregistration")
     require(value["plan_sha256"] == sha(PLAN.read_bytes()) and value["evaluator_files"] == file_hashes()
             and value["packages"] == PACKAGES, "Plan/evaluator/packages differ from binding")
     require(value["sources"]["baseline"] == {"commit": BASELINE, "runtime_sha256": BASELINE_HASH},
@@ -375,6 +401,7 @@ async def mcp_configuration(data, config, order, db_path, work, src, counters, s
 def worker(args, plan, binding):
     state = args.state_dir.resolve()
     run = json.loads((state / "run.json").read_bytes())
+    verify_worker_claim(args, run, plan, binding)
     item = next(s for s in run["schedule"] if s["key"] == args.worker)
     require(run["binding_sha256"] == sha(args.binding.read_bytes()) and run["host"] == host_identity(),
             "Worker binding/host differs from controller")
@@ -573,6 +600,11 @@ def nested(value, path):
 def validation(report):
     issues, canonical, total = [], {}, 0
     run, plan = report["run"], report["plan"]
+    addendum = report.get("development_addendum")
+    if (not isinstance(addendum, dict) or addendum != run["binding"].get("development_addendum")
+            or {key: addendum.get(key) for key in ("path", "commit", "sha256")} !=
+            {"path": ADDENDUM_PATH, "commit": ADDENDUM_COMMIT, "sha256": ADDENDUM_SHA256}):
+        issues.append("development_addendum_changed")
     workers = report["workers"]
     if [w["key"] for w in workers] != [w["key"] for w in schedule(plan)]:
         issues.append("missing_duplicate_or_reordered_workers")
@@ -771,6 +803,86 @@ def publication_identity(args):
             "run_id": run_id, "run_attempt": attempt}
 
 
+def publication_state(publication):
+    return ROOT / ".artifacts" / ("round4-performance-" + publication["run_id"] + "-" + publication["run_attempt"])
+
+
+def verify_worker_claim(args, run, plan, binding):
+    """Reject direct unclaimed workers before import timing or retrieval.
+
+    A local JSON receipt alone is insufficient: the exact claim must exist in
+    the immutable Git commit and still identify the remote binding-wide ref.
+    These read-only checks are outside every timed runtime operation.
+    """
+    publication, claim = run.get("publication"), run.get("execution_claim")
+    require(isinstance(publication, dict) and isinstance(claim, dict),
+            "Formal worker requires a preserved hosted publication and execution claim")
+    require(isinstance(run.get("output"), str) and isinstance(publication.get("branch"), str),
+            "Formal worker publication receipt is incomplete")
+    live = publication_identity(argparse.Namespace(publish_branch=publication["branch"], output=Path(run["output"])))
+    require(live is not None and live == publication
+            and run.get("workflow_commit") == live["workflow_commit"], "Worker hosted publication identity changed")
+    require(args.state_dir.resolve() == publication_state(live).resolve(),
+            "Formal worker state must use the canonical claimed run directory")
+    fingerprint = sha(args.binding.read_bytes())
+    require(run.get("binding_sha256") == fingerprint and run.get("binding") == binding
+            and run.get("plan_sha256") == sha(PLAN.read_bytes())
+            and run.get("evaluator_files") == file_hashes() and run.get("schedule") == schedule(plan),
+            "Worker run is not the exact bound plan/evaluator/schedule")
+    branch = "validation/v032-round4-performance-claim-" + fingerprint
+    relative = live["directory"] + "/execution-claim.json"
+    require(claim.get("branch") == branch and claim.get("path") == relative
+            and isinstance(claim.get("commit"), str) and re.fullmatch(r"[0-9a-f]{40}", claim["commit"])
+            and isinstance(claim.get("sha256"), str) and re.fullmatch(r"[0-9a-f]{64}", claim["sha256"]),
+            "Worker execution claim receipt differs")
+    path = ROOT / relative
+    require(not (path.parent / "publication-failure.json").exists(),
+            "Failed publication forbids another worker or automatic retry")
+    raw = path.read_bytes()
+    require(raw == git("show", claim["commit"] + ":" + relative) and sha(raw) == claim["sha256"],
+            "Worker execution claim bytes differ from the committed original")
+    record = json.loads(raw)
+    expected = {"schema_version": 1, "status": "claimed-before-measurement",
+        "workflow_commit": live["workflow_commit"], "binding_sha256": fingerprint,
+        "run_id": live["run_id"], "run_attempt": live["run_attempt"]}
+    require(all(record.get(key) == value for key, value in expected.items()),
+            "Worker execution claim identifies another run or binding")
+    require(git("rev-parse", claim["commit"] + "^").decode().strip() == live["workflow_commit"],
+            "Execution claim must descend directly from the frozen workflow source")
+    remote = git("ls-remote", "--heads", "origin", "refs/heads/" + branch).decode().split()
+    require(remote == [claim["commit"], "refs/heads/" + branch],
+            "The exact binding execution claim is not preserved remotely")
+    # The claim authorizes one experiment, not arbitrary repeats of its workers.
+    # Only the next worker whose start intent is already on the result branch
+    # may run, using the same local state that the controller published.
+    head = git("rev-parse", "HEAD").decode().strip()
+    remote_result = git("ls-remote", "--heads", "origin", "refs/heads/" + live["branch"]).decode().split()
+    require(remote_result == [head, "refs/heads/" + live["branch"]],
+            "Worker requires the controller's exact published result head")
+    keys = [item["key"] for item in run["schedule"]]
+    require(args.worker in keys, "Worker is absent from the registered schedule")
+    position = keys.index(args.worker)
+    prefix = live["directory"] + "/"
+    require((args.state_dir / "run.json").read_bytes() == git("show", head + ":" + prefix + "run.json"),
+            "Local run identity differs from the published controller state")
+    intent = "workers/" + args.worker + ".started.json"
+    local_intent = (args.state_dir / intent).read_bytes()
+    require(local_intent == git("show", head + ":" + prefix + intent)
+            and json.loads(local_intent) == {"worker": run["schedule"][position], "run_identity_sha256": digest(run)},
+            "Worker has no exact published controller start intent")
+    checkpoint = json.loads(git("show", head + ":" + prefix + "checkpoint.json"))
+    require(checkpoint["run_identity_sha256"] == digest(run) and checkpoint["status"] == "running"
+            and checkpoint["error"] is None and checkpoint["completed_workers"] == keys[:position],
+            "Only the next worker in the published complete prefix may execute")
+    suffixes = (".json.gz", ".attempts.jsonl", ".attempts.jsonl.gz")
+    completed = [prefix + "workers/" + args.worker + suffix for suffix in suffixes]
+    require(not git("ls-tree", "--name-only", head, "--", *completed).strip(),
+            "Published worker evidence already exists; never remeasure it")
+    require(not any((args.state_dir / "workers" / (args.worker + suffix)).exists() for suffix in suffixes),
+            "A local worker attempt already exists; never repeat it")
+    return claim
+
+
 def export_checkpoint(args):
     """Copy the audit-ready state; retain both original and compressed ledgers."""
     state, public = args.state_dir.resolve(), args.output.resolve().parent
@@ -839,6 +951,8 @@ def claim_execution(args, publication):
                 "This frozen binding already has an execution claim; never rescore it")
         require(not git("diff", "--cached", "--name-only").strip(),
                 "Unrelated staged changes must not enter the execution claim")
+        require(git("rev-parse", "HEAD").decode().strip() == publication["workflow_commit"],
+                "A new execution claim must start at the frozen workflow source")
         exclusive(path, {**record_identity, "claimed_at": now(),
             "policy": "One frozen execution. Preserve every failed attempt; no implicit rerun or best-run selection."})
         subprocess.run(["git", "add", "--", str(path.relative_to(ROOT))], cwd=ROOT, check=True)
@@ -886,9 +1000,15 @@ def checkpoint(args, report):
 
 
 def controller_locked(args, plan, binding):
+    require(getattr(args, "publish_branch", None),
+            "Formal measurement requires --publish-branch and a binding-wide hosted execution claim")
     require(args.baseline_src and args.candidate_src and args.locomo_path and args.output and args.state_dir,
             "Measurement needs both sources, old LoCoMo input, output and state directory")
     require(args.output.name.endswith(".json.gz"), "Use a new run-specific .json.gz output")
+    publication = publication_identity(args)
+    require(publication is not None, "Formal controller requires a hosted publication identity")
+    require(args.state_dir.resolve() == publication_state(publication).resolve(),
+            "Formal controller state must use the canonical claimed run directory")
     host = host_identity()
     require(host["packages"] == PACKAGES, "Install the bound SDK/tokenizer versions before timing")
     paths = {label: str(path.resolve()) for label, path in
@@ -899,8 +1019,7 @@ def controller_locked(args, plan, binding):
     if not args.resume:
         require(not args.output.exists() and not state.exists(),
                 "Existing attempt must be preserved; use --resume only for a complete prefix")
-    publication = publication_identity(args)
-    execution_claim = claim_execution(args, publication) if publication is not None else None
+    execution_claim = claim_execution(args, publication)
     cohorts = {}
     for name in plan["performance_candidate"]["formal"]["cohorts"]:
         data = dataset(plan, name, args.locomo_path)
@@ -933,6 +1052,7 @@ def controller_locked(args, plan, binding):
         if previous_summary.exists():
             exclusive_bytes(history / f"{attempt:04d}.prior.summary.json", previous_summary.read_bytes())
     report = {"schema_version": 1, "evaluator": VERSION, "plan": plan, "run": run,
+        "development_addendum": binding["development_addendum"],
         "started_at": now(), "controller_attempt": attempt, "workers": [], "error": None, "evaluator_unchanged": False,
         "worker_artifacts_sha256": {},
         "status": "running", "interpretation": {
@@ -989,6 +1109,8 @@ def controller_locked(args, plan, binding):
 
 
 def controller(args, plan, binding):
+    require(getattr(args, "publish_branch", None),
+            "Formal measurement requires --publish-branch and a binding-wide hosted execution claim")
     require(args.state_dir is not None, "A new state directory is required")
     args.state_dir.resolve().parent.mkdir(parents=True, exist_ok=True)
     # Stable OS lock releases after process death; concurrent resume cannot
@@ -1008,6 +1130,9 @@ def audit(path, state):
     require(expected == summary(report, compressed, raw), "Summary or raw hashes differ")
     require(report["plan"] == load_plan() and report["run"]["evaluator_files"] == file_hashes(),
             "Auditor must use the original registered plan/evaluator")
+    require(report.get("development_addendum") == registered_addendum()
+            and report["run"]["binding"].get("development_addendum") == report["development_addendum"],
+            "Report development addendum differs from its exact preregistration")
     require(report["validation"]["passed"], "Measurement is incomplete or invalid; original remains preserved")
     require(json.loads((state / "run.json").read_bytes()) == report["run"], "Original run identity differs")
     require(artifact_hashes(state, report["run"]) == report["worker_artifacts_sha256"], "Original worker artifact hashes differ")
@@ -1027,7 +1152,7 @@ def main(argv=None):
     parser.add_argument("--output", type=Path)
     parser.add_argument("--state-dir", type=Path)
     parser.add_argument("--resume", action="store_true")
-    parser.add_argument("--publish-branch", help="Optional exact run-specific validation ref; stop if any checkpoint push fails")
+    parser.add_argument("--publish-branch", help="Required formal-controller validation ref; every run must claim its binding and stop on a failed checkpoint push")
     parser.add_argument("--audit", type=Path, help="Verify existing source-free rows without retrieval")
     parser.add_argument("--worker", help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
@@ -1038,6 +1163,9 @@ def main(argv=None):
     if args.bind:
         bind(args)
         return 0
+    if not args.worker:
+        require(args.publish_branch,
+                "Formal measurement requires --publish-branch and a binding-wide hosted execution claim")
     require(args.binding is not None, "An exact committed source binding is required; no default candidate")
     plan, binding = load_plan(), load_binding(args.binding)
     return worker(args, plan, binding) if args.worker else controller(args, plan, binding)

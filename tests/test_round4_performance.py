@@ -29,16 +29,20 @@ def ledger_bytes(worker):
 
 def fixture(factor=.85):
     plan = json.loads(bench.PLAN.read_bytes())
+    addendum = {"path": bench.ADDENDUM_PATH, "commit": bench.ADDENDUM_COMMIT,
+                "sha256": bench.ADDENDUM_SHA256, "document": json.loads(bench.ADDENDUM.read_bytes())}
     formal = plan["performance_candidate"]["formal"]
     formal["calls"] = 5 * 6 * 2 * 4
     sources = {"baseline": {"commit": bench.BASELINE, "runtime_sha256": bench.BASELINE_HASH},
                "candidate": {"commit": "a" * 40, "runtime_sha256": bench.digest("candidate")}}
-    run = {"binding": {"sources": sources}, "evaluator_files": {"fixture": "hash"},
+    run = {"binding": {"sources": sources, "development_addendum": addendum},
+        "evaluator_files": {"fixture": "hash"},
         "host": {"boot": "same-boot"}, "schedule": bench.schedule(plan),
         "cohorts": {name: {"queries": len(ids), "sha256": bench.digest(name),
                            "query_ids": sorted(ids), "query_ids_original_order": ids}
                     for name, ids in (("synthetic61", ["b", "a"]), ("public1015", ["z", "y", "x"]))}}
-    report = {"plan": plan, "run": run, "workers": [], "evaluator_unchanged": True, "error": None}
+    report = {"plan": plan, "development_addendum": copy.deepcopy(addendum), "run": run,
+              "workers": [], "evaluator_unchanged": True, "error": None}
     for item in run["schedule"]:
         worker = {**item, "status": "completed", "error": None,
             "run_identity_sha256": bench.digest(run), "source": sources[item["label"]],
@@ -97,6 +101,69 @@ def save_worker(state, worker, run):
 
 
 class PerformanceGateTests(unittest.TestCase):
+    def test_development_addendum_is_fixed_to_original_commit_and_exact_bytes(self):
+        raw = bench.ADDENDUM.read_bytes()
+        self.assertEqual(bench.ADDENDUM_COMMIT, "fbfc6c56ae047abfd765e6149ba748c9e18adc42")
+        self.assertEqual(bench.ADDENDUM_SHA256, "da8ccb8e4855493d2f32ed7cd2efec3a029bca346de064fb9b21399cb046b705")
+        self.assertIn(bench.ADDENDUM_PATH, bench.REGISTERED_DOCUMENTS)
+        self.assertNotIn(bench.ADDENDUM_PATH, bench.HELPERS)  # No rewrite of a historical helper.
+        self.assertEqual(bench.file_hashes()[bench.ADDENDUM_PATH], bench.ADDENDUM_SHA256)
+        with patch.object(bench, "git", return_value=raw) as git:
+            registered = bench.registered_addendum()
+            git.assert_called_once_with("show", bench.ADDENDUM_COMMIT + ":" + bench.ADDENDUM_PATH)
+        self.assertEqual(registered["document"]["original_plan_commit"], bench.PLAN_COMMIT)
+        with tempfile.TemporaryDirectory() as directory:
+            altered = Path(directory) / "addendum.json"
+            altered.write_bytes(raw + b" ")  # Identical parsed JSON is still different preregistered bytes.
+            with patch.object(bench, "ADDENDUM", altered), patch.object(bench, "git", return_value=raw) as git:
+                with self.assertRaisesRegex(ValueError, "preregistered development addendum bytes or commit"):
+                    bench.registered_addendum()
+                git.assert_not_called()
+        with patch.object(bench, "git", return_value=raw + b" "):
+            with self.assertRaisesRegex(ValueError, "preregistered development addendum bytes or commit"):
+                bench.registered_addendum()
+
+    def test_binding_and_report_preserve_exact_development_addendum(self):
+        report = fixture()
+        original = report["development_addendum"]
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / "binding.json"
+            hashes = {bench.ADDENDUM_PATH: bench.ADDENDUM_SHA256}
+            value = {"status": "frozen-before-formal-timing", "evaluator": bench.VERSION,
+                "development_addendum": original, "plan_sha256": bench.sha(bench.PLAN.read_bytes()),
+                "evaluator_files": hashes, "packages": bench.PACKAGES,
+                "sources": report["run"]["binding"]["sources"], "evaluator_commit": "f" * 40}
+            raw = bench.json_bytes(value)
+            path.write_bytes(raw)
+            def git(*values):
+                if values == ("show", "HEAD:binding.json"):
+                    return raw
+                if values == ("show", "f" * 40 + ":" + bench.ADDENDUM_PATH):
+                    return bench.ADDENDUM.read_bytes()
+                raise AssertionError(values)
+            with patch.object(bench, "ROOT", root), patch.object(bench, "file_hashes", return_value=hashes), \
+                    patch.object(bench, "registered_addendum", return_value=original), \
+                    patch.object(bench, "git", side_effect=git):
+                self.assertEqual(bench.load_binding(path), value)
+                for field, changed in (("commit", "a" * 40), ("sha256", "0" * 64),
+                                       ("document", {"fixture": "unregistered"})):
+                    tampered = copy.deepcopy(value)
+                    tampered["development_addendum"][field] = changed
+                    path.write_bytes(bench.json_bytes(tampered))
+                    with self.subTest(field=field), self.assertRaisesRegex(ValueError, "Binding development addendum"):
+                        bench.load_binding(path)
+                missing = copy.deepcopy(value)
+                del missing["development_addendum"]
+                path.write_bytes(bench.json_bytes(missing))
+                with self.assertRaisesRegex(ValueError, "Binding development addendum"):
+                    bench.load_binding(path)
+        compact = bench.summary(report, b"compressed-fixture", b"raw-fixture")
+        self.assertEqual(compact["development_addendum"], original)
+        self.assertEqual(compact["run"]["binding"]["development_addendum"], original)
+        report["development_addendum"]["commit"] = "a" * 40
+        self.assertIn("development_addendum_changed", bench.validation(report)["issues"])
+
     def test_registered_matrix_and_seed_are_the_new_round_four_axes(self):
         plan = json.loads(bench.PLAN.read_bytes())
         formal = plan["performance_candidate"]["formal"]
@@ -292,6 +359,7 @@ class PerformanceGateTests(unittest.TestCase):
             report["worker_artifacts_sha256"] = bench.artifact_hashes(state, report["run"])
             bench.save_report(output, report)
             with patch.object(bench, "load_plan", return_value=report["plan"]), \
+                    patch.object(bench, "registered_addendum", return_value=report["development_addendum"]), \
                     patch.object(bench, "file_hashes", return_value=report["run"]["evaluator_files"]):
                 self.assertEqual(bench.audit(output, state)["retrieval_calls_executed"], 0)
                 summary = output.with_name("fixture.summary.json")
@@ -335,6 +403,7 @@ class PerformanceGateTests(unittest.TestCase):
             self.assertEqual(len(list((public / "workers").glob("*.attempts.jsonl.gz"))), 16)
             self.assertTrue((public / "controller-attempts/0001.started.json").is_file())
             with patch.object(bench, "load_plan", return_value=report["plan"]), \
+                    patch.object(bench, "registered_addendum", return_value=report["development_addendum"]), \
                     patch.object(bench, "file_hashes", return_value=report["run"]["evaluator_files"]):
                 self.assertEqual(bench.audit(output, public)["retrieval_calls_executed"], 0)
 
@@ -359,6 +428,156 @@ class PerformanceGateTests(unittest.TestCase):
             bench.export_checkpoint(SimpleNamespace(state_dir=state, output=public / "report.json.gz"))
             self.assertEqual((public / "workers" / path.name).read_bytes(), raw)
 
+    def test_unpublished_formal_controllers_stop_before_loading_or_creating_state(self):
+        with tempfile.TemporaryDirectory() as directory:
+            state = Path(directory) / "new-parent/state"
+            args = SimpleNamespace(publish_branch=None, state_dir=state)
+            with patch.object(bench, "load_plan") as plan, \
+                    patch.object(bench, "load_binding") as binding, \
+                    patch.object(bench, "host_identity") as host, \
+                    patch.object(bench, "source_identity") as source, \
+                    patch.object(bench, "dataset") as dataset, \
+                    patch.object(bench, "claim_execution") as claim:
+                for launch in (lambda: bench.main(["--binding", "unused.json"]),
+                               lambda: bench.controller(args, {}, {}),
+                               lambda: bench.controller_locked(args, {}, {})):
+                    with self.assertRaisesRegex(ValueError, "requires --publish-branch"):
+                        launch()
+                for operation in (plan, binding, host, source, dataset, claim):
+                    operation.assert_not_called()
+            self.assertFalse(state.parent.exists())
+
+    def test_formal_controller_requires_canonical_state_before_runtime_work(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            publication = {"run_id": "123", "run_attempt": "1"}
+            args = SimpleNamespace(publish_branch="validation/v032-round4-performance-123-1",
+                baseline_src=root / "baseline", candidate_src=root / "candidate",
+                locomo_path=root / "fixture", output=root / "public/report.json.gz",
+                state_dir=root / "arbitrary-new-state")
+            with patch.object(bench, "ROOT", root), \
+                    patch.object(bench, "publication_identity", return_value=publication), \
+                    patch.object(bench, "host_identity") as host, \
+                    patch.object(bench, "source_identity") as source, \
+                    patch.object(bench, "dataset") as dataset, \
+                    patch.object(bench, "claim_execution") as claim:
+                with self.assertRaisesRegex(ValueError, "canonical claimed run directory"):
+                    bench.controller_locked(args, {}, {})
+                for operation in (host, source, dataset, claim):
+                    operation.assert_not_called()
+            self.assertFalse(args.state_dir.exists())
+
+    def test_direct_worker_without_claim_stops_before_source_load_or_timing(self):
+        with tempfile.TemporaryDirectory() as directory:
+            state = Path(directory) / "state"
+            bench.exclusive(state / "run.json", {"publication": None, "execution_claim": None})
+            args = SimpleNamespace(state_dir=state, worker="unclaimed-worker")
+            with patch.object(bench, "host_identity") as host, \
+                    patch.object(bench, "source_identity") as source, \
+                    patch.object(bench, "dataset") as dataset, \
+                    patch.object(bench.time, "perf_counter_ns") as timer:
+                with self.assertRaisesRegex(ValueError, "preserved hosted publication and execution claim"):
+                    bench.worker(args, {}, {})
+                for operation in (host, source, dataset, timer):
+                    operation.assert_not_called()
+            self.assertEqual(list(state.iterdir()), [state / "run.json"])
+
+    def test_claimed_worker_requires_exact_published_next_intent_and_no_prior_evidence(self):
+        # The valid case only checks receipts. No worker, input loader, runtime,
+        # timing or Git write is executed by this artificial fixture.
+        cases = {"valid": None, "alternate-state": "canonical claimed run directory",
+            "missing-claim-ref": "not preserved remotely", "claim-bytes": "committed original",
+            "claim-parent": "directly from the frozen", "remote-head": "exact published result head",
+            "published-run": "published controller state", "missing-intent": "published controller start intent",
+            "already-complete": "next worker", "failed-checkpoint": "next worker",
+            "existing-ledger": "never remeasure", "local-compressed-ledger": "never repeat",
+            "publication-failed": "Failed publication"}
+        for mutation, error_message in cases.items():
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                plan = json.loads(bench.PLAN.read_bytes())
+                binding = {"fixture": "frozen"}
+                binding_path = root / "binding.json"
+                binding_path.write_bytes(bench.json_bytes(binding))
+                fingerprint = bench.sha(binding_path.read_bytes())
+                public = "benchmarks/reports/round4-performance-123-1"
+                publication = {"branch": "validation/v032-round4-performance-123-1", "directory": public,
+                    "workflow_commit": "d" * 40, "run_id": "123", "run_attempt": "1"}
+                claim_path = public + "/execution-claim.json"
+                claim_raw = bench.json_bytes({"schema_version": 1, "status": "claimed-before-measurement",
+                    "workflow_commit": publication["workflow_commit"], "binding_sha256": fingerprint,
+                    "run_id": "123", "run_attempt": "1", "claimed_at": "fixture"})
+                bench.exclusive_bytes(root / claim_path, claim_raw)
+                claim = {"branch": "validation/v032-round4-performance-claim-" + fingerprint,
+                    "commit": "c" * 40, "path": claim_path, "sha256": bench.sha(claim_raw)}
+                run = {"publication": publication, "execution_claim": claim,
+                    "output": str(root / public / "report.json.gz"), "workflow_commit": "d" * 40,
+                    "binding": binding, "binding_sha256": fingerprint,
+                    "plan_sha256": bench.sha(bench.PLAN.read_bytes()), "evaluator_files": {"fixture": "hash"},
+                    "schedule": bench.schedule(plan)}
+                state = root / ".artifacts/round4-performance-123-1"
+                args = SimpleNamespace(state_dir=state, binding=binding_path, worker=run["schedule"][0]["key"])
+                run_raw = bench.json_bytes(run)
+                bench.exclusive_bytes(state / "run.json", run_raw)
+                intent_path = "workers/" + args.worker + ".started.json"
+                intent_raw = bench.json_bytes({"worker": run["schedule"][0], "run_identity_sha256": bench.digest(run)})
+                bench.exclusive_bytes(state / intent_path, intent_raw)
+                checkpoint = {"run_identity_sha256": bench.digest(run), "status": "running",
+                              "error": None, "completed_workers": []}
+                head = "e" * 40
+                responses = {
+                    ("show", claim["commit"] + ":" + claim_path): claim_raw,
+                    ("rev-parse", claim["commit"] + "^"): ("d" * 40 + "\n").encode(),
+                    ("ls-remote", "--heads", "origin", "refs/heads/" + claim["branch"]):
+                        (claim["commit"] + "\trefs/heads/" + claim["branch"] + "\n").encode(),
+                    ("rev-parse", "HEAD"): (head + "\n").encode(),
+                    ("ls-remote", "--heads", "origin", "refs/heads/" + publication["branch"]):
+                        (head + "\trefs/heads/" + publication["branch"] + "\n").encode(),
+                    ("show", head + ":" + public + "/run.json"): run_raw,
+                    ("show", head + ":" + public + "/" + intent_path): intent_raw,
+                }
+                if mutation == "alternate-state":
+                    args.state_dir = root / "fresh-replay-directory"
+                elif mutation == "missing-claim-ref":
+                    responses[("ls-remote", "--heads", "origin", "refs/heads/" + claim["branch"])] = b""
+                elif mutation == "claim-bytes":
+                    (root / claim_path).write_bytes(claim_raw + b" ")
+                elif mutation == "claim-parent":
+                    responses[("rev-parse", claim["commit"] + "^")] = b"f" * 40 + b"\n"
+                elif mutation == "remote-head":
+                    responses[("ls-remote", "--heads", "origin", "refs/heads/" + publication["branch"])] = b"moved"
+                elif mutation == "published-run":
+                    responses[("show", head + ":" + public + "/run.json")] = b"{}\n"
+                elif mutation == "missing-intent":
+                    responses[("show", head + ":" + public + "/" + intent_path)] = b"{}\n"
+                elif mutation == "already-complete":
+                    checkpoint["completed_workers"] = [args.worker]
+                elif mutation == "failed-checkpoint":
+                    checkpoint.update(status="failed_or_interrupted", error={"type": "fixture"})
+                elif mutation == "local-compressed-ledger":
+                    bench.exclusive_bytes(state / "workers" / (args.worker + ".attempts.jsonl.gz"),
+                                          b"preserve an interrupted compressed ledger")
+                elif mutation == "publication-failed":
+                    bench.exclusive(root / public / "publication-failure.json", {"fixture": "preserved"})
+                responses[("show", head + ":" + public + "/checkpoint.json")] = bench.json_bytes(checkpoint)
+                def git(*values):
+                    if values[0] == "ls-tree":
+                        return b"existing.attempts.jsonl\n" if mutation == "existing-ledger" else b""
+                    return responses[values]
+                with patch.object(bench, "ROOT", root), \
+                        patch.object(bench, "publication_identity", return_value=publication), \
+                        patch.object(bench, "file_hashes", return_value={"fixture": "hash"}), \
+                        patch.object(bench, "git", side_effect=git), \
+                        patch.object(bench.subprocess, "run") as command, \
+                        patch.object(bench, "dataset") as dataset:
+                    if error_message is None:
+                        self.assertEqual(bench.verify_worker_claim(args, run, plan, binding), claim)
+                    else:
+                        with self.assertRaisesRegex(ValueError, error_message):
+                            bench.verify_worker_claim(args, run, plan, binding)
+                    command.assert_not_called()
+                    dataset.assert_not_called()
+
     def test_binding_claim_refuses_duplicates_and_never_retries_ambiguous_push(self):
         for already_claimed in (True, False):
             with self.subTest(already_claimed=already_claimed), tempfile.TemporaryDirectory() as directory:
@@ -371,7 +590,10 @@ class PerformanceGateTests(unittest.TestCase):
                 def git(*values):
                     if values[0] == "ls-remote":
                         return b"already claimed" if already_claimed else b""
-                    return b"c" * 40 + b"\n" if values[0] == "rev-parse" else b""
+                    if values[0] == "rev-parse":
+                        committed = any("commit" in argv for argv in calls)
+                        return (b"c" if committed else b"d") * 40 + b"\n"
+                    return b""
                 def command(argv, **kwargs):
                     calls.append(argv)
                     if argv[1] == "push":
@@ -453,11 +675,13 @@ class PerformanceGateTests(unittest.TestCase):
                 root = Path(directory)
                 args = SimpleNamespace(baseline_src=root / "baseline", candidate_src=root / "candidate",
                     locomo_path=root / "artificial-input", binding=root / "binding.json",
-                    output=root / "public/report.json.gz", state_dir=root / "state", resume=False,
+                    output=root / "public/report.json.gz",
+                    state_dir=root / ".artifacts/round4-performance-123-1", resume=False,
                     publish_branch="validation/v032-round4-performance-123-1")
                 args.locomo_path.write_bytes(b"artificial data; never parsed")
                 args.binding.write_bytes(bench.json_bytes(binding))
-                publication = {"branch": args.publish_branch, "workflow_commit": "d" * 40}
+                publication = {"branch": args.publish_branch, "workflow_commit": "d" * 40,
+                               "run_id": "123", "run_attempt": "1"}
                 events = []
                 def dataset(plan, name, path):
                     spec = original["run"]["cohorts"][name]
@@ -483,7 +707,8 @@ class PerformanceGateTests(unittest.TestCase):
                     ledger = ledger_bytes(worker)
                     Path(str(prefix) + ".attempts.jsonl").write_bytes(ledger)
                     Path(str(prefix) + ".attempts.jsonl.gz").write_bytes(gzip.compress(ledger, mtime=0))
-                with patch.object(bench, "host_identity", return_value={"packages": bench.PACKAGES, "boot": "fixture"}), \
+                with patch.object(bench, "ROOT", root), \
+                        patch.object(bench, "host_identity", return_value={"packages": bench.PACKAGES, "boot": "fixture"}), \
                         patch.object(bench, "source_identity", side_effect=lambda path: binding["sources"][path.name]), \
                         patch.object(bench, "dataset", side_effect=dataset), \
                         patch.object(bench, "file_hashes", return_value=original["run"]["evaluator_files"]), \
