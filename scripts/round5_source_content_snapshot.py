@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 
 VERSION = "round5-source-content-snapshot-1"
 # (name, declared type, NOT NULL flag, default SQL, primary-key position)
@@ -93,3 +94,28 @@ def source_content_snapshot(db):
         "table_sha256": table_hashes,
     }
     return {**identity, "sha256": digest(identity)}
+
+
+def verify_content_snapshot(value):
+    """Reject incomplete or internally inconsistent saved v2 identities."""
+    fields = {"version", "excluded_storage_columns", "schema_sha256",
+              "retained_columns", "row_counts", "table_sha256", "sha256"}
+    expected_columns = {table: [column[0] for column in specification
+        if column[0] not in EXCLUDED_STORAGE_COLUMNS.get(table, ())]
+        for table, specification in SCHEMA.items()}
+    if (type(value) is not dict or set(value) != fields or
+            value["version"] != VERSION or
+            value["excluded_storage_columns"] != {name: list(columns)
+                for name, columns in EXCLUDED_STORAGE_COLUMNS.items()} or
+            value["retained_columns"] != expected_columns or
+            type(value["row_counts"]) is not dict or
+            set(value["row_counts"]) != set(SCHEMA) or
+            any(type(count) is not int or count < 0 for count in value["row_counts"].values()) or
+            type(value["table_sha256"]) is not dict or set(value["table_sha256"]) != set(SCHEMA)):
+        raise ValueError("Saved deterministic source identity has changed shape")
+    hashes = [value["schema_sha256"], value["sha256"], *value["table_sha256"].values()]
+    if (any(type(item) is not str or re.fullmatch("[0-9a-f]{64}", item) is None
+            for item in hashes) or
+            value["sha256"] != digest({key: item for key, item in value.items() if key != "sha256"})):
+        raise ValueError("Saved deterministic source identity checksum differs")
+    return value

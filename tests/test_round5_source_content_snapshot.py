@@ -1,6 +1,7 @@
 """Real invented SQLite fixtures; never open a corpus, selector or model."""
 from __future__ import annotations
 
+import copy
 import json
 import sqlite3
 import time
@@ -10,7 +11,7 @@ from memory_book import MemoryBook
 from memory_book import store
 from benchmarks.semantic_eval import source_snapshot
 from scripts.round5_source_content_snapshot import (
-    EXCLUDED_STORAGE_COLUMNS, SCHEMA, source_content_snapshot)
+    EXCLUDED_STORAGE_COLUMNS, SCHEMA, source_content_snapshot, verify_content_snapshot)
 
 
 PAYLOADS = (
@@ -109,6 +110,8 @@ class SourceContentSnapshotTests(unittest.TestCase):
         self.assertIn(("sessions", "raw_json"), checked)
         self.assertIn(("pages", "source_refs"), checked)
         self.assertIn(("pages", "rid"), checked)
+        print("Fresh v2 retained-column mutation proof:", json.dumps({"checked_columns": checked,
+              "count": len(checked), "all_changed_digest": True, "fresh_rows_decoded": 0}, sort_keys=True))
 
     def test_row_counts_and_original_dates_remain_part_of_identity(self):
         book = self.book()
@@ -122,8 +125,10 @@ class SourceContentSnapshotTests(unittest.TestCase):
                 self.assertNotEqual(after["sha256"], before["sha256"])
                 self.assertEqual(after["row_counts"][table], before["row_counts"][table] - 1)
         raw = [json.loads(row[0]) for row in book.db.execute("SELECT raw_json FROM sessions")]
+        # Shipping normalize_session preserves these input instants using its
+        # canonical +00:00 form. The original Z inputs remain unchanged above.
         self.assertEqual({item["created_at"] for item in raw},
-                         {item["created_at"] for item in PAYLOADS})
+                         {"2001-02-03T04:05:06+00:00", "2002-03-04T05:06:07+00:00"})
         self.assertTrue(any("1997" in json.dumps(item) for item in raw))
 
     def test_schema_addition_removal_type_default_and_version_are_rejected(self):
@@ -151,6 +156,25 @@ class SourceContentSnapshotTests(unittest.TestCase):
                 db.execute("PRAGMA " + pragma)
                 with self.assertRaisesRegex(ValueError, "registered MemoryBook schema"):
                     source_content_snapshot(db)
+
+    def test_saved_identity_requires_all_cells_schema_and_exact_exclusion_shape(self):
+        value = source_content_snapshot(self.book().db)
+        self.assertIs(verify_content_snapshot(value), value)
+        changes = [
+            lambda item: item["excluded_storage_columns"]["sessions"].append("created_at"),
+            lambda item: item["retained_columns"]["pages"].remove("source_refs"),
+            lambda item: item["row_counts"].pop("turns"),
+            lambda item: item["row_counts"].update(turns=True),
+            lambda item: item["table_sha256"].update(turns="bad"),
+            lambda item: item.update(sha256="0" * 64),
+            lambda item: item.update(schema_sha256="0" * 64),
+        ]
+        for change in changes:
+            with self.subTest(change=change):
+                wrong = copy.deepcopy(value)
+                change(wrong)
+                with self.assertRaises(ValueError):
+                    verify_content_snapshot(wrong)
 
     def test_snapshot_is_read_only_and_full_worker_mutation_detection_remains(self):
         book = self.book()
