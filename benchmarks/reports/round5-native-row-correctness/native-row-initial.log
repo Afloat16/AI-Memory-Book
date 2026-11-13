@@ -1,0 +1,71 @@
+test_custom_cursor_observes_its_original_factory (test_round5_native_rows.NativeCursorTests.test_custom_cursor_observes_its_original_factory) ... ok
+test_custom_row_factory_and_subclass_are_not_bypassed (test_round5_native_rows.NativeCursorTests.test_custom_row_factory_and_subclass_are_not_bypassed) ... ok
+test_custom_text_factory_observes_its_original_cursor_factory (test_round5_native_rows.NativeCursorTests.test_custom_text_factory_observes_its_original_cursor_factory) ... ok
+test_duplicate_extra_missing_reordered_and_empty_shapes_keep_rows (test_round5_native_rows.NativeCursorTests.test_duplicate_extra_missing_reordered_and_empty_shapes_keep_rows) ... ok
+test_interrupted_native_fetch_restores_cursor_and_connection (test_round5_native_rows.NativeCursorTests.test_interrupted_native_fetch_restores_cursor_and_connection) ... ok
+test_native_rows_restore_the_actual_ordered_mapping (test_round5_native_rows.NativeCursorTests.test_native_rows_restore_the_actual_ordered_mapping) ... ok
+test_custom_text_factory_does_not_get_a_native_certificate (test_round5_native_rows.RecallFactoryTransitionTests.test_custom_text_factory_does_not_get_a_native_certificate) ... ok
+test_metadata_failure_keeps_error_order_and_rolls_back_native_snapshot (test_round5_native_rows.RecallFactoryTransitionTests.test_metadata_failure_keeps_error_order_and_rolls_back_native_snapshot) ... FAIL
+test_mixed_native_and_custom_routes_restore_mapping_before_fallback (test_round5_native_rows.RecallFactoryTransitionTests.test_mixed_native_and_custom_routes_restore_mapping_before_fallback) ... FAIL
+test_native_routes_with_custom_metadata_restore_mapping_before_merge (test_round5_native_rows.RecallFactoryTransitionTests.test_native_routes_with_custom_metadata_restore_mapping_before_merge) ... FAIL
+test_real_recall_uses_tuples_without_changing_sources_or_connection_factory (test_round5_native_rows.RecallFactoryTransitionTests.test_real_recall_uses_tuples_without_changing_sources_or_connection_factory) ... ok
+test_replaced_connection_and_wrapped_connect_never_inherit_certificate (test_round5_native_rows.RecallFactoryTransitionTests.test_replaced_connection_and_wrapped_connect_never_inherit_certificate) ... ok
+
+======================================================================
+FAIL: test_metadata_failure_keeps_error_order_and_rolls_back_native_snapshot (test_round5_native_rows.RecallFactoryTransitionTests.test_metadata_failure_keeps_error_order_and_rolls_back_native_snapshot)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/481743406be9/AI-Memory-Book/.artifacts/round5-candidate-g/tests/test_round5_native_rows.py", line 228, in test_metadata_failure_keeps_error_order_and_rolls_back_native_snapshot
+    self.assertEqual(new_sql, old_sql)
+AssertionError: Lists differ: ['BEG[565 chars] "-- SELECT pgno FROM 'main'.'pages_fts_idx' W[5831 chars]ACK'] != ['BEG[565 chars] "-- PRAGMA 'main'.data_version", "-- SELECT p[5897 chars]ACK']
+
+First differing element 5:
+"-- SELECT pgno FROM 'main'.'pages_fts_idx' W[47 chars]IT 1"
+"-- PRAGMA 'main'.data_version"
+
+Second list contains 2 additional elements.
+First extra element 63:
+'SELECT p.id,p.project_id,p.chapter_id,\n                      c.title chapter_title,s.external_id session_id,s.title session_title,s.created_at\n                      FROM pages p JOIN chapters c ON c.id=p.chapter_id\n                      JOIN sessions s ON s.id=p.session_pk WHERE p.rid IN (3,2,1)'
+
+Diff is 7091 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_mixed_native_and_custom_routes_restore_mapping_before_fallback (test_round5_native_rows.RecallFactoryTransitionTests.test_mixed_native_and_custom_routes_restore_mapping_before_fallback)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/481743406be9/AI-Memory-Book/.artifacts/round5-candidate-g/tests/test_round5_native_rows.py", line 212, in test_mixed_native_and_custom_routes_restore_mapping_before_fallback
+    self.assertEqual(new_sql, old_sql)
+AssertionError: Lists differ: ['BEG[565 chars] "-- SELECT pgno FROM 'main'.'pages_fts_idx' W[6614 chars]MIT'] != ['BEG[565 chars] "-- PRAGMA 'main'.data_version", "-- SELECT p[6680 chars]MIT']
+
+First differing element 5:
+"-- SELECT pgno FROM 'main'.'pages_fts_idx' W[47 chars]IT 1"
+"-- PRAGMA 'main'.data_version"
+
+Second list contains 2 additional elements.
+First extra element 69:
+"SELECT p.id,p.title,p.section_id,p.session_pk,p.content,p.source_refs,\n                          pr.name project_name,sec.title section_title FROM pages p\n                          JOIN projects pr ON pr.id=p.project_id JOIN sections sec ON sec.id=p.section_id\n                          WHERE p.id IN ('p_ffadc904bf35ffc19c7ed609','p_9aeea6197df17d6afc7df72b','p_d3511946c9e0e5ba72e0b612')"
+
+Diff is 7946 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_native_routes_with_custom_metadata_restore_mapping_before_merge (test_round5_native_rows.RecallFactoryTransitionTests.test_native_routes_with_custom_metadata_restore_mapping_before_merge)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/481743406be9/AI-Memory-Book/.artifacts/round5-candidate-g/tests/test_round5_native_rows.py", line 220, in test_native_routes_with_custom_metadata_restore_mapping_before_merge
+    self.assertEqual(new_sql, old_sql)
+AssertionError: Lists differ: ['BEG[565 chars] "-- SELECT pgno FROM 'main'.'pages_fts_idx' W[6614 chars]MIT'] != ['BEG[565 chars] "-- PRAGMA 'main'.data_version", "-- SELECT p[6680 chars]MIT']
+
+First differing element 5:
+"-- SELECT pgno FROM 'main'.'pages_fts_idx' W[47 chars]IT 1"
+"-- PRAGMA 'main'.data_version"
+
+Second list contains 2 additional elements.
+First extra element 69:
+"SELECT p.id,p.title,p.section_id,p.session_pk,p.content,p.source_refs,\n                          pr.name project_name,sec.title section_title FROM pages p\n                          JOIN projects pr ON pr.id=p.project_id JOIN sections sec ON sec.id=p.section_id\n                          WHERE p.id IN ('p_ffadc904bf35ffc19c7ed609','p_9aeea6197df17d6afc7df72b','p_d3511946c9e0e5ba72e0b612')"
+
+Diff is 7946 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.103s
+
+FAILED (failures=3)
