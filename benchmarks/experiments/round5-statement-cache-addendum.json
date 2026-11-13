@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "status": "prospective-candidate-i-before-runtime-implementation-and-development-calls",
+  "candidate": "I",
+  "purpose": "Test one bounded connection statement-cache capacity change while preserving all retrieval behavior and original gates.",
+  "parent": {
+    "commit": "5ac62f38440e5620413d2e49ccb1c6c2db66bc75",
+    "runtime_sha256": "1dc58028d2bd7750f3f2205d1908bf6d69876fce5634f79c64ffde0056766371",
+    "selection": "G remains rejected standalone. I uses G as an implementation base, excludes E/F/H runtime changes, and is measured directly against released v0.3.2."
+  },
+  "baseline": {
+    "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+    "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+  },
+  "prior_observations": {
+    "profile_path": "benchmarks/reports/round5-development-h/profile.json.gz",
+    "scope": "Previously saved instrumented profile only; not an uninstrumented speed estimate or causal proof.",
+    "public_char4000_profile_seconds": 2.584201870000001,
+    "sqlite_execute_self_seconds": 1.0179,
+    "static_template_family": "Exact and stem routes are each bounded at96, so the union metadata IN query alone may have up to192 distinct placeholder counts. Other scopes, novelty pools, source-page and turn queries add statement templates. Actual default-workload cache misses have not been measured.",
+    "h_disposition": "H paired p95 geometric improvement5.2895176599741305%; three adverse cells exceed5% regression. H was rejected and will not be included.",
+    "profile_caveat": "SQLite execute self time includes query preparation and FTS/query execution. It cannot be attributed to reparsing or treated as entirely avoidable."
+  },
+  "hypothesis": "A fixed512-entry sqlite3 prepared-statement cache may reduce reparsing of variable-cardinality IN statements on a long-lived ordinary connection. This does not establish cache thrashing in the saved workloads and promises no benefit for a short-lived or already fitting workload.",
+  "sources": [
+    {
+      "url": "https://docs.python.org/3.12/library/sqlite3.html",
+      "fact": "cached_statements bounds the per-connection internal statement cache and defaults to128."
+    },
+    {
+      "url": "https://docs.python.org/3.10/library/sqlite3.html",
+      "fact": "Python3.10 documents a default of100 cached statements."
+    }
+  ],
+  "change": {
+    "allowed_runtime_files": [
+      "src/memory_book/store.py"
+    ],
+    "connection_capacity": 512,
+    "applicability": "Pass cached_statements=512 only when sqlite3.connect is the saved built-in _sqlite3.connect identity. A replaced/custom callable receives exactly the historical path, timeout=10, isolation_level=None arguments, with no new keyword.",
+    "no_sweep": "Only this fixed prospective capacity is authorized. Do not test multiple capacities and choose a favorable result.",
+    "other_settings": "Do not include H pager target or change SQL text/parameters, pager settings, mmap, schema, indexing, transaction boundaries, connection lifetime, result-cache flags, ranking, tokenization or dependencies.",
+    "fixtures": [
+      "tests/test_round5_statement_cache.py",
+      "tests/test_round5_native_rows.py"
+    ],
+    "inherited_fixture_fix": "Carry only the already reviewed Python3.10 closure-order fixture repair from H: create the cursor before execute in the custom text_factory test. The original G failed CI remains preserved."
+  },
+  "correctness_before_corpus": {
+    "mechanism": "Invented SQL only: authorizer observations demonstrate preparing a bounded working set once and reusing it while new bound values/results and committed mutations remain visible. Record counters, not latency claims; no benchmark corpus content or retrieval.",
+    "contracts": "Test custom connect compatibility, native connection certificate, transactions/external committed changes/schema invalidation, existing result-cache behavior, and existing native-row/materialization/token/scope fixtures. Full output equality to v0.3.2 remains mandatory.",
+    "fallback": "Do not remove any existing native-connection, cursor, ordered-column, value-type or mapping/exception fallback guard."
+  },
+  "resources": {
+    "boundary": "512 entries is a count limit, not a byte or process-RSS cap. SQLite owns prepared statements and may retain additional internal state/parameter allocations. No new application-managed query, evidence, result or embedding cache is added.",
+    "release_gate": "Retain all original initialization/ingestion/reingestion/RSS/storage reporting and the >10% mean increase review threshold. Any extra memory must be quantified and independently reviewed; do not hide startup or process costs.",
+    "capacity_limit": "512 does not guarantee coverage of every session/source-turn/limit/scope working set; it is a fixed bounded prospective choice without a parameter sweep."
+  },
+  "development": {
+    "source": "Commit exact I source and correctness receipt remotely before creating its binding.",
+    "profile_calls": 4732,
+    "paired_calls": 4096,
+    "payload_pairs": 2048,
+    "helpers": [
+      "scripts/round4_development_profile.py",
+      "scripts/round4_development_pair.py"
+    ],
+    "data": "Same old synthetic61/public1015 cohorts and frozen F recovery snapshot bytes; private new I worker copies only.",
+    "order": "Same fixed profile-first and8 paired AB/BA workers as G/H. New I paths and intents. Complete raw payload hashes and every adverse cell retained.",
+    "durability": "Remote exact started intent before each stage; save each complete result before the next worker. Never replay an already started stage or overwrite evidence."
+  },
+  "formal_and_quality": "The original14-cell/66248-call performance, numeric/resource, full payload, historical lexical/Q2 gates remain unchanged. No fresh IDs/content selected. Any combination with T1 requires its own final source freeze and all applicable tests. Do not add isolated candidate percentage improvements.",
+  "retrieval_calls_executed_for_i": 0,
+  "independent_review": "optimize_text independently reviewed native-only applicability, unchanged custom call arguments, lack of real-workload thrash evidence, template-bound limits, retained parameter allocation possibility and unchanged resource gates before implementation."
+}
