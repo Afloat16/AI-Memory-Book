@@ -683,7 +683,7 @@ class MemoryBook:
             return (lo, hi)
         return None
 
-    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False) -> dict:
+    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False, follow_titles: bool = False) -> dict:
         started = time.perf_counter_ns()
         query = _string(query, "query", maximum=8000, required=False)
         _integer(budget_chars, "budget_chars", 0, 100_000)
@@ -704,6 +704,12 @@ class MemoryBook:
             raise ValueError("semantic must be a boolean")
         if semantic and strategy != "book":
             raise ValueError("semantic recall requires the book strategy")
+        if type(follow_titles) is not bool:
+            raise ValueError("follow_titles must be a boolean")
+        if follow_titles and strategy != "book":
+            raise ValueError("follow_titles requires the book strategy")
+        if follow_titles and (semantic or coverage):
+            raise ValueError("follow_titles cannot be combined with semantic or coverage")
         for key, val in (("project", project), ("chapter", chapter), ("session", session)):
             if val is not None:
                 _string(val, key)
@@ -711,9 +717,24 @@ class MemoryBook:
         current_query = bool(CURRENT_QUERY.search(query) and not HISTORICAL_QUERY.search(query))
         use_stem = strategy == "book" and any(ASCII_WORD.search(token) for token in qt)
         semantic_model = self._semantic_encoder() if semantic else None
+        follow_active = False
+        title_reference_state = None
+        if follow_titles:
+            from .title_reference import VERSION as TITLE_REFERENCE_VERSION, follow_title_reference
+            reason = ("project_required" if project is None else
+                      "limit_below_two" if limit < 2 else
+                      "zero_character_budget" if not budget_chars else
+                      "zero_token_budget" if budget_tokens == 0 else
+                      "temporal_query" if CURRENT_QUERY.search(query) or HISTORICAL_QUERY.search(query) else
+                      "no_lexical_results" if not qt else None)
+            follow_active = reason is None
+            title_reference_state = {"version": TITLE_REFERENCE_VERSION,
+                                     "active": False, "applied": False,
+                                     "reason": reason or "no_lexical_results"}
         if self.db is not self._native_db:
             self._native_db = None
-        native_connection = self._native_db if not coverage and semantic_model is None else None
+        native_connection = (self._native_db if not coverage and semantic_model is None
+                             and not follow_active else None)
         # A read snapshot ties candidates, sources, and the cache revision together.
         self.db.execute("BEGIN")
         try:
@@ -725,6 +746,8 @@ class MemoryBook:
                 cache_options.extend(["semantic", SEMANTIC_VERSION, semantic_model.fingerprint, FUSION_VERSION])
             if token_counter is not None:
                 cache_options.extend([budget_tokens, tokenizer, token_counter.version])
+            if follow_titles:
+                cache_options.extend(["follow_titles", TITLE_REFERENCE_VERSION])
             cache_key = hashlib.sha256(_json(cache_options).encode()).hexdigest()
             cached = self.db.execute("SELECT payload FROM recall_cache WHERE key=? AND revision=?", (cache_key, revision)).fetchone() if use_cache and self.cache_size else None
             if cached:
@@ -797,7 +820,7 @@ class MemoryBook:
                 metadata_columns = ["id", "project_id", "chapter_id", "chapter_title",
                                     "session_id", "session_title", "created_at"]
                 id_position = 1 if use_stem else 0
-                canonical_routes = (not coverage and semantic_model is None and
+                canonical_routes = (not coverage and semantic_model is None and not follow_active and
                                     type(routes[0]) is list and
                                     (not use_stem or type(routes[1]) is list))
                 if canonical_routes:
@@ -1054,6 +1077,14 @@ class MemoryBook:
                     candidates = preferred + [item for item in candidates if item["rid"] not in seen]
                 if semantic_model is not None:
                     candidates = fuse_candidates(candidates, rank_pages(self.db, semantic_model, query, where, params))
+                if follow_active:
+                    # Opt-in T1 requires the unchanged complete lexical order,
+                    # including original novelty, to attribute one target. The
+                    # default and precondition-inactive paths keep the existing
+                    # delayed materialization, SQL and cache identity.
+                    candidates, title_reference_state = follow_title_reference(
+                        self.db, candidates, project=project, chapter=chapter,
+                        session=session, limit=limit)
                 if not late_materialize:
                     candidate_count = len(candidates)
                 if candidates:
@@ -1150,6 +1181,8 @@ class MemoryBook:
         if not results and candidates:
             warnings.append("Budget too small to return an evidence block including its citation.")
         result = {"query": query, "results": results, "context": context, "context_chars": len(context), "estimated_tokens": estimate_tokens(context), "candidate_count": candidate_count, "revision": revision, "cache_hit": False, "warnings": warnings, "strategy": strategy, "budget_chars": budget_chars, "truncated": candidate_count > len(results) or any(r["truncated"] for r in results)}
+        if follow_titles:
+            result["title_reference"] = title_reference_state
         if semantic_model is not None:
             result.update(semantic=True, semantic_model_fingerprint=semantic_model.fingerprint)
         if token_counter is not None:
