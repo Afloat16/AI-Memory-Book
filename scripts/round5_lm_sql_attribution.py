@@ -25,7 +25,7 @@ import sys
 import tarfile
 import tempfile
 import time
-from types import BuiltinMethodType
+from types import BuiltinMethodType, MethodDescriptorType
 import unittest
 from unittest.mock import patch
 import urllib.request
@@ -52,6 +52,10 @@ CONFIG_NAMES = ("native-char4000", "native-token512", "native-token1024", "nativ
 NATIVE_CONNECTION, NATIVE_CURSOR = sqlite3.Connection, sqlite3.Cursor
 NATIVE_ROW, NATIVE_CONNECT = sqlite3.Row, sqlite3.connect
 PRIMARY_METHODS = frozenset(("Connection.execute", "Cursor.fetchall", "Cursor.fetchone"))
+NATIVE_DESCRIPTORS = {(owner, name): value for owner in (NATIVE_CONNECTION, NATIVE_CURSOR)
+    for name, value in vars(owner).items() if type(value) is MethodDescriptorType}
+PAIRING_ADDENDUM = ROOT / "benchmarks/experiments/round5-lm-sql-attribution-pairing-addendum.json"
+PAIRING_ADDENDUM_SHA = "cf55b88d45ee7a0dca53abefa6dc651d7eceb36f6ae0e709919655c566c36d21"
 
 
 class PublicationError(RuntimeError):
@@ -245,6 +249,8 @@ def archive_correctness_export(directory):
 def scope_value():
     if sha(SCOPE) != SCOPE_SHA:
         raise ValueError("Prospective SQL attribution scope bytes changed")
+    if sha(PAIRING_ADDENDUM) != PAIRING_ADDENDUM_SHA:
+        raise ValueError("Reviewed native identity correction changed")
     return read(SCOPE)
 
 
@@ -391,18 +397,36 @@ class SQLiteObserver:
                     "parent_sequence": self.stack[-1]["row"]["sequence"] if self.stack else None,
                     "site_id": site, "method": method, "status": "open",
                     "start_ns": None, "end_ns": None, "inclusive_ns": None,
-                    "child_inclusive_ns": 0, "exclusive_ns": None}
+                    "child_inclusive_ns": 0, "exclusive_ns": None, "wrapper_is": None}
                 self.spans.append(row)
-                item = {"frame": frame, "callable": arg, "row": row}
+                receiver = arg.__self__
+                owner = type(receiver)
+                descriptor = NATIVE_DESCRIPTORS.get((owner, arg.__name__))
+                if descriptor is None:
+                    raise ObserverFailure("Unsupported native builtin descriptor")
+                item = {"frame": frame, "callable": arg, "receiver": receiver,
+                    "owner": owner, "descriptor": descriptor, "name": arg.__name__, "row": row}
                 row["start_ns"] = self.clock()
                 self.stack.append(item)
             else:
                 if not self.stack:
                     raise ObserverFailure("SQLite exit without entry")
                 item = self.stack[-1]
-                # Artificial real-CPython probes must establish this identity.
-                if item["frame"] is not frame or item["callable"] is not arg:
-                    raise ObserverFailure("SQLite exit is not the exact LIFO entry")
+                # The reviewed artificial witness shows fresh wrappers at inline exits.
+                # Semantic native identity, not wrapper allocation, must be exact.
+                receiver = arg.__self__
+                owner = type(receiver)
+                descriptor = NATIVE_DESCRIPTORS.get((owner, arg.__name__))
+                checks = {"frame_is": item["frame"] is frame,
+                    "receiver_is": item["receiver"] is receiver, "native_type_is": item["owner"] is owner,
+                    "descriptor_is": descriptor is not None and item["descriptor"] is descriptor,
+                    "method_same": item["name"] == arg.__name__}
+                if not all(checks.values()):
+                    self.callback_failure = {"type": "NativePairMismatch", "event": event,
+                        "checks": checks, "wrapper_is": item["callable"] is arg,
+                        "open_sequences": [v["row"]["sequence"] for v in self.stack]}
+                    raise ObserverFailure("SQLite exit is not the exact LIFO native identity")
+                item["row"]["wrapper_is"] = item["callable"] is arg
                 row = item["row"]
                 inclusive = entered - row["start_ns"]
                 exclusive = inclusive - row["child_inclusive_ns"]
@@ -414,8 +438,9 @@ class SQLiteObserver:
                 if self.stack:
                     self.stack[-1]["row"]["child_inclusive_ns"] += inclusive
         except BaseException as error:
-            self.callback_failure = {"type": type(error).__name__, "event": event,
-                "open_sequences": [v["row"]["sequence"] for v in self.stack]}
+            if self.callback_failure is None:
+                self.callback_failure = {"type": type(error).__name__, "event": event,
+                    "open_sequences": [v["row"]["sequence"] for v in self.stack]}
             raise ObserverFailure("Observer callback failed; preserve partial spans") from None
         finally:
             spent = self.clock() - entered

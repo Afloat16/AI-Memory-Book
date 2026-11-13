@@ -216,18 +216,50 @@ class ArithmeticAndSites(unittest.TestCase):
         self.assertEqual([r["exclusive_ns"] for r in observer.spans], [50, 20])
         self.assertEqual(observer.bookkeeping_ns, 24)
 
-    def test_same_named_different_builtin_does_not_match(self):
+    def test_fresh_wrapper_with_exact_native_identity_is_recorded(self):
         observer = d.SQLiteObserver(catalog(), itertools.count().__next__)
         with sqlite3.connect(":memory:") as db:
             first, another = db.execute, db.execute
             self.assertIsNot(first, another)
             frame = sys._getframe()
             observer(frame, "c_call", first)
+            observer(frame, "c_return", another)
+        self.assertEqual(observer.spans[0]["status"], "returned")
+        self.assertIs(observer.spans[0]["wrapper_is"], False)
+        self.assertIsNone(observer.callback_failure)
+
+    def test_wrong_receiver_method_frame_and_non_lifo_still_fail(self):
+        with sqlite3.connect(":memory:") as first, sqlite3.connect(":memory:") as second:
+            frame = sys._getframe()
+            for kind in ("receiver", "method", "frame", "order"):
+                with self.subTest(kind=kind):
+                    observer = d.SQLiteObserver(catalog(), itertools.count().__next__)
+                    original = first.execute
+                    observer(frame, "c_call", original)
+                    if kind == "order":
+                        observer(frame, "c_call", second.execute)
+                    def wrong_frame():
+                        observer(sys._getframe(), "c_return", original)
+                    with self.assertRaises(d.ObserverFailure):
+                        if kind == "frame":
+                            wrong_frame()
+                        else:
+                            returned = second.execute if kind == "receiver" else first.commit if kind == "method" else original
+                            observer(frame, "c_return", returned)
+                    self.assertEqual(observer.callback_failure["type"], "NativePairMismatch")
+                    self.assertTrue(observer.report()["open_sequences"])
+                    self.assertFalse(observer.report()["valid"])
+
+    def test_missing_exit_remains_terminal_and_keeps_open_span(self):
+        with sqlite3.connect(":memory:") as db:
+            observer = d.SQLiteObserver(catalog())
+            observer.begin()
+            observer(sys._getframe(), "c_call", db.execute)
             with self.assertRaises(d.ObserverFailure):
-                observer(frame, "c_return", another)
+                observer.finish()
+        self.assertEqual(observer.callback_failure["type"], "UnclosedNativeStack")
         self.assertEqual(observer.spans[0]["status"], "open")
-        self.assertEqual(observer.report()["open_sequences"], [0])
-        self.assertIsNotNone(observer.callback_failure)
+        self.assertFalse(observer.report()["valid"])
 
     def test_negative_span_exit_without_entry_and_open_stack_keep_partial(self):
         observer = d.SQLiteObserver(catalog(), iter([0, 10, 11, 5, 6]).__next__)
