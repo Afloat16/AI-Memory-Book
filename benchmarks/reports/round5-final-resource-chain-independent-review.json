@@ -401,5 +401,104 @@
       "git_blob": "51cff3679a25a467eba3b05ac9e68ee4dacec1e6",
       "sha256": "532daaf018d6de40ac64109a1d53cbc55f459e0cade6df81fa8e96937cb5b04e"
     }
-  }
+  },
+  "clarifications": [
+    {
+      "recorded_at_utc": "2026-11-13T17:41:17Z",
+      "topic": "The 2048-call historical character diagnostic is already inside the 5120-call lexical workflow",
+      "original_registration": "benchmarks/experiments/round5-plan.json: compatibility.historical_char100000_diagnostic",
+      "existing_wrapper": "scripts/round5_lexical_compat_hosted.py run",
+      "original_helper": "scripts/round5_compatibility.py: schedule(), worker(), audit()",
+      "trigger": "refs/heads/ci/v033-lexical-compat-hosted-1",
+      "registered_scope": "benchmarks/experiments/round5-lexical-compat-hosted-scope.json",
+      "call_decomposition": {
+        "token_correctness": 3072,
+        "character_diagnostic": 2048,
+        "total": 5120,
+        "token_workers": 2,
+        "character_workers": 8,
+        "total_workers": 10,
+        "complete_payload_pairs": 2560
+      },
+      "precise_scope": "Token workers cover 256 queries x 2 encoders x 3 token budgets x 2 sources = 3072. Character workers cover the same 256 queries x 2 sources x 4 ABBA rounds = 2048, with budget_chars=100000, limit=5, cache disabled and seed51256. The original audit requires pooled character p50/p95 regression <=5% while preserving per-round resources.",
+      "clarification": "The earlier word separate distinguishes this historical character diagnostic from the 14-cell/66248-call formal speed matrix. It is not an additional run beyond lexical5120. The existing wrapper iterates the original full10-worker schedule and requires total5120/pairs2560/workers10. Do not run another2048-call copy.",
+      "reviewed_files": {
+        "scripts/round5_compatibility.py": {
+          "git_blob": "653ff0c966ade0f2fb657f0562ad8b257f725250",
+          "sha256": "455eacdff8d1384d608a3abef5ba709d0fe1f08210863967f01b28f2fe4cf6f3"
+        },
+        "scripts/round5_lexical_compat_hosted.py": {
+          "git_blob": "9ee768fc17f287da1e75dbced0d4e1d78be00a88",
+          "sha256": "0ef4d08dc837775e732b3953b75ee5618d5774c67efa51cae4564f113626b8c6"
+        },
+        "benchmarks/experiments/round5-lexical-compat-hosted-scope.json": {
+          "git_blob": "dc784ebd83837bca4d27fc5515a9ef96923018e8",
+          "sha256": "585616ed4ffae97b07729956dfc530a7e2440594eb9b266c516d3c99b9501145"
+        }
+      }
+    },
+    {
+      "recorded_at_utc": "2026-11-13T17:41:17Z",
+      "topic": "Later control integration CI terminal status",
+      "run_id": 43471938589,
+      "head_sha": "1190d95343871f0d5ddc6893f93c044eaa36089f",
+      "jobs": [
+        {
+          "id": 132045789883,
+          "name": "mcp",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 132045789903,
+          "name": "core (3.12)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 132045789976,
+          "name": "installers (windows-latest)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 132045790065,
+          "name": "core (3.10)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 132045790200,
+          "name": "core (3.13)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 132045790279,
+          "name": "container",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 132045790397,
+          "name": "installers (ubuntu-latest)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 132045790466,
+          "name": "installers (macos-latest)",
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "id": 132045792051,
+          "name": "reader-browser",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "conclusion": "Eight jobs completed successfully; macOS installer132045790466 completed cancelled. This does not satisfy nine-successful-job release acceptance. Keep the earlier queued observation as true historical status; do not retry the old run. A future exact final integration/release source still needs the full nine successful jobs."
+    }
+  ]
 }
