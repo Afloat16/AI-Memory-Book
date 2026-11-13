@@ -5,7 +5,104 @@ Product fixtures, examples, screenshots, and capture measurements are synthetic;
 the published experiments also evaluate LoCoMo and HotpotQA text corpora. No private
 user conversation history was used in development or published.
 
-## Current: v0.3.1 completed measurement and recovery
+## Current: v0.3.2 completed fourth-round methods and evidence
+
+The [registered plan](../benchmarks/experiments/round4-plan.json),
+[development addendum](../benchmarks/experiments/round4-development-addendum.json)
+and [exact-counting addendum](../benchmarks/experiments/round4-counting-addendum.json)
+retain the published v0.3.1 baseline and freeze each extension before its
+measurements. The final C2 runtime is commit
+`2d7b5e38839fb21724ad3beec6b6ebabbda45636`, SHA256
+`179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93`.
+Ranking, indexed content, schemas, Q2 model/vector policy and fusion remain
+unchanged. Complete-payload comparisons exclude only `latency_ms`.
+
+The [C2 profile](../benchmarks/reports/round4-development/candidate-c2-manifest.json)
+preserves 4,732 complete payload matches on the two old cohorts. The separate
+[historical first-use recovery](../benchmarks/reports/round4-development/final-hotpot-first-use-recovery-manifest.json)
+preserves 2,048 calls, 1,024 exact pairs and every start/finish event. Its four
+fresh workers each reuse a connection across four configurations; neither
+profiled timings nor these first-use diagnostics establish an OS-cold or formal
+speed result. The [Q2 audit](../benchmarks/reports/round4-compatibility-final/paired-audit.json)
+verifies 1,968 calls, 984 exact pairs, both tokenizers and all three budgets,
+alongside committed source/evaluator bytes, model files and unchanged persisted
+vectors/originals. Recorded source, projection, scope, token and metadata
+errors are zero. Saved hashes support equality and ledger integrity; omitted
+response bodies cannot be independently re-tokenized by the offline audit.
+
+The [prelaunch recovery registration](../benchmarks/experiments/round4-prelaunch-recovery.json)
+and [independent prelaunch audit](../benchmarks/reports/round4-development/final-prelaunch-audit.json)
+preserve the original interrupted 512-call attempt and local MCP failure before
+any recall, together with earlier rejected candidates and adverse cells. No
+favorable-round pooling or replacement of those records is permitted.
+
+**Formal performance and the complete fresh 256-question comparison passed.**
+[Run 43361086255](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43361086255)
+used the committed [formal binding](../benchmarks/experiments/round4-performance-binding.json)
+and triggering source `f8f1653c0653654ed574569fff1aaf4dbaeef6d1`. The
+[full report](../benchmarks/reports/round4-performance-43361086255-1/report.json.gz),
+[summary](../benchmarks/reports/round4-performance-43361086255-1/report.summary.json)
+and [independent arithmetic audit](../benchmarks/reports/round4-performance-independent-audit.json)
+verify all **56,784 calls**, 16 sequential workers, four balanced rounds and
+twelve pooled cells. Complete native/MCP outputs and source/scope/cache/budget
+invariants pass. Actual SDK MCP includes roundtrip and normal cache-write cost;
+persistent cache clearing is outside query timers.
+
+Pooled p95 geometric mean improves **10.1294%**. Public native token512/1024/2048
+p95 improves **19.0736% / 18.4102% / 18.2009%**, and public MCP token1024 improves
+**10.8021%**. The adverse public MCP character-budget p95 change, **+1.4445%**,
+remains recorded. The largest registered resource mean increase is **+6.0231%**;
+none exceeds the 10% review trigger, so **no resource exception or waiver** was
+needed. The [performance review](round4-performance-review.md) retains all
+individual-round regressions and resource samples. The aggregate pass has a
+narrow 0.1294-percentage-point margin; it is not a statistical-significance or
+universal-speedup result.
+
+The [independent freeze audit](../benchmarks/reports/round4-freeze-independent-audit.json)
+reconstructs the exact ordered 256 IDs after excluding all 640 historical IDs,
+with zero overlap, and verifies candidate/assets/evaluator/binding/manifest Git
+ordering. The [existing selection verifier](../benchmarks/reports/round4-selection-local-audit.json)
+also checks the filtered canonical content and dataset fingerprint; the frozen
+cohort records 635 required annotations and 2,548 supplied paragraphs. This
+distinguishes independently checked IDs/history from hosted asset receipts and
+the separate content verifier.
+
+[Fresh scoring](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43363060062)
+completed all ten stages, **4,608 native calls and 4,608 component searches**,
+at [`eff3941`](https://github.com/Afloat16/AI-Memory-Book/commit/eff394119105d59186c730e2480d86d1436401a6).
+The [assessment](../benchmarks/results/round4-comparison-43363060062-1/assessment.json)
+is `complete-verified`, with no failures. All **1,536 native and 768 component
+complete default-payload pairs** match. Six whole-block budget/tokenizer
+projections reuse each component's first response; they add no searches.
+
+The [offline audit](../benchmarks/reports/round4-comparison-independent-audit.json)
+ran the unchanged `scripts/round4_comparison.py audit --verify-existing` once
+and exactly reproduced the published assessment and Markdown. Independent
+arithmetic then checked all **54 quality cells / 13,824 quality rows**, all
+**12 Q2 delta cells**, **18,432 attempt events**, output hashes and source
+identities. All 32 result artifacts plus the checkpoint match the immutable
+result commit. This distinguishes reusing the original strict verifier from
+independently implemented arithmetic; it repeats no retrieval or inference.
+Saved payload hashes and reported invariants cannot reconstruct omitted text
+or independently re-tokenize original responses.
+
+At the common 1,024-cl100k cap, default complete evidence is 53.91% versus
+claude-mem's 44.53%; Q2 reaches 55.08%, ai-memory 55.86% and billion-context
+60.55%. Native Q2 retains 512-token completeness losses under both encoders.
+The fresh 100,000-character component path has **+5.56% p95 / +5.12% p50**,
+and setup tree RSS rises **548.65 → 943.53 MiB** against v0.3.1. Native lexical
+finalization tree RSS also rises **655.16 → 1,107.09 MiB**. All 27 saved
+setup/query/finalization phases for the nine measured modes are retained. Their sampled process
+trees include evaluator/data memory; causes are not established, and these
+unbalanced fresh observations are separate from the formal resource means.
+
+The [full comparison guide](comparison.md) retains all costs and competitor
+strengths. New selection does not mean a new domain; all questions are
+answerable, and generated answers/abstention are outside this experiment.
+Native API, component adapter, complete-read and resource costs remain distinct.
+Release publication additionally requires exact-commit CI and package checks.
+
+## Historical: v0.3.1 completed measurement and recovery
 
 The [round-three checkpoint](../benchmarks/reports/round3-comparison-43267797247-1-checkpoint.json)
 is **complete-verified**: ten completed stages, 4,608 native calls and 4,608
@@ -84,7 +181,7 @@ Integrity/completeness gates do not assert that every quality metric improved.
 
 The dated sections below describe the evidence available at those older commits.
 
-## Unreleased: recall-quality continuation
+## Historical checkpoint: recall-quality continuation, then unreleased
 
 ### Recovered native-budget checkpoint: e70bc3d
 

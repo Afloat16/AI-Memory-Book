@@ -1,0 +1,86 @@
+name: Round 3 final read-only evidence audit
+
+on:
+  push:
+    branches: ['validation/v031-final-audit-run']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: round3-final-audit-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    if: github.repository == 'Afloat16/AI-Memory-Book'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+      GIT_OPTIONAL_LOCKS: '0'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - name: Verify audit tamper guards
+        run: python -B -m unittest discover -s tests -p test_round3_completion_audit.py -v
+      - name: Audit existing frozen evidence without new measurements
+        id: audit
+        run: |
+          python -B scripts/audit_round3_completion.py \
+            --expected-head "$GITHUB_SHA" \
+            --output "benchmarks/reports/round3-final-audit-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.json"
+      - name: Preserve audit JSON as an artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: round3-final-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: benchmarks/reports/round3-final-audit-${{ github.run_id }}-${{ github.run_attempt }}.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Publish only the new audit JSON on a fresh validation branch
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          audit_path="benchmarks/reports/round3-final-audit-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.json"
+          if [ ! -f "$audit_path" ]; then
+            echo "No audit JSON was created; inspect the preceding failed preparation step."
+            exit 0
+          fi
+          python - "$audit_path" <<'PY'
+          import json, os, subprocess, sys
+          from pathlib import Path
+          path = Path(sys.argv[1])
+          value = json.loads(path.read_bytes())
+          head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+          if value["exact_head"] != os.environ["GITHUB_SHA"] or head != value["exact_head"]:
+              raise SystemExit("Refuse publication from a different source HEAD")
+          if subprocess.check_output(["git", "diff", "--cached", "--name-only"]).strip():
+              raise SystemExit("Refuse unrelated staged changes")
+          summary = Path(os.environ["GITHUB_STEP_SUMMARY"])
+          with summary.open("a", encoding="utf-8") as stream:
+              stream.write("# Final read-only evidence audit\n\n")
+              stream.write("Status: **" + value["status"] + "**\n\n")
+              stream.write("Audited source HEAD: " + value["exact_head"] + "\n\n")
+              stream.write("Retrieval/model/timing/selection calls executed: **0**\n\n")
+              stream.write("| Check | Passed |\n| --- | --- |\n")
+              for name, check in value["checks"].items():
+                  stream.write("| " + name + " | " + str(check["passed"]) + " |\n")
+          PY
+          git add -- "$audit_path"
+          git -c user.name=github-actions[bot] \
+              -c user.email=41898282+github-actions[bot]@users.noreply.github.com \
+              commit -m "bench: preserve final read-only round-three evidence audit"
+          result_branch="validation/v031-final-audit-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          git push origin "HEAD:refs/heads/${result_branch}"
+          result_url="https://github.com/${GITHUB_REPOSITORY}/blob/${result_branch}/${audit_path}"
+          echo "Published audit JSON: ${result_url}"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Audit JSON: ${result_url}" >> "$GITHUB_STEP_SUMMARY"

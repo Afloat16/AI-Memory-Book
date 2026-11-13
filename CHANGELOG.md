@@ -1,5 +1,69 @@
 # Changelog
 
+## 0.3.2 — 2026-11-13
+
+An experimental release that reduces repeated token-budget assembly work while
+preserving complete default evidence. Formal performance and the fresh
+comparison have completed with strict saved-result audits.
+
+### Recall assembly and token budgets
+
+- Defer source-unit parsing for pages with a full mapped-segment equality
+  certificate while preserving the original eager checks for uncertified maps.
+  Original turns remain captured inside the database snapshot; deferred work
+  performs no later database reads. Use bisection to narrow projection scans
+  without changing containment, source equality or overlapping-unit behavior.
+- Reuse the exact count of the last accepted context and an already private
+  candidate dictionary. Preserve first-fit order and rejection behavior.
+- Reuse sealed citation-block token counts within one call for the inspected
+  tiktoken 0.12.0 `cl100k_base`/`o200k_base` patterns. Keep exact final counts and
+  the historical fallback for custom counters, unknown encoder origins,
+  unsupported patterns and invalid text boundaries.
+- Preserve lexical ranking, global BM25, scopes, source coordinates, MCP formats
+  and Q2 model/vector/fusion behavior. Retain schema 3 and existing dependency
+  requirements. Exclude the rejected body-feature cache and proposed highlight
+  query specialization; preserve their source and negative development results.
+
+### Performance and compatibility
+
+- Complete the sole registered 56,784-call formal run over sixteen workers,
+  four balanced rounds and twelve pooled cells. Complete outputs and recorded
+  invariants match v0.3.1. Pooled p95 geometric mean improves 10.13%; public
+  native token512/token1024/token2048 p95 improves 19.07%/18.41%/18.20%, and
+  actual public SDK MCP token1024 p95 improves 10.80%.
+- Retain the public MCP character-budget p95 increase of 1.44% and all adverse
+  round-level cells. The largest registered resource mean increase is 6.02%
+  for public token MCP startup. The original automatic verdict is accepted
+  with no resource exception. The aggregate passes its 10% gate by only
+  0.1294 percentage points; no statistical-significance claim is made.
+- Audit 1,968 completed Q2 calls and 984 matching complete non-latency payload
+  pairs against v0.3.1 on authored36 and historical Hotpot128, both tokenizers
+  and 512/1,024/2,048-token budgets. Identical saved vectors, source identities
+  and attempt ledgers are verified. These regression cohorts establish
+  compatibility, not new quality or performance gains.
+- Complete the new 256-question comparison, excluding all 640 historical IDs
+  with zero overlap. All 9,216 calls and 54 quality cells pass integrity checks;
+  1,536 native and 768 component default-payload pairs match. Independent offline
+  arithmetic verifies the saved records without repeating retrieval.
+- At 1,024 cl100k tokens, default complete evidence is 53.91% versus claude-mem
+  FTS 44.53%; optional Q2 reaches 55.08%. ai-memory remains higher at 55.86%
+  and billion-context at 60.55%. Default search-adapter p95 is 3.488 ms versus
+  34.655 ms and 39.925 ms for the tested claude-mem and ai-memory adapters;
+  their interface boundaries differ. Q2 has the highest packed MRR in this
+  view, while retaining native 512-token completeness losses.
+- Retain the separate fresh 100,000-character component p95 regression of
+  5.56% and sampled setup process-tree RSS rise from 548.65 to 943.53 MiB.
+  Native lexical finalization RSS also rises from 655.16 to 1,107.09 MiB.
+  These unbalanced descriptive observations include the evaluator and corpus;
+  their cause is unresolved. They are separate from the formal balanced gate.
+- Preserve all development profiles, adverse cells and interruption receipts.
+  Update v0.3.2 installer defaults and examples, retaining the archive, prior
+  environments and historical release instructions. Pin packaging to the
+  accepted runtime and preserve the independently merged historical audit tools.
+
+[Release notes](docs/releases/v0.3.2.md) · [Round-four decisions and evidence](docs/optimization-round4.md) ·
+[Upgrade guide](docs/deployment.md#upgrading)
+
 ## 0.3.1 — 2026-11-13
 
 An experimental release that reduces project-scoped query work while preserving
