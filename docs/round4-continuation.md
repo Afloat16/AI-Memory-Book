@@ -20,7 +20,22 @@ runtime SHA-256 is `ca8d2d1a227252d4048780ac4b6ed8eac7d2c931fa99b1338a238f490fc9
 
 All 41 token tests (17 fresh) passed, including actual SDK MCP and a concurrent
 writer; both installer release-routing tests passed after the v0.3.2 bump.
-Independent runtime and formal-harness reviews are in progress. These are
+Independent runtime review found no blocker and checked 30 additional
+artificial baseline/candidate cases. Candidate A is committed at `cf712787`.
+Its complete 4,732 profile payloads match v0.3.1; the mixed profiler timings
+are retained in `candidate-a-manifest.json`. A separate sequential native
+development diagnostic completed 4,096 calls (2,048 full-payload pairs) on
+128 deterministically selected old queries per cohort and two balanced rounds.
+All payloads match. Public token p95 gains of about 4–7% are insufficient to
+freeze this candidate for the registered formal gate. Negative cells and all
+timings remain in `candidate-a-paired-manifest.json` and its worker files.
+No formal measurement has started and no speed gate has been relaxed.
+
+The fresh comparison preparation, selector, evaluator, controllers and
+workflows are now implemented in new round-four paths. All 35 offline fixtures
+passed without dependency skips. Candidate launch values remain null while
+development continues; no new IDs have been selected. Independent review is
+checking the commit-before-selection and one-execution guards. These are
 development checkpoints, not acceptance or release approval.
 
 The [registered plan](../benchmarks/experiments/round4-plan.json) targets
