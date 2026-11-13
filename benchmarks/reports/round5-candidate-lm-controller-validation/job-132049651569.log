@@ -1,0 +1,328 @@
+﻿2026-11-13T17:27:59.4915154Z Current runner version: '2.338.2'
+2026-11-13T17:27:59.4933273Z ##[group]Runner Image Provisioner
+2026-11-13T17:27:59.4933906Z Hosted Compute Agent
+2026-11-13T17:27:59.4934324Z Version: 20261103.629
+2026-11-13T17:27:59.4935125Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-13T17:27:59.4935678Z Build Date: 2026-11-03T17:26:59Z
+2026-11-13T17:27:59.4936183Z Worker ID: {cb515408-7b5b-4ac2-b777-3429be2271d1}
+2026-11-13T17:27:59.4936752Z Region: us-west-2
+2026-11-13T17:27:59.4937147Z Cloud: AWS
+2026-11-13T17:27:59.4937533Z ##[endgroup]
+2026-11-13T17:27:59.4938496Z ##[group]Operating System
+2026-11-13T17:27:59.4938941Z Ubuntu
+2026-11-13T17:27:59.4939336Z 24.04.5
+2026-11-13T17:27:59.4939707Z LTS
+2026-11-13T17:27:59.4940115Z ##[endgroup]
+2026-11-13T17:27:59.4940515Z ##[group]Runner Image
+2026-11-13T17:27:59.4940918Z Image: ubuntu-24.04
+2026-11-13T17:27:59.4941340Z Version: 20261111.127.1
+2026-11-13T17:27:59.4942270Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261111.127/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-13T17:27:59.4943403Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261111.127
+2026-11-13T17:27:59.4944105Z ##[endgroup]
+2026-11-13T17:27:59.4945107Z ##[group]GITHUB_TOKEN Permissions
+2026-11-13T17:27:59.4946685Z Contents: read
+2026-11-13T17:27:59.4947446Z Metadata: read
+2026-11-13T17:27:59.4947862Z ##[endgroup]
+2026-11-13T17:27:59.4949338Z Secret source: Actions
+2026-11-13T17:27:59.4950209Z Cache mode: write
+2026-11-13T17:27:59.4950734Z Prepare workflow directory
+2026-11-13T17:27:59.5220580Z Prepare all required actions
+2026-11-13T17:27:59.5257846Z Getting action download info
+2026-11-13T17:27:59.9290107Z Download action repository 'actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803' (SHA:d23441a48e516b6c34aea4fa41551a30e30af803)
+2026-11-13T17:28:01.9869344Z Download action repository 'actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c' (SHA:e797f83bcb11b83ae66e0230d6156d7c80228e7c)
+2026-11-13T17:28:02.1822873Z Complete job name: protocol-fixtures
+2026-11-13T17:28:02.2516553Z ##[group]Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+2026-11-13T17:28:02.2517442Z with:
+2026-11-13T17:28:02.2517852Z   fetch-depth: 1
+2026-11-13T17:28:02.2518361Z   sparse-checkout-cone-mode: false
+2026-11-13T17:28:02.2519095Z   sparse-checkout: /*
+!/benchmarks/reports/
+!/benchmarks/figures/
+!/docs/images/
+
+2026-11-13T17:28:02.2519874Z   repository: Afloat16/AI-Memory-Book
+2026-11-13T17:28:02.2523840Z   token: ***
+2026-11-13T17:28:02.2524448Z   ssh-strict: true
+2026-11-13T17:28:02.2525365Z   ssh-user: git
+2026-11-13T17:28:02.2525976Z   persist-credentials: true
+2026-11-13T17:28:02.2526643Z   clean: true
+2026-11-13T17:28:02.2527146Z   fetch-tags: false
+2026-11-13T17:28:02.2527682Z   show-progress: true
+2026-11-13T17:28:02.2528349Z   lfs: false
+2026-11-13T17:28:02.2528827Z   submodules: false
+2026-11-13T17:28:02.2529334Z   set-safe-directory: true
+2026-11-13T17:28:02.2529888Z   allow-unsafe-pr-checkout: false
+2026-11-13T17:28:02.2530716Z env:
+2026-11-13T17:28:02.2531341Z   PYTHONDONTWRITEBYTECODE: 1
+2026-11-13T17:28:02.2531869Z ##[endgroup]
+2026-11-13T17:28:05.4606779Z Syncing repository: Afloat16/AI-Memory-Book
+2026-11-13T17:28:05.4608313Z ##[group]Getting Git version info
+2026-11-13T17:28:05.4608753Z Working directory is '/home/runner/work/AI-Memory-Book/AI-Memory-Book'
+2026-11-13T17:28:05.4609426Z [command]/usr/bin/git version
+2026-11-13T17:28:05.7172984Z git version 2.56.1
+2026-11-13T17:28:05.7188913Z ##[endgroup]
+2026-11-13T17:28:05.7200374Z Temporarily overriding HOME='/home/runner/work/_temp/136d791e-74d0-4d25-a978-f3a2df11dee0' before making global git config changes
+2026-11-13T17:28:05.7201461Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-13T17:28:05.7204099Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AI-Memory-Book/AI-Memory-Book
+2026-11-13T17:28:05.7631230Z Deleting the contents of '/home/runner/work/AI-Memory-Book/AI-Memory-Book'
+2026-11-13T17:28:05.7635834Z ##[group]Determining repository object format
+2026-11-13T17:28:05.7637270Z ##[endgroup]
+2026-11-13T17:28:05.7637954Z ##[group]Initializing the repository
+2026-11-13T17:28:05.7641838Z [command]/usr/bin/git init /home/runner/work/AI-Memory-Book/AI-Memory-Book
+2026-11-13T17:28:05.9324304Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-13T17:28:05.9325916Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-13T17:28:05.9326747Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-13T17:28:05.9327268Z hint: call:
+2026-11-13T17:28:05.9328343Z hint:
+2026-11-13T17:28:05.9329187Z hint: 	git config --global init.defaultBranch <name>
+2026-11-13T17:28:05.9329634Z hint:
+2026-11-13T17:28:05.9330000Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-13T17:28:05.9330532Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-13T17:28:05.9330927Z hint:
+2026-11-13T17:28:05.9331271Z hint: 	git branch -m <name>
+2026-11-13T17:28:05.9331579Z hint:
+2026-11-13T17:28:05.9332003Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-13T17:28:05.9342941Z Initialized empty Git repository in /home/runner/work/AI-Memory-Book/AI-Memory-Book/.git/
+2026-11-13T17:28:05.9352696Z [command]/usr/bin/git remote add origin https://github.com/Afloat16/AI-Memory-Book
+2026-11-13T17:28:05.9403829Z ##[endgroup]
+2026-11-13T17:28:05.9404887Z ##[group]Disabling automatic garbage collection
+2026-11-13T17:28:05.9406756Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-13T17:28:05.9431884Z ##[endgroup]
+2026-11-13T17:28:05.9432500Z ##[group]Setting up auth
+2026-11-13T17:28:05.9433059Z Removing SSH command configuration
+2026-11-13T17:28:05.9437477Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T17:28:05.9467983Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-13T17:28:06.2557293Z Removing HTTP extra header
+2026-11-13T17:28:06.2562287Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T17:28:06.2589735Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-13T17:28:06.2739348Z Removing includeIf entries pointing to credentials config files
+2026-11-13T17:28:06.2744023Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T17:28:06.2769832Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-13T17:28:06.2926704Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-fb6a1074-3e32-4da1-9e91-3a26cc96ae1c.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-13T17:28:06.2954417Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git.path /home/runner/work/_temp/git-credentials-fb6a1074-3e32-4da1-9e91-3a26cc96ae1c.config
+2026-11-13T17:28:06.2975493Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-fb6a1074-3e32-4da1-9e91-3a26cc96ae1c.config
+2026-11-13T17:28:06.2998660Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-fb6a1074-3e32-4da1-9e91-3a26cc96ae1c.config
+2026-11-13T17:28:06.3021572Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-fb6a1074-3e32-4da1-9e91-3a26cc96ae1c.config
+2026-11-13T17:28:06.3040168Z ##[endgroup]
+2026-11-13T17:28:06.3040685Z ##[group]Fetching the repository
+2026-11-13T17:28:06.3047692Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --filter=blob:none --depth=1 origin +8df838aa47e009caa8173b2ccb32fad93e4b8f90:refs/remotes/origin/staging/v033-candidate-lm-development
+2026-11-13T17:28:06.8096865Z From https://github.com/Afloat16/AI-Memory-Book
+2026-11-13T17:28:06.8097646Z  * [new ref]         8df838aa47e009caa8173b2ccb32fad93e4b8f90 -> origin/staging/v033-candidate-lm-development
+2026-11-13T17:28:06.8108801Z [command]/usr/bin/git branch --list --remote origin/staging/v033-candidate-lm-development
+2026-11-13T17:28:06.8157307Z   origin/staging/v033-candidate-lm-development
+2026-11-13T17:28:06.8163397Z [command]/usr/bin/git rev-parse refs/remotes/origin/staging/v033-candidate-lm-development
+2026-11-13T17:28:06.8183050Z 8df838aa47e009caa8173b2ccb32fad93e4b8f90
+2026-11-13T17:28:06.8185619Z ##[endgroup]
+2026-11-13T17:28:06.8186279Z ##[group]Determining the checkout info
+2026-11-13T17:28:06.8187140Z ##[endgroup]
+2026-11-13T17:28:06.8187840Z ##[group]Setting up sparse checkout
+2026-11-13T17:28:06.8191118Z [command]/usr/bin/git config core.sparseCheckout true
+2026-11-13T17:28:06.8215426Z [command]/usr/bin/git rev-parse --git-path info/sparse-checkout
+2026-11-13T17:28:06.8232149Z .git/info/sparse-checkout
+2026-11-13T17:28:06.8238361Z ##[endgroup]
+2026-11-13T17:28:06.8238907Z ##[group]Checking out the ref
+2026-11-13T17:28:06.8242726Z [command]/usr/bin/git checkout --progress --force -B staging/v033-candidate-lm-development refs/remotes/origin/staging/v033-candidate-lm-development
+2026-11-13T17:28:12.4027976Z Updating files:   0% (1/878)
+2026-11-13T17:28:12.4028666Z Updating files:   1% (9/878)
+2026-11-13T17:28:12.4029042Z Updating files:   2% (18/878)
+2026-11-13T17:28:12.4029460Z Updating files:   3% (27/878)
+2026-11-13T17:28:12.4029937Z Updating files:   4% (36/878)
+2026-11-13T17:28:12.4030365Z Updating files:   5% (44/878)
+2026-11-13T17:28:12.4055800Z Updating files:   6% (53/878)
+2026-11-13T17:28:12.4056280Z Updating files:   7% (62/878)
+2026-11-13T17:28:12.4077464Z Updating files:   8% (71/878)
+2026-11-13T17:28:12.4082380Z Updating files:   9% (80/878)
+2026-11-13T17:28:12.4101923Z Updating files:  10% (88/878)
+2026-11-13T17:28:12.4118588Z Updating files:  11% (97/878)
+2026-11-13T17:28:12.4119026Z Updating files:  12% (106/878)
+2026-11-13T17:28:12.4119527Z Updating files:  13% (115/878)
+2026-11-13T17:28:12.4123581Z Updating files:  14% (123/878)
+2026-11-13T17:28:12.4126626Z Updating files:  15% (132/878)
+2026-11-13T17:28:12.4131658Z Updating files:  16% (141/878)
+2026-11-13T17:28:12.4136486Z Updating files:  17% (150/878)
+2026-11-13T17:28:12.4141706Z Updating files:  18% (159/878)
+2026-11-13T17:28:12.4154574Z Updating files:  19% (167/878)
+2026-11-13T17:28:12.4159966Z Updating files:  20% (176/878)
+2026-11-13T17:28:12.4166350Z Updating files:  21% (185/878)
+2026-11-13T17:28:12.4168074Z Updating files:  22% (194/878)
+2026-11-13T17:28:12.4462287Z Updating files:  23% (202/878)
+2026-11-13T17:28:12.5046095Z Updating files:  24% (211/878)
+2026-11-13T17:28:12.5655844Z Updating files:  25% (220/878)
+2026-11-13T17:28:12.5774273Z Updating files:  26% (229/878)
+2026-11-13T17:28:12.5799858Z Updating files:  27% (238/878)
+2026-11-13T17:28:12.5821148Z Updating files:  28% (246/878)
+2026-11-13T17:28:12.5903335Z Updating files:  29% (255/878)
+2026-11-13T17:28:12.6011153Z Updating files:  30% (264/878)
+2026-11-13T17:28:12.6139331Z Updating files:  31% (273/878)
+2026-11-13T17:28:12.6655148Z Updating files:  32% (281/878)
+2026-11-13T17:28:12.7009295Z Updating files:  33% (290/878)
+2026-11-13T17:28:12.7320494Z Updating files:  34% (299/878)
+2026-11-13T17:28:12.7352418Z Updating files:  35% (308/878)
+2026-11-13T17:28:12.7380156Z Updating files:  36% (317/878)
+2026-11-13T17:28:12.7459329Z Updating files:  37% (325/878)
+2026-11-13T17:28:12.7600649Z Updating files:  38% (334/878)
+2026-11-13T17:28:12.8353692Z Updating files:  39% (343/878)
+2026-11-13T17:28:12.8355473Z Updating files:  39% (349/878)
+2026-11-13T17:28:12.8746087Z Updating files:  40% (352/878)
+2026-11-13T17:28:12.8862118Z Updating files:  41% (360/878)
+2026-11-13T17:28:12.8974942Z Updating files:  42% (369/878)
+2026-11-13T17:28:12.9727709Z Updating files:  43% (378/878)
+2026-11-13T17:28:13.0039495Z Updating files:  44% (387/878)
+2026-11-13T17:28:13.0421797Z Updating files:  45% (396/878)
+2026-11-13T17:28:13.0537248Z Updating files:  46% (404/878)
+2026-11-13T17:28:13.0651456Z Updating files:  47% (413/878)
+2026-11-13T17:28:13.0937150Z Updating files:  48% (422/878)
+2026-11-13T17:28:13.1044053Z Updating files:  49% (431/878)
+2026-11-13T17:28:13.1321237Z Updating files:  50% (439/878)
+2026-11-13T17:28:13.1512410Z Updating files:  51% (448/878)
+2026-11-13T17:28:13.1616995Z Updating files:  52% (457/878)
+2026-11-13T17:28:13.2212034Z Updating files:  53% (466/878)
+2026-11-13T17:28:13.2263685Z Updating files:  54% (475/878)
+2026-11-13T17:28:13.2329164Z Updating files:  55% (483/878)
+2026-11-13T17:28:13.2620800Z Updating files:  56% (492/878)
+2026-11-13T17:28:13.2621585Z Updating files:  57% (501/878)
+2026-11-13T17:28:13.2763135Z Updating files:  58% (510/878)
+2026-11-13T17:28:13.2925227Z Updating files:  59% (519/878)
+2026-11-13T17:28:13.3051808Z Updating files:  60% (527/878)
+2026-11-13T17:28:13.3165029Z Updating files:  61% (536/878)
+2026-11-13T17:28:13.3280872Z Updating files:  62% (545/878)
+2026-11-13T17:28:13.3423789Z Updating files:  63% (554/878)
+2026-11-13T17:28:13.3586160Z Updating files:  64% (562/878)
+2026-11-13T17:28:13.3616931Z Updating files:  65% (571/878)
+2026-11-13T17:28:13.3725277Z Updating files:  66% (580/878)
+2026-11-13T17:28:13.3729526Z Updating files:  67% (589/878)
+2026-11-13T17:28:13.3735021Z Updating files:  68% (598/878)
+2026-11-13T17:28:13.3745648Z Updating files:  69% (606/878)
+2026-11-13T17:28:13.3806092Z Updating files:  70% (615/878)
+2026-11-13T17:28:13.3816468Z Updating files:  71% (624/878)
+2026-11-13T17:28:13.3823273Z Updating files:  72% (633/878)
+2026-11-13T17:28:13.3829734Z Updating files:  73% (641/878)
+2026-11-13T17:28:13.3834780Z Updating files:  74% (650/878)
+2026-11-13T17:28:13.3840888Z Updating files:  75% (659/878)
+2026-11-13T17:28:13.3847019Z Updating files:  76% (668/878)
+2026-11-13T17:28:13.3852826Z Updating files:  77% (677/878)
+2026-11-13T17:28:13.3858508Z Updating files:  78% (685/878)
+2026-11-13T17:28:13.3864039Z Updating files:  79% (694/878)
+2026-11-13T17:28:13.3875878Z Updating files:  80% (703/878)
+2026-11-13T17:28:13.3884057Z Updating files:  81% (712/878)
+2026-11-13T17:28:13.3892723Z Updating files:  82% (720/878)
+2026-11-13T17:28:13.3903407Z Updating files:  83% (729/878)
+2026-11-13T17:28:13.3909129Z Updating files:  84% (738/878)
+2026-11-13T17:28:13.3914413Z Updating files:  85% (747/878)
+2026-11-13T17:28:13.3919621Z Updating files:  86% (756/878)
+2026-11-13T17:28:13.3929159Z Updating files:  87% (764/878)
+2026-11-13T17:28:13.3932788Z Updating files:  88% (773/878)
+2026-11-13T17:28:13.3937848Z Updating files:  89% (782/878)
+2026-11-13T17:28:13.3940607Z Updating files:  90% (791/878)
+2026-11-13T17:28:13.3944526Z Updating files:  91% (799/878)
+2026-11-13T17:28:13.3947957Z Updating files:  92% (808/878)
+2026-11-13T17:28:13.3951221Z Updating files:  93% (817/878)
+2026-11-13T17:28:13.3955371Z Updating files:  94% (826/878)
+2026-11-13T17:28:13.3959752Z Updating files:  95% (835/878)
+2026-11-13T17:28:13.3966088Z Updating files:  96% (843/878)
+2026-11-13T17:28:13.3971495Z Updating files:  97% (852/878)
+2026-11-13T17:28:13.3976262Z Updating files:  98% (861/878)
+2026-11-13T17:28:13.3979958Z Updating files:  99% (870/878)
+2026-11-13T17:28:13.3980396Z Updating files: 100% (878/878)
+2026-11-13T17:28:13.3980756Z Updating files: 100% (878/878), done.
+2026-11-13T17:28:13.4012806Z Switched to a new branch 'staging/v033-candidate-lm-development'
+2026-11-13T17:28:13.4021583Z branch 'staging/v033-candidate-lm-development' set up to track 'origin/staging/v033-candidate-lm-development'.
+2026-11-13T17:28:13.4054075Z ##[endgroup]
+2026-11-13T17:28:13.4093484Z [command]/usr/bin/git log -1 --format=%H
+2026-11-13T17:28:13.4114117Z 8df838aa47e009caa8173b2ccb32fad93e4b8f90
+2026-11-13T17:28:13.4313379Z ##[group]Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+2026-11-13T17:28:13.4313776Z with:
+2026-11-13T17:28:13.4314003Z   python-version: 3.12
+2026-11-13T17:28:13.4314284Z   check-latest: false
+2026-11-13T17:28:13.4316444Z   token: ***
+2026-11-13T17:28:13.4316697Z   update-environment: true
+2026-11-13T17:28:13.4316980Z   allow-prereleases: false
+2026-11-13T17:28:13.4317228Z   freethreaded: false
+2026-11-13T17:28:13.4317466Z env:
+2026-11-13T17:28:13.4317730Z   PYTHONDONTWRITEBYTECODE: 1
+2026-11-13T17:28:13.4317984Z ##[endgroup]
+2026-11-13T17:28:13.5349546Z ##[group]Installed versions
+2026-11-13T17:28:13.7989159Z (node:2158) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-13T17:28:13.7990208Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-13T17:28:13.7990745Z Successfully set up CPython (3.12.16)
+2026-11-13T17:28:13.7991473Z ##[endgroup]
+2026-11-13T17:28:13.8119524Z ##[group]Run python -m unittest -v tests.test_round5_k_development tests.test_round5_lm_development
+2026-11-13T17:28:13.8120550Z [36;1mpython -m unittest -v tests.test_round5_k_development tests.test_round5_lm_development[0m
+2026-11-13T17:28:14.1908744Z shell: /usr/bin/bash -e {0}
+2026-11-13T17:28:14.1909120Z env:
+2026-11-13T17:28:14.1909440Z   PYTHONDONTWRITEBYTECODE: 1
+2026-11-13T17:28:14.1910002Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T17:28:14.1910513Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-13T17:28:14.1910930Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T17:28:14.1911289Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T17:28:14.1912000Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T17:28:14.1912376Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-13T17:28:14.1912727Z ##[endgroup]
+2026-11-13T17:28:17.1857059Z test_added_bytecode_is_recorded_preserved_and_rejected_in_measurement (scripts.round5_k_development.IsolationTests.test_added_bytecode_is_recorded_preserved_and_rejected_in_measurement) ... ok
+2026-11-13T17:28:17.1975133Z test_changed_missing_or_unknown_source_is_never_accepted (scripts.round5_k_development.IsolationTests.test_changed_missing_or_unknown_source_is_never_accepted) ... ok
+2026-11-13T17:28:17.1998368Z test_duplicate_cache_tag_is_not_a_real_source_cache_path (scripts.round5_k_development.IsolationTests.test_duplicate_cache_tag_is_not_a_real_source_cache_path) ... ok
+2026-11-13T17:28:17.2008707Z test_missing_source_binding_fails_before_claim_or_evidence_fetch (scripts.round5_k_development.IsolationTests.test_missing_source_binding_fails_before_claim_or_evidence_fetch) ... ok
+2026-11-13T17:28:17.2016931Z test_prior_evidence_failure_stops_before_claim (scripts.round5_k_development.IsolationTests.test_prior_evidence_failure_stops_before_claim) ... ok
+2026-11-13T17:28:17.2017960Z test_review_must_cover_the_exact_source_without_performance_claim (scripts.round5_k_development.PreflightTests.test_review_must_cover_the_exact_source_without_performance_claim) ... ok
+2026-11-13T17:28:17.2019047Z test_saved_negative_evidence_cannot_be_relabelled_as_acceptance (scripts.round5_k_development.PreflightTests.test_saved_negative_evidence_cannot_be_relabelled_as_acceptance) ... ok
+2026-11-13T17:28:17.2155390Z test_profile_audit_keeps_mismatch_and_rejects_missing_reference_or_rows (scripts.round5_k_development.ProtocolTests.test_profile_audit_keeps_mismatch_and_rejects_missing_reference_or_rows) ... ok
+2026-11-13T17:28:17.2161004Z test_profile_storage_is_lossless_for_failed_partial_report (scripts.round5_k_development.ProtocolTests.test_profile_storage_is_lossless_for_failed_partial_report) ... ok
+2026-11-13T17:28:17.2162224Z test_quantiles_interpolate_without_discarding_slow_rows (scripts.round5_k_development.ProtocolTests.test_quantiles_interpolate_without_discarding_slow_rows) ... ok
+2026-11-13T17:28:17.2163228Z test_remote_ref_parser_rejects_wrong_ref_or_multiple_rows (scripts.round5_k_development.ProtocolTests.test_remote_ref_parser_rejects_wrong_ref_or_multiple_rows) ... ok
+2026-11-13T17:28:17.2164375Z test_schedule_is_complete_and_balanced_without_replay (scripts.round5_k_development.ProtocolTests.test_schedule_is_complete_and_balanced_without_replay) ... ok
+2026-11-13T17:28:17.2194093Z test_worker_rejects_missing_reordered_and_nonfinite_observations (scripts.round5_k_development.ProtocolTests.test_worker_rejects_missing_reordered_and_nonfinite_observations) ... ok
+2026-11-13T17:28:17.2246468Z test_added_bytecode_is_recorded_preserved_and_rejected_in_measurement (scripts.round5_lm_development.IsolationTests.test_added_bytecode_is_recorded_preserved_and_rejected_in_measurement) ... ok
+2026-11-13T17:28:17.2365618Z test_changed_missing_or_unknown_source_is_never_accepted (scripts.round5_lm_development.IsolationTests.test_changed_missing_or_unknown_source_is_never_accepted) ... ok
+2026-11-13T17:28:17.2386684Z test_duplicate_cache_tag_is_not_a_real_source_cache_path (scripts.round5_lm_development.IsolationTests.test_duplicate_cache_tag_is_not_a_real_source_cache_path) ... ok
+2026-11-13T17:28:17.2394970Z test_missing_source_binding_fails_before_claim_or_evidence_fetch (scripts.round5_lm_development.IsolationTests.test_missing_source_binding_fails_before_claim_or_evidence_fetch) ... ok
+2026-11-13T17:28:17.2401825Z test_prior_evidence_failure_stops_before_claim (scripts.round5_lm_development.IsolationTests.test_prior_evidence_failure_stops_before_claim) ... ok
+2026-11-13T17:28:17.2403626Z test_k_below_target_evidence_is_distinct_from_j_adverse_rejection (scripts.round5_lm_development.PreflightTests.test_k_below_target_evidence_is_distinct_from_j_adverse_rejection) ... ok
+2026-11-13T17:28:17.2404792Z test_review_must_cover_the_exact_source_without_performance_claim (scripts.round5_lm_development.PreflightTests.test_review_must_cover_the_exact_source_without_performance_claim) ... ok
+2026-11-13T17:28:17.2405756Z test_saved_negative_evidence_cannot_be_relabelled_as_acceptance (scripts.round5_lm_development.PreflightTests.test_saved_negative_evidence_cannot_be_relabelled_as_acceptance) ... ok
+2026-11-13T17:28:17.2535318Z test_profile_audit_keeps_mismatch_and_rejects_missing_reference_or_rows (scripts.round5_lm_development.ProtocolTests.test_profile_audit_keeps_mismatch_and_rejects_missing_reference_or_rows) ... ok
+2026-11-13T17:28:17.2539420Z test_profile_storage_is_lossless_for_failed_partial_report (scripts.round5_lm_development.ProtocolTests.test_profile_storage_is_lossless_for_failed_partial_report) ... ok
+2026-11-13T17:28:17.2540400Z test_quantiles_interpolate_without_discarding_slow_rows (scripts.round5_lm_development.ProtocolTests.test_quantiles_interpolate_without_discarding_slow_rows) ... ok
+2026-11-13T17:28:17.2541254Z test_remote_ref_parser_rejects_wrong_ref_or_multiple_rows (scripts.round5_lm_development.ProtocolTests.test_remote_ref_parser_rejects_wrong_ref_or_multiple_rows) ... ok
+2026-11-13T17:28:17.2542122Z test_schedule_is_complete_and_balanced_without_replay (scripts.round5_lm_development.ProtocolTests.test_schedule_is_complete_and_balanced_without_replay) ... ok
+2026-11-13T17:28:17.2572536Z test_worker_rejects_missing_reordered_and_nonfinite_observations (scripts.round5_lm_development.ProtocolTests.test_worker_rejects_missing_reordered_and_nonfinite_observations) ... ok
+2026-11-13T17:28:17.2573084Z 
+2026-11-13T17:28:17.2573354Z ----------------------------------------------------------------------
+2026-11-13T17:28:17.2573738Z Ran 27 tests in 0.121s
+2026-11-13T17:28:17.2573896Z 
+2026-11-13T17:28:17.2573981Z OK
+2026-11-13T17:28:17.2856543Z Post job cleanup.
+2026-11-13T17:28:17.3787350Z (node:2168) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-13T17:28:17.3788567Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-13T17:28:17.3913144Z Post job cleanup.
+2026-11-13T17:28:17.4590960Z [command]/usr/bin/git version
+2026-11-13T17:28:17.4622392Z git version 2.56.1
+2026-11-13T17:28:17.4651277Z Temporarily overriding HOME='/home/runner/work/_temp/e23e9070-9b20-4458-b87f-04788a1157f3' before making global git config changes
+2026-11-13T17:28:17.4652270Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-13T17:28:17.4655759Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AI-Memory-Book/AI-Memory-Book
+2026-11-13T17:28:17.4682850Z Removing SSH command configuration
+2026-11-13T17:28:17.4688292Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T17:28:17.4715255Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-13T17:28:17.4893986Z Removing HTTP extra header
+2026-11-13T17:28:17.4898546Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T17:28:17.4926323Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-13T17:28:17.5086468Z Removing includeIf entries pointing to credentials config files
+2026-11-13T17:28:17.5090802Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T17:28:17.5111582Z includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git.path
+2026-11-13T17:28:17.5112197Z includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git/worktrees/*.path
+2026-11-13T17:28:17.5112593Z includeif.gitdir:/github/workspace/.git.path
+2026-11-13T17:28:17.5112986Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-13T17:28:17.5126266Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git.path
+2026-11-13T17:28:17.5146334Z /home/runner/work/_temp/git-credentials-fb6a1074-3e32-4da1-9e91-3a26cc96ae1c.config
+2026-11-13T17:28:17.5153723Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git.path /home/runner/work/_temp/git-credentials-fb6a1074-3e32-4da1-9e91-3a26cc96ae1c.config
+2026-11-13T17:28:17.5177913Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git/worktrees/*.path
+2026-11-13T17:28:17.5192838Z /home/runner/work/_temp/git-credentials-fb6a1074-3e32-4da1-9e91-3a26cc96ae1c.config
+2026-11-13T17:28:17.5201016Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-fb6a1074-3e32-4da1-9e91-3a26cc96ae1c.config
+2026-11-13T17:28:17.5222147Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-11-13T17:28:17.5237925Z /github/runner_temp/git-credentials-fb6a1074-3e32-4da1-9e91-3a26cc96ae1c.config
+2026-11-13T17:28:17.5243376Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-fb6a1074-3e32-4da1-9e91-3a26cc96ae1c.config
+2026-11-13T17:28:17.5266584Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-13T17:28:17.5283062Z /github/runner_temp/git-credentials-fb6a1074-3e32-4da1-9e91-3a26cc96ae1c.config
+2026-11-13T17:28:17.5301344Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-fb6a1074-3e32-4da1-9e91-3a26cc96ae1c.config
+2026-11-13T17:28:17.5324342Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-13T17:28:17.5480473Z Removing credentials config '/home/runner/work/_temp/git-credentials-fb6a1074-3e32-4da1-9e91-3a26cc96ae1c.config'
+2026-11-13T17:28:17.5594338Z Cleaning up orphan processes
