@@ -267,3 +267,17 @@ D is not selected for formal measurement or release. Its correctness repairs
 and full evidence remain preserved. Any further diagnosis or implementation
 requires a separate fixed scope before execution; no D timing replay or gate
 change is permitted. No formal or historical/Q2 attempt has begun.
+
+## Candidate E lifetime diagnosis registered
+
+The D paired evidence is durably stored at
+`2d381b49a36bf64820635887ac886f62b5c1b8cc`. Three reviewers agree that the private
+ranking tuples have no readers after prefix materialization and that all their
+Row values remain owned by the existing route/metadata containers. A separate
+prospective E scope permits only clearing this consumed list, uniformly across
+budgets. No GC cause or speed improvement is established by that static proof.
+The next step is a separately bound, non-timing diagnostic for v032, D and E:
+all original 4,732 profile queries/configurations per source, every payload hash,
+and generation/phase collection counts. Artificial lifetime inspection is kept
+in separate processes. No runtime edit or diagnostic execution precedes this
+registration; the original formal and release requirements remain unchanged.
