@@ -1,0 +1,1082 @@
+{
+  "schema_version": 1,
+  "candidate": "LM",
+  "status": "accepted-independent-source-review-of-combined-lm-before-corpus",
+  "reviewed_source_commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+  "runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
+  "performance_accepted": false,
+  "release_accepted": false,
+  "final_source_selected": false,
+  "corpus_calls_executed_by_review": 0,
+  "fresh_rows_decoded_by_review": 0,
+  "reviewer_role": "Independent combined-tree and L-source reviewer; M donor author. M donor also has the separately published independent hosted_execution review at e9731f7e813ea47b84896a6fe3d8c1d0b98b703f. No combined implementation was written by this review.",
+  "prospective_scope": {
+    "commit": "3dad832d4bec672de74a60e1c9039c62ca7ae182",
+    "path": "benchmarks/experiments/round5-ranked-normalization-lm-addendum.json",
+    "sha256": "0a7ee81e79c814e9714137050c5d2f874530f5c9d497f89da0d74d730a7d49ea",
+    "exact_source_parent": true,
+    "same_scope_bytes_at_source": true
+  },
+  "source": {
+    "commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+    "git_tree": "9761f3fa3c40ccc1d0fb7b8e502c0009080697d8",
+    "runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
+    "files_sha256": {
+      "src/memory_book/__init__.py": "3b91357e9271f1abbe7d2dd4c01f0067ca5b5a65d6065844c850328d49e6aad7",
+      "src/memory_book/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+      "src/memory_book/cli.py": "f0e06d1d15e250aa4a6b1279a451f8d3d02acd1b8f7bd0a849b840397603e190",
+      "src/memory_book/clients.py": "c87c2ebd4dbd6b193b186f493586f53183a38e8108fd7011df3aa474f9b2058f",
+      "src/memory_book/importers.py": "f61aabfaa3e1fd2f46010e3c745e3275bb0d84c6d8e1b83317fda9e6b5cd7b76",
+      "src/memory_book/integration.py": "88ed9bf5a0ee90b93516dc9ded0e0a8f1459354f25fbcc5afe70197b9444c6c5",
+      "src/memory_book/mcp_server.py": "7f4e0cd884690bf585809c1d246228440a940e4752729928f2fc7b6698f0a1df",
+      "src/memory_book/paths.py": "37fd4089455082aa680b1fb3dcef8645e558bb43b7d27285ef32997629622bf4",
+      "src/memory_book/segmentation.py": "773cb62777bb11a66f1d2318bd75601f9ac38ea0fb6e7a534c1d8844a1a16e75",
+      "src/memory_book/semantic.py": "41df86bced1b613deea2f1b1361eba9f32c3786f5185a06253fbfd32270ac91e",
+      "src/memory_book/service.py": "55bd05f45cafc5dcd6c1fc5ceceade85f005a85a850b908c7bb155cff5a3584f",
+      "src/memory_book/static/index.html": "52f6e2d22fd25f6d5f9bd4df345c5c5e1ecaa907c326e61abc33a9b29c70d2d7",
+      "src/memory_book/store.py": "38c405b640216992b29b49c2f1937b8c5b644383f3cbfbcf764c5a7d502a9c58",
+      "src/memory_book/sync.py": "89b2ac4b30b9b14ac564c3d328a51fbba97b2efc8a8dd1997892fc4142501291",
+      "src/memory_book/text.py": "7c085f278252ff91cde97ba16a63c2a35365ddddb64fe12200c92c3e8e1d5ff7",
+      "src/memory_book/title_reference.py": "7e2c17fe5af2882f6471fd5610e1eca65eeac7f02e73f9daf6b5f2970709423e",
+      "src/memory_book/token_budget.py": "505ece57e7227ee1955d76883411362a1f462c28a2e8964984be818395266180",
+      "src/memory_book/web.py": "4e2cbfa33434322c78f57624c8faa32f4be9fb7fc29c8ffc4ed916e244446dcc"
+    },
+    "fixture_files_sha256": {
+      "tests/test_lexical_cache.py": "419170a018e2baf0c0bdb70fc5414ac79922da402aa27ed9151a16208cd3d354",
+      "tests/test_project_rowid_bounds.py": "417a58396aa5d08d87a249e32fe41beb2e5176d82c4d6a47d0b4bd53075bb1aa",
+      "tests/test_round4_highlight.py": "59cab84b24ea873670b5b1689d18bbdd170bf1cbb635a85ecba2a30e4104390b",
+      "tests/test_round4_sealed_counts.py": "a2e43be0bcd9978e392b60c8ef5b5e9de54277edf84fdf4ebe9ec2b8a30df2a9",
+      "tests/test_round4_token_work.py": "d05efe980d65f1d61017316f4410455646f4853efbe0f22194a0d9a0e9f02bdc",
+      "tests/test_round5_materialization.py": "2a652356adff1de9344ed4fea904caee7e8b58b1ac4266d73553fc1520c74a9d",
+      "tests/test_round5_native_rows.py": "f557eb50cecbeb4ffe216145aca461edd3a3371b84e3da603c92a31bf79e8f42",
+      "tests/test_round5_normalization_identity.py": "184195e982a74eb91f9be0ef854d9be53823c9eafe13574b80a69b97dc8ee7dc",
+      "tests/test_round5_normalization_translation.py": "25434916a32bd8015e453393d76b1e5336ab5f5e24655b899d4ae25f2aff3ba9",
+      "tests/test_round5_ranked_entries.py": "e4e4b1be159d9b45dc537e537c0040c10def2cf19683fd30dfdb038e05af548b",
+      "tests/test_round5_statement_cache.py": "55acd7d4fd4ab0dafbed6c825c33f80d712e12a1f76c49c1d0b30bc0ab5fba54",
+      "tests/test_title_reference.py": "d97603c308877748a36bf7e6450a97b656c701de5989e590c37900bf72591c80",
+      "tests/test_title_reference_interfaces.py": "8ba7e5a2c72903b5aff36a06a31ae9ea642db254eed48b3a4dd5c9a4589da63f",
+      "tests/test_title_reference_native_integration.py": "a249e57df8a477b649c8feb1b74265aa4a21158bb84905fd959dc30f026da6bc",
+      "tests/test_token_budget.py": "89fa3919c92f97e5b3f7ff44f92fa2ebcf0f6121ed941a21dd5b450bc300aa4c"
+    }
+  },
+  "integrity": {
+    "aggregate": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
+    "aggregate_matches_scope": true,
+    "source_count": 18,
+    "python_count": 17,
+    "source_changes": [
+      "src/memory_book/store.py",
+      "src/memory_book/text.py"
+    ],
+    "fixture_count": 15,
+    "original_K_fixtures_unchanged": [
+      {
+        "path": "tests/test_lexical_cache.py",
+        "sameGitBlob": true
+      },
+      {
+        "path": "tests/test_project_rowid_bounds.py",
+        "sameGitBlob": true
+      },
+      {
+        "path": "tests/test_round4_highlight.py",
+        "sameGitBlob": true
+      },
+      {
+        "path": "tests/test_round4_sealed_counts.py",
+        "sameGitBlob": true
+      },
+      {
+        "path": "tests/test_round4_token_work.py",
+        "sameGitBlob": true
+      },
+      {
+        "path": "tests/test_round5_materialization.py",
+        "sameGitBlob": true
+      },
+      {
+        "path": "tests/test_round5_native_rows.py",
+        "sameGitBlob": true
+      },
+      {
+        "path": "tests/test_round5_normalization_identity.py",
+        "sameGitBlob": true
+      },
+      {
+        "path": "tests/test_round5_statement_cache.py",
+        "sameGitBlob": true
+      },
+      {
+        "path": "tests/test_title_reference.py",
+        "sameGitBlob": true
+      },
+      {
+        "path": "tests/test_title_reference_interfaces.py",
+        "sameGitBlob": true
+      },
+      {
+        "path": "tests/test_title_reference_native_integration.py",
+        "sameGitBlob": true
+      },
+      {
+        "path": "tests/test_token_budget.py",
+        "sameGitBlob": true
+      }
+    ],
+    "donors": {
+      "L_source": true,
+      "M_source": true,
+      "L_fixture": true,
+      "M_fixture": true,
+      "L_scope": true,
+      "M_scope": true
+    },
+    "complete_git_tree_read_not_truncated": true,
+    "actual_src_inventory_equals_registered_eighteen": true,
+    "all_thirty_three_source_fixture_sha256_independently_recomputed": true,
+    "all_matches_scope": true,
+    "all_matches_source_checkpoint": true,
+    "actual_files": [
+      {
+        "path": "src/memory_book/__init__.py",
+        "sha256": "3b91357e9271f1abbe7d2dd4c01f0067ca5b5a65d6065844c850328d49e6aad7",
+        "git_blob": "c3db390ff242396abb207608cea461922ac77216",
+        "expected": "3b91357e9271f1abbe7d2dd4c01f0067ca5b5a65d6065844c850328d49e6aad7",
+        "matches": true
+      },
+      {
+        "path": "src/memory_book/__main__.py",
+        "sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+        "git_blob": "eb53e2f31b2f703ad32ef64b8a41faa3e7d18e08",
+        "expected": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+        "matches": true
+      },
+      {
+        "path": "src/memory_book/cli.py",
+        "sha256": "f0e06d1d15e250aa4a6b1279a451f8d3d02acd1b8f7bd0a849b840397603e190",
+        "git_blob": "9dddfd4a9c8583986f25f53e05722efd53a34c21",
+        "expected": "f0e06d1d15e250aa4a6b1279a451f8d3d02acd1b8f7bd0a849b840397603e190",
+        "matches": true
+      },
+      {
+        "path": "src/memory_book/clients.py",
+        "sha256": "c87c2ebd4dbd6b193b186f493586f53183a38e8108fd7011df3aa474f9b2058f",
+        "git_blob": "6d7e53025ebe7b9abbd19c4e59e548fbc9fb06df",
+        "expected": "c87c2ebd4dbd6b193b186f493586f53183a38e8108fd7011df3aa474f9b2058f",
+        "matches": true
+      },
+      {
+        "path": "src/memory_book/importers.py",
+        "sha256": "f61aabfaa3e1fd2f46010e3c745e3275bb0d84c6d8e1b83317fda9e6b5cd7b76",
+        "git_blob": "8118f46c086eb40689944b22757c98b08261253a",
+        "expected": "f61aabfaa3e1fd2f46010e3c745e3275bb0d84c6d8e1b83317fda9e6b5cd7b76",
+        "matches": true
+      },
+      {
+        "path": "src/memory_book/integration.py",
+        "sha256": "88ed9bf5a0ee90b93516dc9ded0e0a8f1459354f25fbcc5afe70197b9444c6c5",
+        "git_blob": "3a3287589e472146299c15124113590bdcc5ac74",
+        "expected": "88ed9bf5a0ee90b93516dc9ded0e0a8f1459354f25fbcc5afe70197b9444c6c5",
+        "matches": true
+      },
+      {
+        "path": "src/memory_book/mcp_server.py",
+        "sha256": "7f4e0cd884690bf585809c1d246228440a940e4752729928f2fc7b6698f0a1df",
+        "git_blob": "276f00f085070e35acf657b6b015e7009632d6e3",
+        "expected": "7f4e0cd884690bf585809c1d246228440a940e4752729928f2fc7b6698f0a1df",
+        "matches": true
+      },
+      {
+        "path": "src/memory_book/paths.py",
+        "sha256": "37fd4089455082aa680b1fb3dcef8645e558bb43b7d27285ef32997629622bf4",
+        "git_blob": "fdec84d67e4026726aad25944279f2c13f44b3bd",
+        "expected": "37fd4089455082aa680b1fb3dcef8645e558bb43b7d27285ef32997629622bf4",
+        "matches": true
+      },
+      {
+        "path": "src/memory_book/segmentation.py",
+        "sha256": "773cb62777bb11a66f1d2318bd75601f9ac38ea0fb6e7a534c1d8844a1a16e75",
+        "git_blob": "86ff3112ee8c9cfa4d80653708d13334000dfb0b",
+        "expected": "773cb62777bb11a66f1d2318bd75601f9ac38ea0fb6e7a534c1d8844a1a16e75",
+        "matches": true
+      },
+      {
+        "path": "src/memory_book/semantic.py",
+        "sha256": "41df86bced1b613deea2f1b1361eba9f32c3786f5185a06253fbfd32270ac91e",
+        "git_blob": "1d4482b2bec1007a65aa0c67388818664b1aa384",
+        "expected": "41df86bced1b613deea2f1b1361eba9f32c3786f5185a06253fbfd32270ac91e",
+        "matches": true
+      },
+      {
+        "path": "src/memory_book/service.py",
+        "sha256": "55bd05f45cafc5dcd6c1fc5ceceade85f005a85a850b908c7bb155cff5a3584f",
+        "git_blob": "acf3c489660b712925c889a88199b927d147e8bb",
+        "expected": "55bd05f45cafc5dcd6c1fc5ceceade85f005a85a850b908c7bb155cff5a3584f",
+        "matches": true
+      },
+      {
+        "path": "src/memory_book/static/index.html",
+        "sha256": "52f6e2d22fd25f6d5f9bd4df345c5c5e1ecaa907c326e61abc33a9b29c70d2d7",
+        "git_blob": "d6f2c4ffd7d3878d73915e029141064012f0d956",
+        "expected": "52f6e2d22fd25f6d5f9bd4df345c5c5e1ecaa907c326e61abc33a9b29c70d2d7",
+        "matches": true
+      },
+      {
+        "path": "src/memory_book/store.py",
+        "sha256": "38c405b640216992b29b49c2f1937b8c5b644383f3cbfbcf764c5a7d502a9c58",
+        "git_blob": "ea710339602b1da17b202df4f4fa5c34ca894e9d",
+        "expected": "38c405b640216992b29b49c2f1937b8c5b644383f3cbfbcf764c5a7d502a9c58",
+        "matches": true
+      },
+      {
+        "path": "src/memory_book/sync.py",
+        "sha256": "89b2ac4b30b9b14ac564c3d328a51fbba97b2efc8a8dd1997892fc4142501291",
+        "git_blob": "8c80ed034a66547df649aafb50de35995dd2dffd",
+        "expected": "89b2ac4b30b9b14ac564c3d328a51fbba97b2efc8a8dd1997892fc4142501291",
+        "matches": true
+      },
+      {
+        "path": "src/memory_book/text.py",
+        "sha256": "7c085f278252ff91cde97ba16a63c2a35365ddddb64fe12200c92c3e8e1d5ff7",
+        "git_blob": "6d0f39c5222b3fbae819a12b320db42d151f9762",
+        "expected": "7c085f278252ff91cde97ba16a63c2a35365ddddb64fe12200c92c3e8e1d5ff7",
+        "matches": true
+      },
+      {
+        "path": "src/memory_book/title_reference.py",
+        "sha256": "7e2c17fe5af2882f6471fd5610e1eca65eeac7f02e73f9daf6b5f2970709423e",
+        "git_blob": "bb7bb9d54903ba1dfd9cc1709066a8223520911d",
+        "expected": "7e2c17fe5af2882f6471fd5610e1eca65eeac7f02e73f9daf6b5f2970709423e",
+        "matches": true
+      },
+      {
+        "path": "src/memory_book/token_budget.py",
+        "sha256": "505ece57e7227ee1955d76883411362a1f462c28a2e8964984be818395266180",
+        "git_blob": "92191f38fc6d30dc0cf7a783b2e11c2cfb2b09f1",
+        "expected": "505ece57e7227ee1955d76883411362a1f462c28a2e8964984be818395266180",
+        "matches": true
+      },
+      {
+        "path": "src/memory_book/web.py",
+        "sha256": "4e2cbfa33434322c78f57624c8faa32f4be9fb7fc29c8ffc4ed916e244446dcc",
+        "git_blob": "bdae9e22eb09cc21984930f34db292d008960250",
+        "expected": "4e2cbfa33434322c78f57624c8faa32f4be9fb7fc29c8ffc4ed916e244446dcc",
+        "matches": true
+      },
+      {
+        "path": "tests/test_lexical_cache.py",
+        "sha256": "419170a018e2baf0c0bdb70fc5414ac79922da402aa27ed9151a16208cd3d354",
+        "git_blob": "501f2464b6c67643ea4659df9af5a75bc73176e7",
+        "expected": "419170a018e2baf0c0bdb70fc5414ac79922da402aa27ed9151a16208cd3d354",
+        "matches": true
+      },
+      {
+        "path": "tests/test_project_rowid_bounds.py",
+        "sha256": "417a58396aa5d08d87a249e32fe41beb2e5176d82c4d6a47d0b4bd53075bb1aa",
+        "git_blob": "2803337d063b5fff8726b2aecd4e5f2b387db466",
+        "expected": "417a58396aa5d08d87a249e32fe41beb2e5176d82c4d6a47d0b4bd53075bb1aa",
+        "matches": true
+      },
+      {
+        "path": "tests/test_round4_highlight.py",
+        "sha256": "59cab84b24ea873670b5b1689d18bbdd170bf1cbb635a85ecba2a30e4104390b",
+        "git_blob": "c54b5eff4705edc03edf84e522d09f27eec2efa9",
+        "expected": "59cab84b24ea873670b5b1689d18bbdd170bf1cbb635a85ecba2a30e4104390b",
+        "matches": true
+      },
+      {
+        "path": "tests/test_round4_sealed_counts.py",
+        "sha256": "a2e43be0bcd9978e392b60c8ef5b5e9de54277edf84fdf4ebe9ec2b8a30df2a9",
+        "git_blob": "3a39ea7ec191dd61771bbcd3731d7ba76d67b2e2",
+        "expected": "a2e43be0bcd9978e392b60c8ef5b5e9de54277edf84fdf4ebe9ec2b8a30df2a9",
+        "matches": true
+      },
+      {
+        "path": "tests/test_round4_token_work.py",
+        "sha256": "d05efe980d65f1d61017316f4410455646f4853efbe0f22194a0d9a0e9f02bdc",
+        "git_blob": "d717fe702714ad76dc05e43a659ef1c265d70dad",
+        "expected": "d05efe980d65f1d61017316f4410455646f4853efbe0f22194a0d9a0e9f02bdc",
+        "matches": true
+      },
+      {
+        "path": "tests/test_round5_materialization.py",
+        "sha256": "2a652356adff1de9344ed4fea904caee7e8b58b1ac4266d73553fc1520c74a9d",
+        "git_blob": "cc422d255db945c54ee333af0665e23b481d9ead",
+        "expected": "2a652356adff1de9344ed4fea904caee7e8b58b1ac4266d73553fc1520c74a9d",
+        "matches": true
+      },
+      {
+        "path": "tests/test_round5_native_rows.py",
+        "sha256": "f557eb50cecbeb4ffe216145aca461edd3a3371b84e3da603c92a31bf79e8f42",
+        "git_blob": "facc9e054fca9c3a1cf5cf92b947226af402700d",
+        "expected": "f557eb50cecbeb4ffe216145aca461edd3a3371b84e3da603c92a31bf79e8f42",
+        "matches": true
+      },
+      {
+        "path": "tests/test_round5_normalization_identity.py",
+        "sha256": "184195e982a74eb91f9be0ef854d9be53823c9eafe13574b80a69b97dc8ee7dc",
+        "git_blob": "3d2786d7db7f4a5920a664b6c861251bc83625ab",
+        "expected": "184195e982a74eb91f9be0ef854d9be53823c9eafe13574b80a69b97dc8ee7dc",
+        "matches": true
+      },
+      {
+        "path": "tests/test_round5_normalization_translation.py",
+        "sha256": "25434916a32bd8015e453393d76b1e5336ab5f5e24655b899d4ae25f2aff3ba9",
+        "git_blob": "a7b90d5108e199d307944cf2687ee9320e2dbb2c",
+        "expected": "25434916a32bd8015e453393d76b1e5336ab5f5e24655b899d4ae25f2aff3ba9",
+        "matches": true
+      },
+      {
+        "path": "tests/test_round5_ranked_entries.py",
+        "sha256": "e4e4b1be159d9b45dc537e537c0040c10def2cf19683fd30dfdb038e05af548b",
+        "git_blob": "43ee1dde53f2e003d28b01fd62c0490d5d3dd472",
+        "expected": "e4e4b1be159d9b45dc537e537c0040c10def2cf19683fd30dfdb038e05af548b",
+        "matches": true
+      },
+      {
+        "path": "tests/test_round5_statement_cache.py",
+        "sha256": "55acd7d4fd4ab0dafbed6c825c33f80d712e12a1f76c49c1d0b30bc0ab5fba54",
+        "git_blob": "63def6e359cdc524339321ff48f5539cf351b0d1",
+        "expected": "55acd7d4fd4ab0dafbed6c825c33f80d712e12a1f76c49c1d0b30bc0ab5fba54",
+        "matches": true
+      },
+      {
+        "path": "tests/test_title_reference.py",
+        "sha256": "d97603c308877748a36bf7e6450a97b656c701de5989e590c37900bf72591c80",
+        "git_blob": "9771f4cdc591b73ffdc3bad697437f0d3a279fa0",
+        "expected": "d97603c308877748a36bf7e6450a97b656c701de5989e590c37900bf72591c80",
+        "matches": true
+      },
+      {
+        "path": "tests/test_title_reference_interfaces.py",
+        "sha256": "8ba7e5a2c72903b5aff36a06a31ae9ea642db254eed48b3a4dd5c9a4589da63f",
+        "git_blob": "3b03ac4b37c969b8f9283e466323fe561b3cbdb3",
+        "expected": "8ba7e5a2c72903b5aff36a06a31ae9ea642db254eed48b3a4dd5c9a4589da63f",
+        "matches": true
+      },
+      {
+        "path": "tests/test_title_reference_native_integration.py",
+        "sha256": "a249e57df8a477b649c8feb1b74265aa4a21158bb84905fd959dc30f026da6bc",
+        "git_blob": "fc0111d48f1ad0b2214e99582c6a13268102a0b3",
+        "expected": "a249e57df8a477b649c8feb1b74265aa4a21158bb84905fd959dc30f026da6bc",
+        "matches": true
+      },
+      {
+        "path": "tests/test_token_budget.py",
+        "sha256": "89fa3919c92f97e5b3f7ff44f92fa2ebcf0f6121ed941a21dd5b450bc300aa4c",
+        "git_blob": "9b1abe5830108a786124347ec350e5830969d149",
+        "expected": "89fa3919c92f97e5b3f7ff44f92fa2ebcf0f6121ed941a21dd5b450bc300aa4c",
+        "matches": true
+      },
+      {
+        "path": "benchmarks/experiments/round5-ranked-entries-l-addendum.json",
+        "sha256": "d15115393dd3beaf50fc408689892450d9e281249ff1f8c0f66c15699a748ded",
+        "git_blob": "44e9dce6061c60f5e24268a792ea446a81bbab40",
+        "expected": null,
+        "matches": true
+      },
+      {
+        "path": "benchmarks/experiments/round5-normalization-translation-m-addendum.json",
+        "sha256": "f88c8a711497ec795bd7830f5844479d7ee429ba6e43688a9823af2e9d20ddc7",
+        "git_blob": "7174f6f1fbfce53cc20000b0c4d4d892f2dc6200",
+        "expected": null,
+        "matches": true
+      }
+    ],
+    "new_test_method_counts": {
+      "L": 15,
+      "M": 14
+    },
+    "absence_of_rejected_J_probe_helper": true
+  },
+  "findings": [
+    {
+      "id": "disjoint-exact-integration",
+      "severity": "accepted-source-proof",
+      "detail": "Read every registered source and fixture from exact LM source. Only store.py and text.py differ from exact K4720728. Each matches its exact L38b08c7 or Mf5fa35 donor byte for byte; all13 prior K fixture Git blob identities and both donor scopes remain unchanged. No integration-only runtime or test edits are present."
+    },
+    {
+      "id": "ranking-prefix-and-primitive-boundary",
+      "severity": "accepted-source-proof",
+      "detail": "L changes only late_materialize after exact str IDs and exact float/int route ranks have been checked. The rows dictionary deduplicates IDs, and validated metadata chooses the same ID. Each distinct entry therefore has a distinct complete old key prefix; comparisons stop before row/metadata/score tails. Original score values/objects are retained without a second negation. Nonfinite first-key comparisons preserve the same legacy relation; the claim is equivalence to legacy sorting, not a newly total NaN ordering."
+    },
+    {
+      "id": "literal-ranking-reference",
+      "severity": "accepted-source-proof",
+      "detail": "Independently reading the real K store and reversing only the three allowed L replacements restored the whole file byte for byte. The complete pre-L recall hash independently equals c67c33615f32a063f40992adc28c7bd148625c5c9d54ec004d0785e5411a70ab. L's reference now compiles the untouched indented method under class MemoryBook, preserving SQL strings and Python3.10 qualified-name constants; execution uses a copy of store globals, restores the real class and does not mutate the actual module/class. The base method has no __class__, super() or MemoryBook references. Exact method hash, __qualname__, recursively compiled strings, application SQL traces, full payload/float bits and all15 test methods remain enforced."
+    },
+    {
+      "id": "normalization-certificate-order",
+      "severity": "accepted-source-proof",
+      "detail": "M adds exactly94 fullwidth ASCII scalars plus U+3000/U+2011/U+2026. Their explicit targets lie inside K's identity alphabet; the complete extended string must match before one translation. Translation precedes the original CamelCase split and casefold, including alphaＢeta. K-eligible strings keep the original no-translation path. Unknown UCD versions, unsupported scalars, changed ordinary hooks and string subclasses retain the literal old path and one initial isascii truth evaluation. Everything from the original Camel statement through the end of text.py is unchanged."
+    },
+    {
+      "id": "composition-and-caller-interaction",
+      "severity": "accepted-integration-proof",
+      "detail": "M preserves exact lexical terms and therefore the FTS pretokenization, query terms, directory token sets, novelty token sets and token packing inputs used by L. L does not change normalization, SQL, rank arithmetic or score values. M's actual-book reference swaps all shipping terms aliases in text/store/token_budget to the literal old body while executing the actual combined L store; L's literal old-sort reference executes with the actual combined M text globals. Combined tests therefore cover both directions of this interaction, in addition to the unchanged K/I/T1 contract fixtures. No new cache, dependency, schema, candidate cap, query selector, token count or response projection change is present."
+    },
+    {
+      "id": "fallback-and-failure-contracts",
+      "severity": "accepted-artificial-evidence",
+      "detail": "Combined source CI exercises custom row/mapping/subclass and missing/corrupt metadata fallbacks, rollback/errors, live native paths, nonfinite/signed-zero score bits, whole-source/code spans, exact token payloads, cache paths, scopes and inactive/active T1/coverage/semantic behavior. Assertions were copied exactly from accepted donor bytes. The repaired L fixtures preserve all earlier failure evidence and strict SQL/number/output checks."
+    }
+  ],
+  "artificial_ci": {
+    "run_id": 43471535987,
+    "head_sha": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+    "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43471535987",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 132044407919,
+        "name": "installers (ubuntu-latest)",
+        "head_sha": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+        "status": "completed",
+        "conclusion": "success",
+        "completed_at": "2026-11-13T17:19:25Z"
+      },
+      {
+        "id": 132044408295,
+        "name": "container",
+        "head_sha": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+        "status": "completed",
+        "conclusion": "success",
+        "completed_at": "2026-11-13T17:19:47Z"
+      },
+      {
+        "id": 132044408317,
+        "name": "core (3.10)",
+        "head_sha": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+        "status": "completed",
+        "conclusion": "success",
+        "completed_at": "2026-11-13T17:19:46Z"
+      },
+      {
+        "id": 132044408434,
+        "name": "installers (windows-latest)",
+        "head_sha": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+        "status": "completed",
+        "conclusion": "success",
+        "completed_at": "2026-11-13T17:19:58Z"
+      },
+      {
+        "id": 132044408445,
+        "name": "core (3.12)",
+        "head_sha": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+        "status": "completed",
+        "conclusion": "success",
+        "completed_at": "2026-11-13T17:19:45Z"
+      },
+      {
+        "id": 132044408469,
+        "name": "core (3.13)",
+        "head_sha": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+        "status": "completed",
+        "conclusion": "success",
+        "completed_at": "2026-11-13T17:19:45Z"
+      },
+      {
+        "id": 132044408510,
+        "name": "installers (macos-latest)",
+        "head_sha": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+        "status": "completed",
+        "conclusion": "success",
+        "completed_at": "2026-11-13T17:19:28Z"
+      },
+      {
+        "id": 132044408514,
+        "name": "reader-browser",
+        "head_sha": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+        "status": "completed",
+        "conclusion": "success",
+        "completed_at": "2026-11-13T17:19:23Z"
+      },
+      {
+        "id": 132044408661,
+        "name": "mcp",
+        "head_sha": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+        "status": "completed",
+        "conclusion": "success",
+        "completed_at": "2026-11-13T17:20:04Z"
+      }
+    ],
+    "all_nine_jobs_passed": true,
+    "full_unittest_count_per_environment": 929,
+    "registered_modules": [
+      "tests.test_round5_statement_cache",
+      "tests.test_round5_native_rows",
+      "tests.test_round5_materialization",
+      "tests.test_round4_sealed_counts",
+      "tests.test_round4_highlight",
+      "tests.test_round4_token_work",
+      "tests.test_token_budget",
+      "tests.test_project_rowid_bounds",
+      "tests.test_lexical_cache",
+      "tests.test_title_reference",
+      "tests.test_title_reference_interfaces",
+      "tests.test_title_reference_native_integration",
+      "tests.test_round5_normalization_identity",
+      "tests.test_round5_ranked_entries",
+      "tests.test_round5_normalization_translation"
+    ],
+    "registered_fixture_tests": 183,
+    "pinned_extras_job": {
+      "name": "mcp",
+      "job_id": 132044408661,
+      "registered_passed": 183,
+      "registered_skipped": 0,
+      "registered_errors_or_failures": 0
+    },
+    "core_boundary": "Each minimal core environment ran all183 registered cases and reported144 pass/39 explicit optional-dependency skips. The pinned MCP/benchmark environment executed all183 with zero skips, including all15 L and14 M methods. Whole-suite skips outside the selected modules remain visible in the raw logs.",
+    "results": [
+      {
+        "job_id": 132044408317,
+        "name": "core (3.10)",
+        "conclusion": "success",
+        "head_sha": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+        "total": 183,
+        "passed": 144,
+        "skipped": 39,
+        "other": 0,
+        "perModule": {
+          "test_lexical_cache": {
+            "pass": 3,
+            "skip": 0,
+            "other": 0,
+            "total": 3
+          },
+          "test_project_rowid_bounds": {
+            "pass": 4,
+            "skip": 0,
+            "other": 0,
+            "total": 4
+          },
+          "test_round4_highlight": {
+            "pass": 2,
+            "skip": 0,
+            "other": 0,
+            "total": 2
+          },
+          "test_round4_sealed_counts": {
+            "pass": 0,
+            "skip": 14,
+            "other": 0,
+            "total": 14
+          },
+          "test_round4_token_work": {
+            "pass": 12,
+            "skip": 5,
+            "other": 0,
+            "total": 17
+          },
+          "test_round5_materialization": {
+            "pass": 27,
+            "skip": 2,
+            "other": 0,
+            "total": 29
+          },
+          "test_round5_native_rows": {
+            "pass": 13,
+            "skip": 0,
+            "other": 0,
+            "total": 13
+          },
+          "test_round5_normalization_identity": {
+            "pass": 10,
+            "skip": 1,
+            "other": 0,
+            "total": 11
+          },
+          "test_round5_normalization_translation": {
+            "pass": 13,
+            "skip": 1,
+            "other": 0,
+            "total": 14
+          },
+          "test_round5_ranked_entries": {
+            "pass": 14,
+            "skip": 1,
+            "other": 0,
+            "total": 15
+          },
+          "test_round5_statement_cache": {
+            "pass": 5,
+            "skip": 0,
+            "other": 0,
+            "total": 5
+          },
+          "test_title_reference": {
+            "pass": 28,
+            "skip": 1,
+            "other": 0,
+            "total": 29
+          },
+          "test_title_reference_interfaces": {
+            "pass": 6,
+            "skip": 4,
+            "other": 0,
+            "total": 10
+          },
+          "test_title_reference_native_integration": {
+            "pass": 3,
+            "skip": 0,
+            "other": 0,
+            "total": 3
+          },
+          "test_token_budget": {
+            "pass": 4,
+            "skip": 10,
+            "other": 0,
+            "total": 14
+          }
+        },
+        "summary": [
+          "2026-11-13T17:19:43.7100711Z Ran 929 tests in 33.689s",
+          "2026-11-13T17:19:43.7101008Z OK (skipped=92)"
+        ],
+        "mechanism": [
+          "2026-11-13T17:19:43.7101774Z K exhaustive invented Unicode certificate: {'ucd': '13.0.0', 'admitted_scalars': 27752, 'whole_alphabet_NFKC_NFKD_identity': True, 'fresh_rows_decoded': 0, 'retrieval_calls': 0}",
+          "2026-11-13T17:19:43.7102957Z K invented C-call mechanism: {'ordinary': {'normalize': 0, 'category': 0}, 'legacy': {'normalize': 2, 'category': 17}, 'accented': {'normalize': 2, 'category': 6}}",
+          "2026-11-13T17:19:43.7104278Z M exact scalar translation certificate: {'ucd': '13.0.0', 'mapped_scalars': 97, 'fullwidth_ascii': 94, 'special_mappings': {'3000': '0020', '2011': '2010', '2026': '002e 002e 002e'}, 'fresh_rows_decoded': 0, 'corpus_retrieval_calls': 0}",
+          "2026-11-13T17:19:43.7107137Z M invented C-call mechanism; no latency or corpus claim: [{'source': '0xff22', 'candidate': {'normalize': 0, 'category': 0, 'translate': 1}, 'literal_legacy': {'normalize': 2, 'category': 12, 'translate': 0}}, {'source': '0x3000', 'candidate': {'normalize': 0, 'category': 0, 'translate': 1}, 'literal_legacy': {'normalize': 2, 'category': 12, 'translate': 0}}, {'source': '0x2011', 'candidate': {'normalize': 0, 'category': 0, 'translate': 1}, 'literal_legacy': {'normalize': 2, 'category': 12, 'translate': 0}}, {'source': '0x2026', 'candidate': {'normalize': 0, 'category': 0, 'translate': 1}, 'literal_legacy': {'normalize': 2, 'category': 12, 'translate': 0}}]",
+          "2026-11-13T17:19:43.7114927Z {\"candidate_count\": 142, \"candidate_key_callbacks\": 0, \"latency_claim\": false, \"legacy_key_callbacks\": 142, \"mechanism\": \"candidate-l-ranked-entry-keys\", \"same_application_sql\": true, \"same_full_payload_bits\": true}"
+        ],
+        "raw_log": {
+          "job_id": 132044408317,
+          "path": "benchmarks/reports/round5-ranked-normalization-lm-independent-review-ci-43471535987/job-132044408317.log",
+          "sha256": "e510b053e67a162b0fa7166e971befc0a9b0ddf50be4afd7e75dbffc15d0e03f",
+          "name": "core (3.10)"
+        }
+      },
+      {
+        "job_id": 132044408445,
+        "name": "core (3.12)",
+        "conclusion": "success",
+        "head_sha": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+        "total": 183,
+        "passed": 144,
+        "skipped": 39,
+        "other": 0,
+        "perModule": {
+          "test_lexical_cache": {
+            "pass": 3,
+            "skip": 0,
+            "other": 0,
+            "total": 3
+          },
+          "test_project_rowid_bounds": {
+            "pass": 4,
+            "skip": 0,
+            "other": 0,
+            "total": 4
+          },
+          "test_round4_highlight": {
+            "pass": 2,
+            "skip": 0,
+            "other": 0,
+            "total": 2
+          },
+          "test_round4_sealed_counts": {
+            "pass": 0,
+            "skip": 14,
+            "other": 0,
+            "total": 14
+          },
+          "test_round4_token_work": {
+            "pass": 12,
+            "skip": 5,
+            "other": 0,
+            "total": 17
+          },
+          "test_round5_materialization": {
+            "pass": 27,
+            "skip": 2,
+            "other": 0,
+            "total": 29
+          },
+          "test_round5_native_rows": {
+            "pass": 13,
+            "skip": 0,
+            "other": 0,
+            "total": 13
+          },
+          "test_round5_normalization_identity": {
+            "pass": 10,
+            "skip": 1,
+            "other": 0,
+            "total": 11
+          },
+          "test_round5_normalization_translation": {
+            "pass": 13,
+            "skip": 1,
+            "other": 0,
+            "total": 14
+          },
+          "test_round5_ranked_entries": {
+            "pass": 14,
+            "skip": 1,
+            "other": 0,
+            "total": 15
+          },
+          "test_round5_statement_cache": {
+            "pass": 5,
+            "skip": 0,
+            "other": 0,
+            "total": 5
+          },
+          "test_title_reference": {
+            "pass": 28,
+            "skip": 1,
+            "other": 0,
+            "total": 29
+          },
+          "test_title_reference_interfaces": {
+            "pass": 6,
+            "skip": 4,
+            "other": 0,
+            "total": 10
+          },
+          "test_title_reference_native_integration": {
+            "pass": 3,
+            "skip": 0,
+            "other": 0,
+            "total": 3
+          },
+          "test_token_budget": {
+            "pass": 4,
+            "skip": 10,
+            "other": 0,
+            "total": 14
+          }
+        },
+        "summary": [
+          "2026-11-13T17:19:42.0541669Z Ran 929 tests in 21.404s",
+          "2026-11-13T17:19:42.0541980Z OK (skipped=91)"
+        ],
+        "mechanism": [
+          "2026-11-13T17:19:42.0542649Z K exhaustive invented Unicode certificate: {'ucd': '15.0.0', 'admitted_scalars': 27752, 'whole_alphabet_NFKC_NFKD_identity': True, 'fresh_rows_decoded': 0, 'retrieval_calls': 0}",
+          "2026-11-13T17:19:42.0543575Z K invented C-call mechanism: {'ordinary': {'normalize': 0, 'category': 0}, 'legacy': {'normalize': 2, 'category': 17}, 'accented': {'normalize': 2, 'category': 6}}",
+          "2026-11-13T17:19:42.0544532Z M exact scalar translation certificate: {'ucd': '15.0.0', 'mapped_scalars': 97, 'fullwidth_ascii': 94, 'special_mappings': {'3000': '0020', '2011': '2010', '2026': '002e 002e 002e'}, 'fresh_rows_decoded': 0, 'corpus_retrieval_calls': 0}",
+          "2026-11-13T17:19:42.0546466Z M invented C-call mechanism; no latency or corpus claim: [{'source': '0xff22', 'candidate': {'normalize': 0, 'category': 0, 'translate': 1}, 'literal_legacy': {'normalize': 2, 'category': 12, 'translate': 0}}, {'source': '0x3000', 'candidate': {'normalize': 0, 'category': 0, 'translate': 1}, 'literal_legacy': {'normalize': 2, 'category': 12, 'translate': 0}}, {'source': '0x2011', 'candidate': {'normalize': 0, 'category': 0, 'translate': 1}, 'literal_legacy': {'normalize': 2, 'category': 12, 'translate': 0}}, {'source': '0x2026', 'candidate': {'normalize': 0, 'category': 0, 'translate': 1}, 'literal_legacy': {'normalize': 2, 'category': 12, 'translate': 0}}]",
+          "2026-11-13T17:19:42.0551305Z {\"candidate_count\": 142, \"candidate_key_callbacks\": 0, \"latency_claim\": false, \"legacy_key_callbacks\": 142, \"mechanism\": \"candidate-l-ranked-entry-keys\", \"same_application_sql\": true, \"same_full_payload_bits\": true}"
+        ],
+        "raw_log": {
+          "job_id": 132044408445,
+          "path": "benchmarks/reports/round5-ranked-normalization-lm-independent-review-ci-43471535987/job-132044408445.log",
+          "sha256": "49389fe0dc02a3d19c4c846d608f56a3f5db66654ec4033306523a9cd617a378",
+          "name": "core (3.12)"
+        }
+      },
+      {
+        "job_id": 132044408469,
+        "name": "core (3.13)",
+        "conclusion": "success",
+        "head_sha": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+        "total": 183,
+        "passed": 144,
+        "skipped": 39,
+        "other": 0,
+        "perModule": {
+          "test_lexical_cache": {
+            "pass": 3,
+            "skip": 0,
+            "other": 0,
+            "total": 3
+          },
+          "test_project_rowid_bounds": {
+            "pass": 4,
+            "skip": 0,
+            "other": 0,
+            "total": 4
+          },
+          "test_round4_highlight": {
+            "pass": 2,
+            "skip": 0,
+            "other": 0,
+            "total": 2
+          },
+          "test_round4_sealed_counts": {
+            "pass": 0,
+            "skip": 14,
+            "other": 0,
+            "total": 14
+          },
+          "test_round4_token_work": {
+            "pass": 12,
+            "skip": 5,
+            "other": 0,
+            "total": 17
+          },
+          "test_round5_materialization": {
+            "pass": 27,
+            "skip": 2,
+            "other": 0,
+            "total": 29
+          },
+          "test_round5_native_rows": {
+            "pass": 13,
+            "skip": 0,
+            "other": 0,
+            "total": 13
+          },
+          "test_round5_normalization_identity": {
+            "pass": 10,
+            "skip": 1,
+            "other": 0,
+            "total": 11
+          },
+          "test_round5_normalization_translation": {
+            "pass": 13,
+            "skip": 1,
+            "other": 0,
+            "total": 14
+          },
+          "test_round5_ranked_entries": {
+            "pass": 14,
+            "skip": 1,
+            "other": 0,
+            "total": 15
+          },
+          "test_round5_statement_cache": {
+            "pass": 5,
+            "skip": 0,
+            "other": 0,
+            "total": 5
+          },
+          "test_title_reference": {
+            "pass": 28,
+            "skip": 1,
+            "other": 0,
+            "total": 29
+          },
+          "test_title_reference_interfaces": {
+            "pass": 6,
+            "skip": 4,
+            "other": 0,
+            "total": 10
+          },
+          "test_title_reference_native_integration": {
+            "pass": 3,
+            "skip": 0,
+            "other": 0,
+            "total": 3
+          },
+          "test_token_budget": {
+            "pass": 4,
+            "skip": 10,
+            "other": 0,
+            "total": 14
+          }
+        },
+        "summary": [
+          "2026-11-13T17:19:41.4446801Z Ran 929 tests in 33.303s",
+          "2026-11-13T17:19:41.4447165Z OK (skipped=91)"
+        ],
+        "mechanism": [
+          "2026-11-13T17:19:41.4448133Z K exhaustive invented Unicode certificate: {'ucd': '15.1.0', 'admitted_scalars': 27752, 'whole_alphabet_NFKC_NFKD_identity': True, 'fresh_rows_decoded': 0, 'retrieval_calls': 0}",
+          "2026-11-13T17:19:41.4449693Z K invented C-call mechanism: {'ordinary': {'normalize': 0, 'category': 0}, 'legacy': {'normalize': 2, 'category': 17}, 'accented': {'normalize': 2, 'category': 6}}",
+          "2026-11-13T17:19:41.4451647Z M exact scalar translation certificate: {'ucd': '15.1.0', 'mapped_scalars': 97, 'fullwidth_ascii': 94, 'special_mappings': {'3000': '0020', '2011': '2010', '2026': '002e 002e 002e'}, 'fresh_rows_decoded': 0, 'corpus_retrieval_calls': 0}",
+          "2026-11-13T17:19:41.4455657Z M invented C-call mechanism; no latency or corpus claim: [{'source': '0xff22', 'candidate': {'normalize': 0, 'category': 0, 'translate': 1}, 'literal_legacy': {'normalize': 2, 'category': 12, 'translate': 0}}, {'source': '0x3000', 'candidate': {'normalize': 0, 'category': 0, 'translate': 1}, 'literal_legacy': {'normalize': 2, 'category': 12, 'translate': 0}}, {'source': '0x2011', 'candidate': {'normalize': 0, 'category': 0, 'translate': 1}, 'literal_legacy': {'normalize': 2, 'category': 12, 'translate': 0}}, {'source': '0x2026', 'candidate': {'normalize': 0, 'category': 0, 'translate': 1}, 'literal_legacy': {'normalize': 2, 'category': 12, 'translate': 0}}]",
+          "2026-11-13T17:19:41.4463992Z {\"candidate_count\": 142, \"candidate_key_callbacks\": 0, \"latency_claim\": false, \"legacy_key_callbacks\": 142, \"mechanism\": \"candidate-l-ranked-entry-keys\", \"same_application_sql\": true, \"same_full_payload_bits\": true}"
+        ],
+        "raw_log": {
+          "job_id": 132044408469,
+          "path": "benchmarks/reports/round5-ranked-normalization-lm-independent-review-ci-43471535987/job-132044408469.log",
+          "sha256": "0040c61df0d71b464a9936576c1fb8244b16a026bd3a79e88c87a687d36c3974",
+          "name": "core (3.13)"
+        }
+      },
+      {
+        "job_id": 132044408661,
+        "name": "mcp",
+        "conclusion": "success",
+        "head_sha": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+        "total": 183,
+        "passed": 183,
+        "skipped": 0,
+        "other": 0,
+        "perModule": {
+          "test_lexical_cache": {
+            "pass": 3,
+            "skip": 0,
+            "other": 0,
+            "total": 3
+          },
+          "test_project_rowid_bounds": {
+            "pass": 4,
+            "skip": 0,
+            "other": 0,
+            "total": 4
+          },
+          "test_round4_highlight": {
+            "pass": 2,
+            "skip": 0,
+            "other": 0,
+            "total": 2
+          },
+          "test_round4_sealed_counts": {
+            "pass": 14,
+            "skip": 0,
+            "other": 0,
+            "total": 14
+          },
+          "test_round4_token_work": {
+            "pass": 17,
+            "skip": 0,
+            "other": 0,
+            "total": 17
+          },
+          "test_round5_materialization": {
+            "pass": 29,
+            "skip": 0,
+            "other": 0,
+            "total": 29
+          },
+          "test_round5_native_rows": {
+            "pass": 13,
+            "skip": 0,
+            "other": 0,
+            "total": 13
+          },
+          "test_round5_normalization_identity": {
+            "pass": 11,
+            "skip": 0,
+            "other": 0,
+            "total": 11
+          },
+          "test_round5_normalization_translation": {
+            "pass": 14,
+            "skip": 0,
+            "other": 0,
+            "total": 14
+          },
+          "test_round5_ranked_entries": {
+            "pass": 15,
+            "skip": 0,
+            "other": 0,
+            "total": 15
+          },
+          "test_round5_statement_cache": {
+            "pass": 5,
+            "skip": 0,
+            "other": 0,
+            "total": 5
+          },
+          "test_title_reference": {
+            "pass": 29,
+            "skip": 0,
+            "other": 0,
+            "total": 29
+          },
+          "test_title_reference_interfaces": {
+            "pass": 10,
+            "skip": 0,
+            "other": 0,
+            "total": 10
+          },
+          "test_title_reference_native_integration": {
+            "pass": 3,
+            "skip": 0,
+            "other": 0,
+            "total": 3
+          },
+          "test_token_budget": {
+            "pass": 14,
+            "skip": 0,
+            "other": 0,
+            "total": 14
+          }
+        },
+        "summary": [
+          "2026-11-13T17:20:00.8352546Z Ran 929 tests in 43.534s",
+          "2026-11-13T17:20:00.8352836Z OK (skipped=15)"
+        ],
+        "mechanism": [
+          "2026-11-13T17:20:00.8353386Z K exhaustive invented Unicode certificate: {'ucd': '15.0.0', 'admitted_scalars': 27752, 'whole_alphabet_NFKC_NFKD_identity': True, 'fresh_rows_decoded': 0, 'retrieval_calls': 0}",
+          "2026-11-13T17:20:00.8354182Z K invented C-call mechanism: {'ordinary': {'normalize': 0, 'category': 0}, 'legacy': {'normalize': 2, 'category': 17}, 'accented': {'normalize': 2, 'category': 6}}",
+          "2026-11-13T17:20:00.8355420Z M exact scalar translation certificate: {'ucd': '15.0.0', 'mapped_scalars': 97, 'fullwidth_ascii': 94, 'special_mappings': {'3000': '0020', '2011': '2010', '2026': '002e 002e 002e'}, 'fresh_rows_decoded': 0, 'corpus_retrieval_calls': 0}",
+          "2026-11-13T17:20:00.8357302Z M invented C-call mechanism; no latency or corpus claim: [{'source': '0xff22', 'candidate': {'normalize': 0, 'category': 0, 'translate': 1}, 'literal_legacy': {'normalize': 2, 'category': 12, 'translate': 0}}, {'source': '0x3000', 'candidate': {'normalize': 0, 'category': 0, 'translate': 1}, 'literal_legacy': {'normalize': 2, 'category': 12, 'translate': 0}}, {'source': '0x2011', 'candidate': {'normalize': 0, 'category': 0, 'translate': 1}, 'literal_legacy': {'normalize': 2, 'category': 12, 'translate': 0}}, {'source': '0x2026', 'candidate': {'normalize': 0, 'category': 0, 'translate': 1}, 'literal_legacy': {'normalize': 2, 'category': 12, 'translate': 0}}]",
+          "2026-11-13T17:20:00.8361657Z {\"candidate_count\": 142, \"candidate_key_callbacks\": 0, \"latency_claim\": false, \"legacy_key_callbacks\": 142, \"mechanism\": \"candidate-l-ranked-entry-keys\", \"same_application_sql\": true, \"same_full_payload_bits\": true}"
+        ],
+        "asyncio_status_continuation": {
+          "header": "2026-11-13T17:19:56.0864374Z test_both_tokenizers_zero_tiny_and_normal_caps_keep_native_provenance (test_title_reference_interfaces.TitleReferenceMCPTests.test_both_tokenizers_zero_tiny_and_normal_caps_keep_native_provenance) ... Executing <Task finished name='Task-116' coro=<TitleReferenceMCPTests.test_both_tokenizers_zero_tiny_and_normal_caps_keep_native_provenance() done, defined at /home/runner/work/AI-Memory-Book/AI-Memory-Book/tests/test_title_reference_interfaces.py:248> result=None created at /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/asyncio/runners.py:100> took 0.172 seconds",
+          "completion": "2026-11-13T17:19:56.0867777Z ok",
+          "interpretation": "The asyncio slow-task diagnostic interrupted unittest's one-line output; the following exact ok completes this test."
+        },
+        "raw_log": {
+          "job_id": 132044408661,
+          "path": "benchmarks/reports/round5-ranked-normalization-lm-independent-review-ci-43471535987/job-132044408661.log",
+          "sha256": "49610893d4cc822f566438bd1b3dec20b2bec6fd559cd6eaa388a381d2303ab8",
+          "name": "mcp"
+        }
+      }
+    ],
+    "raw_logs": [
+      {
+        "job_id": 132044408317,
+        "path": "benchmarks/reports/round5-ranked-normalization-lm-independent-review-ci-43471535987/job-132044408317.log",
+        "sha256": "e510b053e67a162b0fa7166e971befc0a9b0ddf50be4afd7e75dbffc15d0e03f",
+        "name": "core (3.10)"
+      },
+      {
+        "job_id": 132044408445,
+        "path": "benchmarks/reports/round5-ranked-normalization-lm-independent-review-ci-43471535987/job-132044408445.log",
+        "sha256": "49389fe0dc02a3d19c4c846d608f56a3f5db66654ec4033306523a9cd617a378",
+        "name": "core (3.12)"
+      },
+      {
+        "job_id": 132044408469,
+        "path": "benchmarks/reports/round5-ranked-normalization-lm-independent-review-ci-43471535987/job-132044408469.log",
+        "sha256": "0040c61df0d71b464a9936576c1fb8244b16a026bd3a79e88c87a687d36c3974",
+        "name": "core (3.13)"
+      },
+      {
+        "job_id": 132044408661,
+        "path": "benchmarks/reports/round5-ranked-normalization-lm-independent-review-ci-43471535987/job-132044408661.log",
+        "sha256": "49610893d4cc822f566438bd1b3dec20b2bec6fd559cd6eaa388a381d2303ab8",
+        "name": "mcp"
+      }
+    ]
+  },
+  "mechanism_evidence": {
+    "L": "On actual invented SQLite wide-route input, complete candidate count142, legacy key callbacks142 and candidate callbacks0, with identical application SQL and full non-timing payload float bits on all four environments.",
+    "M": "All97 new eligible scalar cases passed actual C-call assertions: normalize0/category0/translate1 versus literal old normalize2/category>0/translate0. The printed four representative cases report category12 in the old path. Original K/ASCII never translates; excluded inputs retain literal legacy work.",
+    "speed_claim": false
+  },
+  "proof_boundaries": {
+    "observed_CI_UCD": [
+      "13.0.0",
+      "15.0.0",
+      "15.1.0"
+    ],
+    "allowlisted_UCD_not_executed_by_CI": [
+      "14.0.0",
+      "16.0.0"
+    ],
+    "admitted_input_boundary": "Exact builtin str, original ordinary hooks and explicitly recognized UCD versions; arbitrary mutation of private certificate constants or stateful tracing operations is not an added promise.",
+    "no_timing_inference": "Mechanism counts, fixture equivalence and source review do not establish wall-clock speed, RSS, formal acceptance or competitor superiority. No L/M percentages are added and no old timing samples are pooled."
+  },
+  "prior_dispositions": {
+    "K": "Retained as below the original improvement goals; no final acceptance inferred from its modest saved development gain.",
+    "J": "Rejected hidden-rank route remains excluded. Its negative cells and interruption receipts are not altered by this integration."
+  },
+  "remaining_requirements": [
+    "Separately committed development scope and exact source binding",
+    "Dedicated artificial protocol CI and independent controller review",
+    "A new complete LM source/controller/evidence binding and independent hosted-controller review before the separately registered first old-data development attempt.",
+    "Every original formal timing/resource, historical lexical/Q2, fresh quality/cost and same-fresh comparator gate remains necessary before any final source/release acceptance."
+  ],
+  "activity": {
+    "source_or_tests_modified_by_review": false,
+    "reference_evaluator_modified": false,
+    "corpus_downloads_or_queries": 0,
+    "benchmark_processes_launched": 0,
+    "fresh_metadata_or_content_selected": false,
+    "models_or_adapters_started": false,
+    "inputs": "Exact committed source/test/scope/checkpoint bytes and existing GitHub Actions logs only."
+  },
+  "blockers": [],
+  "conclusion": "Accept the exact combined source for the separately registered next development stage after its controller/evidence gates are satisfied. This is source/correctness review acceptance only; performance and release remain unaccepted.",
+  "reviewed_at_utc": "2026-11-13 17:24:11 UTC"
+}
