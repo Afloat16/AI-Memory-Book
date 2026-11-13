@@ -13,6 +13,12 @@ launched from `f8f1653c0653654ed574569fff1aaf4dbaeef6d1` has **passed all
 registered performance and resource gates**. The fresh 256-question comparison
 also completed all ten stages with a verified assessment and saved-result audit.
 
+[v0.3.2 is published](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.2)
+at source `692fb959ddf8934c5f516ba3d74ceb4385a2fa82`. Its nine exact-source CI
+jobs, package checks and real public installer job all passed. The
+[final release receipt](reports/round4-release-verification.json) records all
+seven asset hashes, package/source equality and the unchanged frozen evidence.
+
 | Evidence | Scope and current result |
 |---|---|
 | [Registered plan](experiments/round4-plan.json), [development addendum](experiments/round4-development-addendum.json), [counting addendum](experiments/round4-counting-addendum.json) | Source/output invariants, allowed changes and numerical gates fixed before the corresponding measurements. |

@@ -4,7 +4,7 @@
 
 Projects become books, tasks become chapters, and earlier decisions stay available across sessions and clients. One MCP call returns relevant evidence within a context budget so the agent can continue your work.
 
-[简体中文](README.zh-CN.md) · [Quick start](#quick-start) · [Measured results](#measured-results) · [Documentation](#documentation) · [v0.3.2 release notes](docs/releases/v0.3.2.md)
+[简体中文](README.zh-CN.md) · [Quick start](#quick-start) · [Measured results](#measured-results) · [Documentation](#documentation) · [v0.3.2 release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.2)
 
 **v0.3.2 · Experimental · MIT · Python 3.10+ · Local SQLite**
 

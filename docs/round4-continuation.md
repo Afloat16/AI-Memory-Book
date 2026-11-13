@@ -1,6 +1,16 @@
 # v0.3.2 / round-four continuation checkpoint
 
-## Current stage — measurements and audits complete, release verification pending
+## Current stage — v0.3.2 published and verified
+
+[v0.3.2](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.2) was
+published as an experimental prerelease on 2026-11-13 at 04:49:36 UTC. Its
+immutable source tag points to `692fb959ddf8934c5f516ba3d74ceb4385a2fa82`, tree
+`0cb61403d6a700f136b35a42f114d0b995c3f5ab`. All nine exact-source CI jobs in
+`43367598117` and both publication/public-install jobs in `43367903514` pass.
+All seven assets are uploaded. The real public installer fetched the release
+wheel and verified version 0.3.2 and default MCP/client dependencies. The
+[final release receipt](../benchmarks/reports/round4-release-verification.json)
+records tag/source identity, asset hashes, package contents and job evidence.
 
 The frozen C2 runtime at `2d7b5e38839fb21724ad3beec6b6ebabbda45636` passed the
 sole formal run `43361086255`: all 56,784 calls and output invariants pass,
@@ -18,22 +28,23 @@ from that commit and preserved all ten stages at
 `validation/round4-comparison-43363060062-1`. The final assessment and local
 strict/independent arithmetic audits pass. Current documentation and the
 saved-result figure now include all outcomes. Final release-commit CI and the
-real public installer check remain pending.
+real public installer check have both completed successfully.
 
 Main advanced independently to `a0961f29dcdf3801d063e6d69bacaa1bde99e318`,
-preserving v0.3.1 audit/preparation tooling. Its eight changed files are being
+preserving v0.3.1 audit/preparation tooling. Its eight changed files are
 integrated as an ancestor, with all frozen runtime/evaluator bytes retained.
 The current-source-as-v0.3.1 packaging fixture was replaced with a fixed,
 version-independent artificial fixture; the release guard now also pins the
 accepted C2 runtime for v0.3.2. All 18 focused release/audit/installer-routing
-tests pass. Preserve that main history when the final result and docs branches
-are merged; do not force-overwrite its changes.
+tests pass. That main history is preserved in the final result and documentation
+merge; no force-overwrite was used.
 
 The combined integration checkpoint is `8aec830c550c608a2ddcaeac01c07ad37469208f`.
 Its [CI run 43365331288](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43365331288)
-passed all nine required jobs. This checks the combined code and tooling; the
-eventual release commit still needs its own exact-commit CI and public installer
-verification after fresh results and documentation are complete.
+passed all nine required jobs. The final release commit subsequently passed
+its own exact-commit CI and public installer verification after fresh results
+and documentation were complete. Future documentation receipts may advance
+main; retain the published tag at the exact verified source commit.
 
 Earlier sections below are historical checkpoints; the latest status is above
 and in the final appended sections. Preserve their original failed-attempt
@@ -294,3 +305,47 @@ for the final integrated documentation/evidence commit, a safe fast-forward
 of main preserving `a0961f2`, then the `release/v0.3.2` workflow. Record the
 actual release commit, immutable tag, seven assets and public installer result
 after they exist; preserve all prior checkpoints and original report bytes.
+
+## Published v0.3.2 — final outcome
+
+The integrated release source is `692fb959ddf8934c5f516ba3d74ceb4385a2fa82`.
+Its parents preserve the complete fresh result commit `eff3941191` and the
+documentation/main-integration checkpoint `7e7b27f248`. The final Git-tree
+audit verifies all 17 runtime/reader files, 78 fresh-evaluator files, 24 formal
+evaluator files, 32 fresh result files, its checkpoint, 72 formal artifacts and
+both immutable bindings against their original frozen or result commits.
+
+[Exact-source CI 43367598117](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43367598117)
+passed all nine required jobs. Main then fast-forwarded from `a0961f29dc` to
+the verified source without replacing any history. Creating `release/v0.3.2`
+at that same commit triggered
+[publication 43367903514](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43367903514).
+Both jobs completed successfully on attempt one; the final job finished at
+04:49:56 UTC on 2026-11-13.
+
+The publisher created tag `v0.3.2` at the verified commit and published release
+`443827308` at 04:49:36 UTC. Its seven assets are the 111,404-byte wheel,
+103,461-byte source archive, three platform installer helpers,
+`release-manifest.json` and `SHA256SUMS`. A separate read-only audit downloaded
+the publisher's workflow artifact, verified its ZIP digest and compared all
+seven asset hashes/sizes with GitHub's published release metadata. Every
+runtime/reader file in both packages equals the tagged source; all installer
+helpers do too. This audit did not execute another benchmark or installation.
+
+The separate
+[published-install job](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43367903514/job/131696912300)
+downloaded the real tagged public installer and release manifest, checked the
+installer checksum/source commit, installed the default public wheel, and
+checked launcher version `0.3.2`, extras `mcp`/`clients` and isolated imports
+of `mcp` and `tomlkit`. These checks succeeded on the hosted Linux runner.
+Cross-platform installer, MCP, reader and container checks are in the nine-job
+source CI; they do not certify every client vendor's interactive UI.
+
+The [durable release receipt](../benchmarks/reports/round4-release-verification.json)
+embeds the exact-source CI and final tree audit, publication job identities,
+manifest, asset digests and verification limits. The source tag remains fixed
+while this documentation-only completion record is committed on main and the
+optimization branch. All scored measurements, negative results and interrupted
+development attempts retain their original evidence. This round is complete;
+any further optimization must use a new candidate and separately registered
+evaluation, including investigation of the retained character-path/RSS costs.
