@@ -469,3 +469,17 @@ calls. All 4,732 profile payloads now equal the saved v0.3.2/C2 payloads exactly
 profile times are diagnostic only. G paired timing remains a separate stage.
 Every timed stage receives a remote started marker before launch, and completed
 source-free evidence is checkpointed before the next stage.
+
+
+## Candidate G paired disposition
+
+All 4,096 paired calls complete, with all 2,048 full non-timing payload pairs
+equal. Independent raw-result recomputation confirms an eight-cell p95
+geometric improvement of 4.2703092 percent. Public character4000 p95 improves
+21.6477393 percent, but public token2048 regresses 37.5243129 percent
+(round0 improves 2.2352 percent; round1 regresses 102.2450 percent).
+G is not selected for formal execution or release. No claim that the regression
+is noise, GC, SQLite, or the code change is established by these observations.
+The original numeric gates remain unchanged, and every worker was saved remotely
+before the next worker began. The next quality run uses the separately reviewed
+T1 evaluator-v2 repair; no G/T1 source combination is implied.

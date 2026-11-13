@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "protocol": "round5-title-reference-t1-evaluator-v2-repair",
+  "status": "registered-before-v2-evaluator-implementation-and-new-scoring",
+  "registered_utc": "2026-11-13T10:34:47.224245+00:00",
+  "purpose": "Repair an evaluator query-echo contract mismatch and expose metadata diagnostics without changing the T1 runtime, corpus, retrieval parameters, annotation metrics, call schedule, or quality/cost gates.",
+  "original_plan": {
+    "path": "benchmarks/experiments/round5-title-reference-plan.json",
+    "commit": "8f8703f9025faf1902000d8f4ceb3730e287eee6",
+    "sha256": "6b0a60dc36de4112c565da0de05c70c61d7b46af6dfb96635bcc01870d1ea958"
+  },
+  "runtime_source": {
+    "commit": "3233cdf24117895c8f379cad2a93ac72474b0610",
+    "runtime_sha256": "c2a84084673bcb4871470075e0687f52d506944263ef13cb259b6ba3f86c5cfb"
+  },
+  "original_evaluator": {
+    "commit": "31ae43bc9b1d3fd97ac3b712f6bc8b31a5dfb5e8",
+    "script": "scripts/round5_title_reference_eval.py",
+    "script_sha256": "c01cc32b27681d2bb2244c3bf4d6e5283a3eaee46fb92476d785f902b7f6bb56",
+    "tests": "tests/test_round5_title_reference_eval.py",
+    "tests_sha256": "7f49e47aa564789bafc9be2b9a4f300be5be1ee59f968736fd3f3b34a54dea94"
+  },
+  "failed_attempt": {
+    "name": "round5-title-reference-t1-development-1",
+    "preserved_commit": "19240963014e5ea14ddf3f8eaa1715ad106f7336",
+    "binding": "benchmarks/experiments/round5-title-reference-t1-binding.json",
+    "binding_file_sha256": "ba5426c83beb316e65035bd9dda29bb0b45f0a474e0bc87ea4dd461a45ba2207",
+    "cell": "benchmarks/reports/round5-title-reference-t1-development-1/cell-02.json.gz",
+    "cell_sha256": "cb9a66ed87a3bcc4e31a008fba7fa20f085bb1334fb2c7fe5f1de32b98b1f7b6",
+    "ledger_archive": "benchmarks/reports/round5-title-reference-t1-development-1/cell-02.json.gz.attempts.jsonl.gz",
+    "ledger_archive_sha256": "b3e82831fc06465ca3cfa0ec9f3ef891a96747e617a4dbd62f3b0cd79da750c8",
+    "ledger_raw_sha256": "b3c432e52d5791a04549dc141ad271c40bd74c2617dd73ed5156bc9b0f738ba2",
+    "completed_cells": [
+      0,
+      1
+    ],
+    "failed_cell": 2,
+    "failed_cell_calls_started": 3,
+    "failed_cell_calls_finished": 3,
+    "later_cells_not_started": [
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "disposition": "Retain the failed attempt, complete prefix, three failed-cell calls, all timing observations and every prior file unchanged. Never relabel this attempt as accepted or resume/replay its failed cell."
+  },
+  "diagnosis": {
+    "query_id": "5a8c9e7c554299653c1aa0d1",
+    "cohort": "already-scored round4-hotpot256",
+    "source_read": "Read only the old selected ID and its question column; no retrieval/model/timed calls were executed for diagnosis. No query text is published.",
+    "original_query_characters": 105,
+    "stripped_query_characters": 103,
+    "leading_whitespace_codepoints": [
+      "U+0020"
+    ],
+    "trailing_whitespace_codepoints": [
+      "U+0020"
+    ],
+    "original_query_sha256": "f5c3cb4d63b9122f8b40268105186090858d6acf64433b8f3196f95477469caa",
+    "stripped_query_sha256": "1ab14d5bd446c6f986500304502e36d57c2bc7c8737e397818088283819b2ca3",
+    "unchanged_runtime_contract": {
+      "path": "src/memory_book/store.py",
+      "anchors": [
+        "MemoryBook.recall calls _string(query, query, maximum=8000, required=False)",
+        "_string assigns value = value.strip()",
+        "MemoryBook.recall returns the validated query in result.query"
+      ],
+      "baseline_commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+      "candidate_commit": "3233cdf24117895c8f379cad2a93ac72474b0610"
+    },
+    "data_contract": [
+      "benchmarks/prepare_native_data.py: normalize_hotpot preserves row.question",
+      "benchmarks/hotpot_data.py: convert_hotpot passes item.question unchanged to QueryCase"
+    ],
+    "incorrect_evaluator_contract": "scripts/round5_title_reference_eval.py: scored compares response.get(query) to the unstripped case.query in errors.metadata.",
+    "conclusion": "The query-echo comparison is necessarily false for this input under the unchanged published/runtime strip contract. This alone guarantees metadata=1. It is an evaluator assumption error, not evidence that T1 changed query handling.",
+    "evidence_limit": "The failed v1 row preserved only aggregated metadata error, reference token counts and reported context characters. It cannot independently exclude a simultaneous failure of another omitted native metadata field; do not invent those omitted values."
+  },
+  "allowed_changes": [
+    "Create scripts/round5_title_reference_eval_v2.py and tests/test_round5_title_reference_eval_v2.py; leave v1 script, tests, binding and reports byte-identical.",
+    "Expect response.query to equal case.query.strip(). Do not change the query passed to recall or the stored source dataset; do not collapse internal whitespace, casefold, alter punctuation, normalize Unicode, or relax other fields.",
+    "Keep every original source/projection/scope/cache/reconstruction/character/token/metadata/limit/policy guard and all quality/cost gates.",
+    "Add a source-free per-row metadata_diagnostics projection of actual and expected native metadata, individual mismatched field names, and query input/expected/actual hashes, types and lengths. Never publish query text or repr for non-string values. Verify diagnostic/error consistency offline.",
+    "Use a new evaluator version and prospective binding pinning this scope, the v2 evaluator/tests, unchanged v1 files, exact original T1 runtime, old input bytes, identical ID sequences and schedule, fresh state and output paths."
+  ],
+  "unchanged_experiment": {
+    "expected_calls": 5438,
+    "cells": 8,
+    "repetitions": 1,
+    "modes": [
+      "candidate_default",
+      "candidate_follow_titles"
+    ],
+    "schedule_sha256": "801f583a3f48eb6d847e2be3f3720dde0572131ae5fc9ade96c27391129ce027",
+    "datasets": {
+      "public1015": {
+        "sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857",
+        "queries": 1015,
+        "query_ids_sha256": "2ce115cdd93fe0ac690da9025a8ccc3e6931ce0011b7166b010d2eb6c48456e9"
+      },
+      "round4-hotpot256": {
+        "sha256": "fb3cd70ea58fafa5bd9cef0f04dba7399aaafba76f5f92605eee9e516f115e1b",
+        "queries": 256,
+        "query_ids_sha256": "b678a288a815d651b09acfa8927c2cb2cf7d74aca5ca0557c221cf19318bc23b"
+      },
+      "synthetic61": {
+        "sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26",
+        "queries": 168,
+        "query_ids_sha256": "28bb1e1d4a154bde8fd50d003a47c9cb634ec323ae3851cde9354bc8193f52c4"
+      }
+    },
+    "inputs": {
+      "locomo_sha256": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+      "parquet_sha256": "c20b638ca82b21d04fe12e14ff417ad05153d4d215a65de54497fca4e972f7c6"
+    },
+    "budget_chars": 8000,
+    "limit": 5,
+    "cache_size": 0,
+    "use_cache": false,
+    "quality_and_cost": "Exactly the original registered T1 development gates. The metadata contract correction is not a gate reduction, runtime retuning, new hypothesis, or new-domain quality validation."
+  },
+  "artificial_validation": [
+    "Copy the original 21 artificial fixtures to target v2.",
+    "Unicode edge whitespace is stripped exactly as the published runtime contract.",
+    "Internal double whitespace, CJK characters, case and punctuation remain unchanged; altered interiors still fail query metadata validation.",
+    "Corrupt each other metadata field individually and require failure.",
+    "Diagnostic mismatches and the aggregated metadata error must agree; no raw query content is exported."
+  ],
+  "execution_and_failure": "Commit this scope, reviewed v2 evaluator and artificial fixtures, then a separate new source/evaluator/data binding before any new scoring. Run all 5438 calls once in the original eight-cell order under new attempt paths; preserve every completed/failed/interrupted call and remote start/completion checkpoints. Started partial cells are never replayed. Do not reuse the v1 prefix as v2 output or pool observations across attempts.",
+  "interpretation": "The fixed development repetition after an evaluator repair is not an independent sample or a speed improvement over the failed v1 attempt. Keep both attempts visible; do not choose faster repetitions or selectively replace unfavorable cells. No fresh holdout, competitor rerun, release acceptance, or default speed claim follows from this repair."
+}

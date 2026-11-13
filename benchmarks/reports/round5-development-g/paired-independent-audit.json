@@ -1,0 +1,724 @@
+{
+  "schema_version": 1,
+  "candidate": "G",
+  "status": "verified",
+  "created_at": "2026-11-13T10:40:04.385758+00:00",
+  "reviewer": "optimize_text",
+  "method": "Independent offline recomputation from original eight worker JSON files. No use of root summary values, runtime imports, dataset parsing, retrieval, test execution or timing replay. Percentiles use linear interpolation at (n-1)*q; pooled samples concatenate both balanced rounds. Positive improvement is 100*(1-candidate/baseline). Geometric means apply equal weights to eight per-cell candidate/baseline quantile ratios.",
+  "original_worker_commit": "5d36c1acf306bf6dd707081880b47cd1dd7c3420",
+  "binding": {
+    "path": "benchmarks/experiments/round5-development-attempt-g.json",
+    "sha256": "af1f2c2ab13c40dad6b48bdebc6197d3c3436cb511ef12b7a55494c43c5198e5"
+  },
+  "source_checks": {
+    "baseline": {
+      "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+      "current_runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93",
+      "bound_runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+    },
+    "candidate_source": {
+      "commit": "5ac62f38440e5620413d2e49ccb1c6c2db66bc75",
+      "current_runtime_sha256": "1dc58028d2bd7750f3f2205d1908bf6d69876fce5634f79c64ffde0056766371",
+      "bound_runtime_sha256": "1dc58028d2bd7750f3f2205d1908bf6d69876fce5634f79c64ffde0056766371"
+    }
+  },
+  "workers": [
+    {
+      "sequence": 0,
+      "id": "synthetic61-r0-baseline",
+      "output": "benchmarks/reports/round5-development-g/synthetic61-r0-baseline.json",
+      "output_sha256": "c2c06841b9cad50491db6104d59d33daf66033ea477d72bdd3e3814a0d6d86a9",
+      "intent": "benchmarks/reports/round5-development-g/synthetic61-r0-baseline.intent.json",
+      "intent_sha256": "6e99ca6b07774b74931daf6b7c7a3c347fb91d0aeb1c87756250f260d8f81a55",
+      "original_bytes_equal_to_final_commit": true,
+      "cells": [
+        {
+          "configuration": "native-char4000",
+          "rows": 128,
+          "ordered_query_ids_sha256": "06582aef582e58fe55fd6accad3454ade857129595b0a715950e281e2e2ca4a9"
+        },
+        {
+          "configuration": "native-token512",
+          "rows": 128,
+          "ordered_query_ids_sha256": "bf5a01ece2dbf85f590905bf2b1a3e043da9311155fb9528133a7b1f62cc74e9"
+        },
+        {
+          "configuration": "native-token1024",
+          "rows": 128,
+          "ordered_query_ids_sha256": "f9d1177a1d8659ef8d3ac0da1a91790b4cf2de8b890f00620784a936394e5578"
+        },
+        {
+          "configuration": "native-token2048",
+          "rows": 128,
+          "ordered_query_ids_sha256": "e63aa313a1997801b76c08f0909bbbe8847335936c169c0d323f005d4acab131"
+        }
+      ]
+    },
+    {
+      "sequence": 1,
+      "id": "synthetic61-r0-candidate",
+      "output": "benchmarks/reports/round5-development-g/synthetic61-r0-candidate.json",
+      "output_sha256": "657121ed8c7bb9e3619b13e2e8e2fa35b7edfb58ef43756aade2a917fda5a478",
+      "intent": "benchmarks/reports/round5-development-g/synthetic61-r0-candidate.intent.json",
+      "intent_sha256": "6c9fcf6470f2c3bcf0b75d18156e05f6bcfbac42ee8b668a5120e86a87a0b94d",
+      "original_bytes_equal_to_final_commit": true,
+      "cells": [
+        {
+          "configuration": "native-char4000",
+          "rows": 128,
+          "ordered_query_ids_sha256": "06582aef582e58fe55fd6accad3454ade857129595b0a715950e281e2e2ca4a9"
+        },
+        {
+          "configuration": "native-token512",
+          "rows": 128,
+          "ordered_query_ids_sha256": "bf5a01ece2dbf85f590905bf2b1a3e043da9311155fb9528133a7b1f62cc74e9"
+        },
+        {
+          "configuration": "native-token1024",
+          "rows": 128,
+          "ordered_query_ids_sha256": "f9d1177a1d8659ef8d3ac0da1a91790b4cf2de8b890f00620784a936394e5578"
+        },
+        {
+          "configuration": "native-token2048",
+          "rows": 128,
+          "ordered_query_ids_sha256": "e63aa313a1997801b76c08f0909bbbe8847335936c169c0d323f005d4acab131"
+        }
+      ]
+    },
+    {
+      "sequence": 2,
+      "id": "synthetic61-r1-candidate",
+      "output": "benchmarks/reports/round5-development-g/synthetic61-r1-candidate.json",
+      "output_sha256": "5c1972771ee04928bcfb324ed488e124c011f628649297d069461fc05546fffa",
+      "intent": "benchmarks/reports/round5-development-g/synthetic61-r1-candidate.intent.json",
+      "intent_sha256": "57cda2b7eacc9948842324de44382e678d4bcad5a32c18f90ee7c2cac2d16a92",
+      "original_bytes_equal_to_final_commit": true,
+      "cells": [
+        {
+          "configuration": "native-char4000",
+          "rows": 128,
+          "ordered_query_ids_sha256": "ded8cc69005194f414c2376d37a15985dfd62528cc5a3bb092d419d3ff115183"
+        },
+        {
+          "configuration": "native-token512",
+          "rows": 128,
+          "ordered_query_ids_sha256": "06bb5d2e5ac1f20a5a811dd23d90dd8dc86d52c89d1c72730dcc9cb8daf88491"
+        },
+        {
+          "configuration": "native-token1024",
+          "rows": 128,
+          "ordered_query_ids_sha256": "9ba75f0e5fcbc99d37170f0d36138dece1cfd87db3d0fb66e03ef2ce58ce30d1"
+        },
+        {
+          "configuration": "native-token2048",
+          "rows": 128,
+          "ordered_query_ids_sha256": "e0bce999f33ae881c1868083ccb9006a67f35a71eb422742de3383e49e1dccd5"
+        }
+      ]
+    },
+    {
+      "sequence": 3,
+      "id": "synthetic61-r1-baseline",
+      "output": "benchmarks/reports/round5-development-g/synthetic61-r1-baseline.json",
+      "output_sha256": "ec77e8e0376652afbcf47fbda71f10df14f983a030aa1fb29e3eae816132287a",
+      "intent": "benchmarks/reports/round5-development-g/synthetic61-r1-baseline.intent.json",
+      "intent_sha256": "e735cb37089dfcf96025d7027492bdff50c51beed4f9b5a2a4a7c605dd650899",
+      "original_bytes_equal_to_final_commit": true,
+      "cells": [
+        {
+          "configuration": "native-char4000",
+          "rows": 128,
+          "ordered_query_ids_sha256": "ded8cc69005194f414c2376d37a15985dfd62528cc5a3bb092d419d3ff115183"
+        },
+        {
+          "configuration": "native-token512",
+          "rows": 128,
+          "ordered_query_ids_sha256": "06bb5d2e5ac1f20a5a811dd23d90dd8dc86d52c89d1c72730dcc9cb8daf88491"
+        },
+        {
+          "configuration": "native-token1024",
+          "rows": 128,
+          "ordered_query_ids_sha256": "9ba75f0e5fcbc99d37170f0d36138dece1cfd87db3d0fb66e03ef2ce58ce30d1"
+        },
+        {
+          "configuration": "native-token2048",
+          "rows": 128,
+          "ordered_query_ids_sha256": "e0bce999f33ae881c1868083ccb9006a67f35a71eb422742de3383e49e1dccd5"
+        }
+      ]
+    },
+    {
+      "sequence": 4,
+      "id": "public1015-r0-baseline",
+      "output": "benchmarks/reports/round5-development-g/public1015-r0-baseline.json",
+      "output_sha256": "5df58d2e60b8f67ad431aa11460f21ec75b7ba062efb107b43320ee8a842926d",
+      "intent": "benchmarks/reports/round5-development-g/public1015-r0-baseline.intent.json",
+      "intent_sha256": "0ad1f57f3361aca2b21fa53999f04445fda3c95e7137204dd411fb2c1e297626",
+      "original_bytes_equal_to_final_commit": true,
+      "cells": [
+        {
+          "configuration": "native-char4000",
+          "rows": 128,
+          "ordered_query_ids_sha256": "6be26bc52d552dd83fb5ae282059081ae58d76852170066a57855ca67c4da7ba"
+        },
+        {
+          "configuration": "native-token512",
+          "rows": 128,
+          "ordered_query_ids_sha256": "8261ef7bdd0ba60fa1bf6d43b9db999ca91848d8ddf100de4ecc17c47a02cc6f"
+        },
+        {
+          "configuration": "native-token1024",
+          "rows": 128,
+          "ordered_query_ids_sha256": "9d3a9ddab9e242b6adb4def66f7aeb4e4794a0f545cb19127ff63fb85e58d496"
+        },
+        {
+          "configuration": "native-token2048",
+          "rows": 128,
+          "ordered_query_ids_sha256": "445bf0687c37e5b90f0db1145010c88eb66d095b3ca60f0e961fca2970e26041"
+        }
+      ]
+    },
+    {
+      "sequence": 5,
+      "id": "public1015-r0-candidate",
+      "output": "benchmarks/reports/round5-development-g/public1015-r0-candidate.json",
+      "output_sha256": "8f2567c98c66c38dd38253f9e2f4bacdd891f4cdbaec0175dc2a9d0f34e22d01",
+      "intent": "benchmarks/reports/round5-development-g/public1015-r0-candidate.intent.json",
+      "intent_sha256": "176c541f59abcb35b1274e9678b198d89212ec66b7df37d744c21a0b5e04f8a5",
+      "original_bytes_equal_to_final_commit": true,
+      "cells": [
+        {
+          "configuration": "native-char4000",
+          "rows": 128,
+          "ordered_query_ids_sha256": "6be26bc52d552dd83fb5ae282059081ae58d76852170066a57855ca67c4da7ba"
+        },
+        {
+          "configuration": "native-token512",
+          "rows": 128,
+          "ordered_query_ids_sha256": "8261ef7bdd0ba60fa1bf6d43b9db999ca91848d8ddf100de4ecc17c47a02cc6f"
+        },
+        {
+          "configuration": "native-token1024",
+          "rows": 128,
+          "ordered_query_ids_sha256": "9d3a9ddab9e242b6adb4def66f7aeb4e4794a0f545cb19127ff63fb85e58d496"
+        },
+        {
+          "configuration": "native-token2048",
+          "rows": 128,
+          "ordered_query_ids_sha256": "445bf0687c37e5b90f0db1145010c88eb66d095b3ca60f0e961fca2970e26041"
+        }
+      ]
+    },
+    {
+      "sequence": 6,
+      "id": "public1015-r1-candidate",
+      "output": "benchmarks/reports/round5-development-g/public1015-r1-candidate.json",
+      "output_sha256": "05e71992fec6b294828725e254276a931aebd759c01c1fff54a1d03239f909c7",
+      "intent": "benchmarks/reports/round5-development-g/public1015-r1-candidate.intent.json",
+      "intent_sha256": "411284f7addd58dbbfb808c6d777bfed75ea418c4de32d520b0d0309ccb6d668",
+      "original_bytes_equal_to_final_commit": true,
+      "cells": [
+        {
+          "configuration": "native-char4000",
+          "rows": 128,
+          "ordered_query_ids_sha256": "0947e556426f9ccb1654035b2477032de77759edb332747f08e2a8333df07782"
+        },
+        {
+          "configuration": "native-token512",
+          "rows": 128,
+          "ordered_query_ids_sha256": "3db15d1ebd316e6ee795f2acb10d9f7f09b2db979d8097bb50af4895398d30aa"
+        },
+        {
+          "configuration": "native-token1024",
+          "rows": 128,
+          "ordered_query_ids_sha256": "f82d5f420e0e0c68e407f63d02957bf66c455cf836aca5b0073d0354d7d00120"
+        },
+        {
+          "configuration": "native-token2048",
+          "rows": 128,
+          "ordered_query_ids_sha256": "458b7e84c8780d14fe26fa76d49134bd1cf2c65b169df10808cd770c44f9c700"
+        }
+      ]
+    },
+    {
+      "sequence": 7,
+      "id": "public1015-r1-baseline",
+      "output": "benchmarks/reports/round5-development-g/public1015-r1-baseline.json",
+      "output_sha256": "f0fdb6ed78c255bf1fc415f3aeea2e23962af975ad743e1fa65b8f542ab77f09",
+      "intent": "benchmarks/reports/round5-development-g/public1015-r1-baseline.intent.json",
+      "intent_sha256": "08345d34dda8ab5a87f6a94f67828aff3e263219008bc8083d855b640f0ddaa2",
+      "original_bytes_equal_to_final_commit": true,
+      "cells": [
+        {
+          "configuration": "native-char4000",
+          "rows": 128,
+          "ordered_query_ids_sha256": "0947e556426f9ccb1654035b2477032de77759edb332747f08e2a8333df07782"
+        },
+        {
+          "configuration": "native-token512",
+          "rows": 128,
+          "ordered_query_ids_sha256": "3db15d1ebd316e6ee795f2acb10d9f7f09b2db979d8097bb50af4895398d30aa"
+        },
+        {
+          "configuration": "native-token1024",
+          "rows": 128,
+          "ordered_query_ids_sha256": "f82d5f420e0e0c68e407f63d02957bf66c455cf836aca5b0073d0354d7d00120"
+        },
+        {
+          "configuration": "native-token2048",
+          "rows": 128,
+          "ordered_query_ids_sha256": "458b7e84c8780d14fe26fa76d49134bd1cf2c65b169df10808cd770c44f9c700"
+        }
+      ]
+    }
+  ],
+  "expected_calls": 4096,
+  "observed_calls": 4096,
+  "expected_payload_pairs": 2048,
+  "equal_full_payload_pairs": 2048,
+  "payload_mismatches": [],
+  "cells": [
+    {
+      "cohort": "synthetic61",
+      "configuration": "native-char4000",
+      "baseline": {
+        "calls": 256,
+        "p50_ms": 3.354233,
+        "p95_ms": 10.52405375
+      },
+      "candidate": {
+        "calls": 256,
+        "p50_ms": 3.1868805,
+        "p95_ms": 10.18921525
+      },
+      "p50_improvement_percent": 4.9892926341133625,
+      "p95_improvement_percent": 3.181649466585057,
+      "rounds": [
+        {
+          "round": 0,
+          "baseline": {
+            "calls": 128,
+            "p50_ms": 3.4301380000000004,
+            "p95_ms": 10.390051349999998
+          },
+          "candidate": {
+            "calls": 128,
+            "p50_ms": 3.516007,
+            "p95_ms": 10.62182575
+          },
+          "p50_improvement_percent": -2.5033686691322554,
+          "p95_improvement_percent": -2.2307339222149336
+        },
+        {
+          "round": 1,
+          "baseline": {
+            "calls": 128,
+            "p50_ms": 3.3320535,
+            "p95_ms": 10.822662599999996
+          },
+          "candidate": {
+            "calls": 128,
+            "p50_ms": 3.0470295,
+            "p95_ms": 9.85066945
+          },
+          "p50_improvement_percent": 8.55400430995481,
+          "p95_improvement_percent": 8.981090753027788
+        }
+      ]
+    },
+    {
+      "cohort": "synthetic61",
+      "configuration": "native-token512",
+      "baseline": {
+        "calls": 256,
+        "p50_ms": 6.3809765,
+        "p95_ms": 16.54735175
+      },
+      "candidate": {
+        "calls": 256,
+        "p50_ms": 5.945529499999999,
+        "p95_ms": 15.123057
+      },
+      "p50_improvement_percent": 6.824143608740774,
+      "p95_improvement_percent": 8.60738788610088,
+      "rounds": [
+        {
+          "round": 0,
+          "baseline": {
+            "calls": 128,
+            "p50_ms": 6.3210565,
+            "p95_ms": 15.875981449999998
+          },
+          "candidate": {
+            "calls": 128,
+            "p50_ms": 6.007498999999999,
+            "p95_ms": 15.562833149999996
+          },
+          "p50_improvement_percent": 4.960523608672074,
+          "p95_improvement_percent": 1.972465771557086
+        },
+        {
+          "round": 1,
+          "baseline": {
+            "calls": 128,
+            "p50_ms": 6.4846125,
+            "p95_ms": 17.183204099999994
+          },
+          "candidate": {
+            "calls": 128,
+            "p50_ms": 5.8917935,
+            "p95_ms": 14.5308621
+          },
+          "p50_improvement_percent": 9.141934078559045,
+          "p95_improvement_percent": 15.435666040886954
+        }
+      ]
+    },
+    {
+      "cohort": "synthetic61",
+      "configuration": "native-token1024",
+      "baseline": {
+        "calls": 256,
+        "p50_ms": 4.692033,
+        "p95_ms": 15.59991325
+      },
+      "candidate": {
+        "calls": 256,
+        "p50_ms": 4.713185,
+        "p95_ms": 15.899638
+      },
+      "p50_improvement_percent": -0.4508067185375664,
+      "p95_improvement_percent": -1.921323184281154,
+      "rounds": [
+        {
+          "round": 0,
+          "baseline": {
+            "calls": 128,
+            "p50_ms": 4.702809,
+            "p95_ms": 15.689775749999999
+          },
+          "candidate": {
+            "calls": 128,
+            "p50_ms": 4.9939545,
+            "p95_ms": 16.328250699999998
+          },
+          "p50_improvement_percent": -6.190885064649665,
+          "p95_improvement_percent": -4.0693695064443425
+        },
+        {
+          "round": 1,
+          "baseline": {
+            "calls": 128,
+            "p50_ms": 4.6505755,
+            "p95_ms": 15.5256896
+          },
+          "candidate": {
+            "calls": 128,
+            "p50_ms": 4.427779,
+            "p95_ms": 15.039442849999999
+          },
+          "p50_improvement_percent": 4.790729663457782,
+          "p95_improvement_percent": 3.131885040391391
+        }
+      ]
+    },
+    {
+      "cohort": "synthetic61",
+      "configuration": "native-token2048",
+      "baseline": {
+        "calls": 256,
+        "p50_ms": 3.601406,
+        "p95_ms": 13.241401
+      },
+      "candidate": {
+        "calls": 256,
+        "p50_ms": 3.5776765,
+        "p95_ms": 13.10959575
+      },
+      "p50_improvement_percent": 0.658895442502172,
+      "p95_improvement_percent": 0.9954026012806261,
+      "rounds": [
+        {
+          "round": 0,
+          "baseline": {
+            "calls": 128,
+            "p50_ms": 3.730957,
+            "p95_ms": 13.148443049999997
+          },
+          "candidate": {
+            "calls": 128,
+            "p50_ms": 3.6421785,
+            "p95_ms": 13.024390049999997
+          },
+          "p50_improvement_percent": 2.379510136407359,
+          "p95_improvement_percent": 0.9434805286698933
+        },
+        {
+          "round": 1,
+          "baseline": {
+            "calls": 128,
+            "p50_ms": 3.5587425,
+            "p95_ms": 13.219344749999998
+          },
+          "candidate": {
+            "calls": 128,
+            "p50_ms": 3.4944100000000002,
+            "p95_ms": 13.1124985
+          },
+          "p50_improvement_percent": 1.8077312421452163,
+          "p95_improvement_percent": 0.808256778385319
+        }
+      ]
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "native-char4000",
+      "baseline": {
+        "calls": 256,
+        "p50_ms": 2.1939064999999998,
+        "p95_ms": 3.544168
+      },
+      "candidate": {
+        "calls": 256,
+        "p50_ms": 2.0179210000000003,
+        "p95_ms": 2.7769357500000003
+      },
+      "p50_improvement_percent": 8.021558803896134,
+      "p95_improvement_percent": 21.647739328383974,
+      "rounds": [
+        {
+          "round": 0,
+          "baseline": {
+            "calls": 128,
+            "p50_ms": 2.260237,
+            "p95_ms": 3.8219669499999998
+          },
+          "candidate": {
+            "calls": 128,
+            "p50_ms": 1.991887,
+            "p95_ms": 2.6298451499999995
+          },
+          "p50_improvement_percent": 11.872648753205972,
+          "p95_improvement_percent": 31.19131629330286
+        },
+        {
+          "round": 1,
+          "baseline": {
+            "calls": 128,
+            "p50_ms": 2.1622185,
+            "p95_ms": 3.2200917
+          },
+          "candidate": {
+            "calls": 128,
+            "p50_ms": 2.0805154999999997,
+            "p95_ms": 2.8273038999999995
+          },
+          "p50_improvement_percent": 3.7786652921524833,
+          "p95_improvement_percent": 12.198031503264339
+        }
+      ]
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "native-token512",
+      "baseline": {
+        "calls": 256,
+        "p50_ms": 3.4064025,
+        "p95_ms": 4.8728885
+      },
+      "candidate": {
+        "calls": 256,
+        "p50_ms": 3.2287585,
+        "p95_ms": 4.18047275
+      },
+      "p50_improvement_percent": 5.215003218204539,
+      "p95_improvement_percent": 14.20955455886176,
+      "rounds": [
+        {
+          "round": 0,
+          "baseline": {
+            "calls": 128,
+            "p50_ms": 3.7134355,
+            "p95_ms": 4.8578588
+          },
+          "candidate": {
+            "calls": 128,
+            "p50_ms": 3.16328,
+            "p95_ms": 4.081111099999999
+          },
+          "p50_improvement_percent": 14.815270118465772,
+          "p95_improvement_percent": 15.989507558350613
+        },
+        {
+          "round": 1,
+          "baseline": {
+            "calls": 128,
+            "p50_ms": 3.2067810000000003,
+            "p95_ms": 5.269009199999995
+          },
+          "candidate": {
+            "calls": 128,
+            "p50_ms": 3.295099,
+            "p95_ms": 4.19446215
+          },
+          "p50_improvement_percent": -2.7541013870295394,
+          "p95_improvement_percent": 20.393721271164157
+        }
+      ]
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "native-token1024",
+      "baseline": {
+        "calls": 256,
+        "p50_ms": 2.801178,
+        "p95_ms": 3.99396175
+      },
+      "candidate": {
+        "calls": 256,
+        "p50_ms": 2.696971,
+        "p95_ms": 3.4128565
+      },
+      "p50_improvement_percent": 3.7201134665487245,
+      "p95_improvement_percent": 14.549594772659002,
+      "rounds": [
+        {
+          "round": 0,
+          "baseline": {
+            "calls": 128,
+            "p50_ms": 3.012402,
+            "p95_ms": 5.948608849999996
+          },
+          "candidate": {
+            "calls": 128,
+            "p50_ms": 2.6271255,
+            "p95_ms": 3.17954305
+          },
+          "p50_improvement_percent": 12.789677473325266,
+          "p95_improvement_percent": 46.549804665674024
+        },
+        {
+          "round": 1,
+          "baseline": {
+            "calls": 128,
+            "p50_ms": 2.664897,
+            "p95_ms": 3.1687217
+          },
+          "candidate": {
+            "calls": 128,
+            "p50_ms": 2.7632455,
+            "p95_ms": 3.741417399999996
+          },
+          "p50_improvement_percent": -3.690517869921428,
+          "p95_improvement_percent": -18.073398493783664
+        }
+      ]
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "native-token2048",
+      "baseline": {
+        "calls": 256,
+        "p50_ms": 2.6833055,
+        "p95_ms": 3.45765425
+      },
+      "candidate": {
+        "calls": 256,
+        "p50_ms": 2.7044975,
+        "p95_ms": 4.75511525
+      },
+      "p50_improvement_percent": -0.7897721672019964,
+      "p95_improvement_percent": -37.524312906647616,
+      "rounds": [
+        {
+          "round": 0,
+          "baseline": {
+            "calls": 128,
+            "p50_ms": 2.8435125,
+            "p95_ms": 3.5770222
+          },
+          "candidate": {
+            "calls": 128,
+            "p50_ms": 2.5594935,
+            "p95_ms": 3.4970683499999993
+          },
+          "p50_improvement_percent": 9.988315507668776,
+          "p95_improvement_percent": 2.2352069830598453
+        },
+        {
+          "round": 1,
+          "baseline": {
+            "calls": 128,
+            "p50_ms": 2.5171095,
+            "p95_ms": 3.02448625
+          },
+          "candidate": {
+            "calls": 128,
+            "p50_ms": 2.8409934999999997,
+            "p95_ms": 6.116872549999998
+          },
+          "p50_improvement_percent": -12.867298780605285,
+          "p95_improvement_percent": -102.24501103286548
+        }
+      ]
+    }
+  ],
+  "geometric_mean": {
+    "cells": 8,
+    "p50_candidate_over_baseline_ratio": 0.9642552331199525,
+    "p50_improvement_percent": 3.5744766880047463,
+    "p95_candidate_over_baseline_ratio": 0.9572969080542691,
+    "p95_improvement_percent": 4.270309194573086
+  },
+  "environment": {
+    "bound": {
+      "python": "3.12.14",
+      "sqlite": "3.53.1",
+      "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+      "packages": {
+        "mcp": "1.29.0",
+        "pydantic": "2.13.4",
+        "tiktoken": "0.12.0",
+        "regex": "2026.11.9"
+      },
+      "boot_id": "d5831a5a-b462-4f66-955c-2d372d251125"
+    },
+    "observed_at_offline_audit": {
+      "python": "3.12.14",
+      "sqlite": "3.53.1",
+      "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+      "packages": {
+        "mcp": "1.29.0",
+        "pydantic": "2.13.4",
+        "tiktoken": "0.12.0",
+        "regex": "2026.11.9"
+      },
+      "boot_id": "d5831a5a-b462-4f66-955c-2d372d251125"
+    },
+    "current_matches_bound": true,
+    "limits": "The unchanged worker helper does not record per-worker environment or process timestamps. Exact source/data IDs are in each worker; environment is frozen by the prospective binding and checked again offline. Claims about serial launch order also depend on root start/completion checkpoint records; this audit verifies fixed worker intent sequence and original output rows."
+  },
+  "frozen_source_databases": {
+    "synthetic61": {
+      "path": ".artifacts/round5-recovery-f/databases/synthetic61.db",
+      "sha256": "e997419c5182483524d85b139b1e41bfcaff54ba01d84bbf83025937506c93f1",
+      "bytes": 20508672,
+      "sidecars": []
+    },
+    "public1015": {
+      "path": ".artifacts/round5-recovery-f/databases/public1015.db",
+      "sha256": "126a35ea33b7af15ae34aefc4b7384e6651639e99699d4901670881ec995be1a",
+      "bytes": 12881920,
+      "sidecars": []
+    }
+  },
+  "combined_report": {
+    "path": "benchmarks/reports/round5-development-g/paired.json",
+    "sha256": "f83216393d66e67b8da9da10ef63064d6c345a015ae18714df994045764ce935",
+    "gzip_sha256": "cd00a81960f0386ab7e6de117499614d10d33548a33ab4d535f5c5e29fd63e14",
+    "equal_to_all_original_workers": true
+  },
+  "errors": [],
+  "retrieval_calls_executed": 0,
+  "interpretation": "Old-data development diagnostic only. Preserve every adverse round/cell. These eight native cells do not substitute for the separately registered 14-cell/66248-call formal performance, compatibility, historical/Q2 or release gates."
+}

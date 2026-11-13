@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "status": "artificial-correctness-passed",
+  "recorded_at": "2026-11-13T10:40:04.708361+00:00",
+  "protocol": "round5-title-reference-t1-evaluator-v2-repair",
+  "evaluator_version": "round5-title-reference-t1-development-evaluator-2",
+  "author_and_test_executor": "/root/benchmark_audit",
+  "files": {
+    "scope": {
+      "path": "benchmarks/experiments/round5-title-reference-evaluator-v2-scope.json",
+      "sha256": "7950144fe294d52be9d51adc7b78f78c11d27c57c22325d914337fa17b6b7a81"
+    },
+    "script": {
+      "path": "scripts/round5_title_reference_eval_v2.py",
+      "sha256": "168f5fcefe91407acfb4444b5257460998a09cb97e86a5630e7e378d076bb68e"
+    },
+    "tests": {
+      "path": "tests/test_round5_title_reference_eval_v2.py",
+      "sha256": "666f3a3b33933a8e3152d6742cef9d54ba9718a691b9022f945d2b06f2ec276c"
+    }
+  },
+  "observed_test_run": {
+    "command": "python -m unittest discover -s tests -p 'test_round5_title_reference_eval_v2.py' -v",
+    "working_directory": "repository root",
+    "tests_run": 26,
+    "passed": 26,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "unittest_reported_elapsed_seconds": 0.021,
+    "exit_code": 0,
+    "observed_output_summary": "Ran 26 tests in 0.021s\n\nOK\n",
+    "observation_source": "The completed exec_command tool result for the original authorized artificial-fixture run; this receipt records that observation without rerunning the command.",
+    "run_count": 1,
+    "coverage": [
+      "Original 21 artificial fixtures copied to target v2: annotation precision, introduced/displaced-page accounting, provenance, quality/cost gates, fixed 5438-call schedule, interruption preservation and offline answerability accounting.",
+      "Unicode edge whitespace follows the published strip contract without exporting query text.",
+      "Internal double whitespace, CJK characters, case and punctuation are preserved; modified interiors fail query metadata.",
+      "Each of the other six native metadata fields still fails when corrupted; non-string query objects are projected without contents or repr.",
+      "Offline metadata diagnostics cannot hide a field mismatch behind an empty mismatch list or aggregated metadata error zero.",
+      "The prospective repair binding fixes the original runtime, old inputs, query ID order and schedule, and rejects the original attempt paths."
+    ]
+  },
+  "reviews": [
+    {
+      "reviewer": "/root/optimize_text",
+      "kind": "independent read-only source/scope/test diff review",
+      "result": "approved; query expectation only strips edges, the other six metadata comparisons and original quality/cost/source gates remain, and the timed native recall call is unchanged"
+    },
+    {
+      "reviewer": "/root",
+      "kind": "parent review of complete v2 diff and scope",
+      "result": "approved scope, strip contract, diagnostics and unchanged gates"
+    }
+  ],
+  "corpus_calls_executed": 0,
+  "retrieval_calls_executed": 0,
+  "model_calls_executed": 0,
+  "binding_created_by_test_executor": false,
+  "legacy_files_preserved": {
+    "scripts/round5_title_reference_eval.py": "c01cc32b27681d2bb2244c3bf4d6e5283a3eaee46fb92476d785f902b7f6bb56",
+    "tests/test_round5_title_reference_eval.py": "7f49e47aa564789bafc9be2b9a4f300be5be1ee59f968736fd3f3b34a54dea94",
+    "benchmarks/experiments/round5-title-reference-t1-binding.json": "ba5426c83beb316e65035bd9dda29bb0b45f0a474e0bc87ea4dd461a45ba2207"
+  },
+  "failed_v1_attempt_preserved_commit": "19240963014e5ea14ddf3f8eaa1715ad106f7336",
+  "interpretation": "Artificial evaluator-correctness evidence only. This is not a scored T1 quality result, native performance improvement, fresh holdout validation or release acceptance. The failed v1 attempt remains unchanged. Commit the new scope, evaluator, tests and separate binding before any new 5438-call scoring attempt."
+}
