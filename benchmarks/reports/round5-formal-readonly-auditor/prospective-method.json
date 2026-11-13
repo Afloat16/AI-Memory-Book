@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "status": "prospective-independent-formal-worker-and-ledger-audit-before-result-reads",
+  "root_plan": {
+    "commit": "be5879400b2f05a250e97b00ce9b488f00413ccb",
+    "path": "benchmarks/reports/round5-formal-independent-raw-audit-plan.json",
+    "sha256": "75bd9d12c80a642ea43d7398f5608661b2e506613cffbbf260b21e8b9ac5e2cc"
+  },
+  "execution": {
+    "schema_version": 1,
+    "status": "prospective-read-only-raw-recomputation",
+    "created_at_utc": "2026-11-13 19:57:25 UTC",
+    "formal_run_id": 43496488712,
+    "run_attempt": 1,
+    "workflow_commit": "cfe8a749efa4add1c62c516aa299ab18ee89b92c",
+    "result_branch": "validation/v033-round5-performance-v2-43496488712-1",
+    "run_identity_sha256": "4ae3879c796f08b016e343c57c9c4468361255c7e57feb1590632c95416e15e6",
+    "run_file_sha256": "049a772a04310f94c833f645ac333cc4f3b8303549d0b03b539d51d9c37aff55",
+    "baseline": {
+      "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+      "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+    },
+    "candidate": {
+      "commit": "4a0ad4dc6aec33a91231d419239b7e90b160c695",
+      "runtime_sha256": "77310a7971677c2cebf8cd01d0aa36ab4562b55d1a3826b7fa7de895840abb32"
+    },
+    "scope": {
+      "workers": 16,
+      "calls": 66248,
+      "full_payload_pairs": 33124,
+      "cohorts": 2,
+      "configurations_per_cohort": 7,
+      "rounds": 4
+    },
+    "checks": [
+      "Read each immutable worker gzip and full JSONL ledger sequentially; hash compressed/raw bytes and match completion receipts.",
+      "Verify all worker identities, unique complete query sets, matching paired order, strict source/cache/budget/token metadata and the complete recorded non-timing row across all rounds.",
+      "Recompute all round, first-round, repeat-round and pooled latency p50/p95/means from saved individual timings; reproduce original10/10/5/5 gates without changing thresholds.",
+      "Check actual SDK MCP and native full-native payload equality for both comparable surfaces.",
+      "Independent agent recomputes28 resource comparisons and all4storage boundaries across16workers; retain every adverse result."
+    ],
+    "boundaries": {
+      "retrieval_calls": 0,
+      "corpus_or_source_execution": false,
+      "exact_seeded_shuffle_verified_by": "unchanged registered hosted auditor; this independent recomputation separately checks complete sets and per-round paired order, without claiming a second PRNG implementation",
+      "reference_tokenization_verified_by": "unchanged pinned reference-tokenizer measurement; independently recheck all saved counts/budget metadata and equality without repeating tokenizer or retrieval",
+      "performance_acceptance": false,
+      "release_accepted": false
+    }
+  },
+  "frozen_protocol": {
+    "commit": "cfe8a749efa4add1c62c516aa299ab18ee89b92c",
+    "binding_path": "benchmarks/experiments/round5-performance-v2-binding.json",
+    "binding_sha256": "1d5af43c6c9b3e826ce11814f29320f9838c3ad603a80b1a36eb9d122fc6b247",
+    "producer_path": "scripts/round5_performance_v2.py",
+    "producer_sha256": "388536dd4bf3dc4c7d76cc8c5bac3afd273071cebcf7f9639ed1b65d19e4f1fb",
+    "registered_plan_sha256": "d3302ef1169aa180b492af6b9c9938e5717ff7261e202ef7a3df50e14febaccd",
+    "helpers": {
+      "default": "ce74bd117ef54da865963f6a185f40707dbf8a0eaf0019957288b71edf8c305a",
+      "token_compare": "bb34650d947a89c17c87e179dc9e376fe44b6d10c0bf4bb70ca4cdfd46913f18",
+      "run": "e557475d5701ea7271de9103aa8267e204796336b5277352fad015d9399521a4"
+    }
+  },
+  "method": [
+    "Do not read running worker outputs. Root supplies immutable final result commit; publish exact input identity/size/hash receipt first.",
+    "Read worker and complete original JSONL ledger in fixed16worker order through base64; check every compressed/raw receipt hash, count and exact begin/finished sequence. Retain all failed predicates without rerunning source or evaluation.",
+    "Require four rounds, original ABBA engine/cohort/configuration inventory, unique complete per-cell query sets, paired query order, runtime identities, cache counts, original token budgets and both saved tokenizer count structures.",
+    "Compare every recorded non-timing row field except wall_ms and engine_source_sha256 across engines and all rounds. Keep all differences, not a sample; check native-payload hashes between actual SDK MCP and native for char4000/token1024.",
+    "Independently recompute per-worker/per-round/first-round/repeat-round/pooled latency and original numeric response/token summaries from original individual values.",
+    "Preserve original10/10/5/5 numeric gates and their1e-9 boundary tolerance. Resource28 and storage4 are separately audited by baseline_audit; do not auto-waive resource review or claim release acceptance."
+  ],
+  "numeric_policy": {
+    "integers": "Parse exact JSON integer tokens with existing BigInt parser; validate counters and budget integers strictly. Preserve original floating wall-ms binary64 values.",
+    "percentiles": "Sort ascending and use source formula ordered[lower]+(ordered[upper]-ordered[lower])*(location-lower), location=(n-1)*q for q0.5/0.95.",
+    "mean": "Independent exact signed integer superaccumulator in units2^-1074; round sum to nearest-even binary64, then divide by n, matching statistics.fmean's fsum/n contract.",
+    "declared_numeric_comparison": "abs(independent-declared)<=2e-12*max(1,abs(independent),abs(declared)); exact counts, strings, null, booleans and complete row structures remain exact. Retain maximum errors and all out-of-tolerance values.",
+    "gate_decision": "Use unchanged original numeric thresholds and1e-9 boundary tolerance on recomputed values; do not apply declaration-comparison tolerance to alter gate thresholds. Flag any differing claimed decision and retain near-boundary limits.",
+    "no_speed_inference_from_other_runs": true
+  },
+  "foundations": [
+    {
+      "commit": "a366c88d670dfb7b55b035816a6a15d124c461f0",
+      "path": "scripts/round5_no_profile_independent_audit.js",
+      "sha256": "8ca9941b6778d3f827b4c107a080a49c3e95dc12c907802db900b372a523fd61",
+      "use": "Only base64/UTF8/SHA256/pinned pako helpers."
+    },
+    {
+      "commit": "03f5a07910573885435fcee8d487531125aeede8",
+      "path": "scripts/round5_sql_independent_audit.js",
+      "sha256": "5970f90c6b19df2bf9711c3f5de7f9cae65dac7613e85144c680f9001ba59a01",
+      "use": "Only exact JSON integers, bounded UTF8/base64 and gzip byte verification; no SQL-specific adapter."
+    }
+  ],
+  "limits": {
+    "raw_worker_reads": 0,
+    "retrieval_calls": 0,
+    "benchmark_runs": 0,
+    "fresh_reads": 0,
+    "triggers_created": 0,
+    "release_acceptance": false
+  },
+  "final_result_commit": null,
+  "storage": "Own validation branch only, all new files under benchmarks/reports/round5-formal-readonly-auditor/; never modify frozen evaluator, runtime or fresh manifest."
+}
