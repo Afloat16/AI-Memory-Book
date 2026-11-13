@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "status": "functional-passed-root-source-review-completed-before-development-scoring",
+  "created_at": "2026-11-13T09:01:27.256664+00:00",
+  "scope_commit": "8f8703f9025faf1902000d8f4ceb3730e287eee6",
+  "scope_sha256": "6b0a60dc36de4112c565da0de05c70c61d7b46af6dfb96635bcc01870d1ea958",
+  "prototype_base_commit": "0f8d34c452bbab8918bcf7f11ec6c12214d70050",
+  "prototype_base_runtime_sha256": "5caa9a72d73eef7121e81f4823f583dc35fc246a1b61b792829bdd275787127b",
+  "runtime_sha256": "fdc44b958e20e5917ba15d6587a3d64675c2a8c6a5f55aaaad073489306beb6e",
+  "files": {
+    "src/memory_book/store.py": "13e149c477a60b0efd7090af9850acd029c78605ead7fb2174d5429d5fa60a12",
+    "src/memory_book/title_references.py": "41974507b0d5068242ec8883ea6f59678a444943aba0bc138c76e277c35b510b",
+    "tests/test_title_references.py": "345da7836bb70d78cbf9e96b084a071a07bfab1df21d20a532614c1028684faf"
+  },
+  "functional_attempts": [
+    {
+      "attempt": 1,
+      "tests": 26,
+      "passed": 25,
+      "failures": 1,
+      "errors": 0,
+      "disposition": "Fixture compared SQLite internal first-access FTS traces; payload assertion passed; runtime unchanged. Full original source/test snapshot retained."
+    },
+    {
+      "attempt": 2,
+      "tests": 106,
+      "passed": 106,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "new_title_tests": 27,
+      "existing_adjacent_tests": 79
+    }
+  ],
+  "static_proof": {
+    "phase": "final-static-source-proof",
+    "remove_exact_registered_t1_injections_restores_e_store_ast": true,
+    "removed_nodes": {
+      "keyword_option": 1,
+      "strict_boolean_guard": 1,
+      "incompatible_option_guard": 1,
+      "local_title_reference": 1,
+      "local_follow_titles_active": 1,
+      "if_follow_titles": 3,
+      "eligible_full_materialization_guard": 1,
+      "if_follow_titles_active": 1
+    },
+    "existing_sql_ast_count": 107,
+    "existing_sql_ast_unchanged": true,
+    "other_runtime_files_byte_identical_to_e": 15,
+    "new_helper_sql_calls": 2,
+    "runtime_sha256": "fdc44b958e20e5917ba15d6587a3d64675c2a8c6a5f55aaaad073489306beb6e"
+  },
+  "log_path": ".artifacts/title-t1-runtime-tests.log",
+  "log_sha256": "8aee2f7543190f95221c7cddfcc1ff9556213ef12b09b00a83d1e827b83c2352",
+  "failure_preservation_paths": [
+    ".artifacts/title-t1-correctness-attempt-01",
+    ".artifacts/title-t1-correctness-attempt-02"
+  ],
+  "real_corpus_retrieval_calls": 0,
+  "quality_scoring_calls": 0,
+  "performance_calls": 0,
+  "git_mutations": 0,
+  "independent_reviews": [
+    {
+      "reviewer": "root",
+      "scope": "Read the complete store diff and new helper, independently recomputed runtime digest, inspected 27 fixture cases and unchanged-output/cache/application-SQL assertions, and checked saved 106-test log and static proof. No duplicate test or corpus call.",
+      "outcome": "Source matches registered single-hop/scoped/catalog/normalization/original-turn projection/default-off contract; approve only development evaluation, not quality/performance acceptance."
+    }
+  ],
+  "limit": "Opt-in implementation correctness only; no quality, precision or speed improvement has been measured.",
+  "prototype_source_commit": "97eaf6205866fa3e42d64c10af0c0aaac4e9175c",
+  "public_artifacts": {
+    "complete_log": "benchmarks/reports/round5-title-t1/correctness.log.gz",
+    "initial_failing_fixture": "benchmarks/reports/round5-title-t1/attempt-01-fixture.py.gz",
+    "initial_fixture_sha256": "cf572d37ab15dc3898cf377010cc4eb3002d25a9dbb08cdeff5d2f32d0978aaa"
+  }
+}
