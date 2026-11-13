@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/481743406be9/AI-Memory-Book/scripts/round5_title_reference_eval.py", line 592, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/workspace/scratch/481743406be9/AI-Memory-Book/scripts/round5_title_reference_eval.py", line 576, in main
+    worker(args)
+  File "/workspace/scratch/481743406be9/AI-Memory-Book/scripts/round5_title_reference_eval.py", line 478, in worker
+    require(not any(row["score"]["errors"].values()), "T1 source/scope/budget/provenance invariant failed")
+  File "/workspace/scratch/481743406be9/AI-Memory-Book/scripts/round5_title_reference_eval.py", line 48, in require
+    raise ValueError(message)
+ValueError: T1 source/scope/budget/provenance invariant failed
+Traceback (most recent call last):
+  File "/workspace/scratch/481743406be9/AI-Memory-Book/scripts/round5_title_reference_eval.py", line 592, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/workspace/scratch/481743406be9/AI-Memory-Book/scripts/round5_title_reference_eval.py", line 588, in main
+    return run(args)
+           ^^^^^^^^^
+  File "/workspace/scratch/481743406be9/AI-Memory-Book/scripts/round5_title_reference_eval.py", line 543, in run
+    subprocess.run(command, check=True, env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"})
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python', '/workspace/scratch/481743406be9/AI-Memory-Book/scripts/round5_title_reference_eval.py', '--worker', '2', '--binding', '/workspace/scratch/481743406be9/AI-Memory-Book/benchmarks/experiments/round5-title-reference-t1-binding.json', '--source', '/workspace/scratch/481743406be9/AI-Memory-Book/.artifacts/round5-t1-prototype/src', '--locomo-path', '/workspace/scratch/481743406be9/AI-Memory-Book/.artifacts/round5/locomo10.json', '--parquet', '/workspace/scratch/481743406be9/AI-Memory-Book/.artifacts/round5/hotpot_dev_distractor_v1.parquet']' returned non-zero exit status 1.
