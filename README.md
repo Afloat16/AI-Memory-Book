@@ -64,19 +64,24 @@ Replace `claude-code` with your [client profile](docs/integrations.md#supported-
 
 ## Measured results
 
-**v0.3.1 reduces query work while preserving the default retrieval output.** The paired performance baseline is v0.3.0. Source identities, full measurements and unsuccessful experiments remain in the [benchmark index](benchmarks/README.md).
+**The v0.3.2 candidate passes its registered efficiency test against published v0.3.1 while preserving complete default retrieval output.** Its fresh component comparison and release work are still in progress. Source identities, full measurements and unsuccessful experiments remain in the [benchmark index](benchmarks/README.md) and [round-four record](docs/optimization-round4.md).
 
 ### Efficiency highlights
 
 | Verified improvement | Result | Measurement |
 |---|---|---|
-| **Identical non-timing output, less tail latency** | Pooled p95 geometric mean **−11.36%** across ten settings | 47,320 calls, two old corpora, native/actual SDK MCP, character/token budgets and four balanced rounds. [Report](docs/round3-performance-review.md) |
-| **Faster public-conversation recall** | Native p95 **5.054 → 3.737 ms (−26.05%)**; actual MCP **7.409 → 5.937 ms (−19.87%)** | 1,015 questions, 4,000-character cap, same host, no reuse of recall results. [Original measurements](benchmarks/reports/round3-performance-43246417515-1/report.summary.json) |
-| **Optional indexed references, retained** | Response-text tokens **−19.63%**; first-call reference total **−8.15%** | Earlier 1,015-question measurement, 4,000 characters, compact responses, `o200k_base`; this option is unchanged. [Report](docs/indexed-references.md) |
+| **Identical non-timing output, less tail latency** | Pooled p95 geometric mean **−10.13%** across twelve settings | **56,784 calls**, two old corpora, native/actual SDK MCP, character/token budgets and four balanced rounds. [Formal review](docs/round4-performance-review.md) |
+| **Faster public native token recall** | p95 **−19.07% / −18.41% / −18.20%** at 512 / 1,024 / 2,048 tokens | 1,015 public-conversation questions, `cl100k_base`, complete uncached recall; 4,060 calls per version/setting. [Saved measurements](benchmarks/reports/round4-performance-43361086255-1/report.summary.json) |
+| **Faster actual MCP token recall** | p95 **4.358 → 3.887 ms (−10.80%)** at 1,024 tokens | Same public cohort, official SDK stdio call including normal server cache writes and roundtrip costs. [Report and boundaries](docs/round4-performance-review.md) |
+| **Optional indexed references, historical measurement** | Response-text tokens **−19.63%**; first-call reference total **−8.15%** | Earlier 1,015-question measurement, 4,000 characters, compact responses, `o200k_base`; this option is unchanged and was not remeasured for v0.3.2. [Report](docs/indexed-references.md) |
 
-Complete non-timing outputs matched. One synthetic 512-token setting has **0.125% higher p95**. Mean fresh empty-database opening time in the public workers increased **4.838 ms (+14.04%)**; independent review explicitly accepted that tradeoff. All rounds and the original automatic resource flag remain recorded in the [performance report and review](docs/round3-performance-review.md).
+All **28,392 paired observations** matched on complete non-timing output, and all twelve pooled p50 values improved. Public MCP at 4,000 characters has **1.44% higher p95**. The largest registered resource mean increase is **6.02%**, for public MCP token startup through initialization; every resource mean stays below the 10% review trigger. **All automatic gates passed with no exception or waiver.** The [independent arithmetic audit](benchmarks/reports/round4-performance-independent-audit.json), [strict-ledger audit](benchmarks/reports/round4-performance-local-audit.json) and [full report](benchmarks/reports/round4-performance-43361086255-1/report.json.gz) retain every round, adverse result and resource cost.
+
+The aggregate gain is **10.1294%**, only **0.1294 percentage points** above its registered 10% threshold. These repeated queries on one host establish a narrow observed pass, with no statistical-significance or universal-speedup claim. The paired test measures Book versions; it establishes no whole-product speed ratio against another repository.
 
 Indexed references preserve context and reconstruct every source field. The first-call count includes schema, instructions and arguments; reference-token counts are not provider bills. Sparse references can cost more. The earlier format comparison measured **7.126 → 7.131 ms p95**, with no speedup claim.
+
+**Historical v0.3.1 versus v0.3.0:** the separate 47,320-call run recorded **−11.36%** aggregate p95, **−26.05%** public native character p95 and **−19.87%** actual MCP character p95. Its synthetic token512 p95 increase of **0.125%** and public empty-database opening increase of **4.838 ms (+14.04%)**, explicitly accepted after review, remain unchanged in the [round-three report](docs/round3-performance-review.md). These earlier measurements are not v0.3.2 results.
 
 ### Current open-source component comparison
 

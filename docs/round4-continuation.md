@@ -17,6 +17,15 @@ from that commit and checkpoints each stage on
 `validation/round4-comparison-43363060062-1`. Its final offline audit, current
 documentation, exact release CI and public installation check remain pending.
 
+Main advanced independently to `a0961f29dcdf3801d063e6d69bacaa1bde99e318`,
+preserving v0.3.1 audit/preparation tooling. Its eight changed files are being
+integrated as an ancestor, with all frozen runtime/evaluator bytes retained.
+The current-source-as-v0.3.1 packaging fixture was replaced with a fixed,
+version-independent artificial fixture; the release guard now also pins the
+accepted C2 runtime for v0.3.2. All 18 focused release/audit/installer-routing
+tests pass. Preserve that main history when the final result and docs branches
+are merged; do not force-overwrite its changes.
+
 Earlier sections below are historical checkpoints; the latest status is above
 and in the final appended sections. Preserve their original failed-attempt
 evidence and immutable experiment registrations.
