@@ -344,7 +344,8 @@ class ExactLMIntegration(unittest.TestCase):
         self.assertTrue(native)
         self.assertTrue(all(s["location"]["line"]==253 for s in native))
         self.assertEqual({s["category"] for s in native}, {"fts_candidates","directory_metadata"})
-        self.assertFalse([s for s in sites.sites if s["category"].startswith("disabled_")])
+        self.assertFalse([s for s in sites.sites if s["category"].startswith("disabled_")
+                          or s["category"]=="unclassified_primary"])
 
     def test_cursor_factory_restoration_and_unsupported_fallback(self):
         sites = d.SiteCatalog(self.filenames, self.rules)
@@ -404,6 +405,241 @@ class PreclaimAndIsolation(unittest.TestCase):
             source.write_text("VALUE = 2\n")
             with self.assertRaises(ValueError):
                 d.verify_exact_source(root, identity)
+
+
+
+def fake_observation():
+    return {"valid": True, "started": True, "finished": True, "callback_failure": None,
+        "open_sequences": [], "spans": [], "events": {}, "target_events": {},
+        "non_target_events": 0, "callback_bookkeeping_ns": 0,
+        "recall_wall_ns_including_observer": 10, "observed_exclusive_builtin_ns": 0,
+        "unattributed_wall_ns": 10}
+
+
+def fake_profile():
+    old = {"helpers_sha256": {"helper": "a"*64}, "helper_dependency_sha256": {"dependency": "b"*64}, "cohorts": {}}
+    cells = []
+    for cohort, count in (("synthetic61",168),("public1015",1015)):
+        ids = [cohort+"-invented-"+str(i) for i in range(count)]
+        old["cohorts"][cohort] = {"queries":count,"dataset_sha256":"c"*64,"profile_query_order_sha256":d.digest(ids)}
+        for configuration in d.CONFIG_NAMES:
+            cells.append({"cohort":cohort,"configuration":configuration,"queries":count,
+                "dataset_sha256":"c"*64,"status":"completed","sites":[],
+                "rows":[{"query_id":qid,"non_timing_payload_sha256":"d"*64,"observation":fake_observation()} for qid in ids]})
+    report = {"status":"completed","expected_calls":4732,"attempted_calls":4732,"completed_calls":4732,
+        "runtime_source_sha256":d.RUNTIME_SHA,"script_sha256":"e"*64,"scope_sha256":d.SCOPE_SHA,
+        "helpers_sha256":old["helpers_sha256"],"helper_dependency_sha256":old["helper_dependency_sha256"],"cells":cells}
+    return report, old, json.loads(json.dumps(cells))
+
+
+class CompleteProtocol(unittest.TestCase):
+    def test_all_4732_fake_payloads_and_orders_are_checked_and_mismatch_retained(self):
+        report, old, references = fake_profile()
+        self.assertTrue(d.profile_audit(report,old,references,"e"*64)["all_full_non_timing_payloads_equal_to_v032_c2"])
+        report["cells"][-1]["rows"][-1]["non_timing_payload_sha256"] = "f"*64
+        result = d.profile_audit(report,old,references,"e"*64)
+        self.assertFalse(result["all_full_non_timing_payloads_equal_to_v032_c2"])
+        self.assertEqual(len(result["mismatches"]),1)
+        self.assertEqual(result["mismatches"][0]["query_id"],references[-1]["rows"][-1]["query_id"])
+
+    def test_missing_extra_duplicate_reordered_invalid_payload_and_axes_are_rejected(self):
+        report, old, references = fake_profile()
+        for kind in ("missing","extra","duplicate","order","invalid-hash","axis","dataset","source","helper","producer","count","references"):
+            with self.subTest(kind=kind):
+                value = json.loads(json.dumps(report))
+                baseline = references
+                rows = value["cells"][0]["rows"]
+                if kind == "missing": rows.pop()
+                elif kind == "extra": rows.append(dict(rows[-1]))
+                elif kind == "duplicate": rows[1]["query_id"] = rows[0]["query_id"]
+                elif kind == "order": rows.reverse()
+                elif kind == "invalid-hash": rows[0]["non_timing_payload_sha256"] = "invalid"
+                elif kind == "axis": value["cells"][0]["configuration"] = "native-token2048"
+                elif kind == "dataset": value["cells"][0]["dataset_sha256"] = "0"*64
+                elif kind == "source": value["runtime_source_sha256"] = "0"*64
+                elif kind == "helper": value["helpers_sha256"] = {}
+                elif kind == "producer": value["script_sha256"] = "0"*64
+                elif kind == "count": value["completed_calls"] = 4731
+                else: baseline = references[:-1]
+                with self.assertRaises(ValueError):
+                    d.profile_audit(value,old,baseline,"e"*64)
+
+    def test_unknown_primary_and_disabled_paths_remain_raw_but_fail_completion_gate(self):
+        with sqlite3.connect(":memory:") as db:
+            sites = catalog()
+            observer = d.SQLiteObserver(sites)
+            d.observe_call(observer, db.execute, "SELECT 1")
+        for category in ("unclassified_primary","disabled_cache_path","disabled_coverage_path","disabled_optional_source"):
+            with self.subTest(category=category):
+                report, old, references = fake_profile()
+                report["cells"][0]["sites"] = json.loads(json.dumps(sites.sites))
+                report["cells"][0]["sites"][0]["category"] = category
+                report["cells"][0]["rows"][0]["observation"] = observer.report()
+                result = d.profile_audit(report,old,references,"e"*64)
+                self.assertTrue(result["all_full_non_timing_payloads_equal_to_v032_c2"])
+                self.assertFalse(result["all_classification_sites_valid"])
+                self.assertEqual(result["cells"][0]["classification_violations"],[{"site_id":0,"category":category}])
+                self.assertEqual(len(report["cells"][0]["rows"][0]["observation"]["spans"]),1)
+
+    def test_raw_span_corruption_cannot_pass_accounting(self):
+        with sqlite3.connect(":memory:") as db:
+            sites = catalog()
+            observer = d.SQLiteObserver(sites)
+            d.observe_call(observer,lambda:db.execute("SELECT 1").fetchone())
+        original = observer.report()
+        d.audit_observation(original,sites.sites)
+        for kind in ("sequence","open","site","time","child","counter","wall","wrapper"):
+            value = json.loads(json.dumps(original))
+            if kind == "sequence": value["spans"][0]["sequence"] = 2
+            elif kind == "open": value["spans"][0]["status"] = "open"
+            elif kind == "site": value["spans"][0]["site_id"] = 999
+            elif kind == "time": value["spans"][0]["end_ns"] -= 1
+            elif kind == "child": value["spans"][0]["child_inclusive_ns"] += 1
+            elif kind == "counter": value["target_events"]["c_call"] += 1
+            elif kind == "wall": value["unattributed_wall_ns"] += 1
+            else: value["spans"][0]["wrapper_is"] = None
+            with self.subTest(kind=kind), self.assertRaises(ValueError):
+                d.audit_observation(value,sites.sites)
+
+    def test_cell_intent_then_lossless_partial_result_then_next_intent(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            public, state = root/"reports",root/"state"
+            public.mkdir()
+            state.mkdir()
+            events = []
+            with patch.object(d,"PUBLIC",public), patch.object(d,"STATE",state), \
+                 patch.object(d,"publish",side_effect=lambda message: events.append(message)):
+                paths = d.claim_cell("synthetic61","native-char4000","a"*64,168)
+                self.assertTrue(paths["intent"].is_file())
+                with paths["ledger"].open("xb") as stream:
+                    d.append_ledger(stream,{"state":"started","query_id":"invented"})
+                partial = {"status":"failed","rows":[{"query_id":"invented","observation":fake_observation()}]}
+                storage = d.save_cell(paths,partial,[])
+                self.assertEqual(json.loads(d.gzip.decompress(paths["output"].read_bytes()))["status"],"failed")
+                self.assertEqual(d.gzip.decompress(paths["saved_ledger"].read_bytes()),paths["ledger"].read_bytes())
+                self.assertEqual(storage["cell"]["sha256"],d.sha(paths["output"]))
+                with self.assertRaises(ValueError):
+                    d.claim_cell("synthetic61","native-char4000","a"*64,168)
+                d.claim_cell("synthetic61","native-token512","a"*64,168)
+            self.assertEqual(len(events),3)
+            self.assertIn("claim",events[0])
+            self.assertIn("preserve",events[1])
+            self.assertIn("claim",events[2])
+
+    def test_failed_intent_publication_prevents_a_query_or_next_stage(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            executed = []
+            with patch.object(d,"PUBLIC",root/"reports"), patch.object(d,"STATE",root/"state"), \
+                 patch.object(d,"publish",side_effect=d.PublicationError("invented rejection")):
+                with self.assertRaises(d.PublicationError):
+                    d.claim_cell("synthetic61","native-char4000","a"*64,168)
+                    executed.append("query")
+            self.assertEqual(executed,[])
+            self.assertFalse((root/"state/ledgers/synthetic61-native-char4000.jsonl").exists())
+
+    def test_worker_ownership_forbids_controller_publish_and_always_step_writes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            public,state = root/"reports",root/"state"
+            public.mkdir()
+            state.mkdir()
+            d.save(state/"publisher.json",{"role":"worker"})
+            d.save(state/"publication.json",{"expected_remote":"a"*40})
+            with patch.object(d,"PUBLIC",public), patch.object(d,"STATE",state), \
+                 patch.object(d,"publisher_role",return_value="controller"), \
+                 patch.object(d,"git") as git, patch.object(d,"remote_head") as remote:
+                with self.assertRaises(d.PublicationError):
+                    d.publish("forbidden")
+                d.preserve()
+                git.assert_not_called()
+                remote.assert_not_called()
+            self.assertEqual(list(public.iterdir()),[])
+
+    def test_publication_verifies_remote_and_never_retries_an_ambiguous_push(self):
+        from types import SimpleNamespace
+        for successful in (True,False):
+            with self.subTest(successful=successful), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                public,state = root/"reports",root/"state"
+                public.mkdir()
+                state.mkdir()
+                d.save(state/"publisher.json",{"role":"controller"})
+                d.save(state/"publication.json",{"expected_remote":"a"*40})
+                d.save(public/"invented.json",{"evidence":"invented"})
+                state_of_git = {"head":"a"*40,"staged":False}
+                def git(*args):
+                    if args == ("rev-parse","HEAD"): return state_of_git["head"]
+                    if args == ("diff","--cached","--name-only"):
+                        return "reports/invented.json" if state_of_git["staged"] else ""
+                    raise AssertionError(args)
+                calls = []
+                def command(args,**kwargs):
+                    calls.append(args)
+                    if args[1] == "add": state_of_git["staged"] = True
+                    if args[1] == "commit": state_of_git["head"] = "b"*40
+                    return SimpleNamespace(returncode=0,stdout="",stderr="")
+                with patch.object(d,"ROOT",root), patch.object(d,"PUBLIC",public), patch.object(d,"STATE",state), \
+                     patch.object(d,"publisher_role",return_value="controller"), patch.object(d,"git",side_effect=git), \
+                     patch.object(d,"remote_head",side_effect=["a"*40, "b"*40 if successful else "c"*40]) as remote, \
+                     patch.object(d.subprocess,"run",side_effect=command):
+                    if successful:
+                        d.publish("invented checkpoint")
+                        self.assertEqual(d.read(state/"publication.json")["expected_remote"],"b"*40)
+                    else:
+                        with self.assertRaises(d.PublicationError): d.publish("ambiguous")
+                        with self.assertRaises(d.PublicationError): d.publish("do not retry")
+                        self.assertTrue((public/"publication-failure.json").exists())
+                    self.assertEqual(remote.call_count,2)
+                pushes = [args for args in calls if args[1]=="push"]
+                self.assertEqual(len(pushes),1)
+                self.assertEqual(pushes[0],["git","push","origin","HEAD:refs/heads/"+d.BRANCH])
+
+    def test_controller_waits_and_kills_group_before_regaining_publication(self):
+        from types import SimpleNamespace
+        for timeout in (False,True):
+            with self.subTest(timeout=timeout), tempfile.TemporaryDirectory() as tmp:
+                root=Path(tmp)
+                public,state=root/"reports",root/"state"
+                public.mkdir()
+                state.mkdir()
+                d.save(public/"binding.json",{"invented":True})
+                d.save(state/"publisher.json",{"role":"controller"})
+                events=[]
+                class Process:
+                    pid=12345
+                    waits=0
+                    def wait(self,timeout=None):
+                        self.waits += 1
+                        events.append("wait")
+                        if timeout is not None and failure:
+                            raise d.subprocess.TimeoutExpired("invented",timeout)
+                        return -9 if failure else 0
+                    def poll(self):
+                        return None if failure else 0
+                failure=timeout
+                process=Process()
+                def launch(*args,**kwargs):
+                    self.assertEqual(d.read(state/"publisher.json")["role"],"worker")
+                    self.assertTrue(kwargs["start_new_session"])
+                    events.append("launch")
+                    return process
+                def publish(message):
+                    self.assertEqual(d.read(state/"publisher.json")["role"],"controller")
+                    events.append("intent" if "claim" in message else "exit")
+                with patch.object(d,"PUBLIC",public),patch.object(d,"STATE",state), \
+                     patch.dict(os.environ,{"GITHUB_SHA":"a"*40,"GITHUB_RUN_ID":"invented"}), \
+                     patch.object(d,"publish",side_effect=publish), \
+                     patch.object(d.subprocess,"Popen",side_effect=launch), \
+                     patch.object(d.os,"killpg",side_effect=lambda *args: events.append("kill-group")):
+                    if failure:
+                        with self.assertRaises(RuntimeError): d.execute_worker()
+                    else:
+                        d.execute_worker()
+                self.assertEqual(events,["intent","launch","wait"]+(["kill-group"] if failure else [])+["wait","exit"])
+                self.assertEqual(d.read(state/"publisher.json")["role"],"controller")
+                self.assertTrue((state/"worker-exit-confirmation.json").exists())
 
 
 if __name__ == "__main__":

@@ -696,8 +696,14 @@ def audit_cell(candidate, baseline, cohort, configuration, expected):
             mismatches.append({"cohort": cohort, "configuration": configuration,
                 "query_id": right["query_id"], "baseline": left["non_timing_payload_sha256"],
                 "observed": right["non_timing_payload_sha256"]})
+    violations = sorted({(span["site_id"], candidate["sites"][span["site_id"]]["category"])
+        for row in candidate["rows"] for span in row["observation"]["spans"]
+        if candidate["sites"][span["site_id"]]["category"] == "unclassified_primary"
+        or candidate["sites"][span["site_id"]]["category"].startswith("disabled_")})
     return {"cohort": cohort, "configuration": configuration, "queries": expected["queries"],
         "query_order_sha256": expected["profile_query_order_sha256"], "mismatches": mismatches,
+        "classification_violations": [{"site_id": site, "category": category} for site, category in violations],
+        "all_classification_sites_valid": not violations,
         "all_full_non_timing_payloads_equal": not mismatches}
 
 
@@ -719,6 +725,7 @@ def profile_audit(value, old, references, producer_sha):
     mismatches = [row for cell in records for row in cell["mismatches"]]
     return {"attempt": ATTEMPT, "calls": 4732, "cells": records, "mismatches": mismatches,
         "all_full_non_timing_payloads_equal_to_v032_c2": not mismatches,
+        "all_classification_sites_valid": all(cell["all_classification_sites_valid"] for cell in records),
         "retrieval_calls_executed_by_audit": 0, "speed_claim": False, "fresh_rows_decoded": 0}
 
 
@@ -902,6 +909,8 @@ def preflight_evidence(bound):
         if hashlib.sha256(content).hexdigest() != expected:
             raise ValueError("Artificial CI covered different observer/test/workflow bytes")
     log = artificial["raw_log"]
+    if set(log) != {"path", "sha256"}:
+        raise ValueError("Artificial CI log must be in the same immutable evidence commit")
     log_ref = {"commit": bound["artificial_evidence"]["commit"], **log}
     git_reference(log_ref)
     return {"status": "verified-before-claim", "created_at": stamp(),
@@ -1155,9 +1164,6 @@ def worker():
                                 append_ledger(ledger, {"state": "finished", "query_index": index, **row})
                                 report["completed_calls"] += 1
                                 audit_observation(row["observation"], sites.sites)
-                                if any(sites.sites[span["site_id"]]["category"].startswith("disabled_")
-                                       for span in row["observation"]["spans"]):
-                                    raise ValueError("A disabled cache/coverage/optional source path activated")
                                 if native_book_identity(book) is not connection:
                                     raise ObserverFailure("Observer changed native MemoryBook identity")
                         cell["status"] = "completed"
@@ -1189,10 +1195,11 @@ def worker():
         save(PUBLIC / "worker-completion.json", {"status": "completed",
             "attempted_calls": report["attempted_calls"], "completed_calls": report["completed_calls"],
             "all_full_payloads_equal": audit["all_full_non_timing_payloads_equal_to_v032_c2"],
+            "all_classification_sites_valid": audit["all_classification_sites_valid"],
             "complete_cells": len(report["cells"]), "fresh_rows_decoded": 0, "speed_claim": False})
         publish("bench: preserve complete SQL attribution observations and C2 payload audit")
-        if not audit["all_full_non_timing_payloads_equal_to_v032_c2"]:
-            raise ValueError("All original queries finished, but payload equality failed")
+        if not audit["all_full_non_timing_payloads_equal_to_v032_c2"] or not audit["all_classification_sites_valid"]:
+            raise ValueError("All original queries finished, but payload or classification validation failed")
     except BaseException as error:
         report["status"] = "failed"
         report["error_type"] = type(error).__name__
@@ -1285,10 +1292,13 @@ def run():
             raise ValueError("Complete raw observation changed")
         audit = profile_audit(json.loads(raw), read(OLD), load_references(read(OLD)),
                               bound["artifact_files_sha256"][SCRIPT_PATH])
-        if audit != read(PUBLIC / "payload-audit.json") or not audit["all_full_non_timing_payloads_equal_to_v032_c2"]:
+        if (audit != read(PUBLIC / "payload-audit.json")
+                or not audit["all_full_non_timing_payloads_equal_to_v032_c2"]
+                or not audit["all_classification_sites_valid"]):
             raise ValueError("Complete source-free payload audit failed")
         save(PUBLIC / "completion.json", {"status": "completed", "created_at": stamp(),
             "attempt": ATTEMPT, "calls": 4732, "complete_cells": 8, "all_full_payloads_equal": True,
+            "all_classification_sites_valid": True,
             "scope": "Partial instrumented native C boundaries only; implicit iteration remains unattributed.",
             "fresh_rows_decoded": 0, "comparison_engine_calls": 0, "speed_claim": False,
             "formal_or_release_acceptance": False})
