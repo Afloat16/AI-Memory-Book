@@ -39,6 +39,8 @@ _NORMALIZATION_COMPATIBILITY = re.compile(
     _NORMALIZATION_IDENTITY.pattern[:-2] + r"\uff01-\uff5e\u3000\u2011\u2026]*")
 _NORMALIZATION_TRANSLATION = {code: code - 0xFEE0 for code in range(0xFF01, 0xFF5F)}
 _NORMALIZATION_TRANSLATION.update({0x3000: 0x20, 0x2011: 0x2010, 0x2026: "..."})
+# Only mapped runs enter translate; certified identity spans stay untouched.
+_NORMALIZATION_TRANSLATION_RUN = re.compile(r"[\uff01-\uff5e\u3000\u2011\u2026]+")
 _NORMALIZATION_UCD_VERSIONS = frozenset(("13.0.0", "14.0.0", "15.0.0", "15.1.0", "16.0.0"))
 _ORDINARY_NORMALIZE = unicodedata.normalize
 _ORDINARY_CATEGORY = unicodedata.category
@@ -52,6 +54,11 @@ def _strip_nonspacing_marks(text: str) -> str:
 
 
 _ORDINARY_STRIP_NONSPACING = _strip_nonspacing_marks
+
+
+def _translate_normalization_run(match: re.Match[str]) -> str:
+    """Apply the existing fixed mapping to one adjacent compatibility run."""
+    return match.group().translate(_NORMALIZATION_TRANSLATION)
 
 
 def terms(text: str, *, query: bool = False) -> list[str]:
@@ -68,7 +75,7 @@ def terms(text: str, *, query: bool = False) -> list[str]:
             if _NORMALIZATION_IDENTITY.fullmatch(text) is not None:
                 identity_source = True
             elif _NORMALIZATION_COMPATIBILITY.fullmatch(text) is not None:
-                text = text.translate(_NORMALIZATION_TRANSLATION)
+                text = _NORMALIZATION_TRANSLATION_RUN.sub(_translate_normalization_run, text)
                 identity_source = True
         if not identity_source:
             text = unicodedata.normalize("NFKC", text)
