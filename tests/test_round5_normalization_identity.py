@@ -109,8 +109,10 @@ class NormalizationIdentityTests(unittest.TestCase):
         admitted = sorted(ADMITTED)
         extra = list("éßİ㍿①ＡΩｶﾞ…‐‑\u0301\u0315\u034f\u302a")
         extra += ["\u1100", "\u1161", "\ud800", "\udfff", "\U00020000", "😀"]
+        mixed = admitted + extra
         for number in range(320):
-            pieces = [rng.choice(admitted if number % 2 else admitted + extra)
+            alphabet = admitted if number % 2 else mixed
+            pieces = [rng.choice(alphabet)
                       for _ in range(rng.randrange(0, 160))]
             if number % 3 == 0:
                 pieces.insert(0, "为什么AlphaBeta")
