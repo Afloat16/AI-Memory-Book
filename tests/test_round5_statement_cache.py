@@ -46,8 +46,10 @@ class StatementCacheTests(unittest.TestCase):
             actual = self.invented_working_set(book.db)
             self.assertEqual(actual, [200, 200])
             self.assertEqual(book.db.execute('SELECT COUNT(*) FROM recall_cache').fetchone()[0], 0)
-        with sqlite3.connect(':memory:') as ordinary_default:
-            self.assertEqual(self.invented_working_set(ordinary_default), [200, 400])
+        # A disabled-cache control has identical preparation counts across
+        # Python versions, unlike their different default eviction policies.
+        with sqlite3.connect(':memory:', cached_statements=0) as uncached_control:
+            self.assertEqual(self.invented_working_set(uncached_control), [200, 400])
 
     def test_cached_statement_preserves_snapshot_and_external_commits(self):
         with MemoryBook(self.path, cache_size=0) as book:

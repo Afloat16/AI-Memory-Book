@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "source_commit": "04fcc52f636aba2192bd570d6d6f7a95f7fc8c00",
+  "parent_source_commit": "505e84282ae6ba6cc31eda4bc6b3f658c983bcce",
+  "runtime_sha256": "71977e56c9f531b45581fabef8c12f28860937961e2788a9ad798d72fb749340",
+  "run_id": 43453861729,
+  "job_id": 131982765862,
+  "failed_job": "core (3.10)",
+  "conclusion": "failure",
+  "failed_test": "test_bounded_working_set_reuses_preparation_with_new_parameters",
+  "tests_ran": 847,
+  "failures": 1,
+  "errors": 0,
+  "skipped": 84,
+  "candidate_preparations": [
+    200,
+    200
+  ],
+  "ordinary_default_preparations_observed": [
+    200,
+    301
+  ],
+  "ordinary_default_preparations_asserted": [
+    200,
+    400
+  ],
+  "diagnosis": "The permissive authorizer cleanup fixed the prior Python 3.10 failure. This newly reachable negative-control assertion assumes the default statement cache evicts identically across Python versions. The Python 3.10 observation differs; the candidate preparation-reuse and subsequent result-cache-row assertions passed before this assertion.",
+  "repair": "Use an explicitly disabled prepared-statement cache for the negative control and preserve its strict [200,400] assertion. Preserve the candidate [200,200] assertion, every changing parameter value check and all transaction, external-commit, schema, native-connection and pager assertions. Runtime remains unchanged.",
+  "interpretation": "This invented SQL test demonstrates preparation reuse versus an uncached control. It does not establish thrashing in the real workload, an end-to-end latency benefit or release acceptance. Prior default-cache observations remain historical facts for their original interpreter.",
+  "remaining_jobs": [
+    {
+      "id": 131982765514,
+      "name": "installers (windows-latest)",
+      "conclusion": "success"
+    },
+    {
+      "id": 131982765833,
+      "name": "installers (ubuntu-latest)",
+      "conclusion": "success"
+    },
+    {
+      "id": 131982765993,
+      "name": "core (3.12)",
+      "conclusion": "success"
+    },
+    {
+      "id": 131982765995,
+      "name": "installers (macos-latest)",
+      "conclusion": "success"
+    },
+    {
+      "id": 131982766059,
+      "name": "reader-browser",
+      "conclusion": "success"
+    },
+    {
+      "id": 131982766142,
+      "name": "mcp",
+      "conclusion": "success"
+    },
+    {
+      "id": 131982766218,
+      "name": "container",
+      "conclusion": "success"
+    },
+    {
+      "id": 131982766312,
+      "name": "core (3.13)",
+      "conclusion": "cancelled"
+    }
+  ],
+  "log_path": "benchmarks/reports/round5-statement-cache-ci/portable-cleanup-43453861729/python310.log",
+  "log_encoding": "Exact decoded UTF-8 string returned by the GitHub job-log connector, with no appended newline or content rewriting; not a raw HTTP-byte claim.",
+  "corpus_calls_executed_by_repair": 0
+}
