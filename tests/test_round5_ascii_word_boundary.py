@@ -227,7 +227,7 @@ class AsciiWordBoundaryTests(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertEqual(hashlib.sha256((root / path).read_bytes()).hexdigest(), expected)
         runtime = root / "src" / "memory_book"
-        actual_python = {str(path.relative_to(root)) for path in runtime.rglob("*.py")}
+        actual_python = {path.relative_to(root).as_posix() for path in runtime.rglob("*.py")}
         expected_python = {path for path in UNCHANGED_SOURCE_FILES if path.endswith(".py")}
         expected_python.add("src/memory_book/text.py")
         self.assertEqual(actual_python, expected_python)
@@ -337,4 +337,301 @@ class AsciiWordBoundaryTests(unittest.TestCase):
                     self.assertGreater(previous["lexical_generator_resumptions"], 0)
                 records.append({"query": query, "candidate": work, "frozen_lm": previous})
         print("O actual invented regex/loop mechanism; no timing claim:", records)
+
+    def test_rejected_word_and_cjk_inputs_keep_the_original_lexical_route(self):
+        for value in ("汉字—alpha", "\U00020000—alpha", "βΣ—alpha", "١٢٣—beta",
+                      "Пример—alpha", "한글—alpha", "为什么alpha—beta"):
+            for query in (False, True):
+                actual, work = actual_pattern_work(lexical.terms, lexical.__dict__, value, query)
+                expected, previous = actual_pattern_work(
+                    self.lm_namespace["terms"], self.lm_namespace, value, query)
+                with self.subTest(value=value, query=query):
+                    self.assertEqual((actual, work), (expected, previous))
+                    self.assertEqual(work["ascii_findall"], 0)
+                    self.assertEqual(work["runs_finditer"], 1)
+
+    def test_original_ascii_branch_is_unchanged_for_stateful_query_and_custom_stop(self):
+        class Query:
+            def __init__(self, events):
+                self.events = events
+            def __bool__(self):
+                self.events.append(("query",))
+                return True
+
+        class Stop:
+            def __init__(self, events):
+                self.events = events
+            def __contains__(self, part):
+                self.events.append(("stop", part))
+                return part == "beta"
+
+        observed = []
+        for _, function, namespace in self.references():
+            events = []
+            with restored_namespace(namespace):
+                namespace["STOP"] = Stop(events)
+                value, work = actual_pattern_work(function, namespace, "AlphaBeta_gamma", Query(events))
+            observed.append((value, work, events))
+        self.assertTrue(all(value == observed[0] for value in observed))
+        self.assertEqual(observed[0][0], ["alpha", "gamma"])
+        self.assertEqual(observed[0][1]["ascii_findall"], 1)
+        self.assertEqual(observed[0][1]["runs_finditer"], 0)
+        self.assertEqual(observed[0][2], [("query",), ("stop", "alpha"),
+                                        ("stop", "beta"), ("stop", "gamma")])
+
+    def test_each_original_pattern_hook_keeps_literal_calls_and_outputs(self):
+        value = "alpha—beta_gamma"
+        for name in HOOK_NAMES:
+            for query in (False, True):
+                observed = []
+                for _, function, namespace in self.references():
+                    with restored_namespace(namespace):
+                        proxy = Mock(wraps=namespace[name])
+                        namespace[name] = proxy
+                        result = function(value, query=query)
+                        observed.append((result, list(proxy.mock_calls)))
+                with self.subTest(hook=name, query=query):
+                    self.assertTrue(all(value == observed[0] for value in observed))
+
+    def test_each_pattern_hook_keeps_literal_exception_priority(self):
+        value = "alpha—beta_gamma"
+
+        class HookFailure(RuntimeError):
+            pass
+
+        class BrokenPattern:
+            def __init__(self, label, events):
+                self.label, self.events = label, events
+            def __getattr__(self, method):
+                def fail(*arguments, **keywords):
+                    self.events.append((self.label, method, arguments, keywords))
+                    raise HookFailure("invented " + self.label + "." + method)
+                return fail
+
+        for name in HOOK_NAMES:
+            for query in (False, True):
+                observed = []
+                for _, function, namespace in self.references():
+                    events = []
+                    with restored_namespace(namespace):
+                        namespace[name] = BrokenPattern(name, events)
+                        try:
+                            outcome = ("tokens", function(value, query=query))
+                        except HookFailure as exc:
+                            outcome = ("error", type(exc).__name__, str(exc))
+                        observed.append((outcome, events))
+                with self.subTest(hook=name, query=query):
+                    self.assertTrue(all(value == observed[0] for value in observed))
+                    expected_error = name not in {"ASCII_RUNS", "ZH_QUESTION"} or (
+                        name == "ZH_QUESTION" and query)
+                    self.assertEqual(observed[0][0][0] == "error", expected_error)
+
+    def test_nonbool_query_truth_results_and_exceptions_keep_every_old_evaluation(self):
+        class QueryFailure(RuntimeError):
+            pass
+
+        class Query:
+            def __init__(self, script, events):
+                self.script, self.events, self.index = script, events, 0
+            def __bool__(self):
+                index = self.index
+                self.index += 1
+                self.events.append(("query", index))
+                action = self.script[index % len(self.script)]
+                if action == "raise":
+                    raise QueryFailure("invented query truth " + str(index))
+                return action
+
+        class Stop:
+            def __init__(self, events):
+                self.events = events
+            def __contains__(self, part):
+                self.events.append(("stop", part))
+                return part == "beta"
+
+        scripts = ((True,), (False,), (False, True, False, True, True),
+                   ("raise",), (True, False, "raise"))
+        for script in scripts:
+            observed = []
+            for _, function, namespace in self.references():
+                events = []
+                with restored_namespace(namespace):
+                    namespace["STOP"] = Stop(events)
+                    query = Query(script, events)
+                    try:
+                        outcome = ("tokens", function("alpha—beta_gamma,delta", query=query))
+                    except QueryFailure as exc:
+                        outcome = ("error", type(exc).__name__, str(exc))
+                    observed.append((outcome, events))
+            with self.subTest(script=script):
+                self.assertTrue(all(value == observed[0] for value in observed))
+                self.assertGreater(len(observed[0][1]), 0)
+        # This separate native-STOP probe proves that query identity itself,
+        # rather than a replaced STOP, keeps a nonbool query on the old route.
+        for literal in (0, 1, None, [], [1]):
+            actual, work = actual_pattern_work(lexical.terms, lexical.__dict__,
+                                              "alpha—beta_gamma", literal)
+            expected, previous = actual_pattern_work(
+                self.lm_namespace["terms"], self.lm_namespace, "alpha—beta_gamma", literal)
+            with self.subTest(query=literal):
+                self.assertEqual((actual, work), (expected, previous))
+                self.assertEqual(work["runs_finditer"], 1)
+                self.assertEqual(work["ascii_findall"], 0)
+
+    def test_custom_stop_membership_truth_and_errors_keep_exact_order(self):
+        class StopFailure(RuntimeError):
+            pass
+
+        class Answer:
+            def __init__(self, part, events, fail):
+                self.part, self.events, self.fail = part, events, fail
+            def __bool__(self):
+                self.events.append(("membership_truth", self.part))
+                if self.fail and self.part == "gamma":
+                    raise StopFailure("invented membership truth failure")
+                return self.part == "beta"
+
+        class Stop:
+            def __init__(self, events, fail, direct):
+                self.events, self.fail, self.direct = events, fail, direct
+            def __contains__(self, part):
+                self.events.append(("contains", part))
+                if self.direct and part == "gamma":
+                    raise StopFailure("invented contains failure")
+                return Answer(part, self.events, self.fail)
+
+        for fail, direct in ((False, False), (True, False), (False, True)):
+            observed = []
+            for _, function, namespace in self.references():
+                events = []
+                with restored_namespace(namespace):
+                    namespace["STOP"] = Stop(events, fail, direct)
+                    try:
+                        outcome = ("tokens", function("alpha—beta_gamma,delta", query=True))
+                    except StopFailure as exc:
+                        outcome = ("error", type(exc).__name__, str(exc))
+                    observed.append((outcome, events))
+            with self.subTest(truth_error=fail, contains_error=direct):
+                self.assertTrue(all(value == observed[0] for value in observed))
+                self.assertEqual(observed[0][0][0], "error" if fail or direct else "tokens")
+
+    def test_hash_locked_unfixed_stop_mutation_witness_and_fixed_fallback(self):
+        observed = {}
+        for label, function, namespace in self.references(include_unfixed=True):
+            events = []
+
+            class NewSplitter:
+                def split(self, value):
+                    events.append(("new_split", value))
+                    return ["changed"]
+
+            class Stop:
+                def __contains__(self, part):
+                    events.append(("contains", part))
+                    if part == "alpha":
+                        namespace["IDENTIFIER_SEPARATOR"] = NewSplitter()
+                    return False
+
+            with restored_namespace(namespace):
+                # Do not wrap any initial pattern: that would mask the old bug.
+                initial = {name: namespace[name] for name in HOOK_NAMES}
+                namespace["STOP"] = Stop()
+                self.assertTrue(all(namespace[name] is original for name, original in initial.items()))
+                result = function("alpha—beta_gamma", query=True)
+                observed[label] = (result, list(events))
+        expected = (["alpha", "changed"], [("contains", "alpha"),
+                                           ("new_split", "beta_gamma"), ("contains", "changed")])
+        self.assertEqual(observed["frozen-lm"], expected)
+        self.assertEqual(observed["literal-pre-k"], expected)
+        self.assertEqual(observed["current"], expected)
+        self.assertEqual(observed["unfixed-o"],
+                         (["alpha", "beta", "gamma"],
+                          [("contains", "alpha"), ("contains", "beta"), ("contains", "gamma")]))
+        self.assertNotEqual(observed["unfixed-o"], observed["current"])
+        print("O preserved historical STOP witness:", {
+            "unfixed_text_sha256": UNFIXED_TEXT_SHA256,
+            "frozen_lm_text_sha256": FROZEN_LM_TEXT_SHA256,
+            "observed": observed, "corpus_retrieval_calls": 0, "fresh_rows_decoded": 0})
+
+    def test_custom_stop_mutation_of_all_five_hooks_keeps_later_effects_and_errors(self):
+        class LaterFailure(RuntimeError):
+            pass
+
+        class LaterPattern:
+            def __init__(self, label, events):
+                self.label, self.events = label, events
+            def __getattr__(self, method):
+                def fail(*arguments, **keywords):
+                    self.events.append(("later_hook", self.label, method, arguments))
+                    raise LaterFailure("invented later " + self.label + "." + method)
+                return fail
+
+        for name in HOOK_NAMES:
+            observed = []
+            for _, function, namespace in self.references():
+                events = []
+
+                class Stop:
+                    def __contains__(self, part):
+                        events.append(("contains", part))
+                        if part == "alpha":
+                            namespace[name] = LaterPattern(name, events)
+                        return False
+
+                with restored_namespace(namespace):
+                    namespace["STOP"] = Stop()
+                    try:
+                        outcome = ("tokens", function("alpha—beta_gamma", query=True))
+                    except LaterFailure as exc:
+                        outcome = ("error", type(exc).__name__, str(exc))
+                    observed.append((outcome, events))
+            with self.subTest(hook=name):
+                self.assertTrue(all(value == observed[0] for value in observed))
+                self.assertEqual(observed[0][0][0] == "error",
+                                 name in {"CJK_RUN", "IDENTIFIER_SEPARATOR"})
+                if name in {"CJK_RUN", "IDENTIFIER_SEPARATOR"}:
+                    self.assertEqual(observed[0][1][0], ("contains", "alpha"))
+                    self.assertEqual(observed[0][1][1][0], "later_hook")
+
+    def test_native_frozenset_with_custom_equality_also_keeps_old_fallback(self):
+        observed = []
+        for _, function, namespace in self.references():
+            events = []
+
+            class NewSplitter:
+                def split(self, value):
+                    events.append(("new_split", value))
+                    return ["changed"]
+
+            class Key:
+                def __hash__(self):
+                    return hash("alpha")
+                def __eq__(self, other):
+                    events.append(("equals", other))
+                    if other == "alpha":
+                        namespace["IDENTIFIER_SEPARATOR"] = NewSplitter()
+                    return False
+
+            with restored_namespace(namespace):
+                replacement = frozenset((Key(),))
+                self.assertIs(type(replacement), frozenset)
+                namespace["STOP"] = replacement
+                result = function("alpha—beta_gamma", query=True)
+                observed.append((result, events))
+        self.assertTrue(all(value == observed[0] for value in observed))
+        self.assertEqual(observed[0][0], ["alpha", "changed"])
+        self.assertEqual(observed[0][1][0], ("equals", "alpha"))
+        self.assertIn(("new_split", "beta_gamma"), observed[0][1])
+
+    def test_false_query_keeps_fast_route_without_observing_custom_stop(self):
+        class ForbiddenStop:
+            def __contains__(self, _part):
+                raise AssertionError("False query must not inspect STOP")
+        for _, function, namespace in self.references():
+            with restored_namespace(namespace):
+                namespace["STOP"] = ForbiddenStop()
+                result, work = actual_pattern_work(function, namespace, "alpha—beta_gamma", False)
+                self.assertEqual(result, ["alpha", "beta", "gamma"])
+                self.assertEqual(work["ascii_findall"], int(function is lexical.terms))
+                self.assertEqual(work["runs_finditer"], int(function is not lexical.terms))
 
