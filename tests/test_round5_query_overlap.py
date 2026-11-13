@@ -1,7 +1,9 @@
 """Invented exact-overlap fixtures; no benchmark corpus or timing probes."""
 from __future__ import annotations
 
-import importlib
+import hashlib
+from pathlib import Path
+from types import ModuleType
 import random
 import unittest
 from unittest.mock import patch
@@ -124,7 +126,15 @@ class ConsumerBehaviorTests(unittest.TestCase):
 class ExactOverlapTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.overlap = importlib.import_module("memory_book._query_overlap")
+        # Rejected F remains an exact historical fixture, outside the runtime.
+        path = Path(__file__).parent / "fixtures" / "round5_rejected_query_overlap.txt"
+        raw = path.read_bytes()
+        if hashlib.sha256(raw).hexdigest() != "4e2d7cd383dc546a591dee38e4744ffc4ac4dd1b381574e7d307a29139e47262":
+            raise AssertionError("Historical rejected F fixture changed")
+        cls.overlap = ModuleType("memory_book._round5_rejected_query_overlap_fixture")
+        cls.overlap.__package__ = "memory_book"
+        cls.overlap.__file__ = str(path)
+        exec(compile(raw, str(path), "exec"), cls.overlap.__dict__)
 
     def assert_overlap(self, text, wanted):
         expected = len(wanted.intersection(set(lexical.terms(text, query=True))))
