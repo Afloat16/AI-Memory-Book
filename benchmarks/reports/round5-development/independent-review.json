@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "reviewer": "independent token/performance agent",
+  "scope": "Read-only review of current store candidate plus three focused independent fixtures; no formal performance or fresh quality acceptance.",
+  "files_sha256": {
+    "src/memory_book/store.py": "efef0e63d56c3c36c083befdbd677b7b01bb44180a372154c511cdfff93a7a3d",
+    "src/memory_book/token_budget.py": "c7f0c767a6fcfe59e837d923c0950ac93ee715285940a6a3fad749dc77635acb",
+    "tests/test_round5_independent.py": "de94bd3177e3530e008c0679c35c9c6eacc6761e9c4d1d15d3c2923647d41036"
+  },
+  "findings": [
+    {
+      "id": "replay-snapshot",
+      "location": "src/memory_book/store.py",
+      "line": 410,
+      "severity": "none",
+      "conclusion": "One SELECT binds stored source hash, inherited project/chapter names, created_at, actual counts and revision to one SQLite snapshot. The computed hash includes normalized source, pagination settings and INDEX_VERSION. Valid exact replays make no writes."
+    },
+    {
+      "id": "fallback-recheck",
+      "location": "src/memory_book/store.py",
+      "line": 454,
+      "severity": "none",
+      "conclusion": "A preflight miss enters the preserved BEGIN IMMEDIATE path and re-reads session, metadata and hash. Focused test inserts the same desired request through the original transaction after the miss; replay returns skipped with revision 2 and does not duplicate data."
+    },
+    {
+      "id": "metadata-date-move",
+      "location": "src/memory_book/store.py",
+      "line": 434,
+      "severity": "none",
+      "conclusion": "Six sequential operations (chapter move, omitted inherited names/date, equivalent +08:00 timestamp, explicit names) match the original transaction on complete ingest response, exported source and SQL dump."
+    },
+    {
+      "id": "exact-float-scores",
+      "location": "src/memory_book/store.py",
+      "line": 768,
+      "severity": "none",
+      "conclusion": "Route IDs are unique by pages.id. Identical route sequences retain exactly the former order and exact-route rank values. Fusion arithmetic and directory weighting retain original operation order. Independent SQL/formula fixture verifies float.hex() values for both identical and genuinely fused routes."
+    },
+    {
+      "id": "snapshot-linearization",
+      "location": "src/memory_book/store.py",
+      "line": 445,
+      "severity": "informational",
+      "conclusion": "A matching read can return its coherent committed snapshot while another writer later commits. This is a legitimate read linearization point; do not promise observation-for-observation equivalence with the old COMMIT-then-separate-revision-read under concurrent writers."
+    }
+  ],
+  "tests": {
+    "command": "PYTHONPATH=src .venv/bin/python -m unittest tests.test_round5_independent -v",
+    "passed": 3,
+    "failed": 0,
+    "log": ".artifacts/round5-independent-tests.log"
+  },
+  "token_candidate": {
+    "focused_tests_passed": 56,
+    "artificial_boundary_variants_equal": 48092,
+    "artificial_complete_assembly_pairs_equal": 540,
+    "reports": [
+      ".artifacts/round5-token-tests.log",
+      ".artifacts/round5-token-assembly-differential.json",
+      ".artifacts/round5-token-ellipsis-diagnostic.json"
+    ]
+  },
+  "limits": [
+    "Timing is not reviewed or accepted by these correctness fixtures.",
+    "The stored content hash/count shortcut assumes a valid archive written through supported ingestion; arbitrary out-of-band corruption or forged hashes are not repaired by an unchanged ingest.",
+    "Existing compatible writer/index-trigger policy is retained, not reimplemented."
+  ]
+}
