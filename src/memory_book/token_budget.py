@@ -26,6 +26,38 @@ _OPEN = re.compile(r"^[ \t]{0,3}(`{3,}|~{3,})(.*)$")
 _SENTENCE = re.compile(r"[。！？]|[.!?](?=\s|$)")
 
 
+def _trusted_encoder_methods(tiktoken) -> tuple | None:
+    """Recognize the installed implementation before retaining identities.
+
+    A method replaced before the first TokenCounter is still a custom method.
+    functools.wraps can copy its public name/module, but not the code's actual
+    name and source origin. Unknown or unavailable origins use full counting.
+    Deliberately forged package code/private metadata is outside this contract.
+    """
+    from pathlib import Path
+    from types import FunctionType
+    try:
+        from tiktoken import core
+        module_file = getattr(core, "__file__", None)
+        if (not isinstance(module_file, str) or not module_file
+                or tiktoken.Encoding is not core.Encoding
+                or tiktoken.Encoding.__module__ != "tiktoken.core"):
+            return None
+        origin = Path(module_file).resolve()
+        if not origin.is_file():
+            return None
+        methods = tuple(getattr(tiktoken.Encoding, name, None) for name in _ENCODER_METHOD_NAMES)
+        for name, method in zip(_ENCODER_METHOD_NAMES, methods):
+            if (type(method) is not FunctionType or method.__module__ != "tiktoken.core"
+                    or method.__name__ != name or method.__qualname__ != "Encoding." + name
+                    or method.__code__.co_name != name
+                    or Path(method.__code__.co_filename).resolve() != origin):
+                return None
+        return methods
+    except (ImportError, AttributeError, OSError, RuntimeError, TypeError, ValueError):
+        return None
+
+
 @lru_cache(maxsize=2)
 def _encoding(name: str):
     try:
@@ -34,9 +66,9 @@ def _encoding(name: str):
         raise RuntimeError('Exact token budgets require the tokens extra; from a source checkout run: pip install -e ".[tokens]"') from exc
     global _ORDINARY_ENCODER_METHODS
     if _ORDINARY_ENCODER_METHODS is None:
-        # Capture the normally loaded optional dependency lazily. Later class
-        # or instance method overrides must not inherit its certificate.
-        _ORDINARY_ENCODER_METHODS = tuple(getattr(tiktoken.Encoding, method) for method in _ENCODER_METHOD_NAMES)
+        # Validate origin before the initial capture; later overrides must
+        # also retain these exact identities to use the sealed certificate.
+        _ORDINARY_ENCODER_METHODS = _trusted_encoder_methods(tiktoken)
     return tiktoken.get_encoding(name), tiktoken.__version__
 
 

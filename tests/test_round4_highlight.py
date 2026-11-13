@@ -1,4 +1,4 @@
-"""Exact bounded highlight reads retained after rejecting candidate B cache."""
+"""Original exact highlight reads retained after regressive development cells."""
 
 import unittest
 
@@ -12,7 +12,7 @@ class HighlightWhitelistTests(unittest.TestCase):
     def tearDown(self):
         self.book.close()
 
-    def test_highlight_bytes_match_original_query_across_guard_boundaries(self):
+    def test_highlight_bytes_match_original_query_across_whitelist_shapes(self):
         rows = [(1, "run", "walking only"), (2, "", "running swiftly"),
                 (3, "", "running unselected"), (4, "", "run and running"),
                 (256, "", "running boundary"), (257, "", "running wider"),
@@ -36,9 +36,8 @@ class HighlightWhitelistTests(unittest.TestCase):
                                  {row["rowid"]: row["body"] for row in original})
                 self.assertTrue(all(row["rowid"] in ids for row in actual))
                 query = next(sql for sql in trace if "highlight(pages_stem_fts" in sql)
-                bounded = len(ids) > 1 and max(ids) - min(ids) + 1 <= 256
-                self.assertEqual("BETWEEN" in query, bounded)
-                self.assertEqual("+rowid" in query, bounded)
+                self.assertNotIn("BETWEEN", query)
+                self.assertNotIn("+rowid", query)
         stem_only = self.book._highlighted_bodies(expression, [2])
         self.assertEqual(stem_only[0]["body"], "\x01running\x02 swiftly")
 
