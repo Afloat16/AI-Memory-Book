@@ -4,7 +4,7 @@
 
 项目是书，任务是章，之前的决定可以跨会话、跨客户端保留。AI 通过一次 MCP 调用，取得预算范围内的相关原文，用来继续当前任务。
 
-[English](README.md) · [快速开始](#快速开始) · [实测结果](#实测结果) · [文档导航](#文档导航) · [v0.3.2 发布说明](docs/releases/v0.3.2.md)
+[English](README.md) · [快速开始](#快速开始) · [实测结果](#实测结果) · [文档导航](#文档导航) · [v0.3.2 发布版](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.2)
 
 **v0.3.2 · 实验性版本 · MIT · Python 3.10+ · 本地 SQLite**
 
