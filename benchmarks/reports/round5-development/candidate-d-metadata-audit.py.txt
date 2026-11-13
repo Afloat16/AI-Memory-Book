@@ -1,0 +1,261 @@
+"""Nine artificial recalls: independently reproduce three mapping regressions.
+
+No benchmark corpus, model, timings, source edits or Git mutations. Temporary
+source snapshots are verified byte-for-byte by runtime hash and then removed.
+"""
+from __future__ import annotations
+
+import argparse
+from contextlib import closing
+import hashlib
+import json
+import os
+from pathlib import Path
+import sqlite3
+import subprocess
+import sys
+import tempfile
+from types import SimpleNamespace
+
+ROOT = Path(__file__).resolve().parents[1]
+SCRIPT = Path(__file__).resolve()
+LOG = ROOT / ".artifacts/round5-d-metadata-audit.log"
+SOURCES = (
+    ("v032", "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+     "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"),
+    ("C", "59b92482d1c7334fb134d9d4ae9b0202c9b3b98a",
+     "9ac5a2ab23ddf5ceca80ce2e7eb7df3d0f4a99c82003ba3ced40e7ed40caf1b6"),
+    ("D-length-repair", None,
+     "93a69a06a1d2e618173f55b10250e35dc9962e48eba78e032f22bac5c5fd2df5"),
+)
+CASES = ("unknown-metadata-id", "duplicate-metadata-partial-update", "route-getter-before-metadata")
+
+
+def digest(value):
+    raw = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(raw).hexdigest()
+
+
+def source_hash(package):
+    hasher = hashlib.sha256()
+    for path in sorted(package.rglob("*.py")):
+        hasher.update(path.relative_to(package).as_posix().encode() + b"\0")
+        hasher.update(path.read_bytes() + b"\0")
+    return hasher.hexdigest()
+
+
+def git(*arguments):
+    return subprocess.run(["git", "-C", str(ROOT), *arguments], check=True,
+                          stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30).stdout
+
+
+def source_snapshot(destination, commit, expected):
+    package = destination / "memory_book"
+    package.mkdir(parents=True)
+    if commit is not None:
+        names = git("ls-tree", "-r", "--name-only", commit, "--", "src/memory_book").decode().splitlines()
+        for name in names:
+            if name.endswith(".py"):
+                target = destination / Path(name).relative_to("src")
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(git("show", commit + ":" + name))
+    else:
+        original = ROOT / "src/memory_book"
+        if source_hash(original) != expected:
+            raise ValueError("Frozen current D runtime changed before reproduction")
+        for path in sorted(original.rglob("*.py")):
+            target = package / path.relative_to(original)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(path.read_bytes())
+        if source_hash(original) != expected:
+            raise ValueError("Frozen current D runtime changed during snapshot")
+    if source_hash(package) != expected:
+        raise ValueError("Source snapshot differs from exact runtime hash")
+    return destination
+
+
+def worker(args):
+    package = args.source / "memory_book"
+    before = source_hash(package)
+    if before != args.expected:
+        raise ValueError("Wrong worker runtime source")
+    sys.path.insert(0, str(args.source))
+    import memory_book
+    if Path(memory_book.__file__).resolve().parent != package.resolve():
+        raise ValueError("Imported another runtime")
+    events = []
+
+    class ExtraFieldFailure(Exception):
+        pass
+
+    class MetadataSentinelFailure(Exception):
+        pass
+
+    class ExtraFieldRow:
+        def __init__(self, cursor, values):
+            self.names = tuple(column[0] for column in cursor.description) + ("audit_extra",)
+            self.values = values
+
+        def keys(self):
+            return self.names
+
+        def __getitem__(self, key):
+            if key == "audit_extra":
+                events.append("extra-field-getter")
+                raise ExtraFieldFailure("extra field must be read before metadata SQL")
+            return self.values[key if isinstance(key, int) else self.names.index(key)]
+
+        def __iter__(self):
+            return iter(self.values)
+
+    book = memory_book.MemoryBook(":memory:", segmentation="turn", max_page_chars=3000,
+                                  min_page_chars=0, cache_size=0)
+    with closing(sqlite3.connect(":memory:")) as schema:
+        metadata_names = ("id", "project_id", "chapter_id", "chapter_title",
+                          "session_id", "session_title", "created_at")
+        extra_cursor = schema.execute("SELECT " + ",".join(
+            'NULL AS "' + name + '"' for name in (*metadata_names, "rank")))
+        try:
+            for index in range(3):
+                book.ingest({"project": "derived", "session_id": f"derived-{index}",
+                    "task_id": "instrument", "task_title": "Instrument archive",
+                    "title": "Relay notes", "created_at": "2024-01-01T00:00:00Z",
+                    "messages": [{"role": "assistant", "content":
+                        "The qzx17 relay calibration threshold is stable."}]})
+            connection = book.db
+            pages = [dict(row) for row in connection.execute("SELECT rid,id FROM pages ORDER BY id")]
+            route = [(pages[index]["rid"], pages[index]["id"], rank)
+                     for index, rank in enumerate((-2.0, -1.0, -0.5))]
+            target_id = pages[0]["id"]
+
+            class FixtureConnection:
+                def __getattr__(self, name):
+                    return getattr(connection, name)
+
+                def execute(self, statement, *arguments):
+                    if statement.startswith("SELECT p.rid,p.id,bm25("):
+                        cursor = connection.execute(statement, *arguments)
+                        row_type = ExtraFieldRow if args.case == "route-getter-before-metadata" else sqlite3.Row
+                        rows = [row_type(cursor, value) for value in route]
+                        cursor.close()
+                        return SimpleNamespace(fetchall=lambda: rows)
+                    if statement.startswith("SELECT p.id,p.project_id,p.chapter_id,"):
+                        events.append("metadata-SQL")
+                        if args.case == "route-getter-before-metadata":
+                            raise MetadataSentinelFailure("metadata SQL ran before the route extra-field getter")
+                        cursor = connection.execute(statement, *arguments)
+                        rows = cursor.fetchall()
+                        if args.case == "unknown-metadata-id":
+                            values = list(rows[0])
+                            values[0] = "unknown-metadata-id-for-audit"
+                            rows.append(sqlite3.Row(cursor, tuple(values)))
+                        elif args.case == "duplicate-metadata-partial-update":
+                            target = next(row for row in rows if row["id"] == target_id)
+                            rows.insert(0, sqlite3.Row(extra_cursor, (*tuple(target), -17.0)))
+                        cursor.close()
+                        events.append("metadata-returned-" + str(len(rows)) + "-rows")
+                        return SimpleNamespace(fetchall=lambda: rows)
+                    return connection.execute(statement, *arguments)
+
+            book.db = FixtureConnection()
+            if args.case == "unknown-metadata-id":
+                expected = {"outcome": "exception", "error_type": "KeyError",
+                            "error_args": ["unknown-metadata-id-for-audit"]}
+            elif args.case == "duplicate-metadata-partial-update":
+                expected = {"outcome": "returned", "ids": [page["id"] for page in pages],
+                            "scores": [17.0, 1.0, 0.5], "candidate_count": 3}
+            else:
+                expected = {"outcome": "exception", "error_type": "ExtraFieldFailure",
+                            "error_args": ["extra field must be read before metadata SQL"]}
+            try:
+                response = book.recall("qzx17", project="derived", budget_chars=100000, use_cache=False)
+                response.pop("latency_ms")
+                observed = {"outcome": "returned", "ids": [row["id"] for row in response["results"]],
+                            "scores": [row["score"] for row in response["results"]],
+                            "candidate_count": response["candidate_count"]}
+                payload_sha = digest(response)
+            except BaseException as error:
+                observed = {"outcome": "exception", "error_type": type(error).__name__,
+                            "error_args": list(error.args)}
+                payload_sha = None
+            matches = observed == expected and not connection.in_transaction
+            if args.case == "route-getter-before-metadata":
+                matches = matches and events == ["extra-field-getter"]
+            result = {"version": args.version, "case": args.case, "pid": os.getpid(),
+                      "runtime_sha256_before": before, "runtime_sha256_after": source_hash(package),
+                      "expected_v032_contract": expected, "observed": observed, "events": events,
+                      "transaction_active_after_recall": connection.in_transaction,
+                      "matches_v032_contract": matches, "non_latency_payload_sha256": payload_sha,
+                      "artificial_pages": 3, "synthetic_recall_calls": 1, "model_inference_calls": 0}
+            if result["runtime_sha256_after"] != before:
+                raise ValueError("Runtime changed during artificial reproduction")
+            print(json.dumps(result, ensure_ascii=False, sort_keys=True), flush=True)
+        finally:
+            book.close()
+            extra_cursor.close()
+
+
+def controller():
+    environment = {key: value for key, value in os.environ.items() if key not in ("PYTHONPATH", "PYTHONHOME")}
+    environment["PYTHONDONTWRITEBYTECODE"] = "1"
+    with LOG.open("x", encoding="utf-8") as log:
+        def record(value):
+            log.write(json.dumps(value, ensure_ascii=False, sort_keys=True) + "\n")
+            log.flush()
+            os.fsync(log.fileno())
+
+        record({"kind": "registration", "audit_script_sha256": hashlib.sha256(SCRIPT.read_bytes()).hexdigest(),
+                "sources": SOURCES, "cases": CASES,
+                "scope": "Only the existing three-page invented fixture. No benchmark corpus, inference or performance measurements. Nine independent fresh worker processes, one artificial recall each. Git reads only; no production source edits.",
+                "python": sys.version})
+        try:
+            with tempfile.TemporaryDirectory(prefix="round5-d-metadata-source-", dir=ROOT / ".artifacts") as temporary:
+                prepared = []
+                for version, commit, expected in SOURCES:
+                    source = source_snapshot(Path(temporary) / version / "src", commit, expected)
+                    prepared.append((version, commit, expected, source))
+                    record({"kind": "verified_source", "version": version, "commit": commit,
+                            "runtime_sha256": expected})
+                results = []
+                for version, commit, expected, source in prepared:
+                    for case in CASES:
+                        record({"kind": "worker_intent", "version": version, "case": case,
+                                "commit": commit, "runtime_sha256": expected})
+                        process = subprocess.run([sys.executable, "-S", "-B", str(SCRIPT), "--worker",
+                            "--source", str(source), "--expected", expected, "--version", version,
+                            "--case", case], cwd=ROOT, env=environment,
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=30)
+                        if process.returncode:
+                            record({"kind": "worker_failed", "version": version, "case": case,
+                                    "returncode": process.returncode, "stdout": process.stdout, "stderr": process.stderr})
+                            raise RuntimeError("Artificial reproduction worker failed unexpectedly")
+                        value = json.loads(process.stdout)
+                        record({"kind": "observation", **value})
+                        results.append(value)
+                expected_pattern = all(row["matches_v032_contract"] == (row["version"] == "v032") for row in results)
+                record({"kind": "summary", "observations": len(results), "synthetic_recall_calls": 9,
+                        "model_inference_calls": 0, "v032_contract_passes": sum(row["matches_v032_contract"] for row in results),
+                        "confirmed_all_three_in_C_and_D": expected_pattern,
+                        "no_benchmark_corpus_or_performance_measurement": True})
+                if not expected_pattern:
+                    raise ValueError("Observed pattern differs from the three hypothesized regressions")
+                print(json.dumps({"log": str(LOG), "observations": len(results),
+                                  "confirmed_all_three_in_C_and_D": True}), flush=True)
+        except BaseException as error:
+            record({"kind": "controller_failed", "error_type": type(error).__name__, "error": str(error)})
+            raise
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--worker", action="store_true")
+    parser.add_argument("--source", type=Path)
+    parser.add_argument("--expected")
+    parser.add_argument("--version")
+    parser.add_argument("--case", choices=CASES)
+    args = parser.parse_args()
+    worker(args) if args.worker else controller()
+
+
+if __name__ == "__main__":
+    main()

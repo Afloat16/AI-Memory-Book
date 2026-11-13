@@ -217,3 +217,15 @@ passes 76 functional checks, with all 107 SQL ASTs unchanged. This checkpoint is
 still awaiting a separate full-mapping review: original metadata batch merging
 and the position of route dictionary conversion may expose other inherited
 custom-row regressions. No D development measurement or final approval has run.
+
+The length-repaired source is durably stored at
+`453bf7b789c68dfb03aa8899f0479136774d277c`. A separate reviewer reproduced three
+additional inherited mapping regressions in nine fresh artificial processes:
+unknown metadata IDs are ignored instead of raising KeyError, repeated metadata
+partial updates lose an earlier extra rank, and route mapping exceptions occur
+after metadata SQL instead of before it. Released v0.3.2 passes all three;
+C and this D source fail all three. The original reproduction script/log and
+ten permanent boundary fixtures are preserved; those fixtures pass v0.3.2 and
+retain eight failing subcases on this D source. The next repair restores the
+complete original named-mapping fallback and only admits fully validated raw
+batches to delayed materialization. No benchmark or model call was used here.

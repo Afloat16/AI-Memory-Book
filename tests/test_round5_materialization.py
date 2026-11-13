@@ -390,7 +390,7 @@ class DerivedMapMaterializationTests(unittest.TestCase):
                 for index, rank in entries]
 
     def recall_routes(self, exact, stem, *, row_type=sqlite3.Row, events=None,
-                      metadata_error=None, batch_factory=None, **options):
+                      metadata_error=None, batch_factory=None, metadata_transform=None, **options):
         connection = self.book.db
         events = [] if events is None else events
 
@@ -412,6 +412,11 @@ class DerivedMapMaterializationTests(unittest.TestCase):
                     events.append("metadata")
                     if metadata_error is not None:
                         raise metadata_error
+                    if metadata_transform is not None:
+                        cursor = connection.execute(statement, *arguments)
+                        rows = metadata_transform(cursor, cursor.fetchall())
+                        cursor.close()
+                        return SimpleNamespace(fetchall=lambda: rows)
                 return connection.execute(statement, *arguments)
 
         self.book.db = RouteConnection()
@@ -602,6 +607,77 @@ class DerivedMapMaterializationTests(unittest.TestCase):
                         self.assertFalse(self.book.db.in_transaction)
                     finally:
                         self.book.db.row_factory = sqlite3.Row
+
+    def test_unknown_metadata_id_keeps_original_key_error_and_rollback(self):
+        for row_type in (RowLike, sqlite3.Row):
+            with self.subTest(row_type=row_type):
+                def unknown_metadata(cursor, rows):
+                    values = list(rows[0])
+                    values[0] = "unknown-metadata-page"
+                    return [*rows, row_type(cursor, tuple(values))]
+
+                route = self.route([(0, -2.0), (1, -1), (2, -0.5)])
+                with self.assertRaisesRegex(KeyError, "unknown-metadata-page"):
+                    self.recall_routes(route, route, row_type=row_type,
+                                       metadata_transform=unknown_metadata)
+                self.assertFalse(self.book.db.in_transaction)
+
+    def test_duplicate_metadata_preserves_earlier_additional_fields(self):
+        for row_type in (RowLike, sqlite3.Row):
+            for custom_batch in (False, True):
+                with self.subTest(row_type=row_type, custom_batch=custom_batch), \
+                        sqlite3.connect(":memory:") as schema:
+                    self.addCleanup(schema.close)
+                    extra_cursors = {}
+                    target = self.pages[0]["id"]
+
+                    class SinglePassMetadata(list):
+                        consumed = False
+
+                        def __iter__(self):
+                            if self.consumed:
+                                raise AssertionError("A custom metadata batch must not be probed first")
+                            self.consumed = True
+                            return super().__iter__()
+
+                    def metadata_with_rank(cursor, rows, duplicate):
+                        names = tuple(column[0] for column in cursor.description)
+                        if names not in extra_cursors:
+                            extra_cursors[names] = schema.execute("SELECT " + ",".join(
+                                f'NULL AS "{name}"' for name in (*names, "rank")))
+                        index = next(i for i, row in enumerate(rows) if row["id"] == target)
+                        extra = row_type(extra_cursors[names], (*tuple(rows[index]), -17.0))
+                        if not duplicate:
+                            return [*rows[:index], extra, *rows[index + 1:]]
+                        merged = [extra, *rows]
+                        return SinglePassMetadata(merged) if custom_batch else merged
+
+                    route = self.route([(0, -2.0), (1, -1), (2, -0.5)])
+                    expected = self.recall_routes(route, route, row_type=row_type,
+                        metadata_transform=lambda cursor, rows: metadata_with_rank(cursor, rows, False))
+                    actual = self.recall_routes(route, route, row_type=row_type,
+                        metadata_transform=lambda cursor, rows: metadata_with_rank(cursor, rows, True))
+                    self.assertEqual(actual, expected)
+                    self.assertEqual(actual["results"][0]["id"], target)
+                    self.assertEqual(actual["results"][0]["score"], 17.0)
+
+    def test_route_named_mapping_failure_precedes_metadata_sql(self):
+        with sqlite3.connect(":memory:") as schema:
+            self.addCleanup(schema.close)
+            cursor = schema.execute("SELECT NULL AS rid,NULL AS id,NULL AS rank,NULL AS extra")
+            for row_type in (RowLike, sqlite3.Row):
+                with self.subTest(row_type=row_type):
+                    def extra_name_without_value(name, rows):
+                        return [row_type(cursor, tuple(row)) for row in rows]
+
+                    route = self.route([(0, -2.0), (1, -1), (2, -0.5)])
+                    events = []
+                    with self.assertRaises(IndexError):
+                        self.recall_routes(route, route, row_type=row_type, events=events,
+                            batch_factory=extra_name_without_value,
+                            metadata_error=AssertionError("metadata SQL ran before route mapping"))
+                    self.assertEqual(events, [])
+                    self.assertFalse(self.book.db.in_transaction)
 
 
 class WideCandidateMaterializationTests(unittest.TestCase):
