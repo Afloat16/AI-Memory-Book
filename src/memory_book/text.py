@@ -33,6 +33,7 @@ _ORDINARY_RUNS = RUNS
 _ORDINARY_CJK_RUN = CJK_RUN
 _ORDINARY_IDENTIFIER_SEPARATOR = IDENTIFIER_SEPARATOR
 _ORDINARY_ZH_QUESTION = ZH_QUESTION
+_ORDINARY_STOP = STOP
 
 # Each admitted scalar is NFKC/NFKD-stable, has combining class zero, and
 # is not Mn. Excluding all marks and Hangul Jamo also prevents composition or
@@ -98,6 +99,7 @@ def terms(text: str, *, query: bool = False) -> list[str]:
             and CJK_RUN is _ORDINARY_CJK_RUN
             and IDENTIFIER_SEPARATOR is _ORDINARY_IDENTIFIER_SEPARATOR
             and ZH_QUESTION is _ORDINARY_ZH_QUESTION
+            and (query is False or STOP is _ORDINARY_STOP)
             and _ASCII_LEXICAL_EXCLUSIONS.search(text) is None):
         # Whole-string certification also covers punctuation-rich English.
         # Identifier splitting and ordered STOP membership remain identical.
