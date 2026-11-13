@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "audited_at_utc": "2026-11-13T03:44:53.526575+00:00",
+  "method": "Independent read-only audit of saved matrices, full non-latency payload hash pairs, original worker reports, every original start/finish ledger event, source checkouts and Git tree/blob identities. No retrieval, inference or timing repeated.",
+  "recovery_registration": {
+    "commit": "278339fb5ea934ea5da1abd9a073646814ede09f",
+    "sha256": "ae71b6fa38246343e1f974689f2c4e2f0102fe7f38f5b97e4a2a00ec64899bc0",
+    "commit_precedes_both_recovery_runs": true
+  },
+  "recovery_evidence_commit": "a875df93203bffc603f0058ac6404a4ada36360e",
+  "sources": {
+    "baseline": {
+      "commit": "7b7a5d7336b9350a128f5e0a888811b1b3015e68",
+      "runtime_sha256": "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46",
+      "current_files_match_commit": true
+    },
+    "candidate": {
+      "commit": "2d7b5e38839fb21724ad3beec6b6ebabbda45636",
+      "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93",
+      "current_files_match_commit": true
+    }
+  },
+  "full_old_cohort_differential": {
+    "candidate_calls": 4732,
+    "exact_payload_pairs": 4732,
+    "cells": 8,
+    "missing_or_duplicate_rows": 0,
+    "mismatches": 0,
+    "original_baseline_report_reused_without_retrieval": true,
+    "cProfile_timings_are_development_only": true,
+    "independent_start_finish_ledger_available": false
+  },
+  "historical_first_use_recovery": {
+    "complete_calls": 2048,
+    "exact_paired_payloads": 1024,
+    "workers": 4,
+    "engine_order": [
+      "baseline",
+      "candidate",
+      "candidate",
+      "baseline"
+    ],
+    "ledger_events_verified": 4096,
+    "original_worker_artifacts_verified": 12,
+    "source_snapshots_unchanged_within_each_worker": true,
+    "indexed_content_identical_across_workers": true,
+    "ingestion_result_hashes_identical_across_workers": true,
+    "same_payloads_across_both_rounds": true,
+    "feature_resets": 0,
+    "assessment_recomputed_from_saved_rows": true,
+    "development_p95_change_percent": {
+      "native-char4000": -17.961592372689992,
+      "native-token512": -24.148351373947396,
+      "native-token1024": -12.001494857864314,
+      "native-token2048": -23.203352752509932
+    }
+  },
+  "formal_binding": {
+    "path": "benchmarks/experiments/round4-performance-binding.json",
+    "sha256": "d535df483cc41cc0b2381104fd99b17f4639fa2160e3b73a6661ceb8c4e58915",
+    "original_draft_bytes_unchanged": true,
+    "evaluator_commit": "6532d8388187c6af4cd3ab3ef71f6ef285ed8fad",
+    "evaluator_files_verified": 24,
+    "all_new_runtime_fixtures_bound": true,
+    "frozen_helpers_match_v031": true,
+    "original_plan_and_addenda_unchanged": true
+  },
+  "original_attempts_preserved_separately": [
+    {
+      "record": "benchmarks/reports/round4-development/final-hotpot-first-use-interruption.json",
+      "status": "interrupted-incomplete-not-performance-evidence",
+      "archives_verified": 8,
+      "completed_calls": 512
+    },
+    {
+      "record": "benchmarks/reports/round4-development/candidate-c2-mcp512-preservation.json",
+      "status": "failed-before-retrieval",
+      "archives_verified": 5,
+      "completed_calls": 0
+    }
+  ],
+  "readiness": {
+    "ready_to_commit_unchanged_binding_and_launch_sole_hosted_formal": true,
+    "final_C2_full_cohort_and_first_use_prerequisites_now_completed": true,
+    "actual_MCP_development_speed_evidence": false,
+    "formal_numeric_gate_passed": null,
+    "formal_resource_review_completed": false,
+    "release_ready": false,
+    "formal_gate_and_56784_call_schedule_unchanged": true
+  },
+  "file_sha256": {
+    "benchmarks/reports/round4-development/baseline-profile.json": "65bbbb4f138977b67293fb0d81a2f066cf5e4a3d7cd05ca7698c9940ce5484d2",
+    "benchmarks/reports/round4-development/candidate-c2-profile.json": "21d0d73437bb8537750187632d950b5f74c3e9e2ac41c126d6e7001d4cd7d3bd",
+    "benchmarks/reports/round4-development/candidate-c2-profile-payload-audit.json": "0ea656acf2e6760094d13de51c3d3db946848f6438a2c8c0fd6e57ce23d2590f",
+    "benchmarks/reports/round4-development/final-hotpot-first-use-recovery.json": "ea4021a17f31a525e16e866132bca2c5d7e544d84d4fee0afb0bb0515a5ae837",
+    "benchmarks/experiments/round4-performance-binding.json": "d535df483cc41cc0b2381104fd99b17f4639fa2160e3b73a6661ceb8c4e58915",
+    "benchmarks/experiments/round4-prelaunch-recovery.json": "ae71b6fa38246343e1f974689f2c4e2f0102fe7f38f5b97e4a2a00ec64899bc0",
+    "benchmarks/reports/round4-development/candidate-c2-manifest.json": "4e1b098f32a89c7c8363c8ee67e02af54bb438965a72e773ec0ef199fb2cca00",
+    "benchmarks/reports/round4-development/final-hotpot-first-use-recovery-manifest.json": "1e127f2b1c3c5455eb7cdbd383aa64685bb2a83841a94337de954aedccef3408",
+    "benchmarks/reports/round4-development/final-hotpot-first-use-interruption.json": "1e378c7cf95f7d0148527b9d601a9296bec833e654b4d1473a746e8a35f1b49e",
+    "benchmarks/reports/round4-development/candidate-c2-mcp512-preservation.json": "36dd14341461295f334634201979ac1e7ddaad69b2445193f1894a10fef250b4",
+    "benchmarks/reports/round4-compatibility-final/paired-audit.json": "5e5bffde4729250169e8eb92f1d14088c46c9c57aef1e22be2f52ceafb4593d6"
+  },
+  "retrieval_calls_executed_by_audit": 0,
+  "inference_calls_executed_by_audit": 0,
+  "limits": [
+    "All audited inputs are old regression cohorts; no fresh-quality or comparator-superiority conclusion follows.",
+    "The full-cohort profile stores per-query payload hashes and cell checkpoints, not an independent start/finish ledger. Its timing includes cProfile overhead.",
+    "The first-use diagnostic uses a fresh process/database/connection per worker, with four configurations sharing the connection and zero body-feature resets. It does not measure OS-cold or per-query cold startup.",
+    "Full source snapshots are checked before versus after each worker. Those whole-database snapshots differ across independently created databases; cross-worker equality is established for the recorded indexed content, ingestion results and complete output payload hashes, not every database metadata field.",
+    "Saved hashes and recorded invariants support equality and ledger integrity; omitted response bodies are not independently re-tokenized or revalidated by this audit.",
+    "The local actual-MCP probe completed zero recall calls because mandatory RSS observation was unavailable. The sole hosted formal run must still pass actual-MCP speed, complete-payload and resource gates.",
+    "C1 gains and adverse cells, the original interrupted first-use attempt, and the zero-call MCP failure remain separate evidence. No fastest-attempt selection or favorable-round pooling is used."
+  ]
+}
