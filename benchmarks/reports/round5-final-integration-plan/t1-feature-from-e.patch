@@ -1,0 +1,1174 @@
+diff --git a/src/memory_book/cli.py b/src/memory_book/cli.py
+index 481e5ca..9dddfd4 100644
+--- a/src/memory_book/cli.py
++++ b/src/memory_book/cli.py
+@@ -48,6 +48,7 @@ def parser() -> argparse.ArgumentParser:
+     recall_mode = recall.add_mutually_exclusive_group()
+     recall_mode.add_argument("--flat", action="store_true", help="Disable directory ranking signal (evaluation baseline)")
+     recall_mode.add_argument("--coverage", action="store_true", help="Opt in to experimental explicit-clause coverage; adds search work and can reduce small-budget completeness")
++    recall_mode.add_argument("--follow-titles", action="store_true", help="Opt in to one cited source-title hop within an explicit project; incompatible with semantic recall")
+     recall.add_argument("--no-cache", action="store_true")
+     recall.add_argument("--json", action="store_true")
+     recall.add_argument("--semantic", action="store_true", help="Opt in to local semantic candidates; requires an explicitly built, current semantic index")
+@@ -303,7 +304,7 @@ def main(argv: list[str] | None = None) -> int:
+                 sessions = [session for file in args.files for session in load_sessions(file, format=args.format, project=args.project, task_id=args.task)]
+                 _print([book.ingest(session) for session in sessions])
+             elif args.command == "recall":
+-                result = book.recall(args.query, project=args.project, chapter=args.chapter, session=args.session, budget_chars=args.budget, limit=args.limit, strategy="flat" if args.flat else "book", use_cache=not args.no_cache, coverage=args.coverage, budget_tokens=args.budget_tokens, tokenizer=args.tokenizer, semantic=args.semantic)
++                result = book.recall(args.query, project=args.project, chapter=args.chapter, session=args.session, budget_chars=args.budget, limit=args.limit, strategy="flat" if args.flat else "book", use_cache=not args.no_cache, coverage=args.coverage, budget_tokens=args.budget_tokens, tokenizer=args.tokenizer, semantic=args.semantic, follow_titles=args.follow_titles)
+                 if args.json:
+                     _print(result)
+                 else:
+diff --git a/src/memory_book/mcp_server.py b/src/memory_book/mcp_server.py
+index e947af8..276f00f 100644
+--- a/src/memory_book/mcp_server.py
++++ b/src/memory_book/mcp_server.py
+@@ -107,7 +107,7 @@ def recall_payload(result: dict[str, Any], *, details: bool = False,
+     return {"context": result["context"], "results": hits,
+             **{key: result[key] for key in ("context_chars", "budget_chars", "revision", "truncated", "warnings")},
+             **{key: result[key] for key in ("budget_tokens", "tokenizer", "tokenizer_version", "context_tokens",
+-                                           "semantic", "semantic_model_fingerprint")
++                                           "semantic", "semantic_model_fingerprint", "title_reference")
+                if key in result}}
+ 
+ 
+@@ -221,6 +221,7 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
+         budget_tokens: StrictInt | None = None,
+         tokenizer: str = "cl100k_base",
+         semantic: StrictBool = False,
++        follow_titles: StrictBool = False,
+     ) -> str:
+         """Recall cited history. Compact by default; details adds exact spans and diagnostics.
+ 
+@@ -234,6 +235,10 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
+         semantic explicitly enables local embedding candidates if the operator
+         configured a model and built a current index. It never downloads a model
+         or rebuilds an index. Default lexical recall requires no model.
++        follow_titles opts into one complete source-title hop from the first
++        lexical page within an explicit project. It is disabled by default and
++        cannot be combined with semantic or coverage. Compact and detailed
++        replies both retain title_reference provenance when it is enabled.
+         """
+         _range(budget_chars, "budget_chars", 0, 100000)
+         _range(limit, "limit", 1, 50)
+@@ -242,7 +247,7 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
+                 query, project=project, chapter=chapter, session=session,
+                 budget_chars=budget_chars, limit=limit, coverage=coverage,
+                 budget_tokens=budget_tokens, tokenizer=tokenizer,
+-                semantic=semantic,
++                semantic=semantic, follow_titles=follow_titles,
+             )
+         return _json(recall_payload(result, details=details, source_format=source_format))
+ 
+diff --git a/src/memory_book/store.py b/src/memory_book/store.py
+index e4ba0a7..d22e0eb 100644
+--- a/src/memory_book/store.py
++++ b/src/memory_book/store.py
+@@ -625,7 +625,7 @@ class MemoryBook:
+             return (lo, hi)
+         return None
+ 
+-    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False) -> dict:
++    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False, follow_titles: bool = False) -> dict:
+         started = time.perf_counter_ns()
+         query = _string(query, "query", maximum=8000, required=False)
+         _integer(budget_chars, "budget_chars", 0, 100_000)
+@@ -646,6 +646,12 @@ class MemoryBook:
+             raise ValueError("semantic must be a boolean")
+         if semantic and strategy != "book":
+             raise ValueError("semantic recall requires the book strategy")
++        if type(follow_titles) is not bool:
++            raise ValueError("follow_titles must be a boolean")
++        if follow_titles and strategy != "book":
++            raise ValueError("follow_titles requires the book strategy")
++        if follow_titles and (semantic or coverage):
++            raise ValueError("follow_titles cannot be combined with semantic or coverage")
+         for key, val in (("project", project), ("chapter", chapter), ("session", session)):
+             if val is not None:
+                 _string(val, key)
+@@ -653,6 +659,20 @@ class MemoryBook:
+         current_query = bool(CURRENT_QUERY.search(query) and not HISTORICAL_QUERY.search(query))
+         use_stem = strategy == "book" and any(ASCII_WORD.search(token) for token in qt)
+         semantic_model = self._semantic_encoder() if semantic else None
++        follow_active = False
++        title_reference_state = None
++        if follow_titles:
++            from .title_reference import VERSION as TITLE_REFERENCE_VERSION, follow_title_reference
++            reason = ("project_required" if project is None else
++                      "limit_below_two" if limit < 2 else
++                      "zero_character_budget" if not budget_chars else
++                      "zero_token_budget" if budget_tokens == 0 else
++                      "temporal_query" if CURRENT_QUERY.search(query) or HISTORICAL_QUERY.search(query) else
++                      "no_lexical_results" if not qt else None)
++            follow_active = reason is None
++            title_reference_state = {"version": TITLE_REFERENCE_VERSION,
++                                     "active": False, "applied": False,
++                                     "reason": reason or "no_lexical_results"}
+         # A read snapshot ties candidates, sources, and the cache revision together.
+         self.db.execute("BEGIN")
+         try:
+@@ -664,6 +684,8 @@ class MemoryBook:
+                 cache_options.extend(["semantic", SEMANTIC_VERSION, semantic_model.fingerprint, FUSION_VERSION])
+             if token_counter is not None:
+                 cache_options.extend([budget_tokens, tokenizer, token_counter.version])
++            if follow_titles:
++                cache_options.extend(["follow_titles", TITLE_REFERENCE_VERSION])
+             cache_key = hashlib.sha256(_json(cache_options).encode()).hexdigest()
+             cached = self.db.execute("SELECT payload FROM recall_cache WHERE key=? AND revision=?", (cache_key, revision)).fetchone() if use_cache and self.cache_size else None
+             if cached:
+@@ -731,7 +753,7 @@ class MemoryBook:
+                 metadata_columns = ["id", "project_id", "chapter_id", "chapter_title",
+                                     "session_id", "session_title", "created_at"]
+                 id_position = 1 if use_stem else 0
+-                canonical_routes = (not coverage and semantic_model is None and
++                canonical_routes = (not coverage and semantic_model is None and not follow_active and
+                                     type(routes[0]) is list and
+                                     (not use_stem or type(routes[1]) is list))
+                 if canonical_routes:
+@@ -978,6 +1000,14 @@ class MemoryBook:
+                     candidates = preferred + [item for item in candidates if item["rid"] not in seen]
+                 if semantic_model is not None:
+                     candidates = fuse_candidates(candidates, rank_pages(self.db, semantic_model, query, where, params))
++                if follow_active:
++                    # Opt-in T1 requires the unchanged complete lexical order,
++                    # including original novelty, to attribute one target. The
++                    # default and precondition-inactive paths keep the existing
++                    # delayed materialization, SQL and cache identity.
++                    candidates, title_reference_state = follow_title_reference(
++                        self.db, candidates, project=project, chapter=chapter,
++                        session=session, limit=limit)
+                 if not late_materialize:
+                     candidate_count = len(candidates)
+                 if candidates:
+@@ -1074,6 +1104,8 @@ class MemoryBook:
+         if not results and candidates:
+             warnings.append("Budget too small to return an evidence block including its citation.")
+         result = {"query": query, "results": results, "context": context, "context_chars": len(context), "estimated_tokens": estimate_tokens(context), "candidate_count": candidate_count, "revision": revision, "cache_hit": False, "warnings": warnings, "strategy": strategy, "budget_chars": budget_chars, "truncated": candidate_count > len(results) or any(r["truncated"] for r in results)}
++        if follow_titles:
++            result["title_reference"] = title_reference_state
+         if semantic_model is not None:
+             result.update(semantic=True, semantic_model_fingerprint=semantic_model.fingerprint)
+         if token_counter is not None:
+diff --git a/src/memory_book/title_reference.py b/src/memory_book/title_reference.py
+new file mode 100644
+index 0000000..bb7bb9d
+--- /dev/null
++++ b/src/memory_book/title_reference.py
+@@ -0,0 +1,246 @@
++"""One opt-in, source-proven title hop inside an existing recall snapshot.
++
++This module does not search for paraphrases or construct a persistent graph.
++Only a unique complete session title, literally present in the lexical leader's
++original text, can nominate one other source. All limits are the registered T1
++limits, independent of the query, corpus, annotations, or observed outcomes.
++"""
++
++from __future__ import annotations
++
++from collections import Counter
++import json
++import unicodedata
++
++from .text import query_terms
++
++VERSION = 1
++CATALOG_LIMIT = 512
++PREFIX_CHARS = 4096
++TITLE_CHARS = 256
++
++
++def normalize_title(text: str) -> str:
++    """Retain punctuation and accents; only casefold and collapse whitespace."""
++    return " ".join(text.casefold().split())
++
++
++def _word_internal(character: str) -> bool:
++    return character == "_" or unicodedata.category(character)[0] in "LNM"
++
++
++def _normalization_map(text: str) -> tuple[str, list[tuple[int, int]]]:
++    """Map every normalized character to its complete original character/run.
++
++    A casefold expansion has repeated spans. A collapsed whitespace separator
++    covers the complete original run, so no match can silently discard part of
++    a source character or splice nonadjacent original text.
++    """
++    parts, spans = [], []
++    pending_space = None
++    for position, character in enumerate(text):
++        if character.isspace():
++            if parts and pending_space is None:
++                pending_space = position
++            continue
++        if pending_space is not None:
++            parts.append(" ")
++            spans.append((pending_space, position))
++            pending_space = None
++        folded = character.casefold()
++        parts.extend(folded)
++        spans.extend([(position, position + 1)] * len(folded))
++    return "".join(parts), spans
++
++
++def _eligible_title(title: str) -> bool:
++    stripped = title.strip()
++    nonspace = "".join(stripped.split())
++    return (len(stripped) <= TITLE_CHARS and len(nonspace) >= 4 and
++            not all(character.isnumeric() for character in nonspace) and
++            len(query_terms(stripped)) >= 2)
++
++
++def _mentions(prefix: str, titles: list[tuple[str, dict]]) -> list[tuple[int, int, dict]]:
++    """Find whole titles while retaining the real adjacent source character.
++
++    ``prefix`` contains up to PREFIX_CHARS + 1 original characters. The last
++    extra character can reject a word cut at the search boundary, but cannot
++    participate in a title match.
++    """
++    source = prefix[:PREFIX_CHARS]
++    normalized = normalize_title(source)
++    possible = []
++    for title, session in titles:
++        start = normalized.find(title)
++        while start >= 0:
++            possible.append((start, start + len(title), title, session))
++            start = normalized.find(title, start + 1)
++    if not possible:
++        return []
++    mapped, spans = _normalization_map(source)
++    # Both paths implement exactly the same transform; do not guess offsets
++    # if a future change makes their definitions disagree.
++    if mapped != normalized:
++        return []
++    result = []
++    for start, end, title, session in possible:
++        if ((start and spans[start - 1] == spans[start]) or
++                (end < len(spans) and spans[end - 1] == spans[end])):
++            continue
++        lo, hi = spans[start][0], spans[end - 1][1]
++        if normalize_title(source[lo:hi]) != title:
++            continue
++        if lo and _word_internal(prefix[lo - 1]):
++            continue
++        if hi < len(prefix) and _word_internal(prefix[hi]):
++            continue
++        result.append((lo, hi, session))
++    result.sort(key=lambda match: (match[0], -(match[1] - match[0]), match[2]["id"]))
++    return result
++
++
++def _source_projection(db, anchor: dict, lo: int, hi: int, *, project: str,
++                       session_id: str) -> dict | None:
++    """Prove one mention's original turn mapping without repairing cut edges."""
++    refs = json.loads(anchor["source_refs"])
++    if not isinstance(refs, list):
++        return None
++    covering = []
++    for ref in refs:
++        if not isinstance(ref, dict):
++            continue
++        fields = ("start", "end", "turn_start", "turn_end", "turn_index")
++        if any(type(ref.get(key)) is not int for key in fields):
++            continue
++        if not (0 <= ref["start"] <= lo < hi <= ref["end"] <= anchor["page_chars"]):
++            continue
++        if (ref["turn_start"] < 0 or ref["turn_index"] < 0 or
++                ref["turn_end"] - ref["turn_start"] != ref["end"] - ref["start"] or
++                ref.get("project") != project or ref.get("session_id") != session_id):
++            continue
++        covering.append(ref)
++    if len(covering) != 1:
++        return None
++    ref = covering[0]
++    # A page/turn separator says nothing about the character outside a slice.
++    # Only an original start, or a neighbor within this same source mapping,
++    # can prove the left boundary; never fetch neighboring text to rescue it.
++    if lo == ref["start"] and ref["turn_start"] != 0:
++        return None
++    turn_lo = ref["turn_start"] + lo - ref["start"]
++    turn_hi = turn_lo + hi - lo
++    # Where the page claims an in-reference neighbor, verify that neighbor too.
++    # A corrupted page must not turn an original letter/mark into a delimiter.
++    # This adds at most two original characters and never rescues a cut edge.
++    before = int(lo > ref["start"])
++    after = int(hi < ref["end"])
++    original = db.execute(
++        "SELECT length(content) chars,substr(content,?,?) source_slice FROM turns "
++        "WHERE session_pk=? AND ordinal=?",
++        (turn_lo + 1 - before, hi - lo + before + after,
++         anchor["session_pk"], ref["turn_index"])).fetchone()
++    if original is None or ref["turn_end"] > original["chars"]:
++        return None
++    if hi == ref["end"] and turn_hi != original["chars"]:
++        return None
++    if original["source_slice"] != anchor["prefix"][lo - before:hi + after]:
++        return None
++    return {"page_span": [lo, hi], "turn_index": ref["turn_index"],
++            "turn_span": [turn_lo, turn_hi]}
++
++
++def follow_title_reference(db, candidates: list[dict], *, project: str,
++                          chapter: str | None, session: str | None,
++                          limit: int) -> tuple[list[dict], dict]:
++    """Return the complete candidate order with at most one target inserted.
++
++    The caller supplies the unchanged full lexical order after novelty. Every
++    database read occurs in the caller's existing read transaction. A target
++    without an eligible page terminates this one-hop attempt rather than
++    trying another mention or broadening the scope.
++    """
++    state = {"version": VERSION, "active": False, "applied": False,
++             "reason": "no_lexical_results"}
++    if not candidates:
++        return candidates, state
++    state.update(active=True, reason="no_title_mention")
++    clauses, params = ["project_id=?"], [project]
++    if chapter is not None:
++        clauses.append("chapter_id=?")
++        params.append(chapter)
++    if session is not None:
++        clauses.append("external_id=?")
++        params.append(session)
++    catalog = db.execute(
++        "SELECT id,external_id,title FROM sessions WHERE " + " AND ".join(clauses) +
++        " ORDER BY id LIMIT 513", params).fetchall()
++    if len(catalog) > CATALOG_LIMIT:
++        state["reason"] = "catalog_overflow"
++        return candidates, state
++    # Ineligible titles still participate in collision counting. In particular,
++    # a long whitespace spelling cannot make an otherwise ambiguous name unique.
++    normalized = [(normalize_title(row["title"]), dict(row)) for row in catalog]
++    multiplicity = Counter(title for title, _ in normalized)
++    selected_sources = {row["session_id"] for row in candidates[:limit]}
++    titles = [(title, row) for title, row in normalized
++              if multiplicity[title] == 1 and _eligible_title(row["title"]) and
++              row["external_id"] not in selected_sources]
++    if not titles:
++        state["reason"] = "no_unique_title"
++        return candidates, state
++    leader = candidates[0]
++    anchor_row = db.execute(
++        "SELECT session_pk,substr(content,1,4097) prefix,length(content) page_chars,source_refs "
++        "FROM pages WHERE id=?", (leader["id"],)).fetchone()
++    if anchor_row is None:
++        state["reason"] = "anchor_unavailable"
++        return candidates, state
++    anchor = dict(anchor_row)
++    chosen = None
++    for lo, hi, target in _mentions(anchor["prefix"], titles):
++        projection = _source_projection(db, anchor, lo, hi, project=project,
++                                        session_id=leader["session_id"])
++        if projection is not None:
++            chosen = target, projection
++            break
++    if chosen is None:
++        return candidates, state
++    target, projection = chosen
++    initial_page_ids = {row["id"] for row in candidates}
++    initial_session_ids = {row["session_id"] for row in candidates}
++    linked = next((row for row in candidates
++                   if row["session_id"] == target["external_id"]), None)
++    route = "lexical"
++    if linked is None:
++        target_clauses = ["p.session_pk=?", "p.project_id=?"]
++        target_params = [target["id"], project]
++        if chapter is not None:
++            target_clauses.append("p.chapter_id=?")
++            target_params.append(chapter)
++        if session is not None:
++            target_clauses.append("s.external_id=?")
++            target_params.append(session)
++        entry = db.execute(
++            "SELECT p.id,p.rid,p.project_id,p.chapter_id,c.title chapter_title,"
++            "s.external_id session_id,s.title session_title,s.created_at "
++            "FROM pages p JOIN sections sec ON sec.id=p.section_id "
++            "JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk "
++            "WHERE " + " AND ".join(target_clauses) +
++            " ORDER BY sec.ordinal,p.ordinal,p.id LIMIT 1", target_params).fetchone()
++        if entry is None:
++            state["reason"] = "no_target_page"
++            return candidates, state
++        linked = dict(entry)
++        linked["score"] = 0.0
++        route = "title_reference"
++    state.update(applied=True, reason="applied",
++                 anchor={"page_id": leader["id"], "session_id": leader["session_id"],
++                         "session_pk": anchor["session_pk"]},
++                 target={"page_id": linked["id"], "session_id": linked["session_id"],
++                         "session_pk": target["id"], "route": route},
++                 mention=projection,
++                 target_initial_page_in_pool=linked["id"] in initial_page_ids,
++                 target_initial_session_in_pool=linked["session_id"] in initial_session_ids)
++    return ([leader, linked] + [row for row in candidates[1:]
++                                if row["id"] != linked["id"]]), state
+diff --git a/tests/test_indexed_references.py b/tests/test_indexed_references.py
+index dd65ce5..5016b90 100644
+--- a/tests/test_indexed_references.py
++++ b/tests/test_indexed_references.py
+@@ -98,7 +98,19 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
+         # between modes is checked above on every installed supported SDK.
+         if (importlib.metadata.version("mcp") == FIXTURE["mcp"]
+                 and importlib.metadata.version("pydantic") == FIXTURE["pydantic"]):
+-            self.assertEqual(tools[0], FIXTURE["schema"])
++            # T1 adds one explicit opt-in argument. Preserve the historical
++            # fixture and compare every previous field after removing only
++            # that documented addition; object/indexed schemas still agree.
++            current = json.loads(tools[0])
++            previous = json.loads(FIXTURE["schema"])
++            recall = next(tool for tool in current["tools"] if tool["name"] == "recall_memory")
++            old_recall = next(tool for tool in previous["tools"] if tool["name"] == "recall_memory")
++            self.assertEqual(recall["inputSchema"]["properties"].pop("follow_titles"),
++                             {"default": False, "title": "Follow Titles", "type": "boolean"})
++            self.assertTrue(recall["description"].startswith(old_recall["description"]))
++            self.assertIn("follow_titles", recall["description"][len(old_recall["description"]):])
++            recall["description"] = old_recall["description"]
++            self.assertEqual(current, previous)
+ 
+     async def test_real_cli_modes_preserve_defaults_and_full_provenance(self):
+         from memory_book import MemoryBook
+diff --git a/tests/test_title_reference.py b/tests/test_title_reference.py
+new file mode 100644
+index 0000000..9771f4c
+--- /dev/null
++++ b/tests/test_title_reference.py
+@@ -0,0 +1,463 @@
++"""Invented T1 source, scope, ambiguity, budget and default-compatibility cases."""
++
++from __future__ import annotations
++
++import hashlib
++import importlib.util
++import json
++from pathlib import Path
++import tempfile
++import unittest
++
++from memory_book import MemoryBook
++from memory_book.store import INDEX_VERSION, RECALL_VERSION
++from memory_book.title_reference import (_eligible_title, _mentions, _normalization_map,
++                                        follow_title_reference, normalize_title)
++
++
++def source(identity, title, text, *, project="lab", task="archive"):
++    return {"project": project, "session_id": identity, "title": title,
++            "task_id": task, "task_title": "Evidence archive",
++            "created_at": "2025-01-01T00:00:00Z",
++            "messages": [{"role": "user", "content": text}]}
++
++
++def without_timing(response, *, provenance=False):
++    result = {key: value for key, value in response.items() if key != "latency_ms"}
++    if provenance:
++        result.pop("title_reference", None)
++    return result
++
++
++class MentionMappingTests(unittest.TestCase):
++    def mentions(self, text, *titles):
++        return _mentions(text, [(normalize_title(title), {"id": str(i)})
++                                for i, title in enumerate(titles)])
++
++    def test_casefold_whitespace_and_exact_original_span(self):
++        text = "prefix:  STRAẞE\u00a0\t Laboratory ; suffix"
++        found = self.mentions(text, "Straße Laboratory")
++        self.assertEqual(len(found), 1)
++        lo, hi, _ = found[0]
++        self.assertEqual(text[lo:hi], "STRAẞE\u00a0\t Laboratory")
++        for text in ("\u001c A\x85 B \u00a0", "İ e\u0301 Straße", " 中文\t名字 "):
++            normalized, mapping = _normalization_map(text)
++            self.assertEqual(normalized, normalize_title(text))
++            self.assertEqual(len(normalized), len(mapping))
++
++    def test_partial_casefold_expansions_are_rejected(self):
++        self.assertEqual(self.mentions("Alpha Maß", "Alpha Mas"), [])
++        self.assertEqual(self.mentions("Alpha İ", "Alpha i"), [])
++        self.assertTrue(self.mentions("Alpha Maß", "Alpha Mass"))
++        self.assertTrue(self.mentions("Alpha İ", "Alpha i\u0307"))
++
++    def test_combining_marks_letters_numbers_and_underscore_are_internal(self):
++        for before, after in (("a", ""), ("7", ""), ("_", ""), ("\u0301", ""),
++                              ("", "a"), ("", "7"), ("", "_"), ("", "\u0301")):
++            with self.subTest(before=before, after=after):
++                self.assertEqual(self.mentions(before + "Alpha Beta" + after, "Alpha Beta"), [])
++        self.assertTrue(self.mentions("《青石天文台》", "青石天文台"))
++        self.assertEqual(self.mentions("青石和天文台", "青石天文台"), [])
++        self.assertEqual(self.mentions("新青石天文台", "青石天文台"), [])
++
++    def test_prefix_boundary_checks_the_actual_next_character(self):
++        title = "Alpha Beta"
++        prefix = "." * (4096 - len(title)) + title
++        self.assertTrue(self.mentions(prefix + ".", title))
++        self.assertEqual(self.mentions(prefix + "x", title), [])
++        self.assertEqual(self.mentions(prefix + "\u0301", title), [])
++        self.assertEqual(self.mentions("." + prefix, title), [])
++
++    def test_earliest_longest_then_stable_source_order(self):
++        found = self.mentions("Alpha Beta Annex then Gamma Delta then Alpha Beta.",
++                              "Gamma Delta", "Alpha Beta", "Alpha Beta Annex")
++        self.assertEqual(found[0][2]["id"], "2")
++        self.assertEqual(found[1][2]["id"], "1")
++        self.assertEqual(found[2][2]["id"], "0")
++
++    def test_title_eligibility_preserves_registered_rules_only(self):
++        for title in ("1234 5678", "１２３ ４５６", "1234", "Cedar", "A B", "x" * 257):
++            with self.subTest(title=title):
++                self.assertFalse(_eligible_title(title))
++        for title in ("Alpha Beta", "青石天文台", "General Notes", "Alpha Beta (film)"):
++            with self.subTest(title=title):
++                self.assertTrue(_eligible_title(title))
++        self.assertEqual(self.mentions("Alpha Beta (film)", "Alpha Beta (book)"), [])
++
++
++class TitleReferenceTests(unittest.TestCase):
++    def setUp(self):
++        self.book = MemoryBook(":memory:", segmentation="turn", min_page_chars=0, cache_size=0)
++        self.addCleanup(self.book.close)
++
++    def add(self, identity, title, text, **kwargs):
++        return self.book.ingest(source(identity, title, text, **kwargs))
++
++    def seed(self, title="Cedar Observatory"):
++        self.add("anchor", "Calibration memo", f"quartzsignal points to {title}. quartzsignal is documented here.")
++        self.add("target", title, "It stands beside the northern inlet.")
++
++    def recall(self, **options):
++        arguments = {"project": "lab", "limit": 5, "budget_chars": 4000, "use_cache": False}
++        arguments.update(options)
++        return self.book.recall("quartzsignal", **arguments)
++
++    def ordered(self, identities):
++        rows = []
++        for i, identity in enumerate(identities):
++            row = dict(self.book.db.execute(
++                "SELECT p.id,p.rid,p.project_id,p.chapter_id,c.title chapter_title,"
++                "s.external_id session_id,s.title session_title,s.created_at "
++                "FROM pages p JOIN sessions s ON s.id=p.session_pk "
++                "JOIN chapters c ON c.id=p.chapter_id WHERE s.external_id=? ORDER BY p.rid LIMIT 1",
++                (identity,)).fetchone())
++            row["score"] = 10.0 - i
++            rows.append(row)
++        return rows
++
++    def test_unique_title_new_source_has_exact_native_provenance(self):
++        self.seed()
++        original, expanded = self.recall(), self.recall(follow_titles=True)
++        self.assertNotIn("title_reference", original)
++        state = expanded["title_reference"]
++        self.assertTrue(state["active"])
++        self.assertTrue(state["applied"])
++        self.assertEqual(state["version"], 1)
++        self.assertEqual(state["target"]["session_id"], "target")
++        self.assertEqual(state["target"]["route"], "title_reference")
++        self.assertFalse(state["target_initial_page_in_pool"])
++        self.assertFalse(state["target_initial_session_in_pool"])
++        self.assertEqual(expanded["candidate_count"], original["candidate_count"] + 1)
++        self.assertEqual(expanded["results"][0]["id"], original["results"][0]["id"])
++        self.assertEqual(expanded["results"][1]["score"], 0.0)
++        page = self.book.read(state["anchor"]["page_id"])["content"]
++        lo, hi = state["mention"]["page_span"]
++        self.assertEqual(page[lo:hi], "Cedar Observatory")
++        self.assertEqual(state["mention"]["turn_span"], [lo, hi])
++        self.assertEqual(state["mention"]["turn_index"], 0)
++        self.assertLessEqual(expanded["context_chars"], 4000)
++
++    def test_chinese_full_title_and_casefold_expansion_work(self):
++        for title, mention in (("青石天文台", "青石天文台"),
++                               ("Straße Laboratory", "STRAẞE\u00a0\t Laboratory")):
++            with self.subTest(title=title), MemoryBook(":memory:", segmentation="turn", cache_size=0) as book:
++                book.ingest(source("anchor", "Calibration memo", f"quartzsignal cites 《{mention}》。"))
++                book.ingest(source("target", title, "Separate source information."))
++                result = book.recall("quartzsignal", project="lab", follow_titles=True)
++                self.assertTrue(result["title_reference"]["applied"])
++                lo, hi = result["title_reference"]["mention"]["page_span"]
++                self.assertEqual(book.read(result["results"][0]["id"])["content"][lo:hi], mention)
++
++    def test_original_candidate_promotion_keeps_its_score_and_union(self):
++        self.seed()
++        self.add("middle", "Middle record", "quartzsignal intermediate evidence.")
++        candidates = self.ordered(["anchor", "middle", "target"])
++        expanded, state = follow_title_reference(self.book.db, candidates, project="lab",
++                                                 chapter=None, session=None, limit=2)
++        self.assertTrue(state["target_initial_page_in_pool"])
++        self.assertTrue(state["target_initial_session_in_pool"])
++        self.assertEqual(state["target"]["route"], "lexical")
++        self.assertEqual([row["session_id"] for row in expanded], ["anchor", "target", "middle"])
++        self.assertEqual(expanded[1]["score"], candidates[2]["score"])
++        self.assertEqual(len(expanded), len(candidates))
++
++    def test_already_selected_source_is_not_inserted_again(self):
++        self.seed()
++        candidates = self.ordered(["anchor", "target"])
++        expanded, state = follow_title_reference(self.book.db, candidates, project="lab",
++                                                 chapter=None, session=None, limit=2)
++        self.assertIs(expanded, candidates)
++        self.assertFalse(state["applied"])
++        self.assertNotIn("target_initial_session_in_pool", state)
++
++    def test_duplicate_titles_count_before_eligibility_filtering(self):
++        self.seed()
++        self.add("collision", "Cedar" + " " * 260 + "Observatory", "Unrelated source.")
++        state = self.recall(follow_titles=True)["title_reference"]
++        self.assertFalse(state["applied"])
++        self.assertNotIn("target_initial_page_in_pool", state)
++
++    def test_parenthetical_suffix_is_part_of_the_title(self):
++        self.seed("Cedar Observatory (book)")
++        self.add("film", "Cedar Observatory (film)", "Other source.")
++        self.assertEqual(self.recall(follow_titles=True)["title_reference"]["target"]["session_id"], "target")
++
++    def test_one_target_earliest_longest_and_no_recursive_hop(self):
++        self.add("anchor", "Calibration memo", "quartzsignal cites Cedar Observatory Annex. Later Pine Laboratory; Cedar Observatory Annex again.")
++        self.add("short", "Cedar Observatory", "A shorter title.")
++        self.add("long", "Cedar Observatory Annex", "Read Pine Laboratory for another source.")
++        self.add("other", "Pine Laboratory", "Another source.")
++        result = self.recall(follow_titles=True)
++        self.assertEqual(result["title_reference"]["target"]["session_id"], "long")
++        self.assertEqual(len(result["results"]), 2)
++        self.assertEqual(len({row["id"] for row in result["results"]}), 2)
++
++    def test_empty_first_target_does_not_try_a_later_mention(self):
++        self.add("anchor", "Calibration memo", "quartzsignal cites Cedar Observatory and Pine Laboratory.")
++        self.add("empty", "Cedar Observatory", "Temporary source.")
++        self.add("later", "Pine Laboratory", "Later source.")
++        self.book.db.execute("DELETE FROM pages WHERE session_pk=(SELECT id FROM sessions WHERE external_id='empty')")
++        result = self.recall(follow_titles=True)
++        self.assertEqual(result["title_reference"]["reason"], "no_target_page")
++        self.assertFalse(result["title_reference"]["applied"])
++        self.assertNotIn("target_initial_page_in_pool", result["title_reference"])
++        self.assertEqual(len(result["results"]), 1)
++
++    def test_scope_filters_catalog_and_target(self):
++        anchor = self.add("anchor", "Calibration memo", "quartzsignal cites Cedar Observatory.", task="first")
++        self.add("target", "Cedar Observatory", "The answer is here.", task="second")
++        self.add("foreign", "Cedar Observatory", "Foreign duplicate.", project="elsewhere")
++        self.assertTrue(self.recall(follow_titles=True)["title_reference"]["applied"])
++        for scope in ({"chapter": anchor["chapter_id"]}, {"session": "anchor"}, {"project": "missing"}):
++            with self.subTest(scope=scope):
++                state = self.recall(follow_titles=True, **scope)["title_reference"]
++                self.assertFalse(state["applied"])
++                self.assertNotIn("target_initial_session_in_pool", state)
++
++    def test_inactive_modes_preserve_payload_and_skip_catalog(self):
++        self.seed()
++        cases = (("quartzsignal", {"project": None}, "project_required"),
++                 ("quartzsignal", {"limit": 1}, "limit_below_two"),
++                 ("quartzsignal", {"budget_chars": 0}, "zero_character_budget"),
++                 ("current quartzsignal", {}, "temporal_query"),
++                 ("old quartzsignal", {}, "temporal_query"),
++                 ("2025 quartzsignal", {}, "temporal_query"),
++                 ("the", {}, "no_lexical_results"),
++                 ("unknownneedle", {}, "no_lexical_results"))
++        for query, changes, reason in cases:
++            with self.subTest(query=query, changes=changes):
++                options = {"project": "lab", "use_cache": False, **changes}
++                old = self.book.recall(query, **options)
++                trace = []
++                self.book.db.set_trace_callback(trace.append)
++                try:
++                    new = self.book.recall(query, follow_titles=True, **options)
++                finally:
++                    self.book.db.set_trace_callback(None)
++                self.assertEqual(without_timing(old), without_timing(new, provenance=True))
++                self.assertEqual(new["title_reference"]["reason"], reason)
++                self.assertFalse(new["title_reference"]["active"])
++                self.assertFalse(any("LIMIT 513" in sql for sql in trace))
++
++    def test_strict_flag_and_incompatible_options(self):
++        for value in (None, 0, 1, "false", "true", [], {}):
++            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "boolean"):
++                self.recall(follow_titles=value)
++        for options in ({"semantic": True}, {"coverage": True}, {"strategy": "flat"}):
++            with self.subTest(options=options), self.assertRaises(ValueError):
++                self.recall(follow_titles=True, **options)
++        self.recall(follow_titles=False, strategy="flat")
++
++    def test_false_uses_old_cache_key_and_trace(self):
++        self.seed()
++        self.book.cache_size = 8
++        original = self.recall(use_cache=True)
++        explicit = self.recall(use_cache=True, follow_titles=False)
++        self.assertTrue(explicit["cache_hit"])
++        fields = [INDEX_VERSION, RECALL_VERSION, "quartzsignal", "lab", None, None, 4000, 5, "book", False]
++        key = hashlib.sha256(json.dumps(fields, ensure_ascii=False, sort_keys=True,
++                                       separators=(",", ":")).encode()).hexdigest()
++        self.assertEqual(self.book.db.execute("SELECT key FROM recall_cache").fetchone()[0], key)
++        explicit["cache_hit"] = original["cache_hit"]
++        self.assertEqual(without_timing(original), without_timing(explicit))
++        on = self.recall(use_cache=True, follow_titles=True)
++        self.assertFalse(on["cache_hit"])
++        self.assertTrue(self.recall(use_cache=True, follow_titles=True)["cache_hit"])
++        self.assertEqual(self.book.db.execute("SELECT count(*) FROM recall_cache").fetchone()[0], 2)
++        traces = []
++        for flag in (None, False):
++            trace = []
++            self.book.db.set_trace_callback(trace.append)
++            try:
++                self.recall(**({} if flag is None else {"follow_titles": flag}))
++            finally:
++                self.book.db.set_trace_callback(None)
++            traces.append(trace)
++        self.assertEqual(*traces)
++
++    def test_rename_and_delete_invalidate_opt_in_cache(self):
++        self.seed()
++        self.book.cache_size = 8
++        old = self.recall(use_cache=True, follow_titles=True)
++        self.assertTrue(old["title_reference"]["applied"])
++        self.add("target", "Renamed Observatory", "It stands beside the northern inlet.")
++        changed = self.recall(use_cache=True, follow_titles=True)
++        self.assertFalse(changed["cache_hit"])
++        self.assertFalse(changed["title_reference"]["applied"])
++        self.assertGreater(changed["revision"], old["revision"])
++        self.book.delete_session("lab", "target")
++        self.assertFalse(self.recall(use_cache=True, follow_titles=True)["title_reference"]["applied"])
++
++    def test_source_neighbor_corruption_cannot_invent_a_word_boundary(self):
++        for original, damaged in (("AAlpha Beta", " Alpha Beta"), ("Alpha BetaX", "Alpha Beta ")):
++            with self.subTest(original=original), MemoryBook(":memory:", segmentation="turn", cache_size=0) as book:
++                book.ingest(source("anchor", "Calibration memo", "quartzsignal cites " + original + "."))
++                book.ingest(source("target", "Alpha Beta", "Separate source."))
++                row = book.db.execute("SELECT p.id,p.content FROM pages p JOIN sessions s ON s.id=p.session_pk WHERE s.external_id='anchor'").fetchone()
++                book.db.execute("UPDATE pages SET content=? WHERE id=?", (row["content"].replace(original, damaged), row["id"]))
++                result = book.recall("quartzsignal", project="lab", use_cache=False, follow_titles=True)
++                self.assertFalse(result["title_reference"]["applied"])
++
++    def test_single_mention_cannot_cross_turn_mapping(self):
++        self.add("anchor", "Calibration memo", "quartzsignal cites Cedar Observatory.")
++        self.add("target", "Cedar Observatory", "Separate source.")
++        row = self.book.db.execute("SELECT p.id,p.content,p.source_refs FROM pages p JOIN sessions s ON s.id=p.session_pk WHERE s.external_id='anchor'").fetchone()
++        original_ref = json.loads(row["source_refs"])[0]
++        split = row["content"].index("Observatory")
++        left = {**original_ref, "end": split, "turn_end": split}
++        right = {**original_ref, "start": split, "turn_start": split}
++        self.book.db.execute("UPDATE pages SET source_refs=? WHERE id=?", (json.dumps([left, right]), row["id"]))
++        self.assertFalse(self.recall(follow_titles=True)["title_reference"]["applied"])
++
++    def test_unproven_original_slice_edges_are_rejected(self):
++        for edge in ("left", "right"):
++            with self.subTest(edge=edge), MemoryBook(":memory:", segmentation="turn", cache_size=0) as book:
++                book.ingest(source("anchor", "Calibration memo", "quartzsignal cites Alpha Beta."))
++                book.ingest(source("target", "Alpha Beta", "Separate source."))
++                row = book.db.execute("SELECT p.id,p.content,p.source_refs FROM pages p JOIN sessions s ON s.id=p.session_pk WHERE s.external_id='anchor'").fetchone()
++                full = row["content"]
++                start = full.index("Alpha Beta") if edge == "left" else 0
++                end = full.index("Alpha Beta") + len("Alpha Beta") if edge == "right" else len(full)
++                original_ref = json.loads(row["source_refs"])[0]
++                ref = {**original_ref, "start": 0, "end": end - start,
++                       "turn_start": start, "turn_end": end}
++                book.db.execute("UPDATE pages SET content=?,source_refs=? WHERE id=?",
++                                (full[start:end], json.dumps([ref]), row["id"]))
++                result = book.recall("quartzsignal", project="lab", follow_titles=True, use_cache=False)
++                self.assertFalse(result["title_reference"]["applied"])
++
++    def test_real_original_turn_end_proves_the_boundary(self):
++        self.add("anchor", "Calibration memo", "quartzsignal cites Alpha Beta")
++        self.add("target", "Alpha Beta", "Separate source.")
++        state = self.recall(follow_titles=True)["title_reference"]
++        self.assertTrue(state["applied"])
++        page = self.book.read(state["anchor"]["page_id"])["content"]
++        self.assertEqual(state["mention"]["page_span"][1], len(page))
++
++    def test_source_projection_rejects_corrupt_identity_or_coordinates(self):
++        self.seed()
++        row = self.book.db.execute("SELECT p.id,p.source_refs FROM pages p JOIN sessions s ON s.id=p.session_pk WHERE s.external_id='anchor'").fetchone()
++        original = json.loads(row["source_refs"])[0]
++        changes = ({"project": "elsewhere"}, {"session_id": "other"}, {"turn_index": True},
++                   {"turn_start": -1}, {"turn_end": original["turn_end"] + 1})
++        for change in changes:
++            with self.subTest(change=change):
++                self.book.db.execute("UPDATE pages SET source_refs=? WHERE id=?",
++                                     (json.dumps([{**original, **change}]), row["id"]))
++                # Isolate the opt-in decision: the unchanged source assembler
++                # has its own corruption policy for these deliberately bad maps.
++                _, state = follow_title_reference(self.book.db, self.ordered(["anchor"]),
++                                                  project="lab", chapter=None, session=None, limit=5)
++                self.assertFalse(state["applied"])
++        self.book.db.execute("UPDATE pages SET source_refs=? WHERE id=?", (row["source_refs"], row["id"]))
++
++    def test_complete_pool_promotion_beyond_default_materialized_prefix(self):
++        self.add("anchor", "Calibration memo", "quartzsignal " * 20 + "cites Cedar Observatory.")
++        for i in range(30):
++            self.add(f"middle-{i}", f"Middle source {i}", "quartzsignal witnessed here.")
++        self.add("target", "Cedar Observatory", "quartzsignal " + "Independent source evidence. " * 160)
++        expression = '("quartzsignal") AND body : ("quartzsignal")'
++        ordered = self.book.db.execute(
++            "SELECT s.external_id,bm25(pages_fts,2.0,2.0,1.0,0.25) rank FROM pages_fts "
++            "JOIN pages p ON p.rid=pages_fts.rowid JOIN sessions s ON s.id=p.session_pk "
++            "WHERE pages_fts MATCH ? ORDER BY rank,p.id LIMIT 96", (expression,)).fetchall()
++        positions = [row["external_id"] for row in ordered]
++        self.assertGreater(positions.index("target"), 20)
++        original, expanded = self.recall(), self.recall(follow_titles=True)
++        state = expanded["title_reference"]
++        self.assertTrue(state["applied"])
++        self.assertEqual(state["target"]["session_id"], "target")
++        self.assertEqual(state["target"]["route"], "lexical")
++        self.assertTrue(state["target_initial_page_in_pool"])
++        self.assertTrue(state["target_initial_session_in_pool"])
++        self.assertEqual(expanded["candidate_count"], original["candidate_count"])
++        self.assertEqual(expanded["results"][0]["id"], original["results"][0]["id"])
++
++    def test_real_anchor_prefix_boundary_never_reads_a_whole_long_turn(self):
++        title = "Cedar Observatory"
++        initial = "USER: quartzsignal "
++        body = "quartzsignal " + "." * (4096 - len(initial) - len(title)) + title
++        for neighbor, applied in ((".", True), ("x", False), ("\u0301", False)):
++            with self.subTest(neighbor=neighbor), MemoryBook(":memory:", segmentation="turn", cache_size=0) as book:
++                book.ingest(source("anchor", "Calibration memo", body + neighbor + " extra source text." * 200))
++                book.ingest(source("target", title, "Separate source."))
++                trace = []
++                book.db.set_trace_callback(trace.append)
++                try:
++                    result = book.recall("quartzsignal", project="lab", follow_titles=True, use_cache=False)
++                finally:
++                    book.db.set_trace_callback(None)
++                self.assertEqual(result["title_reference"]["applied"], applied)
++                turn_reads = [sql for sql in trace if "FROM turns" in sql and not sql.startswith("--")]
++                self.assertTrue(all("substr(content," in sql for sql in turn_reads))
++                if applied:
++                    self.assertEqual(result["title_reference"]["mention"]["page_span"][1], 4096)
++
++    def test_catalog_cap_is_scoped_and_read_with_limit_plus_one(self):
++        self.seed()
++        for i in range(510):
++            self.add(f"filler-{i}", f"Unused source {i}", "No queried token here.")
++        self.add("outside", "Outside source", "Foreign page.", project="elsewhere")
++        self.assertTrue(self.recall(follow_titles=True)["title_reference"]["applied"])
++        self.add("overflow", "Overflow source", "No queried token here.")
++        trace = []
++        self.book.db.set_trace_callback(trace.append)
++        try:
++            result = self.recall(follow_titles=True)
++        finally:
++            self.book.db.set_trace_callback(None)
++        self.assertEqual(result["title_reference"]["reason"], "catalog_overflow")
++        catalogs = [sql for sql in trace if "SELECT id,external_id,title FROM sessions" in sql]
++        self.assertEqual(len(catalogs), 1)
++        self.assertIn("LIMIT 513", catalogs[0])
++
++    def test_concurrent_writer_cannot_mix_catalog_and_source_snapshots(self):
++        with tempfile.TemporaryDirectory(dir=Path(__file__).resolve().parents[1]) as directory:
++            database = Path(directory) / "book.db"
++            with MemoryBook(database, segmentation="turn", cache_size=0) as reader, MemoryBook(database) as writer:
++                reader.ingest(source("anchor", "Calibration memo", "quartzsignal cites Cedar Observatory."))
++                writer.ingest(source("target", "Cedar Observatory", "Original target content."))
++                old_revision = reader.revision
++                changed = []
++
++                def edit_during_read(sql):
++                    if "SELECT id,external_id,title FROM sessions" in sql and not changed:
++                        changed.append(True)
++                        writer.ingest(source("target", "Renamed Observatory", "New target content."))
++
++                reader.db.set_trace_callback(edit_during_read)
++                try:
++                    result = reader.recall("quartzsignal", project="lab", follow_titles=True, use_cache=False)
++                finally:
++                    reader.db.set_trace_callback(None)
++                self.assertTrue(changed)
++                self.assertEqual(result["revision"], old_revision)
++                self.assertTrue(result["title_reference"]["applied"])
++                self.assertIn("Original target content.", result["context"])
++                self.assertNotIn("New target content.", result["context"])
++                self.assertFalse(reader.recall("quartzsignal", project="lab", follow_titles=True)["title_reference"]["applied"])
++
++    @unittest.skipUnless(importlib.util.find_spec("tiktoken"), "Install .[tokens] for exact caps")
++    def test_both_tokenizers_keep_source_and_budget_caps(self):
++        from memory_book.token_budget import TokenCounter
++        self.seed()
++        for tokenizer in ("cl100k_base", "o200k_base"):
++            for budget in (0, 1, 32, 128, 512, 1024):
++                with self.subTest(tokenizer=tokenizer, budget=budget):
++                    result = self.recall(follow_titles=True, tokenizer=tokenizer,
++                                         budget_tokens=budget, budget_chars=4000)
++                    self.assertLessEqual(result["context_tokens"], budget)
++                    self.assertEqual(result["context_tokens"], TokenCounter(tokenizer).count(result["context"]))
++                    self.assertLessEqual(result["context_chars"], 4000)
++                    self.assertEqual(len({row["id"] for row in result["results"]}), len(result["results"]))
++                    for row in result["results"]:
++                        page = self.book.read(row["id"])["content"]
++                        for lo, hi in row["excerpt_spans"]:
++                            self.assertIn(page[lo:hi], row["text"])
++                    if budget == 0:
++                        self.assertFalse(result["title_reference"]["active"])
++                        self.assertEqual(result["title_reference"]["reason"], "zero_token_budget")
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tests/test_title_reference_interfaces.py b/tests/test_title_reference_interfaces.py
+new file mode 100644
+index 0000000..3b03ac4
+--- /dev/null
++++ b/tests/test_title_reference_interfaces.py
+@@ -0,0 +1,271 @@
++"""Artificial CLI and official MCP cases for the explicit title-hop option."""
++from __future__ import annotations
++
++from contextlib import redirect_stderr, redirect_stdout
++from datetime import timedelta
++import copy
++import importlib.util
++import io
++import json
++import os
++from pathlib import Path
++import sqlite3
++import sys
++import tempfile
++import unittest
++
++from memory_book import MemoryBook
++from memory_book.cli import main, parser
++from memory_book.mcp_server import _json, create_server, recall_payload
++
++
++HAS_MCP = importlib.util.find_spec("mcp") is not None
++HAS_TOKENS = importlib.util.find_spec("tiktoken") is not None
++FIXTURE = json.loads((Path(__file__).parent / "fixtures/mcp-object-reference-baseline.json").read_text())
++
++
++def seed(database):
++    """Two linked source titles plus a same-ID/title source outside the project."""
++    with MemoryBook(database, segmentation="turn", min_page_chars=0, cache_size=0) as book:
++        for project, identity, title, content in (
++            ("lab", "anchor", "Calibration memo", "quartzsignal points to STRAẞE\u00a0\t Laboratory. quartzsignal is documented here."),
++            ("lab", "target", "Straße Laboratory", "It stands beside the northern inlet. 中文资料。"),
++            ("outside", "target", "Straße Laboratory", "outsidecanary is private to another project."),
++        ):
++            book.ingest({"project": project, "session_id": identity, "title": title,
++                         "task_id": "archive", "task_title": "Evidence archive",
++                         "created_at": "2025-01-01T00:00:00Z",
++                         "messages": [{"role": "user", "content": content}]})
++
++
++def native(database, **options):
++    arguments = {"project": "lab", "budget_chars": 2000, "limit": 5, "use_cache": False}
++    arguments.update(options)
++    with MemoryBook(database, cache_size=0) as book:
++        return book.recall("quartzsignal", **arguments)
++
++
++def without_timing(value):
++    return {key: item for key, item in value.items() if key != "latency_ms"}
++
++
++def decode_indexed(value):
++    """Decode the documented wire representation independently of its encoder."""
++    if value.get("source_format") != "indexed-v1":
++        return value
++    result = {key: item for key, item in value.items() if key not in ("source_sessions", "source_format")}
++    result["results"] = []
++    for hit in value["results"]:
++        refs = []
++        for entry in hit["source_refs"]:
++            project, session = value["source_sessions"][entry[0]]
++            refs.append({"project": project, "session_id": session, "turn_index": entry[1],
++                         **(entry[2] if len(entry) == 3 else {})})
++        result["results"].append({**hit, "source_refs": refs})
++    return result
++
++
++def clear_result_cache(database):
++    with sqlite3.connect(database) as connection:
++        connection.execute("DELETE FROM recall_cache")
++
++
++class TitleReferenceCLITests(unittest.TestCase):
++    def test_flag_is_boolean_opt_in_and_incompatible_modes_are_rejected(self):
++        self.assertIs(parser().parse_args(["recall", "quartzsignal"]).follow_titles, False)
++        self.assertIs(parser().parse_args(["recall", "quartzsignal", "--follow-titles"]).follow_titles, True)
++        for extra in (["--follow-titles", "false"], ["--follow-titles=1"],
++                      ["--follow-titles", "--flat"], ["--follow-titles", "--coverage"]):
++            with self.subTest(extra=extra), redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as caught:
++                parser().parse_args(["recall", "quartzsignal", *extra])
++            self.assertEqual(caught.exception.code, 2)
++
++    def test_json_and_plain_context_match_the_native_selected_mode(self):
++        with tempfile.TemporaryDirectory() as directory:
++            database = str(Path(directory) / "book.db")
++            seed(database)
++            command = ["--db", database, "recall", "quartzsignal", "--project", "lab", "--budget", "2000", "--no-cache"]
++            for enabled in (False, True):
++                extra = ["--follow-titles"] if enabled else []
++                expected = native(database, follow_titles=enabled)
++                output = io.StringIO()
++                with redirect_stdout(output), redirect_stderr(io.StringIO()):
++                    self.assertEqual(main([*command, *extra, "--json"]), 0)
++                actual = json.loads(output.getvalue())
++                self.assertEqual(without_timing(actual), without_timing(expected))
++                if enabled:
++                    self.assertTrue(actual["title_reference"]["applied"])
++                    self.assertEqual(actual["title_reference"]["target"]["session_id"], "target")
++                    self.assertIn("northern inlet", actual["context"])
++                else:
++                    self.assertNotIn("title_reference", actual)
++                    self.assertNotIn("northern inlet", actual["context"])
++                output = io.StringIO()
++                with redirect_stdout(output), redirect_stderr(io.StringIO()):
++                    self.assertEqual(main([*command, *extra]), 0)
++                self.assertEqual(output.getvalue(), expected["context"] + "\n")
++
++    def test_semantic_combination_fails_before_model_loading(self):
++        with tempfile.TemporaryDirectory() as directory:
++            output, error = io.StringIO(), io.StringIO()
++            with redirect_stdout(output), redirect_stderr(error):
++                code = main(["--db", str(Path(directory) / "book.db"), "recall", "quartzsignal",
++                             "--follow-titles", "--semantic", "--json"])
++            self.assertEqual(code, 2)
++            self.assertEqual(output.getvalue(), "")
++            self.assertIn("follow_titles cannot be combined", error.getvalue())
++            self.assertNotIn("semantic_model_dir", error.getvalue())
++
++
++class TitleReferenceProjectionTests(unittest.TestCase):
++    def test_default_payloads_keep_frozen_compact_and_detailed_json_bytes(self):
++        original = copy.deepcopy(FIXTURE["native_result"])
++        for details, key in ((False, "compact_json"), (True, "details_json")):
++            self.assertEqual(_json(recall_payload(original, details=details)), FIXTURE[key])
++            self.assertNotIn("title_reference", recall_payload(original, details=details))
++        self.assertEqual(original, FIXTURE["native_result"])
++
++    def test_full_native_provenance_survives_every_projection_without_mutation(self):
++        with tempfile.TemporaryDirectory() as directory:
++            database = str(Path(directory) / "book.db")
++            seed(database)
++            original = native(database, follow_titles=True)
++            preserved = copy.deepcopy(original)
++            self.assertTrue(original["title_reference"]["applied"])
++            for details in (False, True):
++                objects = recall_payload(original, details=details)
++                for source_format in ("objects", "indexed"):
++                    projected = recall_payload(original, details=details, source_format=source_format)
++                    self.assertEqual(decode_indexed(projected), objects)
++                    self.assertEqual(projected["context"], original["context"])
++                    self.assertEqual(projected["title_reference"], original["title_reference"])
++            self.assertEqual(original, preserved)
++            meta = original["title_reference"]
++            with MemoryBook(database) as book:
++                page = book.read(meta["anchor"]["page_id"])["content"]
++                lo, hi = meta["mention"]["page_span"]
++                self.assertEqual(page[lo:hi], "STRAẞE\u00a0\t Laboratory")
++
++    def test_inactive_provenance_remains_visible_without_fabricated_membership(self):
++        with tempfile.TemporaryDirectory() as directory:
++            database = str(Path(directory) / "book.db")
++            seed(database)
++            for options, reason in (({"project": None}, "project_required"),
++                                    ({"limit": 1}, "limit_below_two"),
++                                    ({"budget_chars": 0}, "zero_character_budget")):
++                result = native(database, follow_titles=True, **options)
++                for details in (False, True):
++                    meta = recall_payload(result, details=details)["title_reference"]
++                    self.assertEqual(meta, result["title_reference"])
++                    self.assertFalse(meta["applied"])
++                    self.assertEqual(meta["reason"], reason)
++                    self.assertIsNone(meta.get("target_initial_page_in_pool"))
++                    self.assertIsNone(meta.get("target_initial_session_in_pool"))
++
++
++@unittest.skipUnless(HAS_MCP, "Install .[mcp] for official MCP title-reference checks")
++class TitleReferenceMCPTests(unittest.IsolatedAsyncioTestCase):
++    def setUp(self):
++        self.directory = tempfile.TemporaryDirectory()
++        self.addCleanup(self.directory.cleanup)
++        self.database = str(Path(self.directory.name) / "book.db")
++        seed(self.database)
++
++    def parameters(self, source_format="objects"):
++        from mcp import StdioServerParameters
++        source = str(Path(__file__).resolve().parents[1] / "src")
++        environment = {"PYTHONPATH": os.pathsep.join(filter(None, (source, os.environ.get("PYTHONPATH")))),
++                       "PYTHONUNBUFFERED": "1"}
++        if "TIKTOKEN_CACHE_DIR" in os.environ:
++            environment["TIKTOKEN_CACHE_DIR"] = os.environ["TIKTOKEN_CACHE_DIR"]
++        return StdioServerParameters(command=sys.executable,
++            args=["-m", "memory_book", "--db", self.database, "mcp", "--source-format", source_format],
++            env=environment)
++
++    async def test_real_stdio_strict_boolean_default_and_complete_projection_parity(self):
++        from mcp import ClientSession
++        from mcp.client.stdio import stdio_client
++        expected = {flag: native(self.database, follow_titles=flag) for flag in (False, True)}
++        for source_format in ("objects", "indexed"):
++            async with stdio_client(self.parameters(source_format)) as (reader, writer):
++                async with ClientSession(reader, writer, read_timeout_seconds=timedelta(seconds=30)) as client:
++                    await client.initialize()
++                    tools = await client.list_tools()
++                    tool = next(tool for tool in tools.tools if tool.name == "recall_memory")
++                    self.assertEqual(tool.inputSchema["properties"]["follow_titles"],
++                                     {"default": False, "title": "Follow Titles", "type": "boolean"})
++                    self.assertNotIn("follow_titles", tool.inputSchema.get("required", []))
++                    self.assertIn("follow_titles", tool.description)
++                    for invalid in ("true", "false", "", 0, 1, 0.0, 1.0, None, [], {}):
++                        bad = await client.call_tool("recall_memory", {"query": "quartzsignal", "follow_titles": invalid})
++                        self.assertTrue(bad.isError, (invalid, bad))
++                    for enabled in (None, False, True):
++                        for details in (False, True):
++                            clear_result_cache(self.database)
++                            args = {"query": "quartzsignal", "project": "lab", "budget_chars": 2000, "details": details}
++                            if enabled is not None:
++                                args["follow_titles"] = enabled
++                            result = await client.call_tool("recall_memory", args)
++                            self.assertFalse(result.isError, result)
++                            self.assertIsNone(result.structuredContent)
++                            self.assertEqual(len(result.content), 1)
++                            actual = decode_indexed(json.loads(result.content[0].text))
++                            wanted = recall_payload(expected[bool(enabled)], details=details)
++                            self.assertEqual(without_timing(actual), without_timing(wanted))
++                            self.assertNotIn("outsidecanary", actual["context"])
++
++    async def test_official_sdk_rejects_incompatible_modes_and_preserves_session_scope(self):
++        server = create_server(self.database)
++        for option in ("semantic", "coverage"):
++            with self.subTest(option=option), self.assertRaisesRegex(Exception, "follow_titles cannot be combined"):
++                await server.call_tool("recall_memory", {"query": "quartzsignal", "project": "lab",
++                    "follow_titles": True, option: True})
++        for options in ({"session": "anchor"}, {"project": "outside"}, {"project": None}):
++            args = {"query": "quartzsignal", "project": "lab", "budget_chars": 2000,
++                    "follow_titles": True, "details": True, **options}
++            clear_result_cache(self.database)
++            response = await server.call_tool("recall_memory", args)
++            value = json.loads(response[0].text)
++            expected = native(self.database, follow_titles=True, **options)
++            self.assertEqual(without_timing(value), without_timing(recall_payload(expected, details=True)))
++            self.assertFalse(value["title_reference"]["applied"])
++
++    async def test_provenance_and_context_are_preserved_by_the_normal_result_cache(self):
++        server = create_server(self.database)
++        args = {"query": "quartzsignal", "project": "lab", "budget_chars": 2000,
++                "follow_titles": True, "details": True}
++        first = json.loads((await server.call_tool("recall_memory", args))[0].text)
++        second = json.loads((await server.call_tool("recall_memory", args))[0].text)
++        self.assertFalse(first["cache_hit"])
++        self.assertTrue(second["cache_hit"])
++        second["cache_hit"] = False
++        self.assertEqual(without_timing(first), without_timing(second))
++        default = json.loads((await server.call_tool("recall_memory", {**args, "follow_titles": False}))[0].text)
++        self.assertFalse(default["cache_hit"])
++        self.assertNotIn("title_reference", default)
++        self.assertNotIn("northern inlet", default["context"])
++
++    @unittest.skipUnless(HAS_TOKENS, "Install .[tokens] for exact token-cap checks")
++    async def test_both_tokenizers_zero_tiny_and_normal_caps_keep_native_provenance(self):
++        from memory_book.token_budget import TokenCounter
++        for tokenizer in ("cl100k_base", "o200k_base"):
++            counter = TokenCounter(tokenizer)
++            for budget in (0, 48, 256):
++                options = {"budget_tokens": budget, "tokenizer": tokenizer, "follow_titles": True}
++                expected = native(self.database, **options)
++                for source_format in ("objects", "indexed"):
++                    server = create_server(self.database, source_format=source_format)
++                    for details in (False, True):
++                        clear_result_cache(self.database)
++                        response = await server.call_tool("recall_memory", {
++                            "query": "quartzsignal", "project": "lab", "budget_chars": 2000,
++                            "details": details, **options})
++                        actual = decode_indexed(json.loads(response[0].text))
++                        self.assertEqual(without_timing(actual), without_timing(recall_payload(expected, details=details)))
++                        self.assertEqual(actual["context_tokens"], counter.count(actual["context"]))
++                        self.assertLessEqual(actual["context_tokens"], budget)
++                        self.assertLessEqual(actual["context_chars"], 2000)
++
++
++if __name__ == "__main__":
++    unittest.main(verbosity=2)
