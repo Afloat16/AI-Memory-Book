@@ -1,0 +1,793 @@
+{
+  "schema_version": 1,
+  "subject": "Independent raw-only arithmetic and payload audit of hosted I recovery",
+  "result_commit": "7e44a340d903f1f4ecfc589c7cef51d63db8462c",
+  "attempt": "round5-recovery-i-hosted-1",
+  "input_policy": "Only the eight original worker JSON files and prospective bindings are inputs. The runner paired-audit.json/completion metrics were not fetched or imported before this independent computation.",
+  "method": {
+    "percentile": "Sort all saved samples; linearly interpolate at (n-1)*p. Pool two rounds separately for each cohort/configuration/source.",
+    "order": "Hash each saved query-ID array as compact UTF-8 JSON and compare against the original pre-execution I binding's registered order SHA256.",
+    "payload": "Match every paired ordered query ID and full non-latency payload SHA256.",
+    "sha256": "Independent JavaScript SHA256 implementation; empty-string and abc known-answer vectors pass.",
+    "new_retrieval_calls": 0,
+    "worker_replays": 0,
+    "input_policy_note": "Intent/exit receipts and original plan were added after raw numerical computation for identity checks only. No runner audit or completion metrics have been read."
+  },
+  "inputs": [
+    {
+      "path": "benchmarks/reports/round5-recovery-i-hosted-1/synthetic61-r0-baseline.json",
+      "git_blob_sha": "ce2890f587475cf7990d795b56a2512f4c72f0c8",
+      "sha256": "db75d09e19257e3ae057ef70bb4ca06f050ce8ffc049cd448ef2c744d3a3d9d8"
+    },
+    {
+      "path": "benchmarks/reports/round5-recovery-i-hosted-1/synthetic61-r0-candidate.json",
+      "git_blob_sha": "7b96d7ead82ab81ac0c9766f052420febcd91879",
+      "sha256": "55f5440051147f57b5f48b0d423e55693a66817655942d3ca27e87fbc4359ba0"
+    },
+    {
+      "path": "benchmarks/reports/round5-recovery-i-hosted-1/synthetic61-r1-candidate.json",
+      "git_blob_sha": "52df16afe7a0e12d8b5528eec10000b674266081",
+      "sha256": "438277ec6072ee45275dab5803108e69e5fd9b66bb3f611a54023082b8f982b6"
+    },
+    {
+      "path": "benchmarks/reports/round5-recovery-i-hosted-1/synthetic61-r1-baseline.json",
+      "git_blob_sha": "f5fa01024f331f0cd2a961838135fc17452e3f9c",
+      "sha256": "2e282215f38975edf3b79e49df70b0d25fad066e64cd9cd9d7c280d4832baabe"
+    },
+    {
+      "path": "benchmarks/reports/round5-recovery-i-hosted-1/public1015-r0-baseline.json",
+      "git_blob_sha": "3a1a69d3c5f6e896feaf5835132963f46267d934",
+      "sha256": "52c8197a1a69d135c956ecc7b6bd6fde0378d5c9c76ecdc46b1ec8e0f1f5bace"
+    },
+    {
+      "path": "benchmarks/reports/round5-recovery-i-hosted-1/public1015-r0-candidate.json",
+      "git_blob_sha": "c7f4b646fec1d8ede8120367c9fbc4eaeb50dfa6",
+      "sha256": "d3cf70be64a618188d54d69da72d2d631987ea6829ed0b9f2da7d0b967ac509a"
+    },
+    {
+      "path": "benchmarks/reports/round5-recovery-i-hosted-1/public1015-r1-candidate.json",
+      "git_blob_sha": "a704f1767b30eede03c035a474bffabafa7afde6",
+      "sha256": "c11072a7aa76f868311b3c8370fac787292a59acc059e339b8351ed773dae0b7"
+    },
+    {
+      "path": "benchmarks/reports/round5-recovery-i-hosted-1/public1015-r1-baseline.json",
+      "git_blob_sha": "3b4d494d9e142fdc061109774493cc70b161c744",
+      "sha256": "9b92c642309f099f3f1a886bddc4ead352cbc65ce815e98a41cae1435dc7facc"
+    }
+  ],
+  "bindings": {
+    "old": {
+      "path": "benchmarks/experiments/round5-development-attempt-i.json",
+      "sha256": "02067bdd4c38bd1fcd2a3feef5974aa7bf9eac213e6009ddd64ead37356b7ad5"
+    },
+    "recovery": {
+      "path": "benchmarks/reports/round5-recovery-i-hosted-1/binding.json",
+      "git_blob_sha": "a672e1df4d86278286743ec5ce67f46653e6a952",
+      "sha256": "0261af3e45fcabd997a6b97af5336110dfaa8e06cbfdb52ddc1f3ee8d1171d7b"
+    },
+    "workflow_commit": "761eaf5c9ca47c93dea25f73104eb259304df68a",
+    "run_id": "43455864142",
+    "source_export_commits": {
+      "baseline": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+      "candidate": "21b6f4196e42167f8532feafc30457f5684d25cf"
+    },
+    "original_plan": {
+      "path": "benchmarks/experiments/round5-plan.json",
+      "git_blob_sha": "33018dc0cc97b1e75a04756dc8d1064f75a7fce8",
+      "sha256": "d3302ef1169aa180b492af6b9c9938e5717ff7261e202ef7a3df50e14febaccd",
+      "formal_gate": {
+        "minimum_geomean_pooled_p95_improvement_percent": 10,
+        "minimum_public_native_char4000_p95_improvement_percent": 10,
+        "minimum_public_actual_mcp_char4000_p95_improvement_percent": 5,
+        "maximum_any_pooled_p50_p95_regression_percent": 5,
+        "resource_mean_increase_review_percent": 10
+      }
+    }
+  },
+  "counts": {
+    "workers": 8,
+    "calls": 4096,
+    "payload_pairs": 2048,
+    "pooled_cells": 8,
+    "samples_per_source_per_cell": 256,
+    "query_order_hash_comparisons": 32
+  },
+  "integrity": {
+    "passed": true,
+    "failures": [],
+    "payload_mismatch_count": 0,
+    "mismatches": []
+  },
+  "pooled_p95_geomean_improvement_percent": 3.4704456461560396,
+  "cells": [
+    {
+      "cohort": "synthetic61",
+      "configuration": "native-char4000",
+      "baseline": {
+        "samples": 256,
+        "p50_ms": 4.610936,
+        "p95_ms": 14.53609525,
+        "mean_ms": 6.063962457031253,
+        "min_ms": 0.332292,
+        "max_ms": 16.711086
+      },
+      "candidate": {
+        "samples": 256,
+        "p50_ms": 4.3344315,
+        "p95_ms": 14.12159775,
+        "mean_ms": 5.815047867187498,
+        "min_ms": 0.337282,
+        "max_ms": 16.494696
+      },
+      "p50_change_percent": -5.996710863043853,
+      "p95_change_percent": -2.851505117923614,
+      "rounds": [
+        {
+          "round": 0,
+          "baseline": {
+            "samples": 128,
+            "p50_ms": 4.6419585,
+            "p95_ms": 14.606186849999999,
+            "mean_ms": 6.100362296875001,
+            "min_ms": 0.332292,
+            "max_ms": 16.711086
+          },
+          "candidate": {
+            "samples": 128,
+            "p50_ms": 4.2966355,
+            "p95_ms": 14.089141699999999,
+            "mean_ms": 5.843963578125,
+            "min_ms": 0.337282,
+            "max_ms": 16.494696
+          },
+          "p50_change_percent": -7.439166033044032,
+          "p95_change_percent": -3.53990507796359
+        },
+        {
+          "round": 1,
+          "baseline": {
+            "samples": 128,
+            "p50_ms": 4.557790499999999,
+            "p95_ms": 14.443498499999999,
+            "mean_ms": 6.027562617187496,
+            "min_ms": 0.385943,
+            "max_ms": 16.18669
+          },
+          "candidate": {
+            "samples": 128,
+            "p50_ms": 4.4021285,
+            "p95_ms": 14.022050999999998,
+            "mean_ms": 5.786132156249999,
+            "min_ms": 0.396372,
+            "max_ms": 15.776461
+          },
+          "p50_change_percent": -3.41529519621403,
+          "p95_change_percent": -2.917904550618411
+        }
+      ]
+    },
+    {
+      "cohort": "synthetic61",
+      "configuration": "native-token512",
+      "baseline": {
+        "samples": 256,
+        "p50_ms": 8.7124755,
+        "p95_ms": 21.887596,
+        "mean_ms": 10.247439171875003,
+        "min_ms": 0.351108,
+        "max_ms": 24.563921
+      },
+      "candidate": {
+        "samples": 256,
+        "p50_ms": 8.3215975,
+        "p95_ms": 21.456691,
+        "mean_ms": 9.879408171875001,
+        "min_ms": 0.342763,
+        "max_ms": 22.854795
+      },
+      "p50_change_percent": -4.486417207141658,
+      "p95_change_percent": -1.9687178071086442,
+      "rounds": [
+        {
+          "round": 0,
+          "baseline": {
+            "samples": 128,
+            "p50_ms": 8.865027999999999,
+            "p95_ms": 22.412328699999996,
+            "mean_ms": 10.517369953125005,
+            "min_ms": 0.351108,
+            "max_ms": 24.563921
+          },
+          "candidate": {
+            "samples": 128,
+            "p50_ms": 8.349675,
+            "p95_ms": 21.4598126,
+            "mean_ms": 9.897228679687498,
+            "min_ms": 0.342763,
+            "max_ms": 22.218871
+          },
+          "p50_change_percent": -5.813326252325424,
+          "p95_change_percent": -4.249964886513546
+        },
+        {
+          "round": 1,
+          "baseline": {
+            "samples": 128,
+            "p50_ms": 8.622271000000001,
+            "p95_ms": 21.2436528,
+            "mean_ms": 9.977508390625001,
+            "min_ms": 0.403567,
+            "max_ms": 22.613683
+          },
+          "candidate": {
+            "samples": 128,
+            "p50_ms": 8.279263499999999,
+            "p95_ms": 21.2361648,
+            "mean_ms": 9.8615876640625,
+            "min_ms": 0.399599,
+            "max_ms": 22.854795
+          },
+          "p50_change_percent": -3.978157262744375,
+          "p95_change_percent": -0.03524817539852787
+        }
+      ]
+    },
+    {
+      "cohort": "synthetic61",
+      "configuration": "native-token1024",
+      "baseline": {
+        "samples": 256,
+        "p50_ms": 6.8275165,
+        "p95_ms": 22.476512749999998,
+        "mean_ms": 8.832067121093749,
+        "min_ms": 0.398687,
+        "max_ms": 24.367555
+      },
+      "candidate": {
+        "samples": 256,
+        "p50_ms": 6.470167999999999,
+        "p95_ms": 22.273735000000002,
+        "mean_ms": 8.541465847656251,
+        "min_ms": 0.396322,
+        "max_ms": 24.142348
+      },
+      "p50_change_percent": -5.233945608187119,
+      "p95_change_percent": -0.9021762061376504,
+      "rounds": [
+        {
+          "round": 0,
+          "baseline": {
+            "samples": 128,
+            "p50_ms": 6.6943755,
+            "p95_ms": 22.683305349999998,
+            "mean_ms": 8.905102828124999,
+            "min_ms": 0.444041,
+            "max_ms": 24.367555
+          },
+          "candidate": {
+            "samples": 128,
+            "p50_ms": 6.5553605,
+            "p95_ms": 22.2796422,
+            "mean_ms": 8.6069666328125,
+            "min_ms": 0.442099,
+            "max_ms": 24.078234
+          },
+          "p50_change_percent": -2.076594000441112,
+          "p95_change_percent": -1.7795605348141952
+        },
+        {
+          "round": 1,
+          "baseline": {
+            "samples": 128,
+            "p50_ms": 6.946972499999999,
+            "p95_ms": 22.283730249999998,
+            "mean_ms": 8.7590314140625,
+            "min_ms": 0.398687,
+            "max_ms": 24.296216
+          },
+          "candidate": {
+            "samples": 128,
+            "p50_ms": 6.470167999999999,
+            "p95_ms": 22.021081549999998,
+            "mean_ms": 8.475965062500006,
+            "min_ms": 0.396322,
+            "max_ms": 24.142348
+          },
+          "p50_change_percent": -6.863486216477755,
+          "p95_change_percent": -1.178656791539645
+        }
+      ]
+    },
+    {
+      "cohort": "synthetic61",
+      "configuration": "native-token2048",
+      "baseline": {
+        "samples": 256,
+        "p50_ms": 5.3133865,
+        "p95_ms": 19.18540425,
+        "mean_ms": 7.429468078124996,
+        "min_ms": 0.39028,
+        "max_ms": 23.776088
+      },
+      "candidate": {
+        "samples": 256,
+        "p50_ms": 5.036339,
+        "p95_ms": 18.88427325,
+        "mean_ms": 7.162719667968746,
+        "min_ms": 0.401894,
+        "max_ms": 20.189242
+      },
+      "p50_change_percent": -5.214141677816963,
+      "p95_change_percent": -1.5695838152589459,
+      "rounds": [
+        {
+          "round": 0,
+          "baseline": {
+            "samples": 128,
+            "p50_ms": 5.3421970000000005,
+            "p95_ms": 19.2901109,
+            "mean_ms": 7.497177796875,
+            "min_ms": 0.39028,
+            "max_ms": 23.776088
+          },
+          "candidate": {
+            "samples": 128,
+            "p50_ms": 5.2732465,
+            "p95_ms": 19.18026255,
+            "mean_ms": 7.286330835937498,
+            "min_ms": 0.401894,
+            "max_ms": 20.189242
+          },
+          "p50_change_percent": -1.290676850741379,
+          "p95_change_percent": -0.5694542170828099
+        },
+        {
+          "round": 1,
+          "baseline": {
+            "samples": 128,
+            "p50_ms": 5.236326999999999,
+            "p95_ms": 18.883617299999997,
+            "mean_ms": 7.361758359374997,
+            "min_ms": 0.440796,
+            "max_ms": 20.037296
+          },
+          "candidate": {
+            "samples": 128,
+            "p50_ms": 4.8220600000000005,
+            "p95_ms": 18.69667625,
+            "mean_ms": 7.039108500000003,
+            "min_ms": 0.412583,
+            "max_ms": 19.558419
+          },
+          "p50_change_percent": -7.911404310693337,
+          "p95_change_percent": -0.989964195048576
+        }
+      ]
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "native-char4000",
+      "baseline": {
+        "samples": 256,
+        "p50_ms": 3.1325450000000004,
+        "p95_ms": 3.901023,
+        "mean_ms": 3.1651888906250027,
+        "min_ms": 1.159643,
+        "max_ms": 5.787615
+      },
+      "candidate": {
+        "samples": 256,
+        "p50_ms": 2.9067665,
+        "p95_ms": 3.6254737500000003,
+        "mean_ms": 2.9268628203125,
+        "min_ms": 1.161857,
+        "max_ms": 5.462325
+      },
+      "p50_change_percent": -7.207510187403554,
+      "p95_change_percent": -7.063512570933305,
+      "rounds": [
+        {
+          "round": 0,
+          "baseline": {
+            "samples": 128,
+            "p50_ms": 3.1325450000000004,
+            "p95_ms": 3.8840405499999995,
+            "mean_ms": 3.1654052578125,
+            "min_ms": 1.230766,
+            "max_ms": 5.787615
+          },
+          "candidate": {
+            "samples": 128,
+            "p50_ms": 2.8822405,
+            "p95_ms": 3.5175486,
+            "mean_ms": 2.896917773437499,
+            "min_ms": 1.161857,
+            "max_ms": 5.462325
+          },
+          "p50_change_percent": -7.990451853046022,
+          "p95_change_percent": -9.435842527442183
+        },
+        {
+          "round": 1,
+          "baseline": {
+            "samples": 128,
+            "p50_ms": 3.1344235,
+            "p95_ms": 3.8876044999999997,
+            "mean_ms": 3.1649725234374984,
+            "min_ms": 1.159643,
+            "max_ms": 5.253495
+          },
+          "candidate": {
+            "samples": 128,
+            "p50_ms": 2.9294789999999997,
+            "p95_ms": 3.63740065,
+            "mean_ms": 2.956807867187499,
+            "min_ms": 1.174611,
+            "max_ms": 5.024755
+          },
+          "p50_change_percent": -6.538507001367244,
+          "p95_change_percent": -6.4359388924464795
+        }
+      ]
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "native-token512",
+      "baseline": {
+        "samples": 256,
+        "p50_ms": 4.6028044999999995,
+        "p95_ms": 5.4945875,
+        "mean_ms": 4.5745451679687505,
+        "min_ms": 2.683719,
+        "max_ms": 6.075374
+      },
+      "candidate": {
+        "samples": 256,
+        "p50_ms": 4.408245,
+        "p95_ms": 5.28731175,
+        "mean_ms": 4.382859410156251,
+        "min_ms": 2.651859,
+        "max_ms": 5.708166
+      },
+      "p50_change_percent": -4.2269772700535,
+      "p95_change_percent": -3.7723623474919643,
+      "rounds": [
+        {
+          "round": 0,
+          "baseline": {
+            "samples": 128,
+            "p50_ms": 4.623704,
+            "p95_ms": 5.5139403,
+            "mean_ms": 4.596241546874999,
+            "min_ms": 2.683719,
+            "max_ms": 6.075374
+          },
+          "candidate": {
+            "samples": 128,
+            "p50_ms": 4.322789,
+            "p95_ms": 5.18811585,
+            "mean_ms": 4.336277757812502,
+            "min_ms": 2.651859,
+            "max_ms": 5.687326
+          },
+          "p50_change_percent": -6.508093943729953,
+          "p95_change_percent": -5.909103694865903
+        },
+        {
+          "round": 1,
+          "baseline": {
+            "samples": 128,
+            "p50_ms": 4.596348,
+            "p95_ms": 5.437395799999999,
+            "mean_ms": 4.5528487890625,
+            "min_ms": 2.720218,
+            "max_ms": 5.921697
+          },
+          "candidate": {
+            "samples": 128,
+            "p50_ms": 4.474083,
+            "p95_ms": 5.3698694499999995,
+            "mean_ms": 4.429441062500001,
+            "min_ms": 2.763728,
+            "max_ms": 5.708166
+          },
+          "p50_change_percent": -2.660046628323176,
+          "p95_change_percent": -1.241887706611311
+        }
+      ]
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "native-token1024",
+      "baseline": {
+        "samples": 256,
+        "p50_ms": 3.87202,
+        "p95_ms": 4.57295575,
+        "mean_ms": 3.859488968750001,
+        "min_ms": 1.86218,
+        "max_ms": 5.545891
+      },
+      "candidate": {
+        "samples": 256,
+        "p50_ms": 3.689904,
+        "p95_ms": 4.3605355,
+        "mean_ms": 3.664113503906248,
+        "min_ms": 1.871476,
+        "max_ms": 5.104334
+      },
+      "p50_change_percent": -4.703384796566135,
+      "p95_change_percent": -4.645141164989408,
+      "rounds": [
+        {
+          "round": 0,
+          "baseline": {
+            "samples": 128,
+            "p50_ms": 3.8891525,
+            "p95_ms": 4.63622995,
+            "mean_ms": 3.8973426562500015,
+            "min_ms": 1.893367,
+            "max_ms": 5.545891
+          },
+          "candidate": {
+            "samples": 128,
+            "p50_ms": 3.696767,
+            "p95_ms": 4.370072049999999,
+            "mean_ms": 3.673688093749999,
+            "min_ms": 1.871476,
+            "max_ms": 5.104334
+          },
+          "p50_change_percent": -4.946720397310211,
+          "p95_change_percent": -5.740826121016718
+        },
+        {
+          "round": 1,
+          "baseline": {
+            "samples": 128,
+            "p50_ms": 3.8375865,
+            "p95_ms": 4.501781749999999,
+            "mean_ms": 3.821635281249999,
+            "min_ms": 1.86218,
+            "max_ms": 5.237705
+          },
+          "candidate": {
+            "samples": 128,
+            "p50_ms": 3.6720955,
+            "p95_ms": 4.3161837499999995,
+            "mean_ms": 3.654538914062498,
+            "min_ms": 1.943021,
+            "max_ms": 4.985252
+          },
+          "p50_change_percent": -4.312371851422759,
+          "p95_change_percent": -4.122767613067868
+        }
+      ]
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "native-token2048",
+      "baseline": {
+        "samples": 256,
+        "p50_ms": 3.741916,
+        "p95_ms": 4.436267750000001,
+        "mean_ms": 3.73728414453125,
+        "min_ms": 1.636136,
+        "max_ms": 4.841451
+      },
+      "candidate": {
+        "samples": 256,
+        "p50_ms": 3.547036,
+        "p95_ms": 4.22159975,
+        "mean_ms": 3.5351317890625022,
+        "min_ms": 1.706517,
+        "max_ms": 4.683415
+      },
+      "p50_change_percent": -5.2080271176584425,
+      "p95_change_percent": -4.838932456229683,
+      "rounds": [
+        {
+          "round": 0,
+          "baseline": {
+            "samples": 128,
+            "p50_ms": 3.8019185,
+            "p95_ms": 4.47136575,
+            "mean_ms": 3.799525570312501,
+            "min_ms": 1.715093,
+            "max_ms": 4.841451
+          },
+          "candidate": {
+            "samples": 128,
+            "p50_ms": 3.497949,
+            "p95_ms": 4.160651499999999,
+            "mean_ms": 3.498767406250002,
+            "min_ms": 1.706517,
+            "max_ms": 4.44551
+          },
+          "p50_change_percent": -7.995160864179496,
+          "p95_change_percent": -6.948978620234792
+        },
+        {
+          "round": 1,
+          "baseline": {
+            "samples": 128,
+            "p50_ms": 3.6996029999999998,
+            "p95_ms": 4.35262895,
+            "mean_ms": 3.67504271875,
+            "min_ms": 1.636136,
+            "max_ms": 4.693575
+          },
+          "candidate": {
+            "samples": 128,
+            "p50_ms": 3.5744875,
+            "p95_ms": 4.2961718499999995,
+            "mean_ms": 3.571496171874998,
+            "min_ms": 1.708892,
+            "max_ms": 4.683415
+          },
+          "p50_change_percent": -3.381862864745211,
+          "p95_change_percent": -1.297080469034706
+        }
+      ]
+    }
+  ],
+  "applicable_development_threshold_comparison": {
+    "geomean_p95_at_least_10_percent": {
+      "observed_percent": 3.4704456461560396,
+      "passes": false
+    },
+    "public_native_char4000_p95_at_least_10_percent": {
+      "observed_percent": 7.063512570933305,
+      "passes": false
+    },
+    "every_pooled_p50_p95_regression_at_most_5_percent": {
+      "passes": true,
+      "adverse_cells": []
+    }
+  },
+  "formal_acceptance": false,
+  "limits": "This single-host old-data development diagnostic has eight native cells and no actual MCP, native-char100000 or registered formal resource matrix. It cannot establish the fourteen-cell formal acceptance, competitor superiority or fresh quality. Exact hashes validate recorded equivalence, not a reconstruction of payload bodies.",
+  "created_at_utc": "2026-11-13T15:50:08Z",
+  "receipt_integrity": {
+    "passed": true,
+    "issues": [],
+    "records": [
+      {
+        "worker": "synthetic61-r0-baseline",
+        "intent": {
+          "path": "benchmarks/reports/round5-recovery-i-hosted-1/synthetic61-r0-baseline.intent.json",
+          "git_blob_sha": "5e9086db98902d8b061d65e48e8dde3241659b5e",
+          "sha256": "5121c0e2faecd1cde9edc85a7fb16e4378a5ea7ccca2714858f4542850224fbf",
+          "created_at": "2026-11-13T15:46:50.296172+00:00"
+        },
+        "exit": {
+          "path": "benchmarks/reports/round5-recovery-i-hosted-1/synthetic61-r0-baseline.exit.json",
+          "git_blob_sha": "2101f57f137844b6992792b448bfaa45a8ed9f7c",
+          "sha256": "c3108490988bf3c28a94e7bfc8eaa43747f991fa337dfee37b97392db22e97ed",
+          "finished_at": "2026-11-13T15:46:56.853088+00:00",
+          "returncode": 0,
+          "output_sha256": "db75d09e19257e3ae057ef70bb4ca06f050ce8ffc049cd448ef2c744d3a3d9d8"
+        }
+      },
+      {
+        "worker": "synthetic61-r0-candidate",
+        "intent": {
+          "path": "benchmarks/reports/round5-recovery-i-hosted-1/synthetic61-r0-candidate.intent.json",
+          "git_blob_sha": "72afd6eca845ecd70542c25e126044b7b4cfa04d",
+          "sha256": "409c98f556bf46760d08069db3f2db4e5c10daeb8653ab7ee729247f7b2a844d",
+          "created_at": "2026-11-13T15:46:58.952052+00:00"
+        },
+        "exit": {
+          "path": "benchmarks/reports/round5-recovery-i-hosted-1/synthetic61-r0-candidate.exit.json",
+          "git_blob_sha": "4bb18e8121954fb1ddbd5db03df72b2d00322405",
+          "sha256": "cddab1d34dad1cea5d7132d08d64d2fa4962622c30bd13e55127480d9d576302",
+          "finished_at": "2026-11-13T15:47:05.381536+00:00",
+          "returncode": 0,
+          "output_sha256": "55f5440051147f57b5f48b0d423e55693a66817655942d3ca27e87fbc4359ba0"
+        }
+      },
+      {
+        "worker": "synthetic61-r1-candidate",
+        "intent": {
+          "path": "benchmarks/reports/round5-recovery-i-hosted-1/synthetic61-r1-candidate.intent.json",
+          "git_blob_sha": "ef759b46c3d1dd6105946e98b21664aa16d67335",
+          "sha256": "146a19ae75bbf37819ca01eecb55d4dfb8f74e999cbd612390bcd1e20b0979e3",
+          "created_at": "2026-11-13T15:47:07.406826+00:00"
+        },
+        "exit": {
+          "path": "benchmarks/reports/round5-recovery-i-hosted-1/synthetic61-r1-candidate.exit.json",
+          "git_blob_sha": "01b41032dcd967f34963c6d71ba981747e4c53dc",
+          "sha256": "df33f4b3fbb7e9fbee66f6cbb5db306e344e709d63824c569ca2d27d56a164db",
+          "finished_at": "2026-11-13T15:47:13.685028+00:00",
+          "returncode": 0,
+          "output_sha256": "438277ec6072ee45275dab5803108e69e5fd9b66bb3f611a54023082b8f982b6"
+        }
+      },
+      {
+        "worker": "synthetic61-r1-baseline",
+        "intent": {
+          "path": "benchmarks/reports/round5-recovery-i-hosted-1/synthetic61-r1-baseline.intent.json",
+          "git_blob_sha": "cb4fa0e27a50aa2d96fde8772dbf724fb81c2803",
+          "sha256": "22c21dd53662c2d73da62ee534154a5c5efbb659322d8a14800e18721cc6363e",
+          "created_at": "2026-11-13T15:47:15.682779+00:00"
+        },
+        "exit": {
+          "path": "benchmarks/reports/round5-recovery-i-hosted-1/synthetic61-r1-baseline.exit.json",
+          "git_blob_sha": "e1c434a0b880933d9f56d8fd36d947062e3d13ec",
+          "sha256": "99c6dffb70914a49d4487eda2f177512337a6d3468d68c565a106364f01ab9e1",
+          "finished_at": "2026-11-13T15:47:22.128077+00:00",
+          "returncode": 0,
+          "output_sha256": "2e282215f38975edf3b79e49df70b0d25fad066e64cd9cd9d7c280d4832baabe"
+        }
+      },
+      {
+        "worker": "public1015-r0-baseline",
+        "intent": {
+          "path": "benchmarks/reports/round5-recovery-i-hosted-1/public1015-r0-baseline.intent.json",
+          "git_blob_sha": "00c64e059db875d8df93fa6ead2e4265a61f29c6",
+          "sha256": "37f723611e8ad098464324254f256f8ad175657ede2a84175143b46634c5ae1a",
+          "created_at": "2026-11-13T15:47:24.069339+00:00"
+        },
+        "exit": {
+          "path": "benchmarks/reports/round5-recovery-i-hosted-1/public1015-r0-baseline.exit.json",
+          "git_blob_sha": "38ac81c97755c14aa2493a0c07cee5e09084c10c",
+          "sha256": "f5a5a9d4d6e52a5e707a9edfa96fdd8da27b7e9c5f1d61c5f49e1ba08156d5f2",
+          "finished_at": "2026-11-13T15:47:28.441156+00:00",
+          "returncode": 0,
+          "output_sha256": "52c8197a1a69d135c956ecc7b6bd6fde0378d5c9c76ecdc46b1ec8e0f1f5bace"
+        }
+      },
+      {
+        "worker": "public1015-r0-candidate",
+        "intent": {
+          "path": "benchmarks/reports/round5-recovery-i-hosted-1/public1015-r0-candidate.intent.json",
+          "git_blob_sha": "98dcfa389d80da79b5ed8649b0722856632e5d3d",
+          "sha256": "cc2bd019fe5d2e1a31ee501f589e208d21c7f3fc9ecd295e1a3901aa53771c02",
+          "created_at": "2026-11-13T15:47:30.565577+00:00"
+        },
+        "exit": {
+          "path": "benchmarks/reports/round5-recovery-i-hosted-1/public1015-r0-candidate.exit.json",
+          "git_blob_sha": "7778202733363deb2afb8ceae50cecc30e59a2c9",
+          "sha256": "5fd2a1a093344f7c1a3f015b955689f05ebe395ccbae40fcb42d346a0e552e5f",
+          "finished_at": "2026-11-13T15:47:34.711290+00:00",
+          "returncode": 0,
+          "output_sha256": "d3cf70be64a618188d54d69da72d2d631987ea6829ed0b9f2da7d0b967ac509a"
+        }
+      },
+      {
+        "worker": "public1015-r1-candidate",
+        "intent": {
+          "path": "benchmarks/reports/round5-recovery-i-hosted-1/public1015-r1-candidate.intent.json",
+          "git_blob_sha": "1fc0cb2550196754c40daf08f14ab1313be82907",
+          "sha256": "3fcac3dde572d062dc1158f05676c1af7a0455efbcbf4b9fca705129050a6fac",
+          "created_at": "2026-11-13T15:47:36.617282+00:00"
+        },
+        "exit": {
+          "path": "benchmarks/reports/round5-recovery-i-hosted-1/public1015-r1-candidate.exit.json",
+          "git_blob_sha": "9f3d11db8500599bbbf9f237925508c965c87402",
+          "sha256": "f5ea91fecfd4cb7645aa0c54b4b0c60619799d5683b782e47d884edc9ca57ca3",
+          "finished_at": "2026-11-13T15:47:40.831851+00:00",
+          "returncode": 0,
+          "output_sha256": "c11072a7aa76f868311b3c8370fac787292a59acc059e339b8351ed773dae0b7"
+        }
+      },
+      {
+        "worker": "public1015-r1-baseline",
+        "intent": {
+          "path": "benchmarks/reports/round5-recovery-i-hosted-1/public1015-r1-baseline.intent.json",
+          "git_blob_sha": "b940bc8a2d048620018329171df952d56722d00a",
+          "sha256": "bfbe971ccf462916fc04729c7bff84a79d429cdf1f6df56b691d25793044c716",
+          "created_at": "2026-11-13T15:47:42.904845+00:00"
+        },
+        "exit": {
+          "path": "benchmarks/reports/round5-recovery-i-hosted-1/public1015-r1-baseline.exit.json",
+          "git_blob_sha": "a01975979df9f125de1f465113bf438f8730db9b",
+          "sha256": "afae800f9d1c40a879ececf01fc50226ff6a104070abcbd03ba6e82b9f4e4d89",
+          "finished_at": "2026-11-13T15:47:47.242222+00:00",
+          "returncode": 0,
+          "output_sha256": "9b92c642309f099f3f1a886bddc4ead352cbc65ce815e98a41cae1435dc7facc"
+        }
+      }
+    ],
+    "scope": "Check saved intent/output hashes, source/snapshot/argv bindings, successful exits and sequential receipt times. Remote commit chronology is enforced by the reviewed controller but is not independently reconstructed here."
+  },
+  "disposition": "Exact-output development recovery is complete, but I fails both applicable 10% improvement targets; it is not selected here as a target-passing formal or release candidate. All eight pooled p50/p95 values improve and all per-round observations are retained."
+}
