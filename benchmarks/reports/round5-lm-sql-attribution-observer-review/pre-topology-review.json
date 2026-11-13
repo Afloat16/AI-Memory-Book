@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "status": "bounded-observer-review-with-open-raw-topology-audit-gap",
+  "reviewed_source_commit": "23e9add7bb2cb047096d9e4c6d6210127b6685db",
+  "reviewed_at_utc": "2026-11-13 19:15:21 UTC",
+  "ownership": "Independent read-only observer/callsite/numeric review. Publisher/process/protocol review is owned separately by baseline_audit. This reviewer did not change author/root branches, execute fixtures, trigger corpus work, or read fresh data.",
+  "source_files": {
+    "scripts/round5_lm_sql_attribution.py": "8b3e5ca4fba7fd099b43e83b950717c4fe9699ec8f2002c03798d2247cdeef43",
+    "tests/test_round5_lm_sql_attribution.py": "3be6dd33095f5106f7732a405f4e0ab9e0b546920db048303cb4b02fddb33e65",
+    "benchmarks/experiments/round5-lm-sql-attribution-scope.json": "0b3a249df45a25a00f76f4ad2c6e0cfa56fc7147a19e982fca429884c5ef1269",
+    "benchmarks/experiments/round5-lm-sql-attribution-pairing-addendum.json": "cf55b88d45ee7a0dca53abefa6dc651d7eceb36f6ae0e709919655c566c36d21"
+  },
+  "exact_runtime": {
+    "commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+    "runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
+    "store_sha256": "38c405b640216992b29b49c2f1937b8c5b644383f3cbfbcf764c5a7d502a9c58"
+  },
+  "reviewed_functions": [
+    "SiteCatalog",
+    "SQLiteObserver",
+    "native_book_identity",
+    "observe_call",
+    "observe_payload",
+    "summarize_observations",
+    "audit_observation",
+    "audit_cell",
+    "profile_audit"
+  ],
+  "findings": [
+    {
+      "area": "native C-event identity",
+      "status": "no-observed-blocker",
+      "reason": "Entry/exit event arguments must be exact BuiltinMethodType on exact frozen Connection/Cursor receiver classes. Strict current-stack pairing checks frame identity, receiver identity, native owner, static method descriptor and method name. Wrapper object identity is recorded independently; the preserved actual CPython witness disproves arg-is as a universal pairing requirement."
+    },
+    {
+      "area": "callback/native lifecycle",
+      "status": "no-observed-blocker",
+      "reason": "An existing profiler is not replaced. Callback exceptions, replaced callbacks, invalid lifecycle, negative spans, wrong receiver/frame/method and an unclosed target stack invalidate the observation. Native exception exits remain distinguishable from observer failure. observe_payload now retains current spans if latency removal or payload fingerprinting fails after recall."
+    },
+    {
+      "area": "source classification",
+      "status": "no-observed-blocker",
+      "reason": "frozen_filename_map verifies the complete source before installing the callback. Callback access is limited to builtin event/frame/code metadata and ephemeral native receiver identity. Code objects are retained so cached id(code) keys cannot be recycled. Frozen upper caller metadata distinguishes the two _candidate_rows fetchall uses."
+    },
+    {
+      "area": "unknown/disabled policy",
+      "status": "no-observed-blocker",
+      "reason": "Unclassified primary sites and disabled cache/coverage/optional-source categories remain in raw spans but make all_classification_sites_valid false, preventing final completion. Other ordinary SQLite builtins remain in an explicit other bucket. The residual is explicitly unattributed, not described as Python-only."
+    },
+    {
+      "area": "observed timing semantics",
+      "status": "no-observed-blocker",
+      "reason": "Terminal timestamp is taken at callback entry. Inclusive spans subtract only direct child inclusive spans for exclusive totals; callback bookkeeping is separately reported. Scope explicitly retains Python callbacks, scheduling and observer effects inside builtin spans. Neither callback bookkeeping nor fixed artificial calibration is used as an overhead correction."
+    }
+  ],
+  "verified_callsite_mapping": {
+    "source": "exact LM store.py, read directly",
+    "transaction": [
+      739,
+      1155,
+      1157
+    ],
+    "revision": [
+      439
+    ],
+    "project_bounds": [
+      675,
+      679
+    ],
+    "fts_execute": [
+      810
+    ],
+    "fts_fetchall": {
+      "callee_lines": [
+        253,
+        257
+      ],
+      "caller_lines": [
+        810,
+        811,
+        812
+      ]
+    },
+    "directory_execute": [
+      892
+    ],
+    "directory_fetchall": {
+      "callee_lines": [
+        253,
+        257
+      ],
+      "caller_lines": [
+        892,
+        893,
+        894,
+        895,
+        896,
+        897
+      ]
+    },
+    "novelty_execute_only": [
+      1017
+    ],
+    "selected_source_execute_only": [
+      1100
+    ],
+    "highlight": [
+      352,
+      354
+    ],
+    "original_turns_execute_only": [
+      1150
+    ],
+    "disabled_cache": [
+      752,
+      755,
+      1202,
+      1205,
+      1206,
+      1207,
+      1209
+    ],
+    "disabled_coverage": [
+      1067,
+      1071
+    ],
+    "note": "Multiline source expressions are covered by the declared rule ranges. Novelty/original pages/turns retain execute-only labels because implicit cursor iteration is not fully observed."
+  },
+  "open_findings": [
+    {
+      "id": "raw-lifo-topology",
+      "area": "audit_observation",
+      "severity": "raw-validator-gap-not-a-demonstrated-producer-failure",
+      "status": "reported-to-root-author-and-independent-protocol-reviewer-before-any-corpus",
+      "statement": "The real producer enforces LIFO. Its saved numeric auditor checks individual arithmetic, parent containment, direct-child sums and aggregate wall totals but does not reconstruct temporal sibling/root order. Two overlapping root intervals can therefore pass the auditor while double-counting their union time.",
+      "static_counterexample": {
+        "sites": [
+          {
+            "site_id": 0,
+            "method": "Connection.execute",
+            "category": "fts_candidates"
+          }
+        ],
+        "observation": {
+          "valid": true,
+          "started": true,
+          "finished": true,
+          "callback_failure": null,
+          "open_sequences": [],
+          "events": {
+            "c_call": 2,
+            "c_return": 2
+          },
+          "target_events": {
+            "c_call": 2,
+            "c_return": 2
+          },
+          "non_target_events": 0,
+          "callback_bookkeeping_ns": 0,
+          "recall_wall_ns_including_observer": 1000,
+          "observed_exclusive_builtin_ns": 200,
+          "unattributed_wall_ns": 800,
+          "spans": [
+            {
+              "sequence": 0,
+              "parent_sequence": null,
+              "site_id": 0,
+              "method": "Connection.execute",
+              "status": "returned",
+              "start_ns": 100,
+              "end_ns": 200,
+              "inclusive_ns": 100,
+              "child_inclusive_ns": 0,
+              "exclusive_ns": 100,
+              "wrapper_is": true
+            },
+            {
+              "sequence": 1,
+              "parent_sequence": null,
+              "site_id": 0,
+              "method": "Connection.execute",
+              "status": "returned",
+              "start_ns": 100,
+              "end_ns": 200,
+              "inclusive_ns": 100,
+              "child_inclusive_ns": 0,
+              "exclusive_ns": 100,
+              "wrapper_is": true
+            }
+          ]
+        }
+      },
+      "evidence_limit": "Predicate-by-predicate static review; this reviewer did not execute the witness or claim it occurred in actual data.",
+      "minimal_proposal": "While traversing stored sequence order, track active ancestors; on closing before a new sibling/root, require the closed span end<=new span start, and require declared parent to equal the active parent. Preserve zero-duration boundaries and all existing arithmetic checks. Add overlapping-root, overlapping-sibling and incompatible-parent negative artificial cases.",
+      "disposition": "Root decides whether to require this bounded numeric-audit strengthening. No author source change was made here."
+    }
+  ],
+  "existing_artificial_ci": {
+    "run_id": 43489528587,
+    "head_sha": "23e9add7bb2cb047096d9e4c6d6210127b6685db",
+    "protocol_job_id": 132106702870,
+    "protocol_job_conclusion": "success",
+    "tests": 34,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "attribution_job_id": 132106875429,
+    "attribution_job_conclusion": "skipped",
+    "raw_log_path": "benchmarks/reports/round5-lm-sql-attribution-observer-review/ci-43489528587-job132106702870.log",
+    "raw_log_bytes": 40371,
+    "raw_log_sha256": "5e9f7f4cc946d01e216de68d8ce846cbae9fb6bfe3092af14b641365ea36ad48",
+    "source_hashes_in_log_match_direct_reads": true,
+    "actual_native_wrapper_probe": {
+      "exits": 9,
+      "wrapper_is_false": 8,
+      "frame_receiver_owner_descriptor_method_failures": 0,
+      "unclosed_entries": 0
+    },
+    "note": "Full raw log fetched directly from the exact job; source hashes and final expected==tests==34 summary were inspected. Test execution was performed by the already existing author CI, not by this reviewer."
+  },
+  "overall": "No newly demonstrated live observer/callsite blocker. Raw topology audit gap remains explicitly open pending root disposition or reviewed correction. This checkpoint is not authorization to trigger a diagnostic.",
+  "diagnostic_corpus_calls_executed_by_reviewer": 0,
+  "fresh_rows_decoded": 0,
+  "performance_claim": false
+}
