@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "status": "failed-before-attempt-claim-no-q2-retrieval",
+  "observed_at_utc": "2026-11-13 20:05:31 UTC",
+  "run_id": 43497153581,
+  "run_attempt": 1,
+  "workflow_commit": "be5879400b2f05a250e97b00ce9b488f00413ccb",
+  "workflow": "round5-q2-recovery-hosted.yml",
+  "recovery_job_id": 132133552713,
+  "protocol_job_id": 132133137121,
+  "actual_run_status": "completed",
+  "actual_run_conclusion": "failure",
+  "protocol_job_conclusion": "success",
+  "source_binding": {
+    "path": "benchmarks/experiments/round5-q2-recovery-source.json",
+    "git_blob": "0c93dd9567380715e179f09ace05a5c429765633",
+    "sha256": "c6ae40b490a7e8358c1709dbb7e6a5999bf6756ef37c66da55488d3539e57828",
+    "candidate": "NO",
+    "commit": "4a0ad4dc6aec33a91231d419239b7e90b160c695",
+    "runtime_sha256": "77310a7971677c2cebf8cd01d0aa36ab4562b55d1a3826b7fa7de895840abb32"
+  },
+  "failure": {
+    "time_from_raw_log_utc": "2026-11-13T19:59:41.5396833Z",
+    "exception_type": "ValueError",
+    "message": "Preparation evaluator identity changed",
+    "path": "scripts/round5_q2_hosted_recovery.py",
+    "line": 297,
+    "entry_line": 582,
+    "stage": "static_preflight",
+    "predicate": "files.get(name) == expected",
+    "candidate_binding_check_passed": true
+  },
+  "exact_control_flow_boundary": {
+    "static_preflight_called_before_state_and_public_mkdir": true,
+    "static_preflight_called_before_remote_attempt_claim": true,
+    "failure_before_historical_metadata_read": true,
+    "failure_before_assets_or_source_exports": true,
+    "dependency_package_installation_completed": true,
+    "registered_model_downloads": 0,
+    "registered_dataset_downloads": 0,
+    "index_builds": 0,
+    "query_embedding_inferences": 0,
+    "retrieval_calls": 0,
+    "fresh_metadata_or_content_reads": 0
+  },
+  "remote_result": {
+    "ref": "refs/heads/validation/v033-q2-recovery-hosted-1",
+    "observed_status": 404,
+    "explanation": "No claim was published because the strict source-only preflight failed before STATE/PUBLIC initialization."
+  },
+  "preserved_evidence": {
+    "raw_log_path": "benchmarks/reports/round5-q2-recovery-hosted-1-independent/ci-43497153581-job132133552713.log",
+    "raw_log_sha256": "0d951832435e0a7a10b9e096da9fb053ae7ea1eb391c5a1edcb5f97950099e96",
+    "actions_artifact": {
+      "id": 14072451452,
+      "size_bytes": 589,
+      "sha256": "00d3108ff71707e9a6862f22a4f82b65e012749b29dac2628490d33a2261b656",
+      "name": "round5-q2-recovery-hosted-1-43497153581-1",
+      "contains": "The runner log retained by the existing always upload; no result or measurement ledger was created."
+    }
+  },
+  "diagnosis": {
+    "mechanism": "static_preflight constructed files only from legacy.helper_closure(), then required every explicit old_evaluator_sha256 registry key to exist in that map. The original round4 helper's evaluator_sources() registry includes a file with no reachable import edge.",
+    "registered_scope_only_path": "scripts/round3_development_checks.py",
+    "registered_sha256": "36f8f266f816f9078172fab25238ba812b49f41e08303dd8e2a44f8c3e1917c6",
+    "historical_and_current_git_blob_reported_by_independent_reviewer": "0094a19856619327aa86ff93dbd31e07ab47e2d1",
+    "independent_static_closure_reporter": "baseline_audit",
+    "reported_original_closure_paths": 34,
+    "reported_union_paths": 35,
+    "reported_other_missing_or_mismatched_scope_keys": [],
+    "independent_static_closure_artifact_will_be_bound_in_prospective_scope": true
+  },
+  "prior_readiness_limit": "The actual original ten artificial tests and prior exact-byte checks are retained. They did not prove that the real static import closure covers every explicit historical evaluator-registry entry; this execution exposed that missing integration check.",
+  "policy": {
+    "old_scope_and_helpers_unchanged": true,
+    "attempt1_failure_is_retained": true,
+    "attempt1_replay_permitted": false,
+    "failed_result_ref_may_be_reused": false,
+    "automatic_retry_permitted": false,
+    "new_recovery_requires_prospective_separate_scope": true,
+    "root_owns_any_new_trigger": true,
+    "performance_or_release_accepted": false
+  }
+}
