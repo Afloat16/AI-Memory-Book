@@ -88,7 +88,7 @@ The reserved trigger is refs/heads/ci/v033-fresh-hosted-1 and the exclusive resu
 
 ## Artificial validation and limits
 
-Controller source/workflow/tests were committed at d84f2ddb90b1f283a7676709ca5322d65b413423 and checked by Tests run 43467721136. The versioned snapshot repair was previously checked by run 43463394230 at b4f5b97b38dc50f02fd307e16ad81fcb83bed995. The full success/failure logs and receipts are preserved under benchmarks/reports/round5-fresh-hosted-correctness/.
+Controller source/workflow/tests were committed at d84f2ddb90b1f283a7676709ca5322d65b413423 and checked by Tests run 43467721136: all nine jobs passed. Each of the four unittest environments ran 1040 tests; the 13 new controller methods executed and passed in all four without a new-test skip. The versioned snapshot repair was previously checked by run 43463394230 at b4f5b97b38dc50f02fd307e16ad81fcb83bed995. The full success/failure logs and receipts are preserved under benchmarks/reports/round5-fresh-hosted-correctness/.
 
 The new tests exercise actual local Git commits/pushes/readback, divergent remote refs, unrelated staged files, a push that succeeded remotely but returned failure, gzip binary identity, private-ticket/raw-ledger exclusion, exact sparse worktrees, strict authorization/inventory/host mutation guards, one-shot nonzero stages, single-acquisition partial downloads, and locked invented assets without adapter/model execution.
 
