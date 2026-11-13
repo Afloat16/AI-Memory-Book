@@ -146,6 +146,61 @@ class NativeEvents(unittest.TestCase):
         self.assertFalse(observer.report()["valid"])
 
 
+    def test_raw_native_wrapper_identity_probe(self):
+        """Evidence only: never weaken the production observer from this probe."""
+        from types import BuiltinMethodType, MethodDescriptorType
+        descriptors = {(owner, name): value for owner in (sqlite3.Connection, sqlite3.Cursor)
+            for name, value in vars(owner).items() if type(value) is MethodDescriptorType}
+        stack, events = [], []
+        label = None
+        def callback(frame, event, arg):
+            if event not in ("c_call", "c_return", "c_exception") or type(arg) is not BuiltinMethodType:
+                return
+            receiver = arg.__self__
+            owner = type(receiver)
+            if owner not in (sqlite3.Connection, sqlite3.Cursor):
+                return
+            descriptor = descriptors.get((owner, arg.__name__))
+            if event == "c_call":
+                stack.append((frame, arg, receiver, owner, descriptor, arg.__name__, len(stack)))
+                return
+            if not stack:
+                events.append({"case":label, "event":event, "unmatched_exit":True})
+                return
+            original = stack.pop()
+            events.append({"case":label, "event":event, "method":owner.__name__+"."+arg.__name__,
+                "depth":original[6], "frame_is":original[0] is frame,
+                "wrapper_is":original[1] is arg, "receiver_is":original[2] is receiver,
+                "native_type_is":original[3] is owner,
+                "descriptor_is":descriptor is not None and original[4] is descriptor,
+                "method_same":original[5] == arg.__name__})
+        with sqlite3.connect(":memory:") as first, sqlite3.connect(":memory:") as second:
+            first.create_function("invented_nested",0,lambda:second.execute("SELECT 2").fetchone()[0])
+            bound = first.execute
+            sys.setprofile(callback)
+            try:
+                label = "inline-success"
+                first.execute("SELECT 1").fetchone()
+                label = "prebound-success"
+                bound("SELECT 1").fetchone()
+                label = "inline-exception"
+                try:
+                    first.execute("SELECT invented_missing")
+                except sqlite3.OperationalError:
+                    pass
+                label = "nested-success"
+                first.execute("SELECT invented_nested()").fetchone()
+            finally:
+                sys.setprofile(None)
+        result = {"native_wrapper_probe":events, "unclosed_entries":len(stack),
+            "corpus_calls":0, "timing_claim":False}
+        print(json.dumps(result), flush=True)
+        self.assertEqual(len(stack),0)
+        self.assertTrue(events)
+        self.assertTrue(all(all(row.get(key) for key in
+            ("frame_is","receiver_is","native_type_is","descriptor_is","method_same")) for row in events))
+
+
 class ArithmeticAndSites(unittest.TestCase):
     def test_fake_clock_nested_inclusive_exclusive_and_bookkeeping(self):
         moments = iter([0, 10, 11, 20, 30, 31, 50, 51, 80, 81])
