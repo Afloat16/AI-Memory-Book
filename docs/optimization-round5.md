@@ -96,3 +96,21 @@ checkout lacked historical report fixtures, and a separately imported
 baseline did not identify the working checkout under provenance guards.
 Those failures are retained locally; hydrate the required fixtures and run
 the complete suite against an exact committed candidate before acceptance.
+
+### Candidate A development diagnostic
+
+Candidate A is saved at `ee048f39a28cc944aafce938811f4b71ed8efb4d`, runtime
+SHA-256 `1db3d52ae8b3324bf0a0822427b3bedc25825e5ea195f51efe5be3ce4bfe0c3f`.
+The fixed earlier native diagnostic completed all 4,096 calls (128 old
+queries per cohort, four budgets, AB/BA). All 2,048 paired complete outputs
+match. The complete raw observations are retained in
+`benchmarks/reports/round5-development/native-pair.json.gz.b64`, with an
+uncompressed summary beside them.
+
+Results are mixed: public native token512/1024/2048 p95 changes are
+-12.46%/-8.07%/-15.98%, while public char4000 p95 is +23.06% and synthetic
+char4000 is +8.84%. Public char4000 p50 is approximately +0.87%. These small
+development samples do not establish the cause of the tail variation or a
+release speedup. Preserve every cell. A further mechanically justified
+candidate may reduce SQLite-row materialization costs before final binding;
+do not repeat this diagnostic to select a favorable run.
