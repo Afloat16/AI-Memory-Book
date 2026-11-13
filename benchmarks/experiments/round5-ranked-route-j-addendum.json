@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "candidate": "J",
+  "status": "prospective-before-runtime-implementation-and-artificial-mechanism-tests",
+  "purpose": "Test one fixed 97-row native FTS5 hidden-rank probe with exact legacy fallback, preserving default payloads and every existing acceptance gate.",
+  "parent": {
+    "commit": "d730a620bc0b7afac4de856d2a0fd01a46820c8a",
+    "branch": "staging/v033-integrated-it1",
+    "selection": "Unselected integration of unchanged I runtime with the exact opt-in T1 feature. Retain I fixed512 native statement cache and G certificates; exclude E/F/H."
+  },
+  "baseline": {
+    "release": "v0.3.2",
+    "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+    "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+  },
+  "prior_i": {
+    "evidence_commit": "7e44a340d903f1f4ecfc589c7cef51d63db8462c",
+    "path": "benchmarks/reports/round5-recovery-i-hosted-1/paired-audit.json",
+    "calls": 4096,
+    "complete_payload_pairs": 2048,
+    "all_payloads_equal": true,
+    "pooled_p95_geomean_improvement_percent": 3.4704456461560396,
+    "public_char4000_p95_improvement_percent": 7.063512570933305,
+    "adverse_cells_over_five_percent": [],
+    "disposition": "Useful development improvement, below the original10percent targets. Not selected or represented as a formal speedup. Do not pool these observations with J or erase the interrupted original I attempt."
+  },
+  "hypothesis": "FTS5's hidden-rank ordering may reduce outer join/expression/result-processing work for a bounded route. This does not promise a10percent gain or eliminate full scoring/sorting: current SQLite fts5CursorFirstSorted still creates an internal sorting statement and may score scope-excluded matches.",
+  "sources": [
+    {
+      "url": "https://sqlite.org/fts5.html#sorting_by_auxiliary_function_results",
+      "fact": "The hidden rank column can be configured per query with the same bm25 weights and may be faster for ordered limited reads."
+    },
+    {
+      "url": "https://github.com/sqlite/sqlite/blob/master/ext/fts5/fts5_main.c",
+      "observed_blob_sha": "477226c8f730419ae07cc48eabf44e9cbfc0e53f",
+      "fact": "xBestIndex consumes a single rank ordering term; fts5CursorFirstSorted still prepares an internal rank-function sort."
+    }
+  ],
+  "mechanism": {
+    "allowed_runtime_files": [
+      "src/memory_book/store.py"
+    ],
+    "eligibility": "Only the saved native connection, native cursor/Row aliases, native Row factory and str text factory; only stem-enabled default lexical routing. Coverage, semantic, active follow_titles, single-route and all uncertified paths retain the complete existing query and reader.",
+    "sql": "A subquery selects rid,id,fully-qualified hidden rank with rank MATCH 'bm25(2.0,2.0,1.0,0.25)', unchanged FTS MATCH expression and all original project/chapter/session filters and applicable rowid bounds, before ORDER BY fully-qualified hidden rank LIMIT97. An outer ORDER BY rank,id sorts at most97 rows using SQLite's original value/collation semantics. Inspect the real plan on artificial inputs; do not infer consumed rank ordering from SQL text alone.",
+    "selection": "Return at most the first96 rows only if fewer than97 exist or the exact rank of row96 differs from row97. If those two ranks tie, close the probe and run the original ORDER BY rank,p.id LIMIT96 query. This fallback reads the complete original tie rule; no approximate top96 or arbitrary tie cap.",
+    "guards": "Never round ranks or use an epsilon. Unexpected shape/type or nonfinite rank must use the old query/reader. Keep named-mapping/custom exceptions and existing G fallback. Preserve duplicate/empty/scoped behavior and source snapshot.",
+    "errors": "Close the probe on every exit, including partial fetch failure. Probe-only invalid UTF8 in a lookahead ID requires the original query to decide the historical outcome. Do not swallow interruption/cancellation, authorization, storage/corruption or other SQLite exceptions indiscriminately. If equivalence cannot be established, keep the old path instead of weakening the contract.",
+    "lifetime": "Do not mutate the connection factory. A retained native cursor is used only for its ordered description to reconstruct original Rows; verify that reconstruction after closure works on all supported Python versions, or choose a representation that keeps the old reader contract."
+  },
+  "artificial_before_corpus": {
+    "module": "tests/test_round5_ranked_route.py",
+    "required": [
+      "0/1/95/96/97 matches and exact scores/order",
+      "Ties entirely before and across the cutoff, very large tied groups, deterministic legacy fallback",
+      "Project, chapter, session, interleaved rowids, missing scope and scope-before-limit",
+      "Both FTS routes and original weights; actual EXPLAIN mechanism and no full-outer-sort claim",
+      "Default/canonical/native and custom connection/text/Row/cursor fallbacks",
+      "Invalid ID types, invalid UTF8 at and beyond cutoff, partial failure, closed cursor restoration and transaction reuse",
+      "Custom bm25 registrations: mechanism observations and original outcome, without treating pragma_function_list as a complete auxiliary-function certificate",
+      "Active/inactive T1 and old complete payload parity"
+    ],
+    "data": "Invented fixtures only; no old development or fresh corpus retrieval, no model calls, no performance assertion.",
+    "failure": "Save every failed source/run before a demonstrated repair. Do not turn a correctness failure into a skip or remove an assertion to obtain success."
+  },
+  "development": "Only after exact J source, passing artificial/existing contracts, independent review and a new source/data/helper binding are committed. Preserve original4732-call profile and4096-call AB/BA old-cohort schedules and complete payload comparisons; new paths and immutable first-attempt stage receipts. J is not preselected for formal testing.",
+  "formal": {
+    "cells": 14,
+    "calls": 66248,
+    "minimum_p95_geomean_improvement_percent": 10,
+    "minimum_public_native_char4000_p95_improvement_percent": 10,
+    "minimum_public_mcp_char4000_p95_improvement_percent": 5,
+    "maximum_any_pooled_p50_p95_regression_percent": 5,
+    "resource_increase_review_percent": 10,
+    "other": "All original full payload, scope/source/budget/cache, historical lexical/Q2, resource, exact combined-source/interface, held-out/native/component, no-replay and release requirements remain unchanged. No fresh IDs or content may be selected by this task."
+  },
+  "retrieval_calls_executed_for_j": 0,
+  "fresh_rows_decoded": 0
+}
