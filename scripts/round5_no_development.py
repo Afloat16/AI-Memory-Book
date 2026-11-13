@@ -39,7 +39,7 @@ SCOPE = ROOT / "benchmarks/experiments/round5-candidate-no-development-scope.jso
 OLD = ROOT / "benchmarks/experiments/round5-development-attempt-i.json"
 OLD_SHA = "02067bdd4c38bd1fcd2a3feef5974aa7bf9eac213e6009ddd64ead37356b7ad5"
 SOURCE_BINDING = ROOT / "benchmarks/experiments/round5-candidate-no-source.json"
-SOURCE_BINDING_SHA = "0000000000000000000000000000000000000000000000000000000000000000"  # Unbound draft: no corpus execution.
+SOURCE_BINDING_SHA = "44f0f1aa0435ebc14928c71c3b32d14a9cf276d8e0576f383d36440f567e47bf"
 SCOPE_SHA = "efc5badce593308cf58a623f31053f0b6ccb4151885fff0759c6c21ca160f6ad"
 REFERENCE_COMMIT = "761eaf5c9ca47c93dea25f73104eb259304df68a"
 CORRECTNESS_MODULES = (
@@ -486,7 +486,7 @@ def frozen_source():
     if sha(SOURCE_BINDING) != SOURCE_BINDING_SHA:
         raise ValueError("Original frozen NO source binding bytes changed")
     value = read(SOURCE_BINDING)
-    if (value.get("commit") != "0000000000000000000000000000000000000000"
+    if (value.get("commit") != "4a0ad4dc6aec33a91231d419239b7e90b160c695"
             or value.get("runtime_sha256") != "77310a7971677c2cebf8cd01d0aa36ab4562b55d1a3826b7fa7de895840abb32"):
         raise ValueError("Development must retain the exact isolated NO runtime")
     if value.get("candidate") != "NO" or value.get("status") != "frozen-before-any-no-corpus-call":
