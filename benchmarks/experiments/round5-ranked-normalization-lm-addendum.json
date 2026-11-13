@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "candidate": "LM",
+  "status": "prospective-before-combined-source-and-any-lm-corpus-call",
+  "created_at_utc": "2026-11-13",
+  "base_commit": "4720728e47d53fc6c345fa89a2b5b739a67a1069",
+  "base_runtime_sha256": "90079d629d101370e6960a10e5391265802b1a053f65438e9b667b662638b251",
+  "candidate_runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
+  "donors": [
+    {
+      "candidate": "L",
+      "commit": "38b08c77ed27742711ff9f240fd80ba4ef61e11a",
+      "scope_commit": "3f4ce4925442842c6a54ba05696106c33e38fb53",
+      "path": "src/memory_book/store.py",
+      "sha256": "38c405b640216992b29b49c2f1937b8c5b644383f3cbfbcf764c5a7d502a9c58",
+      "test_path": "tests/test_round5_ranked_entries.py",
+      "test_sha256": "e4e4b1be159d9b45dc537e537c0040c10def2cf19683fd30dfdb038e05af548b",
+      "change": "Fuse the complete existing native ranking key into each row entry; retain score objects and the full sort, ordering, SQLite work and every payload boundary. Remove only the second key tuple and per-row Python sort key callback.",
+      "ci_status_at_scope": "Final fixture-only portability repair is committed; complete donor/combined CI and independent review are required before measurement."
+    },
+    {
+      "candidate": "M",
+      "commit": "f5fa35fd094601a41b5152671190d6e270e523f7",
+      "scope_commit": "60834240f23480802cb80ce62c493410748ad15f",
+      "path": "src/memory_book/text.py",
+      "sha256": "7c085f278252ff91cde97ba16a63c2a35365ddddb64fe12200c92c3e8e1d5ff7",
+      "test_path": "tests/test_round5_normalization_translation.py",
+      "test_sha256": "25434916a32bd8015e453393d76b1e5336ab5f5e24655b899d4ae25f2aff3ba9",
+      "change": "Add exactly97 compatibility scalars whose translations stay in the K-proven stable alphabet. Translate before CamelCase/casefold. Unsupported strings, hooks, subclasses and Unicode versions retain literal legacy behavior.",
+      "ci": {
+        "run_id": 43469907603,
+        "head_sha": "f5fa35fd094601a41b5152671190d6e270e523f7",
+        "jobs_passed": 9
+      },
+      "independent_review": {
+        "commit": "e9731f7e813ea47b84896a6fe3d8c1d0b98b703f",
+        "path": "benchmarks/reports/round5-normalization-translation-m-independent-source-review.json",
+        "sha256": "b3d213a820dca933520719c9cce2053fe0b6afde959165f1e03d5219bb72747d"
+      }
+    }
+  ],
+  "integration_policy": "Only the two disjoint runtime paths above change from exact K. Copy both exact donor test modules without editing their assertions; all13 registered K modules remain byte-identical. Preserve both donor scopes and all old failures. Recompute every18-file runtime inventory and17-Python aggregate; no J hidden-rank route is reintroduced.",
+  "files_sha256": {
+    "src/memory_book/__init__.py": "3b91357e9271f1abbe7d2dd4c01f0067ca5b5a65d6065844c850328d49e6aad7",
+    "src/memory_book/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+    "src/memory_book/cli.py": "f0e06d1d15e250aa4a6b1279a451f8d3d02acd1b8f7bd0a849b840397603e190",
+    "src/memory_book/clients.py": "c87c2ebd4dbd6b193b186f493586f53183a38e8108fd7011df3aa474f9b2058f",
+    "src/memory_book/importers.py": "f61aabfaa3e1fd2f46010e3c745e3275bb0d84c6d8e1b83317fda9e6b5cd7b76",
+    "src/memory_book/integration.py": "88ed9bf5a0ee90b93516dc9ded0e0a8f1459354f25fbcc5afe70197b9444c6c5",
+    "src/memory_book/mcp_server.py": "7f4e0cd884690bf585809c1d246228440a940e4752729928f2fc7b6698f0a1df",
+    "src/memory_book/paths.py": "37fd4089455082aa680b1fb3dcef8645e558bb43b7d27285ef32997629622bf4",
+    "src/memory_book/segmentation.py": "773cb62777bb11a66f1d2318bd75601f9ac38ea0fb6e7a534c1d8844a1a16e75",
+    "src/memory_book/semantic.py": "41df86bced1b613deea2f1b1361eba9f32c3786f5185a06253fbfd32270ac91e",
+    "src/memory_book/service.py": "55bd05f45cafc5dcd6c1fc5ceceade85f005a85a850b908c7bb155cff5a3584f",
+    "src/memory_book/static/index.html": "52f6e2d22fd25f6d5f9bd4df345c5c5e1ecaa907c326e61abc33a9b29c70d2d7",
+    "src/memory_book/store.py": "38c405b640216992b29b49c2f1937b8c5b644383f3cbfbcf764c5a7d502a9c58",
+    "src/memory_book/sync.py": "89b2ac4b30b9b14ac564c3d328a51fbba97b2efc8a8dd1997892fc4142501291",
+    "src/memory_book/text.py": "7c085f278252ff91cde97ba16a63c2a35365ddddb64fe12200c92c3e8e1d5ff7",
+    "src/memory_book/title_reference.py": "7e2c17fe5af2882f6471fd5610e1eca65eeac7f02e73f9daf6b5f2970709423e",
+    "src/memory_book/token_budget.py": "505ece57e7227ee1955d76883411362a1f462c28a2e8964984be818395266180",
+    "src/memory_book/web.py": "4e2cbfa33434322c78f57624c8faa32f4be9fb7fc29c8ffc4ed916e244446dcc"
+  },
+  "fixture_files_sha256": {
+    "tests/test_round5_statement_cache.py": "55acd7d4fd4ab0dafbed6c825c33f80d712e12a1f76c49c1d0b30bc0ab5fba54",
+    "tests/test_round5_native_rows.py": "f557eb50cecbeb4ffe216145aca461edd3a3371b84e3da603c92a31bf79e8f42",
+    "tests/test_round5_materialization.py": "2a652356adff1de9344ed4fea904caee7e8b58b1ac4266d73553fc1520c74a9d",
+    "tests/test_round4_sealed_counts.py": "a2e43be0bcd9978e392b60c8ef5b5e9de54277edf84fdf4ebe9ec2b8a30df2a9",
+    "tests/test_round4_highlight.py": "59cab84b24ea873670b5b1689d18bbdd170bf1cbb635a85ecba2a30e4104390b",
+    "tests/test_round4_token_work.py": "d05efe980d65f1d61017316f4410455646f4853efbe0f22194a0d9a0e9f02bdc",
+    "tests/test_token_budget.py": "89fa3919c92f97e5b3f7ff44f92fa2ebcf0f6121ed941a21dd5b450bc300aa4c",
+    "tests/test_project_rowid_bounds.py": "417a58396aa5d08d87a249e32fe41beb2e5176d82c4d6a47d0b4bd53075bb1aa",
+    "tests/test_lexical_cache.py": "419170a018e2baf0c0bdb70fc5414ac79922da402aa27ed9151a16208cd3d354",
+    "tests/test_title_reference.py": "d97603c308877748a36bf7e6450a97b656c701de5989e590c37900bf72591c80",
+    "tests/test_title_reference_interfaces.py": "8ba7e5a2c72903b5aff36a06a31ae9ea642db254eed48b3a4dd5c9a4589da63f",
+    "tests/test_title_reference_native_integration.py": "a249e57df8a477b649c8feb1b74265aa4a21158bb84905fd959dc30f026da6bc",
+    "tests/test_round5_normalization_identity.py": "184195e982a74eb91f9be0ef854d9be53823c9eafe13574b80a69b97dc8ee7dc",
+    "tests/test_round5_ranked_entries.py": "e4e4b1be159d9b45dc537e537c0040c10def2cf19683fd30dfdb038e05af548b",
+    "tests/test_round5_normalization_translation.py": "25434916a32bd8015e453393d76b1e5336ab5f5e24655b899d4ae25f2aff3ba9"
+  },
+  "correctness": {
+    "modules": [
+      "tests.test_round5_statement_cache",
+      "tests.test_round5_native_rows",
+      "tests.test_round5_materialization",
+      "tests.test_round4_sealed_counts",
+      "tests.test_round4_highlight",
+      "tests.test_round4_token_work",
+      "tests.test_token_budget",
+      "tests.test_project_rowid_bounds",
+      "tests.test_lexical_cache",
+      "tests.test_title_reference",
+      "tests.test_title_reference_interfaces",
+      "tests.test_title_reference_native_integration",
+      "tests.test_round5_normalization_identity",
+      "tests.test_round5_ranked_entries",
+      "tests.test_round5_normalization_translation"
+    ],
+    "criterion": "All registered15 modules must run with zero skips/errors/failures in the pinned complete development environment. Before corpus, complete combined source CI including Python3.10/3.12/3.13,MCP,installers/container/browser and an independent whole-source integration review.",
+    "note": "Donor mechanisms are artificial proof only. Actual UCD13.0/15.0/15.1 were observed for M; allowlisted14.0/16.0 were not executed."
+  },
+  "prior_result": {
+    "candidate": "K",
+    "result_commit": "c3c708539d6e7024eb14d565dbb7c0a5e553fa34",
+    "audit_commit": "2d5037561d6b543ee785f434d7c04fa16eb2e8b1",
+    "audit_path": "benchmarks/reports/round5-candidate-k-development-1/independent-raw-audit.json",
+    "audit_sha256": "c07522e9981c17aa5581c6e4315c7674971869c3109234ea93dfef581d8e9c6b",
+    "p95_geomean_improvement_percent": 3.6355909620451876,
+    "public_native_char4000_p95_improvement_percent": 3.085662287471702,
+    "decision": "Correctness-preserving modest improvement, below original final improvement goals; no release acceptance."
+  },
+  "rejected_j": {
+    "source": "910ba8904523ad81cb7d68073af77580942496eb",
+    "result": "eeb8217084f32eb01c478345effd37935bbc3dc0",
+    "independent_audit": "dca3c856d53bc5f12de70ee36968de408cf58b18",
+    "decision": "Exclude hidden-rank query route; retain all8 adverse cells and J1/J2 receipts."
+  },
+  "prospective_development": {
+    "controller_base_commit": "04366aa4fc34d68e6ce23c55efa7aadef3dca04a",
+    "controller_base_path": "scripts/round5_k_development.py",
+    "policy": "Register a new exact LM source binding and separately named attempt before any call. Preserve the proven K export isolation, complete raw outputs, saved-reference profile comparison and all original quantile/payload/data/call-count methods. Change only source/attempt/evidence identities plus the two additional correctness modules.",
+    "profile_calls": 4732,
+    "paired_calls": 4096,
+    "payload_pairs": 2048,
+    "baseline_commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+    "baseline_runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93",
+    "paired_order": [
+      "synthetic61-r0-baseline",
+      "synthetic61-r0-candidate",
+      "synthetic61-r1-candidate",
+      "synthetic61-r1-baseline",
+      "public1015-r0-baseline",
+      "public1015-r0-candidate",
+      "public1015-r1-candidate",
+      "public1015-r1-baseline"
+    ],
+    "configuration_order": [
+      "native-char4000",
+      "native-token512",
+      "native-token1024",
+      "native-token2048"
+    ],
+    "scope": "Use only the same old synthetic61/public1015 development cohorts and frozen selections. Assess whole LM directly against released v032 on one VM. Do not add candidate percentages or compare absolute times across hosts.",
+    "calls_so_far": 0
+  },
+  "durability": "Publish this scope before combined source; publish source/tests before CI; publish exact frozen source/evidence/controller before attempt. Every started/result stage remains durable. No silent retries of started measurements, no dropped unfavorable cells, no force-push.",
+  "final_gates": "Keep every original14-cell/66248-call formal timing and resource gate, historical lexical/Q2 compatibility, fresh512 quality/cost and same-fresh competitor comparison. Development success alone is not final selection, release acceptance or competitor superiority.",
+  "formal_measurement_started": false,
+  "fresh_metadata_selected": false,
+  "fresh_rows_decoded": 0,
+  "release_accepted": false
+}
