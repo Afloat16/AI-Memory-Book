@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-11-13 20:01:34 UTC",
+  "updated_at_utc": "2026-11-13 20:14:09 UTC",
   "goal": "Continue v0.3.3 optimization of Afloat16/AI-Memory-Book with measured improvements, honest comparison boundaries and frequent durable Git checkpoints.",
   "control_branch": "optimization/v0.3.3-round5",
-  "previous_control_commit": "be5879400b2f05a250e97b00ce9b488f00413ccb",
+  "previous_control_commit": "9659dea553d5b7f01fa7f58305b3e05cab2ab0d2",
   "resume_history": "docs/round5-resume-20261113.md",
   "published_baseline": {
     "tag": "v0.3.2",
@@ -224,11 +224,12 @@
         "workers": 10,
         "note": "The2048 character calls are within the5120 controller total, separate from the formal14-cell performance matrix."
       },
-      "status": "running-first-attempt",
+      "status": "completed-original-audit-accepted-independent-raw-audit-pending",
       "run_id": 43497150881,
       "run_attempt": 1,
       "launch_commit": "be5879400b2f05a250e97b00ce9b488f00413ccb",
-      "result_branch": "validation/v033-lexical-compat-hosted-1"
+      "result_branch": "validation/v033-lexical-compat-hosted-1",
+      "result_commit": "a15a5ce36079302de08c9c91dd6eb6896fd6bccc"
     },
     "historical_q2": {
       "source_commit": "25e7ea32b34e5a8dc08b0931c6b3840e9f3fffb0",
@@ -249,14 +250,15 @@
       "protocol_job": 132133137121,
       "recovery_job": 132133552713,
       "result_ref_present_at_first_failure_inspection": false,
-      "automatic_rerun": false
+      "automatic_rerun": false,
+      "failure_cause": "Unchanged explicitly registered round3_development_checks.py omitted from import closure; first attempt0retrieval. Separate strict-union repair scope2 reviewed, implementation not yet accepted."
     },
     "fresh": {
       "source_commit": "d84f2ddb90b1f283a7676709ca5322d65b413423",
       "durable_evidence_commit": "9787389749e4e6df61c45bc42522cc6be4e26eb5",
       "branch": "staging/v033-fresh-hosted",
       "ci": 43467721136,
-      "status": "9/9 source CI success; thirteen controller fixtures passed in all four unittest environments without skips.",
+      "status": "not-authorized-no-fresh-access-after-final-source-formal-rejection",
       "required_file": "benchmarks/experiments/round5-fresh-source-authorization.json",
       "missing": true,
       "trigger": "ci/v033-fresh-hosted-1",
@@ -314,7 +316,7 @@
       "storage": "Four raw boundaries are preserved but not covered by the automatic14-field gate; independently check and report all same-run storage samples without inventing a new numeric gate.",
       "historical_diagnostic": "The prior v031/v032 diagnostic is already claimed; never relabel or replay it."
     },
-    "status": "running-first-attempt",
+    "status": "completed-all-calls-rejected-original-performance-gates",
     "trigger_branch": "ci/v033-round5-performance-v2",
     "launch_review_path": "benchmarks/reports/round5-final-formal-root-launch-review.json",
     "independent_freeze_review": {
@@ -329,7 +331,7 @@
     "launch_commit": "cfe8a749efa4add1c62c516aa299ab18ee89b92c",
     "result_branch": "validation/v033-round5-performance-v2-43496488712-1",
     "latest_observed_checkpoint": {
-      "at": "2026-11-13T20:00:36.512688+00:00",
+      "at": "2026-11-13T20:10:47.971226+00:00",
       "completed_workers": [
         "r0-synthetic61-baseline",
         "r0-synthetic61-candidate",
@@ -337,13 +339,90 @@
         "r0-public1015-candidate",
         "r1-synthetic61-candidate",
         "r1-synthetic61-baseline",
-        "r1-public1015-candidate"
+        "r1-public1015-candidate",
+        "r1-public1015-baseline",
+        "r2-synthetic61-candidate",
+        "r2-synthetic61-baseline",
+        "r2-public1015-candidate",
+        "r2-public1015-baseline",
+        "r3-synthetic61-baseline",
+        "r3-synthetic61-candidate",
+        "r3-public1015-baseline",
+        "r3-public1015-candidate"
       ],
       "error": null,
-      "report_sha256": "c10aa9b21c551ee7fa67943cc5edf6097276bc5a6d5a3287bfb2101e06b008c3",
+      "report_sha256": "675a73c5bd0d4e89f8c401225038e85c7ec056169b6e004aeaa996dffbca9349",
       "run_identity_sha256": "4ae3879c796f08b016e343c57c9c4468361255c7e57feb1590632c95416e15e6",
-      "status": "running"
-    }
+      "status": "measurements_completed"
+    },
+    "result_commit": "762500920d715b5bca6e1eba9314d8a4c970bf04",
+    "job_id": 132130828952,
+    "workflow_conclusion": "failure",
+    "retrievals_complete": 66248,
+    "payload_validation_passed": true,
+    "numeric_gate_passed": false,
+    "accepted": false,
+    "summary_sha256": "ba9d37e9dd6520c288a1ff9ec3fbbc4e62445013bbaecb5d0d192b7c24c708a3",
+    "completion_sha256": "6fb6ca001de06620dc9e866569ed46328159f4b590c2f47ccca4644dfcf6c5c1",
+    "observed_key_results": {
+      "geometric_mean_p95_improvement_percent": 4.2395073255781295,
+      "public_native_char4000_p95_improvement_percent": 7.987987816080366,
+      "public_mcp_char4000_p95_improvement_percent": 0.37428906020240404,
+      "regressions": [
+        {
+          "change_percent": 10.58573542110306,
+          "cohort": "public1015",
+          "config": "mcp-token1024",
+          "metric": "p95_ms"
+        }
+      ],
+      "resource_review": [
+        {
+          "baseline": {
+            "max": 23.573718,
+            "mean": 23.37163925,
+            "min": 23.146628,
+            "p50": 23.3831055,
+            "p95": 23.56986615,
+            "samples": 4
+          },
+          "candidate": {
+            "max": 30.816277,
+            "mean": 30.50532175,
+            "min": 30.074132,
+            "p50": 30.565439,
+            "p95": 30.7878454,
+            "samples": 4
+          },
+          "cohort": "synthetic61",
+          "mean_change_percent": 30.522816237632956,
+          "metric": "runtime_import_ms"
+        },
+        {
+          "baseline": {
+            "max": 23.87585,
+            "mean": 23.6147565,
+            "min": 23.285268,
+            "p50": 23.648954,
+            "p95": 23.84827475,
+            "samples": 4
+          },
+          "candidate": {
+            "max": 30.260939,
+            "mean": 30.14186075,
+            "min": 29.992009,
+            "p50": 30.1572475,
+            "p95": 30.24702275,
+            "samples": 4
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 27.639938823845167,
+          "metric": "runtime_import_ms"
+        }
+      ]
+    },
+    "independent_raw_audit_pending": true,
+    "automatic_replay": false
   },
   "fresh_boundary": {
     "metadata_selected": false,
@@ -358,10 +437,10 @@
     "git_policy": "Persist code/scope before execution, then each started/result stage. Do not force-push, replay started experiments, replace failed observations or add percentages across hosts."
   },
   "next_steps": [
-    "Trigger the unique ci/v033-round5-performance-v2 first attempt at this reviewed control snapshot; retain all66248 calls,16workers,4rounds,14cells and original10/10/5/5/resource10 gates.",
-    "Prepare historical lexical5120 and Q2 recovery1968 with exact selected NO source and existing immutable controllers; no timing reuse or replay.",
-    "Keep fresh rows unread and unselected until formal outcome and exact11key authorization freeze.",
-    "Independently audit the complete formal payload/timing/resources and all4storage boundaries; no acceptance or release before remaining gates."
+    "Preserve and independently audit the completed rejected formal attempt; do not replay or alter candidate/gates.",
+    "Export exact large saved gzip bytes through a separate source-free transport branch for independent raw verification; no retrieval or performance changes.",
+    "Finish lexical raw audit; implement and independently verify the separately registered Q2 strict-union preclaim repair with all original payload/vector gates unchanged.",
+    "Keep fresh metadata/content and release closed for this rejected candidate. Any subsequent development must use a separately declared scope and preserve this complete adverse result."
   ],
   "previous_development_results": [
     {
@@ -561,6 +640,7 @@
     "formal_started": true,
     "fresh_metadata_selected": false,
     "fresh_content_decoded": false,
-    "commit": "f438d0a2b40a9ff8a3bdaab534977f34eb0d3ba3"
+    "commit": "f438d0a2b40a9ff8a3bdaab534977f34eb0d3ba3",
+    "current_acceptance": "rejected-formal-numeric-gates"
   }
 }

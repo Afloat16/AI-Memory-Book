@@ -1,0 +1,748 @@
+{
+  "created_at_utc": "2026-11-13T20:10:58.246063+00:00",
+  "workflow_commit": "cfe8a749efa4add1c62c516aa299ab18ee89b92c",
+  "run_id": "43496488712",
+  "run_attempt": "1",
+  "measurement_outcome": "failure",
+  "audit_outcome": "success",
+  "validation": {
+    "expected_calls": 66248,
+    "expected_workers": 16,
+    "issues": [],
+    "passed": true,
+    "timed_calls": 66248,
+    "workers": 16
+  },
+  "acceptance": {
+    "accepted": false,
+    "geometric_mean_p95_improvement_percent": 4.2395073255781295,
+    "numeric_gate_passed": false,
+    "public_mcp_char4000_p95_improvement_percent": 0.37428906020240404,
+    "public_native_char4000_p95_improvement_percent": 7.987987816080366,
+    "regressions_above_five_percent": [
+      {
+        "change_percent": 10.58573542110306,
+        "cohort": "public1015",
+        "config": "mcp-token1024",
+        "metric": "p95_ms"
+      }
+    ],
+    "resource_comparisons": [
+      {
+        "baseline": {
+          "max": 23.573718,
+          "mean": 23.37163925,
+          "min": 23.146628,
+          "p50": 23.3831055,
+          "p95": 23.56986615,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 30.816277,
+          "mean": 30.50532175,
+          "min": 30.074132,
+          "p50": 30.565439,
+          "p95": 30.7878454,
+          "samples": 4
+        },
+        "cohort": "synthetic61",
+        "mean_change_percent": 30.522816237632956,
+        "metric": "runtime_import_ms"
+      },
+      {
+        "baseline": {
+          "max": 239.930173,
+          "mean": 87.63294675,
+          "min": 19.65747,
+          "p50": 45.472072,
+          "p95": 213.43946379999994,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 22.582307,
+          "mean": 21.07963975,
+          "min": 19.956342,
+          "p50": 20.889955,
+          "p95": 22.39153355,
+          "samples": 4
+        },
+        "cohort": "synthetic61",
+        "mean_change_percent": -75.94553129642419,
+        "metric": "native_open_ms"
+      },
+      {
+        "baseline": {
+          "max": 1060.420411,
+          "mean": 884.98367325,
+          "min": 811.473565,
+          "p50": 834.0203585,
+          "p95": 1027.01520715,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 807.47232,
+          "mean": 765.9271954999999,
+          "min": 727.033743,
+          "p50": 764.6013595,
+          "p95": 801.65959545,
+          "samples": 4
+        },
+        "cohort": "synthetic61",
+        "mean_change_percent": -13.452957534547384,
+        "metric": "fresh_ingestion_ms"
+      },
+      {
+        "baseline": {
+          "max": 77.072335,
+          "mean": 76.286217,
+          "min": 75.692675,
+          "p50": 76.189929,
+          "p95": 76.97424654999999,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 71.449464,
+          "mean": 71.14697125,
+          "min": 70.800641,
+          "p50": 71.16889,
+          "p95": 71.41788495,
+          "samples": 4
+        },
+        "cohort": "synthetic61",
+        "mean_change_percent": -6.736794603407825,
+        "metric": "unchanged_reingestion_ms"
+      },
+      {
+        "baseline": {
+          "max": 499.320148,
+          "mean": 489.24910575,
+          "min": 483.043507,
+          "p50": 487.31638399999997,
+          "p95": 497.56698805,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 510.250142,
+          "mean": 504.986973,
+          "min": 502.537653,
+          "p50": 503.5800485,
+          "p95": 509.3154479,
+          "samples": 4
+        },
+        "cohort": "synthetic61",
+        "mean_change_percent": 3.2167390936513662,
+        "metric": "mcp_startup_to_initialize_ms"
+      },
+      {
+        "baseline": {
+          "max": 169562112,
+          "mean": 169441280.0,
+          "min": 169304064,
+          "p50": 169449472.0,
+          "p95": 169561497.6,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 170344448,
+          "mean": 170274816.0,
+          "min": 170205184,
+          "p50": 170274816.0,
+          "p95": 170334617.6,
+          "samples": 4
+        },
+        "cohort": "synthetic61",
+        "mean_change_percent": 0.4919320722789555,
+        "metric": "native_memory_after_ingestion.rss_bytes"
+      },
+      {
+        "baseline": {
+          "max": 169562112,
+          "mean": 169441280.0,
+          "min": 169304064,
+          "p50": 169449472.0,
+          "p95": 169561497.6,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 170344448,
+          "mean": 170274816.0,
+          "min": 170205184,
+          "p50": 170274816.0,
+          "p95": 170334617.6,
+          "samples": 4
+        },
+        "cohort": "synthetic61",
+        "mean_change_percent": 0.4919320722789555,
+        "metric": "native_memory_after_ingestion.hwm_bytes"
+      },
+      {
+        "baseline": {
+          "max": 206741504,
+          "mean": 206648320.0,
+          "min": 206512128,
+          "p50": 206669824.0,
+          "p95": 206740889.6,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 206802944,
+          "mean": 206733312.0,
+          "min": 206610432,
+          "p50": 206759936.0,
+          "p95": 206801715.2,
+          "samples": 4
+        },
+        "cohort": "synthetic61",
+        "mean_change_percent": 0.041128812467472464,
+        "metric": "native_memory_after_calls.rss_bytes"
+      },
+      {
+        "baseline": {
+          "max": 206741504,
+          "mean": 206648320.0,
+          "min": 206512128,
+          "p50": 206669824.0,
+          "p95": 206740889.6,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 206802944,
+          "mean": 206733312.0,
+          "min": 206610432,
+          "p50": 206759936.0,
+          "p95": 206801715.2,
+          "samples": 4
+        },
+        "cohort": "synthetic61",
+        "mean_change_percent": 0.041128812467472464,
+        "metric": "native_memory_after_calls.hwm_bytes"
+      },
+      {
+        "baseline": {
+          "max": 64614400,
+          "mean": 64117760.0,
+          "min": 63741952,
+          "p50": 64057344.0,
+          "p95": 64558489.6,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 64475136,
+          "mean": 64159744.0,
+          "min": 63926272,
+          "p50": 64118784.0,
+          "p95": 64449331.2,
+          "samples": 4
+        },
+        "cohort": "synthetic61",
+        "mean_change_percent": 0.06547951768745008,
+        "metric": "mcp_server_memory_after_calls.rss_bytes"
+      },
+      {
+        "baseline": {
+          "max": 64614400,
+          "mean": 64346112.0,
+          "min": 64069632,
+          "p50": 64350208.0,
+          "p95": 64591052.8,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 64479232,
+          "mean": 64377856.0,
+          "min": 64253952,
+          "p50": 64389120.0,
+          "p95": 64478617.6,
+          "samples": 4
+        },
+        "cohort": "synthetic61",
+        "mean_change_percent": 0.04933320602182878,
+        "metric": "mcp_server_memory_after_calls.hwm_bytes"
+      },
+      {
+        "baseline": {
+          "max": 496.774562,
+          "mean": 490.01446725,
+          "min": 485.382822,
+          "p50": 488.95024249999994,
+          "p95": 496.11362285,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 514.570917,
+          "mean": 503.6098395,
+          "min": 497.237558,
+          "p50": 501.3154415,
+          "p95": 513.1194786,
+          "samples": 4
+        },
+        "cohort": "synthetic61",
+        "mean_change_percent": 2.774483848670495,
+        "metric": "mcp_sessions.mcp-token1024.mcp_startup_to_initialize_ms"
+      },
+      {
+        "baseline": {
+          "max": 109756416,
+          "mean": 109699072.0,
+          "min": 109641728,
+          "p50": 109699072.0,
+          "p95": 109749657.6,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 110714880,
+          "mean": 109794304.0,
+          "min": 109404160,
+          "p50": 109529088.0,
+          "p95": 110542848.0,
+          "samples": 4
+        },
+        "cohort": "synthetic61",
+        "mean_change_percent": 0.08681203793592385,
+        "metric": "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.rss_bytes"
+      },
+      {
+        "baseline": {
+          "max": 109756416,
+          "mean": 109699072.0,
+          "min": 109641728,
+          "p50": 109699072.0,
+          "p95": 109749657.6,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 110714880,
+          "mean": 109794304.0,
+          "min": 109404160,
+          "p50": 109529088.0,
+          "p95": 110542848.0,
+          "samples": 4
+        },
+        "cohort": "synthetic61",
+        "mean_change_percent": 0.08681203793592385,
+        "metric": "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.hwm_bytes"
+      },
+      {
+        "baseline": {
+          "max": 23.87585,
+          "mean": 23.6147565,
+          "min": 23.285268,
+          "p50": 23.648954,
+          "p95": 23.84827475,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 30.260939,
+          "mean": 30.14186075,
+          "min": 29.992009,
+          "p50": 30.1572475,
+          "p95": 30.24702275,
+          "samples": 4
+        },
+        "cohort": "public1015",
+        "mean_change_percent": 27.639938823845167,
+        "metric": "runtime_import_ms"
+      },
+      {
+        "baseline": {
+          "max": 137.632933,
+          "mean": 63.47738975,
+          "min": 20.978425,
+          "p50": 47.6491005,
+          "p95": 127.92557484999998,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 22.918092,
+          "mean": 21.40000375,
+          "min": 20.185471,
+          "p50": 21.248226,
+          "p95": 22.7372181,
+          "samples": 4
+        },
+        "cohort": "public1015",
+        "mean_change_percent": -66.28720268069938,
+        "metric": "native_open_ms"
+      },
+      {
+        "baseline": {
+          "max": 2159.433882,
+          "mean": 1223.85590125,
+          "min": 850.441852,
+          "p50": 942.7739355000001,
+          "p95": 1983.7956200999993,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 1166.749954,
+          "mean": 992.13459325,
+          "min": 805.703053,
+          "p50": 998.042683,
+          "p95": 1158.6559677999999,
+          "samples": 4
+        },
+        "cohort": "public1015",
+        "mean_change_percent": -18.933708434410345,
+        "metric": "fresh_ingestion_ms"
+      },
+      {
+        "baseline": {
+          "max": 146.644685,
+          "mean": 145.51822025,
+          "min": 144.500871,
+          "p50": 145.4636625,
+          "p95": 146.50191905,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 141.641512,
+          "mean": 140.89931875,
+          "min": 139.61638,
+          "p50": 141.1696915,
+          "p95": 141.6153991,
+          "samples": 4
+        },
+        "cohort": "public1015",
+        "mean_change_percent": -3.1741052715355877,
+        "metric": "unchanged_reingestion_ms"
+      },
+      {
+        "baseline": {
+          "max": 525.301118,
+          "mean": 501.757269,
+          "min": 480.704526,
+          "p50": 500.511716,
+          "p95": 522.78903425,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 521.607453,
+          "mean": 508.30314024999996,
+          "min": 503.157645,
+          "p50": 504.2237315,
+          "p95": 519.0010193999999,
+          "samples": 4
+        },
+        "cohort": "public1015",
+        "mean_change_percent": 1.304589221606256,
+        "metric": "mcp_startup_to_initialize_ms"
+      },
+      {
+        "baseline": {
+          "max": 171810816,
+          "mean": 171749376.0,
+          "min": 171651072,
+          "p50": 171767808.0,
+          "p95": 171805286.4,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 172826624,
+          "mean": 172611584.0,
+          "min": 172457984,
+          "p50": 172580864.0,
+          "p95": 172797747.2,
+          "samples": 4
+        },
+        "cohort": "public1015",
+        "mean_change_percent": 0.5020152154730395,
+        "metric": "native_memory_after_ingestion.rss_bytes"
+      },
+      {
+        "baseline": {
+          "max": 171810816,
+          "mean": 171749376.0,
+          "min": 171651072,
+          "p50": 171767808.0,
+          "p95": 171805286.4,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 172826624,
+          "mean": 172611584.0,
+          "min": 172457984,
+          "p50": 172580864.0,
+          "p95": 172797747.2,
+          "samples": 4
+        },
+        "cohort": "public1015",
+        "mean_change_percent": 0.5020152154730395,
+        "metric": "native_memory_after_ingestion.hwm_bytes"
+      },
+      {
+        "baseline": {
+          "max": 228118528,
+          "mean": 224741376.0,
+          "min": 221368320,
+          "p50": 224739328.0,
+          "p95": 228055244.8,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 227573760,
+          "mean": 225705984.0,
+          "min": 224665600,
+          "p50": 225292288.0,
+          "p95": 227235225.6,
+          "samples": 4
+        },
+        "cohort": "public1015",
+        "mean_change_percent": 0.42920801552803756,
+        "metric": "native_memory_after_calls.rss_bytes"
+      },
+      {
+        "baseline": {
+          "max": 263692288,
+          "mean": 260273152.0,
+          "min": 256897024,
+          "p50": 260251648.0,
+          "p95": 263621017.6,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 263024640,
+          "mean": 261130240.0,
+          "min": 260177920,
+          "p50": 260659200.0,
+          "p95": 262674432.0,
+          "samples": 4
+        },
+        "cohort": "public1015",
+        "mean_change_percent": 0.3293032698201692,
+        "metric": "native_memory_after_calls.hwm_bytes"
+      },
+      {
+        "baseline": {
+          "max": 63606784,
+          "mean": 63492096.0,
+          "min": 63320064,
+          "p50": 63520768.0,
+          "p95": 63603712.0,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 63610880,
+          "mean": 63477760.0,
+          "min": 63352832,
+          "p50": 63473664.0,
+          "p95": 63592448.0,
+          "samples": 4
+        },
+        "cohort": "public1015",
+        "mean_change_percent": -0.02257918843945328,
+        "metric": "mcp_server_memory_after_calls.rss_bytes"
+      },
+      {
+        "baseline": {
+          "max": 63606784,
+          "mean": 63492096.0,
+          "min": 63320064,
+          "p50": 63520768.0,
+          "p95": 63603712.0,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 63610880,
+          "mean": 63477760.0,
+          "min": 63352832,
+          "p50": 63473664.0,
+          "p95": 63592448.0,
+          "samples": 4
+        },
+        "cohort": "public1015",
+        "mean_change_percent": -0.02257918843945328,
+        "metric": "mcp_server_memory_after_calls.hwm_bytes"
+      },
+      {
+        "baseline": {
+          "max": 508.31855,
+          "mean": 491.71823725,
+          "min": 476.1121,
+          "p50": 491.2211495,
+          "p95": 505.9750871,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 531.898225,
+          "mean": 500.395064,
+          "min": 481.383425,
+          "p50": 494.14930300000003,
+          "p95": 527.0731588,
+          "samples": 4
+        },
+        "cohort": "public1015",
+        "mean_change_percent": 1.7645932350458082,
+        "metric": "mcp_sessions.mcp-token1024.mcp_startup_to_initialize_ms"
+      },
+      {
+        "baseline": {
+          "max": 108752896,
+          "mean": 108149760.0,
+          "min": 107552768,
+          "p50": 108146688.0,
+          "p95": 108748595.2,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 109793280,
+          "mean": 109666304.0,
+          "min": 109543424,
+          "p50": 109664256.0,
+          "p95": 109790822.4,
+          "samples": 4
+        },
+        "cohort": "public1015",
+        "mean_change_percent": 1.4022629361359673,
+        "metric": "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.rss_bytes"
+      },
+      {
+        "baseline": {
+          "max": 108752896,
+          "mean": 108149760.0,
+          "min": 107552768,
+          "p50": 108146688.0,
+          "p95": 108748595.2,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 109793280,
+          "mean": 109666304.0,
+          "min": 109543424,
+          "p50": 109664256.0,
+          "p95": 109790822.4,
+          "samples": 4
+        },
+        "cohort": "public1015",
+        "mean_change_percent": 1.4022629361359673,
+        "metric": "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.hwm_bytes"
+      }
+    ],
+    "resource_review": [
+      {
+        "baseline": {
+          "max": 23.573718,
+          "mean": 23.37163925,
+          "min": 23.146628,
+          "p50": 23.3831055,
+          "p95": 23.56986615,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 30.816277,
+          "mean": 30.50532175,
+          "min": 30.074132,
+          "p50": 30.565439,
+          "p95": 30.7878454,
+          "samples": 4
+        },
+        "cohort": "synthetic61",
+        "mean_change_percent": 30.522816237632956,
+        "metric": "runtime_import_ms"
+      },
+      {
+        "baseline": {
+          "max": 23.87585,
+          "mean": 23.6147565,
+          "min": 23.285268,
+          "p50": 23.648954,
+          "p95": 23.84827475,
+          "samples": 4
+        },
+        "candidate": {
+          "max": 30.260939,
+          "mean": 30.14186075,
+          "min": 29.992009,
+          "p50": 30.1572475,
+          "p95": 30.24702275,
+          "samples": 4
+        },
+        "cohort": "public1015",
+        "mean_change_percent": 27.639938823845167,
+        "metric": "runtime_import_ms"
+      }
+    ],
+    "resource_rule": "Any increase above 10% requires an explicit cause and independent review; no automatic override.",
+    "thresholds_percent": {
+      "maximum_any_pooled_p50_p95_regression_percent": 5,
+      "minimum_geomean_pooled_p95_improvement_percent": 10,
+      "minimum_public_actual_mcp_char4000_p95_improvement_percent": 5,
+      "minimum_public_native_char4000_p95_improvement_percent": 10,
+      "resource_mean_increase_review_percent": 10
+    }
+  },
+  "status": "completed",
+  "files_sha256": {
+    "benchmarks/reports/round5-performance-v2-43496488712-1/checkpoint.json": "2d6207c8bfe9c15e9b3befd2f0e72b83a4ebf4944d4a38c713cbcc4f212eede4",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/controller-attempts/0001.finished.json": "d2486a5b72dd369e25141fddf1324837082653e41a6c42c858b4aa90389d83bf",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/controller-attempts/0001.started.json": "78ffd9a93a870573fceb638a39692f3573138b951ad9d1a094cad8e8976fac9a",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/execution-claim.json": "1cc23ab3a797bbb865d4a1dc42612f0928adee85a9e3f641e9b67f31add8a4dc",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/report.json.gz": "675a73c5bd0d4e89f8c401225038e85c7ec056169b6e004aeaa996dffbca9349",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/report.summary.json": "ba9d37e9dd6520c288a1ff9ec3fbbc4e62445013bbaecb5d0d192b7c24c708a3",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/run.json": "049a772a04310f94c833f645ac333cc4f3b8303549d0b03b539d51d9c37aff55",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r0-public1015-baseline.attempts.jsonl": "806dca747715ebc7b73ec31bea26c1f91c360933a8754b92daf6ac8c94f400f5",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r0-public1015-baseline.attempts.jsonl.gz": "bbedda158b6e7980840ac1c82a4f6c8426e24fd53e201a3237cd2f07cf4f7e40",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r0-public1015-baseline.json.gz": "565617b8ee38d220f787148ea6e02d79bdedd658bf192fb2a669c6af814be49a",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r0-public1015-baseline.started.json": "d21a281a8865a2ea48d6ee5641b9162c119b703e05f87189075a62ee8bdc94a8",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r0-public1015-candidate.attempts.jsonl": "4130c0f8aa95c6fdd22346fbc6ed423676e2c9a4ce57d92b3760c9aa137ce4d1",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r0-public1015-candidate.attempts.jsonl.gz": "2ae7a250fa9cc28f0415600968b5304c10b79387c7d4777b482cff54196b6184",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r0-public1015-candidate.json.gz": "05d2e224d2b6a6b78bd8ae29655d0a8a6a2af9ba7ffd3e413cfa14af8ce26ac5",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r0-public1015-candidate.started.json": "175bada23f404b72c6e94e58997cb5737fb3fb7d409a661477dd12006dcfe6d0",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r0-synthetic61-baseline.attempts.jsonl": "9ecae01c17a3d11c08c93eb3b5d41c704efdb718d7cbedc92589a6d3115f1dd3",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r0-synthetic61-baseline.attempts.jsonl.gz": "ac3ea9047137604a90b7e5f29da3a66428187194773bf1cc115cca20c694913d",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r0-synthetic61-baseline.json.gz": "f1b182a413d583d97c55ac64f09209f6e5c8e17cac15d23ff7ae20624ab89673",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r0-synthetic61-baseline.started.json": "374c8185d95c53d61b359bca39fe2897db6cd92deff7c863d9d4620bf5a8ea82",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r0-synthetic61-candidate.attempts.jsonl": "56b2bda38994224ba920932b2b22b848d895d5d8d036eb97fc3667a6302e8252",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r0-synthetic61-candidate.attempts.jsonl.gz": "a7df06644fdc648539b85d6c6a994c9b6065ebd1f7a5f1ffb4e1866fc0aacf83",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r0-synthetic61-candidate.json.gz": "78a33319a0bce616a211821bd8168949e1289bb6da0a59d6b8ec76ebd1447cce",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r0-synthetic61-candidate.started.json": "fd17ed8079714d75d82c40902a8498264d42494f711e8be58cd7f28f3fcf729a",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r1-public1015-baseline.attempts.jsonl": "ac78f239506d73a75d61edb578095bfb10956f24a6d75efbfb2eda9c35d42cd0",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r1-public1015-baseline.attempts.jsonl.gz": "a6182ca69289e6ea60d1a17fca828ef45c0faf7926fefa13db2710f9e7ae1141",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r1-public1015-baseline.json.gz": "6602e64e5e853633f7757bbd6dde6f52cf6475dfcd66d4d646c36a33a5b87244",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r1-public1015-baseline.started.json": "985b574da72614b9cb58f679c98b06b590a857bdc5fd1b539b2666d28251086c",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r1-public1015-candidate.attempts.jsonl": "aac50ed89f5a62c75174eaaf91a89089308a7fc1c593c83f0a3a688fa03082fe",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r1-public1015-candidate.attempts.jsonl.gz": "2992d1a2877dc2770cac6361aae69115865f73b970abbc8dffd393b2460da4eb",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r1-public1015-candidate.json.gz": "98b424f261880cfca07bc5bd37490735667ee7f713ae332027839dffaadf13d8",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r1-public1015-candidate.started.json": "949fd86938dea0c128c38a4c9332e5037c8424896e18506be9c1f20b3e366562",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r1-synthetic61-baseline.attempts.jsonl": "907d48e3def935f32556d01a4ec84c7472e60efcb046732f92caacbc873b34c1",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r1-synthetic61-baseline.attempts.jsonl.gz": "42c4e847f66faeaf0f783660bc8b7faff15577fd03953048edecf50d8ac442f7",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r1-synthetic61-baseline.json.gz": "2c6b590aa752ab4561592c6070283bcd2cb8ae98c4e029f9f1020329a9055d50",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r1-synthetic61-baseline.started.json": "ece9059075d2bc4d0440afa7b28226c5cebd0d67b398e15667236956f16a8c14",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r1-synthetic61-candidate.attempts.jsonl": "eb10c993d0e077b2cf316c0d172a1f2621ad2db4db62ef6650120ba2a91c9b11",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r1-synthetic61-candidate.attempts.jsonl.gz": "1fbfcc95cd27337fb60405ec80ad2a5e12b4b1f6069f28f656670d1c845f7745",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r1-synthetic61-candidate.json.gz": "3c2612a1a50e62bd46707b1f293d2f5c20cf796ef21762e203d811011a65098c",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r1-synthetic61-candidate.started.json": "5fb3d9197a982e24d123861e9a480a75250e7107a34af571819101e02b22642a",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r2-public1015-baseline.attempts.jsonl": "38851dcaba1f26f194634e7c9bdb8f2e05c560802bcc240123730eb2de19c96b",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r2-public1015-baseline.attempts.jsonl.gz": "79a36be722622862ee07cc304052c52c0cf17b1c6b119604dd7fe049cfeed70a",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r2-public1015-baseline.json.gz": "d0aa36028a8812966eb1c22923213d9711fc8cdd8dc7227752de9589fb8e5ed6",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r2-public1015-baseline.started.json": "a28f5bbe48e8560d9542ca838815c97c6ea218581ff0e5786d6f163e53e5f363",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r2-public1015-candidate.attempts.jsonl": "55424637b41f4daa5a8f00b5ba9d7c1c14eac29cc2b79f3e0835521baab89335",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r2-public1015-candidate.attempts.jsonl.gz": "729d547b4e808bdc2094507c1740d530a22423f5ed2f60282a215b00ade8f129",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r2-public1015-candidate.json.gz": "e5e23a3f4a734d6dbba1642a87e2198569bba976f4d0a02d1ad88abc1b2d9020",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r2-public1015-candidate.started.json": "bdd1efddc76ed9131cdbe0fac7bd8a824e47fca7b837ec5cc12efdf10556bf1d",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r2-synthetic61-baseline.attempts.jsonl": "1f486b75e78b6d3eafbcc84a80beedc27be25515dd091d566835ca21b101c42f",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r2-synthetic61-baseline.attempts.jsonl.gz": "70141d8cd65157ef48cdc007d55d10fa4983510a4c255313c94b119ee7887ec7",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r2-synthetic61-baseline.json.gz": "15801e9f2baeb813a25cd5b3b69258a5290e779422f8d049774d7762f1093f23",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r2-synthetic61-baseline.started.json": "2cc50e2086695ba4bb957df70b4975e795f81931f4a8fada05da3e1e351f2e1d",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r2-synthetic61-candidate.attempts.jsonl": "c7128831339bb78238ce8c57f0e78547a42dfd61cf70254a84340a0cdccb6103",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r2-synthetic61-candidate.attempts.jsonl.gz": "761a2298ff1e7a545fbfa86fc8764dfac96d51c0cdc6a44c97cd96398b030aa5",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r2-synthetic61-candidate.json.gz": "8fccbf982e7d8dedc7c052a58859cab2048e036fc1dc272d5e5a2ccc6efd16c6",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r2-synthetic61-candidate.started.json": "c1b4391667a032237404c9f836eeb28877ea789342b625a2dad0e49a8b5a5b59",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r3-public1015-baseline.attempts.jsonl": "49319db229891c1f932866135a5264779523bc6ef5ddf31431b22748f9aefe8a",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r3-public1015-baseline.attempts.jsonl.gz": "131304de43bc3ca54f0a5aa872fd22930d8a1bfa6c8c07b0e8baa5eac831f63f",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r3-public1015-baseline.json.gz": "4171f5b97383d1f98d0cacae6b0276c7cb83a0ea539e4ef49c4e4912d4a22f10",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r3-public1015-baseline.started.json": "131fb3f1178d389f950b33a3f609869f1a72ccb0e2f3ad60e7a25a02fe7d6f2e",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r3-public1015-candidate.attempts.jsonl": "20ccef2454b22858c077a1579d219b512181558aab65a9f27dd86acc8b6378fb",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r3-public1015-candidate.attempts.jsonl.gz": "298c6c17af1e2e870b796ab699a173c893a6c669cef28580ffdd5e1c408c322e",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r3-public1015-candidate.json.gz": "ffc2afe013d2a48462c126bcee12efa15fcdbf69e0dcdd31cf22e8d75f8b101f",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r3-public1015-candidate.started.json": "5c573ccd2f7dac365ca4d920122608411f60653218071fbfbb25182d6d46bd81",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r3-synthetic61-baseline.attempts.jsonl": "76d7218635d27bf3d5031448ad6ea49c5e6cb56ffac6a13b861a5bcc7be2fbe6",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r3-synthetic61-baseline.attempts.jsonl.gz": "fedb302b0bfa05f894ba20c7716ca89c744940e1cf2f814339cf4baed3a8d5ae",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r3-synthetic61-baseline.json.gz": "6dfbb1a520eb5a7173ef9aa28b0f039392782cdd66ba12559f4ce8aaf3ca75f4",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r3-synthetic61-baseline.started.json": "5ed27f8aabd587b311abee92557a4cd50c8dbf8e48294bdcfe7925efcbfa592c",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r3-synthetic61-candidate.attempts.jsonl": "cf08b5a669aebbcc02340d09d4f862136260ec4c590800a0f627d6d7081a0707",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r3-synthetic61-candidate.attempts.jsonl.gz": "905270639311497c561606a8e9788028de7bffd9c08487e2a928fb7286abb179",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r3-synthetic61-candidate.json.gz": "7f193d533f1895ecffb3e28729cac39c4ec3779f26c829d6d7babc3c44820108",
+    "benchmarks/reports/round5-performance-v2-43496488712-1/workers/r3-synthetic61-candidate.started.json": "0c6e9d860c6409339c854af542f537a6106dfacf9d182e24433f735de815ffdc"
+  },
+  "scope": "All four registered rounds, negative cells and interrupted records retained. Evidence/payload and timing boundaries remain separate."
+}
