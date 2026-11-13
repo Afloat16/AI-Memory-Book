@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "status": "passed-local-integration-review",
+  "recorded_at_utc": "2026-11-13T04:23:48.713699+00:00",
+  "upstream_commit": "a0961f29dcdf3801d063e6d69bacaa1bde99e318",
+  "upstream_base_commit": "ea0541326f6869cd32a9573a111134622ec6b38c",
+  "source_head_at_receipt": "f812acac42e7c4d777c8b1d279cb121c3dc3e366",
+  "scope": "Eight upstream files materialized; six unchanged and two adapted. The pending merge must retain the upstream commit as an ancestor. This is a local integration receipt, not a final release or fresh-comparison acceptance.",
+  "unchanged_upstream_files": [
+    {
+      "path": ".github/workflows/release-prepare.yml",
+      "upstream_git_blob_sha1": "d59923f774168c8c22d826277c5287d7b70c8e6a",
+      "working_git_blob_sha1": "d59923f774168c8c22d826277c5287d7b70c8e6a",
+      "sha256": "6de6761914571c9555f62aa50b3c7f2ab6470a7da5a7e2fca16783b1fbd29358",
+      "bytes": 4168,
+      "byte_identical": true
+    },
+    {
+      "path": ".github/workflows/round3-final-audit.yml",
+      "upstream_git_blob_sha1": "87e6f51c870f9049c9dc5f4d007ec8ff382a9526",
+      "working_git_blob_sha1": "87e6f51c870f9049c9dc5f4d007ec8ff382a9526",
+      "sha256": "c3684603c16672bb7de8ab272f8cf26be95abb9a020b0b2acdf5a1833f6af7bf",
+      "bytes": 3962,
+      "byte_identical": true
+    },
+    {
+      "path": "docs/round3-comparison.md",
+      "upstream_git_blob_sha1": "ce7a519e51da68d4ba3cd0acd0fcc8ba56c37ab8",
+      "working_git_blob_sha1": "ce7a519e51da68d4ba3cd0acd0fcc8ba56c37ab8",
+      "sha256": "79456e5d6ec30b4304d7125b1c30f12294c49b8f6277fb394979f734d4dd50b4",
+      "bytes": 40943,
+      "byte_identical": true
+    },
+    {
+      "path": "scripts/audit_round3_completion.py",
+      "upstream_git_blob_sha1": "bcf28d9477dc1284b1efb8e3fd806084d8e7e54b",
+      "working_git_blob_sha1": "bcf28d9477dc1284b1efb8e3fd806084d8e7e54b",
+      "sha256": "f894b770565cf2be5f5a5ac102968de62764d1a56188a08f8b03ee0724ecf190",
+      "bytes": 19523,
+      "byte_identical": true
+    },
+    {
+      "path": "tests/test_round3_completion_audit.py",
+      "upstream_git_blob_sha1": "8e410b1718f07879e104cc605bff69bc397e55ac",
+      "working_git_blob_sha1": "8e410b1718f07879e104cc605bff69bc397e55ac",
+      "sha256": "849145afcc7a49c8d699139a203579d511617a5292f3fe36d99ca6e34f66d720",
+      "bytes": 4211,
+      "byte_identical": true
+    },
+    {
+      "path": "docs/releasing.md",
+      "upstream_git_blob_sha1": "10c5b00330f00eed8e3981e1478c87519f8052d5",
+      "working_git_blob_sha1": "10c5b00330f00eed8e3981e1478c87519f8052d5",
+      "sha256": "f269caf0f3c35728164f3f2efc1e3954d9dd9c69737be012eeaad5011e062e8b",
+      "bytes": 8921,
+      "byte_identical": true
+    }
+  ],
+  "adapted_files": [
+    {
+      "path": "scripts/release.py",
+      "upstream_git_blob_sha1": "6b769c9c0de306dc887d5dd36ebf16d61bc214bc",
+      "upstream_sha256": "da6687e9b4222a8e147960864c96086c0e5305d57bbcd6e92b8c9d109b0ed47b",
+      "working_git_blob_sha1": "5ea3bba333e725df2fded70f61445846d1f2e0dc",
+      "working_sha256": "06311fc0d420bb672d904bc8bae60be7c0f6fa863994bad38ce5a25acd68b544",
+      "bytes": 24408,
+      "repair": "Preserve both historical approval hashes and add the exact formally bound C2 runtime hash under version 0.3.2."
+    },
+    {
+      "path": "tests/test_release.py",
+      "upstream_git_blob_sha1": "8087dc8256138dfbb3d4dbf7533e59ef032836d8",
+      "upstream_sha256": "062c50c9b24e1fbd90547c9e19742305e6180d46f54ea76e35a56ed569991809",
+      "working_git_blob_sha1": "9d3fbc08e61bbdaaac772e74b0ec51ff9ee090bf",
+      "working_sha256": "227aed3852b87d4737296fb5bc1eb21ae60d7897ac7c22d9f3fd01053ed4d2b8",
+      "bytes": 16175,
+      "repair": "Replace the current-checkout-as-v0.3.1 fixture with literal independent version 9.8.7 source bytes and a fixed fixture digest injected through patch.dict. Verify success, then rejection after a changed but committed snapshot. No dependence on the current package version or Git history."
+    }
+  ],
+  "repair_reason": "The upstream release test copied the current runtime while stamping its fixture as version 0.3.1. On C2/0.3.2 its first success assertion failed before exercising changed-runtime rejection. The independent fixture preserves the original guard meaning across future versions.",
+  "completed_tests": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m unittest tests.test_release tests.test_round3_completion_audit tests.test_installer_release -v",
+    "tests_run": 18,
+    "passed": 18,
+    "failures": 0,
+    "errors": 0,
+    "outcome": "OK",
+    "reexecuted_for_receipt": false
+  },
+  "frozen_runtime": {
+    "candidate_commit": "2d7b5e38839fb21724ad3beec6b6ebabbda45636",
+    "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93",
+    "completed_verification": "Independently recomputed from every src/memory_book Python path and byte sequence after integration; matched the frozen C2 runtime. Runtime files were not edited."
+  },
+  "frozen_evaluator_bindings": [
+    {
+      "path": "benchmarks/experiments/round4-validation-binding.json",
+      "binding_sha256": "84dbe28c068a3067f9706c6439d42301eaddfef95c44ae2633398346c66a8c79",
+      "evaluator_commit": "d6aa80c7df80f017d301dd93102210b4c968231c",
+      "registered_files": 78,
+      "registered_file_map_sha256": "7024fdc8a170f90de6ba01e68440bb8b81070f7003fd0fde6d4e72830162f732",
+      "completed_verification": "Every registered local file SHA256 matched its binding after the integration repair. This receipt records that completed check; it does not repeat the file sweep."
+    },
+    {
+      "path": "benchmarks/experiments/round4-performance-binding.json",
+      "binding_sha256": "d535df483cc41cc0b2381104fd99b17f4639fa2160e3b73a6661ceb8c4e58915",
+      "evaluator_commit": "6532d8388187c6af4cd3ab3ef71f6ef285ed8fad",
+      "registered_files": 24,
+      "registered_file_map_sha256": "175f1e3053bcd9e928d290ae6dc70deb2288b45459ab1aa3443d6e0b823735f3",
+      "completed_verification": "Every registered local file SHA256 matched its binding after the integration repair. This receipt records that completed check; it does not repeat the file sweep."
+    }
+  ],
+  "release_gate_review": {
+    "historical_runtime_pins_preserved": true,
+    "v032_pin_added": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93",
+    "nine_exact_commit_ci_jobs_requirement_unchanged": true,
+    "added_workflows": "The prepare and final-audit workflows retain their explicitly named v0.3.1 branches. Neither becomes a v0.3.2 release gate.",
+    "round3_full_audit": "Historical-only tool: its runtime audit intentionally requires v0.3.1. The complete auditor was not executed against v0.3.2; only its six artificial/tamper unit tests ran."
+  },
+  "validation_boundaries": {
+    "whitespace_check": "passed",
+    "retrieval_calls_executed": 0,
+    "timing_measurements_executed": 0,
+    "inference_calls_executed": 0,
+    "dataset_selections": 0,
+    "full_historical_audit_executed": false,
+    "git_ref_index_or_commit_writes": 0,
+    "receipt_generation": "Read-only Git/file identity collection and one new JSON receipt write; no repeated test or measurement."
+  },
+  "remaining_gates": [
+    "Preserve a0961f29dcdf3801d063e6d69bacaa1bde99e318 as an ancestor in the final integration commit.",
+    "Run required exact-final-commit CI and release packaging/install verification.",
+    "Assess the independently running fresh comparison only after complete-verified reports and strict audit; this receipt supplies no fresh quality verdict."
+  ]
+}

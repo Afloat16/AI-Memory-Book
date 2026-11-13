@@ -1,0 +1,1747 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "audited_at_utc": "2026-11-13T04:37:28.039470+00:00",
+  "run_id": "43363060062-1",
+  "result_commit": "eff394119105d59186c730e2480d86d1436401a6",
+  "result_tree": "6301adcf5454cfbe1670d24a3e743fc0030908c7",
+  "checkpoint_sha256": "c24c07a4b309521bc1549dd6b2a9d7474560034e71b58fb47ac858cbcb2d891a",
+  "binding_sha256": "84dbe28c068a3067f9706c6439d42301eaddfef95c44ae2633398346c66a8c79",
+  "manifest_sha256": "b0485b3a089c9b04fc4453fd9f129364e123ce1b9f25b593edf4f6ee6df4a20b",
+  "dataset_sha256": "fb3cd70ea58fafa5bd9cef0f04dba7399aaafba76f5f92605eee9e516f115e1b",
+  "strict_original_verifier": {
+    "runs": 1,
+    "command": [
+      ".venv/bin/python",
+      "scripts/round4_comparison.py",
+      "audit",
+      "--checkpoint",
+      "benchmarks/reports/round4-comparison-43363060062-1-checkpoint.json",
+      "--binding",
+      "benchmarks/experiments/round4-validation-binding.json",
+      "--manifest",
+      "benchmarks/experiments/round4-hotpot256-manifest.json",
+      "--verify-existing"
+    ],
+    "exit_code": 0,
+    "output": {
+      "status": "complete-verified",
+      "validation": {
+        "passed": true,
+        "failures": []
+      }
+    },
+    "boundary": "Unchanged original verifier recomputed assessment and Markdown, validated source/evaluator identities, claim and per-stage intents, complete outputs and saved ledgers; this is reused verifier logic."
+  },
+  "independent_arithmetic": {
+    "method": "Separate standard-library implementation, without importing scoring/evaluation helpers, recomputes all aggregate quality metrics from evidence ranks and recorded row fields, all diagnostic groups, complete ordered ledgers and per-query hashes, all native and component latency summaries and token/read-cost means, and every Q2 changed-context/annotation/question delta list.",
+    "verified_result_files_in_final_git_tree": 32,
+    "verified_checkpoint_files_in_final_git_tree": 1,
+    "stages": 10,
+    "native_calls": 4608,
+    "component_search_calls": 4608,
+    "ledger_events": 18432,
+    "quality_cells": 54,
+    "quality_query_rows": 13824,
+    "diagnostic_group_cells": 378,
+    "native_default_payload_pairs": 1536,
+    "component_default_payload_pairs": 768,
+    "q2_delta_cells": 12,
+    "invariant_error_totals": {
+      "token_budget_violation": 0,
+      "budget_violation": 0,
+      "context_size_error": 0,
+      "source_span_errors": 0,
+      "scope_errors": 0,
+      "page_projection_errors": 0,
+      "token_metadata_error": 0,
+      "cache_error": 0,
+      "policy_error": 0,
+      "result_limit_error": 0
+    },
+    "resource_phases_verified_against_full_and_summary_reports": 27
+  },
+  "stage_inventory": [
+    {
+      "stage": "export",
+      "calls": 0,
+      "ledger_events": 0,
+      "raw_sha256": "49dc6445f37901d8c802bf1463ae1b23a30811ce12461cba9a4cdd7641571f39",
+      "ledger_raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "stage": "baseline-native",
+      "calls": 1536,
+      "ledger_events": 3072,
+      "raw_sha256": "0714a15c2626d5da881e055f076aaa22a6755f3e2050b4987b718b1eb3ea9516",
+      "ledger_raw_sha256": "5a39e6e0f17cc9f4aca0445bf1053cab181e4280ac6c03ff6bab264be3332bef"
+    },
+    {
+      "stage": "candidate-native",
+      "calls": 1536,
+      "ledger_events": 3072,
+      "raw_sha256": "5a53ff26863bf7f6d5325ed5a032e69089ac092e0d80d6df544555335e9720ac",
+      "ledger_raw_sha256": "b521a1f387e4a585ad031fabba4889a41ebece4bcfa554edb3fab5e5d5c1e1dd"
+    },
+    {
+      "stage": "candidate-semantic-native",
+      "calls": 1536,
+      "ledger_events": 3072,
+      "raw_sha256": "7f2a3747426d81d97b6f2b798a7796d4811168d7aa323cca18b06d326cd531ea",
+      "ledger_raw_sha256": "c3dd8fb18a536ba5f555a3f7e79fa6c9f201efcdaad31f9a0c7b06efd469c2fa"
+    },
+    {
+      "stage": "baseline-component",
+      "calls": 768,
+      "ledger_events": 1536,
+      "raw_sha256": "71c36cd7ad902e610e08dc11a0de6ba96191a7760d7f74023b0a30215e573d09",
+      "ledger_raw_sha256": "e76b1efddfee46f6fc3883eac99d96d479bf82dab23438ffccb9e683e59bebed"
+    },
+    {
+      "stage": "candidate-component",
+      "calls": 768,
+      "ledger_events": 1536,
+      "raw_sha256": "fcffdac183073ee18f7e51462f9726564b3cc2466dbb20db55f4c927168dbee8",
+      "ledger_raw_sha256": "662bbb50271b7fd5d4b10eec4051bde0fc01bcd870561db301596bf93c0ae3d8"
+    },
+    {
+      "stage": "candidate-semantic-component",
+      "calls": 768,
+      "ledger_events": 1536,
+      "raw_sha256": "45ca90e4514641e20ae03c83982fbbe92ba5fb1978d8fe15f941eed75f54cb06",
+      "ledger_raw_sha256": "0125a4ab488870c7e2d0a491539019098e03547da7f69318a2c25b2e51988316"
+    },
+    {
+      "stage": "claude-mem-fts",
+      "calls": 768,
+      "ledger_events": 1536,
+      "raw_sha256": "b52b3b2dd6a9763cd24f87e74f122b6c1b25193fb0be401aacdf2e83dd38fc8e",
+      "ledger_raw_sha256": "a56a0f83b658a95dc19b78192190705fd4181501fe0433ccb0ea4677906868be"
+    },
+    {
+      "stage": "ai-memory-hybrid",
+      "calls": 768,
+      "ledger_events": 1536,
+      "raw_sha256": "fc72444e789418888804cd01f4b95481739e1bf8eb9427cf64bea4ba8cd96c4f",
+      "ledger_raw_sha256": "bf233fac1b5f7314eb76ed54d359e67108df029428380594a80a1880e77ace6b"
+    },
+    {
+      "stage": "billion-context",
+      "calls": 768,
+      "ledger_events": 1536,
+      "raw_sha256": "3530fe736f2973b126669b339929f38feae50a44b73d339b001e0045d14c8277",
+      "ledger_raw_sha256": "770dd56448bfc1b2b57b54a6864e9a629749278a7d75924f8248a8f40e7c4b5b"
+    }
+  ],
+  "quality_cells": [
+    {
+      "stage": "baseline-native",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 512,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 431,
+      "evidence_recall": 0.6787401574803149,
+      "complete_questions": 101,
+      "complete_evidence_rate": 0.39453125,
+      "mrr": 0.8499348958333334,
+      "mean_context_tokens": 478.5703125,
+      "latency": {
+        "samples": 256,
+        "p50_ms": 4.689536,
+        "p95_ms": 6.1177790000000005,
+        "mean_ms": 4.74882013671875
+      }
+    },
+    {
+      "stage": "baseline-native",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 1024,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 481,
+      "evidence_recall": 0.75748031496063,
+      "complete_questions": 138,
+      "complete_evidence_rate": 0.5390625,
+      "mrr": 0.8578125,
+      "mean_context_tokens": 803.625,
+      "latency": {
+        "samples": 256,
+        "p50_ms": 3.9072875,
+        "p95_ms": 5.18205775,
+        "mean_ms": 3.94733955859375
+      }
+    },
+    {
+      "stage": "baseline-native",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 2048,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 481,
+      "evidence_recall": 0.75748031496063,
+      "complete_questions": 138,
+      "complete_evidence_rate": 0.5390625,
+      "mrr": 0.8578125,
+      "mean_context_tokens": 805.3984375,
+      "latency": {
+        "samples": 256,
+        "p50_ms": 3.883833,
+        "p95_ms": 5.25707725,
+        "mean_ms": 3.953550578125
+      }
+    },
+    {
+      "stage": "baseline-native",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 512,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 431,
+      "evidence_recall": 0.6787401574803149,
+      "complete_questions": 101,
+      "complete_evidence_rate": 0.39453125,
+      "mrr": 0.8499348958333334,
+      "mean_context_tokens": 478.08984375,
+      "latency": {
+        "samples": 256,
+        "p50_ms": 6.0008515,
+        "p95_ms": 7.65889175,
+        "mean_ms": 6.0266994765625
+      }
+    },
+    {
+      "stage": "baseline-native",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 1024,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 481,
+      "evidence_recall": 0.75748031496063,
+      "complete_questions": 138,
+      "complete_evidence_rate": 0.5390625,
+      "mrr": 0.8578125,
+      "mean_context_tokens": 802.6328125,
+      "latency": {
+        "samples": 256,
+        "p50_ms": 4.7052285000000005,
+        "p95_ms": 6.0789325000000005,
+        "mean_ms": 4.79569985546875
+      }
+    },
+    {
+      "stage": "baseline-native",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 2048,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 481,
+      "evidence_recall": 0.75748031496063,
+      "complete_questions": 138,
+      "complete_evidence_rate": 0.5390625,
+      "mrr": 0.8578125,
+      "mean_context_tokens": 804.1015625,
+      "latency": {
+        "samples": 256,
+        "p50_ms": 4.789125,
+        "p95_ms": 6.1604625,
+        "mean_ms": 4.8174142890625
+      }
+    },
+    {
+      "stage": "candidate-native",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 512,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 431,
+      "evidence_recall": 0.6787401574803149,
+      "complete_questions": 101,
+      "complete_evidence_rate": 0.39453125,
+      "mrr": 0.8499348958333334,
+      "mean_context_tokens": 478.5703125,
+      "latency": {
+        "samples": 256,
+        "p50_ms": 3.313069,
+        "p95_ms": 4.411245,
+        "mean_ms": 3.379290828125
+      }
+    },
+    {
+      "stage": "candidate-native",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 1024,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 481,
+      "evidence_recall": 0.75748031496063,
+      "complete_questions": 138,
+      "complete_evidence_rate": 0.5390625,
+      "mrr": 0.8578125,
+      "mean_context_tokens": 803.625,
+      "latency": {
+        "samples": 256,
+        "p50_ms": 2.9179285,
+        "p95_ms": 4.10464875,
+        "mean_ms": 2.97623977734375
+      }
+    },
+    {
+      "stage": "candidate-native",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 2048,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 481,
+      "evidence_recall": 0.75748031496063,
+      "complete_questions": 138,
+      "complete_evidence_rate": 0.5390625,
+      "mrr": 0.8578125,
+      "mean_context_tokens": 805.3984375,
+      "latency": {
+        "samples": 256,
+        "p50_ms": 2.9169375,
+        "p95_ms": 4.2351675,
+        "mean_ms": 3.02743136328125
+      }
+    },
+    {
+      "stage": "candidate-native",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 512,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 431,
+      "evidence_recall": 0.6787401574803149,
+      "complete_questions": 101,
+      "complete_evidence_rate": 0.39453125,
+      "mrr": 0.8499348958333334,
+      "mean_context_tokens": 478.08984375,
+      "latency": {
+        "samples": 256,
+        "p50_ms": 3.773713,
+        "p95_ms": 4.945794,
+        "mean_ms": 3.8184637109375
+      }
+    },
+    {
+      "stage": "candidate-native",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 1024,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 481,
+      "evidence_recall": 0.75748031496063,
+      "complete_questions": 138,
+      "complete_evidence_rate": 0.5390625,
+      "mrr": 0.8578125,
+      "mean_context_tokens": 802.6328125,
+      "latency": {
+        "samples": 256,
+        "p50_ms": 3.1947265,
+        "p95_ms": 4.36393675,
+        "mean_ms": 3.2609642109375
+      }
+    },
+    {
+      "stage": "candidate-native",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 2048,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 481,
+      "evidence_recall": 0.75748031496063,
+      "complete_questions": 138,
+      "complete_evidence_rate": 0.5390625,
+      "mrr": 0.8578125,
+      "mean_context_tokens": 804.1015625,
+      "latency": {
+        "samples": 256,
+        "p50_ms": 3.073284,
+        "p95_ms": 4.19904825,
+        "mean_ms": 3.14480490625
+      }
+    },
+    {
+      "stage": "candidate-semantic-native",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 512,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 420,
+      "evidence_recall": 0.6614173228346457,
+      "complete_questions": 93,
+      "complete_evidence_rate": 0.36328125,
+      "mrr": 0.8600260416666666,
+      "mean_context_tokens": 479.84765625,
+      "latency": {
+        "samples": 256,
+        "p50_ms": 14.4740345,
+        "p95_ms": 21.160626750000002,
+        "mean_ms": 15.17805348828125
+      }
+    },
+    {
+      "stage": "candidate-semantic-native",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 1024,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 487,
+      "evidence_recall": 0.7669291338582677,
+      "complete_questions": 141,
+      "complete_evidence_rate": 0.55078125,
+      "mrr": 0.8663411458333333,
+      "mean_context_tokens": 818.06640625,
+      "latency": {
+        "samples": 256,
+        "p50_ms": 13.9980005,
+        "p95_ms": 21.02236475,
+        "mean_ms": 14.81286078515625
+      }
+    },
+    {
+      "stage": "candidate-semantic-native",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 2048,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 487,
+      "evidence_recall": 0.7669291338582677,
+      "complete_questions": 141,
+      "complete_evidence_rate": 0.55078125,
+      "mrr": 0.8663411458333333,
+      "mean_context_tokens": 820.6484375,
+      "latency": {
+        "samples": 256,
+        "p50_ms": 13.926658,
+        "p95_ms": 20.881588999999998,
+        "mean_ms": 14.701769953125
+      }
+    },
+    {
+      "stage": "candidate-semantic-native",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 512,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 421,
+      "evidence_recall": 0.662992125984252,
+      "complete_questions": 94,
+      "complete_evidence_rate": 0.3671875,
+      "mrr": 0.8600260416666666,
+      "mean_context_tokens": 479.4453125,
+      "latency": {
+        "samples": 256,
+        "p50_ms": 14.8252925,
+        "p95_ms": 21.9700375,
+        "mean_ms": 15.59140776171875
+      }
+    },
+    {
+      "stage": "candidate-semantic-native",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 1024,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 487,
+      "evidence_recall": 0.7669291338582677,
+      "complete_questions": 141,
+      "complete_evidence_rate": 0.55078125,
+      "mrr": 0.8663411458333333,
+      "mean_context_tokens": 816.515625,
+      "latency": {
+        "samples": 256,
+        "p50_ms": 14.1219465,
+        "p95_ms": 21.4648555,
+        "mean_ms": 15.1710936328125
+      }
+    },
+    {
+      "stage": "candidate-semantic-native",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 2048,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 487,
+      "evidence_recall": 0.7669291338582677,
+      "complete_questions": 141,
+      "complete_evidence_rate": 0.55078125,
+      "mrr": 0.8663411458333333,
+      "mean_context_tokens": 819.15234375,
+      "latency": {
+        "samples": 256,
+        "p50_ms": 14.1945625,
+        "p95_ms": 21.83983775,
+        "mean_ms": 15.0983634453125
+      }
+    },
+    {
+      "stage": "baseline-component",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 512,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 436,
+      "evidence_recall": 0.6866141732283465,
+      "complete_questions": 105,
+      "complete_evidence_rate": 0.41015625,
+      "mrr": 0.8522135416666666,
+      "mean_context_tokens": 446.11328125
+    },
+    {
+      "stage": "baseline-component",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 1024,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 481,
+      "evidence_recall": 0.75748031496063,
+      "complete_questions": 138,
+      "complete_evidence_rate": 0.5390625,
+      "mrr": 0.8578125,
+      "mean_context_tokens": 714.7890625
+    },
+    {
+      "stage": "baseline-component",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 2048,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 481,
+      "evidence_recall": 0.75748031496063,
+      "complete_questions": 138,
+      "complete_evidence_rate": 0.5390625,
+      "mrr": 0.8578125,
+      "mean_context_tokens": 715.8671875
+    },
+    {
+      "stage": "baseline-component",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 512,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 438,
+      "evidence_recall": 0.6897637795275591,
+      "complete_questions": 106,
+      "complete_evidence_rate": 0.4140625,
+      "mrr": 0.853515625,
+      "mean_context_tokens": 447.15234375
+    },
+    {
+      "stage": "baseline-component",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 1024,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 481,
+      "evidence_recall": 0.75748031496063,
+      "complete_questions": 138,
+      "complete_evidence_rate": 0.5390625,
+      "mrr": 0.8578125,
+      "mean_context_tokens": 708.34375
+    },
+    {
+      "stage": "baseline-component",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 2048,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 481,
+      "evidence_recall": 0.75748031496063,
+      "complete_questions": 138,
+      "complete_evidence_rate": 0.5390625,
+      "mrr": 0.8578125,
+      "mean_context_tokens": 709.4140625
+    },
+    {
+      "stage": "candidate-component",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 512,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 436,
+      "evidence_recall": 0.6866141732283465,
+      "complete_questions": 105,
+      "complete_evidence_rate": 0.41015625,
+      "mrr": 0.8522135416666666,
+      "mean_context_tokens": 446.11328125
+    },
+    {
+      "stage": "candidate-component",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 1024,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 481,
+      "evidence_recall": 0.75748031496063,
+      "complete_questions": 138,
+      "complete_evidence_rate": 0.5390625,
+      "mrr": 0.8578125,
+      "mean_context_tokens": 714.7890625
+    },
+    {
+      "stage": "candidate-component",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 2048,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 481,
+      "evidence_recall": 0.75748031496063,
+      "complete_questions": 138,
+      "complete_evidence_rate": 0.5390625,
+      "mrr": 0.8578125,
+      "mean_context_tokens": 715.8671875
+    },
+    {
+      "stage": "candidate-component",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 512,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 438,
+      "evidence_recall": 0.6897637795275591,
+      "complete_questions": 106,
+      "complete_evidence_rate": 0.4140625,
+      "mrr": 0.853515625,
+      "mean_context_tokens": 447.15234375
+    },
+    {
+      "stage": "candidate-component",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 1024,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 481,
+      "evidence_recall": 0.75748031496063,
+      "complete_questions": 138,
+      "complete_evidence_rate": 0.5390625,
+      "mrr": 0.8578125,
+      "mean_context_tokens": 708.34375
+    },
+    {
+      "stage": "candidate-component",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 2048,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 481,
+      "evidence_recall": 0.75748031496063,
+      "complete_questions": 138,
+      "complete_evidence_rate": 0.5390625,
+      "mrr": 0.8578125,
+      "mean_context_tokens": 709.4140625
+    },
+    {
+      "stage": "candidate-semantic-component",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 512,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 433,
+      "evidence_recall": 0.6818897637795276,
+      "complete_questions": 102,
+      "complete_evidence_rate": 0.3984375,
+      "mrr": 0.8626302083333334,
+      "mean_context_tokens": 447.7109375
+    },
+    {
+      "stage": "candidate-semantic-component",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 1024,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 487,
+      "evidence_recall": 0.7669291338582677,
+      "complete_questions": 141,
+      "complete_evidence_rate": 0.55078125,
+      "mrr": 0.8663411458333333,
+      "mean_context_tokens": 730.0390625
+    },
+    {
+      "stage": "candidate-semantic-component",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 2048,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 487,
+      "evidence_recall": 0.7669291338582677,
+      "complete_questions": 141,
+      "complete_evidence_rate": 0.55078125,
+      "mrr": 0.8663411458333333,
+      "mean_context_tokens": 731.1171875
+    },
+    {
+      "stage": "candidate-semantic-component",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 512,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 434,
+      "evidence_recall": 0.6834645669291338,
+      "complete_questions": 104,
+      "complete_evidence_rate": 0.40625,
+      "mrr": 0.8626302083333334,
+      "mean_context_tokens": 448.21484375
+    },
+    {
+      "stage": "candidate-semantic-component",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 1024,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 487,
+      "evidence_recall": 0.7669291338582677,
+      "complete_questions": 141,
+      "complete_evidence_rate": 0.55078125,
+      "mrr": 0.8663411458333333,
+      "mean_context_tokens": 723.39453125
+    },
+    {
+      "stage": "candidate-semantic-component",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 2048,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 487,
+      "evidence_recall": 0.7669291338582677,
+      "complete_questions": 141,
+      "complete_evidence_rate": 0.55078125,
+      "mrr": 0.8663411458333333,
+      "mean_context_tokens": 724.46484375
+    },
+    {
+      "stage": "claude-mem-fts",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 512,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 396,
+      "evidence_recall": 0.6236220472440945,
+      "complete_questions": 80,
+      "complete_evidence_rate": 0.3125,
+      "mrr": 0.8238932291666666,
+      "mean_context_tokens": 446.3203125
+    },
+    {
+      "stage": "claude-mem-fts",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 1024,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 447,
+      "evidence_recall": 0.7039370078740157,
+      "complete_questions": 114,
+      "complete_evidence_rate": 0.4453125,
+      "mrr": 0.8279947916666667,
+      "mean_context_tokens": 709.3515625
+    },
+    {
+      "stage": "claude-mem-fts",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 2048,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 447,
+      "evidence_recall": 0.7039370078740157,
+      "complete_questions": 114,
+      "complete_evidence_rate": 0.4453125,
+      "mrr": 0.8279947916666667,
+      "mean_context_tokens": 710.42578125
+    },
+    {
+      "stage": "claude-mem-fts",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 512,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 398,
+      "evidence_recall": 0.6267716535433071,
+      "complete_questions": 81,
+      "complete_evidence_rate": 0.31640625,
+      "mrr": 0.8238932291666666,
+      "mean_context_tokens": 447.2109375
+    },
+    {
+      "stage": "claude-mem-fts",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 1024,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 447,
+      "evidence_recall": 0.7039370078740157,
+      "complete_questions": 114,
+      "complete_evidence_rate": 0.4453125,
+      "mrr": 0.8279947916666667,
+      "mean_context_tokens": 702.81640625
+    },
+    {
+      "stage": "claude-mem-fts",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 2048,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 447,
+      "evidence_recall": 0.7039370078740157,
+      "complete_questions": 114,
+      "complete_evidence_rate": 0.4453125,
+      "mrr": 0.8279947916666667,
+      "mean_context_tokens": 703.8828125
+    },
+    {
+      "stage": "ai-memory-hybrid",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 512,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 421,
+      "evidence_recall": 0.662992125984252,
+      "complete_questions": 94,
+      "complete_evidence_rate": 0.3671875,
+      "mrr": 0.833984375,
+      "mean_context_tokens": 449.44921875
+    },
+    {
+      "stage": "ai-memory-hybrid",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 1024,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 492,
+      "evidence_recall": 0.7748031496062993,
+      "complete_questions": 143,
+      "complete_evidence_rate": 0.55859375,
+      "mrr": 0.8400390625,
+      "mean_context_tokens": 709.9296875
+    },
+    {
+      "stage": "ai-memory-hybrid",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 2048,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 492,
+      "evidence_recall": 0.7748031496062993,
+      "complete_questions": 143,
+      "complete_evidence_rate": 0.55859375,
+      "mrr": 0.8400390625,
+      "mean_context_tokens": 710.83203125
+    },
+    {
+      "stage": "ai-memory-hybrid",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 512,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 426,
+      "evidence_recall": 0.6708661417322834,
+      "complete_questions": 98,
+      "complete_evidence_rate": 0.3828125,
+      "mrr": 0.833984375,
+      "mean_context_tokens": 452.10546875
+    },
+    {
+      "stage": "ai-memory-hybrid",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 1024,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 492,
+      "evidence_recall": 0.7748031496062993,
+      "complete_questions": 143,
+      "complete_evidence_rate": 0.55859375,
+      "mrr": 0.8400390625,
+      "mean_context_tokens": 703.578125
+    },
+    {
+      "stage": "ai-memory-hybrid",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 2048,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 492,
+      "evidence_recall": 0.7748031496062993,
+      "complete_questions": 143,
+      "complete_evidence_rate": 0.55859375,
+      "mrr": 0.8400390625,
+      "mean_context_tokens": 704.4765625
+    },
+    {
+      "stage": "billion-context",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 512,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 437,
+      "evidence_recall": 0.6881889763779527,
+      "complete_questions": 107,
+      "complete_evidence_rate": 0.41796875,
+      "mrr": 0.8489583333333334,
+      "mean_context_tokens": 454.02734375
+    },
+    {
+      "stage": "billion-context",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 1024,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 514,
+      "evidence_recall": 0.8094488188976378,
+      "complete_questions": 155,
+      "complete_evidence_rate": 0.60546875,
+      "mrr": 0.8606119791666667,
+      "mean_context_tokens": 757.421875
+    },
+    {
+      "stage": "billion-context",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 2048,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 514,
+      "evidence_recall": 0.8094488188976378,
+      "complete_questions": 155,
+      "complete_evidence_rate": 0.60546875,
+      "mrr": 0.8606119791666667,
+      "mean_context_tokens": 759.5234375
+    },
+    {
+      "stage": "billion-context",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 512,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 439,
+      "evidence_recall": 0.6913385826771653,
+      "complete_questions": 108,
+      "complete_evidence_rate": 0.421875,
+      "mrr": 0.8489583333333334,
+      "mean_context_tokens": 453.8203125
+    },
+    {
+      "stage": "billion-context",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 1024,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 514,
+      "evidence_recall": 0.8094488188976378,
+      "complete_questions": 155,
+      "complete_evidence_rate": 0.60546875,
+      "mrr": 0.8606119791666667,
+      "mean_context_tokens": 751.40625
+    },
+    {
+      "stage": "billion-context",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 2048,
+      "queries": 256,
+      "required_evidence": 635,
+      "matched_evidence": 514,
+      "evidence_recall": 0.8094488188976378,
+      "complete_questions": 155,
+      "complete_evidence_rate": 0.60546875,
+      "mrr": 0.8606119791666667,
+      "mean_context_tokens": 752.37890625
+    }
+  ],
+  "q2_changes": [
+    {
+      "surface": "native",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 512,
+      "before_complete_evidence_rate": 0.39453125,
+      "after_complete_evidence_rate": 0.36328125,
+      "annotation_gains": 29,
+      "annotation_losses": 40,
+      "complete_question_gains": 19,
+      "complete_question_losses": 27,
+      "changed_contexts": 209,
+      "exact_delta_lists_sha256": "ad2657bf5acaa0dbc49699a9cac8767000d4a6411e4297f1d48a948100664057"
+    },
+    {
+      "surface": "native",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 1024,
+      "before_complete_evidence_rate": 0.5390625,
+      "after_complete_evidence_rate": 0.55078125,
+      "annotation_gains": 40,
+      "annotation_losses": 34,
+      "complete_question_gains": 26,
+      "complete_question_losses": 23,
+      "changed_contexts": 252,
+      "exact_delta_lists_sha256": "fe9e3ab20124ae0b165d7a9374b8491b3b603ee80abf1f4c1cee0c39bd92d539"
+    },
+    {
+      "surface": "native",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 2048,
+      "before_complete_evidence_rate": 0.5390625,
+      "after_complete_evidence_rate": 0.55078125,
+      "annotation_gains": 40,
+      "annotation_losses": 34,
+      "complete_question_gains": 26,
+      "complete_question_losses": 23,
+      "changed_contexts": 252,
+      "exact_delta_lists_sha256": "fe9e3ab20124ae0b165d7a9374b8491b3b603ee80abf1f4c1cee0c39bd92d539"
+    },
+    {
+      "surface": "native",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 512,
+      "before_complete_evidence_rate": 0.39453125,
+      "after_complete_evidence_rate": 0.3671875,
+      "annotation_gains": 29,
+      "annotation_losses": 39,
+      "complete_question_gains": 19,
+      "complete_question_losses": 26,
+      "changed_contexts": 211,
+      "exact_delta_lists_sha256": "da0abcc07d17c4defc2d2d09cc132f290eaf0358290c0f323489b8cfdc50fab0"
+    },
+    {
+      "surface": "native",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 1024,
+      "before_complete_evidence_rate": 0.5390625,
+      "after_complete_evidence_rate": 0.55078125,
+      "annotation_gains": 40,
+      "annotation_losses": 34,
+      "complete_question_gains": 26,
+      "complete_question_losses": 23,
+      "changed_contexts": 252,
+      "exact_delta_lists_sha256": "fe9e3ab20124ae0b165d7a9374b8491b3b603ee80abf1f4c1cee0c39bd92d539"
+    },
+    {
+      "surface": "native",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 2048,
+      "before_complete_evidence_rate": 0.5390625,
+      "after_complete_evidence_rate": 0.55078125,
+      "annotation_gains": 40,
+      "annotation_losses": 34,
+      "complete_question_gains": 26,
+      "complete_question_losses": 23,
+      "changed_contexts": 252,
+      "exact_delta_lists_sha256": "fe9e3ab20124ae0b165d7a9374b8491b3b603ee80abf1f4c1cee0c39bd92d539"
+    },
+    {
+      "surface": "component",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 512,
+      "before_complete_evidence_rate": 0.41015625,
+      "after_complete_evidence_rate": 0.3984375,
+      "annotation_gains": 36,
+      "annotation_losses": 39,
+      "complete_question_gains": 21,
+      "complete_question_losses": 24,
+      "changed_contexts": 213,
+      "exact_delta_lists_sha256": "ca56050c748e0639610d640257c79b0d8ae592b1fd6037e3cb9a504c14603eea"
+    },
+    {
+      "surface": "component",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 1024,
+      "before_complete_evidence_rate": 0.5390625,
+      "after_complete_evidence_rate": 0.55078125,
+      "annotation_gains": 40,
+      "annotation_losses": 34,
+      "complete_question_gains": 26,
+      "complete_question_losses": 23,
+      "changed_contexts": 252,
+      "exact_delta_lists_sha256": "fe9e3ab20124ae0b165d7a9374b8491b3b603ee80abf1f4c1cee0c39bd92d539"
+    },
+    {
+      "surface": "component",
+      "tokenizer": "cl100k_base",
+      "budget_tokens": 2048,
+      "before_complete_evidence_rate": 0.5390625,
+      "after_complete_evidence_rate": 0.55078125,
+      "annotation_gains": 40,
+      "annotation_losses": 34,
+      "complete_question_gains": 26,
+      "complete_question_losses": 23,
+      "changed_contexts": 252,
+      "exact_delta_lists_sha256": "fe9e3ab20124ae0b165d7a9374b8491b3b603ee80abf1f4c1cee0c39bd92d539"
+    },
+    {
+      "surface": "component",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 512,
+      "before_complete_evidence_rate": 0.4140625,
+      "after_complete_evidence_rate": 0.40625,
+      "annotation_gains": 35,
+      "annotation_losses": 39,
+      "complete_question_gains": 22,
+      "complete_question_losses": 24,
+      "changed_contexts": 218,
+      "exact_delta_lists_sha256": "3b25188325acdea8ea20831bd0b0ae46c9984910ae498eb8a8a873a1b440cf80"
+    },
+    {
+      "surface": "component",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 1024,
+      "before_complete_evidence_rate": 0.5390625,
+      "after_complete_evidence_rate": 0.55078125,
+      "annotation_gains": 40,
+      "annotation_losses": 34,
+      "complete_question_gains": 26,
+      "complete_question_losses": 23,
+      "changed_contexts": 252,
+      "exact_delta_lists_sha256": "fe9e3ab20124ae0b165d7a9374b8491b3b603ee80abf1f4c1cee0c39bd92d539"
+    },
+    {
+      "surface": "component",
+      "tokenizer": "o200k_base",
+      "budget_tokens": 2048,
+      "before_complete_evidence_rate": 0.5390625,
+      "after_complete_evidence_rate": 0.55078125,
+      "annotation_gains": 40,
+      "annotation_losses": 34,
+      "complete_question_gains": 26,
+      "complete_question_losses": 23,
+      "changed_contexts": 252,
+      "exact_delta_lists_sha256": "fe9e3ab20124ae0b165d7a9374b8491b3b603ee80abf1f4c1cee0c39bd92d539"
+    }
+  ],
+  "component_costs": [
+    {
+      "stage": "baseline-component",
+      "native_search_latency": {
+        "samples": 768,
+        "p50_ms": 2.2385755,
+        "p95_ms": 3.3041031,
+        "mean_ms": 2.3285727903645834
+      },
+      "adapter_roundtrip_latency": {
+        "samples": 768,
+        "p50_ms": 2.2385755,
+        "p95_ms": 3.3041031,
+        "mean_ms": 2.3285727903645834
+      },
+      "first_pass_roundtrip_latency": {
+        "samples": 256,
+        "p50_ms": 2.2577905,
+        "p95_ms": 3.366258,
+        "mean_ms": 2.34307334765625
+      },
+      "repeat_roundtrip_latency": {
+        "samples": 512,
+        "p50_ms": 2.230674,
+        "p95_ms": 3.2875354,
+        "mean_ms": 2.32132251171875
+      },
+      "first_pass_search_plus_all_reads_latency": {
+        "samples": 256,
+        "p50_ms": 2.2577905,
+        "p95_ms": 3.366258,
+        "mean_ms": 2.34307334765625
+      },
+      "native_costs": {
+        "queries": 256,
+        "unmapped_native_hits": 0,
+        "queries_with_unmapped_native_hits": 0,
+        "mean_read_calls": 0.0,
+        "mean_read_ms": 0.0,
+        "mean_search_payload_tokens": {
+          "cl100k_base": 3972.57421875,
+          "o200k_base": 3992.29296875
+        },
+        "mean_search_content_tokens": {
+          "cl100k_base": 805.3984375,
+          "o200k_base": 804.1015625
+        },
+        "mean_read_payload_tokens": {
+          "cl100k_base": 0.0,
+          "o200k_base": 0.0
+        },
+        "mean_read_content_tokens": {
+          "cl100k_base": 0.0,
+          "o200k_base": 0.0
+        }
+      },
+      "first_pass_read_calls": 0,
+      "repeat_hit_changes": 0
+    },
+    {
+      "stage": "candidate-component",
+      "native_search_latency": {
+        "samples": 768,
+        "p50_ms": 2.353277,
+        "p95_ms": 3.4877612,
+        "mean_ms": 2.4226708255208336
+      },
+      "adapter_roundtrip_latency": {
+        "samples": 768,
+        "p50_ms": 2.353277,
+        "p95_ms": 3.4877612,
+        "mean_ms": 2.4226708255208336
+      },
+      "first_pass_roundtrip_latency": {
+        "samples": 256,
+        "p50_ms": 2.3587695,
+        "p95_ms": 3.498355,
+        "mean_ms": 2.4484529296875
+      },
+      "repeat_roundtrip_latency": {
+        "samples": 512,
+        "p50_ms": 2.352906,
+        "p95_ms": 3.4316000999999994,
+        "mean_ms": 2.4097797734375
+      },
+      "first_pass_search_plus_all_reads_latency": {
+        "samples": 256,
+        "p50_ms": 2.3587695,
+        "p95_ms": 3.498355,
+        "mean_ms": 2.4484529296875
+      },
+      "native_costs": {
+        "queries": 256,
+        "unmapped_native_hits": 0,
+        "queries_with_unmapped_native_hits": 0,
+        "mean_read_calls": 0.0,
+        "mean_read_ms": 0.0,
+        "mean_search_payload_tokens": {
+          "cl100k_base": 3972.57421875,
+          "o200k_base": 3992.29296875
+        },
+        "mean_search_content_tokens": {
+          "cl100k_base": 805.3984375,
+          "o200k_base": 804.1015625
+        },
+        "mean_read_payload_tokens": {
+          "cl100k_base": 0.0,
+          "o200k_base": 0.0
+        },
+        "mean_read_content_tokens": {
+          "cl100k_base": 0.0,
+          "o200k_base": 0.0
+        }
+      },
+      "first_pass_read_calls": 0,
+      "repeat_hit_changes": 0
+    },
+    {
+      "stage": "candidate-semantic-component",
+      "native_search_latency": {
+        "samples": 768,
+        "p50_ms": 12.8324765,
+        "p95_ms": 20.4064925,
+        "mean_ms": 13.656596933593748
+      },
+      "adapter_roundtrip_latency": {
+        "samples": 768,
+        "p50_ms": 12.8324765,
+        "p95_ms": 20.4064925,
+        "mean_ms": 13.656596933593748
+      },
+      "first_pass_roundtrip_latency": {
+        "samples": 256,
+        "p50_ms": 12.8406565,
+        "p95_ms": 20.3179065,
+        "mean_ms": 13.6926721953125
+      },
+      "repeat_roundtrip_latency": {
+        "samples": 512,
+        "p50_ms": 12.803640999999999,
+        "p95_ms": 20.423202699999997,
+        "mean_ms": 13.638559302734375
+      },
+      "first_pass_search_plus_all_reads_latency": {
+        "samples": 256,
+        "p50_ms": 12.8406565,
+        "p95_ms": 20.3179065,
+        "mean_ms": 13.6926721953125
+      },
+      "native_costs": {
+        "queries": 256,
+        "unmapped_native_hits": 0,
+        "queries_with_unmapped_native_hits": 0,
+        "mean_read_calls": 0.0,
+        "mean_read_ms": 0.0,
+        "mean_search_payload_tokens": {
+          "cl100k_base": 4079.44140625,
+          "o200k_base": 4098.453125
+        },
+        "mean_search_content_tokens": {
+          "cl100k_base": 820.6484375,
+          "o200k_base": 819.15234375
+        },
+        "mean_read_payload_tokens": {
+          "cl100k_base": 0.0,
+          "o200k_base": 0.0
+        },
+        "mean_read_content_tokens": {
+          "cl100k_base": 0.0,
+          "o200k_base": 0.0
+        }
+      },
+      "first_pass_read_calls": 0,
+      "repeat_hit_changes": 0
+    },
+    {
+      "stage": "claude-mem-fts",
+      "native_search_latency": {
+        "samples": 768,
+        "p50_ms": 17.8183154999997,
+        "p95_ms": 33.88343889999948,
+        "mean_ms": 19.476829406250058
+      },
+      "adapter_roundtrip_latency": {
+        "samples": 768,
+        "p50_ms": 18.3785159999843,
+        "p95_ms": 34.65494980001153,
+        "mean_ms": 20.025453320310138
+      },
+      "first_pass_roundtrip_latency": {
+        "samples": 256,
+        "p50_ms": 18.579377999969893,
+        "p95_ms": 35.13899150004818,
+        "mean_ms": 20.253256488282467
+      },
+      "repeat_roundtrip_latency": {
+        "samples": 512,
+        "p50_ms": 18.24014400000351,
+        "p95_ms": 34.07686079993937,
+        "mean_ms": 19.911551736323972
+      },
+      "first_pass_search_plus_all_reads_latency": {
+        "samples": 256,
+        "p50_ms": 18.579377999969893,
+        "p95_ms": 35.13899150004818,
+        "mean_ms": 20.253256488282467
+      },
+      "native_costs": {
+        "queries": 256,
+        "unmapped_native_hits": 0,
+        "queries_with_unmapped_native_hits": 0,
+        "mean_read_calls": 0.0,
+        "mean_read_ms": 0.0,
+        "mean_search_payload_tokens": {
+          "cl100k_base": 1634.30078125,
+          "o200k_base": 1620.328125
+        },
+        "mean_search_content_tokens": null,
+        "mean_read_payload_tokens": {
+          "cl100k_base": 0.0,
+          "o200k_base": 0.0
+        },
+        "mean_read_content_tokens": {
+          "cl100k_base": 0.0,
+          "o200k_base": 0.0
+        }
+      },
+      "first_pass_read_calls": 0,
+      "repeat_hit_changes": 0
+    },
+    {
+      "stage": "ai-memory-hybrid",
+      "native_search_latency": {
+        "samples": 768,
+        "p50_ms": 31.71218650004448,
+        "p95_ms": 39.925097200102755,
+        "mean_ms": 32.57693340885659
+      },
+      "adapter_roundtrip_latency": {
+        "samples": 768,
+        "p50_ms": 31.71218650004448,
+        "p95_ms": 39.925097200102755,
+        "mean_ms": 32.57693340885659
+      },
+      "first_pass_roundtrip_latency": {
+        "samples": 256,
+        "p50_ms": 31.766505499945197,
+        "p95_ms": 40.09117324994804,
+        "mean_ms": 32.594193546874095
+      },
+      "repeat_roundtrip_latency": {
+        "samples": 512,
+        "p50_ms": 31.692942500058052,
+        "p95_ms": 39.782426400165605,
+        "mean_ms": 32.56830333984784
+      },
+      "first_pass_search_plus_all_reads_latency": {
+        "samples": 256,
+        "p50_ms": 37.74833050010784,
+        "p95_ms": 45.89654225031836,
+        "mean_ms": 38.5581249921918
+      },
+      "native_costs": {
+        "queries": 256,
+        "unmapped_native_hits": 0,
+        "queries_with_unmapped_native_hits": 0,
+        "mean_read_calls": 5.0,
+        "mean_read_ms": 5.963931445317705,
+        "mean_search_payload_tokens": {
+          "cl100k_base": 1016.1875,
+          "o200k_base": 1014.375
+        },
+        "mean_search_content_tokens": {
+          "cl100k_base": 951.81640625,
+          "o200k_base": 948.015625
+        },
+        "mean_read_payload_tokens": {
+          "cl100k_base": 1830.28515625,
+          "o200k_base": 1823.859375
+        },
+        "mean_read_content_tokens": {
+          "cl100k_base": 1612.19140625,
+          "o200k_base": 1600.78125
+        }
+      },
+      "first_pass_read_calls": 1280,
+      "repeat_hit_changes": 0
+    },
+    {
+      "stage": "billion-context",
+      "native_search_latency": {
+        "samples": 768,
+        "p50_ms": 0.25980600000002596,
+        "p95_ms": 1.1618761999999747,
+        "mean_ms": 0.4485311601562527
+      },
+      "adapter_roundtrip_latency": {
+        "samples": 768,
+        "p50_ms": 0.46206049989905296,
+        "p95_ms": 1.4489541001125872,
+        "mean_ms": 0.6768539505174568
+      },
+      "first_pass_roundtrip_latency": {
+        "samples": 256,
+        "p50_ms": 1.0555979999935516,
+        "p95_ms": 2.0801455000878377,
+        "mean_ms": 1.179650113277475
+      },
+      "repeat_roundtrip_latency": {
+        "samples": 512,
+        "p50_ms": 0.41175549995386973,
+        "p95_ms": 0.5693696999856002,
+        "mean_ms": 0.4254558691374477
+      },
+      "first_pass_search_plus_all_reads_latency": {
+        "samples": 256,
+        "p50_ms": 1.0555979999935516,
+        "p95_ms": 2.0801455000878377,
+        "mean_ms": 1.179650113277475
+      },
+      "native_costs": {
+        "queries": 256,
+        "unmapped_native_hits": 0,
+        "queries_with_unmapped_native_hits": 0,
+        "mean_read_calls": 0.0,
+        "mean_read_ms": 0.0,
+        "mean_search_payload_tokens": {
+          "cl100k_base": 583.84765625,
+          "o200k_base": 577.66796875
+        },
+        "mean_search_content_tokens": null,
+        "mean_read_payload_tokens": {
+          "cl100k_base": 0.0,
+          "o200k_base": 0.0
+        },
+        "mean_read_content_tokens": {
+          "cl100k_base": 0.0,
+          "o200k_base": 0.0
+        }
+      },
+      "first_pass_read_calls": 0,
+      "repeat_hit_changes": 0
+    }
+  ],
+  "recorded_resources": [
+    {
+      "stage": "baseline-native",
+      "setup_wall_ms": 3899.084038,
+      "sampled_process_tree_peak_rss_bytes": {
+        "setup": 579375104,
+        "queries": 561909760,
+        "finalization": 686985216
+      },
+      "max_observed_processes": {
+        "setup": 2,
+        "queries": 1,
+        "finalization": 2
+      },
+      "sampling_interval_ms": 20.0,
+      "worker_peak_rss_bytes": 686792704,
+      "native_state_before_close_bytes": 39045752,
+      "samples": {
+        "setup": 260,
+        "queries": 522,
+        "finalization": 35
+      },
+      "sampler_wall_ms": 17915.776327000003,
+      "boundary": "Linux worker plus live descendant RSS sampled every 20ms; shared mappings can be counted more than once. Peaks are observed lower bounds, not unique physical memory. Worker ru_maxrss includes the Python evaluator and loaded corpus. The sampler runs during all engine phases."
+    },
+    {
+      "stage": "candidate-native",
+      "setup_wall_ms": 3796.309181,
+      "sampled_process_tree_peak_rss_bytes": {
+        "setup": 585547776,
+        "queries": 568102912,
+        "finalization": 1160871936
+      },
+      "max_observed_processes": {
+        "setup": 2,
+        "queries": 1,
+        "finalization": 2
+      },
+      "sampling_interval_ms": 20.0,
+      "worker_peak_rss_bytes": 698556416,
+      "native_state_before_close_bytes": 39045752,
+      "samples": {
+        "setup": 257,
+        "queries": 412,
+        "finalization": 35
+      },
+      "sampler_wall_ms": 15549.079852999996,
+      "boundary": "Linux worker plus live descendant RSS sampled every 20ms; shared mappings can be counted more than once. Peaks are observed lower bounds, not unique physical memory. Worker ru_maxrss includes the Python evaluator and loaded corpus. The sampler runs during all engine phases."
+    },
+    {
+      "stage": "candidate-semantic-native",
+      "setup_wall_ms": 282970.295928,
+      "sampled_process_tree_peak_rss_bytes": {
+        "setup": 1357381632,
+        "queries": 1340280832,
+        "finalization": 1377402880
+      },
+      "max_observed_processes": {
+        "setup": 2,
+        "queries": 1,
+        "finalization": 2
+      },
+      "sampling_interval_ms": 20.0,
+      "worker_peak_rss_bytes": 1410973696,
+      "native_state_before_close_bytes": 55994000,
+      "samples": {
+        "setup": 13851,
+        "queries": 1315,
+        "finalization": 38
+      },
+      "sampler_wall_ms": 313556.06699099997,
+      "boundary": "Linux worker plus live descendant RSS sampled every 20ms; shared mappings can be counted more than once. Peaks are observed lower bounds, not unique physical memory. Worker ru_maxrss includes the Python evaluator and loaded corpus. The sampler runs during all engine phases."
+    },
+    {
+      "stage": "baseline-component",
+      "setup_wall_ms": 839.245745,
+      "sampled_process_tree_peak_rss_bytes": {
+        "setup": 575303680,
+        "queries": 555499520,
+        "finalization": 1119182848
+      },
+      "max_observed_processes": {
+        "setup": 2,
+        "queries": 1,
+        "finalization": 2
+      },
+      "sampling_interval_ms": 20.0,
+      "worker_peak_rss_bytes": 677879808,
+      "native_state_before_close_bytes": 33955840,
+      "samples": {
+        "setup": 70,
+        "queries": 311,
+        "finalization": 224
+      },
+      "sampler_wall_ms": 13452.933849000034,
+      "boundary": "Linux worker plus live descendant RSS sampled every 20ms; shared mappings can be counted more than once. Peaks are observed lower bounds, not unique physical memory. Worker ru_maxrss includes the Python evaluator and loaded corpus. The sampler runs during all engine phases."
+    },
+    {
+      "stage": "candidate-component",
+      "setup_wall_ms": 835.078256,
+      "sampled_process_tree_peak_rss_bytes": {
+        "setup": 989364224,
+        "queries": 550412288,
+        "finalization": 1112973312
+      },
+      "max_observed_processes": {
+        "setup": 2,
+        "queries": 1,
+        "finalization": 2
+      },
+      "sampling_interval_ms": 20.0,
+      "worker_peak_rss_bytes": 674746368,
+      "native_state_before_close_bytes": 33955840,
+      "samples": {
+        "setup": 70,
+        "queries": 321,
+        "finalization": 229
+      },
+      "sampler_wall_ms": 13785.265323999965,
+      "boundary": "Linux worker plus live descendant RSS sampled every 20ms; shared mappings can be counted more than once. Peaks are observed lower bounds, not unique physical memory. Worker ru_maxrss includes the Python evaluator and loaded corpus. The sampler runs during all engine phases."
+    },
+    {
+      "stage": "candidate-semantic-component",
+      "setup_wall_ms": 277600.185762,
+      "sampled_process_tree_peak_rss_bytes": {
+        "setup": 1308295168,
+        "queries": 1308295168,
+        "finalization": 1365065728
+      },
+      "max_observed_processes": {
+        "setup": 2,
+        "queries": 1,
+        "finalization": 2
+      },
+      "sampling_interval_ms": 20.0,
+      "worker_peak_rss_bytes": 1364766720,
+      "native_state_before_close_bytes": 53913400,
+      "samples": {
+        "setup": 13563,
+        "queries": 751,
+        "finalization": 228
+      },
+      "sampler_wall_ms": 300107.351377,
+      "boundary": "Linux worker plus live descendant RSS sampled every 20ms; shared mappings can be counted more than once. Peaks are observed lower bounds, not unique physical memory. Worker ru_maxrss includes the Python evaluator and loaded corpus. The sampler runs during all engine phases."
+    },
+    {
+      "stage": "claude-mem-fts",
+      "setup_wall_ms": 2443.182297,
+      "sampled_process_tree_peak_rss_bytes": {
+        "setup": 737816576,
+        "queries": 648409088,
+        "finalization": 667746304
+      },
+      "max_observed_processes": {
+        "setup": 2,
+        "queries": 2,
+        "finalization": 2
+      },
+      "sampling_interval_ms": 20.0,
+      "worker_peak_rss_bytes": 740331520,
+      "native_state_before_close_bytes": 20832050,
+      "samples": {
+        "setup": 158,
+        "queries": 874,
+        "finalization": 214
+      },
+      "sampler_wall_ms": 26232.274120000056,
+      "boundary": "Linux worker plus live descendant RSS sampled every 20ms; shared mappings can be counted more than once. Peaks are observed lower bounds, not unique physical memory. Worker ru_maxrss includes the Python evaluator and loaded corpus. The sampler runs during all engine phases."
+    },
+    {
+      "stage": "ai-memory-hybrid",
+      "setup_wall_ms": 853967.359094,
+      "sampled_process_tree_peak_rss_bytes": {
+        "setup": 791773184,
+        "queries": 786866176,
+        "finalization": 787070976
+      },
+      "max_observed_processes": {
+        "setup": 2,
+        "queries": 2,
+        "finalization": 2
+      },
+      "sampling_interval_ms": 20.0,
+      "worker_peak_rss_bytes": 656072704,
+      "native_state_before_close_bytes": 74580855,
+      "samples": {
+        "setup": 41716,
+        "queries": 1479,
+        "finalization": 448
+      },
+      "sampler_wall_ms": 895211.9252050001,
+      "boundary": "Linux worker plus live descendant RSS sampled every 20ms; shared mappings can be counted more than once. Peaks are observed lower bounds, not unique physical memory. Worker ru_maxrss includes the Python evaluator and loaded corpus. The sampler runs during all engine phases."
+    },
+    {
+      "stage": "billion-context",
+      "setup_wall_ms": 230.903359,
+      "sampled_process_tree_peak_rss_bytes": {
+        "setup": 568397824,
+        "queries": 693374976,
+        "finalization": 1022779392
+      },
+      "max_observed_processes": {
+        "setup": 2,
+        "queries": 2,
+        "finalization": 2
+      },
+      "sampling_interval_ms": 20.0,
+      "worker_peak_rss_bytes": 629760000,
+      "native_state_before_close_bytes": 0,
+      "samples": {
+        "setup": 54,
+        "queries": 86,
+        "finalization": 226
+      },
+      "sampler_wall_ms": 8118.787416999794,
+      "boundary": "Linux worker plus live descendant RSS sampled every 20ms; shared mappings can be counted more than once. Peaks are observed lower bounds, not unique physical memory. Worker ru_maxrss includes the Python evaluator and loaded corpus. The sampler runs during all engine phases."
+    }
+  ],
+  "resource_evidence_boundary": "All 27 setup/query/finalization maxima, process counts, sample counts and resource summaries match both canonical Git-backed full and summary reports. Sampling includes the worker, evaluator/corpus and live descendants at 20ms intervals, can count shared mappings more than once, and reports observed lower bounds rather than unique physical memory. Only maxima and summary counts are exported; no per-sample process trace is available, so this audit cannot reconstruct RSS time series or establish the cause of adverse observations. The separate formal old-data resource gate supplies no waiver for fresh resource changes.",
+  "retained_adverse_component_observations": {
+    "p50_ms": {
+      "baseline_ms": 2.2385755,
+      "candidate_ms": 2.353277,
+      "change_percent": 5.123861134011332
+    },
+    "p95_ms": {
+      "baseline_ms": 3.3041031,
+      "candidate_ms": 3.4877612,
+      "change_percent": 5.558485750641373
+    },
+    "setup_tree_rss": {
+      "baseline_bytes": 575303680,
+      "candidate_bytes": 989364224,
+      "change_percent": 71.97251788829162
+    },
+    "query_tree_rss": {
+      "baseline_bytes": 555499520,
+      "candidate_bytes": 550412288
+    },
+    "assessment": "Retained adverse descriptive observations at the 100000-character component ranker boundary, without formal ABBA pairing. The setup RSS maximum includes evaluator/corpus and up to two observed processes, can double-count shared mappings, and lacks a per-sample process trace. Cause is unresolved; neither an isolated library regression nor harmless noise is established. This boundary is outside the registered old-data token/char performance gate; no measurements were rerun or substituted."
+  },
+  "file_sha256": {
+    "benchmarks/results/round4-comparison-43363060062-1/ai-memory-hybrid.attempts.jsonl.gz": "a7161a6af4b97dc123f4fbe85162aaa15bef6e333b6603933b038b4d0362ad8e",
+    "benchmarks/results/round4-comparison-43363060062-1/ai-memory-hybrid.json.gz": "a034e8794a8c85bf9e8ba75b66016a870e37e1dc9e1a19c8560e8bd2dc3940aa",
+    "benchmarks/results/round4-comparison-43363060062-1/ai-memory-hybrid.summary.json": "d761581e49d197a6e0fd1e21a6d586505e36438140b1cf740831c123a1727603",
+    "benchmarks/results/round4-comparison-43363060062-1/assessment.json": "93a66be514f90c4e263b7eacfbee766eeac5593574743f23c52955d52247e29a",
+    "benchmarks/results/round4-comparison-43363060062-1/baseline-component.attempts.jsonl.gz": "abd8d8dd1703607644011f6b65c649c7dfc822600531191c4ce2c55c534e9319",
+    "benchmarks/results/round4-comparison-43363060062-1/baseline-component.json.gz": "45775537b4441c24e81bb171129ff54ecd45b539697d92b31ddc7301f11fe73e",
+    "benchmarks/results/round4-comparison-43363060062-1/baseline-component.summary.json": "6409cd542498f40feea6b5f20213411639140bb46689faea47ade10c4b4c17da",
+    "benchmarks/results/round4-comparison-43363060062-1/baseline-native.attempts.jsonl.gz": "aba6eb7e496a6d6d45c26e0534128fe4b1e97938fbe51f309f71a5e981946e20",
+    "benchmarks/results/round4-comparison-43363060062-1/baseline-native.json.gz": "027fe0c3f79785e48302166821d6b66f5c485eaf0a496b590206f4f1b12928e9",
+    "benchmarks/results/round4-comparison-43363060062-1/baseline-native.summary.json": "da20a9105d57e1c218397c2aa0c5959eb642edbf9ca6beedb1b43b49a3be32bc",
+    "benchmarks/results/round4-comparison-43363060062-1/billion-context.attempts.jsonl.gz": "a4361a66add8186c9e55a0388a7125e687e27885e5f40a4c577ef1fa29449f19",
+    "benchmarks/results/round4-comparison-43363060062-1/billion-context.json.gz": "c13cf23031508f7679c9813865f30ead8ff53ea626301e996b7bf18fc199e0f5",
+    "benchmarks/results/round4-comparison-43363060062-1/billion-context.summary.json": "edca4d64c7fe5bb674c07004f256a0e628a813ff6610cf4a7f3bd8205317ac01",
+    "benchmarks/results/round4-comparison-43363060062-1/candidate-component.attempts.jsonl.gz": "3950ac8d0b50bcac660bb44f0cb391710ce24107fa22e6f1178224b927de4177",
+    "benchmarks/results/round4-comparison-43363060062-1/candidate-component.json.gz": "f5cb0c29a87b4dd1ab430e3fa07d164d416a17e2ba1ff4f4769e1d6ec6ddabd8",
+    "benchmarks/results/round4-comparison-43363060062-1/candidate-component.summary.json": "e3c879d92be7c2bbcca370e0d97f9b1d10618f1903b1e243bb8d5455d100f9bf",
+    "benchmarks/results/round4-comparison-43363060062-1/candidate-native.attempts.jsonl.gz": "170a51a1ee82168141185df7ffe4026a040996e3a0bc0e4e0a120c34acd35b37",
+    "benchmarks/results/round4-comparison-43363060062-1/candidate-native.json.gz": "b5823b067480828654ee0cda198e390eba666699e9205920b2be9fb712321f4d",
+    "benchmarks/results/round4-comparison-43363060062-1/candidate-native.summary.json": "f910fa3745b892ede36abc952ee2d187b34aff82fea0fac57fe57d05fcdf35a8",
+    "benchmarks/results/round4-comparison-43363060062-1/candidate-semantic-component.attempts.jsonl.gz": "72707d3c18df929876d8f8369411f724e10736421f3e6f3e62ff5287fc43d24a",
+    "benchmarks/results/round4-comparison-43363060062-1/candidate-semantic-component.json.gz": "aee35fe88c1273abc1a3238cd607a2c2b1b4ebb1560fb05226e74ab526728303",
+    "benchmarks/results/round4-comparison-43363060062-1/candidate-semantic-component.summary.json": "d45262071ff315e5f1aa03b5e5a8ba0af94c6904f6cc0f943ab8ffa789e16e1c",
+    "benchmarks/results/round4-comparison-43363060062-1/candidate-semantic-native.attempts.jsonl.gz": "9110c522be159701fb758e821f1590b29b5289dfb6f7d660132bf85e9beb9265",
+    "benchmarks/results/round4-comparison-43363060062-1/candidate-semantic-native.json.gz": "d290d7622167667c5dda716bdacd476d4d4de7f695812d7a439b271ec63ea774",
+    "benchmarks/results/round4-comparison-43363060062-1/candidate-semantic-native.summary.json": "23b13779209b1a065f7c2badd18ccfe52b3f7e1c61a6217056b8cc011bffb9c2",
+    "benchmarks/results/round4-comparison-43363060062-1/claude-mem-fts.attempts.jsonl.gz": "84e1d1966af3f5309a940d91c14f3867959b19c6be994e988023c7df2214d01d",
+    "benchmarks/results/round4-comparison-43363060062-1/claude-mem-fts.json.gz": "181bd42d1190f068697d1f3c55afbbe291bb212e3ca4459273c87f1271c8f198",
+    "benchmarks/results/round4-comparison-43363060062-1/claude-mem-fts.summary.json": "73e9d2de61c199be6196de801a7e12336b7ea075ec9714c832722bd42d6f596e",
+    "benchmarks/results/round4-comparison-43363060062-1/export.attempts.jsonl.gz": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+    "benchmarks/results/round4-comparison-43363060062-1/export.json.gz": "8efe84d1ab6c458563cdc7016ddfafd53c26cf2c800cf33d12a437be45e192a9",
+    "benchmarks/results/round4-comparison-43363060062-1/export.summary.json": "4f404f27bc1b506a864ea57fe42580c9cf6588021a1ba4687f1fcd887bdcdac1",
+    "benchmarks/results/round4-comparison-43363060062-1/report.md": "851701cf1e3a21d5900721d2be6f831a4db044f8ba779c7a6763eb8d4125bd0a",
+    "benchmarks/reports/round4-comparison-43363060062-1-checkpoint.json": "c24c07a4b309521bc1549dd6b2a9d7474560034e71b58fb47ac858cbcb2d891a"
+  },
+  "retrieval_calls_executed": 0,
+  "inference_calls_executed": 0,
+  "scoring_calls_executed": 0,
+  "limits": [
+    "This audit recomputes arithmetic from saved ranks, hashes, coordinates and metric fields; omitted original questions/responses are not independently rescored, re-tokenized or projected against source text.",
+    "The 54 quality cells include18native and36offlinecomponentprojections. Six projections share the first search; they are not additional searches. Native component reads remain a separate cost.",
+    "Q2 native/component persisted vector hashes match; no independently measured query-embedding equality is inferred.",
+    "Different component transports and supplied-page representations do not establish whole-product speed or generated-answer accuracy.",
+    "Every question is answerable and comes from the same HotpotQA source; small diagnostic groups and the absence of unsupported questions limit generalization and abstention claims.",
+    "All losses, per-query delta lists and adverse descriptive latency/RSS observations remain in canonical reports; no best-run selection or retrieval repetition was used."
+  ],
+  "retained_adverse_native_observations": {
+    "finalization_tree_rss": {
+      "baseline_bytes": 686985216,
+      "candidate_bytes": 1160871936,
+      "baseline_mib": 655.16015625,
+      "candidate_mib": 1107.09375,
+      "change_percent": 68.98062854383171
+    },
+    "assessment": "Retained adverse descriptive native finalization observation. The cause is unresolved. This sampled process-tree maximum includes the evaluator/corpus and up to two observed processes, can double-count shared mappings, and is not isolated runtime memory. The formal old-data resource gate does not waive or explain this fresh observation."
+  }
+}

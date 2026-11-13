@@ -1,6 +1,45 @@
 # v0.3.2 / round-four continuation checkpoint
 
-## Current stage
+## Current stage — measurements and audits complete, release verification pending
+
+The frozen C2 runtime at `2d7b5e38839fb21724ad3beec6b6ebabbda45636` passed the
+sole formal run `43361086255`: all 56,784 calls and output invariants pass,
+aggregate p95 improves 10.1294%, and no resource exception is needed. The
+independent review and arithmetic audit are retained alongside all original
+measurements. The aggregate margin is narrow; public MCP character p95 rises
+1.4445%. Do not repeat completed measurements to select a faster result.
+
+Freeze run `43362624147` completed at
+`f812acac42e7c4d777c8b1d279cb121c3dc3e366`. Its manifest selects 256 questions,
+excludes all 640 historical IDs and has zero overlap. Independent ID-only and
+Git-order checks pass. Fresh comparison run `43363060062` completed once
+from that commit and preserved all ten stages at
+`eff394119105d59186c730e2480d86d1436401a6` on
+`validation/round4-comparison-43363060062-1`. The final assessment and local
+strict/independent arithmetic audits pass. Current documentation and the
+saved-result figure now include all outcomes. Final release-commit CI and the
+real public installer check remain pending.
+
+Main advanced independently to `a0961f29dcdf3801d063e6d69bacaa1bde99e318`,
+preserving v0.3.1 audit/preparation tooling. Its eight changed files are being
+integrated as an ancestor, with all frozen runtime/evaluator bytes retained.
+The current-source-as-v0.3.1 packaging fixture was replaced with a fixed,
+version-independent artificial fixture; the release guard now also pins the
+accepted C2 runtime for v0.3.2. All 18 focused release/audit/installer-routing
+tests pass. Preserve that main history when the final result and docs branches
+are merged; do not force-overwrite its changes.
+
+The combined integration checkpoint is `8aec830c550c608a2ddcaeac01c07ad37469208f`.
+Its [CI run 43365331288](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43365331288)
+passed all nine required jobs. This checks the combined code and tooling; the
+eventual release commit still needs its own exact-commit CI and public installer
+verification after fresh results and documentation are complete.
+
+Earlier sections below are historical checkpoints; the latest status is above
+and in the final appended sections. Preserve their original failed-attempt
+evidence and immutable experiment registrations.
+
+## Initial development checkpoint
 
 Protocol registered before development measurements at `4f239ea`. Development begins from
 `ea0541326f6869cd32a9573a111134622ec6b38c`; the named baseline is published
@@ -197,13 +236,61 @@ unmodified automatic result is `accepted: true` with no resource-review flags.
 Across twelve pooled cells, p95 geometric mean improves 10.1294%. Public native
 token512/token1024/token2048 p95 improves 19.0736%/18.4102%/18.2009%; actual
 public MCP token1024 improves 10.8021%. Public character-budget MCP p95 is
-1.4445% higher; every pooled p50 improves and no p50/p95 regression exceeds5%.
+1.4445% higher; every pooled p50 improves and no p50/p95 regression exceeds 5%.
 All individual rounds and resource measurements remain in the original report.
 These descriptive results meet the registered thresholds with a narrow margin
 on the aggregate gate; no statistical-significance or universal speed claim
 is inferred. No measurements were repeated to improve the result.
 
-The next committed freeze plan names the same accepted C2 source. The dedicated
-preparation workflow verifies all component/model assets and commits its binding
-before selecting 256 new IDs, excluding all640 historical IDs. Selection and
-fresh scoring are still pending at this checkpoint.
+The committed freeze plan names the same accepted C2 source. Dedicated
+preparation run `43362624147` verified all component/model assets and committed
+its binding at `b37cac8b90d8ec20941f53541dd369bce492c79b` before selecting 256
+new IDs. Manifest commit `f812acac42e7c4d777c8b1d279cb121c3dc3e366` excludes all
+640 historical IDs with zero overlap and contains 635 evidence annotations
+over 2,548 context paragraphs. The independent ID-only audit reproduces the
+complete selection and verifies commit order without scoring questions.
+
+Fresh scoring run `43363060062` has its own binding claim and a committed
+execution intent before each worker. It subsequently completed all ten stages
+and its strict audit. The original
+`scripts/round4_comparison.py audit --verify-existing` also passed locally
+without retrieval, preserving every quality loss and preparation/search/read/
+storage cost. See the final comparison checkpoint below. No release branch or
+tag exists at this prepublication checkpoint.
+
+## Complete comparison and final release preparation
+
+The single fresh run completed at
+`eff394119105d59186c730e2480d86d1436401a6`, tree
+`6301adcf5454cfbe1670d24a3e743fc0030908c7`. Its workflow succeeded, the
+checkpoint is `complete-verified`, and assessment exit code is zero. All
+4,608 native calls, 4,608 component searches and 18,432 attempt events are
+retained. Complete lexical payloads match in 1,536 native and 768 component
+pairs. The original verifier reproduced the exact assessment and Markdown;
+the independent arithmetic audit checked 54 quality cells / 13,824 rows,
+12 Q2 delta cells, recorded costs and all 27 resource phases. No retrieval,
+inference, timing replacement or quality retuning occurred during this audit.
+
+At the common 1,024-cl100k budget, default/Q2 complete evidence is
+53.91% / 55.08%, versus claude-mem FTS 44.53%, ai-memory 55.86% and
+billion-context 60.55%. Book's default exceeds claude-mem by 9.375 percentage
+points and has lower measured adapter p95 than claude-mem and ai-memory.
+Q2 leads packed MRR in this slice; billion-context leads recall, completeness
+and search-kernel latency. Native Q2's 512-token losses remain explicit.
+
+The separate fresh 100,000-character Book component path has p95 +5.5585%
+and p50 +5.1239% against v0.3.1, while sampled setup tree RSS rises
+548.65 to 943.53 MiB. Native lexical finalization tree RSS rises 655.16 to
+1,107.09 MiB. These unbalanced descriptive observations include the evaluator
+and corpus, have unresolved causes, and remain separate from formal resource
+means. All are retained in current guides; the generated figure highlights
+the formal MCP and fresh component regressions and links the complete records.
+
+The independent main integration is preserved at `8aec830`, including all
+eight upstream paths and the 18 focused passing tests. All nine jobs in
+`43365331288` pass for that combined source. Its source/runtime and both bound
+evaluator registries remain unchanged. Final publication still requires CI
+for the final integrated documentation/evidence commit, a safe fast-forward
+of main preserving `a0961f2`, then the `release/v0.3.2` workflow. Record the
+actual release commit, immutable tag, seven assets and public installer result
+after they exist; preserve all prior checkpoints and original report bytes.
