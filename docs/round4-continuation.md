@@ -185,3 +185,25 @@ The original binding SHA-256 remains
 `d535df483cc41cc0b2381104fd99b17f4639fa2160e3b73a6661ceb8c4e58915`.
 Commit that unchanged binding and launch `ci/v032-round4-performance` once.
 This is launch readiness; formal performance/resource acceptance is pending.
+
+## Formal round-four result
+
+The sole hosted run `43361086255` completed all 56,784 calls, sixteen workers
+and four ABBA rounds. Its final evidence commit is
+`1bd76f3b70eb60ead444f05c5a94148e9e384bba`. Complete-output and recorded
+invariant checks pass, the original strict offline audit succeeds, and the
+unmodified automatic result is `accepted: true` with no resource-review flags.
+
+Across twelve pooled cells, p95 geometric mean improves 10.1294%. Public native
+token512/token1024/token2048 p95 improves 19.0736%/18.4102%/18.2009%; actual
+public MCP token1024 improves 10.8021%. Public character-budget MCP p95 is
+1.4445% higher; every pooled p50 improves and no p50/p95 regression exceeds5%.
+All individual rounds and resource measurements remain in the original report.
+These descriptive results meet the registered thresholds with a narrow margin
+on the aggregate gate; no statistical-significance or universal speed claim
+is inferred. No measurements were repeated to improve the result.
+
+The next committed freeze plan names the same accepted C2 source. The dedicated
+preparation workflow verifies all component/model assets and commits its binding
+before selecting 256 new IDs, excluding all640 historical IDs. Selection and
+fresh scoring are still pending at this checkpoint.
