@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-11-13 20:55:07 UTC",
+  "updated_at_utc": "2026-11-13 20:58:47 UTC",
   "goal": "Continue v0.3.3 optimization of Afloat16/AI-Memory-Book with measured improvements, honest comparison boundaries and frequent durable Git checkpoints.",
   "control_branch": "optimization/v0.3.3-round5",
-  "previous_control_commit": "ccb4092e348f44a10662b47c66007deee307118a",
+  "previous_control_commit": "97efb4011cb438a05b21afe2a09c36df5506c2de",
   "resume_history": "docs/round5-resume-20261113.md",
   "published_baseline": {
     "tag": "v0.3.2",
@@ -251,7 +251,7 @@
       "not_started": false,
       "source_binding_sha256": "c6ae40b490a7e8358c1709dbb7e6a5999bf6756ef37c66da55488d3539e57828",
       "source_binding_donor_commit": "b9d2a75ce56be8e0c6a0f46fba53868e533453bd",
-      "status": "attempt1-preclaim-failure-preserved-attempt2-running",
+      "status": "both-attempts-stopped-before-query-workers-attempt2-failure-audit-pending",
       "run_id": 43497153581,
       "run_attempt": 1,
       "launch_commit": "be5879400b2f05a250e97b00ce9b488f00413ccb",
@@ -270,7 +270,7 @@
         "source_union_files": 35,
         "retrieval_calls": 0,
         "trigger_created": true,
-        "status": "unique-reviewed-attempt2-running",
+        "status": "completed-failure-before-any-query-worker",
         "prior_namespace_ci_failure": 43500815079,
         "general_ci_run": 43501583600,
         "all9general_ci_success": true,
@@ -304,7 +304,26 @@
         "run_attempt": 1,
         "result_branch": "validation/v033-q2-recovery-hosted-2",
         "automatic_replay": false,
-        "retrieval_calls_note": "No completed worker observed yet; this is not a terminal zero-call claim."
+        "retrieval_calls_note": "Final result tree contains the first preparation only and no query-worker report or intent; independent full-log/ancestry audit pending.",
+        "protocol_job": 132163187073,
+        "recovery_job": 132163425120,
+        "workflow_conclusion": "failure",
+        "result_commit": "14e2432adbf519d2cccabc038e4e1f0e9d805279",
+        "index_builds_completed": 1,
+        "prepared_cohort": "authored36",
+        "failure_stage": "once-only-snapshot-construction",
+        "failure_error": "ValueError: New prepared database has a sidecar",
+        "saved_prepare_vector_identity": {
+          "observed_sha256": "976cf1e7ec9df5a05d7bc4a19357d6107e7d63faf8825b1af68f5eab914eccf5",
+          "historical_required_sha256": "c1cecaacdf47d7db3a790e46589a03e3d895aabbe7fb4069a65c050f7efd0a2e",
+          "rows": 42,
+          "vector_bytes": 64512,
+          "revision": 42,
+          "equal": false,
+          "note": "Additional read-only observation from the saved preparation; the actual controller stopped at the prior sidecar gate. Cause of digest difference not inferred."
+        },
+        "independent_failure_audit_pending": true,
+        "accepted": false
       }
     },
     "fresh": {
@@ -531,9 +550,9 @@
     "git_policy": "Persist code/scope before execution, then each started/result stage. Do not force-push, replay started experiments, replace failed observations or add percentages across hosts."
   },
   "next_steps": [
-    "Observe only Q2 attempt2 run43505846977 at exact c23 head; preserve every preparation/worker checkpoint and perform the already registered read-only result audit. Never create another trigger or rerun this attempt.",
-    "Archive the final independent formal raw audit and its source-based adjudication of any auditor metadata assumption, retaining original rejection.",
-    "Keep fresh metadata/content, main/tag/release closed for rejected NO. Any later optimization requires a separately declared candidate and scope."
+    "Finish and preserve read-only audit of Q2attempt2 failure run43505846977/result14e2432, including actual sidecar stop and different saved vector digest; do not rebuild, clean-and-retry, or execute query workers.",
+    "Archive the completed independent formal primary-raw audit and source-based adjudication of its metadata assumption; preserve original numerical/resource rejection.",
+    "Finish final human/machine recovery reports and keep fresh/comparator evaluation plus main/tag/release closed for this rejected source."
   ],
   "previous_development_results": [
     {
