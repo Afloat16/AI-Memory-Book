@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "status": "accepted-independent-sql-attribution-launch-review-before-corpus",
+  "reviewed_at_utc": "2026-11-13 19:27:05 UTC",
+  "reviewed_launch_commit": "e1e56ac93dc4fdc63d1815c7d49894b8e0364093",
+  "reviewed_controller_commit": "108124188381a199735022abf21b9a0b9c812a54",
+  "reviewed_runtime_source_commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+  "runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
+  "launch_review_accepted": true,
+  "performance_accepted": false,
+  "formal_evaluation_accepted": false,
+  "release_accepted": false,
+  "corpus_calls_executed_by_review": 0,
+  "fresh_rows_decoded_by_review": 0,
+  "review_scope": "Final immutable binding and exact launch delta, after the separate independent implementation and observer reviews. No further producer changes or new corpus execution.",
+  "source_binding": {
+    "commit": "e1e56ac93dc4fdc63d1815c7d49894b8e0364093",
+    "path": "benchmarks/experiments/round5-lm-sql-attribution-source.json",
+    "sha256": "3b90a16af62c2766e6653f13a67e9fed2cd2e8c36f45e059970e6a76c2158880"
+  },
+  "frozen_implementation_evidence": {
+    "commit": "8c963887856c8d851a69fa22f7d253bcf551fba6",
+    "path": "benchmarks/reports/round5-lm-sql-attribution-artificial/final-implementation-ci.json",
+    "sha256": "8c962b2262a141e65dd9f85a8ebb23cda9fc7d1f5b0e0cd1b4c5f1ae195e077a",
+    "raw_log": {
+      "path": "benchmarks/reports/round5-lm-sql-attribution-artificial/ci-43490470211-job132109998742.log",
+      "sha256": "53633f958e57e33c99d178fcefe8a8895435ae32061e7a97af0010af587cc183"
+    },
+    "independently_read_raw_bytes_equal_to_direct_CI_API": true
+  },
+  "implementation_review": {
+    "commit": "927af3685fed2e686b108fe19ede6f2d1b121a2c",
+    "path": "benchmarks/reports/round5-lm-sql-attribution-independent-review.json",
+    "sha256": "849b8d3ed271427a03b466b7ec3401958b9209de142adb466f0b4c51314520ee"
+  },
+  "observer_review": {
+    "commit": "a6799d000043eccaa621942c9bd86b8be4736228",
+    "path": "benchmarks/reports/round5-lm-sql-attribution-observer-review/final-source-review.json",
+    "sha256": "5d5626245bda438729a786349279456c7770c30fcf8df6e16e599b99e1542d58",
+    "independently_read_and_hash_verified": true,
+    "status": "accepted-independent-observer-source-and-artificial-review-before-corpus"
+  },
+  "exact_artifact_files_sha256": {
+    "scripts/round5_lm_sql_attribution.py": "983813673788860014fcb0900583982b46b5d6e5c231541477e54d4a05e76273",
+    "tests/test_round5_lm_sql_attribution.py": "ea6b96e06bd4766741b90a401951d21aeddc3a23e75d58e50e560a159af90dc5",
+    ".github/workflows/round5-lm-sql-attribution.yml": "4b972bad02fb9fafd1e6885ca441fc9348def85db788db6ec3dfabf5afbcb343"
+  },
+  "checks": {
+    "exactly_three_added_files": true,
+    "deltas": [
+      {
+        "path": "benchmarks/experiments/round5-lm-sql-attribution-source.json",
+        "after": "174a3e5ca171cbeb5f2aa04bf34ee35c8b9fae56"
+      },
+      {
+        "path": "benchmarks/reports/round5-lm-sql-attribution-artificial/ci-43490470211-job132109998742.log",
+        "after": "e9c48cb9228e57b5520d5f68c1c16054b276bbd5"
+      },
+      {
+        "path": "benchmarks/reports/round5-lm-sql-attribution-artificial/final-implementation-ci.json",
+        "after": "c7340581eebc7e30648d1992c2ef860ffece2ddc"
+      }
+    ],
+    "runtime_exact": true,
+    "helpers_exact": true,
+    "dependencies_exact": true,
+    "source_ci_exact": true,
+    "classification_recomputed": "71cbc7b99aafd3dcf9e90c1206f784bb4edbbdc8649e75f77140eff29d57015b",
+    "classification_exact": true,
+    "artifact_manifest_exact": true,
+    "artifact_prior_review_exact": true,
+    "actual_35_receipt_exact": true,
+    "reference_scope_exact": true,
+    "schedule_scope_exact": true,
+    "reviews_exact": true
+  },
+  "preflight_contract_review": {
+    "binding_status": "frozen-after-artificial-proof-before-sql-attribution-corpus",
+    "first_action_is_require_binding": true,
+    "no_claim_or_download_before_validated_binding": true,
+    "runtime_identity_matches_exact_LM_scope": true,
+    "prior_evidence_matches_literal_registered_EVIDENCE_in_order": true,
+    "artifact_set_exactly_observer_test_workflow": true,
+    "original_helpers_and_dependencies_unchanged": true,
+    "classification_mapping_canonical_sha256": "71cbc7b99aafd3dcf9e90c1206f784bb4edbbdc8649e75f77140eff29d57015b",
+    "original_LM_source_CI_equal_to_registered_nine_job_evidence": true,
+    "original_scope_and_both_addendum_hashes_match": true,
+    "complete_C2_manifest_and_eight_compressed_raw_reference_pins_equal_to_scope": true,
+    "artificial_manifest_status_receipt_artifact_hashes_and_exact_CI_head_match": true,
+    "final_trigger_commit_guards_all_committed_inputs": true,
+    "limitations": "The independent review references are supplementary binding provenance. require_binding separately enforces the registered source/design/prior-result/pairing evidence and successful exact-artifact artificial CI; those original guards were not expanded or weakened."
+  },
+  "actual_final_artificial_ci": {
+    "run_id": 43491891665,
+    "head_sha": "e1e56ac93dc4fdc63d1815c7d49894b8e0364093",
+    "protocol_job": {
+      "id": 132114920150,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "attribution_job": {
+      "id": 132115096503,
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    "receipt": {
+      "expected": 35,
+      "tests": 35,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": true,
+      "source_commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+      "runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
+      "script_sha256": "983813673788860014fcb0900583982b46b5d6e5c231541477e54d4a05e76273",
+      "test_file_sha256": "ea6b96e06bd4766741b90a401951d21aeddc3a23e75d58e50e560a159af90dc5",
+      "workflow_file_sha256": "4b972bad02fb9fafd1e6885ca441fc9348def85db788db6ec3dfabf5afbcb343",
+      "scope_sha256": "0b3a249df45a25a00f76f4ad2c6e0cfa56fc7147a19e982fca429884c5ef1269",
+      "pairing_addendum_sha256": "cf55b88d45ee7a0dca53abefa6dc651d7eceb36f6ae0e709919655c566c36d21",
+      "publisher_addendum_sha256": "c9b58ce1079f449dc6809c54c6f2cf4beba45695af8b3d0ae63c409e26d776a4",
+      "corpus_calls": 0
+    },
+    "raw_log": {
+      "path": "benchmarks/reports/round5-lm-sql-attribution-independent-review/ci-43491891665-job132114920150.log",
+      "sha256": "2ff47ffd58766cc12b5027ea3467f1a4272431b283d632c4b8c6deed0c09fc17"
+    },
+    "raw_log_directly_read_from_GitHub_API": true,
+    "receipt_equal_to_frozen_108124_artificial_receipt": true,
+    "six_lifecycle_scenarios_still_pass": true
+  },
+  "ordinary_final_tests": {
+    "run_id": 43491891686,
+    "head_sha": "e1e56ac93dc4fdc63d1815c7d49894b8e0364093",
+    "last_observed_status": "queued",
+    "conclusion_at_that_observation": null,
+    "acceptance_basis": "The final delta adds only immutable binding/evidence/log files. Producer/test/workflow bytes are exactly the already reviewed 108124 implementation, whose ordinary Tests completed successfully. Final dedicated protocol CI is independently read as passed. This record does not relabel a queued ordinary run as successful."
+  },
+  "namespace_read_only_check": {
+    "checked_at_utc": "2026-11-13 19:26:02 UTC",
+    "trigger": "ci/v033-lm-sql-attribution-1",
+    "trigger_api_status": 404,
+    "result": "validation/v033-lm-sql-attribution-1",
+    "result_api_status": 404,
+    "reviewer_created_either_ref": false,
+    "interpretation": "Absence is a point-in-time read-only observation before root's authorized sole trigger creation."
+  },
+  "carried_forward_boundaries": [
+    "Exactly one diagnostic attempt on frozen historical LM, not NO: two old cohorts, four original configurations each, one persistent worker, 4732 recall calls and full saved C2 payload/order validation.",
+    "Native observer classification is partial instrumented C-boundary attribution, not pure SQLite CPU, exhaustive SQL, unprofiled latency or candidate speed evidence.",
+    "Original failed drafts, source outcomes, publisher counterexample, raw-topology gap and every available interruption prefix remain preserved. No retry/replay or favorable-cell selection is authorized.",
+    "Only zero worker exit plus explicit whole-group absence grants publisher handoff. All abnormal or unverified exits remain worker-owned and artifact-only regardless of cleanup outcome.",
+    "Missing/invalid binding or provenance fails before claim/download. Full source/helper/data/environment checks and every original payload gate remain in effect.",
+    "No fresh source, comparator/model workload, formal acceptance gate, production runtime or final source selection is changed by this review."
+  ],
+  "blocking_findings": [],
+  "conclusion": "The exact e1e56ac launch commit is consistent with the prospectively registered diagnostic and independently reviewed implementation. The complete frozen-artifact artificial proof and final 35-case protocol CI pass. Root may create the sole registered diagnostic trigger if proceeding under the existing authorization; this review itself creates no trigger and grants no performance or release acceptance."
+}
