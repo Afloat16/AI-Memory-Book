@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "status": "registered-before-candidate-c-implementation-and-measurement",
+  "registered_at_utc": "2026-11-13",
+  "original_plan_commit": "4f239eaab6e1ab7bfb8910819a74a6fab195629c",
+  "prior_addendum_commit": "fbfc6c56ae047abfd765e6149ba748c9e18adc42",
+  "prior_candidate_b_commit": "ec45162a41d65b43c142fac6193f3f412617d406",
+  "prior_candidate_b_runtime_sha256": "f4d5471df44d8d04e13581e971d6d53d885919caea9f80a5a0a4ddcbc088f122",
+  "reason": "Candidate A's gains were insufficient; candidate B's correctly bounded indexed-body feature cache had mixed/regressive native development results, including public token512 p95 +11.82 percent. Preserve all evidence and remove that cache from the release candidate. No formal timing, new ID selection or fresh quality scoring has occurred.",
+  "candidate_c": {
+    "retain": [
+      "Candidate A's reviewed lazy source parsing, certified corruption fallback, bounded projection and accepted-count reuse",
+      "Candidate B's exact private metadata dictionary reuse and bounded highlight scan, with dedicated retained fixtures"
+    ],
+    "remove": [
+      "Candidate B's connection-local indexed-body feature cache, revision state and memory accounting; restore direct indexed-body reads and original set intersection",
+      "Move B-only cache fixtures out of active test discovery while preserving their exact bytes and source checkpoint"
+    ],
+    "token_boundary_hypothesis": "Every actual citation block begins with '[' and accepted blocks are joined by exactly two LF characters. For the two exact registered tokenizer regexes, no pretokenizer alternative consumes the terminal LF and then '['. At the left segment's end, cl100k's end-of-string whitespace alternative consumes the same whole trailing whitespace as its newline alternative because the segment ends with LF. Therefore the sealed previous block plus separator and the next citation block are separate BPE pieces; their token-ID concatenation, and thus counts, are exact. This is a certified specific boundary, not arbitrary token-count additivity.",
+    "enabled_tokenizers": {
+      "tiktoken_version": "0.12.0",
+      "cl100k_base_pattern_sha256": "f021c3d976978e62ee64cdad150cc3405c2e3d6e3b40407850bb9e8d9eb65899",
+      "o200k_base_pattern_sha256": "2d1b8dc11e89af71459b36004f698ab3693f59fd84f63e8ec2b49564ab857420"
+    },
+    "guard": "Enable only with the exact known tokenizer version and inspected pattern hash, citation-prefix boundary and strict UTF-8 input certificate. Missing/unrecognized tokenizer internals, unsupported versions/patterns, non-citation headers or surrogate inputs retain the historical complete-context count and prefix-counter behavior, including historical errors.",
+    "reuse": "Keep sealed-block counts only within one assembly call. Compute each previously accepted block plus separator once, then count only the new header/content. Supplemental stable-prefix checks may use the new header and the exactly sealed earlier-token total. No state or source/query text survives the call.",
+    "safe_fit_bound": "For a certified strict-UTF-8 block, its UTF-8 byte length is an upper bound on its ordinary token count. If exact sealed-prefix tokens plus this bound fit, preserve that first-fit acceptance without an immediate encode. Final context_tokens must still be computed exactly; a later rejection cannot replace the accepted context or count.",
+    "must_preserve": [
+      "All first-fit decisions and their order, including nonmonotonic true token counts",
+      "Strict character and exact token budgets, final metadata, complete payloads and all source coordinates",
+      "Both tokenizer modes, literal special-token strings, Unicode normalization and code-fence behavior",
+      "Counter fallback and historical invalid-input/error behavior",
+      "No persistent feature/result/query-embedding cache, schema/index/model/dependency changes or ranking changes"
+    ],
+    "fresh_fixtures": [
+      "Token-ID equality, not just count equality, at certified boundaries under both exact encodings",
+      "Whitespace, CRLF, punctuation, slash runs, long runs, Unicode combining sequences, emoji, contractions, fences and literal special-token strings",
+      "Counterexamples to arbitrary block additivity and to token-count monotonicity remain respected",
+      "Empty/zero/tiny/exact budgets, all-fit/partial-fit/rejected-later/supplemental acceptance and exact final recount",
+      "Unsupported tokenizer version/pattern and missing private pattern attribute fall back safely",
+      "Surrogate inputs and historical encode_with_unstable strict-UTF-8 errors retain the old path",
+      "Cold old-Hotpot128 and full old-cohort payload differential before final formal freeze"
+    ]
+  },
+  "unchanged_gates": "The original 56,784-call ABBA matrix, all numeric speed/resource gates, all complete-payload and source/scope/budget invariants, one final source/evaluator binding and one formal execution remain unchanged. New development measurements and negative attempts are retained; none are substitutes for formal acceptance.",
+  "fresh_validation": "Preserve all 640 historical exclusions and the original commit-assets/binding-before-ID-selection protocol. Q2 remains unchanged; no quality candidate or reopened rejected experiment is introduced."
+}
