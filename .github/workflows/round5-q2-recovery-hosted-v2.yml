@@ -2,7 +2,7 @@ name: Reconstruct Q2 attempt2 with full frozen evaluator union
 
 on:
   push:
-    branches: ['staging/v033-q2-recovery-hosted-2', 'ci/v033-q2-recovery-hosted-1']
+    branches: ['staging/v033-q2-recovery-hosted-2', 'ci/v033-q2-recovery-hosted-2']
 
 permissions:
   contents: read
@@ -72,7 +72,7 @@ jobs:
           retention-days: 30
   recovery:
     needs: protocol-fixtures
-    if: github.repository == 'Afloat16/AI-Memory-Book' && github.event_name == 'push' && github.ref == 'refs/heads/ci/v033-q2-recovery-hosted-1' && github.run_attempt == 1
+    if: github.repository == 'Afloat16/AI-Memory-Book' && github.event_name == 'push' && github.ref == 'refs/heads/ci/v033-q2-recovery-hosted-2' && github.run_attempt == 1
     runs-on: ubuntu-24.04
     timeout-minutes: 165
     permissions:

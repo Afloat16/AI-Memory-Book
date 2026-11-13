@@ -118,6 +118,38 @@ class Q2UnionRecoveryTests(unittest.TestCase):
             for call in forbidden:
                 call.assert_not_called()
 
+    def test_registered_second_namespace_controls_workflow_and_preclaim_gate(self):
+        scope = q2.read(q2.SCOPE)
+        self.assertEqual(q2.ATTEMPT, scope["attempt"])
+        self.assertEqual(q2.BRANCH, scope["durability"]["result_branch"])
+        self.assertEqual(q2.PUBLIC.relative_to(q2.ROOT).as_posix() + "/", scope["durability"]["output"])
+        self.assertEqual(q2.STATE.relative_to(q2.ROOT).as_posix() + "/", scope["durability"]["state"])
+        workflow = (q2.ROOT / ".github/workflows/round5-q2-recovery-hosted-v2.yml").read_text()
+        self.assertEqual(workflow.count("ci/v033-q2-recovery-hosted-2"), 2)
+        self.assertNotIn("v033-q2-recovery-hosted-1", workflow)
+        for suffix, accepted in (("1", False), ("2", True)):
+            with self.subTest(suffix=suffix), tempfile.TemporaryDirectory() as name, ExitStack() as stack:
+                stack.enter_context(patch.object(q2, "PUBLIC", Path(name) / "public"))
+                stack.enter_context(patch.object(q2, "STATE", Path(name) / "state"))
+                stack.enter_context(patch.object(q2, "candidate_binding", return_value={}))
+                stack.enter_context(patch.dict(q2.os.environ, {
+                    "GITHUB_RUN_ATTEMPT": "1", "GITHUB_REF": "refs/heads/ci/v033-q2-recovery-hosted-" + suffix}))
+                remote = stack.enter_context(patch.object(q2, "remote_head", return_value=None))
+                preflight = stack.enter_context(patch.object(q2, "static_preflight",
+                                                             side_effect=RuntimeError("source-only sentinel")))
+                forbidden = [stack.enter_context(patch.object(q2, key)) for key in ("assets", "publish")]
+                with self.assertRaisesRegex(RuntimeError if accepted else ValueError,
+                                            "source-only sentinel" if accepted else "registered first"):
+                    q2.run()
+                if accepted:
+                    remote.assert_called_once_with()
+                    preflight.assert_called_once_with()
+                else:
+                    remote.assert_not_called()
+                    preflight.assert_not_called()
+                for call in forbidden:
+                    call.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -28,7 +28,7 @@ if str(ROOT) not in sys.path:
 from scripts import round5_q2_compatibility as legacy
 
 ATTEMPT = "round5-q2-recovery-hosted-2"
-BRANCH = "validation/v033-q2-recovery-hosted-1"
+BRANCH = "validation/v033-q2-recovery-hosted-2"
 PUBLIC = ROOT / "benchmarks/reports" / ATTEMPT
 STATE = ROOT / ".artifacts" / ATTEMPT
 SCOPE = ROOT / "benchmarks/experiments/round5-q2-recovery-hosted-v2-scope.json"
@@ -694,7 +694,7 @@ def worker(scope, binding, entry, historical_rows, baseline_rows):
 def run():
     candidate = candidate_binding()
     require(os.environ.get("GITHUB_RUN_ATTEMPT") == "1"
-            and os.environ.get("GITHUB_REF") == "refs/heads/ci/v033-q2-recovery-hosted-1",
+            and os.environ.get("GITHUB_REF") == "refs/heads/ci/v033-q2-recovery-hosted-2",
             "Only the registered first hosted Q2 attempt may execute")
     require(not PUBLIC.exists() and not STATE.exists() and remote_head() is None,
             "Fixed Q2 attempt already exists; no replay")
