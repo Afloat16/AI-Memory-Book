@@ -257,6 +257,71 @@ def _candidate_rows(cursor, description: tuple, connection=None) -> tuple[list, 
     return cursor.fetchall(), None
 
 
+
+def _ranked_candidate_rows(db, statement: str, parameters: list, table: str,
+                           connection=None) -> tuple[list, sqlite3.Cursor | None]:
+    """Probe one native FTS rank route without changing its exact top-96 set.
+
+    The inner query applies the original scopes before taking 97 rank-ordered
+    rows. SQLite sorts only that bounded result by the original rank/id keys.
+    A tie across the 96/97 boundary requires the complete historical query.
+    Neither the connection factory nor any persistent FTS configuration changes.
+    """
+    ordinary = (connection is not None and db is connection and
+                type(connection) is _NATIVE_CONNECTION and
+                connection.text_factory is str and connection.row_factory is _NATIVE_ROW and
+                sqlite3.Row is _NATIVE_ROW and sqlite3.Cursor is _NATIVE_CURSOR and
+                table in ("pages_fts", "pages_stem_fts"))
+    # Custom parameter adapters may be stateful. Keep their historical single
+    # binding operation instead of potentially binding again after a probe.
+    if ordinary:
+        for value in parameters:
+            kind = type(value)
+            if (kind not in (str, int) or
+                    (kind, _sqlite3.PrepareProtocol) in _sqlite3.adapters):
+                ordinary = False
+                break
+    score = f"bm25({table},2.0,2.0,1.0,0.25) rank"
+    tail = " ORDER BY rank,p.id LIMIT 96"
+    if ordinary and statement.count(score) == 1 and statement.endswith(tail):
+        inner = statement[:-len(tail)].replace(score, f"{table}.rank AS rank", 1)
+        inner = inner.replace(f"FROM {table} JOIN pages p",
+                              f"FROM {table} CROSS JOIN pages p", 1)
+        inner += (f" AND {table}.rank MATCH 'bm25(2.0,2.0,1.0,0.25)'"
+                  f" ORDER BY {table}.rank LIMIT 97")
+        probe = "SELECT rid,id,rank FROM (" + inner + ") ranked_route ORDER BY rank,id"
+        cursor = None
+        rows, native_cursor = None, None
+        try:
+            cursor = db.execute(probe, parameters)
+            rows, native_cursor = _candidate_rows(cursor, _STEM_ROUTE_DESCRIPTION, connection)
+        except UnicodeDecodeError:
+            # A 97th ID outside the old LIMIT may contain invalid UTF-8. Let
+            # the original query determine whether its own selected IDs fail.
+            pass
+        except sqlite3.OperationalError as error:
+            # CPython wraps its str-column decoder error as OperationalError,
+            # without a SQLite error code. Never turn an arbitrary SQL error,
+            # authorization denial or interruption into a retry.
+            if not (type(error) is _sqlite3.OperationalError and
+                    getattr(error, "sqlite_errorcode", None) is None and
+                    str(error).startswith("Could not decode to UTF-8 column 'id' with text ")):
+                raise
+        finally:
+            if cursor is not None:
+                cursor.close()
+        if (native_cursor is not None and type(rows) is list and len(rows) <= 97 and
+                all(type(row) is tuple and len(row) == 3 and
+                    type(row[0]) is int and type(row[1]) is str and
+                    type(row[2]) in (int, float) and math.isfinite(row[2])
+                    for row in rows)):
+            if len(rows) < 97 or rows[95][2] != rows[96][2]:
+                # The exhausted, closed native cursor retains its description
+                # for _restore_candidate_rows if later metadata needs fallback.
+                return rows[:96], native_cursor
+    return _candidate_rows(db.execute(statement, parameters), _STEM_ROUTE_DESCRIPTION, connection)
+
+
 def _restore_candidate_rows(rows: list, cursor: sqlite3.Cursor | None) -> list:
     """Restore only tuples produced by our certified native cursor."""
     return [_NATIVE_ROW(cursor, row) for row in rows] if cursor is not None else rows
@@ -807,9 +872,13 @@ class MemoryBook:
                           FROM (""" + statement + """) hits JOIN pages p ON p.rid=hits.rid
                           JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk
                           ORDER BY hits.rank,p.id"""
-                    route, native_cursor = (_candidate_rows(self.db.execute(statement, route_params),
-                                                           route_description, native_connection)
-                                            if qt else ([], None))
+                    if qt and use_stem and native_connection is not None:
+                        route, native_cursor = _ranked_candidate_rows(
+                            self.db, statement, route_params, table, native_connection)
+                    else:
+                        route, native_cursor = (_candidate_rows(self.db.execute(statement, route_params),
+                                                               route_description, native_connection)
+                                                if qt else ([], None))
                     routes.append(route)
                     route_cursors.append(native_cursor)
                 # Validate every route before reordering any derived work.
