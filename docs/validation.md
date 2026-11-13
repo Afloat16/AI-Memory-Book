@@ -2,41 +2,51 @@
 
 This document separates measured behavior from configuration compatibility.
 Product fixtures, examples, screenshots, and capture measurements are synthetic;
-v0.3.0 also evaluates an independently published LoCoMo text corpus. No private
+the published experiments also evaluate LoCoMo and HotpotQA text corpora. No private
 user conversation history was used in development or published.
 
-## Current candidate: v0.3.1 third-round completion — 2026-11-13
+## Current: v0.3.1 completed measurement and recovery
 
-The candidate's runtime SHA-256 is
-`9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46`,
-matching measured commit
-[`2d199b9`](https://github.com/Afloat16/AI-Memory-Book/commit/2d199b93f650eccd3dd239178822b31001b880e3).
-Final documentation and packaging changes do not change those runtime bytes.
+The [round-three checkpoint](../benchmarks/reports/round3-comparison-43267797247-1-checkpoint.json)
+is **complete-verified**: ten completed stages, 4,608 native calls and 4,608
+component searches. All 1,536 complete default native payload pairs and 768
+component payload pairs match. Independent offline recomputation verifies the
+original assessment and report, all 32 result blobs and all 71 prebound
+evaluator file hashes, with no retrieval replay. The
+[independent verification](../benchmarks/reports/round3-recovery/comparison-cross-verification.json)
+retains every Q2 gain/loss cell and exact report/checkpoint identities.
 
-| Validation | Completed result | Evidence |
-|---|---|---|
-| Formal performance | 47,320 calls / 16 workers; numeric gate passes; full non-timing output unchanged; all ten cells retained | [Optimization report](optimization-round3.md), [original run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43246417515) |
-| Original startup flag | Original automatic `accepted=false` preserved; disclosed +4.838 ms / +14.04% accepted in a separate review after 80 fresh startup diagnostics | [Resource review](round3-startup-resource-review.md), [diagnostic run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43266672875) |
-| Interrupted quality experiment | Original 8,082 calls / eight workers reconstructed from intact chunks, audited without new retrieval, candidate rejected | [Decision](../benchmarks/reports/round3-project-stats-recovery-43266603949-1/decision.json), [recovery run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43266603949) |
-| New frozen comparison | All ten stages complete; 4,608 native calls + 4,608 component searches; no budget/source/scope failures; 1,536 native and 768 component payload pairs identical | [Assessment](../benchmarks/results/round3-comparison-43267797247-1/assessment.json), [run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43267797247) |
+The separate [formal performance review](round3-performance-review.md) checks
+47,320 original calls from four balanced rounds and ten configurations. Its
+query-speed and exact-output checks pass. Original startup mean +14.04%, the
+automatic `accepted: false` flag and all individual regressions stay intact;
+the explicit resource review accepts the guarded query change with that cost
+disclosed. The existing startup-only diagnostic is independently reconstructed
+from all 80 original samples, not a replacement performance run.
 
-The new 256-question selection excludes the prior 384 question IDs. It uses
-607 support annotations from the same public HotpotQA source, all answerable.
-It measures retrieval evidence, not generated-answer accuracy, abstention or
-generalization. The [full comparison](round3-comparison.md) retains both the
-advantage over claude-mem FTS and the quality/latency losses against other
-components, including Q2's small-budget regressions.
+The [quality-screen recovery](round3-quality-review.md) reconstructs 8,082
+original calls from preserved workers without scoring again. All 20 recovered
+files match the canonical hosted recovery. The project-local statistics
+candidate fails 14 registered checks and remains excluded from the release.
+See [source/code review](round3-code-review.md),
+[registration reconciliation](round3-reconciliation.md), and the
+[full result index](../benchmarks/README.md).
 
-Final integration checks use all nine normal CI jobs, the
-[read-only evidence audit](../.github/workflows/round3-final-audit.yml) and
-[prepare-only packages](../.github/workflows/release-prepare.yml).
-The audit pins original result Git blobs and input SHA-256 values, runs the
-original report auditors, and verifies that it changed no inputs and executed
-no retrieval/model/timing calls. Packaging binds the runtime hash, checks the
-wheel and sdist in separate clean environments, and installs the produced wheel
-with MCP/client extras. The delivery PR records the exact final source commit,
-Actions results and artifact. This candidate documentation does not imply that
-a public v0.3.1 tag or release already exists.
+The published v0.3.1 source is `7b7a5d7336b9350a128f5e0a888811b1b3015e68`.
+[All nine exact-commit Tests jobs](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43273167370)
+passed. The [release workflow](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43273455233)
+verified all seven assets and their downloaded hashes, then successfully
+installed through the actual public tagged URL in a clean environment.
+The [release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.1)
+includes its exact source SHA and successful CI link. The supplemental offline
+audit used the original executed evaluator. A separate
+[published-source comparison](../benchmarks/reports/round3-recovery/published-release-cross-verification.json)
+confirms all 71 bound evaluator files and 17 runtime/static files are identical
+to the audited checkout. See
+[audit provenance](round3-continuation.md#published-release-and-supplemental-audit)
+and [publishing procedure](releasing.md).
+
+The dated sections below retain evidence for their historical source pins.
 
 ## Historical completed continuation — 2026-11-12
 
@@ -74,7 +84,7 @@ Integrity/completeness gates do not assert that every quality metric improved.
 
 The dated sections below describe the evidence available at those older commits.
 
-## Historical recall-quality continuation
+## Unreleased: recall-quality continuation
 
 ### Recovered native-budget checkpoint: e70bc3d
 

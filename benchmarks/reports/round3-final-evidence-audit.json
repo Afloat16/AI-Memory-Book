@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "audit_kind": "independent-final-metadata-and-provenance-review",
+  "result_commit": "c99f20531053b1c164fc5a5d3fa8e0c831eeb4de",
+  "run_id": "43267797247-1",
+  "errors": [],
+  "checkpoint": {
+    "path": "benchmarks/reports/round3-comparison-43267797247-1-checkpoint.json",
+    "sha256": "af7418fb1cf08dc50e95b6c47e3e6dcf7395ba80b8f074c15d6fce6e9f9a0edf",
+    "status": "complete-verified"
+  },
+  "assessment": {
+    "path": "benchmarks/results/round3-comparison-43267797247-1/assessment.json",
+    "sha256": "45d46f90decfc981067b77195cb72ce1591725b0727f77ca06a52c845de08de6",
+    "status": "complete-verified",
+    "strict_validation_passed": true,
+    "failures": []
+  },
+  "matrix": {
+    "stages": 10,
+    "native_calls": 4608,
+    "component_search_calls": 4608,
+    "total_calls": 9216,
+    "started_equals_finished": true,
+    "summary_digests_recomputed": 10,
+    "result_inventory_files": 32,
+    "all_recorded_stages_sequential": true,
+    "configs_per_retrieval_stage": 6,
+    "queries_per_config": 256,
+    "required_evidence_per_config": 607,
+    "reported_source_scope_token_invariants": 0,
+    "configured_generative_model_calls": 0
+  },
+  "host": {
+    "id": "c26c0028e9b1ae976bb24ed9e0b48582b710ad3727551c08278bc9c86b9d8734",
+    "boot_id": "2155de72-2982-4414-be7f-648f7d6c728f",
+    "python": "3.12.16",
+    "sqlite": "3.45.1",
+    "packages": {
+      "tiktoken": "0.12.0",
+      "onnxruntime": "1.31.1",
+      "tokenizers": "0.23.3",
+      "numpy": "2.5.4",
+      "pyarrow": "26.0.1"
+    },
+    "same_across_all_stages": true
+  },
+  "identities": {
+    "plan_sha256": "93d24dc520984eb07ace81c815ba8573f29498116f73eced863609cd45bcb5f4",
+    "binding_sha256": "740361f1767a942887bdb7639b1be0223ae1c6dc2fc3b941f845d038884f842f",
+    "cohort_manifest_sha256": "b29545eb90f89744d86e3f8822b838c44a1846be057161b1905f6c977b7b1ae5",
+    "source_commit": "a0d67b35d074077f43b5cea77954921802d51f44",
+    "evaluator_commit": "3d8583b22ae73ec69b368d03ce735657f92f1edb",
+    "baseline": {
+      "commit": "dd2f88be742ed330269e7dd5915b6f75089d7fef",
+      "source_sha256": "d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57"
+    },
+    "candidate": {
+      "commit": "2d199b93f650eccd3dd239178822b31001b880e3",
+      "source_sha256": "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46"
+    },
+    "model_fingerprint": "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25",
+    "all_bound_evaluator_maps_identical": true,
+    "all_book_runtime_hashes_verified_before_and_after": true,
+    "common_documents_sha256": "8d15147b897b27accb572e8b8d0de096aff11aa9f109012f255f482ba85ea178"
+  },
+  "selection": {
+    "dataset_sha256": "8470e4913f858788809b421acbc6a07bb0701daadc11062909b45d102dd9f79a",
+    "selected_ids_sha256": "ccca7b09ad37e74652d84c26c0c2a823ffaf9a64f9fd911cf72d0e468dec1d0f",
+    "excluded_prior_ids_sha256": "98656de8ae587404e2469862b4e44c3363b6c8b46f651e23407e625e72388be8",
+    "unique_selected_ids": 256,
+    "unique_excluded_prior_ids": 384,
+    "prior_overlap": 0,
+    "salted_sha256_order_verified": true,
+    "source_questions_answers_and_passages_read": false,
+    "full_id_universe_reloaded": false
+  },
+  "ancestry": {
+    "evaluator_commit": "3d8583b22ae73ec69b368d03ce735657f92f1edb",
+    "binding_commit": "c05fd1c453db1e1365ba0c3e4ab359cd8f9017c0",
+    "selection_and_execution_source_commit": "a0d67b35d074077f43b5cea77954921802d51f44",
+    "binding_direct_parent_of_selection": true,
+    "selected_manifest_absent_at_binding_commit": true,
+    "binding_unchanged_through_result": true,
+    "selection_commit_is_ancestor_of_result": true
+  },
+  "default_payload_equivalence": {
+    "passed": true,
+    "native_pairs": 1536,
+    "native_differences": [],
+    "component_pairs": 768,
+    "component_differences": [],
+    "boundary": "Complete native JSON SHA256 after removing latency_ms only, at registered native caps and at the component ranker's 100000-character cap."
+  },
+  "upstream_components": {
+    "claude-mem": {
+      "repository": "thedotmack/claude-mem",
+      "commit": "c4a9f5725f420bf9c6e866cdd3b94bd36498af09",
+      "lock_path": "benchmarks/competitors/claude-mem-round2-lock.json",
+      "lock_sha256": "49267441d4a1292bdd6232abfd78a109fc97fcfcfcf740a51a84d767d6c3edae"
+    },
+    "billion-context": {
+      "repository": "ranxianglei/billion-context",
+      "commit": "9674cfafbc78c50245ae0d887483d3d6ce880c15",
+      "lock_path": "benchmarks/competitors/billion-round2-lock.json",
+      "lock_sha256": "0f56614fb56f3f269f6e40eb28646a8939fdf4e6dddcc93187465d31311dfd69"
+    },
+    "ai-memory": {
+      "repository": "akitaonrails/ai-memory",
+      "commit": "ee73c04c542fa41ca629b046deb4ac108518f407",
+      "lock_path": "benchmarks/competitors/ai-memory-lock.json",
+      "lock_sha256": "77edebbd68ca4f190065b9795481c524f50e3af73b10f05334a6d76d2c4cbd4c"
+    }
+  },
+  "old_quality_disposition": {
+    "evidence_commit": "fa95442af9f36655873f0a5821409bd5a09a0d4a",
+    "proof_path": "benchmarks/reports/round3-project-stats-recovered/recovery-proof.json",
+    "proof_sha256": "c8c6f8b0b3dc3e1fc40c1284a4cf97edb7f1582e0d00655562df217706dcbbeb",
+    "full_report_sha256": "5319394dbff4ba833ac7795219947ae26a550bb2010620aab38a2c037fd07f9b",
+    "workers": 8,
+    "calls": 8082,
+    "replayed_calls": 0,
+    "status": "rejected_loss_or_no_gain",
+    "loss_checks": 14,
+    "qualified": false,
+    "included_in_executed_binding": false,
+    "note": "This separately recovered proof is linked as corroborating old-screen evidence; it is not presented as part of the executed run's earlier binding tree."
+  },
+  "reconciliation": {
+    "source_commit": "dc392ebb5d3fe131ee0863ab634f30819b525be8",
+    "path": "benchmarks/reports/round3-run-reconciliation.json",
+    "sha256": "e3a294851b1a1894e38cf2d3de5f98bdcc2f48ae5fa6c1f0ff5f50b876f256f3",
+    "status": "existing_execution_adopted_no_additional_scoring",
+    "executed_binding_sha256": "740361f1767a942887bdb7639b1be0223ae1c6dc2fc3b941f845d038884f842f",
+    "superseded_unexecuted_audit_commit": "383127451c3c3db65b516d44e60a3dbe4fb8f8ff",
+    "superseded_binding_sha256": "fcf73eaffb22b72ecd4629716982784e2831161595696ad7d5a423a0a633f11f",
+    "previous_preparation_audit_is_not_relabelled_as_this_run_prescore_audit": true
+  },
+  "stage_reports": [
+    {
+      "stage": "export",
+      "calls": 0,
+      "summary_sha256": "c468af0436f5fc03443cb84038758c85cb10b10d3b01e58f821c8c4b517b1024",
+      "raw_report_sha256": "35a160df8e7b9adad212f79b3833b53492eb0cb48b4a96147dd90d35fa0e8ed1",
+      "compressed_report_sha256": "0eea11eb4fc436a3c96a7d6b9c637ecd5cd29f17a64472eb401f49866fac6288",
+      "ledger_compressed_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "host_id": "c26c0028e9b1ae976bb24ed9e0b48582b710ad3727551c08278bc9c86b9d8734"
+    },
+    {
+      "stage": "baseline-native",
+      "calls": 1536,
+      "summary_sha256": "053880c82b35bc4cee4d64656265e4f8970d9d713418b98456bfa6e6704f9e39",
+      "raw_report_sha256": "74a6defd9901404b2506b18a023362bb4561c4fed759c04f9a195fb894c6d801",
+      "compressed_report_sha256": "42898c84b33bb54365e1eb9b5d3837eff953e90e4670cc92ca317c8ddc16a164",
+      "ledger_compressed_sha256": "cb011df523224b126aa286fa72deec0b466fdc26d05241b400e77878a0ba25ab",
+      "host_id": "c26c0028e9b1ae976bb24ed9e0b48582b710ad3727551c08278bc9c86b9d8734"
+    },
+    {
+      "stage": "candidate-native",
+      "calls": 1536,
+      "summary_sha256": "7bf70457ef678551b748298bbbb1002d5a41c7f980197ab6deee4df5f58b6bd7",
+      "raw_report_sha256": "23ce08dc34d0504dae41071ea01171acc6761fcd36eb7503c7a8699a79329371",
+      "compressed_report_sha256": "47ac99aaa91b76d92720f56c87911ea5387357ce1d6eea3eafc903c6f4bd239c",
+      "ledger_compressed_sha256": "492651cd33d5a8ae6848b75de7c81d07728ef2286399e03b0ace76d7b61b8938",
+      "host_id": "c26c0028e9b1ae976bb24ed9e0b48582b710ad3727551c08278bc9c86b9d8734"
+    },
+    {
+      "stage": "candidate-semantic-native",
+      "calls": 1536,
+      "summary_sha256": "860a19efb85afea07241d826948eea1c8f184e98690e1bd87306a8d80e693108",
+      "raw_report_sha256": "28be9b1ba8b405becaad9dd891987a9546d0226c22155127f882a6333f60f347",
+      "compressed_report_sha256": "2638ea9d653bef73c5cde2149d052d93d8f40209e080bdfbacaf068b483ed3c8",
+      "ledger_compressed_sha256": "5f85a899ce7b50ebc92a29413cf61e69cf348401f16ab300c48975d8748460b2",
+      "host_id": "c26c0028e9b1ae976bb24ed9e0b48582b710ad3727551c08278bc9c86b9d8734"
+    },
+    {
+      "stage": "baseline-component",
+      "calls": 768,
+      "summary_sha256": "39762841424e913f446474cf5ebab2e906f3d9c93fd0379f2da2245bd6fbc99f",
+      "raw_report_sha256": "f6b6262cc5065c308bb1fcb8d368783760d68572abf62fdb4100b57a82a00f06",
+      "compressed_report_sha256": "4f64707455e401ce6a22799f50a18fd6971ac2f2efe71710f7ab4a1abb76cfaf",
+      "ledger_compressed_sha256": "167b4cec91bba2c108d8bbf13a72d688924f1a24d2afcb8804570c80c4b3287e",
+      "host_id": "c26c0028e9b1ae976bb24ed9e0b48582b710ad3727551c08278bc9c86b9d8734"
+    },
+    {
+      "stage": "candidate-component",
+      "calls": 768,
+      "summary_sha256": "aca088e9f150f9dd1441304b6a6f2b371d4a983a07f2c83841bb13a86195be3b",
+      "raw_report_sha256": "490a8e695d0b87c799ebea9b7334c2016f3d069bbff9f3b944d0ed5566633ab1",
+      "compressed_report_sha256": "5e7e2e284935f801646428f56beb405251f20f7a874191d0aba268c6c6e31a11",
+      "ledger_compressed_sha256": "5e1d1751d6118932031eef9e1dc93f54e5de39a400bf8b70ee1b9da34b86b53f",
+      "host_id": "c26c0028e9b1ae976bb24ed9e0b48582b710ad3727551c08278bc9c86b9d8734"
+    },
+    {
+      "stage": "candidate-semantic-component",
+      "calls": 768,
+      "summary_sha256": "1f04c2ce005cc9b3210c6efb54574e9bcaf55bfe6530bcafb8fdd8c070e25d8f",
+      "raw_report_sha256": "65b75ae47a648a81dde1ef2e7d137174a7e58a6ec3cbd86b9512f76860b41577",
+      "compressed_report_sha256": "bd7f4b858255507a711d58c8310375543c5b8e1744d90db9e8f0ebfe90bcc724",
+      "ledger_compressed_sha256": "aafa7b6121988d3ecdbdf44bac7384675bcd7553fbb13447b35b6af9329da80f",
+      "host_id": "c26c0028e9b1ae976bb24ed9e0b48582b710ad3727551c08278bc9c86b9d8734"
+    },
+    {
+      "stage": "claude-mem-fts",
+      "calls": 768,
+      "summary_sha256": "c6f849f52b408d5325f1e2c3dddc9b83d9583ad9c354981668f30e7ec8a3f5a4",
+      "raw_report_sha256": "f990afeedc602ffd7ca54df415fa240c80c53802b5ec457055100fa758c46d12",
+      "compressed_report_sha256": "18939e0cc9087644f2589149b2e0192d5deda18ba45b94f6b263ce421d508d6b",
+      "ledger_compressed_sha256": "443d29a7695472b2281def5de02ff3cafe264f4db6b91a4228dda91dd803c65d",
+      "host_id": "c26c0028e9b1ae976bb24ed9e0b48582b710ad3727551c08278bc9c86b9d8734"
+    },
+    {
+      "stage": "ai-memory-hybrid",
+      "calls": 768,
+      "summary_sha256": "6cb06c2e3afc8635f5d6ce603744dfffa7eb31f2f7a9edf8496e6db405e00755",
+      "raw_report_sha256": "a12dd69c1eb504cf862bec896139711390b6e8d392386f73314668bb724a264b",
+      "compressed_report_sha256": "f5beae0b3ce3749cc8c648e76928becf8a27b242695c35a7676bbe79c7381a3c",
+      "ledger_compressed_sha256": "0d0eb3fa54868c0abb74cc818bfde5ae868c7c0874bbb83976bed923b07bebb5",
+      "host_id": "c26c0028e9b1ae976bb24ed9e0b48582b710ad3727551c08278bc9c86b9d8734"
+    },
+    {
+      "stage": "billion-context",
+      "calls": 768,
+      "summary_sha256": "71e6077f8d6a754fba3b957ac78d666986b94809dce2763223ef8055bcc1cccd",
+      "raw_report_sha256": "6348da69190abb0c57bd00565c5353ebac573d104479892f2a521a999af02e38",
+      "compressed_report_sha256": "8c3631c5a5900bc38263fb4485c34f4be95c71e6d3f86b6c2b5753bf1eac3e41",
+      "ledger_compressed_sha256": "0c255bea49754a2d513556691091a69e4f98a8d09761183c77070d698594cda3",
+      "host_id": "c26c0028e9b1ae976bb24ed9e0b48582b710ad3727551c08278bc9c86b9d8734"
+    }
+  ],
+  "scope": [
+    "Independent recomputation of checkpoint-linked assessment and ten summary file hashes; comparison of their call counts, host, frozen source/model/component pins, common corpus, six configurations and zero reported invariants.",
+    "Git trees and ancestry verify the actual binding preceded ID selection and remained unchanged. ID ordering and exclusion digests were recomputed without reading questions or answers.",
+    "The original frozen assessor checked complete raw reports, per-call ledgers, evidence invariants and payload equality. This final review did not download those gzip payloads again or repeat retrieval.",
+    "The complete eligible-ID universe was not reloaded; the original ID-only loader and its verified upstream Parquet bytes establish the smallest-256 selection.",
+    "This is retrieval-component evidence, not generated-answer accuracy, full-product latency or cross-domain generalization. Q2 per-question gains and losses remain in the original assessment."
+  ]
+}

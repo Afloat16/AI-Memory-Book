@@ -2,6 +2,8 @@
 
 Run [43267797247](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43267797247) completed successfully with **10/10 registered stages**, **4,608 native recall calls**, **4,608 component searches** and **1,280 additional native ai-memory page reads**. The [assessment](../benchmarks/results/round3-comparison-43267797247-1/assessment.json) is `complete-verified`; all strict source, scope and budget checks passed.
 
+The [v0.3.1 prerelease](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.1) was subsequently published on 2026-11-12. In this historical report, "baseline" and "candidate" identify the frozen experimental roles; the measurements and artifact identities remain unchanged. See the [release notes](releases/v0.3.1.md) and [published-release verification](round3-continuation.md#published-release-and-supplemental-audit) for the later publication and audit record.
+
 The v0.3.1 runtime candidate preserves the baseline's complete lexical payload in **1,536 native pairs and 768 component pairs**. Its default optimization improves execution rather than changing retrieval quality. The separate [47,320-call performance experiment and startup review](optimization-round3.md) remain the basis for the formal speed claim.
 
 On this fresh cohort, Book has a clear measured quality advantage over the tested claude-mem supplied-source FTS component in every budget/tokenizer cell. It does **not** lead every compared component: ai-memory and billion-context retrieve more complete evidence at 1,024/2,048 tokens, while billion-context also has lower measured search-kernel latency. Existing optional Q2 improves Book's complete-evidence rate at the larger budgets but loses at 512 tokens and adds model/index/query costs.
@@ -380,4 +382,4 @@ python scripts/round3_comparison.py audit \
 
 Use the pinned dependencies and exact evaluator files recorded in the binding. The audit recomputes the assessment from recorded reports and checks the existing Markdown; it does not rerun retrieval. Do not overwrite these historical artifacts or rerun selectively to replace unfavorable samples.
 
-This report establishes a verified implementation with specific measured strengths and disclosed tradeoffs. It does not announce a v0.3.1 tag or public release.
+This report establishes a verified implementation with specific measured strengths and disclosed tradeoffs. The subsequent [v0.3.1 prerelease](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.1) and its publication checks are recorded separately; publication does not broaden these measured claims.
