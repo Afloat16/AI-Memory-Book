@@ -1,0 +1,241 @@
+{
+  "schema_version": 2,
+  "status": "completed-offline-only",
+  "created_at": "2026-11-13T08:15:08.826240+00:00",
+  "script_sha256": "9d78f8b6456aa959e70d0d65bc86eb5cb82b77f6b1e23ec649764b87d572ee1e",
+  "manifest_sha256": "b0485b3a089c9b04fc4453fd9f129364e123ce1b9f25b593edf4f6ee6df4a20b",
+  "original_evaluator_sha256": "e557475d5701ea7271de9103aa8267e204796336b5277352fad015d9399521a4",
+  "parquet_sha256": "c20b638ca82b21d04fe12e14ff417ad05153d4d215a65de54497fca4e972f7c6",
+  "queries": 256,
+  "retrieval_calls": 0,
+  "model_calls": 0,
+  "canonical_turns": 10693,
+  "coordinate_rule": "Preserve original USER: prefix and sentence whitespace, validate project/session/turn and bounds, then use the original evaluator's case-preserving whitespace-normalized substring check. Saved matched ranks are also checked against their referenced result blocks; this does not reconstruct omitted response text.",
+  "scope": "Already measured v032 round-four data only. Classification uses saved result source references and original annotation coordinates. It does not locate missing sources within an unsaved candidate pool or measure new quality/latency.",
+  "stages": {
+    "candidate-native": {
+      "report_sha256": "b5823b067480828654ee0cda198e390eba666699e9205920b2be9fb712321f4d",
+      "cells": [
+        {
+          "tokenizer": "cl100k_base",
+          "budget_tokens": 512,
+          "queries": 256,
+          "required_annotations": 635,
+          "matched_annotations": 431,
+          "complete_questions": 101,
+          "missing_annotations": {
+            "required_session_absent": 185,
+            "required_turn_absent": 19,
+            "required_turn_partial": 0,
+            "full_reference_but_unmatched": 0
+          }
+        },
+        {
+          "tokenizer": "cl100k_base",
+          "budget_tokens": 1024,
+          "queries": 256,
+          "required_annotations": 635,
+          "matched_annotations": 481,
+          "complete_questions": 138,
+          "missing_annotations": {
+            "required_session_absent": 142,
+            "required_turn_absent": 12,
+            "required_turn_partial": 0,
+            "full_reference_but_unmatched": 0
+          }
+        },
+        {
+          "tokenizer": "cl100k_base",
+          "budget_tokens": 2048,
+          "queries": 256,
+          "required_annotations": 635,
+          "matched_annotations": 481,
+          "complete_questions": 138,
+          "missing_annotations": {
+            "required_session_absent": 142,
+            "required_turn_absent": 12,
+            "required_turn_partial": 0,
+            "full_reference_but_unmatched": 0
+          }
+        },
+        {
+          "tokenizer": "o200k_base",
+          "budget_tokens": 512,
+          "queries": 256,
+          "required_annotations": 635,
+          "matched_annotations": 431,
+          "complete_questions": 101,
+          "missing_annotations": {
+            "required_session_absent": 185,
+            "required_turn_absent": 19,
+            "required_turn_partial": 0,
+            "full_reference_but_unmatched": 0
+          }
+        },
+        {
+          "tokenizer": "o200k_base",
+          "budget_tokens": 1024,
+          "queries": 256,
+          "required_annotations": 635,
+          "matched_annotations": 481,
+          "complete_questions": 138,
+          "missing_annotations": {
+            "required_session_absent": 142,
+            "required_turn_absent": 12,
+            "required_turn_partial": 0,
+            "full_reference_but_unmatched": 0
+          }
+        },
+        {
+          "tokenizer": "o200k_base",
+          "budget_tokens": 2048,
+          "queries": 256,
+          "required_annotations": 635,
+          "matched_annotations": 481,
+          "complete_questions": 138,
+          "missing_annotations": {
+            "required_session_absent": 142,
+            "required_turn_absent": 12,
+            "required_turn_partial": 0,
+            "full_reference_but_unmatched": 0
+          }
+        }
+      ],
+      "larger_budget": [
+        {
+          "tokenizer": "cl100k_base",
+          "from_tokens": 1024,
+          "to_tokens": 2048,
+          "changed_evidence_vectors": 0,
+          "changed_context_hashes": 3,
+          "complete_gains": 0,
+          "complete_losses": 0
+        },
+        {
+          "tokenizer": "o200k_base",
+          "from_tokens": 1024,
+          "to_tokens": 2048,
+          "changed_evidence_vectors": 0,
+          "changed_context_hashes": 2,
+          "complete_gains": 0,
+          "complete_losses": 0
+        }
+      ]
+    },
+    "candidate-semantic-native": {
+      "report_sha256": "d290d7622167667c5dda716bdacd476d4d4de7f695812d7a439b271ec63ea774",
+      "cells": [
+        {
+          "tokenizer": "cl100k_base",
+          "budget_tokens": 512,
+          "queries": 256,
+          "required_annotations": 635,
+          "matched_annotations": 420,
+          "complete_questions": 93,
+          "missing_annotations": {
+            "required_session_absent": 199,
+            "required_turn_absent": 16,
+            "required_turn_partial": 0,
+            "full_reference_but_unmatched": 0
+          }
+        },
+        {
+          "tokenizer": "cl100k_base",
+          "budget_tokens": 1024,
+          "queries": 256,
+          "required_annotations": 635,
+          "matched_annotations": 487,
+          "complete_questions": 141,
+          "missing_annotations": {
+            "required_session_absent": 136,
+            "required_turn_absent": 12,
+            "required_turn_partial": 0,
+            "full_reference_but_unmatched": 0
+          }
+        },
+        {
+          "tokenizer": "cl100k_base",
+          "budget_tokens": 2048,
+          "queries": 256,
+          "required_annotations": 635,
+          "matched_annotations": 487,
+          "complete_questions": 141,
+          "missing_annotations": {
+            "required_session_absent": 136,
+            "required_turn_absent": 12,
+            "required_turn_partial": 0,
+            "full_reference_but_unmatched": 0
+          }
+        },
+        {
+          "tokenizer": "o200k_base",
+          "budget_tokens": 512,
+          "queries": 256,
+          "required_annotations": 635,
+          "matched_annotations": 421,
+          "complete_questions": 94,
+          "missing_annotations": {
+            "required_session_absent": 198,
+            "required_turn_absent": 16,
+            "required_turn_partial": 0,
+            "full_reference_but_unmatched": 0
+          }
+        },
+        {
+          "tokenizer": "o200k_base",
+          "budget_tokens": 1024,
+          "queries": 256,
+          "required_annotations": 635,
+          "matched_annotations": 487,
+          "complete_questions": 141,
+          "missing_annotations": {
+            "required_session_absent": 136,
+            "required_turn_absent": 12,
+            "required_turn_partial": 0,
+            "full_reference_but_unmatched": 0
+          }
+        },
+        {
+          "tokenizer": "o200k_base",
+          "budget_tokens": 2048,
+          "queries": 256,
+          "required_annotations": 635,
+          "matched_annotations": 487,
+          "complete_questions": 141,
+          "missing_annotations": {
+            "required_session_absent": 136,
+            "required_turn_absent": 12,
+            "required_turn_partial": 0,
+            "full_reference_but_unmatched": 0
+          }
+        }
+      ],
+      "larger_budget": [
+        {
+          "tokenizer": "cl100k_base",
+          "from_tokens": 1024,
+          "to_tokens": 2048,
+          "changed_evidence_vectors": 0,
+          "changed_context_hashes": 5,
+          "complete_gains": 0,
+          "complete_losses": 0
+        },
+        {
+          "tokenizer": "o200k_base",
+          "from_tokens": 1024,
+          "to_tokens": 2048,
+          "changed_evidence_vectors": 0,
+          "changed_context_hashes": 4,
+          "complete_gains": 0,
+          "complete_losses": 0
+        }
+      ]
+    }
+  },
+  "full_audit_archive": {
+    "path": "benchmarks/reports/round5-quality/saved-v032-evidence-diagnosis-v2.json.gz",
+    "sha256": "223f6d6df61ceedc1672a044a5418d26cafffe7c0ec4aa750cc9dc98f1c6d346",
+    "uncompressed_sha256": "d42a56a8e66a0deec90e860e4d1fdb016cebcd5ed5644b5cf443e8ae42fd541b",
+    "byte_exact_reconstruction": true
+  }
+}

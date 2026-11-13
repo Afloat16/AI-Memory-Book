@@ -12,7 +12,7 @@ executed its corpus diagnostic at this checkpoint.
 
 Parallel quality diagnosis now examines only already saved v032 outputs and
 their old source annotations. The new
-[offline evidence audit](../benchmarks/reports/round5-quality/saved-v032-evidence-diagnosis.summary.json)
+[offline evidence audit](../benchmarks/reports/round5-quality/saved-v032-evidence-diagnosis-v2.summary.json)
 makes zero retrieval or model calls. On the old 256-question Hotpot cohort at
 1,024 cl100k tokens, lexical retrieval delivers 481 of 635 annotations. Of the
 154 omissions, 142 have no returned result from the required source session,
@@ -323,3 +323,20 @@ other 15 runtime Python files and all 107 SQL expressions are unchanged.
 All 79 existing functional checks pass once, with no failures or skips. Root
 independently verifies the source diff and complete log. No E lifetime probe,
 corpus GC-frequency diagnostic or timing run has started at this checkpoint.
+
+## Offline quality diagnosis coordinate correction
+
+Independent review found that the initial offline classifier assumed sentence
+coordinates started at zero, while canonical Hotpot turns contain `USER: `
+before the original sentence and preserve its whitespace. The corrected helper
+uses the original evaluator's normalized-substring rule inside valid canonical
+source-reference ranges. Five invented coordinate regressions pass. Independent
+recomputation validates all 36,574 saved reference occurrences and matched-rank
+references; all twelve cells' per-query classifications remain identical.
+Every actual omission in this saved sample lacks a same-turn reference, so the
+initial coordinate error did not affect these counts. The original commit and
+archives remain preserved, with separate v2 output and a
+[correction receipt](../benchmarks/reports/round5-quality/saved-v032-evidence-correction.json).
+No retrieval or model call was executed for either derived audit.
+
+The exact E source also passes all nine hosted CI jobs in run `43390867313`.

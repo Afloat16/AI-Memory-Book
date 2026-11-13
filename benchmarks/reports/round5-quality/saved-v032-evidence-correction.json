@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "status": "coordinate-rule-corrected-no-saved-classification-changes",
+  "created_at": "2026-11-13T08:16:26.434783+00:00",
+  "original_commit": "d89cf9753fa7d511b2b3425dd696e6a1a0faec09",
+  "original_script_sha256": "8f7f9ea18626ec04c5bce6058da847292430d467dce39bd4623fb1b1684136c9",
+  "original_report_sha256": "6dcf392a20e4b0fdbfa4700bf6df3d7219a2343b7ce2a4bd8725fd169674a588",
+  "corrected_script_sha256": "9d78f8b6456aa959e70d0d65bc86eb5cb82b77f6b1e23ec649764b87d572ee1e",
+  "corrected_report_sha256": "d42a56a8e66a0deec90e860e4d1fdb016cebcd5ed5644b5cf443e8ae42fd541b",
+  "test_file_sha256": "303c9f03a9fd36fd5a0f524b438af572fb65a8d1167bef578fc1db97e434baab",
+  "artificial_tests_passed": 5,
+  "test_failures": 0,
+  "retrieval_calls": 0,
+  "model_calls": 0,
+  "saved_cells": 12,
+  "changed_per_query_classifications": 0,
+  "independent_reviewer": "runtime_review",
+  "independent_validation": {
+    "selected_old_queries": 256,
+    "annotations": 635,
+    "canonical_turns": 10693,
+    "source_reference_occurrences": 36574,
+    "source_reference_failures": 0,
+    "matched_rank_reference_failures": 0,
+    "annotations_with_leading_whitespace": 276,
+    "annotations_changed_by_original_whitespace_normalizer": 281
+  },
+  "issue": "The first classifier incorrectly assumed annotation coordinates started at zero in the canonical turn. Hotpot turns prepend USER: and retain original sentence whitespace. The corrected rule validates identities/coordinates and uses the original evaluator normalized-sentence containment within canonical-turn reference slices.",
+  "effect": "All actual missing annotations in these saved12cells lack any same-turn reference, so they never reached the flawed branch. Every aggregate and per-query classification is unchanged. Original script/report/archive remain preserved at their prior commit; v2 is a separate derived artifact.",
+  "limits": "This is source-reference coverage diagnosis, not rescoring missing response bodies or locating candidates/rank/packing causes. No new quality measurement or performance claim."
+}

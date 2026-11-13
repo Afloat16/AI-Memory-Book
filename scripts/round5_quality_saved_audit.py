@@ -13,8 +13,12 @@ import gzip
 import hashlib
 import json
 from pathlib import Path
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from benchmarks.run import _normalized
+
 REPORTS = ROOT / "benchmarks/results/round4-comparison-43363060062-1"
 MANIFEST = ROOT / "benchmarks/experiments/round4-hotpot256-manifest.json"
 KINDS = ("required_session_absent", "required_turn_absent", "required_turn_partial",
@@ -34,12 +38,15 @@ def load_annotations(parquet, manifest):
                             columns=["id", "type", "context", "supporting_facts"]).to_pylist()
     if len(records) != len(identities) or {r["id"] for r in records} != set(identities):
         raise ValueError("Old selected rows incomplete or duplicated")
-    result = {}
+    result, originals = {}, {}
     for record in records:
         identity, context = record["id"], record["context"]
         positions = {title: i for i, title in enumerate(context["title"])}
         if len(positions) != len(context["title"]):
             raise ValueError("Duplicate paragraph title")
+        for position, sentences in enumerate(context["sentences"]):
+            for ordinal, sentence in enumerate(sentences):
+                originals[("hotpot-" + identity, f"{identity}-article-{position}", ordinal)] = "USER: " + sentence
         required = []
         seen = set()
         facts = record["supporting_facts"]
@@ -50,29 +57,36 @@ def load_annotations(parquet, manifest):
             if key in seen:
                 continue
             seen.add(key)
-            required.append((f"{identity}-article-{position}", ordinal, len(sentence)))
+            required.append((f"{identity}-article-{position}", ordinal, sentence))
         result[identity] = required
     if sum(map(len, result.values())) != manifest["required_evidence"]:
         raise ValueError("Annotation order/count does not match frozen representation")
-    return result
+    return result, originals
 
 
-def classify_missing(required, ranks, sources):
+def reference_covers(sentence, reference, original):
+    lo, hi = reference["turn_start"], reference["turn_end"]
+    if type(lo) is not int or type(hi) is not int or not 0 <= lo <= hi <= len(original):
+        raise ValueError("Invalid saved canonical-turn coordinates")
+    return _normalized(sentence) in _normalized(original[lo:hi])
+
+
+def classify_missing(required, ranks, sources, project, originals):
     if len(required) != len(ranks):
         raise ValueError("Saved rank vector differs from original annotations")
     refs = [ref for block in sources for ref in block]
     counts = Counter({kind: 0 for kind in KINDS})
     missing = []
-    for index, ((session, ordinal, length), rank) in enumerate(zip(required, ranks, strict=True)):
+    for index, ((session, ordinal, sentence), rank) in enumerate(zip(required, ranks, strict=True)):
         if rank is not None:
             continue
-        session_refs = [r for r in refs if r["session_id"] == session]
+        session_refs = [r for r in refs if r["project"] == project and r["session_id"] == session]
         turn_refs = [r for r in session_refs if r["turn_index"] == ordinal]
         if not session_refs:
             kind = "required_session_absent"
         elif not turn_refs:
             kind = "required_turn_absent"
-        elif not any(r["turn_start"] <= 0 and r["turn_end"] >= length for r in turn_refs):
+        elif not any(reference_covers(sentence, r, originals[(project, session, ordinal)]) for r in turn_refs):
             kind = "required_turn_partial"
         else:
             kind = "full_reference_but_unmatched"
@@ -81,7 +95,7 @@ def classify_missing(required, ranks, sources):
     return counts, missing
 
 
-def assess(report, annotations):
+def assess(report, annotations, originals):
     cells, keyed = [], {}
     for cell in report["configurations"]:
         rows = cell["query_results"]
@@ -92,13 +106,31 @@ def assess(report, annotations):
         complete = matched = 0
         for row in rows:
             required = annotations[row["id"]]
+            if row["project"] != "hotpot-" + row["id"]:
+                raise ValueError("Saved project scope changed")
+            for block in row["result_sources"]:
+                for ref in block:
+                    key = (ref["project"], ref["session_id"], ref["turn_index"])
+                    if ref["project"] != row["project"] or key not in originals:
+                        raise ValueError("Saved reference has wrong project/source identity")
+                    reference_covers("", ref, originals[key])
             if row["required_evidence"] != len(required):
                 raise ValueError("Saved required evidence count changed")
             ranks = row["evidence_ranks"]
             present = sum(rank is not None for rank in ranks)
             if present != row["matched_evidence"] or bool(present == len(required)) != row["complete"]:
                 raise ValueError("Saved evidence metrics disagree with rank vector")
-            classified, missing = classify_missing(required, ranks, row["result_sources"])
+            for (session, ordinal, sentence), rank in zip(required, ranks, strict=True):
+                if rank is None:
+                    continue
+                if type(rank) is not int or not 1 <= rank <= len(row["result_sources"]):
+                    raise ValueError("Invalid saved evidence rank")
+                if not any(ref["project"] == row["project"] and ref["session_id"] == session and
+                           ref["turn_index"] == ordinal and
+                           reference_covers(sentence, ref, originals[(row["project"], session, ordinal)])
+                           for ref in row["result_sources"][rank - 1]):
+                    raise ValueError("Matched evidence lacks its saved-rank source reference")
+            classified, missing = classify_missing(required, ranks, row["result_sources"], row["project"], originals)
             counts.update(classified)
             matched += present
             complete += int(row["complete"])
@@ -134,12 +166,15 @@ def main():
     if args.output.exists():
         raise FileExistsError("Preserve the existing offline audit")
     manifest = json.loads(MANIFEST.read_bytes())
-    annotations = load_annotations(args.parquet, manifest)
-    value = {"schema_version": 1, "status": "completed-offline-only",
+    annotations, originals = load_annotations(args.parquet, manifest)
+    value = {"schema_version": 2, "status": "completed-offline-only",
         "created_at": datetime.now(timezone.utc).isoformat(),
         "script_sha256": sha(Path(__file__)), "manifest_sha256": sha(MANIFEST),
+        "original_evaluator_sha256": sha(ROOT / "benchmarks/run.py"),
         "parquet_sha256": sha(args.parquet), "queries": len(annotations),
         "retrieval_calls": 0, "model_calls": 0,
+        "canonical_turns": len(originals),
+        "coordinate_rule": "Preserve original USER: prefix and sentence whitespace, validate project/session/turn and bounds, then use the original evaluator's case-preserving whitespace-normalized substring check. Saved matched ranks are also checked against their referenced result blocks; this does not reconstruct omitted response text.",
         "scope": "Already measured v032 round-four data only. Classification uses saved result source references and original annotation coordinates. It does not locate missing sources within an unsaved candidate pool or measure new quality/latency.",
         "stages": {}}
     for stage in ("candidate-native", "candidate-semantic-native"):
@@ -147,7 +182,7 @@ def main():
         report = json.loads(gzip.decompress(path.read_bytes()))
         if report["status"] != "completed" or report["dataset"]["sha256"] != manifest["dataset_sha256"]:
             raise ValueError("Wrong saved report or dataset")
-        value["stages"][stage] = {"report_sha256": sha(path), **assess(report, annotations)}
+        value["stages"][stage] = {"report_sha256": sha(path), **assess(report, annotations, originals)}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("x") as output:
         json.dump(value, output, indent=2, ensure_ascii=False)
