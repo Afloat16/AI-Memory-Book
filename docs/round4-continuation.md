@@ -56,6 +56,32 @@ cache. Next investigate exact within-request token counting at certified
 separator boundaries; preregister any extension before implementing or
 measuring it. No formal run, new ID selection or fresh quality scoring exists.
 
+## Candidate C implementation checkpoint
+
+The exact counting extension was preregistered at `e02584f`. The regressive
+body-feature cache is removed. Its source, all 18 passing fixtures and all
+measurements remain in candidate B's `ec45162` checkpoint; the fixture file is
+also archived unchanged under `benchmarks/experiments/round4-candidate-b/`.
+Two active tests retain the exact bounded highlight behavior.
+
+C reuses only within-call token counts at the proven `\n\n[` boundary, guarded
+by ordinary methods, tiktoken 0.12.0, exact regex hashes and strict UTF-8.
+Unknown or overridden counters and invalid inputs use the old full-count path.
+Byte bounds can prove first-fit acceptance but never replace exact final token
+metadata. Both independent proof reviews found exact token-ID equality under
+the certificate, including 21,952 and 19,668 artificial cases respectively.
+The new sealed-count and existing token/source-work modules pass 43/43 tests.
+No C dataset timing or formal source binding exists at this checkpoint.
+
+The formal and fresh-comparison registries now pin both immutable addenda;
+all original numerical, complete-output and resource gates are unchanged.
+The source-free C-independent proof, historical Hotpot first-use diagnostic
+and two-tokenizer Q2 compatibility helper are preserved. Q2 preparation reads
+only the old 128 Hotpot IDs and old authored36, with one baseline-built vector
+snapshot copied to both runtimes. The authored36 baseline workers have passed
+108 calls per tokenizer. Its model and vectors are fixed; no new quality
+candidate is introduced.
+
 The [registered plan](../benchmarks/experiments/round4-plan.json) targets
 complete-output-equivalent reductions in token-budget source preparation,
 projection and final counting. Actual MCP token1024 is added to the balanced

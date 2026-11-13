@@ -46,6 +46,8 @@ PLAN = ROOT / "benchmarks/experiments/round4-plan.json"
 PLAN_COMMIT = "4f239eaab6e1ab7bfb8910819a74a6fab195629c"
 ADDENDUM = ROOT / "benchmarks/experiments/round4-development-addendum.json"
 ADDENDUM_COMMIT = "fbfc6c56ae047abfd765e6149ba748c9e18adc42"
+COUNTING_ADDENDUM = ROOT / "benchmarks/experiments/round4-counting-addendum.json"
+COUNTING_ADDENDUM_COMMIT = "e02584fd20d2626777449bc64322703de6df6948"
 BINDING = ROOT / "benchmarks/experiments/round4-validation-binding.json"
 MANIFEST = ROOT / "benchmarks/experiments/round4-hotpot256-manifest.json"
 BASELINE = {"commit": "7b7a5d7336b9350a128f5e0a888811b1b3015e68",
@@ -59,7 +61,8 @@ NEW_FILES = ("scripts/round4_comparison.py", "tests/test_round4_comparison.py",
              "scripts/freeze_round4_validation.py", ".github/workflows/round4-freeze.yml",
              ".github/workflows/round4-comparison.yml", "benchmarks/experiments/round4-plan.json",
              "benchmarks/experiments/round4-freeze-plan.json",
-             "benchmarks/experiments/round4-development-addendum.json")
+             "benchmarks/experiments/round4-development-addendum.json",
+             "benchmarks/experiments/round4-counting-addendum.json")
 ADDITIONAL_OLD_FILES = ("scripts/benchmark_default_recall.py",
                         "benchmarks/experiments/round3-hotpot256-manifest.json")
 PACKAGES = {"tiktoken": "0.12.0", "onnxruntime": "1.31.1", "tokenizers": "0.23.3", "numpy": "2.5.4", "pyarrow": "26.0.1"}
@@ -113,10 +116,24 @@ def development_addendum():
     return {"path": name, "commit": ADDENDUM_COMMIT, "sha256": sha(raw)}
 
 
+def counting_addendum():
+    raw = COUNTING_ADDENDUM.read_bytes()
+    name = str(COUNTING_ADDENDUM.relative_to(ROOT))
+    require(raw == git("show", COUNTING_ADDENDUM_COMMIT + ":" + name), "Registered counting addendum changed")
+    value = json.loads(raw)
+    require(value["schema_version"] == 1
+            and value["status"] == "registered-before-candidate-c-implementation-and-measurement"
+            and value["original_plan_commit"] == PLAN_COMMIT
+            and value["prior_addendum_commit"] == ADDENDUM_COMMIT,
+            "Counting addendum belongs to another protocol")
+    return {"path": name, "commit": COUNTING_ADDENDUM_COMMIT, "sha256": sha(raw)}
+
+
 def registered_plan():
     require(PLAN.read_bytes() == git("show", PLAN_COMMIT + ":" + str(PLAN.relative_to(ROOT))),
             "Registered round-four plan changed")
     development_addendum()
+    counting_addendum()
     plan = json.loads(PLAN.read_bytes())
     p = plan["independent_validation"]
     require(plan["baseline"]["commit"] == BASELINE["commit"]
@@ -212,6 +229,7 @@ def bind(args):
     value = {"schema_version": 1, "evaluator": VERSION, "status": "frozen-before-selection",
         "created_at": reused.now(), "plan_sha256": file_sha(PLAN), **sources,
         "development_addendum": development_addendum(),
+        "counting_addendum": counting_addendum(),
         "optional_semantic": True, "optional_project_statistics": False,
         "upstream_locks": reused.UPSTREAM_LOCKS, "upstream_lock_sha256": lock_hashes,
         "asset_verification": {"path": preflight_name, "sha256": file_sha(preflight_path)},
@@ -236,6 +254,7 @@ def frozen_inputs(binding_path=BINDING):
             and binding["upstream_locks"] == reused.UPSTREAM_LOCKS
             and binding["model"] == {"identity": model_identity(), "fingerprint": MODEL_FINGERPRINT}
             and binding["development_addendum"] == development_addendum()
+            and binding.get("counting_addendum") == counting_addendum()
             and binding["packages"] == PACKAGES, "Binding source, settings or assets differ")
     require(binding["evaluator_files"] == evaluator_files(binding["extra_evaluator_files"]),
             "Bound evaluator bytes differ")
@@ -853,6 +872,7 @@ def worker(args):
         "execution_intent": args.execution_intent, "plan_sha256": file_sha(PLAN),
         "binding_sha256": file_sha(args.binding), "cohort_manifest_sha256": file_sha(args.manifest),
         "development_addendum": binding["development_addendum"],
+        "counting_addendum": binding["counting_addendum"],
         "evaluator_files": binding["evaluator_files"], "ort_disable_telemetry": "1",
         "configured_generative_model_calls": 0, "configurations": [], "timing_rows": [],
         "validation": {"passed": False, "failures": []}}
@@ -1038,7 +1058,10 @@ def assess(checkpoint_path, binding_path=BINDING, manifest_path=MANIFEST, *, ver
                      checkpoint["source_commit"], checkpoint["run_id"])
         require(checkpoint["plan_sha256"] == file_sha(PLAN) and checkpoint["binding_sha256"] == file_sha(binding_path)
                 and checkpoint["cohort_manifest_sha256"] == file_sha(manifest_path)
-                and manifest["binding_sha256"] == file_sha(binding_path), "Checkpoint/selection binding differs")
+                and manifest["binding_sha256"] == file_sha(binding_path)
+                and manifest.get("development_addendum") == binding["development_addendum"]
+                and manifest.get("counting_addendum") == binding["counting_addendum"],
+                "Checkpoint/selection binding differs")
         require(list(checkpoint["stages"]) == expected_stages and manifest["expected_queries"] == 256,
                 "Missing or extra registered stage/query")
         for stage in expected_stages:
@@ -1057,6 +1080,7 @@ def assess(checkpoint_path, binding_path=BINDING, manifest_path=MANIFEST, *, ver
                     and report["binding_sha256"] == checkpoint["binding_sha256"]
                     and report["cohort_manifest_sha256"] == checkpoint["cohort_manifest_sha256"]
                     and report["development_addendum"] == binding["development_addendum"]
+                    and report["counting_addendum"] == binding["counting_addendum"]
                     and report["dataset"]["sha256"] == manifest["dataset_sha256"]
                     and report["dataset"]["queries"] == 256 and report["evaluator_files"] == binding["evaluator_files"]
                     and report["configured_generative_model_calls"] == 0 and report["ort_disable_telemetry"] == "1",
@@ -1078,6 +1102,7 @@ def assess(checkpoint_path, binding_path=BINDING, manifest_path=MANIFEST, *, ver
         "source_commit": checkpoint["source_commit"], "host": checkpoint["host"],
         "plan_sha256": file_sha(PLAN), "binding_sha256": file_sha(binding_path),
         "development_addendum": binding["development_addendum"],
+        "counting_addendum": binding["counting_addendum"],
         "cohort_manifest_sha256": file_sha(manifest_path), "dataset_sha256": manifest["dataset_sha256"],
         "selected_ids_sha256": manifest["selected_ids_sha256"], "required_evidence": manifest["required_evidence"],
         "expected_stages": expected_stages, "verified_stages": list(reports),

@@ -70,6 +70,11 @@ class IdentityTests(unittest.TestCase):
             "original_plan_commit": data.PLAN_COMMIT})
         self.write(data.ADDENDUM, addendum)
         self.blobs[data.ADDENDUM_COMMIT, data.ADDENDUM] = addendum
+        counting = data.canonical({"schema_version": 1,
+            "status": "registered-before-candidate-c-implementation-and-measurement",
+            "original_plan_commit": data.PLAN_COMMIT, "prior_addendum_commit": data.ADDENDUM_COMMIT})
+        self.write(data.COUNTING_ADDENDUM, counting)
+        self.blobs[data.COUNTING_ADDENDUM_COMMIT, data.COUNTING_ADDENDUM] = counting
         third_raw = data.canonical({"expected_queries": 256, "selected_ids": self.ids[384:640]})
         self.write(data.PRIOR_ROUND3, third_raw)
         self.blobs[data.BASELINE, data.PRIOR_ROUND3] = third_raw
@@ -90,6 +95,8 @@ class IdentityTests(unittest.TestCase):
             "plan_sha256": data.sha(data.canonical(plan)),
             "development_addendum": {"path": data.ADDENDUM, "commit": data.ADDENDUM_COMMIT,
                                      "sha256": data.sha(addendum)},
+            "counting_addendum": {"path": data.COUNTING_ADDENDUM, "commit": data.COUNTING_ADDENDUM_COMMIT,
+                                  "sha256": data.sha(counting)},
             "baseline": {"commit": data.BASELINE, "source_sha256": data.BASELINE_HASH},
             "candidate": {"commit": self.candidate, "source_sha256": self.candidate_hash},
             "optional_semantic": True, "optional_project_statistics": False,
@@ -132,6 +139,7 @@ class IdentityTests(unittest.TestCase):
         self.assertEqual(result.prior["selected_ids"], self.ids[128:384])
         self.assertEqual(result.prior_round3["selected_ids"], self.ids[384:640])
         self.assertEqual(result.binding["development_addendum"]["commit"], data.ADDENDUM_COMMIT)
+        self.assertEqual(result.binding["counting_addendum"]["commit"], data.COUNTING_ADDENDUM_COMMIT)
 
     def test_addendum_cannot_be_rebound_or_omitted_before_private_input_read(self):
         with patch.object(data, "selected_dataset") as selected:
@@ -153,6 +161,36 @@ class IdentityTests(unittest.TestCase):
             self.binding["evaluator_files"][data.ADDENDUM] = data.sha(raw)
             self.save_binding()
             with self.assertRaisesRegex(ValueError, "Registered development addendum changed"):
+                data.freeze(self.root / "never-read.parquet", self.binding_path)
+            selected.assert_not_called()
+
+    def test_counting_addendum_rebind_omission_and_coherent_byte_tamper_fail_before_source_read(self):
+        with patch.object(data, "selected_dataset") as selected:
+            original = copy.deepcopy(self.binding)
+            for field, replacement in (("commit", "f" * 40), ("path", data.ADDENDUM), ("sha256", "f" * 64)):
+                self.binding = copy.deepcopy(original)
+                self.binding["counting_addendum"][field] = replacement
+                self.save_binding()
+                with self.subTest(field=field), self.assertRaisesRegex(ValueError, "different counting addendum"):
+                    data.freeze(self.root / "never-read.parquet", self.binding_path)
+            self.binding = copy.deepcopy(original)
+            self.binding.pop("counting_addendum")
+            self.save_binding()
+            with self.assertRaisesRegex(ValueError, "different counting addendum"):
+                data.freeze(self.root / "never-read.parquet", self.binding_path)
+            self.binding = copy.deepcopy(original)
+            self.binding["evaluator_files"].pop(data.COUNTING_ADDENDUM)
+            self.save_binding()
+            with self.assertRaisesRegex(ValueError, "Incomplete evaluator"):
+                data.freeze(self.root / "never-read.parquet", self.binding_path)
+            self.binding = copy.deepcopy(original)
+            raw = (self.root / data.COUNTING_ADDENDUM).read_bytes() + b"\n"
+            self.write(data.COUNTING_ADDENDUM, raw)
+            self.blobs[self.evaluator, data.COUNTING_ADDENDUM] = raw
+            self.binding["counting_addendum"]["sha256"] = data.sha(raw)
+            self.binding["evaluator_files"][data.COUNTING_ADDENDUM] = data.sha(raw)
+            self.save_binding()
+            with self.assertRaisesRegex(ValueError, "Registered counting addendum changed"):
                 data.freeze(self.root / "never-read.parquet", self.binding_path)
             selected.assert_not_called()
 
@@ -332,6 +370,8 @@ class ParquetTests(unittest.TestCase):
         binding = {"evaluator_commit": "a" * 40,
             "development_addendum": {"path": data.ADDENDUM, "commit": data.ADDENDUM_COMMIT,
                                      "sha256": "6" * 64},
+            "counting_addendum": {"path": data.COUNTING_ADDENDUM, "commit": data.COUNTING_ADDENDUM_COMMIT,
+                                  "sha256": "7" * 64},
             "baseline": {"commit": data.BASELINE, "source_sha256": data.BASELINE_HASH},
             "candidate": {"commit": "b" * 40, "source_sha256": "c" * 64},
             "model": {"fingerprint": data.MODEL_FINGERPRINT}, "evaluator_files": {}}
@@ -403,9 +443,12 @@ class ParquetTests(unittest.TestCase):
             with patch.object(data, "git", return_value=committed):
                 dataset = data.load(self.parquet, self.binding, self.manifest)
                 self.assertEqual(dataset.fingerprint, value["dataset_sha256"])
+                self.assertEqual(value["counting_addendum"], self.inputs.binding["counting_addendum"])
                 for field, replacement in (("selected_ids", list(reversed(self.selected))),
                     ("selected_canonical_sha256", "f" * 64), ("required_evidence", 511),
-                    ("source_turns", 767), ("excluded_prior_queries", 639)):
+                    ("source_turns", 767), ("excluded_prior_queries", 639),
+                    ("counting_addendum", {"path": data.COUNTING_ADDENDUM, "commit": "f" * 40,
+                                           "sha256": "7" * 64})):
                     tampered = copy.deepcopy(value)
                     tampered[field] = replacement
                     self.manifest.write_bytes(data.canonical(tampered))

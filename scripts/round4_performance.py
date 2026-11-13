@@ -46,6 +46,10 @@ ADDENDUM_PATH = "benchmarks/experiments/round4-development-addendum.json"
 ADDENDUM = ROOT / ADDENDUM_PATH
 ADDENDUM_COMMIT = "fbfc6c56ae047abfd765e6149ba748c9e18adc42"
 ADDENDUM_SHA256 = "da8ccb8e4855493d2f32ed7cd2efec3a029bca346de064fb9b21399cb046b705"
+COUNTING_ADDENDUM_PATH = "benchmarks/experiments/round4-counting-addendum.json"
+COUNTING_ADDENDUM = ROOT / COUNTING_ADDENDUM_PATH
+COUNTING_ADDENDUM_COMMIT = "e02584fd20d2626777449bc64322703de6df6948"
+COUNTING_ADDENDUM_SHA256 = "06f25800e849e20c8d5a3a557d47fe9b0a952859aa27122029a86e40ffcd02b2"
 BASELINE = "7b7a5d7336b9350a128f5e0a888811b1b3015e68"
 BASELINE_HASH = "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46"
 VERSION = "round4-default-performance-1"
@@ -71,10 +75,11 @@ HELPERS = ("scripts/benchmark_default_recall.py", "benchmarks/__init__.py",
     "benchmarks/hotpot_data.py", "benchmarks/query_guard.py", "benchmarks/resume.py",
     "benchmarks/locomo_split.json")
 TOOLS = ("scripts/round4_performance.py", "tests/test_round4_performance.py",
+         "tests/test_round4_sealed_counts.py", "tests/test_round4_highlight.py",
          ".github/workflows/round4-performance.yml")
 # These preregistrations belong to round four, so they must not be mistaken
 # for historical helpers that are checked against the v0.3.1 source tree.
-REGISTERED_DOCUMENTS = (ADDENDUM_PATH,)
+REGISTERED_DOCUMENTS = (ADDENDUM_PATH, COUNTING_ADDENDUM_PATH)
 INVARIANTS = ("cache_error", "source_span_errors", "source_scope_errors",
     "page_projection_errors", "context_reconstruction_error", "metadata_error",
     "character_budget_error", "token_budget_error", "token_metadata_error",
@@ -149,6 +154,21 @@ def registered_addendum():
             "document": document}
 
 
+def registered_counting_addendum():
+    """Load the exact C preregistration without replacing the B experiment."""
+    raw = COUNTING_ADDENDUM.read_bytes()
+    require(sha(raw) == COUNTING_ADDENDUM_SHA256
+            and raw == git("show", COUNTING_ADDENDUM_COMMIT + ":" + COUNTING_ADDENDUM_PATH),
+            "The preregistered counting addendum bytes or commit changed")
+    document = json.loads(raw)
+    require(document["original_plan_commit"] == PLAN_COMMIT
+            and document["prior_addendum_commit"] == ADDENDUM_COMMIT
+            and document["status"] == "registered-before-candidate-c-implementation-and-measurement",
+            "The counting addendum does not extend the original registered plan and B addendum")
+    return {"path": COUNTING_ADDENDUM_PATH, "commit": COUNTING_ADDENDUM_COMMIT,
+            "sha256": COUNTING_ADDENDUM_SHA256, "document": document}
+
+
 def load_plan():
     require(re.fullmatch(r"[0-9a-f]{40}", PLAN_COMMIT), "Commit the round-four plan and pin PLAN_COMMIT before binding")
     raw = PLAN.read_bytes()
@@ -177,6 +197,7 @@ def source_identity(src):
 def bind(args):
     plan = load_plan()
     addendum = registered_addendum()
+    counting_addendum = registered_counting_addendum()
     require(args.baseline_src and args.candidate_src, "Binding needs both exact source checkouts")
     sources = {label: source_identity(path) for label, path in
                (("baseline", args.baseline_src), ("candidate", args.candidate_src))}
@@ -193,6 +214,7 @@ def bind(args):
     value = {"schema_version": 1, "evaluator": VERSION, "status": "frozen-before-formal-timing",
         "created_at": now(), "plan_sha256": sha(PLAN.read_bytes()),
         "development_addendum": addendum,
+        "counting_addendum": counting_addendum,
         "sources": sources, "evaluator_commit": tool_commit, "evaluator_files": hashes,
         "packages": PACKAGES, "policy": "One registered candidate; preserve every attempt and all rounds."}
     exclusive(args.bind, value)
@@ -206,6 +228,8 @@ def load_binding(path):
             "Candidate is not frozen")
     require(value.get("development_addendum") == registered_addendum(),
             "Binding development addendum differs from its exact preregistration")
+    require(value.get("counting_addendum") == registered_counting_addendum(),
+            "Binding counting addendum differs from its exact preregistration")
     require(value["plan_sha256"] == sha(PLAN.read_bytes()) and value["evaluator_files"] == file_hashes()
             and value["packages"] == PACKAGES, "Plan/evaluator/packages differ from binding")
     require(value["sources"]["baseline"] == {"commit": BASELINE, "runtime_sha256": BASELINE_HASH},
@@ -605,6 +629,13 @@ def validation(report):
             or {key: addendum.get(key) for key in ("path", "commit", "sha256")} !=
             {"path": ADDENDUM_PATH, "commit": ADDENDUM_COMMIT, "sha256": ADDENDUM_SHA256}):
         issues.append("development_addendum_changed")
+    counting_addendum = report.get("counting_addendum")
+    if (not isinstance(counting_addendum, dict)
+            or counting_addendum != run["binding"].get("counting_addendum")
+            or {key: counting_addendum.get(key) for key in ("path", "commit", "sha256")} !=
+            {"path": COUNTING_ADDENDUM_PATH, "commit": COUNTING_ADDENDUM_COMMIT,
+             "sha256": COUNTING_ADDENDUM_SHA256}):
+        issues.append("counting_addendum_changed")
     workers = report["workers"]
     if [w["key"] for w in workers] != [w["key"] for w in schedule(plan)]:
         issues.append("missing_duplicate_or_reordered_workers")
@@ -1053,6 +1084,7 @@ def controller_locked(args, plan, binding):
             exclusive_bytes(history / f"{attempt:04d}.prior.summary.json", previous_summary.read_bytes())
     report = {"schema_version": 1, "evaluator": VERSION, "plan": plan, "run": run,
         "development_addendum": binding["development_addendum"],
+        "counting_addendum": binding["counting_addendum"],
         "started_at": now(), "controller_attempt": attempt, "workers": [], "error": None, "evaluator_unchanged": False,
         "worker_artifacts_sha256": {},
         "status": "running", "interpretation": {
@@ -1133,6 +1165,9 @@ def audit(path, state):
     require(report.get("development_addendum") == registered_addendum()
             and report["run"]["binding"].get("development_addendum") == report["development_addendum"],
             "Report development addendum differs from its exact preregistration")
+    require(report.get("counting_addendum") == registered_counting_addendum()
+            and report["run"]["binding"].get("counting_addendum") == report["counting_addendum"],
+            "Report counting addendum differs from its exact preregistration")
     require(report["validation"]["passed"], "Measurement is incomplete or invalid; original remains preserved")
     require(json.loads((state / "run.json").read_bytes()) == report["run"], "Original run identity differs")
     require(artifact_hashes(state, report["run"]) == report["worker_artifacts_sha256"], "Original worker artifact hashes differ")

@@ -103,6 +103,26 @@ class RoundFourComparisonTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "Registered development addendum changed"):
                     c.development_addendum()
 
+    def test_counting_addendum_is_anchored_alongside_prior_registration(self):
+        raw = json.dumps({"schema_version": 1,
+            "status": "registered-before-candidate-c-implementation-and-measurement",
+            "original_plan_commit": c.PLAN_COMMIT, "prior_addendum_commit": c.ADDENDUM_COMMIT}).encode()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            name = "benchmarks/experiments/round4-counting-addendum.json"
+            path = root / name
+            path.parent.mkdir(parents=True)
+            path.write_bytes(raw)
+            self.assertIn(name, c.NEW_FILES)
+            with patch.object(c, "ROOT", root), patch.object(c, "COUNTING_ADDENDUM", path), \
+                    patch.object(c, "git", return_value=raw) as git:
+                self.assertEqual(c.counting_addendum(), {"path": name,
+                    "commit": "e02584fd20d2626777449bc64322703de6df6948", "sha256": c.sha(raw)})
+                git.assert_called_once_with("show", c.COUNTING_ADDENDUM_COMMIT + ":" + name)
+                path.write_bytes(raw + b"\n")
+                with self.assertRaisesRegex(ValueError, "Registered counting addendum changed"):
+                    c.counting_addendum()
+
     def run_component(self, stage, directory, *, empty=False):
         data, bundle = fixture()
         engine = Engine(stage, bundle, empty=empty)

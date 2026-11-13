@@ -29,6 +29,8 @@ PLAN = "benchmarks/experiments/round4-plan.json"
 PLAN_COMMIT = "4f239eaab6e1ab7bfb8910819a74a6fab195629c"
 ADDENDUM = "benchmarks/experiments/round4-development-addendum.json"
 ADDENDUM_COMMIT = "fbfc6c56ae047abfd765e6149ba748c9e18adc42"
+COUNTING_ADDENDUM = "benchmarks/experiments/round4-counting-addendum.json"
+COUNTING_ADDENDUM_COMMIT = "e02584fd20d2626777449bc64322703de6df6948"
 BASELINE = "7b7a5d7336b9350a128f5e0a888811b1b3015e68"
 BASELINE_HASH = "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46"
 BINDING = "benchmarks/experiments/round4-validation-binding.json"
@@ -45,7 +47,7 @@ NEW_EVALUATORS = ("scripts/round4_data.py", "tests/test_round4_data.py",
                   "scripts/run_round4_comparison.py", "tests/test_round4_comparison_controller.py",
                   "scripts/freeze_round4_validation.py", ".github/workflows/round4-freeze.yml",
                   ".github/workflows/round4-comparison.yml",
-                  "benchmarks/experiments/round4-freeze-plan.json", ADDENDUM)
+                  "benchmarks/experiments/round4-freeze-plan.json", ADDENDUM, COUNTING_ADDENDUM)
 LOCK_PATHS = {"benchmarks/competitors/claude-mem-round2-lock.json",
               "benchmarks/competitors/ai-memory-lock.json",
               "benchmarks/competitors/billion-round2-lock.json"}
@@ -169,6 +171,15 @@ def registered_inputs(binding_path) -> Inputs:
     require(addendum["schema_version"] == 1
             and addendum["status"] == "registered-before-candidate-b-implementation-and-measurement"
             and addendum["original_plan_commit"] == PLAN_COMMIT, "Development addendum belongs to another protocol")
+    counting_raw = file_path(COUNTING_ADDENDUM).read_bytes()
+    require(counting_raw == git("show", COUNTING_ADDENDUM_COMMIT + ":" + COUNTING_ADDENDUM),
+            "Registered counting addendum changed")
+    counting = json.loads(counting_raw)
+    require(counting["schema_version"] == 1
+            and counting["status"] == "registered-before-candidate-c-implementation-and-measurement"
+            and counting["original_plan_commit"] == PLAN_COMMIT
+            and counting["prior_addendum_commit"] == ADDENDUM_COMMIT,
+            "Counting addendum belongs to another protocol")
     require(plan["baseline"]["commit"] == BASELINE and
             plan["baseline"]["runtime_sha256"] == BASELINE_HASH, "Registered baseline changed")
     cohort = plan["independent_validation"]["cohort"]
@@ -181,6 +192,8 @@ def registered_inputs(binding_path) -> Inputs:
     require(binding["plan_sha256"] == sha(plan_raw), "Binding identifies a different plan")
     require(binding["development_addendum"] == {"path": ADDENDUM, "commit": ADDENDUM_COMMIT,
             "sha256": sha(addendum_raw)}, "Binding identifies a different development addendum")
+    require(binding.get("counting_addendum") == {"path": COUNTING_ADDENDUM, "commit": COUNTING_ADDENDUM_COMMIT,
+            "sha256": sha(counting_raw)}, "Binding identifies a different counting addendum")
     require(binding["optional_semantic"] is True and binding["optional_project_statistics"] is False
             and "project_statistics_old_gate" not in binding,
             "Optional mode identity differs; no quality/statistics candidate is registered")
@@ -315,6 +328,7 @@ def manifest_value(inputs, summary):
         "human_content_inspection": "ID-only selection; no questions, answers or source passages displayed; no outcome filtering.",
         "plan_sha256": inputs.plan_sha256, "binding_sha256": inputs.binding_sha256,
         "development_addendum": inputs.binding["development_addendum"],
+        "counting_addendum": inputs.binding["counting_addendum"],
         "evaluator_commit": inputs.binding["evaluator_commit"],
         "sources": {key: inputs.binding[key] for key in ("baseline", "candidate")},
         "model_fingerprint": inputs.binding["model"]["fingerprint"],
@@ -358,6 +372,9 @@ def load(parquet_path, binding_path, manifest_path=None) -> Dataset:
     value = json.loads(committed_bytes(path))
     require(value.get("binding_sha256") == inputs.binding_sha256 and
             value.get("plan_sha256") == inputs.plan_sha256, "Manifest belongs to a different frozen binding")
+    require(value.get("development_addendum") == inputs.binding["development_addendum"]
+            and value.get("counting_addendum") == inputs.binding["counting_addendum"],
+            "Frozen selection addenda differ from the binding")
     timestamp = value.get("frozen_at")
     require(isinstance(timestamp, str), "Missing freeze time")
     parsed = datetime.fromisoformat(timestamp)
