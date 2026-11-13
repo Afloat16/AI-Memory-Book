@@ -7,8 +7,10 @@ and speed, with frequent remote Git checkpoints. Exact-output optimization
 alone cannot establish a quality gain. The retained A–D development candidates
 have not qualified for the original formal performance run; D evidence is at
 `2d381b49a36bf64820635887ac886f62b5c1b8cc`. The independently reviewed E lifetime
-scope is registered at `10b04c8fdcfd0ecc95492e17b2a764c62a0651f1` and has not yet
-executed its corpus diagnostic at this checkpoint.
+scope is registered at `10b04c8fdcfd0ecc95492e17b2a764c62a0651f1`. Its nine
+lifecycle probes and three separate 4,732-call frequency workers have now
+completed; each worker was checkpointed remotely before the next. Saved-result
+audit will determine whether E qualifies for its conditional development run.
 
 Parallel quality diagnosis now examines only already saved v032 outputs and
 their old source annotations. The new
@@ -23,13 +25,24 @@ has no 1,024-to-2,048 evidence gain. This supports investigating source selectio
 and cross-reference retrieval, not simply increasing the context budget.
 
 The audit does not establish whether an absent source was outside the original
-candidate pool, ranked below top five, or omitted by packing. No new ranking
-policy has been selected, implemented or evaluated. A quality change requires
-its own prospective scope, source freeze and independently held-out validation;
+candidate pool, ranked below top five, or omitted by packing. The separate
+[T1 title-reference scope](../benchmarks/experiments/round5-title-reference-plan.json)
+now registers an opt-in, one-anchor, one-target source hop before implementation
+or quality scoring. Only full, unique, source-projected title mentions qualify;
+default behavior retains the original path. Development uses 5,438 paired
+old-cohort calls, with fixed completeness, annotation recall, annotated-page
+precision, small-budget regression and native cost gates. A passing candidate
+must then freeze its combined source and evaluator before selecting 512 unseen
+questions and executing the one registered fresh validation attempt. Quality
+and native cost come from the same shipping runtime and provenance interface;
 original performance registrations, adverse results and release gates remain
 unchanged. Gains from different runtimes cannot be combined into a claim about
 one shipped version. Generated-answer accuracy requires a separate actual
 answer evaluation and is not inferred from delivered evidence.
+
+The GC evaluator's complete existing CI also passed all nine jobs on first
+attempt, run `43392580547`. This verifies the source and diagnostic tooling; it
+does not establish a speed or quality gain. No v0.3.3 release has been accepted.
 
 ## Initial registration — before new measurements
 

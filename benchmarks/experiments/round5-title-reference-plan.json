@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "protocol": "v033-title-reference-t1-development-v1",
+  "status": "registered-before-implementation-and-development-calls",
+  "user_goal": "The user explicitly requires retrieval effectiveness, accuracy and speed improvements, with frequent remote Git checkpoints. Exact-output acceleration alone is not a quality gain.",
+  "separation": "T1 is a separately registered opt-in quality feature. It does not change the registered default exact-output performance experiment or turn E's unmeasured cleanup into a speed claim. Default behavior and all original numeric release gates remain required on the final combined runtime.",
+  "baseline_release": "v0.3.2",
+  "baseline_commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+  "baseline_runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93",
+  "prototype_base_commit": "0f8d34c452bbab8918bcf7f11ec6c12214d70050",
+  "prototype_base_runtime_sha256": "5caa9a72d73eef7121e81f4823f583dc35fc246a1b61b792829bdd275787127b",
+  "prototype_base_limit": "E has passed 79 functional checks and 9 CI jobs but has not established a performance improvement. This identity is an isolated implementation starting point, not a release selection.",
+  "original_performance_plan_commit": "7068594181c7e98c576f68a81daf85cd0d06c729",
+  "evidence_commit": "0f01d62f05ad5c7a6bb0d1cb0987ebce3d002039",
+  "evidence": {
+    "role": "Offline attribution of old v032 outputs only; zero new retrieval/model calls.",
+    "old_hotpot_questions": 256,
+    "native_1024_required_annotations": 635,
+    "native_1024_matched_annotations": 481,
+    "native_1024_missing_session": 142,
+    "native_1024_missing_turn": 12,
+    "native_1024_to_2048_changed_evidence_rank_vectors": 0,
+    "limits": "Returned-session absence does not identify candidate generation, ranking, top-limit selection or packing as its cause. Four deterministic old incomplete cases suggest first-hop source names may point to absent second sources, but do not estimate general benefit. Sessions have titles, not a pre-existing entity graph."
+  },
+  "hypothesis": "An existing lexical leader may explicitly name another source by its complete title. One bounded, verified title-reference hop may recover that source under the same result and context limits without a model or a new index.",
+  "interface": {
+    "python_option": "follow_titles: bool = False",
+    "default": "False must preserve all complete non-timing responses, cache keys and old SQL paths. No title catalog/source lookup is performed when disabled.",
+    "scope": "Accept the strict boolean option on every existing book request. Expansion requires an explicit project and strategy=book. Reject semantic=True, coverage=True or non-book strategy when enabled. With project=None, limit<2, zero char/token budget, no lexical results, or any CURRENT_QUERY/HISTORICAL_QUERY match, keep the original selection and record an inactive reason; do not remove these calls from evaluation.",
+    "cache": "Append the opt-in mode name and its version1 to cache identity only when enabled; retain original revision/snapshot invalidation. No new persistent or cross-call cache.",
+    "metadata": "Enabled responses carry compact native shipping provenance: version, activation/applied state and reason; when a hop is chosen, anchor and target page/source IDs, exact original anchor mention span, and target_initial_page_in_pool / target_initial_session_in_pool computed before insertion against the complete scoped original exact/stem union. When no target is selected, membership is absent or null (unexamined), not false. Include the single original turn projection for a selected mention. This supports attribution of that target only, not every missing annotation. Disabled responses add no fields.",
+    "integration": "Prototype the Python option first. If development passes, expose the same explicit option through CLI/MCP with strict boolean validation, source/scope parity and compact/detailed behavior before final source freeze. Do not silently make it the default."
+  },
+  "algorithm": {
+    "hops": 1,
+    "anchors": 1,
+    "maximum_target_sources": 1,
+    "maximum_target_pages": 1,
+    "catalog_limit": 512,
+    "catalog_read_limit": 513,
+    "anchor_prefix_characters": 4096,
+    "title_max_characters": 256,
+    "title_min_nonspace_characters": 4,
+    "title_min_distinct_query_terms": 2,
+    "entry": "Execute the unchanged complete lexical ordering, including its existing novelty pass, before expansion. Preserve its first page as the sole anchor. Eligible opt-in calls may use the existing full-materialization fallback to retain the complete candidate order. Inactive calls retain the original fast path. Default delayed materialization stays unchanged.",
+    "catalog": "Read at most cap+1 session identities/titles within exactly the original project/chapter/session scope in the same read snapshot. If more than512 exist, do not follow a title. Never read the entire catalog and then truncate. Do not add schema or source/index changes.",
+    "title_normalization": "Casefold and collapse whitespace only. Retain punctuation, parenthetical suffixes and every other character; no aliases, stemming, transliteration, NER or generated queries. Apply the same normalization for uniqueness. The original stripped title must have at most 256 characters and at least 4 non-whitespace characters. Require at least 2 distinct tokens from the existing query_terms(title), not overlap with the user query. Also explicitly reject titles whose non-whitespace characters are all numeric. No free-form generic-title classifier or stop list may be tuned.",
+    "mention": "Require the complete normalized title as a contiguous match in the first 4096 original anchor characters, with Unicode letter/number/combining-mark/underscore boundaries (Unicode category M is word-internal). A match must be wholly inside that prefix; inspect the actual adjacent original character beyond the prefix when verifying the right boundary, rather than treating an artificial cut as end of word. Preserve original source offsets and verify that the normalized exact original slice equals the normalized full title; reject matches landing inside a casefold expansion. Chinese titles work as intact delimited titles, not scattered bigram matches or guessed adjacent entities.",
+    "ambiguity": "Apply cap+1 overflow detection and normalized-title uniqueness over the whole scoped catalog before title eligibility filters; even ineligible/short titles participate in collision counting. A normalized title must resolve to exactly one session. Ignore ambiguous titles, the anchor source and every source already in the original top-limit page list. Never use dates, relevance or labels to guess among duplicate titles.",
+    "multiple_mentions": "Choose the earliest qualifying original mention; at the same start prefer the longest complete title, then the stable target session identity. Repeated mentions of one target count once. No recursive follow-up.",
+    "target_already_reachable": "If the target source occurs anywhere in the complete original lexical candidate sequence, select its earliest ranked page and retain its existing score. This is changed selection, not new candidate generation.",
+    "target_newly_reachable": "Otherwise fetch the target's first original page by stable section/page source order. Record its route as title_reference and score0.0, which is diagnostic and not a BM25 confidence estimate. There is no additional free-text search or answer-position selection.",
+    "selection": "Keep the original first page, insert the one linked page second, then keep the other original pages in their previous relative order with duplicates removed, truncating to the same limit. Count the full candidate union, adding one only for a genuinely new page.",
+    "assembly": "Use the unchanged original character allocation, excerpt, source-unit projection and token assembly on that selection. Citation headers and separators remain inside both caps. Preserving first rank does not promise the anchor's excerpt remains byte-identical after allocation changes; score every real gain and loss.",
+    "empty_target": "After choosing the one earliest qualifying mention, fetch at most its one target entry page. If no eligible target page exists in the same snapshot/scope, retain the original selection with an explicit no-target-page reason; do not try a second source.",
+    "mention_source": "A mention span is a half-open range in anchor page.content and must be wholly covered by one original source_ref/turn projection. Never match across inserted page/turn separators. Preserve its projected original turn index/range in provenance. At a page/source slice edge that does not prove an original word boundary, decline that match rather than treating the cut as a delimiter. Do not fetch unbounded extra original text to repair such a match."
+  },
+  "forbidden": [
+    "No question IDs, answers, required-evidence labels, expected outputs or benchmark category branches in runtime.",
+    "No parameter grid or post-result retuning within T1, no fresh-data inspection before source freeze, no fastest retries or selective query/cell omission.",
+    "No scope relaxation, generated/paraphrased evidence, source mutation, embedding/model change, new dependency, schema/index migration, persistent graph or unbounded cache.",
+    "Do not reopen rejected project-local BM25 or claim that more returned sources alone improve precision.",
+    "Do not claim default quality improvement for an opt-in mode, infer generated-answer accuracy from evidence metrics, or combine gains measured on different source runtimes."
+  ],
+  "correctness": {
+    "invented_fixtures": [
+      "Unique full English title reference and exact original mention/source spans",
+      "Delimited complete Chinese title reference; no scattered bigram or word-internal match",
+      "Casefold expansion and flexible whitespace with verified original offsets",
+      "Duplicate/normalized-colliding titles, short/generic/numeric titles and parenthetical suffixes",
+      "Repeated mentions, overlapping titles, mutual-reference cycle and fanout bounded to1",
+      "Original candidate promotion versus genuinely new source/page generation",
+      "Project/chapter/session isolation; same title outside scope; explicit project requirement",
+      "Title rename, source deletion, revision/cache invalidation, concurrent writer snapshot",
+      "Catalog cap and cap+1 fallback, long anchor prefix and title-length bounds",
+      "Limit1, empty/zero budget, temporal queries, strict booleans and incompatible modes",
+      "Both tokenizers/caps, source reconstruction, duplicate prevention and exact default payload parity",
+      "Unicode combining-mark boundary and original character beyond the 4096 prefix; catalog uniqueness before eligibility filtering; target with no page",
+      "Title split across a page/turn join or an unproven page edge is rejected; later duplicate supporting page counts independently for page precision"
+    ],
+    "before_calls": "Commit this scope, then reviewed prototype source and artificial fixtures, then a separate binding fixing source/evaluator/data hashes, exact call schedule and fresh checkpoint paths before any development scoring. Preserve every failure before repair."
+  },
+  "development": {
+    "cohorts": [
+      {
+        "id": "synthetic61",
+        "queries": 168,
+        "role": "old regression",
+        "configurations": [
+          {
+            "tokenizer": "cl100k_base",
+            "budget_tokens": 1024
+          }
+        ]
+      },
+      {
+        "id": "public1015",
+        "queries": 1015,
+        "role": "old conversation regression including unsupported questions",
+        "configurations": [
+          {
+            "tokenizer": "cl100k_base",
+            "budget_tokens": 1024
+          }
+        ]
+      },
+      {
+        "id": "round4-hotpot256",
+        "queries": 256,
+        "role": "already scored and inspected development",
+        "configurations": [
+          {
+            "tokenizer": "cl100k_base",
+            "budget_tokens": 512
+          },
+          {
+            "tokenizer": "cl100k_base",
+            "budget_tokens": 1024
+          },
+          {
+            "tokenizer": "cl100k_base",
+            "budget_tokens": 2048
+          },
+          {
+            "tokenizer": "o200k_base",
+            "budget_tokens": 512
+          },
+          {
+            "tokenizer": "o200k_base",
+            "budget_tokens": 1024
+          },
+          {
+            "tokenizer": "o200k_base",
+            "budget_tokens": 2048
+          }
+        ]
+      }
+    ],
+    "queries_total": 1439,
+    "modes": [
+      "candidate_default",
+      "candidate_follow_titles"
+    ],
+    "tokenizers": [
+      "cl100k_base",
+      "o200k_base"
+    ],
+    "token_budgets": [
+      512,
+      1024,
+      2048
+    ],
+    "budget_chars": 8000,
+    "limit": 5,
+    "cache_size": 0,
+    "use_cache": false,
+    "repetitions": 1,
+    "calls_total": 5438,
+    "order": "Cohorts in listed order; configurations in each cohort's explicit listed order; shuffle query IDs with seed61313+global_configuration_index. Alternate off/on versus on/off by query position, preserving one call per mode/query/config. Prepare both reference tokenizers before native query timing. A separate binding fixes exact dataset fingerprints and evaluator functions.",
+    "metrics": "Per-query required evidence recall, complete evidence, packed MRR; annotated-page precision as a pooled micro ratio (actual returned pages containing at least one complete required annotation / actual returned pages), with per-query macro ratios also shown; adopted target original-page/session pool membership, expansion activation/fallback reasons, introduced/displaced-page annotation support, context/payload costs, full native recall p50/p95 and all source/scope/budget/cache invariants. Native response provenance is part of the measured shipping interface; no profiler/frame/full-pool trace runs inside timing. Labels enter only the evaluator after retrieval. Do not claim all missing annotations' original-pool reachability from target-only provenance.",
+    "gate": {
+      "primary_cell": "Old round4-hotpot256, cl100k_base,1024tokens",
+      "complete_rate_gain_minimum_pp": 5,
+      "annotation_recall_gain_minimum_pp": 3,
+      "annotated_page_precision_gain_minimum_pp": 2,
+      "mrr_maximum_decline": 0.01,
+      "primary_complete_loss_rate_maximum": 0.05,
+      "introduced_vs_displaced": "The actually introduced-page annotation-hit rate must be at least that of actually displaced pages when the latter denominator is positive; apply the explicit zero-denominator rules above.",
+      "other_cells": "No aggregate complete-evidence, annotation-recall or annotated-page-precision drop greater than 1 percentage point in any other listed cohort/configuration cell; MRR decline at most 0.01. Both Hotpot 512-token cells must have no aggregate complete-evidence decline. Retain every per-question loss and unsupported-query change.",
+      "latency": "For every cohort/configuration, opt-in full-call p95 increase must be <=20percent AND <=1ms relative to the same runtime with the flag off. These one-repeat development observations screen cost; they are not release speed evidence.",
+      "integrity": "Zero source/projection/scope/budget/cache/identity violations. All guards and original default compatibility tests pass.",
+      "introduced_page_annotation_hit_rate_minimum": 0.5
+    },
+    "failure_policy": "If T1 fails a gate, preserve all outputs and reject this fixed candidate; do not change parameters under this registration or score fresh data with it. A different hypothesis requires a new prospective scope.",
+    "matrix_rationale": "Use all six token cells on the target old Hotpot cohort and the primary cl100k/1024 cell on both old transfer cohorts. Artificial fixtures cover excluded edge cases. Other 640 historical Hotpot questions remain excluded from fresh; no development outcome informed this reduction.",
+    "precision_definition": "Match annotations using original source identities/spans and the actual returned text. Count each returned page at most once in the numerator; multiple annotations on one page do not multiply it. Use the pooled ratio for gates; unsupported queries remain in the page denominator with no annotation hits. This is an annotation precision proxy, not exhaustive relevance or answer accuracy. The first-matching-rank evidence_ranks array alone cannot count every annotated page: evaluate every actual returned page independently, because a later page can contain the same complete required annotation.",
+    "introduced_displaced_definition": "For each paired query, introduced pages are ON actually returned page IDs minus OFF actually returned page IDs; displaced pages are the reverse. Do not count selected-but-unreturned targets. Save target-returned status and new-page-with-existing-session versus new-session counts separately. Require a positive introduced denominator for the primary introduced-page gate. A zero displaced denominator is explicitly null and imposes no relative comparison; never substitute a hit rate of 1."
+  },
+  "fresh_validation": {
+    "status": "Prospective selection/evaluator binding required after development acceptance and complete interface/default integration; no fresh ID or content has been selected for T1.",
+    "population": "512 previously unseen HotpotQA validation questions, fixed384bridge and128comparison mixture. Exclude the union of all four historical manifests (128+256+256+256=896 IDs) and any additional IDs inspected before freeze.",
+    "selection": "Freeze candidate, evaluator, comparator pins and all parameters before metadata-only selection. Decode only ID and question type (bridge/comparison), not question, answer, passages or labels. Within each type, SHA256 order of prefix AI-Memory-Book/v033/title-reference-t1/2026-11-13/ plus ID. Select fixed counts without viewing outcomes, then bind selected IDs/data hashes before the first scored call.",
+    "required_modes": [
+      "v032_default",
+      "final_candidate_default",
+      "final_candidate_follow_titles"
+    ],
+    "configs": "Same six tokenizer/token-budget cells and caps as development. Final-candidate default must match v032 complete non-timing payloads on all fresh queries/configurations.",
+    "primary_gates": "Apply the primary development quality thresholds to all 512 questions at cl100k1024, with >=26 net complete-question gains, <=25 complete-question losses, plus two-sided exact paired discordance p<=0.05. Both 512-token cells must have no aggregate complete-evidence decline. In every other configuration complete-evidence, annotation-recall and annotated-page-precision decline must each be <=1pp; MRR decline <=0.01. Primary annotated-page precision must improve >=2pp. Introduced/displaced gates use the same actual-returned-page micro definition and explicit zero-denominator rules. Preserve all six cells and all per-query losses.",
+    "cost": "The four native final-runtime workers use fixed OFF-ON-ON-OFF order with first/repeat partitions reported separately. For EACH of the six configuration cells independently, pool that mode's two complete repetitions (1024 latency samples per mode per cell). Both p50 and p95 ON increments must independently be <=20 percent AND <=1ms versus final-runtime OFF. Never pool across budgets or tokenizers. Bind process-resource boundaries before selection. All default 14-cell original performance/resource gates also remain.",
+    "external_comparison": "Before claiming repository advantages, bind and execute a same-selected-cohort supplied-page comparison against the three prior comparator repositories with fixed source/dependency pins and identical page/token limits. Keep native transport/search/read boundaries and each competitor's strengths explicit. Do not splice new T1 scores into old256question competitor tables.",
+    "no_retuning": "One first scored attempt, every result/failure retained. Fresh outcomes are never used to tune this frozen candidate or choose a faster retry. Evidence delivery does not establish generated-answer EM/F1; any answer claim requires its own actual fixed-model paired evaluation.",
+    "external_pins": [
+      {
+        "repository": "thedotmack/claude-mem",
+        "commit": "c4a9f5725f420bf9c6e866cdd3b94bd36498af09",
+        "lock": "benchmarks/competitors/claude-mem-round2-lock.json",
+        "mode": "upstream SQLite FTS component"
+      },
+      {
+        "repository": "ranxianglei/billion-context",
+        "commit": "9674cfafbc78c50245ae0d887483d3d6ce880c15",
+        "lock": "benchmarks/competitors/billion-round2-lock.json",
+        "mode": "upstream default hybrid BM25 plus fuzzy component"
+      },
+      {
+        "repository": "akitaonrails/ai-memory",
+        "commit": "ee73c04c542fa41ca629b046deb4ac108518f407",
+        "lock": "benchmarks/competitors/ai-memory-lock.json",
+        "mode": "native hybrid local all-MiniLM-L6-v2 and native reads; report lexical mode separately if bound"
+      }
+    ],
+    "native_schedule": "One registered attempt consists of a v032 parity worker (512 questions x 6 cells = 3072 calls) followed by four final-runtime native workers OFF, ON, ON, OFF (12288 calls), total 15360. Every worker uses all six fixed cells, an identical prospectively bound query order and prewarmed tokenizers, cache_size=0/use_cache=False. Score quality only from the first OFF/ON pair; subsequent repetitions verify complete payload reproduction and cost, not new quality samples. Every final OFF payload must equal v032 excluding latency_ms. ON provenance is real shipping output and is included in native timing; there is no diagnostic trace wrapper.",
+    "failure_lifecycle": "Commit the complete runtime, evaluator/metric rules, selection algorithm/configuration/schedule and empty attempt paths before selection; all are immutable after scoring begins. An attempt owns all named workers; commit each completed worker before the next. Resume only a never-started next worker after a remotely verified completed prefix. A started failed/interrupted worker is retained and never replayed or replaced within this attempt. A change to runtime, evaluator/metrics or selection/configuration/schedule after first fresh scoring consumes this holdout as development and requires a separately registered unseen holdout for another acceptance attempt."
+  },
+  "release": "Only a single combined final runtime can be released. Rebind every applicable registration and independently verify default exact-output performance, historical lexical/Q2 compatibility, T1 quality/cost gates, complete CI/installers and release assets. If only an opt-in quality gain is established, state it as opt-in; do not claim the default improved on all dimensions.",
+  "registered_utc": "2026-11-13T08:42:15Z",
+  "review": "Independent runtime_review and evaluation_review source/design review completed before implementation or new quality calls. Boundary, scope, native provenance, exact matrix and metric clarifications incorporated prospectively."
+}
