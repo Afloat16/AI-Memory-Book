@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "status": "prospective-native-pair-identity-correction-before-implementation-and-corpus",
+  "scope": {
+    "commit": "a3ef7df18de8336126cbb266a7b7caae1bc38100",
+    "path": "benchmarks/experiments/round5-lm-sql-attribution-scope.json",
+    "sha256": "0b3a249df45a25a00f76f4ad2c6e0cfa56fc7147a19e982fca429884c5ef1269"
+  },
+  "runtime": {
+    "commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+    "runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd"
+  },
+  "witness": {
+    "source_commit": "3ebd0631c3550547713e03c42346549bce0c6be0",
+    "run_id": 43484057776,
+    "job_id": 132087707438,
+    "raw_log": {
+      "path": "benchmarks/reports/round5-lm-sql-attribution-artificial/ci-43484057776-job132087707438.log",
+      "sha256": "e4a8ecb26e25acbecc7bcf54d51e14448dd13952b813dc15e7b57203f849fa66"
+    },
+    "paired_exits": 9,
+    "fresh_bound_wrapper_at_exit": 8,
+    "frame_receiver_native_type_method_descriptor_mismatches": 0,
+    "open_stack_entries": 0
+  },
+  "finding": "This exact CPython artificial witness emits newly wrapped bound builtin objects at eight of nine exits, including inline c_exception. All nine retain exact frame, receiver, immutable native type, native method descriptor and method name. The original arg-is test rejects valid observed calls; this does not show a runtime or timing change.",
+  "proposed_pairing": [
+    "Require exact native BuiltinMethodType event args and exact frozen sqlite Connection/Cursor receiver types.",
+    "Precompute immutable native method descriptors before observation; never resolve paths or inspect user objects, SQL, arguments, locals or results in callback.",
+    "At each exit require strict LIFO, exact frame identity, exact receiver identity, exact native owner type, identical native descriptor object and same method name.",
+    "Retain whether entry/exit callable wrapper is the same object as raw observation metadata; do not require a lifetime identity the artificial CPython witness disproves.",
+    "Preserve nested inclusive/exclusive accounting, c_exception rows, unknown categories, invalid/open partial spans and terminal lifecycle errors."
+  ],
+  "required_artificial_proofs": [
+    "Fresh wrappers with the same frame/receiver/native type/descriptor are paired and wrapper_is=false is retained.",
+    "Same method on a different receiver, a different method on the same receiver, a different frame, non-LIFO exit and missing exit remain invalid.",
+    "Repeat the existing real nested/exception/native-guard and payload fixtures after the correction; retain all prior failures and logs."
+  ],
+  "unchanged": [
+    "Exact LM runtime and all original helpers",
+    "4732 old-data order and complete C2 payload audit",
+    "One attempt, new namespace, no retry, all partial/unknown evidence",
+    "Partial observed C spans only; no exhaustive SQL or speed claim",
+    "No proxy/subclass, no row-factory change by observer, no SQL/locals inspection"
+  ],
+  "scope_review_required_before_corpus": true,
+  "implementation_applied": false,
+  "diagnostic_corpus_calls": 0,
+  "fresh_rows_decoded": 0
+}

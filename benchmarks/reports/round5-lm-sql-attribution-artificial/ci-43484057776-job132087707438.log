@@ -1,0 +1,577 @@
+﻿2026-11-13T18:35:13.7854924Z Current runner version: '2.338.2'
+2026-11-13T18:35:13.7880252Z ##[group]Runner Image Provisioner
+2026-11-13T18:35:13.7881229Z Hosted Compute Agent
+2026-11-13T18:35:13.7881874Z Version: 20261103.629
+2026-11-13T18:35:13.7882966Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-13T18:35:13.7883803Z Build Date: 2026-11-03T17:26:59Z
+2026-11-13T18:35:13.7884575Z Worker ID: {ae995103-21cd-4b96-8e24-97204620966f}
+2026-11-13T18:35:13.7885286Z Region: northcentralus
+2026-11-13T18:35:13.7885946Z Cloud: Azure
+2026-11-13T18:35:13.7886494Z ##[endgroup]
+2026-11-13T18:35:13.7888110Z ##[group]Operating System
+2026-11-13T18:35:13.7888827Z Ubuntu
+2026-11-13T18:35:13.7889382Z 24.04.5
+2026-11-13T18:35:13.7889972Z LTS
+2026-11-13T18:35:13.7890497Z ##[endgroup]
+2026-11-13T18:35:13.7891457Z ##[group]Runner Image
+2026-11-13T18:35:13.7892609Z Image: ubuntu-24.04
+2026-11-13T18:35:13.7893229Z Version: 20261111.370.1
+2026-11-13T18:35:13.7894599Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261111.370/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-13T18:35:13.7896309Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261111.370
+2026-11-13T18:35:13.7897363Z ##[endgroup]
+2026-11-13T18:35:13.7898508Z ##[group]GITHUB_TOKEN Permissions
+2026-11-13T18:35:13.7900689Z Contents: read
+2026-11-13T18:35:13.7901316Z Metadata: read
+2026-11-13T18:35:13.7902316Z ##[endgroup]
+2026-11-13T18:35:13.7905142Z Secret source: Actions
+2026-11-13T18:35:13.7906247Z Cache mode: write
+2026-11-13T18:35:13.7907194Z Prepare workflow directory
+2026-11-13T18:35:13.8337599Z Prepare all required actions
+2026-11-13T18:35:13.8387840Z Getting action download info
+2026-11-13T18:35:14.0855747Z Download action repository 'actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803' (SHA:d23441a48e516b6c34aea4fa41551a30e30af803)
+2026-11-13T18:35:14.1985162Z Download action repository 'actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c' (SHA:e797f83bcb11b83ae66e0230d6156d7c80228e7c)
+2026-11-13T18:35:14.3369110Z Download action repository 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-13T18:35:14.5503626Z Complete job name: protocol-fixtures
+2026-11-13T18:35:14.6510454Z ##[group]Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+2026-11-13T18:35:14.6511551Z with:
+2026-11-13T18:35:14.6512327Z   fetch-depth: 1
+2026-11-13T18:35:14.6512829Z   sparse-checkout-cone-mode: false
+2026-11-13T18:35:14.6513603Z   sparse-checkout: /*
+!/benchmarks/reports/
+!/benchmarks/figures/
+!/docs/images/
+
+2026-11-13T18:35:14.6514403Z   repository: Afloat16/AI-Memory-Book
+2026-11-13T18:35:14.6518441Z   token: ***
+2026-11-13T18:35:14.6518880Z   ssh-strict: true
+2026-11-13T18:35:14.6519329Z   ssh-user: git
+2026-11-13T18:35:14.6519996Z   persist-credentials: true
+2026-11-13T18:35:14.6520623Z   clean: true
+2026-11-13T18:35:14.6521044Z   fetch-tags: false
+2026-11-13T18:35:14.6521488Z   show-progress: true
+2026-11-13T18:35:14.6522205Z   lfs: false
+2026-11-13T18:35:14.6522664Z   submodules: false
+2026-11-13T18:35:14.6523116Z   set-safe-directory: true
+2026-11-13T18:35:14.6523625Z   allow-unsafe-pr-checkout: false
+2026-11-13T18:35:14.6524474Z env:
+2026-11-13T18:35:14.6524964Z   PYTHONDONTWRITEBYTECODE: 1
+2026-11-13T18:35:14.6525471Z   PYTHONHASHSEED: 0
+2026-11-13T18:35:14.6525907Z ##[endgroup]
+2026-11-13T18:35:14.9464485Z Syncing repository: Afloat16/AI-Memory-Book
+2026-11-13T18:35:14.9466622Z ##[group]Getting Git version info
+2026-11-13T18:35:14.9468317Z Working directory is '/home/runner/work/AI-Memory-Book/AI-Memory-Book'
+2026-11-13T18:35:14.9469891Z [command]/usr/bin/git version
+2026-11-13T18:35:14.9583470Z git version 2.56.1
+2026-11-13T18:35:14.9609014Z ##[endgroup]
+2026-11-13T18:35:14.9619491Z Temporarily overriding HOME='/home/runner/work/_temp/60d2eb10-c9bc-457b-a652-d21cb9b5c3aa' before making global git config changes
+2026-11-13T18:35:14.9622568Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-13T18:35:14.9627711Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AI-Memory-Book/AI-Memory-Book
+2026-11-13T18:35:14.9712992Z Deleting the contents of '/home/runner/work/AI-Memory-Book/AI-Memory-Book'
+2026-11-13T18:35:14.9726974Z ##[group]Determining repository object format
+2026-11-13T18:35:14.9729725Z ##[endgroup]
+2026-11-13T18:35:14.9730877Z ##[group]Initializing the repository
+2026-11-13T18:35:14.9736687Z [command]/usr/bin/git init /home/runner/work/AI-Memory-Book/AI-Memory-Book
+2026-11-13T18:35:14.9857711Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-13T18:35:14.9859835Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-13T18:35:14.9861616Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-13T18:35:14.9863522Z hint: call:
+2026-11-13T18:35:14.9864111Z hint:
+2026-11-13T18:35:14.9864795Z hint: 	git config --global init.defaultBranch <name>
+2026-11-13T18:35:14.9865499Z hint:
+2026-11-13T18:35:14.9866304Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-13T18:35:14.9867686Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-13T18:35:14.9869137Z hint:
+2026-11-13T18:35:14.9869974Z hint: 	git branch -m <name>
+2026-11-13T18:35:14.9870894Z hint:
+2026-11-13T18:35:14.9872319Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-13T18:35:14.9874352Z Initialized empty Git repository in /home/runner/work/AI-Memory-Book/AI-Memory-Book/.git/
+2026-11-13T18:35:14.9882703Z [command]/usr/bin/git remote add origin https://github.com/Afloat16/AI-Memory-Book
+2026-11-13T18:35:14.9939370Z ##[endgroup]
+2026-11-13T18:35:14.9940704Z ##[group]Disabling automatic garbage collection
+2026-11-13T18:35:14.9944299Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-13T18:35:14.9984120Z ##[endgroup]
+2026-11-13T18:35:14.9985888Z ##[group]Setting up auth
+2026-11-13T18:35:14.9986963Z Removing SSH command configuration
+2026-11-13T18:35:14.9993518Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T18:35:15.0036162Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-13T18:35:15.0454293Z Removing HTTP extra header
+2026-11-13T18:35:15.0462313Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T18:35:15.0508081Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-13T18:35:15.0750501Z Removing includeIf entries pointing to credentials config files
+2026-11-13T18:35:15.0757992Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T18:35:15.0805131Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-13T18:35:15.1052973Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-6c24ddb6-c700-492c-bd3a-da4053ee8e0c.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-13T18:35:15.1102197Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git.path /home/runner/work/_temp/git-credentials-6c24ddb6-c700-492c-bd3a-da4053ee8e0c.config
+2026-11-13T18:35:15.1144694Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-6c24ddb6-c700-492c-bd3a-da4053ee8e0c.config
+2026-11-13T18:35:15.1188228Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-6c24ddb6-c700-492c-bd3a-da4053ee8e0c.config
+2026-11-13T18:35:15.1231607Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-6c24ddb6-c700-492c-bd3a-da4053ee8e0c.config
+2026-11-13T18:35:15.1270081Z ##[endgroup]
+2026-11-13T18:35:15.1270879Z ##[group]Fetching the repository
+2026-11-13T18:35:15.1279530Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --filter=blob:none --depth=1 origin +3ebd0631c3550547713e03c42346549bce0c6be0:refs/remotes/origin/staging/v033-lm-sql-attribution
+2026-11-13T18:35:15.4207847Z From https://github.com/Afloat16/AI-Memory-Book
+2026-11-13T18:35:15.4209569Z  * [new ref]         3ebd0631c3550547713e03c42346549bce0c6be0 -> origin/staging/v033-lm-sql-attribution
+2026-11-13T18:35:15.4221443Z [command]/usr/bin/git branch --list --remote origin/staging/v033-lm-sql-attribution
+2026-11-13T18:35:15.4267842Z   origin/staging/v033-lm-sql-attribution
+2026-11-13T18:35:15.4277085Z [command]/usr/bin/git rev-parse refs/remotes/origin/staging/v033-lm-sql-attribution
+2026-11-13T18:35:15.4310832Z 3ebd0631c3550547713e03c42346549bce0c6be0
+2026-11-13T18:35:15.4317911Z ##[endgroup]
+2026-11-13T18:35:15.4319790Z ##[group]Determining the checkout info
+2026-11-13T18:35:15.4321805Z ##[endgroup]
+2026-11-13T18:35:15.4324090Z ##[group]Setting up sparse checkout
+2026-11-13T18:35:15.4325346Z [command]/usr/bin/git config core.sparseCheckout true
+2026-11-13T18:35:15.4365893Z [command]/usr/bin/git rev-parse --git-path info/sparse-checkout
+2026-11-13T18:35:15.4397765Z .git/info/sparse-checkout
+2026-11-13T18:35:15.4405760Z ##[endgroup]
+2026-11-13T18:35:15.4410578Z ##[group]Checking out the ref
+2026-11-13T18:35:15.4413258Z [command]/usr/bin/git checkout --progress --force -B staging/v033-lm-sql-attribution refs/remotes/origin/staging/v033-lm-sql-attribution
+2026-11-13T18:35:22.4285139Z Updating files:   0% (1/883)
+2026-11-13T18:35:22.4291388Z Updating files:   1% (9/883)
+2026-11-13T18:35:22.4297110Z Updating files:   2% (18/883)
+2026-11-13T18:35:22.4301440Z Updating files:   3% (27/883)
+2026-11-13T18:35:22.4308519Z Updating files:   4% (36/883)
+2026-11-13T18:35:22.4322743Z Updating files:   5% (45/883)
+2026-11-13T18:35:22.4330961Z Updating files:   6% (53/883)
+2026-11-13T18:35:22.4338223Z Updating files:   7% (62/883)
+2026-11-13T18:35:22.4375953Z Updating files:   8% (71/883)
+2026-11-13T18:35:22.4383068Z Updating files:   9% (80/883)
+2026-11-13T18:35:22.4401723Z Updating files:  10% (89/883)
+2026-11-13T18:35:22.4408622Z Updating files:  11% (98/883)
+2026-11-13T18:35:22.4414766Z Updating files:  12% (106/883)
+2026-11-13T18:35:22.4422896Z Updating files:  13% (115/883)
+2026-11-13T18:35:22.4430579Z Updating files:  14% (124/883)
+2026-11-13T18:35:22.4435867Z Updating files:  15% (133/883)
+2026-11-13T18:35:22.4445084Z Updating files:  16% (142/883)
+2026-11-13T18:35:22.4451249Z Updating files:  17% (151/883)
+2026-11-13T18:35:22.4460363Z Updating files:  18% (159/883)
+2026-11-13T18:35:22.4476409Z Updating files:  19% (168/883)
+2026-11-13T18:35:22.4484968Z Updating files:  20% (177/883)
+2026-11-13T18:35:22.4494819Z Updating files:  21% (186/883)
+2026-11-13T18:35:22.4498920Z Updating files:  22% (195/883)
+2026-11-13T18:35:22.4606790Z Updating files:  23% (204/883)
+2026-11-13T18:35:22.4756132Z Updating files:  23% (205/883)
+2026-11-13T18:35:22.5265578Z Updating files:  24% (212/883)
+2026-11-13T18:35:22.5780963Z Updating files:  25% (221/883)
+2026-11-13T18:35:22.5891026Z Updating files:  26% (230/883)
+2026-11-13T18:35:22.5953240Z Updating files:  27% (239/883)
+2026-11-13T18:35:22.5975805Z Updating files:  28% (248/883)
+2026-11-13T18:35:22.6051033Z Updating files:  29% (257/883)
+2026-11-13T18:35:22.6148588Z Updating files:  30% (265/883)
+2026-11-13T18:35:22.6268580Z Updating files:  31% (274/883)
+2026-11-13T18:35:22.6838836Z Updating files:  32% (283/883)
+2026-11-13T18:35:22.7161742Z Updating files:  33% (292/883)
+2026-11-13T18:35:22.7446584Z Updating files:  34% (301/883)
+2026-11-13T18:35:22.7482142Z Updating files:  35% (310/883)
+2026-11-13T18:35:22.7515448Z Updating files:  36% (318/883)
+2026-11-13T18:35:22.7591072Z Updating files:  37% (327/883)
+2026-11-13T18:35:22.7722844Z Updating files:  38% (336/883)
+2026-11-13T18:35:22.8378521Z Updating files:  39% (345/883)
+2026-11-13T18:35:22.8725331Z Updating files:  40% (354/883)
+2026-11-13T18:35:22.8830446Z Updating files:  41% (363/883)
+2026-11-13T18:35:22.8934337Z Updating files:  42% (371/883)
+2026-11-13T18:35:22.9587432Z Updating files:  43% (380/883)
+2026-11-13T18:35:22.9866011Z Updating files:  44% (389/883)
+2026-11-13T18:35:23.0212762Z Updating files:  45% (398/883)
+2026-11-13T18:35:23.0318589Z Updating files:  46% (407/883)
+2026-11-13T18:35:23.0423377Z Updating files:  47% (416/883)
+2026-11-13T18:35:23.0691601Z Updating files:  48% (424/883)
+2026-11-13T18:35:23.0793621Z Updating files:  49% (433/883)
+2026-11-13T18:35:23.1108691Z Updating files:  50% (442/883)
+2026-11-13T18:35:23.1290138Z Updating files:  51% (451/883)
+2026-11-13T18:35:23.1340656Z Updating files:  52% (460/883)
+2026-11-13T18:35:23.1884573Z Updating files:  53% (468/883)
+2026-11-13T18:35:23.1941040Z Updating files:  54% (477/883)
+2026-11-13T18:35:23.2160549Z Updating files:  55% (486/883)
+2026-11-13T18:35:23.2293957Z Updating files:  56% (495/883)
+2026-11-13T18:35:23.2299063Z Updating files:  57% (504/883)
+2026-11-13T18:35:23.2435825Z Updating files:  58% (513/883)
+2026-11-13T18:35:23.2592438Z Updating files:  59% (521/883)
+2026-11-13T18:35:23.2723488Z Updating files:  60% (530/883)
+2026-11-13T18:35:23.2833206Z Updating files:  61% (539/883)
+2026-11-13T18:35:23.2980146Z Updating files:  62% (548/883)
+2026-11-13T18:35:23.3138764Z Updating files:  63% (557/883)
+2026-11-13T18:35:23.3231397Z Updating files:  64% (566/883)
+2026-11-13T18:35:23.3264383Z Updating files:  65% (574/883)
+2026-11-13T18:35:23.3369617Z Updating files:  66% (583/883)
+2026-11-13T18:35:23.3377389Z Updating files:  67% (592/883)
+2026-11-13T18:35:23.3460843Z Updating files:  68% (601/883)
+2026-11-13T18:35:23.3461664Z Updating files:  69% (610/883)
+2026-11-13T18:35:23.3462133Z Updating files:  70% (619/883)
+2026-11-13T18:35:23.3477892Z Updating files:  71% (627/883)
+2026-11-13T18:35:23.3489351Z Updating files:  72% (636/883)
+2026-11-13T18:35:23.3498159Z Updating files:  73% (645/883)
+2026-11-13T18:35:23.3506020Z Updating files:  74% (654/883)
+2026-11-13T18:35:23.3515611Z Updating files:  75% (663/883)
+2026-11-13T18:35:23.3524276Z Updating files:  76% (672/883)
+2026-11-13T18:35:23.3536015Z Updating files:  77% (680/883)
+2026-11-13T18:35:23.3541786Z Updating files:  78% (689/883)
+2026-11-13T18:35:23.3551265Z Updating files:  79% (698/883)
+2026-11-13T18:35:23.3566544Z Updating files:  80% (707/883)
+2026-11-13T18:35:23.3579033Z Updating files:  81% (716/883)
+2026-11-13T18:35:23.3590072Z Updating files:  82% (725/883)
+2026-11-13T18:35:23.3604665Z Updating files:  83% (733/883)
+2026-11-13T18:35:23.3613459Z Updating files:  84% (742/883)
+2026-11-13T18:35:23.3621772Z Updating files:  85% (751/883)
+2026-11-13T18:35:23.3630643Z Updating files:  86% (760/883)
+2026-11-13T18:35:23.3644412Z Updating files:  87% (769/883)
+2026-11-13T18:35:23.3649724Z Updating files:  88% (778/883)
+2026-11-13T18:35:23.3657923Z Updating files:  89% (786/883)
+2026-11-13T18:35:23.3664182Z Updating files:  90% (795/883)
+2026-11-13T18:35:23.3670212Z Updating files:  91% (804/883)
+2026-11-13T18:35:23.3676575Z Updating files:  92% (813/883)
+2026-11-13T18:35:23.3682275Z Updating files:  93% (822/883)
+2026-11-13T18:35:23.3688768Z Updating files:  94% (831/883)
+2026-11-13T18:35:23.3699094Z Updating files:  95% (839/883)
+2026-11-13T18:35:23.3706049Z Updating files:  96% (848/883)
+2026-11-13T18:35:23.3715475Z Updating files:  97% (857/883)
+2026-11-13T18:35:23.3723467Z Updating files:  98% (866/883)
+2026-11-13T18:35:23.3729771Z Updating files:  99% (875/883)
+2026-11-13T18:35:23.3730262Z Updating files: 100% (883/883)
+2026-11-13T18:35:23.3730726Z Updating files: 100% (883/883), done.
+2026-11-13T18:35:23.3766177Z Switched to a new branch 'staging/v033-lm-sql-attribution'
+2026-11-13T18:35:23.3772591Z branch 'staging/v033-lm-sql-attribution' set up to track 'origin/staging/v033-lm-sql-attribution'.
+2026-11-13T18:35:23.3835726Z ##[endgroup]
+2026-11-13T18:35:23.3892711Z [command]/usr/bin/git log -1 --format=%H
+2026-11-13T18:35:23.3929294Z 3ebd0631c3550547713e03c42346549bce0c6be0
+2026-11-13T18:35:23.4201330Z ##[group]Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+2026-11-13T18:35:23.4201760Z with:
+2026-11-13T18:35:23.4202299Z   python-version: 3.12
+2026-11-13T18:35:23.4202567Z   check-latest: false
+2026-11-13T18:35:23.4205308Z   token: ***
+2026-11-13T18:35:23.4205532Z   update-environment: true
+2026-11-13T18:35:23.4205792Z   allow-prereleases: false
+2026-11-13T18:35:23.4206038Z   freethreaded: false
+2026-11-13T18:35:23.4206250Z env:
+2026-11-13T18:35:23.4206444Z   PYTHONDONTWRITEBYTECODE: 1
+2026-11-13T18:35:23.4206687Z   PYTHONHASHSEED: 0
+2026-11-13T18:35:23.4206889Z ##[endgroup]
+2026-11-13T18:35:23.5643085Z ##[group]Installed versions
+2026-11-13T18:35:23.5740154Z (node:2350) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-13T18:35:23.5741462Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-13T18:35:23.5742496Z Successfully set up CPython (3.12.16)
+2026-11-13T18:35:23.5743372Z ##[endgroup]
+2026-11-13T18:35:23.5879441Z ##[group]Run python scripts/round5_lm_sql_attribution.py fixture-export --source "$RUNNER_TEMP/lm-sql-artificial"
+2026-11-13T18:35:23.5880507Z [36;1mpython scripts/round5_lm_sql_attribution.py fixture-export --source "$RUNNER_TEMP/lm-sql-artificial"[0m
+2026-11-13T18:35:23.5940465Z shell: /usr/bin/bash -e {0}
+2026-11-13T18:35:23.5940873Z env:
+2026-11-13T18:35:23.5941205Z   PYTHONDONTWRITEBYTECODE: 1
+2026-11-13T18:35:23.5941616Z   PYTHONHASHSEED: 0
+2026-11-13T18:35:23.5942357Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:35:23.5943093Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-13T18:35:23.5943825Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:35:23.5944477Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:35:23.5945148Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:35:23.5945843Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-13T18:35:23.5946385Z ##[endgroup]
+2026-11-13T18:35:24.3752965Z From https://github.com/Afloat16/AI-Memory-Book
+2026-11-13T18:35:24.3754044Z  * branch            49f10e7dec006e3a5760c93623a650dc7b6338d6 -> FETCH_HEAD
+2026-11-13T18:35:29.6370696Z /home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py:273: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.
+2026-11-13T18:35:29.6372111Z   stream.extractall(directory)
+2026-11-13T18:35:29.6740418Z ##[group]Run set -o pipefail
+2026-11-13T18:35:29.6740767Z [36;1mset -o pipefail[0m
+2026-11-13T18:35:29.6741425Z [36;1mpython scripts/round5_lm_sql_attribution.py self-test --source "$RUNNER_TEMP/lm-sql-artificial" 2>&1 | tee "$RUNNER_TEMP/lm-sql-artificial.log"[0m
+2026-11-13T18:35:29.6765338Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-13T18:35:29.6765690Z env:
+2026-11-13T18:35:29.6765902Z   PYTHONDONTWRITEBYTECODE: 1
+2026-11-13T18:35:29.6766152Z   PYTHONHASHSEED: 0
+2026-11-13T18:35:29.6766425Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:35:29.6766856Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-13T18:35:29.6767292Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:35:29.6767679Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:35:29.6768062Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:35:29.6768479Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-13T18:35:29.6768805Z ##[endgroup]
+2026-11-13T18:35:29.9685673Z test_fake_clock_nested_inclusive_exclusive_and_bookkeeping (tests.test_round5_lm_sql_attribution.ArithmeticAndSites.test_fake_clock_nested_inclusive_exclusive_and_bookkeeping) ... ok
+2026-11-13T18:35:29.9700906Z test_fixed_artificial_calibration_retains_every_sample (tests.test_round5_lm_sql_attribution.ArithmeticAndSites.test_fixed_artificial_calibration_retains_every_sample) ... ERROR
+2026-11-13T18:35:29.9703084Z test_negative_span_exit_without_entry_and_open_stack_keep_partial (tests.test_round5_lm_sql_attribution.ArithmeticAndSites.test_negative_span_exit_without_entry_and_open_stack_keep_partial) ... ok
+2026-11-13T18:35:29.9704620Z test_same_named_different_builtin_does_not_match (tests.test_round5_lm_sql_attribution.ArithmeticAndSites.test_same_named_different_builtin_does_not_match) ... ok
+2026-11-13T18:35:29.9708654Z test_upper_caller_classification_and_unclassified_sites (tests.test_round5_lm_sql_attribution.ArithmeticAndSites.test_upper_caller_classification_and_unclassified_sites) ... ok
+2026-11-13T18:35:29.9777377Z test_cursor_factory_restoration_and_unsupported_fallback (tests.test_round5_lm_sql_attribution.ExactLMIntegration.test_cursor_factory_restoration_and_unsupported_fallback) ... ERROR
+2026-11-13T18:35:29.9937217Z test_real_payload_and_native_guard_with_both_upper_callsites (tests.test_round5_lm_sql_attribution.ExactLMIntegration.test_real_payload_and_native_guard_with_both_upper_callsites) ... ERROR
+2026-11-13T18:35:29.9943839Z test_actual_builtin_identity_and_private_values_are_not_recorded (tests.test_round5_lm_sql_attribution.NativeEvents.test_actual_builtin_identity_and_private_values_are_not_recorded) ... ERROR
+2026-11-13T18:35:29.9956594Z test_callback_has_no_filesystem_access_and_never_probes_user_objects (tests.test_round5_lm_sql_attribution.NativeEvents.test_callback_has_no_filesystem_access_and_never_probes_user_objects) ... ERROR
+2026-11-13T18:35:29.9958522Z test_existing_profiler_is_not_replaced (tests.test_round5_lm_sql_attribution.NativeEvents.test_existing_profiler_is_not_replaced) ... ok
+2026-11-13T18:35:29.9965194Z test_interrupt_retains_other_native_builtin_and_exception (tests.test_round5_lm_sql_attribution.NativeEvents.test_interrupt_retains_other_native_builtin_and_exception) ... ERROR
+2026-11-13T18:35:29.9969899Z test_lifecycle_misuse_always_invalidates_the_observation (tests.test_round5_lm_sql_attribution.NativeEvents.test_lifecycle_misuse_always_invalidates_the_observation) ... ok
+2026-11-13T18:35:29.9976237Z test_nested_c_exceptions_unwind_in_order (tests.test_round5_lm_sql_attribution.NativeEvents.test_nested_c_exceptions_unwind_in_order) ... ERROR
+2026-11-13T18:35:29.9983204Z test_nested_native_udf_calls_keep_parentage_and_exclusive_sums (tests.test_round5_lm_sql_attribution.NativeEvents.test_nested_native_udf_calls_keep_parentage_and_exclusive_sums) ... ERROR
+2026-11-13T18:35:29.9985745Z test_raw_native_wrapper_identity_probe (tests.test_round5_lm_sql_attribution.NativeEvents.test_raw_native_wrapper_identity_probe)
+2026-11-13T18:35:29.9998093Z Evidence only: never weaken the production observer from this probe. ... {"native_wrapper_probe": [{"case": "inline-success", "event": "c_return", "method": "Connection.execute", "depth": 0, "frame_is": true, "wrapper_is": false, "receiver_is": true, "native_type_is": true, "descriptor_is": true, "method_same": true}, {"case": "inline-success", "event": "c_return", "method": "Cursor.fetchone", "depth": 0, "frame_is": true, "wrapper_is": false, "receiver_is": true, "native_type_is": true, "descriptor_is": true, "method_same": true}, {"case": "prebound-success", "event": "c_return", "method": "Connection.execute", "depth": 0, "frame_is": true, "wrapper_is": true, "receiver_is": true, "native_type_is": true, "descriptor_is": true, "method_same": true}, {"case": "prebound-success", "event": "c_return", "method": "Cursor.fetchone", "depth": 0, "frame_is": true, "wrapper_is": false, "receiver_is": true, "native_type_is": true, "descriptor_is": true, "method_same": true}, {"case": "inline-exception", "event": "c_exception", "method": "Connection.execute", "depth": 0, "frame_is": true, "wrapper_is": false, "receiver_is": true, "native_type_is": true, "descriptor_is": true, "method_same": true}, {"case": "nested-success", "event": "c_return", "method": "Connection.execute", "depth": 1, "frame_is": true, "wrapper_is": false, "receiver_is": true, "native_type_is": true, "descriptor_is": true, "method_same": true}, {"case": "nested-success", "event": "c_return", "method": "Cursor.fetchone", "depth": 1, "frame_is": true, "wrapper_is": false, "receiver_is": true, "native_type_is": true, "descriptor_is": true, "method_same": true}, {"case": "nested-success", "event": "c_return", "method": "Connection.execute", "depth": 0, "frame_is": true, "wrapper_is": false, "receiver_is": true, "native_type_is": true, "descriptor_is": true, "method_same": true}, {"case": "nested-success", "event": "c_return", "method": "Cursor.fetchone", "depth": 0, "frame_is": true, "wrapper_is": false, "receiver_is": true, "native_type_is": true, "descriptor_is": true, "method_same": true}], "unclosed_entries": 0, "corpus_calls": 0, "timing_claim": false}
+2026-11-13T18:35:30.0010545Z ok
+2026-11-13T18:35:30.0012213Z test_real_c_exception_uses_the_same_builtin_and_retains_exception_span (tests.test_round5_lm_sql_attribution.NativeEvents.test_real_c_exception_uses_the_same_builtin_and_retains_exception_span) ... ok
+2026-11-13T18:35:30.0014738Z test_row_factory_exception_is_recorded_without_exception_values (tests.test_round5_lm_sql_attribution.NativeEvents.test_row_factory_exception_is_recorded_without_exception_values) ... ok
+2026-11-13T18:35:30.0029873Z test_full_guard_rejects_added_cache_and_modified_python (tests.test_round5_lm_sql_attribution.PreclaimAndIsolation.test_full_guard_rejects_added_cache_and_modified_python) ... ok
+2026-11-13T18:35:30.0037341Z test_missing_binding_precedes_claim_download_and_export (tests.test_round5_lm_sql_attribution.PreclaimAndIsolation.test_missing_binding_precedes_claim_download_and_export) ... ok
+2026-11-13T18:35:30.0039652Z test_namespace_cannot_publish_to_completed_lm_branch (tests.test_round5_lm_sql_attribution.PreclaimAndIsolation.test_namespace_cannot_publish_to_completed_lm_branch) ... ok
+2026-11-13T18:35:30.0052993Z 
+2026-11-13T18:35:30.0053428Z ======================================================================
+2026-11-13T18:35:30.0054824Z ERROR: test_fixed_artificial_calibration_retains_every_sample (tests.test_round5_lm_sql_attribution.ArithmeticAndSites.test_fixed_artificial_calibration_retains_every_sample)
+2026-11-13T18:35:30.0056508Z ----------------------------------------------------------------------
+2026-11-13T18:35:30.0057176Z Traceback (most recent call last):
+2026-11-13T18:35:30.0066192Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 486, in observe_call
+2026-11-13T18:35:30.0067080Z     return callable_(*args, **kwargs)
+2026-11-13T18:35:30.0067598Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T18:35:30.0068247Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 522, in <lambda>
+2026-11-13T18:35:30.0068937Z     observe_call(observer, lambda: connection.execute("SELECT 1").fetchone())
+2026-11-13T18:35:30.0069368Z                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T18:35:30.0069959Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 419, in __call__
+2026-11-13T18:35:30.0070698Z     raise ObserverFailure("Observer callback failed; preserve partial spans") from None
+2026-11-13T18:35:30.0071349Z scripts.round5_lm_sql_attribution.ObserverFailure: Observer callback failed; preserve partial spans
+2026-11-13T18:35:30.0071767Z 
+2026-11-13T18:35:30.0072308Z During handling of the above exception, another exception occurred:
+2026-11-13T18:35:30.0072614Z 
+2026-11-13T18:35:30.0072727Z Traceback (most recent call last):
+2026-11-13T18:35:30.0073494Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/tests/test_round5_lm_sql_attribution.py", line 264, in test_fixed_artificial_calibration_retains_every_sample
+2026-11-13T18:35:30.0074221Z     value = d.artificial_calibration(catalog())
+2026-11-13T18:35:30.0074709Z             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T18:35:30.0075327Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 522, in artificial_calibration
+2026-11-13T18:35:30.0076030Z     observe_call(observer, lambda: connection.execute("SELECT 1").fetchone())
+2026-11-13T18:35:30.0076751Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 488, in observe_call
+2026-11-13T18:35:30.0077305Z     observer.finish()
+2026-11-13T18:35:30.0077810Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 451, in finish
+2026-11-13T18:35:30.0078502Z     raise ObserverFailure("Observer has invalid or incomplete target events")
+2026-11-13T18:35:30.0079117Z scripts.round5_lm_sql_attribution.ObserverFailure: Observer has invalid or incomplete target events
+2026-11-13T18:35:30.0079540Z 
+2026-11-13T18:35:30.0079656Z ======================================================================
+2026-11-13T18:35:30.0080454Z ERROR: test_cursor_factory_restoration_and_unsupported_fallback (tests.test_round5_lm_sql_attribution.ExactLMIntegration.test_cursor_factory_restoration_and_unsupported_fallback)
+2026-11-13T18:35:30.0081263Z ----------------------------------------------------------------------
+2026-11-13T18:35:30.0081602Z Traceback (most recent call last):
+2026-11-13T18:35:30.0082475Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 486, in observe_call
+2026-11-13T18:35:30.0083055Z     return callable_(*args, **kwargs)
+2026-11-13T18:35:30.0083407Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T18:35:30.0083943Z   File "/home/runner/work/_temp/lm-sql-artificial/src/memory_book/store.py", line 253, in _candidate_rows
+2026-11-13T18:35:30.0084439Z     rows = cursor.fetchall()
+2026-11-13T18:35:30.0084670Z            ^^^^^^^^^^^^^^^^^
+2026-11-13T18:35:30.0085183Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 419, in __call__
+2026-11-13T18:35:30.0085921Z     raise ObserverFailure("Observer callback failed; preserve partial spans") from None
+2026-11-13T18:35:30.0086575Z scripts.round5_lm_sql_attribution.ObserverFailure: Observer callback failed; preserve partial spans
+2026-11-13T18:35:30.0086999Z 
+2026-11-13T18:35:30.0087195Z During handling of the above exception, another exception occurred:
+2026-11-13T18:35:30.0087475Z 
+2026-11-13T18:35:30.0087577Z Traceback (most recent call last):
+2026-11-13T18:35:30.0088324Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/tests/test_round5_lm_sql_attribution.py", line 318, in test_cursor_factory_restoration_and_unsupported_fallback
+2026-11-13T18:35:30.0089273Z     rows, retained = d.observe_call(observer, self.store._candidate_rows,
+2026-11-13T18:35:30.0089679Z                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T18:35:30.0090304Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 488, in observe_call
+2026-11-13T18:35:30.0090914Z     observer.finish()
+2026-11-13T18:35:30.0091411Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 451, in finish
+2026-11-13T18:35:30.0092378Z     raise ObserverFailure("Observer has invalid or incomplete target events")
+2026-11-13T18:35:30.0092992Z scripts.round5_lm_sql_attribution.ObserverFailure: Observer has invalid or incomplete target events
+2026-11-13T18:35:30.0093398Z 
+2026-11-13T18:35:30.0093517Z ======================================================================
+2026-11-13T18:35:30.0094332Z ERROR: test_real_payload_and_native_guard_with_both_upper_callsites (tests.test_round5_lm_sql_attribution.ExactLMIntegration.test_real_payload_and_native_guard_with_both_upper_callsites)
+2026-11-13T18:35:30.0095163Z ----------------------------------------------------------------------
+2026-11-13T18:35:30.0095502Z Traceback (most recent call last):
+2026-11-13T18:35:30.0096073Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 486, in observe_call
+2026-11-13T18:35:30.0096788Z     return callable_(*args, **kwargs)
+2026-11-13T18:35:30.0097052Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T18:35:30.0097511Z   File "/home/runner/work/_temp/lm-sql-artificial/src/memory_book/store.py", line 739, in recall
+2026-11-13T18:35:30.0097976Z     self.db.execute("BEGIN")
+2026-11-13T18:35:30.0098499Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 419, in __call__
+2026-11-13T18:35:30.0099224Z     raise ObserverFailure("Observer callback failed; preserve partial spans") from None
+2026-11-13T18:35:30.0099868Z scripts.round5_lm_sql_attribution.ObserverFailure: Observer callback failed; preserve partial spans
+2026-11-13T18:35:30.0100269Z 
+2026-11-13T18:35:30.0100454Z During handling of the above exception, another exception occurred:
+2026-11-13T18:35:30.0100724Z 
+2026-11-13T18:35:30.0100824Z Traceback (most recent call last):
+2026-11-13T18:35:30.0101561Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/tests/test_round5_lm_sql_attribution.py", line 298, in test_real_payload_and_native_guard_with_both_upper_callsites
+2026-11-13T18:35:30.0102580Z     actual = d.observe_call(observer, book.recall, "orbiting relay calibration",
+2026-11-13T18:35:30.0103005Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T18:35:30.0103609Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 488, in observe_call
+2026-11-13T18:35:30.0104147Z     observer.finish()
+2026-11-13T18:35:30.0104634Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 451, in finish
+2026-11-13T18:35:30.0105309Z     raise ObserverFailure("Observer has invalid or incomplete target events")
+2026-11-13T18:35:30.0105906Z scripts.round5_lm_sql_attribution.ObserverFailure: Observer has invalid or incomplete target events
+2026-11-13T18:35:30.0106324Z 
+2026-11-13T18:35:30.0106435Z ======================================================================
+2026-11-13T18:35:30.0107252Z ERROR: test_actual_builtin_identity_and_private_values_are_not_recorded (tests.test_round5_lm_sql_attribution.NativeEvents.test_actual_builtin_identity_and_private_values_are_not_recorded)
+2026-11-13T18:35:30.0108083Z ----------------------------------------------------------------------
+2026-11-13T18:35:30.0108421Z Traceback (most recent call last):
+2026-11-13T18:35:30.0108974Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 486, in observe_call
+2026-11-13T18:35:30.0109521Z     return callable_(*args, **kwargs)
+2026-11-13T18:35:30.0109922Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T18:35:30.0110448Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/tests/test_round5_lm_sql_attribution.py", line 27, in work
+2026-11-13T18:35:30.0111072Z     db.execute("SELECT 'private-sentinel-not-in-report'").fetchall()
+2026-11-13T18:35:30.0111453Z     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T18:35:30.0112178Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 419, in __call__
+2026-11-13T18:35:30.0112898Z     raise ObserverFailure("Observer callback failed; preserve partial spans") from None
+2026-11-13T18:35:30.0113532Z scripts.round5_lm_sql_attribution.ObserverFailure: Observer callback failed; preserve partial spans
+2026-11-13T18:35:30.0113935Z 
+2026-11-13T18:35:30.0114118Z During handling of the above exception, another exception occurred:
+2026-11-13T18:35:30.0114387Z 
+2026-11-13T18:35:30.0114486Z Traceback (most recent call last):
+2026-11-13T18:35:30.0115245Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/tests/test_round5_lm_sql_attribution.py", line 29, in test_actual_builtin_identity_and_private_values_are_not_recorded
+2026-11-13T18:35:30.0116004Z     self.assertEqual(d.observe_call(observer, work), (7,))
+2026-11-13T18:35:30.0116477Z                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T18:35:30.0117063Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 488, in observe_call
+2026-11-13T18:35:30.0117606Z     observer.finish()
+2026-11-13T18:35:30.0118090Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 451, in finish
+2026-11-13T18:35:30.0118805Z     raise ObserverFailure("Observer has invalid or incomplete target events")
+2026-11-13T18:35:30.0119404Z scripts.round5_lm_sql_attribution.ObserverFailure: Observer has invalid or incomplete target events
+2026-11-13T18:35:30.0119801Z 
+2026-11-13T18:35:30.0119911Z ======================================================================
+2026-11-13T18:35:30.0120747Z ERROR: test_callback_has_no_filesystem_access_and_never_probes_user_objects (tests.test_round5_lm_sql_attribution.NativeEvents.test_callback_has_no_filesystem_access_and_never_probes_user_objects)
+2026-11-13T18:35:30.0121605Z ----------------------------------------------------------------------
+2026-11-13T18:35:30.0122105Z Traceback (most recent call last):
+2026-11-13T18:35:30.0122666Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 486, in observe_call
+2026-11-13T18:35:30.0123210Z     return callable_(*args, **kwargs)
+2026-11-13T18:35:30.0123459Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T18:35:30.0123993Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/tests/test_round5_lm_sql_attribution.py", line 108, in <lambda>
+2026-11-13T18:35:30.0124703Z     self.assertEqual(d.observe_call(observer, lambda: db.execute("SELECT 1").fetchone()), (1,))
+2026-11-13T18:35:30.0125187Z                                                       ^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T18:35:30.0125772Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 419, in __call__
+2026-11-13T18:35:30.0126486Z     raise ObserverFailure("Observer callback failed; preserve partial spans") from None
+2026-11-13T18:35:30.0127134Z scripts.round5_lm_sql_attribution.ObserverFailure: Observer callback failed; preserve partial spans
+2026-11-13T18:35:30.0127538Z 
+2026-11-13T18:35:30.0127718Z During handling of the above exception, another exception occurred:
+2026-11-13T18:35:30.0128001Z 
+2026-11-13T18:35:30.0128102Z Traceback (most recent call last):
+2026-11-13T18:35:30.0128869Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/tests/test_round5_lm_sql_attribution.py", line 108, in test_callback_has_no_filesystem_access_and_never_probes_user_objects
+2026-11-13T18:35:30.0129766Z     self.assertEqual(d.observe_call(observer, lambda: db.execute("SELECT 1").fetchone()), (1,))
+2026-11-13T18:35:30.0130399Z                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T18:35:30.0131015Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 488, in observe_call
+2026-11-13T18:35:30.0131562Z     observer.finish()
+2026-11-13T18:35:30.0132197Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 451, in finish
+2026-11-13T18:35:30.0132882Z     raise ObserverFailure("Observer has invalid or incomplete target events")
+2026-11-13T18:35:30.0133480Z scripts.round5_lm_sql_attribution.ObserverFailure: Observer has invalid or incomplete target events
+2026-11-13T18:35:30.0133885Z 
+2026-11-13T18:35:30.0133997Z ======================================================================
+2026-11-13T18:35:30.0134763Z ERROR: test_interrupt_retains_other_native_builtin_and_exception (tests.test_round5_lm_sql_attribution.NativeEvents.test_interrupt_retains_other_native_builtin_and_exception)
+2026-11-13T18:35:30.0135571Z ----------------------------------------------------------------------
+2026-11-13T18:35:30.0135901Z Traceback (most recent call last):
+2026-11-13T18:35:30.0136447Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 486, in observe_call
+2026-11-13T18:35:30.0137200Z     return callable_(*args, **kwargs)
+2026-11-13T18:35:30.0137453Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T18:35:30.0137976Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/tests/test_round5_lm_sql_attribution.py", line 93, in <lambda>
+2026-11-13T18:35:30.0138643Z     d.observe_call(observer, lambda: db.execute("SELECT invented_stop()").fetchone())
+2026-11-13T18:35:30.0139079Z                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T18:35:30.0139471Z sqlite3.OperationalError: user-defined function raised exception
+2026-11-13T18:35:30.0139744Z 
+2026-11-13T18:35:30.0139925Z During handling of the above exception, another exception occurred:
+2026-11-13T18:35:30.0140200Z 
+2026-11-13T18:35:30.0140299Z Traceback (most recent call last):
+2026-11-13T18:35:30.0141017Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/tests/test_round5_lm_sql_attribution.py", line 93, in test_interrupt_retains_other_native_builtin_and_exception
+2026-11-13T18:35:30.0141853Z     d.observe_call(observer, lambda: db.execute("SELECT invented_stop()").fetchone())
+2026-11-13T18:35:30.0142682Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 488, in observe_call
+2026-11-13T18:35:30.0143217Z     observer.finish()
+2026-11-13T18:35:30.0143697Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 451, in finish
+2026-11-13T18:35:30.0144366Z     raise ObserverFailure("Observer has invalid or incomplete target events")
+2026-11-13T18:35:30.0144963Z scripts.round5_lm_sql_attribution.ObserverFailure: Observer has invalid or incomplete target events
+2026-11-13T18:35:30.0145367Z 
+2026-11-13T18:35:30.0145486Z ======================================================================
+2026-11-13T18:35:30.0146125Z ERROR: test_nested_c_exceptions_unwind_in_order (tests.test_round5_lm_sql_attribution.NativeEvents.test_nested_c_exceptions_unwind_in_order)
+2026-11-13T18:35:30.0146789Z ----------------------------------------------------------------------
+2026-11-13T18:35:30.0147119Z Traceback (most recent call last):
+2026-11-13T18:35:30.0147663Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 486, in observe_call
+2026-11-13T18:35:30.0148207Z     return callable_(*args, **kwargs)
+2026-11-13T18:35:30.0148465Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T18:35:30.0148800Z sqlite3.OperationalError: user-defined function raised exception
+2026-11-13T18:35:30.0149073Z 
+2026-11-13T18:35:30.0149254Z During handling of the above exception, another exception occurred:
+2026-11-13T18:35:30.0149522Z 
+2026-11-13T18:35:30.0149623Z Traceback (most recent call last):
+2026-11-13T18:35:30.0150400Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/tests/test_round5_lm_sql_attribution.py", line 65, in test_nested_c_exceptions_unwind_in_order
+2026-11-13T18:35:30.0151115Z     d.observe_call(observer, outer.execute, "SELECT nested_fail()")
+2026-11-13T18:35:30.0151757Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 488, in observe_call
+2026-11-13T18:35:30.0152456Z     observer.finish()
+2026-11-13T18:35:30.0152936Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 451, in finish
+2026-11-13T18:35:30.0153607Z     raise ObserverFailure("Observer has invalid or incomplete target events")
+2026-11-13T18:35:30.0154201Z scripts.round5_lm_sql_attribution.ObserverFailure: Observer has invalid or incomplete target events
+2026-11-13T18:35:30.0154607Z 
+2026-11-13T18:35:30.0154714Z ======================================================================
+2026-11-13T18:35:30.0155513Z ERROR: test_nested_native_udf_calls_keep_parentage_and_exclusive_sums (tests.test_round5_lm_sql_attribution.NativeEvents.test_nested_native_udf_calls_keep_parentage_and_exclusive_sums)
+2026-11-13T18:35:30.0156329Z ----------------------------------------------------------------------
+2026-11-13T18:35:30.0156799Z Traceback (most recent call last):
+2026-11-13T18:35:30.0157348Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 486, in observe_call
+2026-11-13T18:35:30.0157894Z     return callable_(*args, **kwargs)
+2026-11-13T18:35:30.0158145Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T18:35:30.0158671Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/tests/test_round5_lm_sql_attribution.py", line 53, in <lambda>
+2026-11-13T18:35:30.0159410Z     self.assertEqual(d.observe_call(observer, lambda: outer.execute("SELECT nested()").fetchone()), (9,))
+2026-11-13T18:35:30.0159935Z                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T18:35:30.0160347Z sqlite3.OperationalError: user-defined function raised exception
+2026-11-13T18:35:30.0160626Z 
+2026-11-13T18:35:30.0160802Z During handling of the above exception, another exception occurred:
+2026-11-13T18:35:30.0161075Z 
+2026-11-13T18:35:30.0161169Z Traceback (most recent call last):
+2026-11-13T18:35:30.0162080Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/tests/test_round5_lm_sql_attribution.py", line 53, in test_nested_native_udf_calls_keep_parentage_and_exclusive_sums
+2026-11-13T18:35:30.0162995Z     self.assertEqual(d.observe_call(observer, lambda: outer.execute("SELECT nested()").fetchone()), (9,))
+2026-11-13T18:35:30.0163534Z                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T18:35:30.0164156Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 488, in observe_call
+2026-11-13T18:35:30.0164693Z     observer.finish()
+2026-11-13T18:35:30.0165212Z   File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py", line 451, in finish
+2026-11-13T18:35:30.0165886Z     raise ObserverFailure("Observer has invalid or incomplete target events")
+2026-11-13T18:35:30.0166486Z scripts.round5_lm_sql_attribution.ObserverFailure: Observer has invalid or incomplete target events
+2026-11-13T18:35:30.0166893Z 
+2026-11-13T18:35:30.0167038Z ----------------------------------------------------------------------
+2026-11-13T18:35:30.0167365Z Ran 20 tests in 0.036s
+2026-11-13T18:35:30.0167497Z 
+2026-11-13T18:35:30.0167583Z FAILED (errors=8)
+2026-11-13T18:35:30.0168805Z {"expected": 20, "tests": 20, "failures": 0, "errors": 8, "skipped": 0, "passed": false, "source_commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6", "runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd", "script_sha256": "20bfecf1d89f8682c3b0d91551560d0fea39fc5c37cbfec324729945f2c320df", "corpus_calls": 0}
+2026-11-13T18:35:30.0285264Z ##[error]Process completed with exit code 1.
+2026-11-13T18:35:30.0414675Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-11-13T18:35:30.0415176Z with:
+2026-11-13T18:35:30.0415404Z   name: lm-sql-artificial-43484057776-1
+2026-11-13T18:35:30.0415880Z   path: /home/runner/work/_temp/lm-sql-artificial.log
+
+2026-11-13T18:35:30.0416277Z   if-no-files-found: warn
+2026-11-13T18:35:30.0416511Z   retention-days: 30
+2026-11-13T18:35:30.0416725Z   compression-level: 6
+2026-11-13T18:35:30.0416942Z   overwrite: false
+2026-11-13T18:35:30.0417153Z   include-hidden-files: false
+2026-11-13T18:35:30.0417395Z env:
+2026-11-13T18:35:30.0417588Z   PYTHONDONTWRITEBYTECODE: 1
+2026-11-13T18:35:30.0417823Z   PYTHONHASHSEED: 0
+2026-11-13T18:35:30.0418100Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:35:30.0418531Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-13T18:35:30.0418961Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:35:30.0419389Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:35:30.0419775Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:35:30.0420216Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-13T18:35:30.0420922Z ##[endgroup]
+2026-11-13T18:35:30.2193246Z (node:2389) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-13T18:35:30.2194772Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-13T18:35:30.2249766Z With the provided path, there will be 1 file uploaded
+2026-11-13T18:35:30.2257176Z Artifact name is valid!
+2026-11-13T18:35:30.2265326Z Root directory input is valid!
+2026-11-13T18:35:30.5017068Z Beginning upload of artifact content to blob storage
+2026-11-13T18:35:30.5220467Z (node:2389) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-13T18:35:30.6512562Z Uploaded bytes 2397
+2026-11-13T18:35:30.6897665Z Finished uploading artifact content to blob storage!
+2026-11-13T18:35:30.6899007Z SHA256 digest of uploaded artifact zip is 93d355457256ec53384adeb7a0a0326434045fe6d6bc96edca592831807fce7f
+2026-11-13T18:35:30.6900134Z Finalizing artifact upload
+2026-11-13T18:35:31.0504390Z Artifact lm-sql-artificial-43484057776-1.zip successfully finalized. Artifact ID 14065578941
+2026-11-13T18:35:31.0505755Z Artifact lm-sql-artificial-43484057776-1 has been successfully uploaded! Final size is 2397 bytes. Artifact ID is 14065578941
+2026-11-13T18:35:31.0507224Z Artifact download URL: https://github.com/Afloat16/AI-Memory-Book/actions/runs/43484057776/artifacts/14065578941
+2026-11-13T18:35:31.0745444Z Post job cleanup.
+2026-11-13T18:35:31.1683645Z [command]/usr/bin/git version
+2026-11-13T18:35:31.1733410Z git version 2.56.1
+2026-11-13T18:35:31.1782237Z Temporarily overriding HOME='/home/runner/work/_temp/d361d96d-d21e-4d91-b903-a26c65e6ee3d' before making global git config changes
+2026-11-13T18:35:31.1785867Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-13T18:35:31.1789621Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AI-Memory-Book/AI-Memory-Book
+2026-11-13T18:35:31.1831319Z Removing SSH command configuration
+2026-11-13T18:35:31.1840029Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T18:35:31.1888297Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-13T18:35:31.2210649Z Removing HTTP extra header
+2026-11-13T18:35:31.2218638Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T18:35:31.2274122Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-13T18:35:31.2546407Z Removing includeIf entries pointing to credentials config files
+2026-11-13T18:35:31.2554323Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T18:35:31.2601638Z includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git.path
+2026-11-13T18:35:31.2603220Z includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git/worktrees/*.path
+2026-11-13T18:35:31.2604273Z includeif.gitdir:/github/workspace/.git.path
+2026-11-13T18:35:31.2605132Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-13T18:35:31.2617688Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git.path
+2026-11-13T18:35:31.2656459Z /home/runner/work/_temp/git-credentials-6c24ddb6-c700-492c-bd3a-da4053ee8e0c.config
+2026-11-13T18:35:31.2669360Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git.path /home/runner/work/_temp/git-credentials-6c24ddb6-c700-492c-bd3a-da4053ee8e0c.config
+2026-11-13T18:35:31.2724191Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git/worktrees/*.path
+2026-11-13T18:35:31.2761017Z /home/runner/work/_temp/git-credentials-6c24ddb6-c700-492c-bd3a-da4053ee8e0c.config
+2026-11-13T18:35:31.2774311Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-6c24ddb6-c700-492c-bd3a-da4053ee8e0c.config
+2026-11-13T18:35:31.2822786Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-11-13T18:35:31.2858077Z /github/runner_temp/git-credentials-6c24ddb6-c700-492c-bd3a-da4053ee8e0c.config
+2026-11-13T18:35:31.2869226Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-6c24ddb6-c700-492c-bd3a-da4053ee8e0c.config
+2026-11-13T18:35:31.2916052Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-13T18:35:31.2952685Z /github/runner_temp/git-credentials-6c24ddb6-c700-492c-bd3a-da4053ee8e0c.config
+2026-11-13T18:35:31.2961494Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-6c24ddb6-c700-492c-bd3a-da4053ee8e0c.config
+2026-11-13T18:35:31.3012622Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-13T18:35:31.3291045Z Removing credentials config '/home/runner/work/_temp/git-credentials-6c24ddb6-c700-492c-bd3a-da4053ee8e0c.config'
+2026-11-13T18:35:31.3462940Z Cleaning up orphan processes
+2026-11-13T18:35:31.3976251Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
