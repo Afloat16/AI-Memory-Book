@@ -167,3 +167,16 @@ eight compressed worker archives. C is not selected for formal measurement or
 release. No formal or historical/Q2 compatibility attempt has begun. A further
 bounded change requires a separately committed scope before implementation;
 the original acceptance thresholds remain fixed.
+
+## Candidate D scope prepared
+
+Three independent reviews support a bounded derived-map experiment within the
+original plan's unused-structure allowance. The separately registered scope
+requires complete per-row native shape and exact primitive ID/rank checks before
+combined bookkeeping; all ineligible paths keep C's complete original map/read
+and exception order. Duplicate-ID first insertion and last-value semantics,
+score scales from final maps and ordered deduplicated fusion detection remain
+fixed. Coverage and Q2 keep the existing route computation. Saved profiles show
+the public workload is mostly fused, so unused-score deferral alone is not
+expected to establish the ten-percent target. No D implementation or measurement
+has started at this registration checkpoint.
