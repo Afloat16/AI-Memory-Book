@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "protocol": "round5-fresh-hosted-1",
+  "status": "prospective-implementation-and-artificial-tests-only; separate-final-source-authorization-required",
+  "base_commit": "43b65c004e1ac1f1d75cf6d1a2421b36e4eab740",
+  "snapshot_repair": {
+    "plan_commit": "907cac635c81a67bfd3cc89f1d4e63cd853d61a9",
+    "implementation_commit": "7afcbf7df6bab88c9044cdc927867f7ad0fc8d9f",
+    "fixture_fix_commit": "b4f5b97b38dc50f02fd307e16ad81fcb83bed995",
+    "policy": "Preserve all v1 bytes. Versioned v2 changes only the registered independent-ingest identity boundary; full within-worker and copied-database identities, all scoring/cost/resource gates and schedules remain strict."
+  },
+  "files": {
+    "scope": "benchmarks/experiments/round5-fresh-hosted-scope.json",
+    "controller": "scripts/round5_fresh_hosted.py",
+    "workflow": ".github/workflows/round5-fresh-hosted.yml",
+    "artificial_tests": "tests/test_round5_fresh_hosted.py"
+  },
+  "attempt": {
+    "id": "round5-fresh-hosted-1",
+    "trigger_ref": "refs/heads/ci/v033-fresh-hosted-1",
+    "result_ref": "refs/heads/validation/v033-fresh-hosted-1",
+    "public": "benchmarks/reports/round5-fresh-hosted-1",
+    "private": ".artifacts/round5-fresh-hosted-1",
+    "run_attempt": 1,
+    "host": "One Linux x86_64 hosted VM/boot, Python3.12; every measurement process executes sequentially on that same host. No parallel measurement or automatic replay."
+  },
+  "authorization": {
+    "path": "benchmarks/experiments/round5-fresh-source-authorization.json",
+    "required_status": "approved-for-first-fresh-attempt",
+    "certificate": "benchmarks/experiments/round5-final-interface-certificate.json",
+    "required_fields": [
+      "schema_version",
+      "protocol",
+      "status",
+      "attempt",
+      "sources",
+      "source_files_sha256",
+      "selection_evidence",
+      "interface_certificate",
+      "frozen_files_sha256",
+      "additional_exclusions",
+      "fresh_rows_decoded_before_authorization"
+    ],
+    "sources": "Exact published v0.3.2 baseline and one independently selected final combined runtime. Each has a full commit SHA, runtime SHA256 and complete tracked src file hash manifest. The final source is not selected by this scope.",
+    "selection_evidence": "A committed immutable-path/SHA256 reference to the reviewed final source selection evidence. This authorization document expresses the explicit final-source choice; the controller does not infer acceptance from candidate or branch names.",
+    "early_failure": "Missing/invalid authorization, certificate, identities, manifests or changed preserved files fail using standard-library checks before a claim or any source/asset/Parquet download. The actual existing interface loader additionally validates the exact generated certificate and reference counts before native binding and hence before metadata selection.",
+    "identity_manifest": "The independent controller manifest includes its scope/script/workflow/tests, all tracked Python under scripts/benchmarks/tests, adapter source/locks, benchmark root/experiment JSON, the certificate's complete generator-file registry and the selection evidence. Exclude the authorization file itself from its embedded manifest to avoid a self-hash; its exact bytes are separately included in the claim. This does not mutate the original evaluator registry."
+  },
+  "protocols": {
+    "native_script": "scripts/round5_title_reference_fresh_v2.py",
+    "native_scope": "benchmarks/experiments/round5-title-reference-fresh-v2-scope.json",
+    "component_script": "scripts/round5_title_reference_fresh_components_v2.py",
+    "component_scope": "benchmarks/experiments/round5-title-reference-fresh-components-v2-scope.json",
+    "preserved_original_files_sha256": {
+      "scripts/round5_title_reference_fresh_data.py": "b219163f37d95eb21ed297ba51af82cf16c4d410173f1a309019e1a402231c3d",
+      "scripts/round5_title_reference_fresh.py": "126ddd41d73590af8fe32d0bd836053d1fca40b237e218fdcbc2248a79ee45d5",
+      "scripts/round5_title_reference_fresh_components.py": "0827242ed88bbede6844914747accc02471c52ddb09b753abb4a3c6d8e0e9aa6",
+      "scripts/round5_title_reference_eval_v2.py": "168f5fcefe91407acfb4444b5257460998a09cb97e86a5630e7e378d076bb68e",
+      "tests/test_round5_title_reference_fresh.py": "741ccaeeba2be499b18b00b52a7f2592351f98d6189c0c9e8687f6acfb0e4a79",
+      "tests/test_round5_title_reference_fresh_components.py": "12229fe840449af591de70929fd7bbf41312630fac0437e98cb0088ec71badcb",
+      "benchmarks/experiments/round5-title-reference-fresh-scope.json": "4480a473156406dad920bde62ee925c9e817bd8dbc7e2e07be78f1c86d71c5a3",
+      "benchmarks/experiments/round5-title-reference-fresh-components-scope.json": "45dcb3bece5e1165817eb65a207102f7170722801bfc899307abedb4231c07e0",
+      "benchmarks/semantic_eval.py": "46fa3b3fd6298ba1669bd0b17f3ad6f77a2fdaf5b79ba25e4632012090ca0b4e"
+    }
+  },
+  "schedule": {
+    "preselection": [
+      "validate final authorization and committed identities",
+      "publish an exclusive attempt/controller/source claim",
+      "prepare exact source worktrees and existing comparator assets; download pinned Parquet bytes without decoding",
+      "register comparator source/evaluator/assets/paths and publish",
+      "bind native sources/evaluators/host/Parquet/comparators and publish",
+      "publish single-use metadata-selection stage intent, select id/type only, publish exact selection",
+      "publish single-use selected-data binding intent, decode only the selected rows through the unchanged versioned loader, publish exact data binding"
+    ],
+    "native_workers": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "native_calls_per_worker": 3072,
+    "native_calls": 15360,
+    "component_workers": [
+      "export",
+      "final-default-component",
+      "final-follow-titles-component",
+      "claude-mem-fts",
+      "billion-context",
+      "ai-memory-hybrid"
+    ],
+    "component_search_calls_per_engine": 1536,
+    "component_search_calls": 7680,
+    "component_quality_rows": 15360,
+    "maximum_ai_memory_native_reads": 2560,
+    "execution": "Each original intent builder creates its private random ticket and unchanged complete-prefix proof; publish the intent, then run exactly one worker that consumes the ticket before data/runtime setup. Preserve/publish report, exit, logs and exact lossless original ledger archive before the next intent. Native0..4 precede the six fixed component stages. Audits run from saved reports after every fixed measurement is complete: components audit, then native gate audit.",
+    "no_extra_calls": "No query probes, engine warmups, model calls, exploratory search, parallel workers, retries, resumed exports, reselected manifests or rerun slow/failed measurements. Retain the existing registered reference-tokenizer preparation inside workers and existing adapter/setup boundaries."
+  },
+  "assets": {
+    "node": {
+      "version": "v24.22.1",
+      "checksums_url": "https://nodejs.org/dist/v24.22.1/SHASUMS256.txt",
+      "archive_url": "https://nodejs.org/dist/v24.22.1/node-v24.22.1-linux-x64.tar.xz",
+      "archive_name": "node-v24.22.1-linux-x64.tar.xz",
+      "binary_member": "node-v24.22.1-linux-x64/bin/node",
+      "rule": "Fetch the official versioned checksum manifest once, require exactly one SHA256 entry for the exact archive, verify archive bytes before extracting only the registered binary member, then record manifest/archive/binary hashes and exact --version output in the preselection asset registration. No upstream adapter or search code is executed by preparation."
+    },
+    "bun": "Unchanged claude-mem round2 lock: Bun1.3.13 archive and binary size/SHA256 checks.",
+    "claude_mem": "Unchanged pinned source archive, only the exact source_members regular-file set, byte-for-byte directory_fingerprint; no Bun bridge initialization.",
+    "billion_context": "Download/verify each unchanged locked file (byte count, SHA256 and Git blob). Do not invoke prepare(), compile or initialize the adapter during asset preparation; the unchanged worker later performs its registered compiler/setup.",
+    "ai_memory": "Unchanged v3.4.5 archive/binary and all three locked all-MiniLM-L6-v2 files. Download and extract only; never start the binary or load the model until its original worker.",
+    "parquet": "Download only the exact historical pinned raw Parquet bytes/length before binding; never decode metadata or rows during acquisition.",
+    "dependency_versions": {
+      "tiktoken": "0.12.0",
+      "pyarrow": "26.0.1",
+      "node": "v24.22.1",
+      "bun": "1.3.13"
+    },
+    "failure": "Single acquisition per artifact; preserve partial files and failure evidence, stop the stage. No fallback competitor mode or alternate unpinned asset."
+  },
+  "durability": {
+    "publication": "Exclusive fixed result ref, expected-remote comparison before every checkpoint, ordinary non-force push once, exact remote-head readback and raw Git-blob byte comparison including binary .gz. An ambiguous or failed write forbids all further measurement and automatic write retry.",
+    "immutable": "Every original code/evaluator/source/authorization/certificate identity is checked before and after stages against the initial claim. Assets are bound before metadata selection. A changed frozen identity after any fresh content is decoded consumes that holdout as development under the existing protocol; never modify files to continue it.",
+    "no_replay": "Any existing remote claim, local attempt state, stage intent, consumed/lost worker ticket, partial report/ledger or already-started export is a stop. No resume or reset option exists.",
+    "failure_preservation": "Keep the failed stage's original report/ledger/log/exit plus a failure receipt. Preserve raw ledgers locally and upload them; Git uses the original lossless .gz ledger archives. If interruption prevented an archive, preserve exact partial bytes separately without replacing a prior archive. Never reconstruct a successful completion.",
+    "artifact_scope": "Always upload public evidence and runner/preflight logs. Also retain existing native-worker databases and canonical export database/bundle as recovery evidence; do not upload private ticket files or runtime credential/configuration state.",
+    "checkout": "Shallow sparse driver checkout and sparse detached exact source worktrees; no full historical benchmark-report checkout. Fetch only explicit provenance commits needed by unchanged original guards."
+  },
+  "artificial_gate": [
+    "Missing authorization/certificate fails before claim or download",
+    "Exact source/evaluator/controller manifest and preserved-file mismatch fails",
+    "Sequential fixed command schedule and original counts; no measurement parallelism",
+    "One-shot stage intent and nonzero/partial outcome stop before any following stage",
+    "Real temporary local Git remote tests for lease/no-force/readback and exact binary .gz bytes",
+    "No retry after publication ambiguity; private tickets/raw ledgers excluded from Git checkpoint",
+    "Downloaded asset verification/extraction never initializes an adapter or model",
+    "Frozen identity changes block later stages after selection"
+  ],
+  "fresh_rows_decoded": 0,
+  "retrieval_calls_executed": 0,
+  "asset_preparation_executed": false
+}
