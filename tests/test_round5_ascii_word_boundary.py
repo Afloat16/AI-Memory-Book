@@ -6,7 +6,6 @@ import hashlib
 import importlib.util
 import itertools
 from pathlib import Path
-import random
 import re
 import sys
 import types
@@ -466,6 +465,20 @@ class AsciiWordBoundaryTests(unittest.TestCase):
             with self.subTest(script=script):
                 self.assertTrue(all(value == observed[0] for value in observed))
                 self.assertGreater(len(observed[0][1]), 0)
+        # A stateful query with ordinary STOP also retains every old truth call.
+        for script in scripts:
+            observed = []
+            for _, function, namespace in self.references():
+                events = []
+                with restored_namespace(namespace):
+                    query = Query(script, events)
+                    try:
+                        outcome = ("tokens", function("alpha—beta_gamma,delta", query=query))
+                    except QueryFailure as exc:
+                        outcome = ("error", type(exc).__name__, str(exc))
+                    observed.append((outcome, events))
+            with self.subTest(native_stop=True, script=script):
+                self.assertTrue(all(value == observed[0] for value in observed))
         # This separate native-STOP probe proves that query identity itself,
         # rather than a replaced STOP, keeps a nonbool query on the old route.
         for literal in (0, 1, None, [], [1]):
@@ -635,3 +648,114 @@ class AsciiWordBoundaryTests(unittest.TestCase):
                 self.assertEqual(work["ascii_findall"], int(function is lexical.terms))
                 self.assertEqual(work["runs_finditer"], int(function is not lexical.terms))
 
+    def test_non_native_current_text_retains_old_route_after_prefix_hooks(self):
+        for current_value in ("alpha—beta_gamma", "alpha beta"):
+            for query in (False, True):
+                observed = []
+                for _, function, namespace in self.references():
+                    events = []
+
+                    class CurrentText(str):
+                        def isascii(self):
+                            events.append(("current_isascii",))
+                            return super().isascii()
+
+                    def strip(value):
+                        events.append(("strip", value))
+                        return CurrentText(current_value)
+
+                    with restored_namespace(namespace):
+                        namespace["_strip_nonspacing_marks"] = strip
+                        result, work = actual_pattern_work(function, namespace, "Alpha—beta_gamma", query)
+                        observed.append((result, work, events))
+                with self.subTest(current_value=current_value, query=query):
+                    self.assertTrue(all(value == observed[0] for value in observed))
+                    self.assertEqual(observed[0][1]["ascii_findall"], int(current_value.isascii()))
+                    self.assertEqual(observed[0][1]["runs_finditer"], int(not current_value.isascii()))
+                    self.assertEqual(observed[0][2].count(("current_isascii",)), 1)
+
+
+class AsciiWordBoundaryBookTests(unittest.TestCase):
+    def make_book(self):
+        book = MemoryBook(":memory:", segmentation="turn", max_page_chars=400,
+                          min_page_chars=0, cache_size=0)
+        self.addCleanup(book.close)
+        samples = (
+            ("anchor", "Quartz instrument — notes",
+             "Quartz instrument alpha—beta_gamma refers to Cedar Observatory. "
+             "Alice’s annotations include ＡlphaＢeta and path/foo.py… Preserve the original source."),
+            ("target", "Cedar Observatory",
+             "The observatory archive stores the original Quartz instrument manual. "
+             "Alice’s written evidence identifies the north inlet and the 1997 collection."),
+            ("punctuation", "“Original” identifier catalogue",
+             "Alpha—beta_gamma path/foo.py key:value " * 25 +
+             "Quoted evidence keeps curly ’ marks and original source spans."),
+            ("emoji", "Field annotation 👩\u200d💻",
+             "An 👩\u200d💻 annotation records AlphaBeta—GammaDelta and alpha\u200fbeta. "
+             "Exact punctuation is source evidence; it must not be rewritten."),
+            ("marks", "Résumé observations",
+             "e\u0301—resume and a\u0315\u0300—AlphaBeta preserve marks in the stored source. "
+             "ＡlphaＢeta punctuation… and identifiers __alpha::beta//gamma remain exact."),
+            ("cjk", "原文规范",
+             "原文规范保留石英仪器和规范资料。为什么 alpha—beta_gamma 不得修改原始来源。"),
+            ("other_words", "Other lexical scripts",
+             "βΣ—alpha and Пример—beta and 한글—gamma and ١٢٣—delta preserve their full lexical pieces."),
+        )
+        for identity, title, body in samples:
+            book.ingest({"project": "invented-o-lab", "session_id": identity, "title": title,
+                         "task_id": "archive", "created_at": "2001-02-03T04:05:06Z",
+                         "messages": [{"role": "user", "content": body}]})
+        return book
+
+    def test_actual_fts_and_complete_native_scoped_payloads_equal_literal_reference(self):
+        with literal_terms_everywhere():
+            before = self.make_book()
+        after = self.make_book()
+        for table in ("pages_fts", "pages_stem_fts"):
+            sql = f"SELECT rowid,title,question,body,directory FROM {table} ORDER BY rowid"
+            self.assertEqual([tuple(row) for row in before.db.execute(sql)],
+                             [tuple(row) for row in after.db.execute(sql)])
+        sql = "SELECT id,content,source_refs FROM pages ORDER BY id"
+        self.assertEqual([tuple(row) for row in before.db.execute(sql)],
+                         [tuple(row) for row in after.db.execute(sql)])
+        chapter_id = before.db.execute("SELECT id FROM chapters ORDER BY id LIMIT 1").fetchone()[0]
+        queries = ("alpha—beta_gamma", "Quartz instrument Alice’s", "ＧammaDelta",
+                   "👩\u200d💻 annotation", "Cedar Observatory path/foo.py", "原文规范",
+                   "e\u0301—resume", "current Quartz—instrument", "unmatchednonce")
+        options = ({}, {"strategy": "flat"}, {"coverage": True}, {"follow_titles": True},
+                   {"chapter": chapter_id}, {"session": "anchor"})
+        for query in queries:
+            for choice in options:
+                for budget in (0, 120, 1000):
+                    with self.subTest(query=query, options=choice, budget=budget):
+                        arguments = {"project": "invented-o-lab", "budget_chars": budget,
+                                     "use_cache": False, **choice}
+                        with literal_terms_everywhere():
+                            old = before.recall(query, **arguments)
+                        new = after.recall(query, **arguments)
+                        self.assertEqual({key: value for key, value in old.items() if key != "latency_ms"},
+                                         {key: value for key, value in new.items() if key != "latency_ms"})
+
+    @unittest.skipUnless(HAS_TIKTOKEN, "optional exact tokenizer is not installed")
+    def test_both_exact_tokenizers_and_full_source_spans_equal_literal_reference(self):
+        with literal_terms_everywhere():
+            before = self.make_book()
+        after = self.make_book()
+        for tokenizer in ("cl100k_base", "o200k_base"):
+            for budget in (0, 32, 128, 512):
+                for follow in (False, True):
+                    for query in ("Quartz instrument alpha—beta_gamma Alice’s", "👩\u200d💻 annotation ＡlphaＢeta"):
+                        with self.subTest(tokenizer=tokenizer, budget=budget,
+                                          follow_titles=follow, query=query):
+                            arguments = {"project": "invented-o-lab", "budget_chars": 1000,
+                                         "use_cache": False, "tokenizer": tokenizer,
+                                         "budget_tokens": budget, "follow_titles": follow}
+                            with literal_terms_everywhere():
+                                old = before.recall(query, **arguments)
+                            new = after.recall(query, **arguments)
+                            self.assertEqual({key: value for key, value in old.items() if key != "latency_ms"},
+                                             {key: value for key, value in new.items() if key != "latency_ms"})
+
+
+if __name__ == "__main__":
+    unittest.main()
