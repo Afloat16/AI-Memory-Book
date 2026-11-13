@@ -439,3 +439,33 @@ main. No binding, state directory, report or retrieval attempt was created.
 The zero-call block is preserved separately. Repair only adds the authorized
 branch's local tracking configuration; all evaluator checks remain intact.
 The subsequent binding uses new `-v2` paths, with no measurement replay.
+
+
+## Resumed T1 development and G source (2026-11-13)
+
+The opt-in T1 runtime is separately preserved at
+`3233cdf24117895c8f379cad2a93ac72474b0610`. Its first development attempt completed
+336 synthetic and 2,030 public calls with unchanged quality metrics and no
+applied title hop. The public p95 overhead was 0.3881761 ms / 9.4642 percent.
+These observations do not establish a quality gain or release acceptance.
+
+The first Hotpot cell stopped after three calls on its metadata guard. The
+complete failed report, ledger and log are preserved at `1924096`; this attempt
+must not be resumed or overwritten. A read-only diagnosis identified leading
+and trailing spaces in the failing old question. Both v0.3.2 and T1 strip query
+edges before echoing the query, while the first evaluator required the raw
+question verbatim. A separate prospective evaluator correction is required;
+all quality and cost thresholds, source and question schedules remain fixed.
+The original ledger does not retain individual native token metadata values,
+so the identified query-echo error alone must not be presented as an audit of
+those unrecorded values.
+
+Candidate G is independently frozen at
+`5ac62f38440e5620413d2e49ccb1c6c2db66bc75`, with runtime SHA256
+`1dc58028d2bd7750f3f2205d1908bf6d69876fce5634f79c64ffde0056766371`.
+Its native cursor certificate and tuple materialization pass 92 functional
+checks. The separate G binding was committed at `e7efec7` before any corpus
+calls. All 4,732 profile payloads now equal the saved v0.3.2/C2 payloads exactly;
+profile times are diagnostic only. G paired timing remains a separate stage.
+Every timed stage receives a remote started marker before launch, and completed
+source-free evidence is checkpointed before the next stage.
