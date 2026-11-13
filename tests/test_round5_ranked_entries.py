@@ -58,13 +58,18 @@ def restored_source():
 
 def legacy_suite():
     # Do not dedent: that changes indentation inside multiline SQL literals.
-    return "if True:\n" + restored_source()
+    # Keep the original class context: Python 3.10 also stores nested callable
+    # qualified names in co_consts, alongside the actual string literals.
+    return "class MemoryBook:\n" + restored_source()
 
 
 def legacy_recall():
     namespace = dict(vars(store))
+    original_class = namespace["MemoryBook"]
     exec(compile(legacy_suite(), LEGACY_FILENAME, "exec"), namespace)
-    return namespace["recall"]
+    method = namespace["MemoryBook"].recall
+    namespace["MemoryBook"] = original_class
+    return method
 
 
 
@@ -141,6 +146,7 @@ class RankedEntryRepresentationTests(unittest.TestCase):
         self.assertEqual(sorts[0].args, [])
         self.assertEqual(sorts[0].keywords, [])
         self.assertEqual(set(candidate_expressions()), {False, True})
+        self.assertEqual(legacy_recall().__qualname__, CANDIDATE_RECALL.__qualname__)
         # In particular every actual SQL string retains all whitespace bytes.
         self.assertEqual(string_constants(legacy_recall().__code__),
                          string_constants(CANDIDATE_RECALL.__code__))
