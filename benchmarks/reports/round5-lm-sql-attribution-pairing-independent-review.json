@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "status": "accepted-narrow-native-pairing-correction-for-implementation-and-artificial-ci-only",
+  "reviewed_at_utc": "2026-11-13 18:41:57 UTC",
+  "registration": {
+    "commit": "056422edec1bd2c178afae33df57eca8848f3fd1",
+    "path": "benchmarks/experiments/round5-lm-sql-attribution-pairing-addendum.json",
+    "sha256": "cf55b88d45ee7a0dca53abefa6dc651d7eceb36f6ae0e709919655c566c36d21"
+  },
+  "witness": {
+    "commit": "056422edec1bd2c178afae33df57eca8848f3fd1",
+    "path": "benchmarks/reports/round5-lm-sql-attribution-artificial/native-wrapper-witness.json",
+    "sha256": "5a50c520bf8695388fd82e922d9ae19b5cb86c05e01f0f6f1d33fe7825bed6dc"
+  },
+  "raw_log_sha256": "e4a8ecb26e25acbecc7bcf54d51e14448dd13952b813dc15e7b57203f849fa66",
+  "evidence_review": "Independently read exact probe source at3ebd063 and exact archived raw log. Nine real native C exits (ordinary inline/prebound success, exception, nested calls) retain frame/receiver/native owner/descriptor/method identity. Eight use a new bound wrapper object at exit. No unmatched/open stack. The previous strict arg-is requirement rejects valid native observations.",
+  "required_pairing": "Strict LIFO and exact frame, receiver, native owner, non-None frozen native descriptor and method name. Preserve entry/exit wrapper-is boolean without requiring it. Reject wrong receiver/method/frame, non-LIFO and missing exit; terminal lifecycle errors can never report valid.",
+  "unchanged": "Exact LM source and helpers, complete4732 original payload/order contract, no proxies/factories/SQL/args/locals/source reads in callback, partial observed C-span attribution and explicit residual/overhead limitations, one separately reviewed first corpus attempt.",
+  "corpus_authorized": false,
+  "corpus_calls": 0,
+  "performance_accepted": false,
+  "remaining": "Implement narrow change and preserve all new artificial outcomes; final observer/worker/controller/source binding and successful protocol CI require independent review before any trigger."
+}
