@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "candidate": "H",
+  "status": "registered-before-h-source-edit-sql-probe-correctness-or-measurement",
+  "intended_committed_path": "benchmarks/experiments/round5-page-cache-addendum.json",
+  "baseline": {
+    "release": "v0.3.2",
+    "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+    "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+  },
+  "source_base": {
+    "candidate": "G",
+    "commit": "5ac62f38440e5620413d2e49ccb1c6c2db66bc75",
+    "runtime_sha256": "1dc58028d2bd7750f3f2205d1908bf6d69876fce5634f79c64ffde0056766371",
+    "identity_source": "benchmarks/experiments/round5-development-attempt-g.json",
+    "selection_status": "G remains unselected. Its complete development results, including adverse cells, must remain available. Starting H from G does not accept G or combine isolated gains into a release claim.",
+    "comparison_rule": "Measure and verify the single complete H runtime directly against exact v0.3.2. Do not use G as the formal baseline or add G's measured gains to any page-cache estimate. H contains the unchanged G runtime plus only the fixed page-cache setting below; E, F and T1 changes are outside this scope."
+  },
+  "reason": "The current MemoryBook constructor leaves SQLite's pager-cache target unset while separately setting foreign_keys, busy_timeout, WAL and synchronous. The public cache_size=128 constructor argument limits recall result-cache entries and is unrelated to SQLite pager capacity. Exact and stem candidate routes and subsequent metadata/source reads use one SQLite connection. A larger fixed pager target may reduce eviction and repeated database-page loading in the working set, with an explicit per-connection memory tradeoff. This is a prospective mechanism hypothesis, not evidence of an existing speed gain.",
+  "read_only_findings": {
+    "source": "src/memory_book/store.py:MemoryBook.__init__; src/memory_book/mcp_server.py:create_server.lifespan/acquire_book; src/memory_book/cli.py; src/memory_book/web.py",
+    "actual_default_not_probed": "Source inspection establishes that MemoryBook does not set PRAGMA cache_size, default_cache_size, mmap_size or cache_spill. SQLite documents a usual suggested cache_size of -2000, but compile options and database defaults may differ. No current database PRAGMA value or cache-miss rate has been measured for this draft.",
+    "mcp_lifetime": "Normal on-disk stdio MCP owns a lazy MemoryBook for the active transport lifespan and owner thread, retaining it while database device/inode identity remains stable. Direct SDK calls without that lifespan, inactive or different-thread resources, :memory: and unstable/replaced files retain the existing temporary-connection fallback. H does not alter these rules.",
+    "other_lifetimes": "Ordinary CLI invocations and HTTP API requests create and close their own MemoryBook. They cannot retain pager pages across separate invocations/requests; within-call reuse remains possible. Each independent persistent connection has its own pager resource cost.",
+    "mechanism_limits": "The exact and stem FTS indexes have distinct database pages, so their posting pages are not interchangeable. Larger pager capacity may retain both sets and common pages/metadata across routes and later calls, but does not memoize queries, decoded posting lists, BM25 scores, tokenization or final results. OS filesystem caches may already be warm; total database byte size is not proof of pager working-set size or thrashing."
+  },
+  "authority": "This prospectively extends the original materialization-only scope to one SQLite connection setting. Implementation begins only after the exact reviewed scope is remotely committed. Original query, correctness, performance, resource and release gates remain unchanged. The previously considered hidden-rank SQL direction is not part of H.",
+  "runtime_scope": {
+    "file": "src/memory_book/store.py",
+    "site": "MemoryBook.__init__, inside the existing close-on-error try block after the existing WAL and synchronous setup",
+    "only_new_statement": "PRAGMA main.cache_size=-8192",
+    "fixed_target_kib": 8192,
+    "application": "Apply the same literal once to every successfully initialized MemoryBook connection, independent of database size, contents, query, project, benchmark, budget, result-cache policy or prior timing. Preserve constructor validation and initialization error handling. Do not add a new public constructor argument or environment switch.",
+    "unchanged": [
+      "Every SELECT, INSERT, UPDATE, DELETE and FTS query; SQL query parameters; exact/stem route limits; global BM25 weights; ranking and complete tie order; candidate budgets and novelty decisions.",
+      "Schema version, schema definitions, index contents and triggers, migrations, page_size, database encoding, source reads, session/turn identities and provenance.",
+      "Result-cache key, revision invalidation, cache_size constructor meaning, use_cache behavior, directory cache, payload fields and public stats.",
+      "mmap_size, temp_store, cache_spill, synchronous, journal mode, busy timeout, transaction boundaries, connection lifetime, thread guards, row/text factories and G's fallback behavior.",
+      "All runtime files other than the single constructor setting in store.py, including text/token/semantic/MCP/web/sync code."
+    ],
+    "excluded": "No 16 MiB arm, parameter grid, adaptive cache sizing, query or dataset condition, manual warming pass, cache flushing, OS-cache manipulation, result-cache speedup claim, new dependency, private SQLite handle instrumentation, hidden-rank SQL or concurrent runtime optimization."
+  },
+  "memory_contract": {
+    "meaning": "-8192 requests approximately 8 MiB of database pages for the main database, converted to a page count using the current page size. SQLite's built-in cache allocates on demand. This session-local soft cache target is not an upfront reservation or a hard upper bound on process RSS, all SQLite allocations, attached databases or total application memory.",
+    "tradeoff": "Relative to the documented usual -2000 target, the configured page budget increases by 6192 KiB per independent active main-database connection. Actual allocation and RSS depend on accessed pages and overhead. Multiple persistent connections or concurrent temporary connections multiply resource exposure; closing a connection releases its ownership but allocator behavior can affect observed RSS.",
+    "write_behavior": "A larger cache can also change when dirty pages spill and the amount retained during ingestion. Do not change cache_spill or hide ingestion/reingestion/startup costs. Read correctness alone does not qualify the resource tradeoff.",
+    "gate": "Keep the original greater-than-10-percent resource mean increase review threshold. Any triggered review requires explicit evidence and independent review under round5-plan.json; the fixed 8 MiB choice is not an exemption. No numeric resource gate is relaxed."
+  },
+  "minimal_correctness_plan": {
+    "execution_order": "After scope registration, implement only the stated setting, preserve an exact pre-test source identity, and use small invented fixtures before any old-corpus development call. Preserve failures and repairs in distinct artifacts. Reuse existing regression suites where they already cover a boundary.",
+    "new_fixture_groups": [
+      {
+        "id": "same-output-and-source-without-result-cache",
+        "purpose": "Use one small two-project fixture with exact and stem matches, equal-score candidates and non-ASCII source text. Compare complete non-timing results with exact v0.3.2 for a positive query and an unrelated-project/no-answer query under character and token budgets. Disable recall result caching, then repeat the same calls on the same connection. Assert identical ordering, scores, context, budgets, source spans and absence of cross-project evidence; do not assert a speedup."
+      },
+      {
+        "id": "connection-local-setting-not-persistent-format",
+        "purpose": "On a small file-backed database, record an ordinary raw SQLite connection's cache setting and schema/application version before opening H. Confirm H's readback is -8192, a simultaneous independent raw connection retains its own original setting, and a fresh raw connection after closing H also retains that setting. Compare schema/index/source content and page size before and after. Do not assume the platform baseline is always -2000. Include opening an empty :memory: MemoryBook to preserve the existing supported path."
+      },
+      {
+        "id": "warm-reader-cross-connection-update",
+        "purpose": "Warm a persistent reader on invented source data, update/reingest through a second connection, and repeat the query with result caching both disabled and enabled using the established revision-invalidation fixture. Require the same newly committed content and original-turn provenance as v0.3.2, with no stale rows, stale project membership or stale result-cache payload. Retain existing snapshot and rollback assertions."
+      }
+    ],
+    "reuse_existing_checks": [
+      "Existing constructor foreign-application/schema rejection, transactional ingest/rollback, project isolation, strict token/character budgets, source-offset and cache invalidation tests.",
+      "All existing native/custom row/factory, mixed-shape, duplicate/tie, malformed-value and G fallback regressions.",
+      "Existing MCP lifecycle tests for one retained transport connection, direct-call/thread fallback, database replacement and cleanup. H does not introduce a new lifecycle."
+    ],
+    "static_review": "Relative to exact G, all existing SQL query text and all other runtime files must remain byte-identical. The only added runtime SQL is the one literal main.cache_size pragma at the declared constructor site. Preserve full default-path payload verification; no comparator-field reduction is permitted."
+  },
+  "development_plan": {
+    "separate_binding_required": "After source review and correctness checks, commit exact H source/runtime hash and a separate H development binding before any profile, database build or paired execution. Bind unchanged helper hashes, all inputs, environment, fresh output/state/intent paths and database provenance. Record actual SQLite version, compile options, page_size and pre/post cache-size metadata outside timing at that stage; do not force the v0.3.2 baseline to -2000 or alter either arm based on the observation.",
+    "profile": {
+      "helper": "scripts/round4_development_profile.py",
+      "calls": 4732,
+      "cohorts": [
+        "synthetic61",
+        "public1015"
+      ],
+      "configurations": [
+        "native-char4000",
+        "native-token512",
+        "native-token1024",
+        "native-token2048"
+      ],
+      "rule": "Run the unchanged full helper exactly once in fresh H paths, with its original data loader and fresh ingestion behavior. Compare every complete non-timing payload against the existing exact-v0.3.2/C2 reference cells. Do not replace the helper's database construction with recovered paired snapshots. Save the complete profile and source-free equality audit remotely before paired calls. Cross-run cProfile times are diagnostic, not a speed comparison."
+    },
+    "paired": {
+      "helper": "scripts/round4_development_pair.py",
+      "calls": 4096,
+      "full_payload_pairs": 2048,
+      "queries_per_cohort": 128,
+      "rounds": 2,
+      "cohorts": [
+        "synthetic61",
+        "public1015"
+      ],
+      "configurations": [
+        "native-char4000",
+        "native-token512",
+        "native-token1024",
+        "native-token2048"
+      ],
+      "rule": "Use the original deterministic query selection/order and balanced baseline/candidate worker order, unchanged full payload comparator and fresh private database copies for each worker. Baseline is exact v0.3.2 and candidate is complete H. Reuse only the original immutable source snapshots already bound by the F recovery/G registration, after rechecking bytes and no sidecars; never use a completed F/G worker database. Freeze all eight workers before the first call and execute each once, sequentially, without concurrent CPU work. Keep every cell and round, including negative observations."
+    },
+    "durability": "Use fresh H paths and separate started intents. Remotely checkpoint intent before launch, complete profile/audit before paired, and each completed worker before the next. Never overwrite, silently restart or replay a claimed started stage. Preserve interrupted, failed and adverse results with exact runtime/input identities; any necessary recovery must receive a separate prospective identity. Development does not authorize a formal or release claim."
+  },
+  "formal_and_release": {
+    "plan": "benchmarks/experiments/round5-plan.json",
+    "cells": 14,
+    "calls": 66248,
+    "unchanged_gates": {
+      "minimum_geomean_pooled_p95_improvement_percent": 10,
+      "minimum_public_native_char4000_p95_improvement_percent": 10,
+      "minimum_public_actual_mcp_char4000_p95_improvement_percent": 5,
+      "maximum_any_pooled_p50_p95_regression_percent": 5,
+      "resource_mean_increase_review_percent": 10
+    },
+    "requirements": "Select and bind one complete final runtime before the original first-attempt formal matrix. Preserve full non-timing payloads, strict source/scope/cache/budget invariants, all startup/ingestion/reingestion/RSS/storage records, original historical lexical and complete Q2 checks, independent review and release gates. The actual MCP transport must be measured under its unchanged persistent-connection lifecycle. Combining H with T1 or any other future change requires a separate final source freeze and all applicable gates on that combined runtime."
+  },
+  "primary_references": [
+    {
+      "url": "https://www.sqlite.org/pragma.html#pragma_cache_size",
+      "supports": "SQLite default and negative-KiB cache-size semantics, compile-time override, connection-local lifetime and lazy allocation."
+    },
+    {
+      "url": "https://www.sqlite.org/pragma.html#pragma_cache_spill",
+      "supports": "Dirty-page spilling can depend on the configured maximum cache size; changing capacity is a resource/write-behavior tradeoff even with cache_spill unchanged."
+    },
+    {
+      "url": "https://www.sqlite.org/c3ref/c_dbstatus_options.html",
+      "supports": "SQLite distinguishes pager-cache use/hit/miss/spill diagnostics from query-result caching. No such diagnostic has been collected for this draft."
+    }
+  ],
+  "h_source_edits_at_draft": 0,
+  "h_sql_probes_at_draft": 0,
+  "h_correctness_calls_at_draft": 0,
+  "h_development_calls_at_draft": 0,
+  "registered_utc": "2026-11-13T10:48:36.704001+00:00"
+}
