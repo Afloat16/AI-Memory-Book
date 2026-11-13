@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "audited_at_utc": "2026-11-13T04:09:43.050358+00:00",
+  "frozen_commit": "f812acac42e7c4d777c8b1d279cb121c3dc3e366",
+  "method": "Run the existing round4_data.py read-only load verifier without --freeze; validate pinned Parquet bytes, all three historical manifests, the salted ID selection, filtered canonical content and dataset fingerprint. No retrieval, model inference or scoring.",
+  "command": [
+    ".venv/bin/python",
+    "scripts/round4_data.py",
+    "--parquet",
+    ".artifacts/round4-inputs/hotpot-validation.parquet",
+    "--binding",
+    "benchmarks/experiments/round4-validation-binding.json",
+    "--manifest",
+    "benchmarks/experiments/round4-hotpot256-manifest.json"
+  ],
+  "binding_sha256": "84dbe28c068a3067f9706c6439d42301eaddfef95c44ae2633398346c66a8c79",
+  "manifest_sha256": "b0485b3a089c9b04fc4453fd9f129364e123ce1b9f25b593edf4f6ee6df4a20b",
+  "expected_queries": 256,
+  "excluded_prior_queries": 640,
+  "prior_selection_overlap": 0,
+  "selected_ids_sha256": "b678a288a815d651b09acfa8927c2cb2cf7d74aca5ca0557c221cf19318bc23b",
+  "dataset_sha256": "fb3cd70ea58fafa5bd9cef0f04dba7399aaafba76f5f92605eee9e516f115e1b",
+  "selected_context_paragraphs": 2548,
+  "required_evidence": 635,
+  "retrieval_calls_executed": 0,
+  "inference_calls_executed": 0,
+  "limits": "This is a local use of the original verifier, not an independently implemented selection algorithm. The 256 questions come from the same public HotpotQA source; no new-domain claim."
+}

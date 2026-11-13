@@ -5,6 +5,80 @@ Product fixtures, examples, screenshots, and capture measurements are synthetic;
 the published experiments also evaluate LoCoMo and HotpotQA text corpora. No private
 user conversation history was used in development or published.
 
+## In progress: v0.3.2 round-four methods and evidence
+
+The [registered plan](../benchmarks/experiments/round4-plan.json),
+[development addendum](../benchmarks/experiments/round4-development-addendum.json)
+and [exact-counting addendum](../benchmarks/experiments/round4-counting-addendum.json)
+retain the published v0.3.1 baseline and freeze each extension before its
+measurements. The final C2 runtime is commit
+`2d7b5e38839fb21724ad3beec6b6ebabbda45636`, SHA256
+`179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93`.
+Ranking, indexed content, schemas, Q2 model/vector policy and fusion remain
+unchanged. Complete-payload comparisons exclude only `latency_ms`.
+
+The [C2 profile](../benchmarks/reports/round4-development/candidate-c2-manifest.json)
+preserves 4,732 complete payload matches on the two old cohorts. The separate
+[historical first-use recovery](../benchmarks/reports/round4-development/final-hotpot-first-use-recovery-manifest.json)
+preserves 2,048 calls, 1,024 exact pairs and every start/finish event. Its four
+fresh workers each reuse a connection across four configurations; neither
+profiled timings nor these first-use diagnostics establish an OS-cold or formal
+speed result. The [Q2 audit](../benchmarks/reports/round4-compatibility-final/paired-audit.json)
+verifies 1,968 calls, 984 exact pairs, both tokenizers and all three budgets,
+alongside committed source/evaluator bytes, model files and unchanged persisted
+vectors/originals. Recorded source, projection, scope, token and metadata
+errors are zero. Saved hashes support equality and ledger integrity; omitted
+response bodies cannot be independently re-tokenized by the offline audit.
+
+The [prelaunch recovery registration](../benchmarks/experiments/round4-prelaunch-recovery.json)
+and [independent prelaunch audit](../benchmarks/reports/round4-development/final-prelaunch-audit.json)
+preserve the original interrupted 512-call attempt and local MCP failure before
+any recall, together with earlier rejected candidates and adverse cells. No
+favorable-round pooling or replacement of those records is permitted.
+
+**Formal performance passed; the fresh 256-question comparison is in progress.**
+[Run 43361086255](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43361086255)
+used the committed [formal binding](../benchmarks/experiments/round4-performance-binding.json)
+and triggering source `f8f1653c0653654ed574569fff1aaf4dbaeef6d1`. The
+[full report](../benchmarks/reports/round4-performance-43361086255-1/report.json.gz),
+[summary](../benchmarks/reports/round4-performance-43361086255-1/report.summary.json)
+and [independent arithmetic audit](../benchmarks/reports/round4-performance-independent-audit.json)
+verify all **56,784 calls**, 16 sequential workers, four balanced rounds and
+twelve pooled cells. Complete native/MCP outputs and source/scope/cache/budget
+invariants pass. Actual SDK MCP includes roundtrip and normal cache-write cost;
+persistent cache clearing is outside query timers.
+
+Pooled p95 geometric mean improves **10.1294%**. Public native token512/1024/2048
+p95 improves **19.0736% / 18.4102% / 18.2009%**, and public MCP token1024 improves
+**10.8021%**. The adverse public MCP character-budget p95 change, **+1.4445%**,
+remains recorded. The largest registered resource mean increase is **+6.0231%**;
+none exceeds the 10% review trigger, so **no resource exception or waiver** was
+needed. The [performance review](round4-performance-review.md) retains all
+individual-round regressions and resource samples. The aggregate pass has a
+narrow 0.1294-percentage-point margin; it is not a statistical-significance or
+universal-speedup result.
+
+The [independent freeze audit](../benchmarks/reports/round4-freeze-independent-audit.json)
+reconstructs the exact ordered 256 IDs after excluding all 640 historical IDs,
+with zero overlap, and verifies candidate/assets/evaluator/binding/manifest Git
+ordering. The [existing selection verifier](../benchmarks/reports/round4-selection-local-audit.json)
+also checks the filtered canonical content and dataset fingerprint; the frozen
+cohort records 635 required annotations and 2,548 supplied paragraphs. This
+distinguishes independently checked IDs/history from hosted asset receipts and
+the separate content verifier.
+
+[Fresh scoring](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43363060062)
+is in progress across ten stages, with 4,608 native calls and 4,608 component
+searches planned. No partial quality or comparator result is claimed. Six
+whole-block budget/tokenizer projections reuse each component's first response.
+After completion, the final saved-report audit must use
+`scripts/round4_comparison.py audit --verify-existing` with the saved checkpoint
+to reproduce the assessment and Markdown from all raw reports and ledgers,
+without retrieval replay. New selection does not mean a new domain; all
+questions are answerable, and generated answers/abstention are outside this
+experiment. Native API, component adapter, complete-read and resource costs
+remain distinct. Passing integrity alone is not a quality or release decision.
+
 ## Current: v0.3.1 completed measurement and recovery
 
 The [round-three checkpoint](../benchmarks/reports/round3-comparison-43267797247-1-checkpoint.json)

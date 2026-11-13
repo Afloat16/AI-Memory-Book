@@ -1,5 +1,51 @@
 # Retrieval experiments
 
+## In progress: v0.3.2 round-four validation
+
+The final development candidate is frozen at
+[`2d7b5e3`](https://github.com/Afloat16/AI-Memory-Book/commit/2d7b5e38839fb21724ad3beec6b6ebabbda45636),
+runtime SHA256
+`179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93`.
+It reduces repeated source-unit parsing and exact token-counting work while
+preserving lexical ranking, source snapshots, budgets and the optional Q2 model.
+The [formal run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43361086255)
+launched from `f8f1653c0653654ed574569fff1aaf4dbaeef6d1` has **passed all
+registered performance and resource gates**. The new 256-question comparison
+is in progress; no partial quality or comparator verdict is reported.
+
+| Evidence | Scope and current result |
+|---|---|
+| [Registered plan](experiments/round4-plan.json), [development addendum](experiments/round4-development-addendum.json), [counting addendum](experiments/round4-counting-addendum.json) | Source/output invariants, allowed changes and numerical gates fixed before the corresponding measurements. |
+| [Final C2 full-cohort profile](reports/round4-development/candidate-c2-manifest.json) | All 4,732 complete non-timing payloads match the saved v0.3.1 baseline. Profiling includes cProfile overhead and has no independent start/finish ledger. |
+| [Historical first-use recovery](reports/round4-development/final-hotpot-first-use-recovery-manifest.json) | 2,048 calls, 1,024 matching payload pairs and all four workers/ledgers retained. Fresh worker connections; four configurations share each connection. No OS-cold claim. |
+| [Q2 paired audit](reports/round4-compatibility-final/paired-audit.json) | 1,968 calls and 984 exact payload pairs across two historical cohorts, both tokenizers and three budgets; source/vector/model/ledger checks pass. |
+| [Recovery registration](experiments/round4-prelaunch-recovery.json) and [final prelaunch audit](reports/round4-development/final-prelaunch-audit.json) | Original 512-call interrupted first-use attempt, zero-recall local MCP failure, earlier candidates and adverse cells remain separate. Recovery results do not replace them. |
+| [Formal source/evaluator binding](experiments/round4-performance-binding.json) | Exact candidate, baseline, evaluators, fixtures and dependencies committed before the sole formal run. |
+| [Formal performance review](../docs/round4-performance-review.md), [summary](reports/round4-performance-43361086255-1/report.summary.json), [full report](reports/round4-performance-43361086255-1/report.json.gz) and [independent audit](reports/round4-performance-independent-audit.json) | 56,784 calls, twelve pooled cells; all complete-output/invariant checks pass. Pooled p95 geometric mean improves 10.1294%; no resource exception. |
+| [Independent freeze audit](reports/round4-freeze-independent-audit.json) and [existing selection verifier](reports/round4-selection-local-audit.json) | Exact 256-ID order verified; excludes all 640 historical IDs with zero overlap. Frozen manifest records 635 required annotations and 2,548 supplied paragraphs. |
+
+The completed formal matrix contains **56,784 calls**, 16 sequential workers,
+four balanced rounds and twelve pooled cohort/configuration cells. Public
+native token512/1024/2048 p95 improves **19.0736% / 18.4102% / 18.2009%**;
+actual SDK MCP token1024 improves **10.8021%**. Public MCP character-budget p95
+increases **1.4445%**, below the fixed 5% pooled regression ceiling. The largest
+registered resource mean increase is **6.0231%**, below the 10% review trigger;
+no exception or waiver was needed. Complete payloads, MCP envelopes and
+source/scope/cache/budget invariants pass. The aggregate p95 gain of **10.1294%**
+clears its 10% gate by only 0.1294 percentage points; all rounds, adverse cells
+and resource samples remain visible, without a statistical-significance or
+universal-speedup claim.
+
+The [fresh comparison](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43363060062)
+is executing the registered **9,216 searches**: 4,608 native calls and 4,608
+component searches across ten stages. Assets, evaluators and the binding were
+committed before the independently verified ID-only selection. Six component
+budget/tokenizer projections reuse each first response;
+they are not additional searches. This remains evidence retrieval on another
+selection from the same HotpotQA source, with all Q2 gains/losses, component
+transport/read costs and resource measurements retained. It does not measure
+generated-answer accuracy or establish a whole-product speed ratio.
+
 ## Current: v0.3.1 and the completed third round
 
 The shipped candidate is frozen at
