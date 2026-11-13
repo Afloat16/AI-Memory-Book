@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "status": "retained-integration-failures-and-sync-exact-tested-schema-proof",
+  "created_at_utc": "2026-11-13 19:15:54 UTC",
+  "source_donor": "4a0ad4dc6aec33a91231d419239b7e90b160c695",
+  "source_ci": 43485616395,
+  "complete_runtime_tree": "0f60fb1a6f7207261c44f129ce5b1d8ac2b25fd5",
+  "runtime_unchanged_by_this_commit": true,
+  "failures": [
+    {
+      "id": 132105312167,
+      "run": 43489128578,
+      "source": "d4aa4beab656ce9b646e64a664fe2e11f3b2c720",
+      "name": "mcp",
+      "failures": 2,
+      "path": "benchmarks/reports/round5-no-control-integration-ci/run43489128578-job132105312167.log",
+      "sha256": "31ca64cc99bf3de9e0012ee68febb550d696494757ac3b3408363e0b503c5bb8",
+      "bytes": 307852
+    },
+    {
+      "id": 132105312543,
+      "run": 43489128578,
+      "source": "d4aa4beab656ce9b646e64a664fe2e11f3b2c720",
+      "name": "core313",
+      "failures": 1,
+      "path": "benchmarks/reports/round5-no-control-integration-ci/run43489128578-job132105312543.log",
+      "sha256": "b9edea0fa35604137f27bc22ec1e9911a32827188caaa05cb7079e8640645d7d",
+      "bytes": 310405
+    },
+    {
+      "id": 132108717807,
+      "run": 43490116152,
+      "source": "af5ac6a9bc89c158abca02c0445cfb8ea28809b4",
+      "name": "mcp",
+      "failures": 1,
+      "path": "benchmarks/reports/round5-no-control-integration-ci/run43490116152-job132108717807.log",
+      "sha256": "906e09315e6fef42c18229a2ba294435f8c90906d2a1e952fcbc2fc6a2e76dfd",
+      "bytes": 306614
+    }
+  ],
+  "findings": [
+    {
+      "source": "d4aa4beab656ce9b646e64a664fe2e11f3b2c720",
+      "reason": "Initial control integration retained an unselected F source module. Root complete-tree check and the existing O complete-inventory test both rejected it.",
+      "repair": "af5ac6a9bc89c158abca02c0445cfb8ea28809b4 moves original F bytes outside runtime and retains all13 historical/consumer assertions. In repaired CI the source-inventory test and13 F tests actually pass."
+    },
+    {
+      "source": "af5ac6a9bc89c158abca02c0445cfb8ea28809b4",
+      "reason": "The integration copied selected NO source/modules but missed the donor revision of tests/test_indexed_references.py; the control test still expected the pre-T1 full schema.",
+      "repair": "Copy the exact donor test blob already run successfully in full source CI43485616395. No new relaxed assertion is authored, no historical fixture is replaced, and no runtime/measurement/controller is changed."
+    }
+  ],
+  "test_sync": {
+    "path": "tests/test_indexed_references.py",
+    "old_git_blob": "dd65ce596bef7060d4ea6138bca346f6c050685e",
+    "donor_git_blob": "5016b90fb974bb095ee5ad6396df220e05d07bb4",
+    "donor_sha256": "db6a989f5fae1692fd16e9d3389600622f9213bd1e7b1834128dd3607b0b44b6",
+    "contract": "Exactly require the already approved follow_titles defaultFalse/typeboolean property; require historical description prefix and explicit added description; remove only that opt-in schema increment, then compare every historical tool/schema field. Object/indexed schema representations must still be exactly equal.",
+    "complete_existing_test_tree_comparison": "This was the only preexisting test path with differing blobs between the NO donor and the integration; control-only orchestration tests remain."
+  },
+  "test_failures_not_erased": true,
+  "performance_reruns": 0,
+  "formal_started": false,
+  "final_runtime_selected": false,
+  "release_accepted": false
+}

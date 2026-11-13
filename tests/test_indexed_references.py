@@ -98,7 +98,19 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
         # between modes is checked above on every installed supported SDK.
         if (importlib.metadata.version("mcp") == FIXTURE["mcp"]
                 and importlib.metadata.version("pydantic") == FIXTURE["pydantic"]):
-            self.assertEqual(tools[0], FIXTURE["schema"])
+            # T1 adds one explicit opt-in argument. Preserve the historical
+            # fixture and compare every previous field after removing only
+            # that documented addition; object/indexed schemas still agree.
+            current = json.loads(tools[0])
+            previous = json.loads(FIXTURE["schema"])
+            recall = next(tool for tool in current["tools"] if tool["name"] == "recall_memory")
+            old_recall = next(tool for tool in previous["tools"] if tool["name"] == "recall_memory")
+            self.assertEqual(recall["inputSchema"]["properties"].pop("follow_titles"),
+                             {"default": False, "title": "Follow Titles", "type": "boolean"})
+            self.assertTrue(recall["description"].startswith(old_recall["description"]))
+            self.assertIn("follow_titles", recall["description"][len(old_recall["description"]):])
+            recall["description"] = old_recall["description"]
+            self.assertEqual(current, previous)
 
     async def test_real_cli_modes_preserve_defaults_and_full_provenance(self):
         from memory_book import MemoryBook
