@@ -19,6 +19,7 @@ import platform
 import random
 import re
 import shutil
+import signal
 import sqlite3
 import subprocess
 import sys
@@ -110,6 +111,7 @@ def remote_head():
 
 def publish(message):
     """One non-force push; reject divergent refs and never retry ambiguous writes."""
+    assert_publisher()
     journal = STATE / "publication.json"
     if (PUBLIC / "publication-failure.json").exists():
         raise PublicationError("Publication already failed; artifact-only preservation")
@@ -1022,7 +1024,8 @@ def prepare(bound):
     verify_exact_source(measurement, identity)
     check_environment()
     names = ("preflight.json", "correctness-export.intent.json", "correctness.json",
-             "correctness-export-audit.json", "correctness-export.tar.gz", "measurement-export.json")
+             "correctness-export-audit.json", "correctness-export.tar.gz", "correctness.log.partial",
+             "calibration.json.gz", "calibration-storage.json", "measurement-export.json")
     binding = {"attempt": ATTEMPT, "created_at": stamp(), "source_binding_sha256": sha(SOURCE_BINDING),
         "scope_sha256": SCOPE_SHA, "pairing_addendum_sha256": PAIRING_ADDENDUM_SHA,
         "workflow_commit": os.environ["GITHUB_SHA"], "run_id": os.environ["GITHUB_RUN_ID"],
@@ -1038,8 +1041,292 @@ def prepare(bound):
     return binding
 
 
+
+def publisher_role():
+    return "worker" if os.environ.get("SQL_ATTRIBUTION_WORKER") == "1" else "controller"
+
+
+def assert_publisher():
+    if read(STATE / "publisher.json")["role"] != publisher_role():
+        raise PublicationError("Publication ownership has not been handed to this process")
+
+
+def worker():
+    bound = require_binding()
+    if (os.environ.get("GITHUB_REF") != TRIGGER or os.environ.get("GITHUB_RUN_ATTEMPT") != "1"
+            or publisher_role() != "worker"):
+        raise ValueError("Only the registered single worker may observe old data")
+    assert_publisher()
+    binding = read(PUBLIC / "binding.json")
+    intent = read(PUBLIC / "worker.intent.json")
+    if (intent["binding_sha256"] != sha(PUBLIC / "binding.json")
+            or intent["run_id"] != os.environ["GITHUB_RUN_ID"]
+            or intent["workflow_commit"] != os.environ["GITHUB_SHA"]):
+        raise ValueError("Worker intent changed")
+    started = STATE / "worker.started.json"
+    with started.open("x", encoding="utf-8") as stream:
+        stream.write(json.dumps({"pid": os.getpid(), "created_at": stamp(), "replay_permitted": False}) + "\n")
+        stream.flush()
+        os.fsync(stream.fileno())
+    if remote_head() != read(STATE / "publication.json")["expected_remote"]:
+        raise PublicationError("Worker has not observed its published intent")
+    guards(binding)
+    source = STATE / "sources/measurement"
+    sys.path[:0] = [str(source / "src"), str(ROOT)]
+    import memory_book
+    from benchmarks.run import engine_source_hash
+    from scripts.benchmark_default_recall import dataset
+    from scripts.round4_development_profile import CONFIGS, fingerprint
+    from memory_book.token_budget import TokenCounter
+    package = Path(memory_book.__file__).resolve().parent
+    if package != source / "src/memory_book" or engine_source_hash(package) != RUNTIME_SHA:
+        raise ValueError("Worker imported another LM runtime")
+    registered = scope_value()
+    if list(CONFIGS) != [(item["id"], item["recall_options"]) for item in registered["sequence"]["configurations"]]:
+        raise ValueError("Original fixed configuration order changed")
+    filenames = frozen_filename_map(source, binding["runtime"], (ROOT / SCRIPT_PATH,))
+    sites = SiteCatalog(filenames, registered["observer"]["source_mapping"]["rules"])
+    TokenCounter("cl100k_base").count("Prepare the reference tokenizer before profiling.")
+    old = read(OLD)
+    references = load_references(old)
+    report = {"schema_version": 1, "status": "running", "attempt": ATTEMPT,
+        "created_at": stamp(), "runtime_source_sha256": RUNTIME_SHA,
+        "script_sha256": sha(ROOT / SCRIPT_PATH), "scope_sha256": SCOPE_SHA,
+        "helpers_sha256": old["helpers_sha256"], "helper_dependency_sha256": old["helper_dependency_sha256"],
+        "expected_calls": 4732, "attempted_calls": 0, "completed_calls": 0,
+        "cells": [], "cohort_databases": [], "fresh_rows_decoded": 0, "speed_claim": False,
+        "clock": vars(time.get_clock_info("perf_counter")),
+        "clock_placement": "Native start after callsite bookkeeping; native end first callback timestamp. Recall wall brackets observer installation/removal. Callback bookkeeping is separate and not a complete overhead correction.",
+        "unattributed_meaning": "Python, implicit cursor iteration, other unobserved SQLite and profiler overhead; not Python-only."}
+    save(PUBLIC / "progress.json", {"status": "worker-started", "attempted_calls": 0, "completed_calls": 0})
+    state = STATE / "profile-state"
+    state.mkdir(exist_ok=False)
+    stage = "dataset"
+    try:
+        for cohort in COHORTS:
+            data = dataset(cohort, STATE / "locomo10.json")
+            queries = list(data.queries)
+            random.Random(41061).shuffle(queries)
+            previous = old["cohorts"][cohort]
+            if (len(data.sessions) != previous["sessions"] or len(queries) != previous["queries"]
+                    or data.fingerprint != previous["dataset_sha256"]
+                    or digest([case.id for case in queries]) != previous["profile_query_order_sha256"]
+                    or digest(sorted(case.id for case in queries)) != previous["query_universe_sorted_ids_sha256"]):
+                raise ValueError("Original old dataset or query universe/order changed")
+            database = state / (cohort + ".db")
+            if database.exists():
+                raise ValueError("Cohort database already exists; no replay or rebuild")
+            with memory_book.MemoryBook(database, cache_size=0) as book:
+                for session in data.sessions:
+                    book.ingest(session)
+                connection = native_book_identity(book)
+                for configuration, options in CONFIGS:
+                    stage = cohort + "/" + configuration
+                    guards(binding)
+                    if native_book_identity(book) is not connection:
+                        raise ObserverFailure("Native connection identity changed between cells")
+                    paths = claim_cell(cohort, configuration, sha(PUBLIC / "binding.json"), len(queries))
+                    cell = {"cohort": cohort, "configuration": configuration,
+                        "dataset_sha256": data.fingerprint, "queries": len(queries),
+                        "status": "running", "rows": [], "options": options}
+                    report["cells"].append(cell)
+                    failure_type = None
+                    try:
+                        with paths["ledger"].open("xb") as ledger:
+                            for index, case in enumerate(queries):
+                                append_ledger(ledger, {"state": "started", "query_index": index,
+                                    "query_id": case.id, "cell_intent_sha256": sha(paths["intent"])})
+                                observer = SQLiteObserver(sites)
+                                report["attempted_calls"] += 1
+                                try:
+                                    result = observe_call(observer, book.recall, case.query,
+                                        project=case.project, use_cache=False, **options)
+                                except BaseException as error:
+                                    row = {"query_id": case.id, "state": "failed",
+                                        "error_type": type(error).__name__, "observation": observer.report()}
+                                    cell["rows"].append(row)
+                                    append_ledger(ledger, {"state": "failed", "query_index": index, **row})
+                                    raise RuntimeError("Original recall or native observation failed; partial evidence retained") from None
+                                result.pop("latency_ms")
+                                row = {"query_id": case.id,
+                                    "non_timing_payload_sha256": fingerprint(result),
+                                    "observation": observer.report()}
+                                cell["rows"].append(row)
+                                append_ledger(ledger, {"state": "finished", "query_index": index, **row})
+                                report["completed_calls"] += 1
+                                audit_observation(row["observation"], sites.sites)
+                                if any(sites.sites[span["site_id"]]["category"].startswith("disabled_")
+                                       for span in row["observation"]["spans"]):
+                                    raise ValueError("A disabled cache/coverage/optional source path activated")
+                                if native_book_identity(book) is not connection:
+                                    raise ObserverFailure("Observer changed native MemoryBook identity")
+                        cell["status"] = "completed"
+                        cell["sites"] = list(sites.sites)
+                        cell["payload_audit"] = audit_cell(cell, references[len(report["cells"]) - 1],
+                            cohort, configuration, previous)
+                    except BaseException as error:
+                        cell["status"] = "failed"
+                        cell["error_type"] = type(error).__name__
+                        failure_type = type(error).__name__
+                        raise
+                    finally:
+                        cell["finished_at"] = stamp()
+                        cell["storage"] = save_cell(paths, cell, sites.sites)
+                        save(PUBLIC / "progress.json", {"status": "cell-failed" if failure_type else "cell-completed",
+                            "cell": paths["name"], "attempted_calls": report["attempted_calls"],
+                            "completed_calls": report["completed_calls"]})
+                    guards(binding)
+            report["cohort_databases"].append({"cohort": cohort, "sha256_after_close": sha(database),
+                "bytes_after_close": database.stat().st_size, "new_database": True,
+                "historical_database_identity_claimed": False})
+        guards(binding)
+        report["status"] = "completed"
+        report["finished_at"] = stamp()
+        audit = profile_audit(report, old, references, binding["artifact_files_sha256"][SCRIPT_PATH])
+        storage = pack_value(PUBLIC / "profile.json.gz", report)
+        save(PUBLIC / "profile-storage.json", storage)
+        save(PUBLIC / "payload-audit.json", audit)
+        save(PUBLIC / "worker-completion.json", {"status": "completed",
+            "attempted_calls": report["attempted_calls"], "completed_calls": report["completed_calls"],
+            "all_full_payloads_equal": audit["all_full_non_timing_payloads_equal_to_v032_c2"],
+            "complete_cells": len(report["cells"]), "fresh_rows_decoded": 0, "speed_claim": False})
+        publish("bench: preserve complete SQL attribution observations and C2 payload audit")
+        if not audit["all_full_non_timing_payloads_equal_to_v032_c2"]:
+            raise ValueError("All original queries finished, but payload equality failed")
+    except BaseException as error:
+        report["status"] = "failed"
+        report["error_type"] = type(error).__name__
+        report["finished_at"] = stamp()
+        if not (PUBLIC / "profile.partial.json.gz").exists():
+            storage = pack_value(PUBLIC / "profile.partial.json.gz", report)
+            save(PUBLIC / "profile-partial-storage.json", storage)
+        save(PUBLIC / "worker-failure.json", {"status": "failed_or_incomplete", "stage": stage,
+            "error_type": type(error).__name__, "attempted_calls": report["attempted_calls"],
+            "completed_calls": report["completed_calls"], "replay_permitted": False})
+        if not (PUBLIC / "publication-failure.json").exists():
+            publish("bench: preserve SQL attribution failed prefix without replay")
+        raise RuntimeError("SQL attribution worker failed; retain complete available prefix") from None
+
+
+def execute_worker():
+    """The controller waits; only the child can publish until it is confirmed dead."""
+    save(PUBLIC / "worker.intent.json", {"status": "started", "created_at": stamp(),
+        "binding_sha256": sha(PUBLIC / "binding.json"), "run_id": os.environ["GITHUB_RUN_ID"],
+        "workflow_commit": os.environ["GITHUB_SHA"], "expected_calls": 4732,
+        "same_process_for_all_eight_cells": True, "replay_permitted": False})
+    publish("bench: claim the single persistent SQL attribution worker")
+    save(STATE / "publisher.json", {"role": "worker"})
+    process = None
+    returncode, error_type = None, None
+    try:
+        with (PUBLIC / "worker.log.partial").open("xb") as log:
+            process = subprocess.Popen([sys.executable, "-u", str(ROOT / SCRIPT_PATH), "worker"],
+                cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, start_new_session=True,
+                env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1", SQL_ATTRIBUTION_WORKER="1"))
+            returncode = process.wait(timeout=1200)
+    except BaseException as error:
+        error_type = type(error).__name__
+    finally:
+        if process is not None:
+            if process.poll() is None:
+                os.killpg(process.pid, signal.SIGKILL)
+            returncode = process.wait()
+            save(STATE / "worker-exit-confirmation.json", {
+                "pid": process.pid, "returncode": returncode, "created_at": stamp(),
+                "error_type": error_type, "whole_group_killed_before_handoff": error_type is not None})
+            save(STATE / "publisher.json", {"role": "controller", "worker_returncode": returncode})
+        # No child handle means ownership is ambiguous; always-step stays artifact-only.
+    if process is None:
+        raise PublicationError("Worker launch was ambiguous; no controller publication")
+    save(PUBLIC / "worker-exit.json", read(STATE / "worker-exit-confirmation.json"))
+    publish("bench: preserve SQL attribution worker exit after ownership handoff")
+    if returncode != 0 or error_type:
+        raise RuntimeError("The unique SQL attribution worker did not complete")
+
+
 def run():
-    require_binding()
+    bound = require_binding()
+    if (os.environ.get("GITHUB_REF") != TRIGGER or os.environ.get("GITHUB_RUN_ATTEMPT") != "1"
+            or publisher_role() != "controller"):
+        raise ValueError("Only the first exact registered hosted attempt may run")
+    if remote_head() is not None or PUBLIC.exists() or STATE.exists():
+        raise ValueError("Diagnostic attempt already exists; replay is forbidden")
+    prerequisites = preflight_evidence(bound)
+    STATE.mkdir(parents=True)
+    PUBLIC.mkdir(parents=True)
+    save(STATE / "publication.json", {"expected_remote": None})
+    save(STATE / "publisher.json", {"role": "controller"})
+    subprocess.run(["git", "config", "user.name", "github-actions[bot]"], cwd=ROOT, check=True)
+    subprocess.run(["git", "config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com"],
+                   cwd=ROOT, check=True)
+    save(PUBLIC / "preflight.json", prerequisites)
+    save(PUBLIC / "attempt.intent.json", {"attempt": ATTEMPT, "status": "started", "created_at": stamp(),
+        "workflow_commit": os.environ["GITHUB_SHA"], "run_id": os.environ["GITHUB_RUN_ID"], "run_attempt": 1,
+        "source_commit": SOURCE_COMMIT, "runtime_sha256": RUNTIME_SHA,
+        "source_binding_sha256": sha(SOURCE_BINDING), "scope_sha256": SCOPE_SHA,
+        "planned_calls": 4732, "comparison_engine_calls": 0, "fresh_rows_decoded": 0,
+        "replay_permitted": False, "speed_claim": False})
+    publish("bench: claim independent old-data LM SQLite attribution once")
+    stage = "prepare"
+    try:
+        binding = prepare(bound)
+        stage = "single-persistent-worker"
+        guards(binding)
+        execute_worker()
+        stage = "complete-source-free-audit"
+        guards(binding)
+        profile_path = PUBLIC / "profile.json.gz"
+        storage = read(PUBLIC / "profile-storage.json")
+        compressed = profile_path.read_bytes()
+        if len(compressed) != storage["bytes"] or sha(profile_path) != storage["sha256"]:
+            raise ValueError("Complete compressed observation changed")
+        raw = gzip.decompress(compressed)
+        if len(raw) != storage["raw_bytes"] or hashlib.sha256(raw).hexdigest() != storage["raw_sha256"]:
+            raise ValueError("Complete raw observation changed")
+        audit = profile_audit(json.loads(raw), read(OLD), load_references(read(OLD)),
+                              bound["artifact_files_sha256"][SCRIPT_PATH])
+        if audit != read(PUBLIC / "payload-audit.json") or not audit["all_full_non_timing_payloads_equal_to_v032_c2"]:
+            raise ValueError("Complete source-free payload audit failed")
+        save(PUBLIC / "completion.json", {"status": "completed", "created_at": stamp(),
+            "attempt": ATTEMPT, "calls": 4732, "complete_cells": 8, "all_full_payloads_equal": True,
+            "scope": "Partial instrumented native C boundaries only; implicit iteration remains unattributed.",
+            "fresh_rows_decoded": 0, "comparison_engine_calls": 0, "speed_claim": False,
+            "formal_or_release_acceptance": False})
+        publish("bench: preserve final complete SQL attribution and strict payload audit")
+    except BaseException as error:
+        if read(STATE / "publisher.json")["role"] == "controller":
+            save(PUBLIC / "controller-failure.json", {"status": "failed_or_incomplete", "stage": stage,
+                "created_at": stamp(), "error_type": type(error).__name__, "replay_permitted": False})
+            if not (PUBLIC / "publication-failure.json").exists():
+                publish("bench: preserve SQL attribution controller failure without replay")
+        raise RuntimeError("SQL attribution incomplete; preserve evidence and do not replay") from None
+
+
+def preserve():
+    """Workflow always step; never run retrieval or contend with an unconfirmed worker."""
+    if not PUBLIC.exists() or not (STATE / "publication.json").exists():
+        print("No diagnostic claim exists; nothing to append.")
+        return
+    if read(STATE / "publisher.json")["role"] != "controller":
+        print("Worker ownership was not returned; artifact-only preservation, no publication.")
+        return
+    if (PUBLIC / "workflow-outcome.json").exists():
+        print("Workflow outcome already preserved; no replay or overwrite.")
+        return
+    for ledger in sorted((STATE / "ledgers").glob("*.jsonl")):
+        target = PUBLIC / "partial-ledgers" / (ledger.name + ".gz")
+        pack_bytes(target, ledger.read_bytes())
+    runner_log = ROOT / ".artifacts" / (ATTEMPT + "-runner.log")
+    if runner_log.exists():
+        shutil.copyfile(runner_log, PUBLIC / "runner.log.partial")
+    save(PUBLIC / "workflow-outcome.json", {"created_at": stamp(),
+        "run_id": os.environ.get("GITHUB_RUN_ID"), "run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
+        "outcome": os.environ.get("SQL_ATTRIBUTION_OUTCOME"), "retrieval_calls": 0,
+        "policy": "Preservation only. Completed/failed/partial observations remain; no stage is replayed."})
+    if (PUBLIC / "publication-failure.json").exists():
+        print("Publication failed; retain artifact bytes without automatic retry.")
+        return
+    publish("bench: preserve SQL attribution logs and all available ledger prefixes")
 
 
 def self_test(source, receipt_path=None):
@@ -1066,13 +1353,17 @@ def self_test(source, receipt_path=None):
         "pairing_addendum_sha256": PAIRING_ADDENDUM_SHA, "corpus_calls": 0}
     if receipt_path is not None:
         save(receipt_path, receipt)
+        calibration = getattr(module, "CALIBRATION_CAPTURE", None)
+        if calibration is not None:
+            storage = pack_value(receipt_path.parent / "calibration.json.gz", calibration)
+            save(receipt_path.parent / "calibration-storage.json", storage)
     print(json.dumps(receipt), flush=True)
     raise SystemExit(0 if result.wasSuccessful() and result.testsRun == expected and not result.skipped else 1)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode", choices=("fixture-export", "self-test", "run"))
+    parser.add_argument("mode", choices=("fixture-export", "self-test", "preflight", "run", "worker", "preserve"))
     parser.add_argument("--source", type=Path)
     parser.add_argument("--receipt", type=Path)
     args = parser.parse_args()
@@ -1082,5 +1373,11 @@ if __name__ == "__main__":
         archive_source(args.source, runtime_identity())
     elif args.mode == "self-test":
         self_test(args.source, args.receipt)
+    elif args.mode == "preflight":
+        print(json.dumps(preflight_evidence(require_binding())), flush=True)
+    elif args.mode == "worker":
+        worker()
+    elif args.mode == "preserve":
+        preserve()
     else:
         run()

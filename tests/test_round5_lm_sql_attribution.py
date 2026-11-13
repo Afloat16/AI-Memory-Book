@@ -12,6 +12,9 @@ from unittest.mock import patch
 from scripts import round5_lm_sql_attribution as d
 
 
+CALIBRATION_CAPTURE = None
+
+
 def catalog():
     return d.SiteCatalog({}, ())
 
@@ -293,7 +296,9 @@ class ArithmeticAndSites(unittest.TestCase):
         self.assertEqual(sites.category("Connection.commit", location, caller), "other_sqlite_builtin")
 
     def test_fixed_artificial_calibration_retains_every_sample(self):
+        global CALIBRATION_CAPTURE
         value = d.artificial_calibration(catalog())
+        CALIBRATION_CAPTURE = value
         self.assertEqual(len(value["clock_pair_deltas_ns"]), 1000)
         self.assertEqual(len(value["unobserved_native_operation_wall_ns"]), 128)
         self.assertEqual(len(value["observed_native_operations"]), 128)
