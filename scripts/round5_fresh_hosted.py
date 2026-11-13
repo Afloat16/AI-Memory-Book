@@ -24,6 +24,7 @@ import tarfile
 import traceback
 import urllib.request
 import zipfile
+import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
 ATTEMPT = "round5-fresh-hosted-1"
@@ -276,8 +277,10 @@ class Publisher:
         if failure.exists():
             raise PublicationError("Ambiguous publication: no write/measurement retry")
         expected, parent = self.expected(), self.head()
+        observed, pushed = None, None
         try:
-            if self.remote() != expected or (expected is not None and parent != expected):
+            observed = self.remote()
+            if observed != expected or (expected is not None and parent != expected):
                 raise PublicationError("Result ref advanced or local ancestry changed")
             if git(self.root, "diff", "--cached", "--name-only").strip():
                 raise PublicationError("Unrelated staged changes")
@@ -306,6 +309,7 @@ class Publisher:
         except BaseException as error:
             if not failure.exists():
                 save(failure, {"at": now(), "previous_remote": expected, "local_parent": parent,
+                    "observed_remote": observed, "push_returncode": pushed.returncode if pushed else None,
                     "error_type": type(error).__name__, "error": str(error),
                     "rule": "No automatic retry. Preserve local files and inspect remote evidence."})
             raise
@@ -575,7 +579,7 @@ def preserve_ledgers(public):
             try:
                 if gzip.decompress(archive.read_bytes()) == body:
                     continue
-            except (OSError, EOFError):
+            except (OSError, EOFError, zlib.error):
                 pass  # Preserve a corrupt original archive as failure evidence too.
             # Never overwrite the original worker archive after interruption.
             archive = ledger.with_name(ledger.name + ".interrupted.gz")
@@ -598,11 +602,12 @@ class Controller:
         verify_manifest(self.root, self.claim["frozen_files_sha256"])
         require(sha(self.root / AUTH) == self.claim["authorization_sha256"]
                 and host_identity() == self.claim["host"], "Authorization or host/boot changed")
+        prepared = self.public / "prepared-assets.json"
         for label, identity in self.claim["sources"].items():
             directory = self.state / "sources" / label
+            require(directory.exists() or not prepared.exists(), "Prepared source checkout missing")
             if directory.exists():
                 verify_source(directory, identity, self.claim["source_files_sha256"][label])
-        prepared = self.public / "prepared-assets.json"
         if prepared.exists():
             verify_manifest(self.root, read(prepared)["files_sha256"])
 
