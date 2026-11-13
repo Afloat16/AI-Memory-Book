@@ -1,0 +1,20 @@
+{
+  "at": "2026-11-13T19:59:04.638141+00:00",
+  "status": "started-before-launch",
+  "argv": [
+    "/opt/hostedtoolcache/Python/3.12.16/x64/bin/python",
+    "-B",
+    "-c",
+    "import shutil,sys,urllib.request\nfrom pathlib import Path\npath=Path(sys.argv[2])\npath.parent.mkdir(parents=True,exist_ok=True)\nwith urllib.request.urlopen(sys.argv[1],timeout=60) as response,path.open(\"xb\") as output:\n    shutil.copyfileobj(response,output)\n    output.flush()\n    import os\n    os.fsync(output.fileno())\n",
+    "https://huggingface.co/datasets/hotpotqa/hotpot_qa/resolve/1908d6afbbead072334abe2965f91bd2709910ab/distractor/validation-00000-of-00001.parquet",
+    "/home/runner/work/AI-Memory-Book/AI-Memory-Book/.artifacts/round5-lexical-compat-hosted-1/input/hotpot-validation.parquet"
+  ],
+  "timeout_seconds": 180,
+  "expected_publication_parent": "da4bd4e784386e7330e255038ed063e53722f3db",
+  "binding_sha256": "fd189b2bdd4fd3647ff2fd2835ba21d5a27e36d43b1969efc42297459a9ac66b",
+  "child_python_flags": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHASHSEED": "0"
+  },
+  "replay_permitted": false
+}
