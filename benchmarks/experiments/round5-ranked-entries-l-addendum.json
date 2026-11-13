@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "protocol": "round5-ranked-entries-l-v1",
+  "status": "registered-before-candidate-l-runtime-changes-and-measurement",
+  "registered_at_utc": "2026-11-13T16:59:48Z",
+  "base": {
+    "commit": "4720728e47d53fc6c345fa89a2b5b739a67a1069",
+    "runtime_sha256": "90079d629d101370e6960a10e5391265802b1a053f65438e9b667b662638b251",
+    "composition": "I native candidate rows and 512-entry statement cache, opt-in T1, independently reviewed K normalization; no E/F/H/J runtime."
+  },
+  "baseline": {
+    "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+    "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+  },
+  "prior_results": {
+    "i_evidence_commit": "7e44a340d903f1f4ecfc589c7cef51d63db8462c",
+    "j_evidence_commit": "eeb8217084f32eb01c478345effd37935bbc3dc0",
+    "k_evidence_commit": "c3c708539d6e7024eb14d565dbb7c0a5e553fa34",
+    "disposition": "I and isolated K preserved complete-output equality but missed the original 10% targets; J regressed and remains rejected. No prior attempt is replayed, overwritten or promoted to formal acceptance."
+  },
+  "evidence_boundary": {
+    "source": "Read-only inspection of I/d730 recall and saved-profile summaries, plus the existing derived-map addendum's 100192 fused sort entries.",
+    "observation": "Every canonical late-materialized union member currently creates a ranking tuple and a separate transient key tuple via a Python sort callback. The complete union is already deduplicated by exact native str page IDs before this sort.",
+    "limit": "Callback/object work is a mechanism hypothesis. No numeric latency, allocation-byte, RSS or p95 improvement is predicted."
+  },
+  "hypothesis": "Store the complete unchanged primitive sort key as a prefix of each existing private ranked entry, retain the original score as a separate value, and call list.sort() without a key callback.",
+  "allowed_runtime_change": [
+    "Only the existing late_materialize branch in src/memory_book/store.py: fused entry (-score, exact ordinal, stem ordinal, page_id, score, route row, metadata); nonfused entry (-score, page_id, score, route row, metadata).",
+    "Keep the original score object/value; do not recover it by double negation. Keep the original used arithmetic, ordinal defaults 97, key component order, full global sort, union count and exact prefix materialization.",
+    "Use the complete old key as the tuple prefix. Exact str ID deduplication makes equal complete keys impossible for distinct entries; comparisons therefore cannot reach score or row/metadata payload tails. Nonfinite values must have the same pairwise key-comparison behavior and stable sorting result.",
+    "Preserve existing custom/noncanonical row, missing-metadata, coverage, semantic and active T1 fallback behavior. Preserve all old owners and local ranking entries through the remainder of recall; no ranked_rows.clear or GC control."
+  ],
+  "forbidden": [
+    "No SQL text/parameters/plans, database/source/index/schema, routing/weights/scopes/limit96, rank equation, normalization/tokenizer, cache, dependency or interface changes.",
+    "No early top-k, approximate comparison, float rounding, score recomputation, NaN filtering, tie cap, special dataset/query or budget branch.",
+    "No turns-query batching and no E/F/H/J reintroduction.",
+    "No evaluator, metric, threshold, fixed schedule or saved output changes. No L corpus/fresh calls under this implementation registration."
+  ],
+  "artificial_validation": [
+    "Freeze and reconstruct the literal original base recall using an asserted exact source digest, so reference execution retains the old key callbacks and score handling.",
+    "Invented canonical vectors and real SQLite recalls: fused/identical/single routes, full 192 union bounds, exact equal scores with different IDs, duplicate primitive IDs, large/small limits, temporal/novelty, tiny budgets, token assembly and T1/coverage/semantic fallbacks.",
+    "Finite floats, infinities, multiple NaNs, both signs of zero and integer ranks: compare legacy ordering, exact float bits where finite/nonfinite JSON equality is insufficient, and identical score values/objects before consumption.",
+    "Existing custom factory/mapping/subclass/metadata-error and rollback fixtures remain unchanged; verify fallback error behavior and no comparisons of row/metadata tails.",
+    "Artificial cProfile evidence verifies removal of the old per-entry key callbacks only; source/AST verification proves removal of the separate explicit sort-key tuple construction. No timing threshold or estimated allocation byte count."
+  ],
+  "correctness_module": "tests/test_round5_ranked_entries.py",
+  "durability": "Commit this scope first; checkpoint runtime draft separately; commit complete artificial fixtures and trigger the ordinary Tests CI. Preserve every failure and repair. Use inline Git trees and leased nonforce refs.",
+  "future_development": "Only after exact reviewed source, complete artificial CI and a separately committed source/evaluator binding may the unchanged 4732 profile and 4096 paired old-data development protocols execute once. The unchanged formal fourteen-cell/66248-call gates, all historical compatibility and separate fresh authorization remain required.",
+  "l_retrieval_calls_executed": 0,
+  "l_fresh_rows_decoded": 0
+}
