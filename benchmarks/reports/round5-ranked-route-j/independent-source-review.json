@@ -1,0 +1,324 @@
+{
+  "schema_version": 1,
+  "candidate": "J",
+  "review_type": "independent-read-only-source-and-existing-artificial-ci-review",
+  "reviewer": "baseline_audit",
+  "disposition": "No blocking issue found in the registered native/default contract. Exact source may proceed to the prospectively bound old-cohort development gate; this is not performance selection, formal acceptance, fresh authorization or release approval.",
+  "repository": "Afloat16/AI-Memory-Book",
+  "scope": {
+    "commit": "4042559de1e6ec1d1c205029ef57b34e40afe17d",
+    "path": "benchmarks/experiments/round5-ranked-route-j-addendum.json"
+  },
+  "source": {
+    "commit": "910ba8904523ad81cb7d68073af77580942496eb",
+    "branch": "staging/v033-ranked-route-j",
+    "parent_initial_draft": "2d9c01f8cf275c536799cf4bfa039d71bd119574",
+    "integrated_parent": "d730a620bc0b7afac4de856d2a0fd01a46820c8a",
+    "runtime_file": {
+      "path": "src/memory_book/store.py",
+      "git_blob": "b963255d075a4275a827da9e894bc8ad369f1fc9",
+      "sha256": "8135e885ce85a8f87936a4719f19ce09ebd0c8999090607f2df5a97adc518b1c"
+    },
+    "artificial_test_file": {
+      "path": "tests/test_round5_ranked_route.py",
+      "git_blob": "88d9319c55ff7af782a867a12939b609da915ea1",
+      "sha256": "14384053864a70a976a70ce5313061d3a3069d44ccc1d37d751871cff2f3a3d1"
+    }
+  },
+  "independence": {
+    "read_inputs": [
+      "Exact J source and parent diff",
+      "Prospective scope registration",
+      "Complete artificial test module",
+      "GitHub Actions run and all nine job statuses",
+      "Raw logs for Python 3.10, 3.12 and 3.13 core jobs",
+      "Official CPython cursor decoder/closure implementation",
+      "Official SQLite FTS5 function lookup, rank ordering and sorter implementation"
+    ],
+    "reviewer_executed_corpus_retrieval_calls": 0,
+    "reviewer_decoded_fresh_rows": 0,
+    "reviewer_triggered_workflows": 0,
+    "reviewer_modified_runtime_files": 0,
+    "write_scope": "Only this independent review JSON on a separate validation branch; source branch and runtime remain unchanged."
+  },
+  "ci": {
+    "run_id": 43459086769,
+    "run_attempt": 1,
+    "head_sha": "910ba8904523ad81cb7d68073af77580942496eb",
+    "status": "completed",
+    "conclusion": "success",
+    "completed_jobs": 9,
+    "successful_jobs": 9,
+    "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43459086769",
+    "updated_at": "2026-11-13T16:06:30Z",
+    "jobs": [
+      {
+        "job_id": 132000898416,
+        "name": "mcp",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "job_id": 132000898721,
+        "name": "installers (windows-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "job_id": 132000898761,
+        "name": "installers (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "job_id": 132000898782,
+        "name": "core (3.13)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "job_id": 132000898957,
+        "name": "core (3.12)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "job_id": 132000898989,
+        "name": "container",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "job_id": 132000899014,
+        "name": "installers (macos-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "job_id": 132000899111,
+        "name": "core (3.10)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "job_id": 132000899399,
+        "name": "reader-browser",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "core_evidence": [
+      {
+        "python_version": "3.10",
+        "job_id": 132000899111,
+        "raw_job_log_sha256": "798451a97cb87370d0c9689d7b9d52a011cb1e0056eea50a03c06a2029b8a3f0",
+        "j_tests_passed": 18,
+        "j_tests_skipped": 0,
+        "j_tests": [
+          "test_default_and_optional_paths_keep_complete_payloads_and_provenance",
+          "test_actual_plan_uses_hidden_rank_inside_a_bounded_outer_sort",
+          "test_changed_public_row_alias_keeps_the_old_query",
+          "test_closed_probe_cursor_restores_real_rows_for_later_fallback",
+          "test_complete_earlier_tie_groups_need_no_legacy_requery",
+          "test_custom_parameter_adapter_is_bound_only_once",
+          "test_custom_row_text_and_connection_factories_keep_the_old_query",
+          "test_cutoff_ties_fall_back_without_an_arbitrary_tie_cap",
+          "test_empty_small_and_cutoff_counts_match_both_routes_exactly",
+          "test_every_scope_filters_before_the_97_row_limit",
+          "test_explicit_weights_ignore_a_changed_persistent_rank_default",
+          "test_invalid_utf8_in_selected_ids_keeps_the_original_error",
+          "test_invalid_utf8_only_in_lookahead_keeps_the_original_success",
+          "test_nontext_ids_and_uncertified_rank_or_shape_use_the_old_query",
+          "test_registered_scalar_bm25_mechanism_preserves_original_outcome",
+          "test_rowid_bounds_interleaving_and_empty_bounds_keep_global_scores",
+          "test_sqlite_errors_are_not_swallowed_or_replayed",
+          "test_unrecognized_statement_shape_uses_the_legacy_reader"
+        ],
+        "suite_summary": [
+          "Ran 907 tests in 36.109s",
+          "OK (skipped=89)"
+        ],
+        "mechanism_observations": [
+          "J invented EXPLAIN: ['CO-ROUTINE ranked_route', 'SCAN pages_fts VIRTUAL TABLE INDEX 32:rM4', 'SEARCH p USING INTEGER PRIMARY KEY (rowid=?)', 'SCAN ranked_route', 'USE TEMP B-TREE FOR ORDER BY']",
+          "J invented scalar bm25 arity/calls: 5 0",
+          "J invented scalar bm25 arity/calls: -1 0"
+        ]
+      },
+      {
+        "python_version": "3.12",
+        "job_id": 132000898957,
+        "raw_job_log_sha256": "2ab080572ccd4dd3e8e9b14a2e59cfc129db0ee0ff571f319c1fa4ce8000ed90",
+        "j_tests_passed": 18,
+        "j_tests_skipped": 0,
+        "j_tests": [
+          "test_default_and_optional_paths_keep_complete_payloads_and_provenance",
+          "test_actual_plan_uses_hidden_rank_inside_a_bounded_outer_sort",
+          "test_changed_public_row_alias_keeps_the_old_query",
+          "test_closed_probe_cursor_restores_real_rows_for_later_fallback",
+          "test_complete_earlier_tie_groups_need_no_legacy_requery",
+          "test_custom_parameter_adapter_is_bound_only_once",
+          "test_custom_row_text_and_connection_factories_keep_the_old_query",
+          "test_cutoff_ties_fall_back_without_an_arbitrary_tie_cap",
+          "test_empty_small_and_cutoff_counts_match_both_routes_exactly",
+          "test_every_scope_filters_before_the_97_row_limit",
+          "test_explicit_weights_ignore_a_changed_persistent_rank_default",
+          "test_invalid_utf8_in_selected_ids_keeps_the_original_error",
+          "test_invalid_utf8_only_in_lookahead_keeps_the_original_success",
+          "test_nontext_ids_and_uncertified_rank_or_shape_use_the_old_query",
+          "test_registered_scalar_bm25_mechanism_preserves_original_outcome",
+          "test_rowid_bounds_interleaving_and_empty_bounds_keep_global_scores",
+          "test_sqlite_errors_are_not_swallowed_or_replayed",
+          "test_unrecognized_statement_shape_uses_the_legacy_reader"
+        ],
+        "suite_summary": [
+          "Ran 907 tests in 23.608s",
+          "OK (skipped=88)"
+        ],
+        "mechanism_observations": [
+          "J invented EXPLAIN: ['CO-ROUTINE ranked_route', 'SCAN pages_fts VIRTUAL TABLE INDEX 32:rM4', 'SEARCH p USING INTEGER PRIMARY KEY (rowid=?)', 'SCAN ranked_route', 'USE TEMP B-TREE FOR ORDER BY']",
+          "J invented scalar bm25 arity/calls: 5 0",
+          "J invented scalar bm25 arity/calls: -1 0"
+        ]
+      },
+      {
+        "python_version": "3.13",
+        "job_id": 132000898782,
+        "raw_job_log_sha256": "dd9deb6657474b549b67828ae3d5c7ed036f38841ed85c5e190532279a7da132",
+        "j_tests_passed": 18,
+        "j_tests_skipped": 0,
+        "j_tests": [
+          "test_default_and_optional_paths_keep_complete_payloads_and_provenance",
+          "test_actual_plan_uses_hidden_rank_inside_a_bounded_outer_sort",
+          "test_changed_public_row_alias_keeps_the_old_query",
+          "test_closed_probe_cursor_restores_real_rows_for_later_fallback",
+          "test_complete_earlier_tie_groups_need_no_legacy_requery",
+          "test_custom_parameter_adapter_is_bound_only_once",
+          "test_custom_row_text_and_connection_factories_keep_the_old_query",
+          "test_cutoff_ties_fall_back_without_an_arbitrary_tie_cap",
+          "test_empty_small_and_cutoff_counts_match_both_routes_exactly",
+          "test_every_scope_filters_before_the_97_row_limit",
+          "test_explicit_weights_ignore_a_changed_persistent_rank_default",
+          "test_invalid_utf8_in_selected_ids_keeps_the_original_error",
+          "test_invalid_utf8_only_in_lookahead_keeps_the_original_success",
+          "test_nontext_ids_and_uncertified_rank_or_shape_use_the_old_query",
+          "test_registered_scalar_bm25_mechanism_preserves_original_outcome",
+          "test_rowid_bounds_interleaving_and_empty_bounds_keep_global_scores",
+          "test_sqlite_errors_are_not_swallowed_or_replayed",
+          "test_unrecognized_statement_shape_uses_the_legacy_reader"
+        ],
+        "suite_summary": [
+          "Ran 907 tests in 21.770s",
+          "OK (skipped=88)"
+        ],
+        "mechanism_observations": [
+          "J invented EXPLAIN: ['CO-ROUTINE ranked_route', 'SCAN pages_fts VIRTUAL TABLE INDEX 32:rM4', 'SEARCH p USING INTEGER PRIMARY KEY (rowid=?)', 'SCAN ranked_route', 'USE TEMP B-TREE FOR ORDER BY']",
+          "J invented scalar bm25 arity/calls: 5 0",
+          "J invented scalar bm25 arity/calls: -1 0"
+        ]
+      }
+    ],
+    "skip_note": "The overall suites contain existing optional-dependency/environment skips (89 on Python 3.10; 88 on 3.12 and 3.13). All eighteen J methods execute and pass on each core version; no J assertion was converted to a skip."
+  },
+  "checks": [
+    {
+      "area": "Exact top-96 membership and order",
+      "status": "pass",
+      "finding": "The inner query orders by the qualified hidden rank and includes every original scope and applicable rowid bound before LIMIT 97. SQLite reorders the bounded result by rank and inherited id collation. If the 96th and 97th numeric ranks differ, all globally eligible better-rank rows are present; if they tie, the original complete ORDER BY rank,p.id LIMIT 96 executes. No rank rounding, epsilon or capped tie group is introduced.",
+      "evidence": [
+        "Exact tuple equality on both FTS tables for 0, 1, 95, 96, 97 and 130 rows",
+        "350-row cutoff tie requires the legacy query and returns its exact 96 rows",
+        "Earlier complete tie groups preserve exact order without requery"
+      ]
+    },
+    {
+      "area": "Scopes and score population",
+      "status": "pass",
+      "finding": "Project, chapter and session filters plus project rowid bounds remain inside the limited query. The probe does not build or substitute a local BM25 corpus. FTS may still score scope-excluded matches internally; this review makes no stronger claim.",
+      "evidence": [
+        "240-row invented corpus puts globally stronger matches outside the retained project",
+        "Project/chapter/session/combined/missing scope comparisons against the exact legacy query",
+        "Interleaved rowids and nonempty/empty bounds checked on both routes"
+      ]
+    },
+    {
+      "area": "Native eligibility and old reader",
+      "status": "pass",
+      "finding": "Only the saved exact native connection with native Row aliases, ordinary Row/text factories, the unchanged candidate reader identity, a plain list of unadapted str/int parameters and recognized SQL shape is eligible. The original reader/query is retained for uncertified state. Parameter adapters are excluded before binding so a stateful adapter is not bound twice.",
+      "evidence": [
+        "Real custom Row/None/text/connection wrapper fallback tests",
+        "Public Row alias replacement test",
+        "str adapter called once with the exact original expression",
+        "Inherited G transition/custom-reader tests pass within the complete suite"
+      ]
+    },
+    {
+      "area": "Weights and hidden-rank mechanism",
+      "status": "pass",
+      "finding": "Both routes use the original bm25(2.0,2.0,1.0,0.25) weights via a per-query rank MATCH constraint. The inner ORDER BY names the table's hidden rank, not the output alias. The outer query only sorts the bounded result. This does not claim that SQLite avoids all internal FTS scoring or sorting.",
+      "evidence": [
+        "Persistent rank-default change does not change exact results",
+        "Three supported core versions report VIRTUAL TABLE INDEX 32:rM4 and the bounded outer TEMP B-TREE sort"
+      ]
+    },
+    {
+      "area": "Cursor and error lifetime",
+      "status": "pass",
+      "finding": "The probe cursor is closed in finally after success or fetch failure. Its preserved description supports later native Row reconstruction on all three tested Python versions. Only the specified native id UTF-8 decoder failure may retry the legacy query; other observed SQLite-error paths propagate without requery.",
+      "evidence": [
+        "Closed native cursor restores sqlite3.Row values and rejects further execution on Python 3.10/3.12/3.13",
+        "Actual CAST(x'80' AS TEXT) in the extra 97th id restores the old success result",
+        "Actual invalid UTF-8 within the original top96 retains the exact old OperationalError arguments",
+        "Nontext id uses real SQLite fallback",
+        "Explicit fault injection verifies nonfinite/malformed row guards and error propagation/close behavior; it is not represented as an engine-generated storage failure"
+      ]
+    },
+    {
+      "area": "Default payload and optional path integration",
+      "status": "pass",
+      "finding": "J is invoked only for native stem-enabled default lexical routing. Active title following, coverage, semantic and single-route cases retain the original route. The artificial integration fixture compares every result field except latency_ms and verifies provenance and title-follow output.",
+      "evidence": [
+        "Artificial MemoryBook complete payload equality with the legacy route for default, explicit false/true follow_titles, inactive follow_titles limit1, coverage, flat and session scope",
+        "Active T1/coverage/flat call counts are zero; eligible dual routes call the helper twice",
+        "Semantic exclusion confirmed statically by the existing native_connection guard; the new J module does not claim a corpus semantic-compatibility run"
+      ]
+    },
+    {
+      "area": "Custom bm25 evidence",
+      "status": "pass-with-explicit-evidence-limit",
+      "finding": "In the tested ordinary sqlite3.create_function registration states, FTS xFindFunction resolves its auxiliary function and the scalar callback is not invoked: old and new both record zero calls and exact results. The arity -1 state is tested after the arity5 registration on the same connection. This is not evidence for an independently registered vararg-only state or arbitrary FTS5 xCreateFunction callbacks.",
+      "evidence": [
+        "Observed scalar arity/call-count output is 5/0 and -1/0 on all three core versions",
+        "Official SQLite xFindFunction and rank paths consult the same FTS auxiliary registry",
+        "No pragma_function_list-based complete auxiliary-function certificate is asserted"
+      ]
+    }
+  ],
+  "blockers": [],
+  "evidence_limits": [
+    "Artificial mechanism and compatibility tests do not measure latency improvement, resource cost, corpus output parity or retrieval quality.",
+    "Custom FTS5 auxiliary functions, arbitrary stateful callbacks and arbitrary custom-collation operation sequences are not established equivalent by these tests; no such universal claim is made.",
+    "The new J tests exercise actual SQLite ordering, factories, text errors and cursor lifetime. Injected impossible shapes and synthetic SQL exceptions only establish the corresponding guard/control flow.",
+    "Published v0.3.2 versus J, the registered old-development profile/paired schedule, formal fourteen-cell performance/resource gates, historical quality/interface gates and any fresh comparison remain separate requirements.",
+    "No fresh identifiers, metadata or content were selected or decoded by this review, and this report does not authorize fresh execution."
+  ],
+  "primary_source_checks": [
+    {
+      "repository": "python/cpython",
+      "ref": "v3.12.16",
+      "path": "Modules/_sqlite/cursor.c",
+      "finding": "str-column UnicodeDecodeError is translated to native OperationalError; close retains cursor description."
+    },
+    {
+      "repository": "sqlite/sqlite",
+      "path": "src/vtab.c",
+      "git_blob": "e71d4fd5fcc10a53f7bdcf5a8d50f73d9910ec61",
+      "finding": "Virtual-table xFindFunction may overload an ordinary function whose first argument is a virtual-table column."
+    },
+    {
+      "repository": "sqlite/sqlite",
+      "path": "ext/fts5/fts5_main.c",
+      "git_blob": "477226c8f730419ae07cc48eabf44e9cbfc0e53f",
+      "finding": "Explicit auxiliary lookup and hidden-rank lookup use the same FTS registry; sorted rank execution still prepares an internal sorting statement."
+    }
+  ]
+}
