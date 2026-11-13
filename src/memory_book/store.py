@@ -677,6 +677,7 @@ class MemoryBook:
             candidates: list[dict] = []
             allocations: list[tuple[dict, str, int]] = []
             selected_pages: list[dict] = []
+            source_units_for = None
             if (qt or (semantic and query)) and budget_chars:
                 expression = " OR ".join('"' + token.replace('"', '""') + '"' for token in qt)
                 # The index enforces a body match, so a chapter name alone is
@@ -884,11 +885,13 @@ class MemoryBook:
                         # page boundary cannot turn a cut sentence/fence into a
                         # purportedly complete new source unit. Read them under
                         # the same snapshot as ranking and page coordinates.
-                        from .token_budget import projected_units
+                        from .token_budget import prepare_source_units
                         wanted: dict[str, set[int]] = {}
+                        refs_by_page = {}
                         for row in selected_pages:
+                            refs = refs_by_page[row["id"]] = json.loads(row["source_refs"])
                             wanted.setdefault(row["session_pk"], set()).update(
-                                ref["turn_index"] for ref in json.loads(row["source_refs"]))
+                                ref["turn_index"] for ref in refs)
                         original_turns = {}
                         for session_pk, ordinals in wanted.items():
                             ordered = sorted(ordinals)
@@ -896,9 +899,7 @@ class MemoryBook:
                                 "SELECT ordinal,content FROM turns WHERE session_pk=? AND ordinal IN (" +
                                 ",".join("?" for _ in ordered) + ")", [session_pk, *ordered]):
                                 original_turns[(session_pk, source["ordinal"])] = source["content"]
-                        unit_cache = {}
-                        for row in selected_pages:
-                            row["token_source_units"] = projected_units(row, original_turns, unit_cache)
+                        source_units_for = prepare_source_units(selected_pages, original_turns, refs_by_page)
             self.db.execute("COMMIT")
         except BaseException:
             self.db.execute("ROLLBACK")
@@ -909,9 +910,11 @@ class MemoryBook:
             legacy.append((row, header, text, spans))
         assembled = legacy
         if token_counter is not None:
-            from .token_budget import assemble
-            assembled = assemble(legacy, selected_pages, qt, budget_chars=budget_chars,
-                                 budget_tokens=budget_tokens, counter=token_counter)
+            from .token_budget import assemble_with_count
+            assembled, context_tokens = assemble_with_count(
+                legacy, selected_pages, qt, budget_chars=budget_chars,
+                budget_tokens=budget_tokens, counter=token_counter,
+                source_units_for=source_units_for)
         results, blocks = [], []
         # Limit the work/response, but do not force one task/chapter branch.
         for row, header, text, spans in assembled:
@@ -939,7 +942,7 @@ class MemoryBook:
         if token_counter is not None:
             result.update(budget_tokens=budget_tokens, tokenizer=tokenizer,
                           tokenizer_version=token_counter.version,
-                          context_tokens=token_counter.count(context))
+                          context_tokens=context_tokens)
         if use_cache and self.cache_size:
             # A concurrent ingestion must not be overwritten by an old cache.
             self.db.execute("BEGIN IMMEDIATE")
