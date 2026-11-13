@@ -109,3 +109,22 @@ contracts. Three premeasurement shape failures and their repair are retained
 in the complete correctness log. Independent review approves the final hashes;
 all 107 SQL execute/executemany expressions remain unchanged. No B development
 or formal measurement has run at this implementation checkpoint.
+
+## Candidate B development retained; C registered
+
+B preserves all4,732 profile payloads and all2,048 paired payloads from4,096
+development calls. Its eight-cell p95 geometric improvement is5.6984percent;
+public character p95 improves8.7411percent, while synthetic character p95
+rises2.3670percent. This improves on A but does not establish the original
+10percent target. All original samples, including slower cells, are preserved.
+No formal attempt has run. The next registered refinement reduces temporary
+shape-check allocations and repeated canonical Row name lookups while keeping
+every per-row guard, exact fallback, score/sort and count rule.
+
+The historical memory diagnostic completed at result commit
+`2511be109e2877e86d4d452525754d399e514789`; its independent audit verifies30files,
+21checkpoint commits,9workers,256calls/128pairs and1,846samples. Six missing-PSS
+samples remain explicit. This is old-source attribution, not v033 memory evidence.
+The reviewed Q2 reuse driver has19passing artificial fixtures and retains the
+original v031 vector builder, fixed old cohorts and a strict1,968-call schedule.
+It has not yet bound or executed a real Q2 worker.

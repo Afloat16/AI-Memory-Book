@@ -1,0 +1,1419 @@
+{
+  "audit": "round5-resource-saved-audit-1",
+  "auditor_sha256": "e4b918fc597641a09d2671952042d1deaa3ca6bd4046e982b8c254ad2724ac45",
+  "calls_reconstructed": 256,
+  "checkpoint_commits_verified": [
+    "1fca3c74339793346b8a14dbc5a6bc0bef61c8dd",
+    "4247f620ac454ec0b096dfa5de3f78abefc6217a",
+    "a6146403eadc15f3ea88050ac74a4fae46903ff9",
+    "b5b6c88cfd0ea5285e28874265e8ef0bdcca549d",
+    "9c2d2f40a213044b18dcd22ad038a429d6391e41",
+    "12a0b0de9b2fde876e7da1d016d78584db4c453b",
+    "cbb3af2bbb0b205ebf36d16a567fbcd668afce2e",
+    "d53225cb88f5bfd4dea5c99908bb992c3d58985d",
+    "8e261e8db81aef575d79dbfddd381b57e7244704",
+    "1c0156b631bd3a3b91df80220364ddad9799dc9f",
+    "e030de4adff5b2aafc7865d54eaf695ca5ff3561",
+    "216e5cbefae05b011b745995aab766a76bd7ddee",
+    "d3461e710a77f868dd4da458b352bfebfc6c95d6",
+    "4456566a8e83e34fb699b9549fb0ea4ec9a050b7",
+    "dc17b06cad947fbbf2c7831ed39b696527789731",
+    "0b2c09f8b203574002a0b89627fe0849edbef9df",
+    "6d53ea28a188a69867cdd31f9d2a4950b664a84f",
+    "11c3f4b7943661c2198dab035971ff3970a55058",
+    "bfb4d42493f45bc3f0d2c8037f3e0f1d1708b65e",
+    "5657b58d91450aa1c31a1831110b00a43c15860f",
+    "2511be109e2877e86d4d452525754d399e514789"
+  ],
+  "claim_commit": "6a6edc2c276960085739f66c8ff0da5cf706c17b",
+  "complete_payload_pairs": 128,
+  "complete_payload_sequence_sha256": "bbe730e5e3ca4559572439dfdac3e2578c7a4011237768ee84ca9e8d914844e3",
+  "created_at": "2026-11-13T06:30:41.342837+00:00",
+  "evaluator_files": {
+    ".github/workflows/round5-resource-diagnostic.yml": "07a6c4bc6968128b3c4f71176fe0e74ffe0c9decf93d259c06cdb2b5809ac7ea",
+    "benchmarks/experiments/round5-resource-plan.json": "f9e4f184a42fd73f380cdaaf4be6c3e92f5bf046b9faa1b5228a737f1260ef6b",
+    "scripts/round5_resource_diagnostic.py": "b753ffeb1dc6a0ddf287df6299a72edf6d299e3d87fc66387c3dc62d792d75ff",
+    "tests/test_round5_resource_diagnostic.py": "796ff07e0c74454fe8e5a697042ecde6e57fc5b80bf8a6ba5fe39001d11e81c7"
+  },
+  "frozen_input_files": {
+    "benchmarks/experiments/round4-hotpot256-manifest.json": "b0485b3a089c9b04fc4453fd9f129364e123ce1b9f25b593edf4f6ee6df4a20b",
+    "benchmarks/experiments/round4-validation-binding.json": "84dbe28c068a3067f9706c6439d42301eaddfef95c44ae2633398346c66a8c79",
+    "benchmarks/experiments/round5-plan.json": "d3302ef1169aa180b492af6b9c9938e5717ff7261e202ef7a3df50e14febaccd"
+  },
+  "high_water_scope_anomaly": {
+    "interpretation": "All eight product workers report the same 373.34375 MiB lifetime high-water counter, substantially above their roughly 31 MiB sampled query phases. This suggests launch/lifetime counter scope, but the trace does not establish its cause. It is not product steady RSS.",
+    "product_reported_values_bytes": [
+      391479296
+    ]
+  },
+  "historical_helpers_verified": 78,
+  "inference_calls_executed_by_audit": 0,
+  "limitations": [
+    "Only immutable local Git objects and saved source-free evidence were inspected; private normalized inputs were not reread.",
+    "Phase peaks are sampled lower bounds; each product query phase has only four samples including two acknowledged boundaries.",
+    "Missing discovery/PSS is retained as unavailable, never zero; summed RSS can count shared mappings more than once.",
+    "Evaluator phase values are cumulative resident peaks in one worker, not independent additive allocation costs.",
+    "The new diagnostic does not retrospectively identify the old unrecorded children or replace the adverse round-four peaks.",
+    "This historical diagnostic measures no v0.3.3 candidate and supports no speed, quality, leak or memory-saving claim."
+  ],
+  "missing_complete_pss_samples": [
+    {
+      "discovery_errors": [
+        {
+          "operation": "process_record",
+          "pid": 2637,
+          "reason": "unreadable_or_changed_identity",
+          "tid": null
+        }
+      ],
+      "enumerated_pids": [
+        2497,
+        2637
+      ],
+      "phase": "evaluator_corpus_loading",
+      "readable_pids": [
+        2497
+      ],
+      "sample_index": 15,
+      "worker": "evaluator"
+    },
+    {
+      "discovery_errors": [
+        {
+          "operation": "process_record",
+          "pid": 2742,
+          "reason": "unreadable_or_changed_identity",
+          "tid": null
+        }
+      ],
+      "enumerated_pids": [
+        2497,
+        2742
+      ],
+      "phase": "evaluator_git_provenance",
+      "readable_pids": [
+        2497
+      ],
+      "sample_index": 103,
+      "worker": "evaluator"
+    },
+    {
+      "discovery_errors": [
+        {
+          "operation": "process_record",
+          "pid": 2756,
+          "reason": "unreadable_or_changed_identity",
+          "tid": null
+        }
+      ],
+      "enumerated_pids": [
+        2497,
+        2756
+      ],
+      "phase": "evaluator_git_provenance",
+      "readable_pids": [
+        2497
+      ],
+      "sample_index": 104,
+      "worker": "evaluator"
+    },
+    {
+      "discovery_errors": [
+        {
+          "operation": "process_record",
+          "pid": 2762,
+          "reason": "unreadable_or_changed_identity",
+          "tid": null
+        }
+      ],
+      "enumerated_pids": [
+        2497,
+        2762
+      ],
+      "phase": "evaluator_git_provenance",
+      "readable_pids": [
+        2497
+      ],
+      "sample_index": 105,
+      "worker": "evaluator"
+    },
+    {
+      "discovery_errors": [
+        {
+          "operation": "process_record",
+          "pid": 2795,
+          "reason": "unreadable_or_changed_identity",
+          "tid": null
+        }
+      ],
+      "enumerated_pids": [
+        2497,
+        2795
+      ],
+      "phase": "evaluator_git_provenance",
+      "readable_pids": [
+        2497
+      ],
+      "sample_index": 107,
+      "worker": "evaluator"
+    },
+    {
+      "discovery_errors": [
+        {
+          "operation": "process_record",
+          "pid": 2497,
+          "reason": "unreadable_or_changed_identity",
+          "tid": null
+        }
+      ],
+      "enumerated_pids": [
+        2497
+      ],
+      "phase": "between_phases",
+      "readable_pids": [],
+      "sample_index": 121,
+      "worker": "evaluator"
+    }
+  ],
+  "network_requests_executed_by_audit": 0,
+  "plan_sha256": "f9e4f184a42fd73f380cdaaf4be6c3e92f5bf046b9faa1b5228a737f1260ef6b",
+  "published_files_sha256": {
+    "benchmarks/reports/round5-resource-claim-f9e4f184a42fd73f380cdaaf4be6c3e92f5bf046b9faa1b5228a737f1260ef6b.json": "d2b621263671c965c5933771032f5352968db522ac040f89361e757d709ff7e7",
+    "benchmarks/reports/round5-resources-43377486180-1/assessment.json": "06dc11b601017ac16b5d1e0907377d074f998792ce2d328a817d43d1d0fc6032",
+    "benchmarks/reports/round5-resources-43377486180-1/checkpoint.json": "9b49372ecb84c3cb7211aa1d65f70af630ad67f23be1db6c2e9cb5392aabbad7",
+    "benchmarks/reports/round5-resources-43377486180-1/evaluator.events.jsonl": "56e254695f584801b634eb8c1c4f57cefa9b8167a8b726e71b349b8eb56a6d94",
+    "benchmarks/reports/round5-resources-43377486180-1/evaluator.summary.json": "f2b29c15c11ce613b6f86d1d6c16d2f3c8fe9882df692c7e3f41a1c0fd1a68e9",
+    "benchmarks/reports/round5-resources-43377486180-1/evaluator.trace.jsonl.gz": "f8eee524691260917100b8b8ad08b05d94d81645df414b7646531c82c9cc3f92",
+    "benchmarks/reports/round5-resources-43377486180-1/r0-v031.events.jsonl": "ede0835c524818110a8d1950ea31813052dce25468ac48a8ffd0215390ace4ad",
+    "benchmarks/reports/round5-resources-43377486180-1/r0-v031.summary.json": "ff429f7934066552d1ca032bb8b40c3a570a6f2f09963ff2a186e86c88df72e1",
+    "benchmarks/reports/round5-resources-43377486180-1/r0-v031.trace.jsonl.gz": "7f89abf23ee97e471361218ef849612c0e3e68075e293ea4a611573affb305b7",
+    "benchmarks/reports/round5-resources-43377486180-1/r0-v032.events.jsonl": "6a97101246dd6f6c767103d80d553457d09d4ee9b26ea97119e44b7da5047d51",
+    "benchmarks/reports/round5-resources-43377486180-1/r0-v032.summary.json": "ca2325d86706a4e83f040a64b843d1b07382e4edfb0afcb2f853ac89e402eb2c",
+    "benchmarks/reports/round5-resources-43377486180-1/r0-v032.trace.jsonl.gz": "ce3fab6c70188ea53eec6b653f806c13bdfd11030f68a87ec02f73ff241a3e68",
+    "benchmarks/reports/round5-resources-43377486180-1/r1-v031.events.jsonl": "d2a82c2702c32a4246de007c071e7803c3c04346226d1813c42252b48b1125e2",
+    "benchmarks/reports/round5-resources-43377486180-1/r1-v031.summary.json": "08351fef58310ab9dd1fa7a8d253c3386b924bfd1c3951adc9ca20f849937092",
+    "benchmarks/reports/round5-resources-43377486180-1/r1-v031.trace.jsonl.gz": "903e60e63046fc69eee038b6e9e399e62bed534d7eef16c698a1a99edc874291",
+    "benchmarks/reports/round5-resources-43377486180-1/r1-v032.events.jsonl": "32892e59b410eefac50d6e6fa7e080dc5dde5b23fd55dc51ce2ee75bc41cc357",
+    "benchmarks/reports/round5-resources-43377486180-1/r1-v032.summary.json": "d8e8ff922941df0c609f3962dda843bb76f9f2f07ebcdfe588736bd09e8fd5ec",
+    "benchmarks/reports/round5-resources-43377486180-1/r1-v032.trace.jsonl.gz": "e40bc4ca9721538c4fd1c90e7fce675d9d246d3573ba88af293b564f480687a1",
+    "benchmarks/reports/round5-resources-43377486180-1/r2-v031.events.jsonl": "ef202b0a23bf11dd1af0a1e051cb6c7e9d3a710bfa92212c6bd6bf4a10f20b3c",
+    "benchmarks/reports/round5-resources-43377486180-1/r2-v031.summary.json": "35e78954d619c090b3a10c9efdb5f1f312045699fe11a6e201b2bcfacd26b8c5",
+    "benchmarks/reports/round5-resources-43377486180-1/r2-v031.trace.jsonl.gz": "a5da4c0b94b0f7277a560696e8920435c5d9a2d1a5a1e243c69c9205e7deb8e9",
+    "benchmarks/reports/round5-resources-43377486180-1/r2-v032.events.jsonl": "c70fae8d0de649fee72a7c461c2670e6cbccf8f8b10cb66fc87921f361340267",
+    "benchmarks/reports/round5-resources-43377486180-1/r2-v032.summary.json": "e52af8ca4fd026e9912740381afc1278edcf6358f55bb62b83f1aaf9d9163156",
+    "benchmarks/reports/round5-resources-43377486180-1/r2-v032.trace.jsonl.gz": "2c4c26450fbd6ba0f06ed06787a42bc1f1a17df9a20f65ce76431cff89939711",
+    "benchmarks/reports/round5-resources-43377486180-1/r3-v031.events.jsonl": "214674de57ce5c14400948de45587f9790c7e7c916a05b14de033956dad9d5cd",
+    "benchmarks/reports/round5-resources-43377486180-1/r3-v031.summary.json": "dd0c37da6d1d8784eb5e465eec213315d54e54ea4e117ef8196f1068cf220620",
+    "benchmarks/reports/round5-resources-43377486180-1/r3-v031.trace.jsonl.gz": "ddac7e72406bdeef19321cedbd93a6712b6f33ba761e40b5499f63e2c14824d1",
+    "benchmarks/reports/round5-resources-43377486180-1/r3-v032.events.jsonl": "4fcfc1a6856946c54bfbe47420906425f7b1914087f746b157e6e1bf70861d5c",
+    "benchmarks/reports/round5-resources-43377486180-1/r3-v032.summary.json": "40cc7c2454f0f1f96558c4e29223fcadb725fa569ed99158ee4fe505ab08ecc2",
+    "benchmarks/reports/round5-resources-43377486180-1/r3-v032.trace.jsonl.gz": "7286b497d73f6deed936057260573c69879c11c9a91445cf8ffba18a9511b4b6"
+  },
+  "result_commit": "2511be109e2877e86d4d452525754d399e514789",
+  "retrieval_calls_executed_by_audit": 0,
+  "run_id": "43377486180-1",
+  "schema_version": 1,
+  "selected_ids_sha256": "41bd02edc9e0e63a2217b1e006537de068281ac9b4345716e0f55f5b87087a9b",
+  "source_commit": "d67e6c695aa586bbcbc9f0e134c769980d8e09ef",
+  "sources": {
+    "v031": {
+      "commit": "7b7a5d7336b9350a128f5e0a888811b1b3015e68",
+      "runtime_sha256": "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46",
+      "version": "0.3.1"
+    },
+    "v032": {
+      "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+      "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93",
+      "version": "0.3.2"
+    }
+  },
+  "status": "verified-with-attribution-limits",
+  "trace_samples": 1846,
+  "workers": [
+    {
+      "events": 11,
+      "first_event_monotonic_ns": 48016041131,
+      "first_sample_monotonic_ns": 47968437483,
+      "last_event_monotonic_ns": 50570904883,
+      "last_sample_monotonic_ns": 50671480525,
+      "name": "evaluator",
+      "observed_process_identities": [
+        [
+          2497,
+          2176,
+          4796,
+          "python"
+        ],
+        [
+          2509,
+          2497,
+          4805,
+          "git"
+        ],
+        [
+          2523,
+          2497,
+          4807,
+          "git"
+        ],
+        [
+          2537,
+          2497,
+          4809,
+          "git"
+        ],
+        [
+          2548,
+          2497,
+          4811,
+          "git"
+        ],
+        [
+          2561,
+          2497,
+          4814,
+          "git"
+        ],
+        [
+          2574,
+          2497,
+          4816,
+          "git"
+        ],
+        [
+          2587,
+          2497,
+          4818,
+          "git"
+        ],
+        [
+          2600,
+          2497,
+          4820,
+          "git"
+        ],
+        [
+          2612,
+          2497,
+          4822,
+          "git"
+        ],
+        [
+          2625,
+          2497,
+          4825,
+          "git"
+        ],
+        [
+          2650,
+          2497,
+          4829,
+          "git"
+        ],
+        [
+          2663,
+          2497,
+          4831,
+          "git"
+        ],
+        [
+          2676,
+          2497,
+          4833,
+          "git"
+        ],
+        [
+          2696,
+          2497,
+          5025,
+          "git"
+        ],
+        [
+          2714,
+          2497,
+          5028,
+          "git"
+        ],
+        [
+          2725,
+          2497,
+          5031,
+          "git"
+        ],
+        [
+          2779,
+          2497,
+          5041,
+          "git"
+        ]
+      ],
+      "phase_reconstruction_sha256": "bf4c7f57a9113166545cf03fa9c1055da8f6b98f4e9a55b898942d935c2814d1",
+      "phases": {
+        "between_phases": {
+          "complete_pss_samples": 4,
+          "incomplete_discovery_samples": 1,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 421920768,
+            "root_rss_bytes": 477786112,
+            "tree_pss_bytes": 421920768,
+            "tree_rss_bytes": 477786112
+          },
+          "root_unreadable": 1,
+          "samples": 5
+        },
+        "evaluator_corpus_loading": {
+          "complete_pss_samples": 27,
+          "incomplete_discovery_samples": 1,
+          "max_observed_processes": 2,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 4161536,
+            "root_pss_bytes": 316033024,
+            "root_rss_bytes": 369799168,
+            "tree_pss_bytes": 316033024,
+            "tree_rss_bytes": 369799168
+          },
+          "root_unreadable": 0,
+          "samples": 28
+        },
+        "evaluator_git_provenance": {
+          "complete_pss_samples": 9,
+          "incomplete_discovery_samples": 4,
+          "max_observed_processes": 2,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 446464,
+            "root_pss_bytes": 413540352,
+            "root_rss_bytes": 469278720,
+            "tree_pss_bytes": 413808640,
+            "tree_rss_bytes": 469725184
+          },
+          "root_unreadable": 0,
+          "samples": 13
+        },
+        "evaluator_legacy_model_hash": {
+          "complete_pss_samples": 6,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 531996672,
+            "root_rss_bytes": 587735040,
+            "tree_pss_bytes": 531996672,
+            "tree_rss_bytes": 587735040
+          },
+          "root_unreadable": 0,
+          "samples": 6
+        },
+        "evaluator_reference_tokenizers": {
+          "complete_pss_samples": 64,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 409272320,
+            "root_rss_bytes": 464973824,
+            "tree_pss_bytes": 409272320,
+            "tree_rss_bytes": 464973824
+          },
+          "root_unreadable": 0,
+          "samples": 64
+        },
+        "evaluator_release_references": {
+          "complete_pss_samples": 2,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 422047744,
+            "root_rss_bytes": 477786112,
+            "tree_pss_bytes": 422047744,
+            "tree_rss_bytes": 477786112
+          },
+          "root_unreadable": 0,
+          "samples": 2
+        },
+        "spawn": {
+          "complete_pss_samples": 3,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 15933440,
+            "root_rss_bytes": 24174592,
+            "tree_pss_bytes": 15933440,
+            "tree_rss_bytes": 24174592
+          },
+          "root_unreadable": 0,
+          "samples": 3
+        },
+        "transition": {
+          "complete_pss_samples": 1,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 293234688,
+            "root_rss_bytes": 347119616,
+            "tree_pss_bytes": 293234688,
+            "tree_rss_bytes": 347119616
+          },
+          "root_unreadable": 0,
+          "samples": 1
+        }
+      },
+      "recalls": 0,
+      "root_identity": [
+        2497,
+        2176,
+        4796
+      ],
+      "trace_samples": 122,
+      "whole_worker_high_water_rss_bytes": 587595776
+    },
+    {
+      "events": 75,
+      "first_event_monotonic_ns": 54610135821,
+      "first_sample_monotonic_ns": 54564164812,
+      "last_event_monotonic_ns": 62589529417,
+      "last_sample_monotonic_ns": 62589469716,
+      "name": "r0-v031",
+      "observed_process_identities": [
+        [
+          2868,
+          2176,
+          5456,
+          "python"
+        ]
+      ],
+      "phase_reconstruction_sha256": "e4b3474df5260b8f4f9d9e708ce77737632740ec54c79099d7be3c0f1ba50e2b",
+      "phases": {
+        "between_phases": {
+          "complete_pss_samples": 1,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 23071744,
+            "root_rss_bytes": 31948800,
+            "tree_pss_bytes": 23071744,
+            "tree_rss_bytes": 31948800
+          },
+          "root_unreadable": 0,
+          "samples": 1
+        },
+        "product_close": {
+          "complete_pss_samples": 2,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 23104512,
+            "root_rss_bytes": 31981568,
+            "tree_pss_bytes": 23104512,
+            "tree_rss_bytes": 31981568
+          },
+          "root_unreadable": 0,
+          "samples": 2
+        },
+        "product_ingestion": {
+          "complete_pss_samples": 216,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 22940672,
+            "root_rss_bytes": 31817728,
+            "tree_pss_bytes": 22940672,
+            "tree_rss_bytes": 31817728
+          },
+          "root_unreadable": 0,
+          "samples": 216
+        },
+        "product_initialization": {
+          "complete_pss_samples": 98,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 22627328,
+            "root_rss_bytes": 31502336,
+            "tree_pss_bytes": 22627328,
+            "tree_rss_bytes": 31502336
+          },
+          "root_unreadable": 0,
+          "samples": 98
+        },
+        "product_input_verification": {
+          "complete_pss_samples": 2,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 17153024,
+            "root_rss_bytes": 25464832,
+            "tree_pss_bytes": 17153024,
+            "tree_rss_bytes": 25464832
+          },
+          "root_unreadable": 0,
+          "samples": 2
+        },
+        "product_queries": {
+          "complete_pss_samples": 4,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 23104512,
+            "root_rss_bytes": 31981568,
+            "tree_pss_bytes": 23104512,
+            "tree_rss_bytes": 31981568
+          },
+          "root_unreadable": 0,
+          "samples": 4
+        },
+        "spawn": {
+          "complete_pss_samples": 3,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 16239616,
+            "root_rss_bytes": 24498176,
+            "tree_pss_bytes": 16239616,
+            "tree_rss_bytes": 24498176
+          },
+          "root_unreadable": 0,
+          "samples": 3
+        }
+      },
+      "recalls": 32,
+      "root_identity": [
+        2868,
+        2176,
+        5456
+      ],
+      "trace_samples": 326,
+      "whole_worker_high_water_rss_bytes": 391479296
+    },
+    {
+      "events": 75,
+      "first_event_monotonic_ns": 66572256863,
+      "first_sample_monotonic_ns": 66526647048,
+      "last_event_monotonic_ns": 70554108717,
+      "last_sample_monotonic_ns": 70553756214,
+      "name": "r0-v032",
+      "observed_process_identities": [
+        [
+          2944,
+          2176,
+          6652,
+          "python"
+        ]
+      ],
+      "phase_reconstruction_sha256": "ef03309dfd0aa40d20e14802f24b196e4a4b3409931ee7e7d9b0abcf9746f238",
+      "phases": {
+        "product_close": {
+          "complete_pss_samples": 2,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 23662592,
+            "root_rss_bytes": 32546816,
+            "tree_pss_bytes": 23662592,
+            "tree_rss_bytes": 32546816
+          },
+          "root_unreadable": 0,
+          "samples": 2
+        },
+        "product_ingestion": {
+          "complete_pss_samples": 184,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 22941696,
+            "root_rss_bytes": 31825920,
+            "tree_pss_bytes": 22941696,
+            "tree_rss_bytes": 31825920
+          },
+          "root_unreadable": 0,
+          "samples": 184
+        },
+        "product_initialization": {
+          "complete_pss_samples": 4,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 22632448,
+            "root_rss_bytes": 31514624,
+            "tree_pss_bytes": 22632448,
+            "tree_rss_bytes": 31514624
+          },
+          "root_unreadable": 0,
+          "samples": 4
+        },
+        "product_input_verification": {
+          "complete_pss_samples": 2,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 17147904,
+            "root_rss_bytes": 25464832,
+            "tree_pss_bytes": 17147904,
+            "tree_rss_bytes": 25464832
+          },
+          "root_unreadable": 0,
+          "samples": 2
+        },
+        "product_queries": {
+          "complete_pss_samples": 4,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 23662592,
+            "root_rss_bytes": 32546816,
+            "tree_pss_bytes": 23662592,
+            "tree_rss_bytes": 32546816
+          },
+          "root_unreadable": 0,
+          "samples": 4
+        },
+        "spawn": {
+          "complete_pss_samples": 3,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 16218112,
+            "root_rss_bytes": 24412160,
+            "tree_pss_bytes": 16218112,
+            "tree_rss_bytes": 24412160
+          },
+          "root_unreadable": 0,
+          "samples": 3
+        },
+        "transition": {
+          "complete_pss_samples": 1,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 23629824,
+            "root_rss_bytes": 32514048,
+            "tree_pss_bytes": 23629824,
+            "tree_rss_bytes": 32514048
+          },
+          "root_unreadable": 0,
+          "samples": 1
+        }
+      },
+      "recalls": 32,
+      "root_identity": [
+        2944,
+        2176,
+        6652
+      ],
+      "trace_samples": 200,
+      "whole_worker_high_water_rss_bytes": 391479296
+    },
+    {
+      "events": 75,
+      "first_event_monotonic_ns": 74097723292,
+      "first_sample_monotonic_ns": 74052983263,
+      "last_event_monotonic_ns": 77978059413,
+      "last_sample_monotonic_ns": 77977722613,
+      "name": "r1-v032",
+      "observed_process_identities": [
+        [
+          3020,
+          2176,
+          7405,
+          "python"
+        ]
+      ],
+      "phase_reconstruction_sha256": "af37cb38154074aaa2d6c9d5ec62ca61d59c7b39a43dd83fcec3b210374b3af4",
+      "phases": {
+        "product_close": {
+          "complete_pss_samples": 3,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 23652352,
+            "root_rss_bytes": 32423936,
+            "tree_pss_bytes": 23652352,
+            "tree_rss_bytes": 32423936
+          },
+          "root_unreadable": 0,
+          "samples": 3
+        },
+        "product_ingestion": {
+          "complete_pss_samples": 179,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 22931456,
+            "root_rss_bytes": 31703040,
+            "tree_pss_bytes": 22931456,
+            "tree_rss_bytes": 31703040
+          },
+          "root_unreadable": 0,
+          "samples": 179
+        },
+        "product_initialization": {
+          "complete_pss_samples": 4,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 22624256,
+            "root_rss_bytes": 31395840,
+            "tree_pss_bytes": 22624256,
+            "tree_rss_bytes": 31395840
+          },
+          "root_unreadable": 0,
+          "samples": 4
+        },
+        "product_input_verification": {
+          "complete_pss_samples": 2,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 17131520,
+            "root_rss_bytes": 25333760,
+            "tree_pss_bytes": 17131520,
+            "tree_rss_bytes": 25333760
+          },
+          "root_unreadable": 0,
+          "samples": 2
+        },
+        "product_queries": {
+          "complete_pss_samples": 4,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 23652352,
+            "root_rss_bytes": 32423936,
+            "tree_pss_bytes": 23652352,
+            "tree_rss_bytes": 32423936
+          },
+          "root_unreadable": 0,
+          "samples": 4
+        },
+        "spawn": {
+          "complete_pss_samples": 3,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 16332800,
+            "root_rss_bytes": 24473600,
+            "tree_pss_bytes": 16332800,
+            "tree_rss_bytes": 24473600
+          },
+          "root_unreadable": 0,
+          "samples": 3
+        }
+      },
+      "recalls": 32,
+      "root_identity": [
+        3020,
+        2176,
+        7405
+      ],
+      "trace_samples": 195,
+      "whole_worker_high_water_rss_bytes": 391479296
+    },
+    {
+      "events": 75,
+      "first_event_monotonic_ns": 81497149508,
+      "first_sample_monotonic_ns": 81451570615,
+      "last_event_monotonic_ns": 85503238938,
+      "last_sample_monotonic_ns": 85502908527,
+      "name": "r1-v031",
+      "observed_process_identities": [
+        [
+          3097,
+          2176,
+          8145,
+          "python"
+        ]
+      ],
+      "phase_reconstruction_sha256": "98bf7178ac54141fad5ca23fc0210d9e8da282b76202267b1cf01633a8d7bbe1",
+      "phases": {
+        "product_close": {
+          "complete_pss_samples": 3,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 23111680,
+            "root_rss_bytes": 31985664,
+            "tree_pss_bytes": 23111680,
+            "tree_rss_bytes": 31985664
+          },
+          "root_unreadable": 0,
+          "samples": 3
+        },
+        "product_ingestion": {
+          "complete_pss_samples": 185,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 22947840,
+            "root_rss_bytes": 31821824,
+            "tree_pss_bytes": 22947840,
+            "tree_rss_bytes": 31821824
+          },
+          "root_unreadable": 0,
+          "samples": 185
+        },
+        "product_initialization": {
+          "complete_pss_samples": 4,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 22616064,
+            "root_rss_bytes": 31490048,
+            "tree_pss_bytes": 22616064,
+            "tree_rss_bytes": 31490048
+          },
+          "root_unreadable": 0,
+          "samples": 4
+        },
+        "product_input_verification": {
+          "complete_pss_samples": 2,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 17149952,
+            "root_rss_bytes": 25468928,
+            "tree_pss_bytes": 17149952,
+            "tree_rss_bytes": 25468928
+          },
+          "root_unreadable": 0,
+          "samples": 2
+        },
+        "product_queries": {
+          "complete_pss_samples": 4,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 23111680,
+            "root_rss_bytes": 31985664,
+            "tree_pss_bytes": 23111680,
+            "tree_rss_bytes": 31985664
+          },
+          "root_unreadable": 0,
+          "samples": 4
+        },
+        "spawn": {
+          "complete_pss_samples": 3,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 16228352,
+            "root_rss_bytes": 24453120,
+            "tree_pss_bytes": 16228352,
+            "tree_rss_bytes": 24453120
+          },
+          "root_unreadable": 0,
+          "samples": 3
+        }
+      },
+      "recalls": 32,
+      "root_identity": [
+        3097,
+        2176,
+        8145
+      ],
+      "trace_samples": 201,
+      "whole_worker_high_water_rss_bytes": 391479296
+    },
+    {
+      "events": 75,
+      "first_event_monotonic_ns": 89048098024,
+      "first_sample_monotonic_ns": 89002793023,
+      "last_event_monotonic_ns": 93417544776,
+      "last_sample_monotonic_ns": 93423733794,
+      "name": "r2-v032",
+      "observed_process_identities": [
+        [
+          3174,
+          2176,
+          8900,
+          "python"
+        ]
+      ],
+      "phase_reconstruction_sha256": "2381fa947ad98023f3ed549d73a09e21264f54481bec414e30ec02c918e1a7f7",
+      "phases": {
+        "between_phases": {
+          "complete_pss_samples": 1,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 23488512,
+            "root_rss_bytes": 32268288,
+            "tree_pss_bytes": 23488512,
+            "tree_rss_bytes": 32268288
+          },
+          "root_unreadable": 0,
+          "samples": 1
+        },
+        "product_close": {
+          "complete_pss_samples": 2,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 23631872,
+            "root_rss_bytes": 32403456,
+            "tree_pss_bytes": 23631872,
+            "tree_rss_bytes": 32403456
+          },
+          "root_unreadable": 0,
+          "samples": 2
+        },
+        "product_ingestion": {
+          "complete_pss_samples": 200,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 22910976,
+            "root_rss_bytes": 31682560,
+            "tree_pss_bytes": 22910976,
+            "tree_rss_bytes": 31682560
+          },
+          "root_unreadable": 0,
+          "samples": 200
+        },
+        "product_initialization": {
+          "complete_pss_samples": 4,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 22624256,
+            "root_rss_bytes": 31395840,
+            "tree_pss_bytes": 22624256,
+            "tree_rss_bytes": 31395840
+          },
+          "root_unreadable": 0,
+          "samples": 4
+        },
+        "product_input_verification": {
+          "complete_pss_samples": 2,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 17129472,
+            "root_rss_bytes": 25329664,
+            "tree_pss_bytes": 17129472,
+            "tree_rss_bytes": 25329664
+          },
+          "root_unreadable": 0,
+          "samples": 2
+        },
+        "product_queries": {
+          "complete_pss_samples": 4,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 23631872,
+            "root_rss_bytes": 32403456,
+            "tree_pss_bytes": 23631872,
+            "tree_rss_bytes": 32403456
+          },
+          "root_unreadable": 0,
+          "samples": 4
+        },
+        "spawn": {
+          "complete_pss_samples": 3,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 16232448,
+            "root_rss_bytes": 24375296,
+            "tree_pss_bytes": 16232448,
+            "tree_rss_bytes": 24375296
+          },
+          "root_unreadable": 0,
+          "samples": 3
+        }
+      },
+      "recalls": 32,
+      "root_identity": [
+        3174,
+        2176,
+        8900
+      ],
+      "trace_samples": 216,
+      "whole_worker_high_water_rss_bytes": 391479296
+    },
+    {
+      "events": 75,
+      "first_event_monotonic_ns": 97165741885,
+      "first_sample_monotonic_ns": 97119031234,
+      "last_event_monotonic_ns": 101076709460,
+      "last_sample_monotonic_ns": 101076316606,
+      "name": "r2-v031",
+      "observed_process_identities": [
+        [
+          3248,
+          2176,
+          9711,
+          "python"
+        ]
+      ],
+      "phase_reconstruction_sha256": "ef37fcf0be02f529d2e927d59b834dc9829d85e0bf858fffbe2277b939e14fcc",
+      "phases": {
+        "product_close": {
+          "complete_pss_samples": 3,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 23102464,
+            "root_rss_bytes": 31981568,
+            "tree_pss_bytes": 23102464,
+            "tree_rss_bytes": 31981568
+          },
+          "root_unreadable": 0,
+          "samples": 3
+        },
+        "product_ingestion": {
+          "complete_pss_samples": 181,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 22938624,
+            "root_rss_bytes": 31817728,
+            "tree_pss_bytes": 22938624,
+            "tree_rss_bytes": 31817728
+          },
+          "root_unreadable": 0,
+          "samples": 181
+        },
+        "product_initialization": {
+          "complete_pss_samples": 4,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 22627328,
+            "root_rss_bytes": 31506432,
+            "tree_pss_bytes": 22627328,
+            "tree_rss_bytes": 31506432
+          },
+          "root_unreadable": 0,
+          "samples": 4
+        },
+        "product_input_verification": {
+          "complete_pss_samples": 2,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 17150976,
+            "root_rss_bytes": 25464832,
+            "tree_pss_bytes": 17150976,
+            "tree_rss_bytes": 25464832
+          },
+          "root_unreadable": 0,
+          "samples": 2
+        },
+        "product_queries": {
+          "complete_pss_samples": 4,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 23102464,
+            "root_rss_bytes": 31981568,
+            "tree_pss_bytes": 23102464,
+            "tree_rss_bytes": 31981568
+          },
+          "root_unreadable": 0,
+          "samples": 4
+        },
+        "spawn": {
+          "complete_pss_samples": 3,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 16045056,
+            "root_rss_bytes": 24293376,
+            "tree_pss_bytes": 16045056,
+            "tree_rss_bytes": 24293376
+          },
+          "root_unreadable": 0,
+          "samples": 3
+        }
+      },
+      "recalls": 32,
+      "root_identity": [
+        3248,
+        2176,
+        9711
+      ],
+      "trace_samples": 197,
+      "whole_worker_high_water_rss_bytes": 391479296
+    },
+    {
+      "events": 75,
+      "first_event_monotonic_ns": 104973682989,
+      "first_sample_monotonic_ns": 104928023448,
+      "last_event_monotonic_ns": 108844076634,
+      "last_sample_monotonic_ns": 108843717430,
+      "name": "r3-v031",
+      "observed_process_identities": [
+        [
+          3323,
+          2176,
+          10492,
+          "python"
+        ]
+      ],
+      "phase_reconstruction_sha256": "c8ffb24d40217b5d804a0d46ba0cdf3fb874c2add6ca3f12a04ef2f395d6fa7b",
+      "phases": {
+        "product_close": {
+          "complete_pss_samples": 3,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 23095296,
+            "root_rss_bytes": 31858688,
+            "tree_pss_bytes": 23095296,
+            "tree_rss_bytes": 31858688
+          },
+          "root_unreadable": 0,
+          "samples": 3
+        },
+        "product_ingestion": {
+          "complete_pss_samples": 178,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 22931456,
+            "root_rss_bytes": 31694848,
+            "tree_pss_bytes": 22931456,
+            "tree_rss_bytes": 31694848
+          },
+          "root_unreadable": 0,
+          "samples": 178
+        },
+        "product_initialization": {
+          "complete_pss_samples": 4,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 22620160,
+            "root_rss_bytes": 31383552,
+            "tree_pss_bytes": 22620160,
+            "tree_rss_bytes": 31383552
+          },
+          "root_unreadable": 0,
+          "samples": 4
+        },
+        "product_input_verification": {
+          "complete_pss_samples": 2,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 17135616,
+            "root_rss_bytes": 25329664,
+            "tree_pss_bytes": 17135616,
+            "tree_rss_bytes": 25329664
+          },
+          "root_unreadable": 0,
+          "samples": 2
+        },
+        "product_queries": {
+          "complete_pss_samples": 4,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 23095296,
+            "root_rss_bytes": 31858688,
+            "tree_pss_bytes": 23095296,
+            "tree_rss_bytes": 31858688
+          },
+          "root_unreadable": 0,
+          "samples": 4
+        },
+        "spawn": {
+          "complete_pss_samples": 3,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 16222208,
+            "root_rss_bytes": 24342528,
+            "tree_pss_bytes": 16222208,
+            "tree_rss_bytes": 24342528
+          },
+          "root_unreadable": 0,
+          "samples": 3
+        }
+      },
+      "recalls": 32,
+      "root_identity": [
+        3323,
+        2176,
+        10492
+      ],
+      "trace_samples": 194,
+      "whole_worker_high_water_rss_bytes": 391479296
+    },
+    {
+      "events": 75,
+      "first_event_monotonic_ns": 112685913852,
+      "first_sample_monotonic_ns": 112640447370,
+      "last_event_monotonic_ns": 116525962239,
+      "last_sample_monotonic_ns": 116531730288,
+      "name": "r3-v032",
+      "observed_process_identities": [
+        [
+          3397,
+          2176,
+          11263,
+          "python"
+        ]
+      ],
+      "phase_reconstruction_sha256": "8f9e40eec75785a1ccd517c6a08a832c40e1a82b71b6f56fd1d9d6b5ded7234f",
+      "phases": {
+        "between_phases": {
+          "complete_pss_samples": 1,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 23527424,
+            "root_rss_bytes": 32407552,
+            "tree_pss_bytes": 23527424,
+            "tree_rss_bytes": 32407552
+          },
+          "root_unreadable": 0,
+          "samples": 1
+        },
+        "product_close": {
+          "complete_pss_samples": 2,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 23670784,
+            "root_rss_bytes": 32542720,
+            "tree_pss_bytes": 23670784,
+            "tree_rss_bytes": 32542720
+          },
+          "root_unreadable": 0,
+          "samples": 2
+        },
+        "product_ingestion": {
+          "complete_pss_samples": 179,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 22949888,
+            "root_rss_bytes": 31821824,
+            "tree_pss_bytes": 22949888,
+            "tree_rss_bytes": 31821824
+          },
+          "root_unreadable": 0,
+          "samples": 179
+        },
+        "product_initialization": {
+          "complete_pss_samples": 4,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 22622208,
+            "root_rss_bytes": 31494144,
+            "tree_pss_bytes": 22622208,
+            "tree_rss_bytes": 31494144
+          },
+          "root_unreadable": 0,
+          "samples": 4
+        },
+        "product_input_verification": {
+          "complete_pss_samples": 2,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 17147904,
+            "root_rss_bytes": 25464832,
+            "tree_pss_bytes": 17147904,
+            "tree_rss_bytes": 25464832
+          },
+          "root_unreadable": 0,
+          "samples": 2
+        },
+        "product_queries": {
+          "complete_pss_samples": 4,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 23670784,
+            "root_rss_bytes": 32542720,
+            "tree_pss_bytes": 23670784,
+            "tree_rss_bytes": 32542720
+          },
+          "root_unreadable": 0,
+          "samples": 4
+        },
+        "spawn": {
+          "complete_pss_samples": 3,
+          "incomplete_discovery_samples": 0,
+          "max_observed_processes": 1,
+          "peaks_bytes": {
+            "descendant_rss_bytes": 0,
+            "root_pss_bytes": 16246784,
+            "root_rss_bytes": 24506368,
+            "tree_pss_bytes": 16246784,
+            "tree_rss_bytes": 24506368
+          },
+          "root_unreadable": 0,
+          "samples": 3
+        }
+      },
+      "recalls": 32,
+      "root_identity": [
+        3397,
+        2176,
+        11263
+      ],
+      "trace_samples": 195,
+      "whole_worker_high_water_rss_bytes": 391479296
+    }
+  ]
+}

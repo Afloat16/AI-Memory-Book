@@ -132,3 +132,109 @@ claim is accepted merely because the diagnostic completes.
 Implementation: [controller and observer](../scripts/round5_resource_diagnostic.py),
 [offline fixtures](../tests/test_round5_resource_diagnostic.py),
 [dedicated workflow](../.github/workflows/round5-resource-diagnostic.yml).
+
+## Completed diagnostic and independent saved-evidence audit
+
+The registered first attempt,
+[43377486180-1](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43377486180),
+completed on 2026-11-13. Its frozen implementation commit is
+`d67e6c695aa586bbcbc9f0e134c769980d8e09ef`; its immutable result commit is
+`2511be109e2877e86d4d452525754d399e514789`. The pre-execution sections above
+remain the original registration and evidence limits.
+
+The [independent audit receipt](../benchmarks/reports/round5-resource-independent-audit.json)
+verifies all **30 published evidence files**: 29 files in the run directory and
+the original execution claim. It checks the claim's direct parent, the four
+registered evaluator files, both released runtime hashes, all 78 historical
+helper hashes, and the original corpus/parent-plan bindings. All 21 subsequent
+checkpoint commits form the expected preparation, worker-intent, completion
+and final-assessment sequence. Each worker's intent precedes its output, and
+previously published worker bytes remain unchanged throughout that sequence.
+
+The [offline auditor](../scripts/round5_resource_audit.py) independently
+reconstructs phase assignment, per-PID root/descendant totals, completeness
+flags, peak sample references, event order, process identities and cross-worker
+monotonic ordering. It confirms **nine completed workers, 256 product calls and
+128 paired complete outputs**, with every retained non-timing output hash equal
+across all eight product workers. It reconstructs **1,846 samples** and the six
+explicitly incomplete whole-tree PSS observations. This audit imports no Book
+runtime and performs no recall, inference or replacement measurement; private
+normalized corpus/query files are not reread.
+
+### Product phases and the high-water counter limitation
+
+The following are the means of the four independently observed query-phase
+peaks for each release; parentheses contain the four-round minimum and maximum.
+These are sampled values for the registered 32-query subset after full-corpus
+ingestion. Every product query phase has four samples, including its two
+acknowledged boundaries, so shorter transients can be missed.
+
+| Metric | v0.3.1 | v0.3.2 |
+|---|---:|---:|
+| Sampled query-phase root RSS peak | 30.472 MiB (30.383–30.504) | 30.975 MiB (30.902–31.039) |
+| Sampled query-phase root PSS peak | 22.033 MiB (22.025–22.041) | 22.559 MiB (22.537–22.574) |
+| Largest observed process count during product phases | 1 | 1 |
+| Reported whole-worker high-water RSS, every round | 373.34375 MiB | 373.34375 MiB |
+
+No descendants were observed in any product phase, so the observed root and
+inclusive tree values coincide there. The product wrapper remains included.
+The approximately 0.503 MiB difference between the two mean query-phase RSS
+peaks is a descriptive observation from this diagnostic, without a memory
+improvement claim.
+
+**The identical 373.34375 MiB high-water value in all eight product workers
+requires a separate interpretation.** The worker reports
+`getrusage(RUSAGE_SELF).ru_maxrss`; the
+[Linux getrusage documentation](https://man7.org/linux/man-pages/man2/getrusage.2.html)
+defines this as a maximum resident-set measure in KiB and states that resource
+usage accounting survives `execve`. Its lifetime scope can therefore include
+launch activity outside the recorded product phases. The common value is
+consistent with a launch/lifetime counter effect, but the saved trace does not
+establish its exact origin. Unobserved brief peaks also remain possible.
+
+The receipt retains this discrepancy explicitly. The 373.34375 MiB counter
+must not be labeled product steady RSS or used as a phase-local product
+allocation measurement. Conversely, the roughly 31 MiB sampled phase values
+do not erase the larger recorded counter.
+
+### Evaluator phases
+
+The evaluator-only worker executes zero recalls and zero inference calls.
+Its independently reconstructed phase peaks are:
+
+| Evaluator phase | Root RSS peak | Inclusive tree RSS peak |
+|---|---:|---:|
+| Corpus loading and its frozen-input checks | 352.668 MiB | 352.668 MiB |
+| Reference tokenizer initialization | 443.434 MiB | 443.434 MiB |
+| Git provenance checks | 447.539 MiB | 447.965 MiB |
+| Legacy full-file model hashing | 560.508 MiB | 560.508 MiB |
+| Release of corpus/tokenizer references | 455.652 MiB | 455.652 MiB |
+
+These are cumulative resident peaks in one sequential evaluator process.
+They are not independent allocation amounts to add together. Readable Git
+descendants are present in the saved evaluator trace; at most two processes
+are observed in any sample. The new evidence therefore directly separates
+substantial evaluator residency from the much smaller sampled product phases
+in this run.
+
+All six incomplete PSS samples belong to the evaluator: one during corpus
+loading, four during Git provenance checks, and one between phases. Five
+samples contain an enumerated child whose identity/record could not be read;
+the last lacks a readable root record. Their whole-tree PSS remains
+unavailable. The underlying discovery errors and sample indices are retained
+in the independent receipt, and no partial sum is substituted for a complete
+tree measurement. Every registered phase still has readable root boundary
+samples. No product sample has this PSS/discovery limitation.
+
+### What remains unresolved
+
+The new trace establishes these costs and process identities for this
+diagnostic. It does not identify the unrecorded child responsible for the old
+round-four setup/finalization peaks, reconcile every lifetime high-water
+counter with a sampled phase, or establish a product leak. The original
+**+71.97% component setup** and **+68.98% native finalization** tree-RSS
+observations remain intact and unexplained at the missing per-PID level.
+
+This run compares the already published v0.3.1 and v0.3.2 implementations.
+It supplies no resource result for candidate B or any v0.3.3 release, and no
+speed or quality acceptance follows from completing the resource diagnostic.

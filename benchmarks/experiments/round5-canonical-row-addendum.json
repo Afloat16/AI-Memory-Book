@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "status": "registered-before-candidate-c-implementation-and-measurement",
+  "registered_at": "2026-11-13T06:36:30.037767+00:00",
+  "original_plan_commit": "7068594181c7e98c576f68a81daf85cd0d06c729",
+  "materialization_addendum_commit": "9042570d8cff01be7c95cd01f8698e166fc7d313",
+  "prior_candidate_commit": "a54194baaea70a987ef0b579dcb7f3c62653f928",
+  "prior_candidate_runtime_sha256": "1f0c8a27108fed25c043d1439a8cb52bcb12422a4759a05423de33665e02a487",
+  "evidence": {
+    "profile_pairs": 4732,
+    "paired_calls": 4096,
+    "paired_payload_pairs": 2048,
+    "paired_audit_sha256": "3abcd4b55099437d56bd2c2112b5eb0a5f3f5b16e473a129779d22a6893256ca",
+    "paired_p95_geomean_improvement_percent": 5.698391931317792,
+    "public_char_p95_improvement_percent": 8.741125630419422,
+    "synthetic_char_p95_regression_percent": 2.366996962968604,
+    "profile_public_char_all_cumulative_seconds": 0.215502,
+    "profile_public_char_total_seconds": 2.818257315999999,
+    "profile_public_char_row_keys_calls": 338437
+  },
+  "disposition": "Candidate B preserves all measured payloads and improves development aggregate p95 by5.6984percent, but remains below the original10percent target. Do not select it for formal timing yet. Preserve all original outcomes. No formal or Q2/historical compatibility run has started.",
+  "hypothesis": "Reduce allocation and name lookup overhead inside the already validated canonical Row path, retaining full per-row validation and exact fallback semantics.",
+  "allowed": [
+    "Use ordered expected-column lists to compare native Row.keys without creating an additional tuple; retain exact order, duplicates, type and completeness checks for every participating row.",
+    "After successful canonical-shape validation, use the equivalent integer field positions and reuse captured ID/metadata references in the same scoring operation order.",
+    "Reuse fixed canonical column sequences during zip materialization so validated rows need no second keys allocation.",
+    "Replace nested generator scaffolding with equivalent bounded validation loops when it avoids repeated native field access; finish all eligibility checks before scoring and retain complete fallback on any failure."
+  ],
+  "forbidden": [
+    "Do not bypass per-row validation using only connection/cursor/factory entry and exit checks. Custom, extra, duplicate, reordered and incomplete rows must preserve mapping fallback.",
+    "Do not change SQL text/parameters/route limits, scoring arithmetic or rank-map calculation/order, global sort/ties, directory token-cache behavior, candidate counts, temporal/novelty/coverage/Q2 behavior.",
+    "No persistent/unbounded cache, schema, source/index, dependency or previous evaluator/report changes.",
+    "No original formal gate changes, omission of adverse cells, or replacement of an executed formal attempt."
+  ],
+  "fixtures": "Retain all18 released-v032 materialization fixtures and68 B functional checks, especially custom exact Row extra/duplicate shapes, current limit1, wide unions, optional routes and source snapshot errors. Add a positional-boundary regression if necessary; no measured-corpus tuning.",
+  "development": "Run the same4732-call profile and4096-call paired development diagnostic exactly once in fresh candidate-c paths after exact source and intent are committed. Preserve every sample and runtime hash.",
+  "formal": "Original fourteen-cell66248-call matrix, all numeric/resource gates and historical/Q2 compatibility requirements remain unchanged. Bind this addendum alongside the previous registrations before the single formal attempt."
+}
