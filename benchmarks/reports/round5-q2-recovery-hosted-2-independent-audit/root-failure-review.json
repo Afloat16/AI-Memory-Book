@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "status": "root-confirmed-terminal-prequery-failure-with-narrow-source-line-correction",
+  "reviewed_at_utc": "2026-11-13 21:08:31 UTC",
+  "source_commit": "c23c5d5c9e1b8521ed78bf28e34896bc0755ee86",
+  "controller_sha256": "8873d8a20965f6914da5db25bbd6401f5195c0e72281bf0dfb88cd9d57c52b19",
+  "result_commit": "14e2432adbf519d2cccabc038e4e1f0e9d805279",
+  "run_id": 43505846977,
+  "run_attempt": 1,
+  "independent_report": {
+    "commit": "c84b99a66e7a9475157ccccac82455b3f57494f4",
+    "path": "benchmarks/reports/round5-q2-recovery-hosted-2-independent-audit/final-failure-audit.json",
+    "sha256": "06360e4017488cd032b835e57112ee2aebeedd90e689ac4772666a51085cc402",
+    "root_read_and_sha256_verified": true
+  },
+  "full_job_log": {
+    "sha256": "94505fd32d61ee64cc95e1d4c9bcaf6544133baa99447fa5840d5f33daae0dca",
+    "bytes": 60085,
+    "root_read_and_sha256_verified": true
+  },
+  "source_line_correction": {
+    "original_report_field": "primary_observed_failure.source_order.sidecar_gate_line",
+    "original_value": 515,
+    "correct_value": 615,
+    "exception_message_line": 616,
+    "reason": "Line515 is a different later asset-guard sidecar predicate. The reported New prepared database has a sidecar failure belongs to preparation lines615–616, immediately after database_identity at614 and before audit.update at617 and validate_preparation at620.",
+    "verified_exact_source_sha256": true,
+    "original_report_preserved": true,
+    "changes_to_outcome_or_gates": false
+  },
+  "actual_stop": {
+    "database_identity_line": 614,
+    "sidecar_predicate_line": 615,
+    "record_identity_line": 617,
+    "validate_preparation_line": 620,
+    "reader_lifetime_ended_before_check": true,
+    "sidecar_suffix_or_size_recorded": false,
+    "before_reader_sidecar_inventory_recorded": false,
+    "reader_returned_identity_persisted": false,
+    "sidecar_origin_proven": false
+  },
+  "independent_static_corroboration": "baseline_audit separately inspected exact controller/database_identity and digest definitions and reached the same stop-order and inference limits. No new execution was requested or performed.",
+  "vectors": {
+    "observed": "976cf1e7ec9df5a05d7bc4a19357d6107e7d63faf8825b1af68f5eab914eccf5",
+    "historical": "c1cecaacdf47d7db3a790e46589a03e3d895aabbe7fb4069a65c050f7efd0a2e",
+    "equal": false,
+    "composite_digest": "Ordered row IDs/ordinals/character offsets, lengths and exact vector BLOB bytes.",
+    "other_identity_fields_equal": true,
+    "numerical_vector_error_or_cause_determined": false,
+    "gate_reached_in_actual_run": false,
+    "recorded_receipt_satisfies_original_gate": false
+  },
+  "completed_boundary": {
+    "asset_stage_completed": true,
+    "models_or_dataset_downloaded_by_audit": false,
+    "authored36_prepare_child_returncode": 0,
+    "authored36_index_builds_observed": 1,
+    "authored36_index_windows_recorded": 42,
+    "authored36_snapshot_acceptance": false,
+    "hotpot128_preparations_started": 0,
+    "query_workers_started": 0,
+    "retrieval_calls": 0,
+    "query_embedding_inferences": 0,
+    "complete_payload_pairs": 0,
+    "configured_generative_model_calls": 0,
+    "fresh_metadata_or_content_reads": 0,
+    "interpretation": "The preparation child did perform page-vector model inference. Zero query/retrieval calls does not mean zero model work in the hosted attempt."
+  },
+  "activity": {
+    "new_retrieval_calls": 0,
+    "new_model_inferences": 0,
+    "cleanup": 0,
+    "rebuilds": 0,
+    "retries": 0,
+    "source_changes": 0,
+    "fresh_reads": 0
+  },
+  "decision": {
+    "q2_compatibility_accepted": false,
+    "formal_accepted": false,
+    "release_accepted": false,
+    "attempt3_authorized": false
+  }
+}

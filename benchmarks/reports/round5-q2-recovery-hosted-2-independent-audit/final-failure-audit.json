@@ -1,0 +1,417 @@
+{
+  "schema_version": 1,
+  "status": "independently-confirmed-prequery-failure-and-historical-vector-mismatch",
+  "audited_at_utc": "2026-11-13 21:01:33 UTC",
+  "run": {
+    "id": 43505846977,
+    "run_attempt": 1,
+    "workflow_head": "c23c5d5c9e1b8521ed78bf28e34896bc0755ee86",
+    "status": "completed",
+    "conclusion": "failure",
+    "protocol_job_id": 132163187073,
+    "recovery_job_id": 132163425120
+  },
+  "result_commit": "14e2432adbf519d2cccabc038e4e1f0e9d805279",
+  "result_branch": "validation/v033-q2-recovery-hosted-2",
+  "result_root": "benchmarks/reports/round5-q2-recovery-hosted-2/",
+  "preexecution_method": {
+    "commit": "731107bdf17ccb3958b03361d03c62fb5bc92487",
+    "path": "benchmarks/reports/round5-q2-recovery-hosted-2-independent-audit/preexecution-method.json",
+    "sha256": "4ee7902661f036018667207312fb47a616dd414eb5464b62bf213cf23fe99de1"
+  },
+  "fixed_sources": {
+    "candidate": {
+      "commit": "4a0ad4dc6aec33a91231d419239b7e90b160c695",
+      "runtime_sha256": "77310a7971677c2cebf8cd01d0aa36ab4562b55d1a3826b7fa7de895840abb32"
+    },
+    "baseline": {
+      "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+      "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+    },
+    "historical_builder": {
+      "commit": "7b7a5d7336b9350a128f5e0a888811b1b3015e68",
+      "runtime_sha256": "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46"
+    },
+    "scope_sha256": "fc7a0f53b371ffdf6039ce0d171c70f152ce0eb66a2d5a28ba94d32b8ba589c9",
+    "source_binding_sha256": "c6ae40b490a7e8358c1709dbb7e6a5999bf6756ef37c66da55488d3539e57828"
+  },
+  "completed_boundary": {
+    "asset_stage_completed": true,
+    "models_or_dataset_downloaded_by_audit": false,
+    "authored36_prepare_child_returncode": 0,
+    "authored36_index_builds_observed": 1,
+    "authored36_index_windows_recorded": 42,
+    "authored36_snapshot_acceptance": false,
+    "hotpot128_preparations_started": 0,
+    "query_workers_started": 0,
+    "retrieval_calls": 0,
+    "query_embedding_inferences": 0,
+    "complete_payload_pairs": 0,
+    "configured_generative_model_calls": 0,
+    "fresh_metadata_or_content_reads": 0,
+    "interpretation": "The preparation child did perform page-vector model inference. Zero query/retrieval calls does not mean zero model work in the hosted attempt."
+  },
+  "primary_observed_failure": {
+    "status": "failed_or_incomplete",
+    "stage": "once-only-snapshot-construction",
+    "created_at": "2026-11-13T20:55:59.026903+00:00",
+    "error": "ValueError: New prepared database has a sidecar",
+    "partial_asset_metadata": {},
+    "replay_permitted": false,
+    "threshold_relaxation_permitted": false,
+    "original_database_restored": false,
+    "formal_or_release_acceptance": false,
+    "preparation_audit_sha256": "332e0432ac233368b3551f848c215266af318796f89e9774ad40ec295e5c0420",
+    "source_path": "scripts/round5_q2_hosted_recovery_v2.py",
+    "source_sha256": "8873d8a20965f6914da5db25bbd6401f5195c0e72281bf0dfb88cd9d57c52b19",
+    "source_order": {
+      "read_new_preparation_receipt_line": 611,
+      "database_identity_line": 614,
+      "sidecar_gate_line": 515,
+      "record_new_database_identity_after_gate_line": 617,
+      "validate_preparation_after_gate_line": 620
+    },
+    "predicate": "not any(Path(str(prepared_db) + suffix).exists() for suffix in ('-wal','-shm','-journal'))",
+    "observation": "At least one of these paths existed after legacy.database_identity returned and before the audit recorded the new database identity.",
+    "limitations": [
+      "The saved failure does not identify which suffix existed, its size, whether it held live data, or its before/after lifetime.",
+      "The verifier successfully returned from database_identity before the sidecar presence assertion. That return value was not persisted because audit.update follows the failed gate.",
+      "database_identity uses mode=ro, PRAGMA query_only and an explicit closing context. These source facts do not establish when or why the observed sidecar was created.",
+      "No SQLite DB or sidecar bytes were present in the12 Git result objects inspected. The audit does not claim an exact sidecar cause or a safe cleanup procedure."
+    ]
+  },
+  "independent_vector_gate_observation": {
+    "source": "Saved successful preparation receipt compared to the exact pinned historical preparation and unchanged prospective scope.",
+    "new_preparation_sha256": "063eec60e1fab8c78eceeec7ed26a1a3650407ae887ae01d6b9bc1ab2efd3f61",
+    "historical_preparation": {
+      "commit": "43b65c004e1ac1f1d75cf6d1a2421b36e4eab740",
+      "path": "benchmarks/reports/round4-compatibility-final/authored36-preparation.json",
+      "sha256": "0fb2e417f465fd4748d35a327aaa928f58ae40a3eb9d07d884b5d1ca1bd3e5a9"
+    },
+    "new_vectors": {
+      "sha256": "976cf1e7ec9df5a05d7bc4a19357d6107e7d63faf8825b1af68f5eab914eccf5",
+      "rows": 42,
+      "vector_bytes": 64512,
+      "revision": 42,
+      "model_fingerprint": "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25",
+      "boundary": "All semantic_vectors columns in primary-key order, length-prefixed JSON identity/offset fields and exact BLOB bytes. No semantic_meta timestamps or model rerun."
+    },
+    "historical_vectors": {
+      "sha256": "c1cecaacdf47d7db3a790e46589a03e3d895aabbe7fb4069a65c050f7efd0a2e",
+      "rows": 42,
+      "vector_bytes": 64512,
+      "revision": 42,
+      "model_fingerprint": "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25",
+      "boundary": "All semantic_vectors columns in primary-key order, length-prefixed JSON identity/offset fields and exact BLOB bytes. No semantic_meta timestamps or model rerun."
+    },
+    "differing_vector_identity_fields": [
+      "sha256"
+    ],
+    "all_other_vector_identity_fields_equal": true,
+    "existing_exact_historical_vector_gate_satisfied_by_saved_receipt": false,
+    "gate_reached_in_hosted_run": false,
+    "why_not_reached": "The earlier sidecar assertion stopped before validate_preparation. The vector mismatch is an independent comparison of preserved receipts, not a second raised runtime exception.",
+    "non_timing_semantic_index_fields_equal": true,
+    "shared_non_timing_semantic_index_metadata": {
+      "revision": 42,
+      "model_fingerprint": "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25",
+      "model": {
+        "repository": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+        "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+        "files": [
+          {
+            "path": "onnx/model_quint8_avx2.onnx",
+            "bytes": 118453870,
+            "sha256": "98a01d88b7de996cdea58c32ca71208c09968d143798814b2ea09d3439dc334f"
+          },
+          {
+            "path": "tokenizer.json",
+            "bytes": 9081518,
+            "sha256": "2c3387be76557bd40970cec13153b3bbf80407865484b209e655e5e4729076b8"
+          }
+        ],
+        "dimensions": 384,
+        "max_sequence_tokens": 128,
+        "overlap_tokens": 32,
+        "pooling": "attention-mask mean pooling followed by L2 normalization",
+        "semantic_version": 1
+      },
+      "runtime": {
+        "onnxruntime": "1.31.1",
+        "tokenizers": "0.23.3",
+        "numpy": "2.5.4"
+      },
+      "pages": 42,
+      "windows": 42,
+      "vector_bytes": 64512,
+      "source_chars": 6507,
+      "source_sha256": "0a046bb7a4958c0150f055cf61f9d0f21b4b93abf64548cdf00513cd351d1318",
+      "inference_threads": 1
+    },
+    "new_originals_sha256": "0c5eae103d04fa60821d744df46ab7e8bb8873776d07a56554c98a795a27783f",
+    "historical_originals_sha256": "f64208f2f232270366f8c48ab6334c74424f448719b69e91d7532b23718d5c70",
+    "original_database_restored": false,
+    "digest_boundary": "Both frozen digest helpers hash ordered page_id/ordinal/char_start/char_end identities plus exact vector BLOB bytes. semantic_meta timing JSON and ingestion timestamps are not directly included in this vector digest.",
+    "limits": [
+      "The underlying historical/new vector rows were not available for a rowwise comparison in this audit, so the changed hashed field or vector values are not identified.",
+      "Matching row count, byte count, revision, model fingerprint and recorded source-content hash do not establish complete persisted-vector equality.",
+      "No CPU, hardware, platform, tokenizer, floating-point, ingestion-timestamp or other causal attribution is made from these receipts.",
+      "Clearing a sidecar alone cannot establish the separately required exact historical-vector gate; no cleanup, vector rebuild, gate relaxation or rerun was attempted."
+    ]
+  },
+  "durable_evidence": {
+    "actual_git_checkpoints": {
+      "path": "benchmarks/reports/round5-q2-recovery-hosted-2-independent-audit/actual-git-checkpoints.json",
+      "sha256": "15ef4ab69b3b3c772119f380f3bb31aee6e5ec9992b8b839fdbc53ca34e98a49",
+      "checkpoints": 8,
+      "first_introduced_files_checked": 12
+    },
+    "full_raw_job_log": {
+      "path": "benchmarks/reports/round5-q2-recovery-hosted-2-independent-audit/run43505846977-job132163425120.log",
+      "sha256": "94505fd32d61ee64cc95e1d4c9bcaf6544133baa99447fa5840d5f33daae0dca",
+      "utf8_bytes": 60085
+    },
+    "result_objects": [
+      {
+        "name": "failure.json",
+        "first_commit": "9e0abbbe8481acff822d1c73119132c63e8fa227",
+        "git_blob": "bb73d9d2fb503473142eafc986d7bdda79d8f481",
+        "sha256": "12bd4b02f923737113968f2c969e588164a3ff505d9845ec3fa6e13ac1c5df06",
+        "bytes": 383
+      },
+      {
+        "name": "assets.intent.json",
+        "first_commit": "7018293615fe494c7d7b0e7e0c4b9b70794de2b2",
+        "git_blob": "393fdfdf34672de23d50b38dfdfe41001cfeb8d2",
+        "sha256": "902d2586ced700978c7c12b859389627eefa7da9bd9c48df7a0c7dce404ab41e",
+        "bytes": 1089
+      },
+      {
+        "name": "prepare-authored36.audit.json",
+        "first_commit": "40dc9c522b5ebd0434af484cc804fdc072bb9195",
+        "git_blob": "356a5e0526d8237982700f4d71696e8b268ec7a2",
+        "sha256": "332e0432ac233368b3551f848c215266af318796f89e9774ad40ec295e5c0420",
+        "bytes": 165
+      },
+      {
+        "name": "attempt.intent.json",
+        "first_commit": "96dd277ca2d16bce2f769df60bc7877ce9b74608",
+        "git_blob": "1437ad034f5b4245af4da9a19cfd809e2fe3e521",
+        "sha256": "e7fca079a219334abf0c6394cdf6bdfa18fa5dcaa8f8a44b76fc4505072e2507",
+        "bytes": 21801
+      },
+      {
+        "name": "prepare-authored36.json",
+        "first_commit": "93f70b41b07d5ae186af9b91dde9698a9879efb1",
+        "git_blob": "9f912633d021f7666d5a9b5b9fa2cc20a3a3ffaa",
+        "sha256": "063eec60e1fab8c78eceeec7ed26a1a3650407ae887ae01d6b9bc1ab2efd3f61",
+        "bytes": 4129
+      },
+      {
+        "name": "workflow-outcome.json",
+        "first_commit": "14e2432adbf519d2cccabc038e4e1f0e9d805279",
+        "git_blob": "c3df107611438c40345ff47cb739786930e66f03",
+        "sha256": "b613b27666ef1c2c7c3b2be452207756ac788e277b09e6af4e7c571ef591bf12",
+        "bytes": 206
+      },
+      {
+        "name": "asset-binding.json",
+        "first_commit": "021e84f6263a85387a67f888f639b050f11d4efe",
+        "git_blob": "a706d0ad6c7beb869b124c669eaf03d23cd043f3",
+        "sha256": "6ff775983d0fbaae41eeeaefb7cf5a767b2eaaf763ccf085a43748641f7f73ee",
+        "bytes": 29626
+      },
+      {
+        "name": "prepare-authored36.intent.json",
+        "first_commit": "7a65ed69343864ffdfd2b49702c402798f4fea51",
+        "git_blob": "257f5f41afe5a0c5d756496030b870eb4d7abf46",
+        "sha256": "c14d18231f0d8b88cd336632f714a411151bee6b39c14eeaf03df5362c842672",
+        "bytes": 1692
+      },
+      {
+        "name": "prepare-authored36.exit.json",
+        "first_commit": "93f70b41b07d5ae186af9b91dde9698a9879efb1",
+        "git_blob": "96a4033549f13a8c74da712f8f4a9dd5788884c9",
+        "sha256": "2e457a307b0e2847dacc43f7493643090cc5a4817ab4236c06656068dcdc5e01",
+        "bytes": 527
+      },
+      {
+        "name": "registered-helper-union.json",
+        "first_commit": "96dd277ca2d16bce2f769df60bc7877ce9b74608",
+        "git_blob": "923b73a7d992cd7afa14d34af03a8f842791aa1a",
+        "sha256": "00a2734623a020b57a7422502402baccf891a5ed9ba303f3976e4c2b3d73c63e",
+        "bytes": 10426
+      },
+      {
+        "name": "prepare-authored36.log",
+        "first_commit": "93f70b41b07d5ae186af9b91dde9698a9879efb1",
+        "git_blob": "7a8fed1ac4bd5f7cba7d8400409753655f2c3c35",
+        "sha256": "d6442241b1c6836719e15bcaa68d03bb1f5f667807aadcae604512620eb41c67",
+        "bytes": 414
+      },
+      {
+        "name": "runner.log",
+        "first_commit": "14e2432adbf519d2cccabc038e4e1f0e9d805279",
+        "git_blob": "5df985b54fa9e99cbd379b04b5049c73eb33559e",
+        "sha256": "4ead4043252450e177da07a96cc9208d26c794a504a1167e68ee848ffb72516e",
+        "bytes": 4892
+      }
+    ],
+    "actions_artifacts_metadata": [
+      {
+        "id": 14077040320,
+        "name": "round5-q2-v2-source-only-43505846977-1",
+        "size_in_bytes": 4456,
+        "digest": "sha256:3aada462b086d7d3141b5257abb62239b3f20205b60e856e1a5e87c2fb86fee6",
+        "expired": false,
+        "created_at": "2026-11-13T20:54:57Z"
+      },
+      {
+        "id": 14075928204,
+        "name": "round5-q2-recovery-hosted-2-43505846977-1",
+        "size_in_bytes": 29503,
+        "digest": "sha256:e61d366f053897c4de3ecf4c2e57b33bf411c1aea64b4bd4d6cb2652d4aad42d",
+        "expired": false,
+        "created_at": "2026-11-13T20:56:05Z"
+      }
+    ],
+    "artifact_zip_downloaded_by_audit": false,
+    "source_files_checked": [
+      {
+        "path": "scripts/round5_q2_hosted_recovery_v2.py",
+        "commit": "c23c5d5c9e1b8521ed78bf28e34896bc0755ee86",
+        "sha256": "8873d8a20965f6914da5db25bbd6401f5195c0e72281bf0dfb88cd9d57c52b19"
+      },
+      {
+        "path": "scripts/round5_q2_compatibility.py",
+        "commit": "c23c5d5c9e1b8521ed78bf28e34896bc0755ee86",
+        "sha256": "c3f01a5ae10b40706f4115dd5188a730c84307e62cabdd3324c5eb29c3a38048"
+      },
+      {
+        "path": "scripts/round4_semantic_compatibility.py",
+        "commit": "c23c5d5c9e1b8521ed78bf28e34896bc0755ee86",
+        "sha256": "456bbaa4200e852e2fedcf35b1df77cc3a27cbfb27dc0118ecf740112f069873"
+      },
+      {
+        "path": "scripts/novelty_cap_qualification.py",
+        "commit": "c23c5d5c9e1b8521ed78bf28e34896bc0755ee86",
+        "sha256": "ac296dce0be325b7ebbadac69789de88940c21c40b36a96ac2017fcbd8516858"
+      }
+    ]
+  },
+  "read_only_checks": {
+    "passed_comparisons": 78,
+    "names": [
+      "scope_exact_fc7",
+      "source_binding_exact_c6",
+      "old_preparation_exact_pin",
+      "controller_exact_reviewed8873",
+      "legacy_exact_c3f01",
+      "actual_run_and_source",
+      "sourcebinding_scope_exact_in_assets",
+      "candidate18_exact_inventory",
+      "exact_source_baseline",
+      "exact_source_candidate",
+      "exact_source_historical_builder",
+      "three_model_manifests_identical",
+      "all11_original_evaluator_digests",
+      "union_git_blob:benchmarks/__init__.py",
+      "union_git_blob:benchmarks/competitors/__init__.py",
+      "union_git_blob:benchmarks/competitors/ai_memory.py",
+      "union_git_blob:benchmarks/competitors/billion.py",
+      "union_git_blob:benchmarks/competitors/claude_mem.py",
+      "union_git_blob:benchmarks/competitors/download.py",
+      "union_git_blob:benchmarks/component_eval.py",
+      "union_git_blob:benchmarks/data.py",
+      "union_git_blob:benchmarks/hotpot_data.py",
+      "union_original_sha:benchmarks/hotpot_data.py",
+      "union_git_blob:benchmarks/hotpot_manifest.json",
+      "union_original_sha:benchmarks/hotpot_manifest.json",
+      "union_git_blob:benchmarks/long_data.py",
+      "union_git_blob:benchmarks/native_budget_eval.py",
+      "union_original_sha:benchmarks/native_budget_eval.py",
+      "union_git_blob:benchmarks/prepare_native_data.py",
+      "union_original_sha:benchmarks/prepare_native_data.py",
+      "union_git_blob:benchmarks/public_data.py",
+      "union_git_blob:benchmarks/query_guard.py",
+      "union_git_blob:benchmarks/resume.py",
+      "union_git_blob:benchmarks/round2_data.py",
+      "union_git_blob:benchmarks/round2_eval.py",
+      "union_git_blob:benchmarks/round2_resources.py",
+      "union_git_blob:benchmarks/run.py",
+      "union_original_sha:benchmarks/run.py",
+      "union_git_blob:benchmarks/semantic_eval.py",
+      "union_original_sha:benchmarks/semantic_eval.py",
+      "union_git_blob:benchmarks/token_compare.py",
+      "union_original_sha:benchmarks/token_compare.py",
+      "union_git_blob:benchmarks/transfer_cases.json",
+      "union_git_blob:benchmarks/transfer_data.py",
+      "union_git_blob:benchmarks/transfer_manifest.json",
+      "union_git_blob:scripts/benchmark_default_recall.py",
+      "union_git_blob:scripts/novelty_cap_qualification.py",
+      "union_original_sha:scripts/novelty_cap_qualification.py",
+      "union_git_blob:scripts/round3_development_checks.py",
+      "union_original_sha:scripts/round3_development_checks.py",
+      "union_git_blob:scripts/round4_cold_development.py",
+      "union_original_sha:scripts/round4_cold_development.py",
+      "union_git_blob:scripts/round4_development_pair.py",
+      "union_git_blob:scripts/round4_semantic_compatibility.py",
+      "union_original_sha:scripts/round4_semantic_compatibility.py",
+      "union_git_blob:scripts/round5_q2_compatibility.py",
+      "union_git_blob:scripts/run_round2_validation.py",
+      "union_git_blob:scripts/summarize_round2_validation.py",
+      "union_git_blob:tests/test_round5_q2_compatibility.py",
+      "all41_runtime_guard_inputs_bound",
+      "proof_committed_in_attempt",
+      "prepare_intent_exactasset",
+      "prepare_child_success",
+      "prepared_output_hash:prepare-authored36.intent.json",
+      "prepared_output_hash:prepare-authored36.json",
+      "prepared_output_hash:prepare-authored36.log",
+      "single_authored36_build_receipt",
+      "observed_sidecar_failure",
+      "no_replay_or_threshold_relaxation",
+      "saved_vector_digest_mismatch",
+      "all_other_vector_identity_fields_equal",
+      "all_non_timing_index_receipt_fields_equal",
+      "new_originals_are_distinct_recorded_identity",
+      "final_workflow_failure",
+      "no_worker_ledger_or_report_or_hotpot_preparation",
+      "no_final_binding_or_completion",
+      "only12_public_result_objects",
+      "all8_git_checkpoints_chain_verified"
+    ],
+    "strict_json_parser": {
+      "commit": "03f5a07910573885435fcee8d487531125aeede8",
+      "path": "scripts/round5_sql_independent_audit.js",
+      "sha256": "5970f90c6b19df2bf9711c3f5de7f9cae65dac7613e85144c680f9001ba59a01"
+    },
+    "note": "These are read-only provenance/receipt comparisons confirming failure. They are not passing Q2 query fixtures or a completed compatibility matrix."
+  },
+  "unexecuted_matrix": {
+    "registered_workers": 8,
+    "registered_calls": 1968,
+    "registered_pairs": 984,
+    "actual_workers": 0,
+    "actual_calls": 0,
+    "actual_pairs": 0,
+    "complete_matrix_auditor_invoked": false,
+    "prepared_auditor_commit": "3ed44daec5feac5358008de39f472a4c7c8582de",
+    "prepared_auditor_path": "scripts/round5_q2_saved_raw_independent_audit.js",
+    "prepared_auditor_sha256": "d5e353a22a72347c9842f470042e448e69e507491f676f7377843a309c2692f5",
+    "reason": "No binding.json, completion.json, query report or query ledger exists. A full-result pass is neither constructed nor inferred."
+  },
+  "closure": {
+    "q2_compatibility_accepted": false,
+    "formal_accepted": false,
+    "release_accepted": false,
+    "old_attempt1_failure_preserved": true,
+    "attempt2_failure_preserved": true,
+    "automatic_retry_permitted": false,
+    "measurement_trigger_created_by_auditor": false,
+    "product_runtime_calls_by_audit": 0,
+    "retrieval_calls_by_audit": 0,
+    "model_inferences_by_audit": 0,
+    "fresh_metadata_or_content_reads_by_audit": 0
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "cohort": "authored36",
+  "dataset_sha256": "ecc46c474d5184995938419fa985b8e08c0ddb51560da49990247465db6db0b0",
+  "queries": 36,
+  "source_sha256": "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46",
+  "evaluator_files": {
+    "scripts/round4_semantic_compatibility.py": "456bbaa4200e852e2fedcf35b1df77cc3a27cbfb27dc0118ecf740112f069873",
+    "scripts/round4_cold_development.py": "d9ed6f525a2222e8cf633838c755190bae17d26267dad99c6579d64a0a31a81e",
+    "scripts/round3_development_checks.py": "36f8f266f816f9078172fab25238ba812b49f41e08303dd8e2a44f8c3e1917c6",
+    "scripts/novelty_cap_qualification.py": "ac296dce0be325b7ebbadac69789de88940c21c40b36a96ac2017fcbd8516858",
+    "benchmarks/hotpot_data.py": "5c206176665690044da9862bb70fe374b12348c4b5e6d0bdb0b098bb73c85760",
+    "benchmarks/prepare_native_data.py": "f16eb5222bf07f98aa7a89fcee85005a11bf15b9a9c758c7c3334ab53df0cf9f",
+    "benchmarks/semantic_eval.py": "46fa3b3fd6298ba1669bd0b17f3ad6f77a2fdaf5b79ba25e4632012090ca0b4e",
+    "benchmarks/native_budget_eval.py": "737230950fd4ddd7f415aa93137f65cd59b5c61a72676c58ca854aee59682b1b",
+    "benchmarks/token_compare.py": "bb34650d947a89c17c87e179dc9e376fe44b6d10c0bf4bb70ca4cdfd46913f18",
+    "benchmarks/run.py": "e557475d5701ea7271de9103aa8267e204796336b5277352fad015d9399521a4",
+    "benchmarks/hotpot_manifest.json": "ad0aba557e98cac6925ff5bdb8048a1a04a5f708847007f33ddf03d88650b69d"
+  },
+  "ort_disable_telemetry": "1",
+  "model": {
+    "repository": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+    "files": [
+      {
+        "path": "onnx/model_quint8_avx2.onnx",
+        "bytes": 118453870,
+        "sha256": "98a01d88b7de996cdea58c32ca71208c09968d143798814b2ea09d3439dc334f"
+      },
+      {
+        "path": "tokenizer.json",
+        "bytes": 9081518,
+        "sha256": "2c3387be76557bd40970cec13153b3bbf80407865484b209e655e5e4729076b8"
+      }
+    ],
+    "dimensions": 384,
+    "max_sequence_tokens": 128,
+    "overlap_tokens": 32,
+    "pooling": "attention-mask mean pooling followed by L2 normalization",
+    "semantic_version": 1
+  },
+  "semantic_index": {
+    "revision": 42,
+    "model_fingerprint": "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25",
+    "model": {
+      "repository": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+      "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "files": [
+        {
+          "path": "onnx/model_quint8_avx2.onnx",
+          "bytes": 118453870,
+          "sha256": "98a01d88b7de996cdea58c32ca71208c09968d143798814b2ea09d3439dc334f"
+        },
+        {
+          "path": "tokenizer.json",
+          "bytes": 9081518,
+          "sha256": "2c3387be76557bd40970cec13153b3bbf80407865484b209e655e5e4729076b8"
+        }
+      ],
+      "dimensions": 384,
+      "max_sequence_tokens": 128,
+      "overlap_tokens": 32,
+      "pooling": "attention-mask mean pooling followed by L2 normalization",
+      "semantic_version": 1
+    },
+    "runtime": {
+      "onnxruntime": "1.31.1",
+      "tokenizers": "0.23.3",
+      "numpy": "2.5.4"
+    },
+    "model_load_ms": 1242.601431,
+    "pages": 42,
+    "windows": 42,
+    "vector_bytes": 64512,
+    "source_chars": 6507,
+    "source_sha256": "0a046bb7a4958c0150f055cf61f9d0f21b4b93abf64548cdf00513cd351d1318",
+    "inference_threads": 1,
+    "build_ms": 1138.149023
+  },
+  "originals_sha256": "0c5eae103d04fa60821d744df46ab7e8bb8873776d07a56554c98a795a27783f",
+  "vectors": {
+    "sha256": "976cf1e7ec9df5a05d7bc4a19357d6107e7d63faf8825b1af68f5eab914eccf5",
+    "rows": 42,
+    "vector_bytes": 64512,
+    "revision": 42,
+    "model_fingerprint": "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25",
+    "boundary": "All semantic_vectors columns in primary-key order, length-prefixed JSON identity/offset fields and exact BLOB bytes. No semantic_meta timestamps or model rerun."
+  },
+  "method": "Baseline builds one index, then SQLite backup gives both sources identical persisted vectors.",
+  "interpretation": "Correctness preparation only; no performance inference."
+}

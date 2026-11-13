@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-11-13 21:02:22 UTC",
+  "updated_at_utc": "2026-11-13 21:08:31 UTC",
   "goal": "Continue v0.3.3 optimization of Afloat16/AI-Memory-Book with measured improvements, honest comparison boundaries and frequent durable Git checkpoints.",
   "control_branch": "optimization/v0.3.3-round5",
-  "previous_control_commit": "55f6f7f53b0ee96f080707c26a6f70966983c128",
+  "previous_control_commit": "363dd19c0439abe0691b1559d90dc378c4111be0",
   "resume_history": "docs/round5-resume-20261113.md",
   "published_baseline": {
     "tag": "v0.3.2",
@@ -37,14 +37,15 @@
     "pooled_p95_geomean_improvement_percent": 11.226438195449596,
     "public_native_char4000_p95_improvement_percent": 8.762968358902967,
     "decision": {
-      "current": "Retain NO as the strongest complete development candidate; final source not yet selected.",
+      "current": "NO was later selected, completed formal evaluation, and was rejected by the unchanged numerical/resource gates. The historical development result remains unchanged.",
       "next": "Complete the one already registered bounded LM SQLite attribution diagnostic after its safety/identity/protocol review; use it only to identify a possible provably narrow optimization.",
       "limits": [
         "The public char4000 development p95 improvement8.762968358902967% remains below the separate original formal10% threshold; both saved rounds are below10%.",
         "The development scope did not make formal numeric thresholds a development gate. Direct final selection would be permitted but carries a material unmeasured14-cell/MCP/resource risk.",
         "If the bounded diagnostic finds no justified narrow change, root will decide whether to freeze this candidate for the unchanged single formal attempt. No replay of NO and no additional tuning through formal data.",
         "The diagnostic measures instrumented partial native C spans on fixed LM, not NO speed; its timings cannot be added to gains or labeled full SQL/Python cost."
-      ]
+      ],
+      "historical_development_decision": "Retain NO as the strongest complete development candidate; final source not yet selected."
     },
     "formal_acceptance": false
   },
@@ -74,7 +75,8 @@
         "sha256": "8d3384e0bc5cd22171285be559b2f3f2f5fc285049e9e6645cbc339e7778d243"
       },
       "durable_manifest_commit": "05b162f50ed4eed4bf2be029e51b0111a45b1d34",
-      "status": "Exact source, proofs, complete CI and independent review passed. No N corpus call or speed claim."
+      "status": "Exact source, proofs, complete CI and independent review passed. No N corpus call or speed claim.",
+      "active": false
     },
     {
       "candidate": "O",
@@ -109,7 +111,8 @@
         "commit": "cd6f10d0c864c916cf5b40abffa01185d490c0a5",
         "path": "benchmarks/reports/round5-ascii-word-boundary-o-independent-source-review.json",
         "sha256": "c0984097019dd86705c16f015051714b289f23466e7eee265ad9d7e9d4532429"
-      }
+      },
+      "active": false
     },
     {
       "candidate": "NO",
@@ -117,7 +120,7 @@
       "scope_commit": "29e8633596d64c86fb84a7dec66083e294fd3a7d",
       "planned_runtime_sha256": "77310a7971677c2cebf8cd01d0aa36ab4562b55d1a3826b7fa7de895840abb32",
       "planned_text_sha256": "3558e2b37d9a8aaf03bc77663efa21fc210174199180d358586b663bafc51c34",
-      "status": "Complete unique development and independent4732-profile/4096-paired audits passed exact output parity; GM p95+11.226%,publicchar+8.763%; final selection remains pending and all original formal gates unchanged.",
+      "status": "Historical NO source/development completed, then final formal evaluation rejected the same frozen source. All original development and formal observations remain retained; no current candidate measurement is running.",
       "development_scope": {
         "commit": "2181b3ae500392ab75f323682750e3d22e385de7",
         "path": "benchmarks/experiments/round5-candidate-no-development-scope.json",
@@ -188,7 +191,8 @@
         "replay_permitted": false,
         "result_commit": "a2a7b4fa61b9d930b6ea16a6599e9af6e96675a9",
         "independent_audit_commit": "986633dc77bcff54292050f942c929ac960b48aa"
-      }
+      },
+      "active": false
     }
   ],
   "ready_orchestration": {
@@ -207,7 +211,8 @@
       "run_attempt": 1,
       "launch_commit": "f438d0a2b40a9ff8a3bdaab534977f34eb0d3ba3",
       "status": "completed-source-free-certificate-and-formal-binding-retained",
-      "result_branch": "validation/v033-final-freeze-hosted-1"
+      "result_branch": "validation/v033-final-freeze-hosted-1",
+      "result_commit": "195ab7145db184b1696287606dda6e9cb877b6f4"
     },
     "historical_lexical": {
       "source_commit": "65742c005290ae78702f6c9ff24613efd3616311",
@@ -251,7 +256,7 @@
       "not_started": false,
       "source_binding_sha256": "c6ae40b490a7e8358c1709dbb7e6a5999bf6756ef37c66da55488d3539e57828",
       "source_binding_donor_commit": "b9d2a75ce56be8e0c6a0f46fba53868e533453bd",
-      "status": "both-attempts-stopped-before-query-workers-attempt2-failure-audit-pending",
+      "status": "closed-attempt1-preclaim-failure-and-attempt2-prequery-failure-both-preserved",
       "run_id": 43497153581,
       "run_attempt": 1,
       "launch_commit": "be5879400b2f05a250e97b00ce9b488f00413ccb",
@@ -270,7 +275,7 @@
         "source_union_files": 35,
         "retrieval_calls": 0,
         "trigger_created": true,
-        "status": "completed-failure-before-any-query-worker",
+        "status": "independently-confirmed-prequery-failure-and-historical-vector-mismatch",
         "prior_namespace_ci_failure": 43500815079,
         "general_ci_run": 43501583600,
         "all9general_ci_success": true,
@@ -304,7 +309,7 @@
         "run_attempt": 1,
         "result_branch": "validation/v033-q2-recovery-hosted-2",
         "automatic_replay": false,
-        "retrieval_calls_note": "Final result tree contains the first preparation only and no query-worker report or intent; independent full-log/ancestry audit pending.",
+        "retrieval_calls_note": "Terminal raw logs, all12 result objects and8 actual parent checkpoints confirm no query workers, retrieval calls or payload pairs. One authored36 page-vector build occurred.",
         "protocol_job": 132163187073,
         "recovery_job": 132163425120,
         "workflow_conclusion": "failure",
@@ -320,10 +325,38 @@
           "vector_bytes": 64512,
           "revision": 42,
           "equal": false,
-          "note": "Additional read-only observation from the saved preparation; the actual controller stopped at the prior sidecar gate. Cause of digest difference not inferred."
+          "note": "The composite digest covers row IDs/ordinals/character offsets and exact vector BLOB bytes. The controller stopped at the earlier sidecar gate; saved receipts independently fail the unchanged historical-identity predicate. Numerical error and cause cannot be isolated."
         },
-        "independent_failure_audit_pending": true,
-        "accepted": false
+        "independent_failure_audit_pending": false,
+        "accepted": false,
+        "independent_failure_audit": {
+          "commit": "c84b99a66e7a9475157ccccac82455b3f57494f4",
+          "path": "benchmarks/reports/round5-q2-recovery-hosted-2-independent-audit/final-failure-audit.json",
+          "sha256": "06360e4017488cd032b835e57112ee2aebeedd90e689ac4772666a51085cc402",
+          "actual_git_checkpoints": 8,
+          "first_introduced_files_verified": 12,
+          "full_job_log_sha256": "94505fd32d61ee64cc95e1d4c9bcaf6544133baa99447fa5840d5f33daae0dca"
+        },
+        "root_failure_review": {
+          "path": "benchmarks/reports/round5-q2-recovery-hosted-2-independent-audit/root-failure-review.json",
+          "sha256": "756d271dff71e500e18baaa7a3907342ee45d39cc83383c71adc7eed9b4a46fa"
+        },
+        "completed_boundary": {
+          "asset_stage_completed": true,
+          "models_or_dataset_downloaded_by_audit": false,
+          "authored36_prepare_child_returncode": 0,
+          "authored36_index_builds_observed": 1,
+          "authored36_index_windows_recorded": 42,
+          "authored36_snapshot_acceptance": false,
+          "hotpot128_preparations_started": 0,
+          "query_workers_started": 0,
+          "retrieval_calls": 0,
+          "query_embedding_inferences": 0,
+          "complete_payload_pairs": 0,
+          "configured_generative_model_calls": 0,
+          "fresh_metadata_or_content_reads": 0,
+          "interpretation": "The preparation child did perform page-vector model inference. Zero query/retrieval calls does not mean zero model work in the hosted attempt."
+        }
       }
     },
     "fresh": {
@@ -349,7 +382,7 @@
     },
     "integration": {
       "manifest": "benchmarks/experiments/round5-hosted-orchestration-integration.json",
-      "status": "Exact reviewed source/controller/test/scope/docs blobs copied into current control ancestry; runtime and original registered evaluators remain unchanged. No final selection or trigger is created.",
+      "status": "Historical exact30-file orchestration integration retained. Later source selection, completed evaluation and final rejection are recorded in the current formal/final_selection fields. Earlier CI cancellation remains historical evidence.",
       "file_count": 30,
       "ci": {
         "run_id": 43471938589,
@@ -613,9 +646,10 @@
     "git_policy": "Persist code/scope before execution, then each started/result stage. Do not force-push, replay started experiments, replace failed observations or add percentages across hosts."
   },
   "next_steps": [
-    "Finish the separate read-only Q2attempt2 failure/log/ancestry report, retaining the actual sidecar gate stop and additional saved vector mismatch; no more query execution or retries.",
-    "Consolidate final human/machine recovery reports. Formal raw and resource linkage audits are complete; original performance and resource rejection stands.",
-    "Keep fresh/comparators and main/tag/release closed for rejected NO. Later changes require a separately declared candidate/scope."
+    "Any further runtime optimization starts a separately declared candidate/development scope. Preserve rejected NO source4a0ad4, formal run43496488712, all adverse rounds and this exact completion record.",
+    "Prioritize a small, equivalence-proven reduction of duplicate Unicode regex initialization and independently measured end-to-end MCP work; distinguish import savings from first-use cost. No speed gain is inferred from the static suggestions.",
+    "Historical Q2 reconstruction remains unaccepted: preserve both attempts and the composite-vector mismatch. Any future recovery method needs a separate declared scope and appropriate original evidence; do not clean/rebuild/retry this completed attempt or weaken its exact gate.",
+    "Keep fresh/comparator holdout and main/tag/release closed until a future eligible candidate passes its separately fixed requirements. No new competitor-superiority claim is established by this round."
   ],
   "previous_development_results": [
     {
@@ -816,6 +850,12 @@
     "fresh_metadata_selected": false,
     "fresh_content_decoded": false,
     "commit": "f438d0a2b40a9ff8a3bdaab534977f34eb0d3ba3",
-    "current_acceptance": "rejected-formal-numeric-gates"
-  }
+    "current_acceptance": "rejected-formal-numeric-gates-with-unresolved-import-regressions-and-unaccepted-historical-Q2"
+  },
+  "round_status": "closed-all-launched-attempts-terminal-candidate-rejected",
+  "requested_all_axis_superiority_established": false,
+  "runtime_candidate_work_in_progress": false,
+  "active_candidate_field_note": "The active_candidates array is retained as historical source/proof inventory; every entry is inactive. It does not authorize another measurement.",
+  "final_report": "docs/round5-final-results-20261113.md",
+  "unfinished_launched_work": []
 }
