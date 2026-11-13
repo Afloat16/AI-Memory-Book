@@ -7,6 +7,7 @@ import json
 import math
 import re
 import sqlite3
+import _sqlite3
 import time
 from datetime import datetime, timezone
 from functools import lru_cache
@@ -16,10 +17,12 @@ from typing import Any
 from .segmentation import make_turns, segment
 from .text import estimate_tokens, excerpt, headline, index_text, query_terms, terms
 
-_NATIVE_CONNECT = sqlite3.connect
-_NATIVE_CONNECTION = sqlite3.Connection
-_NATIVE_CURSOR = sqlite3.Cursor
-_NATIVE_ROW = sqlite3.Row
+# Capture the C extension's objects rather than treating public sqlite3 aliases
+# replaced before this module's first import as ordinary implementations.
+_NATIVE_CONNECT = _sqlite3.connect
+_NATIVE_CONNECTION = _sqlite3.Connection
+_NATIVE_CURSOR = _sqlite3.Cursor
+_NATIVE_ROW = _sqlite3.Row
 _STEM_ROUTE_DESCRIPTION = tuple((name, None, None, None, None, None, None)
                                 for name in ("rid", "id", "rank"))
 _FULL_ROUTE_DESCRIPTION = tuple((name, None, None, None, None, None, None)

@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "candidate": "G",
+  "status": "reviewed-correctness-passed-before-corpus-measurements",
+  "created_at": "2026-11-13T10:16:33.952632+00:00",
+  "base_commit": "c67757305d6334b74d98c34ffbfab9b8ebdd6e27",
+  "registered_scope_commit": "9468db6",
+  "runtime_sha256": "1dc58028d2bd7750f3f2205d1908bf6d69876fce5634f79c64ffde0056766371",
+  "files_sha256": {
+    "src/memory_book/store.py": "26f4f018739e221f03f902483e1cfef84fb5db77776d9ea8de6a07b98a43e9cb",
+    "tests/test_round5_native_rows.py": "33ac161a7ca2b9f63824f34495aaaf3ef57bd3ebb63e29c0e4c598f4acb67eb5"
+  },
+  "logs_sha256": {
+    ".artifacts/native-row-adjacent.log": "aa1e7a50a4325a9aa7cc6a0b858b4e5d6e5e86aa947045c68bedd05e116f0b8f",
+    ".artifacts/native-row-base.log": "d6896fadd2baf39405f0778c8dc86dfef689502ef06d5ec05947876583167a77",
+    ".artifacts/native-row-initial.log": "029e1882f0e0c74b375403b9d49c7ae37e3d48ac3af3ec49bf22d58922dae836",
+    ".artifacts/native-row-materialization-initial.log": "097b739eab611c74b1cfc05adff17708fab22863241c3cf38bd7b6bcf8a5b647",
+    ".artifacts/native-row-preimport-failure.log": "36f2b22113cdd0c099e9048c42a58c0be2433172b47a7993fcf51c8c89be0f65",
+    ".artifacts/native-row-preimport-repair.log": "866d435c91fab5b671fb545ba15ab0b005c1c620d66d67e59b8f8088f4b48836",
+    ".artifacts/native-row-trace-fixture-repair.log": "289a50e9eda283e86990137e72f4211115996f97de10741219afe2862a7742e9"
+  },
+  "final_tests": {
+    "passed": 92,
+    "new_native_cursor": 13,
+    "unchanged_materialization": 29,
+    "unchanged_adjacent": 50,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "retained_failures": [
+    {
+      "log": ".artifacts/native-row-initial.log",
+      "count": 3,
+      "source_snapshot": ".artifacts/native-row-initial-source",
+      "finding": "Payloads matched before three SQL trace assertions. SQLite FTS performed two extra internal data_version reads on the first reference call. The fixture now compares unchanged application SQL and transaction order, excluding SQLite -- internal trace lines. Runtime was unchanged."
+    },
+    {
+      "log": ".artifacts/native-row-preimport-failure.log",
+      "count": 2,
+      "source_snapshot": ".artifacts/native-row-preimport-source",
+      "finding": "Independent fresh processes demonstrated that public sqlite3.connect and sqlite3.Row replacements installed before importing memory_book were mistakenly treated as native. Capture C objects from _sqlite3 and retain public-alias identity checks. Both subcases pass after repair."
+    }
+  ],
+  "static_checks": {
+    "unchanged_sql_expressions_in_source_order": 107,
+    "only_changed_existing_runtime_file": "src/memory_book/store.py",
+    "e_ranked_lifetime_change_absent": true,
+    "f_query_overlap_helper_absent": true
+  },
+  "reviewers": [
+    "root",
+    "benchmark_audit"
+  ],
+  "certificate": "Exact underlying C cursor, retained original default-converter connection, default str text factory, original native Row factory, unchanged public Row/Cursor aliases, complete ordered DB-API description. Primitive route ID/rank and metadata ID/coverage guards remain. All other cases retain native Row/custom mapping operations; certified tuples reconstruct real Rows using their own original cursors before any fallback.",
+  "lifetime_boundary": "The original connection identity is retained, without query/source data. If a caller replaces book.db, its former connection can remain alive until the next recall or close clears the guard. Normal callers already retain the same connection in book.db. No new database connection is created.",
+  "measurement": "Zero corpus profiling, paired diagnostics, historical/Q2 validation, quality scoring or formal performance calls have run for G. Artificial fixture timing does not establish a speedup."
+}
