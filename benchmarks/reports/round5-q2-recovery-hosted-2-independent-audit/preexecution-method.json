@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "status": "registered-read-only-result-audit-method-before-attempt2-trigger",
+  "measurement_authorization": false,
+  "execution_identity_required_from_root": [
+    "unique_run_id",
+    "workflow_head_commit",
+    "result_head_commit"
+  ],
+  "fixed_attempt": "round5-q2-recovery-hosted-2",
+  "expected_workflow_head": "c23c5d5c9e1b8521ed78bf28e34896bc0755ee86",
+  "result_branch": "validation/v033-q2-recovery-hosted-2",
+  "result_root": "benchmarks/reports/round5-q2-recovery-hosted-2/",
+  "scope": {
+    "path": "benchmarks/experiments/round5-q2-recovery-hosted-v2-scope.json",
+    "sha256": "fc7a0f53b371ffdf6039ce0d171c70f152ce0eb66a2d5a28ba94d32b8ba589c9"
+  },
+  "source_binding": {
+    "path": "benchmarks/experiments/round5-q2-recovery-source.json",
+    "sha256": "c6ae40b490a7e8358c1709dbb7e6a5999bf6756ef37c66da55488d3539e57828"
+  },
+  "sources": {
+    "historical_builder": {
+      "commit": "7b7a5d7336b9350a128f5e0a888811b1b3015e68",
+      "runtime_sha256": "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46"
+    },
+    "baseline": {
+      "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+      "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+    },
+    "candidate": "Specified only by the separate pre-execution exact source binding.",
+    "export": "Detached sparse Git worktrees, containing only src and root metadata, preserve the original helper's committed-source provenance check. No runtime monkeypatch or timestamp rewrite."
+  },
+  "candidate": {
+    "commit": "4a0ad4dc6aec33a91231d419239b7e90b160c695",
+    "runtime_sha256": "77310a7971677c2cebf8cd01d0aa36ab4562b55d1a3826b7fa7de895840abb32"
+  },
+  "fixed_matrix": {
+    "cohort_order": [
+      "authored36",
+      "hotpot128"
+    ],
+    "query_counts": {
+      "authored36": 36,
+      "hotpot128": 128
+    },
+    "encoder_order": [
+      "cl100k_base",
+      "o200k_base"
+    ],
+    "label_order": [
+      "baseline",
+      "candidate"
+    ],
+    "budgets": [
+      512,
+      1024,
+      2048
+    ],
+    "workers": 8,
+    "current_calls": 1968,
+    "current_started_finished_events": 3936,
+    "current_baseline_candidate_pairs": 984,
+    "historical_reference_rows": 984,
+    "historical_reference_started_finished_events": 1968,
+    "baseline_to_saved_C2_comparisons": 984,
+    "current_report_and_ledger_gzip_files": 16,
+    "historical_C2_report_and_ledger_gzip_files": 8
+  },
+  "original_audit": {
+    "commit": "43b65c004e1ac1f1d75cf6d1a2421b36e4eab740",
+    "legacy_path": "scripts/round5_q2_compatibility.py",
+    "legacy_sha256": "c3f01a5ae10b40706f4115dd5188a730c84307e62cabdd3324c5eb29c3a38048",
+    "functions": [
+      "expected_report",
+      "audit_report",
+      "equal_payloads"
+    ],
+    "report_schema": [
+      "exact provenance and settings fields",
+      "rows",
+      "ledger_sha256"
+    ],
+    "row_schema": [
+      "query_id",
+      "budget_tokens",
+      "payload_sha256",
+      "context_sha256",
+      "errors"
+    ],
+    "zero_errors": [
+      "source",
+      "projection",
+      "scope",
+      "token",
+      "metadata"
+    ],
+    "order": "For each worker, budgets512,1024,2048 outside the exact authored36/hotpot128 registered query order. No PRNG or shuffle is present."
+  },
+  "historical_reference": {
+    "commit": "43b65c004e1ac1f1d75cf6d1a2421b36e4eab740",
+    "root": "benchmarks/reports/round4-compatibility-final/",
+    "paired_manifest_sha256": "5e5bffde4729250169e8eb92f1d14088c46c9c57aef1e22be2f52ceafb4593d6",
+    "preparation_sha256": {
+      "authored36": "0fb2e417f465fd4748d35a327aaa928f58ae40a3eb9d07d884b5d1ca1bd3e5a9",
+      "hotpot128": "e16ec2b31633fff438971e48fd4dd7394442018ce16d82d33df4808e684739d5"
+    },
+    "rule": "Use the saved candidate/v032 reports and their compressed/raw ledger pins from the exact historical paired manifest. Validate their old preparation identities without rewriting them."
+  },
+  "verification": [
+    "Verify exact source binding,scope,controller byte pins,old failed-attempt/root-cause references and the actual35-file union evidence.",
+    "Verify exact model identity and both new preparations against the entire historical vectors identity before accepting any worker; retain separate new originals and physical DB hashes.",
+    "Read current16 and historical8 compressed objects as base64. Verify pinned compressed sizes/SHA where available, decompress with pinned pure pako, strict-decode UTF8,verify every raw ledger SHA and recorded raw report digest.",
+    "Reject duplicate JSON keys, nonfinite values, changed schema,non-integer counters,missing/reordered/duplicate records,nonzero errors,extra or partial ledger events.",
+    "Independently compare all984 new baseline rows to historicalC2, then all984 candidate rows to this attempt's baseline; compare full payload and context digests in exact fixed query/budget order.",
+    "Verify before/after new database identities and zero caches from receipts; verify fixed worker intents,outcomes and actual Git ancestry,including both preparation gates committed before first query.",
+    "On incomplete/failure output,preserve every available raw/partial/hash and explicit status; never infer a completed matrix or retry a stage."
+  ],
+  "pure_dependencies": {
+    "bytes_hash_base64": {
+      "commit": "a366c88d670dfb7b55b035816a6a15d124c461f0",
+      "path": "scripts/round5_no_profile_independent_audit.js",
+      "sha256": "8ca9941b6778d3f827b4c107a080a49c3e95dc12c907802db900b372a523fd61"
+    },
+    "strict_json": {
+      "commit": "03f5a07910573885435fcee8d487531125aeede8",
+      "path": "scripts/round5_sql_independent_audit.js",
+      "sha256": "5970f90c6b19df2bf9711c3f5de7f9cae65dac7613e85144c680f9001ba59a01",
+      "entry": "makeSqlAudit(core).parseExact/stringifyExact only; no SQL diagnostic audit entry point"
+    },
+    "gzip": {
+      "repository": "nodeca/pako",
+      "tag": "2.1.0",
+      "path": "dist/pako_inflate.min.js",
+      "sha256": "fa226c8e1e3556993260e6a5c1fe94e225da59b3418a06811fdc51d308f8bb43"
+    }
+  },
+  "ready_source_evidence": {
+    "source_ci_run": 43501583600,
+    "ordinary_jobs_success": 9,
+    "dedicated_run": 43501583612,
+    "dedicated_job": 132148451883,
+    "fixtures_passed": 20,
+    "fixtures_skipped": 0,
+    "source_union": 35,
+    "recovery_job_skipped": true,
+    "evidence_commit": "d53b6024b2dd510d7241497e778c777abaf1bad2",
+    "first_failure_commit": "a996e8458ac333ecfc2184b2a167d91b9246db60",
+    "independent_cause_commit": "fe144a0830ef42b57fa6d4ac7248a5081f31acd4"
+  },
+  "limits": [
+    "This audit executes no product runtime,model,tokenizer,query or fresh metadata/content access.",
+    "Full payload equality uses the original saved digest boundary after removing latency_ms; omitted response bodies are not independently retokenized.",
+    "New SQLite originals include new ingestion timestamps and cannot be presented as recovered historical database bytes.",
+    "Q2 is historical compatibility, not speed, quality, resource, formal or release acceptance."
+  ]
+}
