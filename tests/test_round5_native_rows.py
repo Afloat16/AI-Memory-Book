@@ -90,7 +90,8 @@ class NativeCursorTests(unittest.TestCase):
             return value.decode()
 
         self.db.text_factory = decode
-        cursor = self.db.execute("SELECT 7 AS rid, 'page-one' AS id, -1 AS rank")
+        cursor = self.db.cursor()
+        cursor.execute("SELECT 7 AS rid, 'page-one' AS id, -1 AS rank")
         rows, certified = store._candidate_rows(cursor, store._STEM_ROUTE_DESCRIPTION, self.db)
         self.assertIsNone(certified)
         self.assertEqual(seen, [sqlite3.Row])

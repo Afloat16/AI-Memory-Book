@@ -294,7 +294,14 @@ class MemoryBook:
         if self.path != ":memory:":
             Path(self.path).expanduser().resolve().parent.mkdir(parents=True, exist_ok=True)
             self.path = str(Path(self.path).expanduser())
-        self.db = sqlite3.connect(self.path, timeout=10, isolation_level=None)
+        # The bounded route union produces many IN-list statement shapes.
+        # Expand only the ordinary connection's prepared-statement cache;
+        # custom connect callables retain their historical arguments.
+        if sqlite3.connect is _NATIVE_CONNECT:
+            self.db = sqlite3.connect(self.path, timeout=10, isolation_level=None,
+                                      cached_statements=512)
+        else:
+            self.db = sqlite3.connect(self.path, timeout=10, isolation_level=None)
         # This construction has no detect_types/converter option. Keep only
         # its identity as a certificate; custom/replaced connections never
         # acquire one, even if their current row factory happens to be Row.
