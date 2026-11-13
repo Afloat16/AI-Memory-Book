@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "status": "registered-before-new-recovery-calls-and-final-committed-formal-freeze",
+  "registered_at_utc": "2026-11-13T03:36:02Z",
+  "original_plan_commit": "4f239eaab6e1ab7bfb8910819a74a6fab195629c",
+  "development_addendum_commit": "fbfc6c56ae047abfd765e6149ba748c9e18adc42",
+  "counting_addendum_commit": "e02584fd20d2626777449bc64322703de6df6948",
+  "candidate": {
+    "commit": "2d7b5e38839fb21724ad3beec6b6ebabbda45636",
+    "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93",
+    "selection": "The already selected C2 source is fixed. Recovery results cannot select another runtime or a fastest attempt. No runtime edit is authorized by this record."
+  },
+  "formal_binding_draft": {
+    "path": "benchmarks/experiments/round4-performance-binding.json",
+    "sha256": "d535df483cc41cc0b2381104fd99b17f4639fa2160e3b73a6661ceb8c4e58915",
+    "evaluator_commit": "6532d8388187c6af4cd3ab3ef71f6ef285ed8fad",
+    "state_at_registration": "A local draft exists but has not been committed or used for a formal execution claim. Its original bytes are retained unchanged. Complete the recovery checks before committing the final binding and before launching the sole hosted formal experiment."
+  },
+  "reason": "Independent readiness review found that the C addendum's final-source old-cohort payload and old-Hotpot first-use checks were incomplete. The 4732-call complete differential and 16.67 percent native-only p95 geometric-mean gain belong to C1, not final C2. The C1 public character p95 regression of 20.49 percent remains preserved evidence; removal of its optional highlight specialization does not prove that C2 resolved the measured regression.",
+  "preserved_attempts": [
+    {
+      "record": "benchmarks/reports/round4-development/final-hotpot-first-use-interruption.json",
+      "status": "interrupted-incomplete-not-performance-evidence",
+      "planned_calls": 2048,
+      "completed_baseline_calls": 512,
+      "attempted_candidate_calls": 0,
+      "completed_candidate_calls": 0,
+      "cause_scope": "The execution session was lost. Saved files show candidate ingestion had started but no candidate retrieval began. No operating-system or runtime cause beyond the observed interruption is established.",
+      "preservation": "All original reports, started markers and ledgers remain unchanged. Eight lossless archives were independently checked against both recorded compressed hashes and uncompressed byte hashes. The completed baseline samples are retained and will not be pooled selectively with the new attempt."
+    },
+    {
+      "record": "benchmarks/reports/round4-development/candidate-c2-mcp512-preservation.json",
+      "status": "failed-before-retrieval",
+      "planned_calls": 512,
+      "attempted_retrieval_calls": 0,
+      "completed_retrieval_calls": 0,
+      "cause_scope": "The real SDK initialized and listed tools, but server_rss reported that this procfs did not expose the live MCP child. The required RSS availability guard stopped execution before ledger.start and before any recall call.",
+      "preservation": "All original reports and the empty attempt ledger remain unchanged. Five lossless archives were independently checked against both recorded compressed hashes and uncompressed byte hashes.",
+      "decision": "Do not weaken the RSS guard and do not repeat this local MCP diagnostic. It provides no retrieval-equivalence or speed evidence. Actual MCP timing, payload equality and resource evidence remain obligations of the sole hosted formal run."
+    }
+  ],
+  "new_recovery_work": [
+    {
+      "name": "final-C2-full-old-cohort-payload-differential",
+      "script": "scripts/round4_development_profile.py",
+      "expected_candidate_calls": 4732,
+      "cohorts": ["synthetic61", "public1015"],
+      "configurations": ["native-char4000", "native-token512", "native-token1024", "native-token2048"],
+      "tokenizer": "cl100k_base",
+      "comparison": "Compare every complete non-latency payload hash with the already preserved exact v0.3.1 baseline profile. Record attempted and completed counts, the fixed C2 runtime hash, every mismatch and all diagnostics. This is a final-source regression check; cProfile timings are not formal speed evidence."
+    },
+    {
+      "name": "old-Hotpot128-first-use-recovery-attempt",
+      "script": "scripts/round4_cold_development.py",
+      "expected_calls": 2048,
+      "historical_queries": 128,
+      "engine_order": [["baseline", "candidate"], ["candidate", "baseline"]],
+      "configurations": ["native-char4000", "native-token512", "native-token1024", "native-token2048"],
+      "decision": "Create one new complete attempt in unused state, report and worker paths because the previous execution was interrupted before its first candidate call. Use the same fixed C2 source, exact released baseline, historical ID manifest, helper and configuration matrix. This explicitly repeats the first baseline worker as part of a separately identified complete attempt; it does not erase or replace the original 512 samples.",
+      "interpretation": "Retain every worker, sample, payload hash, failure and negative cell from both attempts. Report each attempt separately and never select the faster attempt or combine only favorable rounds. With the body-feature cache absent, this is first-use historical native coverage with shared connections across each worker's configurations, not an OS-cold-cache claim."
+    }
+  ],
+  "execution_and_completion": "Commit this recovery record before any new recovery calls. Run the two recovery tasks sequentially and preserve their original outputs, ledgers and source identities in Git. If either recovery is incomplete or has a correctness mismatch, keep it explicitly unresolved and stop before final committed formal freeze; do not silently retry or replace evidence. The original plan and addendum bytes remain unchanged.",
+  "unchanged_formal_gates": {
+    "calls": 56784,
+    "rounds": 4,
+    "pooled_cells": 12,
+    "minimum_geometric_mean_p95_improvement_percent": 10,
+    "minimum_one_public_native_token_p95_improvement_percent": 15,
+    "minimum_public_actual_MCP_token1024_p95_improvement_percent": 10,
+    "maximum_any_pooled_p50_or_p95_regression_percent": 5,
+    "resource_review_trigger_mean_increase_percent": 10,
+    "correctness": "Require complete non-latency payload equivalence and every original source, scope, budget, metadata, cache and indexed-content invariant.",
+    "execution": "One final source/evaluator binding and one claimed hosted formal execution. Preserve all formal rounds and failures. No best-run selection, replacement timing or performance-gate relaxation."
+  },
+  "scope_limits": "The completed 1968-call, 984-pair final-C2 Q2 compatibility audit remains valid old-cohort evidence with fixed vectors and model; it does not substitute for the missing lexical first-use checks or establish a speedup. No fresh validation ID is selected, no quality scoring is introduced, and no comparator or whole-product superiority claim follows from this recovery."
+}
