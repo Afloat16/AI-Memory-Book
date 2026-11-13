@@ -1,30 +1,46 @@
 # Round-five recovery — 2026-11-13
 
-## Latest checkpoint — final NO source selected; formal evaluation running
+## Latest checkpoint — complete formal rejection retained
 
-The machine-readable recovery entry is [round5-current-state-20261113.json](round5-current-state-20261113.json). This section supersedes the earlier “next step” paragraphs below while preserving every historical failure and measurement.
+Start with [the machine-readable state](round5-current-state-20261113.json) and [the complete final-result report](round5-final-results-20261113.md). This section supersedes historical “next step” paragraphs below. Do not repeat a completed or claimed measurement.
 
-Selected runtime: `4a0ad4dc6aec33a91231d419239b7e90b160c695`, SHA256 `77310a7971677c2cebf8cd01d0aa36ab4562b55d1a3826b7fa7de895840abb32`. The immutable choice and its development evidence are in [round5-selected-runtime.json](../benchmarks/experiments/round5-selected-runtime.json), committed at `f438d0a2b40a9ff8a3bdaab534977f34eb0d3ba3`. Do not select another source or tune this source using the formal timings.
+The final NO source remains `4a0ad4dc6aec33a91231d419239b7e90b160c695`, runtime SHA256 `77310a7971677c2cebf8cd01d0aa36ab4562b55d1a3826b7fa7de895840abb32`. Its unchanged source/interface binding was frozen before the only formal attempt.
 
-The source-free interface/binding run [43494353078](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43494353078) completed at `195ab7145db184b1696287606dda6e9cb877b6f4`, without creating a database or executing retrieval. Exact certificate SHA256 is `8380233302a011a25fc520d8dc3b19c429cc9ee530b0e4189195c1c7a22400c8`; exact formal binding SHA256 is `1d5af43c6c9b3e826ce11814f29320f9838c3ad603a80b1a36eb9d122fc6b247`. Independent review `cdcf8f267555c348358ef0af9b5aa145a6277d33` confirmed all legacy schemas/instructions remain equal after removing only the approved optional `follow_titles=false` increment. The actual added tool-schema cost is **72 tokens with each reference tokenizer**, with zero instruction-token change.
+### Formal outcome
 
-### Active fixed attempts
+Run [43496488712](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43496488712), attempt1, completed all **66,248 calls / 16 workers / 14 cells / 4 rounds** at result `762500920d715b5bca6e1eba9314d8a4c970bf04`. Validation passed with zero issues; saved raw audit succeeded. Measurement returned exit3 because **the original numerical gates failed**:
 
-| Attempt | Launch / run | Result and boundary |
-|---|---|---|
-| Formal performance | `cfe8a749efa4add1c62c516aa299ab18ee89b92c`; [43496488712](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43496488712) | `validation/v033-round5-performance-v2-43496488712-1`; 66,248 calls, 16 sequential workers, 4 rounds, 14 cells; first attempt running. |
-| Historical lexical | `be5879400b2f05a250e97b00ce9b488f00413ccb`; [43497150881](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43497150881) | `validation/v033-lexical-compat-hosted-1`; 5,120 calls including the 2,048 char100000 calls; first attempt running. |
-| Historical Q2 | Same launch; [43497153581](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43497153581) | First attempt failed before attempt claim, model/data assets, database construction or retrieval. Recovery job `132133552713` reported `Preparation evaluator identity changed` in `static_preflight`. Preserve this failure; do not recreate or replay its trigger. |
+- Geometric pooled p95 improvement4.239507% versus the10% target.
+- Public native char4000 improvement7.987988% versus10%.
+- Public actual MCP char4000 improvement0.374289% versus5%.
+- Public MCP token1024 pooled p95 regressed10.585735%, exceeding the5% ceiling.
+- Import means increased30.522816% and27.639939% in the two cohorts; both resource-review flags remain unresolved.
 
-The formal original gates remain 10% pooled p95 geometric improvement, 10% public native char4000 p95 improvement, 5% public actual-MCP char4000 p95 improvement, and no cell p50/p95 regression above 5%. All 28 resource comparisons and 64 storage snapshots require review under their original boundaries. A missed performance gate is retained and reported; it does not become an accepted speedup. [Root launch decision](../benchmarks/reports/round5-final-formal-root-launch-review.json) and [prospective independent raw-audit plan](../benchmarks/reports/round5-formal-independent-raw-audit-plan.json) are committed.
+No round or adverse observation is removed. No source retuning, favorable replay, threshold change or release acceptance follows from this outcome. **Main, tag and release remain at the previously accepted version.** The optional title-following schema also retains its real+72-token cost under each reference tokenizer.
 
-### Completed diagnostic and pending fresh evaluation
+Independent resource audit `abbc60f5bf011e0ac8d1fb2f3371ac9e75ae197f` verified28 comparisons/364 statistics, with64 storage snapshots/256 values all matching corresponding baseline and candidate states. It does not waive import or numerical failures. The final all-worker independent raw audit is running on `validation/v033-formal-primary-raw-independent-audit`, with code and input receipts fixed before raw reading; it must preserve the original rejection.
 
-The only LM SQLite attribution attempt completed at `f4a684233adee2da0e2b0c1c093a8b3f806561a7`. Independent audit `f29e4871d14a89e2b5626190a84a4832266121eb` verified all **4,732** primary-cell payload digests against original C2 results and all **80,051** spans. All eight individual cell gzips and eight C2 reference gzips were directly hash-checked. The monolithic gzip was not independently readable through the connector; that limit is explicit. These partial instrumented native spans are a mechanism diagnostic, not an end-to-end speed comparison; residual and bookkeeping are not subtracted. See [independent raw audit](../benchmarks/reports/round5-lm-sql-attribution-1/independent-raw-audit.json).
+### Large-gzip evidence is safely transportable
 
-The final fresh authorization has **not** been created. No new fresh metadata, question IDs or content have been selected or read. A source-only [374-file code inventory](../benchmarks/reports/round5-fresh-authorization-inventory.json) was computed against `be5879400b2f05a250e97b00ce9b488f00413ccb`; it is preparation, not fresh authorization. If any relevant tracked file changes during a Q2 controller repair, rebuild the manifest from the actual final tree and author the exact 11-key authorization last. Keep fresh metadata closed while formal acceptance remains unknown.
+Connector binary-file limits affected reading, not the original Git evidence. The source-free transport workflow at `91d39bdf3e44d2ad6ff26fda8a8e5184f1c5d85d` and scope SHA`8a9a43b2a786f2cce13620ca3a57df2c44e9138c26c01f064ddb8d1cd7a42e60` were independently reviewed. [Run43500798881](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43500798881) completed at `860aa4c7d30a0914e769d64b811c02bcbed763a3`.
 
-Next: inspect the Q2 missing/different evaluator-file identity without weakening the original manifest or vector/payload gates; preserve any concrete controller repair in a separately identified prospective validation. Independently audit completed formal and historical raw outputs, retain all adverse results, and then decide the registered fresh evaluation. **Main, tag and release are not accepted or advanced.**
+Its `benchmarks/reports/round5-formal-evidence-transport-1/manifest.json` SHA is `b1ae89ad5559ee2709dee75a3357b86d33e286c75f838034ca1e9f77f871a9af`. Seventeen original gzip files totaling28,485,017 bytes are copied as70 contiguous canonical-base64 chunks, at most480,000 raw bytes per chunk. Source Git blob/length/SHA256 and per-chunk hashes are fixed. There was no decompression, runtime execution or retrieval. Read chunks and reconstruct original compressed bytes; do not re-run measurements to work around a read limitation.
+
+### Historical compatibility and Q2 repair
+
+Historical lexical run43497150881 finished at `a15a5ce36079302de08c9c91dd6eb6896fd6bccc`. Independent audit `20f968439942336a8d5c385b4dbb7c2178323bef` checked20 gzip inputs,5,120 calls,2,560 saved full-payload pairs and10,240 ledger events with no mismatch. Char100000 pooled p50 improved3.885544%, p95 improved4.933982%; its small round2 p95 regression remains. The [independent raw audit](../benchmarks/reports/round5-lexical-compat-hosted-1-independent-raw-audit.json) is integrated.
+
+Q2 attempt1 run43497153581 failed before claim, assets, database builds or queries. Its unchanged explicit evaluator registry contained `scripts/round3_development_checks.py`, absent from the old import-derived34-file map. The complete failure and independent root-cause report remain preserved.
+
+A separately registered attempt2 at `c23c5d5c9e1b8521ed78bf28e34896bc0755ee86` verifies the strict union of34 import files and11 original registry entries, totaling35 actual files. The source-only CI43501583612 passed20/20 tests plus the real35-file check; ordinary CI43501583600 passed9/9. The earlier namespace CI failure43500815079 is retained. All source, model, vector, payload,1968-call/984-pair and no-replay gates are unchanged. New controller/test/workflow/scope bytes are integrated at `7ee20310d8d2ead6f5aca4b5fd6686a0d4add423`.
+
+The attempt2 trigger `ci/v033-q2-recovery-hosted-2` remains uncreated at this checkpoint, pending final independent code review. Root alone may create it once at the reviewed non-skip source commit. Do not reset or reuse attempt1.
+
+### Closed fresh/release boundary
+
+No new fresh metadata, IDs or content has been selected or read; no comparator measurements have run. Do not create a fresh authorization for this rejected source. The earlier374-file inventory was preparation only and would need recomputation after the three new Q2 Python/experiment entries if any future independently accepted source becomes eligible.
+
+Finish the pending raw audit and separately reviewed Q2 compatibility repair, save all outcomes, and update the exact run/result identities here and in the state JSON. A later optimization must be a separately declared candidate/scope; this complete adverse formal result remains immutable.
 
 ## Earlier checkpoint — NO development and exact integration
 
