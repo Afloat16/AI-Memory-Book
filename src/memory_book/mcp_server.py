@@ -107,7 +107,7 @@ def recall_payload(result: dict[str, Any], *, details: bool = False,
     return {"context": result["context"], "results": hits,
             **{key: result[key] for key in ("context_chars", "budget_chars", "revision", "truncated", "warnings")},
             **{key: result[key] for key in ("budget_tokens", "tokenizer", "tokenizer_version", "context_tokens",
-                                           "semantic", "semantic_model_fingerprint")
+                                           "semantic", "semantic_model_fingerprint", "title_reference")
                if key in result}}
 
 
@@ -221,6 +221,7 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
         budget_tokens: StrictInt | None = None,
         tokenizer: str = "cl100k_base",
         semantic: StrictBool = False,
+        follow_titles: StrictBool = False,
     ) -> str:
         """Recall cited history. Compact by default; details adds exact spans and diagnostics.
 
@@ -234,6 +235,10 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
         semantic explicitly enables local embedding candidates if the operator
         configured a model and built a current index. It never downloads a model
         or rebuilds an index. Default lexical recall requires no model.
+        follow_titles opts into one complete source-title hop from the first
+        lexical page within an explicit project. It is disabled by default and
+        cannot be combined with semantic or coverage. Compact and detailed
+        replies both retain title_reference provenance when it is enabled.
         """
         _range(budget_chars, "budget_chars", 0, 100000)
         _range(limit, "limit", 1, 50)
@@ -242,7 +247,7 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
                 query, project=project, chapter=chapter, session=session,
                 budget_chars=budget_chars, limit=limit, coverage=coverage,
                 budget_tokens=budget_tokens, tokenizer=tokenizer,
-                semantic=semantic,
+                semantic=semantic, follow_titles=follow_titles,
             )
         return _json(recall_payload(result, details=details, source_format=source_format))
 
