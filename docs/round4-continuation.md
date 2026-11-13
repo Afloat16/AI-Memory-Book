@@ -38,6 +38,24 @@ development continues; no new IDs have been selected. Independent review is
 checking the commit-before-selection and one-execution guards. These are
 development checkpoints, not acceptance or release approval.
 
+## Candidate B disposition
+
+The pre-implementation addendum is immutable at `fbfc6c5`. Candidate B's
+runtime SHA-256 is `f4d5471df44d8d04e13581e971d6d53d885919caea9f80a5a0a4ddcbc088f122`.
+It adds bounded, revision-scoped indexed-body features, private metadata
+dictionary reuse and bounded highlight reads. An independent audit found and
+fixed invalidation on empty/flat/cache-hit paths before development timing.
+All 18 fresh cache/snapshot/memory fixtures pass; 32 additional artificial
+highlight pairs match. Its 4,732 complete profile payloads and 2,048 paired
+native diagnostic payloads also match v0.3.1 exactly.
+
+Candidate B is **not selected for release**: public token512 development p95
+regressed by 11.82%, with mixed/noisy results elsewhere. Preserve both B
+manifests and all compressed samples. Correctness alone does not justify this
+cache. Next investigate exact within-request token counting at certified
+separator boundaries; preregister any extension before implementing or
+measuring it. No formal run, new ID selection or fresh quality scoring exists.
+
 The [registered plan](../benchmarks/experiments/round4-plan.json) targets
 complete-output-equivalent reductions in token-budget source preparation,
 projection and final counting. Actual MCP token1024 is added to the balanced

@@ -7,7 +7,9 @@ import json
 import math
 import re
 import sqlite3
+import sys
 import time
+from collections import OrderedDict
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
@@ -21,6 +23,13 @@ INDEX_VERSION = 3
 RECALL_VERSION = 10
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
+BODY_TOKEN_CACHE_ENTRIES = 256
+BODY_TOKEN_CACHE_BYTES = 2 * 1024 * 1024
+# A conservative fixed per-string overhead, plus four bytes per source
+# character below, covers Python's compact ASCII and Unicode representations.
+_BODY_STRING_OVERHEAD = max(sys.getsizeof(value) for value in ("", "a", "é", "漢", "🧠"))
+_BODY_EMPTY_CACHE_BYTES = sys.getsizeof(OrderedDict())
+HIGHLIGHT_ROWID_SPAN = 256
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
 HISTORICAL_QUERY = re.compile(r"\b(?:original|initial|previous|earlier|before|history|historical|formerly|old|as of)\b|最初|最早|之前|以前|原来|原始|历史|旧|\b(?:19|20)\d{2}\b", re.IGNORECASE)
 ASCII_WORD = re.compile(r"[a-zA-Z]")
@@ -246,6 +255,12 @@ class MemoryBook:
         # writer naturally gets a new entry. Cache only within this connection
         # and bound retained text independently of result-cache settings.
         self._directory_tokens = lru_cache(maxsize=512)(_directory_tokens)
+        # These are query-independent features of the immutable indexed body,
+        # not recall results. A captured archive revision identifies their
+        # source snapshot; both entry count and retained bytes are bounded.
+        self._body_token_cache: OrderedDict[int, tuple[frozenset[str], int]] = OrderedDict()
+        self._body_token_cache_bytes = 0
+        self._body_token_cache_revision: int | None = None
         if self.path != ":memory:":
             Path(self.path).expanduser().resolve().parent.mkdir(parents=True, exist_ok=True)
             self.path = str(Path(self.path).expanduser())
@@ -284,7 +299,71 @@ class MemoryBook:
             self.db.close()
         finally:
             self._directory_tokens.cache_clear()
+            self._clear_body_token_cache()
             self._semantic_model = None
+
+    def _clear_body_token_cache(self) -> None:
+        self._body_token_cache.clear()
+        self._body_token_cache_bytes = 0
+        self._body_token_cache_revision = None
+
+    def _indexed_body_terms(self, ids: list[int], revision: int) -> dict[int, frozenset[str]]:
+        """Read exact body features under recall's existing source snapshot.
+
+        Every supported source mutation advances the archive revision in the
+        same transaction. Direct, unversioned edits of internal FTS tables do
+        not satisfy that storage contract. Recall-cache writes do not modify
+        these query-independent features and need not discard them.
+        """
+        if self._body_token_cache_revision != revision:
+            self._clear_body_token_cache()
+            self._body_token_cache_revision = revision
+        cached = self._body_token_cache
+        found: dict[int, frozenset[str]] = {}
+        missing = []
+        for rid in ids:
+            entry = cached.get(rid)
+            if entry is None:
+                missing.append(rid)
+            else:
+                found[rid] = entry[0]
+                cached.move_to_end(rid)
+        if missing:
+            for row in self.db.execute("SELECT rowid,body FROM pages_fts WHERE rowid IN (" +
+                                       ",".join("?" for _ in missing) + ")", missing):
+                rid, body = row["rowid"], row["body"]
+                words = found[rid] = frozenset(body.split())
+                if not words:
+                    continue
+                # Each unique word is a substring of body. The total word
+                # length cannot exceed len(body), so this upper bound avoids
+                # another Python pass over every word on a cold cache miss.
+                cost = (sys.getsizeof(rid) + sys.getsizeof(words) +
+                        sys.getsizeof((words, 0)) + sys.getsizeof(0) +
+                        _BODY_STRING_OVERHEAD * len(words) + 4 * len(body))
+                if BODY_TOKEN_CACHE_ENTRIES <= 0 or cost + _BODY_EMPTY_CACHE_BYTES > BODY_TOKEN_CACHE_BYTES:
+                    continue
+                cached[rid] = (words, cost)
+                self._body_token_cache_bytes += cost
+                while cached and (len(cached) > BODY_TOKEN_CACHE_ENTRIES or
+                        self._body_token_cache_bytes + sys.getsizeof(cached) > BODY_TOKEN_CACHE_BYTES):
+                    _, removed = cached.popitem(last=False)
+                    self._body_token_cache_bytes -= removed[1]
+                if not cached:
+                    cached.clear()  # release the empty table's retained capacity
+        return found
+
+    def _highlighted_bodies(self, expression: str, ids: list[int]) -> list[sqlite3.Row]:
+        """Keep the selected whitelist while bounding a single FTS scan."""
+        if not ids:
+            return []
+        low, high = min(ids), max(ids)
+        bounded = len(ids) > 1 and high - low + 1 <= HIGHLIGHT_ROWID_SPAN
+        where = "rowid BETWEEN ? AND ? AND +rowid" if bounded else "rowid"
+        parameters = ["\x01", "\x02", expression, *([low, high] if bounded else []), *ids]
+        return self.db.execute("""SELECT rowid,highlight(pages_stem_fts,2,?,?) body
+          FROM pages_stem_fts WHERE pages_stem_fts MATCH ? AND """ + where + " IN (" +
+          ",".join("?" for _ in ids) + ")", parameters).fetchall()
 
     def _semantic_encoder(self):
         if self.semantic_model_dir is None:
@@ -648,6 +727,9 @@ class MemoryBook:
         self.db.execute("BEGIN")
         try:
             revision = self.revision
+            if self._body_token_cache_revision != revision:
+                self._clear_body_token_cache()
+                self._body_token_cache_revision = revision
             cache_options = [INDEX_VERSION, RECALL_VERSION, query, project, chapter, session, budget_chars, limit, strategy, coverage]
             if semantic_model is not None:
                 from .semantic import FUSION_VERSION, SEMANTIC_VERSION, check_index, fuse_candidates, rank_pages
@@ -738,7 +820,7 @@ class MemoryBook:
                 qset = set(qt)
                 directory_terms = {}
                 for row in rows.values():
-                    item = dict(row)
+                    item = row  # already a private dictionary; rows is not reused
                     title_overlap = 0.0
                     if strategy == "book":
                         directory = item["chapter_title"] + " " + item["session_title"]
@@ -767,10 +849,8 @@ class MemoryBook:
                     # crowded out by several almost-identical high scores.
                     pool = candidates[:limit * 4]
                     ids = [item["rid"] for item in pool]
-                    matched = {row["rowid"]: qset.intersection(row["body"].split())
-                               for row in self.db.execute(
-                                   "SELECT rowid,body FROM pages_fts WHERE rowid IN (" +
-                                   ",".join("?" for _ in ids) + ")", ids)}
+                    matched = {rid: qset.intersection(words)
+                               for rid, words in self._indexed_body_terms(ids, revision).items()}
                     if current_query:
                         # Timestamp preference is confined to the same task
                         # and identical matched query terms. Preserve each
@@ -856,11 +936,7 @@ class MemoryBook:
                         # Highlight the normalized indexed body only when an
                         # actual excerpt needs word forms absent from the query.
                         # Full pages need no extra read or term extraction.
-                        highlighted = self.db.execute("""SELECT rowid,
-                          highlight(pages_stem_fts,2,?,?) body FROM pages_stem_fts
-                          WHERE pages_stem_fts MATCH ? AND rowid IN (""" +
-                          ",".join("?" for _ in truncated_ids) + ")",
-                          ["\x01", "\x02", expression, *truncated_ids]).fetchall()
+                        highlighted = self._highlighted_bodies(expression, truncated_ids)
                         forms = {}
                         for row in highlighted:
                             seen = set(qt)
