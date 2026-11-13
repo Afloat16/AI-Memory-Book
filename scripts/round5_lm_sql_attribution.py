@@ -720,18 +720,329 @@ def profile_audit(value, old, references, producer_sha):
         "retrieval_calls_executed_by_audit": 0, "speed_claim": False, "fresh_rows_decoded": 0}
 
 
+def prepare_references(old):
+    """Read nine small pinned Git objects, without checking out historical reports."""
+    subprocess.run(["git", "fetch", "--filter=blob:none", "--depth=1", "--no-tags",
+                    "origin", REFERENCE_COMMIT], cwd=ROOT, check=True)
+    directory = STATE / "profile-references"
+    directory.mkdir(exist_ok=False)
+    manifest_path = old["profile"]["baseline_reference"]
+    raw = subprocess.check_output(["git", "show", REFERENCE_COMMIT + ":" + manifest_path], cwd=ROOT)
+    if hashlib.sha256(raw).hexdigest() != old["profile"]["baseline_manifest_sha256"]:
+        raise ValueError("Saved baseline profile manifest changed")
+    (directory / "manifest.json").write_bytes(raw)
+    manifest = json.loads(raw)
+    if (manifest["runtime_source_sha256"] != old["baseline"]["runtime_sha256"]
+            or manifest["script_sha256"] != old["helpers_sha256"]["scripts/round4_development_profile.py"]
+            or manifest["status"] != "completed" or manifest["completed_calls"] != 4732):
+        raise ValueError("Saved baseline manifest has different source/counts")
+    for cell in old["profile"]["baseline_cells"]:
+        compressed = subprocess.check_output(["git", "show", REFERENCE_COMMIT + ":" + cell["path"]], cwd=ROOT)
+        if len(compressed) != cell["bytes"] or hashlib.sha256(compressed).hexdigest() != cell["sha256"]:
+            raise ValueError("Saved baseline compressed cell changed")
+        raw = gzip.decompress(compressed)
+        if hashlib.sha256(raw).hexdigest() != cell["uncompressed_sha256"]:
+            raise ValueError("Saved baseline raw cell changed")
+        (directory / Path(cell["path"]).name).write_bytes(compressed)
+
+
+EVIDENCE = (
+    {"kind": "design_review", "commit": "fa2018b98a297352fee527bcc120ed4fa27e3022",
+     "path": "benchmarks/reports/round5-lm-sql-attribution-scope-independent-review.json",
+     "sha256": "9f28ee3dc2fb0ab16142e1ded9152e96de47c9a362ae5bd333c3c6cfe9c86241"},
+    {"kind": "source_review", "commit": "41e26421eccc281ea9639c882be1a9e2e787ec4a",
+     "path": "benchmarks/reports/round5-ranked-normalization-lm-independent-source-review.json",
+     "sha256": "530f905dff7626b5194035cbf63f6076d49c5caf1117c09e342f2090e84bca59"},
+    {"kind": "lm_outcome", "commit": "128952ffd4f53a30f225feb98853a7f7f6ea7121",
+     "path": "benchmarks/reports/round5-candidate-lm-development-1/independent-raw-audit.json",
+     "sha256": "eb7c9fd7b032409e7ff4d39b3ce8b03838f1901abfc3b4806fd21a8f398fdb42"},
+    {"kind": "pairing_witness", "commit": "056422edec1bd2c178afae33df57eca8848f3fd1",
+     "path": "benchmarks/reports/round5-lm-sql-attribution-artificial/native-wrapper-witness.json",
+     "sha256": "5a50c520bf8695388fd82e922d9ae19b5cb86c05e01f0f6f1d33fe7825bed6dc"},
+)
+
+
+def validate_reference(reference):
+    if (re.fullmatch(r"[0-9a-f]{40}", reference.get("commit", "")) is None
+            or re.fullmatch(r"[0-9a-f]{64}", reference.get("sha256", "")) is None
+            or not reference.get("path", "").startswith("benchmarks/reports/")
+            or ".." in Path(reference["path"]).parts or Path(reference["path"]).is_absolute()):
+        raise ValueError("Invalid immutable evidence reference")
+
+
+def git_reference(reference):
+    validate_reference(reference)
+    subprocess.run(["git", "fetch", "--filter=blob:none", "--depth=1", "--no-tags",
+                    "origin", reference["commit"]], cwd=ROOT, check=True)
+    raw = subprocess.check_output(["git", "show", reference["commit"] + ":" + reference["path"]], cwd=ROOT)
+    if hashlib.sha256(raw).hexdigest() != reference["sha256"]:
+        raise ValueError("Immutable evidence bytes changed")
+    return raw
+
+
+def validate_binding_value(value):
+    scope = scope_value()
+    identity = runtime_identity()
+    if (value.get("status") != "frozen-after-artificial-proof-before-sql-attribution-corpus"
+            or value.get("attempt") != ATTEMPT or value.get("runtime") != identity
+            or value.get("scope_sha256") != SCOPE_SHA
+            or value.get("pairing_addendum_sha256") != PAIRING_ADDENDUM_SHA
+            or value.get("classification_sha256") != digest(scope["observer"]["source_mapping"])
+            or value.get("planned_recall_calls") != 4732 or value.get("comparison_engine_calls") != 0
+            or value.get("fresh_rows_decoded") != 0 or value.get("speed_claim") is not False):
+        raise ValueError("Diagnostic binding changed its exact source or observation boundary")
+    expected_files = {SCRIPT_PATH, TEST_PATH, WORKFLOW_PATH}
+    if set(value.get("artifact_files_sha256", {})) != expected_files:
+        raise ValueError("Missing exact observer/test/workflow inventory")
+    verify_files(value["artifact_files_sha256"])
+    for key, registered in (("helpers_sha256", "helpers_sha256"),
+                            ("helper_dependency_sha256", "helper_dependencies_sha256")):
+        if value.get(key) != scope["inherited_protocol"][registered]:
+            raise ValueError("Original helper closure changed")
+        verify_files(value[key])
+    if sha(OLD) != OLD_SHA:
+        raise ValueError("Original schedule binding changed")
+    if value.get("prior_evidence") != list(EVIDENCE):
+        raise ValueError("Prior source, design, failure/witness or LM result evidence changed")
+    validate_reference(value["artificial_evidence"])
+    if value.get("source_ci") != scope["prior_evidence"]["source_ci"]:
+        raise ValueError("Original complete exact-LM CI changed")
+    return value
+
+
 def require_binding():
-    # First action in run(): no Git claim, download, import or corpus call.
+    # First action in run/preflight/worker. Do not move a claim or download above it.
     if not SOURCE_BINDING.is_file():
         raise ValueError("Missing committed diagnostic binding; no claim or download is allowed")
-    raise ValueError("Diagnostic evaluator is not frozen yet; no corpus execution")
+    value = validate_binding_value(read(SOURCE_BINDING))
+    launch = os.environ.get("GITHUB_SHA", "")
+    if re.fullmatch(r"[0-9a-f]{40}", launch) is None:
+        raise ValueError("Missing exact hosted launch commit")
+    for path in (Path(__file__).resolve(), ROOT / TEST_PATH, ROOT / WORKFLOW_PATH,
+                 SCOPE, PAIRING_ADDENDUM, SOURCE_BINDING, OLD):
+        raw = subprocess.check_output(["git", "show", launch + ":" + path.relative_to(ROOT).as_posix()], cwd=ROOT)
+        if raw != path.read_bytes():
+            raise ValueError("Diagnostic input differs from its exact launch commit")
+    return value
+
+
+def validate_evidence(value, kind):
+    if kind == "design_review":
+        valid = (value.get("status") == "accepted-prospective-diagnostic-design-for-implementation-only"
+            and value.get("scope_sha256") == SCOPE_SHA and value.get("source_commit") == SOURCE_COMMIT
+            and value.get("runtime_sha256") == RUNTIME_SHA and value.get("artificial_implementation_authorized") is True
+            and value.get("retrieval_calls_executed_by_review") == 0 and value.get("fresh_rows_decoded") == 0)
+    elif kind == "source_review":
+        valid = (value.get("status") == "accepted-independent-source-review-of-combined-lm-before-corpus"
+            and value.get("reviewed_source_commit") == SOURCE_COMMIT and value.get("runtime_sha256") == RUNTIME_SHA
+            and value.get("performance_accepted") is False and value.get("corpus_calls_executed_by_review") == 0)
+    elif kind == "lm_outcome":
+        valid = (value.get("status") == "verified-development-result-below-target"
+            and value.get("source_commit") == SOURCE_COMMIT and value.get("runtime_sha256") == RUNTIME_SHA
+            and value.get("result_commit") == "ec296d79fc1a2ec9c4e3cadb48bddfd34cdb0213"
+            and value.get("calls") == 4096 and value.get("complete_payload_pairs") == 2048
+            and value.get("payload_mismatches") == 0 and len(value.get("cells", [])) == 8
+            and value.get("all_summary_quantiles_reproduced") is True
+            and value.get("pooled_p95_geomean_improvement_percent") == 4.791840281283378
+            and value.get("formal_acceptance") is False
+            and value.get("retrieval_calls_executed_by_audit") == 0 and value.get("fresh_rows_decoded") == 0)
+    elif kind == "pairing_witness":
+        rows = value.get("observed", {}).get("native_wrapper_probe", [])
+        valid = (value.get("status") == "native-wrapper-identity-witness-from-artificial-input-only"
+            and len(rows) == 9 and sum(row["wrapper_is"] is False for row in rows) == 8
+            and all(all(row.get(key) is True for key in
+                ("frame_is", "receiver_is", "native_type_is", "descriptor_is", "method_same")) for row in rows)
+            and value["observed"]["unclosed_entries"] == 0
+            and value.get("diagnostic_corpus_calls") == 0 and value.get("fresh_rows_decoded") == 0)
+    else:
+        raise ValueError("Unknown immutable evidence kind")
+    if not valid:
+        raise ValueError("Immutable evidence no longer proves its registered boundary")
+
+
+def validate_artificial_evidence(value, bound):
+    receipt = value.get("receipt", {})
+    job = value.get("job", {})
+    run = value.get("workflow_run", {})
+    if (value.get("status") != "passed-artificial-observer-and-protocol-tests"
+            or value.get("artifact_files_sha256") != bound["artifact_files_sha256"]
+            or run.get("conclusion") != "success" or run.get("status") != "completed"
+            or run.get("run_attempt") != 1
+            or job.get("name") != "protocol-fixtures" or job.get("conclusion") != "success"
+            or job.get("status") != "completed"
+            or receipt.get("source_commit") != SOURCE_COMMIT or receipt.get("runtime_sha256") != RUNTIME_SHA
+            or receipt.get("script_sha256") != bound["artifact_files_sha256"][SCRIPT_PATH]
+            or receipt.get("test_file_sha256") != bound["artifact_files_sha256"][TEST_PATH]
+            or receipt.get("workflow_file_sha256") != bound["artifact_files_sha256"][WORKFLOW_PATH]
+            or type(receipt.get("expected")) is not int or receipt["expected"] <= 0
+            or receipt.get("tests") != receipt["expected"] or receipt.get("passed") is not True
+            or any(receipt.get(key) != 0 for key in ("errors", "failures", "skipped", "corpus_calls"))):
+        raise ValueError("Complete artificial observer/protocol evidence is required")
+    return receipt
+
+
+def preflight_evidence(bound):
+    records = []
+    for reference in EVIDENCE:
+        raw = git_reference(reference)
+        validate_evidence(json.loads(raw), reference["kind"])
+        records.append(dict(reference))
+    raw = git_reference(bound["artificial_evidence"])
+    artificial = json.loads(raw)
+    validate_artificial_evidence(artificial, bound)
+    code_commit = artificial["workflow_run"]["head_sha"]
+    if re.fullmatch(r"[0-9a-f]{40}", code_commit or "") is None:
+        raise ValueError("Artificial CI lacks an exact source commit")
+    subprocess.run(["git", "fetch", "--filter=blob:none", "--depth=1", "--no-tags",
+                    "origin", code_commit], cwd=ROOT, check=True)
+    for path, expected in bound["artifact_files_sha256"].items():
+        content = subprocess.check_output(["git", "show", code_commit + ":" + path], cwd=ROOT)
+        if hashlib.sha256(content).hexdigest() != expected:
+            raise ValueError("Artificial CI covered different observer/test/workflow bytes")
+    log = artificial["raw_log"]
+    log_ref = {"commit": bound["artificial_evidence"]["commit"], **log}
+    git_reference(log_ref)
+    return {"status": "verified-before-claim", "created_at": stamp(),
+        "source_commit": SOURCE_COMMIT, "runtime_sha256": RUNTIME_SHA,
+        "evidence": records, "artificial_evidence": bound["artificial_evidence"],
+        "binding_sha256": sha(SOURCE_BINDING), "retrieval_calls": 0, "fresh_rows_decoded": 0}
+
+
+def runtime_environment():
+    return {"python": platform.python_version(), "sqlite": sqlite3.sqlite_version,
+        "platform": platform.platform(), "machine": platform.machine(),
+        "python_executable_sha256": sha(Path(sys.executable).resolve()),
+        "packages": {name: importlib.metadata.version(name) for name in ("mcp", "pydantic", "tiktoken", "regex")},
+        "tokenizer_cache": {path.name: sha(path) for path in sorted(
+            Path(os.environ["TIKTOKEN_CACHE_DIR"]).glob("*")) if path.is_file()},
+        "pythonhashseed": os.environ.get("PYTHONHASHSEED"),
+        "python_dont_write_bytecode": os.environ.get("PYTHONDONTWRITEBYTECODE"),
+        "boot_id": Path("/proc/sys/kernel/random/boot_id").read_text().strip(),
+        "clock": vars(time.get_clock_info("perf_counter")),
+        "interpretation": "One hosted VM; instrumented mechanism spans only, no speed or memory comparison."}
+
+
+def check_environment():
+    expected = {"mcp": "1.30.0", "pydantic": "2.14.3", "tiktoken": "0.12.0", "regex": "2026.11.9"}
+    if (sys.version_info[:2] != (3, 12) or platform.system() != "Linux"
+            or os.environ.get("PYTHONDONTWRITEBYTECODE") != "1"
+            or os.environ.get("PYTHONHASHSEED") != "0"
+            or {name: importlib.metadata.version(name) for name in expected} != expected):
+        raise ValueError("Registered hosted environment changed")
+
+
+def load_references(old):
+    directory = STATE / "profile-references"
+    return [json.loads(gzip.decompress((directory / Path(cell["path"]).name).read_bytes()))
+            for cell in old["profile"]["baseline_cells"]]
+
+
+def verify_reference_storage(old):
+    directory = STATE / "profile-references"
+    if sha(directory / "manifest.json") != old["profile"]["baseline_manifest_sha256"]:
+        raise ValueError("Saved C2 manifest changed")
+    for cell in old["profile"]["baseline_cells"]:
+        path = directory / Path(cell["path"]).name
+        raw = path.read_bytes()
+        if (len(raw) != cell["bytes"] or hashlib.sha256(raw).hexdigest() != cell["sha256"]
+                or hashlib.sha256(gzip.decompress(raw)).hexdigest() != cell["uncompressed_sha256"]):
+            raise ValueError("Saved C2 gzip or complete raw bytes changed")
+
+
+def guards(binding):
+    if (sha(SCOPE) != SCOPE_SHA or sha(OLD) != OLD_SHA
+            or sha(PAIRING_ADDENDUM) != PAIRING_ADDENDUM_SHA
+            or sha(SOURCE_BINDING) != binding["source_binding_sha256"]):
+        raise ValueError("Frozen diagnostic input changed")
+    verify_files(binding["artifact_files_sha256"])
+    verify_files(binding["helpers_sha256"])
+    verify_files(binding["helper_dependency_sha256"])
+    verify_exact_source(STATE / "sources/measurement", binding["runtime"])
+    for name, expected in binding["preparation_files_sha256"].items():
+        if sha(PUBLIC / name) != expected:
+            raise ValueError("Bound preparation evidence changed")
+    if sha(STATE / "locomo10.json") != binding["locomo_sha256"]:
+        raise ValueError("Pinned old input changed")
+    verify_reference_storage(read(OLD))
+    check_environment()
+    if runtime_environment() != binding["environment"]:
+        raise ValueError("Bound hosted environment changed")
+
+
+def run_correctness_export(directory):
+    identity = runtime_identity()
+    before = full_export_files(directory)
+    save(PUBLIC / "correctness-export.intent.json", {"status": "started", "created_at": stamp(),
+        "source_commit": SOURCE_COMMIT, "runtime_sha256": RUNTIME_SHA,
+        "full_export_inventory": before, "test_file_sha256": sha(ROOT / TEST_PATH),
+        "corpus_calls": 0, "policy": "Invented observer/protocol fixtures only; retain this export and never use it for the old corpus."})
+    publish("bench: bind separate SQL observer correctness export")
+    log_path = PUBLIC / "correctness.log.partial"
+    returncode, error_type = None, None
+    try:
+        with log_path.open("xb") as log:
+            returncode = subprocess.run([sys.executable, str(ROOT / SCRIPT_PATH), "self-test",
+                "--source", str(directory), "--receipt", str(PUBLIC / "correctness.json")],
+                cwd=ROOT, env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1"),
+                stdout=log, stderr=subprocess.STDOUT, timeout=180).returncode
+    except BaseException as error:
+        error_type = type(error).__name__
+    inventory = correctness_inventory(directory, identity, before)
+    inventory["archive"] = archive_correctness_export(directory)
+    inventory["returncode"], inventory["execution_error_type"] = returncode, error_type
+    save(PUBLIC / "correctness-export-audit.json", inventory)
+    publish("bench: preserve SQL observer artificial correctness and complete export")
+    if returncode != 0 or error_type or inventory["errors"]:
+        raise ValueError("Artificial correctness or retained source inventory failed")
+
+
+def prepare(bound):
+    identity = runtime_identity()
+    correctness = archive_source(STATE / "sources/correctness", identity)
+    run_correctness_export(correctness)
+    measurement = archive_source(STATE / "sources/measurement", identity)
+    save(PUBLIC / "measurement-export.json", {"commit": SOURCE_COMMIT,
+        "runtime_sha256": runtime_sha(measurement), "files_sha256": source_files(measurement),
+        "correctness_export_reused": False})
+    publish("bench: bind clean LM source before attribution preparation")
+    old = read(OLD)
+    prepare_references(old)
+    verify_reference_storage(old)
+    raw_spec = read(ROOT / "benchmarks/locomo_split.json")
+    with urllib.request.urlopen(raw_spec["url"], timeout=60) as response:
+        raw = response.read(raw_spec["bytes"] + 1)
+    if len(raw) != raw_spec["bytes"] or hashlib.sha256(raw).hexdigest() != raw_spec["sha256"]:
+        raise ValueError("Pinned old LoCoMo input changed")
+    (STATE / "locomo10.json").write_bytes(raw)
+    env = dict(os.environ, PYTHONPATH=str(measurement / "src") + os.pathsep + str(ROOT),
+               PYTHONDONTWRITEBYTECODE="1")
+    warmup = ("from memory_book.token_budget import TokenCounter; "
+              "TokenCounter('cl100k_base').count('Prepare the reference tokenizer before profiling.')")
+    subprocess.run([sys.executable, "-c", warmup], cwd=ROOT, env=env, check=True, timeout=120)
+    verify_exact_source(measurement, identity)
+    check_environment()
+    names = ("preflight.json", "correctness-export.intent.json", "correctness.json",
+             "correctness-export-audit.json", "correctness-export.tar.gz", "measurement-export.json")
+    binding = {"attempt": ATTEMPT, "created_at": stamp(), "source_binding_sha256": sha(SOURCE_BINDING),
+        "scope_sha256": SCOPE_SHA, "pairing_addendum_sha256": PAIRING_ADDENDUM_SHA,
+        "workflow_commit": os.environ["GITHUB_SHA"], "run_id": os.environ["GITHUB_RUN_ID"],
+        "runtime": identity, "artifact_files_sha256": bound["artifact_files_sha256"],
+        "helpers_sha256": bound["helpers_sha256"], "helper_dependency_sha256": bound["helper_dependency_sha256"],
+        "preparation_files_sha256": {name: sha(PUBLIC / name) for name in names},
+        "locomo_sha256": raw_spec["sha256"], "environment": runtime_environment(),
+        "profile_baseline_references": old["profile"], "calls_expected": 4732,
+        "comparison_engine_calls": 0, "fresh_rows_decoded": 0, "speed_claim": False,
+        "database_policy": "One fresh LM database per cohort inside the persistent worker; no historical database bytes or completed LM claim is reused."}
+    save(PUBLIC / "binding.json", binding)
+    publish("bench: freeze SQL attribution source environment and old references")
+    return binding
 
 
 def run():
     require_binding()
 
 
-def self_test(source):
+def self_test(source, receipt_path=None):
     if source is None:
         raise ValueError("Artificial integration requires an explicit exact LM export")
     source = source.resolve()
@@ -742,12 +1053,19 @@ def self_test(source):
     if Path(memory_book.__file__).resolve().parent != source / "src/memory_book":
         raise ValueError("Artificial fixture imported another source")
     suite = unittest.defaultTestLoader.loadTestsFromName("tests.test_round5_lm_sql_attribution")
+    module = sys.modules["tests.test_round5_lm_sql_attribution"]
+    if Path(module.__file__).resolve() != ROOT / TEST_PATH:
+        raise ValueError("Artificial suite imported another fixture module")
     expected = suite.countTestCases()
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     receipt = {"expected": expected, "tests": result.testsRun, "failures": len(result.failures),
         "errors": len(result.errors), "skipped": len(result.skipped), "passed": result.wasSuccessful(),
         "source_commit": SOURCE_COMMIT, "runtime_sha256": runtime_sha(source),
-        "script_sha256": sha(Path(__file__)), "corpus_calls": 0}
+        "script_sha256": sha(Path(__file__)), "test_file_sha256": sha(ROOT / TEST_PATH),
+        "workflow_file_sha256": sha(ROOT / WORKFLOW_PATH), "scope_sha256": SCOPE_SHA,
+        "pairing_addendum_sha256": PAIRING_ADDENDUM_SHA, "corpus_calls": 0}
+    if receipt_path is not None:
+        save(receipt_path, receipt)
     print(json.dumps(receipt), flush=True)
     raise SystemExit(0 if result.wasSuccessful() and result.testsRun == expected and not result.skipped else 1)
 
@@ -756,12 +1074,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=("fixture-export", "self-test", "run"))
     parser.add_argument("--source", type=Path)
+    parser.add_argument("--receipt", type=Path)
     args = parser.parse_args()
     if args.mode == "fixture-export":
         if args.source is None:
             parser.error("--source is required")
         archive_source(args.source, runtime_identity())
     elif args.mode == "self-test":
-        self_test(args.source)
+        self_test(args.source, args.receipt)
     else:
         run()
