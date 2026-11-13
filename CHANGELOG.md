@@ -1,5 +1,46 @@
 # Changelog
 
+## 0.3.2 — Unreleased
+
+Release preparation for the fixed C2 candidate. Formal performance acceptance,
+the new comparison and final release/install verification are pending.
+
+### Recall assembly and token budgets
+
+- Defer source-unit parsing for pages with a full mapped-segment equality
+  certificate while preserving the original eager checks for uncertified maps.
+  Original turns remain captured inside the database snapshot; deferred work
+  performs no later database reads. Use bisection to narrow projection scans
+  without changing containment, source equality or overlapping-unit behavior.
+- Reuse the exact count of the last accepted context and an already private
+  candidate dictionary. Preserve first-fit order and rejection behavior.
+- Reuse sealed citation-block token counts within one call for the inspected
+  tiktoken 0.12.0 `cl100k_base`/`o200k_base` patterns. Keep exact final counts and
+  the historical fallback for custom counters, unknown encoder origins,
+  unsupported patterns and invalid text boundaries.
+- Preserve lexical ranking, global BM25, scopes, source coordinates, MCP formats
+  and Q2 model/vector/fusion behavior. Retain schema 3 and existing dependency
+  requirements. Exclude the rejected body-feature cache and proposed highlight
+  query specialization; preserve their source and negative development results.
+
+### Compatibility and pending validation
+
+- Audit 1,968 completed Q2 calls and 984 matching complete non-latency payload
+  pairs against v0.3.1 on authored36 and historical Hotpot128, both tokenizers
+  and 512/1,024/2,048-token budgets. Identical saved vectors, source identities
+  and attempt ledgers are verified. These regression cohorts establish
+  compatibility, not new quality or performance gains.
+- Preserve development profiles, all adverse cells and interruption receipts.
+  The sole registered 56,784-call hosted formal run has been triggered;
+  its complete performance/resource assessment remains pending. The new
+  256-question comparison and release verification are also pending.
+- Prepare v0.3.2 installer defaults and installation examples, retaining the
+  archive, prior environments and historical release instructions. Target
+  release URLs remain explicitly unpublished until final verification.
+
+[Draft release notes](docs/releases/v0.3.2.md) · [Round-four decisions and evidence](docs/optimization-round4.md) ·
+[Upgrade guide](docs/deployment.md#upgrading)
+
 ## 0.3.1 — 2026-11-13
 
 An experimental release that reduces project-scoped query work while preserving
