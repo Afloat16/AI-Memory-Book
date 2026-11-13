@@ -1,0 +1,393 @@
+﻿2026-11-13T18:57:39.7155234Z Current runner version: '2.338.2'
+2026-11-13T18:57:39.7173323Z ##[group]Runner Image Provisioner
+2026-11-13T18:57:39.7173965Z Hosted Compute Agent
+2026-11-13T18:57:39.7174462Z Version: 20261103.629
+2026-11-13T18:57:39.7175170Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-13T18:57:39.7175808Z Build Date: 2026-11-03T17:26:59Z
+2026-11-13T18:57:39.7176334Z Worker ID: {918b3e83-0ef2-4c12-b34f-38bdc254c9bc}
+2026-11-13T18:57:39.7176855Z Region: us-west-2
+2026-11-13T18:57:39.7177261Z Cloud: AWS
+2026-11-13T18:57:39.7177641Z ##[endgroup]
+2026-11-13T18:57:39.7178807Z ##[group]Operating System
+2026-11-13T18:57:39.7179287Z Ubuntu
+2026-11-13T18:57:39.7179652Z 24.04.5
+2026-11-13T18:57:39.7180011Z LTS
+2026-11-13T18:57:39.7180381Z ##[endgroup]
+2026-11-13T18:57:39.7180761Z ##[group]Runner Image
+2026-11-13T18:57:39.7181378Z Image: ubuntu-24.04
+2026-11-13T18:57:39.7181781Z Version: 20261111.127.1
+2026-11-13T18:57:39.7182696Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261111.127/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-13T18:57:39.7183788Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261111.127
+2026-11-13T18:57:39.7184482Z ##[endgroup]
+2026-11-13T18:57:39.7185436Z ##[group]GITHUB_TOKEN Permissions
+2026-11-13T18:57:39.7187236Z Contents: read
+2026-11-13T18:57:39.7187659Z Metadata: read
+2026-11-13T18:57:39.7188050Z ##[endgroup]
+2026-11-13T18:57:39.7189582Z Secret source: Actions
+2026-11-13T18:57:39.7190236Z Cache mode: write
+2026-11-13T18:57:39.7190798Z Prepare workflow directory
+2026-11-13T18:57:39.7460006Z Prepare all required actions
+2026-11-13T18:57:39.7496724Z Getting action download info
+2026-11-13T18:57:40.1472877Z Download action repository 'actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803' (SHA:d23441a48e516b6c34aea4fa41551a30e30af803)
+2026-11-13T18:57:42.0316945Z Download action repository 'actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c' (SHA:e797f83bcb11b83ae66e0230d6156d7c80228e7c)
+2026-11-13T18:57:42.2455966Z Download action repository 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-13T18:57:42.6184814Z Complete job name: protocol-fixtures
+2026-11-13T18:57:42.6930384Z ##[group]Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+2026-11-13T18:57:42.6931773Z with:
+2026-11-13T18:57:42.6932460Z   fetch-depth: 1
+2026-11-13T18:57:42.6933270Z   sparse-checkout-cone-mode: false
+2026-11-13T18:57:42.6934484Z   sparse-checkout: /*
+!/benchmarks/reports/
+!/benchmarks/figures/
+!/docs/images/
+
+2026-11-13T18:57:42.6936051Z   repository: Afloat16/AI-Memory-Book
+2026-11-13T18:57:42.6942320Z   token: ***
+2026-11-13T18:57:42.6943025Z   ssh-strict: true
+2026-11-13T18:57:42.6943812Z   ssh-user: git
+2026-11-13T18:57:42.6944549Z   persist-credentials: true
+2026-11-13T18:57:42.6945546Z   clean: true
+2026-11-13T18:57:42.6946249Z   fetch-tags: false
+2026-11-13T18:57:42.6947050Z   show-progress: true
+2026-11-13T18:57:42.6947816Z   lfs: false
+2026-11-13T18:57:42.6948534Z   submodules: false
+2026-11-13T18:57:42.6949325Z   set-safe-directory: true
+2026-11-13T18:57:42.6950454Z   allow-unsafe-pr-checkout: false
+2026-11-13T18:57:42.6951875Z env:
+2026-11-13T18:57:42.6952723Z   PYTHONDONTWRITEBYTECODE: 1
+2026-11-13T18:57:42.6953573Z   PYTHONHASHSEED: 0
+2026-11-13T18:57:42.6954348Z ##[endgroup]
+2026-11-13T18:57:44.1306124Z Syncing repository: Afloat16/AI-Memory-Book
+2026-11-13T18:57:44.1307529Z ##[group]Getting Git version info
+2026-11-13T18:57:44.1307914Z Working directory is '/home/runner/work/AI-Memory-Book/AI-Memory-Book'
+2026-11-13T18:57:44.1308420Z [command]/usr/bin/git version
+2026-11-13T18:57:44.3554115Z git version 2.56.1
+2026-11-13T18:57:44.3571061Z ##[endgroup]
+2026-11-13T18:57:44.3583868Z Temporarily overriding HOME='/home/runner/work/_temp/63cfdc84-78c7-4ae9-bc61-b8a97e075502' before making global git config changes
+2026-11-13T18:57:44.3585110Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-13T18:57:44.3588646Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AI-Memory-Book/AI-Memory-Book
+2026-11-13T18:57:44.3963486Z Deleting the contents of '/home/runner/work/AI-Memory-Book/AI-Memory-Book'
+2026-11-13T18:57:44.3966008Z ##[group]Determining repository object format
+2026-11-13T18:57:44.3967749Z ##[endgroup]
+2026-11-13T18:57:44.3968262Z ##[group]Initializing the repository
+2026-11-13T18:57:44.3971365Z [command]/usr/bin/git init /home/runner/work/AI-Memory-Book/AI-Memory-Book
+2026-11-13T18:57:44.4624755Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-13T18:57:44.4625846Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-13T18:57:44.4626278Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-13T18:57:44.4627145Z hint: call:
+2026-11-13T18:57:44.4627422Z hint:
+2026-11-13T18:57:44.4627743Z hint: 	git config --global init.defaultBranch <name>
+2026-11-13T18:57:44.4628071Z hint:
+2026-11-13T18:57:44.4628389Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-13T18:57:44.4628825Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-13T18:57:44.4629296Z hint:
+2026-11-13T18:57:44.4629599Z hint: 	git branch -m <name>
+2026-11-13T18:57:44.4629917Z hint:
+2026-11-13T18:57:44.4630291Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-13T18:57:44.4630926Z Initialized empty Git repository in /home/runner/work/AI-Memory-Book/AI-Memory-Book/.git/
+2026-11-13T18:57:44.4639739Z [command]/usr/bin/git remote add origin https://github.com/Afloat16/AI-Memory-Book
+2026-11-13T18:57:44.4692724Z ##[endgroup]
+2026-11-13T18:57:44.4693439Z ##[group]Disabling automatic garbage collection
+2026-11-13T18:57:44.4696204Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-13T18:57:44.4718419Z ##[endgroup]
+2026-11-13T18:57:44.4718928Z ##[group]Setting up auth
+2026-11-13T18:57:44.4719290Z Removing SSH command configuration
+2026-11-13T18:57:44.4723947Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T18:57:44.4749998Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-13T18:57:44.8233457Z Removing HTTP extra header
+2026-11-13T18:57:44.8238803Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T18:57:44.8264801Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-13T18:57:44.8413210Z Removing includeIf entries pointing to credentials config files
+2026-11-13T18:57:44.8417210Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T18:57:44.8441679Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-13T18:57:44.8594110Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-782415fc-673c-42d0-9eaa-da4bb82e6072.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-13T18:57:44.8622535Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git.path /home/runner/work/_temp/git-credentials-782415fc-673c-42d0-9eaa-da4bb82e6072.config
+2026-11-13T18:57:44.8644133Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-782415fc-673c-42d0-9eaa-da4bb82e6072.config
+2026-11-13T18:57:44.8673992Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-782415fc-673c-42d0-9eaa-da4bb82e6072.config
+2026-11-13T18:57:44.8696650Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-782415fc-673c-42d0-9eaa-da4bb82e6072.config
+2026-11-13T18:57:44.8715726Z ##[endgroup]
+2026-11-13T18:57:44.8716275Z ##[group]Fetching the repository
+2026-11-13T18:57:44.8722358Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --filter=blob:none --depth=1 origin +aa65a40a1f8f334adb960a6c4bff634b34531cbc:refs/remotes/origin/staging/v033-lm-sql-attribution
+2026-11-13T18:57:45.3042556Z From https://github.com/Afloat16/AI-Memory-Book
+2026-11-13T18:57:45.3043356Z  * [new ref]         aa65a40a1f8f334adb960a6c4bff634b34531cbc -> origin/staging/v033-lm-sql-attribution
+2026-11-13T18:57:45.3056513Z [command]/usr/bin/git branch --list --remote origin/staging/v033-lm-sql-attribution
+2026-11-13T18:57:45.3092218Z   origin/staging/v033-lm-sql-attribution
+2026-11-13T18:57:45.3098891Z [command]/usr/bin/git rev-parse refs/remotes/origin/staging/v033-lm-sql-attribution
+2026-11-13T18:57:45.3117049Z aa65a40a1f8f334adb960a6c4bff634b34531cbc
+2026-11-13T18:57:45.3119714Z ##[endgroup]
+2026-11-13T18:57:45.3121045Z ##[group]Determining the checkout info
+2026-11-13T18:57:45.3121938Z ##[endgroup]
+2026-11-13T18:57:45.3123459Z ##[group]Setting up sparse checkout
+2026-11-13T18:57:45.3124829Z [command]/usr/bin/git config core.sparseCheckout true
+2026-11-13T18:57:45.3147151Z [command]/usr/bin/git rev-parse --git-path info/sparse-checkout
+2026-11-13T18:57:45.3163129Z .git/info/sparse-checkout
+2026-11-13T18:57:45.3168040Z ##[endgroup]
+2026-11-13T18:57:45.3168566Z ##[group]Checking out the ref
+2026-11-13T18:57:45.3171174Z [command]/usr/bin/git checkout --progress --force -B staging/v033-lm-sql-attribution refs/remotes/origin/staging/v033-lm-sql-attribution
+2026-11-13T18:57:48.5240613Z Updating files:   0% (1/884)
+2026-11-13T18:57:48.5241751Z Updating files:   1% (9/884)
+2026-11-13T18:57:48.5245017Z Updating files:   2% (18/884)
+2026-11-13T18:57:48.5247000Z Updating files:   3% (27/884)
+2026-11-13T18:57:48.5250801Z Updating files:   4% (36/884)
+2026-11-13T18:57:48.5260897Z Updating files:   5% (45/884)
+2026-11-13T18:57:48.5266115Z Updating files:   6% (54/884)
+2026-11-13T18:57:48.5270085Z Updating files:   7% (62/884)
+2026-11-13T18:57:48.5301821Z Updating files:   8% (71/884)
+2026-11-13T18:57:48.5306496Z Updating files:   9% (80/884)
+2026-11-13T18:57:48.5320840Z Updating files:  10% (89/884)
+2026-11-13T18:57:48.5325796Z Updating files:  11% (98/884)
+2026-11-13T18:57:48.5328518Z Updating files:  12% (107/884)
+2026-11-13T18:57:48.5333701Z Updating files:  13% (115/884)
+2026-11-13T18:57:48.5339196Z Updating files:  14% (124/884)
+2026-11-13T18:57:48.5341759Z Updating files:  15% (133/884)
+2026-11-13T18:57:48.5347977Z Updating files:  16% (142/884)
+2026-11-13T18:57:48.5352042Z Updating files:  17% (151/884)
+2026-11-13T18:57:48.5358336Z Updating files:  18% (160/884)
+2026-11-13T18:57:48.5362754Z Updating files:  19% (168/884)
+2026-11-13T18:57:48.5376939Z Updating files:  20% (177/884)
+2026-11-13T18:57:48.5382818Z Updating files:  21% (186/884)
+2026-11-13T18:57:48.5385060Z Updating files:  22% (195/884)
+2026-11-13T18:57:48.5659651Z Updating files:  23% (204/884)
+2026-11-13T18:57:48.6176203Z Updating files:  24% (213/884)
+2026-11-13T18:57:48.6773147Z Updating files:  25% (221/884)
+2026-11-13T18:57:48.6893962Z Updating files:  26% (230/884)
+2026-11-13T18:57:48.6959553Z Updating files:  27% (239/884)
+2026-11-13T18:57:48.6983547Z Updating files:  28% (248/884)
+2026-11-13T18:57:48.7062934Z Updating files:  29% (257/884)
+2026-11-13T18:57:48.7166107Z Updating files:  30% (266/884)
+2026-11-13T18:57:48.7290465Z Updating files:  31% (275/884)
+2026-11-13T18:57:48.7806249Z Updating files:  32% (283/884)
+2026-11-13T18:57:48.8164452Z Updating files:  33% (292/884)
+2026-11-13T18:57:48.8473064Z Updating files:  34% (301/884)
+2026-11-13T18:57:48.8506470Z Updating files:  35% (310/884)
+2026-11-13T18:57:48.8533811Z Updating files:  36% (319/884)
+2026-11-13T18:57:48.8613215Z Updating files:  37% (328/884)
+2026-11-13T18:57:48.8753694Z Updating files:  38% (336/884)
+2026-11-13T18:57:48.9475742Z Updating files:  39% (345/884)
+2026-11-13T18:57:48.9856238Z Updating files:  40% (354/884)
+2026-11-13T18:57:48.9970356Z Updating files:  41% (363/884)
+2026-11-13T18:57:49.0083454Z Updating files:  42% (372/884)
+2026-11-13T18:57:49.0549475Z Updating files:  43% (381/884)
+2026-11-13T18:57:49.1111094Z Updating files:  44% (389/884)
+2026-11-13T18:57:49.1490602Z Updating files:  45% (398/884)
+2026-11-13T18:57:49.1603995Z Updating files:  46% (407/884)
+2026-11-13T18:57:49.1717734Z Updating files:  47% (416/884)
+2026-11-13T18:57:49.1994329Z Updating files:  48% (425/884)
+2026-11-13T18:57:49.2098052Z Updating files:  49% (434/884)
+2026-11-13T18:57:49.2372985Z Updating files:  50% (442/884)
+2026-11-13T18:57:49.2563301Z Updating files:  51% (451/884)
+2026-11-13T18:57:49.2666066Z Updating files:  52% (460/884)
+2026-11-13T18:57:49.3252443Z Updating files:  53% (469/884)
+2026-11-13T18:57:49.3306084Z Updating files:  54% (478/884)
+2026-11-13T18:57:49.3529761Z Updating files:  55% (487/884)
+2026-11-13T18:57:49.3661057Z Updating files:  56% (496/884)
+2026-11-13T18:57:49.3666157Z Updating files:  57% (504/884)
+2026-11-13T18:57:49.3802499Z Updating files:  58% (513/884)
+2026-11-13T18:57:49.3967336Z Updating files:  59% (522/884)
+2026-11-13T18:57:49.4102532Z Updating files:  60% (531/884)
+2026-11-13T18:57:49.4205048Z Updating files:  61% (540/884)
+2026-11-13T18:57:49.4315337Z Updating files:  62% (549/884)
+2026-11-13T18:57:49.4474534Z Updating files:  63% (557/884)
+2026-11-13T18:57:49.4621407Z Updating files:  64% (566/884)
+2026-11-13T18:57:49.4650811Z Updating files:  65% (575/884)
+2026-11-13T18:57:49.4754310Z Updating files:  66% (584/884)
+2026-11-13T18:57:49.4759085Z Updating files:  67% (593/884)
+2026-11-13T18:57:49.4762056Z Updating files:  68% (602/884)
+2026-11-13T18:57:49.4767692Z Updating files:  69% (610/884)
+2026-11-13T18:57:49.4836023Z Updating files:  70% (619/884)
+2026-11-13T18:57:49.4844491Z Updating files:  71% (628/884)
+2026-11-13T18:57:49.4849864Z Updating files:  72% (637/884)
+2026-11-13T18:57:49.4855648Z Updating files:  73% (646/884)
+2026-11-13T18:57:49.4860162Z Updating files:  74% (655/884)
+2026-11-13T18:57:49.4866587Z Updating files:  75% (663/884)
+2026-11-13T18:57:49.4872626Z Updating files:  76% (672/884)
+2026-11-13T18:57:49.4880201Z Updating files:  77% (681/884)
+2026-11-13T18:57:49.4884174Z Updating files:  78% (690/884)
+2026-11-13T18:57:49.4889877Z Updating files:  79% (699/884)
+2026-11-13T18:57:49.4901112Z Updating files:  80% (708/884)
+2026-11-13T18:57:49.4909443Z Updating files:  81% (717/884)
+2026-11-13T18:57:49.4919957Z Updating files:  82% (725/884)
+2026-11-13T18:57:49.4930368Z Updating files:  83% (734/884)
+2026-11-13T18:57:49.4935947Z Updating files:  84% (743/884)
+2026-11-13T18:57:49.4941101Z Updating files:  85% (752/884)
+2026-11-13T18:57:49.4946958Z Updating files:  86% (761/884)
+2026-11-13T18:57:49.4955714Z Updating files:  87% (770/884)
+2026-11-13T18:57:49.4959222Z Updating files:  88% (778/884)
+2026-11-13T18:57:49.4963998Z Updating files:  89% (787/884)
+2026-11-13T18:57:49.4967411Z Updating files:  90% (796/884)
+2026-11-13T18:57:49.4970865Z Updating files:  91% (805/884)
+2026-11-13T18:57:49.4974031Z Updating files:  92% (814/884)
+2026-11-13T18:57:49.4976875Z Updating files:  93% (823/884)
+2026-11-13T18:57:49.4980743Z Updating files:  94% (831/884)
+2026-11-13T18:57:49.4987298Z Updating files:  95% (840/884)
+2026-11-13T18:57:49.4990921Z Updating files:  96% (849/884)
+2026-11-13T18:57:49.4997167Z Updating files:  97% (858/884)
+2026-11-13T18:57:49.5001911Z Updating files:  98% (867/884)
+2026-11-13T18:57:49.5005700Z Updating files:  99% (876/884)
+2026-11-13T18:57:49.5006011Z Updating files: 100% (884/884)
+2026-11-13T18:57:49.5006323Z Updating files: 100% (884/884), done.
+2026-11-13T18:57:49.5035761Z Switched to a new branch 'staging/v033-lm-sql-attribution'
+2026-11-13T18:57:49.5044317Z branch 'staging/v033-lm-sql-attribution' set up to track 'origin/staging/v033-lm-sql-attribution'.
+2026-11-13T18:57:49.5077406Z ##[endgroup]
+2026-11-13T18:57:49.5116066Z [command]/usr/bin/git log -1 --format=%H
+2026-11-13T18:57:49.5136328Z aa65a40a1f8f334adb960a6c4bff634b34531cbc
+2026-11-13T18:57:49.5334912Z ##[group]Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+2026-11-13T18:57:49.5335266Z with:
+2026-11-13T18:57:49.5335502Z   python-version: 3.12
+2026-11-13T18:57:49.5335727Z   check-latest: false
+2026-11-13T18:57:49.5337445Z   token: ***
+2026-11-13T18:57:49.5337690Z   update-environment: true
+2026-11-13T18:57:49.5337940Z   allow-prereleases: false
+2026-11-13T18:57:49.5338185Z   freethreaded: false
+2026-11-13T18:57:49.5338401Z env:
+2026-11-13T18:57:49.5338602Z   PYTHONDONTWRITEBYTECODE: 1
+2026-11-13T18:57:49.5338878Z   PYTHONHASHSEED: 0
+2026-11-13T18:57:49.5339093Z ##[endgroup]
+2026-11-13T18:57:49.6375128Z ##[group]Installed versions
+2026-11-13T18:57:49.8580143Z (node:2179) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-13T18:57:49.8580759Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-13T18:57:49.8581720Z Successfully set up CPython (3.12.16)
+2026-11-13T18:57:49.8585630Z ##[endgroup]
+2026-11-13T18:57:49.8716243Z ##[group]Run python scripts/round5_lm_sql_attribution.py fixture-export --source "$RUNNER_TEMP/lm-sql-artificial"
+2026-11-13T18:57:49.8717012Z [36;1mpython scripts/round5_lm_sql_attribution.py fixture-export --source "$RUNNER_TEMP/lm-sql-artificial"[0m
+2026-11-13T18:57:50.2809407Z shell: /usr/bin/bash -e {0}
+2026-11-13T18:57:50.2809756Z env:
+2026-11-13T18:57:50.2810009Z   PYTHONDONTWRITEBYTECODE: 1
+2026-11-13T18:57:50.2810305Z   PYTHONHASHSEED: 0
+2026-11-13T18:57:50.2810584Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:57:50.2810992Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-13T18:57:50.2811366Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:57:50.2811708Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:57:50.2812076Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:57:50.2812543Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-13T18:57:50.2812859Z ##[endgroup]
+2026-11-13T18:57:53.3328493Z From https://github.com/Afloat16/AI-Memory-Book
+2026-11-13T18:57:53.3329091Z  * branch            49f10e7dec006e3a5760c93623a650dc7b6338d6 -> FETCH_HEAD
+2026-11-13T18:57:55.2351071Z /home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_lm_sql_attribution.py:281: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.
+2026-11-13T18:57:55.2352411Z   stream.extractall(directory)
+2026-11-13T18:57:55.2639064Z ##[group]Run set -o pipefail
+2026-11-13T18:57:55.2639401Z [36;1mset -o pipefail[0m
+2026-11-13T18:57:55.2639935Z [36;1mpython scripts/round5_lm_sql_attribution.py self-test --source "$RUNNER_TEMP/lm-sql-artificial" 2>&1 | tee "$RUNNER_TEMP/lm-sql-artificial.log"[0m
+2026-11-13T18:57:55.2668777Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-13T18:57:55.2669112Z env:
+2026-11-13T18:57:55.2669348Z   PYTHONDONTWRITEBYTECODE: 1
+2026-11-13T18:57:55.2669636Z   PYTHONHASHSEED: 0
+2026-11-13T18:57:55.2669909Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:57:55.2670284Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-13T18:57:55.2670648Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:57:55.2671011Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:57:55.2671360Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:57:55.2671791Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-13T18:57:55.2672090Z ##[endgroup]
+2026-11-13T18:57:55.6183874Z test_fake_clock_nested_inclusive_exclusive_and_bookkeeping (tests.test_round5_lm_sql_attribution.ArithmeticAndSites.test_fake_clock_nested_inclusive_exclusive_and_bookkeeping) ... ok
+2026-11-13T18:57:55.6248791Z test_fixed_artificial_calibration_retains_every_sample (tests.test_round5_lm_sql_attribution.ArithmeticAndSites.test_fixed_artificial_calibration_retains_every_sample) ... ok
+2026-11-13T18:57:55.6250051Z test_fresh_wrapper_with_exact_native_identity_is_recorded (tests.test_round5_lm_sql_attribution.ArithmeticAndSites.test_fresh_wrapper_with_exact_native_identity_is_recorded) ... ok
+2026-11-13T18:57:55.6251261Z test_missing_exit_remains_terminal_and_keeps_open_span (tests.test_round5_lm_sql_attribution.ArithmeticAndSites.test_missing_exit_remains_terminal_and_keeps_open_span) ... ok
+2026-11-13T18:57:55.6252311Z test_negative_span_exit_without_entry_and_open_stack_keep_partial (tests.test_round5_lm_sql_attribution.ArithmeticAndSites.test_negative_span_exit_without_entry_and_open_stack_keep_partial) ... ok
+2026-11-13T18:57:55.6253442Z test_upper_caller_classification_and_unclassified_sites (tests.test_round5_lm_sql_attribution.ArithmeticAndSites.test_upper_caller_classification_and_unclassified_sites) ... ok
+2026-11-13T18:57:55.6256913Z test_wrong_receiver_method_frame_and_non_lifo_still_fail (tests.test_round5_lm_sql_attribution.ArithmeticAndSites.test_wrong_receiver_method_frame_and_non_lifo_still_fail) ... ok
+2026-11-13T18:57:55.6847955Z test_all_4732_fake_payloads_and_orders_are_checked_and_mismatch_retained (tests.test_round5_lm_sql_attribution.CompleteProtocol.test_all_4732_fake_payloads_and_orders_are_checked_and_mismatch_retained) ... ok
+2026-11-13T18:57:55.6878563Z test_cell_intent_then_lossless_partial_result_then_next_intent (tests.test_round5_lm_sql_attribution.CompleteProtocol.test_cell_intent_then_lossless_partial_result_then_next_intent) ... ok
+2026-11-13T18:57:55.6916914Z test_controller_waits_and_kills_group_before_regaining_publication (tests.test_round5_lm_sql_attribution.CompleteProtocol.test_controller_waits_and_kills_group_before_regaining_publication) ... ok
+2026-11-13T18:57:55.6921752Z test_failed_intent_publication_prevents_a_query_or_next_stage (tests.test_round5_lm_sql_attribution.CompleteProtocol.test_failed_intent_publication_prevents_a_query_or_next_stage) ... ok
+2026-11-13T18:57:55.9558482Z test_missing_extra_duplicate_reordered_invalid_payload_and_axes_are_rejected (tests.test_round5_lm_sql_attribution.CompleteProtocol.test_missing_extra_duplicate_reordered_invalid_payload_and_axes_are_rejected) ... ok
+2026-11-13T18:57:55.9573163Z test_publication_verifies_remote_and_never_retries_an_ambiguous_push (tests.test_round5_lm_sql_attribution.CompleteProtocol.test_publication_verifies_remote_and_never_retries_an_ambiguous_push) ... {"checkpoint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "branch": "validation/v033-lm-sql-attribution-1", "message": "invented checkpoint"}
+2026-11-13T18:57:55.9584978Z ok
+2026-11-13T18:57:55.9591023Z test_raw_span_corruption_cannot_pass_accounting (tests.test_round5_lm_sql_attribution.CompleteProtocol.test_raw_span_corruption_cannot_pass_accounting) ... ok
+2026-11-13T18:57:56.1375893Z test_unknown_primary_and_disabled_paths_remain_raw_but_fail_completion_gate (tests.test_round5_lm_sql_attribution.CompleteProtocol.test_unknown_primary_and_disabled_paths_remain_raw_but_fail_completion_gate) ... ok
+2026-11-13T18:57:56.1386493Z test_worker_ownership_forbids_controller_publish_and_always_step_writes (tests.test_round5_lm_sql_attribution.CompleteProtocol.test_worker_ownership_forbids_controller_publish_and_always_step_writes) ... ok
+2026-11-13T18:57:56.1419870Z test_cursor_factory_restoration_and_unsupported_fallback (tests.test_round5_lm_sql_attribution.ExactLMIntegration.test_cursor_factory_restoration_and_unsupported_fallback) ... ok
+2026-11-13T18:57:56.1533291Z test_real_payload_and_native_guard_with_both_upper_callsites (tests.test_round5_lm_sql_attribution.ExactLMIntegration.test_real_payload_and_native_guard_with_both_upper_callsites) ... ok
+2026-11-13T18:57:56.1535035Z test_actual_builtin_identity_and_private_values_are_not_recorded (tests.test_round5_lm_sql_attribution.NativeEvents.test_actual_builtin_identity_and_private_values_are_not_recorded) ... ok
+2026-11-13T18:57:56.1540860Z test_callback_has_no_filesystem_access_and_never_probes_user_objects (tests.test_round5_lm_sql_attribution.NativeEvents.test_callback_has_no_filesystem_access_and_never_probes_user_objects) ... ok
+2026-11-13T18:57:56.1542235Z test_existing_profiler_is_not_replaced (tests.test_round5_lm_sql_attribution.NativeEvents.test_existing_profiler_is_not_replaced) ... ok
+2026-11-13T18:57:56.1543594Z test_interrupt_retains_other_native_builtin_and_exception (tests.test_round5_lm_sql_attribution.NativeEvents.test_interrupt_retains_other_native_builtin_and_exception) ... ok
+2026-11-13T18:57:56.1545129Z test_lifecycle_misuse_always_invalidates_the_observation (tests.test_round5_lm_sql_attribution.NativeEvents.test_lifecycle_misuse_always_invalidates_the_observation) ... ok
+2026-11-13T18:57:56.1546690Z test_nested_c_exceptions_unwind_in_order (tests.test_round5_lm_sql_attribution.NativeEvents.test_nested_c_exceptions_unwind_in_order) ... ok
+2026-11-13T18:57:56.1548883Z test_nested_native_udf_calls_keep_parentage_and_exclusive_sums (tests.test_round5_lm_sql_attribution.NativeEvents.test_nested_native_udf_calls_keep_parentage_and_exclusive_sums) ... ok
+2026-11-13T18:57:56.1550083Z test_raw_native_wrapper_identity_probe (tests.test_round5_lm_sql_attribution.NativeEvents.test_raw_native_wrapper_identity_probe)
+2026-11-13T18:57:56.1551276Z Evidence only: never weaken the production observer from this probe. ... Worker ownership was not returned; artifact-only preservation, no publication.
+2026-11-13T18:57:56.1558369Z {"native_wrapper_probe": [{"case": "inline-success", "event": "c_return", "method": "Connection.execute", "depth": 0, "frame_is": true, "wrapper_is": false, "receiver_is": true, "native_type_is": true, "descriptor_is": true, "method_same": true}, {"case": "inline-success", "event": "c_return", "method": "Cursor.fetchone", "depth": 0, "frame_is": true, "wrapper_is": false, "receiver_is": true, "native_type_is": true, "descriptor_is": true, "method_same": true}, {"case": "prebound-success", "event": "c_return", "method": "Connection.execute", "depth": 0, "frame_is": true, "wrapper_is": true, "receiver_is": true, "native_type_is": true, "descriptor_is": true, "method_same": true}, {"case": "prebound-success", "event": "c_return", "method": "Cursor.fetchone", "depth": 0, "frame_is": true, "wrapper_is": false, "receiver_is": true, "native_type_is": true, "descriptor_is": true, "method_same": true}, {"case": "inline-exception", "event": "c_exception", "method": "Connection.execute", "depth": 0, "frame_is": true, "wrapper_is": false, "receiver_is": true, "native_type_is": true, "descriptor_is": true, "method_same": true}, {"case": "nested-success", "event": "c_return", "method": "Connection.execute", "depth": 1, "frame_is": true, "wrapper_is": false, "receiver_is": true, "native_type_is": true, "descriptor_is": true, "method_same": true}, {"case": "nested-success", "event": "c_return", "method": "Cursor.fetchone", "depth": 1, "frame_is": true, "wrapper_is": false, "receiver_is": true, "native_type_is": true, "descriptor_is": true, "method_same": true}, {"case": "nested-success", "event": "c_return", "method": "Connection.execute", "depth": 0, "frame_is": true, "wrapper_is": false, "receiver_is": true, "native_type_is": true, "descriptor_is": true, "method_same": true}, {"case": "nested-success", "event": "c_return", "method": "Cursor.fetchone", "depth": 0, "frame_is": true, "wrapper_is": false, "receiver_is": true, "native_type_is": true, "descriptor_is": true, "method_same": true}], "unclosed_entries": 0, "corpus_calls": 0, "timing_claim": false}
+2026-11-13T18:57:56.1565678Z ok
+2026-11-13T18:57:56.1566509Z test_real_c_exception_uses_the_same_builtin_and_retains_exception_span (tests.test_round5_lm_sql_attribution.NativeEvents.test_real_c_exception_uses_the_same_builtin_and_retains_exception_span) ... ok
+2026-11-13T18:57:56.1567967Z test_row_factory_exception_is_recorded_without_exception_values (tests.test_round5_lm_sql_attribution.NativeEvents.test_row_factory_exception_is_recorded_without_exception_values) ... ok
+2026-11-13T18:57:56.1571694Z test_full_guard_rejects_added_cache_and_modified_python (tests.test_round5_lm_sql_attribution.PreclaimAndIsolation.test_full_guard_rejects_added_cache_and_modified_python) ... ok
+2026-11-13T18:57:56.1576570Z test_missing_binding_precedes_claim_download_and_export (tests.test_round5_lm_sql_attribution.PreclaimAndIsolation.test_missing_binding_precedes_claim_download_and_export) ... ok
+2026-11-13T18:57:56.1577876Z test_namespace_cannot_publish_to_completed_lm_branch (tests.test_round5_lm_sql_attribution.PreclaimAndIsolation.test_namespace_cannot_publish_to_completed_lm_branch) ... ok
+2026-11-13T18:57:56.1578629Z 
+2026-11-13T18:57:56.1579017Z ----------------------------------------------------------------------
+2026-11-13T18:57:56.1579509Z Ran 31 tests in 0.540s
+2026-11-13T18:57:56.1579690Z 
+2026-11-13T18:57:56.1579817Z OK
+2026-11-13T18:57:56.1592226Z {"expected": 31, "tests": 31, "failures": 0, "errors": 0, "skipped": 0, "passed": true, "source_commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6", "runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd", "script_sha256": "5b877e167092263c7dea82002c89eb8f1557c78be6c0ad3b603f5349776d6598", "test_file_sha256": "1f69bfc163f6b2963f59ea51c4b08757b1f8d2abc03af958929f876caa1d54bf", "workflow_file_sha256": "4d024502ca86bb1c10cca938987325acac34de4933285d235c996ae3baa8a40a", "scope_sha256": "0b3a249df45a25a00f76f4ad2c6e0cfa56fc7147a19e982fca429884c5ef1269", "pairing_addendum_sha256": "cf55b88d45ee7a0dca53abefa6dc651d7eceb36f6ae0e709919655c566c36d21", "corpus_calls": 0}
+2026-11-13T18:57:56.1865245Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-11-13T18:57:56.1865608Z with:
+2026-11-13T18:57:56.1865886Z   name: lm-sql-artificial-43487602400-1
+2026-11-13T18:57:56.1866222Z   path: /home/runner/work/_temp/lm-sql-artificial.log
+
+2026-11-13T18:57:56.1866523Z   if-no-files-found: warn
+2026-11-13T18:57:56.1866767Z   retention-days: 30
+2026-11-13T18:57:56.1866993Z   compression-level: 6
+2026-11-13T18:57:56.1867465Z   overwrite: false
+2026-11-13T18:57:56.1867692Z   include-hidden-files: false
+2026-11-13T18:57:56.1867975Z env:
+2026-11-13T18:57:56.1868198Z   PYTHONDONTWRITEBYTECODE: 1
+2026-11-13T18:57:56.1868441Z   PYTHONHASHSEED: 0
+2026-11-13T18:57:56.1868716Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:57:56.1869095Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-13T18:57:56.1869443Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:57:56.1869878Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:57:56.1870192Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:57:56.1870545Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-13T18:57:56.1870847Z ##[endgroup]
+2026-11-13T18:57:56.3112013Z (node:2213) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-13T18:57:56.3112870Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-13T18:57:56.3145590Z With the provided path, there will be 1 file uploaded
+2026-11-13T18:57:56.3165402Z Artifact name is valid!
+2026-11-13T18:57:56.3166031Z Root directory input is valid!
+2026-11-13T18:57:56.8350141Z Beginning upload of artifact content to blob storage
+2026-11-13T18:57:56.8486247Z (node:2213) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-13T18:57:57.1746051Z Uploaded bytes 2131
+2026-11-13T18:57:57.2629499Z Finished uploading artifact content to blob storage!
+2026-11-13T18:57:57.2630291Z SHA256 digest of uploaded artifact zip is 22102af079d3605fc11f1dda01ea778ca248c703501f094cd1125c8d2b4dd80d
+2026-11-13T18:57:57.2630872Z Finalizing artifact upload
+2026-11-13T18:57:57.6833265Z Artifact lm-sql-artificial-43487602400-1.zip successfully finalized. Artifact ID 14067608664
+2026-11-13T18:57:57.6834476Z Artifact lm-sql-artificial-43487602400-1 has been successfully uploaded! Final size is 2131 bytes. Artifact ID is 14067608664
+2026-11-13T18:57:57.6839306Z Artifact download URL: https://github.com/Afloat16/AI-Memory-Book/actions/runs/43487602400/artifacts/14067608664
+2026-11-13T18:57:57.6972484Z Post job cleanup.
+2026-11-13T18:57:57.7892602Z (node:2225) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-13T18:57:57.7893506Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-13T18:57:57.8006536Z Post job cleanup.
+2026-11-13T18:57:57.8695696Z [command]/usr/bin/git version
+2026-11-13T18:57:57.8737688Z git version 2.56.1
+2026-11-13T18:57:57.8774395Z Temporarily overriding HOME='/home/runner/work/_temp/2b021ecd-2e22-4d12-acd1-fd8e3e69990f' before making global git config changes
+2026-11-13T18:57:57.8775863Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-13T18:57:57.8777827Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AI-Memory-Book/AI-Memory-Book
+2026-11-13T18:57:57.8809908Z Removing SSH command configuration
+2026-11-13T18:57:57.8815634Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T18:57:57.8849738Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-13T18:57:57.9083269Z Removing HTTP extra header
+2026-11-13T18:57:57.9088747Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T18:57:57.9116343Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-13T18:57:57.9378203Z Removing includeIf entries pointing to credentials config files
+2026-11-13T18:57:57.9391078Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T18:57:57.9416000Z includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git.path
+2026-11-13T18:57:57.9421468Z includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git/worktrees/*.path
+2026-11-13T18:57:57.9422476Z includeif.gitdir:/github/workspace/.git.path
+2026-11-13T18:57:57.9423205Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-13T18:57:57.9424978Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git.path
+2026-11-13T18:57:57.9448500Z /home/runner/work/_temp/git-credentials-782415fc-673c-42d0-9eaa-da4bb82e6072.config
+2026-11-13T18:57:57.9457824Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git.path /home/runner/work/_temp/git-credentials-782415fc-673c-42d0-9eaa-da4bb82e6072.config
+2026-11-13T18:57:57.9492688Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git/worktrees/*.path
+2026-11-13T18:57:57.9521070Z /home/runner/work/_temp/git-credentials-782415fc-673c-42d0-9eaa-da4bb82e6072.config
+2026-11-13T18:57:57.9539202Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-782415fc-673c-42d0-9eaa-da4bb82e6072.config
+2026-11-13T18:57:57.9559942Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-11-13T18:57:57.9575960Z /github/runner_temp/git-credentials-782415fc-673c-42d0-9eaa-da4bb82e6072.config
+2026-11-13T18:57:57.9581448Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-782415fc-673c-42d0-9eaa-da4bb82e6072.config
+2026-11-13T18:57:57.9606386Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-13T18:57:57.9625249Z /github/runner_temp/git-credentials-782415fc-673c-42d0-9eaa-da4bb82e6072.config
+2026-11-13T18:57:57.9631412Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-782415fc-673c-42d0-9eaa-da4bb82e6072.config
+2026-11-13T18:57:57.9660600Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-13T18:57:57.9811165Z Removing credentials config '/home/runner/work/_temp/git-credentials-782415fc-673c-42d0-9eaa-da4bb82e6072.config'
+2026-11-13T18:57:57.9926686Z Cleaning up orphan processes
+2026-11-13T18:57:58.0178733Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

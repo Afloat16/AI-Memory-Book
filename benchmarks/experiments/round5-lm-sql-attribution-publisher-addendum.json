@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "status": "prospective-publisher-quarantine-correction-before-implementation-and-corpus",
+  "reviewed_draft_commit": "aa65a40a1f8f334adb960a6c4bff634b34531cbc",
+  "current_equivalent_handoff_commit": "486694bd7a4dfde4a72f2ca388c968a4e58fbd0f",
+  "scope_sha256": "0b3a249df45a25a00f76f4ad2c6e0cfa56fc7147a19e982fca429884c5ef1269",
+  "source_commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+  "runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
+  "review_finding": "The old draft kills the group only while leader poll() is None. If the leader exits abnormally while its synchronous Git child survives, wait/poll on the leader alone does not prove group quiescence; giving publication ownership back can race that child.",
+  "evidence_boundary": "Independent static review of the preserved draft, not an observed corpus interruption. Existing 31/32 artificial tests pass but do not cover an already-dead leader with a surviving process group.",
+  "correction": [
+    "On timeout, nonzero leader exit, launch ambiguity, wait failure or uncertain group state, retain worker ownership and use artifact-only preservation. Do not publish from the controller even if cleanup signals succeed.",
+    "Best-effort terminate the original worker group on abnormal exit even when its leader already ended, while preserving exact return/error and signal outcomes in STATE for artifact upload.",
+    "Only zero leader exit plus an explicit os.killpg(pgid, 0) ProcessLookupError (group absent) permits the controller handoff; any live or unverifiable group remains quarantined.",
+    "No automatic wait-loop selection or retry of Git publication, recall, a cell or the diagnostic is introduced."
+  ],
+  "artificial_proofs_required": [
+    "Already-dead nonzero leader with a simulated surviving Git group never returns publisher ownership and never publishes exit.",
+    "Normal zero leader exit with a still-present group remains artifact-only.",
+    "Timeout, launch ambiguity and permission/unknown group errors remain artifact-only.",
+    "Normal zero exit and group-absent proof hands back exactly once after confirmation.",
+    "Always-step does not write the public result tree or publish while ownership remains worker."
+  ],
+  "unchanged": [
+    "Exact LM source and original helpers/data/order",
+    "4732 complete payload/order validation",
+    "Every raw span and partial evidence",
+    "Partial C-boundary interpretation and all original gates",
+    "No corpus trigger or fresh access"
+  ],
+  "implementation_applied": false,
+  "diagnostic_corpus_calls": 0,
+  "fresh_rows_decoded": 0
+}
