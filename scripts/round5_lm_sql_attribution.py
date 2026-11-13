@@ -426,18 +426,27 @@ class SQLiteObserver:
 
     def begin(self):
         if self.started or sys.getprofile() is not None:
+            self.callback_failure = {"type": "ObserverAlreadyStarted" if self.started else "ExistingProfiler"}
             raise ObserverFailure("Observer cannot start twice or replace another profiler")
         self.started = True
         self.wall_start_ns = self.clock()
         sys.setprofile(self)
 
     def finish(self):
+        if not self.started or self.finished:
+            self.callback_failure = {"type": "ObserverLifecycleMisuse", "started": self.started, "finished": self.finished}
+            raise ObserverFailure("Observer finish requires one active observation")
         current = sys.getprofile()
         sys.setprofile(None)
         self.wall_end_ns = self.clock()
         self.finished = True
         if current is not self and self.callback_failure is None:
+            self.callback_failure = {"type": "ProfileCallbackReplaced"}
             raise ObserverFailure("Profile callback was unexpectedly replaced")
+        if self.wall_end_ns < self.wall_start_ns:
+            self.callback_failure = {"type": "NonMonotonicObservationClock"}
+        if self.stack and self.callback_failure is None:
+            self.callback_failure = {"type": "UnclosedNativeStack"}
         if self.stack or self.callback_failure:
             raise ObserverFailure("Observer has invalid or incomplete target events")
 
@@ -446,7 +455,9 @@ class SQLiteObserver:
                 if self.wall_start_ns is not None and self.wall_end_ns is not None else None)
         closed = [row for row in self.spans if row["status"] != "open"]
         exclusive = sum(row["exclusive_ns"] for row in closed)
-        return {"valid": self.finished and not self.stack and self.callback_failure is None,
+        return {"valid": self.started and self.finished and wall is not None and wall >= 0
+                and not self.stack and self.callback_failure is None,
+            "started": self.started, "finished": self.finished,
             "events": dict(self.events), "target_events": dict(self.target_events),
             "non_target_events": sum(self.events.values()) - sum(self.target_events.values()),
             "callback_bookkeeping_ns": self.bookkeeping_ns, "callback_failure": self.callback_failure,
