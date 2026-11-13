@@ -26,6 +26,12 @@ accepted C2 runtime for v0.3.2. All 18 focused release/audit/installer-routing
 tests pass. Preserve that main history when the final result and docs branches
 are merged; do not force-overwrite its changes.
 
+The combined integration checkpoint is `8aec830c550c608a2ddcaeac01c07ad37469208f`.
+Its [CI run 43365331288](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43365331288)
+passed all nine required jobs. This checks the combined code and tooling; the
+eventual release commit still needs its own exact-commit CI and public installer
+verification after fresh results and documentation are complete.
+
 Earlier sections below are historical checkpoints; the latest status is above
 and in the final appended sections. Preserve their original failed-attempt
 evidence and immutable experiment registrations.

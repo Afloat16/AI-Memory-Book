@@ -5,210 +5,237 @@ returns a bounded evidence context with exact source addresses. Default retrieva
 needs no generative model, embedding download or separate database service.
 Optional Q2 semantic fusion adds a local model and index.
 
-## v0.3.1: measured advantages and remaining gaps
+## v0.3.2: verified performance, fresh comparison pending
 
-The accepted runtime is frozen at
-[`2d199b9`](https://github.com/Afloat16/AI-Memory-Book/commit/2d199b93f650eccd3dd239178822b31001b880e3).
-The [registered protocol](../benchmarks/experiments/round3-plan.json), complete
-[round-three comparison](../benchmarks/results/round3-comparison-43267797247-1/report.md) and
-[performance resource review](round3-performance-review.md) separate
-version-to-version performance from cross-repository retrieval quality.
+**The fixed C2 candidate passes the registered formal performance gate. The new
+256-question comparison and final release verification remain pending.** This
+page separates completed version-to-version measurements from the still
+unassessed cross-repository comparison. It makes no v0.3.2 publication claim.
 
-- The formal **47,320-call / 16-worker / four-round balanced-order** version
-  comparison preserves complete non-timing payloads. Geometric-mean pooled p95
-  improves **11.3587%** across ten cells; public native p95 improves **26.0501%**
-  and actual MCP stdio p95 **19.8677%**.
-- On the registered current HotpotQA selection, default Book has higher evidence
-  recall and complete evidence than the tested claude-mem FTS component at every
-  displayed budget/tokenizer. At 1,024 cl100k tokens, the differences are
-  **+5.60 and +7.03 percentage points**, respectively.
-- ai-memory and billion-context have higher complete evidence than default Book
-  in that current 1,024-token view. Billion-context also has a faster search
-  kernel. These results do not establish universal product superiority.
-- Default Book keeps its model-free operational path and one complete recall
-  response. This component benchmark returns the full Python object, whose
-  native JSON payload is larger than the other adapters' payloads. The separate
-  [indexed MCP format](indexed-references.md) is optional and is not substituted
-  into the measurements below.
+C2 is frozen at
+[`2d7b5e3`](https://github.com/Afloat16/AI-Memory-Book/commit/2d7b5e38839fb21724ad3beec6b6ebabbda45636).
+It reduces repeated source projection and exact token-counting work while
+preserving default ranking, source coordinates, budgets and response formats.
+Q2's model, vectors and fusion are unchanged. The [implementation and decision
+history](optimization-round4.md) records the retained changes, rejected cache,
+restored highlight query and all development attempts.
 
-The historical v0.3.0 guide is preserved byte for byte as
-[comparison-v0.3.0.md](comparison-v0.3.0.md). Historical LoCoMo results,
-generated-answer experiments and the earlier small-model workflow remain
-available there with their original sources, limitations and negative results.
+The [formal review][formal-review] verifies **56,784 calls, 16 workers and four
+balanced rounds**. All complete non-timing outputs agree. The geometric mean of
+pooled p95 improves **10.1294%** across twelve cells, with **10.8021%** lower
+public actual-MCP token-1024 p95. All automatic gates pass without a resource
+exception. The aggregate clears its 10% threshold by only **0.1294 percentage
+points**; it does not establish statistical significance or a universal speedup.
 
-![Current component and separate baseline performance results](assets/v0.3.1-comparison.svg)
+Tradeoffs remain visible: public MCP character-budget p95 rises **1.4445%**, and
+the largest registered resource mean increase is **6.0231%** for public MCP
+token-session startup. Exact costs and all adverse rounds appear below and in
+[the independent audit][formal-audit]. No output-token saving is claimed.
 
-The figure uses the recorded search-adapter boundary, matching the current
-README and generated report. Native-search-only timings remain separate in
-the raw summaries. The [supplemental offline verification](../benchmarks/reports/round3-recovery/comparison-cross-verification.json)
-checks all 32 result blobs, all 71 original bound evaluator hashes and exact
-assessment/report recomputation. A separate [release byte comparison](../benchmarks/reports/round3-recovery/published-release-cross-verification.json)
-confirms that the published source preserves all 71 bound evaluator files and
-all 17 runtime/static files exactly.
+The previous guide is preserved byte for byte as
+[comparison-v0.3.1.md](comparison-v0.3.1.md). Its completed Hotpot scores and
+competitor ordering belong to that earlier selection. [The round-three report](round3-comparison.md)
+and [v0.3.0 archive](comparison-v0.3.0.md) retain earlier evidence and limitations.
+No prior score is carried into the pending tables on this page.
+
+## Version performance and resource costs
+
+The sole hosted formal run is
+[43361086255-1](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43361086255),
+with immutable results at
+[`1bd76f3`](https://github.com/Afloat16/AI-Memory-Book/commit/1bd76f3b70eb60ead444f05c5a94148e9e384bba).
+It compares published v0.3.1 at `7b7a5d7336b9350a128f5e0a888811b1b3015e68`
+with C2 on 168 synthetic and 1,015 previously used public-conversation queries.
+Each cohort runs source orders **AB, BA, BA, AB** in fresh workers. Every public
+source/configuration contributes **4,060 calls**; every synthetic one contributes
+672. These repetitions do not create new independent questions. [Plan][plan] ·
+[Completed summary][formal-summary]
+
+| Public-conversation configuration | v0.3.1 p95, ms | C2 p95, ms | Change |
+|---|---:|---:|---:|
+| Native, 4,000 characters | 2.361452 | 2.198754 | −6.8897% |
+| Actual SDK MCP, 4,000 characters | 3.467968 | 3.518062 | **+1.4445%** |
+| Native, 512 tokens | 3.793969 | 3.070323 | −19.0736% |
+| Native, 1,024 tokens | 3.199822 | 2.610729 | −18.4102% |
+| Native, 2,048 tokens | 3.129763 | 2.560117 | −18.2009% |
+| Actual SDK MCP, 1,024 tokens | 4.357927 | 3.887177 | −10.8021% |
+
+Token configurations use `cl100k_base`, an 8,000-character ceiling and limit 5.
+Native timing covers the complete uncached recall. MCP timing covers the actual
+SDK stdio call through its returned result, including normal server cache writes;
+cache deletion/commit happens before timing. Validation and reference token
+counting happen outside the timer. OS/SQLite caches warm naturally. These are
+not OS-cold measurements or estimates derived from native calls. [Timing boundary][formal-review]
+
+Acceptance uses the equal-weight geometric mean of all **twelve pooled p95
+ratios**. It requires at least 10% overall improvement, 15% in at least one
+public native token cell, 10% in public actual MCP token-1024, and no pooled
+p50/p95 regression above 5%. All pass. The synthetic native character p95
+improvement is just **0.0391%**. Round-specific aggregate improvements are
+**7.9998%, 9.6256%, 10.6865% and 11.1748%**; the registered gate uses all rounds
+pooled. [All twelve cells and every adverse round][formal-review]
+
+Individual round metrics can exceed 5%: synthetic MCP character round 1 has
+**+5.8158% p50** and **+5.3981% mean** latency. The 5% gate applies to pooled
+p50/p95. All 19 positive per-round metric changes remain in the review.
+
+The independent review retains all **28 resource comparisons** and their raw
+four-sample inputs. Public MCP token-session startup changes
+**345.683341 → 366.504056 ms (+6.0231%)**. No registered resource mean crosses
+its 10% review threshold, so no waiver is needed. Individual samples can still
+regress: synthetic round-1 ingestion rises **13.4300%**, while its four-round
+mean changes **−0.0786%**. These observations support neither a general startup
+improvement nor a population-tail claim. [Resource samples][formal-audit]
+
+Complete native payloads, actual MCP text/envelopes, source references, response
+bytes and both reference encoders' token-cost summaries match. The strict ledger
+audit and independent arithmetic review performed no new retrieval or timing.
+All original rows, first/repeat partitions and negative metrics remain available.
+This formal comparison concerns Book versions; it supplies no whole-product
+speed ratio against another repository. [Strict audit][formal-local-audit] ·
+[Raw report][formal-raw]
 
 ## Current frozen 256-question comparison
 
-[Run 43267797247](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43267797247)
-completed all **ten stages and 9,216 actual search calls**: 4,608 native Book
-calls and 4,608 component searches. Its immutable result is
-[`c99f205`](https://github.com/Afloat16/AI-Memory-Book/commit/c99f20531053b1c164fc5a5d3fa8e0c831eeb4de).
-The [strict assessment](../benchmarks/results/round3-comparison-43267797247-1/assessment.json)
-is `complete-verified`, with no validation failures. All **1,536 native
-baseline/candidate pairs and 768 component pairs** have identical complete
-non-timing payload hashes. A [separate local read-only replay](../benchmarks/reports/round3-comparison-independent-audit.json)
-reproduces the published assessment and Markdown from all saved raw results,
-checks 71 frozen evaluator files and 34 preserved artifacts, and collects no
-new scoring calls. It reuses the exact frozen verifier; this is not an
-independently implemented scoring algorithm.
+**Pending: run 43363060062-1 has not yet been accepted from a complete-verified
+checkpoint and strict audit.** The sections below describe the frozen protocol;
+all fresh scores, costs and competitor conclusions remain pending. Partial
+stage outputs are not used to fill them.
 
-Runtime, evaluator, upstream, dependency and model identities were committed
-before the ID selection. The 256 questions exclude both earlier selections and
-contain **607 required evidence annotations**. The fixed ID-only selection is
-another sample of the same public HotpotQA source, not a new domain or an
-unexposed corpus. After the first score these IDs are regression data.
-[Reconciliation](round3-reconciliation.md) identifies the single executed
-registration and two unused preparations; no additional scoring run was started
-to choose a better result.
+The [registered plan][plan] and [runtime/evaluator binding][comparison-binding]
+fix source, model, dependency and component identities and were committed before
+ID selection. The resulting [selection manifest][comparison-manifest] was
+committed before scoring. Selection reads IDs first and excludes
+all **640** earlier Hotpot IDs. This selection has **256 questions and 635
+required evidence annotations**, with zero prior-ID overlap. It is another
+selection from the same public HotpotQA source, not a new domain or an unexposed
+corpus. After scoring, its questions become regression data.
 
-All selected questions are answerable. The test measures returned source
-evidence, not generated-answer accuracy, abstention, or a complete
-capture/summarize/retrieve/answer workflow. No generative calls are configured.
+| Frozen item | Identity |
+|---|---|
+| Baseline / candidate | v0.3.1 `7b7a5d7` / C2 `2d7b5e3` |
+| Comparison evaluator commit | `d6aa80c7df80f017d301dd93102210b4c968231c` |
+| Binding SHA-256 | `84dbe28c068a3067f9706c6439d42301eaddfef95c44ae2633398346c66a8c79` |
+| Selection manifest SHA-256 | `b0485b3a089c9b04fc4453fd9f129364e123ce1b9f25b593edf4f6ee6df4a20b` |
+| Dataset SHA-256 | `fb3cd70ea58fafa5bd9cef0f04dba7399aaafba76f5f92605eee9e516f115e1b` |
+| Source revision | HotpotQA dev distractor `1908d6afbbead072334abe2965f91bd2709910ab` |
+
+The target matrix has **ten stages, 4,608 native calls and 4,608 component
+searches**. Its **54 quality cells** comprise 18 native cells (three Book modes
+× two tokenizers × three budgets) and 36 common-packing cells (six component
+modes × the same six budget/tokenizer settings). Common packing reuses the
+first response; it does not add search calls. The component baseline is kept
+for complete-payload equivalence, even where the overview displays only C2 and
+external components. [Registered axes][plan]
+
+All questions are answerable. Metrics concern returned source evidence, not
+generated-answer accuracy, hallucination/abstention, or a complete
+capture/summarize/retrieve/answer workflow. No generative model calls are
+configured. Strict checks must cover sources, scope, character/token limits,
+all planned calls and baseline/candidate complete-payload equality. Passing
+integrity does not itself prove a quality advantage.
 
 ### Common supplied-page quality
 
-The table shows **1,024 cl100k_base tokens**, common source pages, project scope,
-top five and the same citation-inclusive whole-page packer. Both tokenizers and
-all three budgets (512/1,024/2,048) remain in the [full report](../benchmarks/results/round3-comparison-43267797247-1/report.md).
-Quality uses the first response. MRR measures the first evidence position in
-the packed context, after packing omits metadata or oversized pages.
+**Pending: no new quality scores or repository ranking are asserted.** The
+reference view will use the same supplied pages, project scope, top five and
+citation-inclusive whole-page packing at **1,024 `cl100k_base` tokens**.
+Evidence recall uses the 635 required annotations; complete evidence requires
+all annotations for a question. MRR measures the first evidence position in
+the packed context after metadata or oversized pages have been omitted.
+All six budget/tokenizer cells remain part of the assessment.
 
 | Component | Evidence recall | Complete evidence | Packed-context MRR | Mean context tokens |
 |---|---:|---:|---:|---:|
-| Book v0.3.1, default lexical | 76.28% | 52.34% | 0.8132 | 719.8 |
-| Book v0.3.1, optional Q2 | 76.77% | 54.69% | 0.8239 | 739.0 |
-| claude-mem 15.18.1 FTS | 70.68% | 45.31% | 0.7674 | 715.8 |
-| ai-memory v3.4.5 hybrid | 77.27% | 55.86% | 0.8182 | 716.8 |
-| billion-context 9674cfa kernel | 78.91% | 58.20% | 0.8277 | 762.3 |
+| Book v0.3.2, default lexical | Pending | Pending | Pending | Pending |
+| Book v0.3.2, optional Q2 | Pending | Pending | Pending | Pending |
+| claude-mem 15.18.1 FTS | Pending | Pending | Pending | Pending |
+| ai-memory v3.4.5 hybrid | Pending | Pending | Pending | Pending |
+| billion-context 9674cfa kernel | Pending | Pending | Pending | Pending |
 
-The current default improves complete evidence over claude-mem by **7.03
-percentage points**, while Q2's difference is **9.38 points**. Q2 improves over
-Book lexical by **2.34 points** here, but remains below ai-memory and
-billion-context. Current results supersede older samples for this selection;
-historical improvements over all three components do not imply the same
-ordering on every cohort.
+The final comparison must retain competitors' strengths, every Book shortfall,
+budget-specific changes and per-question gains/losses. The saved-results figure
+will be generated only after the full checkpoint and audit pass; the earlier
+v0.3.1 figure remains in its archived guide.
 
 ### Native Book API and optional Q2 tradeoffs
 
-These are actual native context responses, with an 8,000-character ceiling,
-top five, no result cache and one call per query/configuration. Native packing
-is distinct from the common whole-page projection.
+Native calls use an 8,000-character ceiling, top five, no result cache and one
+call per query/configuration. Native source-unit packing is distinct from the
+common whole-page projection. **All 18 native cells are pending**, including
+recall, completeness, MRR, context tokens and p50/p95.
 
-| Native mode | cl100k cap | Evidence recall | Complete evidence | Mean context tokens | p50 / p95 ms |
-|---|---:|---:|---:|---:|---:|
-| v0.3.0 lexical | 512 | 65.73% | 35.94% | 476.5 | 4.695 / 7.485 |
-| v0.3.1 lexical | 512 | 65.73% | 35.94% | 476.5 | 3.150 / 4.316 |
-| v0.3.1 Q2 | 512 | 64.74% | 33.59% | 479.2 | 8.661 / 13.043 |
-| v0.3.0 lexical | 1,024 | 76.28% | 52.34% | 808.0 | 4.213 / 7.295 |
-| v0.3.1 lexical | 1,024 | 76.28% | 52.34% | 808.0 | 2.707 / 3.828 |
-| v0.3.1 Q2 | 1,024 | 76.77% | 54.69% | 824.4 | 9.058 / 12.895 |
+| Tokenizer / cap | v0.3.1 lexical completeness | C2 lexical completeness | C2 Q2 completeness | Q2 complete-question gains / losses |
+|---|---:|---:|---:|---:|
+| cl100k / 512 | Pending | Pending | Pending | Pending |
+| cl100k / 1,024 | Pending | Pending | Pending | Pending |
+| cl100k / 2,048 | Pending | Pending | Pending | Pending |
+| o200k / 512 | Pending | Pending | Pending | Pending |
+| o200k / 1,024 | Pending | Pending | Pending | Pending |
+| o200k / 2,048 | Pending | Pending | Pending | Pending |
 
-At 1,024 cl100k tokens, Q2 has **24 complete-question gains and 18 losses**.
-At 512 tokens it has **22 gains and 28 losses**; both complete evidence and
-annotation recall decline. The o200k 512-token native result also declines,
-from **35.55% to 33.20%** complete evidence. Q2 remains optional; the default
-ranking is unchanged. These native timings are descriptive single-run values,
-while the independent balanced-order study supplies the release speed gate.
-
-The low lexical-overlap group has only **six questions**. At 512 cl100k tokens,
-native lexical/Q2 completeness is **0/6 for both**, although evidence recall
-rises from 33.33% to 50.00%. In the component view, Book lexical, Q2 and
-claude-mem also complete 0/6; ai-memory and billion-context complete 1/6.
-Every question is mapped across supplied paragraph sessions/chapters, so those
-labels do not prove transfer across private conversational sessions.
+Q2 remains optional. Its completed, separate [old-data compatibility audit](../benchmarks/reports/round4-compatibility-final/paired-audit.json)
+verifies 1,968 calls and 984 complete non-latency payload pairs against v0.3.1
+using identical saved vectors. That is compatibility evidence, not a new quality
+result. Fresh Q2 gains/losses, small-group denominators, semantic setup costs and
+native/component vector checks remain pending. Cross-session/chapter labels
+come from supplied encyclopedia paragraphs mapped into archive structure; they
+do not demonstrate private conversational transfer.
 
 ### Search, reads and actual payload costs
 
-Search-adapter timings pool three real repetitions; the six offline budget
-projections reuse the first response. Search-plus-reads sums each first-pass
-query's actual roundtrips before computing percentiles. It does not add p95
-values. No replacement searches or extra scoring calls occur.
+**Pending: exact fresh latency, read and payload costs.** Search-adapter timing
+pools three actual repetitions; six offline packing projections reuse only the
+first response. Search-plus-reads adds each first-pass query's real roundtrips
+before computing percentiles. It does not add independently computed p95 values.
 
-| Component | Search p50 / p95 ms | First search + all reads p50 / p95 ms | Search payload cl100k / o200k tokens | Read payload cl100k / o200k tokens | Reads/query |
+| Component | Adapter search p50 / p95 ms | First search + all reads p50 / p95 ms | Search payload cl100k / o200k tokens | Read payload cl100k / o200k tokens | Reads/query |
 |---|---:|---:|---:|---:|---:|
-| Book lexical | 1.766 / 2.784 | 1.756 / 2.818 | 3983.5 / 3998.4 | 0.0 / 0.0 | 0.00 |
-| Book Q2 | 7.415 / 11.226 | 7.365 / 11.046 | 4097.3 / 4112.5 | 0.0 / 0.0 | 0.00 |
-| claude-mem FTS | 11.781 / 22.826 | 11.982 / 22.931 | 1641.3 / 1625.7 | 0.0 / 0.0 | 0.00 |
-| ai-memory hybrid | 21.168 / 27.545 | 23.966 / 30.532 | 1026.3 / 1023.4 | 1843.1 / 1834.9 | 5.00 |
-| billion-context kernel | 0.285 / 1.010 | 0.689 / 1.480 | 582.7 / 575.8 | 0.0 / 0.0 | 0.00 |
+| Book lexical | Pending | Pending | Pending | Pending | Pending |
+| Book Q2 | Pending | Pending | Pending | Pending | Pending |
+| claude-mem FTS | Pending | Pending | Pending | Pending | Pending |
+| ai-memory hybrid | Pending | Pending | Pending | Pending | Pending |
+| billion-context kernel | Pending | Pending | Pending | Pending | Pending |
 
-Book is in-process Python including native context assembly; claude-mem is
-unchanged SQLite/Bun; ai-memory is local hybrid HTTP/MCP; billion-context is its
-supplied-source search kernel/Node. These are distinct component boundaries,
-not interchangeable whole-product timings. The complete Book object uses a
-100,000-character ranking cap before common packing; it is not compact MCP
-output. Native response payload, native text and capped packed context are
-different token surfaces.
+The overview uses `adapter_roundtrip_latency`; native-search-only values and
+additional reads remain separately reported. Book is in-process Python including
+native recall assembly; claude-mem uses SQLite/Bun; ai-memory uses local hybrid
+HTTP/MCP; billion-context is the supplied-source search kernel in Node. These
+boundaries do not represent equivalent complete products. [Frozen adapters][comparison-evaluator]
 
-ai-memory's policy reads every mapped top-five page on the first pass. An agent
-could choose fewer reads. Metadata hits retain their original top-five slots
-and payload cost but earn no evidence credit; there is no replacement search.
-Original ranks, returned IDs, read calls, repeat changes and costs remain in
-the raw reports and ledgers.
+Book returns the full native object with a 100,000-character ranking cap before
+common packing. This is not its compact MCP response or the optional
+[indexed-reference format](indexed-references.md). Native response JSON, native
+content text and capped packed context are different token surfaces. The
+ai-memory policy reads each mapped top-five page on the first pass; a real agent
+could choose fewer reads. Metadata retains its original slot and payload cost
+without evidence credit. No replacement search fills an omitted slot.
 
 ### Setup, memory and persistent state
 
-The corpus contains **3,896 canonical pages**. Book native setup freshly ingests source. Book component setup copies a
-canonical archive; Q2 additionally loads its model and builds the index.
-The different setup operations are not a common ingestion-speed race.
+**Pending: canonical page count, all preparation times, RSS, live state and
+model/index details.** Native Book workers ingest the original sources;
+component Book workers copy the canonical archive. Q2 separately loads its
+model and builds an index. Different setup paths are not a common ingestion race.
 
 | Mode | Setup s | Setup tree RSS MiB | Query tree RSS MiB | Native state bytes |
 |---|---:|---:|---:|---:|
-| Book native lexical | 4.236 | 549.47 | 533.07 | 40,280,936 |
-| Book native Q2 | 115.130 | 1286.11 | 1269.98 | 54,988,384 |
-| Book component lexical | 0.547 | 549.66 | 529.17 | 33,808,384 |
-| Book component Q2 | 112.553 | 1233.96 | 1234.28 | 54,016,064 |
-| claude-mem FTS | 1.590 | 675.75 | 635.18 | 20,626,650 |
-| ai-memory hybrid | 644.735 | 716.75 | 714.48 | 73,818,921 |
-| billion-context kernel | 0.163 | 558.29 | 675.97 | 0 |
+| v0.3.1 native lexical | Pending | Pending | Pending | Pending |
+| C2 native lexical | Pending | Pending | Pending | Pending |
+| C2 native Q2 | Pending | Pending | Pending | Pending |
+| v0.3.1 component lexical | Pending | Pending | Pending | Pending |
+| C2 component lexical | Pending | Pending | Pending | Pending |
+| C2 component Q2 | Pending | Pending | Pending | Pending |
+| claude-mem FTS | Pending | Pending | Pending | Pending |
+| ai-memory hybrid | Pending | Pending | Pending | Pending |
+| billion-context kernel | Pending | Pending | Pending | Pending |
 
-Default native ingestion takes **4.214 s**, versus **4.056 s** for v0.3.0 in
-this run; it supplies no ingestion-speedup claim. Native Q2 loads its model
-in **0.863 s** and builds **4,831 windows in 110.094 s**. Its verified model
-cache adds **127,535,388 bytes** outside the state table.
-
-The [ai-memory summary](../benchmarks/results/round3-comparison-43267797247-1/ai-memory-hybrid.summary.json)
-attributes **643.023 s** of setup to 3,896 sequential native page writes,
-including indexing and embedding. Its later **0.829 s** backfill records zero
-newly embedded pages, 3,896 skipped and zero failures. This is native ingestion
-cost, not a second embedding pass. Its zero after-close state reflects
-temporary-directory cleanup; the table reports live state before close.
-
-RSS is sampled worker-plus-descendants every 20 ms. It includes evaluator/data
-memory, may count shared pages more than once, and is an observed lower bound;
-it is not pure product RAM. Native state excludes symlinked model caches.
-Billion's zero describes this in-memory kernel harness, not its complete proxy.
-SQLite main/WAL/SHM and detailed phase costs remain in the summaries. Q2's
-persisted native/component index-vector digests match; this does not assert
-separately measured query-embedding identity.
-
-### Version performance and accepted resource cost
-
-The [formal performance review](round3-performance-review.md) preserves all
-47,320 calls, all rounds and original automatic decisions. Its numeric speed
-gate passed. Synthetic 512-token p95 changes **+0.1248%** and remains visible.
-The empty-database opening mean changes **34.455720 → 39.294103 ms**
-(**+4.838384 ms / +14.0423%**), triggering the registered resource review.
-The separate [decision](../benchmarks/experiments/round3-startup-resource-decision.json)
-accepts that disclosed cost; the original automatic `accepted: false` remains
-unchanged. Static/SQL checks found no new initialization operation, but do not
-prove the exact OS cause of the longest historical sample. The supplemental
-80-sample diagnostic is separate and retains its **+5.8219% plain p95**.
-
-The project-local statistics experiment recovered all **8,082 original calls**
-without rerunning retrieval, failed **14 registered loss checks**, and was
-rejected. It is not enabled in the shipped runtime or the current comparison.
-See [quality review](round3-quality-review.md) and
-[completed optimization record](optimization-round3.md).
+RSS is sampled every 20 ms across the worker and descendants. It includes
+evaluator/data memory, may count shared pages more than once and can miss peaks;
+it is not isolated product RAM. Persistent state is reported before cleanup,
+with main/WAL/SHM and model-cache boundaries kept explicit. A kernel's in-memory
+state is distinct from its full proxy. Native writes, embedding/backfill work,
+model downloads and separately measured preparation phases must remain visible.
 
 ## Popular projects and the workload they address
 
@@ -238,14 +265,32 @@ delivery, not a claim that competitors universally require paid keys.
 
 ## Historical and unmeasured boundaries
 
-The [preserved v0.3.0 comparison](comparison-v0.3.0.md) contains the full
-historical LoCoMo matrix, older Hotpot selection, native answer experiment and
-small-model consolidation workflow. Each retains its original source pin,
-host, failure records and denominator. Do not pool those timings with this run
-or present historical scores as fresh v0.3.1 answer measurements.
+The [preserved v0.3.1 comparison](comparison-v0.3.1.md) retains its completed
+607-annotation selection, Q2 losses, competitor strengths, full cost tables and
+separate startup-review decision. The [round-three report](round3-comparison.md)
+provides its detailed six-cell results and fixed source identities. Its
+project-local statistics experiment remains rejected; no later timing result
+reopens that quality candidate.
+
+The [preserved v0.3.0 comparison](comparison-v0.3.0.md) contains the historical
+LoCoMo matrix, earlier Hotpot selection, generated-answer experiment and
+small-model consolidation workflow. Each keeps its original source, host,
+failure records and denominator. Those results are not fresh v0.3.2 answer
+measurements and are not pooled with this run.
 
 Mem0, Graphiti, PageIndex and Letta are architectural comparisons here, not
-executed performance victories. Neither this round nor its integrity checks
-measure production concurrency, adaptive agent policies, provider billing,
-energy, private-user data, unanswerable-query abstention, or all competitors'
-native observation/compression/generation workflows. Unknown costs stay unknown.
+executed performance victories. The current work does not measure production
+concurrency, adaptive agent policies, provider billing, energy, private-user
+data, unanswerable-query abstention, or every competitor's native observation,
+compression and generation workflow. Unknown costs stay unknown. Final release
+verification and publication remain separate from benchmark acceptance.
+
+[plan]: ../benchmarks/experiments/round4-plan.json
+[formal-review]: round4-performance-review.md
+[formal-audit]: ../benchmarks/reports/round4-performance-independent-audit.json
+[formal-summary]: ../benchmarks/reports/round4-performance-43361086255-1/report.summary.json
+[formal-local-audit]: ../benchmarks/reports/round4-performance-local-audit.json
+[formal-raw]: ../benchmarks/reports/round4-performance-43361086255-1/report.json.gz
+[comparison-binding]: ../benchmarks/experiments/round4-validation-binding.json
+[comparison-manifest]: ../benchmarks/experiments/round4-hotpot256-manifest.json
+[comparison-evaluator]: ../scripts/round4_comparison.py

@@ -12,8 +12,8 @@ key. Your AI client's own model and account requirements remain separate.
 
 ## Install v0.3.2
 
-**Release preparation: v0.3.2 is not published yet.** Formal performance,
-the new comparison, and final release/install verification are pending. The
+**Release preparation: v0.3.2 is not published yet.** Formal performance has
+passed; the new comparison and final release/install verification are pending. The
 v0.3.2 URLs below are target installation URLs and become usable after publication.
 The [published v0.3.1 guide](https://github.com/Afloat16/AI-Memory-Book/blob/v0.3.1/docs/deployment.md)
 remains available for the current release.
