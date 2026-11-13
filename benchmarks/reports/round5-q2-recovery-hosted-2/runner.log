@@ -1,0 +1,57 @@
+From https://github.com/Afloat16/AI-Memory-Book
+ * branch            a996e8458ac333ecfc2184b2a167d91b9246db60 -> FETCH_HEAD
+From https://github.com/Afloat16/AI-Memory-Book
+ * branch            fe144a0830ef42b57fa6d4ac7248a5081f31acd4 -> FETCH_HEAD
+From https://github.com/Afloat16/AI-Memory-Book
+ * branch            43b65c004e1ac1f1d75cf6d1a2421b36e4eab740 -> FETCH_HEAD
+[ci/v033-q2-recovery-hosted-2 96dd277] bench: claim separately identified Q2 reconstruction before assets or inference [skip ci]
+ 2 files changed, 675 insertions(+)
+ create mode 100644 benchmarks/reports/round5-q2-recovery-hosted-2/attempt.intent.json
+ create mode 100644 benchmarks/reports/round5-q2-recovery-hosted-2/registered-helper-union.json
+{"checkpoint": "96dd277ca2d16bce2f769df60bc7877ce9b74608", "branch": "validation/v033-q2-recovery-hosted-2", "message": "bench: claim separately identified Q2 reconstruction before assets or inference"}
+[ci/v033-q2-recovery-hosted-2 7018293] bench: claim Q2 exact source and asset preparation [skip ci]
+ 1 file changed, 29 insertions(+)
+ create mode 100644 benchmarks/reports/round5-q2-recovery-hosted-2/assets.intent.json
+{"checkpoint": "7018293615fe494c7d7b0e7e0c4b9b70794de2b2", "branch": "validation/v033-q2-recovery-hosted-2", "message": "bench: claim Q2 exact source and asset preparation"}
+From https://github.com/Afloat16/AI-Memory-Book
+ * branch            7b7a5d7336b9350a128f5e0a888811b1b3015e68 -> FETCH_HEAD
+Preparing worktree (detached HEAD 7b7a5d7)
+From https://github.com/Afloat16/AI-Memory-Book
+ * branch            692fb959ddf8934c5f516ba3d74ceb4385a2fa82 -> FETCH_HEAD
+Preparing worktree (detached HEAD 692fb95)
+From https://github.com/Afloat16/AI-Memory-Book
+ * branch            4a0ad4dc6aec33a91231d419239b7e90b160c695 -> FETCH_HEAD
+Preparing worktree (detached HEAD 4a0ad4d)
+[ci/v033-q2-recovery-hosted-2 021e84f] bench: bind Q2 exact sources assets and environment before index construction [skip ci]
+ 1 file changed, 537 insertions(+)
+ create mode 100644 benchmarks/reports/round5-q2-recovery-hosted-2/asset-binding.json
+{"checkpoint": "021e84f6263a85387a67f888f639b050f11d4efe", "branch": "validation/v033-q2-recovery-hosted-2", "message": "bench: bind Q2 exact sources assets and environment before index construction"}
+[ci/v033-q2-recovery-hosted-2 7a65ed6] bench: claim once-only Q2 snapshot construction authored36 [skip ci]
+ 1 file changed, 35 insertions(+)
+ create mode 100644 benchmarks/reports/round5-q2-recovery-hosted-2/prepare-authored36.intent.json
+{"checkpoint": "7a65ed69343864ffdfd2b49702c402798f4fea51", "branch": "validation/v033-q2-recovery-hosted-2", "message": "bench: claim once-only Q2 snapshot construction authored36"}
+[ci/v033-q2-recovery-hosted-2 93f70b4] bench: preserve Q2 stage output prepare-authored36 [skip ci]
+ 3 files changed, 103 insertions(+)
+ create mode 100644 benchmarks/reports/round5-q2-recovery-hosted-2/prepare-authored36.exit.json
+ create mode 100644 benchmarks/reports/round5-q2-recovery-hosted-2/prepare-authored36.json
+ create mode 100644 benchmarks/reports/round5-q2-recovery-hosted-2/prepare-authored36.log
+{"checkpoint": "93f70b41b07d5ae186af9b91dde9698a9879efb1", "branch": "validation/v033-q2-recovery-hosted-2", "message": "bench: preserve Q2 stage output prepare-authored36"}
+[ci/v033-q2-recovery-hosted-2 40dc9c5] bench: preserve Q2 new snapshot identity audit authored36 [skip ci]
+ 1 file changed, 6 insertions(+)
+ create mode 100644 benchmarks/reports/round5-q2-recovery-hosted-2/prepare-authored36.audit.json
+{"checkpoint": "40dc9c522b5ebd0434af484cc804fdc072bb9195", "branch": "validation/v033-q2-recovery-hosted-2", "message": "bench: preserve Q2 new snapshot identity audit authored36"}
+[ci/v033-q2-recovery-hosted-2 9e0abbb] bench: preserve failed or interrupted Q2 reconstruction [skip ci]
+ 1 file changed, 11 insertions(+)
+ create mode 100644 benchmarks/reports/round5-q2-recovery-hosted-2/failure.json
+{"checkpoint": "9e0abbbe8481acff822d1c73119132c63e8fa227", "branch": "validation/v033-q2-recovery-hosted-2", "message": "bench: preserve failed or interrupted Q2 reconstruction"}
+Traceback (most recent call last):
+  File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_q2_hosted_recovery_v2.py", line 791, in <module>
+    run()
+  File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_q2_hosted_recovery_v2.py", line 722, in run
+    binding = prepare_snapshots(scope, binding)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_q2_hosted_recovery_v2.py", line 615, in prepare_snapshots
+    require(not any(Path(str(path) + suffix).exists() for suffix in ("-wal", "-shm", "-journal")),
+  File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_q2_hosted_recovery_v2.py", line 71, in require
+    raise ValueError(message)
+ValueError: New prepared database has a sidecar
