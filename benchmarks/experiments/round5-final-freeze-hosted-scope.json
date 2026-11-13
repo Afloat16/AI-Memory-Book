@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "protocol": "round5-final-freeze-hosted-1",
+  "status": "prospective-before-final-runtime-selection",
+  "purpose": "Generate the already registered source-free MCP interface certificate, publish it, then generate and publish the unchanged formal performance binding. This controller executes zero corpus retrieval, fresh selection, benchmark timing, model inference, or ingestion.",
+  "trigger": "refs/heads/ci/v033-final-freeze-hosted-1",
+  "result_branch": "validation/v033-final-freeze-hosted-1",
+  "source_selection": "benchmarks/experiments/round5-selected-runtime.json",
+  "prerequisites": "A separately committed selection fixes the exact v0.3.2 and final candidate commits/runtime hashes, complete candidate file inventory, successful development evidence and independent source review. Missing or invalid selection fails before any execution claim or source preparation. The final source must already have passed all intended artificial integration and development gates.",
+  "baseline": {
+    "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+    "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+  },
+  "preserved": [
+    "scripts/round5_interface_certificate.py",
+    "scripts/round5_performance.py",
+    "scripts/round5_performance_v2.py",
+    "benchmarks/experiments/round5-final-interface-v2-scope.json",
+    "benchmarks/experiments/round5-plan.json",
+    ".github/workflows/round5-performance-v2.yml"
+  ],
+  "sequence": [
+    "verify committed source selection and untouched registered generators",
+    "publish unique attempt intent",
+    "prepare detached sparse exact-source worktrees and verify source bytes/provenance",
+    "publish certificate-generation intent",
+    "generate certificate using official initialize/list_tools only",
+    "publish certificate and exact generation receipt",
+    "publish performance-binding intent",
+    "generate unchanged formal binding using committed certificate",
+    "publish binding and completion"
+  ],
+  "packages": {
+    "mcp": "1.30.0",
+    "pydantic": "2.14.3",
+    "tiktoken": "0.12.0"
+  },
+  "durability": "One non-force Git push and remote readback per checkpoint, rejecting concurrent advancement. Preserve every generation failure and any partial interface observations. Never retry an ambiguous push or rerun a started certificate attempt. Artifact upload is fallback preservation. This run does not trigger performance, compatibility, quality, comparator, release, tags, or main changes.",
+  "boundaries": "The controller is additional orchestration only. Original source identity, exact schema projection, recorded initialization-token costs and numeric performance/resource/quality gates are unchanged. A generated binding is not acceptance."
+}

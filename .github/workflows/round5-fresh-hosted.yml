@@ -1,0 +1,89 @@
+name: Frozen fresh v2 hosted comparison
+
+on:
+  push:
+    branches: ['ci/v033-fresh-hosted-1']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: round5-fresh-hosted-1
+  cancel-in-progress: false
+
+jobs:
+  frozen-fresh:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+      PYTHONHASHSEED: '0'
+      ORT_DISABLE_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/benchmarks/reports/
+            !/benchmarks/results/
+            !/benchmarks/figures/
+            !/docs/images/
+      - name: Fail before claim or downloads unless final source authorization is committed
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .artifacts
+          python3 scripts/round5_fresh_hosted.py --preflight 2>&1 | tee .artifacts/round5-fresh-hosted-preflight.log
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          python-version: '3.12'
+      - name: Install exact reference and interface packages
+        run: python -m pip install . mcp==1.30.0 pydantic==2.14.3 tiktoken==0.12.0 pyarrow==26.0.1 regex==2026.11.9
+      - name: Run artificial controller and snapshot gates only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY' 2>&1 | tee .artifacts/round5-fresh-hosted-artificial-tests.log
+          import unittest
+          patterns = ('test_round5_fresh_hosted.py', 'test_round5_source_content_snapshot.py',
+                      'test_round5_fresh_snapshot_v2_integration.py')
+          suite = unittest.TestSuite(unittest.defaultTestLoader.discover('tests', pattern=name) for name in patterns)
+          if suite.countTestCases() != 24:
+              raise SystemExit('Exact 24 artificial tests are required before a first fresh attempt')
+          result = unittest.TextTestRunner(verbosity=2).run(suite)
+          if not result.wasSuccessful() or result.skipped:
+              raise SystemExit('Artificial correctness gate failed or skipped')
+          PY
+      - name: Configure durable evidence commits
+        run: |
+          git config user.name 'AI-Memory-Book benchmark'
+          git config user.email 'benchmark@users.noreply.github.com'
+      - name: Run one frozen sequential attempt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/round5_fresh_hosted.py --run 2>&1 | tee .artifacts/round5-fresh-hosted-runner.log
+      - name: Preserve failure evidence without replay
+        if: always()
+        run: python3 scripts/round5_fresh_hosted.py --preserve
+      - name: Upload exact evidence and permitted recovery databases
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: round5-fresh-hosted-1-${{ github.run_id }}-${{ github.run_attempt }}
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
+          path: |
+            benchmarks/reports/round5-fresh-hosted-1/
+            .artifacts/round5-fresh-hosted-preflight.log
+            .artifacts/round5-fresh-hosted-artificial-tests.log
+            .artifacts/round5-fresh-hosted-runner.log
+            .artifacts/round5-fresh-hosted-1/native-state/worker-*/book.db*
+            .artifacts/round5-fresh-hosted-1/component-state/component-00-export/frozen.db*
+            .artifacts/round5-fresh-hosted-1/component-state/component-00-export/bundle.json
+            .artifacts/round5-fresh-hosted-1/assets/**/*.partial
+            .artifacts/round5-fresh-hosted-1/upstream.parquet.partial

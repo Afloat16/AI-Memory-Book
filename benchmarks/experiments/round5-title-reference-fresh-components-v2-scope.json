@@ -1,0 +1,158 @@
+{
+  "schema_version": 2,
+  "protocol": "round5-t1-fresh512-comparators-2",
+  "status": "prospective-v2-storage-clock-comparison-repair-before-selection",
+  "native_scope": "benchmarks/experiments/round5-title-reference-fresh-v2-scope.json",
+  "original_plan": "benchmarks/experiments/round5-title-reference-plan.json",
+  "purpose": "Execute the original T1 same-selected-cohort supplied-page comparison. This is separate from the native title-reference validation and from default-runtime performance acceptance. No old competitor table supplies a score or timing in this comparison.",
+  "registration": "Before metadata-only fresh selection, bind one complete committed final runtime, this evaluator and its transitive helpers/tests, all original comparator pins and local asset identities, Node runtime identity, future selection path, private/public paths, schedule and measurement boundaries. Registration contains no future native binding hash, avoiding a circular hash. The native binding then includes the committed comparator registration and every evaluator hash.",
+  "cohort": "Exactly the same committed 512-question manifest and selected-data binding as native T1. The comparator has no selector. It refuses uncommitted selection/data, different dataset fingerprints, altered query projections or a changed question universe. No question, answer, source passage or label is decoded during registration or intent creation.",
+  "export": {
+    "worker_index": 0,
+    "source": {
+      "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+      "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+    },
+    "segmentation": "adaptive",
+    "max_page_chars": 900,
+    "result_cache_entries": 0,
+    "rule": "One separate, published-intent export worker ingests only the committed selected corpus with exact v0.3.2, exports complete pages with original source references, checkpoints/closes the SQLite database and freezes database bytes, original-source digest, lexical-index digest, documents and diagnostics. No retrieval or answer model runs during export. Both Book component workers copy these exact frozen database bytes. Every external engine receives exactly the same document IDs, project scopes, titles and page bodies.",
+    "native_cross_check": "Compare exported deterministic source-content snapshot and lexical-index digest against native worker 0. Both retain full within-worker source identities; separate real ingestion storage clocks are the only four explicit cross-ingest exclusions. A mismatch remains an integrity failure and never causes a rebuild or substitution."
+  },
+  "engines": [
+    {
+      "worker_index": 1,
+      "name": "final-default-component",
+      "follow_titles": false
+    },
+    {
+      "worker_index": 2,
+      "name": "final-follow-titles-component",
+      "follow_titles": true
+    },
+    {
+      "worker_index": 3,
+      "name": "claude-mem-fts",
+      "repository": "thedotmack/claude-mem",
+      "commit": "c4a9f5725f420bf9c6e866cdd3b94bd36498af09",
+      "lock": "benchmarks/competitors/claude-mem-round2-lock.json"
+    },
+    {
+      "worker_index": 4,
+      "name": "billion-context",
+      "repository": "ranxianglei/billion-context",
+      "commit": "9674cfafbc78c50245ae0d887483d3d6ce880c15",
+      "lock": "benchmarks/competitors/billion-round2-lock.json"
+    },
+    {
+      "worker_index": 5,
+      "name": "ai-memory-hybrid",
+      "repository": "akitaonrails/ai-memory",
+      "commit": "ee73c04c542fa41ca629b046deb4ac108518f407",
+      "lock": "benchmarks/competitors/ai-memory-lock.json"
+    }
+  ],
+  "axes": {
+    "top_k": 5,
+    "common_budget_chars": 8000,
+    "tokenizers": [
+      "cl100k_base",
+      "o200k_base"
+    ],
+    "token_budgets": [
+      512,
+      1024,
+      2048
+    ],
+    "book_selection_budget_chars": 100000,
+    "book_flags": {
+      "strategy": "book",
+      "coverage": false,
+      "semantic": false,
+      "use_cache": false
+    },
+    "adapter_preview_chars": 200,
+    "packing": "Use the existing shared_response citation format and pack_whole_blocks greedy order. A packing-only counter guard rejects a proposed context above 8000 characters; independent ordinary reference counters recompute actual token counts. Consider only the original native top-five slots. Accept whole pages that satisfy both caps, never truncate a page/reference, consult annotations to choose evidence, refill a missing slot or retrieve a sixth item."
+  },
+  "schedule": {
+    "worker_order": [
+      "export",
+      "final-default-component",
+      "final-follow-titles-component",
+      "claude-mem-fts",
+      "billion-context",
+      "ai-memory-hybrid"
+    ],
+    "queries_per_engine": 512,
+    "search_repetitions": 3,
+    "query_order": "Start from committed selected_ids for every engine and repetition; shuffle with random.Random(61512 + 1009 * repetition).",
+    "search_calls_per_engine": 1536,
+    "total_search_calls": 7680,
+    "quality_repetition": 0,
+    "offline_packing_rows_per_engine": 3072,
+    "total_quality_rows": 15360,
+    "ai_memory_read_repetition": 0,
+    "maximum_ai_memory_native_reads": 2560,
+    "rule": "Each engine runs in one independent fresh process. Execute all three fixed search repetitions, retaining every result, negative case, unmapped slot and repeat change. Quality uses only the first search response under six offline common projections. Do not call search separately for each budget, run an unscored probe query, clear feature caches, warm queries manually, substitute lexical ai-memory mode or repeat a failed/slow worker."
+  },
+  "native_boundaries": {
+    "book": "In-process final shipping recall, including its existing context assembly and real follow_titles metadata when enabled; source copying and tokenizer setup are outside search. The 100000-character selection call obtains complete offered pages before the separate common packer. This is not the native 8000-character/token-budget path measured by the T1 native evaluator.",
+    "claude_mem": "Pinned upstream SessionStore/SessionSearch SQLite FTS through the existing persistent Bun bridge, with original supplied page title/text and empty synthesized semantic fields. Preserve native function time and Python/Bun roundtrip separately. No observer, Chroma, worker workflow or final answer is executed.",
+    "billion_context": "Pinned upstream default hybrid BM25-plus-fuzzy searchBlocks and its document-feature cache, through the existing Node bridge after syntax erasure. Preserve kernel time and adapter roundtrip separately. Full source pages for common packing come from the frozen supplied corpus; no unimplemented product read cost is invented.",
+    "ai_memory": "Pinned v3.4.5 native hybrid memory_query over local HTTP/MCP with the pinned all-MiniLM-L6-v2 files. Native search_ms is the HTTP/MCP roundtrip, not isolated retrieval CPU. Metadata hits mapped to None retain their original top-five slots and native identity hashes. On the first repetition only, read every mapped offered page through native memory_read_page and require the complete body to equal the canonical page. A None slot is never replaced and never triggers an extra search.",
+    "costs": "Retain native search and adapter roundtrip for all 1536 searches per engine, with first/repeat partitions. Report first-pass search-plus-all-offered-page-read roundtrips from per-query sums before percentiles; never pool first-pass read-inclusive samples with later search-only samples. Count native search/read payload and content tokens independently of common packed context. Offline packing/verification/token counting are excluded from native search/read timing and reported separately.",
+    "resources": "Reuse the 20ms Linux worker-plus-descendant RSS sampler with setup, queries, packing and finalization phases. Report worker and child process boundary, setup/indexing, native-state storage before/after close, and shared asset sizes separately. These are measured component boundaries; they do not establish whole-product or answer-generation latency superiority."
+  },
+  "quality_and_integrity": {
+    "metrics": "Use frozen source/span evidence scoring and the corrected v2 per-returned-page annotation checks. Report complete-evidence rate, annotation recall, MRR and pooled annotated-page precision, including no-answer/zero-page cases and every per-question loss. Each returned page contributes once to precision; duplicate-supporting pages are checked independently. Annotation precision is a proxy, not exhaustive relevance or answer EM/F1.",
+    "verification": "Verify every native/mapped top-five identity and project, original-source digest, lexical-index digest, result-cache disabled state for Book, exact packed context reconstruction, complete source spans, both caps and page uniqueness. Independently recompute aggregate quality/costs from saved rows. Strictly reject missing/duplicated/reordered search or packing rows, invalid finite costs, dropped None slots, unavailable native read proof, forged counts and changed pinned source/assets.",
+    "comparison": "Keep all five engine results and all six cells. Report paired per-question complete gains/losses against each repository and final OFF/ON, plus every comparator strength and adverse cell. Do not impose an outcome-driven new acceptance threshold, rank unlike native transport costs as whole-product speed, or splice these supplied-page results into old historical tables. Native T1 quality/cost and original default performance/resource gates remain separate release requirements."
+  },
+  "durability": "Every stage has its own remotely published intent and private single-use launch ticket, distinct from native worker 0..4. Use the same global attempt lock to prevent native/component overlap. A worker consumes its ticket before loading selected contents or setting up engines. Fsync started/finished events for every search, native read and packing projection; preserve interrupted/failed reports and ledgers, including a failed final audit. Root publishes each complete report and lossless ledger archive before the next intent. A missing/consumed ticket, started partial state or changed evaluator is never silently recreated or replayed. Frozen identities cannot change after selection; once any fresh content/labels have been decoded, including during export before retrieval, an algorithm/evaluator/parameter change consumes this holdout as development under the native registration's failure policy.",
+  "dependencies": {
+    "tiktoken": "0.12.0",
+    "pyarrow": "26.0.1",
+    "node": "v24.22.1",
+    "bun": "1.3.13"
+  },
+  "no_actions_at_authoring": "No fresh IDs, metadata, content or labels selected or decoded; no retrieval/model/adapter initialization or asset preparation. Only the separately recorded invented-database and source-free contract fixtures may execute during authoring. Original v1 scope/helper/tests/reports remain preserved.",
+  "snapshot_repair": {
+    "version": "round5-source-content-snapshot-1",
+    "prospective_plan": {
+      "commit": "907cac635c81a67bfd3cc89f1d4e63cd853d61a9",
+      "path": "benchmarks/experiments/round5-fresh-snapshot-v2-plan.json",
+      "sha256": "61204539d43b4be22021cadbfd8d9a216be5d133e7ee749cfed07e9042b73dc6"
+    },
+    "helper": "scripts/round5_source_content_snapshot.py",
+    "excluded_storage_columns": {
+      "projects": [
+        "created_at",
+        "updated_at"
+      ],
+      "chapters": [
+        "updated_at"
+      ],
+      "sessions": [
+        "updated_at"
+      ]
+    },
+    "retained": "All other 43 audited columns, all rows/IDs/rids/ordinals/references, complete source JSON/messages/input dates, schema metadata, table SQL, foreign keys and row counts remain in exact deterministic identity.",
+    "within_worker": "The original full six-table source_snapshot before==after remains mandatory; record and require deterministic source-content before==after as an additional invariant.",
+    "cross_independent_ingests": "Native workers and separate canonical export compare the exact deterministic source-content snapshot plus unchanged lexical index identity. Full snapshots remain preserved and are not expected to equal across independent storage-clock writes.",
+    "copied_export_database": "Preserve exact canonical database bytes and existing full snapshot comparisons for both final Book component database copies.",
+    "preserved_original_files_sha256": {
+      "scripts/round5_title_reference_fresh_data.py": "b219163f37d95eb21ed297ba51af82cf16c4d410173f1a309019e1a402231c3d",
+      "scripts/round5_title_reference_fresh.py": "126ddd41d73590af8fe32d0bd836053d1fca40b237e218fdcbc2248a79ee45d5",
+      "scripts/round5_title_reference_fresh_components.py": "0827242ed88bbede6844914747accc02471c52ddb09b753abb4a3c6d8e0e9aa6",
+      "scripts/round5_title_reference_eval_v2.py": "168f5fcefe91407acfb4444b5257460998a09cb97e86a5630e7e378d076bb68e",
+      "tests/test_round5_title_reference_fresh.py": "741ccaeeba2be499b18b00b52a7f2592351f98d6189c0c9e8687f6acfb0e4a79",
+      "tests/test_round5_title_reference_fresh_components.py": "12229fe840449af591de70929fd7bbf41312630fac0437e98cb0088ec71badcb",
+      "benchmarks/experiments/round5-title-reference-fresh-scope.json": "4480a473156406dad920bde62ee925c9e817bd8dbc7e2e07be78f1c86d71c5a3",
+      "benchmarks/experiments/round5-title-reference-fresh-components-scope.json": "45dcb3bece5e1165817eb65a207102f7170722801bfc899307abedb4231c07e0",
+      "benchmarks/semantic_eval.py": "46fa3b3fd6298ba1669bd0b17f3ad6f77a2fdaf5b79ba25e4632012090ca0b4e"
+    },
+    "gate_policy": "No quality/cost/resource/source/span/payload/order/budget/provenance gate or call schedule changes. No clock mocking or database rewriting. Versioned copies preserve v1 modules/scopes/tests/reports and are frozen before metadata-only selection.",
+    "authoring": "Only invented source-free/artificial fixture data may execute before complete source/interface/controller binding and separate fresh execution authorization."
+  },
+  "registered_utc": "2026-11-13T16:26:14+00:00"
+}

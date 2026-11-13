@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-11-13 17:08 UTC",
+  "updated_at_utc": "2026-11-13 17:26 UTC",
   "goal": "Continue v0.3.3 optimization of Afloat16/AI-Memory-Book with measured improvements, honest comparison boundaries and frequent durable Git checkpoints.",
   "control_branch": "optimization/v0.3.3-round5",
-  "previous_control_commit": "15936391276b73c647ac3a9428b65e8143042544",
+  "previous_control_commit": "3f6f1e7f2b64a2191772c0ea4834489d02841a7f",
   "resume_history": "docs/round5-resume-20261113.md",
   "published_baseline": {
     "tag": "v0.3.2",
@@ -44,23 +44,28 @@
   },
   "active_candidates": [
     {
-      "candidate": "L",
-      "owner": "runtime_audit",
-      "branch": "staging/v033-ranked-entries-l",
-      "base_source": "4720728e47d53fc6c345fa89a2b5b739a67a1069",
-      "scope_commit": "3f4ce4925442842c6a54ba05696106c33e38fb53",
-      "draft_source_commit": "dad748aa1b1c2f9de8f6864d77c35203a64b4b42",
-      "change": "Store the original complete native ranking key directly in each entry and use list.sort without per-row key callbacks or a second key tuple. Original scoring, complete ordering and fallback retained.",
-      "status": "Artificial fixtures being implemented; no L corpus call."
-    },
-    {
-      "candidate": "M",
-      "owner": "baseline_audit",
-      "branch": "staging/v033-normalization-translation-m",
-      "base_source": "4720728e47d53fc6c345fa89a2b5b739a67a1069",
-      "scope_commit": "60834240f23480802cb80ce62c493410748ad15f",
-      "change": "Extend exact normalization certificate by97 explicitly mapped compatibility scalars into the K-stable alphabet, translating before CamelCase/casefold; unsupported inputs retain literal historical behavior.",
-      "status": "Implementation/artificial fixtures in progress; no M corpus call."
+      "candidate": "LM",
+      "branch": "staging/v033-ranked-normalization-lm",
+      "source_commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+      "prospective_scope_commit": "3dad832d4bec672de74a60e1c9039c62ca7ae182",
+      "runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
+      "source_ci_run": 43471535987,
+      "status": "Exact two-file overlay of L and M on K is committed. All15 fixture modules retained. Combined CI/review and separate development binding are in progress; no LM corpus call.",
+      "donors": [
+        {
+          "candidate": "L",
+          "source": "38b08c77ed27742711ff9f240fd80ba4ef61e11a",
+          "ci": 43471092870,
+          "status": "8/9 success; macOS installer queued at last read"
+        },
+        {
+          "candidate": "M",
+          "source": "f5fa35fd094601a41b5152671190d6e270e523f7",
+          "ci": 43469907603,
+          "status": "9/9 success",
+          "independent_review": "e9731f7e813ea47b84896a6fe3d8c1d0b98b703f"
+        }
+      ]
     }
   ],
   "ready_orchestration": {
@@ -95,15 +100,20 @@
     },
     "fresh": {
       "source_commit": "d84f2ddb90b1f283a7676709ca5322d65b413423",
-      "durable_evidence_commit": "7b32905dff75f3fcd7a2e8602461a3757d4048c9",
+      "durable_evidence_commit": "9787389749e4e6df61c45bc42522cc6be4e26eb5",
       "branch": "staging/v033-fresh-hosted",
       "ci": 43467721136,
-      "status": "Eight jobs succeeded including all four unittest environments; macOS installer queued at last read. Thirteen controller fixtures passed without skips.",
+      "status": "9/9 source CI success; thirteen controller fixtures passed in all four unittest environments without skips.",
       "required_file": "benchmarks/experiments/round5-fresh-source-authorization.json",
       "missing": true,
       "trigger": "ci/v033-fresh-hosted-1",
       "selection_evidence_path_policy": "Use committed benchmarks/experiments/round5-selected-runtime.json, which sparse checkout includes.",
       "not_started": true
+    },
+    "integration": {
+      "manifest": "benchmarks/experiments/round5-hosted-orchestration-integration.json",
+      "status": "Exact reviewed source/controller/test/scope/docs blobs copied into current control ancestry; runtime and original registered evaluators remain unchanged. No final selection or trigger is created.",
+      "file_count": 30
     }
   },
   "formal": {
@@ -138,7 +148,7 @@
     "git_policy": "Persist code/scope before execution, then each started/result stage. Do not force-push, replay started experiments, replace failed observations or add percentages across hosts."
   },
   "next_steps": [
-    "Finish independent source reviews and artificial CI for L and M.",
+    "Complete exact LM source CI/independent review and separately frozen development controller, then run one original old-cohort diagnostic/paired schedule.",
     "If combining independent L/M changes, register and freeze the exact combined source and full fixture inventory before any combined corpus calls; directly compare the whole runtime to v0.3.2.",
     "Once an exact candidate is justified, commit final selection and run source-free certificate/binding, formal performance and historical compatibility. Never lower existing gates.",
     "Only after final source/evaluator/certificate/assets are bound may the original fresh512 selection and native/component evaluation run.",

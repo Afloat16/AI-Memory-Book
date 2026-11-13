@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "status": "prospective-diagnosis-before-any-fresh-metadata-or-content",
+  "protocol": "round5-fresh-snapshot-v2-plan-1",
+  "base_commit": "43b65c004e1ac1f1d75cf6d1a2421b36e4eab740",
+  "evidence": {
+    "original_files": {
+      "scripts/round5_title_reference_fresh_data.py": {
+        "git_blob": "f2cdb1b7c73ff28dd803006ebc1716a6b238d80a",
+        "sha256": "b219163f37d95eb21ed297ba51af82cf16c4d410173f1a309019e1a402231c3d"
+      },
+      "scripts/round5_title_reference_fresh.py": {
+        "git_blob": "ef58fb8e71f9ef2b6da404f416784c4f1b9f7c13",
+        "sha256": "126ddd41d73590af8fe32d0bd836053d1fca40b237e218fdcbc2248a79ee45d5"
+      },
+      "scripts/round5_title_reference_fresh_components.py": {
+        "git_blob": "41473366f1282e0a391af26207b695603024fe30",
+        "sha256": "0827242ed88bbede6844914747accc02471c52ddb09b753abb4a3c6d8e0e9aa6"
+      },
+      "scripts/round5_title_reference_eval_v2.py": {
+        "git_blob": "858e3b501ba740a9ed4b8e893b448b890f14c125",
+        "sha256": "168f5fcefe91407acfb4444b5257460998a09cb97e86a5630e7e378d076bb68e"
+      },
+      "benchmarks/experiments/round5-title-reference-fresh-scope.json": {
+        "git_blob": "47d5e19f4c850423f8a489aad2b870266367206f",
+        "sha256": "4480a473156406dad920bde62ee925c9e817bd8dbc7e2e07be78f1c86d71c5a3"
+      },
+      "benchmarks/experiments/round5-title-reference-fresh-components-scope.json": {
+        "git_blob": "f9174afe380032d4d09e3d7291bc8f977b5ff75d",
+        "sha256": "45dcb3bece5e1165817eb65a207102f7170722801bfc899307abedb4231c07e0"
+      },
+      "benchmarks/semantic_eval.py": {
+        "git_blob": "db4019d348dab7a9a5888b22c97cea5ff87103d5",
+        "sha256": "46fa3b3fd6298ba1669bd0b17f3ad6f77a2fdaf5b79ba25e4632012090ca0b4e"
+      }
+    },
+    "defect": "Each native worker and the component export independently ingest a new SQLite database. The v1 audit/cross-check compares full six-table source_snapshot hashes across those databases, although shipping ingestion writes wall-clock storage timestamps in four fields. Equal source content therefore does not imply equal full snapshots across separately built databases.",
+    "affected_checks": [
+      "scripts/round5_title_reference_fresh.py:audit (cross-worker full source_snapshot equality)",
+      "scripts/round5_title_reference_fresh_components.py:check_native_export (separate export versus native0 full source_snapshot equality)"
+    ],
+    "existing_within_worker_invariant": "Full source_snapshot before/after equality is correct and remains required without alteration.",
+    "reproduction_status": "Static source diagnosis; no database, fresh metadata, fresh ID, selected content or retrieval has been executed by this task."
+  },
+  "prospective_repair": {
+    "preserve_original_files": true,
+    "new_versioned_modules": [
+      "scripts/round5_source_content_snapshot.py",
+      "scripts/round5_title_reference_fresh_data_v2.py",
+      "scripts/round5_title_reference_fresh_v2.py",
+      "scripts/round5_title_reference_fresh_components_v2.py"
+    ],
+    "explicitly_excluded_storage_columns": {
+      "projects": [
+        "created_at",
+        "updated_at"
+      ],
+      "chapters": [
+        "updated_at"
+      ],
+      "sessions": [
+        "updated_at"
+      ]
+    },
+    "preserved_columns": "Keep every other schema column and every row, including all IDs/rids, references, order/ordinal values, text, JSON strings, content/settings hashes, sessions.created_at, source-supplied dates embedded in raw_json, original messages, sections and pages. Exclusion uses exact table/column names, never a timestamp-name regex.",
+    "schema_guard": "Verify the complete expected ordered six-table column inventory and include schema metadata and row counts in the deterministic snapshot; reject additions, deletions or unexpected schemas.",
+    "within_worker": "Retain the existing full six-table snapshot before==after and add deterministic source-content before==after.",
+    "cross_worker": "Require exact deterministic source-content snapshot equality and the unchanged lexical-index equality. Preserve full snapshots separately as evidence rather than rewriting them.",
+    "copied_database": "For final Book component copies of the frozen export database, retain exact database-byte identity and existing full-snapshot comparisons, since these are copies of the same persisted database rather than independent ingests.",
+    "non_changes": [
+      "No quality, cost, resource, source/span, complete-payload, provenance, budget, ordering or integrity threshold is reduced.",
+      "No source clock mocking, database timestamp rewriting, restored-originals claim or hidden retrieval.",
+      "Independent worker ingestion and existing setup/resource timing boundaries remain.",
+      "Original v1 scopes, helpers, tests and reports remain unchanged; new versions are registered and frozen before any metadata-only selection."
+    ],
+    "artificial_evidence_required": [
+      "Two complete real SQLite databases built from identical invented sessions at different real wall-clock moments: full snapshots differ; deterministic snapshots match.",
+      "One change to each allowed storage timestamp leaves deterministic identity unchanged but changes the full snapshot.",
+      "One change to every other column/table changes deterministic identity or violates schema/constraint validation; retain sessions.created_at/raw_json/source dates.",
+      "Add/remove schema column, row count, ID/rid/order/reference/content mutations fail equality.",
+      "Native/export integration checks preserve the full within-worker mutation detection, frozen export copy identity and unchanged quality/cost gates."
+    ]
+  },
+  "authorization": "Root explicitly authorized this prospective v2 repair on 2026-11-13 after the static defect was reported. The implementation and independent review must complete before fresh execution can be authorized.",
+  "fresh_rows_decoded": 0,
+  "retrieval_calls_executed": 0,
+  "workflow_runs_triggered": 0
+}

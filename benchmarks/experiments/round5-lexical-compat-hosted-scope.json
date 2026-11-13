@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "protocol": "round5-lexical-compat-hosted-1",
+  "status": "prospective-before-final-runtime-selection-and-any-hosted-compatibility-call",
+  "base_control_commit": "9665e633d203e373e02d1e6b9ef259e7e51565e5",
+  "trigger": "refs/heads/ci/v033-lexical-compat-hosted-1",
+  "result_branch": "validation/v033-lexical-compat-hosted-1",
+  "source_selection": "benchmarks/experiments/round5-selected-runtime.json",
+  "binding": "benchmarks/experiments/round5-compatibility-binding.json",
+  "reports": "benchmarks/reports/round5-lexical-compat-hosted-1/",
+  "state": ".artifacts/round5-lexical-compat-hosted-1/",
+  "purpose": "Durably orchestrate the unchanged registered historical Hotpot256 lexical compatibility helper. No final runtime is selected by this controller. No new quality cohort, external component, model, fresh selector, formal performance matrix or release is executed.",
+  "prerequisites": "A separately committed reviewed final source selection must fix exact released v0.3.2 and candidate commit/runtime identities, complete candidate source inventory and immutable successful development/independent review evidence. Missing or invalid selection fails before attempt claim, download, source export or data preparation. The selection schema is the same as source-free final freeze.",
+  "baseline": {
+    "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+    "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+  },
+  "untouched_files_sha256": {
+    "scripts/round5_compatibility.py": "455eacdff8d1384d608a3abef5ba709d0fe1f08210863967f01b28f2fe4cf6f3",
+    "tests/test_round5_compatibility.py": "ec85703f34ef3275d6021ff0edacee5bc584169d95cea83edcdc2522b1c9e1cf",
+    "scripts/round4_data.py": "51176bc99e632676718612289c477d4e177d888ee0fc1b3211d767e7542f5d45",
+    "benchmarks/experiments/round5-plan.json": "d3302ef1169aa180b492af6b9c9938e5717ff7261e202ef7a3df50e14febaccd",
+    "benchmarks/experiments/round4-validation-binding.json": "84dbe28c068a3067f9706c6439d42301eaddfef95c44ae2633398346c66a8c79",
+    "benchmarks/experiments/round4-hotpot256-manifest.json": "b0485b3a089c9b04fc4453fd9f129364e123ce1b9f25b593edf4f6ee6df4a20b",
+    "benchmarks/hotpot_manifest.json": "ad0aba557e98cac6925ff5bdb8048a1a04a5f708847007f33ddf03d88650b69d"
+  },
+  "historical_registry_policy": "Before data loading, fetch exact commits required by the unchanged round-five helper and round-four loader. Verify all original registry files against this control commit and historical binding checks. Materialize only explicitly registered source-free historical report objects omitted by sparse checkout, retaining exact bytes/hash; do not check out all historical reports.",
+  "input": {
+    "source_url": "https://huggingface.co/datasets/hotpotqa/hotpot_qa/resolve/1908d6afbbead072334abe2965f91bd2709910ab/distractor/validation-00000-of-00001.parquet",
+    "source_revision": "1908d6afbbead072334abe2965f91bd2709910ab",
+    "upstream_bytes": 27452575,
+    "upstream_sha256": "c20b638ca82b21d04fe12e14ff417ad05153d4d215a65de54497fca4e972f7c6",
+    "historical_manifest": "benchmarks/experiments/round4-hotpot256-manifest.json",
+    "historical_manifest_sha256": "b0485b3a089c9b04fc4453fd9f129364e123ce1b9f25b593edf4f6ee6df4a20b",
+    "queries": 256,
+    "dataset_sha256": "fb3cd70ea58fafa5bd9cef0f04dba7399aaafba76f5f92605eee9e516f115e1b",
+    "policy": "Download the one pinned Parquet snapshot once into private state and verify exact length/SHA256 before the original loader sees it. Invoke only the unchanged round4_data.load through compatibility prepare/workers: it recomputes and verifies the already scored historical256 against its exact saved manifest. Never invoke its freeze mode, select a new cohort, or expose question/source content in reports."
+  },
+  "environment": {
+    "runner": "ubuntu-24.04",
+    "python": "3.12",
+    "packages": {
+      "mcp": "1.30.0",
+      "pydantic": "2.14.3",
+      "tiktoken": "0.12.0",
+      "pyarrow": "26.0.1",
+      "numpy": "2.5.4",
+      "regex": "2026.11.9"
+    },
+    "policy": "All workers remain on one VM/boot. Set and pass PYTHONDONTWRITEBYTECODE=1 to every child explicitly; retain exact source-file inventories without ignoring unknown files. Record actual dependency/Python/SQLite identities and original host identity. No tests run inside bound source worktrees. The original host_identity also reads MCP/Pydantic versions, so their original pins are retained although this compatibility run does not start MCP servers."
+  },
+  "sequence": [
+    "Validate committed selection, exact controller and untouched registered inputs before a unique remote attempt claim.",
+    "Fetch only required immutable objects; prepare detached sparse exact-source worktrees; verify both runtime identity and the complete candidate inventory.",
+    "Run original compatibility bind once and publish the exact binding.",
+    "Download and verify the pinned Parquet; publish its source-free receipt.",
+    "Publish preparation intent, run original baseline-only prepare exactly once, publish metadata and verify prepared database hash without publishing source/database bytes.",
+    "Run original global intent and publish it before retrieval; preserve the exact registered10-worker schedule.",
+    "For each worker in original schedule, validate unchanged binding/source/host/input/database/prefix; publish an additional remote intent before launching the original worker exactly once.",
+    "Preserve unchanged worker gzip output and losslessly gzip its JSONL ledger with raw/compressed hashes; publish complete/failed/partial outcome and exact exit before any next worker.",
+    "After all10 workers, publish audit intent, run original audit once, publish full audit and retain original acceptance or failure."
+  ],
+  "schedule": [
+    {
+      "kind": "tokens",
+      "round": 0,
+      "label": "baseline"
+    },
+    {
+      "kind": "tokens",
+      "round": 0,
+      "label": "candidate"
+    },
+    {
+      "kind": "char",
+      "round": 0,
+      "label": "baseline"
+    },
+    {
+      "kind": "char",
+      "round": 0,
+      "label": "candidate"
+    },
+    {
+      "kind": "char",
+      "round": 1,
+      "label": "candidate"
+    },
+    {
+      "kind": "char",
+      "round": 1,
+      "label": "baseline"
+    },
+    {
+      "kind": "char",
+      "round": 2,
+      "label": "candidate"
+    },
+    {
+      "kind": "char",
+      "round": 2,
+      "label": "baseline"
+    },
+    {
+      "kind": "char",
+      "round": 3,
+      "label": "baseline"
+    },
+    {
+      "kind": "char",
+      "round": 3,
+      "label": "candidate"
+    }
+  ],
+  "calls": {
+    "total": 5120,
+    "tokens": 3072,
+    "character": 2048,
+    "complete_payload_pairs": 2560,
+    "workers": 10
+  },
+  "token_configurations": {
+    "encodings": [
+      "cl100k_base",
+      "o200k_base"
+    ],
+    "budget_tokens": [
+      512,
+      1024,
+      2048
+    ],
+    "budget_chars": 8000,
+    "per_worker_calls": 1536,
+    "timing": "Untimed correctness rows, exactly as the original helper."
+  },
+  "character_diagnostic": {
+    "rounds": 4,
+    "order": [
+      [
+        "baseline",
+        "candidate"
+      ],
+      [
+        "candidate",
+        "baseline"
+      ],
+      [
+        "candidate",
+        "baseline"
+      ],
+      [
+        "baseline",
+        "candidate"
+      ]
+    ],
+    "budget_chars": 100000,
+    "seed": 51256,
+    "limit": 5,
+    "cache_size": 0,
+    "use_cache": false,
+    "per_worker_calls": 256,
+    "gate": "Original complete payload/source/scope invariants plus no pooled p50 or p95 regression greater than5percent. Preserve per-round timing/resources and do not pool with the formal14-cell matrix."
+  },
+  "durability": "One registered first hosted attempt and fixed result ref. Each stage is claimed and its successful/failed/partial output is published before continuation. Every publication records the expected parent, uses one non-force push and exact readback, and stops without retry on ambiguity/ref movement. Started stages/workers are never replayed. File creation is exclusive; retain failures, partial outputs, complete ledgers and raw/gzip SHA256. Artifact upload may preserve source-free evidence only; no Parquet, prepared/worker databases or corpus plaintext.",
+  "timeouts_seconds": {
+    "bind": 180,
+    "download": 180,
+    "prepare": 600,
+    "intent": 120,
+    "worker": 300,
+    "audit": 180
+  },
+  "formal_acceptance": false,
+  "calls_executed_when_registered": 0,
+  "fresh_rows_decoded": 0,
+  "trigger_policy": "Staging branch CI executes artificial fixtures only. Do not create the ci trigger until the final runtime selection and independent controller review are committed. This registration authorizes preparation, not measurement."
+}
