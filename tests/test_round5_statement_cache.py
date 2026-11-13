@@ -37,7 +37,9 @@ class StatementCacheTests(unittest.TestCase):
                 observations.append(len(prepared))
             return observations
         finally:
-            connection.set_authorizer(None)
+            # Python 3.10 cannot disable the authorizer with None.
+            # Stop recording preparations while allowing later fixture queries.
+            connection.set_authorizer(lambda *args: sqlite3.SQLITE_OK)
 
     def test_bounded_working_set_reuses_preparation_with_new_parameters(self):
         with MemoryBook(self.path, cache_size=0) as book:
