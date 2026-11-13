@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-11-13 19:57:48 UTC",
+  "updated_at_utc": "2026-11-13 20:01:34 UTC",
   "goal": "Continue v0.3.3 optimization of Afloat16/AI-Memory-Book with measured improvements, honest comparison boundaries and frequent durable Git checkpoints.",
   "control_branch": "optimization/v0.3.3-round5",
-  "previous_control_commit": "cfe8a749efa4add1c62c516aa299ab18ee89b92c",
+  "previous_control_commit": "be5879400b2f05a250e97b00ce9b488f00413ccb",
   "resume_history": "docs/round5-resume-20261113.md",
   "published_baseline": {
     "tag": "v0.3.2",
@@ -216,14 +216,19 @@
       "accepted_root_static_review": true,
       "calls": 5120,
       "trigger": "ci/v033-lexical-compat-hosted-1",
-      "not_started": true,
+      "not_started": false,
       "call_breakdown": {
         "tokens": 3072,
         "char100000": 2048,
         "total": 5120,
         "workers": 10,
         "note": "The2048 character calls are within the5120 controller total, separate from the formal14-cell performance matrix."
-      }
+      },
+      "status": "running-first-attempt",
+      "run_id": 43497150881,
+      "run_attempt": 1,
+      "launch_commit": "be5879400b2f05a250e97b00ce9b488f00413ccb",
+      "result_branch": "validation/v033-lexical-compat-hosted-1"
     },
     "historical_q2": {
       "source_commit": "25e7ea32b34e5a8dc08b0931c6b3840e9f3fffb0",
@@ -234,10 +239,17 @@
       "required_file": "benchmarks/experiments/round5-q2-recovery-source.json",
       "missing": false,
       "trigger": "ci/v033-q2-recovery-hosted-1",
-      "not_started": true,
+      "not_started": false,
       "source_binding_sha256": "c6ae40b490a7e8358c1709dbb7e6a5999bf6756ef37c66da55488d3539e57828",
       "source_binding_donor_commit": "b9d2a75ce56be8e0c6a0f46fba53868e533453bd",
-      "status": "source-bound-before-first-historical-attempt"
+      "status": "failed-first-attempt-log-diagnosis-pending",
+      "run_id": 43497153581,
+      "run_attempt": 1,
+      "launch_commit": "be5879400b2f05a250e97b00ce9b488f00413ccb",
+      "protocol_job": 132133137121,
+      "recovery_job": 132133552713,
+      "result_ref_present_at_first_failure_inspection": false,
+      "automatic_rerun": false
     },
     "fresh": {
       "source_commit": "d84f2ddb90b1f283a7676709ca5322d65b413423",
@@ -249,7 +261,15 @@
       "missing": true,
       "trigger": "ci/v033-fresh-hosted-1",
       "selection_evidence_path_policy": "Use committed benchmarks/experiments/round5-selected-runtime.json, which sparse checkout includes.",
-      "not_started": true
+      "not_started": true,
+      "inventory_preparation": {
+        "control_commit": "be5879400b2f05a250e97b00ce9b488f00413ccb",
+        "path": "benchmarks/reports/round5-fresh-authorization-inventory.json",
+        "sha256": "9f4c80ee3dd0f1d2dda1a8f4270b1a3370c87a4746c1b3fd6fb9fab7c2d988bc",
+        "files": 374,
+        "authorization_created": false,
+        "fresh_metadata_read": false
+      }
     },
     "integration": {
       "manifest": "benchmarks/experiments/round5-hosted-orchestration-integration.json",
@@ -307,7 +327,23 @@
     "run_id": 43496488712,
     "run_attempt": 1,
     "launch_commit": "cfe8a749efa4add1c62c516aa299ab18ee89b92c",
-    "result_branch": "validation/v033-round5-performance-v2-43496488712-1"
+    "result_branch": "validation/v033-round5-performance-v2-43496488712-1",
+    "latest_observed_checkpoint": {
+      "at": "2026-11-13T20:00:36.512688+00:00",
+      "completed_workers": [
+        "r0-synthetic61-baseline",
+        "r0-synthetic61-candidate",
+        "r0-public1015-baseline",
+        "r0-public1015-candidate",
+        "r1-synthetic61-candidate",
+        "r1-synthetic61-baseline",
+        "r1-public1015-candidate"
+      ],
+      "error": null,
+      "report_sha256": "c10aa9b21c551ee7fa67943cc5edf6097276bc5a6d5a3287bfb2101e06b008c3",
+      "run_identity_sha256": "4ae3879c796f08b016e343c57c9c4468361255c7e57feb1590632c95416e15e6",
+      "status": "running"
+    }
   },
   "fresh_boundary": {
     "metadata_selected": false,
@@ -467,7 +503,16 @@
     },
     "result_commit": "f4a684233adee2da0e2b0c1c093a8b3f806561a7",
     "completed_calls": 4732,
-    "source_unchanged": true
+    "source_unchanged": true,
+    "independent_raw_audit": {
+      "commit": "f29e4871d14a89e2b5626190a84a4832266121eb",
+      "path": "benchmarks/reports/round5-lm-sql-attribution-1/independent-raw-audit.json",
+      "sha256": "39a9ea49c08a1db5ae793371b9412d3dd6a67bc3f1fc31ea78d84b464accf9fa",
+      "status": "all8primarycells-and4732payloads-and80051spans-independent-verified",
+      "monolithic_gzip_directly_read": false,
+      "retrieval_calls": 0,
+      "speed_claim": false
+    }
   },
   "read_only_auditor": {
     "commit": "3d47c0d1c44203831c49243651935de3f3870a81",
