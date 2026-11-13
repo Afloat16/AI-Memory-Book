@@ -149,9 +149,24 @@ markers, raw report and ledgers are preserved losslessly under
 interruption receipt. Do not count the incomplete attempt as paired speed
 evidence or overwrite/replay its completed worker. No formal timing has run.
 
-The independently reviewed `scripts/round4_mcp_development.py` is ready for one
-separate 512-call old-public actual-SDK diagnostic. It captures every returned
-envelope, text and native-payload hash, including validation failures, with
-cache deletion outside the clock and normal server cache writes inside it.
-The formal run will use the dedicated hosted workflow and per-worker remote
-Git checkpoints, reducing dependence on a long-lived local tool session.
+The independently reviewed `scripts/round4_mcp_development.py` was committed at
+`6532d838` and attempted once. Its real SDK initialized and listed tools, but
+this sandbox's procfs did not expose the live MCP child. The mandatory RSS
+availability guard refused before any recall: zero attempted retrieval calls.
+The failure report, empty ledger and source/data checks are preserved under
+`round4-development/candidate-c2-mcp512-prequery-failure/` with a receipt. No
+resource guard was weakened, runtime changed or diagnostic replayed.
+
+The fixed candidate remains C2. These incomplete local diagnostics provide no
+paired speed evidence. The sole registered formal run will measure all actual
+MCP and resource gates on a dedicated hosted VM, committing each worker. The
+formal binding pins evaluator `6532d838`, all three new runtime fixtures and
+the exact C2 source. No fresh Hotpot IDs have yet been selected.
+
+Before committing that binding, the prelaunch recovery record registers a
+final-C2 4,732-call full old-cohort payload differential and one separately
+identified 2,048-call first-use attempt. The latter repeats the old baseline
+worker as part of a complete attempt, explicitly retaining the interrupted
+512 samples without selective pooling. Both must finish correctly before
+formal launch; incomplete local diagnostics are not silently waived. The
+original binding draft bytes and all formal numerical gates remain unchanged.

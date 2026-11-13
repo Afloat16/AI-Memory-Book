@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "status": "failed-before-retrieval",
+  "candidate_commit": "2d7b5e38839fb21724ad3beec6b6ebabbda45636",
+  "evaluator_commit": "6532d8388187c6af4cd3ab3ef71f6ef285ed8fad",
+  "observed_at": "2026-11-13T03:34:09.694525+00:00",
+  "planned_calls": 512,
+  "attempted_retrieval_calls": 0,
+  "completed_retrieval_calls": 0,
+  "failed_worker": "r0-baseline",
+  "cause": "The actual stdio SDK initialized and listed tools, but this sandbox procfs did not expose the live MCP child for RSS collection. The mandatory server_rss availability guard refused before ledger.start or any recall call.",
+  "source_and_data_checks": "Exact committed baseline, old public1015 input, selected128IDs and baseline-copy original turns were verified before SDK initialization. Baseline DB remained unchanged.",
+  "decision": "Preserve every file and the empty attempt ledger; retain the resource guard. No runtime change or repeat of this diagnostic. The single registered formal hosted run will measure actual MCP and all resource gates on its isolated VM. This failure provides no speed or retrieval-equivalence evidence.",
+  "files": [
+    {
+      "original_path": "benchmarks/reports/round4-development/candidate-c2-mcp512.json",
+      "raw_bytes": 13608,
+      "raw_sha256": "ba5198dd74257b183652f7d0d254345595aa6b7d0aafec5d6f4dda6c76b2e534",
+      "archive_path": "candidate-c2-mcp512-prequery-failure/candidate-c2-mcp512.json.gz",
+      "gzip_bytes": 3855,
+      "gzip_sha256": "0ad3045261258a2ec8cf4f4fa761ea64dfeef4eecb1e804b6bc4c9178c1032c1"
+    },
+    {
+      "original_path": "benchmarks/reports/round4-development/candidate-c2-mcp512.workers/r0-baseline.attempts.jsonl",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_path": "candidate-c2-mcp512-prequery-failure/r0-baseline.attempts.jsonl.gz",
+      "gzip_bytes": 20,
+      "gzip_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "original_path": "benchmarks/reports/round4-development/candidate-c2-mcp512.workers/r0-baseline.json",
+      "raw_bytes": 7044,
+      "raw_sha256": "a79497cd6922d181cdda9e57a8caf92db1d77540bb03877dd8a6d2c4579a6d1c",
+      "archive_path": "candidate-c2-mcp512-prequery-failure/r0-baseline.json.gz",
+      "gzip_bytes": 1868,
+      "gzip_sha256": "24afcd7761c4aa7ffc73ab3a49954a644e0b8baf87f7e541c4340d2f06d2c937"
+    },
+    {
+      "original_path": "benchmarks/reports/round4-development/candidate-c2-mcp512.workers/r0-baseline.started.json",
+      "raw_bytes": 172,
+      "raw_sha256": "5e58e054d6d59a83d08670711f8029bc27372ab258ebb7f4dd3e463fe813fad7",
+      "archive_path": "candidate-c2-mcp512-prequery-failure/r0-baseline.started.json.gz",
+      "gzip_bytes": 145,
+      "gzip_sha256": "438b5f1c82bc58e8bf8c2bfcaad5a3ef71a9c09619be301625c74c3edf49320d"
+    },
+    {
+      "original_path": ".artifacts/round4-mcp-c2-final/run.json",
+      "raw_bytes": 4852,
+      "raw_sha256": "feaa65b4194dc59a23ab8bd467b5c067c52def22883e0d24f3e39aef00a4ce11",
+      "archive_path": "candidate-c2-mcp512-prequery-failure/controller-run.json.gz",
+      "gzip_bytes": 2150,
+      "gzip_sha256": "2772e51ebba22fe595bc2e492e22f2519d9fdec4bffd3a4575e4f0bc7cd61307"
+    }
+  ]
+}
