@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "updated_at_utc": "2026-11-13 17:08 UTC",
+  "goal": "Continue v0.3.3 optimization of Afloat16/AI-Memory-Book with measured improvements, honest comparison boundaries and frequent durable Git checkpoints.",
+  "control_branch": "optimization/v0.3.3-round5",
+  "previous_control_commit": "15936391276b73c647ac3a9428b65e8143042544",
+  "resume_history": "docs/round5-resume-20261113.md",
+  "published_baseline": {
+    "tag": "v0.3.2",
+    "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+    "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+  },
+  "main_commit": "de6e2652572c4867cda2aac5637a4a6630638c7e",
+  "final_runtime_selected": false,
+  "release_accepted": false,
+  "last_complete_development": {
+    "candidate": "K",
+    "source_commit": "4720728e47d53fc6c345fa89a2b5b739a67a1069",
+    "runtime_sha256": "90079d629d101370e6960a10e5391265802b1a053f65438e9b667b662638b251",
+    "controller_commit": "04366aa4fc34d68e6ce23c55efa7aadef3dca04a",
+    "run_id": 43467271014,
+    "result_commit": "c3c708539d6e7024eb14d565dbb7c0a5e553fa34",
+    "result_branch": "validation/v033-candidate-k-development-1",
+    "independent_raw_audit_commit": "2d5037561d6b543ee785f434d7c04fa16eb2e8b1",
+    "independent_raw_audit_sha256": "c07522e9981c17aa5581c6e4315c7674971869c3109234ea93dfef581d8e9c6b",
+    "correctness_fixtures": 154,
+    "profile_calls": 4732,
+    "paired_calls": 4096,
+    "payload_pairs": 2048,
+    "payload_mismatches": 0,
+    "adverse_cells": 0,
+    "pooled_p95_geomean_improvement_percent": 3.6355909620451876,
+    "public_native_char4000_p95_improvement_percent": 3.085662287471702,
+    "decision": "Below the original10% formal goals; continue optimization without rerunning K or pooling historical timings."
+  },
+  "rejected_j": {
+    "source": "910ba8904523ad81cb7d68073af77580942496eb",
+    "result": "eeb8217084f32eb01c478345effd37935bbc3dc0",
+    "independent_audit": "dca3c856d53bc5f12de70ee36968de408cf58b18",
+    "p95_geomean_improvement_percent": -38.04178031080472,
+    "public_char_p95_change_percent": 33.129787666751454,
+    "adverse_cells": 8,
+    "decision": "Exclude the hidden-rank route; preserve J1 failure, diagnostic and complete J2 results."
+  },
+  "active_candidates": [
+    {
+      "candidate": "L",
+      "owner": "runtime_audit",
+      "branch": "staging/v033-ranked-entries-l",
+      "base_source": "4720728e47d53fc6c345fa89a2b5b739a67a1069",
+      "scope_commit": "3f4ce4925442842c6a54ba05696106c33e38fb53",
+      "draft_source_commit": "dad748aa1b1c2f9de8f6864d77c35203a64b4b42",
+      "change": "Store the original complete native ranking key directly in each entry and use list.sort without per-row key callbacks or a second key tuple. Original scoring, complete ordering and fallback retained.",
+      "status": "Artificial fixtures being implemented; no L corpus call."
+    },
+    {
+      "candidate": "M",
+      "owner": "baseline_audit",
+      "branch": "staging/v033-normalization-translation-m",
+      "base_source": "4720728e47d53fc6c345fa89a2b5b739a67a1069",
+      "scope_commit": "60834240f23480802cb80ce62c493410748ad15f",
+      "change": "Extend exact normalization certificate by97 explicitly mapped compatibility scalars into the K-stable alphabet, translating before CamelCase/casefold; unsupported inputs retain literal historical behavior.",
+      "status": "Implementation/artificial fixtures in progress; no M corpus call."
+    }
+  ],
+  "ready_orchestration": {
+    "source_free_final_freezer": {
+      "source_commit": "f6eafe291680dfae1b40e30ed42d76e79e4084ba",
+      "branch": "staging/v033-final-freeze-hosted",
+      "required_file": "benchmarks/experiments/round5-selected-runtime.json",
+      "missing": true,
+      "ci": 43460991201,
+      "all_nine_jobs_passed": true,
+      "trigger": "ci/v033-final-freeze-hosted-1"
+    },
+    "historical_lexical": {
+      "source_commit": "65742c005290ae78702f6c9ff24613efd3616311",
+      "branch": "staging/v033-lexical-compat-hosted",
+      "ci": 43464110663,
+      "accepted_root_static_review": true,
+      "calls": 5120,
+      "trigger": "ci/v033-lexical-compat-hosted-1",
+      "not_started": true
+    },
+    "historical_q2": {
+      "source_commit": "25e7ea32b34e5a8dc08b0931c6b3840e9f3fffb0",
+      "branch": "staging/v033-q2-recovery-hosted",
+      "artificial_ci": 43466426848,
+      "accepted_root_static_review": true,
+      "calls": 1968,
+      "required_file": "benchmarks/experiments/round5-q2-recovery-source.json",
+      "missing": true,
+      "trigger": "ci/v033-q2-recovery-hosted-1",
+      "not_started": true
+    },
+    "fresh": {
+      "source_commit": "d84f2ddb90b1f283a7676709ca5322d65b413423",
+      "durable_evidence_commit": "7b32905dff75f3fcd7a2e8602461a3757d4048c9",
+      "branch": "staging/v033-fresh-hosted",
+      "ci": 43467721136,
+      "status": "Eight jobs succeeded including all four unittest environments; macOS installer queued at last read. Thirteen controller fixtures passed without skips.",
+      "required_file": "benchmarks/experiments/round5-fresh-source-authorization.json",
+      "missing": true,
+      "trigger": "ci/v033-fresh-hosted-1",
+      "selection_evidence_path_policy": "Use committed benchmarks/experiments/round5-selected-runtime.json, which sparse checkout includes.",
+      "not_started": true
+    }
+  },
+  "formal": {
+    "script": "scripts/round5_performance_v2.py",
+    "script_sha256": "388536dd4bf3dc4c7d76cc8c5bac3afd273071cebcf7f9639ed1b65d19e4f1fb",
+    "workflow": ".github/workflows/round5-performance-v2.yml",
+    "workflow_sha256": "3d6c98db33078fe8be358cf49be47e31f52a676182e941d8a423bc4a73596c7f",
+    "calls": 66248,
+    "workers": 16,
+    "rounds": 4,
+    "gates": {
+      "p95_geomean_improvement_percent": 10,
+      "public_native_char4000_p95_improvement_percent": 10,
+      "public_real_mcp_char4000_p95_improvement_percent": 5,
+      "max_cell_p50_or_p95_regression_percent": 5,
+      "resource_mean_increase_requires_independent_review_percent": 10
+    },
+    "read_only_review": "hosted_execution checked5fab85/f6eafe: explicit MCP bytecode suppression in both certificate and formal workers, exact source/interface/ledger/remote claims and no replay. No wrapper change needed.",
+    "durability_limit": "Per-call ledger fsync is local; verified remote checkpoints occur before/after each worker. A hard VM loss can lose unuploaded partial rows, but leaves the remote started intent and forbids silent replay.",
+    "not_started": true
+  },
+  "fresh_boundary": {
+    "metadata_selected": false,
+    "content_decoded": false,
+    "native_calls": 0,
+    "component_search_calls": 0,
+    "all_original_quality_cost_gates_preserved": true
+  },
+  "environment_recovery": {
+    "local_executor": "Unavailable after disk-full/executor startup errors. Do not repeat full clone/local commands. All active work uses exact GitHub APIs and hosted Actions.",
+    "binary_reads": "For .gz Git objects use github_fetch_file encoding=base64, decode original bytes and inflate; do not request UTF-8 decoding of gzip.",
+    "git_policy": "Persist code/scope before execution, then each started/result stage. Do not force-push, replay started experiments, replace failed observations or add percentages across hosts."
+  },
+  "next_steps": [
+    "Finish independent source reviews and artificial CI for L and M.",
+    "If combining independent L/M changes, register and freeze the exact combined source and full fixture inventory before any combined corpus calls; directly compare the whole runtime to v0.3.2.",
+    "Once an exact candidate is justified, commit final selection and run source-free certificate/binding, formal performance and historical compatibility. Never lower existing gates.",
+    "Only after final source/evaluator/certificate/assets are bound may the original fresh512 selection and native/component evaluation run.",
+    "Integrate selected source, tests, orchestration and all durable reports into current control ancestry; keep main/tag/release unchanged until acceptance is established."
+  ]
+}
