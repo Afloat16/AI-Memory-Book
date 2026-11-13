@@ -309,6 +309,90 @@ class TitleReferenceTests(unittest.TestCase):
         self.book.db.execute("UPDATE pages SET source_refs=? WHERE id=?", (json.dumps([left, right]), row["id"]))
         self.assertFalse(self.recall(follow_titles=True)["title_reference"]["applied"])
 
+    def test_unproven_original_slice_edges_are_rejected(self):
+        for edge in ("left", "right"):
+            with self.subTest(edge=edge), MemoryBook(":memory:", segmentation="turn", cache_size=0) as book:
+                book.ingest(source("anchor", "Calibration memo", "quartzsignal cites Alpha Beta."))
+                book.ingest(source("target", "Alpha Beta", "Separate source."))
+                row = book.db.execute("SELECT p.id,p.content,p.source_refs FROM pages p JOIN sessions s ON s.id=p.session_pk WHERE s.external_id='anchor'").fetchone()
+                full = row["content"]
+                start = full.index("Alpha Beta") if edge == "left" else 0
+                end = full.index("Alpha Beta") + len("Alpha Beta") if edge == "right" else len(full)
+                original_ref = json.loads(row["source_refs"])[0]
+                ref = {**original_ref, "start": 0, "end": end - start,
+                       "turn_start": start, "turn_end": end}
+                book.db.execute("UPDATE pages SET content=?,source_refs=? WHERE id=?",
+                                (full[start:end], json.dumps([ref]), row["id"]))
+                result = book.recall("quartzsignal", project="lab", follow_titles=True, use_cache=False)
+                self.assertFalse(result["title_reference"]["applied"])
+
+    def test_real_original_turn_end_proves_the_boundary(self):
+        self.add("anchor", "Calibration memo", "quartzsignal cites Alpha Beta")
+        self.add("target", "Alpha Beta", "Separate source.")
+        state = self.recall(follow_titles=True)["title_reference"]
+        self.assertTrue(state["applied"])
+        page = self.book.read(state["anchor"]["page_id"])["content"]
+        self.assertEqual(state["mention"]["page_span"][1], len(page))
+
+    def test_source_projection_rejects_corrupt_identity_or_coordinates(self):
+        self.seed()
+        row = self.book.db.execute("SELECT p.id,p.source_refs FROM pages p JOIN sessions s ON s.id=p.session_pk WHERE s.external_id='anchor'").fetchone()
+        original = json.loads(row["source_refs"])[0]
+        changes = ({"project": "elsewhere"}, {"session_id": "other"}, {"turn_index": True},
+                   {"turn_start": -1}, {"turn_end": original["turn_end"] + 1})
+        for change in changes:
+            with self.subTest(change=change):
+                self.book.db.execute("UPDATE pages SET source_refs=? WHERE id=?",
+                                     (json.dumps([{**original, **change}]), row["id"]))
+                # Isolate the opt-in decision: the unchanged source assembler
+                # has its own corruption policy for these deliberately bad maps.
+                _, state = follow_title_reference(self.book.db, self.ordered(["anchor"]),
+                                                  project="lab", chapter=None, session=None, limit=5)
+                self.assertFalse(state["applied"])
+        self.book.db.execute("UPDATE pages SET source_refs=? WHERE id=?", (row["source_refs"], row["id"]))
+
+    def test_complete_pool_promotion_beyond_default_materialized_prefix(self):
+        self.add("anchor", "Calibration memo", "quartzsignal " * 20 + "cites Cedar Observatory.")
+        for i in range(30):
+            self.add(f"middle-{i}", f"Middle source {i}", "quartzsignal witnessed here.")
+        self.add("target", "Cedar Observatory", "quartzsignal " + "Independent source evidence. " * 160)
+        expression = '("quartzsignal") AND body : ("quartzsignal")'
+        ordered = self.book.db.execute(
+            "SELECT s.external_id,bm25(pages_fts,2.0,2.0,1.0,0.25) rank FROM pages_fts "
+            "JOIN pages p ON p.rid=pages_fts.rowid JOIN sessions s ON s.id=p.session_pk "
+            "WHERE pages_fts MATCH ? ORDER BY rank,p.id LIMIT 96", (expression,)).fetchall()
+        positions = [row["external_id"] for row in ordered]
+        self.assertGreater(positions.index("target"), 20)
+        original, expanded = self.recall(), self.recall(follow_titles=True)
+        state = expanded["title_reference"]
+        self.assertTrue(state["applied"])
+        self.assertEqual(state["target"]["session_id"], "target")
+        self.assertEqual(state["target"]["route"], "lexical")
+        self.assertTrue(state["target_initial_page_in_pool"])
+        self.assertTrue(state["target_initial_session_in_pool"])
+        self.assertEqual(expanded["candidate_count"], original["candidate_count"])
+        self.assertEqual(expanded["results"][0]["id"], original["results"][0]["id"])
+
+    def test_real_anchor_prefix_boundary_never_reads_a_whole_long_turn(self):
+        title = "Cedar Observatory"
+        initial = "USER: quartzsignal "
+        body = "quartzsignal " + "." * (4096 - len(initial) - len(title)) + title
+        for neighbor, applied in ((".", True), ("x", False), ("\u0301", False)):
+            with self.subTest(neighbor=neighbor), MemoryBook(":memory:", segmentation="turn", cache_size=0) as book:
+                book.ingest(source("anchor", "Calibration memo", body + neighbor + " extra source text." * 200))
+                book.ingest(source("target", title, "Separate source."))
+                trace = []
+                book.db.set_trace_callback(trace.append)
+                try:
+                    result = book.recall("quartzsignal", project="lab", follow_titles=True, use_cache=False)
+                finally:
+                    book.db.set_trace_callback(None)
+                self.assertEqual(result["title_reference"]["applied"], applied)
+                turn_reads = [sql for sql in trace if "FROM turns" in sql and not sql.startswith("--")]
+                self.assertTrue(all("substr(content," in sql for sql in turn_reads))
+                if applied:
+                    self.assertEqual(result["title_reference"]["mention"]["page_span"][1], 4096)
+
     def test_catalog_cap_is_scoped_and_read_with_limit_plus_one(self):
         self.seed()
         for i in range(510):

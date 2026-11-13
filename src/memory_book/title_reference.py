@@ -130,15 +130,21 @@ def _source_projection(db, anchor: dict, lo: int, hi: int, *, project: str,
         return None
     turn_lo = ref["turn_start"] + lo - ref["start"]
     turn_hi = turn_lo + hi - lo
+    # Where the page claims an in-reference neighbor, verify that neighbor too.
+    # A corrupted page must not turn an original letter/mark into a delimiter.
+    # This adds at most two original characters and never rescues a cut edge.
+    before = int(lo > ref["start"])
+    after = int(hi < ref["end"])
     original = db.execute(
-        "SELECT length(content) chars,substr(content,?,?) mention FROM turns "
+        "SELECT length(content) chars,substr(content,?,?) source_slice FROM turns "
         "WHERE session_pk=? AND ordinal=?",
-        (turn_lo + 1, hi - lo, anchor["session_pk"], ref["turn_index"])).fetchone()
+        (turn_lo + 1 - before, hi - lo + before + after,
+         anchor["session_pk"], ref["turn_index"])).fetchone()
     if original is None or ref["turn_end"] > original["chars"]:
         return None
     if hi == ref["end"] and turn_hi != original["chars"]:
         return None
-    if original["mention"] != anchor["prefix"][lo:hi]:
+    if original["source_slice"] != anchor["prefix"][lo - before:hi + after]:
         return None
     return {"page_span": [lo, hi], "turn_index": ref["turn_index"],
             "turn_span": [turn_lo, turn_hi]}
