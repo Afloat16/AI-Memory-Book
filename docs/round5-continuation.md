@@ -2,6 +2,24 @@
 
 ## Recovered continuation — after F profile checkpoint
 
+The T1 Python prototype is now committed independently at
+`3233cdf24117895c8f379cad2a93ac72474b0610` on
+`optimization/v0.3.3-title-reference-t1`, from the exact registered E base.
+Its runtime hash is
+`c2a84084673bcb4871470075e0687f52d506944263ef13cb259b6ba3f86c5cfb`.
+Twenty-nine invented T1 cases and 97 existing default/core/budget cases pass.
+The original neighbor-corruption failures are preserved at `7486146` before
+the repaired source commit. Independent review confirms the bounded original
+turn/neighbor proof, strict scope, full-title boundaries and default parity.
+This is an implementation checkpoint, not a measured quality improvement.
+
+The separate development evaluator has 21 passing artificial fixtures and
+locks the existing 5,438-call/eight-cell protocol. It independently scores every
+actually returned page, including later duplicate supporting pages, and
+retains empty denominators and per-query losses. Source/evaluator/data binding
+must be published before its first scored call. The default speed candidate G
+is being developed separately from its exact D starting point.
+
 The new recovery diagnostic is complete: eight workers, 4,096 calls and 2,048
 complete non-timing payload pairs, all equal. Every worker was remotely
 checkpointed before the next, ending at `cc913431c3f32d76270696e5a25b49a139801b77`.
