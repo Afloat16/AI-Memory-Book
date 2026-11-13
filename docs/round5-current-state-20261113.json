@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-11-13 20:54:19 UTC",
+  "updated_at_utc": "2026-11-13 20:55:07 UTC",
   "goal": "Continue v0.3.3 optimization of Afloat16/AI-Memory-Book with measured improvements, honest comparison boundaries and frequent durable Git checkpoints.",
   "control_branch": "optimization/v0.3.3-round5",
-  "previous_control_commit": "0225fb28fa8c6b70e72f8b975502a8c24c553db6",
+  "previous_control_commit": "ccb4092e348f44a10662b47c66007deee307118a",
   "resume_history": "docs/round5-resume-20261113.md",
   "published_baseline": {
     "tag": "v0.3.2",
@@ -251,7 +251,7 @@
       "not_started": false,
       "source_binding_sha256": "c6ae40b490a7e8358c1709dbb7e6a5999bf6756ef37c66da55488d3539e57828",
       "source_binding_donor_commit": "b9d2a75ce56be8e0c6a0f46fba53868e533453bd",
-      "status": "attempt1-preclaim-failure-preserved-attempt2-independently-approved-awaiting-unique-launch",
+      "status": "attempt1-preclaim-failure-preserved-attempt2-running",
       "run_id": 43497153581,
       "run_attempt": 1,
       "launch_commit": "be5879400b2f05a250e97b00ce9b488f00413ccb",
@@ -269,8 +269,8 @@
         "original_fixture_tests": 10,
         "source_union_files": 35,
         "retrieval_calls": 0,
-        "trigger_created": false,
-        "status": "independent-final-review-passed-root-launch-receipt-saved-before-unique-trigger",
+        "trigger_created": true,
+        "status": "unique-reviewed-attempt2-running",
         "prior_namespace_ci_failure": 43500815079,
         "general_ci_run": 43501583600,
         "all9general_ci_success": true,
@@ -295,7 +295,16 @@
           "path": "benchmarks/reports/round5-q2-recovery-hosted-2-independent-audit/preexecution-method.json",
           "sha256": "4ee7902661f036018667207312fb47a616dd414eb5464b62bf213cf23fe99de1",
           "root_read_and_sha256_checked": true
-        }
+        },
+        "trigger_created_at_utc": "2026-11-13 20:54:32 UTC",
+        "trigger_branch": "ci/v033-q2-recovery-hosted-2",
+        "launch_commit": "c23c5d5c9e1b8521ed78bf28e34896bc0755ee86",
+        "root_launch_receipt_commit": "ccb4092e348f44a10662b47c66007deee307118a",
+        "run_id": 43505846977,
+        "run_attempt": 1,
+        "result_branch": "validation/v033-q2-recovery-hosted-2",
+        "automatic_replay": false,
+        "retrieval_calls_note": "No completed worker observed yet; this is not a terminal zero-call claim."
       }
     },
     "fresh": {
@@ -522,7 +531,7 @@
     "git_policy": "Persist code/scope before execution, then each started/result stage. Do not force-push, replay started experiments, replace failed observations or add percentages across hosts."
   },
   "next_steps": [
-    "Create the unique Q2 attempt2 trigger at exact reviewed c23 source; preserve every resulting preparation/worker outcome and perform only the preregistered read-only audit.",
+    "Observe only Q2 attempt2 run43505846977 at exact c23 head; preserve every preparation/worker checkpoint and perform the already registered read-only result audit. Never create another trigger or rerun this attempt.",
     "Archive the final independent formal raw audit and its source-based adjudication of any auditor metadata assumption, retaining original rejection.",
     "Keep fresh metadata/content, main/tag/release closed for rejected NO. Any later optimization requires a separately declared candidate and scope."
   ],
