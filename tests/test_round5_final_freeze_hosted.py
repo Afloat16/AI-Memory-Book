@@ -1,5 +1,6 @@
 """Artificial checks for the source-free hosted freeze controller."""
 import copy
+from contextlib import ExitStack
 import json
 import os
 from pathlib import Path
@@ -119,6 +120,62 @@ class FinalFreezeTests(unittest.TestCase):
                     with patch.object(freeze.subprocess, "run", return_value=SimpleNamespace(returncode=0)) as run:
                         head = freeze.command_stage("fixture", ["invented-command"], "c" * 40)
             self.assertEqual(head, "b" * 40)
+            self.assertEqual(publish.call_count, 2)
+            self.assertEqual(run.call_count, 1)
+
+
+    def test_post_intent_receipt_failures_keep_latest_published_head(self):
+        for phase in ("copy", "hash", "save"):
+            with self.subTest(phase=phase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                public = root / "public"
+                raw = root / ".artifacts/round5-interface-certificate/invented"
+                raw.mkdir(parents=True)
+                observation = raw / "baseline.json"
+                observation.write_text('{"invented": true}\n', encoding="utf-8")
+                artifact = root / "certificate.json"
+                artifact.write_text("{}\n", encoding="utf-8")
+                failure = OSError("invented " + phase + " receipt failure")
+                original_save = freeze.save
+
+                def fail_exit(path, value):
+                    if path.name == "interface.exit.json":
+                        raise failure
+                    return original_save(path, value)
+
+                with ExitStack() as stack:
+                    stack.enter_context(patch.object(freeze, "ROOT", root))
+                    stack.enter_context(patch.object(freeze, "PUBLIC", public))
+                    publish = stack.enter_context(patch.object(freeze, "publish", return_value="a" * 40))
+                    run = stack.enter_context(patch.object(freeze.subprocess, "run",
+                        return_value=SimpleNamespace(returncode=0)))
+                    if phase == "copy":
+                        stack.enter_context(patch.object(freeze.shutil, "copytree", side_effect=failure))
+                    elif phase == "hash":
+                        stack.enter_context(patch.object(freeze, "sha", side_effect=failure))
+                    else:
+                        stack.enter_context(patch.object(freeze, "save", side_effect=fail_exit))
+                    with self.assertRaises(freeze.StageError) as caught:
+                        freeze.command_stage("interface", ["invented-command"], "c" * 40, (artifact,))
+                self.assertEqual(caught.exception.published_head, "a" * 40)
+                self.assertIs(caught.exception.__cause__, failure)
+                self.assertIn(str(failure), str(caught.exception))
+                self.assertEqual(publish.call_count, 1)
+                self.assertEqual(run.call_count, 1)
+                self.assertTrue((public / "interface.intent.json").is_file())
+                self.assertTrue((public / "interface.log").is_file())
+                self.assertTrue(observation.is_file())
+
+    def test_publication_failure_is_not_wrapped_or_retried(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            failure = freeze.PublicationError("invented ambiguous push")
+            with patch.object(freeze, "ROOT", root), patch.object(freeze, "PUBLIC", root / "public"):
+                with patch.object(freeze, "publish", side_effect=["a" * 40, failure]) as publish:
+                    with patch.object(freeze.subprocess, "run", return_value=SimpleNamespace(returncode=0)) as run:
+                        with self.assertRaises(freeze.PublicationError) as caught:
+                            freeze.command_stage("fixture", ["invented-command"], "c" * 40)
+            self.assertIs(caught.exception, failure)
             self.assertEqual(publish.call_count, 2)
             self.assertEqual(run.call_count, 1)
 

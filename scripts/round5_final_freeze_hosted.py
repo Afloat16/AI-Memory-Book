@@ -38,8 +38,11 @@ class PublicationError(RuntimeError):
 
 
 class StageError(RuntimeError):
-    def __init__(self, stage, published_head):
-        super().__init__("Source-free stage failed: " + stage)
+    def __init__(self, stage, published_head, cause=None):
+        message = "Source-free stage failed: " + stage
+        if cause is not None:
+            message += ": " + type(cause).__name__ + ": " + str(cause)
+        super().__init__(message)
         self.published_head = published_head
 
 
@@ -193,23 +196,31 @@ def command_stage(name, command, expected, artifacts=()):
         "at": stamp(), "argv": command, "prior_publication_commit": expected,
         "retrieval_calls_executed": 0})
     expected = publish("bench: claim source-free " + name, expected)
-    result, failure = None, None
     try:
-        with (PUBLIC / (name + ".log")).open("xb") as log:
-            result = subprocess.run(command, cwd=ROOT, stdout=log,
-                stderr=subprocess.STDOUT, timeout=300).returncode
+        result, failure = None, None
+        try:
+            with (PUBLIC / (name + ".log")).open("xb") as log:
+                result = subprocess.run(command, cwd=ROOT, stdout=log,
+                    stderr=subprocess.STDOUT, timeout=300).returncode
+        except BaseException as error:
+            failure = type(error).__name__ + ": " + str(error)
+        attempt_root = ROOT / ".artifacts/round5-interface-certificate"
+        if name == "interface" and attempt_root.exists():
+            shutil.copytree(attempt_root, PUBLIC / "interface-attempts")
+        save(PUBLIC / (name + ".exit.json"), {"at": stamp(), "returncode": result, "error": failure,
+            "outputs_sha256": {relative(path): sha(path) for path in artifacts if path.exists()},
+            "retrieval_calls_executed": 0, "policy": "Keep all observations; never replay this stage."})
+        expected = publish("bench: preserve source-free " + name + " outcome", expected)
+        if result != 0 or failure is not None:
+            raise StageError(name, expected)
+        return expected
+    except (PublicationError, StageError):
+        raise
     except BaseException as error:
-        failure = type(error).__name__ + ": " + str(error)
-    attempt_root = ROOT / ".artifacts/round5-interface-certificate"
-    if name == "interface" and attempt_root.exists():
-        shutil.copytree(attempt_root, PUBLIC / "interface-attempts")
-    save(PUBLIC / (name + ".exit.json"), {"at": stamp(), "returncode": result, "error": failure,
-        "outputs_sha256": {relative(path): sha(path) for path in artifacts if path.exists()},
-        "retrieval_calls_executed": 0, "policy": "Keep all observations; never replay this stage."})
-    expected = publish("bench: preserve source-free " + name + " outcome", expected)
-    if result != 0 or failure is not None:
-        raise StageError(name, expected)
-    return expected
+        # The intent is already durable even if receipt copying/hashing/writing
+        # fails before the outcome is published. Carry the latest verified head
+        # to the failure handler; never replay a stage or retry a failed push.
+        raise StageError(name, expected, error) from error
 
 
 def run():
