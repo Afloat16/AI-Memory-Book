@@ -221,7 +221,7 @@ function auditLexical(input, api) {
   requireValue(saved.status==="verified" && saved.accepted===diagnostic.nonregression_gate_passed &&
     saved.calls===calls&&saved.complete_payload_pairs===pairs&&saved.workers===10&&saved.retrieval_calls_during_audit===0,
     "Saved summary differs");
-  requireValue(completed.status==="completed"&&completed.calls===calls&&completed.pairs===pairs&&completed.workers===10&&
+  requireValue(completed.status==="completed"&&completed.calls===calls&&completed.complete_payload_pairs===pairs&&completed.workers===10&&
     completed.fresh_rows_decoded===0&&outcome.outcome==="success"&&outcome.retrieval_calls_during_preservation===0&&
     outcome.replay_permitted===false,"Final completion differs");
   return {schema_version:1,status:"independently-verified-complete-historical-lexical-raw-matrix",
