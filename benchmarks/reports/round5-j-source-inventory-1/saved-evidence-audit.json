@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "status": "passed-saved-evidence-audit",
+  "original_diagnostic_result_commit": "a54ab21b6369bc121dbc325a315841c09a90b33d",
+  "source_commit": "910ba8904523ad81cb7d68073af77580942496eb",
+  "source_runtime_sha256": "740ab3a1729811883e10de4a773c3907cf31f8a77b62ad00b00ce079543358e1",
+  "source_binding_sha256": "c7a5857628cd1b9d391522c6cd50794a8c486e3959e08c924f520e3a48a9342a",
+  "input_sha256": {
+    "before-suite.json": "258830bde900c94ba4ad3c954d2c8e230b3e5a2577861089ed8b597df8d20dbb",
+    "after-suite-load.json": "258830bde900c94ba4ad3c954d2c8e230b3e5a2577861089ed8b597df8d20dbb",
+    "after-suite.json": "6e891ce3c503877df2c62cd7411d814255b78f3c2ddbabcd9b7bcb0c5588f253",
+    "bytecode.json": "c7dea222f34ba484bfcd0b7766af28f70f5f6cc189096612a752998c4f12e0e5",
+    "independent-export.json": "f6de899ca7b02220b62a51f09b9c4326c0f6c18b5eca53fca35092bade2aa67d",
+    "correctness.json": "567acaaf6be701cb83829f4e604631de7d010412c3b1764d424edbe7618b6060",
+    "sdk-environment.json": "7c96c80dd39e06f92866bdcf2f26dcb57b86c9d5e64caf5e13c7edd98427280e",
+    "per-test-inventory.jsonl": "9d182f71a3e19f85254caade1e2f46e081e3b557cd211b3979d9d3a465ec444c",
+    "mcp-subprocesses.jsonl": "9bed41997efdd2de5e88ec0120f5e03c59c9c302eaaf0cb3d00dc52fae084baa",
+    "diagnosis.json": "b3bb8aa6462dba6c4db6102bcd588cd0b6dc9e2d6e7399d9731f4ef35dcd941f",
+    "failure.json": "081e321db2ccbf586abef59660639422f3d524db1d1b916c6ebea5a025bf80e3",
+    "workflow-outcome.json": "b6dbe338c5ae207f2b8fafe23465c9f085025ea44de593091c518c13e83189d8"
+  },
+  "retrieval_or_fixture_calls_executed_by_this_audit": 0,
+  "model_or_corpus_downloads_by_this_audit": 0,
+  "checks": {
+    "correctness_tests": 161,
+    "all_correctness_passed": true,
+    "original_bound_files": 18,
+    "changed_bound_files": 0,
+    "missing_bound_files": 0,
+    "added_files": 12,
+    "all_added_are_valid_cpython_bytecode_bound_to_unchanged_source": true,
+    "only_test_creating_added_files": "tests.test_title_reference_interfaces.TitleReferenceMCPTests.test_real_stdio_strict_boolean_default_and_complete_projection_parity",
+    "actual_subprocess_events": 3,
+    "mcp_stdio_events": 2,
+    "ordinary_cli_events": 1,
+    "mcp_bytecode_environment_flag_absent": true,
+    "ordinary_cli_inherits_bytecode_flag_1": true,
+    "independent_clean_exact_export_passes_original_full_inventory_guard": true
+  },
+  "correction": {
+    "original_negative_receipts_preserved": true,
+    "original_workflow_outcome": "failure",
+    "error": "The original diagnostic observer correctly recorded all memory_book subprocesses, but its summary treated the ordinary CLI event as an MCP event and incorrectly required that event to lack the bytecode flag too.",
+    "independent_classification": "Use the actual argv subcommand after '-m memory_book --db <path>': two 'mcp' events and one 'recall' CLI event. Both MCP events lack PYTHONDONTWRITEBYTECODE. The ordinary CLI event inherits '1'. No fixtures or measurement were repeated."
+  },
+  "conclusion": "The saved new artificial run reproduces the mechanism: the original official-MCP fixture drops the parent bytecode-suppression variable, creates 12 .pyc files in its source export, and the unchanged all-files guard rejects the expanded inventory. All 18 frozen runtime files remain unchanged; an independent exact export passes that same guard.",
+  "limits": "The failed development1 VM did not preserve its actual differing file inventory. This audit proves the separately recorded artificial reproduction and does not retrospectively reconstruct those missing bytes.",
+  "prospective_recovery": "Use separately registered correctness and measurement exports from the same exact source. Keep the full correctness export and its explicit added-file evidence. Require the fresh measurement export to match every frozen file and runtime hash and keep the original strict guard. Preserve attempt1 and all original numerical/data boundaries."
+}
