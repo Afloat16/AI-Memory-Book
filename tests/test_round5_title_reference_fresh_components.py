@@ -5,6 +5,7 @@ from contextlib import nullcontext
 import copy
 import gzip
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 import tempfile
@@ -100,6 +101,7 @@ class CommonPackingTests(unittest.TestCase):
         self.assertEqual(docs, before)
         self.assertLessEqual(len(packed["context"]), 60)
 
+    @unittest.skipUnless(importlib.util.find_spec("tiktoken"), "Install .[benchmark] for exact reference tokenizer fixtures")
     def test_registered_six_cells_use_real_reference_counts(self):
         docs = {"a": document("a", "café 缓存 👩🏽‍💻 " * 100), "b": document("b", "The result is amber.")}
         counters = {name: bench.TokenCounter(name) for name in bench.ENCODINGS}

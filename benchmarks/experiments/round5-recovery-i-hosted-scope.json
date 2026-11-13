@@ -14,9 +14,9 @@
     "baseline_commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
     "baseline_runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93",
     "candidate_frozen_runtime_origin_commit": "505e84282ae6ba6cc31eda4bc6b3f658c983bcce",
-    "candidate_export_and_correctness_commit": "ddbbb02eb4cb44742926e5946dcf8936718e0b94",
+    "candidate_export_and_correctness_commit": "21b6f4196e42167f8532feafc30457f5684d25cf",
     "candidate_runtime_sha256": "71977e56c9f531b45581fabef8c12f28860937961e2788a9ad798d72fb749340",
-    "invariant": "Export exact commits with git archive. Assert every runtime file equals the original I binding; the newer candidate commit changes only Python3.10 test cleanup. No runtime change, T1 combination, parameter sweep or new optimization is included."
+    "invariant": "Export exact commits with git archive. Assert every runtime file equals the original I binding; the newer candidate commit contains only compatibility fixture repairs and preserved failure evidence. No runtime change, T1 combination, parameter sweep or new optimization is included."
   },
   "original_binding": {
     "path": "benchmarks/experiments/round5-development-attempt-i.json",
@@ -38,7 +38,7 @@
     "fresh_rows_decoded": 0,
     "profile_repeated": false
   },
-  "preparation": "Run artificial correctness fixtures against the repaired exact candidate on Python3.12 before any corpus calls. Download exact LoCoMo bytes; reconstruct each database once using the released baseline runtime, same frozen loaders and original session order. Record new DB byte hashes, logical table digests, sizes, data fingerprints, source files, dependencies, tokenizer cache hashes and VM identity. Close and verify no sidecars; both labels copy the same newly bound immutable DB. Commit this binding remotely before first timing. New hashes are never represented as original F bytes.",
+  "preparation": "Run artificial correctness fixtures against the repaired exact candidate on Python3.12 before any corpus calls. Download exact LoCoMo bytes; reconstruct each database once using the released baseline runtime, same frozen loaders and original session order. Record new DB byte hashes, logical table digests, sizes, data fingerprints, source files, dependencies, tokenizer cache hashes and VM identity. Close and verify no sidecars; both labels copy the same newly bound immutable DB. Commit this binding remotely before first timing. New hashes are never represented as original F bytes. Controller memory during snapshot hashing is outside the native worker boundary and supplies no formal resource or cross-host memory comparison.",
   "schedule": {
     "cohorts": [
       "synthetic61",

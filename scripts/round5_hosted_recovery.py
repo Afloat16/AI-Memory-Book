@@ -34,7 +34,7 @@ STATE = ROOT / ".artifacts" / ATTEMPT
 SCOPE = ROOT / "benchmarks/experiments/round5-recovery-i-hosted-scope.json"
 OLD = ROOT / "benchmarks/experiments/round5-development-attempt-i.json"
 OLD_SHA = "02067bdd4c38bd1fcd2a3feef5974aa7bf9eac213e6009ddd64ead37356b7ad5"
-CORRECTNESS_COMMIT = "ddbbb02eb4cb44742926e5946dcf8936718e0b94"
+CORRECTNESS_COMMIT = "21b6f4196e42167f8532feafc30457f5684d25cf"
 COHORTS = ("synthetic61", "public1015")
 CONFIGS = ("native-char4000", "native-token512", "native-token1024", "native-token2048")
 TABLES = ("sessions", "chapters", "turns", "sections", "pages", "pages_fts", "pages_stem_fts")
@@ -338,6 +338,7 @@ def prepare(old):
                 rows = [list(row) for row in book.db.execute('SELECT * FROM "' + table + '" ORDER BY rowid')]
                 logical[table] = {"rows": len(rows), "sha256": digest(rows)}
             book.db.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+            del rows  # Preparation memory is not a formal worker/resource measurement.
         if any(Path(str(target) + suffix).exists() for suffix in ("-wal", "-shm", "-journal")):
             raise ValueError("Source snapshot has a live sidecar")
         cohorts[cohort] = {"dataset_sha256": data.fingerprint, "sessions": len(data.sessions),

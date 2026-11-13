@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "status": "prior-failure-retained-before-fixture-only-repair",
+  "source_commit": "9f98c09ee009acefd65927b8a0b6acff2127b17a",
+  "run_id": 43454929209,
+  "job_id": 131986436490,
+  "run_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43454929209",
+  "job": "core (3.12)",
+  "job_conclusion": "failure",
+  "tests": 980,
+  "skipped": 83,
+  "error_test": "test_round5_title_reference_fresh_components.CommonPackingTests.test_registered_six_cells_use_real_reference_counts",
+  "error": "ModuleNotFoundError: No module named 'tiktoken'; raised as RuntimeError: Token measurements require tiktoken==0.12.0; no estimate fallback is used",
+  "cause": "The optional-dependency-free core job installs only the package. This one invented-data fixture unconditionally constructed real reference counters. The installed-extras MCP job passed the same fixture.",
+  "repair": "Skip only this exact reference-tokenizer fixture when tiktoken is absent. Keep all mocked comparator/ledger fixtures active. If the module exists with a wrong version or broken encoder, run and fail normally; do not substitute an estimated tokenizer. The MCP job and hosted recovery install the exact tokenizer.",
+  "new_protocol_fixtures": {
+    "count": 4,
+    "conclusion": "all_passed",
+    "names": [
+      "test_quantiles_interpolate_without_discarding_slow_rows",
+      "test_remote_ref_parser_rejects_wrong_ref_or_multiple_rows",
+      "test_schedule_is_complete_and_balanced_without_replay",
+      "test_worker_rejects_missing_reordered_and_nonfinite_observations"
+    ]
+  },
+  "runtime_changed": false,
+  "evaluator_changed": false,
+  "fresh_selection_or_content_decoded": 0,
+  "corpus_calls": 0,
+  "original_I_binding_sha256_verified": "02067bdd4c38bd1fcd2a3feef5974aa7bf9eac213e6009ddd64ead37356b7ad5",
+  "paired_helper_sha256_verified": "e9e068d9d385591b847de512118b6ea5711ecb03aba097846b3cfd476cde252e",
+  "hash_verification": "Computed over exact UTF-8 connector contents using SHA256 implementation checked against standard empty-string and abc vectors. Hosted preflight independently uses Python hashlib before any corpus call."
+}
