@@ -57,6 +57,8 @@ NATIVE_DESCRIPTORS = {(owner, name): value for owner in (NATIVE_CONNECTION, NATI
     for name, value in vars(owner).items() if type(value) is MethodDescriptorType}
 PAIRING_ADDENDUM = ROOT / "benchmarks/experiments/round5-lm-sql-attribution-pairing-addendum.json"
 PAIRING_ADDENDUM_SHA = "cf55b88d45ee7a0dca53abefa6dc651d7eceb36f6ae0e709919655c566c36d21"
+PUBLISHER_ADDENDUM = ROOT / "benchmarks/experiments/round5-lm-sql-attribution-publisher-addendum.json"
+PUBLISHER_ADDENDUM_SHA = "c9b58ce1079f449dc6809c54c6f2cf4beba45695af8b3d0ae63c409e26d776a4"
 
 
 class PublicationError(RuntimeError):
@@ -253,6 +255,8 @@ def scope_value():
         raise ValueError("Prospective SQL attribution scope bytes changed")
     if sha(PAIRING_ADDENDUM) != PAIRING_ADDENDUM_SHA:
         raise ValueError("Reviewed native identity correction changed")
+    if sha(PUBLISHER_ADDENDUM) != PUBLISHER_ADDENDUM_SHA:
+        raise ValueError("Reviewed publisher quarantine contract changed")
     return read(SCOPE)
 
 
@@ -796,6 +800,7 @@ def validate_binding_value(value):
             or value.get("attempt") != ATTEMPT or value.get("runtime") != identity
             or value.get("scope_sha256") != SCOPE_SHA
             or value.get("pairing_addendum_sha256") != PAIRING_ADDENDUM_SHA
+            or value.get("publisher_addendum_sha256") != PUBLISHER_ADDENDUM_SHA
             or value.get("classification_sha256") != digest(scope["observer"]["source_mapping"])
             or value.get("planned_recall_calls") != 4732 or value.get("comparison_engine_calls") != 0
             or value.get("fresh_rows_decoded") != 0 or value.get("speed_claim") is not False):
@@ -828,7 +833,7 @@ def require_binding():
     if re.fullmatch(r"[0-9a-f]{40}", launch) is None:
         raise ValueError("Missing exact hosted launch commit")
     for path in (Path(__file__).resolve(), ROOT / TEST_PATH, ROOT / WORKFLOW_PATH,
-                 SCOPE, PAIRING_ADDENDUM, SOURCE_BINDING, OLD):
+                 SCOPE, PAIRING_ADDENDUM, PUBLISHER_ADDENDUM, SOURCE_BINDING, OLD):
         raw = subprocess.check_output(["git", "show", launch + ":" + path.relative_to(ROOT).as_posix()], cwd=ROOT)
         if raw != path.read_bytes():
             raise ValueError("Diagnostic input differs from its exact launch commit")
@@ -963,6 +968,7 @@ def verify_reference_storage(old):
 def guards(binding):
     if (sha(SCOPE) != SCOPE_SHA or sha(OLD) != OLD_SHA
             or sha(PAIRING_ADDENDUM) != PAIRING_ADDENDUM_SHA
+            or sha(PUBLISHER_ADDENDUM) != PUBLISHER_ADDENDUM_SHA
             or sha(SOURCE_BINDING) != binding["source_binding_sha256"]):
         raise ValueError("Frozen diagnostic input changed")
     verify_files(binding["artifact_files_sha256"])
@@ -1037,6 +1043,7 @@ def prepare(bound):
              "calibration.json.gz", "calibration-storage.json", "measurement-export.json")
     binding = {"attempt": ATTEMPT, "created_at": stamp(), "source_binding_sha256": sha(SOURCE_BINDING),
         "scope_sha256": SCOPE_SHA, "pairing_addendum_sha256": PAIRING_ADDENDUM_SHA,
+        "publisher_addendum_sha256": PUBLISHER_ADDENDUM_SHA,
         "workflow_commit": os.environ["GITHUB_SHA"], "run_id": os.environ["GITHUB_RUN_ID"],
         "runtime": identity, "artifact_files_sha256": bound["artifact_files_sha256"],
         "helpers_sha256": bound["helpers_sha256"], "helper_dependency_sha256": bound["helper_dependency_sha256"],
@@ -1221,8 +1228,9 @@ def worker():
         raise RuntimeError("SQL attribution worker failed; retain complete available prefix") from None
 
 
+
 def execute_worker():
-    """The controller waits; only the child can publish until it is confirmed dead."""
+    """Handoff only after zero exit AND explicit absence of the whole process group."""
     save(PUBLIC / "worker.intent.json", {"status": "started", "created_at": stamp(),
         "binding_sha256": sha(PUBLIC / "binding.json"), "run_id": os.environ["GITHUB_RUN_ID"],
         "workflow_commit": os.environ["GITHUB_SHA"], "expected_calls": 4732,
@@ -1239,22 +1247,44 @@ def execute_worker():
             returncode = process.wait(timeout=1200)
     except BaseException as error:
         error_type = type(error).__name__
-    finally:
-        if process is not None:
-            if process.poll() is None:
-                os.killpg(process.pid, signal.SIGKILL)
-            returncode = process.wait()
-            save(STATE / "worker-exit-confirmation.json", {
-                "pid": process.pid, "returncode": returncode, "created_at": stamp(),
-                "error_type": error_type, "whole_group_killed_before_handoff": error_type is not None})
-            save(STATE / "publisher.json", {"role": "controller", "worker_returncode": returncode})
-        # No child handle means ownership is ambiguous; always-step stays artifact-only.
-    if process is None:
-        raise PublicationError("Worker launch was ambiguous; no controller publication")
-    save(PUBLIC / "worker-exit.json", read(STATE / "worker-exit-confirmation.json"))
-    publish("bench: preserve SQL attribution worker exit after ownership handoff")
-    if returncode != 0 or error_type:
-        raise RuntimeError("The unique SQL attribution worker did not complete")
+    group_state, group_error = "unverified", None
+    if process is not None and returncode == 0 and error_type is None:
+        try:
+            os.killpg(process.pid, 0)
+        except ProcessLookupError:
+            group_state = "absent"
+        except OSError as error:
+            group_state, group_error = "unknown", type(error).__name__
+        else:
+            group_state = "present"
+    handoff = process is not None and returncode == 0 and error_type is None and group_state == "absent"
+    cleanup_signal, cleanup_wait_error = None, None
+    if not handoff and process is not None:
+        # A reaped leader does not imply its synchronous Git children have ended.
+        # Cleanup never grants publication authority after an abnormal outcome.
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+            cleanup_signal = "sent-to-original-worker-group"
+        except ProcessLookupError:
+            cleanup_signal = "group-already-absent"
+        except OSError as error:
+            cleanup_signal = type(error).__name__
+        try:
+            returncode = process.wait(timeout=30)
+        except BaseException as error:
+            cleanup_wait_error = type(error).__name__
+    confirmation = {"pid": process.pid if process else None, "returncode": returncode,
+        "created_at": stamp(), "error_type": error_type, "group_state_before_cleanup": group_state,
+        "group_check_error_type": group_error, "cleanup_signal": cleanup_signal,
+        "cleanup_wait_error_type": cleanup_wait_error, "handoff_permitted": handoff,
+        "policy": "Any abnormal or unverifiable exit remains worker-owned and artifact-only; cleanup is never evidence of a successful handoff."}
+    save(STATE / "worker-exit-confirmation.json", confirmation)
+    if not handoff:
+        raise PublicationError("Worker termination is quarantined; do not publish from the controller")
+    save(STATE / "publisher.json", {"role": "controller", "worker_returncode": 0,
+        "group_absence_confirmed": True})
+    save(PUBLIC / "worker-exit.json", confirmation)
+    publish("bench: preserve SQL attribution zero exit and proven group absence")
 
 
 def run():
@@ -1368,7 +1398,8 @@ def self_test(source, receipt_path=None):
         "source_commit": SOURCE_COMMIT, "runtime_sha256": runtime_sha(source),
         "script_sha256": sha(Path(__file__)), "test_file_sha256": sha(ROOT / TEST_PATH),
         "workflow_file_sha256": sha(ROOT / WORKFLOW_PATH), "scope_sha256": SCOPE_SHA,
-        "pairing_addendum_sha256": PAIRING_ADDENDUM_SHA, "corpus_calls": 0}
+        "pairing_addendum_sha256": PAIRING_ADDENDUM_SHA,
+        "publisher_addendum_sha256": PUBLISHER_ADDENDUM_SHA, "corpus_calls": 0}
     if receipt_path is not None:
         save(receipt_path, receipt)
         calibration = getattr(module, "CALIBRATION_CAPTURE", None)

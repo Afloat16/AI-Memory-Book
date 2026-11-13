@@ -622,10 +622,10 @@ class CompleteProtocol(unittest.TestCase):
                 self.assertEqual(len(pushes),1)
                 self.assertEqual(pushes[0],["git","push","origin","HEAD:refs/heads/"+d.BRANCH])
 
-    def test_controller_waits_and_kills_group_before_regaining_publication(self):
-        from types import SimpleNamespace
-        for timeout in (False,True):
-            with self.subTest(timeout=timeout), tempfile.TemporaryDirectory() as tmp:
+
+    def test_publisher_handoff_requires_zero_exit_and_explicit_group_absence(self):
+        for scenario in ("success","timeout","dead-leader-live-group","zero-live-group","unknown-group","launch-failure"):
+            with self.subTest(scenario=scenario), tempfile.TemporaryDirectory() as tmp:
                 root=Path(tmp)
                 public,state=root/"reports",root/"state"
                 public.mkdir()
@@ -637,35 +637,98 @@ class CompleteProtocol(unittest.TestCase):
                     pid=12345
                     waits=0
                     def wait(self,timeout=None):
-                        self.waits += 1
-                        events.append("wait")
-                        if timeout is not None and failure:
+                        self.waits+=1
+                        events.append("wait-"+str(timeout))
+                        if scenario=="timeout" and self.waits==1:
                             raise d.subprocess.TimeoutExpired("invented",timeout)
-                        return -9 if failure else 0
+                        return 17 if scenario=="dead-leader-live-group" else -9 if scenario=="timeout" else 0
                     def poll(self):
-                        return None if failure else 0
-                failure=timeout
+                        raise AssertionError("Leader poll cannot prove whole-group quiescence")
                 process=Process()
                 def launch(*args,**kwargs):
                     self.assertEqual(d.read(state/"publisher.json")["role"],"worker")
                     self.assertTrue(kwargs["start_new_session"])
                     events.append("launch")
+                    if scenario=="launch-failure":
+                        raise OSError("invented launch ambiguity")
                     return process
                 def publish(message):
                     self.assertEqual(d.read(state/"publisher.json")["role"],"controller")
                     events.append("intent" if "claim" in message else "exit")
+                def group_signal(pid,signal):
+                    self.assertEqual(pid,12345)
+                    events.append("group-"+str(signal))
+                    if signal==0:
+                        if scenario=="success": raise ProcessLookupError("group absent")
+                        if scenario=="unknown-group": raise PermissionError("group unknown")
                 with patch.object(d,"PUBLIC",public),patch.object(d,"STATE",state), \
                      patch.dict(os.environ,{"GITHUB_SHA":"a"*40,"GITHUB_RUN_ID":"invented"}), \
                      patch.object(d,"publish",side_effect=publish), \
                      patch.object(d.subprocess,"Popen",side_effect=launch), \
-                     patch.object(d.os,"killpg",side_effect=lambda *args: events.append("kill-group")):
-                    if failure:
-                        with self.assertRaises(RuntimeError): d.execute_worker()
-                    else:
+                     patch.object(d.os,"killpg",side_effect=group_signal):
+                    if scenario=="success":
                         d.execute_worker()
-                self.assertEqual(events,["intent","launch","wait"]+(["kill-group"] if failure else [])+["wait","exit"])
-                self.assertEqual(d.read(state/"publisher.json")["role"],"controller")
-                self.assertTrue((state/"worker-exit-confirmation.json").exists())
+                    else:
+                        with self.assertRaises(d.PublicationError): d.execute_worker()
+                confirmation=d.read(state/"worker-exit-confirmation.json")
+                if scenario=="success":
+                    self.assertEqual(events,["intent","launch","wait-1200","group-0","exit"])
+                    self.assertTrue(confirmation["handoff_permitted"])
+                    self.assertEqual(confirmation["group_state_before_cleanup"],"absent")
+                    self.assertEqual(d.read(state/"publisher.json")["role"],"controller")
+                    self.assertTrue((public/"worker-exit.json").exists())
+                else:
+                    self.assertFalse(confirmation["handoff_permitted"])
+                    self.assertEqual(d.read(state/"publisher.json")["role"],"worker")
+                    self.assertNotIn("exit",events)
+                    self.assertFalse((public/"worker-exit.json").exists())
+                    if scenario!="launch-failure":
+                        self.assertIn("group-"+str(d.signal.SIGKILL),events)
+                print(json.dumps({"invented_worker_lifecycle":scenario,"events":events,
+                    "handoff_permitted":confirmation["handoff_permitted"],"corpus_calls":0}),flush=True)
+
+    def test_bound_source_helpers_artifacts_and_prior_evidence_are_fail_closed(self):
+        scope=d.scope_value()
+        value={"status":"frozen-after-artificial-proof-before-sql-attribution-corpus","attempt":d.ATTEMPT,
+            "runtime":d.runtime_identity(),"scope_sha256":d.SCOPE_SHA,
+            "pairing_addendum_sha256":d.PAIRING_ADDENDUM_SHA,"publisher_addendum_sha256":d.PUBLISHER_ADDENDUM_SHA,
+            "classification_sha256":d.digest(scope["observer"]["source_mapping"]),
+            "planned_recall_calls":4732,"comparison_engine_calls":0,"fresh_rows_decoded":0,"speed_claim":False,
+            "artifact_files_sha256":{p:d.sha(d.ROOT/p) for p in (d.SCRIPT_PATH,d.TEST_PATH,d.WORKFLOW_PATH)},
+            "helpers_sha256":scope["inherited_protocol"]["helpers_sha256"],
+            "helper_dependency_sha256":scope["inherited_protocol"]["helper_dependencies_sha256"],
+            "prior_evidence":list(d.EVIDENCE),"source_ci":scope["prior_evidence"]["source_ci"],
+            "artificial_evidence":{"commit":"a"*40,"path":"benchmarks/reports/invented.json","sha256":"b"*64}}
+        d.validate_binding_value(value)
+        for field in ("runtime","scope_sha256","pairing_addendum_sha256","publisher_addendum_sha256",
+                      "classification_sha256","planned_recall_calls","comparison_engine_calls","fresh_rows_decoded",
+                      "speed_claim","artifact_files_sha256","helpers_sha256","prior_evidence","source_ci"):
+            changed=json.loads(json.dumps(value))
+            if field in ("runtime","artifact_files_sha256","helpers_sha256","source_ci"): changed[field]={}
+            elif field=="prior_evidence": changed[field]=[]
+            elif field=="speed_claim": changed[field]=True
+            elif field in ("planned_recall_calls","comparison_engine_calls","fresh_rows_decoded"): changed[field]=1
+            else: changed[field]="0"*64
+            with self.subTest(field=field),self.assertRaises(ValueError):
+                d.validate_binding_value(changed)
+
+    def test_artificial_evidence_must_cover_all_current_artifact_bytes_and_cases(self):
+        files={d.SCRIPT_PATH:"a"*64,d.TEST_PATH:"b"*64,d.WORKFLOW_PATH:"c"*64}
+        receipt={"source_commit":d.SOURCE_COMMIT,"runtime_sha256":d.RUNTIME_SHA,
+            "script_sha256":files[d.SCRIPT_PATH],"test_file_sha256":files[d.TEST_PATH],
+            "workflow_file_sha256":files[d.WORKFLOW_PATH],"expected":7,"tests":7,
+            "passed":True,"errors":0,"failures":0,"skipped":0,"corpus_calls":0}
+        value={"status":"passed-artificial-observer-and-protocol-tests","artifact_files_sha256":files,
+            "workflow_run":{"conclusion":"success","status":"completed","run_attempt":1},
+            "job":{"name":"protocol-fixtures","conclusion":"success","status":"completed"},"receipt":receipt}
+        d.validate_artificial_evidence(value,{"artifact_files_sha256":files})
+        for field in ("source_commit","runtime_sha256","script_sha256","test_file_sha256",
+                      "workflow_file_sha256","tests","expected","passed","errors","failures","skipped","corpus_calls"):
+            changed=json.loads(json.dumps(value))
+            changed["receipt"][field]=False if field=="passed" else 1 if field in (
+                "tests","expected","errors","failures","skipped","corpus_calls") else "0"*64
+            with self.subTest(field=field),self.assertRaises(ValueError):
+                d.validate_artificial_evidence(changed,{"artifact_files_sha256":files})
 
 
 if __name__ == "__main__":
