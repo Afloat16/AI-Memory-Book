@@ -253,3 +253,17 @@ cells reconstruct the original report byte for byte. The profile includes
 profiler overhead and an earlier baseline; no elapsed-speed claim is made.
 The separate registered 4,096-call paired diagnostic has not started at this
 checkpoint. No formal or historical/Q2 compatibility attempt has started.
+
+## Candidate D paired disposition
+
+D completes all 4,096 registered calls with all 2,048 full non-timing payload
+pairs equal. Independent reconstruction verifies every original worker and
+all eight compressed archives. Its eight-cell pooled p95 geometric improvement
+is 6.9853 percent, and public character p95 improves 8.9674 percent. Both remain
+below the original ten-percent target. Synthetic token1024 p50 regresses
+16.0810 percent; the two rounds separately regress 10.1865 and 13.5953 percent.
+This is not only a pooled-percentile artifact. All slower cells remain visible.
+D is not selected for formal measurement or release. Its correctness repairs
+and full evidence remain preserved. Any further diagnosis or implementation
+requires a separate fixed scope before execution; no D timing replay or gate
+change is permitted. No formal or historical/Q2 attempt has begun.
