@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "status": "memory-bounded-adapter-registered-before-new-diagnostic-binary-reads",
+  "parent_plan_commit": "32165b1d75593f11052ff28f2238641beb038dcc",
+  "fixed_result_commit": "f4a684233adee2da0e2b0c1c093a8b3f806561a7",
+  "cause": "Parent reported approximately41.69MB raw/2.36MB compressed complete profile; avoid retaining all parsed spans and per-byte string arrays simultaneously.",
+  "changes": [
+    "Use unchanged strict UTF8/base64 utility on bounded chunks; same accepted byte encodings.",
+    "Read complete profile compressed/raw bytes and verify their hashes; parse with a per-cell transformation that canonicalizes the complete standalone cell body before releasing rows.",
+    "Read each of the eight stored cell gzip artifacts in original order, match its canonical body to the indexed complete profile, then execute the registered payload/span/category audit.",
+    "Commit per-cell receipts and retain only aggregated counts/sites/identities in cache. Final adapter reconciles those receipts with the complete-profile index and declared audit."
+  ],
+  "rules_changed": false,
+  "performance_claim": false,
+  "diagnostic_binary_reads_when_registered": 0,
+  "retrieval_calls": 0,
+  "fresh_rows": 0,
+  "code_sha256": "5970f90c6b19df2bf9711c3f5de7f9cae65dac7613e85144c680f9001ba59a01",
+  "foundation_sha256": "8ca9941b6778d3f827b4c107a080a49c3e95dc12c907802db900b372a523fd61",
+  "final_assembly_contract": "Only receipts returned by auditStoredCell after original byte checks, saved/read back at fixed commits, are supplied to the incremental final adapter; their exact file SHA values are recorded in the final manifest."
+}
