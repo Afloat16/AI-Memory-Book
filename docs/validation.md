@@ -5,6 +5,61 @@ Product fixtures, examples, screenshots, and capture measurements are synthetic;
 the published experiments also evaluate LoCoMo and HotpotQA text corpora. No private
 user conversation history was used in development or published.
 
+## In progress: v0.3.2 round-four methods and evidence
+
+The [registered plan](../benchmarks/experiments/round4-plan.json),
+[development addendum](../benchmarks/experiments/round4-development-addendum.json)
+and [exact-counting addendum](../benchmarks/experiments/round4-counting-addendum.json)
+retain the published v0.3.1 baseline and freeze each extension before its
+measurements. The final C2 runtime is commit
+`2d7b5e38839fb21724ad3beec6b6ebabbda45636`, SHA256
+`179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93`.
+Ranking, indexed content, schemas, Q2 model/vector policy and fusion remain
+unchanged. Complete-payload comparisons exclude only `latency_ms`.
+
+The [C2 profile](../benchmarks/reports/round4-development/candidate-c2-manifest.json)
+preserves 4,732 complete payload matches on the two old cohorts. The separate
+[historical first-use recovery](../benchmarks/reports/round4-development/final-hotpot-first-use-recovery-manifest.json)
+preserves 2,048 calls, 1,024 exact pairs and every start/finish event. Its four
+fresh workers each reuse a connection across four configurations; neither
+profiled timings nor these first-use diagnostics establish an OS-cold or formal
+speed result. The [Q2 audit](../benchmarks/reports/round4-compatibility-final/paired-audit.json)
+verifies 1,968 calls, 984 exact pairs, both tokenizers and all three budgets,
+alongside committed source/evaluator bytes, model files and unchanged persisted
+vectors/originals. Recorded source, projection, scope, token and metadata
+errors are zero. Saved hashes support equality and ledger integrity; omitted
+response bodies cannot be independently re-tokenized by the offline audit.
+
+The [prelaunch recovery registration](../benchmarks/experiments/round4-prelaunch-recovery.json)
+and [independent prelaunch audit](../benchmarks/reports/round4-development/final-prelaunch-audit.json)
+preserve the original interrupted 512-call attempt and local MCP failure before
+any recall, together with earlier rejected candidates and adverse cells. No
+favorable-round pooling or replacement of those records is permitted.
+
+**Formal timing and the fresh 256-question comparison remain pending.**
+[Run 43361086255](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43361086255)
+uses the committed [formal binding](../benchmarks/experiments/round4-performance-binding.json)
+and triggering source `f8f1653c0653654ed574569fff1aaf4dbaeef6d1`.
+Its intended 56,784 calls cover 16 sequential workers, four balanced rounds and
+twelve pooled cells. Actual SDK MCP includes roundtrip and normal cache-write
+cost; persistent cache clearing is outside query timers. Complete native/MCP
+outputs and source/scope/cache/budget invariants must pass. All individual and
+pooled cells remain visible, with fixed speed gates in the plan. Startup,
+ingestion, unchanged replay or RSS mean increases above 10% require an explicit
+cause assessment and independent review while retaining the automatic verdict.
+
+The planned ten-stage comparison has 4,608 native calls and 4,608 component
+searches. It binds source/model/upstream/evaluator assets before selecting
+256 IDs and excludes all 640 historical IDs. Six whole-block budget/tokenizer
+projections reuse each component's first response. A final audit must verify
+the frozen manifest against the pinned Parquet, then use
+`scripts/round4_comparison.py audit --verify-existing` with the saved checkpoint
+to reproduce the assessment and Markdown from all raw reports and ledgers,
+without retrieval replay. New selection does not mean a new domain; all
+questions are answerable, and generated answers/abstention are outside this
+experiment. Native API, component adapter, complete-read and resource costs
+remain distinct. Passing integrity alone is not a quality or release decision.
+
 ## Current: v0.3.1 completed measurement and recovery
 
 The [round-three checkpoint](../benchmarks/reports/round3-comparison-43267797247-1-checkpoint.json)

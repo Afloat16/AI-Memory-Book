@@ -1,5 +1,46 @@
 # Retrieval experiments
 
+## In progress: v0.3.2 round-four validation
+
+The final development candidate is frozen at
+[`2d7b5e3`](https://github.com/Afloat16/AI-Memory-Book/commit/2d7b5e38839fb21724ad3beec6b6ebabbda45636),
+runtime SHA256
+`179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93`.
+It reduces repeated source-unit parsing and exact token-counting work while
+preserving lexical ranking, source snapshots, budgets and the optional Q2 model.
+The [formal run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43361086255)
+was launched from `f8f1653c0653654ed574569fff1aaf4dbaeef6d1`;
+**its timing verdict and the new 256-question comparison are pending**.
+The completed development checks below do not establish release acceptance.
+
+| Evidence | Scope and current result |
+|---|---|
+| [Registered plan](experiments/round4-plan.json), [development addendum](experiments/round4-development-addendum.json), [counting addendum](experiments/round4-counting-addendum.json) | Source/output invariants, allowed changes and numerical gates fixed before the corresponding measurements. |
+| [Final C2 full-cohort profile](reports/round4-development/candidate-c2-manifest.json) | All 4,732 complete non-timing payloads match the saved v0.3.1 baseline. Profiling includes cProfile overhead and has no independent start/finish ledger. |
+| [Historical first-use recovery](reports/round4-development/final-hotpot-first-use-recovery-manifest.json) | 2,048 calls, 1,024 matching payload pairs and all four workers/ledgers retained. Fresh worker connections; four configurations share each connection. No OS-cold claim. |
+| [Q2 paired audit](reports/round4-compatibility-final/paired-audit.json) | 1,968 calls and 984 exact payload pairs across two historical cohorts, both tokenizers and three budgets; source/vector/model/ledger checks pass. |
+| [Recovery registration](experiments/round4-prelaunch-recovery.json) and [final prelaunch audit](reports/round4-development/final-prelaunch-audit.json) | Original 512-call interrupted first-use attempt, zero-recall local MCP failure, earlier candidates and adverse cells remain separate. Recovery results do not replace them. |
+| [Formal source/evaluator binding](experiments/round4-performance-binding.json) | Exact candidate, baseline, evaluators, fixtures and dependencies committed before the sole formal run. |
+
+The registered formal matrix contains **56,784 calls**, 16 sequential workers,
+four balanced rounds and twelve pooled cohort/configuration cells, including
+actual SDK MCP token1024. Complete payloads, returned MCP envelopes, source/scope,
+cache and budget invariants must pass. The unchanged speed gates require at
+least 10% pooled p95 geometric-mean improvement, at least 15% in one public
+native token cell, at least 10% in public MCP token1024, and no pooled p50/p95
+regression above 5%. A startup, ingestion, unchanged replay or RSS mean increase
+above 10% requires a cause assessment and independent review; the original
+automatic result and every sample remain preserved.
+
+The planned fresh comparison contains **9,216 searches**: 4,608 native calls
+and 4,608 component searches across ten stages. Assets and evaluators must be
+committed before ID-only selection of 256 questions excluding all 640 historical
+IDs. Six component budget/tokenizer projections reuse each first response;
+they are not additional searches. This remains evidence retrieval on another
+selection from the same HotpotQA source, with all Q2 gains/losses, component
+transport/read costs and resource measurements retained. It does not measure
+generated-answer accuracy or establish a whole-product speed ratio.
+
 ## Current: v0.3.1 and the completed third round
 
 The shipped candidate is frozen at

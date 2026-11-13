@@ -135,6 +135,33 @@ cached recall. Measure full MCP response tokens separately from `context_tokens`
 New evidence-delivery results do not imply generated-answer accuracy or an
 end-to-end cost advantage.
 
+## Counting work in v0.3.2
+
+The returned context and its exact count retain the assembly contract above.
+The implementation avoids repeating some work inside one recall call:
+
+- Source text and references are still captured in one SQLite snapshot. Complete
+  mapped segments can certify that supplemental source parsing is unnecessary
+  until an addition is considered; uncertified maps retain the original eager
+  checks and errors. Deferred parsing does not read the database again.
+- Sorted source-unit starting offsets narrow projection scans, while every
+  original containment and exact-text check remains.
+- The final accepted context keeps its exact count, even when a later block is
+  rejected. Final token metadata is not a byte or character estimate.
+- Under the two inspected tiktoken 0.12.0 patterns, the specific citation
+  boundary `\n\n[` separates tokenization pieces. Earlier accepted blocks plus
+  their separators can be counted once while a new block is checked. This
+  does not assume that arbitrary token counts are additive or monotonic.
+
+The last optimization requires ordinary encoder methods, their verified source
+origin, the exact known pattern and strict UTF-8 text. Other tokenizer versions,
+custom methods, unknown origins or unsuitable text use full counting. A strict
+UTF-8 byte bound may prove that a block fits, but an exact count still supplies
+the returned metadata. This adds no cross-call cache, ranking change or new
+runtime dependency. See the [round-four implementation and evidence](optimization-round4.md)
+for the preserved failed candidates, correctness coverage and separate formal
+performance status.
+
 ## Completed measurements
 
 The [eight-cohort validation](../benchmarks/RESULTS-native-token-budget.md)
@@ -143,7 +170,7 @@ complete-evidence losses and zero losses of previously fitting baseline
 blocks. This includes public regression and independently authored external
 questions, with every original timing boundary retained.
 
-The [latest counting optimization](token-prefix-performance.md) preserves all
+The [earlier stable-prefix optimization](token-prefix-performance.md) preserves all
 2,016 complete development payloads. Its four 512-token settings have p95
 reductions of 7.73%–14.45%; all 12 settings and larger-budget tradeoffs are
 published. Only the exact counting/fit-check path changes, not ranking,
