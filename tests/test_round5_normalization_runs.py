@@ -1,7 +1,6 @@
 """Candidate N uses invented Unicode, actual C-call receivers and SQLite only."""
 from __future__ import annotations
 
-from contextlib import contextmanager
 import hashlib
 import importlib.util
 from pathlib import Path
@@ -12,9 +11,7 @@ import unittest
 from unittest.mock import patch
 
 from memory_book import MemoryBook
-from memory_book import store as storage
 from memory_book import text as lexical
-from memory_book import token_budget
 from tests.test_round5_normalization_translation import (
     legacy as literal_terms,
     literal_terms_everywhere,
@@ -299,3 +296,229 @@ class NormalizationRunTests(unittest.TestCase):
                     self.assertEqual(work["run_callbacks"], [])
                     self.assertEqual(work["translate_receivers"], [])
 
+    def test_deterministic_invented_mixtures_equal_frozen_m_and_literal_legacy(self):
+        rng = random.Random(51603314)
+        identity = sorted(IDENTITY)
+        mapped = sorted(COMPATIBILITY)
+        excluded = list("éßİ㍿①Ωｶﾞ\u0301\u0315\u034f\u302a\u1100\u1161\ud800\udfff😀")
+        for index in range(360):
+            pieces = []
+            for _ in range(rng.randrange(0, 200)):
+                choose = rng.randrange(10)
+                alphabet = mapped if choose < 4 else identity
+                if index % 2 and choose == 9:
+                    alphabet = excluded
+                pieces.append(rng.choice(alphabet))
+            if index % 3 == 0:
+                pieces.insert(0, "为什么alphaＢeta　ＡＰＩ＿Ｖ２…")
+            value = "".join(pieces)
+            with self.subTest(index=index):
+                self.assertEqual(direct_substitution(value), value.translate(FIXED_TABLE))
+                for query in (False, True):
+                    actual = lexical.terms(value, query=query)
+                    self.assertEqual(actual, literal_terms(value, query))
+                    self.assertEqual(actual, self.base_terms(value, query=query))
+
+    def test_excluded_unicode_keeps_literal_work_and_never_enters_new_callback(self):
+        exclusions = [
+            "e\u0301", "Ａ\u0301", "a\u0315\u0300", "\u1100\u1161\u11a8",
+            "\u0cc6\u0cc2", "\u09c7\u09be", "\u302a", "\u20dd", "\ufe0f", "\u034f",
+            "\uff00", "\uff5f", "\uff61", "\uff76\uff9e", "\uf900", "\u212a", "\u2024",
+            "é", "ß", "İ", "Σ", "①", "㍿", "\U00020000", "👩\u200d💻", "\ud800", "\udfff",
+        ]
+        for excluded in exclusions:
+            value = "中文alphaＢeta…Ａ中Ｂ" + excluded
+            self.assertIsNone(lexical._NORMALIZATION_COMPATIBILITY.fullmatch(value))
+            for query in (False, True):
+                actual, work = actual_work(lexical.terms, value, query=query)
+                expected, previous = actual_work(literal_terms, value, query=query)
+                with self.subTest(excluded=excluded, query=query):
+                    self.assertEqual((actual, work), (expected, previous))
+                    self.assertEqual(work["run_sub"], 0)
+                    self.assertEqual(work["run_callbacks"], [])
+
+    def test_unknown_ucd_and_all_nonordinary_hooks_retain_literal_calls(self):
+        value = "中文alphaＢeta…Ａ中Ｂ　資料"
+        with patch.object(unicodedata, "unidata_version", "unrecognized-future-ucd"):
+            actual, work = actual_work(lexical.terms, value)
+            expected, previous = actual_work(literal_terms, value)
+            self.assertEqual((actual, work), (expected, previous))
+            self.assertEqual(work["normalize"], 2)
+            self.assertEqual(work["run_callbacks"], [])
+            self.assertEqual(work["run_sub"], 0)
+        hooks = ((unicodedata, "normalize"), (unicodedata, "category"),
+                 (lexical, "CAMEL_BOUNDARY"), (lexical, "_strip_nonspacing_marks"))
+        for module, name in hooks:
+            original = getattr(module, name)
+            with self.subTest(hook=name), patch.object(module, name, wraps=original) as hook:
+                expected, previous = actual_work(literal_terms, value)
+                old_calls = list(hook.mock_calls)
+                hook.reset_mock()
+                actual, work = actual_work(lexical.terms, value)
+                self.assertEqual((actual, work), (expected, previous))
+                self.assertEqual(hook.mock_calls, old_calls)
+                self.assertEqual(work["run_callbacks"], [])
+                self.assertEqual(work["run_sub"], 0)
+
+    def test_nonordinary_hook_errors_keep_literal_exception_and_event_order(self):
+        value = "中文alphaＢeta…Ａ中Ｂ　資料"
+        events = []
+
+        class DeliberateFailure(RuntimeError):
+            pass
+
+        def fail(*arguments, **keywords):
+            events.append((arguments, keywords))
+            raise DeliberateFailure("invented normalization hook failure")
+
+        class BrokenCamel:
+            def sub(self, *arguments, **keywords):
+                return fail(*arguments, **keywords)
+
+        for module, name, replacement in (
+                (unicodedata, "normalize", fail),
+                (unicodedata, "category", fail),
+                (lexical, "CAMEL_BOUNDARY", BrokenCamel()),
+                (lexical, "_strip_nonspacing_marks", fail)):
+            with self.subTest(hook=name), patch.object(module, name, replacement):
+                observed = []
+                for function in (literal_terms, lexical.terms):
+                    events.clear()
+                    with self.assertRaisesRegex(DeliberateFailure, "invented normalization hook failure"):
+                        function(value, query=True)
+                    observed.append(list(events))
+                self.assertEqual(observed[0], observed[1])
+                self.assertEqual(len(observed[0]), 1)
+
+    def test_stateful_subclass_truth_and_errors_keep_literal_initial_order(self):
+        class Truth:
+            def __init__(self, first, events):
+                self.first, self.events = first, events
+
+            def __bool__(self):
+                self.events.append("truth")
+                if self.events.count("truth") != 1:
+                    raise AssertionError("isascii truth evaluated twice")
+                return self.first
+
+        class UnusualString(str):
+            def __new__(cls, value, first):
+                result = super().__new__(cls, value)
+                result.events = []
+                result.truth = Truth(first, result.events)
+                return result
+
+            def isascii(self):
+                self.events.append("isascii")
+                return self.truth
+
+            def translate(self, _table):
+                raise AssertionError("Subclass must not enter normalization runs")
+
+        for first in (False, True):
+            for query in (False, True):
+                previous = UnusualString("alphaＢeta 中文…Ａ中Ｂ", first)
+                current = UnusualString("alphaＢeta 中文…Ａ中Ｂ", first)
+                expected, old_work = actual_work(literal_terms, previous, query=query)
+                actual, work = actual_work(lexical.terms, current, query=query)
+                with self.subTest(first=first, query=query):
+                    self.assertEqual((actual, work), (expected, old_work))
+                    self.assertEqual(current.events, previous.events)
+                    self.assertEqual(current.events, ["isascii", "truth"])
+                    self.assertEqual(work["run_sub"], 0)
+                    self.assertEqual(work["run_callbacks"], [])
+
+        class AsciiFailure(RuntimeError):
+            pass
+
+        class RaisingString(str):
+            def isascii(self):
+                raise AsciiFailure("invented initial isascii failure")
+
+        for function in (literal_terms, lexical.terms):
+            with self.subTest(function=function.__name__):
+                with self.assertRaisesRegex(AsciiFailure, "invented initial isascii failure"):
+                    function(RaisingString("alphaＢeta 中文"), query=True)
+
+
+class NormalizationRunBookTests(unittest.TestCase):
+    def make_book(self):
+        book = MemoryBook(":memory:", segmentation="turn", max_page_chars=400,
+                          min_page_chars=0, cache_size=0)
+        self.addCleanup(book.close)
+        samples = (
+            ("anchor", "铜镜记录",
+             "石英仪器 alphaＢeta 指向 Cedar Observatory。ＡＰＩ＿Ｖ２　版本…负责人王先生。"
+             "参照 non‑breaking 条目保留原始名称。"),
+            ("target", "Cedar Observatory",
+             "北方海湾保存原始观察。规范资料列明负责人王先生。alphaＢeta 是原始仪器名，保留精确来源。"),
+            ("dense", "Ｒｏｃｋｅｔ＿Ｌａｂ",
+             "连续兼容字符：" + "ＡｌｐｈａＢｅｔａ１２３" * 28 + "。原始日期１９９７年…"),
+            ("alternating", "交替字符资料",
+             "Ａ中Ｂ文Ｃ档Ｄ" * 32 + "。alphaＢeta 石英仪器仍在 Cedar Observatory。"),
+            ("alphabet", "完整兼容字符原文",
+             "固定集合：" + "".join(MAPPED) + "。标点保留…Ａ中Ｂ。"),
+            ("excluded", "Résumé Ａ",
+             "Ａ\u0301 e\u0301 é ① ㍿ ｶﾞ 原始日期2002年。unsupported composition必须保留字面旧路径。"),
+            ("ascii", "Ordinary archive",
+             "AlphaBeta instrument notes keep exact source references and unchanged ordinary ASCII terms."),
+        )
+        for identity, title, body in samples:
+            book.ingest({"project": "invented-n-lab", "session_id": identity,
+                         "title": title, "task_id": "archive",
+                         "created_at": "2001-02-03T04:05:06Z",
+                         "messages": [{"role": "user", "content": body}]})
+        return book
+
+    def test_real_fts_and_full_native_scoped_payloads_equal_literal_reference(self):
+        with literal_terms_everywhere():
+            before = self.make_book()
+        after = self.make_book()
+        for table in ("pages_fts", "pages_stem_fts"):
+            sql = f"SELECT rowid,title,question,body,directory FROM {table} ORDER BY rowid"
+            self.assertEqual([tuple(row) for row in before.db.execute(sql)],
+                             [tuple(row) for row in after.db.execute(sql)])
+        sql = "SELECT id,content,source_refs FROM pages ORDER BY id"
+        self.assertEqual([tuple(row) for row in before.db.execute(sql)],
+                         [tuple(row) for row in after.db.execute(sql)])
+        chapter_id = before.db.execute("SELECT id FROM chapters ORDER BY id LIMIT 1").fetchone()[0]
+        queries = ("石英仪器alphaＢeta", "为什么１９９７年记录是什么", "ＡＰＩ＿Ｖ２",
+                   "non‑breaking条目", "Ａ中Ｂ文Ｃ", "完整兼容字符…",
+                   "é ABC", "现在 alphaＢeta", "未匹配的词语")
+        options = ({}, {"follow_titles": True}, {"coverage": True}, {"strategy": "flat"},
+                   {"chapter": chapter_id}, {"session": "anchor"})
+        for query in queries:
+            for choice in options:
+                for budget in (0, 120, 1000):
+                    with self.subTest(query=query, options=choice, budget=budget):
+                        arguments = {"project": "invented-n-lab", "budget_chars": budget,
+                                     "use_cache": False, **choice}
+                        with literal_terms_everywhere():
+                            old = before.recall(query, **arguments)
+                        new = after.recall(query, **arguments)
+                        self.assertEqual({key: value for key, value in old.items() if key != "latency_ms"},
+                                         {key: value for key, value in new.items() if key != "latency_ms"})
+
+    @unittest.skipUnless(HAS_TIKTOKEN, "optional exact tokenizer is not installed")
+    def test_both_exact_tokenizers_and_source_spans_equal_literal_reference(self):
+        with literal_terms_everywhere():
+            before = self.make_book()
+        after = self.make_book()
+        for tokenizer in ("cl100k_base", "o200k_base"):
+            for budget in (0, 32, 128, 512):
+                for follow in (False, True):
+                    for query in ("石英仪器alphaＢeta ＡＰＩ＿Ｖ２ 原文資料…", "Ａ中Ｂ文Ｃ 连续兼容字符"):
+                        with self.subTest(tokenizer=tokenizer, budget=budget,
+                                          follow_titles=follow, query=query):
+                            arguments = {"project": "invented-n-lab", "budget_chars": 1000,
+                                         "use_cache": False, "tokenizer": tokenizer,
+                                         "budget_tokens": budget, "follow_titles": follow}
+                            with literal_terms_everywhere():
+                                old = before.recall(query, **arguments)
+                            new = after.recall(query, **arguments)
+                            self.assertEqual({key: value for key, value in old.items() if key != "latency_ms"},
+                                             {key: value for key, value in new.items() if key != "latency_ms"})
+
+
+if __name__ == "__main__":
+    unittest.main()
