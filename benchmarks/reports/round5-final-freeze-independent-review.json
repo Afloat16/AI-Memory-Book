@@ -1,0 +1,635 @@
+{
+  "schema_version": 1,
+  "status": "accepted-independent-final-source-freeze-before-formal-measurement",
+  "reviewed_at_utc": "2026-11-13 19:46:40 UTC",
+  "reviewed_result_commit": "195ab7145db184b1696287606dda6e9cb877b6f4",
+  "source_selection_commit": "f438d0a2b40a9ff8a3bdaab534977f34eb0d3ba3",
+  "source_selection": {
+    "path": "benchmarks/experiments/round5-selected-runtime.json",
+    "sha256": "18ad502b1cfbeb11059e91a0b1380cd2fbb1cc283f669e78935e6ba26e88d0e3"
+  },
+  "reviewed_sources": {
+    "baseline": {
+      "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+      "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+    },
+    "candidate": {
+      "commit": "4a0ad4dc6aec33a91231d419239b7e90b160c695",
+      "runtime_sha256": "77310a7971677c2cebf8cd01d0aa36ab4562b55d1a3826b7fa7de895840abb32"
+    }
+  },
+  "source_freeze_accepted": true,
+  "formal_execution_prerequisite_review_accepted": true,
+  "performance_accepted": false,
+  "formal_result_accepted": false,
+  "release_accepted": false,
+  "corpus_calls_executed_by_review": 0,
+  "fresh_rows_decoded_by_review": 0,
+  "fresh_selection_authorized_by_review": false,
+  "review_scope": "Independent read-only verification of source selection, generated source-free interface certificate, formal binding and original plan/gate identities. The reviewer did not run generators, retrieve, select fresh data, change source or create a trigger.",
+  "selection_checks": {
+    "source_commit": true,
+    "runtime": true,
+    "exact18_manifest": true,
+    "development_identity_equal": true,
+    "development_full_payloads": true,
+    "risk_kept": true,
+    "thresholds_equal": true,
+    "baseline_equal_plan": true,
+    "recorded_development_p95_improvements_exact": true
+  },
+  "selection_evidence": [
+    {
+      "commit": "986633dc77bcff54292050f942c929ac960b48aa",
+      "path": "benchmarks/reports/round5-candidate-no-development-1/independent-raw-audit.json",
+      "sha256": "1bc9c2f903d06efc326c1fd57454abdd1d64ea7581078891039b3c0297a3221d"
+    },
+    {
+      "commit": "68a2de797842a3a611755f9785ae5f69703f648b",
+      "path": "benchmarks/reports/round5-candidate-no-development-1/independent-profile-audit.json",
+      "sha256": "bc38220920d1786aa411b3f5fea8a0df794b52b41a0f111b54fe097b5e8f5140"
+    }
+  ],
+  "selected_source_review": [
+    {
+      "commit": "0610e0ddd5a0d1a89a9e96720c153c732d81e18d",
+      "path": "benchmarks/reports/round5-normalization-lexical-no-independent-source-review.json",
+      "sha256": "6a10d133a5715ab6b7b4a3e91da7dc9b32deb02611a16751422bb404b7219995"
+    },
+    {
+      "commit": "f1d5223632b5ba41f4bbd8d59ca78f97bc4d6ccd",
+      "path": "benchmarks/reports/round5-no-control-integration-independent-review.json",
+      "sha256": "e36a747a23724d0e2244c7a9e8a2e5fee957253192759ad5945d4d47cf8e2675"
+    }
+  ],
+  "development_risk_preserved": {
+    "paired_calls": 4096,
+    "full_payload_pairs": 2048,
+    "payload_mismatches": 0,
+    "profile_calls": 4732,
+    "matching_profile_payloads": 4732,
+    "development_cells": 8,
+    "all_development_p50_and_p95_improved": true,
+    "pooled_p95_geomean_improvement_percent": 11.226438195449596,
+    "public_native_char4000_p95_improvement_percent": 8.762968358902967,
+    "public_char_both_saved_rounds_below_ten_percent": true,
+    "selection_is_not_formal_acceptance": true,
+    "reasoning": "The frozen development protocol did not make the formal numeric goals a development acceptance gate. Root explicitly selected the complete existing NO source with the public-character shortfall and unmeasured 14-cell/MCP/resource risk intact. No diagnostic timing was added to its gains. The SQL complete independent raw audit was disclosed as pending in the immutable selection record."
+  },
+  "exact_artifacts": {
+    "certificate": {
+      "path": "benchmarks/experiments/round5-final-interface-certificate.json",
+      "git_blob": "3848240bce095564709ec16792208f741ee4ef18",
+      "sha256": "8380233302a011a25fc520d8dc3b19c429cc9ee530b0e4189195c1c7a22400c8"
+    },
+    "binding": {
+      "path": "benchmarks/experiments/round5-performance-v2-binding.json",
+      "sha256": "1d5af43c6c9b3e826ce11814f29320f9838c3ad603a80b1a36eb9d122fc6b247"
+    },
+    "plan": {
+      "commit": "7068594181c7e98c576f68a81daf85cd0d06c729",
+      "path": "benchmarks/experiments/round5-plan.json",
+      "sha256": "d3302ef1169aa180b492af6b9c9938e5717ff7261e202ef7a3df50e14febaccd"
+    },
+    "freezer": {
+      "path": "scripts/round5_final_freeze_hosted.py",
+      "sha256": "74f146674c08d184c686e8f50943260b364b92334aca1dfa7ee361dd8fc31843"
+    },
+    "certificate_generator": {
+      "path": "scripts/round5_interface_certificate.py",
+      "sha256": "2e7a0909d40c475590247b05fb598b85dee82c05419ed402f8c7e820323d763c"
+    },
+    "formal_evaluator": {
+      "path": "scripts/round5_performance_v2.py",
+      "sha256": "388536dd4bf3dc4c7d76cc8c5bac3afd273071cebcf7f9639ed1b65d19e4f1fb"
+    }
+  },
+  "independent_schema_and_binding_checks": {
+    "sources_equal_selection": true,
+    "binding_sources_equal_certificate": true,
+    "certificate_embedded_equal": true,
+    "certificate_raw_hash_matches_binding": true,
+    "certificate_canonical_generated_bytes_exact": true,
+    "binding_canonical_generated_bytes_exact": true,
+    "ordered_tools_equal": true,
+    "unique_tools": true,
+    "new_property_exact": true,
+    "description_suffix_exact": true,
+    "follow_titles_not_required": true,
+    "entire_remaining_schema_equal": true,
+    "projected_schema_sha256": "268f55537a307a6b359e65ff8722a05707e812f80fb71c776ade6147fd8ff63c",
+    "stored_projection_hash_matches": true,
+    "instructions_byte_equal": true,
+    "observation_hashes": {
+      "baseline": {
+        "schema": true,
+        "instructions": true,
+        "database_not_created": true
+      },
+      "candidate": {
+        "schema": true,
+        "instructions": true,
+        "database_not_created": true
+      }
+    },
+    "token_deltas": {
+      "cl100k_base": {
+        "instructions": 0,
+        "tool_schema": 72
+      },
+      "o200k_base": {
+        "instructions": 0,
+        "tool_schema": 72
+      }
+    },
+    "registered_gates_equal": true,
+    "total_formal_cells": 14,
+    "formal_workers": 16,
+    "formal_calls": 66248,
+    "scope_hash_matches": true,
+    "generated_serialization": "Frozen dump: ensure_ascii=False, sort_keys=True, separators=(',',':'), plus newline.",
+    "generator_inventory_equals_binding_minus_certificate": true,
+    "exact_evaluator_file_count": 35,
+    "all_evaluator_file_hashes_match": true,
+    "reported_initialization_delta_recomputed": true,
+    "plan_hash_exact": true,
+    "registration_artifacts_unchanged": true
+  },
+  "normalization_scope": {
+    "ordered_tools": [
+      "recall_memory",
+      "browse_projects",
+      "browse_book",
+      "browse_chapter",
+      "browse_section",
+      "read_page"
+    ],
+    "only_property": "recall_memory.follow_titles",
+    "exact_property_schema": {
+      "default": false,
+      "title": "Follow Titles",
+      "type": "boolean"
+    },
+    "property_not_required": true,
+    "exact_registered_description_suffix": true,
+    "remaining_complete_ListToolsResult_equal": true,
+    "instructions_byte_identical": true,
+    "canonical_projected_schema_sha256": "268f55537a307a6b359e65ff8722a05707e812f80fb71c776ade6147fd8ff63c",
+    "no_general_hash_or_schema_difference_exception": true
+  },
+  "initialization_costs": {
+    "baseline": {
+      "cl100k_base": {
+        "instructions": 168,
+        "tool_schema": 912
+      },
+      "o200k_base": {
+        "instructions": 167,
+        "tool_schema": 954
+      }
+    },
+    "candidate": {
+      "cl100k_base": {
+        "instructions": 168,
+        "tool_schema": 984
+      },
+      "o200k_base": {
+        "instructions": 167,
+        "tool_schema": 1026
+      }
+    },
+    "independently_subtracted_deltas": {
+      "cl100k_base": {
+        "instructions": 0,
+        "tool_schema": 72
+      },
+      "o200k_base": {
+        "instructions": 0,
+        "tool_schema": 72
+      }
+    },
+    "recorded_costs_not_replaced_or_subtracted_from_resources": true,
+    "token_count_verification_boundary": "Counts were read from actual pinned-tokenizer generator observations and checked by the unchanged generator/load-binding validation; this review independently recomputed their deltas and raw string hashes without running a tokenizer or performing retrieval."
+  },
+  "exact_evaluator_file_checks": [
+    {
+      "path": "benchmarks/data.py",
+      "git_blob": "9ef4a780ff7d6a98a2590d3e15b224ef5a25bc1a",
+      "sha256": "090d0460a6887eff32b3adb89d1684da9b7c9094f96246e187c1298051b64625",
+      "match": true,
+      "method": "retained directly-read raw bytes with exact final Git blob equality"
+    },
+    {
+      "path": "benchmarks/experiments/round5-final-interface-certificate.json",
+      "git_blob": "3848240bce095564709ec16792208f741ee4ef18",
+      "sha256": "8380233302a011a25fc520d8dc3b19c429cc9ee530b0e4189195c1c7a22400c8",
+      "match": true,
+      "method": "retained directly-read raw bytes with exact final Git blob equality"
+    },
+    {
+      "path": "benchmarks/experiments/round5-final-interface-v2-scope.json",
+      "git_blob": "13c4d746e4a20b0aed497bf5ad47768348383db2",
+      "sha256": "28e8f491c4ff2fbe6f815b0864cf36f497acf49414df395711e67ade57bde292",
+      "match": true,
+      "method": "retained directly-read raw bytes with exact final Git blob equality"
+    },
+    {
+      "path": "benchmarks/experiments/round5-plan.json",
+      "git_blob": "33018dc0cc97b1e75a04756dc8d1064f75a7fce8",
+      "sha256": "d3302ef1169aa180b492af6b9c9938e5717ff7261e202ef7a3df50e14febaccd",
+      "match": true,
+      "method": "retained directly-read raw bytes with exact final Git blob equality"
+    },
+    {
+      "path": "benchmarks/locomo_split.json",
+      "git_blob": "3188f48878b2d95deb2a0b2258046e8ee1c223db",
+      "sha256": "a64086f1dc194c3fe9157e60f9696a77d3c650af836a60fab192f3db48c527f5",
+      "match": true,
+      "method": "retained directly-read raw bytes with exact final Git blob equality"
+    },
+    {
+      "path": "benchmarks/public_data.py",
+      "git_blob": "d053bc9f9a8b5ff178adb854d0ee523d1679a192",
+      "sha256": "269625183d8bef8f3b34f534d1c6d52ce7c623f795015e3e1508835c3eee08e8",
+      "match": true,
+      "method": "retained directly-read raw bytes with exact final Git blob equality"
+    },
+    {
+      "path": "benchmarks/run.py",
+      "git_blob": "8dc33b680b6b5f186dd6712a64465e799bbd9c42",
+      "sha256": "e557475d5701ea7271de9103aa8267e204796336b5277352fad015d9399521a4",
+      "match": true,
+      "method": "retained directly-read raw bytes with exact final Git blob equality"
+    },
+    {
+      "path": "benchmarks/token_compare.py",
+      "git_blob": "b1da9c552e4da90018d6c868da404042764f8091",
+      "sha256": "bb34650d947a89c17c87e179dc9e376fe44b6d10c0bf4bb70ca4cdfd46913f18",
+      "match": true,
+      "method": "retained directly-read raw bytes with exact final Git blob equality"
+    },
+    {
+      "path": "scripts/benchmark_default_recall.py",
+      "git_blob": "2a54951e1b3927dee6c5ee3527ad0eb23a41835f",
+      "sha256": "ce74bd117ef54da865963f6a185f40707dbf8a0eaf0019957288b71edf8c305a",
+      "match": true,
+      "method": "retained directly-read raw bytes with exact final Git blob equality"
+    },
+    {
+      "path": "scripts/round5_interface_certificate.py",
+      "git_blob": "1192f3f3d53bc781ac9fa6fddc3ab5d515f21c87",
+      "sha256": "2e7a0909d40c475590247b05fb598b85dee82c05419ed402f8c7e820323d763c",
+      "match": true,
+      "method": "retained directly-read raw bytes with exact final Git blob equality"
+    },
+    {
+      "path": "scripts/round5_performance_v2.py",
+      "git_blob": "414b563f56835159d79bcc134a50c44798b0c33a",
+      "sha256": "388536dd4bf3dc4c7d76cc8c5bac3afd273071cebcf7f9639ed1b65d19e4f1fb",
+      "match": true,
+      "method": "retained directly-read raw bytes with exact final Git blob equality"
+    },
+    {
+      "path": "tests/test_lexical_cache.py",
+      "git_blob": "501f2464b6c67643ea4659df9af5a75bc73176e7",
+      "sha256": "419170a018e2baf0c0bdb70fc5414ac79922da402aa27ed9151a16208cd3d354",
+      "match": true,
+      "method": "retained directly-read raw bytes with exact final Git blob equality"
+    },
+    {
+      "path": "tests/test_project_rowid_bounds.py",
+      "git_blob": "2803337d063b5fff8726b2aecd4e5f2b387db466",
+      "sha256": "417a58396aa5d08d87a249e32fe41beb2e5176d82c4d6a47d0b4bd53075bb1aa",
+      "match": true,
+      "method": "retained directly-read raw bytes with exact final Git blob equality"
+    },
+    {
+      "path": "tests/test_round4_highlight.py",
+      "git_blob": "c54b5eff4705edc03edf84e522d09f27eec2efa9",
+      "sha256": "59cab84b24ea873670b5b1689d18bbdd170bf1cbb635a85ecba2a30e4104390b",
+      "match": true,
+      "method": "retained directly-read raw bytes with exact final Git blob equality"
+    },
+    {
+      "path": "tests/test_round4_sealed_counts.py",
+      "git_blob": "3a39ea7ec191dd61771bbcd3731d7ba76d67b2e2",
+      "sha256": "a2e43be0bcd9978e392b60c8ef5b5e9de54277edf84fdf4ebe9ec2b8a30df2a9",
+      "match": true,
+      "method": "retained directly-read raw bytes with exact final Git blob equality"
+    },
+    {
+      "path": "tests/test_round4_token_work.py",
+      "git_blob": "d717fe702714ad76dc05e43a659ef1c265d70dad",
+      "sha256": "d05efe980d65f1d61017316f4410455646f4853efbe0f22194a0d9a0e9f02bdc",
+      "match": true,
+      "method": "retained directly-read raw bytes with exact final Git blob equality"
+    },
+    {
+      "path": "tests/test_round5_materialization.py",
+      "git_blob": "cc422d255db945c54ee333af0665e23b481d9ead",
+      "sha256": "2a652356adff1de9344ed4fea904caee7e8b58b1ac4266d73553fc1520c74a9d",
+      "match": true,
+      "method": "retained directly-read raw bytes with exact final Git blob equality"
+    },
+    {
+      "path": "tests/test_token_budget.py",
+      "git_blob": "9b1abe5830108a786124347ec350e5830969d149",
+      "sha256": "89fa3919c92f97e5b3f7ff44f92fa2ebcf0f6121ed941a21dd5b450bc300aa4c",
+      "match": true,
+      "method": "retained directly-read raw bytes with exact final Git blob equality"
+    },
+    {
+      "path": ".github/workflows/round5-performance-v2.yml",
+      "git_blob": "66960eb5a1eb0772ecd07b896b590cc1e2a34f4c",
+      "sha256": "3d6c98db33078fe8be358cf49be47e31f52a676182e941d8a423bc4a73596c7f",
+      "match": true,
+      "method": "direct read at exact final result commit"
+    },
+    {
+      "path": ".github/workflows/round5-performance.yml",
+      "git_blob": "4006b69ceaf1f3e6f9099de51c12514cdd46d1b6",
+      "sha256": "6b56fe4b1ad29dd814cee8d12a36f40fa51258acc6d4cfcc23a8186a26896fd6",
+      "match": true,
+      "method": "direct read at exact final result commit"
+    },
+    {
+      "path": "benchmarks/__init__.py",
+      "git_blob": "e60abaac2aadb1ee8868ac47fdd037efb0a5c629",
+      "sha256": "82c1a9c2c4363d02d1ec7e504ce64a1c90051df12f852ec4978f32be5cf5bce0",
+      "match": true,
+      "method": "direct read at exact final result commit"
+    },
+    {
+      "path": "benchmarks/component_eval.py",
+      "git_blob": "dc7273d7c7358be1a44ac38cac2eb5decfa03eda",
+      "sha256": "77970a7043ab909e475c4950f4e4019db7b89328028b35c0f76a06273375aef0",
+      "match": true,
+      "method": "direct read at exact final result commit"
+    },
+    {
+      "path": "benchmarks/experiments/round5-canonical-row-addendum.json",
+      "git_blob": "f8108348751583b6af3d423b4bcb1ceca8415ebc",
+      "sha256": "7a5ee634bebfcf9088e9f1401026b4bb3720080c751ce63f95798b87fbdfb28c",
+      "match": true,
+      "method": "direct read at exact final result commit"
+    },
+    {
+      "path": "benchmarks/experiments/round5-derived-map-addendum.json",
+      "git_blob": "5962e8ed51a8c3bb37c95c6679a0a54160a317fd",
+      "sha256": "3b065b437405b4a4f19a610dbcd29209513e351da7d7ce98e8b371dbd7dc8329",
+      "match": true,
+      "method": "direct read at exact final result commit"
+    },
+    {
+      "path": "benchmarks/experiments/round5-materialization-addendum.json",
+      "git_blob": "00a58be40eef0eaa9768bbec473f7d0230eba4a0",
+      "sha256": "547aa0068fc5fd6a18e448719d855295c3c85ac78faea69867d208c175f77a34",
+      "match": true,
+      "method": "direct read at exact final result commit"
+    },
+    {
+      "path": "benchmarks/hotpot_data.py",
+      "git_blob": "2baadb6dec8ee7b5388c2c17472d1fafc425c77d",
+      "sha256": "5c206176665690044da9862bb70fe374b12348c4b5e6d0bdb0b098bb73c85760",
+      "match": true,
+      "method": "direct read at exact final result commit"
+    },
+    {
+      "path": "benchmarks/long_data.py",
+      "git_blob": "19a9cd3221e4eb43f04780c4b3274f5538bfdefb",
+      "sha256": "85223c53740dc4a22530222886a4697c9a3c171530abdc1153363ca0587469bf",
+      "match": true,
+      "method": "direct read at exact final result commit"
+    },
+    {
+      "path": "benchmarks/native_budget_eval.py",
+      "git_blob": "a13b0264e7bba4da595093ca8930e0da4461a500",
+      "sha256": "737230950fd4ddd7f415aa93137f65cd59b5c61a72676c58ca854aee59682b1b",
+      "match": true,
+      "method": "direct read at exact final result commit"
+    },
+    {
+      "path": "benchmarks/query_guard.py",
+      "git_blob": "732e2ed8e63b62fb0c2cf744d4332b4fee1498c3",
+      "sha256": "c98285d97784513baa259e26514323e9f7a01b5b42196ebeb35e19a16039c1e6",
+      "match": true,
+      "method": "direct read at exact final result commit"
+    },
+    {
+      "path": "benchmarks/resume.py",
+      "git_blob": "9ce2133336f2240e1311737d8352f114df932fb6",
+      "sha256": "7003368a60db4d07f2a72dd21a3a636abb103918a509f54741dcf6461c6d2dd8",
+      "match": true,
+      "method": "direct read at exact final result commit"
+    },
+    {
+      "path": "benchmarks/semantic_eval.py",
+      "git_blob": "db4019d348dab7a9a5888b22c97cea5ff87103d5",
+      "sha256": "46fa3b3fd6298ba1669bd0b17f3ad6f77a2fdaf5b79ba25e4632012090ca0b4e",
+      "match": true,
+      "method": "direct read at exact final result commit"
+    },
+    {
+      "path": "benchmarks/transfer_data.py",
+      "git_blob": "052f9e23d772db529ea0238e34b243bc51ccbd96",
+      "sha256": "a532783fd2562f02846d6cd0604dc7d885f7dfa0b258d3fdca2e6c205ea4d57e",
+      "match": true,
+      "method": "direct read at exact final result commit"
+    },
+    {
+      "path": "scripts/round5_performance.py",
+      "git_blob": "8bce3753d87d7d81c422d1f3020532a7ff2a1255",
+      "sha256": "6a569c167d33a96c6e9a6d805af86282df25eac244896462cf4c22a739e76a41",
+      "match": true,
+      "method": "direct read at exact final result commit"
+    },
+    {
+      "path": "tests/test_round5_performance.py",
+      "git_blob": "bca277457a815dcd2b1605e340499b5c6576b893",
+      "sha256": "aa7214485a3024f171463a4a0bbc762d07b0614a72e20f434e816cff6a0fa985",
+      "match": true,
+      "method": "direct read at exact final result commit"
+    },
+    {
+      "path": "tests/test_round5_performance_v2.py",
+      "git_blob": "c94f00f0b90a7eac0fbfcc38935af8b80ea7b619",
+      "sha256": "e27d2105b9c5c2c0853d72e63d3ec560ab1209d08dd9b022cee3b0c4d088bc05",
+      "match": true,
+      "method": "direct read at exact final result commit"
+    }
+  ],
+  "original_formal_contract": {
+    "cohorts": [
+      "synthetic61",
+      "public1015"
+    ],
+    "configurations": [
+      {
+        "id": "native-char4000",
+        "surface": "native",
+        "budget_chars": 4000,
+        "budget_tokens": null
+      },
+      {
+        "id": "native-char100000",
+        "surface": "native",
+        "budget_chars": 100000,
+        "budget_tokens": null
+      },
+      {
+        "id": "mcp-char4000",
+        "surface": "official-sdk-mcp-stdio",
+        "budget_chars": 4000,
+        "budget_tokens": null
+      },
+      {
+        "id": "native-token512",
+        "surface": "native",
+        "budget_chars": 8000,
+        "budget_tokens": 512,
+        "tokenizer": "cl100k_base"
+      },
+      {
+        "id": "native-token1024",
+        "surface": "native",
+        "budget_chars": 8000,
+        "budget_tokens": 1024,
+        "tokenizer": "cl100k_base"
+      },
+      {
+        "id": "native-token2048",
+        "surface": "native",
+        "budget_chars": 8000,
+        "budget_tokens": 2048,
+        "tokenizer": "cl100k_base"
+      },
+      {
+        "id": "mcp-token1024",
+        "surface": "official-sdk-mcp-stdio",
+        "budget_chars": 8000,
+        "budget_tokens": 1024,
+        "tokenizer": "cl100k_base"
+      }
+    ],
+    "cells": 14,
+    "workers": 16,
+    "calls": 66248,
+    "rounds": 4,
+    "engine_order": [
+      [
+        "baseline",
+        "candidate"
+      ],
+      [
+        "candidate",
+        "baseline"
+      ],
+      [
+        "candidate",
+        "baseline"
+      ],
+      [
+        "baseline",
+        "candidate"
+      ]
+    ],
+    "query_order": "random.Random(51061 + 1009 * round + config_index), equal for paired engines",
+    "gates": {
+      "minimum_geomean_pooled_p95_improvement_percent": 10,
+      "minimum_public_native_char4000_p95_improvement_percent": 10,
+      "minimum_public_actual_mcp_char4000_p95_improvement_percent": 5,
+      "maximum_any_pooled_p50_p95_regression_percent": 5,
+      "resource_mean_increase_review_percent": 10
+    },
+    "acceptance_implementation_read": true,
+    "numeric_acceptance_still_requires_all_conditions": true,
+    "resource_field_count": 14,
+    "resource_comparisons_across_two_cohorts": 28,
+    "resource_increase_over_ten_percent_prevents_automatic_acceptance": true,
+    "storage_records_require_independent_review": true,
+    "failure_rule": "If a correct frozen candidate misses a performance gate, preserve and report the failure and do not ship it as a measured speedup. Correctness bugs require retained failed attempt, demonstrated repair and a separately identified future validation; no hidden rerun.",
+    "resource_chain_prior_independent_review": {
+      "commit": "156c38809c4ad66d3a6501d4334dfd129788ce1c",
+      "path": "benchmarks/reports/round5-final-resource-chain-independent-review.json",
+      "sha256": "ca635efb61e11598d85a01b8411199efc30c069e9e433fc729382549b19a763d"
+    }
+  },
+  "source_and_no_retrieval_guards": {
+    "detached_sparse_exact_baseline_and_candidate_worktrees": true,
+    "candidate_complete_18_file_manifest_equal_to_independent_NO_source_record": true,
+    "source_identity_and_provenance_before_and_after_each_actual_MCP_observation": true,
+    "certificate_official_SDK_calls": [
+      "initialize",
+      "list_tools"
+    ],
+    "no_call_tool_ingestion_recall_or_benchmark_in_generation": true,
+    "both_database_created_flags_false": true,
+    "actual_child_server_packages": {
+      "baseline": {
+        "mcp": "1.30.0",
+        "pydantic": "2.14.3",
+        "tiktoken": "0.12.0"
+      },
+      "candidate": {
+        "mcp": "1.30.0",
+        "pydantic": "2.14.3",
+        "tiktoken": "0.12.0"
+      }
+    },
+    "retrieval_calls_reported_by_certificate": 0,
+    "certificate_committed_before_formal_binding": true,
+    "committed_certificate_byte_equality_and_embedded_object_equality_enforced": true,
+    "generator_commit": "40afe80baa2f9f11fe7f0ec8b896c2783d18046b",
+    "binding_evaluator_commit": "d5c8b0205eebbd0be8cde16d7d13661c26121980"
+  },
+  "actual_hosted_evidence": {
+    "run_id": 43494353078,
+    "attempt": 1,
+    "head_sha": "f438d0a2b40a9ff8a3bdaab534977f34eb0d3ba3",
+    "job_id": 132123435021,
+    "status": "completed",
+    "conclusion": "success",
+    "actual_artificial_fixture_tests": 12,
+    "artificial_failures": 0,
+    "artificial_errors": 0,
+    "raw_job_log": {
+      "path": "benchmarks/reports/round5-final-freeze-independent-review/run43494353078-job132123435021.log",
+      "sha256": "682dfddd46fe2342a99e8302c74be489e6001231b81582e6bf07e44c413c4c6d"
+    },
+    "interface_exit_returncode": 0,
+    "binding_exit_returncode": 0,
+    "published_sequence": [
+      {
+        "stage": "attempt intent",
+        "commit": "d1727d6f90869352ee101d453dc1a18515ab1248"
+      },
+      {
+        "stage": "interface intent",
+        "commit": "40afe80baa2f9f11fe7f0ec8b896c2783d18046b"
+      },
+      {
+        "stage": "certificate and interface outcome",
+        "commit": "972c06184f776cb47c58b28b3eb5a9117809efe6"
+      },
+      {
+        "stage": "formal binding intent",
+        "commit": "d5c8b0205eebbd0be8cde16d7d13661c26121980"
+      },
+      {
+        "stage": "formal binding and outcome",
+        "commit": "7279fcf4414b78f79391b8fa52c999a06480add6"
+      },
+      {
+        "stage": "completion",
+        "commit": "195ab7145db184b1696287606dda6e9cb877b6f4"
+      }
+    ],
+    "completion_path": "benchmarks/reports/round5-final-freeze-hosted-1/completion.json",
+    "completion_sha256": "744e2db862b473ffc71686345a047226a431bf43a5baad135d15e0e58382f94b",
+    "retrieval_calls_executed": 0,
+    "formal_measurement_started": false,
+    "fresh_metadata_selected": false
+  },
+  "blocking_findings": [],
+  "conclusion": "The source selection, exact interface projection and final formal binding are mutually consistent and preserve every registered numeric and resource gate. This closes source-free prerequisites for the unchanged formal evaluation. It does not predict passing that evaluation or accept a release."
+}
