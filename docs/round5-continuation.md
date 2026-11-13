@@ -47,3 +47,15 @@ released store. The candidate passes 47 focused runtime fixtures and both
 installer routing tests; the next-version defaults are 0.3.3 and all older
 wheel routes remain available. The correctness log and receipt are retained
 under `benchmarks/reports/round5-development/`. No speed measurement has run.
+
+## Premeasurement compatibility repair
+
+Independent review found that an `isinstance` fast-path guard also accepted
+SQLite Row subclasses with overridden mapping access. The new fixture first
+reproduced both route and metadata failures on committed candidate `1a9d1c1`,
+then passed against the released baseline. Both guards now require exact Row
+type; subclasses retain the mapping path. All ten fresh fixtures pass. The
+initial correctness receipt remains untouched and the additional failed/passing
+checks are preserved in `candidate-a-subclass-correctness.log`. No development
+or formal measurement preceded this repair. The repaired runtime hash is
+`25d67aa37690e407200a759e6a5573eed852a53049b4aad2a4b39164bda4ddbb`.

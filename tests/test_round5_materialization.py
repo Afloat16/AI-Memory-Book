@@ -12,6 +12,7 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import sqlite3
 import tempfile
 import unittest
 from pathlib import Path
@@ -197,6 +198,21 @@ class RowLike:
         return iter(self.values)
 
 
+class NamedLookupRow(sqlite3.Row):
+    """A Row subclass whose mapping view intentionally differs from iteration."""
+
+    def __getitem__(self, key):
+        value = super().__getitem__(key)
+        if key == "chapter_title":
+            return "orbiting relay " + value
+        if key == "rank":
+            return value * 2
+        return value
+
+    def __iter__(self):
+        raise AssertionError("A Row subclass must retain its named mapping lookups")
+
+
 class CandidateMaterializationTests(unittest.TestCase):
     def setUp(self):
         self.book = MemoryBook(":memory:", segmentation="turn", max_page_chars=3000,
@@ -277,6 +293,40 @@ class CandidateMaterializationTests(unittest.TestCase):
         self.book.db.row_factory = RowLike
         actual = stable(self.book.recall("orbiting relay", project="lab", use_cache=False))
         self.assertEqual(actual, expected)
+
+    def test_row_subclasses_keep_named_lookup_for_routes_and_metadata(self):
+        # Exercise both conversions independently. The original dict(Row)
+        # conversion honors __getitem__; a value-iteration shortcut does not.
+        for boundary in ("route", "metadata"):
+            with self.subTest(boundary=boundary):
+                options = {"project": "lab", "session": "orbiting", "use_cache": False,
+                           "strategy": "flat" if boundary == "route" else "book"}
+                expected = stable(self.book.recall("orbiting relay", **options))
+
+                def row_factory(cursor, values):
+                    names = {column[0] for column in cursor.description}
+                    selected = ("rank" in names if boundary == "route"
+                                else "chapter_title" in names and "rank" not in names)
+                    return (NamedLookupRow if selected else sqlite3.Row)(cursor, values)
+
+                self.book.db.row_factory = row_factory
+                try:
+                    actual = stable(self.book.recall("orbiting relay", **options))
+                finally:
+                    self.book.db.row_factory = sqlite3.Row
+                self.assertEqual(len(actual["results"]), len(expected["results"]))
+                for actual_hit, expected_hit in zip(actual["results"], expected["results"]):
+                    expected_hit["breadcrumb"][1]["title"] = (
+                        "orbiting relay " + expected_hit["breadcrumb"][1]["title"])
+                    original_score = expected_hit.pop("score")
+                    # Flat route mapping doubles its rank. The metadata-only
+                    # mapping adds both query words to the directory: overlap
+                    # changes from one of two words to both, without rank edits.
+                    expected_score = (original_score * 2 if boundary == "route"
+                                      else original_score / 1.075 * 1.15)
+                    self.assertAlmostEqual(actual_hit.pop("score"), expected_score,
+                                           delta=max(1e-15, abs(expected_score) * 1e-12))
+                self.assertEqual(actual, expected)
 
     @unittest.skipUnless(HAS_TOKENS, "tiktoken is optional")
     def test_both_tokenizers_preserve_budgeted_payloads(self):

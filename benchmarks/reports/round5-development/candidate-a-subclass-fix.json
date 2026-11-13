@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-11-13T06:00:10.919993+00:00",
+  "initial_candidate_commit": "1a9d1c1afe9d4ab4284c3646c3f9d4db56db1a27",
+  "initial_runtime_sha256": "1befe0619785df3a468705f1042c7f6e7dccb63d6ca6134d51e53211cdc90acd",
+  "fixed_runtime_sha256": "25d67aa37690e407200a759e6a5573eed852a53049b4aad2a4b39164bda4ddbb",
+  "demonstrated_bug": "isinstance accepted sqlite3.Row subclasses whose mapping lookup differs from positional iteration; baseline dict(row) honored mapping lookup.",
+  "fix": "Use exact type(row) is sqlite3.Row for both route and metadata fast paths, preserving the generic mapping fallback.",
+  "evidence": {
+    "initial_candidate_subclass_failures": 2,
+    "released_v032_subclass_fixture_passed": true,
+    "fixed_fresh_tests_passed": 10,
+    "skipped": 0,
+    "log_sha256": "835857e4067c3ce51d51acdf10f8743509e9a0a6e01f0711f03207e86d6a2c70"
+  },
+  "measurements_before_fix": 0
+}

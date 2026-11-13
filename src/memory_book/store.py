@@ -749,16 +749,16 @@ class MemoryBook:
                 qset = set(qt)
                 directory_factors = {}
                 for row in rows.values():
-                    # Row iteration supplies values directly; named lookup in
-                    # dict(Row) scans column names. Keep generic row-shaped
-                    # mappings on their existing mapping conversion path.
-                    item = (dict(zip(row.keys(), row)) if isinstance(row, sqlite3.Row)
+                    # Exact Row iteration supplies values directly; named lookup
+                    # in dict(Row) scans column names. Subclasses can override
+                    # their mapping or iteration views, so keep their old path.
+                    item = (dict(zip(row.keys(), row)) if type(row) is sqlite3.Row
                             else dict(row))
                     if use_stem:
                         metadata = metadata_by_id.get(item["id"])
                         if metadata is not None:
                             item.update(zip(metadata.keys(), metadata)
-                                        if isinstance(metadata, sqlite3.Row) else metadata)
+                                        if type(metadata) is sqlite3.Row else metadata)
                     factor = 1
                     if strategy == "book":
                         directory = item["chapter_title"] + " " + item["session_title"]
