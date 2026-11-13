@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "candidate": "K",
+  "status": "prospective-before-implementation-or-corpus-calls",
+  "base_source": "910ba8904523ad81cb7d68073af77580942496eb",
+  "hypothesis": "An exact identity-alphabet certificate can skip NFKC, NFKD and Mn stripping for ordinary non-ASCII strings containing only ASCII, unified Han and a small explicit set of normalization-stable punctuation. The existing tokenization and all fallback paths remain byte-for-byte equivalent in result. This targets repeated lexical analysis in token packing without a persistent cache.",
+  "evidence": {
+    "source": "benchmarks/reports/round5-development-i/profile.json.gz",
+    "commit": "1b2e7df01dde509c5a8e02dc465daca63090b3a1",
+    "scope": "Saved old-data profile only; no J speed result or fresh data used.",
+    "observations": "synthetic token512 terms cumulative0.585323106s of1.650083961s; nonspacing deletion self0.096371023s and Unicode normalization self0.08414679s. Instrumented values locate work and are not a speed claim."
+  },
+  "eligibility": {
+    "source": "type(text) is str; ordinary inspected normalizer/category/strip/camel objects; recognized Unicode database version",
+    "ucd_versions": [
+      "13.0.0",
+      "14.0.0",
+      "15.0.0",
+      "15.1.0",
+      "16.0.0"
+    ],
+    "ranges": [
+      "U+0000..U+007F",
+      "U+3400..U+4DBF",
+      "U+4E00..U+9FFF",
+      "U+3001..U+3003",
+      "U+3008..U+3011",
+      "U+3014..U+301F",
+      "U+2010",
+      "U+2012..U+2015",
+      "U+2018..U+201F",
+      "U+2022",
+      "U+30FB"
+    ],
+    "proof": "Every admitted scalar is individually unchanged by NFKC and NFKD, is not Mn and has canonical combining class zero. The alphabet excludes Hangul Jamo and every combining mark, preventing cross-character composition/reordering. Camel separation and casefold remain applied and map this alphabet back into itself. The complete string must match; any other character uses the existing implementation.",
+    "fallback": "Unknown UCD version, subclass/nonordinary hooks, or any non-admitted scalar retain the historical normalization/deletion work. No Unicode table, global normalization behavior, indexed token, ranking, source span or response may change."
+  },
+  "artificial_tests": [
+    "Exhaustive admitted-scalar identity/category/combining/casefold checks on supported CI interpreters.",
+    "Mixed and boundary strings, actual source dates, identifiers, Chinese question phrases, accents, compatibility characters, Jamo, combining marks, surrogates and special tokens match the forced historical path exactly for query/index modes.",
+    "Real C-call profiling verifies eliminated normalizer/category work only on the admitted alphabet; unsupported inputs keep historical work.",
+    "Ordinary function and Unicode-version guards preserve monkeypatched and unknown-version fallback.",
+    "Source/index and full non-timing recall payloads remain equal on invented native/token/optional paths."
+  ],
+  "invariants": "No new dependencies, persistent caches, schema, model, embedding, result-cache or budget changes. No reopening of rejected body-feature cache, highlight-range, novelty or project-local BM25 candidates. J and earlier candidates/results remain independent and preserved.",
+  "development": "Artificial correctness and independent review precede a separate exact-source binding. Any future corpus experiment must retain the full4732 saved-profile payload comparison and4096 native paired calls, including every adverse cell. Compare the complete combined runtime directly against v0.3.2; never add isolated percentages or pool old timings.",
+  "acceptance": "No speed/quality/release claim from this registration. Original fourteen-cell66248-call formal gates, historical lexical/Q2 compatibility and fresh gates remain unchanged. No fresh selection or formal source binding has begun.",
+  "corpus_calls_executed": 0,
+  "fresh_rows_decoded": 0
+}
