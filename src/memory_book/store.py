@@ -775,11 +775,17 @@ class MemoryBook:
                     exact_scale = max(exact_scores.values(), default=1.0) or 1.0
                     stem_scale = max(stem_scores.values(), default=1.0) or 1.0
                     rows = {row["id"]: dict(row) for route in reversed(routes) for row in route}
-                else:
+                elif use_stem:
                     # The exact route already supplies every field and the
                     # same ordered union. Avoid duplicate dictionaries and
                     # unused fusion scores on the common identical-route path.
                     rows = {row["id"]: dict(row) for row in routes[0]}
+                else:
+                    # sqlite3.Row resolves each named lookup by scanning its
+                    # columns. Iterate the wide, uniquely named projection
+                    # once instead of repeating those scans for dict(row).
+                    columns = routes[0][0].keys() if routes[0] else ()
+                    rows = {row[0]: dict(zip(columns, row)) for row in routes[0]}
                 if use_stem and rows:
                     # Exact and stem routes commonly overlap. Fetch their
                     # directory metadata once, after both bounded searches.
@@ -789,8 +795,9 @@ class MemoryBook:
                       FROM pages p JOIN chapters c ON c.id=p.chapter_id
                       JOIN sessions s ON s.id=p.session_pk WHERE p.rid IN (""" +
                       ",".join("?" for _ in ids) + ")", ids).fetchall()
+                    columns = metadata[0].keys() if metadata else ()
                     for row in metadata:
-                        rows[row["id"]].update(dict(row))
+                        rows[row[0]].update(zip(columns, row))
                 qset = set(qt)
                 directory_weights = {}
                 for row in rows.values():
@@ -898,7 +905,7 @@ class MemoryBook:
                     candidates = fuse_candidates(candidates, rank_pages(self.db, semantic_model, query, where, params))
                 if candidates:
                     selected_ids = [item["id"] for item in candidates[:limit]]
-                    sources = {row["id"]: dict(row) for row in self.db.execute(
+                    sources = {row[0]: dict(zip(row.keys(), row)) for row in self.db.execute(
                         """SELECT p.id,p.title,p.section_id,p.session_pk,p.content,p.source_refs,
                           pr.name project_name,sec.title section_title FROM pages p
                           JOIN projects pr ON pr.id=p.project_id JOIN sections sec ON sec.id=p.section_id

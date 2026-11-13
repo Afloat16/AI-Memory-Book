@@ -114,3 +114,28 @@ development samples do not establish the cause of the tail variation or a
 release speedup. Preserve every cell. A further mechanically justified
 candidate may reduce SQLite-row materialization costs before final binding;
 do not repeat this diagnostic to select a favorable run.
+
+### Candidate B selection before the fixed comparison
+
+B keeps the previous changes and iterates the wide SQLite row projections
+instead of repeatedly looking up every column name. The narrow three-column
+route is unchanged. SQL, scope, limits, ordering, source snapshots and floating
+point calculations are unchanged. Its runtime SHA-256 is
+`5c005e1ad30c3fe9441bb0ee1c79dac6a2536d93e6a9ab9b7fbcbe71ef00c790`.
+
+The isolated wide-row conversion diagnostics reduce that operation's time,
+but the single 128-query cProfile run has **5.31% higher total time**. This is
+not evidence of end-to-end acceleration. The narrower Python work and simple
+implementation justify testing B as the final candidate; they do not justify
+assuming it passes. All A/B profiles, microtimings and negative observations
+are retained under `benchmarks/reports/round5-development/candidate-b/`.
+All 128 public profile payloads match A, all 300 artificial payloads match
+v0.3.2, and 81 targeted tests pass. No quality selection has been changed.
+
+The fixed comparison will retain all **66,248 calls**, using four balanced
+AB/BA/BA/AB rounds, both old cohorts, five native configurations (4,000 and
+100,000 characters; 512, 1,024 and 2,048 tokens), and actual MCP character and
+1,024-token calls. Each worker's claim and completed raw results will be
+committed on `validation/round5-performance-20261114`. This follows the
+repository's existing `validation/**` convention so raw-result checkpoints
+do not launch a new nine-job application CI run each time.
