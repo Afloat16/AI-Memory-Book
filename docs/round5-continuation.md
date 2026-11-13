@@ -47,6 +47,16 @@ The GC evaluator's complete existing CI also passed all nine jobs on first
 attempt, run `43392580547`. This verifies the source and diagnostic tooling; it
 does not establish a speed or quality gain. No v0.3.3 release has been accepted.
 
+The separately registered
+[F overlap addendum](../benchmarks/experiments/round5-overlap-addendum.json)
+uses D as its sole source parent and excludes E's lifetime change. It targets
+only two consumers that need query intersections: final lexical coverage and
+supplemental-unit overlap. Public lexical analysis and indexed text remain
+byte-identical; exact Unicode/STOP/CJK semantics and custom-input fallbacks are
+required. Saved profiles identify a substantial possible cost, but provide no
+new latency evidence. F implementation, functional verification and its own
+prospective development intent must precede any F measurement.
+
 ## Initial registration — before new measurements
 
 The user requested continuation after the completed v0.3.2 release. Main is

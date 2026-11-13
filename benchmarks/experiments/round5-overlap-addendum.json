@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "status": "registered-before-candidate-f-implementation-and-measurement",
+  "original_plan_commit": "7068594181c7e98c576f68a81daf85cd0d06c729",
+  "materialization_addendum_commit": "9042570d8cff01be7c95cd01f8698e166fc7d313",
+  "canonical_addendum_commit": "c724452e8f7333af73ed8a0424f572b7d7280a07",
+  "derived_addendum_commit": "0e933580a2a7d28f24b0ac7a8a2f5db4acfb762d",
+  "ranked_lifetime_addendum_commit": "10b04c8fdcfd0ecc95492e17b2a764c62a0651f1",
+  "parent": {
+    "label": "candidate-d",
+    "commit": "c67757305d6334b74d98c34ffbfab9b8ebdd6e27",
+    "runtime_sha256": "bdfb117368c937ad4da9076c71a2f454eba49ae85ed0057872eac199c3022c16",
+    "evidence_commit": "2d381b49a36bf64820635887ac886f62b5c1b8cc",
+    "paired_audit_sha256": "2b2854e07f87fe9cc46104827405c59249425f7d3711830e529fdead54de5d3e",
+    "selection": "D is the sole implementation parent. It is not a selected performance release. F does not contain E's ranked_rows.clear expression and must earn every gate directly against released v032. Do not combine cells, rounds or improvements from D, E or F."
+  },
+  "e_disposition": {
+    "binding_commit": "4c2d579e18abe4b6a7cd24f7b2043bb06a10727c",
+    "audit": "benchmarks/reports/round5-gc-e-v2/audit.json",
+    "audit_sha256": "92dcb8bbbf72350a573cc992319ba4d9c9508681de0d129dd5246316603cfc67",
+    "supported": false,
+    "d_then_e_counts": {
+      "synthetic_token_gen01": [
+        12,
+        12
+      ],
+      "public_token_gen01": [
+        1,
+        1
+      ],
+      "synthetic_token1024_gen01": [
+        5,
+        5
+      ],
+      "all_recall_collections": [
+        17,
+        17
+      ],
+      "all_recall_gen2": [
+        0,
+        0
+      ]
+    },
+    "decision": "E's three strict collection-reduction conditions failed despite equal payloads and verified tuple release. Preserve E as unselected; no E profile/paired run is authorized. This result does not establish the cause of D's old latency regression.",
+    "disposition_commit": "70e2f8d19ead3603896dc06c87c4bcda20028fa5"
+  },
+  "saved_evidence": {
+    "scope": "Previously saved D cProfile diagnostics only; these fractions are not uninstrumented latency estimates or promised speedups.",
+    "synthetic_token1024": {
+      "file": "benchmarks/reports/round5-development/candidate-d-profile-synthetic61-native-token1024.json.gz",
+      "total_profile_seconds": 1.6282831549999996,
+      "terms_cumulative_seconds": 0.5423868110000001,
+      "terms_calls": 6371
+    },
+    "synthetic_token512": {
+      "file": "benchmarks/reports/round5-development/candidate-d-profile-synthetic61-native-token512.json.gz",
+      "total_profile_seconds": 1.8195543980000008,
+      "terms_cumulative_seconds": 0.624428434,
+      "terms_calls": 9804
+    },
+    "public_char4000": {
+      "file": "benchmarks/reports/round5-development/candidate-d-profile-public1015-native-char4000.json.gz",
+      "total_profile_seconds": 2.8545566820000006,
+      "terms_cumulative_seconds": 0.21457566,
+      "terms_calls": 6304
+    },
+    "source_observation": "Token supplemental-unit ranking builds set(terms(rendered_text, query=True)) to obtain only a query intersection count. The final lexical_coverage field also consumes only that intersection count. Long CJK runs currently materialize every bigram. Actual avoidable work and latency benefit remain unmeasured."
+  },
+  "hypothesis": "For these two overlap-only consumers, compute exactly len(query_set.intersection(terms(text, query=True))) while retaining only needed matches, avoiding unnecessary full lexical feature list/set construction. Keep all returned scores, coverage values, selected units and complete responses unchanged.",
+  "authority": "Prospectively registered extension outside the initial candidate-materialization-only scope. Implementation is authorized only after this exact scope is remotely committed. All original correctness, resource and performance gates remain fixed.",
+  "allowed_files": [
+    "src/memory_book/store.py",
+    "src/memory_book/token_budget.py",
+    "src/memory_book/_query_overlap.py",
+    "tests/test_round5_query_overlap.py"
+  ],
+  "allowed_change": [
+    "Add one private exact query-overlap helper and use it only for the final recall lexical_coverage numerator and the supplemental source-unit overlap numerator in assemble_with_count. Retain existing denominators, query sets, unit enumeration, renderings, sort keys, tie order, token fit checks and output assembly.",
+    "The ordinary fast path may avoid constructing irrelevant lexical features, including full CJK bigram lists. It must preserve the complete original normalization and lexical recognition semantics; a raw substring search is not an equivalent substitute.",
+    "Keep src/memory_book/text.py byte-identical to D, including public terms, query_terms, index_text, STOP constants and all excerpt behavior. The private helper may consume the unchanged constants/functions; it must not change ingestion, indexed text or exported lexical outputs.",
+    "Keep overlap caching local to the existing assembly call. A cached query-specific result must include the exact effective query set in its key, or otherwise prohibit sharing across different query sets. Different pages can supply different excerpt_terms. No result computed for the first page's query set may be reused as the answer for a different set.",
+    "Retain the original full term-cache/evaluation path for unsupported or custom inputs/callables. If a transition between specialized and fallback handling can change the original text-only cache's observable behavior, restrict specialization for that whole call or preserve the original behavior explicitly; do not waive mixed-input cases."
+  ],
+  "semantic_contract": [
+    "For every specialized input, the overlap integer equals len(Q.intersection(set(ordinary_terms(text, query=True)))); duplicate query terms remain neutral and callers retain their original denominator.",
+    "Preserve NFKC, camel-boundary insertion, casefold, whole-string NFKD and removal of Mn in their existing order. Do not normalize per character, reorder normalization, or replace Mn with a different category test.",
+    "Preserve ASCII and Unicode word/identifier boundaries, identifier separators, STOP filtering, Chinese whole-question removal, CJK single-character versus bigram behavior, ZH_STOP filtering and compatibility-ideograph handling.",
+    "Empty inputs/queries, accents and combining sequences, case expansions, mixed scripts, punctuation, surrogate-containing strings and unusual ordinary strings must agree with the original consumer. A certified ordinary path must not suppress an observable custom callable/field error or change fallback evaluation/cache behavior.",
+    "Preserve complete source text, spans, citations, candidate_count, score arithmetic, temporal/novelty/coverage/semantic selection, strict character/token budgets and all cache/MCP contracts."
+  ],
+  "forbidden": [
+    "No change to SQL, SQLite settings or statement-cache capacity, schema, ranking weights, route limits, scopes, model, vectors, tokenizer, dependencies or source data.",
+    "No removal or weakening of any native Row, ordered-key, value-length, primitive ID/rank, metadata coverage or original mapping/exception fallback guard. No generic cursor certificate.",
+    "No new persistent or cross-recall cache, no cache keyed by query identity/dataset, and no runtime conditions based on measured configurations or outcomes.",
+    "Do not reopen rejected FTS body-feature caches, highlight-range, novelty or project-local BM25 changes. This helper does not alter the FTS-body novelty pass.",
+    "Do not modify old helpers, plans, registrations, reports or negative outcomes; do not import E's unselected lifetime change. No performance claim from saved profile fractions."
+  ],
+  "correctness_before_measurement": {
+    "fixtures": "Retain all 79 D checks and existing lexical, token, corruption, custom-counter and optional-path fixtures. Add artificial differential overlap fixtures against unchanged ordinary terms, including Latin/identifiers, CJK singletons/bigrams/STOP/question phrases, mixed scripts, normalization-boundary cases, empty inputs and changed excerpt_terms across repeated rendered text. Cover custom/fallback behavior and cache-key isolation. Preserve any failure and repair before measurements.",
+    "static_review": "Confirm text.py and every unrelated runtime file remain byte-identical to D; only the two named consumer sites and the private helper/imports may change. Independently review normalization order, complete Unicode/token-boundary semantics, fallback exceptions and qset-sensitive cache behavior.",
+    "output_checks": "All complete non-timing responses must equal released v032 on the frozen development sequence. No retrieval quality tradeoff or altered source/index contents is allowed."
+  },
+  "development": "After reviewed F implementation and functional checks, commit exact source/runtime identity and a separate F intent. Use the unchanged full 4732-call profile and 4096-call native paired helpers once in new F paths, comparing F directly with v032. Preserve every cell, raw payload, negative result and partial attempt. No adverse-cell-only tuning or rerun of executed attempts.",
+  "formal_and_compatibility": "Original 14-cell/66248-call formal matrix, aggregate p95 >=10% improvement, public native character p95 >=10%, actual MCP character p95 >=5%, no pooled p50/p95 regression >5%, resource review threshold, historical lexical and complete Q2 gates remain unchanged. Bind F and this exact addendum with all prior registrations in the three evaluators before any formal or compatibility execution. No formal/real compatibility attempt has started and no release is authorized by this draft.",
+  "registered_utc": "2026-11-13T08:51:11.319989+00:00",
+  "review": "Root independently inspected the two actual consumer sites and unchanged text.py, recomputed the cited saved D profile totals/calls, and reviewed the D-only parent, query-set-sensitive cache/fallback contract, normalization order and unchanged release gates before any F implementation or measurement.",
+  "integration": "A later combination with separately registered T1 requires an explicit final source freeze and applicable gates on that single complete runtime. Neither T1 prototype results nor D/E/F development results may be spliced into release claims about another source identity."
+}
