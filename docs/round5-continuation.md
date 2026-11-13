@@ -1,5 +1,32 @@
 # v0.3.3 / round-five continuation checkpoint
 
+## Recovered continuation — after F profile checkpoint
+
+This workspace recovered the existing development branch at
+`4c2d3bf1f663f4db8c47f78153e5558edd7a65d5`, rather than restarting from main.
+F's complete 4,732-call profile and its audit are already durable. They are not
+repeated. No F paired report is present at this recovered commit. The original
+round-four database snapshots bound by F's development intent are not available
+in this workspace; recreating them cannot establish their original byte hashes.
+
+A separately identified recovery diagnostic will bind newly rebuilt baseline
+snapshots before any paired timing, retain their indexed-content digests, and
+use the unchanged F source, original old cohorts, helper, query order and
+4,096-call schedule. It will not be represented as the original bound attempt,
+the formal performance run, or a repeat selected for a faster result. All
+original plans, thresholds, reports and failed candidates remain unchanged.
+
+In parallel, the already registered T1 source-reference prototype will be
+implemented from its exact E starting point in an isolated source worktree.
+It stays separate from F until its correctness and fixed development gates
+have been assessed. Any final combined runtime requires its own frozen source
+and the original default performance plus quality/compatibility checks.
+
+GitHub native push credentials are unavailable in this workspace. Checkpoints
+use the connected GitHub Git-data API with inline text tree entries, commit
+parents and leased, non-force ref updates. Each checkpoint is read back before
+the next measurement stage. This avoids a long uncheckpointed blob-upload batch.
+
 ## Current goal and status — user clarification on 2026-11-13
 
 The user explicitly requires improvements in retrieval effectiveness, accuracy

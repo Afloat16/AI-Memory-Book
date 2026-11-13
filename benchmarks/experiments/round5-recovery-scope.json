@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "status": "registered-before-recovery-database-build-and-paired-timing",
+  "recovered_commit": "4c2d3bf1f663f4db8c47f78153e5558edd7a65d5",
+  "baseline_commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+  "baseline_runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93",
+  "candidate_commit": "9841e02daf30e89ac15c80221b6e67de6d12240c",
+  "candidate_runtime_sha256": "63a58f60b11ec6039540b1f0d614f5b103498a754cbff06d6bb0c96ef8329c61",
+  "original_intent": "benchmarks/experiments/round5-development-attempt-f.json",
+  "completed_work": "Preserve F's original 4732-call profile, audit and eight compressed cells; do not repeat them.",
+  "recovery_reason": "The original two database snapshots bound by byte hash are absent from this fresh workspace. The recovered branch contains no F paired report. The old attempt cannot be silently resumed using different database bytes.",
+  "new_attempt": "round5-recovery-f-paired-1",
+  "database_build": "Use exact v0.3.2 runtime and the same synthetic61/public1015 data loader. Build each source once, checkpoint WAL, close, then bind file SHA256, logical indexed-content digest, dataset fingerprint and session counts before timing. Copy the same newly bound snapshot to both runtimes.",
+  "helper": "scripts/round4_development_pair.py",
+  "helper_sha256": "e9e068d9d385591b847de512118b6ea5711ecb03aba097846b3cfd476cde252e",
+  "schedule": "Unchanged original development helper: 128 deterministically selected old queries per cohort, four native configurations, two balanced rounds, both versions; 4096 total calls and 2048 full non-timing payload pairs.",
+  "result_paths": "benchmarks/reports/round5-recovery-f/ with new attempt-specific state under .artifacts/round5-recovery-f/",
+  "policy": "Bind sources/data/dependencies/host and snapshots before timing. Preserve every attempt, incomplete marker, slower cell and complete worker. Remote checkpoint each completed worker before the next. Never replay a started worker. Do not relabel this development diagnostic as formal acceptance or fresh quality evidence.",
+  "gates": "Original round5-plan.json formal and release requirements remain unchanged; this recovery scope neither waives them nor selects a candidate after formal measurement.",
+  "quality_work": "Implement the previously registered T1 in a separate worktree from its exact prototype_base_commit. Preserve the default interface and all numerical T1 development/fresh-validation gates. Do not score until its reviewed source, evaluator and data binding are committed."
+}
