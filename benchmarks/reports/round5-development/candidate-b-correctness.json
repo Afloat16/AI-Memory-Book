@@ -1,0 +1,22 @@
+{
+  "status": "reviewed-before-development-measurement",
+  "created_at": "2026-11-13T06:27:08.353502+00:00",
+  "addendum_commit": "9042570d8cff01be7c95cd01f8698e166fc7d313",
+  "runtime_sha256": "1f0c8a27108fed25c043d1439a8cb52bcb12422a4759a05423de33665e02a487",
+  "files_sha256": {
+    "src/memory_book/store.py": "fdf1fcdac2f650754611c562b191348c88f84bb966a82199762fbcb5b5b8d0f6",
+    "tests/test_round5_materialization.py": "b17838ba1a3383791eb80187f4fcb8f717fae56774a444002fdc29e1c8c728dd"
+  },
+  "log": "benchmarks/reports/round5-development/candidate-b-correctness.log",
+  "log_sha256": "6bf7ad1b8932c644be266c58a2cafa27a341b9f417be54612cea083ca6df9c59",
+  "released_v032_fixture_passes": 18,
+  "candidate_b_functional_passes": 68,
+  "skipped": 0,
+  "unchanged_sql_execute_executemany_expressions": 107,
+  "runtime_functions_changed": [
+    "MemoryBook.recall"
+  ],
+  "reviewer": "evaluation_review",
+  "review": "Full score/sort precedes bounded dictionary materialization; exact original prefix, full counts and optional-path fallback preserved. Ordered canonical SQL-column tuples guard both shortcut and zip conversion; custom duplicate/extra shapes retain named-mapping semantics. Independent review found no remaining blocker at the recorded hashes.",
+  "retained_attempts": "Log retains fixture correction and three native Row shape failures before repair. Released18 fixtures and B68 tests pass after repair. No performance measurement preceded this checkpoint."
+}

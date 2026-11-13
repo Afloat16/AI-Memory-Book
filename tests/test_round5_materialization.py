@@ -16,6 +16,7 @@ import sqlite3
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from memory_book import MemoryBook
@@ -366,6 +367,199 @@ class CandidateMaterializationTests(unittest.TestCase):
                     fresh = reader.recall("orbiting relay", project="lab", use_cache=False)
                     self.assertGreater(fresh["revision"], actual["revision"])
                     self.assertNotEqual(fresh["results"], actual["results"])
+
+
+class WideCandidateMaterializationTests(unittest.TestCase):
+    """Invented wide routes compare public payloads with the full mapping path."""
+
+    def setUp(self):
+        self.book = MemoryBook(":memory:", segmentation="turn", max_page_chars=3000,
+                               min_page_chars=0, cache_size=8)
+        self.addCleanup(self.book.close)
+        self.sources = {}
+        for index in range(192):
+            name = f"wide-{index:03d}"
+            form = "orbiting" if index < 96 else "orbits"
+            source = {"project": "wide", "session_id": name, "task_id": "archive",
+                "task_title": "Instrument archive", "title": "Shared relay notes",
+                "created_at": f"2024-{index // 28 + 1:02d}-{index % 28 + 1:02d}T00:00:00Z",
+                "messages": [{"role": "assistant", "content":
+                    f"The instrument {form} the moon. The qzx17 relay calibration threshold is stable. "
+                    "缓存有效期是四十秒。"}]}
+            self.sources[name] = source
+            self.book.ingest(source)
+        self.book.ingest({"project": "wide", "session_id": "semantic-only", "task_id": "receiver",
+            "task_title": "Receiver archive", "title": "Receiver notes",
+            "created_at": "2025-01-01T00:00:00Z",
+            "messages": [{"role": "assistant", "content": "Receiver tolerance is four decibels."}]})
+
+    def compare_full_mapping(self, query, *, book=None, **options):
+        book = book or self.book
+        options = {"project": "wide", "budget_chars": 100000, "use_cache": False, **options}
+        book.db.row_factory = RowLike
+        try:
+            expected = stable(book.recall(query, **options))
+        finally:
+            book.db.row_factory = sqlite3.Row
+        actual = stable(book.recall(query, **options))
+        self.assertEqual(actual, expected)
+        return actual
+
+    def test_novelty_prefix_keeps_total_count_and_cached_payload(self):
+        response = self.compare_full_mapping("qzx17 relay", limit=5)
+        self.assertEqual(response["candidate_count"], 96)
+        self.assertGreater(response["candidate_count"], 4 * 5)
+        self.assertEqual(len(response["results"]), 5)
+        self.assertTrue(response["truncated"])
+        first = stable(self.book.recall("qzx17 relay", project="wide", budget_chars=100000, limit=5))
+        cached = stable(self.book.recall("qzx17 relay", project="wide", budget_chars=100000, limit=5))
+        self.assertEqual(first, response)
+        self.assertTrue(cached.pop("cache_hit"))
+        self.assertEqual(cached, {key: value for key, value in response.items() if key != "cache_hit"})
+
+    def test_fused_union_above_96_keeps_limit_50_payload(self):
+        for query, limit in (("orbiting", 5), ("orbiting", 50), ("orbiting qzx17", 50)):
+            with self.subTest(query=query, limit=limit):
+                response = self.compare_full_mapping(query, limit=limit)
+                self.assertGreater(response["candidate_count"], 96)
+                self.assertLessEqual(response["candidate_count"], 192)
+                self.assertEqual(len(response["results"]), limit)
+                self.assertTrue(response["truncated"])
+
+    def test_current_limit_one_uses_the_original_four_page_prefix(self):
+        # Equal body/directory scores order by page ID before temporal grouping.
+        # Put the newest in-prefix date at position four, with an even newer
+        # revision just outside: both shrinking and expanding the pool fail.
+        rows = self.book.db.execute("""SELECT p.id,s.external_id FROM pages p
+            JOIN sessions s ON s.id=p.session_pk WHERE s.external_id LIKE 'wide-%'
+            ORDER BY p.id LIMIT 5""").fetchall()
+        newest = rows[3]
+        self.book.ingest({**self.sources[newest["external_id"]], "created_at": "2026-01-01T00:00:00Z"})
+        self.book.ingest({**self.sources[rows[4]["external_id"]], "created_at": "2027-01-01T00:00:00Z"})
+        response = self.compare_full_mapping("current qzx17 relay calibration threshold", limit=1)
+        self.assertEqual(response["candidate_count"], 96)
+        self.assertEqual(response["results"][0]["id"], newest["id"])
+        self.assertNotEqual(response["results"][0]["id"], rows[0]["id"])
+
+    def test_tiny_zero_flat_and_single_route_payloads_keep_counts(self):
+        cases = [("qzx17", {"budget_chars": 1}, 96),
+                 ("qzx17", {"budget_chars": 0}, 0),
+                 ("qzx17", {"strategy": "flat", "limit": 1}, 96),
+                 ("缓存有效期", {"limit": 5}, 96)]
+        for query, options, count in cases:
+            with self.subTest(query=query, options=options):
+                response = self.compare_full_mapping(query, **options)
+                self.assertEqual(response["candidate_count"], count)
+                if options.get("budget_chars") in (0, 1):
+                    self.assertEqual(response["results"], [])
+                    self.assertEqual(response["truncated"], bool(count))
+                    self.assertEqual(bool(response["warnings"]), bool(count))
+
+    @unittest.skipUnless(HAS_TOKENS, "tiktoken is optional")
+    def test_zero_and_small_token_budgets_keep_unselected_candidate_count(self):
+        for tokenizer, budget in (("cl100k_base", 0), ("cl100k_base", 128), ("o200k_base", 128)):
+            with self.subTest(tokenizer=tokenizer, budget=budget):
+                response = self.compare_full_mapping("qzx17 relay", budget_tokens=budget, tokenizer=tokenizer)
+                self.assertEqual(response["candidate_count"], 96)
+                self.assertLessEqual(response["context_tokens"], budget)
+                self.assertTrue(response["truncated"])
+
+    def test_coverage_and_semantic_fusion_preserve_the_full_union(self):
+        with MemoryBook(":memory:", segmentation="turn", max_page_chars=3000,
+                        min_page_chars=0, cache_size=0) as book:
+            for index in range(152):
+                # Twenty-four strong pages fill the novelty prefix. The weak,
+                # common facet is eligible only from the retained full union.
+                body = ("qzxrare gyzrare qzxrare gyzrare." if index < 24
+                        else "Receiver tolerance is four decibels.")
+                book.ingest({"project": "wide", "session_id": f"facet-{index:03d}",
+                    "task_id": "facets", "task_title": "Instrument archive", "title": "Shared notes",
+                    "created_at": "2024-01-01T00:00:00Z",
+                    "messages": [{"role": "assistant", "content": body}]})
+            query = "qzxrare gyzrare and receiver tolerance"
+            default = book.recall(query, project="wide", limit=3, budget_chars=100000, use_cache=False)
+            self.assertNotIn("Receiver tolerance is four decibels.", default["context"])
+            covered = self.compare_full_mapping(query, book=book, coverage=True, limit=3)
+            self.assertGreater(covered["candidate_count"], 4 * 3)
+            self.assertIn("Receiver tolerance is four decibels.", covered["context"])
+        semantic_row = dict(self.book.db.execute("""SELECT p.id,p.rid,p.project_id,p.chapter_id,
+            c.title chapter_title,s.external_id session_id,s.title session_title,s.created_at
+            FROM pages p JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk
+            WHERE s.external_id='semantic-only'""").fetchone())
+        semantic_row["semantic_similarity"] = 1.0
+        model = SimpleNamespace(fingerprint="wide-fixture-only")
+        # Only the encoder/index adapters are fixtures. The actual Q2 fusion
+        # must retain all 96 lexical candidates and add its semantic-only page.
+        with patch.object(self.book, "_semantic_encoder", return_value=model), \
+                patch("memory_book.semantic.check_index", return_value={}), \
+                patch("memory_book.semantic.rank_pages", return_value=[semantic_row]):
+            response = self.compare_full_mapping("qzx17", semantic=True, limit=2)
+        self.assertTrue(response["semantic"])
+        self.assertEqual(response["candidate_count"], 97)
+        self.assertEqual(len(response["results"]), 2)
+        self.assertEqual(response["results"][1]["id"], semantic_row["id"])
+
+    def test_missing_metadata_preserves_failure_and_rolls_back_snapshot(self):
+        connection = self.book.db
+
+        class MissingMetadataConnection:
+            def __getattr__(self, name):
+                return getattr(connection, name)
+
+            def execute(self, statement, *arguments):
+                cursor = connection.execute(statement, *arguments)
+                if statement.startswith("SELECT p.id,p.project_id,p.chapter_id,"):
+                    rows = cursor.fetchall()[1:]
+                    return SimpleNamespace(fetchall=lambda: rows)
+                return cursor
+
+        self.book.db = MissingMetadataConnection()
+        try:
+            for factory in (sqlite3.Row, RowLike):
+                with self.subTest(factory=factory):
+                    connection.row_factory = factory
+                    with self.assertRaisesRegex(KeyError, "chapter_title"):
+                        self.book.recall("qzx17 relay", project="wide", use_cache=False)
+                    self.assertFalse(connection.in_transaction)
+        finally:
+            connection.row_factory = sqlite3.Row
+            self.book.db = connection
+
+    def test_unexpected_native_row_shapes_keep_named_mapping_values(self):
+        cases = [("metadata-rank", "rank", -17.0, "book"),
+                 ("metadata-duplicate", "chapter_title", "qzx17", "book"),
+                 ("route-duplicate", "project_id", "not-a-real-project", "flat")]
+        for boundary, extra_name, extra_value, strategy in cases:
+            with self.subTest(boundary=boundary), sqlite3.connect(":memory:") as schema:
+                self.addCleanup(schema.close)
+                cursors = {}
+
+                def factory(row_type):
+                    def build(cursor, values):
+                        names = tuple(column[0] for column in cursor.description)
+                        selected = ("rank" in names if boundary == "route-duplicate"
+                                    else "chapter_title" in names and "rank" not in names)
+                        if selected:
+                            changed_names = (*names, extra_name)
+                            if changed_names not in cursors:
+                                cursors[changed_names] = schema.execute("SELECT " + ",".join(
+                                    f'NULL AS "{name}"' for name in changed_names))
+                            return row_type(cursors[changed_names], (*values, extra_value))
+                        return row_type(cursor, values)
+                    return build
+
+                try:
+                    self.book.db.row_factory = factory(RowLike)
+                    expected = stable(self.book.recall("qzx17", project="wide", strategy=strategy,
+                                                      budget_chars=100000, use_cache=False))
+                    self.book.db.row_factory = factory(sqlite3.Row)
+                    actual = stable(self.book.recall("qzx17", project="wide", strategy=strategy,
+                                                    budget_chars=100000, use_cache=False))
+                finally:
+                    self.book.db.row_factory = sqlite3.Row
+                self.assertEqual([hit["score"] for hit in actual["results"]],
+                                 [hit["score"] for hit in expected["results"]])
+                self.assertEqual(actual, expected)
 
 
 if __name__ == "__main__":

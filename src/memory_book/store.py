@@ -684,6 +684,7 @@ class MemoryBook:
                 params.append(session)
             where = " AND " + " AND ".join(clauses) if clauses else ""
             candidates: list[dict] = []
+            candidate_count = 0
             allocations: list[tuple[dict, str, int]] = []
             selected_pages: list[dict] = []
             source_units_for = None
@@ -748,17 +749,38 @@ class MemoryBook:
                     metadata_by_id = {row["id"]: row for row in metadata}
                 qset = set(qt)
                 directory_factors = {}
+                # A custom factory can return a native Row with extra or
+                # duplicate columns. Restrict value iteration to the fixed SQL
+                # shapes whose named and positional views are equivalent.
+                route_columns = (("rid", "id", "rank") if use_stem else
+                    ("id", "rid", "project_id", "chapter_id", "chapter_title",
+                     "session_id", "session_title", "created_at", "rank"))
+                metadata_columns = ("id", "project_id", "chapter_id", "chapter_title",
+                                    "session_id", "session_title", "created_at")
+                late_materialize = (not coverage and semantic_model is None and
+                    all(type(row) is sqlite3.Row and tuple(row.keys()) == route_columns
+                        for route in routes for row in route) and
+                    (not use_stem or all(type(metadata) is sqlite3.Row and
+                        tuple(metadata.keys()) == metadata_columns
+                        for metadata in (metadata_by_id.get(row["id"]) for row in rows.values()))))
+                ranked_rows = []
                 for row in rows.values():
-                    # Exact Row iteration supplies values directly; named lookup
-                    # in dict(Row) scans column names. Subclasses can override
-                    # their mapping or iteration views, so keep their old path.
-                    item = (dict(zip(row.keys(), row)) if type(row) is sqlite3.Row
-                            else dict(row))
-                    if use_stem:
-                        metadata = metadata_by_id.get(item["id"])
-                        if metadata is not None:
-                            item.update(zip(metadata.keys(), metadata)
-                                        if type(metadata) is sqlite3.Row else metadata)
+                    if late_materialize:
+                        # Ranking needs directory fields and the original route
+                        # rank, not a private dictionary for every union row.
+                        item = metadata_by_id[row["id"]] if use_stem else row
+                    else:
+                        # Custom mapping views and optional routes retain full
+                        # materialization, including their exception behavior.
+                        item = (dict(zip(row.keys(), row)) if type(row) is sqlite3.Row and
+                                tuple(row.keys()) == route_columns
+                                else dict(row))
+                        if use_stem:
+                            metadata = metadata_by_id.get(item["id"])
+                            if metadata is not None:
+                                item.update(zip(metadata.keys(), metadata)
+                                            if type(metadata) is sqlite3.Row and
+                                            tuple(metadata.keys()) == metadata_columns else metadata)
                     factor = 1
                     if strategy == "book":
                         directory = item["chapter_title"] + " " + item["session_title"]
@@ -774,10 +796,31 @@ class MemoryBook:
                         relevance = (2 * exact_scores.get(item["id"], 0.0) / exact_scale +
                                      stem_scores.get(item["id"], 0.0) / stem_scale)
                     else:
-                        relevance = -item["rank"]
-                    item["score"] = relevance * factor
-                    candidates.append(item)
-                if fuse_routes:
+                        relevance = -(row["rank"] if late_materialize else item["rank"])
+                    score = relevance * factor
+                    if late_materialize:
+                        ranked_rows.append((item["id"], score, row, item))
+                    else:
+                        item["score"] = score
+                        candidates.append(item)
+                if late_materialize:
+                    if fuse_routes:
+                        ranked_rows.sort(key=lambda entry: (-entry[1], exact_ranks.get(entry[0], 97),
+                                                            stem_ranks.get(entry[0], 97), entry[0]))
+                    else:
+                        ranked_rows.sort(key=lambda entry: (-entry[1], entry[0]))
+                    candidate_count = len(ranked_rows)
+                    # The unchanged temporal/novelty pass can only select from
+                    # this prefix. Coverage and semantic fusion use all rows.
+                    prefix_size = (limit * 4 if strategy == "book" and
+                                   (current_query or (len(qt) > 1 and limit > 1)) else limit)
+                    for _, score, row, metadata in ranked_rows[:prefix_size]:
+                        item = dict(zip(row.keys(), row))
+                        if use_stem:
+                            item.update(zip(metadata.keys(), metadata))
+                        item["score"] = score
+                        candidates.append(item)
+                elif fuse_routes:
                     candidates.sort(key=lambda item: (-item["score"], exact_ranks.get(item["id"], 97),
                                                       stem_ranks.get(item["id"], 97), item["id"]))
                 else:
@@ -860,6 +903,8 @@ class MemoryBook:
                     candidates = preferred + [item for item in candidates if item["rid"] not in seen]
                 if semantic_model is not None:
                     candidates = fuse_candidates(candidates, rank_pages(self.db, semantic_model, query, where, params))
+                if not late_materialize:
+                    candidate_count = len(candidates)
                 if candidates:
                     selected_ids = [item["id"] for item in candidates[:limit]]
                     sources = {row["id"]: dict(row) for row in self.db.execute(
@@ -953,7 +998,7 @@ class MemoryBook:
             warnings.append("Historical evidence can conflict. Check source timestamps; retrieval does not resolve which decision is authoritative.")
         if not results and candidates:
             warnings.append("Budget too small to return an evidence block including its citation.")
-        result = {"query": query, "results": results, "context": context, "context_chars": len(context), "estimated_tokens": estimate_tokens(context), "candidate_count": len(candidates), "revision": revision, "cache_hit": False, "warnings": warnings, "strategy": strategy, "budget_chars": budget_chars, "truncated": len(candidates) > len(results) or any(r["truncated"] for r in results)}
+        result = {"query": query, "results": results, "context": context, "context_chars": len(context), "estimated_tokens": estimate_tokens(context), "candidate_count": candidate_count, "revision": revision, "cache_hit": False, "warnings": warnings, "strategy": strategy, "budget_chars": budget_chars, "truncated": candidate_count > len(results) or any(r["truncated"] for r in results)}
         if semantic_model is not None:
             result.update(semantic=True, semantic_model_fingerprint=semantic_model.fingerprint)
         if token_counter is not None:

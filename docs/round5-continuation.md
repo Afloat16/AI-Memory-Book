@@ -97,3 +97,15 @@ receipt are committed at `d67e6c695aa586bbcbc9f0e134c769980d8e09ef`. Its dedicat
 first hosted attempt has been triggered at that exact source. It measures old
 v0.3.1/v0.3.2 sources only and retains phase/PID traces plus original inclusive
 RSS. Completion alone is not a product memory-saving claim.
+
+## Candidate B implementation ready
+
+The bounded default lexical prefix implementation is complete, with runtime
+SHA-256 `1f0c8a27108fed25c043d1439a8cb52bcb12422a4759a05423de33665e02a487`.
+All 18 materialization fixtures pass against released v0.3.2; B passes all
+68 materialization/adjacent tests with zero skips. Exact ordered SQL column
+shapes preserve the custom mapping, duplicate-column and metadata-overlay
+contracts. Three premeasurement shape failures and their repair are retained
+in the complete correctness log. Independent review approves the final hashes;
+all 107 SQL execute/executemany expressions remain unchanged. No B development
+or formal measurement has run at this implementation checkpoint.
