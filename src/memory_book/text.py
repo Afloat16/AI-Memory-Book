@@ -24,6 +24,16 @@ ZH_QUESTION = re.compile(r"为什么|请告诉我|请问|是什么|什么|怎么
 STOP = frozenset("a an the is are was were be been to of in on at for from and or it this that these those with as by what which who when where why how do does did can could would should please tell me we our you your i my about now current latest final s t re ve ll d m".split())
 ZH_STOP = frozenset("什么 怎么 如何 为什么 哪个 哪些 是否 现在 当前 最后 最终 我们 这个 那个 一个 一下 请问 告诉 多少 了吗 的是 是什 么的 如何 何时 怎样".split())
 
+# This certificate excludes every old CJK scalar, including unassigned points,
+# and every other word character outside lowercase ASCII letters and digits.
+# Remaining Unicode characters can only separate the original lexical pieces.
+_ASCII_LEXICAL_EXCLUSIONS = re.compile(rf"[{CJK}]|[^\W0-9a-z_]")
+_ORDINARY_ASCII_RUNS = ASCII_RUNS
+_ORDINARY_RUNS = RUNS
+_ORDINARY_CJK_RUN = CJK_RUN
+_ORDINARY_IDENTIFIER_SEPARATOR = IDENTIFIER_SEPARATOR
+_ORDINARY_ZH_QUESTION = ZH_QUESTION
+
 # Each admitted scalar is NFKC/NFKD-stable, has combining class zero, and
 # is not Mn. Excluding all marks and Hangul Jamo also prevents composition or
 # canonical reordering across adjacent characters. Unsupported inputs keep the
@@ -80,6 +90,17 @@ def terms(text: str, *, query: bool = False) -> list[str]:
     if text.isascii():
         # After case folding, the Unicode/identifier rule reduces exactly to
         # lowercase ASCII alphanumeric runs; its separators never add tokens.
+        parts = ASCII_RUNS.findall(text)
+        return [part for part in parts if part not in STOP] if query else parts
+    if (type(text) is str and type(query) is bool
+            and ASCII_RUNS is _ORDINARY_ASCII_RUNS
+            and RUNS is _ORDINARY_RUNS
+            and CJK_RUN is _ORDINARY_CJK_RUN
+            and IDENTIFIER_SEPARATOR is _ORDINARY_IDENTIFIER_SEPARATOR
+            and ZH_QUESTION is _ORDINARY_ZH_QUESTION
+            and _ASCII_LEXICAL_EXCLUSIONS.search(text) is None):
+        # Whole-string certification also covers punctuation-rich English.
+        # Identifier splitting and ordered STOP membership remain identical.
         parts = ASCII_RUNS.findall(text)
         return [part for part in parts if part not in STOP] if query else parts
     if query:
