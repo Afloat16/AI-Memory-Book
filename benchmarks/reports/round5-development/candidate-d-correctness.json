@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "status": "passed-before-development-measurements",
+  "created_at": "2026-11-13T07:28:55.048244+00:00",
+  "registered_scope_commit": "0e933580a2a7d28f24b0ac7a8a2f5db4acfb762d",
+  "registered_scope_sha256": "3b065b437405b4a4f19a610dbcd29209513e351da7d7ce98e8b371dbd7dc8329",
+  "runtime_sha256": "bdfb117368c937ad4da9076c71a2f454eba49ae85ed0057872eac199c3022c16",
+  "files_sha256": {
+    "src/memory_book/store.py": "4a2f34ab7548fc4273565799d69f961a0b42a7a3b74b5587f01dde0a6bf53e4f",
+    "tests/test_round5_materialization.py": "2a652356adff1de9344ed4fea904caee7e8b58b1ac4266d73553fc1520c74a9d",
+    "benchmarks/reports/round5-development/candidate-d-correctness.log": "08b5f68d2c12c15b91dfd9ef5121b477132ac1061d5edb4910e841176cd1a27c"
+  },
+  "tests": {
+    "passed": 79,
+    "materialization": 29,
+    "adjacent": 50,
+    "skipped": 0,
+    "errors": 0,
+    "failures": 0
+  },
+  "independent_reviews": [
+    "root",
+    "evaluation_review"
+  ],
+  "static_checks": {
+    "changed_runtime_functions": [
+      "MemoryBook.recall"
+    ],
+    "unchanged_sql_call_asts": 107,
+    "fallback_seven_assignments_match_c": true,
+    "fallback_eager_route_dictionary_ast_matches_v032": true,
+    "fallback_sequential_metadata_merge_ast_matches_v032": true
+  },
+  "retained_failures": {
+    "row_value_length_source_commit": "79642c63dbfa36312944c847941cace6c8aea965",
+    "length_repaired_source_commit": "453bf7b789c68dfb03aa8899f0479136774d277c",
+    "mapping_failure_evidence_commit": "28cfe71a808835d07fec2d0d30e3e60e2c9cf398"
+  },
+  "behavior": "All native route shapes, lengths and exact primitive fields are validated before combined rank/union work. Unused scores are omitted only on the eligible nonfused default branch. Raw metadata must be fully canonical and cover the route union before folding. Every other path preserves eager v032 route dictionary construction, sequential named metadata merging, source snapshot, complete candidate counts and existing score/sort/optional-route behavior.",
+  "scope": "Correctness and source review only; no D development profile, paired diagnostic, historical/Q2 compatibility or formal performance call has run. No performance acceptance claim."
+}

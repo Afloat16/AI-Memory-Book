@@ -787,8 +787,9 @@ class MemoryBook:
                     exact_scale = max(exact_scores.values(), default=1.0) or 1.0
                     stem_scale = max(stem_scores.values(), default=1.0) or 1.0
                     fuse_routes = use_stem and list(exact_ranks) != list(stem_ranks)
-                    rows = {row["id"]: row for route in reversed(routes) for row in route}
+                    rows = {row["id"]: dict(row) for route in reversed(routes) for row in route}
                 metadata_by_id = {}
+                metadata = []
                 if use_stem and rows:
                     # Exact and stem routes commonly overlap. Fetch their
                     # directory metadata once, after both bounded searches.
@@ -798,17 +799,17 @@ class MemoryBook:
                       FROM pages p JOIN chapters c ON c.id=p.chapter_id
                       JOIN sessions s ON s.id=p.session_pk WHERE p.rid IN (""" +
                       ",".join("?" for _ in ids) + ")", ids).fetchall()
-                    metadata_by_id = {row["id"]: row for row in metadata}
-                qset = set(qt)
-                directory_factors = {}
-                # A custom factory can return a native Row with extra or
-                # duplicate columns. Restrict value iteration to the fixed SQL
-                # shapes whose named and positional views are equivalent.
-                late_materialize = not coverage and semantic_model is None
-                if late_materialize and not canonical_routes:
-                    for route in routes:
-                        expected_keys = route_columns
-                        for row in route:
+                late_materialize = canonical_routes
+                if late_materialize and use_stem:
+                    # Validate the original batch before collapsing any rows.
+                    # Earlier duplicate rows may carry additional fields or
+                    # failures that a last-value metadata map would discard.
+                    if type(metadata) is not list:
+                        late_materialize = False
+                    else:
+                        metadata_ids = set()
+                        expected_keys = metadata_columns
+                        for row in metadata:
                             if type(row) is not sqlite3.Row:
                                 late_materialize = False
                                 break
@@ -816,23 +817,27 @@ class MemoryBook:
                             if keys != expected_keys or len(row) != len(keys):
                                 late_materialize = False
                                 break
-                            if expected_keys is route_columns:
+                            page_id = row[0]
+                            if type(page_id) is not str or page_id not in rows:
+                                late_materialize = False
+                                break
+                            metadata_ids.add(page_id)
+                            if expected_keys is metadata_columns:
                                 expected_keys = keys
-                        if not late_materialize:
-                            break
-                if late_materialize and use_stem:
-                    expected_keys = metadata_columns
-                    for row in rows.values():
-                        metadata = metadata_by_id.get(row[1])
-                        if type(metadata) is not sqlite3.Row:
+                        if len(metadata_ids) != len(rows):
                             late_materialize = False
-                            break
-                        keys = metadata.keys()
-                        if keys != expected_keys or len(metadata) != len(keys):
-                            late_materialize = False
-                            break
-                        if expected_keys is metadata_columns:
-                            expected_keys = keys
+                    if late_materialize:
+                        metadata_by_id = {row[0]: row for row in metadata}
+                if not late_materialize:
+                    if canonical_routes:
+                        rows = {page_id: dict(row) for page_id, row in rows.items()}
+                    if use_stem:
+                        # Keep the original mapping reads, duplicate updates,
+                        # unknown-ID failures and their order on every fallback.
+                        for row in metadata:
+                            rows[row["id"]].update(dict(row))
+                qset = set(qt)
+                directory_factors = {}
                 chapter_position, session_position = (3, 5) if use_stem else (4, 6)
                 ranked_rows = []
                 for row in rows.values():
@@ -842,18 +847,9 @@ class MemoryBook:
                         item = metadata_by_id[row[1]] if use_stem else row
                         page_id = item[0]
                     else:
-                        # Custom mapping views and optional routes retain full
-                        # materialization, including their exception behavior.
-                        item = (dict(zip(route_columns, row)) if type(row) is sqlite3.Row and
-                                row.keys() == route_columns and len(row) == len(route_columns)
-                                else dict(row))
-                        if use_stem:
-                            metadata = metadata_by_id.get(item["id"])
-                            if metadata is not None:
-                                item.update(zip(metadata_columns, metadata)
-                                            if type(metadata) is sqlite3.Row and
-                                            metadata.keys() == metadata_columns and
-                                            len(metadata) == len(metadata_columns) else metadata)
+                        # Fallback rows already contain the complete original
+                        # mapping merge and are private to this recall call.
+                        item = row
                     factor = 1
                     if strategy == "book":
                         directory = (item[chapter_position] + " " + item[session_position]

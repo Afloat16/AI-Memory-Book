@@ -229,3 +229,16 @@ ten permanent boundary fixtures are preserved; those fixtures pass v0.3.2 and
 retain eight failing subcases on this D source. The next repair restores the
 complete original named-mapping fallback and only admits fully validated raw
 batches to delayed materialization. No benchmark or model call was used here.
+
+## Candidate D implementation reviewed
+
+The final D runtime is
+`bdfb117368c937ad4da9076c71a2f454eba49ae85ed0057872eac199c3022c16`.
+It restores original eager dictionary construction and sequential metadata
+updates on every ineligible path. Only fully validated canonical route and raw
+metadata batches can use combined rank/union construction, unused-score deferral
+and delayed prefix materialization. All 79 functional checks pass with no skips.
+Independent source review confirms unchanged 107 SQL ASTs, original seven
+fallback assignments and exact v0.3.2 route/metadata mapping operations. Every
+premeasurement failure and repair remains in prior commits and the complete
+correctness log. D development timing has not started at this source checkpoint.
