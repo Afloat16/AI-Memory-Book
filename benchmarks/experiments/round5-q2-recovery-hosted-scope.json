@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "attempt": "round5-q2-recovery-hosted-1",
+  "status": "prospective-before-source-freeze-or-any-asset-download-build-or-query",
+  "authoring_base_commit": "43b65c004e1ac1f1d75cf6d1a2421b36e4eab740",
+  "reason": "No recoverable historical prepared.db snapshot was found in the inspected Q2 commits and related Actions artifact/upload records. Existing originals hashes include ingestion timestamps. This is a separately identified reconstruction, never an assertion that the original database was restored.",
+  "candidate_binding": {
+    "path": "benchmarks/experiments/round5-q2-recovery-source.json",
+    "required_status": "frozen-before-q2-recovery",
+    "candidate": null,
+    "policy": "Missing, incomplete, invalid or uncommitted exact candidate binding fails before any remote claim, source fetch, model/data download, database construction or inference. Bind exact commit, runtime SHA256 and full src/memory_book file inventory once before the attempt; verify source CI separately."
+  },
+  "sources": {
+    "historical_builder": {
+      "commit": "7b7a5d7336b9350a128f5e0a888811b1b3015e68",
+      "runtime_sha256": "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46"
+    },
+    "baseline": {
+      "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+      "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+    },
+    "candidate": "Specified only by the separate pre-execution exact source binding.",
+    "export": "Detached sparse Git worktrees, containing only src and root metadata, preserve the original helper's committed-source provenance check. No runtime monkeypatch or timestamp rewrite."
+  },
+  "original_files": {
+    "helpers": [
+      "scripts/round4_semantic_compatibility.py",
+      "scripts/round5_q2_compatibility.py"
+    ],
+    "report_root": "benchmarks/reports/round4-compatibility-final",
+    "policy": "These files, every historical preparation/report/ledger and every original gate remain unchanged. Read exact small gzip report objects through git show, not a checkout of historical reports.",
+    "evaluator_reference_commit": "43b65c004e1ac1f1d75cf6d1a2421b36e4eab740",
+    "old_evaluator_sha256": {
+      "scripts/round4_semantic_compatibility.py": "456bbaa4200e852e2fedcf35b1df77cc3a27cbfb27dc0118ecf740112f069873",
+      "scripts/round4_cold_development.py": "d9ed6f525a2222e8cf633838c755190bae17d26267dad99c6579d64a0a31a81e",
+      "scripts/round3_development_checks.py": "36f8f266f816f9078172fab25238ba812b49f41e08303dd8e2a44f8c3e1917c6",
+      "scripts/novelty_cap_qualification.py": "ac296dce0be325b7ebbadac69789de88940c21c40b36a96ac2017fcbd8516858",
+      "benchmarks/hotpot_data.py": "5c206176665690044da9862bb70fe374b12348c4b5e6d0bdb0b098bb73c85760",
+      "benchmarks/prepare_native_data.py": "f16eb5222bf07f98aa7a89fcee85005a11bf15b9a9c758c7c3334ab53df0cf9f",
+      "benchmarks/semantic_eval.py": "46fa3b3fd6298ba1669bd0b17f3ad6f77a2fdaf5b79ba25e4632012090ca0b4e",
+      "benchmarks/native_budget_eval.py": "737230950fd4ddd7f415aa93137f65cd59b5c61a72676c58ca854aee59682b1b",
+      "benchmarks/token_compare.py": "bb34650d947a89c17c87e179dc9e376fe44b6d10c0bf4bb70ca4cdfd46913f18",
+      "benchmarks/run.py": "e557475d5701ea7271de9103aa8267e204796336b5277352fad015d9399521a4",
+      "benchmarks/hotpot_manifest.json": "ad0aba557e98cac6925ff5bdb8048a1a04a5f708847007f33ddf03d88650b69d"
+    }
+  },
+  "model": {
+    "repository": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+    "files": [
+      {
+        "path": "onnx/model_quint8_avx2.onnx",
+        "bytes": 118453870,
+        "sha256": "98a01d88b7de996cdea58c32ca71208c09968d143798814b2ea09d3439dc334f"
+      },
+      {
+        "path": "tokenizer.json",
+        "bytes": 9081518,
+        "sha256": "2c3387be76557bd40970cec13153b3bbf80407865484b209e655e5e4729076b8"
+      }
+    ],
+    "dimensions": 384,
+    "max_sequence_tokens": 128,
+    "overlap_tokens": 32,
+    "pooling": "attention-mask mean pooling followed by L2 normalization",
+    "semantic_version": 1
+  },
+  "dependencies": {
+    "onnxruntime": "1.31.1",
+    "tokenizers": "0.23.3",
+    "numpy": "2.5.4",
+    "tiktoken": "0.12.0",
+    "pyarrow": "26.0.1"
+  },
+  "environment": {
+    "python": "3.12",
+    "runner": "ubuntu-24.04",
+    "ORT_DISABLE_TELEMETRY": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHASHSEED": "0",
+    "inference_threads": 1,
+    "policy": "Bind actual Python, SQLite, CPU/platform, package versions, model file hashes and tokenizer cache hashes. No hardware/parameter sweep or retries chosen for favorable outcomes."
+  },
+  "cohorts": {
+    "authored36": {
+      "queries": 36,
+      "dataset_sha256": "ecc46c474d5184995938419fa985b8e08c0ddb51560da49990247465db6db0b0",
+      "historical_originals_sha256": "f64208f2f232270366f8c48ab6334c74424f448719b69e91d7532b23718d5c70",
+      "historical_vectors": {
+        "sha256": "c1cecaacdf47d7db3a790e46589a03e3d895aabbe7fb4069a65c050f7efd0a2e",
+        "rows": 42,
+        "vector_bytes": 64512,
+        "revision": 42,
+        "model_fingerprint": "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25",
+        "boundary": "All semantic_vectors columns in primary-key order, length-prefixed JSON identity/offset fields and exact BLOB bytes. No semantic_meta timestamps or model rerun."
+      }
+    },
+    "hotpot128": {
+      "queries": 128,
+      "dataset_sha256": "0791515aca6bccf19a97895cad681e06a07536d6c08050d54189cc64cb819822",
+      "historical_originals_sha256": "b95bb63e7ad2eb7940c838a6425a78075dad396ba3f310f3eaa69da6c2733163",
+      "historical_vectors": {
+        "sha256": "1210b9947a05448f6bc420a83ec4ddb72cf940589fac8b2f5b24910fca7aeec3",
+        "rows": 2323,
+        "vector_bytes": 3568128,
+        "revision": 1272,
+        "model_fingerprint": "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25",
+        "boundary": "All semantic_vectors columns in primary-key order, length-prefixed JSON identity/offset fields and exact BLOB bytes. No semantic_meta timestamps or model rerun."
+      }
+    }
+  },
+  "assets": "Download only the originally pinned two model files and pinned Hotpot parquet after the attempt is durably claimed. Stream bytes with hard size and SHA256 checks. Use the unchanged old data loaders for the same authored36/hotpot128 query IDs only. No fresh selector/holdout and no comparator engine is invoked.",
+  "preparation": {
+    "schedule": [
+      "authored36",
+      "hotpot128"
+    ],
+    "builds_per_cohort": 1,
+    "helper": "scripts/round4_semantic_compatibility.py prepare",
+    "settings": {
+      "max_page_chars": 900,
+      "cache_size": 0,
+      "semantic_model": "exact historical model",
+      "inference_threads": 1
+    },
+    "policy": "Publish an explicit started intent before each builder invocation and its original preparation/log/exit immediately afterward. Build each new source DB once using historical builder v031. Before any query, require the entire vector identity (exact vector BLOB digest, rows, byte count, revision, fingerprint and boundary) to equal historical preparation. A mismatch is retained and stops the attempt without retries or tolerance relaxation.",
+    "originals": "Record the newly observed full originals hash and DB byte hash separately. Require the new originals to remain unchanged across build and workers, but do not require or imply equality to historical originals, do not overwrite historical preparation, and do not rewrite timestamps.",
+    "sharing": "After both preparations pass exact vector checks, create an independent SQLite backup per worker from the new immutable prepared.db. Each engine/tokenizer uses that same persisted vector content. No per-engine rebuild; no reuse of previously executed worker databases.",
+    "timeout_seconds_per_cohort": 900
+  },
+  "queries": {
+    "cohort_order": [
+      "authored36",
+      "hotpot128"
+    ],
+    "tokenizer_order": [
+      "cl100k_base",
+      "o200k_base"
+    ],
+    "label_order": [
+      "baseline",
+      "candidate"
+    ],
+    "budget_order": [
+      512,
+      1024,
+      2048
+    ],
+    "settings": {
+      "semantic": true,
+      "coverage": false,
+      "budget_chars": 8000,
+      "limit": 5,
+      "cache_size": 0,
+      "use_cache": false,
+      "repetitions": 1
+    },
+    "workers": 8,
+    "calls": 1968,
+    "full_payload_pairs": 984,
+    "configured_generative_model_calls": 0,
+    "query_embedding_inference": "Expected in each original worker; persisted page vectors are reused.",
+    "policy": "The unchanged historical worker executes exactly its original query/budget order. No calls added, substituted, retried or omitted. Freeze query IDs from the existing old manifests/cases before invoking any worker.",
+    "timeout_seconds_per_worker": 900
+  },
+  "validation": {
+    "historical": "First verify historical preparation/report/ledger identities and all complete matrices using their original metadata and exact gzip/raw hashes. No metadata rewrite.",
+    "baseline": "For every new baseline row, compare query ID, budget, full non-latency payload digest and context digest against the saved historical v032/C2 candidate report.",
+    "candidate": "Compare each candidate row to the corresponding newly completed baseline. Keep any mismatch and stop before later workers.",
+    "invariants": "Use the existing strict saved-report/ledger auditor without changing it: complete started/finished events, exact settings/source/model/data/preparation identities, zero source/projection/scope/token/metadata errors. Recheck new original/vector/cache identities before and after every worker. Final total1968 calls/984 exact pairs.",
+    "limits": "Reported equality validates the existing payload digest boundary and recorded invariants, not independent retokenization of omitted response bodies. This is historical compatibility, not a new quality, speed, cost or resource claim."
+  },
+  "durability": {
+    "result_branch": "validation/v033-q2-recovery-hosted-1",
+    "output": "benchmarks/reports/round5-q2-recovery-hosted-1/",
+    "state": ".artifacts/round5-q2-recovery-hosted-1/",
+    "policy": "Only run_attempt1 on ci/v033-q2-recovery-hosted-1; fixed result ref and new local state must not already exist. Publish exact source/assets/environment binding before any build and the new prepared identities before any query. Each build/worker has a verified remote started intent and an output checkpoint before the next stage.",
+    "publication": "One non-force expected-head push, followed by exact remote-head verification. Any divergence or ambiguous write stops immediately. Do not automatically retry failed writes or measurements.",
+    "failure": "Retain original negative outcomes, partial receipts/logs, available partial ledgers and lossless gzip reports. Always upload source-free evidence artifacts even if Git publication fails. No corpus plaintext or database is committed to the public repository."
+  },
+  "calls_executed_when_drafted": 0,
+  "model_downloads_or_inference_when_drafted": 0,
+  "decision_needed": "Exact vector identity may not reproduce on a different CPU/runtime environment even with pinned files and libraries. The existing requirement is fail-closed; failure will remain a blocker requiring a separately reviewed decision, never automatic weakening."
+}
