@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "four-correctness-environments-passed-eight-jobs-success-macos-installer-queued",
+  "status": "all-nine-jobs-passed",
   "candidate": "M",
   "source_commit": "f5fa35fd094601a41b5152671190d6e270e523f7",
   "prospective_scope_commit": "60834240f23480802cb80ce62c493410748ad15f",
@@ -268,7 +268,7 @@
       ]
     }
   ],
-  "independent_review_status": "Requested from hosted_execution; final independent record pending.",
+  "independent_review_status": "Bounded source/proof review passed by hosted_execution on exact source f5fa35fd094601a41b5152671190d6e270e523f7; separate independently published review record forthcoming.",
   "claims": {
     "new_explicit_mapping_scalars": 97,
     "all_new_mapped_scalars_exhaustively_tested": true,
@@ -284,5 +284,88 @@
     "fresh_rows_decoded": 0,
     "models_used": 0,
     "not_a_measurement_binding": true
+  },
+  "prior_observation_status": "four-correctness-environments-passed-eight-jobs-success-macos-installer-queued",
+  "jobs_completed": [
+    {
+      "id": 132038763751,
+      "name": "reader-browser",
+      "head_sha": "f5fa35fd094601a41b5152671190d6e270e523f7",
+      "status": "completed",
+      "conclusion": "success",
+      "completed_at": "2026-11-13T17:09:47Z"
+    },
+    {
+      "id": 132038764345,
+      "name": "installers (windows-latest)",
+      "head_sha": "f5fa35fd094601a41b5152671190d6e270e523f7",
+      "status": "completed",
+      "conclusion": "success",
+      "completed_at": "2026-11-13T17:10:20Z"
+    },
+    {
+      "id": 132038764441,
+      "name": "core (3.13)",
+      "head_sha": "f5fa35fd094601a41b5152671190d6e270e523f7",
+      "status": "completed",
+      "conclusion": "success",
+      "completed_at": "2026-11-13T17:10:08Z"
+    },
+    {
+      "id": 132038764442,
+      "name": "mcp",
+      "head_sha": "f5fa35fd094601a41b5152671190d6e270e523f7",
+      "status": "completed",
+      "conclusion": "success",
+      "completed_at": "2026-11-13T17:10:35Z"
+    },
+    {
+      "id": 132038764460,
+      "name": "container",
+      "head_sha": "f5fa35fd094601a41b5152671190d6e270e523f7",
+      "status": "completed",
+      "conclusion": "success",
+      "completed_at": "2026-11-13T17:10:03Z"
+    },
+    {
+      "id": 132038764602,
+      "name": "installers (macos-latest)",
+      "head_sha": "f5fa35fd094601a41b5152671190d6e270e523f7",
+      "status": "completed",
+      "conclusion": "success",
+      "completed_at": "2026-11-13T17:15:01Z"
+    },
+    {
+      "id": 132038764628,
+      "name": "core (3.10)",
+      "head_sha": "f5fa35fd094601a41b5152671190d6e270e523f7",
+      "status": "completed",
+      "conclusion": "success",
+      "completed_at": "2026-11-13T17:10:14Z"
+    },
+    {
+      "id": 132038764647,
+      "name": "installers (ubuntu-latest)",
+      "head_sha": "f5fa35fd094601a41b5152671190d6e270e523f7",
+      "status": "completed",
+      "conclusion": "success",
+      "completed_at": "2026-11-13T17:09:47Z"
+    },
+    {
+      "id": 132038764910,
+      "name": "core (3.12)",
+      "head_sha": "f5fa35fd094601a41b5152671190d6e270e523f7",
+      "status": "completed",
+      "conclusion": "success",
+      "completed_at": "2026-11-13T17:10:33Z"
+    }
+  ],
+  "independent_review_received": {
+    "reviewer": "/root/hosted_execution",
+    "reviewed_source": "f5fa35fd094601a41b5152671190d6e270e523f7",
+    "runtime_sha256_recomputed": "de3380b305c045c96f32fe2a1c947b39e3264f54839b8b5d40801a89b5e5a4cb",
+    "base_K_runtime_sha256_recomputed": "90079d629d101370e6960a10e5391265802b1a053f65438e9b667b662638b251",
+    "findings": "Read all 18 source files; only text.py changed. Original Camel statement through end of file and the literal legacy test reference match K exactly. Independently read four raw CI logs confirming MCP14/14, core13 plus one optional token skip, and actual UCD13/15/15.1. No blocker found.",
+    "limits": "No corpus or fresh execution. No latency/performance/release acceptance inferred from source review or C-call proof."
   }
 }
