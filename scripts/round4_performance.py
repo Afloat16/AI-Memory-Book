@@ -76,6 +76,7 @@ HELPERS = ("scripts/benchmark_default_recall.py", "benchmarks/__init__.py",
     "benchmarks/locomo_split.json")
 TOOLS = ("scripts/round4_performance.py", "tests/test_round4_performance.py",
          "tests/test_round4_sealed_counts.py", "tests/test_round4_highlight.py",
+         "benchmarks/experiments/round4-candidate-selection.json",
          ".github/workflows/round4-performance.yml")
 # These preregistrations belong to round four, so they must not be mistaken
 # for historical helpers that are checked against the v0.3.1 source tree.

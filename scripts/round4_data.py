@@ -45,8 +45,11 @@ LEGACY_EXTRA = "scripts/benchmark_default_recall.py"
 NEW_EVALUATORS = ("scripts/round4_data.py", "tests/test_round4_data.py",
                   "scripts/round4_comparison.py", "tests/test_round4_comparison.py",
                   "scripts/run_round4_comparison.py", "tests/test_round4_comparison_controller.py",
+                  "tests/test_round4_token_work.py", "tests/test_round4_sealed_counts.py",
+                  "tests/test_round4_highlight.py",
                   "scripts/freeze_round4_validation.py", ".github/workflows/round4-freeze.yml",
                   ".github/workflows/round4-comparison.yml",
+                  "benchmarks/experiments/round4-candidate-selection.json",
                   "benchmarks/experiments/round4-freeze-plan.json", ADDENDUM, COUNTING_ADDENDUM)
 LOCK_PATHS = {"benchmarks/competitors/claude-mem-round2-lock.json",
               "benchmarks/competitors/ai-memory-lock.json",

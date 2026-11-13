@@ -58,9 +58,12 @@ MODEL_FINGERPRINT = "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c
 NEW_FILES = ("scripts/round4_comparison.py", "tests/test_round4_comparison.py",
              "scripts/round4_data.py", "tests/test_round4_data.py",
              "scripts/run_round4_comparison.py", "tests/test_round4_comparison_controller.py",
+             "tests/test_round4_token_work.py", "tests/test_round4_sealed_counts.py",
+             "tests/test_round4_highlight.py",
              "scripts/freeze_round4_validation.py", ".github/workflows/round4-freeze.yml",
              ".github/workflows/round4-comparison.yml", "benchmarks/experiments/round4-plan.json",
              "benchmarks/experiments/round4-freeze-plan.json",
+             "benchmarks/experiments/round4-candidate-selection.json",
              "benchmarks/experiments/round4-development-addendum.json",
              "benchmarks/experiments/round4-counting-addendum.json")
 ADDITIONAL_OLD_FILES = ("scripts/benchmark_default_recall.py",

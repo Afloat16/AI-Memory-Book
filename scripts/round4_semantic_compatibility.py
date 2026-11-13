@@ -76,6 +76,13 @@ def evaluator_sources():
     return {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in names}
 
 
+def validate_preparation(preparation, cohort, data):
+    if (preparation.get("cohort") != cohort
+            or preparation.get("dataset_sha256") != data.fingerprint
+            or preparation.get("queries") != len(data.queries)):
+        raise ValueError("Preparation does not identify the requested historical cohort")
+
+
 def prepare(args):
     if args.output.exists():
         raise ValueError("Preserve existing Q2 preparation")
@@ -123,6 +130,7 @@ def sentinel(args):
     from memory_book.semantic import verify_model_files
     data = sentinel_data(args)
     preparation = json.loads(args.preparation.read_bytes())
+    validate_preparation(preparation, args.cohort, data)
     if preparation["evaluator_files"] != evaluator_sources():
         raise ValueError("Compatibility evaluator changed after vector preparation")
     counter = TokenCounter(args.tokenizer)
@@ -133,6 +141,7 @@ def sentinel(args):
     report = {"status": "running", "cohort": args.cohort, "label": args.label,
         "runtime_sha256": args.expected_source_sha, "dataset_sha256": data.fingerprint,
         "evaluator_files": evaluator_sources(),
+        "preparation_sha256": hashlib.sha256(args.preparation.read_bytes()).hexdigest(),
         "ort_disable_telemetry": os.environ.get("ORT_DISABLE_TELEMETRY"),
         "model": verify_model_files(args.model_dir), "configured_generative_model_calls": 0,
         "expected_calls": len(data.queries) * len(BUDGETS), "attempts_started": 0,

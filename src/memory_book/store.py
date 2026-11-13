@@ -21,7 +21,6 @@ INDEX_VERSION = 3
 RECALL_VERSION = 10
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
-HIGHLIGHT_ROWID_SPAN = 256
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
 HISTORICAL_QUERY = re.compile(r"\b(?:original|initial|previous|earlier|before|history|historical|formerly|old|as of)\b|最初|最早|之前|以前|原来|原始|历史|旧|\b(?:19|20)\d{2}\b", re.IGNORECASE)
 ASCII_WORD = re.compile(r"[a-zA-Z]")
@@ -288,15 +287,12 @@ class MemoryBook:
             self._semantic_model = None
 
     def _highlighted_bodies(self, expression: str, ids: list[int]) -> list[sqlite3.Row]:
-        """Keep the selected whitelist while bounding a single FTS scan."""
+        """Retain the original point-whitelist read for selected excerpts."""
         if not ids:
             return []
-        low, high = min(ids), max(ids)
-        bounded = len(ids) > 1 and high - low + 1 <= HIGHLIGHT_ROWID_SPAN
-        where = "rowid BETWEEN ? AND ? AND +rowid" if bounded else "rowid"
-        parameters = ["\x01", "\x02", expression, *([low, high] if bounded else []), *ids]
+        parameters = ["\x01", "\x02", expression, *ids]
         return self.db.execute("""SELECT rowid,highlight(pages_stem_fts,2,?,?) body
-          FROM pages_stem_fts WHERE pages_stem_fts MATCH ? AND """ + where + " IN (" +
+          FROM pages_stem_fts WHERE pages_stem_fts MATCH ? AND rowid IN (""" +
           ",".join("?" for _ in ids) + ")", parameters).fetchall()
 
     def _semantic_encoder(self):

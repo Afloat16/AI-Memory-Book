@@ -82,6 +82,32 @@ snapshot copied to both runtimes. The authored36 baseline workers have passed
 108 calls per tokenizer. Its model and vectors are fixed; no new quality
 candidate is introduced.
 
+## Finalization before formal binding
+
+The C1 profile preserves all 4,732 complete payloads, and its native diagnostic
+preserves all 2,048 pairs. The native-only eight-cell p95 geometric mean improves
+16.67%, with public token512 and token2048 p95 gains of 28.81% and 31.95%.
+These are development results, not formal acceptance: the public character
+p95 is 20.49% higher and the public token1024 tail gain is only 5.02%.
+The final candidate therefore restores the original point-whitelist highlight
+SQL; the source does not retain the speculative range specialization.
+
+Independent audit also identified and fixed the certificate for an encoder
+method replaced before its first initialization. Unknown function origins now
+use full counting; both direct and functools.wraps replacements have fresh
+budget-preservation fixtures. The unchanged ordinary counting algorithm and
+its existing token/source tests pass 45/45 cases. The final runtime SHA-256 is
+`179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93`.
+The committed selection record is now included in both evaluator registries.
+
+The Q2 preparation-cohort guard was also strengthened before any candidate
+compatibility call. The original baseline-only 216 calls and vector receipts
+remain under `round4-compatibility`; new identical-vector preparations and the
+final paired calls use `round4-compatibility-final` and new state directories.
+No formal timing or new cohort selection has occurred. Next finish actual MCP,
+historical Hotpot and paired Q2 checks, then bind one final runtime and launch
+the registered formal matrix once.
+
 The [registered plan](../benchmarks/experiments/round4-plan.json) targets
 complete-output-equivalent reductions in token-budget source preparation,
 projection and final counting. Actual MCP token1024 is added to the balanced

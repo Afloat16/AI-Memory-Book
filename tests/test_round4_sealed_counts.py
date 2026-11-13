@@ -6,6 +6,7 @@ benchmark corpus, elapsed-time measurement or persistent text cache is used.
 from __future__ import annotations
 
 from contextlib import contextmanager
+from functools import wraps
 import hashlib
 import importlib.util
 import itertools
@@ -249,6 +250,74 @@ class SealedCountTests(unittest.TestCase):
                         budget_tokens=10000, counter=ordinary)
                 self.assertEqual(actual, expected)
                 self.assertEqual(calls, custom.calls)
+
+    def test_pre_initialization_encoder_override_cannot_bypass_budget_even_with_wraps(self):
+        import tiktoken
+        value = row("one", "alpha beta")
+        block = header(value) + value["content"]
+        cap = len(block.encode("utf-8")) + 1
+        original = tiktoken.Encoding.encode_ordinary
+        for name, decorated in itertools.product(budget.TOKENIZERS, (False, True)):
+            calls = []
+            # Deliberately retain the original code name as well as optional
+            # wraps metadata. Its actual source file is still this test file.
+            def encode_ordinary(instance, text):
+                calls.append(text)
+                return [0] * (3 * len(text.encode("utf-8")))
+            replacement = wraps(original)(encode_ordinary) if decorated else encode_ordinary
+            if decorated:
+                self.assertEqual(replacement.__module__, original.__module__)
+                self.assertEqual(replacement.__name__, original.__name__)
+                self.assertEqual(replacement.__qualname__, original.__qualname__)
+                self.assertEqual(replacement.__code__.co_name, original.__code__.co_name)
+                self.assertNotEqual(replacement.__code__.co_filename, original.__code__.co_filename)
+            budget._encoding.cache_clear()
+            try:
+                with self.subTest(name=name, decorated=decorated), \
+                        patch.object(budget, "_ORDINARY_ENCODER_METHODS", None), \
+                        patch.object(tiktoken.Encoding, "encode_ordinary", replacement):
+                    self.assertEqual(budget._encoding.cache_info().currsize, 0)
+                    counter = budget.TokenCounter(name)
+                    self.assertIsNone(budget._ORDINARY_ENCODER_METHODS)
+                    self.assertFalse(budget._can_seal_blocks(counter))
+                    kept, count = budget.assemble_with_count([entry(value)], [], [],
+                        budget_chars=1000, budget_tokens=cap, counter=counter)
+                    # A byte-bound acceptance would return this block and a
+                    # final count above cap. Historical full counting rejects.
+                    self.assertEqual((kept, count), ([], 0))
+                    self.assertLessEqual(count, cap)
+                    self.assertEqual(calls, [block])
+            finally:
+                budget._encoding.cache_clear()
+
+    def test_missing_or_unknown_initial_encoder_origins_fall_back_for_all_methods(self):
+        import tiktoken
+        from tiktoken import core
+        values = [row("one", "alpha"), row("two", "beta")]
+        legacy = [entry(value) for value in values]
+        expected_calls = [header(values[0]) + values[0]["content"], context(legacy)]
+        for method in (*budget._ENCODER_METHOD_NAMES, "missing-module-file"):
+            if method == "missing-module-file":
+                manager = patch.object(core, "__file__", None)
+            else:
+                original = getattr(tiktoken.Encoding, method)
+                def substituted(*args, **kwargs):
+                    return original(*args, **kwargs)
+                manager = patch.object(tiktoken.Encoding, method, wraps(original)(substituted))
+            budget._encoding.cache_clear()
+            try:
+                with self.subTest(method=method), patch.object(budget, "_ORDINARY_ENCODER_METHODS", None), manager:
+                    counter = budget.TokenCounter("cl100k_base")
+                    self.assertIsNone(budget._ORDINARY_ENCODER_METHODS)
+                    self.assertFalse(budget._can_seal_blocks(counter))
+                    with observed_counts() as (calls, _):
+                        kept, count = budget.assemble_with_count(legacy, values, [],
+                            budget_chars=1000, budget_tokens=10000, counter=counter)
+                    self.assertEqual(kept, legacy)
+                    self.assertEqual(calls, expected_calls)
+                    self.assertEqual(count, counter.count(context(legacy)))
+            finally:
+                budget._encoding.cache_clear()
 
     def test_non_citation_header_forces_full_context_even_if_rejected(self):
         pages = [row("one", "alpha"), row("two", "beta")]
