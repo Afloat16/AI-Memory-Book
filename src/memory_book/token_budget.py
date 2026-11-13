@@ -13,7 +13,6 @@ from functools import lru_cache
 from typing import Any, Callable
 
 from .text import terms
-from ._query_overlap import cached_overlap, overlap_entry
 
 TOKENIZERS = ("cl100k_base", "o200k_base")
 _SEALED_PATTERNS = {
@@ -340,7 +339,7 @@ def assemble_with_count(
     kept: list[tuple[dict, str, str, list[tuple[int, int]]]] = []
     blocks: list[str] = []
     seen: set[str] = set()
-    term_cache: dict[str, object] = {}
+    term_cache: dict[str, set[str]] = {}
     accepted_tokens: int | None = 0
     accepted_prefix_tokens = 0
     block_chars = 0
@@ -422,8 +421,8 @@ def assemble_with_count(
             if len(text) > remaining_chars:
                 continue
             if text not in term_cache:
-                term_cache[text] = overlap_entry(text, terms)
-            overlap = cached_overlap(qset, term_cache[text])
+                term_cache[text] = set(terms(text, query=True))
+            overlap = len(qset.intersection(term_cache[text]))
             choices.append((overlap, end - start, start, end, text))
         # Prefer the most relevant complete span, then retain as much of its
         # original surrounding evidence as fits. Bound expensive tokenization.

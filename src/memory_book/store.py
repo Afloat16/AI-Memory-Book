@@ -7,6 +7,7 @@ import json
 import math
 import re
 import sqlite3
+import _sqlite3
 import time
 from datetime import datetime, timezone
 from functools import lru_cache
@@ -15,7 +16,21 @@ from typing import Any
 
 from .segmentation import make_turns, segment
 from .text import estimate_tokens, excerpt, headline, index_text, query_terms, terms
-from ._query_overlap import query_overlap
+
+# Capture the C extension's objects rather than treating public sqlite3 aliases
+# replaced before this module's first import as ordinary implementations.
+_NATIVE_CONNECT = _sqlite3.connect
+_NATIVE_CONNECTION = _sqlite3.Connection
+_NATIVE_CURSOR = _sqlite3.Cursor
+_NATIVE_ROW = _sqlite3.Row
+_STEM_ROUTE_DESCRIPTION = tuple((name, None, None, None, None, None, None)
+                                for name in ("rid", "id", "rank"))
+_FULL_ROUTE_DESCRIPTION = tuple((name, None, None, None, None, None, None)
+                                for name in ("id", "rid", "project_id", "chapter_id", "chapter_title",
+                                             "session_id", "session_title", "created_at", "rank"))
+_DIRECTORY_DESCRIPTION = tuple((name, None, None, None, None, None, None)
+                               for name in ("id", "project_id", "chapter_id", "chapter_title",
+                                            "session_id", "session_title", "created_at"))
 
 SCHEMA_VERSION = 3
 INDEX_VERSION = 3
@@ -218,6 +233,35 @@ def _query_facets(query: str) -> list[list[str]]:
     return facets if all(len(facet) >= 2 for facet in facets) else []
 
 
+def _candidate_rows(cursor, description: tuple, connection=None) -> tuple[list, sqlite3.Cursor | None]:
+    """Read certified native candidate columns without allocating a Row each time.
+
+    Only MemoryBook's original default-converter connection is eligible. A
+    replacement connection, text factory, cursor or row factory keeps its
+    original fetch behavior. The full ordered description, including duplicate
+    names and every DB-API field, must agree before changing this cursor alone.
+    The retained cursor reconstructs real Rows if any later guard needs the
+    historical mapping path. Nothing changes the connection's row factory.
+    """
+    if (connection is not None and type(cursor) is _NATIVE_CURSOR and
+            type(connection) is _NATIVE_CONNECTION and cursor.connection is connection and
+            connection.text_factory is str and cursor.row_factory is _NATIVE_ROW and
+            sqlite3.Row is _NATIVE_ROW and sqlite3.Cursor is _NATIVE_CURSOR and
+            cursor.description == description):
+        cursor.row_factory = None
+        try:
+            rows = cursor.fetchall()
+        finally:
+            cursor.row_factory = _NATIVE_ROW
+        return rows, cursor
+    return cursor.fetchall(), None
+
+
+def _restore_candidate_rows(rows: list, cursor: sqlite3.Cursor | None) -> list:
+    """Restore only tuples produced by our certified native cursor."""
+    return [_NATIVE_ROW(cursor, row) for row in rows] if cursor is not None else rows
+
+
 class MemoryBook:
     """One SQLite connection per instance. Use a separate instance per thread.
 
@@ -250,7 +294,19 @@ class MemoryBook:
         if self.path != ":memory:":
             Path(self.path).expanduser().resolve().parent.mkdir(parents=True, exist_ok=True)
             self.path = str(Path(self.path).expanduser())
-        self.db = sqlite3.connect(self.path, timeout=10, isolation_level=None)
+        # The bounded route union produces many IN-list statement shapes.
+        # Expand only the ordinary connection's prepared-statement cache;
+        # custom connect callables retain their historical arguments.
+        if sqlite3.connect is _NATIVE_CONNECT:
+            self.db = sqlite3.connect(self.path, timeout=10, isolation_level=None,
+                                      cached_statements=512)
+        else:
+            self.db = sqlite3.connect(self.path, timeout=10, isolation_level=None)
+        # This construction has no detect_types/converter option. Keep only
+        # its identity as a certificate; custom/replaced connections never
+        # acquire one, even if their current row factory happens to be Row.
+        self._native_db = (self.db if sqlite3.connect is _NATIVE_CONNECT and
+                           type(self.db) is _NATIVE_CONNECTION else None)
         self.db.row_factory = sqlite3.Row
         self.db.execute("PRAGMA foreign_keys=ON")
         self.db.execute("PRAGMA busy_timeout=10000")
@@ -286,6 +342,7 @@ class MemoryBook:
         finally:
             self._directory_tokens.cache_clear()
             self._semantic_model = None
+            self._native_db = None
 
     def _highlighted_bodies(self, expression: str, ids: list[int]) -> list[sqlite3.Row]:
         """Retain the original point-whitelist read for selected excerpts."""
@@ -626,7 +683,7 @@ class MemoryBook:
             return (lo, hi)
         return None
 
-    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False) -> dict:
+    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False, follow_titles: bool = False) -> dict:
         started = time.perf_counter_ns()
         query = _string(query, "query", maximum=8000, required=False)
         _integer(budget_chars, "budget_chars", 0, 100_000)
@@ -647,6 +704,12 @@ class MemoryBook:
             raise ValueError("semantic must be a boolean")
         if semantic and strategy != "book":
             raise ValueError("semantic recall requires the book strategy")
+        if type(follow_titles) is not bool:
+            raise ValueError("follow_titles must be a boolean")
+        if follow_titles and strategy != "book":
+            raise ValueError("follow_titles requires the book strategy")
+        if follow_titles and (semantic or coverage):
+            raise ValueError("follow_titles cannot be combined with semantic or coverage")
         for key, val in (("project", project), ("chapter", chapter), ("session", session)):
             if val is not None:
                 _string(val, key)
@@ -654,6 +717,24 @@ class MemoryBook:
         current_query = bool(CURRENT_QUERY.search(query) and not HISTORICAL_QUERY.search(query))
         use_stem = strategy == "book" and any(ASCII_WORD.search(token) for token in qt)
         semantic_model = self._semantic_encoder() if semantic else None
+        follow_active = False
+        title_reference_state = None
+        if follow_titles:
+            from .title_reference import VERSION as TITLE_REFERENCE_VERSION, follow_title_reference
+            reason = ("project_required" if project is None else
+                      "limit_below_two" if limit < 2 else
+                      "zero_character_budget" if not budget_chars else
+                      "zero_token_budget" if budget_tokens == 0 else
+                      "temporal_query" if CURRENT_QUERY.search(query) or HISTORICAL_QUERY.search(query) else
+                      "no_lexical_results" if not qt else None)
+            follow_active = reason is None
+            title_reference_state = {"version": TITLE_REFERENCE_VERSION,
+                                     "active": False, "applied": False,
+                                     "reason": reason or "no_lexical_results"}
+        if self.db is not self._native_db:
+            self._native_db = None
+        native_connection = (self._native_db if not coverage and semantic_model is None
+                             and not follow_active else None)
         # A read snapshot ties candidates, sources, and the cache revision together.
         self.db.execute("BEGIN")
         try:
@@ -665,6 +746,8 @@ class MemoryBook:
                 cache_options.extend(["semantic", SEMANTIC_VERSION, semantic_model.fingerprint, FUSION_VERSION])
             if token_counter is not None:
                 cache_options.extend([budget_tokens, tokenizer, token_counter.version])
+            if follow_titles:
+                cache_options.extend(["follow_titles", TITLE_REFERENCE_VERSION])
             cache_key = hashlib.sha256(_json(cache_options).encode()).hexdigest()
             cached = self.db.execute("SELECT payload FROM recall_cache WHERE key=? AND revision=?", (cache_key, revision)).fetchone() if use_cache and self.cache_size else None
             if cached:
@@ -700,7 +783,8 @@ class MemoryBook:
                 # display-only fields are deferred to the final page fetch.
                 scope_join = " JOIN sessions s ON s.id=p.session_pk" if session is not None else ""
                 project_bounds = self._project_rowid_bounds(project) if qt and session is None else None
-                routes = []
+                routes, route_cursors = [], []
+                route_description = _STEM_ROUTE_DESCRIPTION if use_stem else _FULL_ROUTE_DESCRIPTION
                 for table in (("pages_fts", "pages_stem_fts") if use_stem else ("pages_fts",)):
                     # Table identifiers are fixed above; query text and every
                     # caller-supplied scope remain bound SQL parameters.
@@ -723,7 +807,11 @@ class MemoryBook:
                           FROM (""" + statement + """) hits JOIN pages p ON p.rid=hits.rid
                           JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk
                           ORDER BY hits.rank,p.id"""
-                    routes.append(self.db.execute(statement, route_params).fetchall() if qt else [])
+                    route, native_cursor = (_candidate_rows(self.db.execute(statement, route_params),
+                                                           route_description, native_connection)
+                                            if qt else ([], None))
+                    routes.append(route)
+                    route_cursors.append(native_cursor)
                 # Validate every route before reordering any derived work.
                 # Native Rows may still contain custom values or columns.
                 route_columns = (["rid", "id", "rank"] if use_stem else
@@ -732,27 +820,28 @@ class MemoryBook:
                 metadata_columns = ["id", "project_id", "chapter_id", "chapter_title",
                                     "session_id", "session_title", "created_at"]
                 id_position = 1 if use_stem else 0
-                canonical_routes = (not coverage and semantic_model is None and
+                canonical_routes = (not coverage and semantic_model is None and not follow_active and
                                     type(routes[0]) is list and
                                     (not use_stem or type(routes[1]) is list))
                 if canonical_routes:
-                    for route in routes:
+                    for route, native_cursor in zip(routes, route_cursors):
                         expected_keys = route_columns
                         for row in route:
-                            if type(row) is not sqlite3.Row:
-                                canonical_routes = False
-                                break
-                            keys = row.keys()
-                            if keys != expected_keys or len(row) != len(keys):
-                                canonical_routes = False
-                                break
+                            if native_cursor is None:
+                                if type(row) is not sqlite3.Row:
+                                    canonical_routes = False
+                                    break
+                                keys = row.keys()
+                                if keys != expected_keys or len(row) != len(keys):
+                                    canonical_routes = False
+                                    break
+                                if expected_keys is route_columns:
+                                    expected_keys = keys
                             page_id, rank = row[id_position], row[-1]
                             rank_type = type(rank)
                             if type(page_id) is not str or (rank_type is not float and rank_type is not int):
                                 canonical_routes = False
                                 break
-                            if expected_keys is route_columns:
-                                expected_keys = keys
                         if not canonical_routes:
                             break
                 if canonical_routes:
@@ -779,6 +868,9 @@ class MemoryBook:
                         exact_scale = max(exact_scores.values(), default=1.0) or 1.0
                         stem_scale = max(stem_scores.values(), default=1.0) or 1.0
                 else:
+                    routes = [_restore_candidate_rows(route, cursor)
+                              for route, cursor in zip(routes, route_cursors)]
+                    route_cursors = [None] * len(routes)
                     # Preserve all original reads and exception ordering for
                     # custom values/factories and the optional full routes.
                     exact_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[0])}
@@ -791,15 +883,18 @@ class MemoryBook:
                     rows = {row["id"]: dict(row) for route in reversed(routes) for row in route}
                 metadata_by_id = {}
                 metadata = []
+                metadata_cursor = None
                 if use_stem and rows:
                     # Exact and stem routes commonly overlap. Fetch their
                     # directory metadata once, after both bounded searches.
-                    ids = [row["rid"] for row in rows.values()]
-                    metadata = self.db.execute("""SELECT p.id,p.project_id,p.chapter_id,
+                    ids = ([row[0] for row in rows.values()] if canonical_routes
+                           else [row["rid"] for row in rows.values()])
+                    metadata, metadata_cursor = _candidate_rows(self.db.execute("""SELECT p.id,p.project_id,p.chapter_id,
                       c.title chapter_title,s.external_id session_id,s.title session_title,s.created_at
                       FROM pages p JOIN chapters c ON c.id=p.chapter_id
                       JOIN sessions s ON s.id=p.session_pk WHERE p.rid IN (""" +
-                      ",".join("?" for _ in ids) + ")", ids).fetchall()
+                      ",".join("?" for _ in ids) + ")", ids), _DIRECTORY_DESCRIPTION,
+                                                               native_connection if canonical_routes else None)
                 late_materialize = canonical_routes
                 if late_materialize and use_stem:
                     # Validate the original batch before collapsing any rows.
@@ -811,28 +906,32 @@ class MemoryBook:
                         metadata_ids = set()
                         expected_keys = metadata_columns
                         for row in metadata:
-                            if type(row) is not sqlite3.Row:
-                                late_materialize = False
-                                break
-                            keys = row.keys()
-                            if keys != expected_keys or len(row) != len(keys):
-                                late_materialize = False
-                                break
+                            if metadata_cursor is None:
+                                if type(row) is not sqlite3.Row:
+                                    late_materialize = False
+                                    break
+                                keys = row.keys()
+                                if keys != expected_keys or len(row) != len(keys):
+                                    late_materialize = False
+                                    break
+                                if expected_keys is metadata_columns:
+                                    expected_keys = keys
                             page_id = row[0]
                             if type(page_id) is not str or page_id not in rows:
                                 late_materialize = False
                                 break
                             metadata_ids.add(page_id)
-                            if expected_keys is metadata_columns:
-                                expected_keys = keys
                         if len(metadata_ids) != len(rows):
                             late_materialize = False
                     if late_materialize:
                         metadata_by_id = {row[0]: row for row in metadata}
                 if not late_materialize:
                     if canonical_routes:
-                        rows = {page_id: dict(row) for page_id, row in rows.items()}
+                        routes = [_restore_candidate_rows(route, cursor)
+                                  for route, cursor in zip(routes, route_cursors)]
+                        rows = {row["id"]: dict(row) for route in reversed(routes) for row in route}
                     if use_stem:
+                        metadata = _restore_candidate_rows(metadata, metadata_cursor)
                         # Keep the original mapping reads, duplicate updates,
                         # unknown-ID failures and their order on every fallback.
                         for row in metadata:
@@ -874,22 +973,30 @@ class MemoryBook:
                         relevance = -(row[-1] if late_materialize else item["rank"])
                     score = relevance * factor
                     if late_materialize:
-                        ranked_rows.append((page_id, score, row, item))
+                        # Carry the unchanged complete sort key in the entry.
+                        # Retain score itself, including signed zero and NaNs.
+                        if fuse_routes:
+                            ranked_rows.append((-score, exact_ranks.get(page_id, 97),
+                                                stem_ranks.get(page_id, 97), page_id, score, row, item))
+                        else:
+                            ranked_rows.append((-score, page_id, score, row, item))
                     else:
                         item["score"] = score
                         candidates.append(item)
                 if late_materialize:
-                    if fuse_routes:
-                        ranked_rows.sort(key=lambda entry: (-entry[1], exact_ranks.get(entry[0], 97),
-                                                            stem_ranks.get(entry[0], 97), entry[0]))
-                    else:
-                        ranked_rows.sort(key=lambda entry: (-entry[1], entry[0]))
+                    # Exact str IDs were deduplicated in rows. The complete old
+                    # key distinguishes every entry before the payload tail, so
+                    # comparisons never reach score, route rows or metadata.
+                    ranked_rows.sort()
                     candidate_count = len(ranked_rows)
                     # The unchanged temporal/novelty pass can only select from
                     # this prefix. Coverage and semantic fusion use all rows.
                     prefix_size = (limit * 4 if strategy == "book" and
                                    (current_query or (len(qt) > 1 and limit > 1)) else limit)
-                    for _, score, row, metadata in ranked_rows[:prefix_size]:
+                    for ranked in ranked_rows[:prefix_size]:
+                        score = ranked[-3]
+                        row = ranked[-2]
+                        metadata = ranked[-1]
                         item = dict(zip(route_columns, row))
                         if use_stem:
                             item.update(zip(metadata_columns, metadata))
@@ -978,6 +1085,14 @@ class MemoryBook:
                     candidates = preferred + [item for item in candidates if item["rid"] not in seen]
                 if semantic_model is not None:
                     candidates = fuse_candidates(candidates, rank_pages(self.db, semantic_model, query, where, params))
+                if follow_active:
+                    # Opt-in T1 requires the unchanged complete lexical order,
+                    # including original novelty, to attribute one target. The
+                    # default and precondition-inactive paths keep the existing
+                    # delayed materialization, SQL and cache identity.
+                    candidates, title_reference_state = follow_title_reference(
+                        self.db, candidates, project=project, chapter=chapter,
+                        session=session, limit=limit)
                 if not late_materialize:
                     candidate_count = len(candidates)
                 if candidates:
@@ -1062,7 +1177,7 @@ class MemoryBook:
             # evidence at small budgets without adding source identity.
             block = header + text
             refs = self._refs(row, spans)
-            coverage = query_overlap(set(qt), text, terms) / len(qt) if qt else 0.0
+            coverage = len(set(qt) & set(terms(text, query=True))) / len(qt) if qt else 0.0
             results.append({"id": row["id"], "title": row["title"], "text": text, "source_refs": refs, "breadcrumb": crumbs, "score": row["score"], "lexical_coverage": coverage, "created_at": row["created_at"], "truncated": len(text) < len(row["content"]), "page_chars": len(row["content"]), "excerpt_spans": [[a, b] for a, b in spans]})
             blocks.append(block)
         context = "\n\n".join(blocks)
@@ -1074,6 +1189,8 @@ class MemoryBook:
         if not results and candidates:
             warnings.append("Budget too small to return an evidence block including its citation.")
         result = {"query": query, "results": results, "context": context, "context_chars": len(context), "estimated_tokens": estimate_tokens(context), "candidate_count": candidate_count, "revision": revision, "cache_hit": False, "warnings": warnings, "strategy": strategy, "budget_chars": budget_chars, "truncated": candidate_count > len(results) or any(r["truncated"] for r in results)}
+        if follow_titles:
+            result["title_reference"] = title_reference_state
         if semantic_model is not None:
             result.update(semantic=True, semantic_model_fingerprint=semantic_model.fingerprint)
         if token_counter is not None:

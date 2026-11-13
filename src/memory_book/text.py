@@ -24,6 +24,39 @@ ZH_QUESTION = re.compile(r"为什么|请告诉我|请问|是什么|什么|怎么
 STOP = frozenset("a an the is are was were be been to of in on at for from and or it this that these those with as by what which who when where why how do does did can could would should please tell me we our you your i my about now current latest final s t re ve ll d m".split())
 ZH_STOP = frozenset("什么 怎么 如何 为什么 哪个 哪些 是否 现在 当前 最后 最终 我们 这个 那个 一个 一下 请问 告诉 多少 了吗 的是 是什 么的 如何 何时 怎样".split())
 
+# This certificate excludes every old CJK scalar, including unassigned points,
+# and every other word character outside lowercase ASCII letters and digits.
+# Remaining Unicode characters can only separate the original lexical pieces.
+_ASCII_LEXICAL_EXCLUSIONS = re.compile(rf"[{CJK}]|[^\W0-9a-z_]")
+_ORDINARY_ASCII_RUNS = ASCII_RUNS
+_ORDINARY_RUNS = RUNS
+_ORDINARY_CJK_RUN = CJK_RUN
+_ORDINARY_IDENTIFIER_SEPARATOR = IDENTIFIER_SEPARATOR
+_ORDINARY_ZH_QUESTION = ZH_QUESTION
+_ORDINARY_STOP = STOP
+
+# Each admitted scalar is NFKC/NFKD-stable, has combining class zero, and
+# is not Mn. Excluding all marks and Hangul Jamo also prevents composition or
+# canonical reordering across adjacent characters. Unsupported inputs keep the
+# historical whole-string normalization; this creates no persistent cache.
+_NORMALIZATION_IDENTITY = re.compile(
+    r"[\x00-\x7f\u3400-\u4dbf\u4e00-\u9fff\u3001-\u3003"
+    r"\u3008-\u3011\u3014-\u301f\u2010\u2012-\u2015"
+    r"\u2018-\u201f\u2022\u30fb]*")
+# These compatibility scalars map only into the certified identity alphabet.
+# Translate the complete eligible string before CamelCase separation: a newly
+# ASCII capital (for example alphaＢeta) must create the historical boundary.
+_NORMALIZATION_COMPATIBILITY = re.compile(
+    _NORMALIZATION_IDENTITY.pattern[:-2] + r"\uff01-\uff5e\u3000\u2011\u2026]*")
+_NORMALIZATION_TRANSLATION = {code: code - 0xFEE0 for code in range(0xFF01, 0xFF5F)}
+_NORMALIZATION_TRANSLATION.update({0x3000: 0x20, 0x2011: 0x2010, 0x2026: "..."})
+# Only mapped runs enter translate; certified identity spans stay untouched.
+_NORMALIZATION_TRANSLATION_RUN = re.compile(r"[\uff01-\uff5e\u3000\u2011\u2026]+")
+_NORMALIZATION_UCD_VERSIONS = frozenset(("13.0.0", "14.0.0", "15.0.0", "15.1.0", "16.0.0"))
+_ORDINARY_NORMALIZE = unicodedata.normalize
+_ORDINARY_CATEGORY = unicodedata.category
+_ORDINARY_CAMEL_BOUNDARY = CAMEL_BOUNDARY
+
 
 def _strip_nonspacing_marks(text: str) -> str:
     """Remove category Mn without changing the caller's normalization order."""
@@ -31,18 +64,52 @@ def _strip_nonspacing_marks(text: str) -> str:
     return text.translate(removed) if removed else text
 
 
+_ORDINARY_STRIP_NONSPACING = _strip_nonspacing_marks
+
+
+def _translate_normalization_run(match: re.Match[str]) -> str:
+    """Apply the existing fixed mapping to one adjacent compatibility run."""
+    return match.group().translate(_NORMALIZATION_TRANSLATION)
+
+
 def terms(text: str, *, query: bool = False) -> list[str]:
     """NFKC text -> English words/identifier pieces and Chinese bigrams."""
+    identity_source = False
     if not text.isascii():
-        text = unicodedata.normalize("NFKC", text)
+        ordinary_source = (type(text) is str
+            and unicodedata.unidata_version in _NORMALIZATION_UCD_VERSIONS
+            and unicodedata.normalize is _ORDINARY_NORMALIZE
+            and unicodedata.category is _ORDINARY_CATEGORY
+            and CAMEL_BOUNDARY is _ORDINARY_CAMEL_BOUNDARY
+            and _strip_nonspacing_marks is _ORDINARY_STRIP_NONSPACING)
+        if ordinary_source:
+            if _NORMALIZATION_IDENTITY.fullmatch(text) is not None:
+                identity_source = True
+            elif _NORMALIZATION_COMPATIBILITY.fullmatch(text) is not None:
+                text = _NORMALIZATION_TRANSLATION_RUN.sub(_translate_normalization_run, text)
+                identity_source = True
+        if not identity_source:
+            text = unicodedata.normalize("NFKC", text)
     text = CAMEL_BOUNDARY.sub(r"\1 \2", text).casefold()
-    if not text.isascii():
+    if not text.isascii() and not identity_source:
         # Normalize the whole string first: canonical ordering can cross
         # character boundaries. Only the category lookup/deletion is reused.
         text = _strip_nonspacing_marks(unicodedata.normalize("NFKD", text))
     if text.isascii():
         # After case folding, the Unicode/identifier rule reduces exactly to
         # lowercase ASCII alphanumeric runs; its separators never add tokens.
+        parts = ASCII_RUNS.findall(text)
+        return [part for part in parts if part not in STOP] if query else parts
+    if (type(text) is str and type(query) is bool
+            and ASCII_RUNS is _ORDINARY_ASCII_RUNS
+            and RUNS is _ORDINARY_RUNS
+            and CJK_RUN is _ORDINARY_CJK_RUN
+            and IDENTIFIER_SEPARATOR is _ORDINARY_IDENTIFIER_SEPARATOR
+            and ZH_QUESTION is _ORDINARY_ZH_QUESTION
+            and (query is False or STOP is _ORDINARY_STOP)
+            and _ASCII_LEXICAL_EXCLUSIONS.search(text) is None):
+        # Whole-string certification also covers punctuation-rich English.
+        # Identifier splitting and ordered STOP membership remain identical.
         parts = ASCII_RUNS.findall(text)
         return [part for part in parts if part not in STOP] if query else parts
     if query:
