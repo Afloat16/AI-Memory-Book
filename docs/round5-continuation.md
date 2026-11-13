@@ -155,3 +155,15 @@ payload equals the saved v0.3.2 payload; eight compressed cells reconstruct the
 original report byte for byte. These noncontemporaneous profiles include
 profiler overhead and make no speed claim. The registered 4,096-call paired
 development diagnostic has not started at this checkpoint.
+
+## Candidate C paired disposition
+
+The registered C diagnostic completed all 4,096 calls and all 2,048 complete
+payload pairs match v0.3.2. Its eight-cell pooled p95 geometric improvement is
+-0.3607 percent (a regression). Public character p95 improves 8.7785 percent,
+while synthetic token1024 p50 regresses 6.0566 percent. Six of eight pooled p95
+cells regress. The full original records reconstruct byte for byte from the
+eight compressed worker archives. C is not selected for formal measurement or
+release. No formal or historical/Q2 compatibility attempt has begun. A further
+bounded change requires a separately committed scope before implementation;
+the original acceptance thresholds remain fixed.
