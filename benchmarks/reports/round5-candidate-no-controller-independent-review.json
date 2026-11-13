@@ -1,0 +1,394 @@
+{
+  "schema_version": 1,
+  "status": "accepted-independent-no-development-launch-review-before-corpus",
+  "reviewed_at_utc": "2026-11-13 18:59:02 UTC",
+  "reviewed_controller_commit": "8b7c721fb033c69ecb3ce07c55385f742b41c20f",
+  "controller_path": "scripts/round5_no_development.py",
+  "controller_sha256": "d694e4cad7d829fd26c823ef11e34c78c1bdcd7bb47cacaa2b07af2c4aa47acd",
+  "source_binding": {
+    "path": "benchmarks/experiments/round5-candidate-no-source.json",
+    "sha256": "44f0f1aa0435ebc14928c71c3b32d14a9cf276d8e0576f383d36440f567e47bf",
+    "candidate": "NO",
+    "status": "frozen-before-any-no-corpus-call",
+    "source_commit": "4a0ad4dc6aec33a91231d419239b7e90b160c695",
+    "runtime_sha256": "77310a7971677c2cebf8cd01d0aa36ab4562b55d1a3826b7fa7de895840abb32",
+    "files_sha256": {
+      "src/memory_book/__init__.py": "3b91357e9271f1abbe7d2dd4c01f0067ca5b5a65d6065844c850328d49e6aad7",
+      "src/memory_book/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+      "src/memory_book/cli.py": "f0e06d1d15e250aa4a6b1279a451f8d3d02acd1b8f7bd0a849b840397603e190",
+      "src/memory_book/clients.py": "c87c2ebd4dbd6b193b186f493586f53183a38e8108fd7011df3aa474f9b2058f",
+      "src/memory_book/importers.py": "f61aabfaa3e1fd2f46010e3c745e3275bb0d84c6d8e1b83317fda9e6b5cd7b76",
+      "src/memory_book/integration.py": "88ed9bf5a0ee90b93516dc9ded0e0a8f1459354f25fbcc5afe70197b9444c6c5",
+      "src/memory_book/mcp_server.py": "7f4e0cd884690bf585809c1d246228440a940e4752729928f2fc7b6698f0a1df",
+      "src/memory_book/paths.py": "37fd4089455082aa680b1fb3dcef8645e558bb43b7d27285ef32997629622bf4",
+      "src/memory_book/segmentation.py": "773cb62777bb11a66f1d2318bd75601f9ac38ea0fb6e7a534c1d8844a1a16e75",
+      "src/memory_book/semantic.py": "41df86bced1b613deea2f1b1361eba9f32c3786f5185a06253fbfd32270ac91e",
+      "src/memory_book/service.py": "55bd05f45cafc5dcd6c1fc5ceceade85f005a85a850b908c7bb155cff5a3584f",
+      "src/memory_book/static/index.html": "52f6e2d22fd25f6d5f9bd4df345c5c5e1ecaa907c326e61abc33a9b29c70d2d7",
+      "src/memory_book/store.py": "38c405b640216992b29b49c2f1937b8c5b644383f3cbfbcf764c5a7d502a9c58",
+      "src/memory_book/sync.py": "89b2ac4b30b9b14ac564c3d328a51fbba97b2efc8a8dd1997892fc4142501291",
+      "src/memory_book/text.py": "3558e2b37d9a8aaf03bc77663efa21fc210174199180d358586b663bafc51c34",
+      "src/memory_book/title_reference.py": "7e2c17fe5af2882f6471fd5610e1eca65eeac7f02e73f9daf6b5f2970709423e",
+      "src/memory_book/token_budget.py": "505ece57e7227ee1955d76883411362a1f462c28a2e8964984be818395266180",
+      "src/memory_book/web.py": "4e2cbfa33434322c78f57624c8faa32f4be9fb7fc29c8ffc4ed916e244446dcc"
+    },
+    "correctness_files_sha256": {
+      "tests/test_round5_statement_cache.py": "55acd7d4fd4ab0dafbed6c825c33f80d712e12a1f76c49c1d0b30bc0ab5fba54",
+      "tests/test_round5_native_rows.py": "f557eb50cecbeb4ffe216145aca461edd3a3371b84e3da603c92a31bf79e8f42",
+      "tests/test_round5_materialization.py": "2a652356adff1de9344ed4fea904caee7e8b58b1ac4266d73553fc1520c74a9d",
+      "tests/test_round4_sealed_counts.py": "a2e43be0bcd9978e392b60c8ef5b5e9de54277edf84fdf4ebe9ec2b8a30df2a9",
+      "tests/test_round4_highlight.py": "59cab84b24ea873670b5b1689d18bbdd170bf1cbb635a85ecba2a30e4104390b",
+      "tests/test_round4_token_work.py": "d05efe980d65f1d61017316f4410455646f4853efbe0f22194a0d9a0e9f02bdc",
+      "tests/test_token_budget.py": "89fa3919c92f97e5b3f7ff44f92fa2ebcf0f6121ed941a21dd5b450bc300aa4c",
+      "tests/test_project_rowid_bounds.py": "417a58396aa5d08d87a249e32fe41beb2e5176d82c4d6a47d0b4bd53075bb1aa",
+      "tests/test_lexical_cache.py": "419170a018e2baf0c0bdb70fc5414ac79922da402aa27ed9151a16208cd3d354",
+      "tests/test_title_reference.py": "d97603c308877748a36bf7e6450a97b656c701de5989e590c37900bf72591c80",
+      "tests/test_title_reference_interfaces.py": "8ba7e5a2c72903b5aff36a06a31ae9ea642db254eed48b3a4dd5c9a4589da63f",
+      "tests/test_title_reference_native_integration.py": "a249e57df8a477b649c8feb1b74265aa4a21158bb84905fd959dc30f026da6bc",
+      "tests/test_round5_normalization_identity.py": "184195e982a74eb91f9be0ef854d9be53823c9eafe13574b80a69b97dc8ee7dc",
+      "tests/test_round5_ranked_entries.py": "e4e4b1be159d9b45dc537e537c0040c10def2cf19683fd30dfdb038e05af548b",
+      "tests/test_round5_normalization_translation.py": "25434916a32bd8015e453393d76b1e5336ab5f5e24655b899d4ae25f2aff3ba9",
+      "tests/test_round5_normalization_runs.py": "e4b3c047f06dede095718a0b9985d3df6af4d44bc509c5e8557b2e77f4704444",
+      "tests/test_round5_ascii_word_boundary.py": "fc9e4d7e210d7f6d6a9024d74c7076ff84c5245ba747cf96d65268df065e6868"
+    },
+    "correctness_support_files_sha256": {
+      "tests/fixtures/round5_o_unfixed_text.txt": "31df3017243057309d08166d88fed62ca9f9c9592cc79176613359aafb4ec4e9"
+    },
+    "independently_verified_all36_hashes": true
+  },
+  "launch_review_accepted": true,
+  "performance_accepted": false,
+  "formal_acceptance": false,
+  "release_accepted": false,
+  "final_runtime_selected": false,
+  "corpus_calls_executed_by_review": 0,
+  "fresh_rows_decoded_by_review": 0,
+  "benchmark_runs_launched_by_review": 0,
+  "measurement_trigger_created_by_review": false,
+  "reviewer": "/root/baseline_audit",
+  "review_method": "Directly read the exact final source binding, controller and scope; compared the complete final controller against the independently reviewed unbound draft with two literal substitutions; inspected the complete Git tree difference. Matched every bound source/module/support hash against the separately fetched source4a0ad4 bytes and the independently recomputed runtime aggregate. Read the exact source CI and independent source review. Retrieved the final dedicated protocol CI job's actual raw log and counted every real testcase. No evaluation/controller run was invoked.",
+  "draft_review": {
+    "commit": "8c715b293dfe9e5acadb2169ae8ca0e4687c85ae",
+    "path": "benchmarks/reports/round5-candidate-no-controller-independent-draft-review.json",
+    "sha256": "edd7e9cbba33a56feb8037652aa06de68416104ec07fea18aa9f06063b8d77c4",
+    "status_preserved": "independently-reviewed-unbound-no-controller-draft-before-final-binding"
+  },
+  "final_delta": {
+    "changes": [
+      {
+        "path": "benchmarks/experiments/round5-candidate-no-source.json",
+        "previous_git_blob": null,
+        "git_blob": "95a43826033f26dfa7ae83e2a1af9544107f16a7"
+      },
+      {
+        "path": "scripts/round5_no_development.py",
+        "previous_git_blob": "560eac7f62ef36bd9d2fbe7f5e62291978c0ac98",
+        "git_blob": "b9d7025e34ee7f4ff69765f598d2dbf0b5753bb4"
+      }
+    ],
+    "deleted": [],
+    "exact_two_constant_substitutions": true,
+    "source_binding_all36_match": true,
+    "scope_unchanged": true
+  },
+  "source_review": {
+    "commit": "0610e0ddd5a0d1a89a9e96720c153c732d81e18d",
+    "path": "benchmarks/reports/round5-normalization-lexical-no-independent-source-review.json",
+    "sha256": "6a10d133a5715ab6b7b4a3e91da7dc9b32deb02611a16751422bb404b7219995"
+  },
+  "source_correctness_ci": {
+    "workflow": "Tests",
+    "run_id": 43485616395,
+    "head_sha": "4a0ad4dc6aec33a91231d419239b7e90b160c695",
+    "status": "completed",
+    "conclusion": "success",
+    "run_attempt": 1,
+    "event": "push",
+    "jobs": [
+      {
+        "id": 132093136205,
+        "name": "mcp",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132093136610,
+        "name": "reader-browser",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132093136696,
+        "name": "installers (windows-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132093136717,
+        "name": "core (3.12)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132093136771,
+        "name": "installers (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132093136807,
+        "name": "installers (macos-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132093136926,
+        "name": "container",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132093136933,
+        "name": "core (3.10)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132093136940,
+        "name": "core (3.13)",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "source_review_contract": {
+    "required_status": "accepted-independent-source-review-of-combined-no-before-corpus",
+    "reviewed_source_commit": "4a0ad4dc6aec33a91231d419239b7e90b160c695",
+    "runtime_sha256": "77310a7971677c2cebf8cd01d0aa36ab4562b55d1a3826b7fa7de895840abb32",
+    "performance_accepted": false,
+    "corpus_calls_executed_by_review": 0,
+    "all_fields_exactly_match_the_bound_review": true
+  },
+  "scope": {
+    "commit": "2181b3ae500392ab75f323682750e3d22e385de7",
+    "path": "benchmarks/experiments/round5-candidate-no-development-scope.json",
+    "sha256": "efc5badce593308cf58a623f31053f0b6ccb4151885fff0759c6c21ca160f6ad",
+    "unchanged_from_prospective_registration": true
+  },
+  "inherited_driver": {
+    "commit": "8df838aa47e009caa8173b2ccb32fad93e4b8f90",
+    "path": "scripts/round5_lm_development.py",
+    "sha256": "89998e6c55e42127d59387755031b7c7ff7cd9bcf1651c24d54c2ed237dd32ac",
+    "top_level_comparison": {
+      "unchanged": [
+        "PublicationError",
+        "stamp",
+        "digest",
+        "sha",
+        "read",
+        "save",
+        "git",
+        "parse_remote",
+        "remote_head",
+        "publish",
+        "verify_files",
+        "source_files",
+        "runtime_sha",
+        "verify_exact_source",
+        "inventory_difference",
+        "full_export_files",
+        "correctness_inventory",
+        "archive_correctness_export",
+        "export_source",
+        "environment",
+        "schedule",
+        "ident",
+        "expected_ids",
+        "validate_worker",
+        "quantile",
+        "numeric",
+        "audit",
+        "prepare_references",
+        "profile_audit",
+        "compress_profile",
+        "profile",
+        "prepare",
+        "guards",
+        "preserve",
+        "ProtocolTests",
+        "IsolationTests"
+      ],
+      "changed": [
+        "validate_evidence_value",
+        "verify_development_prerequisites",
+        "frozen_source",
+        "correctness",
+        "run",
+        "PreflightTests"
+      ],
+      "added": [
+        "verify_correctness_inputs",
+        "SupportFileTests"
+      ]
+    }
+  },
+  "checks": [
+    {
+      "id": "NC1",
+      "finding": "Final controller differs from the reviewed draft only by the exact frozen binding SHA and exact source commit; the obsolete unbound comment is removed. The full final Git tree has only the new source JSON and changed controller blob. Scope, workflow, wrapper/tests, helpers and runtime files are unchanged.",
+      "verified": true
+    },
+    {
+      "id": "NC2",
+      "finding": "The source JSON freezes the exact reviewed4a0ad4 combined NO source, complete18-file inventory,17 correctness modules and separately mandatory original O .txt. The complete36-file hashes and17py aggregate match independent source reads. The source review and all9 source CI jobs refer to that same source.",
+      "verified": true
+    },
+    {
+      "id": "NC3",
+      "finding": "The binding digest and hardcoded source/runtime identities are checked before any evidence fetch, result claim, corpus download or retrieval. Preclaim additionally verifies committed controller/scope/binding bytes, inherited LM driver, exact complete source CI and immutable NO/J/K/LM review evidence.",
+      "verified": true
+    },
+    {
+      "id": "NC4",
+      "finding": "The exact historical O support map must equal the registered original31df hash. Every module and support file is checked before correctness intent/publication/subprocess and after the retained suite. Missing/substituted/corrupt/extra entries are covered by passing actual-file artificial negative fixtures.",
+      "verified": true
+    },
+    {
+      "id": "NC5",
+      "finding": "Correctness first exports source/tests including the .txt, requires all registered tests once with no skips/errors/failures, retains every added/changed file and publishes a complete archive. Only afterward are fresh independent baseline/candidate measurement exports created and bound before old corpus preparation. Measured-source full inventory guards stay strict.",
+      "verified": true
+    },
+    {
+      "id": "NC6",
+      "finding": "The original4732 profile reference audit and4096-call balanced8-worker/2048-full-payload-pair protocol is unchanged. Exact helpers/data/seeds/orders/snapshots/finite timing/quantiles and all adverse cells remain part of the original audit; no optional repetition, hidden query, timing pooling or threshold change is added.",
+      "verified": true
+    },
+    {
+      "id": "NC7",
+      "finding": "Every measured stage keeps its original durable start/end checkpoints with expected remote ancestry, ordinary push and exact readback. Existing result/state or worker intent rejects replay. Ambiguous publication halts measurement and preserves artifacts; the workflow always path only preserves existing evidence.",
+      "verified": true
+    },
+    {
+      "id": "NC8",
+      "finding": "Staging can run protocol fixtures only. Development requires the exact registered ci/v033-candidate-no-development-1 branch, repository/event and run_attempt1. Review created no trigger; both trigger and result refs were absent at the recorded read-only observation.",
+      "verified": true
+    },
+    {
+      "id": "NC9",
+      "finding": "The final commit message contains no skip-ci directive. Dedicated final protocol CI ran at the exact controller head and passed31/31 with no skips; its development job was skipped. The separate source CI already passed all9 jobs. The ordinary controller Tests run is separately recorded as API status only, without pretending its unreviewed logs are additional source proof.",
+      "verified": true
+    }
+  ],
+  "stage_order": [
+    "Verify exact binding and preclaim source/CI/review/prior-evidence contracts.",
+    "Reject existing result/state; publish the unique attempt intent.",
+    "Export and verify the separate correctness copy; publish intent; run17 registered modules once; preserve outcome, full inventory and complete archive.",
+    "Export new exact baseline and NO measurement copies; verify and publish their inventories before old corpus preparation.",
+    "Validate saved v032 profile references and old input bytes; build new baseline snapshots once; bind source/environment/helper/data/order identities remotely.",
+    "Publish profile intent; execute the original4732-call profile once; preserve output and full saved-reference payload audit before paired timing.",
+    "For each of8 fixed AB/BA workers: strict source/data guard, unique intent and remote publication, exactly512 calls, result/exit publication, completeness check.",
+    "Audit every saved4096 observation and2048 complete payload pair; preserve all adverse cells and incomplete/failed evidence. No formal/release acceptance is granted."
+  ],
+  "actual_artificial_ci": {
+    "run_id": 43487284538,
+    "job_id": 132098963096,
+    "head_sha": "8b7c721fb033c69ecb3ce07c55385f742b41c20f",
+    "status": "completed",
+    "conclusion": "success",
+    "tests": 31,
+    "passed": 31,
+    "skipped": 0,
+    "failed": 0,
+    "errors": 0,
+    "log_sha256": "4c94960f4684ee0d38f2cec290932157b9c419ecf708e159db1b65707fc158b9",
+    "actual_test_lines": [
+      "test_added_bytecode_is_recorded_preserved_and_rejected_in_measurement (scripts.round5_lm_development.IsolationTests.test_added_bytecode_is_recorded_preserved_and_rejected_in_measurement) ... ok",
+      "test_changed_missing_or_unknown_source_is_never_accepted (scripts.round5_lm_development.IsolationTests.test_changed_missing_or_unknown_source_is_never_accepted) ... ok",
+      "test_duplicate_cache_tag_is_not_a_real_source_cache_path (scripts.round5_lm_development.IsolationTests.test_duplicate_cache_tag_is_not_a_real_source_cache_path) ... ok",
+      "test_missing_source_binding_fails_before_claim_or_evidence_fetch (scripts.round5_lm_development.IsolationTests.test_missing_source_binding_fails_before_claim_or_evidence_fetch) ... ok",
+      "test_prior_evidence_failure_stops_before_claim (scripts.round5_lm_development.IsolationTests.test_prior_evidence_failure_stops_before_claim) ... ok",
+      "test_k_below_target_evidence_is_distinct_from_j_adverse_rejection (scripts.round5_lm_development.PreflightTests.test_k_below_target_evidence_is_distinct_from_j_adverse_rejection) ... ok",
+      "test_review_must_cover_the_exact_source_without_performance_claim (scripts.round5_lm_development.PreflightTests.test_review_must_cover_the_exact_source_without_performance_claim) ... ok",
+      "test_saved_negative_evidence_cannot_be_relabelled_as_acceptance (scripts.round5_lm_development.PreflightTests.test_saved_negative_evidence_cannot_be_relabelled_as_acceptance) ... ok",
+      "test_profile_audit_keeps_mismatch_and_rejects_missing_reference_or_rows (scripts.round5_lm_development.ProtocolTests.test_profile_audit_keeps_mismatch_and_rejects_missing_reference_or_rows) ... ok",
+      "test_profile_storage_is_lossless_for_failed_partial_report (scripts.round5_lm_development.ProtocolTests.test_profile_storage_is_lossless_for_failed_partial_report) ... ok",
+      "test_quantiles_interpolate_without_discarding_slow_rows (scripts.round5_lm_development.ProtocolTests.test_quantiles_interpolate_without_discarding_slow_rows) ... ok",
+      "test_remote_ref_parser_rejects_wrong_ref_or_multiple_rows (scripts.round5_lm_development.ProtocolTests.test_remote_ref_parser_rejects_wrong_ref_or_multiple_rows) ... ok",
+      "test_schedule_is_complete_and_balanced_without_replay (scripts.round5_lm_development.ProtocolTests.test_schedule_is_complete_and_balanced_without_replay) ... ok",
+      "test_worker_rejects_missing_reordered_and_nonfinite_observations (scripts.round5_lm_development.ProtocolTests.test_worker_rejects_missing_reordered_and_nonfinite_observations) ... ok",
+      "test_added_bytecode_is_recorded_preserved_and_rejected_in_measurement (scripts.round5_no_development.IsolationTests.test_added_bytecode_is_recorded_preserved_and_rejected_in_measurement) ... ok",
+      "test_changed_missing_or_unknown_source_is_never_accepted (scripts.round5_no_development.IsolationTests.test_changed_missing_or_unknown_source_is_never_accepted) ... ok",
+      "test_duplicate_cache_tag_is_not_a_real_source_cache_path (scripts.round5_no_development.IsolationTests.test_duplicate_cache_tag_is_not_a_real_source_cache_path) ... ok",
+      "test_missing_source_binding_fails_before_claim_or_evidence_fetch (scripts.round5_no_development.IsolationTests.test_missing_source_binding_fails_before_claim_or_evidence_fetch) ... ok",
+      "test_prior_evidence_failure_stops_before_claim (scripts.round5_no_development.IsolationTests.test_prior_evidence_failure_stops_before_claim) ... ok",
+      "test_k_below_target_evidence_is_distinct_from_j_adverse_rejection (scripts.round5_no_development.PreflightTests.test_k_below_target_evidence_is_distinct_from_j_adverse_rejection) ... ok",
+      "test_lm_below_target_evidence_keeps_its_original_complete_result (scripts.round5_no_development.PreflightTests.test_lm_below_target_evidence_keeps_its_original_complete_result) ... ok",
+      "test_review_must_cover_the_exact_source_without_performance_claim (scripts.round5_no_development.PreflightTests.test_review_must_cover_the_exact_source_without_performance_claim) ... ok",
+      "test_saved_negative_evidence_cannot_be_relabelled_as_acceptance (scripts.round5_no_development.PreflightTests.test_saved_negative_evidence_cannot_be_relabelled_as_acceptance) ... ok",
+      "test_profile_audit_keeps_mismatch_and_rejects_missing_reference_or_rows (scripts.round5_no_development.ProtocolTests.test_profile_audit_keeps_mismatch_and_rejects_missing_reference_or_rows) ... ok",
+      "test_profile_storage_is_lossless_for_failed_partial_report (scripts.round5_no_development.ProtocolTests.test_profile_storage_is_lossless_for_failed_partial_report) ... ok",
+      "test_quantiles_interpolate_without_discarding_slow_rows (scripts.round5_no_development.ProtocolTests.test_quantiles_interpolate_without_discarding_slow_rows) ... ok",
+      "test_remote_ref_parser_rejects_wrong_ref_or_multiple_rows (scripts.round5_no_development.ProtocolTests.test_remote_ref_parser_rejects_wrong_ref_or_multiple_rows) ... ok",
+      "test_schedule_is_complete_and_balanced_without_replay (scripts.round5_no_development.ProtocolTests.test_schedule_is_complete_and_balanced_without_replay) ... ok",
+      "test_worker_rejects_missing_reordered_and_nonfinite_observations (scripts.round5_no_development.ProtocolTests.test_worker_rejects_missing_reordered_and_nonfinite_observations) ... ok",
+      "test_missing_or_corrupted_support_stops_before_correctness_intent_and_execution (scripts.round5_no_development.SupportFileTests.test_missing_or_corrupted_support_stops_before_correctness_intent_and_execution) ... ok",
+      "test_support_inventory_is_separate_and_rejects_substitution_or_omission (scripts.round5_no_development.SupportFileTests.test_support_inventory_is_separate_and_rejects_substitution_or_omission) ... ok"
+    ],
+    "run_attempt": 1,
+    "development_job": {
+      "id": 132099101993,
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    "raw_log_path": "benchmarks/reports/round5-candidate-no-controller-independent-protocol.log",
+    "raw_log_source": "Direct GitHub workflow-job log API; exact raw UTF-8 bytes preserved in this independent review commit."
+  },
+  "ordinary_tests_api_observation": {
+    "run_id": 43487284495,
+    "head_sha": "8b7c721fb033c69ecb3ce07c55385f742b41c20f",
+    "status": "completed",
+    "conclusion": "success",
+    "at_utc": "2026-11-13 18:57:52 UTC"
+  },
+  "remote_ref_observation": {
+    "at_utc": "2026-11-13 18:57:52 UTC",
+    "refs": [
+      {
+        "kind": "trigger",
+        "branch": "ci/v033-candidate-no-development-1",
+        "exists": false,
+        "observed_api": "404 Not Found"
+      },
+      {
+        "kind": "result",
+        "branch": "validation/v033-candidate-no-development-1",
+        "exists": false,
+        "observed_api": "404 Not Found"
+      }
+    ]
+  },
+  "prior_evidence": [
+    {
+      "commit": "dca3c856d53bc5f12de70ee36968de408cf58b18",
+      "path": "benchmarks/reports/round5-candidate-j-development-2/independent-raw-audit.json",
+      "sha256": "f0d443e917e539bdaef4e83c996e94a543dfb86f34ca5ee429dab87e262648b2"
+    },
+    {
+      "commit": "2d5037561d6b543ee785f434d7c04fa16eb2e8b1",
+      "path": "benchmarks/reports/round5-candidate-k-development-1/independent-raw-audit.json",
+      "sha256": "c07522e9981c17aa5581c6e4315c7674971869c3109234ea93dfef581d8e9c6b"
+    },
+    {
+      "commit": "128952ffd4f53a30f225feb98853a7f7f6ea7121",
+      "path": "benchmarks/reports/round5-candidate-lm-development-1/independent-raw-audit.json",
+      "sha256": "eb7c9fd7b032409e7ff4d39b3ce8b03838f1901abfc3b4806fd21a8f398fdb42"
+    }
+  ],
+  "blocking_findings": [],
+  "limits": [
+    "This accepts the frozen development launch protocol only; it does not select a final runtime, claim speedup, establish competitor superiority or satisfy formal/release gates.",
+    "Root alone may create the one registered trigger from the reviewed controller source. Runtime guards recheck actual remote/state ownership at execution time; the earlier absence observation is not a permanent lease.",
+    "No new corpus, fresh metadata, fresh rows, model or measurement was executed by the reviewer. The later one-shot development result must be preserved and independently audited even if unfavorable.",
+    "Existing formal66248 timing/resources, lexical5120 including2048 char diagnostic, Q21968, fresh quality/cost/component comparison and release requirements remain unchanged."
+  ]
+}
