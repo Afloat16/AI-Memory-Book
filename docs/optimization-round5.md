@@ -69,3 +69,30 @@ needs separate evaluation; all 896 scored Hotpot IDs are development data.
 
 Baseline and earlier evidence recovered. Implementation and validation are in
 progress; no v0.3.3 benchmark, quality improvement, or release is claimed yet.
+
+### First implementation checkpoint
+
+The candidate skips pagination and a reserved write lock for unchanged
+imports, after checking inherited metadata, settings, stored content hash,
+counts and revision in one SQLite SELECT snapshot. A miss still executes the
+original checked write transaction. The returned revision is the revision of
+that read snapshot; an overlapping writer may commit later. It is not a
+promise to return the latest revision after another connection commits.
+
+Default recall now builds fusion dictionaries only when the exact and stem
+routes differ, and computes each repeated directory weight once per call.
+Supplemental token evidence is scored from its original span, avoiding
+Unicode normalization triggered solely by presentation ellipses. Ranking,
+rendered text, source coordinates and token counting are unchanged.
+
+The first targeted runs passed 95 runtime tests and 56 token tests. Artificial
+differential checks preserve all 300 complete recall payloads and all 540
+token-assembly outcomes against the baseline. These are development checks,
+not corpus performance measurements. Their hashes, microdiagnostics and
+logs are retained in `benchmarks/reports/round5-development/`.
+
+The initial broad environment check was not a valid candidate test: a sparse
+checkout lacked historical report fixtures, and a separately imported
+baseline did not identify the working checkout under provenance guards.
+Those failures are retained locally; hydrate the required fixtures and run
+the complete suite against an exact committed candidate before acceptance.

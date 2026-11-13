@@ -301,10 +301,6 @@ def prepare_source_units(pages: list[dict], turns: dict[tuple[str, int], str],
     return resolve
 
 
-def _render(text: str, start: int, end: int) -> str:
-    return ("…" if start else "") + text[start:end] + ("…" if end < len(text) else "")
-
-
 def assemble(
     legacy: list[tuple[dict, str, str, list[tuple[int, int]]]],
     pages: list[dict],
@@ -417,11 +413,16 @@ def assemble_with_count(
         choices = []
         units = source_units_for(row) if source_units_for is not None else row.get("token_source_units", [])
         for start, end in units:
-            text = _render(row["content"], start, end)
+            source_text = row["content"][start:end]
+            text = ("…" if start else "") + source_text + ("…" if end < len(row["content"]) else "")
             if len(text) > remaining_chars:
                 continue
             if text not in term_cache:
-                term_cache[text] = set(terms(text, query=True))
+                # The renderer adds only boundary ellipses. NFKC maps those
+                # markers to dots, which contribute no edge lexical terms.
+                # Score the same source bytes without forcing ASCII evidence
+                # through Unicode normalization solely for its presentation.
+                term_cache[text] = set(terms(source_text, query=True))
             overlap = len(qset.intersection(term_cache[text]))
             choices.append((overlap, end - start, start, end, text))
         # Prefer the most relevant complete span, then retain as much of its

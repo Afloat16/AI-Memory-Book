@@ -407,14 +407,55 @@ class MemoryBook:
                     self.db.execute("UPDATE pages_fts SET directory=? WHERE rowid=?", values)
                     self.db.execute("UPDATE pages_stem_fts SET directory=? WHERE rowid=?", values)
 
+    def _unchanged_ingest(self, payload: dict, source: dict, session_pk: str,
+                          chapter_id: str, settings: dict) -> dict | None:
+        """Recognize an exact replay in one read snapshot before paginating.
+
+        Background capture repeatedly submits existing conversations. Their
+        stored hash already binds normalized source, inherited names, creation
+        time, pagination settings and index version. A matching snapshot needs
+        neither another segmentation pass nor a reserved SQLite write lock.
+        All stored values, counts and revision come from one SELECT snapshot.
+        Changed requests still use the original checked write transaction.
+        """
+        if self.db.in_transaction:
+            # Preserve the existing rejection of nested ingest transactions.
+            return None
+        old = self.db.execute("""SELECT s.created_at,s.content_hash,s.turn_count,
+          (SELECT name FROM projects WHERE id=?) project_name,
+          (SELECT title FROM chapters WHERE id=?) task_title,
+          (SELECT COUNT(*) FROM pages WHERE session_pk=s.id) pages,
+          (SELECT COUNT(*) FROM sections WHERE chapter_id=s.chapter_id AND session_pk=s.id) sections,
+          (SELECT value FROM meta WHERE key='revision') revision
+          FROM sessions s WHERE s.id=?""",
+          (source["project"], chapter_id, session_pk)).fetchone()
+        if old is None:
+            return None
+        normalized = dict(source)
+        if not payload.get("project_name") and old["project_name"] is not None:
+            normalized["project_name"] = old["project_name"]
+        if not payload.get("task_title") and old["task_title"] is not None:
+            normalized["task_title"] = old["task_title"]
+        normalized["created_at"] = normalized["created_at"] or old["created_at"]
+        content_hash = hashlib.sha256(_json([normalized, settings, INDEX_VERSION]).encode()).hexdigest()
+        if content_hash != old["content_hash"]:
+            return None
+        return {"project": source["project"], "session_id": source["session_id"],
+                "chapter_id": chapter_id, "pages": old["pages"], "sections": old["sections"],
+                "turns": old["turn_count"], "skipped": True, "revision": int(old["revision"])}
+
     def ingest(self, payload: dict) -> dict:
         source = normalize_session(payload)
-        turns = make_turns(source["messages"])
-        sections = segment(turns, self.segmentation, self.max_page_chars, self.min_page_chars, self.similarity_threshold)
         project, external = source["project"], source["session_id"]
         session_pk = _id("ss_", project, external)
         task_key = "task:" + source["task_id"] if source["task_id"] else "session:" + external
         chapter_id = _id("ch_", project, task_key)
+        settings = {"segmentation": self.segmentation, "max_page_chars": self.max_page_chars, "min_page_chars": self.min_page_chars, "similarity_threshold": self.similarity_threshold}
+        unchanged = self._unchanged_ingest(payload, source, session_pk, chapter_id, settings)
+        if unchanged is not None:
+            return unchanged
+        turns = make_turns(source["messages"])
+        sections = segment(turns, self.segmentation, self.max_page_chars, self.min_page_chars, self.similarity_threshold)
         now = _now()
         self.db.execute("BEGIN IMMEDIATE")
         try:
@@ -427,7 +468,6 @@ class MemoryBook:
                 source["task_title"] = old_chapter["title"]
             source["created_at"] = source["created_at"] or (old["created_at"] if old else now)
             source_json = _json(source)
-            settings = {"segmentation": self.segmentation, "max_page_chars": self.max_page_chars, "min_page_chars": self.min_page_chars, "similarity_threshold": self.similarity_threshold}
             content_hash = hashlib.sha256(_json([source, settings, INDEX_VERSION]).encode()).hexdigest()
             if old and old["content_hash"] == content_hash:
                 counts = self.db.execute("SELECT COUNT(*) FROM pages WHERE session_pk=?", (session_pk,)).fetchone()[0]
@@ -722,17 +762,24 @@ class MemoryBook:
                           JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk
                           ORDER BY hits.rank,p.id"""
                     routes.append(self.db.execute(statement, route_params).fetchall() if qt else [])
-                exact_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[0])}
-                stem_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[1])} if use_stem else {}
-                exact_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[0]}
-                stem_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[1]} if use_stem else {}
-                exact_scale = max(exact_scores.values(), default=1.0) or 1.0
-                stem_scale = max(stem_scores.values(), default=1.0) or 1.0
                 # Identical ordered routes add no candidate/ranking information.
                 # Keep BM25's score scale so novelty selection does not change
                 # merely because the same ranking was observed a second time.
-                fuse_routes = use_stem and list(exact_ranks) != list(stem_ranks)
-                rows = {row["id"]: dict(row) for route in reversed(routes) for row in route}
+                fuse_routes = use_stem and ([row["id"] for row in routes[0]] !=
+                                           [row["id"] for row in routes[1]])
+                if fuse_routes:
+                    exact_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[0])}
+                    stem_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[1])}
+                    exact_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[0]}
+                    stem_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[1]}
+                    exact_scale = max(exact_scores.values(), default=1.0) or 1.0
+                    stem_scale = max(stem_scores.values(), default=1.0) or 1.0
+                    rows = {row["id"]: dict(row) for route in reversed(routes) for row in route}
+                else:
+                    # The exact route already supplies every field and the
+                    # same ordered union. Avoid duplicate dictionaries and
+                    # unused fusion scores on the common identical-route path.
+                    rows = {row["id"]: dict(row) for row in routes[0]}
                 if use_stem and rows:
                     # Exact and stem routes commonly overlap. Fetch their
                     # directory metadata once, after both bounded searches.
@@ -745,15 +792,16 @@ class MemoryBook:
                     for row in metadata:
                         rows[row["id"]].update(dict(row))
                 qset = set(qt)
-                directory_terms = {}
+                directory_weights = {}
                 for row in rows.values():
                     item = row  # already a private dictionary; rows is not reused
-                    title_overlap = 0.0
+                    directory_weight = 1
                     if strategy == "book":
                         directory = item["chapter_title"] + " " + item["session_title"]
-                        if directory not in directory_terms:
-                            directory_terms[directory] = self._directory_tokens(directory)
-                        title_overlap = len(qset & directory_terms[directory]) / len(qset)
+                        if directory not in directory_weights:
+                            title_overlap = len(qset & self._directory_tokens(directory)) / len(qset)
+                            directory_weights[directory] = 1 + 0.15 * title_overlap
+                        directory_weight = directory_weights[directory]
                     if fuse_routes:
                         # Retain each route's
                         # relative BM25 margins instead of only its ordinal rank.
@@ -763,7 +811,7 @@ class MemoryBook:
                                      stem_scores.get(item["id"], 0.0) / stem_scale)
                     else:
                         relevance = -item["rank"]
-                    item["score"] = relevance * (1 + 0.15 * title_overlap if strategy == "book" else 1)
+                    item["score"] = relevance * directory_weight
                     candidates.append(item)
                 if fuse_routes:
                     candidates.sort(key=lambda item: (-item["score"], exact_ranks.get(item["id"], 97),
