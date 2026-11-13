@@ -1,0 +1,62 @@
+name: Diagnose J source inventory with artificial fixtures
+
+on:
+  push:
+    branches: ['diagnostic/v033-j-source-inventory-1']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: round5-j-source-inventory-1
+  cancel-in-progress: false
+
+jobs:
+  artificial-inventory:
+    if: github.repository == 'Afloat16/AI-Memory-Book' && github.event_name == 'push' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONHASHSEED: '0'
+      ORT_DISABLE_TELEMETRY: '1'
+      TIKTOKEN_CACHE_DIR: ${{ github.workspace }}/.artifacts/tiktoken
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/benchmarks/reports/
+            !/benchmarks/figures/
+            !/docs/images/
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - name: Install identical correctness dependencies
+        run: python -m pip install -e '.[mcp,clients,benchmark]' 'mcp==1.30.0' 'pydantic==2.14.3' 'tiktoken==0.12.0' 'regex==2026.11.9'
+      - name: Observe artificial fixtures and exact source inventories
+        id: diagnostic
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p .artifacts
+          python -u scripts/round5_j_source_inventory.py run 2>&1 | tee .artifacts/round5-j-source-inventory-1-runner.log
+      - name: Preserve diagnostic partial evidence
+        if: always()
+        env:
+          DIAGNOSTIC_OUTCOME: ${{ steps.diagnostic.outcome }}
+        run: python scripts/round5_j_source_inventory.py preserve
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: round5-j-source-inventory-1-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            benchmarks/reports/round5-j-source-inventory-1/
+            .artifacts/round5-j-source-inventory-1-runner.log
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30
