@@ -11,16 +11,57 @@ useful lexical matches. It does not guarantee complete evidence, resolve old
 versus current decisions, or establish final-answer accuracy. Keep using the
 returned source references to check the original conversation.
 
-## Current fixed-source validation — 2026-11-12
+## Current v0.3.2 C2 validation — 2026-11-13
 
-The current integrated runtime is frozen at
+The round-four candidate is frozen at
+[`2d7b5e3`](https://github.com/Afloat16/AI-Memory-Book/commit/2d7b5e38839fb21724ad3beec6b6ebabbda45636),
+runtime SHA256
+`179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93`.
+C2 reduces repeated source preparation and exact token-counting work. It keeps
+the Q2 model, persisted-vector rules and fusion policy unchanged; it introduces
+no new semantic quality candidate. The model fingerprint remains
+`2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25`, with
+`SEMANTIC_VERSION=1` and `FUSION_VERSION=3`.
+
+The [completed Q2 compatibility audit](../benchmarks/reports/round4-compatibility-final/paired-audit.json)
+checks **1,968 calls and 984 exact complete-payload pairs** against v0.3.1 on
+authored36 and historical Hotpot128, using both `cl100k_base` and `o200k_base`
+at 512/1,024/2,048 tokens. Only `latency_ms` is excluded from payload equality.
+Both sources use copies of one baseline-built vector snapshot per cohort.
+Source, projection, scope, token-budget and semantic/model/cache checks pass;
+the independent audit also verifies source/evaluator bytes, model artifacts,
+every ledger event and unchanged originals/vectors. These are old-cohort
+compatibility results, not new quality gains or semantic speed measurements.
+
+The [fresh round-four manifest](../benchmarks/experiments/round4-hotpot256-manifest.json)
+contains **256 questions**, excludes all **640 historical IDs**, and has
+**zero historical overlap**. The
+[independent freeze audit](../benchmarks/reports/round4-freeze-independent-audit.json)
+reconstructs the exact ID-only selection and verifies the source/evaluator,
+asset, binding and manifest commit order. The
+[existing content verifier](../benchmarks/reports/round4-selection-local-audit.json)
+separately validates the selected canonical content and dataset fingerprint.
+This is another selection from the same HotpotQA source, not a new domain.
+
+**Fresh Q2 quality and cost results are pending.**
+[Run 43363060062](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43363060062)
+is still executing. Native and common-page quality, every paired gain/loss,
+query latency, model/index setup, vector storage and RSS will be interpreted
+only after the complete run and saved-report audit. No partial-stage score or
+historical cost below is presented as a C2 result. The separate
+[formal lexical performance review](round4-performance-review.md) does not
+substitute for that semantic comparison.
+
+## Historical round-two fixed-source validation — 2026-11-12
+
+The round-two integrated runtime was frozen at
 [`cbf6260`](https://github.com/Afloat16/AI-Memory-Book/commit/cbf626037b42f11f8bc5b6d46f56caac771e54ba).
 The complete [256-question comparison](../benchmarks/results/round2-43207732852-1/report.md)
 contains both native and shared-page semantic stages, every budget, and three
-actual repetitions. The candidate and all settings remain unchanged through
+actual repetitions. The candidate and all settings remained unchanged through
 the [explicit evaluator recovery](round2-recovery.md).
 
-| Current view, cl100k_base | Lexical complete evidence | Q2 complete evidence | Complete-question gains / losses |
+| Round-two view, cl100k_base | Lexical complete evidence | Q2 complete evidence | Complete-question gains / losses |
 |---|---:|---:|---:|
 | Native, 8,000 chars, 512 tokens | 41.41% | 41.41% | 16 / 16 |
 | Native, 8,000 chars, 1,024 tokens | 51.95% | 57.42% | 23 / 9 |
@@ -29,10 +70,10 @@ the [explicit evaluator recovery](round2-recovery.md).
 | Shared-page component, 1,024 tokens | 51.95% | 57.81% | 24 / 9 |
 | Shared-page component, 2,048 tokens | 51.95% | 57.81% | 24 / 9 |
 
-Q2 still has small-budget losses. With 512 `o200k_base` tokens, native
+That run retains small-budget Q2 losses. With 512 `o200k_base` tokens, native
 completeness falls 24.22% to 23.83% at 2,000 characters and 42.19% to 41.02%
 at 8,000. The 512-cl100k native complete rates tie while annotation recall
-decreases. The current shared-page Q2 result at 1,024 cl100k tokens exceeds
+decreases. The round-two shared-page Q2 result at 1,024 cl100k tokens exceeds
 claude-mem FTS and ai-memory, but remains below billion-context's 61.72%.
 
 The nine-question low-overlap group has native 1,024-token completeness
@@ -45,21 +86,21 @@ Costs remain substantial: native 1,024-token / 8,000-character p50/p95 is
 6.150/9.841 ms lexical and 15.517/24.227 ms Q2. Q2 builds 4,566 windows over
 3,769 pages in 207.559 s, with 7,013,376 vector bytes and a separate 1.029 s
 model load. Sampled query process-tree RSS is 280.68 MiB lexical and 1,041.29
-MiB Q2, including the evaluator and corpus; the [comparison guide](comparison.md)
+MiB Q2, including the evaluator and corpus; the [round-two comparison guide](comparison-v0.3.0.md)
 also retains OS worker peaks, cache downloads, live state and exact interfaces.
 These are fresh-build observations; compatible existing vectors remain reusable.
 
-## Development selection on old data
+## Historical Q2 development selection on old data
 
 The Q2 development matrix has completed actual local inference:
 **1,347 questions × 3 token budgets × 4 modes × 3 repetitions = 48,492 recalls**.
 The four paired modes are lexical, original RRF, frozen Q1 score fusion and Q2.
 All questions below are old development/regression data. These results do not
 establish new-domain generalization or generated-answer accuracy. The default
-remains lexical; Q2 is the current policy for the explicitly enabled semantic
-route. Q1 remains a historical research comparison.
+remains lexical; Q2 was selected as the policy for the explicitly enabled
+semantic route in that round. Q1 remains a historical research comparison.
 
-| Old cohort, 512 cl100k_base tokens | Lexical complete evidence | Current Q2 complete evidence |
+| Old cohort, 512 cl100k_base tokens | Lexical complete evidence | Q2 complete evidence |
 |---|---:|---:|
 | Synthetic development seed 61 | 85.53% | 81.58% |
 | Authored diagnostic, 30 answerable questions | 86.67% | 100.00% |
@@ -91,11 +132,11 @@ work, model files and index storage remain costs.
 
 Some semantic control contexts and evidence differ between the Q1 and Q2 runs
 despite matching verified model and indexed page-text/ID fingerprints. The
-cause is not established. The new report retains those differences and uses
+cause is not established. The round-two report retains those differences and uses
 the four modes sharing one actual index within the Q2 run for its main
 comparisons. Repeated contexts within each run passed their consistency checks.
 
-[Current Q2 comparison, all budgets and costs](../benchmarks/reports/round2-anchor-development.md) ·
+[Round-two Q2 development comparison, all budgets and costs](../benchmarks/reports/round2-anchor-development.md) ·
 [Q2 selection and limitations](../benchmarks/reports/round2-anchor-decision.md) ·
 [Q2 registered policy](../benchmarks/experiments/round2-anchor-plan.json) ·
 [Q1 research comparison and regressions](../benchmarks/reports/round2-quality-development.md).
