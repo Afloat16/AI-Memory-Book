@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "status": "accepted-independent-no-control-integration-repair-review",
+  "reviewed_at_utc": "2026-11-13 19:23:47 UTC",
+  "reviewed_source_commit": "8a2323ef0419a360937edb618b85c4a4dc3de866",
+  "runtime_donor_commit": "4a0ad4dc6aec33a91231d419239b7e90b160c695",
+  "runtime_sha256": "77310a7971677c2cebf8cd01d0aa36ab4562b55d1a3826b7fa7de895840abb32",
+  "exact_src_git_tree": "0f60fb1a6f7207261c44f129ce5b1d8ac2b25fd5",
+  "complete_src_tree_equal_to_measured_donor": true,
+  "integration_review_accepted": true,
+  "performance_accepted": false,
+  "formal_evaluation_accepted": false,
+  "release_accepted": false,
+  "final_source_selected_by_review": false,
+  "corpus_calls_executed_by_review": 0,
+  "fresh_rows_decoded_by_review": 0,
+  "scope": "Bounded independent review of the rejected-F inventory repair and exact previously tested indexed-reference schema-test synchronization; no runtime, evaluator or gate changes.",
+  "prospective_inventory_repair": {
+    "commit": "6be287b0fc48a5e8cebd5990677ed2ca0f1bd9f0",
+    "path": "benchmarks/experiments/round5-no-control-inventory-repair.json",
+    "sha256": "8c52728901cccf89868cc7b21d49b7cc64fd9e5c553eb7f4a1bf55132225e088"
+  },
+  "inventory_repair_commit": "af5ac6a9bc89c158abca02c0445cfb8ea28809b4",
+  "historical_f": {
+    "original_path": "src/memory_book/_query_overlap.py",
+    "fixture_path": "tests/fixtures/round5_rejected_query_overlap.txt",
+    "unchanged_git_blob": "6b2192321b6122a8aadb548f73e082ca8bfe2e6a",
+    "unchanged_sha256": "4e2d7cd383dc546a591dee38e4744ffc4ac4dd1b381574e7d307a29139e47262",
+    "current_complete_src_subtree_has_no_extra_F_module": true,
+    "test_path": "tests/test_round5_query_overlap.py",
+    "old_test_sha256": "8c5b23d726e11ac71b2ad789be639658e66f14809ab91cc6644b911db274cb0e",
+    "new_test_sha256": "5740d5bd6b88ca18f006797e008a95e641e634be7e37765230f7238441994131",
+    "only_changes": "Imports and setUpClass load the hash-pinned original module text in a private ModuleType with __package__='memory_book'. No existing test method or assertion changed.",
+    "independent_whole_file_inverse_equal": true,
+    "original_tests": 13,
+    "consumer_tests": 6,
+    "unchanged_test_names": [
+      "test_same_rendered_text_uses_each_pages_effective_query_set",
+      "test_custom_terms_full_cache_is_not_recomputed_for_another_query",
+      "test_later_callable_replacement_does_not_recompute_cached_plain_text",
+      "test_custom_then_ordinary_callable_keeps_original_cached_features",
+      "test_changed_ordinary_globals_affect_new_text_but_not_existing_cache",
+      "test_native_cache_later_custom_query_preserves_comparison_failure",
+      "test_directed_normalization_boundaries_stopwords_and_identifiers",
+      "test_cjk_singletons_only_match_single_character_runs",
+      "test_seeded_invented_unicode_mixtures_match_the_unchanged_reference",
+      "test_cached_representation_answers_different_queries_and_mutable_sets",
+      "test_cached_representation_preserves_initial_globals_when_later_materialized",
+      "test_custom_text_and_callable_keep_original_operations",
+      "test_replaced_lexical_globals_use_the_actual_ordinary_function"
+    ],
+    "module_loading_review": "The fixture remains outside the shipping source tree, retains the original relative text-module import and uses its own globals. Its exact original bytes remain available. The runtime donor and measured exports never contained this rejected module."
+  },
+  "schema_test_sync": {
+    "path": "tests/test_indexed_references.py",
+    "donor_commit": "4a0ad4dc6aec33a91231d419239b7e90b160c695",
+    "donor_git_blob": "5016b90fb974bb095ee5ad6396df220e05d07bb4",
+    "donor_sha256": "db6a989f5fae1692fd16e9d3389600622f9213bd1e7b1834128dd3607b0b44b6",
+    "donor_and_integrated_content_independently_read_and_equal": true,
+    "donor_complete_ci_run": 43485616395,
+    "contract": "Objects/indexed schemas remain exactly equal. At the frozen SDK versions, follow_titles must have exactly default false/title Follow Titles/type boolean; the historical description is a prefix and the added description names follow_titles. After removing only that approved opt-in increment, every old schema field equals the unchanged historical fixture.",
+    "no_new_schema_assertion_authored_in_integration": true
+  },
+  "preserved_failure_records": {
+    "archive_commit": "8a2323ef0419a360937edb618b85c4a4dc3de866",
+    "manifest_path": "benchmarks/reports/round5-no-control-integration-ci/retained-failures-and-exact-schema-test-sync.json",
+    "manifest_sha256": "dc1acc901827a32c5c3a7260b3dd06b46b509ca513641561afd0eff135b5c6c9",
+    "logs": [
+      {
+        "id": 132105312167,
+        "run": 43489128578,
+        "source": "d4aa4beab656ce9b646e64a664fe2e11f3b2c720",
+        "name": "mcp",
+        "failures": 2,
+        "path": "benchmarks/reports/round5-no-control-integration-ci/run43489128578-job132105312167.log",
+        "sha256": "31ca64cc99bf3de9e0012ee68febb550d696494757ac3b3408363e0b503c5bb8",
+        "bytes": 307852,
+        "independent_stored_byte_hash_match": true
+      },
+      {
+        "id": 132105312543,
+        "run": 43489128578,
+        "source": "d4aa4beab656ce9b646e64a664fe2e11f3b2c720",
+        "name": "core313",
+        "failures": 1,
+        "path": "benchmarks/reports/round5-no-control-integration-ci/run43489128578-job132105312543.log",
+        "sha256": "b9edea0fa35604137f27bc22ec1e9911a32827188caaa05cb7079e8640645d7d",
+        "bytes": 310405,
+        "independent_stored_byte_hash_match": true
+      },
+      {
+        "id": 132108717807,
+        "run": 43490116152,
+        "source": "af5ac6a9bc89c158abca02c0445cfb8ea28809b4",
+        "name": "mcp",
+        "failures": 1,
+        "path": "benchmarks/reports/round5-no-control-integration-ci/run43490116152-job132108717807.log",
+        "sha256": "906e09315e6fef42c18229a2ba294435f8c90906d2a1e952fcbc2fc6a2e76dfd",
+        "bytes": 306614,
+        "independent_stored_byte_hash_match": true
+      }
+    ],
+    "verified_diagnostics": [
+      "Initial d4aa integration MCP had exactly the source-inventory and old schema failures; core313 had the inventory failure.",
+      "af5 inventory repair made the complete-inventory proof and all 13 historical F tests pass; its MCP run still failed only the unsynchronized schema test.",
+      "No old failure record or historical fixture was overwritten or relabelled as success."
+    ]
+  },
+  "passing_ci": {
+    "run_id": 43490569140,
+    "head_sha": "8a2323ef0419a360937edb618b85c4a4dc3de866",
+    "all_nine_job_conclusions_independently_read": true,
+    "jobs": [
+      {
+        "id": 132110342947,
+        "name": "reader-browser",
+        "head_sha": "8a2323ef0419a360937edb618b85c4a4dc3de866",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132110343283,
+        "name": "mcp",
+        "head_sha": "8a2323ef0419a360937edb618b85c4a4dc3de866",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132110343438,
+        "name": "installers (macos-latest)",
+        "head_sha": "8a2323ef0419a360937edb618b85c4a4dc3de866",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132110343447,
+        "name": "container",
+        "head_sha": "8a2323ef0419a360937edb618b85c4a4dc3de866",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132110343470,
+        "name": "core (3.10)",
+        "head_sha": "8a2323ef0419a360937edb618b85c4a4dc3de866",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132110343568,
+        "name": "installers (windows-latest)",
+        "head_sha": "8a2323ef0419a360937edb618b85c4a4dc3de866",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132110343641,
+        "name": "core (3.13)",
+        "head_sha": "8a2323ef0419a360937edb618b85c4a4dc3de866",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132110343643,
+        "name": "core (3.12)",
+        "head_sha": "8a2323ef0419a360937edb618b85c4a4dc3de866",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132110343685,
+        "name": "installers (ubuntu-latest)",
+        "head_sha": "8a2323ef0419a360937edb618b85c4a4dc3de866",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "direct_raw_mcp_log": {
+      "job_id": 132110343283,
+      "api_url": "https://api.github.com/repos/Afloat16/AI-Memory-Book/actions/jobs/132110343283/logs",
+      "archive_commit": "4f52de82840e044da09e8256d942b1a39a49c162",
+      "path": "benchmarks/reports/round5-no-control-integration-ci/passing-mcp-job132110343283.log",
+      "sha256": "8b205dc314cd201355f9ee55a9a74c9356303d8261cb33fec02a198a650923ac",
+      "independently_fetched_api_bytes_equal_to_archive": true,
+      "tests": 1211,
+      "skipped": 15,
+      "failures": 0,
+      "errors": 0,
+      "all_13_historical_F_cases_passed": true,
+      "all_six_F_consumer_cases_passed": true,
+      "indexed_schema_case_passed": true,
+      "complete_NO_source_inventory_case_passed": true
+    },
+    "root_passing_receipt": {
+      "commit": "4f52de82840e044da09e8256d942b1a39a49c162",
+      "path": "benchmarks/reports/round5-no-control-integration-ci/accepted-exact-source-ci.json",
+      "sha256": "8c58d33b940b7d2ef3802a1762e35552bf80fa1a43fc450d1b75ecfd8559dc0d"
+    },
+    "limits": "All nine job conclusions were checked. Only the MCP passing raw log was independently fetched for this bounded integration review; the source donor has its separate complete nine-job raw review."
+  },
+  "blocking_findings": [],
+  "conclusion": "The full integrated src Git subtree is exactly the measured NO donor, the rejected F evidence and all assertions are preserved, and the schema test is the exact previously tested donor blob. This closes the two integration-only defects without changing measured source or accepting performance/release claims."
+}
