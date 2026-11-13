@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "candidate": "N",
+  "status": "prospective-before-implementation-artificial-tests-or-corpus-calls",
+  "registered_at_utc": "2026-11-13 17:38:44 UTC",
+  "base_source": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+  "base_text_git_blob": "6d0f39c5222b3fbae819a12b320db42d151f9762",
+  "base_text_sha256": "7c085f278252ff91cde97ba16a63c2a35365ddddb64fe12200c92c3e8e1d5ff7",
+  "base_description": "Exact combined L plus M source on I/T1/K; retain every existing runtime file except the bounded text.py edit and retain every prior correctness module byte-for-byte.",
+  "prior_evidence": {
+    "commit": "ec296d79fc1a2ec9c4e3cadb48bddfd34cdb0213",
+    "paired_audit_path": "benchmarks/reports/round5-candidate-lm-development-1/paired-audit.json",
+    "paired_audit_sha256": "1ab767cc6f1ce395f143b58dba5e833af8190ee8d016a71dcb4ffa9483c9fede",
+    "calls": 4096,
+    "complete_payload_pairs": 2048,
+    "all_payloads_equal": true,
+    "pooled_p95_geomean_improvement_percent": 4.791840281283378,
+    "public_char_p95_improvement_percent": 5.430823483528835,
+    "adverse_cells_over_five_percent": [],
+    "interpretation": "LM remains unselected: the original 10 percent overall and public native character goals were not reached. Preserve all LM samples, including smaller regressions, and all prior candidate failures. This N scope does not select a final source or change any gate.",
+    "profile": {
+      "path": "benchmarks/reports/round5-candidate-lm-development-1/profile.json.gz",
+      "compressed_sha256": "0f246f3a07781b61a717764557f2712270720030ad609ee45705014570d820c7",
+      "raw_sha256": "02ef6c04162cfcd0315bbfc6337667e397f00a11ee8c29de43b9aa427633134b",
+      "root_observation": "The saved synthetic61/native-token512 profile reports 14855 str.translate calls with 0.1559 seconds self time. This is an aggregate function bucket, not attribution to N-eligible translation, a per-string density observation, or a latency prediction. No new corpus text was read to select this alphabet."
+    },
+    "independent_raw_audit": {
+      "commit": "128952ffd4f53a30f225feb98853a7f7f6ea7121",
+      "path": "benchmarks/reports/round5-candidate-lm-development-1/independent-raw-audit.json",
+      "sha256": "eb7c9fd7b032409e7ff4d39b3ce8b03838f1901abfc3b4806fd21a8f398fdb42",
+      "reported_by": "root after independently recomputing all eight worker hashes, 4096 raw calls and 2048 full payload pairs"
+    },
+    "retained_positive_regressions": [
+      {
+        "cohort": "synthetic61",
+        "configuration": "native-token512",
+        "p50_change_percent": 3.2743303750706554,
+        "p95_change_percent": -5.903986475068734
+      },
+      {
+        "cohort": "synthetic61",
+        "configuration": "native-token1024",
+        "p50_change_percent": 1.2183569886350831,
+        "p95_change_percent": -6.4409787960938765
+      },
+      {
+        "cohort": "public1015",
+        "configuration": "native-token512",
+        "p50_change_percent": 2.6723935259700182,
+        "p95_change_percent": 3.7551366648520768
+      }
+    ]
+  },
+  "hypothesis": "Keep M's complete-string certificate and exact fixed 97-scalar mapping. A compiled character-class-plus substitution copies unchanged spans and calls the same translate table only on maximal adjacent runs of those 97 compatibility scalars. This may avoid mapping lookups on long unchanged Han/ASCII spans. Sparse and dense cases can differ; callback, match and substring costs are unknown and no numeric speedup is claimed. Multiple separated runs can increase callback/translate call counts despite reducing translated receiver characters; both are recorded without equating fewer translated characters with faster recall.",
+  "allowed_runtime_change": {
+    "file": "src/memory_book/text.py",
+    "compiled_pattern": "[\\uff01-\\uff5e\\u3000\\u2011\\u2026]+",
+    "mapped_scalars": 97,
+    "callback": "Return match.group().translate(_NORMALIZATION_TRANSLATION) with the existing table, without normalizing, casefolding, caching, modifying the match, or translating unmatched spans.",
+    "call_site": "Replace only text.translate(_NORMALIZATION_TRANSLATION) inside the existing successful _NORMALIZATION_COMPATIBILITY.fullmatch(text) branch with compiled_pattern.sub(callback, text). Keep identity_source=True in its existing position.",
+    "guards": "Keep the single historical initial isascii truth evaluation; exact native str, recognized UCD, normalize/category/Camel/strip identity guards; K identity-first branch; whole-string extended alphabet match; unknown-version, unsupported Unicode, custom hooks and subclass literal fallback.",
+    "order": "Translate every run within the original complete string before the original whole-string CamelCase substitution and casefold. No per-run CamelCase/casefold; no omitted or reordered scalar.",
+    "proof": "The regex covers exactly the 97 existing table keys and greedily partitions every admitted compatible occurrence into disjoint maximal runs. str.translate is the same pointwise mapping on those runs; all unmatched certified identity scalars are unchanged. Their concatenation therefore equals M's full-string translate exactly. M's existing whole-string Unicode stability, non-Mn/combining-class-zero and casefold-closure proof still supplies NFKC/NFKD equivalence.",
+    "source_inverse": "Removing exactly the new compiled-pattern block and helper block and restoring the one call-site line must reproduce the entire frozen LM text.py byte-for-byte."
+  },
+  "forbidden": [
+    "No changes to any original 15 correctness modules, including the exact M per-new-scalar normalize=0/category=0/translate=1 assertions and L literal-reference/hash proof.",
+    "No SQL, store.py, metadata/map optimization, scoring, cache, body-feature cache, source/index/schema, dependencies, tokenizer, budget, excerpt, offsets, interface or model changes.",
+    "No character-set expansion, query/data-specific branch, density threshold or adaptive strategy. No normalization/camel/casefold operation moved across the existing complete-string guards.",
+    "No microbenchmark, new corpus query, holdout/fresh read, profiling corpus execution, paired measurement or final source selection under this scope.",
+    "Do not suppress an existing failed assertion or discard any failed/interrupted run. Stop and explain any old assertion failure before proposing a change."
+  ],
+  "artificial_test_module": "tests/test_round5_normalization_runs.py",
+  "preserved_correctness_modules": [
+    {
+      "path": "tests/test_lexical_cache.py",
+      "git_blob": "501f2464b6c67643ea4659df9af5a75bc73176e7"
+    },
+    {
+      "path": "tests/test_project_rowid_bounds.py",
+      "git_blob": "2803337d063b5fff8726b2aecd4e5f2b387db466"
+    },
+    {
+      "path": "tests/test_round4_highlight.py",
+      "git_blob": "c54b5eff4705edc03edf84e522d09f27eec2efa9"
+    },
+    {
+      "path": "tests/test_round4_sealed_counts.py",
+      "git_blob": "3a39ea7ec191dd61771bbcd3731d7ba76d67b2e2"
+    },
+    {
+      "path": "tests/test_round4_token_work.py",
+      "git_blob": "d717fe702714ad76dc05e43a659ef1c265d70dad"
+    },
+    {
+      "path": "tests/test_round5_materialization.py",
+      "git_blob": "cc422d255db945c54ee333af0665e23b481d9ead"
+    },
+    {
+      "path": "tests/test_round5_native_rows.py",
+      "git_blob": "facc9e054fca9c3a1cf5cf92b947226af402700d"
+    },
+    {
+      "path": "tests/test_round5_normalization_identity.py",
+      "git_blob": "3d2786d7db7f4a5920a664b6c861251bc83625ab"
+    },
+    {
+      "path": "tests/test_round5_normalization_translation.py",
+      "git_blob": "a7b90d5108e199d307944cf2687ee9320e2dbb2c"
+    },
+    {
+      "path": "tests/test_round5_ranked_entries.py",
+      "git_blob": "43ee1dde53f2e003d28b01fd62c0490d5d3dd472"
+    },
+    {
+      "path": "tests/test_round5_statement_cache.py",
+      "git_blob": "63def6e359cdc524339321ff48f5539cf351b0d1"
+    },
+    {
+      "path": "tests/test_title_reference.py",
+      "git_blob": "9771f4cdc591b73ffdc3bad697437f0d3a279fa0"
+    },
+    {
+      "path": "tests/test_title_reference_interfaces.py",
+      "git_blob": "3b03ac4b37c969b8f9283e466323fe561b3cbdb3"
+    },
+    {
+      "path": "tests/test_title_reference_native_integration.py",
+      "git_blob": "fc0111d48f1ad0b2214e99582c6a13268102a0b3"
+    },
+    {
+      "path": "tests/test_token_budget.py",
+      "git_blob": "9b1abe5830108a786124347ec350e5830969d149"
+    }
+  ],
+  "artificial_proofs": [
+    "Enumerate all 0x110000 code points to prove exact 97-character regex membership, plus empty-string exclusion, maximal adjacent grouping and boundaries separated by every identity scalar.",
+    "For every mapping, adjacent pairs, sparse separated runs, dense fullwidth runs, ellipsis expansion, full alphabet and deterministic invented mixtures, compare new substitution to the fixed table's full-string translate and whole-string NFKC/NFKD on eligible inputs.",
+    "Compare terms/query/index to the existing independent literal pre-K reference for every mapped scalar and CamelCase-cross-run examples; preserve all original M and K tests untouched.",
+    "Record actual sys.setprofile C calls and exact native translate receivers: each receiver contains only compatibility scalars; the concatenated receivers equal the compatible characters from the source in source order; their summed lengths equal the count of compatibility occurrences, and callback/translate counts equal maximal run count.",
+    "Keep original ASCII/K-identity paths free of translation and the new run callback; keep excluded Unicode, unknown UCD, hooked normalizer/category/Camel/strip and stateful str subclasses on literal old work and exception order.",
+    "Use invented actual SQLite FTS and complete native/flat/coverage/title-follow, character/token payloads and source spans against the literal old terms implementation; retain explicit optional-tokenizer skips outside the pinned token CI environment.",
+    "Verify exact source inverse and all 15 frozen test module bytes; run the full existing nine-job Tests workflow and preserve complete failure and final logs."
+  ],
+  "validation": "Only artificial correctness CI may run after the source/test checkpoint. Root and an independent reviewer inspect exact scope, source, unchanged original tests and real CI logs. Any later N development needs a separately committed exact source/evaluator/inventory binding and root-controlled launch. It must use the unchanged complete 4732-profile and 4096-pair protocol against v0.3.2, with every failure and adverse cell retained; no performance percentages are added across candidates.",
+  "acceptance": "Original formal, default payload, historical lexical/Q2, opt-in fresh, resource and release requirements remain unchanged. This branch is an unselected prospective source.",
+  "corpus_calls_executed": 0,
+  "fresh_rows_decoded": 0
+}
