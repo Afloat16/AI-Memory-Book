@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "protocol": "v032-exact-output-token-work-reduction-v1",
+  "registered_at_utc": "2026-11-13",
+  "status": "registered-before-development-profiling-and-formal-timing",
+  "baseline": {
+    "release": "v0.3.1",
+    "commit": "7b7a5d7336b9350a128f5e0a888811b1b3015e68",
+    "runtime_sha256": "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46"
+  },
+  "development_base": "ea0541326f6869cd32a9573a111134622ec6b38c",
+  "prior_diagnostics": "Read-only source inspection identified eager original-turn unit parsing for already accepted pages, full-turn projection scans, and duplicate final-context token encoding. No v032 performance candidate has been measured. Previous scored corpora are development/regression data.",
+  "preserve": [
+    "all v0.3.1 and older tags, raw reports, bindings, rejected candidates and frozen evaluator files",
+    "lexical normalization, indexed text, BM25 weights, exact/stem routes, scope-before-LIMIT, route limits, ranking, novelty and temporal rules",
+    "Q2 model, vectors, indexing and fusion identity",
+    "complete valid-store non-timing payloads, source spans, strict character/token budgets, both tokenizers, default result-cache/MCP contracts",
+    "one SQLite source snapshot and documented source-coordinate corruption rejection behavior"
+  ],
+  "closed_experiments": [
+    "no_novelty",
+    "capped_novelty_025",
+    "project_local_fts_statistics"
+  ],
+  "performance_candidate": {
+    "hypothesis": "Avoid unused supplemental source-unit parsing after legacy first-fit decisions, narrow ordered unit projection with start-offset bisection, and reuse the exact token count of the final accepted context. Source reads remain in the original snapshot; source-coordinate validation behavior must be preserved. A bounded source-fetch batching change may be included only if profiling and fresh correctness fixtures support it.",
+    "allowed": [
+      "one combined exact-output candidate selected before source/evaluator binding",
+      "lazy pure computation on captured original-turn text; no database read after the source transaction",
+      "start-offset bisection retaining all original containment/equality checks",
+      "exact accepted-context token count reuse",
+      "bounded original-turn SQL reads keyed by both session and ordinal if development evidence supports them"
+    ],
+    "forbidden": [
+      "ranking or candidate-selection changes",
+      "reopening rejected quality experiments",
+      "cross-call result/query-embedding caches",
+      "unbounded derived caches",
+      "new model or runtime dependency",
+      "schema/index/content changes",
+      "changing old experiment evaluators/results",
+      "advertising development timing as formal performance"
+    ],
+    "development": {
+      "role": "Old-data profiling, fresh artificial correctness fixtures and complete-payload regression only; choose one bounded combined implementation before formal freeze. Preserve each tried implementation hash and negative diagnostic result. No hidden candidate selection after formal timing.",
+      "cohorts": [
+        "synthetic61",
+        "public1015"
+      ],
+      "fresh_fixtures": [
+        "all-fit and partial-fit legacy blocks",
+        "prefix token counts that are non-monotonic",
+        "zero/tiny/exact budgets in both tokenizers",
+        "long original turns with overlapping/nested complete units",
+        "CRLF/CJK/combining characters/emoji/literal special tokens and open/closed code fences",
+        "multiple sessions with identical turn ordinals",
+        "external writer committing during recall",
+        "corrupt source-coordinate rejection and rollback"
+      ]
+    },
+    "formal": {
+      "cohorts": [
+        "synthetic61",
+        "public1015"
+      ],
+      "configs": [
+        {
+          "id": "native-char4000",
+          "surface": "native",
+          "budget_chars": 4000,
+          "budget_tokens": null
+        },
+        {
+          "id": "mcp-char4000",
+          "surface": "official-sdk-mcp-stdio",
+          "budget_chars": 4000,
+          "budget_tokens": null
+        },
+        {
+          "id": "native-token512",
+          "surface": "native",
+          "budget_chars": 8000,
+          "budget_tokens": 512,
+          "tokenizer": "cl100k_base"
+        },
+        {
+          "id": "native-token1024",
+          "surface": "native",
+          "budget_chars": 8000,
+          "budget_tokens": 1024,
+          "tokenizer": "cl100k_base"
+        },
+        {
+          "id": "native-token2048",
+          "surface": "native",
+          "budget_chars": 8000,
+          "budget_tokens": 2048,
+          "tokenizer": "cl100k_base"
+        },
+        {
+          "id": "mcp-token1024",
+          "surface": "official-sdk-mcp-stdio",
+          "budget_chars": 8000,
+          "budget_tokens": 1024,
+          "tokenizer": "cl100k_base"
+        }
+      ],
+      "rounds": 4,
+      "engine_order": [
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ]
+      ],
+      "query_order": "random.Random(41061 + 1009 * round + config_index), equal for paired engines",
+      "calls": 56784,
+      "execution": "Sequential isolated workers on the same machine with no concurrent benchmark. Warm OS/SQLite caches; no OS-cold-cache claim. Native has cache_size=0 and use_cache=False. Real SDK MCP clears persistent recall_cache before each call, including its normal cache-write cost; clearing is outside timing.",
+      "record": [
+        "every per-query sample and complete payload hash",
+        "MCP text and actual envelope hash",
+        "p50/p95/mean for every cell and every round, pooled and first/repeat rounds",
+        "initialization, fresh ingestion, unchanged reingestion",
+        "RSS/high-water RSS, logical and live DB/WAL/SHM size",
+        "indexed-content digest and source/cache/scope/budget invariants",
+        "both tokenizer counts computed outside timing"
+      ],
+      "gate": "No complete non-timing payload mismatch or invariant failure. Across all twelve cohort/configuration cells, geometric-mean pooled p95 improves by at least 10%; at least one public native token-budget cell improves p95 by at least 15%; public actual-MCP token1024 improves p95 by at least 10%; no pooled cell p50 or p95 regresses by more than 5%. Retain all samples and rounds. A startup, ingestion, unchanged replay or RSS mean increase over 10% requires an explicit cause assessment and independent review, not replacement timing.",
+      "failure_rule": "If the sole bounded candidate fails correctness, fix a demonstrated implementation bug and retain the failed attempt. If a valid candidate misses the performance gate, report it and do not advertise or ship it as a measured speedup. No selecting the fastest run."
+    }
+  },
+  "quality_candidate": {
+    "included": false,
+    "reason": "This release first targets exact-output efficiency. Residual-budget evidence expansion is an unscored future hypothesis, not a registered or shipped quality change."
+  },
+  "cohorts": [
+    {
+      "name": "synthetic61",
+      "queries": 168,
+      "sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26",
+      "role": "old development/regression"
+    },
+    {
+      "name": "authored36",
+      "queries": 36,
+      "sha256": "ecc46c474d5184995938419fa985b8e08c0ddb51560da49990247465db6db0b0",
+      "role": "old authored development"
+    },
+    {
+      "name": "public1015",
+      "queries": 1015,
+      "sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857",
+      "role": "old public regression"
+    },
+    {
+      "name": "hotpot128",
+      "queries": 128,
+      "sha256": "0791515aca6bccf19a97895cad681e06a07536d6c08050d54189cc64cb819822",
+      "role": "old public regression"
+    }
+  ],
+  "independent_validation": {
+    "freeze_before_selection": [
+      "exact baseline/candidate commits and runtime hashes",
+      "all new and reused evaluator files",
+      "packages, model artifacts and upstream locks"
+    ],
+    "cohort": {
+      "name": "round4-hotpot256",
+      "count": 256,
+      "selection_prefix": "AI-Memory-Book/v032/round4/2026-11-13/",
+      "selection": "Sort SHA256(prefix + ID) then ID; exclude all original Hotpot128, round2 Hotpot256 and round3 Hotpot256 IDs. Read only upstream IDs for selection; no outcome/content filtering. Same source, not new-domain evidence."
+    },
+    "native": {
+      "modes": [
+        "v031_lexical",
+        "candidate_lexical",
+        "candidate_Q2"
+      ],
+      "token_budgets": [
+        512,
+        1024,
+        2048
+      ],
+      "tokenizers": [
+        "cl100k_base",
+        "o200k_base"
+      ],
+      "budget_chars": 8000,
+      "limit": 5,
+      "repeats": 1,
+      "calls": 4608,
+      "gate": "Complete default payload equivalence and strict source/scope/character/token invariants. Preserve every Q2 gain and loss; Q2 is unchanged and optional."
+    },
+    "components": {
+      "modes": [
+        "v031_lexical",
+        "candidate_lexical",
+        "candidate_Q2",
+        "claude_mem_supplied_source_fts",
+        "ai_memory_released_binary",
+        "billion_locked_search_kernel"
+      ],
+      "repeats": 3,
+      "top_k": 5,
+      "search_calls": 4608,
+      "projection": "Six common whole-block projections from each first response. No extra search for diagnostic packing. Preserve actual native/adapter/read costs, complete payload/text/reference-token surfaces, startup/indexing/download/RSS/storage, and source hashes. Compare fixed verified upstream revisions; no whole-product speed ratio."
+    },
+    "compatibility": "Q2 source remains unchanged; tokenized Q2 output must match the v031 implementation on old authored36 and Hotpot128 with the same persisted vectors/model. Explicit coverage and source snapshot fixtures also remain compatible.",
+    "interpretation": "All previously scored selections are regression data. New IDs become regression data after first scoring. No generated-answer or private-conversation-generalization claim."
+  },
+  "durability": "Commit this protocol before development measurements; commit candidate/evaluator binding before formal execution. Each hosted worker or stage publishes immutable raw results and its start/finish ledger before advancing. Use new round4 paths and execution claims, exact refs, non-force writes and Git object reuse. Preserve interrupted workers and all failures. Never repeat a completed formal run to choose better samples.",
+  "release": "Only a candidate that passes fixed correctness, performance and validation gates may ship as v0.3.2. Preserve prior tags. Pin package/installers, document gains and costs, require nine exact-commit CI jobs and all seven public assets plus real URL installation verification."
+}
