@@ -1,0 +1,85 @@
+name: Reconstruct Q2 with exact historical vector and payload gates
+
+on:
+  push:
+    branches: ['staging/v033-q2-recovery-hosted', 'ci/v033-q2-recovery-hosted-1']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: round5-q2-recovery-hosted-1
+  cancel-in-progress: false
+
+jobs:
+  protocol-fixtures:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/benchmarks/reports/
+            !/benchmarks/figures/
+            !/docs/images/
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - name: Verify invented protocol files and local sparse Git provenance only
+        run: python -m unittest -v tests.test_round5_q2_hosted_recovery
+  recovery:
+    needs: protocol-fixtures
+    if: github.repository == 'Afloat16/AI-Memory-Book' && github.event_name == 'push' && github.ref == 'refs/heads/ci/v033-q2-recovery-hosted-1' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 165
+    permissions:
+      contents: write
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONHASHSEED: '0'
+      ORT_DISABLE_TELEMETRY: '1'
+      TIKTOKEN_CACHE_DIR: ${{ github.workspace }}/.artifacts/tiktoken
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/benchmarks/reports/
+            !/benchmarks/figures/
+            !/docs/images/
+      - name: Require committed exact candidate before dependency or asset download
+        run: python3 scripts/round5_q2_hosted_recovery.py check-binding
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - name: Install exact historical semantic and reference-tokenizer dependencies
+        run: python -m pip install -e . 'onnxruntime==1.31.1' 'tokenizers==0.23.3' 'numpy==2.5.4' 'tiktoken==0.12.0' 'pyarrow==26.0.1'
+      - name: Run the separately registered once-only Q2 reconstruction
+        id: q2
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p .artifacts
+          python -u scripts/round5_q2_hosted_recovery.py run 2>&1 | tee .artifacts/round5-q2-recovery-hosted-1-runner.log
+      - name: Preserve logs and complete or partial ledgers without replay
+        if: always()
+        env:
+          Q2_OUTCOME: ${{ steps.q2.outcome }}
+        run: python3 scripts/round5_q2_hosted_recovery.py preserve
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: round5-q2-recovery-hosted-1-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            benchmarks/reports/round5-q2-recovery-hosted-1/
+            .artifacts/round5-q2-recovery-hosted-1-runner.log
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30
