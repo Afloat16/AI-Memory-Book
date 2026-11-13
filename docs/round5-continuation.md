@@ -483,3 +483,39 @@ is noise, GC, SQLite, or the code change is established by these observations.
 The original numeric gates remain unchanged, and every worker was saved remotely
 before the next worker began. The next quality run uses the separately reviewed
 T1 evaluator-v2 repair; no G/T1 source combination is implied.
+
+## T1 development accepted; H rejected (2026-11-13)
+
+The separately registered T1 evaluator v2 completes all 5,438 calls and passes
+its unchanged development gates. On the already used Hotpot256 cohort at
+cl100k/1024, complete supporting evidence rises from 53.90625 to 65.234375
+percent (32 gains, 3 losses), recall from 75.7480315 to 80.7874016 percent,
+and annotated-page precision from 31.0398749 to 33.3854574 percent. This is
+development evidence, not fresh quality acceptance or answer accuracy. Both
+the frozen evaluator audit and an independent raw-ledger audit agree. The
+original failed evaluator-v1 attempt remains unchanged and must never resume.
+
+The opt-in CLI/MCP integration is preserved at
+`b34925804b4d953b4a783e9d431bda4c31c90ebd`; all nine hosted CI jobs pass in
+run `43414260686`. A new prospective formal evaluator namespace permits only
+the exact approved optional boolean schema/description addition, while retaining
+the original payload, numeric, resource, hosted-claim and first-attempt gates.
+Fresh validation scripts are being checked with artificial fixtures only;
+no fresh IDs or question content have been selected or decoded.
+
+Candidate H is independently preserved at
+`99e295ad269af94e3f7374d7246d836107b28147`, runtime SHA256
+`d63931819131f96b33551d9e7b8f41c2bc1cc7ee78841564f9c8cc148ccea92e`.
+Its only runtime change from G is the registered SQLite main pager target of
+8192 KiB. All 4,732 profile payloads equal v0.3.2; all 4,096 paired calls finish
+and all 2,048 full non-timing payload pairs match. The two independent audits
+confirm pooled p95 geometric improvement of 5.2895177 percent. Adverse cells
+remain: synthetic token512 +11.4551334 percent, public char4000 +6.1881018
+percent, and public token1024 +42.4047949 percent. H is rejected as a standalone
+formal/release candidate; these results do not establish the cause of any
+regression. Its functional CI passes all nine jobs in run `43413804613`, which
+does not override the performance rejection. Every original worker and intent
+was checkpointed remotely, ending at `4409d5f97d614e513448141cb958ae300ee08c9f`.
+
+Main and v0.3.2 remain unchanged. No formal performance attempt, fresh held-out
+selection, combined runtime freeze, v0.3.3 tag, or release publication has occurred.
