@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "status": "rejected-before-development-measurements",
+  "created_at": "2026-11-13T07:12:18.545041+00:00",
+  "runtime_sha256": "0ef0fe3cc9d49edd83c20024cf1e57fcbb4d7cfbc52472b388c0f281a7389863",
+  "files_sha256": {
+    "src/memory_book/store.py": "6a86bfae803dc3c6aae05025ba5f380ec9d950b7347d007ce5307ca9c089be4a",
+    "tests/test_round5_materialization.py": "5dd010301a020a57b7aeefd369c50800755ab6f97041bb38296ea0fd949f89de",
+    "benchmarks/reports/round5-development/candidate-d-pre-length-correctness.log": "f7d922f6830c7a0adde4f4310d5fd22706da4e66c75592861cbdeb249675f3c2",
+    "benchmarks/reports/round5-development/candidate-d-row-value-length-failure.log": "a8b09b7036b7d482ac291faa75eaad19a55dc69a1552b8ecac493ac266d9beca"
+  },
+  "existing_correctness_checks": {
+    "passed": 74,
+    "skipped": 0
+  },
+  "new_failure": {
+    "kind": "native-row-value-length-mismatch",
+    "independent_reviewers": [
+      "root",
+      "evaluation_review"
+    ],
+    "baseline_v032_passes": true,
+    "candidate_c_regresses": true,
+    "candidate_d_regresses": true,
+    "expected_scores": [
+      2.0,
+      1.0,
+      0.5
+    ],
+    "observed_scores": [
+      99.0,
+      99.0,
+      99.0
+    ],
+    "cause": "Derived-map eligibility rejects an extra value, but inherited C late-materialization eligibility only compares column names and admits the row again; row[-1] then reads a trailing value instead of the named rank.",
+    "disposition": "Preserve this source and failure. Narrow complete shape/value-length and named-mapping fallback before D development. Released v0.3.2 is unaffected."
+  },
+  "development_calls": 0,
+  "formal_calls": 0
+}

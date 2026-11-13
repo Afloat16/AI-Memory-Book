@@ -195,3 +195,16 @@ invented D-boundary fixtures pass against both exact v0.3.2 and unmodified C
 (eight checks, no failures or skips). Their preimplementation log and fixture
 hash are preserved separately before the D runtime edit. Duplicate primitive
 IDs, later custom ID/rank values and error order before metadata are covered.
+
+## Candidate D premeasurement length failure retained
+
+D runtime `0ef0fe3cc9d49edd83c20024cf1e57fcbb4d7cfbc52472b388c0f281a7389863`
+passes 74 existing checks, including new custom-batch and metaclass cases, but
+independent root/evaluator review found an additional inherited C regression.
+A native Row can have the correct three column names and four values. The
+derived-map guard rejects it, while the old late-materialization guard admits
+it again and reads the last value as rank. An invented three-page reproduction
+returns correct scores `[2, 1, 0.5]` on released v0.3.2 and incorrect `[99, 99, 99]`
+on C and this D source. The full source, earlier checks and new failure are
+preserved before repair. No D development or formal measurement has run. The
+published v0.3.2 release is unaffected; C was never selected or released.

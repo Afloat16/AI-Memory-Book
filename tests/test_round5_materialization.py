@@ -390,7 +390,7 @@ class DerivedMapMaterializationTests(unittest.TestCase):
                 for index, rank in entries]
 
     def recall_routes(self, exact, stem, *, row_type=sqlite3.Row, events=None,
-                      metadata_error=None, **options):
+                      metadata_error=None, batch_factory=None, **options):
         connection = self.book.db
         events = [] if events is None else events
 
@@ -401,9 +401,12 @@ class DerivedMapMaterializationTests(unittest.TestCase):
             def execute(self, statement, *arguments):
                 if statement.startswith("SELECT p.rid,p.id,bm25("):
                     cursor = connection.execute(statement, *arguments)
-                    values = exact if "bm25(pages_fts," in statement else stem
+                    name = "exact" if "bm25(pages_fts," in statement else "stem"
+                    values = exact if name == "exact" else stem
                     rows = [row_type(cursor, row) for row in values]
                     cursor.close()
+                    if batch_factory is not None:
+                        rows = batch_factory(name, rows)
                     return SimpleNamespace(fetchall=lambda: rows)
                 if statement.startswith("SELECT p.id,p.project_id,p.chapter_id,"):
                     events.append("metadata")
@@ -448,14 +451,23 @@ class DerivedMapMaterializationTests(unittest.TestCase):
             def __neg__(self):
                 return -float(self) * 3
 
-        for boundary in ("id", "rank", "bool-rank"):
+        class UnequalType(type):
+            def __eq__(cls, other):
+                raise AssertionError("A rank's metaclass equality must not run")
+
+        class OpaqueRank(metaclass=UnequalType):
+            def __neg__(self):
+                return 6.0
+
+        for boundary in ("id", "rank", "bool-rank", "metaclass-rank"):
             with self.subTest(boundary=boundary):
                 exact = self.route([(0, -2.0), (1, -1), (2, -0.5)])
                 stem = self.route([(1, -3), (0, -1.0), (2, -2)])
                 rid, page_id, rank = stem[-1]
                 stem[-1] = (rid, PageId(page_id) if boundary == "id" else page_id,
                             ShiftedRank(rank) if boundary == "rank" else
-                            False if boundary == "bool-rank" else rank)
+                            False if boundary == "bool-rank" else
+                            OpaqueRank() if boundary == "metaclass-rank" else rank)
                 expected = self.recall_routes(exact, stem, row_type=RowLike)
                 actual = self.recall_routes(exact, stem)
                 self.assertEqual(actual, expected)
@@ -508,6 +520,35 @@ class DerivedMapMaterializationTests(unittest.TestCase):
                     self.recall_routes(exact, stem, row_type=row_type, events=events,
                                        metadata_error=AssertionError("metadata ran first"))
                 self.assertEqual(events, ["id-failure"])
+                self.assertFalse(self.book.db.in_transaction)
+
+    def test_custom_route_batch_keeps_original_exception_order(self):
+        class BatchFailure(Exception):
+            pass
+
+        for row_type in (RowLike, sqlite3.Row):
+            with self.subTest(row_type=row_type):
+                events = []
+
+                class ObservedBatch(list):
+                    def __init__(self, name, values):
+                        super().__init__(values)
+                        self.name, self.iterations = name, 0
+
+                    def __iter__(self):
+                        events.append(self.name)
+                        self.iterations += 1
+                        if self.iterations == 2:
+                            raise BatchFailure(self.name + " second pass")
+                        return super().__iter__()
+
+                exact = self.route([(0, -2.0), (1, -1), (2, -0.5)])
+                stem = self.route([(1, -2.0), (0, -1), (2, -0.5)])
+                with self.assertRaisesRegex(BatchFailure, "exact second pass"):
+                    self.recall_routes(exact, stem, row_type=row_type, events=events,
+                                       batch_factory=ObservedBatch,
+                                       metadata_error=AssertionError("metadata ran first"))
+                self.assertEqual(events, ["exact", "stem", "exact"])
                 self.assertFalse(self.book.db.in_transaction)
 
 

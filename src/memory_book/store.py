@@ -723,19 +723,71 @@ class MemoryBook:
                           JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk
                           ORDER BY hits.rank,p.id"""
                     routes.append(self.db.execute(statement, route_params).fetchall() if qt else [])
-                exact_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[0])}
-                stem_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[1])} if use_stem else {}
-                exact_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[0]}
-                stem_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[1]} if use_stem else {}
-                exact_scale = max(exact_scores.values(), default=1.0) or 1.0
-                stem_scale = max(stem_scores.values(), default=1.0) or 1.0
-                # Identical ordered routes add no candidate/ranking information.
-                # Keep BM25's score scale so novelty selection does not change
-                # merely because the same ranking was observed a second time.
-                fuse_routes = use_stem and list(exact_ranks) != list(stem_ranks)
-                # Preserve stem-first insertion and exact-route precedence,
-                # but materialize only the bounded union's private candidates.
-                rows = {row["id"]: row for route in reversed(routes) for row in route}
+                # Validate every route before reordering any derived work.
+                # Native Rows may still contain custom values or columns.
+                route_columns = (["rid", "id", "rank"] if use_stem else
+                    ["id", "rid", "project_id", "chapter_id", "chapter_title",
+                     "session_id", "session_title", "created_at", "rank"])
+                metadata_columns = ["id", "project_id", "chapter_id", "chapter_title",
+                                    "session_id", "session_title", "created_at"]
+                id_position = 1 if use_stem else 0
+                canonical_routes = (not coverage and semantic_model is None and
+                                    type(routes[0]) is list and
+                                    (not use_stem or type(routes[1]) is list))
+                if canonical_routes:
+                    for route in routes:
+                        expected_keys = route_columns
+                        for row in route:
+                            if type(row) is not sqlite3.Row:
+                                canonical_routes = False
+                                break
+                            keys = row.keys()
+                            if keys != expected_keys or len(row) != len(keys):
+                                canonical_routes = False
+                                break
+                            page_id, rank = row[id_position], row[-1]
+                            rank_type = type(rank)
+                            if type(page_id) is not str or (rank_type is not float and rank_type is not int):
+                                canonical_routes = False
+                                break
+                            if expected_keys is route_columns:
+                                expected_keys = keys
+                        if not canonical_routes:
+                            break
+                if canonical_routes:
+                    # The existing union and ordinal maps can share a pass.
+                    # Duplicates keep first insertion and last ordinal/value;
+                    # stem insertion still precedes exact-route overwrite.
+                    rows, stem_ranks = {}, {}
+                    if use_stem:
+                        for i, row in enumerate(routes[1]):
+                            page_id = row[id_position]
+                            stem_ranks[page_id] = i + 1
+                            rows[page_id] = row
+                    exact_ranks = {}
+                    for i, row in enumerate(routes[0]):
+                        page_id = row[id_position]
+                        exact_ranks[page_id] = i + 1
+                        rows[page_id] = row
+                    # Compare the ordered deduplicated keys, not raw routes.
+                    # Identical routes retain BM25's original novelty scale.
+                    fuse_routes = use_stem and list(exact_ranks) != list(stem_ranks)
+                    if fuse_routes:
+                        exact_scores = {row[id_position]: max(0.0, -row[-1]) for row in routes[0]}
+                        stem_scores = {row[id_position]: max(0.0, -row[-1]) for row in routes[1]}
+                        exact_scale = max(exact_scores.values(), default=1.0) or 1.0
+                        stem_scale = max(stem_scores.values(), default=1.0) or 1.0
+                else:
+                    # Preserve all original reads and exception ordering for
+                    # custom values/factories and the optional full routes.
+                    exact_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[0])}
+                    stem_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[1])} if use_stem else {}
+                    exact_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[0]}
+                    stem_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[1]} if use_stem else {}
+                    exact_scale = max(exact_scores.values(), default=1.0) or 1.0
+                    stem_scale = max(stem_scores.values(), default=1.0) or 1.0
+                    fuse_routes = use_stem and list(exact_ranks) != list(stem_ranks)
+                    rows = {row["id"]: row for route in reversed(routes) for row in route}
                 metadata_by_id = {}
                 if use_stem and rows:
                     # Exact and stem routes commonly overlap. Fetch their
@@ -752,26 +804,35 @@ class MemoryBook:
                 # A custom factory can return a native Row with extra or
                 # duplicate columns. Restrict value iteration to the fixed SQL
                 # shapes whose named and positional views are equivalent.
-                route_columns = (["rid", "id", "rank"] if use_stem else
-                    ["id", "rid", "project_id", "chapter_id", "chapter_title",
-                     "session_id", "session_title", "created_at", "rank"])
-                metadata_columns = ["id", "project_id", "chapter_id", "chapter_title",
-                                    "session_id", "session_title", "created_at"]
                 late_materialize = not coverage and semantic_model is None
-                if late_materialize:
+                if late_materialize and not canonical_routes:
                     for route in routes:
+                        expected_keys = route_columns
                         for row in route:
-                            if type(row) is not sqlite3.Row or row.keys() != route_columns:
+                            if type(row) is not sqlite3.Row:
                                 late_materialize = False
                                 break
+                            keys = row.keys()
+                            if keys != expected_keys:
+                                late_materialize = False
+                                break
+                            if expected_keys is route_columns:
+                                expected_keys = keys
                         if not late_materialize:
                             break
                 if late_materialize and use_stem:
+                    expected_keys = metadata_columns
                     for row in rows.values():
                         metadata = metadata_by_id.get(row[1])
-                        if type(metadata) is not sqlite3.Row or metadata.keys() != metadata_columns:
+                        if type(metadata) is not sqlite3.Row:
                             late_materialize = False
                             break
+                        keys = metadata.keys()
+                        if keys != expected_keys:
+                            late_materialize = False
+                            break
+                        if expected_keys is metadata_columns:
+                            expected_keys = keys
                 chapter_position, session_position = (3, 5) if use_stem else (4, 6)
                 ranked_rows = []
                 for row in rows.values():
