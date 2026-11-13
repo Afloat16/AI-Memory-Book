@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "status": "artificial-evaluator-tests-passed-real-interface-certificate-not-generated",
+  "at": "2026-11-13T11:24:07.282713+00:00",
+  "scope_registration_commit": "b3614c1cfeb344a72530e543c5b56d7f0833a565",
+  "source_files_sha256": {
+    "benchmarks/experiments/round5-final-interface-v2-scope.json": "28e8f491c4ff2fbe6f815b0864cf36f497acf49414df395711e67ade57bde292",
+    "scripts/round5_interface_certificate.py": "2e7a0909d40c475590247b05fb598b85dee82c05419ed402f8c7e820323d763c",
+    "scripts/round5_performance_v2.py": "388536dd4bf3dc4c7d76cc8c5bac3afd273071cebcf7f9639ed1b65d19e4f1fb",
+    "tests/test_round5_performance_v2.py": "e27d2105b9c5c2c0853d72e63d3ec560ab1209d08dd9b022cee3b0c4d088bc05",
+    ".github/workflows/round5-performance-v2.yml": "3d6c98db33078fe8be358cf49be47e31f52a676182e941d8a423bc4a73596c7f"
+  },
+  "preserved_original_files_sha256": {
+    "scripts/round5_performance.py": "6a569c167d33a96c6e9a6d805af86282df25eac244896462cf4c22a739e76a41",
+    "tests/test_round5_performance.py": "aa7214485a3024f171463a4a0bbc762d07b0614a72e20f434e816cff6a0fa985",
+    ".github/workflows/round5-performance.yml": "6b56fe4b1ad29dd814cee8d12a36f40fa51258acc6d4cfcc23a8186a26896fd6"
+  },
+  "test_command": "PYTHONPATH=.deps:src:. TIKTOKEN_CACHE_DIR=.artifacts/tiktoken python -m unittest tests.test_round5_performance_v2 tests.test_round5_performance -v",
+  "artificial_tests": {
+    "new_v2": 23,
+    "unchanged_original": 42,
+    "final_total": 65,
+    "failed": 0,
+    "errors": 0
+  },
+  "logs": {
+    "initial": {
+      "path": "benchmarks/reports/round5-final-interface-evaluator-correctness/initial.log",
+      "sha256": "69b21a086373780b9d6cbe825a6d6fb430b5e00c9fea76352c033593d7d1f6ab",
+      "tests": 63,
+      "seconds": 2.625,
+      "result": "passed"
+    },
+    "package_guard": {
+      "path": "benchmarks/reports/round5-final-interface-evaluator-correctness/package_guard.log",
+      "sha256": "b33777f668ee54f7b5297a7b7cd493e8c76f34784064403e1808a6e3528b7928",
+      "tests": 65,
+      "seconds": 2.409,
+      "result": "passed"
+    }
+  },
+  "invariants": [
+    "Full schema projection removes only the exact optional follow_titles boolean/default-False property and exact appended description.",
+    "All original tools, ordering, properties, required fields, defaults, output schemas, annotations and instructions remain fixed.",
+    "Certificate pins actual complete schema/instructions, both tokenizer counts, baseline/final source, SDK packages and actual child-process dependency versions.",
+    "Source certificate and actual session bytes/hashes/counts cannot drift; candidate initialization token increase is preserved.",
+    "Original gates, resources, schedule, raw ledger and hosted claim functions are AST-identical after namespace normalization.",
+    "Native and actual MCP timed call bodies are AST-identical after removal of only the new certificate argument and untimed observation checks.",
+    "Original workflow permissions, first attempt, publication/claim, failure export and artifact upload are preserved.",
+    "Generator uses an exclusive output; failed preflight and failed second observation retain diagnostics and completed first observation."
+  ],
+  "retrieval_calls_executed": 0,
+  "real_schema_sessions_executed": 0,
+  "scope_limit": "These are artificial correctness fixtures, not retrieval, timing or quality evidence. The required certificate is absent until the final combined runtime is committed and schema-only collection runs under exact MCP 1.30.0/Pydantic 2.14.3/tiktoken 0.12.0. Both formal v2 and fresh bindings must refuse without the committed source-bound certificate."
+}
