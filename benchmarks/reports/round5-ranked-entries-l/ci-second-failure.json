@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "status": "preserved-second-candidate-l-fixture-portability-failure-before-repair",
+  "source_commit": "43d42a6083ca7b664cf3494f05efcc5fdc97b707",
+  "workflow_run": 43470359892,
+  "runtime_sha256": "e09af91811e8dab1f1c41983804dc7f8afd527023d4b519dbf44ee5931154765",
+  "logs": [
+    {
+      "name": "core310",
+      "job_id": 132040324027,
+      "path": "benchmarks/reports/round5-ranked-entries-l/ci-second-core310.log",
+      "sha256": "dc3c9f025f07885e56f8c411efcb2bc0df32e9a6c699e8a34725f1288fb1f2a0"
+    },
+    {
+      "name": "core312",
+      "job_id": 132040323794,
+      "path": "benchmarks/reports/round5-ranked-entries-l/ci-second-core312.log",
+      "sha256": "9660885cd885bf4efa16b1be8d0bd7ac1ee7eb57ae0e02a1be053d4bdb7d12c0"
+    },
+    {
+      "name": "mcp",
+      "job_id": 132040323469,
+      "path": "benchmarks/reports/round5-ranked-entries-l/ci-second-mcp.log",
+      "sha256": "66b950462934c58c0b704e2cced15dfeef97d14a413a4849c43c029ee81f69fa"
+    }
+  ],
+  "failure": {
+    "method": "test_only_three_registered_changes_restore_literal_base_method",
+    "environment": "CPython 3.10.22",
+    "observation": "The newly added recursive co_consts string equality sees compiler-generated nested function qualified names. The if True suite creates recall.<locals> names; the original class method creates MemoryBook.recall.<locals> names. Actual multiline SQL trace equality and all runtime sorting/payload/rollback checks succeeded.",
+    "planned_repair": "Compile the same hash-verified method under its original class MemoryBook context, extract that method and restore the original MemoryBook global. Keep every source/compiled-string/SQL/payload assertion; do not filter generated strings or alter runtime."
+  },
+  "mechanism": {
+    "candidate_count": 142,
+    "legacy_key_callbacks": 142,
+    "candidate_key_callbacks": 0,
+    "same_application_sql": true,
+    "same_full_payload_bits": true,
+    "latency_claim": false
+  },
+  "other_evidence": "Core3.12 and MCP succeeded at this source. MCP executed all fifteen L methods, including both tokenizers, with zero L skips. Core3.13 also succeeded according to job status; its raw log is not included in this narrow failure receipt.",
+  "runtime_files_changed": false,
+  "l_corpus_calls": 0,
+  "l_fresh_rows_decoded": 0
+}
