@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "source_commit": "ddbbb02eb4cb44742926e5946dcf8936718e0b94",
+  "parent_source_commit": "04fcc52f636aba2192bd570d6d6f7a95f7fc8c00",
+  "runtime_sha256": "71977e56c9f531b45581fabef8c12f28860937961e2788a9ad798d72fb749340",
+  "run_id": 43454423972,
+  "job_id": 131984675503,
+  "failed_job": "core (3.10)",
+  "python": "3.10.22",
+  "conclusion": "failure",
+  "failed_test": "test_bounded_working_set_reuses_preparation_with_new_parameters",
+  "tests_ran": 847,
+  "failures": 1,
+  "errors": 0,
+  "skipped": 84,
+  "candidate_preparations": [
+    200,
+    200
+  ],
+  "requested_zero_capacity_control_observed": [
+    200,
+    396
+  ],
+  "requested_zero_capacity_control_asserted": [
+    200,
+    400
+  ],
+  "diagnosis": "The prior cleanup succeeds and the candidate's strict [200,200] plus result-cache-row assertion passes. The new control incorrectly assumed cached_statements=0 disables this old CPython cache. CPython 3.10.22 clamps every capacity below five to five and evicts the least-used entry. Exact default/zero-capacity re-preparation counts are not a portable contract.",
+  "upstream_evidence": [
+    {
+      "url": "https://github.com/python/cpython/blob/v3.10.22/Modules/_sqlite/cache.c",
+      "function": "pysqlite_cache_init",
+      "fact": "Capacity values below 5 are replaced with 5."
+    },
+    {
+      "url": "https://github.com/python/cpython/blob/v3.10.22/Modules/_sqlite/cache.c",
+      "function": "pysqlite_cache_get",
+      "fact": "Entries are reordered by usage count and a least-used entry is evicted when full."
+    }
+  ],
+  "repair": "Explicitly use a five-entry capacity-limited control. Require exactly 200 initial preparations and more preparations on the second pass without assuming a version-specific eviction count. Keep the candidate's exact [200,200], strict changing bound-value check on every query, and all transaction, rollback, external-commit, schema, custom-connect, native and pager assertions. Rename the test to state the capacity-limited comparison.",
+  "interpretation": "This is an invented preparation-reuse mechanism test. The control proves re-preparation under a deliberately undersized cache; it does not claim real workload thrashing, an end-to-end speedup or any performance-gate acceptance. The two preceding failed sources and observations remain preserved.",
+  "remaining_jobs": [
+    {
+      "id": 131984675002,
+      "name": "reader-browser",
+      "conclusion": "success"
+    },
+    {
+      "id": 131984675302,
+      "name": "container",
+      "conclusion": "success"
+    },
+    {
+      "id": 131984675492,
+      "name": "core (3.13)",
+      "conclusion": "cancelled"
+    },
+    {
+      "id": 131984675524,
+      "name": "installers (ubuntu-latest)",
+      "conclusion": "success"
+    },
+    {
+      "id": 131984675530,
+      "name": "mcp",
+      "conclusion": "success"
+    },
+    {
+      "id": 131984675582,
+      "name": "core (3.12)",
+      "conclusion": "cancelled"
+    },
+    {
+      "id": 131984675704,
+      "name": "installers (windows-latest)",
+      "conclusion": "success"
+    },
+    {
+      "id": 131984675976,
+      "name": "installers (macos-latest)",
+      "conclusion": "success"
+    }
+  ],
+  "log_path": "benchmarks/reports/round5-statement-cache-ci/zero-capacity-control-43454423972/python310.log",
+  "log_encoding": "Exact decoded UTF-8 string returned by the GitHub job-log connector, with no appended newline or rewriting; not a raw HTTP-byte claim.",
+  "corpus_calls_executed_by_repair": 0
+}

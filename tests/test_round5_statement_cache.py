@@ -41,15 +41,18 @@ class StatementCacheTests(unittest.TestCase):
             # Stop recording preparations while allowing later fixture queries.
             connection.set_authorizer(lambda *args: sqlite3.SQLITE_OK)
 
-    def test_bounded_working_set_reuses_preparation_with_new_parameters(self):
+    def test_preparation_reuse_with_new_parameters_and_capacity_limited_control(self):
         with MemoryBook(self.path, cache_size=0) as book:
             actual = self.invented_working_set(book.db)
             self.assertEqual(actual, [200, 200])
             self.assertEqual(book.db.execute('SELECT COUNT(*) FROM recall_cache').fetchone()[0], 0)
-        # A disabled-cache control has identical preparation counts across
-        # Python versions, unlike their different default eviction policies.
-        with sqlite3.connect(':memory:', cached_statements=0) as uncached_control:
-            self.assertEqual(self.invented_working_set(uncached_control), [200, 400])
+        # A five-entry control cannot retain this 200-statement working set.
+        # Assert re-preparation without assuming a version-specific eviction
+        # count: Python 3.10 clamps capacities below five and uses LFU.
+        with sqlite3.connect(':memory:', cached_statements=5) as limited_control:
+            control = self.invented_working_set(limited_control)
+            self.assertEqual(control[0], 200)
+            self.assertGreater(control[1], control[0])
 
     def test_cached_statement_preserves_snapshot_and_external_commits(self):
         with MemoryBook(self.path, cache_size=0) as book:
