@@ -8,7 +8,7 @@ import subprocess
 import tempfile
 from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 from scripts import round5_performance as bench
 
@@ -31,13 +31,15 @@ def fixture(factor=.85):
     formal["calls"] = 5 * 7 * 2 * 4
     sources = {"baseline": {"commit": bench.BASELINE, "runtime_sha256": bench.BASELINE_HASH},
                "candidate": {"commit": "a" * 40, "runtime_sha256": bench.digest("candidate")}}
-    run = {"binding": {"sources": sources, "plan_commit": bench.PLAN_COMMIT},
+    run = {"binding": {"sources": sources, "plan_commit": bench.PLAN_COMMIT,
+                      "addendum_commit": bench.ADDENDUM_COMMIT, "addendum_sha256": bench.ADDENDUM_SHA256},
         "evaluator_files": {"fixture": "hash"},
         "host": {"boot": "same-boot"}, "schedule": bench.schedule(plan),
         "cohorts": {name: {"queries": len(ids), "sha256": bench.digest(name),
                            "query_ids": sorted(ids), "query_ids_original_order": ids}
                     for name, ids in (("synthetic61", ["b", "a"]), ("public1015", ["z", "y", "x"]))}}
-    report = {"plan": plan, "plan_commit": bench.PLAN_COMMIT, "run": run,
+    report = {"plan": plan, "plan_commit": bench.PLAN_COMMIT,
+              "addendum_commit": bench.ADDENDUM_COMMIT, "addendum_sha256": bench.ADDENDUM_SHA256, "run": run,
               "workers": [], "evaluator_unchanged": True, "error": None}
     for item in run["schedule"]:
         worker = {**item, "status": "completed", "error": None,
@@ -100,9 +102,14 @@ class PerformanceGateTests(unittest.TestCase):
     def test_registered_plan_is_fixed_to_original_commit_and_exact_bytes(self):
         raw = bench.PLAN.read_bytes()
         self.assertEqual(bench.PLAN_COMMIT, "7068594181c7e98c576f68a81daf85cd0d06c729")
-        with patch.object(bench, "git", return_value=raw) as git:
+        registrations = {
+            ("show", bench.PLAN_COMMIT + ":benchmarks/experiments/round5-plan.json"): raw,
+            ("show", bench.ADDENDUM_COMMIT + ":benchmarks/experiments/round5-materialization-addendum.json"):
+                bench.ADDENDUM.read_bytes(),
+        }
+        with patch.object(bench, "git", side_effect=lambda *args: registrations[args]) as git:
             self.assertEqual(bench.load_plan(), json.loads(raw))
-            git.assert_called_once_with("show", bench.PLAN_COMMIT + ":benchmarks/experiments/round5-plan.json")
+            self.assertEqual(git.call_args_list, [call(*args) for args in registrations])
         with tempfile.TemporaryDirectory(dir=bench.ROOT) as directory:
             altered = Path(directory) / "plan.json"
             altered.write_bytes(raw + b" ")
@@ -112,6 +119,51 @@ class PerformanceGateTests(unittest.TestCase):
         with patch.object(bench, "git", return_value=raw + b" "):
             with self.assertRaisesRegex(ValueError, "registered plan changed"):
                 bench.load_plan()
+
+    def test_candidate_b_addendum_is_fixed_to_commit_hash_and_exact_bytes(self):
+        raw = bench.ADDENDUM.read_bytes()
+        self.assertEqual(bench.ADDENDUM_COMMIT, "9042570d8cff01be7c95cd01f8698e166fc7d313")
+        self.assertEqual(bench.ADDENDUM_SHA256, "547aa0068fc5fd6a18e448719d855295c3c85ac78faea69867d208c175f77a34")
+        self.assertEqual(bench.sha(raw), bench.ADDENDUM_SHA256)
+        with patch.object(bench, "git", return_value=raw) as git:
+            self.assertEqual(bench.load_addendum(), json.loads(raw))
+            git.assert_called_once_with("show", bench.ADDENDUM_COMMIT +
+                                        ":benchmarks/experiments/round5-materialization-addendum.json")
+        with tempfile.TemporaryDirectory(dir=bench.ROOT) as directory:
+            path = Path(directory) / "addendum.json"
+            path.write_bytes(raw + b" ")
+            with patch.object(bench, "ADDENDUM", path), patch.object(bench, "git", return_value=raw):
+                with self.assertRaisesRegex(ValueError, "registered candidate-B addendum changed"):
+                    bench.load_addendum()
+            # Even a coherent replacement of the local and committed bytes
+            # cannot replace the separately pinned original content hash.
+            with patch.object(bench, "ADDENDUM", path), patch.object(bench, "git", return_value=raw + b" "):
+                with self.assertRaisesRegex(ValueError, "addendum hash differs"):
+                    bench.load_addendum()
+        with patch.object(bench, "git", return_value=raw + b" "):
+            with self.assertRaisesRegex(ValueError, "registered candidate-B addendum changed"):
+                bench.load_addendum()
+
+    def test_candidate_b_addendum_preserves_plan_link_and_prior_evidence(self):
+        original = json.loads(bench.ADDENDUM.read_bytes())
+        mutations = (lambda x: x.update(status="registered-after-measurement"),
+                     lambda x: x.update(original_plan_commit="0" * 40),
+                     lambda x: x.update(prior_candidate_commit="0" * 40),
+                     lambda x: x.update(prior_candidate_runtime_sha256="0" * 64),
+                     lambda x: x["evidence"].update(profile_pairs=4731),
+                     lambda x: x["evidence"].update(paired_calls=4095),
+                     lambda x: x["evidence"].update(paired_payload_pairs=2047))
+        with tempfile.TemporaryDirectory(dir=bench.ROOT) as directory:
+            path = Path(directory) / "addendum.json"
+            for mutate in mutations:
+                changed = copy.deepcopy(original)
+                mutate(changed)
+                raw = bench.json_bytes(changed)
+                path.write_bytes(raw)
+                with patch.object(bench, "ADDENDUM", path), patch.object(bench, "git", return_value=raw), \
+                        patch.object(bench, "ADDENDUM_SHA256", bench.sha(raw)):
+                    with self.assertRaisesRegex(ValueError, "addendum registration|retained candidate-A evidence"):
+                        bench.load_addendum()
 
     def test_registered_matrix_and_seed_are_the_new_round_five_axes(self):
         plan = json.loads(bench.PLAN.read_bytes())
@@ -149,6 +201,8 @@ class PerformanceGateTests(unittest.TestCase):
         workflow = (bench.ROOT / ".github/workflows/round5-performance.yml").read_text()
         self.assertEqual(len(bench.EVALUATORS), len(set(bench.EVALUATORS)))
         self.assertIn("benchmarks/experiments/round5-plan.json", bench.EVALUATORS)
+        self.assertIn("benchmarks/experiments/round5-materialization-addendum.json", bench.EVALUATORS)
+        self.assertEqual(hashes["benchmarks/experiments/round5-materialization-addendum.json"], bench.ADDENDUM_SHA256)
         self.assertNotIn("scripts/round4_performance.py", bench.EVALUATORS)
         for name in names:
             self.assertIn(name, bench.EVALUATORS)
@@ -161,6 +215,7 @@ class PerformanceGateTests(unittest.TestCase):
         hashes = {name: bench.sha(raw) for name, raw in documents.items()}
         value = {"status": "frozen-before-formal-timing", "evaluator": bench.VERSION,
             "plan_commit": bench.PLAN_COMMIT, "plan_sha256": bench.sha(bench.PLAN.read_bytes()),
+            "addendum_commit": bench.ADDENDUM_COMMIT, "addendum_sha256": bench.ADDENDUM_SHA256,
             "evaluator_files": hashes, "packages": bench.PACKAGES,
             "sources": report["run"]["binding"]["sources"], "evaluator_commit": "f" * 40}
         with tempfile.TemporaryDirectory() as directory:
@@ -179,6 +234,10 @@ class PerformanceGateTests(unittest.TestCase):
                 self.assertEqual(bench.load_binding(path), value)
                 mutations = (lambda x: x.update(plan_commit="0" * 40),
                              lambda x: x.update(plan_sha256="0" * 64),
+                             lambda x: x.update(addendum_commit="0" * 40),
+                             lambda x: x.update(addendum_sha256="0" * 64),
+                             lambda x: x.pop("addendum_commit"),
+                             lambda x: x.pop("addendum_sha256"),
                              lambda x: x["sources"]["baseline"].update(commit="a" * 40),
                              lambda x: x["packages"].update(tiktoken="other"))
                 for mutate in mutations:
@@ -201,6 +260,38 @@ class PerformanceGateTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "Commit the exact source binding"):
                     bench.load_binding(path)
 
+    def test_new_binding_records_original_plan_and_candidate_b_addendum(self):
+        plan = json.loads(bench.PLAN.read_bytes())
+        sources = fixture()["run"]["binding"]["sources"]
+        documents = {name: (bench.ROOT / name).read_bytes() for name in bench.EVALUATORS}
+        hashes = {name: bench.sha(raw) for name, raw in documents.items()}
+        tool_commit = "f" * 40
+        def git(*args):
+            if args == ("rev-parse", "HEAD"):
+                return (tool_commit + "\n").encode()
+            if len(args) == 2 and args[0] == "show":
+                commit, name = args[1].split(":", 1)
+                self.assertIn(commit, (tool_commit, bench.BASELINE))
+                if commit == bench.BASELINE:
+                    self.assertIn(name, (*bench.HELPERS, *bench.RUNTIME_FIXTURES))
+                return documents[name]
+            raise AssertionError(args)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "binding.json"
+            args = SimpleNamespace(baseline_src=Path("baseline"), candidate_src=Path("candidate"), bind=path)
+            with patch.object(bench, "load_plan", return_value=plan) as registration, \
+                    patch.object(bench, "source_identity", side_effect=lambda path: sources[path.name]), \
+                    patch.object(bench, "file_hashes", return_value=hashes), \
+                    patch.object(bench, "git", side_effect=git), patch("builtins.print"):
+                bench.bind(args)
+            registration.assert_called_once_with()
+            value = json.loads(path.read_bytes())
+            self.assertEqual(value["plan_commit"], bench.PLAN_COMMIT)
+            self.assertEqual(value["addendum_commit"], bench.ADDENDUM_COMMIT)
+            self.assertEqual(value["addendum_sha256"], bench.ADDENDUM_SHA256)
+            self.assertEqual(value["evaluator_files"], hashes)
+            self.assertEqual(value["sources"], sources)
+
     def test_report_registration_and_audit_reject_coherent_plan_rewrite(self):
         for target in ("report", "binding"):
             report = fixture()
@@ -220,6 +311,26 @@ class PerformanceGateTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "original registered plan/evaluator"):
                     bench.audit(output, Path(directory) / "not-created-state")
                 retrieval.assert_not_called()
+
+    def test_report_and_saved_audit_reject_coherent_addendum_rewrite(self):
+        for target in ("report", "binding"):
+            for field, changed in (("addendum_commit", "0" * 40), ("addendum_sha256", "0" * 64)):
+                report = fixture()
+                container = report if target == "report" else report["run"]["binding"]
+                container[field] = changed
+                self.assertIn("registered_materialization_addendum_changed", bench.validation(report)["issues"])
+        for field, changed in (("addendum_commit", "0" * 40), ("addendum_sha256", "0" * 64)):
+            report = fixture()
+            report[field] = report["run"]["binding"][field] = changed
+            with tempfile.TemporaryDirectory() as directory:
+                output = Path(directory) / "fixture.json.gz"
+                bench.save_report(output, report)
+                with patch.object(bench, "load_plan", return_value=report["plan"]), \
+                        patch.object(bench, "file_hashes", return_value=report["run"]["evaluator_files"]), \
+                        patch.object(bench, "resume_prefix") as retrieval:
+                    with self.assertRaisesRegex(ValueError, "Report candidate-B addendum"):
+                        bench.audit(output, Path(directory) / "not-created-state")
+                    retrieval.assert_not_called()
 
     def test_long_character_cell_is_retained_in_regression_gate(self):
         report = fixture(.8)

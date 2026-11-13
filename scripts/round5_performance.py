@@ -42,6 +42,9 @@ from benchmarks.token_compare import (ENCODINGS, TokenCounter,
 
 PLAN = ROOT / "benchmarks/experiments/round5-plan.json"
 PLAN_COMMIT = "7068594181c7e98c576f68a81daf85cd0d06c729"
+ADDENDUM = ROOT / "benchmarks/experiments/round5-materialization-addendum.json"
+ADDENDUM_COMMIT = "9042570d8cff01be7c95cd01f8698e166fc7d313"
+ADDENDUM_SHA256 = "547aa0068fc5fd6a18e448719d855295c3c85ac78faea69867d208c175f77a34"
 BASELINE = "692fb959ddf8934c5f516ba3d74ceb4385a2fa82"
 BASELINE_HASH = "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
 VERSION = "round5-default-performance-1"
@@ -74,7 +77,8 @@ RUNTIME_FIXTURES = ("tests/test_round4_token_work.py", "tests/test_round4_sealed
 EVALUATORS = (*HELPERS, *RUNTIME_FIXTURES,
     "scripts/round5_performance.py", "tests/test_round5_performance.py",
     "tests/test_round5_materialization.py", ".github/workflows/round5-performance.yml",
-    "benchmarks/experiments/round5-plan.json")
+    "benchmarks/experiments/round5-plan.json",
+    "benchmarks/experiments/round5-materialization-addendum.json")
 GATES = {"minimum_geomean_pooled_p95_improvement_percent": 10,
     "minimum_public_native_char4000_p95_improvement_percent": 10,
     "minimum_public_actual_mcp_char4000_p95_improvement_percent": 5,
@@ -140,6 +144,27 @@ def file_hashes():
     return {name: sha((ROOT / name).read_bytes()) for name in EVALUATORS}
 
 
+def load_addendum():
+    """Keep candidate B's scope separate from the unchanged original gates."""
+    raw = ADDENDUM.read_bytes()
+    require(raw == git("show", ADDENDUM_COMMIT + ":" + str(ADDENDUM.relative_to(ROOT))),
+            "The registered candidate-B addendum changed")
+    require(sha(raw) == ADDENDUM_SHA256, "Candidate-B addendum hash differs from its exact registration")
+    addendum = json.loads(raw)
+    require(addendum["schema_version"] == 1
+            and addendum["status"] == "registered-before-candidate-b-implementation-and-measurement"
+            and addendum["original_plan_commit"] == PLAN_COMMIT,
+            "Wrong candidate-B addendum registration")
+    require(addendum["prior_candidate_commit"] == "2de18efd33bce939d86c345304ab18c556ac0c52"
+            and addendum["prior_candidate_runtime_sha256"] ==
+                "25d67aa37690e407200a759e6a5573eed852a53049b4aad2a4b39164bda4ddbb"
+            and addendum["evidence"]["profile_pairs"] == 4732
+            and addendum["evidence"]["paired_calls"] == 4096
+            and addendum["evidence"]["paired_payload_pairs"] == 2048,
+            "Candidate-B addendum no longer identifies the retained candidate-A evidence")
+    return addendum
+
+
 def load_plan():
     require(re.fullmatch(r"[0-9a-f]{40}", PLAN_COMMIT), "Commit the round-five plan and pin PLAN_COMMIT before binding")
     raw = PLAN.read_bytes()
@@ -161,6 +186,7 @@ def load_plan():
     require(formal["gate"] == GATES
             and formal["query_order"] == "random.Random(51061 + 1009 * round + config_index), equal for paired engines",
             "Registered round-five gates or query order changed")
+    load_addendum()
     return plan
 
 
@@ -189,6 +215,7 @@ def bind(args):
     value = {"schema_version": 1, "evaluator": VERSION, "status": "frozen-before-formal-timing",
         "created_at": now(), "plan_sha256": sha(PLAN.read_bytes()),
         "plan_commit": PLAN_COMMIT,
+        "addendum_commit": ADDENDUM_COMMIT, "addendum_sha256": ADDENDUM_SHA256,
         "sources": sources, "evaluator_commit": tool_commit, "evaluator_files": hashes,
         "packages": PACKAGES, "policy": "One registered candidate; preserve every attempt and all rounds."}
     exclusive(args.bind, value)
@@ -201,6 +228,9 @@ def load_binding(path):
     require(value["status"] == "frozen-before-formal-timing" and value["evaluator"] == VERSION,
             "Candidate is not frozen")
     require(value.get("plan_commit") == PLAN_COMMIT, "Binding plan commit differs from its exact preregistration")
+    require(value.get("addendum_commit") == ADDENDUM_COMMIT
+            and value.get("addendum_sha256") == sha(ADDENDUM.read_bytes()) == ADDENDUM_SHA256,
+            "Binding candidate-B addendum differs from its exact registration")
     require(value["plan_sha256"] == sha(PLAN.read_bytes()) and value["evaluator_files"] == file_hashes()
             and value["packages"] == PACKAGES, "Plan/evaluator/packages differ from binding")
     require(value["sources"]["baseline"] == {"commit": BASELINE, "runtime_sha256": BASELINE_HASH},
@@ -597,6 +627,10 @@ def validation(report):
     run, plan = report["run"], report["plan"]
     if report.get("plan_commit") != PLAN_COMMIT or run["binding"].get("plan_commit") != PLAN_COMMIT:
         issues.append("registered_plan_commit_changed")
+    if any(value.get("addendum_commit") != ADDENDUM_COMMIT
+           or value.get("addendum_sha256") != ADDENDUM_SHA256
+           for value in (report, run["binding"])):
+        issues.append("registered_materialization_addendum_changed")
     workers = report["workers"]
     if [w["key"] for w in workers] != [w["key"] for w in schedule(plan)]:
         issues.append("missing_duplicate_or_reordered_workers")
@@ -1047,6 +1081,7 @@ def controller_locked(args, plan, binding):
             exclusive_bytes(history / f"{attempt:04d}.prior.summary.json", previous_summary.read_bytes())
     report = {"schema_version": 1, "evaluator": VERSION, "plan": plan, "run": run,
         "plan_commit": binding["plan_commit"],
+        "addendum_commit": binding["addendum_commit"], "addendum_sha256": binding["addendum_sha256"],
         "started_at": now(), "controller_attempt": attempt, "workers": [], "error": None, "evaluator_unchanged": False,
         "worker_artifacts_sha256": {},
         "status": "running", "interpretation": {
@@ -1126,6 +1161,9 @@ def audit(path, state):
             "Auditor must use the original registered plan/evaluator")
     require(report.get("plan_commit") == report["run"]["binding"].get("plan_commit") == PLAN_COMMIT,
             "Report plan commit differs from its exact preregistration")
+    require(report.get("addendum_commit") == report["run"]["binding"].get("addendum_commit") == ADDENDUM_COMMIT
+            and report.get("addendum_sha256") == report["run"]["binding"].get("addendum_sha256") == ADDENDUM_SHA256,
+            "Report candidate-B addendum differs from its exact registration")
     require(report["validation"]["passed"], "Measurement is incomplete or invalid; original remains preserved")
     require(json.loads((state / "run.json").read_bytes()) == report["run"], "Original run identity differs")
     require(artifact_hashes(state, report["run"]) == report["worker_artifacts_sha256"], "Original worker artifact hashes differ")

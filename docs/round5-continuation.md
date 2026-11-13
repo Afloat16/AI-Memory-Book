@@ -1,6 +1,6 @@
 # v0.3.3 / round-five continuation checkpoint
 
-## Current stage — registered plan, no new measurements
+## Initial registration — before new measurements
 
 The user requested continuation after the completed v0.3.2 release. Main is
 `de6e2652572c4867cda2aac5637a4a6630638c7e`; the baseline release remains at
@@ -10,7 +10,7 @@ The new development branch is `optimization/v0.3.3-round5`.
 
 Read-only profile inspection identifies candidate dictionary materialization
 and repeated directory score-factor work as a bounded exact-output target.
-No new implementation, development measurement or scored run exists yet.
+At this registration no new implementation, development measurement or scored run existed.
 The [registered plan](../benchmarks/experiments/round5-plan.json) fixes the
 scope, baseline and a 66,248-call, fourteen-cell formal matrix before work.
 The existing 100,000-character path gets explicit formal coverage.
@@ -78,3 +78,22 @@ and tie order, with the full original candidate count retained in the response.
 Coverage, semantic and custom row paths keep full materialization. Register a
 separate addendum before implementing/measuring that variant; all original
 formal gates remain unchanged.
+
+## Candidate B and resource diagnostics registered
+
+The full candidate-A development evidence and the bounded materialization
+addendum are committed at `9042570d8cff01be7c95cd01f8698e166fc7d313`.
+Independent source tracing confirms that the default lexical rerank consumes
+only its original prefix; complete scoring/sorting and full candidate counts
+must still be retained, with full fallback for optional/custom-row paths.
+Candidate B implementation is in progress; no B timing or formal attempt has run.
+
+The new formal and historical-compatibility evaluators bind the addendum
+separately from the unchanged original plan. Their updated offline fixtures
+pass 36 and 14 tests respectively. They neither retrieve nor perform inference.
+
+The separately reviewed resource diagnostic, 17 functional fixtures and review
+receipt are committed at `d67e6c695aa586bbcbc9f0e134c769980d8e09ef`. Its dedicated
+first hosted attempt has been triggered at that exact source. It measures old
+v0.3.1/v0.3.2 sources only and retains phase/PID traces plus original inclusive
+RSS. Completion alone is not a product memory-saving claim.

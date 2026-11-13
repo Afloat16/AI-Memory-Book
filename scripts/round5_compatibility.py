@@ -34,6 +34,8 @@ from scripts.round5_performance import host_identity
 
 PLAN = "benchmarks/experiments/round5-plan.json"
 PLAN_COMMIT = "7068594181c7e98c576f68a81daf85cd0d06c729"
+ADDENDUM = "benchmarks/experiments/round5-materialization-addendum.json"
+ADDENDUM_COMMIT = "9042570d8cff01be7c95cd01f8698e166fc7d313"
 BASELINE = "692fb959ddf8934c5f516ba3d74ceb4385a2fa82"
 BASELINE_HASH = "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
 DATA_HASH = "fb3cd70ea58fafa5bd9cef0f04dba7399aaafba76f5f92605eee9e516f115e1b"
@@ -45,7 +47,7 @@ ORDER = (("baseline", "candidate"), ("candidate", "baseline"),
 ERRORS = ("source", "projection", "scope", "chars", "tokens", "metadata", "cache", "policy", "limit")
 VERSION = "round5-historical256-compatibility-1"
 EXTRA = ("scripts/round5_compatibility.py", "tests/test_round5_compatibility.py",
-         "scripts/round5_performance.py", PLAN, MANIFEST, OLD_BINDING)
+         "scripts/round5_performance.py", PLAN, ADDENDUM, MANIFEST, OLD_BINDING)
 
 
 def require(value, message):
@@ -111,6 +113,11 @@ def registry():
 def registered():
     value = (ROOT / PLAN).read_bytes()
     require(value == git("show", PLAN_COMMIT + ":" + PLAN), "Original round-five plan changed")
+    addendum = (ROOT / ADDENDUM).read_bytes()
+    require(addendum == git("show", ADDENDUM_COMMIT + ":" + ADDENDUM),
+            "Registered materialization addendum changed")
+    require(json.loads(addendum)["original_plan_commit"] == PLAN_COMMIT,
+            "Materialization addendum names another plan")
     plan = json.loads(value)
     require(plan["baseline"]["commit"] == BASELINE and
             plan["baseline"]["runtime_sha256"] == BASELINE_HASH, "Wrong baseline")
@@ -132,6 +139,7 @@ def bind(args):
     manifest = read(ROOT / MANIFEST)
     require(manifest["dataset_sha256"] == DATA_HASH and manifest["expected_queries"] == 256, "Wrong historical cohort")
     save(args.output, {"version": VERSION, "created_at": now(), "plan_commit": PLAN_COMMIT,
+        "addendum_commit": ADDENDUM_COMMIT, "addendum_sha256": sha((ROOT / ADDENDUM).read_bytes()),
         "evaluator_commit": commit, "files": files, "sources": sources,
         "dataset_sha256": DATA_HASH, "ids": manifest["selected_ids"],
         "token_calls": 3072, "character_calls": 2048,
@@ -143,6 +151,9 @@ def binding(path):
     value = read(path)
     require(value["version"] == VERSION and value["plan_commit"] == PLAN_COMMIT and
             value["files"] == registry(), "Compatibility evaluator changed")
+    require(value["addendum_commit"] == ADDENDUM_COMMIT and
+            value["addendum_sha256"] == sha((ROOT / ADDENDUM).read_bytes()),
+            "Compatibility addendum binding changed")
     relative = Path(path).resolve().relative_to(ROOT).as_posix()
     require(Path(path).read_bytes() == git("show", "HEAD:" + relative), "Commit binding before execution")
     for name, expected in value["files"].items():

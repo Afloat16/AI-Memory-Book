@@ -42,6 +42,18 @@ def fixture(kind="char", label="baseline", repetition=0, elapsed=1.0):
 
 
 class SavedWorkerTests(unittest.TestCase):
+    def test_registered_addendum_is_required_and_cannot_be_replaced(self):
+        plan = (evaluation.ROOT / evaluation.PLAN).read_bytes()
+        addendum = (evaluation.ROOT / evaluation.ADDENDUM).read_bytes()
+        expected = {evaluation.PLAN_COMMIT + ":" + evaluation.PLAN: plan,
+                    evaluation.ADDENDUM_COMMIT + ":" + evaluation.ADDENDUM: addendum}
+        with patch.object(evaluation, "git", side_effect=lambda _, name: expected[name]):
+            evaluation.registered()
+        expected[evaluation.ADDENDUM_COMMIT + ":" + evaluation.ADDENDUM] = b"{}\n"
+        with patch.object(evaluation, "git", side_effect=lambda _, name: expected[name]), \
+                self.assertRaisesRegex(ValueError, "addendum changed"):
+            evaluation.registered()
+
     def test_valid_character_and_token_rows(self):
         for kind in ("char", "tokens"):
             frozen, report, ledger = fixture(kind)
