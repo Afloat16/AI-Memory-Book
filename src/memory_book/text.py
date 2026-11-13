@@ -24,6 +24,19 @@ ZH_QUESTION = re.compile(r"为什么|请告诉我|请问|是什么|什么|怎么
 STOP = frozenset("a an the is are was were be been to of in on at for from and or it this that these those with as by what which who when where why how do does did can could would should please tell me we our you your i my about now current latest final s t re ve ll d m".split())
 ZH_STOP = frozenset("什么 怎么 如何 为什么 哪个 哪些 是否 现在 当前 最后 最终 我们 这个 那个 一个 一下 请问 告诉 多少 了吗 的是 是什 么的 如何 何时 怎样".split())
 
+# Each admitted scalar is NFKC/NFKD-stable, has combining class zero, and
+# is not Mn. Excluding all marks and Hangul Jamo also prevents composition or
+# canonical reordering across adjacent characters. Unsupported inputs keep the
+# historical whole-string normalization; this creates no persistent cache.
+_NORMALIZATION_IDENTITY = re.compile(
+    r"[\x00-\x7f\u3400-\u4dbf\u4e00-\u9fff\u3001-\u3003"
+    r"\u3008-\u3011\u3014-\u301f\u2010\u2012-\u2015"
+    r"\u2018-\u201f\u2022\u30fb]*")
+_NORMALIZATION_UCD_VERSIONS = frozenset(("13.0.0", "14.0.0", "15.0.0", "15.1.0", "16.0.0"))
+_ORDINARY_NORMALIZE = unicodedata.normalize
+_ORDINARY_CATEGORY = unicodedata.category
+_ORDINARY_CAMEL_BOUNDARY = CAMEL_BOUNDARY
+
 
 def _strip_nonspacing_marks(text: str) -> str:
     """Remove category Mn without changing the caller's normalization order."""
@@ -31,12 +44,23 @@ def _strip_nonspacing_marks(text: str) -> str:
     return text.translate(removed) if removed else text
 
 
+_ORDINARY_STRIP_NONSPACING = _strip_nonspacing_marks
+
+
 def terms(text: str, *, query: bool = False) -> list[str]:
     """NFKC text -> English words/identifier pieces and Chinese bigrams."""
-    if not text.isascii():
+    ascii_source = text.isascii()
+    identity_source = (not ascii_source and type(text) is str
+        and unicodedata.unidata_version in _NORMALIZATION_UCD_VERSIONS
+        and unicodedata.normalize is _ORDINARY_NORMALIZE
+        and unicodedata.category is _ORDINARY_CATEGORY
+        and CAMEL_BOUNDARY is _ORDINARY_CAMEL_BOUNDARY
+        and _strip_nonspacing_marks is _ORDINARY_STRIP_NONSPACING
+        and _NORMALIZATION_IDENTITY.fullmatch(text) is not None)
+    if not ascii_source and not identity_source:
         text = unicodedata.normalize("NFKC", text)
     text = CAMEL_BOUNDARY.sub(r"\1 \2", text).casefold()
-    if not text.isascii():
+    if not text.isascii() and not identity_source:
         # Normalize the whole string first: canonical ordering can cross
         # character boundaries. Only the category lookup/deletion is reused.
         text = _strip_nonspacing_marks(unicodedata.normalize("NFKD", text))
