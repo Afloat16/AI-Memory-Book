@@ -178,3 +178,10 @@ four diagnostic p95 changes are −17.96%, −24.15%, −12.00% and −23.20%, w
 rows retained. Neither timing replaces the formal experiment. New compressed
 cell/worker/ledger archives reconstruct the original reports exactly; the
 initial interrupted attempt and zero-call MCP failure remain separate.
+
+The independent `final-prelaunch-audit.json` passes all 4,732 profile pairs,
+1,024 first-use pairs, 4,096 ledger events and 24 evaluator file identities.
+The original binding SHA-256 remains
+`d535df483cc41cc0b2381104fd99b17f4639fa2160e3b73a6661ceb8c4e58915`.
+Commit that unchanged binding and launch `ci/v032-round4-performance` once.
+This is launch readiness; formal performance/resource acceptance is pending.
