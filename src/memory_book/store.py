@@ -625,7 +625,7 @@ class MemoryBook:
             return (lo, hi)
         return None
 
-    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False) -> dict:
+    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False, follow_titles: bool = False) -> dict:
         started = time.perf_counter_ns()
         query = _string(query, "query", maximum=8000, required=False)
         _integer(budget_chars, "budget_chars", 0, 100_000)
@@ -646,11 +646,28 @@ class MemoryBook:
             raise ValueError("semantic must be a boolean")
         if semantic and strategy != "book":
             raise ValueError("semantic recall requires the book strategy")
+        if not isinstance(follow_titles, bool):
+            raise ValueError("follow_titles must be a boolean")
+        if follow_titles and (strategy != "book" or semantic or coverage):
+            raise ValueError("follow_titles requires book without semantic or coverage")
         for key, val in (("project", project), ("chapter", chapter), ("session", session)):
             if val is not None:
                 _string(val, key)
         qt = query_terms(query)
         current_query = bool(CURRENT_QUERY.search(query) and not HISTORICAL_QUERY.search(query))
+        title_reference = None
+        follow_titles_active = False
+        if follow_titles:
+            inactive = ("unscoped" if project is None else
+                        "result_limit" if limit < 2 else
+                        "zero_budget" if not budget_chars or budget_tokens == 0 else
+                        "temporal_query" if CURRENT_QUERY.search(query) or HISTORICAL_QUERY.search(query) else
+                        "no_lexical_results" if not qt else None)
+            follow_titles_active = inactive is None
+            title_reference = {"version": 1, "active": False, "applied": False,
+                               "reason": inactive or "no_lexical_results", "project": project,
+                               "target_initial_page_in_pool": None,
+                               "target_initial_session_in_pool": None}
         use_stem = strategy == "book" and any(ASCII_WORD.search(token) for token in qt)
         semantic_model = self._semantic_encoder() if semantic else None
         # A read snapshot ties candidates, sources, and the cache revision together.
@@ -658,6 +675,8 @@ class MemoryBook:
         try:
             revision = self.revision
             cache_options = [INDEX_VERSION, RECALL_VERSION, query, project, chapter, session, budget_chars, limit, strategy, coverage]
+            if follow_titles:
+                cache_options.extend(["follow_titles", 1])
             if semantic_model is not None:
                 from .semantic import FUSION_VERSION, SEMANTIC_VERSION, check_index, fuse_candidates, rank_pages
                 check_index(self.db, revision, semantic_model)
@@ -799,7 +818,7 @@ class MemoryBook:
                       FROM pages p JOIN chapters c ON c.id=p.chapter_id
                       JOIN sessions s ON s.id=p.session_pk WHERE p.rid IN (""" +
                       ",".join("?" for _ in ids) + ")", ids).fetchall()
-                late_materialize = canonical_routes
+                late_materialize = canonical_routes and not follow_titles_active
                 if late_materialize and use_stem:
                     # Validate the original batch before collapsing any rows.
                     # Earlier duplicate rows may carry additional fields or
@@ -989,6 +1008,12 @@ class MemoryBook:
                           WHERE p.id IN (""" + ",".join("?" for _ in selected_ids) + ")", selected_ids)}
                     for item in candidates[:limit]:
                         item.update(sources[item["id"]])
+                    if follow_titles_active:
+                        from .title_references import follow_title_reference
+                        candidates, title_reference = follow_title_reference(
+                            self.db, candidates, project=project, chapter=chapter,
+                            session=session, limit=limit)
+                        candidate_count = len(candidates)
                     selected_pages = candidates[:limit]
                     allocations = _context_allocations(selected_pages, budget_chars)
                     truncated_ids = [item["rid"] for item, _, allowance in allocations
@@ -1074,6 +1099,8 @@ class MemoryBook:
         if not results and candidates:
             warnings.append("Budget too small to return an evidence block including its citation.")
         result = {"query": query, "results": results, "context": context, "context_chars": len(context), "estimated_tokens": estimate_tokens(context), "candidate_count": candidate_count, "revision": revision, "cache_hit": False, "warnings": warnings, "strategy": strategy, "budget_chars": budget_chars, "truncated": candidate_count > len(results) or any(r["truncated"] for r in results)}
+        if follow_titles:
+            result.update(follow_titles=True, title_reference=title_reference)
         if semantic_model is not None:
             result.update(semantic=True, semantic_model_fingerprint=semantic_model.fingerprint)
         if token_counter is not None:
