@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "status": "prebinding-environment-check-blocked-zero-calls",
+  "created_at": "2026-11-13T08:25:35.411609+00:00",
+  "evaluator_commit": "052f814aa061683b5c6e7a397a96b771f506abca",
+  "script_sha256": "6f154b6c50c3b4636d7edfa6b85797544bdbeded8be0fb1f6f08c71f9851540b",
+  "command": "round5_gc_diagnostic.py bind",
+  "exception_type": "CalledProcessError",
+  "exception_sha256": "000f587e26c26be6811906ea87bfd1c363d71b45cb9ae638fe8c3f5e6e4f984d",
+  "diagnosis": "Local optimization/v0.3.3-round5 branch has no upstream; origin fetch refspec only tracks main. Explicit Git fetches had only updated FETCH_HEAD, so the required remote tracking ref did not exist.",
+  "evidence": {
+    "git_rev_parse_upstream_exit": 128,
+    "git_rev_parse_upstream_stderr": "fatal: no upstream configured for branch 'optimization/v0.3.3-round5'",
+    "configured_fetch_refspec": "+refs/heads/main:refs/remotes/origin/main",
+    "remote_tracking_ref_exists": false,
+    "binding_written": false,
+    "state_created": false,
+    "results_created": false
+  },
+  "probe_calls": 0,
+  "corpus_calls": 0,
+  "model_calls": 0,
+  "repair": "Add this already authorized optimization branch to the local origin fetch refspec and configure its upstream. Preserve existing main tracking. No source/evaluator/gate change. A new binding-v2 filename and fresh -v2 state/result paths will be used after this receipt is committed.",
+  "original_uncreated_paths": [
+    "benchmarks/experiments/round5-gc-binding.json",
+    ".artifacts/round5-gc-e",
+    "benchmarks/reports/round5-gc-e"
+  ]
+}

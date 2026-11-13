@@ -352,3 +352,10 @@ never reads previous diagnostic reports. The v032-only local fallback is
 explicit. Root and a separate evaluator reviewer approve the fixed source.
 Bindings are compact, and complete worker reports use deterministic gzip.
 No actual probe or corpus diagnostic has run at this evaluator checkpoint.
+
+The first binding command stopped at its Git-environment check: the local
+optimization branch had no upstream, and origin's fetch mapping tracked only
+main. No binding, state directory, report or retrieval attempt was created.
+The zero-call block is preserved separately. Repair only adds the authorized
+branch's local tracking configuration; all evaluator checks remain intact.
+The subsequent binding uses new `-v2` paths, with no measurement replay.
