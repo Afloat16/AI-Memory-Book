@@ -9,8 +9,11 @@ have not qualified for the original formal performance run; D evidence is at
 `2d381b49a36bf64820635887ac886f62b5c1b8cc`. The independently reviewed E lifetime
 scope is registered at `10b04c8fdcfd0ecc95492e17b2a764c62a0651f1`. Its nine
 lifecycle probes and three separate 4,732-call frequency workers have now
-completed; each worker was checkpointed remotely before the next. Saved-result
-audit will determine whether E qualifies for its conditional development run.
+completed; each worker was checkpointed remotely before the next. Independent
+saved-result audit finds all payloads preserved but no decrease in any of the
+three strict GC-frequency conditions. E is not selected; its conditional
+development profile/paired timing will not run. The full audit and disposition
+are retained under `benchmarks/reports/round5-gc-e-v2/`.
 
 Parallel quality diagnosis now examines only already saved v032 outputs and
 their old source annotations. The new
