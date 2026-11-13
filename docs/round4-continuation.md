@@ -170,3 +170,11 @@ worker as part of a complete attempt, explicitly retaining the interrupted
 512 samples without selective pooling. Both must finish correctly before
 formal launch; incomplete local diagnostics are not silently waived. The
 original binding draft bytes and all formal numerical gates remain unchanged.
+
+The recovery registered at `278339fb` completed both obligations: all 4,732
+final-C2 profile payloads match the preserved baseline, and all 1,024 pairs in
+the separately identified 2,048-call historical first-use attempt match. The
+four diagnostic p95 changes are −17.96%, −24.15%, −12.00% and −23.20%, with all
+rows retained. Neither timing replaces the formal experiment. New compressed
+cell/worker/ledger archives reconstruct the original reports exactly; the
+initial interrupted attempt and zero-call MCP failure remain separate.
