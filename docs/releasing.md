@@ -46,6 +46,11 @@ exactly the committed runtime and reader bytes; unexpected packages, research
 directories, database/model files, traversal paths and excessive archive sizes
 are rejected. For `v0.3.0`, the runtime Python-source SHA must remain
 `d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57`.
+For `v0.3.1`, it must remain
+`9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46`,
+matching frozen candidate commit `2d199b93f650eccd3dd239178822b31001b880e3`.
+A later documentation or packaging commit may carry those same runtime bytes;
+a committed runtime change still fails preparation under either frozen version.
 
 The commit timestamp is used as `SOURCE_DATE_EPOCH`. Tar/gzip and ZIP metadata
 are normalized deterministically; source files and wheel `RECORD` contents are
@@ -111,8 +116,16 @@ version, console command and default MCP/client extras without configuring a
 client or capture. If this final network-dependent smoke fails, rerun **only
 that failed job**; publishing has already completed and must not be repeated.
 
-For local packaging preparation, use a clean committed checkout and the pinned
-build tools. This command makes no GitHub request and cannot publish:
+## Prepare packages without publishing
+
+The [v0.3.1 prerelease](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.1) was published on 2026-11-12. Preparing packages from a later documentation or tooling commit creates artifacts bound to that new commit; it does not replace the existing tag or public release assets.
+
+Use a clean committed checkout and the pinned build tools. This command makes
+no GitHub request and cannot publish:
+
+```bash
+python -m pip install build==1.3.0 setuptools==80.9.0 wheel==0.45.1
+```
 
 ```bash
 python scripts/release.py --prepare-only \
@@ -126,3 +139,14 @@ repository-size estimate. The small unit fixtures in `tests/test_release.py`
 check CI failure gates, lossless archive normalization, bounded GET-only
 visibility polling, interruption reconciliation without remote writes, safe
 error diagnostics, and refusal to overwrite or accept mismatched remote assets.
+
+The separate `Prepare v0.3.1 release assets` workflow runs on preparation branches
+`prep/v0.3.1-packaging` and `prep/v0.3.1-packaging-*`. It has only
+`contents: read`, invokes `--prepare-only`, verifies the frozen runtime hash,
+and installs the produced local wheel with the default MCP/client extras in a
+disposable prefix. Its artifact includes the seven prepared payload/checksum
+files and an installation smoke report. It creates no tag, draft, release or
+repository commit. The regular nine-job CI and final release gates remain
+required on the exact final source commit. After README or other package inputs
+change, prepare a new artifact for that new commit; an earlier artifact records
+only the source commit in its manifest.
