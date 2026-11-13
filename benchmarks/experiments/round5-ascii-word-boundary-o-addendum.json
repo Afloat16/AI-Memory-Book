@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "candidate": "O",
-  "status": "prospective-before-source-edit-or-corpus-call",
+  "status": "prospective-narrowing-before-correctness-ci-or-corpus",
   "created_at_utc": "2026-11-13 17:54:32 UTC",
   "base_source_commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
   "base_runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
@@ -18,16 +18,16 @@
     "file": "src/memory_book/text.py",
     "certificate_pattern": "rf'[{CJK}]|[^\\W0-9a-z_]'",
     "certificate_location": "The current whole string after the unchanged NFKC/CamelCase/casefold/NFKD/Mn pipeline, immediately after the unchanged existing text.isascii() fast-return branch.",
-    "eligibility": "Require exact native str, exact bool query and original compiled ASCII_RUNS, RUNS, CJK_RUN, IDENTIFIER_SEPARATOR and ZH_QUESTION object identities. Then require no certificate-pattern match. Keep every unsupported case on the complete existing lexical loop.",
+    "eligibility": "Require exact native str, exact bool query and original compiled ASCII_RUNS, RUNS, CJK_RUN, IDENTIFIER_SEPARATOR and ZH_QUESTION object identities. Then require no certificate-pattern match. Keep every unsupported case on the complete existing lexical loop. For query=True also require STOP is the captured original immutable STOP frozenset; query=False does not evaluate STOP and need not require this identity.",
     "new_branch": "Reuse ASCII_RUNS.findall(text) and the same ordered STOP filter as the existing ASCII branch. Do not normalize, rewrite source text or change token ordering/deduplication.",
-    "identity_capture": "Capture the five original compiled-pattern references once at module initialization. Add only the fixed certificate regex, those references and the new guarded branch. No new dependency, cache or public API.",
+    "identity_capture": "Capture the five original compiled-pattern references and original immutable string-only STOP frozenset once at module initialization. No new dependency, cache or public API.",
     "inverse": "Removing exactly the new module-level certificate/reference block and the new guarded branch must recover the entire frozen LM text.py byte-for-byte."
   },
   "proof_obligations": [
     "Explicitly reject every scalar in the complete old CJK ranges, including unassigned or non-word points that the old CJK regex still recognizes. A Unicode-word-only guard is insufficient.",
     "Reject every other Unicode word character outside lowercase ASCII letters, digits and underscore, plus any ASCII uppercase that survives an unusual prefix. All remaining non-ASCII characters are old-grammar separators.",
     "Under the five original compiled patterns, old non-CJK matches contain only ASCII alphanumeric pieces with allowed ASCII identifier connectors; splitting those connectors gives exactly the same ordered nonempty ASCII_RUNS pieces. Prefix, suffix, repeated or mixed connectors and every separator boundary must agree.",
-    "ZH_QUESTION cannot match without a character in the excluded CJK ranges. ZH_STOP is unreachable on the eligible lexical path. STOP membership remains one evaluation per identical nonempty piece in identical order, preserving custom STOP effects/errors.",
+    "ZH_QUESTION cannot match without a character in the excluded CJK ranges. ZH_STOP is unreachable on the eligible lexical path. For query=True specialize only with the original immutable STOP identity; all custom or replaced STOP objects use the complete old loop because membership can change later pattern hooks. Query=False performs no STOP membership.",
     "Keep type(query) is bool so custom query truth values retain every original truth evaluation. Guard the post-normalization current text, not a pre-fold or per-word fragment. Preserve the original complete ASCII branch without additional conditions.",
     "Use actual C-call and Python-loop-entry evidence to demonstrate eligible non-ASCII punctuation strings use the existing whole-string ASCII finder and never the old per-word loop. This is mechanism evidence only, never a timing claim."
   ],
@@ -54,12 +54,17 @@
     "Independent literal pre-K and frozen LM references over punctuation-rich English, all ASCII connector boundaries, CamelCase/casefold expansion and normalization-crossing cases, both exact bool query values.",
     "Each of the five compiled-pattern hooks must fall back with identical calls, results and errors. Nonbool stateful query objects and non-native current text retain the literal path; the original ASCII branch remains unchanged.",
     "Actual mechanism counters for eligible and excluded strings, without microbenchmarking or inferring speed from call-count reductions.",
-    "Invented real SQLite ingestion/index contents and complete native results/source spans under default, flat, coverage and optional title-follow paths; both named tokenizers in the pinned MCP environment. Preserve and explain optional core skips."
+    "Invented real SQLite ingestion/index contents and complete native results/source spans under default, flat, coverage and optional title-follow paths; both named tokenizers in the pinned MCP environment. Preserve and explain optional core skips.",
+    "Exercise custom STOP mutation of every later lexical hook and its exception priority. Confirm query=False never evaluates STOP. Preserve the pre-fix exact source hash and observed witness without a corpus run."
   ],
   "independent_design_review": {
-    "reviewer": "baseline_audit",
-    "status": "no-blocking-condition-found-before-implementation",
-    "caveats": "Full CJK exclusion, whole-current-string eligibility, exact bool query and all five original compiled patterns are mandatory. Actual source/proof/CI review remains outstanding."
+    "reviewers": [
+      "runtime_audit",
+      "baseline_audit",
+      "root"
+    ],
+    "status": "narrowed-after-independent-static-counterexample-before-tests",
+    "correction": "The original claim that equal initial token order alone preserves arbitrary custom STOP effects was too broad: STOP can mutate a later lexical pattern during membership. Preserve the original draft and record a real witness test. New eligibility excludes this case before changing execution order."
   },
   "forbidden": [
     "No changes to any of the15 existing correctness modules, Unicode normalization order, K/M eligibility, SQL/store/ranking/source/index schema/cache, dependencies, tokenizer, excerpt or source offsets.",
@@ -70,5 +75,28 @@
   "corpus_calls_executed": 0,
   "fresh_rows_decoded": 0,
   "performance_accepted": false,
-  "release_accepted": false
+  "release_accepted": false,
+  "original_scope_commit": "e18628264de4a16d00ba21dda2f3c52061f6dae9",
+  "narrowing_registered_at_utc": "2026-11-13 17:58:43 UTC",
+  "reviewed_draft_source": "cb6a95a04b5bab16eb90ed3eb12114c5233f59ca",
+  "static_counterexample": {
+    "status": "source-derived-witness-pending-artificial-execution",
+    "unfixed_source_commit": "cb6a95a04b5bab16eb90ed3eb12114c5233f59ca",
+    "unfixed_text_sha256": "31df3017243057309d08166d88fed62ca9f9c9592cc79176613359aafb4ec4e9",
+    "text": "alpha—beta_gamma",
+    "query": true,
+    "initial_state": "All five lexical patterns have their ordinary identities.",
+    "custom_stop_effect": "On the first __contains__('alpha'), replace IDENTIFIER_SEPARATOR with a splitter that returns ['changed']; membership returns False.",
+    "expected_frozen_lm_tokens": [
+      "alpha",
+      "changed"
+    ],
+    "predicted_unfixed_o_tokens": [
+      "alpha",
+      "beta",
+      "gamma"
+    ],
+    "required_fix": "Capture _ORDINARY_STOP = STOP; add (query is False or STOP is _ORDINARY_STOP) to only the new O branch. Preserve the existing ASCII branch and every historical fallback. Do not substitute a mere frozenset type test.",
+    "required_fixture": "Execute exact hash-locked LM, unfixed O and corrected O on the same invented side-effect witness; retain the unfixed discrepancy and require corrected tokens, ordered hook/STOP calls and exceptions to match LM."
+  }
 }

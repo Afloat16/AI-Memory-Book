@@ -1,0 +1,20 @@
+{
+  "status": "source-derived-witness-pending-artificial-execution",
+  "unfixed_source_commit": "cb6a95a04b5bab16eb90ed3eb12114c5233f59ca",
+  "unfixed_text_sha256": "31df3017243057309d08166d88fed62ca9f9c9592cc79176613359aafb4ec4e9",
+  "text": "alpha—beta_gamma",
+  "query": true,
+  "initial_state": "All five lexical patterns have their ordinary identities.",
+  "custom_stop_effect": "On the first __contains__('alpha'), replace IDENTIFIER_SEPARATOR with a splitter that returns ['changed']; membership returns False.",
+  "expected_frozen_lm_tokens": [
+    "alpha",
+    "changed"
+  ],
+  "predicted_unfixed_o_tokens": [
+    "alpha",
+    "beta",
+    "gamma"
+  ],
+  "required_fix": "Capture _ORDINARY_STOP = STOP; add (query is False or STOP is _ORDINARY_STOP) to only the new O branch. Preserve the existing ASCII branch and every historical fallback. Do not substitute a mere frozenset type test.",
+  "required_fixture": "Execute exact hash-locked LM, unfixed O and corrected O on the same invented side-effect witness; retain the unfixed discrepancy and require corrected tokens, ordered hook/STOP calls and exceptions to match LM."
+}
