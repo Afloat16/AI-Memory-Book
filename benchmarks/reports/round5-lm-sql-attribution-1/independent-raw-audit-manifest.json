@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "status": "complete-independent-audit-of-eight-primary-raw-cells",
+  "result_commit": "f4a684233adee2da0e2b0c1c093a8b3f806561a7",
+  "audit_report": {
+    "path": "benchmarks/reports/round5-lm-sql-attribution-1/independent-raw-audit.json",
+    "bytes": 249517,
+    "sha256": "39a9ea49c08a1db5ae793371b9412d3dd6a67bc3f1fc31ea78d84b464accf9fa"
+  },
+  "assembler": {
+    "path": "scripts/round5_sql_primary_cell_finalize.js",
+    "bytes": 11383,
+    "sha256": "8da180d4259760406eeb7f8e4049240639c4e6c1bf91a219384078ba99334258"
+  },
+  "input_receipt_commit": "b2e3db563e30c32b78e5bb23df55d66b2c4fda9b",
+  "input_receipt_sha256": "5e5c31fdaa0e1e1e431c9d7adfd7fc59398ac230893442fa6aab97cbd7fceade",
+  "transport_addendum_commit": "000bce6ed719589949afe3ece7c7f0272d83dec8",
+  "transport_addendum_sha256": "52be4494ffa4989e7ffb127ee5e1434cdd0a1be3d0bbc5e5a4a26791ef853fdd",
+  "cell_receipts": [
+    {
+      "index": 0,
+      "path": "benchmarks/reports/round5-lm-sql-attribution-1/independent-cells/synthetic61-native-char4000.json",
+      "sha256": "79ac4a7758758c4cced3d85b7ddb1d71e166ba26c5e0053028f9eb9dd006dea4",
+      "bytes": 23996,
+      "commit": "8a46b4dfb4bf43a82e9919dc9e2dd30ff597e962"
+    },
+    {
+      "index": 1,
+      "path": "benchmarks/reports/round5-lm-sql-attribution-1/independent-cells/synthetic61-native-token512.json",
+      "sha256": "4886730dea4eec185476904d0627f1ad53d4bcdfb2e2ac381bd3ae7e385a3b5a",
+      "bytes": 24003,
+      "commit": "270d7c2177216df4b6a377ae6f5c07a35ddac551"
+    },
+    {
+      "index": 2,
+      "path": "benchmarks/reports/round5-lm-sql-attribution-1/independent-cells/synthetic61-native-token1024.json",
+      "sha256": "313a99772791fe538b0068f5a7656e0a09c73420a1fdb07c87b78d4aa7b78fb7",
+      "bytes": 24006,
+      "commit": "6bd942e536e51fc4371cc6261a619150d4ea686a"
+    },
+    {
+      "index": 3,
+      "path": "benchmarks/reports/round5-lm-sql-attribution-1/independent-cells/synthetic61-native-token2048.json",
+      "sha256": "4e1377f96b4ac3529a1060ba872141a934eea829cbcb4c94fbbfed1d9414d28e",
+      "bytes": 24005,
+      "commit": "ef772893d3333e9361365537bb38fa1b3273982e"
+    },
+    {
+      "index": 4,
+      "path": "benchmarks/reports/round5-lm-sql-attribution-1/independent-cells/public1015-native-char4000.json",
+      "sha256": "88f2036aaafbca6f6c2a764108939ed280c2877980998c8258bcfbb90a667321",
+      "bytes": 24331,
+      "commit": "de046b98641e3cb749a0501d658a9d853885b99a"
+    },
+    {
+      "index": 5,
+      "path": "benchmarks/reports/round5-lm-sql-attribution-1/independent-cells/public1015-native-token512.json",
+      "sha256": "7e2bc17ac77cef26bc1e76b56181d7254f0f87c1d959dfe1292024562288a0b4",
+      "bytes": 24091,
+      "commit": "586f24f9b91a2db89bc143bb9ce46c71449d3b6e"
+    },
+    {
+      "index": 6,
+      "path": "benchmarks/reports/round5-lm-sql-attribution-1/independent-cells/public1015-native-token1024.json",
+      "sha256": "5ff03d6503b272dc3c43b6b28de3374d48b7dfefbf7fa2a190c115b5357bd615",
+      "bytes": 24094,
+      "commit": "7fc025efea71b905757b518d4c8be44ec3fcfa14"
+    },
+    {
+      "index": 7,
+      "path": "benchmarks/reports/round5-lm-sql-attribution-1/independent-cells/public1015-native-token2048.json",
+      "sha256": "b0cf820850233e6cb2f9413325d7fbfc7ba895f17dc54a3b9f07dcbd65cabb7d",
+      "bytes": 24094,
+      "commit": "3eaf7407a940dbb8cf1795313d7ee97de7c47997"
+    }
+  ],
+  "results": {
+    "queries": 4732,
+    "raw_spans": 80051,
+    "payload_mismatches": 0,
+    "exception_spans": 0,
+    "unclassified_primary_calls": 0,
+    "disabled_category_calls": 0,
+    "other_sqlite_builtin_calls": 0,
+    "all_full_cell_payload_audits_equal": true,
+    "all_raw_callsite_summaries_equal": true,
+    "all_global_payload_audit_fields_equal": true,
+    "monolithic_profile_directly_verified": false,
+    "retrieval_calls_executed": 0,
+    "new_measurements": 0,
+    "fresh_rows": 0,
+    "performance_claim": false
+  },
+  "numeric_policy": "Exact nanosecond/counter JSON integers parsed and accumulated with BigInt; no residual-as-Python claim or instrumentation-overhead subtraction.",
+  "reviews": {
+    "scope": "Observer and primary span proof only; no new performance or release acceptance.",
+    "observer_source_review": "a6799d000043eccaa621942c9bd86b8be4736228",
+    "peer_code_review": "baseline_audit independently read03f5 observation/profileIndex/auditStoredCell and reported no arithmetic/storage blocker; profileIndex was not used after explicit whole-file transport limitation."
+  }
+}
