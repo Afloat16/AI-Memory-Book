@@ -1,5 +1,36 @@
 # v0.3.3 / round-five continuation checkpoint
 
+## Current goal and status — user clarification on 2026-11-13
+
+The user explicitly requires improvements in retrieval effectiveness, accuracy
+and speed, with frequent remote Git checkpoints. Exact-output optimization
+alone cannot establish a quality gain. The retained A–D development candidates
+have not qualified for the original formal performance run; D evidence is at
+`2d381b49a36bf64820635887ac886f62b5c1b8cc`. The independently reviewed E lifetime
+scope is registered at `10b04c8fdcfd0ecc95492e17b2a764c62a0651f1` and has not yet
+executed its corpus diagnostic at this checkpoint.
+
+Parallel quality diagnosis now examines only already saved v032 outputs and
+their old source annotations. The new
+[offline evidence audit](../benchmarks/reports/round5-quality/saved-v032-evidence-diagnosis.summary.json)
+makes zero retrieval or model calls. On the old 256-question Hotpot cohort at
+1,024 cl100k tokens, lexical retrieval delivers 481 of 635 annotations. Of the
+154 omissions, 142 have no returned result from the required source session,
+and 12 have the session but not the required turn. None is merely a partial
+returned turn under the saved coordinates. Increasing to 2,048 tokens changes
+no evidence-rank vector and gains no complete question. The saved Q2 path also
+has no 1,024-to-2,048 evidence gain. This supports investigating source selection
+and cross-reference retrieval, not simply increasing the context budget.
+
+The audit does not establish whether an absent source was outside the original
+candidate pool, ranked below top five, or omitted by packing. No new ranking
+policy has been selected, implemented or evaluated. A quality change requires
+its own prospective scope, source freeze and independently held-out validation;
+original performance registrations, adverse results and release gates remain
+unchanged. Gains from different runtimes cannot be combined into a claim about
+one shipped version. Generated-answer accuracy requires a separate actual
+answer evaluation and is not inferred from delivered evidence.
+
 ## Initial registration — before new measurements
 
 The user requested continuation after the completed v0.3.2 release. Main is
