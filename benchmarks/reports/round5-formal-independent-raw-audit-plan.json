@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "status": "prospective-read-only-raw-recomputation",
+  "created_at_utc": "2026-11-13 19:57:25 UTC",
+  "formal_run_id": 43496488712,
+  "run_attempt": 1,
+  "workflow_commit": "cfe8a749efa4add1c62c516aa299ab18ee89b92c",
+  "result_branch": "validation/v033-round5-performance-v2-43496488712-1",
+  "run_identity_sha256": "4ae3879c796f08b016e343c57c9c4468361255c7e57feb1590632c95416e15e6",
+  "run_file_sha256": "049a772a04310f94c833f645ac333cc4f3b8303549d0b03b539d51d9c37aff55",
+  "baseline": {
+    "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+    "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+  },
+  "candidate": {
+    "commit": "4a0ad4dc6aec33a91231d419239b7e90b160c695",
+    "runtime_sha256": "77310a7971677c2cebf8cd01d0aa36ab4562b55d1a3826b7fa7de895840abb32"
+  },
+  "scope": {
+    "workers": 16,
+    "calls": 66248,
+    "full_payload_pairs": 33124,
+    "cohorts": 2,
+    "configurations_per_cohort": 7,
+    "rounds": 4
+  },
+  "checks": [
+    "Read each immutable worker gzip and full JSONL ledger sequentially; hash compressed/raw bytes and match completion receipts.",
+    "Verify all worker identities, unique complete query sets, matching paired order, strict source/cache/budget/token metadata and the complete recorded non-timing row across all rounds.",
+    "Recompute all round, first-round, repeat-round and pooled latency p50/p95/means from saved individual timings; reproduce original10/10/5/5 gates without changing thresholds.",
+    "Check actual SDK MCP and native full-native payload equality for both comparable surfaces.",
+    "Independent agent recomputes28 resource comparisons and all4storage boundaries across16workers; retain every adverse result."
+  ],
+  "boundaries": {
+    "retrieval_calls": 0,
+    "corpus_or_source_execution": false,
+    "exact_seeded_shuffle_verified_by": "unchanged registered hosted auditor; this independent recomputation separately checks complete sets and per-round paired order, without claiming a second PRNG implementation",
+    "reference_tokenization_verified_by": "unchanged pinned reference-tokenizer measurement; independently recheck all saved counts/budget metadata and equality without repeating tokenizer or retrieval",
+    "performance_acceptance": false,
+    "release_accepted": false
+  }
+}

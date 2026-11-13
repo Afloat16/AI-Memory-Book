@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-11-13 19:53:36 UTC",
+  "updated_at_utc": "2026-11-13 19:57:48 UTC",
   "goal": "Continue v0.3.3 optimization of Afloat16/AI-Memory-Book with measured improvements, honest comparison boundaries and frequent durable Git checkpoints.",
   "control_branch": "optimization/v0.3.3-round5",
-  "previous_control_commit": "830ec884d7b455de2dd953d70f7e8d93e16fb893",
+  "previous_control_commit": "cfe8a749efa4add1c62c516aa299ab18ee89b92c",
   "resume_history": "docs/round5-resume-20261113.md",
   "published_baseline": {
     "tag": "v0.3.2",
@@ -206,12 +206,8 @@
       "run_id": 43494353078,
       "run_attempt": 1,
       "launch_commit": "f438d0a2b40a9ff8a3bdaab534977f34eb0d3ba3",
-      "status": "completed-source-free-freeze-accepted-independent-review",
-      "result_branch": "validation/v033-final-freeze-hosted-1",
-      "result_commit": "195ab7145db184b1696287606dda6e9cb877b6f4",
-      "certificate_sha256": "8380233302a011a25fc520d8dc3b19c429cc9ee530b0e4189195c1c7a22400c8",
-      "binding_sha256": "1d5af43c6c9b3e826ce11814f29320f9838c3ad603a80b1a36eb9d122fc6b247",
-      "retrieval_calls": 0
+      "status": "Unique source-free interface/canonical certificate and formal-binding attempt in progress; planned retrievalcalls0.",
+      "result_branch": "validation/v033-final-freeze-hosted-1"
     },
     "historical_lexical": {
       "source_commit": "65742c005290ae78702f6c9ff24613efd3616311",
@@ -236,9 +232,12 @@
       "accepted_root_static_review": true,
       "calls": 1968,
       "required_file": "benchmarks/experiments/round5-q2-recovery-source.json",
-      "missing": true,
+      "missing": false,
       "trigger": "ci/v033-q2-recovery-hosted-1",
-      "not_started": true
+      "not_started": true,
+      "source_binding_sha256": "c6ae40b490a7e8358c1709dbb7e6a5999bf6756ef37c66da55488d3539e57828",
+      "source_binding_donor_commit": "b9d2a75ce56be8e0c6a0f46fba53868e533453bd",
+      "status": "source-bound-before-first-historical-attempt"
     },
     "fresh": {
       "source_commit": "d84f2ddb90b1f283a7676709ca5322d65b413423",
@@ -284,7 +283,7 @@
     },
     "read_only_review": "hosted_execution checked5fab85/f6eafe: explicit MCP bytecode suppression in both certificate and formal workers, exact source/interface/ledger/remote claims and no replay. No wrapper change needed.",
     "durability_limit": "Per-call ledger fsync is local; verified remote checkpoints occur before/after each worker. A hard VM loss can lose unuploaded partial rows, but leaves the remote started intent and forbids silent replay.",
-    "not_started": true,
+    "not_started": false,
     "resource_chain_review": {
       "commit": "a1198d33b41a27af7ddce08645fb2f6ee0527a88",
       "path": "benchmarks/reports/round5-final-resource-chain-independent-review.json",
@@ -295,7 +294,7 @@
       "storage": "Four raw boundaries are preserved but not covered by the automatic14-field gate; independently check and report all same-run storage samples without inventing a new numeric gate.",
       "historical_diagnostic": "The prior v031/v032 diagnostic is already claimed; never relabel or replay it."
     },
-    "status": "authorized-first-attempt-before-trigger",
+    "status": "running-first-attempt",
     "trigger_branch": "ci/v033-round5-performance-v2",
     "launch_review_path": "benchmarks/reports/round5-final-formal-root-launch-review.json",
     "independent_freeze_review": {
@@ -304,7 +303,11 @@
       "sha256": "dbfb194725590b85407e9ebe5ce2442612a0e66ae8bcf975c3a1425b99fcf7d0"
     },
     "certificate_sha256": "8380233302a011a25fc520d8dc3b19c429cc9ee530b0e4189195c1c7a22400c8",
-    "binding_sha256": "1d5af43c6c9b3e826ce11814f29320f9838c3ad603a80b1a36eb9d122fc6b247"
+    "binding_sha256": "1d5af43c6c9b3e826ce11814f29320f9838c3ad603a80b1a36eb9d122fc6b247",
+    "run_id": 43496488712,
+    "run_attempt": 1,
+    "launch_commit": "cfe8a749efa4add1c62c516aa299ab18ee89b92c",
+    "result_branch": "validation/v033-round5-performance-v2-43496488712-1"
   },
   "fresh_boundary": {
     "metadata_selected": false,
@@ -510,7 +513,7 @@
       "runtime_sha256": "77310a7971677c2cebf8cd01d0aa36ab4562b55d1a3826b7fa7de895840abb32"
     },
     "status": "selected-after-development-before-final-evaluation",
-    "formal_started": false,
+    "formal_started": true,
     "fresh_metadata_selected": false,
     "fresh_content_decoded": false,
     "commit": "f438d0a2b40a9ff8a3bdaab534977f34eb0d3ba3"

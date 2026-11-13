@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "status": "accepted-root-historical-source-binding-review",
+  "reviewed_at_utc": "2026-11-13 19:57:48 UTC",
+  "reviewed_control_commit": "cfe8a749efa4add1c62c516aa299ab18ee89b92c",
+  "source_selection": {
+    "commit": "f438d0a2b40a9ff8a3bdaab534977f34eb0d3ba3",
+    "sha256": "18ad502b1cfbeb11059e91a0b1380cd2fbb1cc283f669e78935e6ba26e88d0e3"
+  },
+  "q2_binding": {
+    "donor_commit": "b9d2a75ce56be8e0c6a0f46fba53868e533453bd",
+    "path": "benchmarks/experiments/round5-q2-recovery-source.json",
+    "git_blob": "0c93dd9567380715e179f09ace05a5c429765633",
+    "sha256": "c6ae40b490a7e8358c1709dbb7e6a5999bf6756ef37c66da55488d3539e57828",
+    "complete18files_equal_selected_source": true
+  },
+  "independent_readiness": {
+    "commit": "b9d2a75ce56be8e0c6a0f46fba53868e533453bd",
+    "path": "benchmarks/reports/round5-no-hosted-binding-readiness.json",
+    "sha256": "2839f680c20f6e12df7a2b7433d2f24d6fbe510546fbcb17ad05e31ef787a796"
+  },
+  "root_checks": {
+    "all30reviewed_orchestration_git_blobs_equal": true,
+    "lexical_q2_scripts_and_workflows_raw_sha256_equal": true,
+    "original_data_model_builder_and_helpers_unchanged": true,
+    "all4trigger_and_result_refs_absent": true,
+    "selected_source_runtime_unchanged": true
+  },
+  "lexical": {
+    "donor": "65742c005290ae78702f6c9ff24613efd3616311",
+    "ci": 43464110663,
+    "jobs_success": 9,
+    "protocol_fixtures": 14,
+    "trigger": "ci/v033-lexical-compat-hosted-1",
+    "calls": 5120,
+    "workers": 10,
+    "full_payload_pairs": 2560,
+    "character_gate_max_pooled_p50_p95_regression_percent": 5
+  },
+  "q2": {
+    "donor": "25e7ea32b34e5a8dc08b0931c6b3840e9f3fffb0",
+    "ci": 43466426848,
+    "protocol_job": 132026666998,
+    "protocol_fixtures": 10,
+    "recovery_skipped_in_source_ci": true,
+    "trigger": "ci/v033-q2-recovery-hosted-1",
+    "calls": 1968,
+    "workers": 8,
+    "full_payload_pairs": 984,
+    "exact_historical_vector_digest_required_before_queries": true,
+    "original_database_restored": false
+  },
+  "independence": "Two fixed compatibility attempts execute on separate isolated hosted VMs; no pooling their timings with the formal first attempt. All negative/incomplete results and first-attempt ledgers remain retained. No replay or threshold alteration.",
+  "fresh_rows_decoded": 0,
+  "formal_or_release_acceptance": false
+}
