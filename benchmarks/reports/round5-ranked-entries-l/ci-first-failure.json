@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "status": "preserved-first-candidate-l-artificial-fixture-failure-before-repair",
+  "source_commit": "5239360dcb8b9bbeb8fb490586f4649296781fba",
+  "runtime_sha256": "e09af91811e8dab1f1c41983804dc7f8afd527023d4b519dbf44ee5931154765",
+  "workflow_run": 43469665053,
+  "logs": [
+    {
+      "job_id": 132037911634,
+      "status": "failure",
+      "path": "benchmarks/reports/round5-ranked-entries-l/ci-first-core312.log",
+      "sha256": "09d881e767911b6d018a982fe5e518916e64b89f75d3de75f7fd875fbc783c90"
+    },
+    {
+      "job_id": 132037911294,
+      "status": "cancelled by matrix, test process retained two failures",
+      "path": "benchmarks/reports/round5-ranked-entries-l/ci-first-core310.log",
+      "sha256": "e45c146f0f6de93956cbf11bb6ae7062ec9469374e477e2daaa91fcfda72edf9"
+    },
+    {
+      "job_id": 132037911422,
+      "status": "cancelled by matrix, test process retained two failures",
+      "path": "benchmarks/reports/round5-ranked-entries-l/ci-first-core313.log",
+      "sha256": "7a3600822d8eb20f61d66f0a9678f9cd1d2917cca499c096cb7edae2bd853876"
+    },
+    {
+      "job_id": 132037911359,
+      "status": "failure",
+      "path": "benchmarks/reports/round5-ranked-entries-l/ci-first-mcp.log",
+      "sha256": "c399b4903ee6383ec3b821f970049dc27d2404da28003d483db5e67b340bbdd2"
+    }
+  ],
+  "observed_failures": [
+    {
+      "name": "test_actual_profile_removes_only_the_old_per_entry_key_callback_and_keeps_sql",
+      "cause": "The fixture verified the complete base method digest, then incorrectly used textwrap.dedent before compilation. Dedent also removes indentation inside multiline SQL literals, so strict application-SQL traces differed even though ranking payloads matched. The runtime did not change SQL.",
+      "repair": "Compile the byte-exact indented base method under an if True suite, and derive profile line numbers from the same suite; add equality of actual compiled string constants so a fixture transformation cannot silently change SQL literals."
+    },
+    {
+      "name": "test_custom_row_factories_and_subclasses_keep_old_named_mapping_payloads",
+      "cause": "The fixture installed NamedLookupRow globally. That preexisting adversarial Row subclass rejects value iteration; the literal base failed in _project_rowid_bounds tuple-unpacking before candidate ranking. Existing subclass fixtures select only route or metadata shapes.",
+      "repair": "Apply NamedLookupRow only to route/metadata columns, retain ordinary Rows for aggregate/source operations, and test both selective boundaries against the exact literal base. Keep a separate global RowLike factory test."
+    }
+  ],
+  "tests_preserved": "All 15 new methods and every original assertion remain required; strengthen reference string-constant verification and both subclass boundaries. Do not weaken trace or payload-bit equality. The optional token method executed successfully in MCP.",
+  "runtime_change_for_repair": false,
+  "l_corpus_calls": 0,
+  "l_fresh_rows_decoded": 0
+}
