@@ -49,16 +49,17 @@ _ORDINARY_STRIP_NONSPACING = _strip_nonspacing_marks
 
 def terms(text: str, *, query: bool = False) -> list[str]:
     """NFKC text -> English words/identifier pieces and Chinese bigrams."""
-    ascii_source = text.isascii()
-    identity_source = (not ascii_source and type(text) is str
-        and unicodedata.unidata_version in _NORMALIZATION_UCD_VERSIONS
-        and unicodedata.normalize is _ORDINARY_NORMALIZE
-        and unicodedata.category is _ORDINARY_CATEGORY
-        and CAMEL_BOUNDARY is _ORDINARY_CAMEL_BOUNDARY
-        and _strip_nonspacing_marks is _ORDINARY_STRIP_NONSPACING
-        and _NORMALIZATION_IDENTITY.fullmatch(text) is not None)
-    if not ascii_source and not identity_source:
-        text = unicodedata.normalize("NFKC", text)
+    identity_source = False
+    if not text.isascii():
+        identity_source = (type(text) is str
+            and unicodedata.unidata_version in _NORMALIZATION_UCD_VERSIONS
+            and unicodedata.normalize is _ORDINARY_NORMALIZE
+            and unicodedata.category is _ORDINARY_CATEGORY
+            and CAMEL_BOUNDARY is _ORDINARY_CAMEL_BOUNDARY
+            and _strip_nonspacing_marks is _ORDINARY_STRIP_NONSPACING
+            and _NORMALIZATION_IDENTITY.fullmatch(text) is not None)
+        if not identity_source:
+            text = unicodedata.normalize("NFKC", text)
     text = CAMEL_BOUNDARY.sub(r"\1 \2", text).casefold()
     if not text.isascii() and not identity_source:
         # Normalize the whole string first: canonical ordering can cross

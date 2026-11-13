@@ -20,10 +20,36 @@ ADMITTED = {chr(code) for start, end in RANGES for code in range(start, end + 1)
 HAS_TIKTOKEN = importlib.util.find_spec("tiktoken") is not None
 
 
-def legacy(value, query=False):
-    # An empty version certificate takes the preserved historical implementation.
-    with patch.object(lexical, "_NORMALIZATION_UCD_VERSIONS", frozenset()):
-        return lexical.terms(value, query=query)
+def legacy(text, query=False):
+    """Literal pre-K terms structure, including historical truth evaluation."""
+    if not text.isascii():
+        text = unicodedata.normalize("NFKC", text)
+    text = lexical.CAMEL_BOUNDARY.sub(r"\1 \2", text).casefold()
+    if not text.isascii():
+        # Normalize the whole string first: canonical ordering can cross
+        # character boundaries. Only the category lookup/deletion is reused.
+        text = lexical._strip_nonspacing_marks(unicodedata.normalize("NFKD", text))
+    if text.isascii():
+        # After case folding, the Unicode/identifier rule reduces exactly to
+        # lowercase ASCII alphanumeric runs; its separators never add tokens.
+        parts = lexical.ASCII_RUNS.findall(text)
+        return [part for part in parts if part not in lexical.STOP] if query else parts
+    if query:
+        # Remove complete Chinese question phrases before bigramming; otherwise
+        # 为什么 leaves the meaningless fragment 为什 as a retrieval feature.
+        text = lexical.ZH_QUESTION.sub(" ", text)
+    result: list[str] = []
+    for match in lexical.RUNS.finditer(text):
+        value = match.group()
+        if lexical.CJK_RUN.fullmatch(value):
+            parts = [value] if len(value) == 1 else [value[i:i + 2] for i in range(len(value) - 1)]
+            result.extend(p for p in parts if not query or p not in lexical.ZH_STOP)
+        else:
+            parts = lexical.IDENTIFIER_SEPARATOR.split(value)
+            # Indexed identifiers share the same split with queries; FTS syntax is
+            # never passed through, even for user input containing quotes or OR.
+            result.extend(p for p in parts if p and (not query or p not in lexical.STOP))
+    return result
 
 
 def c_calls(value):
@@ -173,6 +199,41 @@ class NormalizationIdentityTests(unittest.TestCase):
             for query in (False, True):
                 with self.subTest(value=value, kind=type(value), query=query):
                     self.assertEqual(lexical.terms(value, query=query), legacy(value, query))
+
+
+    def test_stateful_isascii_truth_matches_literal_pre_k_structure(self):
+        class Truth:
+            def __init__(self, first, events):
+                self.first, self.events = first, events
+
+            def __bool__(self):
+                self.events.append("truth")
+                if self.events.count("truth") != 1:
+                    raise AssertionError("Historical isascii truth must be consumed only once")
+                return self.first
+
+        class UnusualString(str):
+            def __new__(cls, value, first):
+                result = super().__new__(cls, value)
+                result.events = []
+                result.truth = Truth(first, result.events)
+                return result
+
+            def isascii(self):
+                self.events.append("isascii")
+                return self.truth
+
+        for first in (True, False):
+            for query in (False, True):
+                with self.subTest(first=first, query=query):
+                    previous = UnusualString("alphaＢeta 中文", first)
+                    current = UnusualString("alphaＢeta 中文", first)
+                    expected = legacy(previous, query)
+                    actual = lexical.terms(current, query=query)
+                    self.assertEqual(actual, expected)
+                    self.assertEqual(current.events, previous.events)
+                    self.assertEqual(current.events, ["isascii", "truth"])
+                    self.assertEqual(expected[:2], ["alphabeta", "中文"] if first else ["alpha", "beta"])
 
 
 class NormalizationIdentityBookTests(unittest.TestCase):
