@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "audited_at_utc": "2026-11-13T04:14:13.204359+00:00",
+  "frozen_commit": "f812acac42e7c4d777c8b1d279cb121c3dc3e366",
+  "method": "Independent SHA256 salted-ID reconstruction from the pinned Parquet ID column only, plus historical manifest anchors, exact ID ordering/digests, 78 committed evaluator blobs and candidate/assets/binding/manifest Git ancestry. No selection helper, retrieval, inference, scoring or question-content decoding.",
+  "binding": {
+    "commit": "b37cac8b90d8ec20941f53541dd369bce492c79b",
+    "path": "benchmarks/experiments/round4-validation-binding.json",
+    "sha256": "84dbe28c068a3067f9706c6439d42301eaddfef95c44ae2633398346c66a8c79"
+  },
+  "manifest": {
+    "commit": "f812acac42e7c4d777c8b1d279cb121c3dc3e366",
+    "path": "benchmarks/experiments/round4-hotpot256-manifest.json",
+    "sha256": "b0485b3a089c9b04fc4453fd9f129364e123ce1b9f25b593edf4f6ee6df4a20b"
+  },
+  "selection": {
+    "parquet_sha256": "c20b638ca82b21d04fe12e14ff417ad05153d4d215a65de54497fca4e972f7c6",
+    "parquet_bytes": 27452575,
+    "decoded_columns": [
+      "id"
+    ],
+    "upstream_unique_ids": 7405,
+    "historical_distinct_exclusions": 640,
+    "eligible_ids": 6765,
+    "selected_unique_ids": 256,
+    "selected_order_matches_exactly": true,
+    "historical_overlap": 0,
+    "selection_prefix": "AI-Memory-Book/v032/round4/2026-11-13/",
+    "selected_ids_sha256": "b678a288a815d651b09acfa8927c2cb2cf7d74aca5ca0557c221cf19318bc23b",
+    "excluded_prior_ids_sha256": "f748b2cd3c63256491ba360f11753aeecc9553ceb5ee3eaec3207639d0b665a9"
+  },
+  "historical_manifest_anchors": [
+    {
+      "path": "benchmarks/hotpot_manifest.json",
+      "commit": "7b7a5d7336b9350a128f5e0a888811b1b3015e68",
+      "sha256": "ad0aba557e98cac6925ff5bdb8048a1a04a5f708847007f33ddf03d88650b69d",
+      "queries": 128,
+      "selected_ids_sha256": "5663bd700285542529a3d1811e7ac44e87b32491038f4308823e0e33fdbc2838"
+    },
+    {
+      "path": "benchmarks/round2_hotpot256_manifest.json",
+      "commit": "7b7a5d7336b9350a128f5e0a888811b1b3015e68",
+      "sha256": "39bc56948be886df178f3ed0ee85acc551430f2deba4968261aa2591dded49dc",
+      "queries": 256,
+      "selected_ids_sha256": "912e3c8d0f26f1a247de321709a9528e76d08f8ad70f9d7c9169b97c638be11a"
+    },
+    {
+      "path": "benchmarks/experiments/round3-hotpot256-manifest.json",
+      "commit": "7b7a5d7336b9350a128f5e0a888811b1b3015e68",
+      "sha256": "b29545eb90f89744d86e3f8822b838c44a1846be057161b1905f6c977b7b1ae5",
+      "queries": 256,
+      "selected_ids_sha256": "ccca7b09ad37e74652d84c26c0c2a823ffaf9a64f9fd911cf72d0e468dec1d0f"
+    }
+  ],
+  "ancestry_checks": [
+    {
+      "check": "candidate precedes preparation trigger",
+      "ancestor": "2d7b5e38839fb21724ad3beec6b6ebabbda45636",
+      "descendant": "0db07d87ce1e250c6d3fe9444ccd26d0d1533cf8",
+      "passed": true
+    },
+    {
+      "check": "trigger precedes verified assets and evaluator",
+      "ancestor": "0db07d87ce1e250c6d3fe9444ccd26d0d1533cf8",
+      "descendant": "d6aa80c7df80f017d301dd93102210b4c968231c",
+      "passed": true
+    },
+    {
+      "check": "assets/evaluator precede binding",
+      "ancestor": "d6aa80c7df80f017d301dd93102210b4c968231c",
+      "descendant": "b37cac8b90d8ec20941f53541dd369bce492c79b",
+      "passed": true
+    },
+    {
+      "check": "binding precedes frozen manifest",
+      "ancestor": "b37cac8b90d8ec20941f53541dd369bce492c79b",
+      "descendant": "f812acac42e7c4d777c8b1d279cb121c3dc3e366",
+      "passed": true
+    }
+  ],
+  "first_introduction_checks": {
+    "asset_receipt_first_present_at_evaluator_commit": true,
+    "binding_first_present_at_named_binding_commit": true,
+    "manifest_first_present_at_final_freeze_commit": true,
+    "manifest_absent_from_binding_commit": true,
+    "binding_and_manifest_absent_from_asset_commit": true
+  },
+  "bound_evaluator_files_verified": 78,
+  "hosted_asset_receipt": {
+    "path": "benchmarks/reports/round4-freeze-43362624147-1/asset-verification.json",
+    "sha256": "a86eda9ff21440d3007252462625c61d94f513d86b9736264a71cb3dc8ca71be",
+    "commit": "d6aa80c7df80f017d301dd93102210b4c968231c",
+    "bound_identities_and_preselection_commit_verified": true,
+    "completed_preparation_steps": 7,
+    "reported_question_content_read": false,
+    "reported_measurement_calls": 0,
+    "downloads_or_binary_execution_repeated_by_audit": false
+  },
+  "existing_content_verifier_receipt": {
+    "path": "benchmarks/reports/round4-selection-local-audit.json",
+    "sha256": "57d8dcdc3c5c1ee630481770a1043afc7975e6e995baaf82c7f068a5d42c5b6a",
+    "recorded_dataset_sha256": "fb3cd70ea58fafa5bd9cef0f04dba7399aaafba76f5f92605eee9e516f115e1b",
+    "recorded_required_evidence": 635,
+    "recorded_context_paragraphs": 2548,
+    "content_fingerprint_independently_recomputed_here": false
+  },
+  "repository_is_shallow": true,
+  "retrieval_calls_executed": 0,
+  "inference_calls_executed": 0,
+  "scoring_calls_executed": 0,
+  "question_content_decoded": false,
+  "limits": [
+    "Only the Parquet ID column was decoded. Dataset/content/evidence totals are linked to the separate existing-verifier receipt, not independently recomputed here.",
+    "The hosted asset receipt is checked for exact hash, bound identities, completed-step declarations and preselection Git ancestry. This audit does not redownload or execute upstream binaries/models or recreate hosted dependency checks.",
+    "Required candidate-to-trigger-to-assets/evaluator-to-binding-to-manifest ancestry is present and verified. The clone is shallow at the separately named v0.3.1 baseline; no baseline-to-candidate ancestry conclusion is asserted. Historical exclusion manifests are anchored to the exact baseline commit bytes.",
+    "Git history verifies preserved commit ancestry and file-introduction ordering, not every unrecorded action on the hosted runner.",
+    "The cohort is another selection from the same public HotpotQA source. Disjoint IDs do not establish new-domain generalization. No quality or performance outcomes are interpreted."
+  ]
+}

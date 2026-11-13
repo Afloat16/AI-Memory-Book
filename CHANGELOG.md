@@ -1,5 +1,57 @@
 # Changelog
 
+## 0.3.2 — Unreleased
+
+Release preparation for the fixed C2 candidate. Formal performance acceptance
+is complete; the new comparison and final release/install verification are pending.
+
+### Recall assembly and token budgets
+
+- Defer source-unit parsing for pages with a full mapped-segment equality
+  certificate while preserving the original eager checks for uncertified maps.
+  Original turns remain captured inside the database snapshot; deferred work
+  performs no later database reads. Use bisection to narrow projection scans
+  without changing containment, source equality or overlapping-unit behavior.
+- Reuse the exact count of the last accepted context and an already private
+  candidate dictionary. Preserve first-fit order and rejection behavior.
+- Reuse sealed citation-block token counts within one call for the inspected
+  tiktoken 0.12.0 `cl100k_base`/`o200k_base` patterns. Keep exact final counts and
+  the historical fallback for custom counters, unknown encoder origins,
+  unsupported patterns and invalid text boundaries.
+- Preserve lexical ranking, global BM25, scopes, source coordinates, MCP formats
+  and Q2 model/vector/fusion behavior. Retain schema 3 and existing dependency
+  requirements. Exclude the rejected body-feature cache and proposed highlight
+  query specialization; preserve their source and negative development results.
+
+### Performance and compatibility
+
+- Complete the sole registered 56,784-call formal run over sixteen workers,
+  four balanced rounds and twelve pooled cells. Complete outputs and recorded
+  invariants match v0.3.1. Pooled p95 geometric mean improves 10.13%; public
+  native token512/token1024/token2048 p95 improves 19.07%/18.41%/18.20%, and
+  actual public SDK MCP token1024 p95 improves 10.80%.
+- Retain the public MCP character-budget p95 increase of 1.44% and all adverse
+  round-level cells. The largest registered resource mean increase is 6.02%
+  for public token MCP startup. The original automatic verdict is accepted
+  with no resource exception. The aggregate passes its 10% gate by only
+  0.1294 percentage points; no statistical-significance claim is made.
+
+- Audit 1,968 completed Q2 calls and 984 matching complete non-latency payload
+  pairs against v0.3.1 on authored36 and historical Hotpot128, both tokenizers
+  and 512/1,024/2,048-token budgets. Identical saved vectors, source identities
+  and attempt ledgers are verified. These regression cohorts establish
+  compatibility, not new quality or performance gains.
+- Preserve development profiles, all adverse cells and interruption receipts.
+  Independently verify the frozen 256-question selection, excluding all 640
+  historical IDs with zero overlap. Fresh comparison scoring and release
+  verification remain pending.
+- Prepare v0.3.2 installer defaults and installation examples, retaining the
+  archive, prior environments and historical release instructions. Target
+  release URLs remain explicitly unpublished until final verification.
+
+[Draft release notes](docs/releases/v0.3.2.md) · [Round-four decisions and evidence](docs/optimization-round4.md) ·
+[Upgrade guide](docs/deployment.md#upgrading)
+
 ## 0.3.1 — 2026-11-13
 
 An experimental release that reduces project-scoped query work while preserving
