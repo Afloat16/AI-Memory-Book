@@ -1,0 +1,236 @@
+name: Export exact completed formal evidence bytes without retrieval
+
+on:
+  push:
+    branches: ['ci/v033-formal-evidence-transport-1']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: round5-formal-evidence-transport-1
+  cancel-in-progress: false
+
+jobs:
+  transport:
+    if: github.repository == 'Afloat16/AI-Memory-Book' && github.event_name == 'push' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/benchmarks/reports/
+            !/benchmarks/figures/
+            !/docs/images/
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - name: Verify and transport only immutable compressed Git bytes
+        shell: bash
+        run: |
+          python - <<'PY'
+          import base64, hashlib, json, os, pathlib, re, subprocess
+          from datetime import datetime, timezone
+          
+          SCOPE_PATH = "benchmarks/reports/round5-formal-readonly-auditor/transport-scope.json"
+          SCOPE_SHA = "8a9a43b2a786f2cce13620ca3a57df2c44e9138c26c01f064ddb8d1cd7a42e60"
+          def digest(data):
+              return hashlib.sha256(data).hexdigest()
+          def git(*args):
+              return subprocess.check_output(["git", *args])
+          def text_git(*args):
+              return git(*args).decode("utf-8").strip()
+          def require(ok, message):
+              if not ok:
+                  raise ValueError(message)
+          def stamp():
+              return datetime.now(timezone.utc).isoformat()
+          def git_blob(data):
+              return hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest()
+          scope_raw = git("show", "HEAD:" + SCOPE_PATH)
+          require(digest(scope_raw) == SCOPE_SHA, "Prospective scope bytes changed")
+          scope = json.loads(scope_raw)
+          require(os.environ.get("GITHUB_RUN_ATTEMPT") == "1"
+                  and os.environ.get("GITHUB_REF") == scope["trigger_ref"], "Unique first transport attempt only")
+          require(scope["source_commit"] == "762500920d715b5bca6e1eba9314d8a4c970bf04"
+                  and scope["source_run_id"] == 43496488712 and scope["chunk_raw_bytes"] == 480000,
+                  "Transport source/size boundary changed")
+          require(scope["public_directory"] == "benchmarks/reports/round5-formal-evidence-transport-1"
+                  and scope["result_ref"] == "refs/heads/validation/v033-formal-evidence-transport-1",
+                  "Transport namespace changed")
+          public = pathlib.Path(scope["public_directory"])
+          result_ref = scope["result_ref"]
+          expected_remote = None
+          class PublicationError(RuntimeError):
+              pass
+          def remote():
+              fields = text_git("ls-remote", "--heads", "origin", result_ref).split()
+              if not fields:
+                  return None
+              if len(fields) != 2 or fields[1] != result_ref or not re.fullmatch("[0-9a-f]{40}", fields[0]):
+                  raise PublicationError("Unexpected remote result reference")
+              return fields[0]
+          def save(name, value, exclusive=True):
+              target = public / name
+              target.parent.mkdir(parents=True, exist_ok=True)
+              raw = (json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2) + "\n").encode()
+              if exclusive:
+                  with target.open("xb") as out:
+                      out.write(raw)
+                      out.flush()
+                      os.fsync(out.fileno())
+              else:
+                  temporary = target.with_name(target.name + ".new")
+                  with temporary.open("xb") as out:
+                      out.write(raw)
+                      out.flush()
+                      os.fsync(out.fileno())
+                  os.replace(temporary, target)
+          def publish(message):
+              global expected_remote
+              try:
+                  parent = text_git("rev-parse", "HEAD")
+                  if remote() != expected_remote or (expected_remote is not None and parent != expected_remote):
+                      raise PublicationError("Result branch moved or local ancestry changed")
+                  if git("diff", "--cached", "--name-only").strip():
+                      raise PublicationError("Unrelated staged changes")
+                  git("add", "--sparse", "--", public.as_posix())
+                  staged = [p.decode() for p in git("diff", "--cached", "--name-only", "-z").split(b"\0") if p]
+                  if not staged or any(not p.startswith(public.as_posix() + "/") for p in staged):
+                      raise PublicationError("Empty or unrelated publication")
+                  git("commit", "-m", message + " [skip ci]")
+                  head = text_git("rev-parse", "HEAD")
+                  pushed = subprocess.run(["git", "push", "origin", "HEAD:" + result_ref],
+                                          capture_output=True, timeout=120)
+                  seen = remote()
+                  if pushed.returncode != 0 or seen != head:
+                      raise PublicationError("Publication failed or ambiguous; no write retry: "
+                                             + str(pushed.returncode) + " / " + str(seen))
+                  for name in staged:
+                      if git("show", head + ":" + name) != pathlib.Path(name).read_bytes():
+                          raise PublicationError("Published exact Git bytes differ: " + name)
+                  expected_remote = head
+                  print(json.dumps({"checkpoint": head, "stage": message, "result_ref": result_ref}), flush=True)
+              except BaseException as error:
+                  if isinstance(error, PublicationError):
+                      raise
+                  raise PublicationError(type(error).__name__ + ": " + str(error)) from error
+          
+          require(not public.exists() and remote() is None, "Existing transport attempt cannot be replayed")
+          public.mkdir(parents=True)
+          subprocess.run(["git", "config", "user.name", "github-actions[bot]"], check=True)
+          subprocess.run(["git", "config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com"], check=True)
+          stage = "verify-all-frozen-input-bytes"
+          try:
+              git("fetch", "origin", scope["source_commit"])
+              root = "benchmarks/reports/round5-performance-v2-43496488712-1/"
+              def original(item):
+                  name = item["path"]
+                  require(name.startswith(root) and ".." not in pathlib.PurePosixPath(name).parts,
+                          "Input outside exact completed evidence directory")
+                  raw = git("show", scope["source_commit"] + ":" + name)
+                  require(len(raw) == item["bytes"] and digest(raw) == item["sha256"]
+                          and git_blob(raw) == item["git_blob"], "Original file identity differs: " + name)
+                  return raw
+              completion_raw = original(scope["source_completion"])
+              summary_raw = original(scope["source_summary"])
+              completed = json.loads(completion_raw)
+              require(str(completed["run_id"]) == "43496488712" and str(completed["run_attempt"]) == "1"
+                      and completed["status"] == "completed" and completed["validation"]["passed"]
+                      and completed["validation"]["timed_calls"] == 66248,
+                      "Original complete attempt identity changed")
+              entries = scope["source_files"]
+              names = [entry["path"] for entry in entries]
+              require(len(entries) == 17 and names == sorted(set(names))
+                      and all(name.endswith(".gz") for name in names), "Frozen source file inventory changed")
+              payloads = []
+              for entry in entries:
+                  require(completed["files_sha256"].get(entry["path"]) == entry["sha256"],
+                          "Original completion does not bind the selected file")
+                  payloads.append(original(entry))
+              save("input-receipt.json", {"scope_sha256": SCOPE_SHA, "source_commit": scope["source_commit"],
+                  "source_completion_sha256": digest(completion_raw), "source_summary_sha256": digest(summary_raw),
+                  "source_files": entries, "all_original_blob_size_sha256_checks_passed": True,
+                  "source_files_read_before_export": 17, "retrieval_calls": 0, "decompression_calls": 0})
+              save("attempt.intent.json", {"status": "started", "at": stamp(), "scope_sha256": SCOPE_SHA,
+                  "workflow_commit": os.environ["GITHUB_SHA"], "transport_run_id": os.environ["GITHUB_RUN_ID"],
+                  "transport_run_attempt": 1, "source_commit": scope["source_commit"],
+                  "input_sha256": digest((public / "input-receipt.json").read_bytes()),
+                  "retrieval_calls": 0, "measurements_replayed": 0, "performance_acceptance": False})
+              manifest = {"schema_version": 1, "status": "running", "scope_sha256": SCOPE_SHA,
+                  "source_commit": scope["source_commit"], "source_completion_sha256": digest(completion_raw),
+                  "chunk_raw_bytes": 480000, "chunk_encoding": "standard-base64-ascii-one-newline",
+                  "files": [], "retrieval_calls": 0, "decompression_calls": 0, "measurements_replayed": 0,
+                  "performance_acceptance": False}
+              save("manifest.json", manifest)
+              publish("audit: claim exact completed formal evidence transport")
+              for file_index, (entry, data) in enumerate(zip(entries, payloads, strict=True)):
+                  stage = "file-" + str(file_index).zfill(2)
+                  save(stage + ".intent.json", {"at": stamp(), "source": entry, "status": "started",
+                      "expected_remote_parent": expected_remote})
+                  publish("audit: claim byte transport " + stage)
+                  chunks = []
+                  reconstructed = bytearray()
+                  for chunk_index, offset in enumerate(range(0, len(data), 480000)):
+                      block = data[offset:offset + 480000]
+                      encoded = base64.b64encode(block) + b"\n"
+                      name = "files/" + str(file_index).zfill(2) + "/chunk-" + str(chunk_index).zfill(3) + ".base64.txt"
+                      target = public / name
+                      target.parent.mkdir(parents=True, exist_ok=True)
+                      with target.open("xb") as out:
+                          out.write(encoded)
+                          out.flush()
+                          os.fsync(out.fileno())
+                      require(len(encoded) <= 640001 and base64.b64decode(encoded, validate=False) == block,
+                              "Canonical chunk identity failed")
+                      reconstructed.extend(block)
+                      chunks.append({"path": target.as_posix(), "index": chunk_index, "offset": offset,
+                          "bytes": len(block), "sha256": digest(block), "base64_bytes": len(encoded),
+                          "base64_sha256": digest(encoded)})
+                  require(bytes(reconstructed) == data and digest(reconstructed) == entry["sha256"],
+                          "Reassembled compressed bytes differ")
+                  manifest["files"].append({"source": entry, "chunks": chunks, "reassembled_sha256": digest(reconstructed),
+                                            "reassembled_bytes": len(reconstructed)})
+                  save(stage + ".complete.json", {"at": stamp(), "source": entry, "chunks": len(chunks),
+                       "reassembled_sha256": digest(reconstructed), "reassembled_bytes": len(reconstructed),
+                       "all_chunk_bytes_checked": True})
+                  save("manifest.json", manifest, exclusive=False)
+                  publish("audit: preserve exact byte transport " + stage)
+              stage = "complete"
+              manifest["status"] = "completed"
+              manifest["finished_at"] = stamp()
+              save("manifest.json", manifest, exclusive=False)
+              save("completion.json", {"status": "completed", "at": stamp(), "scope_sha256": SCOPE_SHA,
+                  "source_commit": scope["source_commit"], "source_completion_sha256": digest(completion_raw),
+                  "manifest_sha256": digest((public / "manifest.json").read_bytes()),
+                  "files": len(manifest["files"]), "chunks": sum(len(f["chunks"]) for f in manifest["files"]),
+                  "compressed_bytes": sum(f["reassembled_bytes"] for f in manifest["files"]),
+                  "retrieval_calls": 0, "decompression_calls": 0, "measurements_replayed": 0,
+                  "original_results_modified": False, "performance_acceptance": False, "release_acceptance": False})
+              publish("audit: complete original formal gzip byte transport")
+          except BaseException as error:
+              save("failure.json", {"status": "failed-or-partial", "at": stamp(), "stage": stage,
+                  "error_type": type(error).__name__, "error": str(error),
+                  "last_verified_result_head": expected_remote, "retrieval_calls": 0,
+                  "decompression_calls": 0, "measurements_replayed": 0,
+                  "publication_retry_permitted": False})
+              if not isinstance(error, PublicationError) and expected_remote is not None:
+                  publish("audit: retain failed byte transport without replay")
+              raise
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: round5-formal-evidence-transport-1
+          path: benchmarks/reports/round5-formal-evidence-transport-1/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30
