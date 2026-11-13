@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "candidate": "O",
+  "status": "prospective-before-source-edit-or-corpus-call",
+  "created_at_utc": "2026-11-13 17:54:32 UTC",
+  "base_source_commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+  "base_runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
+  "base_text_sha256": "7c085f278252ff91cde97ba16a63c2a35365ddddb64fe12200c92c3e8e1d5ff7",
+  "base_text_git_blob": "6d0f39c5222b3fbae819a12b320db42d151f9762",
+  "independent_prior_result": {
+    "commit": "128952ffd4f53a30f225feb98853a7f7f6ea7121",
+    "path": "benchmarks/reports/round5-candidate-lm-development-1/independent-raw-audit.json",
+    "sha256": "eb7c9fd7b032409e7ff4d39b3ce8b03838f1901abfc3b4806fd21a8f398fdb42",
+    "decision": "LM is below both original10% goals. Retain every sample, including public token512 p95+3.7551366648520768% and all positive p50 changes; do not replay or combine percentages."
+  },
+  "motivation": "The existing ASCII fast path requires every post-normalization character to be ASCII. An ordinary English string containing Unicode punctuation can therefore still enter the Python RUNS/finditer/CJK/split/extend loop even when every lexical character is an ASCII letter or digit. A whole-current-string lexical certificate may prove that the already existing ASCII_RUNS path returns the exact same ordered tokens. No corpus text or new sample was inspected to pick this certificate and no numeric improvement is claimed.",
+  "allowed": {
+    "file": "src/memory_book/text.py",
+    "certificate_pattern": "rf'[{CJK}]|[^\\W0-9a-z_]'",
+    "certificate_location": "The current whole string after the unchanged NFKC/CamelCase/casefold/NFKD/Mn pipeline, immediately after the unchanged existing text.isascii() fast-return branch.",
+    "eligibility": "Require exact native str, exact bool query and original compiled ASCII_RUNS, RUNS, CJK_RUN, IDENTIFIER_SEPARATOR and ZH_QUESTION object identities. Then require no certificate-pattern match. Keep every unsupported case on the complete existing lexical loop.",
+    "new_branch": "Reuse ASCII_RUNS.findall(text) and the same ordered STOP filter as the existing ASCII branch. Do not normalize, rewrite source text or change token ordering/deduplication.",
+    "identity_capture": "Capture the five original compiled-pattern references once at module initialization. Add only the fixed certificate regex, those references and the new guarded branch. No new dependency, cache or public API.",
+    "inverse": "Removing exactly the new module-level certificate/reference block and the new guarded branch must recover the entire frozen LM text.py byte-for-byte."
+  },
+  "proof_obligations": [
+    "Explicitly reject every scalar in the complete old CJK ranges, including unassigned or non-word points that the old CJK regex still recognizes. A Unicode-word-only guard is insufficient.",
+    "Reject every other Unicode word character outside lowercase ASCII letters, digits and underscore, plus any ASCII uppercase that survives an unusual prefix. All remaining non-ASCII characters are old-grammar separators.",
+    "Under the five original compiled patterns, old non-CJK matches contain only ASCII alphanumeric pieces with allowed ASCII identifier connectors; splitting those connectors gives exactly the same ordered nonempty ASCII_RUNS pieces. Prefix, suffix, repeated or mixed connectors and every separator boundary must agree.",
+    "ZH_QUESTION cannot match without a character in the excluded CJK ranges. ZH_STOP is unreachable on the eligible lexical path. STOP membership remains one evaluation per identical nonempty piece in identical order, preserving custom STOP effects/errors.",
+    "Keep type(query) is bool so custom query truth values retain every original truth evaluation. Guard the post-normalization current text, not a pre-fold or per-word fragment. Preserve the original complete ASCII branch without additional conditions.",
+    "Use actual C-call and Python-loop-entry evidence to demonstrate eligible non-ASCII punctuation strings use the existing whole-string ASCII finder and never the old per-word loop. This is mechanism evidence only, never a timing claim."
+  ],
+  "preserved_correctness_files_sha256": {
+    "tests/test_round5_statement_cache.py": "55acd7d4fd4ab0dafbed6c825c33f80d712e12a1f76c49c1d0b30bc0ab5fba54",
+    "tests/test_round5_native_rows.py": "f557eb50cecbeb4ffe216145aca461edd3a3371b84e3da603c92a31bf79e8f42",
+    "tests/test_round5_materialization.py": "2a652356adff1de9344ed4fea904caee7e8b58b1ac4266d73553fc1520c74a9d",
+    "tests/test_round4_sealed_counts.py": "a2e43be0bcd9978e392b60c8ef5b5e9de54277edf84fdf4ebe9ec2b8a30df2a9",
+    "tests/test_round4_highlight.py": "59cab84b24ea873670b5b1689d18bbdd170bf1cbb635a85ecba2a30e4104390b",
+    "tests/test_round4_token_work.py": "d05efe980d65f1d61017316f4410455646f4853efbe0f22194a0d9a0e9f02bdc",
+    "tests/test_token_budget.py": "89fa3919c92f97e5b3f7ff44f92fa2ebcf0f6121ed941a21dd5b450bc300aa4c",
+    "tests/test_project_rowid_bounds.py": "417a58396aa5d08d87a249e32fe41beb2e5176d82c4d6a47d0b4bd53075bb1aa",
+    "tests/test_lexical_cache.py": "419170a018e2baf0c0bdb70fc5414ac79922da402aa27ed9151a16208cd3d354",
+    "tests/test_title_reference.py": "d97603c308877748a36bf7e6450a97b656c701de5989e590c37900bf72591c80",
+    "tests/test_title_reference_interfaces.py": "8ba7e5a2c72903b5aff36a06a31ae9ea642db254eed48b3a4dd5c9a4589da63f",
+    "tests/test_title_reference_native_integration.py": "a249e57df8a477b649c8feb1b74265aa4a21158bb84905fd959dc30f026da6bc",
+    "tests/test_round5_normalization_identity.py": "184195e982a74eb91f9be0ef854d9be53823c9eafe13574b80a69b97dc8ee7dc",
+    "tests/test_round5_ranked_entries.py": "e4e4b1be159d9b45dc537e537c0040c10def2cf19683fd30dfdb038e05af548b",
+    "tests/test_round5_normalization_translation.py": "25434916a32bd8015e453393d76b1e5336ab5f5e24655b899d4ae25f2aff3ba9"
+  },
+  "artificial_tests": [
+    "Complete text inverse and full18-file runtime inventory; verify all15 old registered modules remain byte-identical.",
+    "Exhaustively check the Unicode scalar domain for the certificate relative to the original compiled lexical grammar, explicitly including unassigned CJK, non-ASCII word characters, combining categories, format controls, emoji, whitespace, NUL and surrogates.",
+    "Independent literal pre-K and frozen LM references over punctuation-rich English, all ASCII connector boundaries, CamelCase/casefold expansion and normalization-crossing cases, both exact bool query values.",
+    "Each of the five compiled-pattern hooks must fall back with identical calls, results and errors. Nonbool stateful query objects and non-native current text retain the literal path; the original ASCII branch remains unchanged.",
+    "Actual mechanism counters for eligible and excluded strings, without microbenchmarking or inferring speed from call-count reductions.",
+    "Invented real SQLite ingestion/index contents and complete native results/source spans under default, flat, coverage and optional title-follow paths; both named tokenizers in the pinned MCP environment. Preserve and explain optional core skips."
+  ],
+  "independent_design_review": {
+    "reviewer": "baseline_audit",
+    "status": "no-blocking-condition-found-before-implementation",
+    "caveats": "Full CJK exclusion, whole-current-string eligibility, exact bool query and all five original compiled patterns are mandatory. Actual source/proof/CI review remains outstanding."
+  },
+  "forbidden": [
+    "No changes to any of the15 existing correctness modules, Unicode normalization order, K/M eligibility, SQL/store/ranking/source/index schema/cache, dependencies, tokenizer, excerpt or source offsets.",
+    "No query-specific/dataset-specific branch, adaptive density threshold, new result cache, broadened API, weakened fallback or removed assertion.",
+    "No microbenchmark or corpus/fresh calls under this source-only registration; no original controller, result or numerical gate changes."
+  ],
+  "combination_policy": "O is implemented independently on exact LM, without N. Any later N/O integration requires a separately committed prospective scope and exact complete source. A component whole-file inverse fixture may then update only its explicit expected counterpart-source identity so removing N recovers exact O and removing O recovers exact N; all inverse transforms, behavioral assertions and the15 historical modules must remain intact. No automatic combination or corpus launch is authorized by this registration.",
+  "corpus_calls_executed": 0,
+  "fresh_rows_decoded": 0,
+  "performance_accepted": false,
+  "release_accepted": false
+}
