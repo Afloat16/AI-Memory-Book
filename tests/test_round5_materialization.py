@@ -561,6 +561,46 @@ class WideCandidateMaterializationTests(unittest.TestCase):
                                  [hit["score"] for hit in expected["results"]])
                 self.assertEqual(actual, expected)
 
+    def test_later_reordered_native_row_keeps_named_column_boundaries(self):
+        expected = stable(self.book.recall("qzx17", project="wide", budget_chars=100000,
+                                          use_cache=False))
+        leaders = self.book.db.execute("""SELECT p.id,p.rid FROM pages p
+            JOIN sessions s ON s.id=p.session_pk WHERE s.external_id LIKE 'wide-%'
+            ORDER BY p.id LIMIT 5""").fetchall()
+        # The target is selected, but follows canonical rows both in route
+        # order and in the metadata fetch. Checking only the first row fails.
+        target = max(leaders[1:], key=lambda row: row["rid"])["id"]
+        for boundary in ("route", "metadata"):
+            with self.subTest(boundary=boundary), sqlite3.connect(":memory:") as schema:
+                self.addCleanup(schema.close)
+                cursors, counts = {}, {"canonical_before": 0, "reordered": 0}
+
+                def row_factory(cursor, values):
+                    names = tuple(column[0] for column in cursor.description)
+                    selected = ("rank" in names if boundary == "route"
+                                else "chapter_title" in names and "rank" not in names)
+                    if selected:
+                        if values[names.index("id")] == target:
+                            reordered = (names[-1], *names[:-1])
+                            if reordered not in cursors:
+                                cursors[reordered] = schema.execute("SELECT " + ",".join(
+                                    f'NULL AS "{name}"' for name in reordered))
+                            counts["reordered"] += 1
+                            return sqlite3.Row(cursors[reordered], (values[-1], *values[:-1]))
+                        if not counts["reordered"]:
+                            counts["canonical_before"] += 1
+                    return sqlite3.Row(cursor, values)
+
+                self.book.db.row_factory = row_factory
+                try:
+                    actual = stable(self.book.recall("qzx17", project="wide", budget_chars=100000,
+                                                    use_cache=False))
+                finally:
+                    self.book.db.row_factory = sqlite3.Row
+                self.assertGreater(counts["canonical_before"], 0)
+                self.assertGreater(counts["reordered"], 0)
+                self.assertEqual(actual, expected)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

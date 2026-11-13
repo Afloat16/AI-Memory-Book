@@ -46,12 +46,26 @@ class SavedWorkerTests(unittest.TestCase):
         plan = (evaluation.ROOT / evaluation.PLAN).read_bytes()
         addendum = (evaluation.ROOT / evaluation.ADDENDUM).read_bytes()
         expected = {evaluation.PLAN_COMMIT + ":" + evaluation.PLAN: plan,
-                    evaluation.ADDENDUM_COMMIT + ":" + evaluation.ADDENDUM: addendum}
+                    evaluation.ADDENDUM_COMMIT + ":" + evaluation.ADDENDUM: addendum,
+                    evaluation.C_SCOPE_COMMIT + ":" + evaluation.C_SCOPE:
+                        (evaluation.ROOT / evaluation.C_SCOPE).read_bytes()}
         with patch.object(evaluation, "git", side_effect=lambda _, name: expected[name]):
             evaluation.registered()
         expected[evaluation.ADDENDUM_COMMIT + ":" + evaluation.ADDENDUM] = b"{}\n"
         with patch.object(evaluation, "git", side_effect=lambda _, name: expected[name]), \
                 self.assertRaisesRegex(ValueError, "addendum changed"):
+            evaluation.registered()
+
+    def test_canonical_row_scope_is_required_and_cannot_be_replaced(self):
+        expected = {commit + ":" + path: (evaluation.ROOT / path).read_bytes()
+                    for commit, path in ((evaluation.PLAN_COMMIT, evaluation.PLAN),
+                                         (evaluation.ADDENDUM_COMMIT, evaluation.ADDENDUM),
+                                         (evaluation.C_SCOPE_COMMIT, evaluation.C_SCOPE))}
+        with patch.object(evaluation, "git", side_effect=lambda _, name: expected[name]):
+            evaluation.registered()
+        expected[evaluation.C_SCOPE_COMMIT + ":" + evaluation.C_SCOPE] = b"{}\n"
+        with patch.object(evaluation, "git", side_effect=lambda _, name: expected[name]), \
+                self.assertRaisesRegex(ValueError, "canonical-row scope changed"):
             evaluation.registered()
 
     def test_valid_character_and_token_rows(self):

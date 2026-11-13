@@ -128,3 +128,20 @@ samples remain explicit. This is old-source attribution, not v033 memory evidenc
 The reviewed Q2 reuse driver has19passing artificial fixtures and retains the
 original v031 vector builder, fixed old cohorts and a strict1,968-call schedule.
 It has not yet bound or executed a real Q2 worker.
+
+## Candidate C implementation and clean-checkout repair
+
+C runtime `9ac5a2ab23ddf5ceca80ce2e7eb7df3d0f4a99c82003ba3ced40e7ed40caf1b6`
+now uses ordered list guards, exact positional reads after complete validation,
+and fixed zip column sequences. Independent review and69functional tests pass;
+107SQL call expressions and7rank-map/scale/fusion assignments remain unchanged.
+A later reordered-row fixture passes released v032, B and C. No C development
+measurement preceded this checkpoint. All three evaluation drivers now bind
+the separately committed C scope without changing any original gate.
+
+CI run43379997683 exposed an artificial Q2 fixture assumption about an existing
+local artifact directory. The complete core312 failure log and both-job receipt
+are retained. The fixture parents now use the existing repository root; an
+isolated stdlib-only checkout reproduced18errors before repair and passed all
+24tests afterward. New hosted CI will verify the committed repair. Runtime and
+benchmark acceptance rules were not changed for this repair.

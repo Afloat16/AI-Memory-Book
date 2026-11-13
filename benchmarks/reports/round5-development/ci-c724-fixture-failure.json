@@ -1,0 +1,46 @@
+{
+  "status": "failed-ci-preserved-before-fixture-repair",
+  "created_at": "2026-11-13T06:41:44.681108+00:00",
+  "source_commit": "c724452e8f7333af73ed8a0424f572b7d7280a07",
+  "run_id": 43379997683,
+  "job_id": 131735290526,
+  "job": "core (3.12)",
+  "full_log": "benchmarks/reports/round5-development/ci-c724-core312.log.gz",
+  "raw_sha256": "cb04f052cb63583c825c773a5bc4b8f608bd36f89a2c38ade5a319e4d90d90b0",
+  "gzip_sha256": "d46f5b6bc8cb9a5d1889fe9cfc0d5b5ab969f933cf5432f883ddf79728297d55",
+  "errors": [
+    "test_fake_backup_failure_keeps_target_and_closes_connections (test_round5_q2_compatibility.ParserAndBackupTests.test_fake_backup_failure_keeps_target_and_closes_connections)",
+    "test_fake_backup_reads_wal_and_closes_both_connections (test_round5_q2_compatibility.ParserAndBackupTests.test_fake_backup_reads_wal_and_closes_both_connections)",
+    "test_baseline_must_equal_old_c2_even_when_pair_matches (test_round5_q2_compatibility.SavedResultAuditTests.test_baseline_must_equal_old_c2_even_when_pair_matches)",
+    "test_candidate_mismatch_is_not_hidden_by_rehashing (test_round5_q2_compatibility.SavedResultAuditTests.test_candidate_mismatch_is_not_hidden_by_rehashing)",
+    "test_complete_1968_call_984_pair_3936_event_matrix (test_round5_q2_compatibility.SavedResultAuditTests.test_complete_1968_call_984_pair_3936_event_matrix)",
+    "test_error_types_and_digest_shapes_fail_closed (test_round5_q2_compatibility.SavedResultAuditTests.test_error_types_and_digest_shapes_fail_closed)",
+    "test_every_identity_and_setting_is_audited (test_round5_q2_compatibility.SavedResultAuditTests.test_every_identity_and_setting_is_audited)",
+    "test_existing_worker_is_rejected_before_runner_or_database (test_round5_q2_compatibility.SavedResultAuditTests.test_existing_worker_is_rejected_before_runner_or_database)",
+    "test_failed_fake_runner_is_durable_and_cannot_retry (test_round5_q2_compatibility.SavedResultAuditTests.test_failed_fake_runner_is_durable_and_cannot_retry)",
+    "test_missing_duplicate_and_reordered_rows_fail (test_round5_q2_compatibility.SavedResultAuditTests.test_missing_duplicate_and_reordered_rows_fail)",
+    "test_missing_prior_receipt_and_unexpected_artifacts_fail (test_round5_q2_compatibility.SavedResultAuditTests.test_missing_prior_receipt_and_unexpected_artifacts_fail)",
+    "test_old_c2_cannot_silently_rebind_to_different_files (test_round5_q2_compatibility.SavedResultAuditTests.test_old_c2_cannot_silently_rebind_to_different_files)",
+    "test_partial_completion_and_unknown_fields_fail (test_round5_q2_compatibility.SavedResultAuditTests.test_partial_completion_and_unknown_fields_fail)",
+    "test_prepare_refuses_existing_state_without_backup (test_round5_q2_compatibility.SavedResultAuditTests.test_prepare_refuses_existing_state_without_backup)",
+    "test_raw_ledger_checksum_must_match (test_round5_q2_compatibility.SavedResultAuditTests.test_raw_ledger_checksum_must_match)",
+    "test_receipt_binding_originals_and_status_are_checked (test_round5_q2_compatibility.SavedResultAuditTests.test_receipt_binding_originals_and_status_are_checked)",
+    "test_rehashed_unmatched_or_extra_ledger_event_fails (test_round5_q2_compatibility.SavedResultAuditTests.test_rehashed_unmatched_or_extra_ledger_event_fails)",
+    "test_uncommitted_prefix_is_rejected_before_runner (test_round5_q2_compatibility.SavedResultAuditTests.test_uncommitted_prefix_is_rejected_before_runner)"
+  ],
+  "test_summary": [
+    "2026-11-13T06:38:15.3003737Z Ran 800 tests in 22.895s",
+    "2026-11-13T06:38:15.3003955Z FAILED (errors=18, skipped=83)"
+  ],
+  "cause": "New Q2 artificial fixtures assumed the untracked .artifacts directory existed in a clean checkout. TemporaryDirectory parent was absent. Repair the fixture setup without changing runtime or evaluation gates.",
+  "formal_measurement_calls": 0,
+  "Q2_compatibility_calls": 0,
+  "related_failed_job": {
+    "job": "mcp",
+    "job_id": 131735290474,
+    "tests": 800,
+    "errors": 18,
+    "skipped": 15,
+    "cause": "Same absent TemporaryDirectory parent in Q2 fixtures; verified from complete job log."
+  }
+}

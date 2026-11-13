@@ -102,7 +102,7 @@ def fixture():
 
 class SavedResultAuditTests(unittest.TestCase):
     def setUp(self):
-        temporary = tempfile.TemporaryDirectory(prefix="round5-q2-fixture-", dir=q.ROOT / ".artifacts")
+        temporary = tempfile.TemporaryDirectory(prefix="round5-q2-fixture-", dir=q.ROOT)
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name)
         self.patch = mock.patch.object(q, "ROOT", self.root)
@@ -285,6 +285,66 @@ class SavedResultAuditTests(unittest.TestCase):
         backup.assert_not_called()
 
 
+class RegistrationScopeTests(unittest.TestCase):
+    C_SCOPE = "benchmarks/experiments/round5-canonical-row-addendum.json"
+
+    def binding(self):
+        return {"registered_pins": copy.deepcopy(q.PINS),
+                "registration_commits": copy.deepcopy(q.REGISTRATION_COMMITS)}
+
+    @staticmethod
+    def expected_hash(path, *unused):
+        return q.PINS[Path(path).relative_to(q.ROOT).as_posix()]
+
+    def test_c_scope_is_the_exact_preregistered_hash_and_commit(self):
+        self.assertEqual(q.PINS[self.C_SCOPE],
+                         "7a5ee634bebfcf9088e9f1401026b4bb3720080c751ce63f95798b87fbdfb28c")
+        self.assertEqual(q.REGISTRATION_COMMITS[self.C_SCOPE],
+                         "c724452e8f7333af73ed8a0424f572b7d7280a07")
+        self.assertEqual(set(q.REGISTRATION_COMMITS), {
+            "benchmarks/experiments/round5-plan.json",
+            "benchmarks/experiments/round5-materialization-addendum.json", self.C_SCOPE})
+
+    def test_all_three_registrations_verify_their_named_commits(self):
+        with mock.patch.object(q, "file_sha", side_effect=self.expected_hash), \
+             mock.patch.object(q, "committed", side_effect=self.expected_hash) as committed:
+            q.verify_registrations(self.binding())
+        self.assertEqual(committed.call_args_list,
+                         [mock.call(q.ROOT / name, commit) for name, commit in q.REGISTRATION_COMMITS.items()])
+
+    def test_missing_or_rebound_c_scope_is_rejected_before_git_reads(self):
+        for field in ("registered_pins", "registration_commits"):
+            for mutation in ("missing", "changed"):
+                with self.subTest(field=field, mutation=mutation):
+                    binding = self.binding()
+                    if mutation == "missing":
+                        del binding[field][self.C_SCOPE]
+                    else:
+                        binding[field][self.C_SCOPE] = "0" * len(binding[field][self.C_SCOPE])
+                    with mock.patch.object(q, "committed") as committed, \
+                         mock.patch.object(q, "file_sha") as file_sha:
+                        with self.assertRaisesRegex(ValueError, "plan/B/C registration"):
+                            q.verify_registrations(binding)
+                    committed.assert_not_called()
+                    file_sha.assert_not_called()
+
+    def test_changed_c_scope_bytes_are_rejected(self):
+        def changed(path):
+            return "0" * 64 if Path(path).name == Path(self.C_SCOPE).name else self.expected_hash(path)
+        with mock.patch.object(q, "file_sha", side_effect=changed), \
+             mock.patch.object(q, "committed", side_effect=self.expected_hash):
+            with self.assertRaisesRegex(ValueError, "scope bytes/commit changed"):
+                q.verify_registrations(self.binding())
+
+    def test_wrong_named_git_blob_is_rejected_even_when_local_bytes_match(self):
+        def wrong_blob(path, commit):
+            return "0" * 64 if Path(path).name == Path(self.C_SCOPE).name else self.expected_hash(path)
+        with mock.patch.object(q, "file_sha", side_effect=self.expected_hash), \
+             mock.patch.object(q, "committed", side_effect=wrong_blob):
+            with self.assertRaisesRegex(ValueError, "scope bytes/commit changed"):
+                q.verify_registrations(self.binding())
+
+
 class ParserAndBackupTests(unittest.TestCase):
     def test_strict_json_rejects_duplicates_and_nonfinite_values(self):
         for raw in (b'{"state":"started","state":"finished"}', b'{"value":NaN}', b'{"value":Infinity}'):
@@ -292,7 +352,7 @@ class ParserAndBackupTests(unittest.TestCase):
                 q.parse_json(raw)
 
     def test_fake_backup_reads_wal_and_closes_both_connections(self):
-        with tempfile.TemporaryDirectory(prefix="round5-q2-backup-fixture-", dir=q.ROOT / ".artifacts") as name:
+        with tempfile.TemporaryDirectory(prefix="round5-q2-backup-fixture-", dir=q.ROOT) as name:
             source = Path(name) / "fake-original.db"
             target = Path(name) / "fresh" / "baseline.db"
             src, dst = mock.Mock(), mock.Mock()
@@ -311,7 +371,7 @@ class ParserAndBackupTests(unittest.TestCase):
             connect.assert_not_called()
 
     def test_fake_backup_failure_keeps_target_and_closes_connections(self):
-        with tempfile.TemporaryDirectory(prefix="round5-q2-backup-fixture-", dir=q.ROOT / ".artifacts") as name:
+        with tempfile.TemporaryDirectory(prefix="round5-q2-backup-fixture-", dir=q.ROOT) as name:
             target = Path(name) / "candidate.db"
             src, dst = mock.Mock(), mock.Mock()
             src.backup.side_effect = RuntimeError("artificial backup failure")

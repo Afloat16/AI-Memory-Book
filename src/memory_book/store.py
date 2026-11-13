@@ -752,38 +752,50 @@ class MemoryBook:
                 # A custom factory can return a native Row with extra or
                 # duplicate columns. Restrict value iteration to the fixed SQL
                 # shapes whose named and positional views are equivalent.
-                route_columns = (("rid", "id", "rank") if use_stem else
-                    ("id", "rid", "project_id", "chapter_id", "chapter_title",
-                     "session_id", "session_title", "created_at", "rank"))
-                metadata_columns = ("id", "project_id", "chapter_id", "chapter_title",
-                                    "session_id", "session_title", "created_at")
-                late_materialize = (not coverage and semantic_model is None and
-                    all(type(row) is sqlite3.Row and tuple(row.keys()) == route_columns
-                        for route in routes for row in route) and
-                    (not use_stem or all(type(metadata) is sqlite3.Row and
-                        tuple(metadata.keys()) == metadata_columns
-                        for metadata in (metadata_by_id.get(row["id"]) for row in rows.values()))))
+                route_columns = (["rid", "id", "rank"] if use_stem else
+                    ["id", "rid", "project_id", "chapter_id", "chapter_title",
+                     "session_id", "session_title", "created_at", "rank"])
+                metadata_columns = ["id", "project_id", "chapter_id", "chapter_title",
+                                    "session_id", "session_title", "created_at"]
+                late_materialize = not coverage and semantic_model is None
+                if late_materialize:
+                    for route in routes:
+                        for row in route:
+                            if type(row) is not sqlite3.Row or row.keys() != route_columns:
+                                late_materialize = False
+                                break
+                        if not late_materialize:
+                            break
+                if late_materialize and use_stem:
+                    for row in rows.values():
+                        metadata = metadata_by_id.get(row[1])
+                        if type(metadata) is not sqlite3.Row or metadata.keys() != metadata_columns:
+                            late_materialize = False
+                            break
+                chapter_position, session_position = (3, 5) if use_stem else (4, 6)
                 ranked_rows = []
                 for row in rows.values():
                     if late_materialize:
                         # Ranking needs directory fields and the original route
                         # rank, not a private dictionary for every union row.
-                        item = metadata_by_id[row["id"]] if use_stem else row
+                        item = metadata_by_id[row[1]] if use_stem else row
+                        page_id = item[0]
                     else:
                         # Custom mapping views and optional routes retain full
                         # materialization, including their exception behavior.
-                        item = (dict(zip(row.keys(), row)) if type(row) is sqlite3.Row and
-                                tuple(row.keys()) == route_columns
+                        item = (dict(zip(route_columns, row)) if type(row) is sqlite3.Row and
+                                row.keys() == route_columns
                                 else dict(row))
                         if use_stem:
                             metadata = metadata_by_id.get(item["id"])
                             if metadata is not None:
-                                item.update(zip(metadata.keys(), metadata)
+                                item.update(zip(metadata_columns, metadata)
                                             if type(metadata) is sqlite3.Row and
-                                            tuple(metadata.keys()) == metadata_columns else metadata)
+                                            metadata.keys() == metadata_columns else metadata)
                     factor = 1
                     if strategy == "book":
-                        directory = item["chapter_title"] + " " + item["session_title"]
+                        directory = (item[chapter_position] + " " + item[session_position]
+                                     if late_materialize else item["chapter_title"] + " " + item["session_title"])
                         if directory not in directory_factors:
                             title_overlap = len(qset & self._directory_tokens(directory)) / len(qset)
                             directory_factors[directory] = 1 + 0.15 * title_overlap
@@ -793,13 +805,17 @@ class MemoryBook:
                         # relative BM25 margins instead of only its ordinal rank.
                         # Exact relevance retains the predeclared 2:1 preference.
                         # An absent route contributes zero, never a fake score.
-                        relevance = (2 * exact_scores.get(item["id"], 0.0) / exact_scale +
-                                     stem_scores.get(item["id"], 0.0) / stem_scale)
+                        if late_materialize:
+                            relevance = (2 * exact_scores.get(page_id, 0.0) / exact_scale +
+                                         stem_scores.get(page_id, 0.0) / stem_scale)
+                        else:
+                            relevance = (2 * exact_scores.get(item["id"], 0.0) / exact_scale +
+                                         stem_scores.get(item["id"], 0.0) / stem_scale)
                     else:
-                        relevance = -(row["rank"] if late_materialize else item["rank"])
+                        relevance = -(row[-1] if late_materialize else item["rank"])
                     score = relevance * factor
                     if late_materialize:
-                        ranked_rows.append((item["id"], score, row, item))
+                        ranked_rows.append((page_id, score, row, item))
                     else:
                         item["score"] = score
                         candidates.append(item)
@@ -815,9 +831,9 @@ class MemoryBook:
                     prefix_size = (limit * 4 if strategy == "book" and
                                    (current_query or (len(qt) > 1 and limit > 1)) else limit)
                     for _, score, row, metadata in ranked_rows[:prefix_size]:
-                        item = dict(zip(row.keys(), row))
+                        item = dict(zip(route_columns, row))
                         if use_stem:
-                            item.update(zip(metadata.keys(), metadata))
+                            item.update(zip(metadata_columns, metadata))
                         item["score"] = score
                         candidates.append(item)
                 elif fuse_routes:

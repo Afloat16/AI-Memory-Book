@@ -32,7 +32,9 @@ def fixture(factor=.85):
     sources = {"baseline": {"commit": bench.BASELINE, "runtime_sha256": bench.BASELINE_HASH},
                "candidate": {"commit": "a" * 40, "runtime_sha256": bench.digest("candidate")}}
     run = {"binding": {"sources": sources, "plan_commit": bench.PLAN_COMMIT,
-                      "addendum_commit": bench.ADDENDUM_COMMIT, "addendum_sha256": bench.ADDENDUM_SHA256},
+                      "addendum_commit": bench.ADDENDUM_COMMIT, "addendum_sha256": bench.ADDENDUM_SHA256,
+                      "canonical_addendum_commit": bench.CANONICAL_ADDENDUM_COMMIT,
+                      "canonical_addendum_sha256": bench.CANONICAL_ADDENDUM_SHA256},
         "evaluator_files": {"fixture": "hash"},
         "host": {"boot": "same-boot"}, "schedule": bench.schedule(plan),
         "cohorts": {name: {"queries": len(ids), "sha256": bench.digest(name),
@@ -40,6 +42,8 @@ def fixture(factor=.85):
                     for name, ids in (("synthetic61", ["b", "a"]), ("public1015", ["z", "y", "x"]))}}
     report = {"plan": plan, "plan_commit": bench.PLAN_COMMIT,
               "addendum_commit": bench.ADDENDUM_COMMIT, "addendum_sha256": bench.ADDENDUM_SHA256, "run": run,
+              "canonical_addendum_commit": bench.CANONICAL_ADDENDUM_COMMIT,
+              "canonical_addendum_sha256": bench.CANONICAL_ADDENDUM_SHA256,
               "workers": [], "evaluator_unchanged": True, "error": None}
     for item in run["schedule"]:
         worker = {**item, "status": "completed", "error": None,
@@ -106,6 +110,8 @@ class PerformanceGateTests(unittest.TestCase):
             ("show", bench.PLAN_COMMIT + ":benchmarks/experiments/round5-plan.json"): raw,
             ("show", bench.ADDENDUM_COMMIT + ":benchmarks/experiments/round5-materialization-addendum.json"):
                 bench.ADDENDUM.read_bytes(),
+            ("show", bench.CANONICAL_ADDENDUM_COMMIT + ":benchmarks/experiments/round5-canonical-row-addendum.json"):
+                bench.CANONICAL_ADDENDUM.read_bytes(),
         }
         with patch.object(bench, "git", side_effect=lambda *args: registrations[args]) as git:
             self.assertEqual(bench.load_plan(), json.loads(raw))
@@ -165,6 +171,51 @@ class PerformanceGateTests(unittest.TestCase):
                     with self.assertRaisesRegex(ValueError, "addendum registration|retained candidate-A evidence"):
                         bench.load_addendum()
 
+    def test_candidate_c_scope_is_fixed_to_commit_hash_and_exact_bytes(self):
+        raw = bench.CANONICAL_ADDENDUM.read_bytes()
+        self.assertEqual(bench.CANONICAL_ADDENDUM_COMMIT, "c724452e8f7333af73ed8a0424f572b7d7280a07")
+        self.assertEqual(bench.CANONICAL_ADDENDUM_SHA256,
+                         "7a5ee634bebfcf9088e9f1401026b4bb3720080c751ce63f95798b87fbdfb28c")
+        self.assertEqual(bench.sha(raw), bench.CANONICAL_ADDENDUM_SHA256)
+        with patch.object(bench, "git", return_value=raw) as git:
+            self.assertEqual(bench.load_canonical_addendum(), json.loads(raw))
+            git.assert_called_once_with("show", bench.CANONICAL_ADDENDUM_COMMIT +
+                                        ":benchmarks/experiments/round5-canonical-row-addendum.json")
+        with tempfile.TemporaryDirectory(dir=bench.ROOT) as directory:
+            path = Path(directory) / "canonical.json"
+            path.write_bytes(raw + b" ")
+            with patch.object(bench, "CANONICAL_ADDENDUM", path), patch.object(bench, "git", return_value=raw):
+                with self.assertRaisesRegex(ValueError, "registered candidate-C addendum changed"):
+                    bench.load_canonical_addendum()
+            with patch.object(bench, "CANONICAL_ADDENDUM", path), patch.object(bench, "git", return_value=raw + b" "):
+                with self.assertRaisesRegex(ValueError, "Candidate-C addendum hash differs"):
+                    bench.load_canonical_addendum()
+        with patch.object(bench, "git", return_value=raw + b" "):
+            with self.assertRaisesRegex(ValueError, "registered candidate-C addendum changed"):
+                bench.load_canonical_addendum()
+
+    def test_candidate_c_scope_keeps_both_registrations_and_retained_b_evidence(self):
+        original = json.loads(bench.CANONICAL_ADDENDUM.read_bytes())
+        mutations = (lambda x: x.update(status="registered-after-measurement"),
+                     lambda x: x.update(original_plan_commit="0" * 40),
+                     lambda x: x.update(materialization_addendum_commit="0" * 40),
+                     lambda x: x.update(prior_candidate_commit="0" * 40),
+                     lambda x: x.update(prior_candidate_runtime_sha256="0" * 64),
+                     lambda x: x["evidence"].update(profile_pairs=4731),
+                     lambda x: x["evidence"].update(paired_calls=4095),
+                     lambda x: x["evidence"].update(paired_payload_pairs=2047))
+        with tempfile.TemporaryDirectory(dir=bench.ROOT) as directory:
+            path = Path(directory) / "canonical.json"
+            for mutate in mutations:
+                changed = copy.deepcopy(original)
+                mutate(changed)
+                raw = bench.json_bytes(changed)
+                path.write_bytes(raw)
+                with patch.object(bench, "CANONICAL_ADDENDUM", path), patch.object(bench, "git", return_value=raw), \
+                        patch.object(bench, "CANONICAL_ADDENDUM_SHA256", bench.sha(raw)):
+                    with self.assertRaisesRegex(ValueError, "addendum registration|retained candidate-B evidence"):
+                        bench.load_canonical_addendum()
+
     def test_registered_matrix_and_seed_are_the_new_round_five_axes(self):
         plan = json.loads(bench.PLAN.read_bytes())
         formal = plan["candidate"]["formal"]
@@ -203,6 +254,9 @@ class PerformanceGateTests(unittest.TestCase):
         self.assertIn("benchmarks/experiments/round5-plan.json", bench.EVALUATORS)
         self.assertIn("benchmarks/experiments/round5-materialization-addendum.json", bench.EVALUATORS)
         self.assertEqual(hashes["benchmarks/experiments/round5-materialization-addendum.json"], bench.ADDENDUM_SHA256)
+        self.assertIn("benchmarks/experiments/round5-canonical-row-addendum.json", bench.EVALUATORS)
+        self.assertEqual(hashes["benchmarks/experiments/round5-canonical-row-addendum.json"],
+                         bench.CANONICAL_ADDENDUM_SHA256)
         self.assertNotIn("scripts/round4_performance.py", bench.EVALUATORS)
         for name in names:
             self.assertIn(name, bench.EVALUATORS)
@@ -216,6 +270,8 @@ class PerformanceGateTests(unittest.TestCase):
         value = {"status": "frozen-before-formal-timing", "evaluator": bench.VERSION,
             "plan_commit": bench.PLAN_COMMIT, "plan_sha256": bench.sha(bench.PLAN.read_bytes()),
             "addendum_commit": bench.ADDENDUM_COMMIT, "addendum_sha256": bench.ADDENDUM_SHA256,
+            "canonical_addendum_commit": bench.CANONICAL_ADDENDUM_COMMIT,
+            "canonical_addendum_sha256": bench.CANONICAL_ADDENDUM_SHA256,
             "evaluator_files": hashes, "packages": bench.PACKAGES,
             "sources": report["run"]["binding"]["sources"], "evaluator_commit": "f" * 40}
         with tempfile.TemporaryDirectory() as directory:
@@ -238,6 +294,10 @@ class PerformanceGateTests(unittest.TestCase):
                              lambda x: x.update(addendum_sha256="0" * 64),
                              lambda x: x.pop("addendum_commit"),
                              lambda x: x.pop("addendum_sha256"),
+                             lambda x: x.update(canonical_addendum_commit="0" * 40),
+                             lambda x: x.update(canonical_addendum_sha256="0" * 64),
+                             lambda x: x.pop("canonical_addendum_commit"),
+                             lambda x: x.pop("canonical_addendum_sha256"),
                              lambda x: x["sources"]["baseline"].update(commit="a" * 40),
                              lambda x: x["packages"].update(tiktoken="other"))
                 for mutate in mutations:
@@ -260,7 +320,7 @@ class PerformanceGateTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "Commit the exact source binding"):
                     bench.load_binding(path)
 
-    def test_new_binding_records_original_plan_and_candidate_b_addendum(self):
+    def test_new_binding_records_original_plan_and_both_candidate_addenda(self):
         plan = json.loads(bench.PLAN.read_bytes())
         sources = fixture()["run"]["binding"]["sources"]
         documents = {name: (bench.ROOT / name).read_bytes() for name in bench.EVALUATORS}
@@ -289,6 +349,8 @@ class PerformanceGateTests(unittest.TestCase):
             self.assertEqual(value["plan_commit"], bench.PLAN_COMMIT)
             self.assertEqual(value["addendum_commit"], bench.ADDENDUM_COMMIT)
             self.assertEqual(value["addendum_sha256"], bench.ADDENDUM_SHA256)
+            self.assertEqual(value["canonical_addendum_commit"], bench.CANONICAL_ADDENDUM_COMMIT)
+            self.assertEqual(value["canonical_addendum_sha256"], bench.CANONICAL_ADDENDUM_SHA256)
             self.assertEqual(value["evaluator_files"], hashes)
             self.assertEqual(value["sources"], sources)
 
@@ -329,6 +391,27 @@ class PerformanceGateTests(unittest.TestCase):
                         patch.object(bench, "file_hashes", return_value=report["run"]["evaluator_files"]), \
                         patch.object(bench, "resume_prefix") as retrieval:
                     with self.assertRaisesRegex(ValueError, "Report candidate-B addendum"):
+                        bench.audit(output, Path(directory) / "not-created-state")
+                    retrieval.assert_not_called()
+
+    def test_report_and_saved_audit_reject_coherent_c_scope_rewrite(self):
+        mutations = (("canonical_addendum_commit", "0" * 40), ("canonical_addendum_sha256", "0" * 64))
+        for target in ("report", "binding"):
+            for field, changed in mutations:
+                report = fixture()
+                container = report if target == "report" else report["run"]["binding"]
+                container[field] = changed
+                self.assertIn("registered_canonical_row_addendum_changed", bench.validation(report)["issues"])
+        for field, changed in mutations:
+            report = fixture()
+            report[field] = report["run"]["binding"][field] = changed
+            with tempfile.TemporaryDirectory() as directory:
+                output = Path(directory) / "fixture.json.gz"
+                bench.save_report(output, report)
+                with patch.object(bench, "load_plan", return_value=report["plan"]), \
+                        patch.object(bench, "file_hashes", return_value=report["run"]["evaluator_files"]), \
+                        patch.object(bench, "resume_prefix") as retrieval:
+                    with self.assertRaisesRegex(ValueError, "Report candidate-C addendum"):
                         bench.audit(output, Path(directory) / "not-created-state")
                     retrieval.assert_not_called()
 

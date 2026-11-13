@@ -39,10 +39,16 @@ MODEL = "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25"
 PINS = {
     "benchmarks/experiments/round5-plan.json": "d3302ef1169aa180b492af6b9c9938e5717ff7261e202ef7a3df50e14febaccd",
     "benchmarks/experiments/round5-materialization-addendum.json": "547aa0068fc5fd6a18e448719d855295c3c85ac78faea69867d208c175f77a34",
+    "benchmarks/experiments/round5-canonical-row-addendum.json": "7a5ee634bebfcf9088e9f1401026b4bb3720080c751ce63f95798b87fbdfb28c",
     OLD + "/authored36-preparation.json": "0fb2e417f465fd4748d35a327aaa928f58ae40a3eb9d07d884b5d1ca1bd3e5a9",
     OLD + "/hotpot128-preparation.json": "e16ec2b31633fff438971e48fd4dd7394442018ce16d82d33df4808e684739d5",
     OLD + "/paired-audit.json": "5e5bffde4729250169e8eb92f1d14088c46c9c57aef1e22be2f52ceafb4593d6",
     OLD + "/ledger-archive.json": "0a6dad8456c81a9eb59e88d4af143562bdf6bb877f81c77a6b4bd5da437294e9",
+}
+REGISTRATION_COMMITS = {
+    "benchmarks/experiments/round5-plan.json": "7068594181c7e98c576f68a81daf85cd0d06c729",
+    "benchmarks/experiments/round5-materialization-addendum.json": "9042570d8cff01be7c95cd01f8698e166fc7d313",
+    "benchmarks/experiments/round5-canonical-row-addendum.json": "c724452e8f7333af73ed8a0424f572b7d7280a07",
 }
 COHORTS = {
     "authored36": (36, "ecc46c474d5184995938419fa985b8e08c0ddb51560da49990247465db6db0b0"),
@@ -290,9 +296,20 @@ def verify_environment(binding):
             and file_sha(local(parquet["path"])) == parquet["sha256"], "Historical Parquet changed")
 
 
+def verify_registrations(binding):
+    require(binding.get("registered_pins") == PINS
+            and binding.get("registration_commits") == REGISTRATION_COMMITS,
+            "Exact plan/B/C registration hashes and commits are required")
+    for name, commit in REGISTRATION_COMMITS.items():
+        require(file_sha(local(name)) == PINS[name]
+                and committed(local(name), commit) == PINS[name],
+                "Preregistered scope bytes/commit changed: " + name)
+
+
 def verify_binding(binding):
+    verify_registrations(binding)
     require(binding["schema_version"] == 1 and binding["protocol"] == "round5-q2-reuse-v1"
-            and binding["registered_pins"] == PINS and binding["environment"] == ENVIRONMENT,
+            and binding["environment"] == ENVIRONMENT,
             "Binding protocol differs")
     require(binding["original_builder"] == {"commit": BUILDER_COMMIT, "runtime_sha256": BUILDER_SHA}
             and (binding["expected_calls"], binding["expected_pairs"], binding["expected_ledger_events"])
@@ -375,7 +392,8 @@ def bind(args):
            "hotpot128": manifest["selected_ids"]}
     files = helper_closure() | set(preparations["authored36"]["evaluator_files"])
     binding = {"schema_version": 1, "protocol": "round5-q2-reuse-v1", "registered_at": now(),
-        "registered_pins": PINS, "authoring_commit": git("rev-parse", "HEAD").decode().strip(),
+        "registered_pins": PINS, "registration_commits": REGISTRATION_COMMITS,
+        "authoring_commit": git("rev-parse", "HEAD").decode().strip(),
         "evaluator_files": {name: committed(local(name)) for name in sorted(files)},
         "old_evaluator_files": preparations["authored36"]["evaluator_files"],
         "sources": {"baseline": source_identity(args.baseline_src, BASELINE_COMMIT, BASELINE_SHA),
@@ -388,7 +406,7 @@ def bind(args):
         "environment": ENVIRONMENT, "state_root": relative(args.state), "results_root": relative(args.results),
         "cohorts": {}, "old_c2": {}, "expected_calls": 1968, "expected_pairs": 984,
         "expected_ledger_events": 3936,
-        "boundary": "Original v031 page vectors reused by v032/B; no index rebuild. Query embeddings execute in workers. Historical compatibility only; no timing or quality claim.",
+        "boundary": "Original v031 page vectors reused by v032 and the bound candidate; no index rebuild. Query embeddings execute in workers. Historical compatibility only; no timing or quality claim.",
         "failure_rule": "One fixed schedule; no replay, replacement calls or automatic retry. Commit each complete worker before advancing; preserve every partial artifact."}
     for cohort, (count, fingerprint) in COHORTS.items():
         prep = preparations[cohort]
