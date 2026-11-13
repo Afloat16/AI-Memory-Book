@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "candidate": "M",
+  "status": "prospective-before-implementation-or-corpus-calls",
+  "base_source": "4720728e47d53fc6c345fa89a2b5b739a67a1069",
+  "base_description": "Exact K normalization-identity candidate on I plus optional title following; do not modify K's branch or combine with independently developed L.",
+  "hypothesis": "For a complete ordinary string composed only of K's identity alphabet and 97 explicitly listed compatibility scalars, a fixed str.translate table can reproduce whole-string NFKC before the unchanged CamelCase separation and casefold. Its result is in K's already certified normalization-stable alphabet, so subsequent NFKD and Mn deletion are identities. This may remove repeated normalization work while preserving exact terms, indexes, source spans and payloads. It is not a measured speed claim.",
+  "evidence": {
+    "commit": "c3c708539d6e7024eb14d565dbb7c0a5e553fa34",
+    "path": "benchmarks/reports/round5-candidate-k-development-1/profile-audit.json",
+    "sha256": "d3b653c2fbe45f1dce3da708fa08a17b342a99d8d514a45d7a324fd0b9df7954",
+    "cell": "synthetic61/native-token512",
+    "diagnostic_only": {
+      "unicode_normalize_calls": 16318,
+      "strip_nonspacing_marks_calls": 6811,
+      "terms_calls": 9804
+    },
+    "interpretation": "Root's saved K/I audit found the same normalization/deletion call counts. These existing observations suggest remaining work but do not identify which input characters caused it. Different-host elapsed seconds are not compared. No new corpus inputs are read for this candidate; no M profile or timing has occurred."
+  },
+  "eligibility": {
+    "source": "Preserve K's one historical initial isascii truth evaluation. Only type(text) is str, recognized UCD version and the same ordinary normalize/category/strip/Camel objects may use either certificate.",
+    "ucd_versions": [
+      "13.0.0",
+      "14.0.0",
+      "15.0.0",
+      "15.1.0",
+      "16.0.0"
+    ],
+    "old_identity_path": "Check K's complete-string identity alphabet first. A K hit retains its original no-translation fast path.",
+    "new_complete_string_alphabet": "Exactly K's identity alphabet union U+FF01..U+FF5E, U+3000, U+2011 and U+2026; no other scalar admitted.",
+    "explicit_translation": [
+      {
+        "source": "U+FF01..U+FF5E",
+        "count": 94,
+        "target": "ASCII codepoint(source)-0xFEE0"
+      },
+      {
+        "source": "U+3000",
+        "count": 1,
+        "target": "U+0020"
+      },
+      {
+        "source": "U+2011",
+        "count": 1,
+        "target": "U+2010"
+      },
+      {
+        "source": "U+2026",
+        "count": 1,
+        "target": "U+002E U+002E U+002E"
+      }
+    ],
+    "new_scalars": 97,
+    "operation": "Only after the entire new alphabet matches: translate exactly once, retain the original CamelCase substitution and casefold in their original order, and skip equivalent NFKD/Mn work. Every translation target must be in K's alphabet.",
+    "proof": "Every admitted source scalar has the registered exact NFKC/NFKD target. The targets have combining class zero, are not Mn and contain neither combining marks nor Hangul Jamo. Therefore concatenation cannot create canonical reordering or composition across boundaries. Camel inserts only ASCII spaces and casefold remains inside the certified target alphabet. Tests explicitly cover fullwidth-to-ASCII case boundaries such as alphaＢeta.",
+    "fallback": "Any other codepoint, unknown UCD version, nonordinary hook or string subclass retains the literal old normalization path. Subclass isascii truth is consumed once just as before. No broadened promise for arbitrary mutated private certificate constants."
+  },
+  "files": {
+    "runtime": "src/memory_book/text.py",
+    "new_test": "tests/test_round5_normalization_translation.py",
+    "preserved_k_tests": "tests/test_round5_normalization_identity.py",
+    "base_text_sha256": "e61747133c973a224a58738f4a74bb5d6c5c4bf614344a6c600654065bfe7d22",
+    "preserved_k_tests_sha256": "184195e982a74eb91f9be0ef854d9be53823c9eafe13574b80a69b97dc8ee7dc"
+  },
+  "artificial_tests": [
+    "Enumerate the exact 97 mapping entries and all Unicode scalar membership of the extended complete-string certificate.",
+    "Verify scalar and whole-alphabet NFKC/NFKD targets, non-Mn/zero-combining properties, closure under casefold, and representative ordered cross-boundaries.",
+    "Compare literal historical terms/query/index outputs for every mapped scalar, CamelCase boundaries, punctuation/identifier separators, questions, all safe mixtures, and deterministic invented mixed Unicode.",
+    "Keep accents, every mark class, Hangul composition, halfwidth kana, compatibility Han, unsupported compatibility characters, astral scalars and lone surrogates on the literal fallback.",
+    "Use real sys.setprofile C-call evidence: new eligible strings remove normalize/category calls with one translation; existing K strings do not translate; excluded strings retain original work.",
+    "Verify unknown-version/hooks and stateful subclass isascii behavior without reducing truth evaluations or reordering semantic operations.",
+    "Use invented actual SQLite FTS indexes and native/optional/title-follow/token payloads and source spans against the literal old terms reference. Exact token fixtures run in the pinned tokenizer CI environment; core-only jobs retain explicit optional dependency skips."
+  ],
+  "invariants": "No new dependency, cache, schema, scoring, candidate construction, query selection, budget, token counting, source-offset, result-cache, adapter or model changes. Only text.py and the new test module change after this prospective registration; K and its proofs remain preserved.",
+  "development": "Artificial correctness and independent review precede a separate exact M source binding. Any later corpus development retains the original complete 4732 saved-profile payload checks and 4096 paired native calls, including all adverse cells. No source is selected from artificial mechanism counts.",
+  "acceptance": "Original full formal performance, lexical/Q2 compatibility and fresh gates remain unchanged. A later L+M or other combined source needs a new complete runtime binding and direct comparison against v0.3.2; never add isolated percentages or pool timings.",
+  "corpus_calls_executed": 0,
+  "fresh_rows_decoded": 0
+}
