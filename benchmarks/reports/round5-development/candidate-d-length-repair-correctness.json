@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "status": "length-boundary-corrected-pending-full-mapping-review",
+  "runtime_sha256": "93a69a06a1d2e618173f55b10250e35dc9962e48eba78e032f22bac5c5fd2df5",
+  "files_sha256": {
+    "src/memory_book/store.py": "0610337c756736cd561222a93ef2ee4eaa56398ace0188867527be0bb1252ae7",
+    "tests/test_round5_materialization.py": "14b5e16d5abf7745df622f8c99eaf76a81e94ac2d951af75e215df778f26fe8f",
+    "benchmarks/reports/round5-development/candidate-d-length-repair-correctness.log": "9697659b86b8ff976e1efb1bb3150748bfe53076b7940b557fe9d0b89dfea7aa"
+  },
+  "tests_passed": 76,
+  "skips": 0,
+  "sql_call_asts_unchanged": 107,
+  "fallback_seven_assignment_asts_unchanged": true,
+  "reproduced_prior_length_failure": {
+    "v032_passed": true,
+    "candidate_c_payload_failures": 2,
+    "candidate_c_error_type_mismatches": 2,
+    "pre_length_d_payload_failures": 2,
+    "pre_length_d_error_type_mismatches": 2
+  },
+  "repair": "Full value length now gates route and metadata late materialization and both zip paths; unusual lengths use named mapping conversion.",
+  "pending_review": "Independently check inherited metadata duplicate/unknown-ID merging and route mapping exception order. No D development or formal measurement has run."
+}

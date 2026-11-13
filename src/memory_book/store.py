@@ -813,7 +813,7 @@ class MemoryBook:
                                 late_materialize = False
                                 break
                             keys = row.keys()
-                            if keys != expected_keys:
+                            if keys != expected_keys or len(row) != len(keys):
                                 late_materialize = False
                                 break
                             if expected_keys is route_columns:
@@ -828,7 +828,7 @@ class MemoryBook:
                             late_materialize = False
                             break
                         keys = metadata.keys()
-                        if keys != expected_keys:
+                        if keys != expected_keys or len(metadata) != len(keys):
                             late_materialize = False
                             break
                         if expected_keys is metadata_columns:
@@ -845,14 +845,15 @@ class MemoryBook:
                         # Custom mapping views and optional routes retain full
                         # materialization, including their exception behavior.
                         item = (dict(zip(route_columns, row)) if type(row) is sqlite3.Row and
-                                row.keys() == route_columns
+                                row.keys() == route_columns and len(row) == len(route_columns)
                                 else dict(row))
                         if use_stem:
                             metadata = metadata_by_id.get(item["id"])
                             if metadata is not None:
                                 item.update(zip(metadata_columns, metadata)
                                             if type(metadata) is sqlite3.Row and
-                                            metadata.keys() == metadata_columns else metadata)
+                                            metadata.keys() == metadata_columns and
+                                            len(metadata) == len(metadata_columns) else metadata)
                     factor = 1
                     if strategy == "book":
                         directory = (item[chapter_position] + " " + item[session_position]

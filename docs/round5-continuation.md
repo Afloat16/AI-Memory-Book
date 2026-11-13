@@ -208,3 +208,12 @@ returns correct scores `[2, 1, 0.5]` on released v0.3.2 and incorrect `[99, 99, 
 on C and this D source. The full source, earlier checks and new failure are
 preserved before repair. No D development or formal measurement has run. The
 published v0.3.2 release is unaffected; C was never selected or released.
+
+The length repair now gates all four positional/zip boundaries with complete
+value counts. New invented tests first pass v0.3.2 and reproduce two payload and
+two exception-type failures on C and the preserved D source. The repaired
+runtime `93a69a06a1d2e618173f55b10250e35dc9962e48eba78e032f22bac5c5fd2df5`
+passes 76 functional checks, with all 107 SQL ASTs unchanged. This checkpoint is
+still awaiting a separate full-mapping review: original metadata batch merging
+and the position of route dictionary conversion may expose other inherited
+custom-row regressions. No D development measurement or final approval has run.

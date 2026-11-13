@@ -551,6 +551,58 @@ class DerivedMapMaterializationTests(unittest.TestCase):
                 self.assertEqual(events, ["exact", "stem", "exact"])
                 self.assertFalse(self.book.db.in_transaction)
 
+    def test_extra_native_row_values_keep_named_route_and_metadata_payload(self):
+        with self.subTest(boundary="dual-route-extra"):
+            route = [(*row, -99.0) for row in self.route([(0, -2.0), (1, -1), (2, -0.5)])]
+            expected = self.recall_routes(route, route, row_type=RowLike)
+            actual = self.recall_routes(route, route)
+            self.assertEqual(actual, expected)
+            self.assertEqual([hit["score"] for hit in actual["results"]], [2.0, 1.0, 0.5])
+
+        for boundary, strategy in (("single-route-extra", "flat"), ("metadata-extra", "book")):
+            with self.subTest(boundary=boundary):
+                def factory(row_type):
+                    def build(cursor, values):
+                        names = tuple(column[0] for column in cursor.description)
+                        selected = ("rank" in names if boundary == "single-route-extra"
+                                    else "chapter_title" in names and "rank" not in names)
+                        return row_type(cursor, (*values, -99.0) if selected else values)
+                    return build
+
+                try:
+                    self.book.db.row_factory = factory(RowLike)
+                    expected = stable(self.book.recall("qzx17", project="derived", strategy=strategy,
+                                                      budget_chars=100000, use_cache=False))
+                    self.book.db.row_factory = factory(sqlite3.Row)
+                    actual = stable(self.book.recall("qzx17", project="derived", strategy=strategy,
+                                                    budget_chars=100000, use_cache=False))
+                finally:
+                    self.book.db.row_factory = sqlite3.Row
+                self.assertEqual(actual, expected)
+                self.assertEqual(actual["candidate_count"], 3)
+
+    def test_missing_metadata_value_keeps_named_lookup_failure_and_rollback(self):
+        for row_type in (RowLike, sqlite3.Row):
+            for coverage in (False, True):
+                with self.subTest(row_type=row_type, coverage=coverage):
+                    def factory(cursor, values):
+                        names = tuple(column[0] for column in cursor.description)
+                        # created_at is not needed by this non-temporal query,
+                        # but the original mapping still reads the named field.
+                        if "chapter_title" in names and "rank" not in names:
+                            self.assertEqual(names[-1], "created_at")
+                            values = values[:-1]
+                        return row_type(cursor, values)
+
+                    self.book.db.row_factory = factory
+                    try:
+                        with self.assertRaises(IndexError):
+                            self.book.recall("qzx17", project="derived", coverage=coverage,
+                                             budget_chars=100000, use_cache=False)
+                        self.assertFalse(self.book.db.in_transaction)
+                    finally:
+                        self.book.db.row_factory = sqlite3.Row
+
 
 class WideCandidateMaterializationTests(unittest.TestCase):
     """Invented wide routes compare public payloads with the full mapping path."""
