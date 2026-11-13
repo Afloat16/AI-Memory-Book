@@ -118,6 +118,8 @@ that failed job**; publishing has already completed and must not be repeated.
 
 ## Prepare packages without publishing
 
+The [v0.3.1 prerelease](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.1) was published on 2026-11-12. Preparing packages from a later documentation or tooling commit creates artifacts bound to that new commit; it does not replace the existing tag or public release assets.
+
 Use a clean committed checkout and the pinned build tools. This command makes
 no GitHub request and cannot publish:
 

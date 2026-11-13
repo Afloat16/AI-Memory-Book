@@ -10,26 +10,7 @@ creates an isolated environment with the `mcp` and `clients` extras. It does not
 require Node.js, an embedding server, a database server, or a memory-service API
 key. Your AI client's own model and account requirements remain separate.
 
-## Try the v0.3.1 candidate before publication
-
-This preparation branch contains the v0.3.1 candidate. The release URLs in the
-next section become usable when its GitHub prerelease has been published. Until
-then, install the exact frozen source commit with an explicit source argument:
-
-```bash
-git clone https://github.com/Afloat16/AI-Memory-Book.git
-cd AI-Memory-Book
-git checkout 2d199b93f650eccd3dd239178822b31001b880e3
-python scripts/install.py --source .
-```
-
-The command installs the candidate into the same isolated environment layout as
-the release installer. Use the printed launcher's full path, run `--version`
-and confirm `0.3.1` before connecting a client. This workflow does not create or
-publish a release. Maintainers can build and check the wheel and source archive
-with [the preparation-only command](releasing.md#prepare-packages-without-publishing).
-
-## Install from published release assets
+## Install the published version
 
 Download the pinned installer, run it, and connect your AI client. The installer
 uses the small **v0.3.1 wheel** from the
@@ -69,8 +50,8 @@ release tag, a full commit SHA, or `--source /absolute/path/to/checkout-or-wheel
 the core and therefore omits MCP/client integration. Installation stages a new
 environment before switching its managed launcher; previous environments and
 memory data are retained. An unrelated existing launcher is not overwritten.
-The v0.3.0 and v0.3.1 routes use pinned wheels; other release tags and commit
-SHAs keep the source-archive installation path.
+The v0.3.0 and v0.3.1 routes use their pinned release wheels; other release tags
+and commit SHAs keep the source-archive installation path.
 
 Once installed:
 
@@ -348,11 +329,11 @@ originally selected them. Download the new helper rather than reusing a helper
 that defaults to an older release. For uv, pipx, or a source checkout, use your
 original installation method with the pinned v0.3.1 URL or tag.
 
-v0.3.1 keeps the schema 3 format used by v0.3.0, so upgrading from v0.3.0
-adds no database migration. When upgrading an older archive, back it up before
-opening it: the source-preserving schema 3 migration introduced in v0.3.0 has no
-automatic downgrade. An older binary needs the pre-upgrade database backup for
-rollback. Use SQLite's backup facility for a consistent snapshot, including
+v0.3.1 retains schema 3 and introduces no new schema migration. When upgrading
+from a version before v0.3.0, back up the archive before opening it with the new
+binary: the source-preserving schema 3 migration introduced in v0.3.0 has no
+automatic downgrade, and a pre-v0.3.0 binary needs the pre-upgrade database backup
+for rollback. Use SQLite's backup facility for a consistent snapshot, including
 data still in the WAL.
 
 The bundled installer retains older environments and preserves your memory

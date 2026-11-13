@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-11-12T17:08:24.622628+00:00",
+  "review_kind": "independent-review-of-original-frozen-performance-resource-exception",
+  "original_run_id": "43246417515",
+  "original_attempt": 1,
+  "original_result_commit": "35b8618a078fe377ecd6c5acc331c1281dbf61e7",
+  "original_report_path": "benchmarks/reports/round3-performance-43246417515-1/report.json.gz",
+  "original_compressed_report_sha256": "0b4c8dd968b1386818a99788c13e2a724c62c8119b2488ee959d2a6b8e96da86",
+  "original_uncompressed_report_sha256": "5999670d4e4f96c879ba18556198ea600638866d32b5415510796ceeeebe5a12",
+  "original_summary_sha256": "b6f9391956a0231383687d383cb87b0579e2a79d8776e43105e4b172e2d875a1",
+  "retrieval_calls_executed_for_review": 0,
+  "source_commits": {
+    "baseline": "dd2f88be742ed330269e7dd5915b6f75089d7fef",
+    "candidate": "2d199b93f650eccd3dd239178822b31001b880e3"
+  },
+  "independent_aggregate_audit": {
+    "validation_recomputed": true,
+    "comparisons_recomputed": true,
+    "acceptance_recomputed": true,
+    "summary_and_raw_hashes_verified": true,
+    "frozen_evaluator_files_match": true,
+    "plan_matches_registration": true,
+    "original_worker_artifacts_reaudit_performed": true,
+    "scope": "Recomputed official validation, comparisons, acceptance and summary from the original full report; separately restored original run identity, worker files and complete attempt ledgers and verified their hashes and equality with the aggregate through the frozen strict audit."
+  },
+  "validation": {
+    "expected_calls": 47320,
+    "expected_workers": 16,
+    "issues": [],
+    "passed": true,
+    "timed_calls": 47320,
+    "workers": 16
+  },
+  "automatic_accepted_unchanged": false,
+  "numeric_gate_passed": true,
+  "geometric_mean_p95_improvement_percent": 11.358672815398762,
+  "resource_exceptions": [
+    {
+      "baseline": {
+        "max": 38.258907,
+        "mean": 34.4557195,
+        "min": 30.283878,
+        "p50": 34.6400465,
+        "p95": 38.071251600000004,
+        "samples": 4
+      },
+      "candidate": {
+        "max": 56.659038,
+        "mean": 39.29410325,
+        "min": 33.283959,
+        "p50": 33.616708,
+        "p95": 53.21744279999999,
+        "samples": 4
+      },
+      "cohort": "public1015",
+      "mean_change_percent": 14.042323945665958,
+      "metric": "native_open_ms"
+    }
+  ],
+  "public_native_open_by_round": [
+    {
+      "round": 0,
+      "baseline_ms": 30.283878,
+      "candidate_ms": 56.659038
+    },
+    {
+      "round": 1,
+      "baseline_ms": 37.007871,
+      "candidate_ms": 33.518346
+    },
+    {
+      "round": 2,
+      "baseline_ms": 38.258907,
+      "candidate_ms": 33.283959
+    },
+    {
+      "round": 3,
+      "baseline_ms": 32.272222,
+      "candidate_ms": 33.71507
+    }
+  ],
+  "unchanged_startup_implementations_ast_sha256": {
+    "SCHEMA_VERSION": "6d39089e83c6949526ccfd1dc6ff57cb772e8401dfb28d2d646aa049afe0222d",
+    "APPLICATION_ID": "094c2f019718aebe9c4954672522272ee872b96f9e4e9208e90c1ad644f4965c",
+    "SCHEMA": "81f2d999ca9a4b6a51b765e6ea21de3b8528c7cf4fb31fbefb3aae4693170460",
+    "_integer": "3bc9ff272dd1a4727cc413327b2daf802bbe96fddd296dde4e70735bceca003f",
+    "_directory_tokens": "1cd6a42c12fff2415071b1a24cc21b0fb34f916ee41efb7668a80b6c25a6b883",
+    "__init__": "1dbee0f3a6cb1b4471f0801f0d6b033f368a6f42d6905d0aa42ce0833f299f3a",
+    "__enter__": "fd5d62577647aedf375e53f89ea63df353f22d37af095c7083cdeffc4e6fb318"
+  },
+  "cause_assessment": {
+    "observed": "The public native-open mean rose 4.83838375 ms (14.042323945665958%) with all four samples retained. Candidate round zero is 56.659038 ms; the other three are 33.283959 to 33.715070 ms. Startup executes no new recall or semantic operation.",
+    "inference": "Variation in the unchanged empty-database initialization runtime/filesystem path is the supported explanation, rather than execution of the new query-bound code.",
+    "unmeasured": "No syscall, disk-wait or scheduler trace was collected, so the specific operating-system cause is unknown. Source equivalence is not proof of deployment timing non-regression."
+  },
+  "review_decision": "accept-query-optimization-with-disclosed-startup-exception",
+  "scope_of_acceptance": "Independent review of the performance resource exception only. Preserve automatic accepted=false and the original workflow failure. Remaining comparison, correctness and release gates still apply.",
+  "claims_excluded": [
+    "startup speedup",
+    "startup non-regression",
+    "every configuration or round improved",
+    "generated-answer quality",
+    "whole-product speed comparison"
+  ],
+  "no_samples_removed": true,
+  "no_timing_rerun": true,
+  "review_document": "docs/round3-performance-review.md",
+  "strict_original_artifact_audit": {
+    "verified_at_utc": "2026-11-12T17:18:06.640775+00:00",
+    "command": ".venv/bin/python scripts/round3_performance.py --audit benchmarks/reports/round3-performance-43246417515-1/report.json.gz --state-dir benchmarks/reports/round3-performance-43246417515-1",
+    "exit_code": 0,
+    "result": {
+      "verified": true,
+      "validation": {
+        "expected_calls": 47320,
+        "expected_workers": 16,
+        "issues": [],
+        "passed": true,
+        "timed_calls": 47320,
+        "workers": 16
+      },
+      "accepted": false,
+      "full_report_sha256": "5999670d4e4f96c879ba18556198ea600638866d32b5415510796ceeeebe5a12",
+      "retrieval_calls_executed": 0
+    }
+  }
+}
