@@ -1,0 +1,48 @@
+name: Attribute historical memory resource costs
+
+on:
+  push:
+    branches: ['ci/v033-round5-resource-diagnostic']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: round5-historical-resource-diagnostic
+  cancel-in-progress: false
+
+jobs:
+  diagnostic:
+    if: github.repository == 'Afloat16/AI-Memory-Book' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    permissions:
+      contents: write
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      ORT_DISABLE_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - name: Install exact diagnostic dependencies
+        run: python -m pip install pyarrow==26.0.1 tiktoken==0.12.0 numpy==2.5.4
+      - name: Check parser and protocol fixtures without retrieval
+        run: python -m unittest tests.test_round5_resource_diagnostic -v
+      - name: Run the single claimed historical diagnostic
+        timeout-minutes: 27
+        run: python -u scripts/round5_resource_diagnostic.py run
+      - name: Preserve source-free traces and checkpoints
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: round5-resource-public-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            benchmarks/reports/round5-resource-claim-*.json
+            benchmarks/reports/round5-resources-${{ github.run_id }}-${{ github.run_attempt }}/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30

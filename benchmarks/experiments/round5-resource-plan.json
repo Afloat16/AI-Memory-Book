@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "protocol": "round5-historical-resource-attribution-v1",
+  "status": "registered-before-diagnostic-execution",
+  "parent_plan_commit": "7068594181c7e98c576f68a81daf85cd0d06c729",
+  "parent_plan_sha256": "d3302ef1169aa180b492af6b9c9938e5717ff7261e202ef7a3df50e14febaccd",
+  "purpose": "Attribute resource costs of the already scored v031/v032 corpus and evaluator. This is not a new quality experiment, a rerun replacing round-four results, or evidence about a v033 candidate.",
+  "sources": {
+    "v031": {
+      "commit": "7b7a5d7336b9350a128f5e0a888811b1b3015e68",
+      "runtime_sha256": "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46",
+      "version": "0.3.1"
+    },
+    "v032": {
+      "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+      "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93",
+      "version": "0.3.2"
+    }
+  },
+  "corpus": {
+    "manifest": "benchmarks/experiments/round4-hotpot256-manifest.json",
+    "manifest_sha256": "b0485b3a089c9b04fc4453fd9f129364e123ce1b9f25b593edf4f6ee6df4a20b",
+    "binding": "benchmarks/experiments/round4-validation-binding.json",
+    "binding_sha256": "84dbe28c068a3067f9706c6439d42301eaddfef95c44ae2633398346c66a8c79",
+    "dataset_sha256": "fb3cd70ea58fafa5bd9cef0f04dba7399aaafba76f5f92605eee9e516f115e1b",
+    "full_sessions": 2548,
+    "full_turns": 10693,
+    "full_pages": 3953,
+    "query_count": 32,
+    "query_selection": "Sort SHA256(selection_prefix + ID), then ID, over the 256 already scored round-four IDs; take the first 32. No text or outcome filtering.",
+    "selection_prefix": "AI-Memory-Book/round5/resource-diagnostic/2026-11-13/",
+    "selected_ids_sha256": "41bd02edc9e0e63a2217b1e006537de068281ac9b4345716e0f55f5b87087a9b"
+  },
+  "product": {
+    "engine_order": [["v031", "v032"], ["v032", "v031"], ["v032", "v031"], ["v031", "v032"]],
+    "rounds": 4,
+    "workers": 8,
+    "calls_per_worker": 32,
+    "total_recall_calls": 256,
+    "query_order": "The registered selected-ID order is identical for every worker; no warmup or replacement queries.",
+    "max_page_chars": 900,
+    "budget_chars": 100000,
+    "limit": 5,
+    "cache_size": 0,
+    "use_cache": false,
+    "coverage": false,
+    "semantic": false,
+    "phases": ["product_input_verification", "product_initialization", "product_ingestion", "product_queries", "product_close"],
+    "boundary": "A fresh product worker streams normalized session/query JSONL prepared outside the worker. Their original preparation hashes are frozen once in the checkpoint, checked before/after every worker and passed unchanged to the worker; changed files cannot silently rebind those expectations. No PyArrow, reference encoders, Git subprocess or model hash runs inside this worker. RSS includes the small standard-library worker wrapper. Source identity is checked by the supervisor before and after each worker; full non-timing response hashes and query start/finish events are retained.",
+    "invariants": "All 2548 sessions and 3953 pages ingested; exactly the same 32 selected queries finish once in each worker. Complete non-timing payload hashes match v031/v032 and all rounds. No cache hit, semantic route or oversized context/result list. No forced GC or allocator trim."
+  },
+  "evaluator_only": {
+    "workers": 1,
+    "recall_calls": 0,
+    "order": "One evaluator-only worker runs before all eight product workers, sequentially on the same host.",
+    "phases": ["evaluator_corpus_loading", "evaluator_reference_tokenizers", "evaluator_git_provenance", "evaluator_legacy_model_hash", "evaluator_release_references"],
+    "boundary": "Run the unchanged round4 loader on the entire old corpus; initialize both reference encoders; run both runtime checkout provenance checks and the legacy evaluator frozen-input Git checks; reproduce the legacy full-file model hashing. No Book ingestion, recall, embedding or model inference. Model/corpus files are public locked artifacts downloaded and stream-verified before worker execution. Reference-encoder data may be fetched by the pinned tokenizer inside its own phase if not already cached; this is not an isolated encoding-load latency measurement."
+  },
+  "sampling": {
+    "target_interval_ms": 20,
+    "observer": "External supervisor; the sampler itself is excluded from the observed child tree.",
+    "per_process": ["pid", "ppid", "start_ticks", "comm_role", "rss_bytes", "pss_bytes", "private_bytes"],
+    "trace": "Every sample retains start/end monotonic timestamps, every enumerated PID and readable PID record, plus phase events with child monotonic timestamps. Traverse children of all observed threads. Root start identity, repeated stat reads and child PPIDs guard PID reuse. Task enumeration, thread-children reads and post-record identity failures are retained as discovery errors. PSS/private are null when unavailable; PSS has an explicit unavailability reason. Summed PSS is available only when discovery is complete and all enumerated processes have readable PSS. Continuous-sample phase assignment uses saved event timestamps; samples crossing a phase event are labeled transition rather than assigned to either product phase. Observer-acknowledged start/end barriers also capture immediate boundary snapshots for short phases. These pauses are retained explicitly and are not latency measurements.",
+    "inclusive_view": "Retain summed tree RSS, root RSS and descendant RSS separately; keep the spawn boundary and all transitions. Record root and per-child PSS where supported. Shared RSS can still be counted more than once, short-lived processes/peaks can be missed, and sampling duration can exceed its target interval.",
+    "attribution_limit": "The new process trace can identify the new diagnostic's costs. It cannot retrospectively identify which child caused a peak in the old summary-only run. No product leak or memory-reduction claim without direct new evidence."
+  },
+  "environment": {"runner": "ubuntu-24.04", "python_minor": "3.12", "packages": {"pyarrow": "26.0.1", "tiktoken": "0.12.0", "numpy": "2.5.4"}, "generative_model_calls": 0, "embedding_inference_calls": 0},
+  "execution": {
+    "trigger": "refs/heads/ci/v033-round5-resource-diagnostic",
+    "repository": "Afloat16/AI-Memory-Book",
+    "attempt": 1,
+    "claim": "One immutable remote execution-claim branch keyed by this plan's SHA256. Claim before downloads/preparation. Refuse an existing claim; no resume or replacement worker.",
+    "durability": "Commit a source-free checkpoint and exact worker intent before launch. Commit each worker's raw compressed process trace, events, summary and assessment before advancing. Upload source-free artifacts with always() even after failure. Preserve interrupted partial traces and unfinished query intents; never overwrite a prior output.",
+    "wall_time_seconds": 1500,
+    "worker_timeout_seconds": 180,
+    "failure": "Any source/input mismatch, lost worker, incorrect call count/output, missing phase measurement or unreadable root RSS fails the diagnostic. Preserve failures and stop before any later worker. The observer uses raw nonblocking pipes and bounded TERM/KILL cleanup for the dedicated process group even if its leader already exited; an inherited stdout pipe cannot make cleanup wait on a reader thread. Missing/incompletely discovered PSS remains an explicit evidence limitation, never zero or an asserted whole-tree sum. No performance/quality gate is inferred from this diagnostic."
+  }
+}
