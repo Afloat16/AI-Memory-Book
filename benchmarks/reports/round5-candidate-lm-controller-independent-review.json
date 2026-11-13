@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "status": "accepted-independent-controller-review-before-lm-corpus",
+  "reviewed_at_utc": "2026-11-13 17:28:54 UTC",
+  "reviewed_commit": "8df838aa47e009caa8173b2ccb32fad93e4b8f90",
+  "candidate_source_commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+  "runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
+  "controller_sha256": "89998e6c55e42127d59387755031b7c7ff7cd9bcf1651c24d54c2ed237dd32ac",
+  "source_binding_sha256": "b6a43c5c2537e449032cef1313af626a395b7c58e7179d679c7cfc6d3b67f35e",
+  "scope_sha256": "21f4c03d0af0afaea6ee87625fb29ce9b839f29e2145f1c0c1796d31e96bacc3",
+  "source_verification": {
+    "source_commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+    "runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
+    "full_src_inventory_exact": true,
+    "source_files": 18,
+    "runtime_files": 17,
+    "fixture_files": 15,
+    "all_frozen_bytes_equal": true,
+    "base_runtime": "90079d629d101370e6960a10e5391265802b1a053f65438e9b667b662638b251",
+    "changes": [
+      "src/memory_book/store.py",
+      "src/memory_book/text.py"
+    ]
+  },
+  "independent_source_review": {
+    "commit": "41e26421eccc281ea9639c882be1a9e2e787ec4a",
+    "path": "benchmarks/reports/round5-ranked-normalization-lm-independent-source-review.json",
+    "sha256": "530f905dff7626b5194035cbf63f6076d49c5caf1117c09e342f2090e84bca59"
+  },
+  "source_ci": {
+    "workflow": "Tests",
+    "run_id": 43471535987,
+    "head_sha": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+    "status": "completed",
+    "conclusion": "success",
+    "run_attempt": 1,
+    "event": "push",
+    "jobs": [
+      {
+        "id": 132044407919,
+        "name": "installers (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132044408295,
+        "name": "container",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132044408317,
+        "name": "core (3.10)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132044408434,
+        "name": "installers (windows-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132044408445,
+        "name": "core (3.12)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132044408469,
+        "name": "core (3.13)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132044408510,
+        "name": "installers (macos-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132044408514,
+        "name": "reader-browser",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132044408661,
+        "name": "mcp",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "derivation_review": {
+    "base_controller_commit": "04366aa4fc34d68e6ce23c55efa7aadef3dca04a",
+    "byte_identical_functions": 28,
+    "original_protocol_test_class_byte_identical": true,
+    "label_only_functions": [
+      "audit",
+      "profile",
+      "correctness",
+      "prepare",
+      "guards",
+      "preserve",
+      "IsolationTests"
+    ],
+    "semantic_changes": "New exact LM source/15-module inventory, frozen evidence identity and an explicit K-below-target preclaim branch. K zero-adverse and J eight-adverse audits remain distinct; both original complete negative/below-target receipts are required. No statistical, helper, dataset, query-selection, export-guard or replay rule changed.",
+    "final_delta_from_reviewed_draft": "Only added exact source binding and changed the all-zero binding SHA placeholder. All final driver bytes equal the reviewed draft with that one literal substitution.",
+    "unchanged_scope_sections": [
+      "helpers",
+      "helper_dependencies",
+      "data",
+      "profile",
+      "snapshots",
+      "paired",
+      "formal_and_release"
+    ]
+  },
+  "protocol_ci": {
+    "run_id": 43473046719,
+    "head_sha": "8df838aa47e009caa8173b2ccb32fad93e4b8f90",
+    "jobs": [
+      {
+        "id": 132049651569,
+        "name": "protocol-fixtures",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132049925455,
+        "name": "development",
+        "status": "completed",
+        "conclusion": "skipped"
+      }
+    ],
+    "tests": 27,
+    "failed": 0,
+    "skipped": 0,
+    "raw_log_path": "benchmarks/reports/round5-candidate-lm-controller-final-protocol.log",
+    "raw_log_sha256": "c6297354629a2f390c30c7724edebc0ab9e1a195f6fc2c5beeb8dbad42d5c91d"
+  },
+  "execution_policy": {
+    "next_trigger": "ci/v033-candidate-lm-development-1",
+    "result_branch": "validation/v033-candidate-lm-development-1",
+    "both_refs_observed_absent": true,
+    "profile_calls": 4732,
+    "paired_calls": 4096,
+    "full_payload_pairs": 2048,
+    "one_vm": true,
+    "no_replay": true,
+    "preserve_every_cell": true
+  },
+  "development_calls_executed_by_review": 0,
+  "fresh_rows_decoded": 0,
+  "performance_accepted": false,
+  "formal_accepted": false,
+  "release_accepted": false
+}
