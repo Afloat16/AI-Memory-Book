@@ -145,3 +145,13 @@ are retained. The fixture parents now use the existing repository root; an
 isolated stdlib-only checkout reproduced18errors before repair and passed all
 24tests afterward. New hosted CI will verify the committed repair. Runtime and
 benchmark acceptance rules were not changed for this repair.
+
+## Candidate C profile preserved
+
+Candidate C source at `59b92482d1c7334fb134d9d4ae9b0202c9b3b98a`
+passes all nine hosted CI jobs in run `43380819086`, including the clean-checkout
+fixture repair. Its registered profile completes all 4,732 calls. Every complete
+payload equals the saved v0.3.2 payload; eight compressed cells reconstruct the
+original report byte for byte. These noncontemporaneous profiles include
+profiler overhead and make no speed claim. The registered 4,096-call paired
+development diagnostic has not started at this checkpoint.
