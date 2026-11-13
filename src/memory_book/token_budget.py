@@ -7,6 +7,7 @@ substitutes a character estimate for an exact count and never generates facts.
 from __future__ import annotations
 
 import re
+from bisect import bisect_left
 from functools import lru_cache
 from typing import Any, Callable
 
@@ -138,13 +139,29 @@ def projected_units(row: dict[str, Any], turns: dict[tuple[str, int], str],
     """Project complete original-turn units through the page's source map."""
     import json
 
+    return _projected_units(row, turns, unit_cache, json.loads(row["source_refs"]))
+
+
+def _projected_units(row: dict[str, Any], turns: dict[tuple[str, int], str],
+                     unit_cache: dict[tuple[str, int], list[tuple[int, int]]],
+                     refs: list[dict]) -> list[tuple[int, int]]:
     spans: set[tuple[int, int]] = set()
-    for ref in json.loads(row["source_refs"]):
+    for ref in refs:
         key = (row["session_pk"], ref["turn_index"])
         original = turns[key]
         if key not in unit_cache:
             unit_cache[key] = source_units(original)
-        for start, end in unit_cache[key]:
+        units = unit_cache[key]
+        # Units are sorted by (start, end). A start outside this source segment
+        # cannot be contained in it; nested units still need the end check.
+        # Retain the original comparisons for malformed noninteger maps.
+        if isinstance(ref.get("turn_start"), int) and isinstance(ref.get("turn_end"), int):
+            first = bisect_left(units, (ref["turn_start"],))
+            stop = bisect_left(units, (ref["turn_end"],))
+            candidates = (units[i] for i in range(first, stop))
+        else:
+            candidates = iter(units)
+        for start, end in candidates:
             if ref["turn_start"] <= start < end <= ref["turn_end"]:
                 lo = ref["start"] + start - ref["turn_start"]
                 hi = ref["start"] + end - ref["turn_start"]
@@ -152,6 +169,53 @@ def projected_units(row: dict[str, Any], turns: dict[tuple[str, int], str],
                     raise ValueError("Page source coordinates do not match the original turn")
                 spans.add((lo, hi))
     return sorted(spans)
+
+
+def _source_map_matches(row: dict[str, Any], turns: dict[tuple[str, int], str],
+                        refs: list[dict]) -> bool:
+    """Affirm that every possible projected unit must match its source.
+
+    This is a sufficient certificate, not a replacement corruption policy.
+    Uncertified maps use the old unit-by-unit validation, including maps where
+    a difference falls only in a partial sentence or an unfinished fence.
+    """
+    content = row["content"]
+    for ref in refs:
+        original = turns.get((row["session_pk"], ref["turn_index"]))
+        start, end = ref.get("start"), ref.get("end")
+        turn_start, turn_end = ref.get("turn_start"), ref.get("turn_end")
+        if (original is None or
+                not all(isinstance(value, int) for value in (start, end, turn_start, turn_end)) or
+                not (0 <= start <= end <= len(content) and 0 <= turn_start <= turn_end <= len(original)) or
+                end - start != turn_end - turn_start or
+                content[start:end] != original[turn_start:turn_end]):
+            return False
+    return True
+
+
+def prepare_source_units(pages: list[dict], turns: dict[tuple[str, int], str],
+                         refs_by_page: dict[str, list[dict]]) -> Callable[[dict], list[tuple[int, int]]]:
+    """Validate captured source maps, then lazily project immutable turn text.
+
+    Call this under the recall read snapshot. Uncertified maps retain eager
+    projection and its historical errors. Certified pages need no parsing
+    until packing requests supplemental evidence; the resolver never reads
+    the database and all its caches live for this recall only.
+    """
+    unit_cache: dict[tuple[str, int], list[tuple[int, int]]] = {}
+    prepared: dict[str, list[tuple[int, int]]] = {}
+    for row in pages:
+        refs = refs_by_page[row["id"]]
+        if not _source_map_matches(row, turns, refs):
+            prepared[row["id"]] = _projected_units(row, turns, unit_cache, refs)
+
+    def resolve(row: dict) -> list[tuple[int, int]]:
+        identity = row["id"]
+        if identity not in prepared:
+            prepared[identity] = _projected_units(row, turns, unit_cache, refs_by_page[identity])
+        return prepared[identity]
+
+    return resolve
 
 
 def _render(text: str, start: int, end: int) -> str:
@@ -174,23 +238,44 @@ def assemble(
     context counts include citation headers and separators at every acceptance.
     Candidate selection uses source/query text only, never answer labels.
     """
+    return assemble_with_count(legacy, pages, query_terms, budget_chars=budget_chars,
+                               budget_tokens=budget_tokens, counter=counter)[0]
+
+
+def assemble_with_count(
+    legacy: list[tuple[dict, str, str, list[tuple[int, int]]]],
+    pages: list[dict],
+    query_terms: list[str],
+    *,
+    budget_chars: int,
+    budget_tokens: int,
+    counter: TokenCounter,
+    source_units_for: Callable[[dict], list[tuple[int, int]]] | None = None,
+) -> tuple[list[tuple[dict, str, str, list[tuple[int, int]]]], int]:
+    """Pack exactly as ``assemble`` and retain the last accepted token count."""
     kept: list[tuple[dict, str, str, list[tuple[int, int]]]] = []
     blocks: list[str] = []
     seen: set[str] = set()
     term_cache: dict[str, set[str]] = {}
+    accepted_tokens = 0
 
-    def fits(block: str) -> bool:
+    def fitting_count(block: str) -> int | None:
         proposed = "\n\n".join([*blocks, block])
-        return len(proposed) <= budget_chars and counter.count(proposed) <= budget_tokens
+        if len(proposed) > budget_chars:
+            return None
+        count = counter.count(proposed)
+        return count if count <= budget_tokens else None
 
     for entry in legacy:
         row, header, text, _ = entry
-        if text and fits(header + text):
+        count = fitting_count(header + text) if text else None
+        if count is not None:
             kept.append(entry)
             blocks.append(header + text)
             seen.add(row["id"])
+            accepted_tokens = count
     if budget_tokens == 0:
-        return kept
+        return kept, accepted_tokens
 
     for row in pages:
         if row["id"] in seen:
@@ -201,7 +286,8 @@ def assemble(
             continue
         qset = set(row.get("excerpt_terms", query_terms))
         choices = []
-        for start, end in row.get("token_source_units", []):
+        units = source_units_for(row) if source_units_for is not None else row.get("token_source_units", [])
+        for start, end in units:
             text = _render(row["content"], start, end)
             if len(text) > remaining_chars:
                 continue
@@ -233,5 +319,6 @@ def assemble(
                 kept.append((row, header, text, [(start, end)]))
                 blocks.append(header + text)
                 seen.add(row["id"])
+                accepted_tokens = count
                 break
-    return kept
+    return kept, accepted_tokens

@@ -26,8 +26,8 @@ from urllib.parse import quote
 
 
 # Pin the packaged release; development checkouts are installed with --source.
-DEFAULT_VERSION = "v0.3.1"
-WHEEL_RELEASES = {"v0.3.0", "v0.3.1"}
+DEFAULT_VERSION = "v0.3.2"
+WHEEL_RELEASES = {"v0.3.0", "v0.3.1", "v0.3.2"}
 REPOSITORY = "https://github.com/Afloat16/AI-Memory-Book"
 
 
@@ -69,7 +69,7 @@ def package_spec(source: Path | None, version: str, extras: bool) -> str:
         else:
             artifact = f"{REPOSITORY}/archive/refs/tags/{quote(tag, safe='')}.zip"
     else:
-        raise ValueError("--version must be a release tag such as v0.3.1 or a full 40-character commit SHA; use --source for a development checkout.")
+        raise ValueError("--version must be a release tag such as v0.3.2 or a full 40-character commit SHA; use --source for a development checkout.")
     return f"{name} @ {artifact}"
 
 
