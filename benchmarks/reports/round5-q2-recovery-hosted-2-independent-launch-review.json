@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "status": "accepted-independent-q2-attempt2-implementation-and-launch-review",
+  "reviewed_source_commit": "c23c5d5c9e1b8521ed78bf28e34896bc0755ee86",
+  "reviewer": "baseline_audit",
+  "recorded_at_utc": "2026-11-13 20:52:12 UTC",
+  "launch_eligible": true,
+  "eligible_trigger_ref": "refs/heads/ci/v033-q2-recovery-hosted-2",
+  "root_is_sole_trigger_owner": true,
+  "artifacts": {
+    "controller": {
+      "path": "scripts/round5_q2_hosted_recovery_v2.py",
+      "sha256": "8873d8a20965f6914da5db25bbd6401f5195c0e72281bf0dfb88cd9d57c52b19",
+      "git_blob": "1b901ee538f2469cb7cd095992984dfc8f4ef8ef"
+    },
+    "tests": {
+      "path": "tests/test_round5_q2_hosted_recovery_v2.py",
+      "sha256": "678f23f7f6efc604c6aed728f9b9a7a40fc340d861d051ab2d0c0a2c5318dfe2",
+      "git_blob": "50fd24a5ceba95adaba8d1377449d0ca4ab24be7"
+    },
+    "workflow": {
+      "path": ".github/workflows/round5-q2-recovery-hosted-v2.yml",
+      "sha256": "fd7ffb0bbe144f261b96960fe0309fe83ac382803ba293c3d3da7355b6e18944",
+      "git_blob": "f4f192f81105187f4546c3645a22fd66150ab27d"
+    },
+    "prospective_scope": {
+      "commit": "b4e8f128f4806254266828a01a0ff1a5a5ddfdc2",
+      "path": "benchmarks/experiments/round5-q2-recovery-hosted-v2-scope.json",
+      "sha256": "fc7a0f53b371ffdf6039ce0d171c70f152ce0eb66a2d5a28ba94d32b8ba589c9",
+      "git_blob": "0d143634126475a852398f3708546df458ef46a6"
+    }
+  },
+  "completed_independent_review": {
+    "complete_new_code_tests_workflow_scope_read": true,
+    "artifact_sha256_independently_recomputed": true,
+    "base": "be5879400b2f05a250e97b00ce9b488f00413ccb",
+    "diff_only_seven_added_files": true,
+    "existing_files_modified_or_deleted": 0,
+    "original_functions": 33,
+    "original_functions_exactly_unchanged": 30,
+    "removed_functions": 0,
+    "changed_original_functions": [
+      "candidate_binding",
+      "static_preflight",
+      "run"
+    ],
+    "new_functions": [
+      "verify_recovery_registration",
+      "registered_helper_union",
+      "source_preflight",
+      "check_registry"
+    ],
+    "run_inverse_exact": true,
+    "candidate_binding_inverse_exact": true,
+    "inverse_definition": "Remove only the new fixed binding SHA check; for run restore the registered attempt1 ref and remove the extra union proof return/save and two provenance fields. Both full functions then equal their original bytes.",
+    "unchanged_operational_fields": [
+      "sources",
+      "original_files",
+      "model",
+      "dependencies",
+      "environment",
+      "cohorts",
+      "assets",
+      "preparation",
+      "queries",
+      "validation"
+    ],
+    "all_ten_original_operational_fields_independently_compared_equal": true,
+    "source_assets_preparation_vectors_payload_workers_publication_preservation_functions_byte_identical": true,
+    "strict_union": {
+      "import_closure": 34,
+      "explicit_registry": 11,
+      "union": 35,
+      "only_previously_omitted": "scripts/round3_development_checks.py",
+      "scope_inventory_matches_prior_independent_review": true,
+      "all35_actual_proof_git_blobs_independently_compared": true,
+      "all35_membership_flags_independently_compared": true,
+      "all11_original_registered_sha256_independently_compared": true,
+      "direct_log_full_proof_equals_archived_registry_json": true
+    },
+    "verification_order": "Exact selected binding first; exact original scope, old failure/review evidence and ten operational fields; full original closure UNION registered evaluator keys; real file/nonsymlink/historical bytes/Git blob/registered SHA checks; historical metadata; new state/claim; unchanged assets/builds/workers.",
+    "new_namespace": "ATTEMPT, BRANCH, PUBLIC, STATE, run GITHUB_REF guard and both workflow filters consistently use registered suffix2. Original attempt1 paths are not reused.",
+    "check_registry_source_only": true,
+    "meaningful_new_fixtures": [
+      "actual import-only and registry-only bytes both verified",
+      "missing registry-only path rejected without filling expected digest",
+      "matching-target symlink rejected",
+      "actual or historical byte mutation rejected",
+      "wrong registered SHA rejected after Git-byte match",
+      "missing import-only dependency remains a failure",
+      "membership cannot omit either class",
+      "check-registry does not enter historical rows/assets/build/worker/publish",
+      "missing binding precedes source or remote work",
+      "actual scope/workflow namespace and first/second trigger preclaim positive-negative witness"
+    ],
+    "blockers_found": []
+  },
+  "actual_ci": {
+    "dedicated_run": 43501583612,
+    "protocol_job": 132148451883,
+    "source_commit": "c23c5d5c9e1b8521ed78bf28e34896bc0755ee86",
+    "conclusion": "success",
+    "original_tests": 10,
+    "new_tests": 10,
+    "total_tests": 20,
+    "errors": 0,
+    "failures": 0,
+    "skips": 0,
+    "actual_source_only_counts": {
+      "original_closure": 34,
+      "explicit_registry": 11,
+      "union": 35
+    },
+    "recovery_job": {
+      "id": 132148586050,
+      "conclusion": "skipped"
+    },
+    "direct_raw_log_sha256": "3f83f2cf7141c709148fa768049252bdb98b487a7786fdb7007181db6c3b7452",
+    "direct_and_archived_log_bytes_equal": true,
+    "actual_log_utf8_bytes": 44002,
+    "archive": {
+      "commit": "e610650ba39decc38033d254edf0f2d7edb4e55e",
+      "manifest_path": "benchmarks/reports/round5-q2-recovery-hosted-2-source-only-ci/final-implementation-ci.json",
+      "manifest_sha256": "0d96aa3e360cd66e712f41df5111f812e5df1e8d5b219de87dd4aa8c297d1f64",
+      "raw_log_path": "benchmarks/reports/round5-q2-recovery-hosted-2-source-only-ci/run43501583612-job132148451883.log",
+      "registry_path": "benchmarks/reports/round5-q2-recovery-hosted-2-source-only-ci/registered-helper-union.json",
+      "registry_sha256": "c0858506b94af3e36dd2d8a689766fb86d3a8f45d2cfb98ba48dd5ba4c71bae8"
+    },
+    "ordinary_run": 43501583600,
+    "ordinary_jobs_directly_read": true,
+    "ordinary_completed_successes": 9,
+    "ordinary_success_job_ids": [
+      132148452285,
+      132148452641,
+      132148452663,
+      132148452681,
+      132148452699,
+      132148452720,
+      132148452749,
+      132148453046,
+      132148453224
+    ],
+    "ordinary_terminal_receipt": {
+      "commit": "d53b6024b2dd510d7241497e778c777abaf1bad2",
+      "path": "benchmarks/reports/round5-q2-recovery-hosted-2-source-only-ci/ordinary-ci-terminal.json",
+      "sha256": "8fa4492e0777c05f4942aee67d37cf86562efd0a42a458f6617aaa5c50ff17df"
+    }
+  },
+  "retained_failures": {
+    "original_attempt1": {
+      "run": 43497153581,
+      "independent_review_commit": "fe144a0830ef42b57fa6d4ac7248a5081f31acd4",
+      "path": "benchmarks/reports/round5-q2-preclaim-registration-independent-review.json",
+      "sha256": "8dcaf16cf5b83417d9fce1ddeca39993f8c185f5d6326fcaa8fdca2730d7700b",
+      "raw_log_sha256": "0d951832435e0a7a10b9e096da9fb053ae7ea1eb391c5a1edcb5f97950099e96",
+      "retrieval_calls": 0
+    },
+    "first_v2_artificial": {
+      "archive_commit": "a9acc4d81587952e00cab9be1c78547e70fd3617",
+      "receipt_sha256": "e72fc4ec45644ff28ffcd1e843f51dfc897b9a1609c35b556c069c3352cccae3",
+      "full_raw_log_sha256": "a25566f8ffa0f71fde9998f737ff722b7249df109d03becd16824f8d08ff985b",
+      "directly_read_archived_log": true,
+      "error": "Recovery2 namespace changed",
+      "retrieval_calls": 0
+    },
+    "no_failure_or_earlier_queued_observation_rewritten": true
+  },
+  "boundaries": {
+    "source_commit": "4a0ad4dc6aec33a91231d419239b7e90b160c695",
+    "runtime_sha256": "77310a7971677c2cebf8cd01d0aa36ab4562b55d1a3826b7fa7de895840abb32",
+    "binding_sha256": "c6ae40b490a7e8358c1709dbb7e6a5999bf6756ef37c66da55488d3539e57828",
+    "workers": 8,
+    "calls": 1968,
+    "full_payload_pairs": 984,
+    "exact_historical_vectors_and_saved_C2_payload_gates_unchanged": true,
+    "fixed_model_data_order_budget_tokenizer_and_prepost_identity_gates_unchanged": true,
+    "no_worker_retry_or_original_SQLite_recreation_claim": true,
+    "trigger_and_result_ref_observed_absent": true,
+    "only_prospective_scope_prelaunch_gates_applied": true,
+    "limitation": "Historical compatibility only. Success cannot override failed NO formal performance, establish new quality/speed/resource superiority, or restore the lost original SQLite bytes."
+  },
+  "nonblocking_metadata_note": "The e610 manifest lists raw_log.bytes=44000, its character count. Actual UTF-8 length is44002. Direct and archived bytes and SHA are identical. This report-only length typo is not a controller/gate input and does not require source change or CI rerun; root and author were notified.",
+  "activity": {
+    "reviewer_python_or_product_executions": 0,
+    "new_tests_run": 0,
+    "retrieval_calls": 0,
+    "model_inferences": 0,
+    "fresh_metadata_reads": 0,
+    "fresh_content_reads": 0,
+    "trigger_creations": 0,
+    "measurement_replays": 0
+  },
+  "acceptance": {
+    "implementation_and_launch_accepted": true,
+    "q2_result_accepted": false,
+    "formal_NO_accepted": false,
+    "performance_accepted": false,
+    "release_accepted": false,
+    "fresh_authorized": false
+  }
+}
