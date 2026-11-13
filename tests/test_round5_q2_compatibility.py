@@ -287,14 +287,20 @@ class SavedResultAuditTests(unittest.TestCase):
 
 class RegistrationScopeTests(unittest.TestCase):
     C_SCOPE = "benchmarks/experiments/round5-canonical-row-addendum.json"
+    D_SCOPE = "benchmarks/experiments/round5-derived-map-addendum.json"
 
     def binding(self):
         return {"registered_pins": copy.deepcopy(q.PINS),
-                "registration_commits": copy.deepcopy(q.REGISTRATION_COMMITS)}
+                "registration_commits": copy.deepcopy(q.REGISTRATION_COMMITS),
+                "registration_links": copy.deepcopy(q.REGISTRATION_LINKS)}
 
     @staticmethod
     def expected_hash(path, *unused):
         return q.PINS[Path(path).relative_to(q.ROOT).as_posix()]
+
+    @staticmethod
+    def registered_document(path):
+        return copy.deepcopy(q.REGISTRATION_LINKS[Path(path).relative_to(q.ROOT).as_posix()])
 
     def test_c_scope_is_the_exact_preregistered_hash_and_commit(self):
         self.assertEqual(q.PINS[self.C_SCOPE],
@@ -303,30 +309,40 @@ class RegistrationScopeTests(unittest.TestCase):
                          "c724452e8f7333af73ed8a0424f572b7d7280a07")
         self.assertEqual(set(q.REGISTRATION_COMMITS), {
             "benchmarks/experiments/round5-plan.json",
-            "benchmarks/experiments/round5-materialization-addendum.json", self.C_SCOPE})
+            "benchmarks/experiments/round5-materialization-addendum.json", self.C_SCOPE, self.D_SCOPE})
 
-    def test_all_three_registrations_verify_their_named_commits(self):
+    def test_d_scope_is_the_exact_preregistered_hash_and_commit(self):
+        self.assertEqual(q.PINS[self.D_SCOPE],
+                         "3b065b437405b4a4f19a610dbcd29209513e351da7d7ce98e8b371dbd7dc8329")
+        self.assertEqual(q.REGISTRATION_COMMITS[self.D_SCOPE],
+                         "0e933580a2a7d28f24b0ac7a8a2f5db4acfb762d")
+
+    def test_all_four_registrations_verify_their_named_commits_and_links(self):
         with mock.patch.object(q, "file_sha", side_effect=self.expected_hash), \
-             mock.patch.object(q, "committed", side_effect=self.expected_hash) as committed:
+             mock.patch.object(q, "committed", side_effect=self.expected_hash) as committed, \
+             mock.patch.object(q, "read_json", side_effect=self.registered_document) as documents:
             q.verify_registrations(self.binding())
         self.assertEqual(committed.call_args_list,
                          [mock.call(q.ROOT / name, commit) for name, commit in q.REGISTRATION_COMMITS.items()])
+        self.assertEqual(documents.call_args_list,
+                         [mock.call(q.ROOT / name) for name in q.REGISTRATION_LINKS])
 
-    def test_missing_or_rebound_c_scope_is_rejected_before_git_reads(self):
-        for field in ("registered_pins", "registration_commits"):
-            for mutation in ("missing", "changed"):
-                with self.subTest(field=field, mutation=mutation):
-                    binding = self.binding()
-                    if mutation == "missing":
-                        del binding[field][self.C_SCOPE]
-                    else:
-                        binding[field][self.C_SCOPE] = "0" * len(binding[field][self.C_SCOPE])
-                    with mock.patch.object(q, "committed") as committed, \
-                         mock.patch.object(q, "file_sha") as file_sha:
-                        with self.assertRaisesRegex(ValueError, "plan/B/C registration"):
-                            q.verify_registrations(binding)
-                    committed.assert_not_called()
-                    file_sha.assert_not_called()
+    def test_missing_or_rebound_c_and_d_scope_is_rejected_before_git_reads(self):
+        for scope in (self.C_SCOPE, self.D_SCOPE):
+            for field in ("registered_pins", "registration_commits", "registration_links"):
+                for mutation in ("missing", "changed"):
+                    with self.subTest(scope=scope, field=field, mutation=mutation):
+                        binding = self.binding()
+                        if mutation == "missing":
+                            del binding[field][scope]
+                        else:
+                            binding[field][scope] = "invalid-rebinding"
+                        with mock.patch.object(q, "committed") as committed, \
+                             mock.patch.object(q, "file_sha") as file_sha:
+                            with self.assertRaisesRegex(ValueError, "plan/B/C/D registration"):
+                                q.verify_registrations(binding)
+                        committed.assert_not_called()
+                        file_sha.assert_not_called()
 
     def test_changed_c_scope_bytes_are_rejected(self):
         def changed(path):
@@ -343,6 +359,34 @@ class RegistrationScopeTests(unittest.TestCase):
              mock.patch.object(q, "committed", side_effect=wrong_blob):
             with self.assertRaisesRegex(ValueError, "scope bytes/commit changed"):
                 q.verify_registrations(self.binding())
+
+    def test_d_scope_local_bytes_or_named_blob_cannot_drift(self):
+        def wrong(path, *unused):
+            return "0" * 64 if Path(path).name == Path(self.D_SCOPE).name else self.expected_hash(path)
+        for changed in ("file_sha", "committed"):
+            with self.subTest(changed=changed), \
+                 mock.patch.object(q, "file_sha", side_effect=wrong if changed == "file_sha" else self.expected_hash), \
+                 mock.patch.object(q, "committed", side_effect=wrong if changed == "committed" else self.expected_hash):
+                with self.assertRaisesRegex(ValueError, "scope bytes/commit changed"):
+                    q.verify_registrations(self.binding())
+
+    def test_d_scope_requires_all_original_candidate_and_evidence_links(self):
+        for field in q.REGISTRATION_LINKS[self.D_SCOPE]:
+            for mutation in ("missing", "changed"):
+                def changed_document(path):
+                    value = self.registered_document(path)
+                    if Path(path).name == Path(self.D_SCOPE).name:
+                        if mutation == "missing":
+                            del value[field]
+                        else:
+                            value[field] = "0" * len(value[field])
+                    return value
+                with self.subTest(field=field, mutation=mutation), \
+                     mock.patch.object(q, "file_sha", side_effect=self.expected_hash), \
+                     mock.patch.object(q, "committed", side_effect=self.expected_hash), \
+                     mock.patch.object(q, "read_json", side_effect=changed_document):
+                    with self.assertRaisesRegex(ValueError, "reference chain changed"):
+                        q.verify_registrations(self.binding())
 
 
 class ParserAndBackupTests(unittest.TestCase):

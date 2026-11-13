@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "created_at": "2026-11-13T07:02:23.591184+00:00",
+  "registration_commit": "0e933580a2a7d28f24b0ac7a8a2f5db4acfb762d",
+  "registration_sha256": "3b065b437405b4a4f19a610dbcd29209513e351da7d7ce98e8b371dbd7dc8329",
+  "drivers": [
+    {
+      "driver": "formal",
+      "tests_passed": 42,
+      "files_sha256": {
+        "scripts/round5_performance.py": "6a569c167d33a96c6e9a6d805af86282df25eac244896462cf4c22a739e76a41",
+        "tests/test_round5_performance.py": "aa7214485a3024f171463a4a0bbc762d07b0614a72e20f434e816cff6a0fa985",
+        "benchmarks/reports/round5-development/candidate-d-formal-evaluator-tests.log": "e4c46b6154a68a9ce9c28e47782e0c44b2ef6525bfdfe01bcb39271243468924"
+      }
+    },
+    {
+      "driver": "lexical",
+      "tests_passed": 18,
+      "files_sha256": {
+        "scripts/round5_compatibility.py": "455eacdff8d1384d608a3abef5ba709d0fe1f08210863967f01b28f2fe4cf6f3",
+        "tests/test_round5_compatibility.py": "ec85703f34ef3275d6021ff0edacee5bc584169d95cea83edcdc2522b1c9e1cf",
+        "benchmarks/reports/round5-development/candidate-d-lexical-evaluator-tests.log": "0e8c96cc96e347bab21775ad9d2863abb8ec0c209fb070b4dc83611a727dc688"
+      }
+    },
+    {
+      "driver": "q2",
+      "tests_passed": 27,
+      "files_sha256": {
+        "scripts/round5_q2_compatibility.py": "c3f01a5ae10b40706f4115dd5188a730c84307e62cabdd3324c5eb29c3a38048",
+        "tests/test_round5_q2_compatibility.py": "fc5a85175a685c9eaac7e981df31179ddba2965df799214d55d644bd0b62b471",
+        "benchmarks/reports/round5-development/candidate-d-q2-evaluator-tests.log": "6f8b952844f6d0edbfed82f276ab4c5631927ac05dea7570f7860938b1d2950a"
+      }
+    }
+  ],
+  "independent_review": "Root reviewed formal and Q2 source/test diffs and unchanged execution/gate paths. Evaluation reviewer independently reviewed lexical source/tests and passing log. Q2 fixtures ran in an isolated stdlib-only checkout without the local artifact directory.",
+  "scope": "Artificial evaluator tests only. No actual formal/historical/Q2 binding, preparation, retrieval or inference has executed. Original numeric gates and old helper bytes remain unchanged."
+}

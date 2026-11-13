@@ -38,6 +38,9 @@ ADDENDUM = "benchmarks/experiments/round5-materialization-addendum.json"
 ADDENDUM_COMMIT = "9042570d8cff01be7c95cd01f8698e166fc7d313"
 C_SCOPE = "benchmarks/experiments/round5-canonical-row-addendum.json"
 C_SCOPE_COMMIT = "c724452e8f7333af73ed8a0424f572b7d7280a07"
+D_SCOPE = "benchmarks/experiments/round5-derived-map-addendum.json"
+D_SCOPE_COMMIT = "0e933580a2a7d28f24b0ac7a8a2f5db4acfb762d"
+D_SCOPE_SHA256 = "3b065b437405b4a4f19a610dbcd29209513e351da7d7ce98e8b371dbd7dc8329"
 BASELINE = "692fb959ddf8934c5f516ba3d74ceb4385a2fa82"
 BASELINE_HASH = "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
 DATA_HASH = "fb3cd70ea58fafa5bd9cef0f04dba7399aaafba76f5f92605eee9e516f115e1b"
@@ -49,7 +52,7 @@ ORDER = (("baseline", "candidate"), ("candidate", "baseline"),
 ERRORS = ("source", "projection", "scope", "chars", "tokens", "metadata", "cache", "policy", "limit")
 VERSION = "round5-historical256-compatibility-1"
 EXTRA = ("scripts/round5_compatibility.py", "tests/test_round5_compatibility.py",
-         "scripts/round5_performance.py", PLAN, ADDENDUM, C_SCOPE, MANIFEST, OLD_BINDING)
+         "scripts/round5_performance.py", PLAN, ADDENDUM, C_SCOPE, D_SCOPE, MANIFEST, OLD_BINDING)
 
 
 def require(value, message):
@@ -127,6 +130,18 @@ def registered():
     require(registered_scope["original_plan_commit"] == PLAN_COMMIT and
             registered_scope["materialization_addendum_commit"] == ADDENDUM_COMMIT,
             "Canonical-row scope names another registration")
+    derived = (ROOT / D_SCOPE).read_bytes()
+    require(derived == git("show", D_SCOPE_COMMIT + ":" + D_SCOPE),
+            "Registered derived-map scope changed")
+    require(sha(derived) == D_SCOPE_SHA256,
+            "Derived-map scope hash differs from its exact registration")
+    registered_derived = json.loads(derived)
+    require(registered_derived["schema_version"] == 1 and
+            registered_derived["status"] == "registered-before-candidate-d-implementation-and-measurement" and
+            registered_derived["original_plan_commit"] == PLAN_COMMIT and
+            registered_derived["materialization_addendum_commit"] == ADDENDUM_COMMIT and
+            registered_derived["canonical_addendum_commit"] == C_SCOPE_COMMIT,
+            "Derived-map scope names another registration")
     plan = json.loads(value)
     require(plan["baseline"]["commit"] == BASELINE and
             plan["baseline"]["runtime_sha256"] == BASELINE_HASH, "Wrong baseline")
@@ -151,6 +166,7 @@ def bind(args):
         "addendum_commit": ADDENDUM_COMMIT, "addendum_sha256": sha((ROOT / ADDENDUM).read_bytes()),
         "canonical_scope_commit": C_SCOPE_COMMIT,
         "canonical_scope_sha256": sha((ROOT / C_SCOPE).read_bytes()),
+        "derived_scope_commit": D_SCOPE_COMMIT, "derived_scope_sha256": D_SCOPE_SHA256,
         "evaluator_commit": commit, "files": files, "sources": sources,
         "dataset_sha256": DATA_HASH, "ids": manifest["selected_ids"],
         "token_calls": 3072, "character_calls": 2048,
@@ -168,6 +184,9 @@ def binding(path):
     require(value["canonical_scope_commit"] == C_SCOPE_COMMIT and
             value["canonical_scope_sha256"] == sha((ROOT / C_SCOPE).read_bytes()),
             "Compatibility canonical-row scope binding changed")
+    require(value.get("derived_scope_commit") == D_SCOPE_COMMIT and
+            value.get("derived_scope_sha256") == sha((ROOT / D_SCOPE).read_bytes()) == D_SCOPE_SHA256,
+            "Compatibility derived-map scope binding changed")
     relative = Path(path).resolve().relative_to(ROOT).as_posix()
     require(Path(path).read_bytes() == git("show", "HEAD:" + relative), "Commit binding before execution")
     for name, expected in value["files"].items():

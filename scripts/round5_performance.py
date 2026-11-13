@@ -48,6 +48,9 @@ ADDENDUM_SHA256 = "547aa0068fc5fd6a18e448719d855295c3c85ac78faea69867d208c175f77
 CANONICAL_ADDENDUM = ROOT / "benchmarks/experiments/round5-canonical-row-addendum.json"
 CANONICAL_ADDENDUM_COMMIT = "c724452e8f7333af73ed8a0424f572b7d7280a07"
 CANONICAL_ADDENDUM_SHA256 = "7a5ee634bebfcf9088e9f1401026b4bb3720080c751ce63f95798b87fbdfb28c"
+DERIVED_ADDENDUM = ROOT / "benchmarks/experiments/round5-derived-map-addendum.json"
+DERIVED_ADDENDUM_COMMIT = "0e933580a2a7d28f24b0ac7a8a2f5db4acfb762d"
+DERIVED_ADDENDUM_SHA256 = "3b065b437405b4a4f19a610dbcd29209513e351da7d7ce98e8b371dbd7dc8329"
 BASELINE = "692fb959ddf8934c5f516ba3d74ceb4385a2fa82"
 BASELINE_HASH = "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
 VERSION = "round5-default-performance-1"
@@ -82,7 +85,8 @@ EVALUATORS = (*HELPERS, *RUNTIME_FIXTURES,
     "tests/test_round5_materialization.py", ".github/workflows/round5-performance.yml",
     "benchmarks/experiments/round5-plan.json",
     "benchmarks/experiments/round5-materialization-addendum.json",
-    "benchmarks/experiments/round5-canonical-row-addendum.json")
+    "benchmarks/experiments/round5-canonical-row-addendum.json",
+    "benchmarks/experiments/round5-derived-map-addendum.json")
 GATES = {"minimum_geomean_pooled_p95_improvement_percent": 10,
     "minimum_public_native_char4000_p95_improvement_percent": 10,
     "minimum_public_actual_mcp_char4000_p95_improvement_percent": 5,
@@ -192,6 +196,35 @@ def load_canonical_addendum():
     return addendum
 
 
+def load_derived_addendum():
+    """Bind candidate D's derived-map scope without replacing earlier evidence."""
+    raw = DERIVED_ADDENDUM.read_bytes()
+    require(raw == git("show", DERIVED_ADDENDUM_COMMIT + ":" + str(DERIVED_ADDENDUM.relative_to(ROOT))),
+            "The registered candidate-D addendum changed")
+    require(sha(raw) == DERIVED_ADDENDUM_SHA256,
+            "Candidate-D addendum hash differs from its exact registration")
+    addendum = json.loads(raw)
+    require(addendum["schema_version"] == 1
+            and addendum["status"] == "registered-before-candidate-d-implementation-and-measurement"
+            and addendum["original_plan_commit"] == PLAN_COMMIT
+            and addendum["materialization_addendum_commit"] == ADDENDUM_COMMIT
+            and addendum["canonical_addendum_commit"] == CANONICAL_ADDENDUM_COMMIT,
+            "Wrong candidate-D addendum registration")
+    require(addendum["prior_candidate_commit"] == "59b92482d1c7334fb134d9d4ae9b0202c9b3b98a"
+            and addendum["prior_candidate_runtime_sha256"] ==
+                "9ac5a2ab23ddf5ceca80ce2e7eb7df3d0f4a99c82003ba3ced40e7ed40caf1b6"
+            and addendum["prior_evidence_commit"] == "82e05e7ff8aac15d06dd1f8bb72ba715549a3589"
+            and addendum["evidence"]["profile_audit_sha256"] ==
+                "84b98f4168e922425149b81dc38a4364646684becdb0d7cf59d4cb3415191d8f"
+            and addendum["evidence"]["paired_audit_sha256"] ==
+                "784320aab26d4dc9588b88b73e219f51af8d6275ee05bc9ccc2a8ae89ce05396"
+            and addendum["evidence"]["profile_pairs"] == 4732
+            and addendum["evidence"]["paired_calls"] == 4096
+            and addendum["evidence"]["paired_payload_pairs"] == 2048,
+            "Candidate-D addendum no longer identifies the retained candidate-C evidence")
+    return addendum
+
+
 def load_plan():
     require(re.fullmatch(r"[0-9a-f]{40}", PLAN_COMMIT), "Commit the round-five plan and pin PLAN_COMMIT before binding")
     raw = PLAN.read_bytes()
@@ -215,6 +248,7 @@ def load_plan():
             "Registered round-five gates or query order changed")
     load_addendum()
     load_canonical_addendum()
+    load_derived_addendum()
     return plan
 
 
@@ -246,6 +280,8 @@ def bind(args):
         "addendum_commit": ADDENDUM_COMMIT, "addendum_sha256": ADDENDUM_SHA256,
         "canonical_addendum_commit": CANONICAL_ADDENDUM_COMMIT,
         "canonical_addendum_sha256": CANONICAL_ADDENDUM_SHA256,
+        "derived_addendum_commit": DERIVED_ADDENDUM_COMMIT,
+        "derived_addendum_sha256": DERIVED_ADDENDUM_SHA256,
         "sources": sources, "evaluator_commit": tool_commit, "evaluator_files": hashes,
         "packages": PACKAGES, "policy": "One registered candidate; preserve every attempt and all rounds."}
     exclusive(args.bind, value)
@@ -264,6 +300,9 @@ def load_binding(path):
     require(value.get("canonical_addendum_commit") == CANONICAL_ADDENDUM_COMMIT
             and value.get("canonical_addendum_sha256") == sha(CANONICAL_ADDENDUM.read_bytes()) == CANONICAL_ADDENDUM_SHA256,
             "Binding candidate-C addendum differs from its exact registration")
+    require(value.get("derived_addendum_commit") == DERIVED_ADDENDUM_COMMIT
+            and value.get("derived_addendum_sha256") == sha(DERIVED_ADDENDUM.read_bytes()) == DERIVED_ADDENDUM_SHA256,
+            "Binding candidate-D addendum differs from its exact registration")
     require(value["plan_sha256"] == sha(PLAN.read_bytes()) and value["evaluator_files"] == file_hashes()
             and value["packages"] == PACKAGES, "Plan/evaluator/packages differ from binding")
     require(value["sources"]["baseline"] == {"commit": BASELINE, "runtime_sha256": BASELINE_HASH},
@@ -668,6 +707,10 @@ def validation(report):
            or value.get("canonical_addendum_sha256") != CANONICAL_ADDENDUM_SHA256
            for value in (report, run["binding"])):
         issues.append("registered_canonical_row_addendum_changed")
+    if any(value.get("derived_addendum_commit") != DERIVED_ADDENDUM_COMMIT
+           or value.get("derived_addendum_sha256") != DERIVED_ADDENDUM_SHA256
+           for value in (report, run["binding"])):
+        issues.append("registered_derived_map_addendum_changed")
     workers = report["workers"]
     if [w["key"] for w in workers] != [w["key"] for w in schedule(plan)]:
         issues.append("missing_duplicate_or_reordered_workers")
@@ -1121,6 +1164,8 @@ def controller_locked(args, plan, binding):
         "addendum_commit": binding["addendum_commit"], "addendum_sha256": binding["addendum_sha256"],
         "canonical_addendum_commit": binding["canonical_addendum_commit"],
         "canonical_addendum_sha256": binding["canonical_addendum_sha256"],
+        "derived_addendum_commit": binding["derived_addendum_commit"],
+        "derived_addendum_sha256": binding["derived_addendum_sha256"],
         "started_at": now(), "controller_attempt": attempt, "workers": [], "error": None, "evaluator_unchanged": False,
         "worker_artifacts_sha256": {},
         "status": "running", "interpretation": {
@@ -1208,6 +1253,11 @@ def audit(path, state):
             and report.get("canonical_addendum_sha256") ==
                 report["run"]["binding"].get("canonical_addendum_sha256") == CANONICAL_ADDENDUM_SHA256,
             "Report candidate-C addendum differs from its exact registration")
+    require(report.get("derived_addendum_commit") ==
+                report["run"]["binding"].get("derived_addendum_commit") == DERIVED_ADDENDUM_COMMIT
+            and report.get("derived_addendum_sha256") ==
+                report["run"]["binding"].get("derived_addendum_sha256") == DERIVED_ADDENDUM_SHA256,
+            "Report candidate-D addendum differs from its exact registration")
     require(report["validation"]["passed"], "Measurement is incomplete or invalid; original remains preserved")
     require(json.loads((state / "run.json").read_bytes()) == report["run"], "Original run identity differs")
     require(artifact_hashes(state, report["run"]) == report["worker_artifacts_sha256"], "Original worker artifact hashes differ")

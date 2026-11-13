@@ -48,7 +48,9 @@ class SavedWorkerTests(unittest.TestCase):
         expected = {evaluation.PLAN_COMMIT + ":" + evaluation.PLAN: plan,
                     evaluation.ADDENDUM_COMMIT + ":" + evaluation.ADDENDUM: addendum,
                     evaluation.C_SCOPE_COMMIT + ":" + evaluation.C_SCOPE:
-                        (evaluation.ROOT / evaluation.C_SCOPE).read_bytes()}
+                        (evaluation.ROOT / evaluation.C_SCOPE).read_bytes(),
+                    evaluation.D_SCOPE_COMMIT + ":" + evaluation.D_SCOPE:
+                        (evaluation.ROOT / evaluation.D_SCOPE).read_bytes()}
         with patch.object(evaluation, "git", side_effect=lambda _, name: expected[name]):
             evaluation.registered()
         expected[evaluation.ADDENDUM_COMMIT + ":" + evaluation.ADDENDUM] = b"{}\n"
@@ -60,13 +62,66 @@ class SavedWorkerTests(unittest.TestCase):
         expected = {commit + ":" + path: (evaluation.ROOT / path).read_bytes()
                     for commit, path in ((evaluation.PLAN_COMMIT, evaluation.PLAN),
                                          (evaluation.ADDENDUM_COMMIT, evaluation.ADDENDUM),
-                                         (evaluation.C_SCOPE_COMMIT, evaluation.C_SCOPE))}
+                                         (evaluation.C_SCOPE_COMMIT, evaluation.C_SCOPE),
+                                         (evaluation.D_SCOPE_COMMIT, evaluation.D_SCOPE))}
         with patch.object(evaluation, "git", side_effect=lambda _, name: expected[name]):
             evaluation.registered()
         expected[evaluation.C_SCOPE_COMMIT + ":" + evaluation.C_SCOPE] = b"{}\n"
         with patch.object(evaluation, "git", side_effect=lambda _, name: expected[name]), \
                 self.assertRaisesRegex(ValueError, "canonical-row scope changed"):
             evaluation.registered()
+
+    def test_derived_map_scope_requires_exact_registered_commit_bytes(self):
+        expected = {commit + ":" + path: (evaluation.ROOT / path).read_bytes()
+                    for commit, path in ((evaluation.PLAN_COMMIT, evaluation.PLAN),
+                                         (evaluation.ADDENDUM_COMMIT, evaluation.ADDENDUM),
+                                         (evaluation.C_SCOPE_COMMIT, evaluation.C_SCOPE),
+                                         (evaluation.D_SCOPE_COMMIT, evaluation.D_SCOPE))}
+        with patch.object(evaluation, "git", side_effect=lambda _, name: expected[name]):
+            evaluation.registered()
+        expected[evaluation.D_SCOPE_COMMIT + ":" + evaluation.D_SCOPE] = b"{}\n"
+        with patch.object(evaluation, "git", side_effect=lambda _, name: expected[name]), \
+                self.assertRaisesRegex(ValueError, "derived-map scope changed"):
+            evaluation.registered()
+
+    def test_derived_map_scope_requires_the_fixed_digest_even_if_git_agrees(self):
+        expected = {commit + ":" + path: (evaluation.ROOT / path).read_bytes()
+                    for commit, path in ((evaluation.PLAN_COMMIT, evaluation.PLAN),
+                                         (evaluation.ADDENDUM_COMMIT, evaluation.ADDENDUM),
+                                         (evaluation.C_SCOPE_COMMIT, evaluation.C_SCOPE),
+                                         (evaluation.D_SCOPE_COMMIT, evaluation.D_SCOPE))}
+        read_bytes = Path.read_bytes
+        changed = expected[evaluation.D_SCOPE_COMMIT + ":" + evaluation.D_SCOPE] + b"\n"
+        expected[evaluation.D_SCOPE_COMMIT + ":" + evaluation.D_SCOPE] = changed
+
+        def altered(path):
+            return changed if path == evaluation.ROOT / evaluation.D_SCOPE else read_bytes(path)
+
+        with patch.object(Path, "read_bytes", altered), \
+                patch.object(evaluation, "git", side_effect=lambda _, name: expected[name]), \
+                self.assertRaisesRegex(ValueError, "Derived-map scope hash"):
+            evaluation.registered()
+
+    def test_binding_rejects_missing_or_changed_derived_map_registration(self):
+        base = {"version": evaluation.VERSION, "plan_commit": evaluation.PLAN_COMMIT, "files": {},
+                "addendum_commit": evaluation.ADDENDUM_COMMIT,
+                "addendum_sha256": evaluation.sha((evaluation.ROOT / evaluation.ADDENDUM).read_bytes()),
+                "canonical_scope_commit": evaluation.C_SCOPE_COMMIT,
+                "canonical_scope_sha256": evaluation.sha((evaluation.ROOT / evaluation.C_SCOPE).read_bytes()),
+                "derived_scope_commit": evaluation.D_SCOPE_COMMIT,
+                "derived_scope_sha256": evaluation.D_SCOPE_SHA256}
+        for field, value in (("derived_scope_commit", None), ("derived_scope_commit", "0" * 40),
+                             ("derived_scope_sha256", None), ("derived_scope_sha256", "0" * 64)):
+            changed = copy.deepcopy(base)
+            if value is None:
+                changed.pop(field)
+            else:
+                changed[field] = value
+            with self.subTest(field=field, value=value), \
+                    patch.object(evaluation, "registered"), patch.object(evaluation, "registry", return_value={}), \
+                    patch.object(evaluation, "read", return_value=changed), \
+                    self.assertRaisesRegex(ValueError, "derived-map scope binding changed"):
+                evaluation.binding(Path("invented-unused-binding.json"))
 
     def test_valid_character_and_token_rows(self):
         for kind in ("char", "tokens"):

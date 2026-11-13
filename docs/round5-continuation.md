@@ -180,3 +180,11 @@ fixed. Coverage and Q2 keep the existing route computation. Saved profiles show
 the public workload is mostly fused, so unused-score deferral alone is not
 expected to establish the ten-percent target. No D implementation or measurement
 has started at this registration checkpoint.
+
+The D registration is committed at `0e933580a2a7d28f24b0ac7a8a2f5db4acfb762d`.
+All three evaluation drivers now require its exact original commit, bytes and
+registration links. Artificial evaluator checks pass 42 formal, 18 historical
+lexical and 27 Q2 tests; Q2 also passes in a clean stdlib-only checkout without
+local artifact directories. Root and cross-review confirm that schedules,
+acceptance thresholds and old helpers remain unchanged. These are evaluator
+checks only; the real compatibility and formal executions have not started.

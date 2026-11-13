@@ -40,6 +40,7 @@ PINS = {
     "benchmarks/experiments/round5-plan.json": "d3302ef1169aa180b492af6b9c9938e5717ff7261e202ef7a3df50e14febaccd",
     "benchmarks/experiments/round5-materialization-addendum.json": "547aa0068fc5fd6a18e448719d855295c3c85ac78faea69867d208c175f77a34",
     "benchmarks/experiments/round5-canonical-row-addendum.json": "7a5ee634bebfcf9088e9f1401026b4bb3720080c751ce63f95798b87fbdfb28c",
+    "benchmarks/experiments/round5-derived-map-addendum.json": "3b065b437405b4a4f19a610dbcd29209513e351da7d7ce98e8b371dbd7dc8329",
     OLD + "/authored36-preparation.json": "0fb2e417f465fd4748d35a327aaa928f58ae40a3eb9d07d884b5d1ca1bd3e5a9",
     OLD + "/hotpot128-preparation.json": "e16ec2b31633fff438971e48fd4dd7394442018ce16d82d33df4808e684739d5",
     OLD + "/paired-audit.json": "5e5bffde4729250169e8eb92f1d14088c46c9c57aef1e22be2f52ceafb4593d6",
@@ -49,6 +50,21 @@ REGISTRATION_COMMITS = {
     "benchmarks/experiments/round5-plan.json": "7068594181c7e98c576f68a81daf85cd0d06c729",
     "benchmarks/experiments/round5-materialization-addendum.json": "9042570d8cff01be7c95cd01f8698e166fc7d313",
     "benchmarks/experiments/round5-canonical-row-addendum.json": "c724452e8f7333af73ed8a0424f572b7d7280a07",
+    "benchmarks/experiments/round5-derived-map-addendum.json": "0e933580a2a7d28f24b0ac7a8a2f5db4acfb762d",
+}
+REGISTRATION_LINKS = {
+    "benchmarks/experiments/round5-materialization-addendum.json": {
+        "original_plan_commit": "7068594181c7e98c576f68a81daf85cd0d06c729"},
+    "benchmarks/experiments/round5-canonical-row-addendum.json": {
+        "original_plan_commit": "7068594181c7e98c576f68a81daf85cd0d06c729",
+        "materialization_addendum_commit": "9042570d8cff01be7c95cd01f8698e166fc7d313"},
+    "benchmarks/experiments/round5-derived-map-addendum.json": {
+        "original_plan_commit": "7068594181c7e98c576f68a81daf85cd0d06c729",
+        "materialization_addendum_commit": "9042570d8cff01be7c95cd01f8698e166fc7d313",
+        "canonical_addendum_commit": "c724452e8f7333af73ed8a0424f572b7d7280a07",
+        "prior_candidate_commit": "59b92482d1c7334fb134d9d4ae9b0202c9b3b98a",
+        "prior_candidate_runtime_sha256": "9ac5a2ab23ddf5ceca80ce2e7eb7df3d0f4a99c82003ba3ced40e7ed40caf1b6",
+        "prior_evidence_commit": "82e05e7ff8aac15d06dd1f8bb72ba715549a3589"},
 }
 COHORTS = {
     "authored36": (36, "ecc46c474d5184995938419fa985b8e08c0ddb51560da49990247465db6db0b0"),
@@ -298,12 +314,17 @@ def verify_environment(binding):
 
 def verify_registrations(binding):
     require(binding.get("registered_pins") == PINS
-            and binding.get("registration_commits") == REGISTRATION_COMMITS,
-            "Exact plan/B/C registration hashes and commits are required")
+            and binding.get("registration_commits") == REGISTRATION_COMMITS
+            and binding.get("registration_links") == REGISTRATION_LINKS,
+            "Exact plan/B/C/D registration hashes, commits and links are required")
     for name, commit in REGISTRATION_COMMITS.items():
         require(file_sha(local(name)) == PINS[name]
                 and committed(local(name), commit) == PINS[name],
                 "Preregistered scope bytes/commit changed: " + name)
+    for name, expected in REGISTRATION_LINKS.items():
+        value = read_json(local(name))
+        require({key: value.get(key) for key in expected} == expected,
+                "Registration reference chain changed: " + name)
 
 
 def verify_binding(binding):
@@ -393,6 +414,7 @@ def bind(args):
     files = helper_closure() | set(preparations["authored36"]["evaluator_files"])
     binding = {"schema_version": 1, "protocol": "round5-q2-reuse-v1", "registered_at": now(),
         "registered_pins": PINS, "registration_commits": REGISTRATION_COMMITS,
+        "registration_links": REGISTRATION_LINKS,
         "authoring_commit": git("rev-parse", "HEAD").decode().strip(),
         "evaluator_files": {name: committed(local(name)) for name in sorted(files)},
         "old_evaluator_files": preparations["authored36"]["evaluator_files"],
