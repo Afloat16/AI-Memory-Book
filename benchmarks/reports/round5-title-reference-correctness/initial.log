@@ -1,0 +1,47 @@
+test_casefold_whitespace_and_exact_original_span (test_title_reference.MentionMappingTests.test_casefold_whitespace_and_exact_original_span) ... ok
+test_combining_marks_letters_numbers_and_underscore_are_internal (test_title_reference.MentionMappingTests.test_combining_marks_letters_numbers_and_underscore_are_internal) ... ok
+test_earliest_longest_then_stable_source_order (test_title_reference.MentionMappingTests.test_earliest_longest_then_stable_source_order) ... ok
+test_partial_casefold_expansions_are_rejected (test_title_reference.MentionMappingTests.test_partial_casefold_expansions_are_rejected) ... ok
+test_prefix_boundary_checks_the_actual_next_character (test_title_reference.MentionMappingTests.test_prefix_boundary_checks_the_actual_next_character) ... ok
+test_title_eligibility_preserves_registered_rules_only (test_title_reference.MentionMappingTests.test_title_eligibility_preserves_registered_rules_only) ... ok
+test_already_selected_source_is_not_inserted_again (test_title_reference.TitleReferenceTests.test_already_selected_source_is_not_inserted_again) ... ok
+test_both_tokenizers_keep_source_and_budget_caps (test_title_reference.TitleReferenceTests.test_both_tokenizers_keep_source_and_budget_caps) ... ok
+test_catalog_cap_is_scoped_and_read_with_limit_plus_one (test_title_reference.TitleReferenceTests.test_catalog_cap_is_scoped_and_read_with_limit_plus_one) ... ok
+test_chinese_full_title_and_casefold_expansion_work (test_title_reference.TitleReferenceTests.test_chinese_full_title_and_casefold_expansion_work) ... ok
+test_concurrent_writer_cannot_mix_catalog_and_source_snapshots (test_title_reference.TitleReferenceTests.test_concurrent_writer_cannot_mix_catalog_and_source_snapshots) ... ok
+test_duplicate_titles_count_before_eligibility_filtering (test_title_reference.TitleReferenceTests.test_duplicate_titles_count_before_eligibility_filtering) ... ok
+test_empty_first_target_does_not_try_a_later_mention (test_title_reference.TitleReferenceTests.test_empty_first_target_does_not_try_a_later_mention) ... ok
+test_false_uses_old_cache_key_and_trace (test_title_reference.TitleReferenceTests.test_false_uses_old_cache_key_and_trace) ... ok
+test_inactive_modes_preserve_payload_and_skip_catalog (test_title_reference.TitleReferenceTests.test_inactive_modes_preserve_payload_and_skip_catalog) ... ok
+test_one_target_earliest_longest_and_no_recursive_hop (test_title_reference.TitleReferenceTests.test_one_target_earliest_longest_and_no_recursive_hop) ... ok
+test_original_candidate_promotion_keeps_its_score_and_union (test_title_reference.TitleReferenceTests.test_original_candidate_promotion_keeps_its_score_and_union) ... ok
+test_parenthetical_suffix_is_part_of_the_title (test_title_reference.TitleReferenceTests.test_parenthetical_suffix_is_part_of_the_title) ... ok
+test_rename_and_delete_invalidate_opt_in_cache (test_title_reference.TitleReferenceTests.test_rename_and_delete_invalidate_opt_in_cache) ... ok
+test_scope_filters_catalog_and_target (test_title_reference.TitleReferenceTests.test_scope_filters_catalog_and_target) ... ok
+test_single_mention_cannot_cross_turn_mapping (test_title_reference.TitleReferenceTests.test_single_mention_cannot_cross_turn_mapping) ... ok
+test_source_neighbor_corruption_cannot_invent_a_word_boundary (test_title_reference.TitleReferenceTests.test_source_neighbor_corruption_cannot_invent_a_word_boundary) ... 
+  test_source_neighbor_corruption_cannot_invent_a_word_boundary (test_title_reference.TitleReferenceTests.test_source_neighbor_corruption_cannot_invent_a_word_boundary) (original='AAlpha Beta') ... FAIL
+  test_source_neighbor_corruption_cannot_invent_a_word_boundary (test_title_reference.TitleReferenceTests.test_source_neighbor_corruption_cannot_invent_a_word_boundary) (original='Alpha BetaX') ... FAIL
+test_strict_flag_and_incompatible_options (test_title_reference.TitleReferenceTests.test_strict_flag_and_incompatible_options) ... ok
+test_unique_title_new_source_has_exact_native_provenance (test_title_reference.TitleReferenceTests.test_unique_title_new_source_has_exact_native_provenance) ... ok
+
+======================================================================
+FAIL: test_source_neighbor_corruption_cannot_invent_a_word_boundary (test_title_reference.TitleReferenceTests.test_source_neighbor_corruption_cannot_invent_a_word_boundary) (original='AAlpha Beta')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/481743406be9/AI-Memory-Book/.artifacts/round5-t1-prototype/tests/test_title_reference.py", line 299, in test_source_neighbor_corruption_cannot_invent_a_word_boundary
+    self.assertFalse(result["title_reference"]["applied"])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_source_neighbor_corruption_cannot_invent_a_word_boundary (test_title_reference.TitleReferenceTests.test_source_neighbor_corruption_cannot_invent_a_word_boundary) (original='Alpha BetaX')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/481743406be9/AI-Memory-Book/.artifacts/round5-t1-prototype/tests/test_title_reference.py", line 299, in test_source_neighbor_corruption_cannot_invent_a_word_boundary
+    self.assertFalse(result["title_reference"]["applied"])
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 24 tests in 10.771s
+
+FAILED (failures=2)
