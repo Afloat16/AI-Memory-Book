@@ -1,0 +1,356 @@
+{
+  "schema_version": 1,
+  "attempt": "round5-q2-recovery-hosted-2",
+  "status": "prospective-before-attempt2-implementation-assets-builds-or-queries",
+  "authoring_base_commit": "be5879400b2f05a250e97b00ce9b488f00413ccb",
+  "reason": "The first hosted attempt failed during source-only static preflight before a remote claim, assets, builds or retrieval. Its AST import closure omitted one unchanged file explicitly registered by the historical evaluator. This separate attempt strengthens provenance verification to the complete original closure UNION explicit registry; all reconstruction, source, vector, query and payload conditions remain unchanged.",
+  "candidate_binding": {
+    "path": "benchmarks/experiments/round5-q2-recovery-source.json",
+    "required_status": "frozen-before-q2-recovery",
+    "candidate": "NO",
+    "policy": "Missing, incomplete, invalid or uncommitted exact candidate binding fails before any remote claim, source fetch, model/data download, database construction or inference. Bind exact commit, runtime SHA256 and full src/memory_book file inventory once before the attempt; verify source CI separately.",
+    "exact_commit": "4a0ad4dc6aec33a91231d419239b7e90b160c695",
+    "exact_runtime_sha256": "77310a7971677c2cebf8cd01d0aa36ab4562b55d1a3826b7fa7de895840abb32",
+    "exact_binding_sha256": "c6ae40b490a7e8358c1709dbb7e6a5999bf6756ef37c66da55488d3539e57828",
+    "source_file_count": 18
+  },
+  "sources": {
+    "historical_builder": {
+      "commit": "7b7a5d7336b9350a128f5e0a888811b1b3015e68",
+      "runtime_sha256": "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46"
+    },
+    "baseline": {
+      "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+      "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+    },
+    "candidate": "Specified only by the separate pre-execution exact source binding.",
+    "export": "Detached sparse Git worktrees, containing only src and root metadata, preserve the original helper's committed-source provenance check. No runtime monkeypatch or timestamp rewrite."
+  },
+  "original_files": {
+    "helpers": [
+      "scripts/round4_semantic_compatibility.py",
+      "scripts/round5_q2_compatibility.py"
+    ],
+    "report_root": "benchmarks/reports/round4-compatibility-final",
+    "policy": "These files, every historical preparation/report/ledger and every original gate remain unchanged. Read exact small gzip report objects through git show, not a checkout of historical reports.",
+    "evaluator_reference_commit": "43b65c004e1ac1f1d75cf6d1a2421b36e4eab740",
+    "old_evaluator_sha256": {
+      "scripts/round4_semantic_compatibility.py": "456bbaa4200e852e2fedcf35b1df77cc3a27cbfb27dc0118ecf740112f069873",
+      "scripts/round4_cold_development.py": "d9ed6f525a2222e8cf633838c755190bae17d26267dad99c6579d64a0a31a81e",
+      "scripts/round3_development_checks.py": "36f8f266f816f9078172fab25238ba812b49f41e08303dd8e2a44f8c3e1917c6",
+      "scripts/novelty_cap_qualification.py": "ac296dce0be325b7ebbadac69789de88940c21c40b36a96ac2017fcbd8516858",
+      "benchmarks/hotpot_data.py": "5c206176665690044da9862bb70fe374b12348c4b5e6d0bdb0b098bb73c85760",
+      "benchmarks/prepare_native_data.py": "f16eb5222bf07f98aa7a89fcee85005a11bf15b9a9c758c7c3334ab53df0cf9f",
+      "benchmarks/semantic_eval.py": "46fa3b3fd6298ba1669bd0b17f3ad6f77a2fdaf5b79ba25e4632012090ca0b4e",
+      "benchmarks/native_budget_eval.py": "737230950fd4ddd7f415aa93137f65cd59b5c61a72676c58ca854aee59682b1b",
+      "benchmarks/token_compare.py": "bb34650d947a89c17c87e179dc9e376fe44b6d10c0bf4bb70ca4cdfd46913f18",
+      "benchmarks/run.py": "e557475d5701ea7271de9103aa8267e204796336b5277352fad015d9399521a4",
+      "benchmarks/hotpot_manifest.json": "ad0aba557e98cac6925ff5bdb8048a1a04a5f708847007f33ddf03d88650b69d"
+    }
+  },
+  "model": {
+    "repository": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+    "files": [
+      {
+        "path": "onnx/model_quint8_avx2.onnx",
+        "bytes": 118453870,
+        "sha256": "98a01d88b7de996cdea58c32ca71208c09968d143798814b2ea09d3439dc334f"
+      },
+      {
+        "path": "tokenizer.json",
+        "bytes": 9081518,
+        "sha256": "2c3387be76557bd40970cec13153b3bbf80407865484b209e655e5e4729076b8"
+      }
+    ],
+    "dimensions": 384,
+    "max_sequence_tokens": 128,
+    "overlap_tokens": 32,
+    "pooling": "attention-mask mean pooling followed by L2 normalization",
+    "semantic_version": 1
+  },
+  "dependencies": {
+    "onnxruntime": "1.31.1",
+    "tokenizers": "0.23.3",
+    "numpy": "2.5.4",
+    "tiktoken": "0.12.0",
+    "pyarrow": "26.0.1"
+  },
+  "environment": {
+    "python": "3.12",
+    "runner": "ubuntu-24.04",
+    "ORT_DISABLE_TELEMETRY": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHASHSEED": "0",
+    "inference_threads": 1,
+    "policy": "Bind actual Python, SQLite, CPU/platform, package versions, model file hashes and tokenizer cache hashes. No hardware/parameter sweep or retries chosen for favorable outcomes."
+  },
+  "cohorts": {
+    "authored36": {
+      "queries": 36,
+      "dataset_sha256": "ecc46c474d5184995938419fa985b8e08c0ddb51560da49990247465db6db0b0",
+      "historical_originals_sha256": "f64208f2f232270366f8c48ab6334c74424f448719b69e91d7532b23718d5c70",
+      "historical_vectors": {
+        "sha256": "c1cecaacdf47d7db3a790e46589a03e3d895aabbe7fb4069a65c050f7efd0a2e",
+        "rows": 42,
+        "vector_bytes": 64512,
+        "revision": 42,
+        "model_fingerprint": "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25",
+        "boundary": "All semantic_vectors columns in primary-key order, length-prefixed JSON identity/offset fields and exact BLOB bytes. No semantic_meta timestamps or model rerun."
+      }
+    },
+    "hotpot128": {
+      "queries": 128,
+      "dataset_sha256": "0791515aca6bccf19a97895cad681e06a07536d6c08050d54189cc64cb819822",
+      "historical_originals_sha256": "b95bb63e7ad2eb7940c838a6425a78075dad396ba3f310f3eaa69da6c2733163",
+      "historical_vectors": {
+        "sha256": "1210b9947a05448f6bc420a83ec4ddb72cf940589fac8b2f5b24910fca7aeec3",
+        "rows": 2323,
+        "vector_bytes": 3568128,
+        "revision": 1272,
+        "model_fingerprint": "2e033409dceae3e08a48980eb82c2fa463363fc950fb64bc8bbff02bf9c0cd25",
+        "boundary": "All semantic_vectors columns in primary-key order, length-prefixed JSON identity/offset fields and exact BLOB bytes. No semantic_meta timestamps or model rerun."
+      }
+    }
+  },
+  "assets": "Download only the originally pinned two model files and pinned Hotpot parquet after the attempt is durably claimed. Stream bytes with hard size and SHA256 checks. Use the unchanged old data loaders for the same authored36/hotpot128 query IDs only. No fresh selector/holdout and no comparator engine is invoked.",
+  "preparation": {
+    "schedule": [
+      "authored36",
+      "hotpot128"
+    ],
+    "builds_per_cohort": 1,
+    "helper": "scripts/round4_semantic_compatibility.py prepare",
+    "settings": {
+      "max_page_chars": 900,
+      "cache_size": 0,
+      "semantic_model": "exact historical model",
+      "inference_threads": 1
+    },
+    "policy": "Publish an explicit started intent before each builder invocation and its original preparation/log/exit immediately afterward. Build each new source DB once using historical builder v031. Before any query, require the entire vector identity (exact vector BLOB digest, rows, byte count, revision, fingerprint and boundary) to equal historical preparation. A mismatch is retained and stops the attempt without retries or tolerance relaxation.",
+    "originals": "Record the newly observed full originals hash and DB byte hash separately. Require the new originals to remain unchanged across build and workers, but do not require or imply equality to historical originals, do not overwrite historical preparation, and do not rewrite timestamps.",
+    "sharing": "After both preparations pass exact vector checks, create an independent SQLite backup per worker from the new immutable prepared.db. Each engine/tokenizer uses that same persisted vector content. No per-engine rebuild; no reuse of previously executed worker databases.",
+    "timeout_seconds_per_cohort": 900
+  },
+  "queries": {
+    "cohort_order": [
+      "authored36",
+      "hotpot128"
+    ],
+    "tokenizer_order": [
+      "cl100k_base",
+      "o200k_base"
+    ],
+    "label_order": [
+      "baseline",
+      "candidate"
+    ],
+    "budget_order": [
+      512,
+      1024,
+      2048
+    ],
+    "settings": {
+      "semantic": true,
+      "coverage": false,
+      "budget_chars": 8000,
+      "limit": 5,
+      "cache_size": 0,
+      "use_cache": false,
+      "repetitions": 1
+    },
+    "workers": 8,
+    "calls": 1968,
+    "full_payload_pairs": 984,
+    "configured_generative_model_calls": 0,
+    "query_embedding_inference": "Expected in each original worker; persisted page vectors are reused.",
+    "policy": "The unchanged historical worker executes exactly its original query/budget order. No calls added, substituted, retried or omitted. Freeze query IDs from the existing old manifests/cases before invoking any worker.",
+    "timeout_seconds_per_worker": 900
+  },
+  "validation": {
+    "historical": "First verify historical preparation/report/ledger identities and all complete matrices using their original metadata and exact gzip/raw hashes. No metadata rewrite.",
+    "baseline": "For every new baseline row, compare query ID, budget, full non-latency payload digest and context digest against the saved historical v032/C2 candidate report.",
+    "candidate": "Compare each candidate row to the corresponding newly completed baseline. Keep any mismatch and stop before later workers.",
+    "invariants": "Use the existing strict saved-report/ledger auditor without changing it: complete started/finished events, exact settings/source/model/data/preparation identities, zero source/projection/scope/token/metadata errors. Recheck new original/vector/cache identities before and after every worker. Final total1968 calls/984 exact pairs.",
+    "limits": "Reported equality validates the existing payload digest boundary and recorded invariants, not independent retokenization of omitted response bodies. This is historical compatibility, not a new quality, speed, cost or resource claim."
+  },
+  "durability": {
+    "result_branch": "validation/v033-q2-recovery-hosted-2",
+    "output": "benchmarks/reports/round5-q2-recovery-hosted-2/",
+    "state": ".artifacts/round5-q2-recovery-hosted-2/",
+    "policy": "Only run_attempt1 on ci/v033-q2-recovery-hosted-2; fixed result ref and new local state must not already exist. Publish exact source/assets/environment binding before any build and the new prepared identities before any query. Each build/worker has a verified remote started intent and an output checkpoint before the next stage.",
+    "publication": "One non-force expected-head push, followed by exact remote-head verification. Any divergence or ambiguous write stops immediately. Do not automatically retry failed writes or measurements.",
+    "failure": "Retain original negative outcomes, partial receipts/logs, available partial ledgers and lossless gzip reports. Always upload source-free evidence artifacts even if Git publication fails. No corpus plaintext or database is committed to the public repository."
+  },
+  "calls_executed_when_drafted": 0,
+  "model_downloads_or_inference_when_drafted": 0,
+  "decision_needed": "Exact vector identity may not reproduce on a different CPU/runtime environment even with pinned files and libraries. The existing requirement is fail-closed; failure will remain a blocker requiring a separately reviewed decision, never automatic weakening.",
+  "original_reconstruction_reason": "No recoverable historical prepared.db snapshot was found in the inspected Q2 commits and related Actions artifact/upload records. Existing originals hashes include ingestion timestamps. This is a separately identified reconstruction, never an assertion that the original database was restored.",
+  "original_scope": {
+    "commit": "25e7ea32b34e5a8dc08b0931c6b3840e9f3fffb0",
+    "path": "benchmarks/experiments/round5-q2-recovery-hosted-scope.json",
+    "sha256": "f893b6197a1c81e93841dbfe8212cf2f1657e24cc1525123966e5b1cb3554b1e",
+    "policy": "Keep the original file and every originally executed controller/test/workflow/report byte unchanged. Verify its exact committed bytes before any attempt2 claim."
+  },
+  "registration_time_utc": "2026-11-13 20:12:11 UTC",
+  "attempt2_files": {
+    "controller": "scripts/round5_q2_hosted_recovery_v2.py",
+    "artificial_tests": "tests/test_round5_q2_hosted_recovery_v2.py",
+    "workflow": ".github/workflows/round5-q2-recovery-hosted-v2.yml",
+    "scope": "benchmarks/experiments/round5-q2-recovery-hosted-v2-scope.json",
+    "staging_branch": "staging/v033-q2-recovery-hosted-2",
+    "trigger_ref": "refs/heads/ci/v033-q2-recovery-hosted-2"
+  },
+  "preexecution_evidence": [
+    {
+      "commit": "a996e8458ac333ecfc2184b2a167d91b9246db60",
+      "path": "benchmarks/reports/round5-q2-recovery-hosted-1-independent-failure.json",
+      "sha256": "3781a5dc27d71658e60c2dff248c5feff7cb6e27be5dc2907894a03d1b31fa83"
+    },
+    {
+      "commit": "fe144a0830ef42b57fa6d4ac7248a5081f31acd4",
+      "path": "benchmarks/reports/round5-q2-preclaim-registration-independent-review.json",
+      "sha256": "8dcaf16cf5b83417d9fce1ddeca39993f8c185f5d6326fcaa8fdca2730d7700b"
+    }
+  ],
+  "previous_attempt": {
+    "id": "round5-q2-recovery-hosted-1",
+    "run_id": 43497153581,
+    "workflow_commit": "be5879400b2f05a250e97b00ce9b488f00413ccb",
+    "result_ref": "refs/heads/validation/v033-q2-recovery-hosted-1",
+    "status": "failed-before-remote-claim-and-assets",
+    "retrieval_calls": 0,
+    "index_builds": 0,
+    "query_embedding_inferences": 0,
+    "model_or_dataset_downloads": 0,
+    "run_log_sha256": "0d951832435e0a7a10b9e096da9fb053ae7ea1eb391c5a1edcb5f97950099e96",
+    "replay_or_ref_reuse_permitted": false
+  },
+  "strict_union_repair": {
+    "original_import_closure": [
+      "benchmarks/__init__.py",
+      "benchmarks/competitors/__init__.py",
+      "benchmarks/competitors/ai_memory.py",
+      "benchmarks/competitors/billion.py",
+      "benchmarks/competitors/claude_mem.py",
+      "benchmarks/competitors/download.py",
+      "benchmarks/component_eval.py",
+      "benchmarks/data.py",
+      "benchmarks/hotpot_data.py",
+      "benchmarks/hotpot_manifest.json",
+      "benchmarks/long_data.py",
+      "benchmarks/native_budget_eval.py",
+      "benchmarks/prepare_native_data.py",
+      "benchmarks/public_data.py",
+      "benchmarks/query_guard.py",
+      "benchmarks/resume.py",
+      "benchmarks/round2_data.py",
+      "benchmarks/round2_eval.py",
+      "benchmarks/round2_resources.py",
+      "benchmarks/run.py",
+      "benchmarks/semantic_eval.py",
+      "benchmarks/token_compare.py",
+      "benchmarks/transfer_cases.json",
+      "benchmarks/transfer_data.py",
+      "benchmarks/transfer_manifest.json",
+      "scripts/benchmark_default_recall.py",
+      "scripts/novelty_cap_qualification.py",
+      "scripts/round4_cold_development.py",
+      "scripts/round4_development_pair.py",
+      "scripts/round4_semantic_compatibility.py",
+      "scripts/round5_q2_compatibility.py",
+      "scripts/run_round2_validation.py",
+      "scripts/summarize_round2_validation.py",
+      "tests/test_round5_q2_compatibility.py"
+    ],
+    "explicit_registry_field": "original_files.old_evaluator_sha256",
+    "scope_only_paths": [
+      "scripts/round3_development_checks.py"
+    ],
+    "expected_union_git_blobs": {
+      "benchmarks/__init__.py": "e60abaac2aadb1ee8868ac47fdd037efb0a5c629",
+      "benchmarks/competitors/__init__.py": "485034ecf498f410783bfdfdac057f16e0a24d02",
+      "benchmarks/competitors/ai_memory.py": "78b93061a9683581f9e395c6cee2e045962fb7da",
+      "benchmarks/competitors/billion.py": "04119c8deaad83508a3ab909ab8723b0c3540097",
+      "benchmarks/competitors/claude_mem.py": "a5f69be4bc68cfd960d1bc1151c68ad82e188db9",
+      "benchmarks/competitors/download.py": "dcebf7c56d55e4d12f149e96111a3521e1daf374",
+      "benchmarks/component_eval.py": "dc7273d7c7358be1a44ac38cac2eb5decfa03eda",
+      "benchmarks/data.py": "9ef4a780ff7d6a98a2590d3e15b224ef5a25bc1a",
+      "benchmarks/hotpot_data.py": "2baadb6dec8ee7b5388c2c17472d1fafc425c77d",
+      "benchmarks/hotpot_manifest.json": "1402a4f1f8a489e0bcd0c88abfbab3913f52d3ec",
+      "benchmarks/long_data.py": "19a9cd3221e4eb43f04780c4b3274f5538bfdefb",
+      "benchmarks/native_budget_eval.py": "a13b0264e7bba4da595093ca8930e0da4461a500",
+      "benchmarks/prepare_native_data.py": "a68752e7ae9afc3cee3041225e3323c58daa7cc0",
+      "benchmarks/public_data.py": "d053bc9f9a8b5ff178adb854d0ee523d1679a192",
+      "benchmarks/query_guard.py": "732e2ed8e63b62fb0c2cf744d4332b4fee1498c3",
+      "benchmarks/resume.py": "9ce2133336f2240e1311737d8352f114df932fb6",
+      "benchmarks/round2_data.py": "fc523e3f8a96efe246cb0be55f6b9836b122360e",
+      "benchmarks/round2_eval.py": "f3453702f38c921d6d472df3973b562c6d0764a5",
+      "benchmarks/round2_resources.py": "45b99c8eadd09ba5969e38990fb6ee91db8c436c",
+      "benchmarks/run.py": "8dc33b680b6b5f186dd6712a64465e799bbd9c42",
+      "benchmarks/semantic_eval.py": "db4019d348dab7a9a5888b22c97cea5ff87103d5",
+      "benchmarks/token_compare.py": "b1da9c552e4da90018d6c868da404042764f8091",
+      "benchmarks/transfer_cases.json": "b607f5de3899ee5cb0be6cec3480a7678251f037",
+      "benchmarks/transfer_data.py": "052f9e23d772db529ea0238e34b243bc51ccbd96",
+      "benchmarks/transfer_manifest.json": "f7721bd08713d0b13924edae41c18a92af5a4bdc",
+      "scripts/benchmark_default_recall.py": "2a54951e1b3927dee6c5ee3527ad0eb23a41835f",
+      "scripts/novelty_cap_qualification.py": "a8e4114ca6a8c5dd1f43628eaf387ce2e56325e8",
+      "scripts/round3_development_checks.py": "0094a19856619327aa86ff93dbd31e07ab47e2d1",
+      "scripts/round4_cold_development.py": "94099fee82e68d915e2caa5037c1b134154f1531",
+      "scripts/round4_development_pair.py": "0b95ff1b22a69b2e603e95749ebb8f1757ea7f9c",
+      "scripts/round4_semantic_compatibility.py": "e490c7b7a0541a3bce8bfac2d9e8b5ae974db870",
+      "scripts/round5_q2_compatibility.py": "a4337cd88ab5af296aa81b1eaed7ba28ced56758",
+      "scripts/run_round2_validation.py": "9dfabdbc660272ff89c25c9a3794fec05f3b1711",
+      "scripts/summarize_round2_validation.py": "de8e0c7aab1b0d29e432523c939268d6e662cf52",
+      "tests/test_round5_q2_compatibility.py": "d66c65c61795f143083d8e2a77028c9b2dd6be24"
+    },
+    "expected_counts": {
+      "original_closure": 34,
+      "explicit_registry": 11,
+      "union": 35
+    },
+    "algorithm": "Build the set union of the unchanged legacy.helper_closure() and every original registered evaluator key. Require exactly the frozen35 paths. For every union path, require a present regular nonsymlink file whose actual bytes equal the exact historical43b65 Git blob; compute actual SHA256 from those bytes. For every explicitly registered path, require that actual digest to equal its unchanged original SHA. Retain every union entry in the per-stage frozen helper map.",
+    "forbidden_shortcuts": [
+      "Deleting or weakening any original registry key/hash",
+      "Skipping a missing files.get key",
+      "Filling a map with expected digests without reading and comparing actual files",
+      "Dropping an import-only dependency",
+      "Ignoring missing files, symlinks, Git-byte mismatches or registered-SHA mismatches"
+    ]
+  },
+  "preserved_operational_fields": [
+    "sources",
+    "original_files",
+    "model",
+    "dependencies",
+    "environment",
+    "cohorts",
+    "assets",
+    "preparation",
+    "queries",
+    "validation"
+  ],
+  "implementation_change_boundary": {
+    "permitted": [
+      "New attempt/controller/test/workflow/scope namespace and provenance metadata",
+      "The strict union inventory repair described above, including clear path-specific mismatch diagnostics",
+      "Before claim, verify exact previous-failure/review evidence, original scope bytes and exact unchanged NO source-binding bytes",
+      "A source-only registry-check mode and receipt for CI, which verifies source/Git bytes and old registered JSON bytes without decoding dataset rows, downloading models/data, constructing a database or invoking retrieval"
+    ],
+    "unchanged": "Keep the original preparation, persisted-vector identity gates, copy boundaries, fixed8-worker schedule/1968 calls/984 pairs, datasets, budgets, tokenizers, models, versions, full C2 baseline/candidate payload comparisons and failure/no-replay/publication semantics. The two original scoring/auditing helpers and attempt1 controller remain byte-identical.",
+    "assert_inherited_fields_equal_original": true
+  },
+  "required_prelaunch_validation": {
+    "old_artificial_suite": "Run the existing ten invented Q2 protocol fixtures unchanged; their previous failure coverage limit remains recorded.",
+    "new_bounded_fixtures": [
+      "A registry-only file is included in the union and verified against actual historical bytes plus its registered SHA",
+      "An import-only file remains in the frozen union",
+      "Missing file, symlink, changed historical Git bytes, or wrong registered SHA each refuses the scope-only member",
+      "The actual unchanged source tree yields original34/registered11/union35 and no omitted or mismatched path"
+    ],
+    "source_only_actual_registry_check": "On staging CI, check only the actual source/registered-file union and immutable prior evidence. Do not execute historical_metadata(), model/data downloads, database preparation, workers or queries.",
+    "review_gate": "Root and a separate reviewer inspect exact final source/CI before root alone creates the new unique measurement trigger. This prospective file itself does not authorize a trigger."
+  },
+  "fresh_metadata_or_content_access_when_drafted": 0,
+  "performance_or_release_acceptance": false
+}

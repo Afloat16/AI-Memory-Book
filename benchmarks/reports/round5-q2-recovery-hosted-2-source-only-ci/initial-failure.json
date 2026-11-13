@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "status": "source-only-ci-rejected-stale-result-namespace-before-claim",
+  "source_commit": "70b270185a3bb7b8d69a0ec913c4950c3c0a8c21",
+  "run_id": 43500815079,
+  "job_id": 132145789608,
+  "run_attempt": 1,
+  "fixture_result": {
+    "expected": 19,
+    "tests": 19,
+    "original_cases": 10,
+    "new_cases": 9,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "passed": true
+  },
+  "source_registry_result": "failed",
+  "recovery_job": {
+    "id": 132145914281,
+    "conclusion": "skipped"
+  },
+  "failure": {
+    "exception": "ValueError",
+    "message": "Recovery2 namespace changed",
+    "function": "verify_recovery_registration",
+    "line": 303,
+    "actual_result_branch": "validation/v033-q2-recovery-hosted-1",
+    "prospectively_required_result_branch": "validation/v033-q2-recovery-hosted-2",
+    "cause": "The new ATTEMPT, PUBLIC and STATE names were changed, but the separately spelled BRANCH constant retained the original attempt1 suffix. The strict scope namespace predicate rejected it before prior-evidence fetch, attempt claim or historical metadata."
+  },
+  "raw_log": {
+    "path": "benchmarks/reports/round5-q2-recovery-hosted-2-source-only-ci/run43500815079-job132145789608.log",
+    "sha256": "a25566f8ffa0f71fde9998f737ff722b7249df109d03becd16824f8d08ff985b"
+  },
+  "boundary": {
+    "retrieval_calls": 0,
+    "model_or_dataset_downloads": 0,
+    "database_builds": 0,
+    "fresh_metadata_or_content_reads": 0,
+    "measurement_trigger_created": false
+  },
+  "correction": {
+    "scope_change": false,
+    "registered_namespace_change": false,
+    "runtime_change": false,
+    "old_helpers_change": false,
+    "original_attempt1_replay": false,
+    "action": "Change only the stale new-controller BRANCH to the already registered attempt2 value and add a bounded namespace integration fixture before the next artificial-only CI."
+  },
+  "performance_or_release_accepted": false
+}

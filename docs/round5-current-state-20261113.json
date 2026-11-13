@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-11-13 20:29:06 UTC",
+  "updated_at_utc": "2026-11-13 20:35:11 UTC",
   "goal": "Continue v0.3.3 optimization of Afloat16/AI-Memory-Book with measured improvements, honest comparison boundaries and frequent durable Git checkpoints.",
   "control_branch": "optimization/v0.3.3-round5",
-  "previous_control_commit": "1133cc30cb499c8eb319d6db0eaff693d1865b26",
+  "previous_control_commit": "baba9e38aa2ef13d1f4025fbfafb11bf96bec53e",
   "resume_history": "docs/round5-resume-20261113.md",
   "published_baseline": {
     "tag": "v0.3.2",
@@ -224,12 +224,20 @@
         "workers": 10,
         "note": "The2048 character calls are within the5120 controller total, separate from the formal14-cell performance matrix."
       },
-      "status": "completed-original-audit-accepted-independent-raw-audit-pending",
+      "status": "completed-and-independently-verified-all-original-raw-results",
       "run_id": 43497150881,
       "run_attempt": 1,
       "launch_commit": "be5879400b2f05a250e97b00ce9b488f00413ccb",
       "result_branch": "validation/v033-lexical-compat-hosted-1",
-      "result_commit": "a15a5ce36079302de08c9c91dd6eb6896fd6bccc"
+      "result_commit": "a15a5ce36079302de08c9c91dd6eb6896fd6bccc",
+      "independent_audit": {
+        "commit": "20f968439942336a8d5c385b4dbb7c2178323bef",
+        "path": "benchmarks/reports/round5-lexical-compat-hosted-1-independent-raw-audit.json",
+        "sha256": "e4627dd40e56f3baff002e3b7e597e8d6aca98b0c4481d17683765c133dbbf74",
+        "calls": 5120,
+        "pairs": 2560,
+        "events": 10240
+      }
     },
     "historical_q2": {
       "source_commit": "25e7ea32b34e5a8dc08b0931c6b3840e9f3fffb0",
@@ -263,7 +271,18 @@
         "retrieval_calls": 0,
         "trigger_created": false,
         "status": "source-only-ci-passed-pending-final-independent-review",
-        "prior_namespace_ci_failure": 43500815079
+        "prior_namespace_ci_failure": 43500815079,
+        "general_ci_run": 43501583600,
+        "all9general_ci_success": true,
+        "implementation_ci_receipt": {
+          "commit": "e610650ba39decc38033d254edf0f2d7edb4e55e",
+          "sha256": "0d96aa3e360cd66e712f41df5111f812e5df1e8d5b219de87dd4aa8c297d1f64"
+        },
+        "terminal_ci_receipt": {
+          "commit": "d53b6024b2dd510d7241497e778c777abaf1bad2",
+          "sha256": "8fa4492e0777c05f4942aee67d37cf86562efd0a42a458f6617aaa5c50ff17df"
+        },
+        "integrated_source_donor": "c23c5d5c9e1b8521ed78bf28e34896bc0755ee86"
       }
     },
     "fresh": {
@@ -283,7 +302,8 @@
         "sha256": "9f4c80ee3dd0f1d2dda1a8f4270b1a3370c87a4746c1b3fd6fb9fab7c2d988bc",
         "files": 374,
         "authorization_created": false,
-        "fresh_metadata_read": false
+        "fresh_metadata_read": false,
+        "revalidation_required_after_q2_controller_integration": true
       }
     },
     "integration": {

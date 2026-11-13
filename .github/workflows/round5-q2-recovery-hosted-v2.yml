@@ -1,0 +1,123 @@
+name: Reconstruct Q2 attempt2 with full frozen evaluator union
+
+on:
+  push:
+    branches: ['staging/v033-q2-recovery-hosted-2', 'ci/v033-q2-recovery-hosted-2']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: round5-q2-recovery-hosted-2
+  cancel-in-progress: false
+
+jobs:
+  protocol-fixtures:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/benchmarks/reports/
+            !/benchmarks/figures/
+            !/docs/images/
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - name: Verify original ten fixtures and bounded strict-union negatives
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p .artifacts
+          python - <<'PY' 2>&1 | tee .artifacts/round5-q2-v2-fixtures.log
+          import json, unittest
+          loader = unittest.defaultTestLoader
+          old = loader.loadTestsFromName("tests.test_round5_q2_hosted_recovery")
+          new = loader.loadTestsFromName("tests.test_round5_q2_hosted_recovery_v2")
+          old_count, new_count = old.countTestCases(), new.countTestCases()
+          if old_count != 10 or new_count == 0:
+              raise SystemExit("Original ten fixtures and all new module cases are required")
+          suite = unittest.TestSuite((old, new))
+          expected = suite.countTestCases()
+          result = unittest.TextTestRunner(verbosity=2).run(suite)
+          receipt = {"expected": expected, "tests": result.testsRun,
+              "original_cases": old_count, "new_cases": new_count,
+              "errors": len(result.errors), "failures": len(result.failures),
+              "skips": len(result.skipped), "passed": result.wasSuccessful(),
+              "corpus_calls": 0, "model_or_dataset_downloads": 0}
+          print("Q2_V2_FIXTURES " + json.dumps(receipt, sort_keys=True), flush=True)
+          if not result.wasSuccessful() or result.skipped or result.testsRun != expected:
+              raise SystemExit("All frozen fixture modules must execute successfully without skips")
+          PY
+      - name: Check actual35 source registry without claim or corpus decoding
+        shell: bash
+        run: |
+          set -o pipefail
+          python scripts/round5_q2_hosted_recovery_v2.py check-registry | tee .artifacts/round5-q2-v2-source-registry.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: round5-q2-v2-source-only-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .artifacts/round5-q2-v2-fixtures.log
+            .artifacts/round5-q2-v2-source-registry.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30
+  recovery:
+    needs: protocol-fixtures
+    if: github.repository == 'Afloat16/AI-Memory-Book' && github.event_name == 'push' && github.ref == 'refs/heads/ci/v033-q2-recovery-hosted-2' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 165
+    permissions:
+      contents: write
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONHASHSEED: '0'
+      ORT_DISABLE_TELEMETRY: '1'
+      TIKTOKEN_CACHE_DIR: ${{ github.workspace }}/.artifacts/tiktoken
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/benchmarks/reports/
+            !/benchmarks/figures/
+            !/docs/images/
+      - name: Require committed exact candidate before dependency or asset download
+        run: python3 scripts/round5_q2_hosted_recovery_v2.py check-binding
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - name: Install exact historical semantic and reference-tokenizer dependencies
+        run: python -m pip install -e . 'onnxruntime==1.31.1' 'tokenizers==0.23.3' 'numpy==2.5.4' 'tiktoken==0.12.0' 'pyarrow==26.0.1'
+      - name: Run the separately registered once-only Q2 reconstruction
+        id: q2
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p .artifacts
+          python -u scripts/round5_q2_hosted_recovery_v2.py run 2>&1 | tee .artifacts/round5-q2-recovery-hosted-2-runner.log
+      - name: Preserve logs and complete or partial ledgers without replay
+        if: always()
+        env:
+          Q2_OUTCOME: ${{ steps.q2.outcome }}
+        run: python3 scripts/round5_q2_hosted_recovery_v2.py preserve
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: round5-q2-recovery-hosted-2-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            benchmarks/reports/round5-q2-recovery-hosted-2/
+            .artifacts/round5-q2-recovery-hosted-2-runner.log
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30
