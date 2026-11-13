@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-11-13 17:28:54 UTC",
+  "updated_at_utc": "2026-11-13 17:41:43 UTC",
   "goal": "Continue v0.3.3 optimization of Afloat16/AI-Memory-Book with measured improvements, honest comparison boundaries and frequent durable Git checkpoints.",
   "control_branch": "optimization/v0.3.3-round5",
-  "previous_control_commit": "1190d95343871f0d5ddc6893f93c044eaa36089f",
+  "previous_control_commit": "76eb276720bdfe4affbe534e4e95dca1f2774b00",
   "resume_history": "docs/round5-resume-20261113.md",
   "published_baseline": {
     "tag": "v0.3.2",
@@ -14,24 +14,44 @@
   "final_runtime_selected": false,
   "release_accepted": false,
   "last_complete_development": {
-    "candidate": "K",
-    "source_commit": "4720728e47d53fc6c345fa89a2b5b739a67a1069",
-    "runtime_sha256": "90079d629d101370e6960a10e5391265802b1a053f65438e9b667b662638b251",
-    "controller_commit": "04366aa4fc34d68e6ce23c55efa7aadef3dca04a",
-    "run_id": 43467271014,
-    "result_commit": "c3c708539d6e7024eb14d565dbb7c0a5e553fa34",
-    "result_branch": "validation/v033-candidate-k-development-1",
-    "independent_raw_audit_commit": "2d5037561d6b543ee785f434d7c04fa16eb2e8b1",
-    "independent_raw_audit_sha256": "c07522e9981c17aa5581c6e4315c7674971869c3109234ea93dfef581d8e9c6b",
-    "correctness_fixtures": 154,
+    "candidate": "LM",
+    "source_commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+    "runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
+    "controller_commit": "8df838aa47e009caa8173b2ccb32fad93e4b8f90",
+    "run_id": 43473326005,
+    "result_commit": "ec296d79fc1a2ec9c4e3cadb48bddfd34cdb0213",
+    "result_branch": "validation/v033-candidate-lm-development-1",
+    "independent_raw_audit_commit": "128952ffd4f53a30f225feb98853a7f7f6ea7121",
+    "independent_raw_audit_sha256": "eb7c9fd7b032409e7ff4d39b3ce8b03838f1901abfc3b4806fd21a8f398fdb42",
+    "correctness_fixtures": 183,
     "profile_calls": 4732,
     "paired_calls": 4096,
     "payload_pairs": 2048,
     "payload_mismatches": 0,
-    "adverse_cells": 0,
-    "pooled_p95_geomean_improvement_percent": 3.6355909620451876,
-    "public_native_char4000_p95_improvement_percent": 3.085662287471702,
-    "decision": "Below the original10% formal goals; continue optimization without rerunning K or pooling historical timings."
+    "adverse_cells_over_five_percent": 0,
+    "pooled_p95_geomean_improvement_percent": 4.791840281283378,
+    "public_native_char4000_p95_improvement_percent": 5.430823483528835,
+    "retained_adverse_values": [
+      {
+        "cohort": "synthetic61",
+        "configuration": "native-token512",
+        "p50_change_percent": 3.2743303750706554,
+        "p95_change_percent": -5.903986475068734
+      },
+      {
+        "cohort": "synthetic61",
+        "configuration": "native-token1024",
+        "p50_change_percent": 1.2183569886350831,
+        "p95_change_percent": -6.4409787960938765
+      },
+      {
+        "cohort": "public1015",
+        "configuration": "native-token512",
+        "p50_change_percent": 2.6723935259700182,
+        "p95_change_percent": 3.7551366648520768
+      }
+    ],
+    "decision": "Independent raw audit reproduces every observation. Below original10% final targets; not selected. Do not rerun, pool host timings or claim every cell improved."
   },
   "rejected_j": {
     "source": "910ba8904523ad81cb7d68073af77580942496eb",
@@ -44,36 +64,14 @@
   },
   "active_candidates": [
     {
-      "candidate": "LM",
-      "branch": "staging/v033-ranked-normalization-lm",
-      "source_commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
-      "prospective_scope_commit": "3dad832d4bec672de74a60e1c9039c62ca7ae182",
-      "runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
-      "source_ci_run": 43471535987,
-      "status": "All9 combined source CI jobs and independent source review passed. Exact development source binding/controller is frozen and27 artificial protocol tests passed. Root reviewed and verified final bytes; ready for unique first old-cohort attempt, not yet started at this checkpoint.",
-      "donors": [
-        {
-          "candidate": "L",
-          "source": "38b08c77ed27742711ff9f240fd80ba4ef61e11a",
-          "ci": 43471092870,
-          "status": "9/9 source CI success; final raw logs and full manifest retained at54526de103c80545a1647634c1b696448e24e634."
-        },
-        {
-          "candidate": "M",
-          "source": "f5fa35fd094601a41b5152671190d6e270e523f7",
-          "ci": 43469907603,
-          "status": "9/9 success",
-          "independent_review": "e9731f7e813ea47b84896a6fe3d8c1d0b98b703f"
-        }
-      ],
-      "independent_review": {
-        "commit": "41e26421eccc281ea9639c882be1a9e2e787ec4a",
-        "sha256": "530f905dff7626b5194035cbf63f6076d49c5caf1117c09e342f2090e84bca59"
-      },
-      "controller_commit": "8df838aa47e009caa8173b2ccb32fad93e4b8f90",
-      "controller_artificial_ci": 43473046719,
-      "source_binding_sha256": "b6a43c5c2537e449032cef1313af626a395b7c58e7179d679c7cfc6d3b67f35e",
-      "controller_independent_review_path": "benchmarks/reports/round5-candidate-lm-controller-independent-review.json"
+      "candidate": "N",
+      "owner": "runtime_audit",
+      "branch": "staging/v033-normalization-runs-n",
+      "base_source_commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+      "prospective_scope_commit": "8e8c4b30a2f56f7b3aaaadb8f500a563be7ce5ef",
+      "scope_path": "benchmarks/experiments/round5-normalization-runs-n-addendum.json",
+      "change": "After the unchanged whole-string compatibility certificate, translate only maximal runs of the same97 mapped scalars. Preserve guard/fallback/normalization order and all15 old fixture modules; add exact receiver-length proof.",
+      "status": "Scope committed; implementation/artificial proof pending. No N corpus call."
     }
   ],
   "ready_orchestration": {
@@ -93,7 +91,14 @@
       "accepted_root_static_review": true,
       "calls": 5120,
       "trigger": "ci/v033-lexical-compat-hosted-1",
-      "not_started": true
+      "not_started": true,
+      "call_breakdown": {
+        "tokens": 3072,
+        "char100000": 2048,
+        "total": 5120,
+        "workers": 10,
+        "note": "The2048 character calls are within the5120 controller total, separate from the formal14-cell performance matrix."
+      }
     },
     "historical_q2": {
       "source_commit": "25e7ea32b34e5a8dc08b0931c6b3840e9f3fffb0",
@@ -121,7 +126,16 @@
     "integration": {
       "manifest": "benchmarks/experiments/round5-hosted-orchestration-integration.json",
       "status": "Exact reviewed source/controller/test/scope/docs blobs copied into current control ancestry; runtime and original registered evaluators remain unchanged. No final selection or trigger is created.",
-      "file_count": 30
+      "file_count": 30,
+      "ci": {
+        "run_id": 43471938589,
+        "head_sha": "1190d95343871f0d5ddc6893f93c044eaa36089f",
+        "jobs_success": 8,
+        "macos_job": 132045790466,
+        "macos_conclusion": "cancelled",
+        "accepted_as_nine_job_ci": false,
+        "policy": "Preserve terminal cancellation; no retry. A later final exact integrated source still requires all9 jobs."
+      }
     }
   },
   "formal": {
@@ -141,7 +155,17 @@
     },
     "read_only_review": "hosted_execution checked5fab85/f6eafe: explicit MCP bytecode suppression in both certificate and formal workers, exact source/interface/ledger/remote claims and no replay. No wrapper change needed.",
     "durability_limit": "Per-call ledger fsync is local; verified remote checkpoints occur before/after each worker. A hard VM loss can lose unuploaded partial rows, but leaves the remote started intent and forbids silent replay.",
-    "not_started": true
+    "not_started": true,
+    "resource_chain_review": {
+      "commit": "a1198d33b41a27af7ddce08645fb2f6ee0527a88",
+      "path": "benchmarks/reports/round5-final-resource-chain-independent-review.json",
+      "sha256": "072896e4b4eb872786c76a063417d1560b4fbb4f77b83ad9f28bd771d43b57ed",
+      "automatic_fields": 14,
+      "cohorts": 2,
+      "mean_comparisons": 28,
+      "storage": "Four raw boundaries are preserved but not covered by the automatic14-field gate; independently check and report all same-run storage samples without inventing a new numeric gate.",
+      "historical_diagnostic": "The prior v031/v032 diagnostic is already claimed; never relabel or replay it."
+    }
   },
   "fresh_boundary": {
     "metadata_selected": false,
@@ -156,10 +180,39 @@
     "git_policy": "Persist code/scope before execution, then each started/result stage. Do not force-push, replay started experiments, replace failed observations or add percentages across hosts."
   },
   "next_steps": [
-    "Complete exact LM source CI/independent review and separately frozen development controller, then run one original old-cohort diagnostic/paired schedule.",
-    "If combining independent L/M changes, register and freeze the exact combined source and full fixture inventory before any combined corpus calls; directly compare the whole runtime to v0.3.2.",
-    "Once an exact candidate is justified, commit final selection and run source-free certificate/binding, formal performance and historical compatibility. Never lower existing gates.",
-    "Only after final source/evaluator/certificate/assets are bound may the original fresh512 selection and native/component evaluation run.",
-    "Integrate selected source, tests, orchestration and all durable reports into current control ancestry; keep main/tag/release unchanged until acceptance is established."
-  ]
+    "Complete N source/artificial CI/independent review; preserve all old proof modules.",
+    "Review the separately proposed source-unchanged SQL cost-attribution diagnostic before any execution; use its evidence to identify a substantial optimization opportunity, without treating profiled time as speed.",
+    "Freeze any next whole candidate and one original old-cohort development attempt before calls; compare directly with v032 and retain all adverse outcomes.",
+    "Only after a justified exact final candidate, follow source-free certificate/binding, formal66248 including resources, historical5120/Q21968 and registered fresh512 evaluation. No thresholds change.",
+    "Keep final source/main/tag/release unaccepted until all original gates and independent evidence review complete."
+  ],
+  "previous_development_results": [
+    {
+      "candidate": "K",
+      "source_commit": "4720728e47d53fc6c345fa89a2b5b739a67a1069",
+      "runtime_sha256": "90079d629d101370e6960a10e5391265802b1a053f65438e9b667b662638b251",
+      "controller_commit": "04366aa4fc34d68e6ce23c55efa7aadef3dca04a",
+      "run_id": 43467271014,
+      "result_commit": "c3c708539d6e7024eb14d565dbb7c0a5e553fa34",
+      "result_branch": "validation/v033-candidate-k-development-1",
+      "independent_raw_audit_commit": "2d5037561d6b543ee785f434d7c04fa16eb2e8b1",
+      "independent_raw_audit_sha256": "c07522e9981c17aa5581c6e4315c7674971869c3109234ea93dfef581d8e9c6b",
+      "correctness_fixtures": 154,
+      "profile_calls": 4732,
+      "paired_calls": 4096,
+      "payload_pairs": 2048,
+      "payload_mismatches": 0,
+      "adverse_cells": 0,
+      "pooled_p95_geomean_improvement_percent": 3.6355909620451876,
+      "public_native_char4000_p95_improvement_percent": 3.085662287471702,
+      "decision": "Below the original10% formal goals; continue optimization without rerunning K or pooling historical timings."
+    }
+  ],
+  "sql_attribution_diagnostic": {
+    "owner": "hosted_execution",
+    "candidate_source_commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+    "status": "Prospective plan being prepared for independent source-unchanged4732-call mechanism diagnosis. Root review required before implementation/execution; not a replay or speed comparison.",
+    "fresh_rows_decoded": 0,
+    "started": false
+  }
 }

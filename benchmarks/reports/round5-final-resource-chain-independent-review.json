@@ -1,0 +1,405 @@
+{
+  "schema_version": 1,
+  "status": "reviewed-final-resource-chain-ready-pending-selected-source-and-results",
+  "created_at_utc": "2026-11-13T17:32:07Z",
+  "reviewed_control_commit": "1190d95343871f0d5ddc6893f93c044eaa36089f",
+  "reviewer": "baseline_audit",
+  "review_scope": "Read-only code, registrations, immutable saved historical evidence and CI status. This record alone is the only write; no evaluator, controller, scope, runtime or old report was changed.",
+  "corpus_calls_executed_by_review": 0,
+  "fresh_metadata_accessed": false,
+  "resource_measurements_executed_by_review": 0,
+  "performance_accepted": false,
+  "resource_accepted": false,
+  "release_accepted": false,
+  "conclusion": [
+    "No new resource benchmark/controller is required: the existing final performance_v2 worker already measures startup, ingestion, unchanged reingestion, native and actual SDK MCP memory and SQLite storage for the final bound runtime.",
+    "The historical round5_resource_diagnostic and round5_resource_audit are deliberately fixed to v0.3.1/v0.3.2 and an already claimed run. They must not be repurposed, replayed or relabeled as final v0.3.3 resource evidence.",
+    "The remaining execution prerequisite is the reviewed final source selection, then source-bound interface certificate and formal binding. Storage also needs explicit inspection from the same saved formal raw records because its values are recorded but not included in automatic RESOURCE_FIELDS comparisons."
+  ],
+  "exact_source_contract": {
+    "baseline": {
+      "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+      "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+    },
+    "candidate": "Not hardcoded to historical C2 or T1. Freezer validates separately committed candidate commit/runtime SHA-256 and complete src/memory_book inventory, exports that exact source, and the formal binding records the resulting source identity.",
+    "interface_constraint": "The new final candidate must still implement exactly the registered T1 optional follow_titles=False schema addition and exact approved description suffix. All other complete schema JSON and instructions must equal v0.3.2 under the frozen projection. An arbitrary changed interface is rejected.",
+    "historical_approved_interface_commit_is_not_final_source_pin": "b34925804b4d953b4a783e9d431bda4c31c90ebd",
+    "selection": "benchmarks/experiments/round5-selected-runtime.json",
+    "certificate": "benchmarks/experiments/round5-final-interface-certificate.json",
+    "binding": "benchmarks/experiments/round5-performance-v2-binding.json",
+    "absent_at_reviewed_control": [
+      "benchmarks/experiments/round5-selected-runtime.json",
+      "benchmarks/experiments/round5-final-interface-certificate.json",
+      "benchmarks/experiments/round5-performance-v2-binding.json",
+      "benchmarks/experiments/round5-fresh-source-authorization.json"
+    ],
+    "dependency_pins": {
+      "python": "3.12",
+      "runner": "ubuntu-24.04",
+      "mcp": "1.30.0",
+      "pydantic": "2.14.3",
+      "tiktoken": "0.12.0"
+    },
+    "original_plan_commit": "7068594181c7e98c576f68a81daf85cd0d06c729",
+    "preserved_addendum_commits": [
+      "9042570d8cff01be7c95cd01f8698e166fc7d313",
+      "c724452e8f7333af73ed8a0424f572b7d7280a07",
+      "0e933580a2a7d28f24b0ac7a8a2f5db4acfb762d"
+    ],
+    "guard": "Every registered evaluator/helper and historical runtime fixture is hashed; reused helpers/fixtures are checked against the published v0.3.2 tree. Missing/changed binding, source, certificate, packages or evaluator fails closed."
+  },
+  "registered_formal_execution": {
+    "scripts": [
+      "scripts/round5_final_freeze_hosted.py",
+      "scripts/round5_interface_certificate.py",
+      "scripts/round5_performance_v2.py",
+      "scripts/benchmark_default_recall.py"
+    ],
+    "workflows": [
+      ".github/workflows/round5-final-freeze-hosted.yml",
+      ".github/workflows/round5-performance-v2.yml"
+    ],
+    "trigger": "refs/heads/ci/v033-round5-performance-v2",
+    "evaluator": "round5-default-performance-2-final-interface",
+    "cohorts": [
+      {
+        "name": "synthetic61",
+        "queries": 168,
+        "sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26",
+        "role": "old development/regression"
+      },
+      {
+        "name": "public1015",
+        "queries": 1015,
+        "sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857",
+        "role": "old public regression"
+      }
+    ],
+    "raw_public_input": {
+      "dataset": "LoCoMo locomo10.json",
+      "repository": "https://github.com/snap-research/locomo",
+      "commit": "3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376",
+      "url": "https://raw.githubusercontent.com/snap-research/locomo/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/data/locomo10.json",
+      "sha256": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+      "bytes": 2805274,
+      "license": "CC-BY-NC-4.0",
+      "license_url": "https://github.com/snap-research/locomo/blob/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/LICENSE.txt",
+      "split_procedure": "Sort sample_id, shuffle with random.Random(20261111), reserve first two conversations for development and remaining eight for heldout. Frozen before evaluating retrieval outcomes.",
+      "split_seed": 20261111,
+      "development": [
+        "conv-47",
+        "conv-49"
+      ],
+      "heldout": [
+        "conv-50",
+        "conv-26",
+        "conv-41",
+        "conv-42",
+        "conv-30",
+        "conv-44",
+        "conv-43",
+        "conv-48"
+      ],
+      "query_selection": "For a bounded run, sort eligible query IDs by SHA256('locomo-query-order-v1:' + query_id), then keep the first max_queries. Selection is independent of question text, answer labels, and outcomes."
+    },
+    "input_access_by_review": "Only the committed split metadata was read; no LoCoMo raw file, query content or benchmark dataset was downloaded.",
+    "workers": 16,
+    "rounds": 4,
+    "configuration_cells": 14,
+    "calls": 66248,
+    "engine_order": [
+      [
+        "baseline",
+        "candidate"
+      ],
+      [
+        "candidate",
+        "baseline"
+      ],
+      [
+        "candidate",
+        "baseline"
+      ],
+      [
+        "baseline",
+        "candidate"
+      ]
+    ],
+    "query_order": "random.Random(51061 + 1009 * round + config_index), equal for paired engines",
+    "execution": "Sequential fresh worker processes on the same VM/boot. One binding-wide first-attempt hosted claim. Worker intent published before launch and completed report/ledger published before next worker. Started/incomplete workers are never replayed; any allowed untouched suffix continuation requires exact same run/boot identity.",
+    "native_cache": "cache_size=0 and use_cache=False",
+    "actual_mcp": "Official SDK stdio; cache cleared outside each timed call; actual MCP call, full returned envelope and normal cache write costs retained. Separate character and token MCP sessions.",
+    "saved_outputs": "benchmarks/reports/round5-performance-v2-RUN_ID-RUN_ATTEMPT/report.json.gz, report.summary.json, worker reports, raw/compressed attempt ledgers, claims/checkpoints/completion and preserved failure artifacts.",
+    "gate": {
+      "minimum_geomean_pooled_p95_improvement_percent": 10,
+      "minimum_public_native_char4000_p95_improvement_percent": 10,
+      "minimum_public_actual_mcp_char4000_p95_improvement_percent": 5,
+      "maximum_any_pooled_p50_p95_regression_percent": 5,
+      "resource_mean_increase_review_percent": 10
+    }
+  },
+  "resource_measurements": {
+    "definitions": {
+      "runtime_import_ms": "Measured around importing memory_book/MemoryBook, before cohort dataset creation.",
+      "native_open_ms": "Fresh MemoryBook(db_path, cache_size=0) construction.",
+      "fresh_ingestion_ms": "Full session ingestion into a new per-worker SQLite database.",
+      "unchanged_reingestion_ms": "Second ingestion of the identical full session input; every returned row must be skipped.",
+      "mcp_startup_to_initialize_ms": "Actual stdio process/session launch through completed SDK initialize. Character and token sessions measured separately; list_tools is performed afterward.",
+      "native_rss_hwm": "/proc/self/status VmRSS and VmHWM after ingestion and after all configurations. These describe the live evaluation worker, including its retained evaluator/input objects; no product-only or phase-attribution claim.",
+      "actual_mcp_rss_hwm": "/proc status of the single observed live memory_book child after calls, separately for character/token sessions; missing or ambiguous child fails resource validation.",
+      "initialization_tokens": "Both actual cl100k_base/o200k_base schema and instruction costs and candidate-minus-baseline deltas remain preserved by the certificate and every formal session. They are not silently substituted with baseline values."
+    },
+    "automatic_resource_fields": [
+      "runtime_import_ms",
+      "native_open_ms",
+      "fresh_ingestion_ms",
+      "unchanged_reingestion_ms",
+      "mcp_startup_to_initialize_ms",
+      "native_memory_after_ingestion.rss_bytes",
+      "native_memory_after_ingestion.hwm_bytes",
+      "native_memory_after_calls.rss_bytes",
+      "native_memory_after_calls.hwm_bytes",
+      "mcp_server_memory_after_calls.rss_bytes",
+      "mcp_server_memory_after_calls.hwm_bytes",
+      "mcp_sessions.mcp-token1024.mcp_startup_to_initialize_ms",
+      "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.rss_bytes",
+      "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.hwm_bytes"
+    ],
+    "automatic_resource_field_count": 14,
+    "comparison_rows": 28,
+    "aggregation": "For each of two cohorts and each field: all four baseline worker samples versus all four candidate samples; arithmetic means and full numeric summaries. No pooling of different resource fields/cohorts.",
+    "automatic_review_rule": "change = 100*(candidate_mean/baseline_mean - 1). Exactly zero to zero is 0%; baseline zero to nonzero yields undefined change and requires review. A change greater than 10% plus the existing 1e-9 tolerance requires explicit cause and independent review.",
+    "acceptance_contract": "Invalid/incomplete source/payload/ledger/resource samples fail validation. With valid data, accepted = numeric_gate_passed AND no resource_review entries. A passing latency matrix does not bypass a resource increase. There is no automatic override or code path that changes saved acceptance after review.",
+    "independent_disposition": "Retain raw samples, every round and the original accepted/resource_review values. Any later cause-and-independent-review disposition under the original plan must be a separate durable decision; never rewrite a failing acceptance or substitute the historical diagnostic.",
+    "artificial_regression_evidence": "tests/test_round5_performance_v2.py:test_all_original_numeric_and_resource_gates_remain_required; original tests retain native and separate token-MCP startup/RSS review counterexamples. This review read the fixtures but did not execute them."
+  },
+  "storage_contract": {
+    "unique_boundaries": [
+      "storage_after_ingestion_live",
+      "mcp_sessions.mcp-char4000.storage_after_mcp_live",
+      "mcp_sessions.mcp-token1024.storage_after_mcp_live",
+      "storage_after_checkpoint"
+    ],
+    "fields": [
+      "logical_db_bytes",
+      "files_bytes.db",
+      "files_bytes.wal",
+      "files_bytes.shm"
+    ],
+    "definitions": "logical_db_bytes = PRAGMA page_count * PRAGMA page_size. db/wal/shm are observed on-disk bytes, zero for absent files. The final boundary follows PRAGMA wal_checkpoint(TRUNCATE). Top-level storage_after_mcp_live duplicates the character MCP session and is not a fifth independent sample.",
+    "preservation": "All four boundaries are written in each completed worker and retained in full report and summary worker records.",
+    "automation_limit": "Storage values are not in RESOURCE_FIELDS and are not size-compared or separately shape/finite-validated by verify_worker/acceptance. accepted=true is therefore not evidence of an automatically enforced <=10% storage gate.",
+    "minimal_followup": "In the independent saved-raw formal audit, verify all four boundaries and required fields for every worker and compare all four rounds within each cohort/source. Preserve and explain any storage increase alongside resource review; do not invent a new numeric storage threshold, change the frozen evaluator or launch a separate measurement."
+  },
+  "historical_resource_evidence": {
+    "protocol": "round5-historical-resource-attribution-v1",
+    "plan": "benchmarks/experiments/round5-resource-plan.json",
+    "sources": {
+      "v031": {
+        "commit": "7b7a5d7336b9350a128f5e0a888811b1b3015e68",
+        "runtime_sha256": "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46",
+        "version": "0.3.1"
+      },
+      "v032": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93",
+        "version": "0.3.2"
+      }
+    },
+    "claimed_run": "43377486180-1",
+    "source_commit": "d67e6c695aa586bbcbc9f0e134c769980d8e09ef",
+    "result_commit": "2511be109e2877e86d4d452525754d399e514789",
+    "audit": "benchmarks/reports/round5-resource-independent-audit.json",
+    "status": "verified-with-attribution-limits",
+    "existing_adverse_evidence": "The old round-four +71.97% component setup tree peak and +68.98% native finalization tree peak remain unchanged and are not retrospectively explained by new samples.",
+    "retained_high_water_anomaly": "All eight historical product workers reported 373.34375 MiB lifetime high-water alongside roughly 31 MiB sampled query phases. The exact cause is unproven; neither counter is erased or relabeled.",
+    "limits": "No v0.3.3 source, no speed/quality/memory-saving/leak conclusion. Sampled phase peaks are lower bounds; missing process/PSS samples remain unavailable. No rerun or repinning of the already claimed historical diagnostic."
+  },
+  "release_contract": {
+    "original_plan": "Target v0.3.3 only after the registered gates, complete exact-output/Q2 compatibility and independent review. Pin runtime hash and versioned installers; nine exact-source CI jobs, seven verified release assets and real public installer test. Preserve all prior tags.",
+    "prerequisites": "Formal numeric/exact-payload/resource decision; historical default Hotpot256 compatibility and separate 2048-call char100000 diagnostic; Q2 authored36/Hotpot128 compatibility; independently registered fresh quality/comparator gates; independent evidence review. Resource success alone never authorizes release.",
+    "release_script": "scripts/release.py and .github/workflows/release.yml",
+    "executable_release_checks": "Exact release branch/version/source SHA; main at the same release commit; newest completed push Tests run at that SHA with exactly nine named successful jobs; committed release notes; one wheel and one sdist with clean installs and byte-exact runtime/reader; three committed versioned installers; manifest and SHA256SUMS; all seven remote assets byte-verified; no prior tag movement; real public default-wheel installation and MCP/client extras tested by published-install.",
+    "currently_prepared": "At the reviewed control commit pyproject and runtime are already 0.3.3, and all three installers refer to v0.3.3.",
+    "remaining_release_items": "There is no committed docs/releases/v0.3.3.md. APPROVED_RUNTIME_SHA256 currently includes only 0.3.0/0.3.1/0.3.2; the selected final 0.3.3 runtime still needs its explicit approved pin. Final exact release-commit CI/assets/public-install are future work.",
+    "separation": "release.py does not parse formal/fresh benchmark acceptance reports. The coordinator must retain the independent registered-gate acceptance decision before starting the release workflow; green functional CI or a generated formal binding is insufficient."
+  },
+  "minimal_operation_order": [
+    "Finish development and independent review, select one final runtime, and commit selection with exact source inventory and immutable evidence references before final/fresh evaluation.",
+    "Run the existing source-free freezer once: publish intent, verify source/evidence, generate and publish exact interface certificate, then generate and publish formal binding. Zero corpus calls.",
+    "After checking the frozen identities and integration CI, trigger the already registered formal performance_v2 once. Its 16 workers provide the required final-source startup/ingest/reingest/RSS/storage samples together with all 66248 formal calls.",
+    "Independently audit saved raw payload/ledger/latency and all 28 automatic resource comparisons, plus storage boundary completeness and changes. Retain every adverse sample and any >10% resource_review entry without rerun or report rewriting.",
+    "Complete the separate registered historical lexical/Q2/fresh obligations on the same final runtime and preserve their original gates. Do not relabel old external-component tables or historical resource diagnostics.",
+    "Only after the registered acceptance decision, finish the selected runtime approval pin/release notes, obtain nine successful jobs on the exact final release commit, then verify all seven release assets and the real public installer."
+  ],
+  "integration_ci_observation": {
+    "run_id": 43471938589,
+    "head_sha": "1190d95343871f0d5ddc6893f93c044eaa36089f",
+    "observed_at_utc": "2026-11-13T17:32:07Z",
+    "overall_status": "queued",
+    "overall_conclusion": null,
+    "jobs": [
+      {
+        "id": 132045789883,
+        "name": "mcp",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132045789903,
+        "name": "core (3.12)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132045789976,
+        "name": "installers (windows-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132045790065,
+        "name": "core (3.10)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132045790200,
+        "name": "core (3.13)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132045790279,
+        "name": "container",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132045790397,
+        "name": "installers (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132045790466,
+        "name": "installers (macos-latest)",
+        "status": "queued",
+        "conclusion": null
+      },
+      {
+        "id": 132045792051,
+        "name": "reader-browser",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "interpretation": "Eight completed jobs succeeded; macOS installer remained queued. No rerun was requested and this is not represented as 9/9 success."
+  },
+  "reviewed_files": {
+    "benchmarks/experiments/round5-plan.json": {
+      "git_blob": "33018dc0cc97b1e75a04756dc8d1064f75a7fce8",
+      "sha256": "d3302ef1169aa180b492af6b9c9938e5717ff7261e202ef7a3df50e14febaccd"
+    },
+    "benchmarks/experiments/round5-resource-plan.json": {
+      "git_blob": "9ebb8607392d9b6aac0ac7b365879b4979106456",
+      "sha256": "f9e4f184a42fd73f380cdaaf4be6c3e92f5bf046b9faa1b5228a737f1260ef6b"
+    },
+    "scripts/round5_resource_diagnostic.py": {
+      "git_blob": "4eeff96fda621105ccaeb6ed8f753dceb4ef65bb",
+      "sha256": "b753ffeb1dc6a0ddf287df6299a72edf6d299e3d87fc66387c3dc62d792d75ff"
+    },
+    "scripts/round5_resource_audit.py": {
+      "git_blob": "8f2190037d2188e5da7278506334a95194e6c6fe",
+      "sha256": "e4b918fc597641a09d2671952042d1deaa3ca6bd4046e982b8c254ad2724ac45"
+    },
+    ".github/workflows/round5-resource-diagnostic.yml": {
+      "git_blob": "0de2e1c88197b84108bb369530270dd35c946cf8",
+      "sha256": "07a6c4bc6968128b3c4f71176fe0e74ffe0c9decf93d259c06cdb2b5809ac7ea"
+    },
+    "docs/round5-resource-review.md": {
+      "git_blob": "8796aeaadd76ba7086cf64798d70ffd68bf6772e",
+      "sha256": "f49f33da4293a112c818511dde8c5ffbfda8d67d625e3fea8d8cfb992bb90e71"
+    },
+    "benchmarks/reports/round5-resource-independent-audit.json": {
+      "git_blob": "24d22edb8b410084b9929e0aa304d1ffe96bdbcc",
+      "sha256": "17da1d19f66a0d7fd378582682fc6c79ed45a20a61b311fd2a045fd9004455f4"
+    },
+    "scripts/round5_performance_v2.py": {
+      "git_blob": "414b563f56835159d79bcc134a50c44798b0c33a",
+      "sha256": "388536dd4bf3dc4c7d76cc8c5bac3afd273071cebcf7f9639ed1b65d19e4f1fb"
+    },
+    ".github/workflows/round5-performance-v2.yml": {
+      "git_blob": "66960eb5a1eb0772ecd07b896b590cc1e2a34f4c",
+      "sha256": "3d6c98db33078fe8be358cf49be47e31f52a676182e941d8a423bc4a73596c7f"
+    },
+    "scripts/benchmark_default_recall.py": {
+      "git_blob": "2a54951e1b3927dee6c5ee3527ad0eb23a41835f",
+      "sha256": "ce74bd117ef54da865963f6a185f40707dbf8a0eaf0019957288b71edf8c305a"
+    },
+    "tests/test_round5_performance_v2.py": {
+      "git_blob": "c94f00f0b90a7eac0fbfcc38935af8b80ea7b619",
+      "sha256": "e27d2105b9c5c2c0853d72e63d3ec560ab1209d08dd9b022cee3b0c4d088bc05"
+    },
+    "tests/test_round5_performance.py": {
+      "git_blob": "bca277457a815dcd2b1605e340499b5c6576b893",
+      "sha256": "aa7214485a3024f171463a4a0bbc762d07b0614a72e20f434e816cff6a0fa985"
+    },
+    "scripts/round5_interface_certificate.py": {
+      "git_blob": "1192f3f3d53bc781ac9fa6fddc3ab5d515f21c87",
+      "sha256": "2e7a0909d40c475590247b05fb598b85dee82c05419ed402f8c7e820323d763c"
+    },
+    "benchmarks/experiments/round5-final-interface-v2-scope.json": {
+      "git_blob": "13c4d746e4a20b0aed497bf5ad47768348383db2",
+      "sha256": "28e8f491c4ff2fbe6f815b0864cf36f497acf49414df395711e67ade57bde292"
+    },
+    "scripts/round5_final_freeze_hosted.py": {
+      "git_blob": "9c71a1e4c77721f4cb2c5bd3c04242e059b67e60",
+      "sha256": "74f146674c08d184c686e8f50943260b364b92334aca1dfa7ee361dd8fc31843"
+    },
+    "benchmarks/experiments/round5-final-freeze-hosted-scope.json": {
+      "git_blob": "6c7de5b714036b737ba95eb08a1934f4d6ed5078",
+      "sha256": "11b23216b7a754170855f271f0300d27d4b5ffd1678559cf52ec0ba0abc62293"
+    },
+    ".github/workflows/round5-final-freeze-hosted.yml": {
+      "git_blob": "6332b1749428e91b43642b767c2c5b004be1c514",
+      "sha256": "45b8f0162e2fb585c16cb72121a706b2260361d6472ec43180574c80aaa39e97"
+    },
+    "benchmarks/locomo_split.json": {
+      "git_blob": "3188f48878b2d95deb2a0b2258046e8ee1c223db",
+      "sha256": "a64086f1dc194c3fe9157e60f9696a77d3c650af836a60fab192f3db48c527f5"
+    },
+    "scripts/release.py": {
+      "git_blob": "5ea3bba333e725df2fded70f61445846d1f2e0dc",
+      "sha256": "06311fc0d420bb672d904bc8bae60be7c0f6fa863994bad38ce5a25acd68b544"
+    },
+    ".github/workflows/release.yml": {
+      "git_blob": "83df669d96a1bf675feee12ba166623bdbbae4e8",
+      "sha256": "a0acd3d5bd471b978c46941942abdbdc74c9bece998627955ef491e2b45ee5a5"
+    },
+    ".github/workflows/release-prepare.yml": {
+      "git_blob": "d59923f774168c8c22d826277c5287d7b70c8e6a",
+      "sha256": "6de6761914571c9555f62aa50b3c7f2ab6470a7da5a7e2fca16783b1fbd29358"
+    },
+    "pyproject.toml": {
+      "git_blob": "47c559578b705b7783f9d3b0e5e747c0e82568ce",
+      "sha256": "5504454b92091043c27b10dfe1bdc810ff8c659a261926d657d08fbb90a27e78"
+    },
+    "src/memory_book/__init__.py": {
+      "git_blob": "c3db390ff242396abb207608cea461922ac77216",
+      "sha256": "3b91357e9271f1abbe7d2dd4c01f0067ca5b5a65d6065844c850328d49e6aad7"
+    },
+    "scripts/install.py": {
+      "git_blob": "a6d97abcf05b8463d07c9871d3bc2e42e6f37054",
+      "sha256": "4437d0c7a58942c513b6a3d638b1a4e9c42352c27f6f1cc4c86385f19a5188ae"
+    },
+    "scripts/install.sh": {
+      "git_blob": "70bf482b7b778121df2ef4bd174b40144d4bfb77",
+      "sha256": "1dbaa87e1ea2d617459f0e591858d50dc87a31cd215518a950659e6c09abd050"
+    },
+    "scripts/install.ps1": {
+      "git_blob": "51cff3679a25a467eba3b05ac9e68ee4dacec1e6",
+      "sha256": "532daaf018d6de40ac64109a1d53cbc55f459e0cade6df81fa8e96937cb5b04e"
+    }
+  }
+}
