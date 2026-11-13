@@ -31,17 +31,22 @@ def fixture(factor=.85):
     plan = json.loads(bench.PLAN.read_bytes())
     addendum = {"path": bench.ADDENDUM_PATH, "commit": bench.ADDENDUM_COMMIT,
                 "sha256": bench.ADDENDUM_SHA256, "document": json.loads(bench.ADDENDUM.read_bytes())}
+    counting_addendum = {"path": bench.COUNTING_ADDENDUM_PATH, "commit": bench.COUNTING_ADDENDUM_COMMIT,
+                "sha256": bench.COUNTING_ADDENDUM_SHA256,
+                "document": json.loads(bench.COUNTING_ADDENDUM.read_bytes())}
     formal = plan["performance_candidate"]["formal"]
     formal["calls"] = 5 * 6 * 2 * 4
     sources = {"baseline": {"commit": bench.BASELINE, "runtime_sha256": bench.BASELINE_HASH},
                "candidate": {"commit": "a" * 40, "runtime_sha256": bench.digest("candidate")}}
-    run = {"binding": {"sources": sources, "development_addendum": addendum},
+    run = {"binding": {"sources": sources, "development_addendum": addendum,
+                       "counting_addendum": counting_addendum},
         "evaluator_files": {"fixture": "hash"},
         "host": {"boot": "same-boot"}, "schedule": bench.schedule(plan),
         "cohorts": {name: {"queries": len(ids), "sha256": bench.digest(name),
                            "query_ids": sorted(ids), "query_ids_original_order": ids}
                     for name, ids in (("synthetic61", ["b", "a"]), ("public1015", ["z", "y", "x"]))}}
-    report = {"plan": plan, "development_addendum": copy.deepcopy(addendum), "run": run,
+    report = {"plan": plan, "development_addendum": copy.deepcopy(addendum),
+              "counting_addendum": copy.deepcopy(counting_addendum), "run": run,
               "workers": [], "evaluator_unchanged": True, "error": None}
     for item in run["schedule"]:
         worker = {**item, "status": "completed", "error": None,
@@ -123,15 +128,41 @@ class PerformanceGateTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "preregistered development addendum bytes or commit"):
                 bench.registered_addendum()
 
-    def test_binding_and_report_preserve_exact_development_addendum(self):
+    def test_counting_addendum_is_fixed_to_original_commit_and_exact_bytes(self):
+        raw = bench.COUNTING_ADDENDUM.read_bytes()
+        self.assertEqual(bench.COUNTING_ADDENDUM_COMMIT, "e02584fd20d2626777449bc64322703de6df6948")
+        self.assertEqual(bench.COUNTING_ADDENDUM_SHA256, "06f25800e849e20c8d5a3a557d47fe9b0a952859aa27122029a86e40ffcd02b2")
+        self.assertEqual(bench.REGISTERED_DOCUMENTS, (bench.ADDENDUM_PATH, bench.COUNTING_ADDENDUM_PATH))
+        self.assertNotIn(bench.COUNTING_ADDENDUM_PATH, bench.HELPERS)
+        self.assertEqual(bench.file_hashes()[bench.COUNTING_ADDENDUM_PATH], bench.COUNTING_ADDENDUM_SHA256)
+        with patch.object(bench, "git", return_value=raw) as git:
+            registered = bench.registered_counting_addendum()
+            git.assert_called_once_with("show", bench.COUNTING_ADDENDUM_COMMIT + ":" + bench.COUNTING_ADDENDUM_PATH)
+        self.assertEqual(registered["document"]["original_plan_commit"], bench.PLAN_COMMIT)
+        self.assertEqual(registered["document"]["prior_addendum_commit"], bench.ADDENDUM_COMMIT)
+        with tempfile.TemporaryDirectory() as directory:
+            altered = Path(directory) / "counting-addendum.json"
+            altered.write_bytes(raw + b" ")
+            with patch.object(bench, "COUNTING_ADDENDUM", altered), \
+                    patch.object(bench, "git", return_value=raw) as git:
+                with self.assertRaisesRegex(ValueError, "preregistered counting addendum bytes or commit"):
+                    bench.registered_counting_addendum()
+                git.assert_not_called()
+        with patch.object(bench, "git", return_value=raw + b" "):
+            with self.assertRaisesRegex(ValueError, "preregistered counting addendum bytes or commit"):
+                bench.registered_counting_addendum()
+
+    def test_binding_and_report_preserve_both_exact_addenda(self):
         report = fixture()
-        original = report["development_addendum"]
+        addenda = {key: report[key] for key in ("development_addendum", "counting_addendum")}
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             path = root / "binding.json"
-            hashes = {bench.ADDENDUM_PATH: bench.ADDENDUM_SHA256}
+            documents = {bench.ADDENDUM_PATH: bench.ADDENDUM.read_bytes(),
+                         bench.COUNTING_ADDENDUM_PATH: bench.COUNTING_ADDENDUM.read_bytes()}
+            hashes = {name: bench.sha(raw) for name, raw in documents.items()}
             value = {"status": "frozen-before-formal-timing", "evaluator": bench.VERSION,
-                "development_addendum": original, "plan_sha256": bench.sha(bench.PLAN.read_bytes()),
+                **addenda, "plan_sha256": bench.sha(bench.PLAN.read_bytes()),
                 "evaluator_files": hashes, "packages": bench.PACKAGES,
                 "sources": report["run"]["binding"]["sources"], "evaluator_commit": "f" * 40}
             raw = bench.json_bytes(value)
@@ -139,30 +170,38 @@ class PerformanceGateTests(unittest.TestCase):
             def git(*values):
                 if values == ("show", "HEAD:binding.json"):
                     return raw
-                if values == ("show", "f" * 40 + ":" + bench.ADDENDUM_PATH):
-                    return bench.ADDENDUM.read_bytes()
+                for name, document in documents.items():
+                    if values == ("show", "f" * 40 + ":" + name):
+                        return document
                 raise AssertionError(values)
             with patch.object(bench, "ROOT", root), patch.object(bench, "file_hashes", return_value=hashes), \
-                    patch.object(bench, "registered_addendum", return_value=original), \
+                    patch.object(bench, "registered_addendum", return_value=addenda["development_addendum"]), \
+                    patch.object(bench, "registered_counting_addendum", return_value=addenda["counting_addendum"]), \
                     patch.object(bench, "git", side_effect=git):
                 self.assertEqual(bench.load_binding(path), value)
-                for field, changed in (("commit", "a" * 40), ("sha256", "0" * 64),
-                                       ("document", {"fixture": "unregistered"})):
-                    tampered = copy.deepcopy(value)
-                    tampered["development_addendum"][field] = changed
-                    path.write_bytes(bench.json_bytes(tampered))
-                    with self.subTest(field=field), self.assertRaisesRegex(ValueError, "Binding development addendum"):
+                for key in addenda:
+                    message = "Binding " + key.replace("_", " ")
+                    for field, changed in (("path", "unregistered.json"), ("commit", "a" * 40),
+                                           ("sha256", "0" * 64), ("document", {"fixture": "unregistered"})):
+                        tampered = copy.deepcopy(value)
+                        tampered[key][field] = changed
+                        path.write_bytes(bench.json_bytes(tampered))
+                        with self.subTest(addendum=key, field=field), self.assertRaisesRegex(ValueError, message):
+                            bench.load_binding(path)
+                    missing = copy.deepcopy(value)
+                    del missing[key]
+                    path.write_bytes(bench.json_bytes(missing))
+                    with self.subTest(addendum=key, field="absent"), self.assertRaisesRegex(ValueError, message):
                         bench.load_binding(path)
-                missing = copy.deepcopy(value)
-                del missing["development_addendum"]
-                path.write_bytes(bench.json_bytes(missing))
-                with self.assertRaisesRegex(ValueError, "Binding development addendum"):
-                    bench.load_binding(path)
         compact = bench.summary(report, b"compressed-fixture", b"raw-fixture")
-        self.assertEqual(compact["development_addendum"], original)
-        self.assertEqual(compact["run"]["binding"]["development_addendum"], original)
-        report["development_addendum"]["commit"] = "a" * 40
-        self.assertIn("development_addendum_changed", bench.validation(report)["issues"])
+        for key, original in addenda.items():
+            self.assertEqual(compact[key], original)
+            self.assertEqual(compact["run"]["binding"][key], original)
+            changed = copy.deepcopy(report)
+            changed[key]["commit"] = "a" * 40
+            self.assertIn(key + "_changed", bench.validation(changed)["issues"])
+            del changed[key]
+            self.assertIn(key + "_changed", bench.validation(changed)["issues"])
 
     def test_registered_matrix_and_seed_are_the_new_round_four_axes(self):
         plan = json.loads(bench.PLAN.read_bytes())
@@ -360,6 +399,7 @@ class PerformanceGateTests(unittest.TestCase):
             bench.save_report(output, report)
             with patch.object(bench, "load_plan", return_value=report["plan"]), \
                     patch.object(bench, "registered_addendum", return_value=report["development_addendum"]), \
+                    patch.object(bench, "registered_counting_addendum", return_value=report["counting_addendum"]), \
                     patch.object(bench, "file_hashes", return_value=report["run"]["evaluator_files"]):
                 self.assertEqual(bench.audit(output, state)["retrieval_calls_executed"], 0)
                 summary = output.with_name("fixture.summary.json")
@@ -368,6 +408,28 @@ class PerformanceGateTests(unittest.TestCase):
                 summary.write_text(json.dumps(value))
                 with self.assertRaisesRegex(ValueError, "Summary or raw hashes"):
                     bench.audit(output, state)
+
+    def test_saved_audit_rejects_coherent_counting_addendum_rewrite(self):
+        report = fixture()
+        registered = copy.deepcopy(report["counting_addendum"])
+        # Matching report, binding, worker identities and recalculated summary
+        # must not make altered preregistration content acceptable to the audit.
+        for document in (report["counting_addendum"], report["run"]["binding"]["counting_addendum"]):
+            document["document"]["candidate_c"]["guard"] = "unregistered replacement"
+        for worker in report["workers"]:
+            worker["run_identity_sha256"] = bench.digest(report["run"])
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "fixture.json.gz"
+            bench.save_report(output, report)
+            self.assertTrue(report["validation"]["passed"])
+            with patch.object(bench, "load_plan", return_value=report["plan"]), \
+                    patch.object(bench, "registered_addendum", return_value=report["development_addendum"]), \
+                    patch.object(bench, "registered_counting_addendum", return_value=registered), \
+                    patch.object(bench, "file_hashes", return_value=report["run"]["evaluator_files"]), \
+                    patch.object(bench, "resume_prefix") as retrieval:
+                with self.assertRaisesRegex(ValueError, "Report counting addendum differs"):
+                    bench.audit(output, Path(directory) / "not-created-state")
+                retrieval.assert_not_called()
 
     def test_zero_or_partial_workers_preserve_failure_report_and_all_twelve_cells(self):
         for count in (0, 1, 5):
@@ -404,6 +466,7 @@ class PerformanceGateTests(unittest.TestCase):
             self.assertTrue((public / "controller-attempts/0001.started.json").is_file())
             with patch.object(bench, "load_plan", return_value=report["plan"]), \
                     patch.object(bench, "registered_addendum", return_value=report["development_addendum"]), \
+                    patch.object(bench, "registered_counting_addendum", return_value=report["counting_addendum"]), \
                     patch.object(bench, "file_hashes", return_value=report["run"]["evaluator_files"]):
                 self.assertEqual(bench.audit(output, public)["retrieval_calls_executed"], 0)
 

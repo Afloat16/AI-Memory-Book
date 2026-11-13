@@ -6,6 +6,7 @@ substitutes a character estimate for an exact count and never generates facts.
 
 from __future__ import annotations
 
+import hashlib
 import re
 from bisect import bisect_left
 from functools import lru_cache
@@ -14,6 +15,12 @@ from typing import Any, Callable
 from .text import terms
 
 TOKENIZERS = ("cl100k_base", "o200k_base")
+_SEALED_PATTERNS = {
+    "cl100k_base": "f021c3d976978e62ee64cdad150cc3405c2e3d6e3b40407850bb9e8d9eb65899",
+    "o200k_base": "2d1b8dc11e89af71459b36004f698ab3693f59fd84f63e8ec2b49564ab857420",
+}
+_ENCODER_METHOD_NAMES = ("encode_ordinary", "encode_with_unstable", "decode_bytes")
+_ORDINARY_ENCODER_METHODS: tuple | None = None
 _ROLE = re.compile(r"^(?:USER|ASSISTANT|SYSTEM|DEVELOPER|TOOL):[ \t]*")
 _OPEN = re.compile(r"^[ \t]{0,3}(`{3,}|~{3,})(.*)$")
 _SENTENCE = re.compile(r"[。！？]|[.!?](?=\s|$)")
@@ -25,6 +32,11 @@ def _encoding(name: str):
         import tiktoken
     except ImportError as exc:
         raise RuntimeError('Exact token budgets require the tokens extra; from a source checkout run: pip install -e ".[tokens]"') from exc
+    global _ORDINARY_ENCODER_METHODS
+    if _ORDINARY_ENCODER_METHODS is None:
+        # Capture the normally loaded optional dependency lazily. Later class
+        # or instance method overrides must not inherit its certificate.
+        _ORDINARY_ENCODER_METHODS = tuple(getattr(tiktoken.Encoding, method) for method in _ENCODER_METHOD_NAMES)
     return tiktoken.get_encoding(name), tiktoken.__version__
 
 
@@ -78,6 +90,45 @@ class TokenCounter:
             return _PrefixTokenCounter(self.count, prefix)
         stable_count = len(stable)
         return _PrefixTokenCounter(self.count, tail, stable_count)
+
+
+# Retain the ordinary methods themselves: subclasses and monkeypatched test or
+# application counters keep their historical complete-context calls.
+_ORDINARY_COUNT = TokenCounter.count
+_ORDINARY_COUNT_AFTER = TokenCounter.count_after
+
+
+def _can_seal_blocks(counter: TokenCounter) -> bool:
+    """Certify only the inspected ordinary tokenizer, never a generic counter.
+
+    With these exact patterns, a piece ending in LF cannot consume the next
+    '['. cl100k's EOF whitespace branch consumes the same bytes as its newline
+    branch at this boundary. BPE therefore receives identical separate pieces.
+    Header and strict UTF-8 certificates are checked lazily on the actual text.
+    """
+    if (type(counter) is not TokenCounter
+            or getattr(counter.count, "__func__", None) is not _ORDINARY_COUNT
+            or getattr(counter.count_after, "__func__", None) is not _ORDINARY_COUNT_AFTER
+            or getattr(counter, "version", None) != "0.12.0"):
+        return False
+    import tiktoken
+    encoding = getattr(counter, "encoding", None)
+    name = getattr(counter, "name", None)
+    if (tiktoken.__version__ != "0.12.0" or type(encoding) is not tiktoken.Encoding
+            or name not in _SEALED_PATTERNS or getattr(encoding, "name", None) != name):
+        return False
+    if _ORDINARY_ENCODER_METHODS is None:
+        return False
+    for method, ordinary in zip(_ENCODER_METHOD_NAMES, _ORDINARY_ENCODER_METHODS):
+        if getattr(getattr(encoding, method), "__func__", None) is not ordinary:
+            return False
+    pattern = getattr(encoding, "_pat_str", None)
+    if not isinstance(pattern, str):
+        return False
+    try:
+        return hashlib.sha256(pattern.encode("utf-8")).hexdigest() == _SEALED_PATTERNS[name]
+    except UnicodeEncodeError:
+        return False
 
 
 def source_units(text: str) -> list[tuple[int, int]]:
@@ -252,36 +303,82 @@ def assemble_with_count(
     counter: TokenCounter,
     source_units_for: Callable[[dict], list[tuple[int, int]]] | None = None,
 ) -> tuple[list[tuple[dict, str, str, list[tuple[int, int]]]], int]:
-    """Pack exactly as ``assemble`` and retain the last accepted token count."""
+    """Pack exactly as ``assemble`` with per-call certified prefix work reuse."""
     kept: list[tuple[dict, str, str, list[tuple[int, int]]]] = []
     blocks: list[str] = []
     seen: set[str] = set()
     term_cache: dict[str, set[str]] = {}
-    accepted_tokens = 0
+    accepted_tokens: int | None = 0
+    accepted_prefix_tokens = 0
+    block_chars = 0
+    sealed_tokens, sealed_blocks = 0, 0
+    can_seal = _can_seal_blocks(counter)
 
-    def fitting_count(block: str) -> int | None:
-        proposed = "\n\n".join([*blocks, block])
-        if len(proposed) > budget_chars:
+    def certified_bytes(header: str, block: str) -> int | None:
+        nonlocal can_seal
+        if can_seal:
+            if header.startswith("["):
+                try:
+                    return len(block.encode("utf-8"))
+                except UnicodeEncodeError:
+                    pass
+            # Stay on the old path for the remainder of this call. In
+            # particular, a prior surrogate must still reach the original
+            # count_after(full_prefix) error if that lazy path is requested.
+            can_seal = False
+        return None
+
+    def prefix_tokens() -> int:
+        nonlocal sealed_tokens, sealed_blocks
+        # Only accepted blocks are sealed, once each, and only when needed by
+        # a later candidate. Their counts include the exact two-LF separator.
+        while sealed_blocks < len(blocks):
+            sealed_tokens += counter.count(blocks[sealed_blocks] + "\n\n")
+            sealed_blocks += 1
+        return sealed_tokens
+
+    def fitting_count(header: str, block: str) -> tuple[int | None, int] | None:
+        if block_chars + 2 * len(blocks) + len(block) > budget_chars:
             return None
-        count = counter.count(proposed)
-        return count if count <= budget_tokens else None
+        byte_count = certified_bytes(header, block)
+        if byte_count is not None:
+            base = prefix_tokens()
+            # Ordinary BPE tokens each represent at least one UTF-8 byte.
+            # This sufficient acceptance bound never estimates final metadata.
+            if base + byte_count <= budget_tokens:
+                return None, base
+            count = base + counter.count(block)
+        else:
+            base = 0
+            count = counter.count("\n\n".join([*blocks, block]))
+        return (count, base) if count <= budget_tokens else None
+
+    def final_count() -> int:
+        # A later rejection cannot replace this last accepted context/count.
+        # When the byte bound accepted it, only its final unsealed block still
+        # needs an exact encode; all preceding blocks have an exact certificate.
+        if accepted_tokens is None:
+            return accepted_prefix_tokens + counter.count(blocks[-1])
+        return accepted_tokens
 
     for entry in legacy:
         row, header, text, _ = entry
-        count = fitting_count(header + text) if text else None
-        if count is not None:
+        block = header + text if text else ""
+        fit = fitting_count(header, block) if text else None
+        if fit is not None:
             kept.append(entry)
-            blocks.append(header + text)
+            blocks.append(block)
+            block_chars += len(block)
             seen.add(row["id"])
-            accepted_tokens = count
+            accepted_tokens, accepted_prefix_tokens = fit
     if budget_tokens == 0:
-        return kept, accepted_tokens
+        return kept, final_count()
 
     for row in pages:
         if row["id"] in seen:
             continue
         header = f'[{row["id"]}] {row["project_id"]} / {row["session_id"]} | {row["created_at"]}\n'
-        remaining_chars = budget_chars - sum(map(len, blocks)) - 2 * len(blocks) - len(header)
+        remaining_chars = budget_chars - block_chars - 2 * len(blocks) - len(header)
         if remaining_chars <= 0:
             continue
         qset = set(row.get("excerpt_terms", query_terms))
@@ -300,25 +397,42 @@ def assemble_with_count(
         choices.sort(key=lambda item: (-item[0], -item[1], item[2], item[3]))
         if not choices:
             continue
-        prefix = "\n\n".join([*blocks, header])
+        byte_count = certified_bytes(header, header)
+        base = prefix_tokens() if byte_count is not None else 0
+        prefix = header if byte_count is not None else "\n\n".join([*blocks, header])
         count_after_prefix = None
         for index, (_, _, start, end, text) in enumerate(choices[:96]):
             # Character fit was checked above. Preserve the exact full-context
             # token boundary while avoiding repeated work on accepted blocks.
             # A first-choice success needs one ordinary encode. Prepare reusable
             # tokens only after rejection, when several fit checks remain.
-            if index == 1 and len(choices) > 3:
+            block = header + text
+            was_sealed = can_seal
+            byte_count = certified_bytes(header, block)
+            restart_full_prefix = was_sealed and not can_seal
+            if restart_full_prefix:
+                # A later candidate can be the first invalid UTF-8 input.
+                # Recreate the historical prefix counter if it was already
+                # requested, instead of mixing a header-only suffix with it.
+                base = 0
+                prefix = "\n\n".join([*blocks, header])
+                count_after_prefix = None
+            if (index == 1 or (restart_full_prefix and index > 1)) and len(choices) > 3:
                 count_after_prefix = counter.count_after(prefix)
                 # Every remaining prepared count adds a nonnegative suffix.
                 # Preserve the first full count and existing lazy setup rule.
-                if count_after_prefix.minimum_tokens > budget_tokens:
+                if base + count_after_prefix.minimum_tokens > budget_tokens:
                     break
-            count = (count_after_prefix(text) if count_after_prefix is not None
-                     else counter.count(prefix + text))
-            if count <= budget_tokens:
+            if byte_count is not None and base + byte_count <= budget_tokens:
+                count = None  # Proved fit; exact final count remains lazy.
+            else:
+                count = base + (count_after_prefix(text) if count_after_prefix is not None
+                                else counter.count(prefix + text))
+            if count is None or count <= budget_tokens:
                 kept.append((row, header, text, [(start, end)]))
-                blocks.append(header + text)
+                blocks.append(block)
+                block_chars += len(block)
                 seen.add(row["id"])
-                accepted_tokens = count
+                accepted_tokens, accepted_prefix_tokens = count, base
                 break
-    return kept, accepted_tokens
+    return kept, final_count()

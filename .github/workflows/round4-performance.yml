@@ -33,7 +33,7 @@ jobs:
       - name: Install the bound SDK and reference tokenizers
         run: python -m pip install -e '.[mcp,clients,benchmark]' 'mcp==1.30.0' 'pydantic==2.14.3' 'tiktoken==0.12.0'
       - name: Check the measurement and runtime correctness fixtures
-        run: python -m unittest tests.test_round4_performance tests.test_round4_token_work tests.test_token_budget tests.test_project_rowid_bounds tests.test_lexical_cache -v
+        run: python -m unittest tests.test_round4_performance tests.test_round4_sealed_counts tests.test_round4_highlight tests.test_round4_token_work tests.test_token_budget tests.test_project_rowid_bounds tests.test_lexical_cache -v
       - name: Prepare only the frozen sources and old regression input
         id: prepare
         run: |
