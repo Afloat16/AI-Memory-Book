@@ -1,0 +1,441 @@
+{
+  "schema_version": 1,
+  "status": "accepted-independent-sql-attribution-implementation-review-before-final-binding-and-corpus",
+  "reviewed_at_utc": "2026-11-13 19:20:00 UTC",
+  "reviewer": "independent baseline_audit agent",
+  "repository": "Afloat16/AI-Memory-Book",
+  "reviewed_controller_commit": "108124188381a199735022abf21b9a0b9c812a54",
+  "reviewed_runtime_source_commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+  "runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
+  "implementation_review_accepted": true,
+  "launch_review_accepted": false,
+  "performance_accepted": false,
+  "formal_evaluation_accepted": false,
+  "release_accepted": false,
+  "corpus_calls_executed_by_review": 0,
+  "fresh_rows_decoded_by_review": 0,
+  "scope": {
+    "attempt": "round5-lm-sql-attribution-1",
+    "diagnostic_only": true,
+    "original_scope": {
+      "commit": "a3ef7df18de8336126cbb266a7b7caae1bc38100",
+      "path": "benchmarks/experiments/round5-lm-sql-attribution-scope.json",
+      "sha256": "0b3a249df45a25a00f76f4ad2c6e0cfa56fc7147a19e982fca429884c5ef1269"
+    },
+    "pairing_addendum": {
+      "commit": "056422edec1bd2c178afae33df57eca8848f3fd1",
+      "path": "benchmarks/experiments/round5-lm-sql-attribution-pairing-addendum.json",
+      "sha256": "cf55b88d45ee7a0dca53abefa6dc651d7eceb36f6ae0e709919655c566c36d21"
+    },
+    "publisher_addendum": {
+      "read_at_commit": "23e9add7bb2cb047096d9e4c6d6210127b6685db",
+      "path": "benchmarks/experiments/round5-lm-sql-attribution-publisher-addendum.json",
+      "sha256": "c9b58ce1079f449dc6809c54c6f2cf4beba45695af8b3d0ae63c409e26d776a4",
+      "git_blob": "9ae8e21a114b7296ff35e107b4998f470f6d2131"
+    },
+    "root_scope_approval": {
+      "commit": "fa2018b98a297352fee527bcc120ed4fa27e3022",
+      "path": "benchmarks/reports/round5-lm-sql-attribution-scope-independent-review.json",
+      "sha256": "9f28ee3dc2fb0ab16142e1ded9152e96de47c9a362ae5bd333c3c6cfe9c86241"
+    },
+    "approvals_read_at_control": "f0e98daa83b97be95b5718b6041edbd178397051",
+    "root_pairing_approval_path": "benchmarks/reports/round5-lm-sql-attribution-pairing-independent-review.json"
+  },
+  "reviewed_artifact_files_sha256": {
+    "scripts/round5_lm_sql_attribution.py": "983813673788860014fcb0900583982b46b5d6e5c231541477e54d4a05e76273",
+    "tests/test_round5_lm_sql_attribution.py": "ea6b96e06bd4766741b90a401951d21aeddc3a23e75d58e50e560a159af90dc5",
+    ".github/workflows/round5-lm-sql-attribution.yml": "4b972bad02fb9fafd1e6885ca441fc9348def85db788db6ec3dfabf5afbcb343"
+  },
+  "runtime_identity_recomputation": {
+    "aggregate": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
+    "sourceMatches": [
+      {
+        "path": "src/memory_book/__init__.py",
+        "git_blob": "c3db390ff242396abb207608cea461922ac77216",
+        "sha256": "3b91357e9271f1abbe7d2dd4c01f0067ca5b5a65d6065844c850328d49e6aad7",
+        "expected": "3b91357e9271f1abbe7d2dd4c01f0067ca5b5a65d6065844c850328d49e6aad7",
+        "match": true
+      },
+      {
+        "path": "src/memory_book/__main__.py",
+        "git_blob": "eb53e2f31b2f703ad32ef64b8a41faa3e7d18e08",
+        "sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+        "expected": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+        "match": true
+      },
+      {
+        "path": "src/memory_book/cli.py",
+        "git_blob": "9dddfd4a9c8583986f25f53e05722efd53a34c21",
+        "sha256": "f0e06d1d15e250aa4a6b1279a451f8d3d02acd1b8f7bd0a849b840397603e190",
+        "expected": "f0e06d1d15e250aa4a6b1279a451f8d3d02acd1b8f7bd0a849b840397603e190",
+        "match": true
+      },
+      {
+        "path": "src/memory_book/clients.py",
+        "git_blob": "6d7e53025ebe7b9abbd19c4e59e548fbc9fb06df",
+        "sha256": "c87c2ebd4dbd6b193b186f493586f53183a38e8108fd7011df3aa474f9b2058f",
+        "expected": "c87c2ebd4dbd6b193b186f493586f53183a38e8108fd7011df3aa474f9b2058f",
+        "match": true
+      },
+      {
+        "path": "src/memory_book/importers.py",
+        "git_blob": "8118f46c086eb40689944b22757c98b08261253a",
+        "sha256": "f61aabfaa3e1fd2f46010e3c745e3275bb0d84c6d8e1b83317fda9e6b5cd7b76",
+        "expected": "f61aabfaa3e1fd2f46010e3c745e3275bb0d84c6d8e1b83317fda9e6b5cd7b76",
+        "match": true
+      },
+      {
+        "path": "src/memory_book/integration.py",
+        "git_blob": "3a3287589e472146299c15124113590bdcc5ac74",
+        "sha256": "88ed9bf5a0ee90b93516dc9ded0e0a8f1459354f25fbcc5afe70197b9444c6c5",
+        "expected": "88ed9bf5a0ee90b93516dc9ded0e0a8f1459354f25fbcc5afe70197b9444c6c5",
+        "match": true
+      },
+      {
+        "path": "src/memory_book/mcp_server.py",
+        "git_blob": "276f00f085070e35acf657b6b015e7009632d6e3",
+        "sha256": "7f4e0cd884690bf585809c1d246228440a940e4752729928f2fc7b6698f0a1df",
+        "expected": "7f4e0cd884690bf585809c1d246228440a940e4752729928f2fc7b6698f0a1df",
+        "match": true
+      },
+      {
+        "path": "src/memory_book/paths.py",
+        "git_blob": "fdec84d67e4026726aad25944279f2c13f44b3bd",
+        "sha256": "37fd4089455082aa680b1fb3dcef8645e558bb43b7d27285ef32997629622bf4",
+        "expected": "37fd4089455082aa680b1fb3dcef8645e558bb43b7d27285ef32997629622bf4",
+        "match": true
+      },
+      {
+        "path": "src/memory_book/segmentation.py",
+        "git_blob": "86ff3112ee8c9cfa4d80653708d13334000dfb0b",
+        "sha256": "773cb62777bb11a66f1d2318bd75601f9ac38ea0fb6e7a534c1d8844a1a16e75",
+        "expected": "773cb62777bb11a66f1d2318bd75601f9ac38ea0fb6e7a534c1d8844a1a16e75",
+        "match": true
+      },
+      {
+        "path": "src/memory_book/semantic.py",
+        "git_blob": "1d4482b2bec1007a65aa0c67388818664b1aa384",
+        "sha256": "41df86bced1b613deea2f1b1361eba9f32c3786f5185a06253fbfd32270ac91e",
+        "expected": "41df86bced1b613deea2f1b1361eba9f32c3786f5185a06253fbfd32270ac91e",
+        "match": true
+      },
+      {
+        "path": "src/memory_book/service.py",
+        "git_blob": "acf3c489660b712925c889a88199b927d147e8bb",
+        "sha256": "55bd05f45cafc5dcd6c1fc5ceceade85f005a85a850b908c7bb155cff5a3584f",
+        "expected": "55bd05f45cafc5dcd6c1fc5ceceade85f005a85a850b908c7bb155cff5a3584f",
+        "match": true
+      },
+      {
+        "path": "src/memory_book/static/index.html",
+        "git_blob": "d6f2c4ffd7d3878d73915e029141064012f0d956",
+        "sha256": "52f6e2d22fd25f6d5f9bd4df345c5c5e1ecaa907c326e61abc33a9b29c70d2d7",
+        "expected": "52f6e2d22fd25f6d5f9bd4df345c5c5e1ecaa907c326e61abc33a9b29c70d2d7",
+        "match": true
+      },
+      {
+        "path": "src/memory_book/store.py",
+        "git_blob": "ea710339602b1da17b202df4f4fa5c34ca894e9d",
+        "sha256": "38c405b640216992b29b49c2f1937b8c5b644383f3cbfbcf764c5a7d502a9c58",
+        "expected": "38c405b640216992b29b49c2f1937b8c5b644383f3cbfbcf764c5a7d502a9c58",
+        "match": true
+      },
+      {
+        "path": "src/memory_book/sync.py",
+        "git_blob": "8c80ed034a66547df649aafb50de35995dd2dffd",
+        "sha256": "89b2ac4b30b9b14ac564c3d328a51fbba97b2efc8a8dd1997892fc4142501291",
+        "expected": "89b2ac4b30b9b14ac564c3d328a51fbba97b2efc8a8dd1997892fc4142501291",
+        "match": true
+      },
+      {
+        "path": "src/memory_book/text.py",
+        "git_blob": "6d0f39c5222b3fbae819a12b320db42d151f9762",
+        "sha256": "7c085f278252ff91cde97ba16a63c2a35365ddddb64fe12200c92c3e8e1d5ff7",
+        "expected": "7c085f278252ff91cde97ba16a63c2a35365ddddb64fe12200c92c3e8e1d5ff7",
+        "match": true
+      },
+      {
+        "path": "src/memory_book/title_reference.py",
+        "git_blob": "bb7bb9d54903ba1dfd9cc1709066a8223520911d",
+        "sha256": "7e2c17fe5af2882f6471fd5610e1eca65eeac7f02e73f9daf6b5f2970709423e",
+        "expected": "7e2c17fe5af2882f6471fd5610e1eca65eeac7f02e73f9daf6b5f2970709423e",
+        "match": true
+      },
+      {
+        "path": "src/memory_book/token_budget.py",
+        "git_blob": "92191f38fc6d30dc0cf7a783b2e11c2cfb2b09f1",
+        "sha256": "505ece57e7227ee1955d76883411362a1f462c28a2e8964984be818395266180",
+        "expected": "505ece57e7227ee1955d76883411362a1f462c28a2e8964984be818395266180",
+        "match": true
+      },
+      {
+        "path": "src/memory_book/web.py",
+        "git_blob": "bdae9e22eb09cc21984930f34db292d008960250",
+        "sha256": "4e2cbfa33434322c78f57624c8faa32f4be9fb7fc29c8ffc4ed916e244446dcc",
+        "expected": "4e2cbfa33434322c78f57624c8faa32f4be9fb7fc29c8ffc4ed916e244446dcc",
+        "match": true
+      }
+    ],
+    "method": "Retained directly-read exact source bytes, with exact LM text.py; every file independently compared to registered LM SHA256 before canonical 17-Python aggregate."
+  },
+  "directly_read_original_helper_files": [
+    {
+      "path": "scripts/round4_development_profile.py",
+      "git_blob": "0418ae7bd75ba8708b4db5ec9380e03c007a741c",
+      "expected_sha256": "593b9f0667b1fc1cb3e38f5cc8411620759bc5abae68c56816221b950f99a416",
+      "actual_sha256": "593b9f0667b1fc1cb3e38f5cc8411620759bc5abae68c56816221b950f99a416",
+      "match": true
+    },
+    {
+      "path": "scripts/round4_development_pair.py",
+      "git_blob": "0b95ff1b22a69b2e603e95749ebb8f1757ea7f9c",
+      "expected_sha256": "e9e068d9d385591b847de512118b6ea5711ecb03aba097846b3cfd476cde252e",
+      "actual_sha256": "e9e068d9d385591b847de512118b6ea5711ecb03aba097846b3cfd476cde252e",
+      "match": true
+    },
+    {
+      "path": "scripts/benchmark_default_recall.py",
+      "git_blob": "2a54951e1b3927dee6c5ee3527ad0eb23a41835f",
+      "expected_sha256": "ce74bd117ef54da865963f6a185f40707dbf8a0eaf0019957288b71edf8c305a",
+      "actual_sha256": "ce74bd117ef54da865963f6a185f40707dbf8a0eaf0019957288b71edf8c305a",
+      "match": true
+    },
+    {
+      "path": "benchmarks/data.py",
+      "git_blob": "9ef4a780ff7d6a98a2590d3e15b224ef5a25bc1a",
+      "expected_sha256": "090d0460a6887eff32b3adb89d1684da9b7c9094f96246e187c1298051b64625",
+      "actual_sha256": "090d0460a6887eff32b3adb89d1684da9b7c9094f96246e187c1298051b64625",
+      "match": true
+    },
+    {
+      "path": "benchmarks/public_data.py",
+      "git_blob": "d053bc9f9a8b5ff178adb854d0ee523d1679a192",
+      "expected_sha256": "269625183d8bef8f3b34f534d1c6d52ce7c623f795015e3e1508835c3eee08e8",
+      "actual_sha256": "269625183d8bef8f3b34f534d1c6d52ce7c623f795015e3e1508835c3eee08e8",
+      "match": true
+    },
+    {
+      "path": "benchmarks/run.py",
+      "git_blob": "8dc33b680b6b5f186dd6712a64465e799bbd9c42",
+      "expected_sha256": "e557475d5701ea7271de9103aa8267e204796336b5277352fad015d9399521a4",
+      "actual_sha256": "e557475d5701ea7271de9103aa8267e204796336b5277352fad015d9399521a4",
+      "match": true
+    },
+    {
+      "path": "benchmarks/token_compare.py",
+      "git_blob": "b1da9c552e4da90018d6c868da404042764f8091",
+      "expected_sha256": "bb34650d947a89c17c87e179dc9e376fe44b6d10c0bf4bb70ca4cdfd46913f18",
+      "actual_sha256": "bb34650d947a89c17c87e179dc9e376fe44b6d10c0bf4bb70ca4cdfd46913f18",
+      "match": true
+    },
+    {
+      "path": "benchmarks/locomo_split.json",
+      "git_blob": "3188f48878b2d95deb2a0b2258046e8ee1c223db",
+      "expected_sha256": "a64086f1dc194c3fe9157e60f9696a77d3c650af836a60fab192f3db48c527f5",
+      "actual_sha256": "a64086f1dc194c3fe9157e60f9696a77d3c650af836a60fab192f3db48c527f5",
+      "match": true
+    },
+    {
+      "path": "benchmarks/experiments/round2-default-recall-performance-plan.json",
+      "git_blob": "7b0d1041fa8c6dccbe73d45def752c14cef070fa",
+      "expected_sha256": "78f533c0ebd280bf9312bbbb5fc39e58e6705e2e2de959c04777ee0834e77a82",
+      "actual_sha256": "78f533c0ebd280bf9312bbbb5fc39e58e6705e2e2de959c04777ee0834e77a82",
+      "match": true
+    }
+  ],
+  "preserved_findings": [
+    {
+      "id": "publisher-dead-leader-live-group",
+      "severity_when_found": "blocking",
+      "preserved_affected_draft": "aa65a40a1f8f334adb960a6c4bff634b34531cbc",
+      "equivalent_later_draft": "486694bd7a4dfde4a72f2ca388c968a4e58fbd0f",
+      "evidence_type": "Independent static counterexample, not an observed corpus interruption.",
+      "finding": "The old draft killed the process group only while the worker leader poll was None. A reaped abnormal leader can leave its synchronous Git child alive; unconditional publisher handoff could race an orphan push.",
+      "current_resolution": "23e9add7 requires normal zero exit and os.killpg(pgid,0) raising ProcessLookupError before handoff. Nonzero, timeout, launch failure and unknown/live group keep worker ownership. Best-effort group cleanup cannot grant ownership. The always step exits before public writes or Git operations while worker-owned.",
+      "retained_cases": [
+        "success",
+        "timeout",
+        "dead-leader-live-group",
+        "zero-live-group",
+        "unknown-group",
+        "launch-failure"
+      ],
+      "status": "fixed-and-independently-checked-against-actual-artificial-CI"
+    },
+    {
+      "id": "post-observer-payload-failure-prefix",
+      "evidence_type": "Static failure-preservation boundary; artificial SQLite witness.",
+      "finding": "Original recall/observer exception preservation did not encompass latency-field removal or payload fingerprint failure.",
+      "current_resolution": "observe_payload encloses recall, latency removal and fingerprint in one failure path, attaches observer.report to the current failed row, fsyncs the failed ledger record and stops the cell. Both fingerprint ValueError and missing-latency KeyError keep the actual two native C spans, without exception values.",
+      "status": "fixed-and-independently-checked"
+    },
+    {
+      "id": "always-ledger-storage-identities",
+      "evidence_type": "Static inspection of preservation return values.",
+      "current_resolution": "pack_bytes raw/compressed hashes and byte lengths are retained in workflow-outcome.available_ledger_storage. Worker-owned quarantine remains artifact-only, with raw STATE ledgers and lifecycle/publisher/publication journals included by the workflow.",
+      "status": "fixed-and-independently-checked"
+    },
+    {
+      "id": "raw-lifo-topology-validation",
+      "evidence_type": "Peer-provided static forged-raw counterexample; frozen observer producer already enforced a stack.",
+      "finding": "The earlier raw auditor checked containment and direct-child sums but could accept two overlapping root spans or overlapping siblings.",
+      "current_resolution": "108124 rebuilds active ancestors in call order. It rejects backward starts, roots or siblings overlapping an exited stack frame, and reopening a closed parent; declared parents disambiguate legal equal-clock ticks. The only changed top-level function from 23e is audit_observation.",
+      "artificial_negative_cases": [
+        "overlapping roots",
+        "overlapping siblings",
+        "nested interval incorrectly declared a root",
+        "reopened parent at an equal clock tick"
+      ],
+      "artificial_positive_cases": [
+        "adjacent roots",
+        "zero-duration shared-tick nesting/siblings/next root",
+        "adjacent siblings"
+      ],
+      "status": "fixed-and-independently-checked-against-actual-artificial-CI"
+    }
+  ],
+  "reviewed_contracts": [
+    {
+      "area": "single publisher",
+      "finding": "Only the designated controller or worker can publish according to a persistent role. Cell and worker intents precede calls. Expected remote head, ordinary non-force push and readback are mandatory; an ambiguous publication is recorded and not retried."
+    },
+    {
+      "area": "no replay",
+      "finding": "One immutable attempt namespace, run_attempt 1, exclusive worker and cell intent/ledger files and one new cohort DB prevent automatic rerun/resume. Failed query/cell/worker stops; prior completed diagnostic or LM claims/DBs are not reused."
+    },
+    {
+      "area": "raw prefix",
+      "finding": "Each query has a fsynced started record before observation and a completed/failed record after it. Cell output and ledger gzip identities are saved before the next cell. Available failed/open spans and full cells stay present; hard VM loss may still lose unpublished current-cell bytes, while the remote intent forbids replay."
+    },
+    {
+      "area": "observer lifecycle",
+      "finding": "A pre-existing profiler is rejected. sys.setprofile is installed only around recall and restored in finally. Native exact Connection/Cursor types, receiver/frame/owner/descriptor/method and strict LIFO identity govern pairing; fresh bound wrapper identity is retained as metadata. Callback failure, replacement, unmatched exits or an open stack invalidates the observation."
+    },
+    {
+      "area": "classification",
+      "finding": "Source filename/code/line/offset and upper caller classify fixed source sites without SQL, arguments, locals, row data or result content. Other native methods remain explicit. Unknown primary and disabled cache/coverage/optional paths retain raw data but make final classification acceptance false."
+    },
+    {
+      "area": "frozen source and inputs",
+      "finding": "require_binding is the first preflight/run/worker action and checks committed launch bytes. Separate correctness and measurement exports preserve full inventory checks. Guards before and after each cell verify all runtime files, original helper closure, scope/addenda/binding, preparation evidence, old corpus and references, interpreter/package/tokenizer-cache/boot environment."
+    },
+    {
+      "area": "complete old payload audit",
+      "finding": "One worker, one new MemoryBook per cohort, retained connection across all four fixed configurations, original seed/order/options and all 4732 calls. Every full non-timing payload and query order is checked against saved v0.3.2 C2 references. Missing/extra/duplicate/reordered rows or axes cannot be selected away."
+    },
+    {
+      "area": "calibration boundary",
+      "finding": "Exactly 1000 adjacent clock pairs and 128 observer-off then 128 observer-on invented calls are retained, with no best-of choice or subtraction from corpus measurements."
+    },
+    {
+      "area": "workflow",
+      "finding": "Sparse shallow checkout avoids history reports. Stdlib preflight precedes dependency/corpus preparation. Staging CI runs artificial tests only; attribution requires the unique registered ci branch and run attempt 1. Always artifacts include available public outputs, raw ledgers and ownership journals without the old corpus or database directories."
+    }
+  ],
+  "actual_artificial_evidence": [
+    {
+      "source_commit": "23e9add7bb2cb047096d9e4c6d6210127b6685db",
+      "run_id": 43489528587,
+      "protocol_job_id": 132106702870,
+      "status": "completed",
+      "conclusion": "success",
+      "tests": 34,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "corpus_calls": 0,
+      "attribution_job_id": 132106875429,
+      "attribution_conclusion": "skipped",
+      "raw_log": {
+        "path": "benchmarks/reports/round5-lm-sql-attribution-independent-review/ci-43489528587-job132106702870.log",
+        "sha256": "5e9f7f4cc946d01e216de68d8ce846cbae9fb6bfe3092af14b641365ea36ad48"
+      }
+    },
+    {
+      "source_commit": "108124188381a199735022abf21b9a0b9c812a54",
+      "run_id": 43490470211,
+      "protocol_job_id": 132109998742,
+      "status": "completed",
+      "conclusion": "success",
+      "receipt": {
+        "expected": 35,
+        "tests": 35,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": true,
+        "source_commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+        "runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
+        "script_sha256": "983813673788860014fcb0900583982b46b5d6e5c231541477e54d4a05e76273",
+        "test_file_sha256": "ea6b96e06bd4766741b90a401951d21aeddc3a23e75d58e50e560a159af90dc5",
+        "workflow_file_sha256": "4b972bad02fb9fafd1e6885ca441fc9348def85db788db6ec3dfabf5afbcb343",
+        "scope_sha256": "0b3a249df45a25a00f76f4ad2c6e0cfa56fc7147a19e982fca429884c5ef1269",
+        "pairing_addendum_sha256": "cf55b88d45ee7a0dca53abefa6dc651d7eceb36f6ae0e709919655c566c36d21",
+        "publisher_addendum_sha256": "c9b58ce1079f449dc6809c54c6f2cf4beba45695af8b3d0ae63c409e26d776a4",
+        "corpus_calls": 0
+      },
+      "case_names": [
+        "test_fake_clock_nested_inclusive_exclusive_and_bookkeeping",
+        "test_fixed_artificial_calibration_retains_every_sample",
+        "test_fresh_wrapper_with_exact_native_identity_is_recorded",
+        "test_missing_exit_remains_terminal_and_keeps_open_span",
+        "test_negative_span_exit_without_entry_and_open_stack_keep_partial",
+        "test_upper_caller_classification_and_unclassified_sites",
+        "test_wrong_receiver_method_frame_and_non_lifo_still_fail",
+        "test_all_4732_fake_payloads_and_orders_are_checked_and_mismatch_retained",
+        "test_artificial_evidence_must_cover_all_current_artifact_bytes_and_cases",
+        "test_bound_source_helpers_artifacts_and_prior_evidence_are_fail_closed",
+        "test_cell_intent_then_lossless_partial_result_then_next_intent",
+        "test_failed_intent_publication_prevents_a_query_or_next_stage",
+        "test_fingerprint_or_missing_latency_failure_keeps_current_native_spans",
+        "test_missing_extra_duplicate_reordered_invalid_payload_and_axes_are_rejected",
+        "test_publication_verifies_remote_and_never_retries_an_ambiguous_push",
+        "test_publisher_handoff_requires_zero_exit_and_explicit_group_absence",
+        "test_raw_lifo_topology_rejects_overlap_and_reopening_but_allows_shared_ticks",
+        "test_raw_span_corruption_cannot_pass_accounting",
+        "test_unknown_primary_and_disabled_paths_remain_raw_but_fail_completion_gate",
+        "test_worker_ownership_forbids_controller_publish_and_always_step_writes",
+        "test_cursor_factory_restoration_and_unsupported_fallback",
+        "test_real_payload_and_native_guard_with_both_upper_callsites",
+        "test_actual_builtin_identity_and_private_values_are_not_recorded",
+        "test_callback_has_no_filesystem_access_and_never_probes_user_objects",
+        "test_existing_profiler_is_not_replaced",
+        "test_interrupt_retains_other_native_builtin_and_exception",
+        "test_lifecycle_misuse_always_invalidates_the_observation",
+        "test_nested_c_exceptions_unwind_in_order",
+        "test_nested_native_udf_calls_keep_parentage_and_exclusive_sums",
+        "test_raw_native_wrapper_identity_probe",
+        "test_real_c_exception_uses_the_same_builtin_and_retains_exception_span",
+        "test_row_factory_exception_is_recorded_without_exception_values",
+        "test_full_guard_rejects_added_cache_and_modified_python",
+        "test_missing_binding_precedes_claim_download_and_export",
+        "test_namespace_cannot_publish_to_completed_lm_branch"
+      ],
+      "attribution_job_id": 132110164729,
+      "attribution_conclusion": "skipped",
+      "raw_log": {
+        "path": "benchmarks/reports/round5-lm-sql-attribution-independent-review/ci-43490470211-job132109998742.log",
+        "sha256": "53633f958e57e33c99d178fcefe8a8895435ae32061e7a97af0010af587cc183"
+      }
+    }
+  ],
+  "ordinary_tests_metadata_only": {
+    "run_id": 43490470236,
+    "head_sha": "108124188381a199735022abf21b9a0b9c812a54",
+    "status": "completed",
+    "conclusion": "success",
+    "all_job_logs_independently_read": false
+  },
+  "limits": [
+    "This accepts bounded implementation and artificial proof only. Final immutable source/evaluator/evidence binding was not present in reviewed 108124; its exact bytes and final launch commit remain required before any diagnostic trigger.",
+    "The diagnostic is registered on historical LM source 49f10e7, not the newer NO candidate. It cannot be labelled a NO profile or used as a NO or release speed measurement.",
+    "Observed native C spans can include Python callbacks and observer cost during the native call. They are partial C-boundary observations, not exhaustive or pure SQLite CPU time.",
+    "Implicit cursor iteration is unobserved; residual includes Python, unobserved SQLite and profiler overhead. Calibration does not justify overhead correction.",
+    "No corpus/fresh/model/search or measurement was executed by this review. Synthetic fixtures and saved Git/CI bytes are the evidence boundary."
+  ],
+  "remaining_launch_requirements": [
+    "Immutable final binding with exact 108124 artifact hashes and exact successful 35-case CI receipt/log references",
+    "Independent review of that binding and final commit delta",
+    "Root authorization and creation of the sole registered trigger, if root chooses to proceed"
+  ]
+}
