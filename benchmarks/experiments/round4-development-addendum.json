@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "status": "registered-before-candidate-b-implementation-and-measurement",
+  "registered_at_utc": "2026-11-13",
+  "original_plan_commit": "4f239eaab6e1ab7bfb8910819a74a6fab195629c",
+  "purpose": "Extend exact-output development after candidate A's insufficient gains; preserve the original plan and every numeric acceptance gate. No formal binding, timing, new ID selection or quality scoring has occurred.",
+  "prior_evidence": {
+    "candidate_a_commit": "cf71278744dd3272e3449f7bd8f371d64d0dbe1c",
+    "candidate_a_runtime_sha256": "ca8d2d1a227252d4048780ac4b6ed8eac7d2c931fa99b1338a238f490fc9e02f",
+    "evidence_commit": "e5b6c4e8c861e341abb960d5588d43248f3f2d14",
+    "profile": "benchmarks/reports/round4-development/candidate-a-manifest.json",
+    "paired_diagnostic": "benchmarks/reports/round4-development/candidate-a-paired-manifest.json",
+    "finding": "All old-data complete payload hashes match. The sequential native diagnostic has mixed cells and only approximately 4-7 percent public token p95 gains. This does not establish the registered formal speed gates. Profiling shows repeated indexed-body reads/word iteration and metadata copies on both character and token paths; token1024 work is dominated by legacy first-fit counting rather than supplemental-unit term analysis."
+  },
+  "candidate_b": {
+    "basis": "Retain candidate A's reviewed lazy projection and accepted-count reuse, then reduce exact work on the existing bounded ranking pool.",
+    "bounded_index_features": {
+      "value": "Immutable frozenset of a page's existing pretokenized indexed body; no new normalization, query, score, rank, result or embedding is cached.",
+      "scope": "One MemoryBook connection only; key by integer page rid within the archive revision captured by the existing read transaction. Clear all entries on a changed captured revision and on close. Fetch every miss from that same snapshot.",
+      "max_entries": 256,
+      "max_accounted_bytes": 2097152,
+      "accounting": "A conservative retained-object upper bound includes sets, strings, entry/key objects and the cache container. Oversized entries are used for the current query but not retained. Both entry and byte bounds are mandatory; no tuning these limits from measured outcomes.",
+      "semantics": "The novelty and temporal rules continue to receive exactly qset intersect body.split() for every page. API writes, other-connection writes and deletion/reused rowids are invalidated by the committed archive revision. Result-cache clear/write operations cannot invalidate immutable source features or alter them.",
+      "measurement": "Document the derived-feature cache separately from the disabled result cache. Each isolated worker starts with a fresh connection and empty feature cache; it may warm across queries. Keep first/repeat-round and RSS/startup results. Fresh correctness fixtures must compare empty/warm/evicted features and verify no source read escapes the transaction."
+    },
+    "metadata_copy": "Reuse the already private per-candidate metadata dictionary instead of copying it again. Original SQLite rows, route order, tie breaks, scores and scopes stay unchanged.",
+    "bounded_highlight_read": {
+      "hypothesis": "SQLite EXPLAIN on an invented schema shows MATCH plus rowid IN repeats the virtual scan per rowid, while MATCH plus a rowid range and unary-plus whitelist uses one bounded scan.",
+      "rule": "Only when at least two selected truncated rowids lie within a span of at most 256, add the exact redundant minimum/maximum bounds and apply the identical whitelist through +rowid IN. Single-id and wide-span requests keep the historical query. Highlighted bodies and keyed results must match exactly.",
+      "maximum_rowid_span": 256
+    },
+    "new_correctness_fixtures": [
+      "identical complete output with cold, warm, evicted and disabled derived-feature reuse",
+      "actual retained size bounded for ASCII, CJK, combining characters and large distinct-token pages",
+      "connection-local privacy and close cleanup",
+      "archive revision changes from same and other connections, deletions and rowid reuse",
+      "external writer during an established read snapshot and transaction rollback",
+      "result-cache clearing versus unchanged source features",
+      "same highlighted bytes for single, bounded, sparse and wide rid selections and stem-only matches"
+    ]
+  },
+  "unchanged": [
+    "All original formal speed, complete-payload, source/scope, strict budget and resource-review gates",
+    "One final committed candidate and evaluator binding before the sole formal measurement",
+    "No result or query-embedding cache, ranking/selection change, schema/index-content change or new runtime/model dependency",
+    "Q2 model, vectors and fusion; no new quality candidate or reopening rejected experiments",
+    "All 640 historical-ID exclusions and commit-before-selection protocol",
+    "All prior negative results, profiler diagnostics, published tags and frozen helpers"
+  ]
+}
