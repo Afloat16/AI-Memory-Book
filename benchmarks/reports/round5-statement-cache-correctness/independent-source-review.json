@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "status": "independent-static-source-and-saved-fixture-review-passed",
+  "at": "2026-11-13T11:30:12.517720+00:00",
+  "base_commit": "5ac62f38440e5620413d2e49ccb1c6c2db66bc75",
+  "implementation_checkpoint": "5cc8aaf4adade04e0f468c9a17dbd8b73cbfbf22",
+  "runtime_sha256": "71977e56c9f531b45581fabef8c12f28860937961e2788a9ad798d72fb749340",
+  "store_sha256": "2a8b8dfa7dd0879c24fd4552e9c8979dc6a75b896c15d628dba7ed942289027e",
+  "new_fixture_sha256": "e575369a523f2dd9fa1260fdb280869399a9dd88094be699927997a2cdd030c5",
+  "inherited_fixture_sha256": "f557eb50cecbeb4ffe216145aca461edd3a3371b84e3da603c92a31bf79e8f42",
+  "only_changed_runtime_file": "src/memory_book/store.py",
+  "normalized_complete_store_ast_equals_g": true,
+  "normalization": "Replace only native-connect capacity branch with its exact historical else assignment. The complete remaining AST equals G.",
+  "native_branch": {
+    "connect_identity": "saved _sqlite3.connect",
+    "cached_statements": 512,
+    "timeout": 10,
+    "isolation_level": null
+  },
+  "custom_branch": "Exactly historical arguments with no cached_statements keyword, including pre-import replacements inherited from G tests.",
+  "saved_test_result": {
+    "tests": 142,
+    "new": 5,
+    "inherited": 137,
+    "failed": 0,
+    "errors": 0,
+    "seconds": 11.445,
+    "log_sha256": "a730f6553648b66b481110ea5ed56b17948bb9e3a6beb7b67e466e887d074381",
+    "exit_record_sha256": "6724572bb8bac872e21786b2dc86a752eeb88993a4c3731a5f77e247b1546ac7",
+    "independent_reexecution": false
+  },
+  "preexecution_fixture_correction": "Before the first test, expected database argument changed from Path to str(Path); unchanged pager target is compared with native control instead of a vendor-specific numeric constant. Exact source checkpoint and prior hashes remain preserved. No runtime correction was made.",
+  "mechanism": "Artificial 200-template repeated working set asserts authorizer SELECT observations [200,200] for I and [200,400] for ordinary default, while every bound parameter result changes correctly. This proves capacity reuse for invented statements only; it does not establish production thrashing or speed.",
+  "semantic_review": [
+    "No SQL text, ranking, route limits, schemas, source/content reads, tokenization, transaction boundaries, cursor/factory guards or result-cache behavior changed.",
+    "Native certificate remains based on the same exact built-in connection and default factories. All existing mixed/custom fallback logic is byte unchanged.",
+    "Fixtures cover snapshot consistency with an external writer, visible later commit/rollback, schema-driven reprepare, custom connect arguments and pager settings unchanged from ordinary connection.",
+    "H pager target, E lifetime change and F overlap helper are absent."
+  ],
+  "resource_limits": [
+    "512 bounds statement entry count, not bytes or RSS. SQL text, VDBE and bindings/internal state may remain resident until reuse/eviction/close.",
+    "Metadata cardinality<=192 does not prove the actual default workload exceeds its 100/128-entry working set, nor does 512 cover every possible scope/limit/source-turn family.",
+    "No candidate speed conclusion follows from authorizer counts or instrumented SQLite execute time. Original whole-matrix performance/resource gates remain necessary."
+  ],
+  "references": [
+    {
+      "url": "https://docs.python.org/3.10/library/sqlite3.html",
+      "fact": "CPython 3.10 documents 100 default cached statements."
+    },
+    {
+      "url": "https://docs.python.org/3/library/sqlite3.html",
+      "fact": "Current documentation describes connection-local statement caching to avoid parsing overhead and a default capacity of 128."
+    },
+    {
+      "url": "https://www.sqlite.org/c3ref/reset.html",
+      "fact": "SQLite reset alone does not clear bound parameter values; this review does not claim that only SQL bytes can be retained."
+    }
+  ],
+  "retrieval_calls_executed_by_reviewer": 0,
+  "runtime_edits_by_reviewer": 0,
+  "blockers": []
+}

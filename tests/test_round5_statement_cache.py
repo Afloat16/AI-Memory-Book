@@ -85,14 +85,16 @@ class StatementCacheTests(unittest.TestCase):
             with MemoryBook(self.path, cache_size=0) as book:
                 self.assertIsNone(book._native_db)
                 self.assertEqual(book.db.execute('SELECT 8').fetchone()[0], 8)
-        self.assertEqual(observed, [(self.path, 10, None)])
+        self.assertEqual(observed, [(str(self.path), 10, None)])
 
     def test_native_certificate_and_pager_target_are_preserved(self):
+        with sqlite3.connect(':memory:') as ordinary:
+            expected_pager = ordinary.execute('PRAGMA main.cache_size').fetchone()[0]
         with MemoryBook(self.path, cache_size=0) as book:
             self.assertIs(book._native_db, book.db)
             self.assertIs(type(book.db), store._NATIVE_CONNECTION)
             self.assertIs(book.db.row_factory, sqlite3.Row)
-            self.assertEqual(book.db.execute('PRAGMA main.cache_size').fetchone()[0], -2000)
+            self.assertEqual(book.db.execute('PRAGMA main.cache_size').fetchone()[0], expected_pager)
             self.assertEqual(book.db.execute('PRAGMA foreign_keys').fetchone()[0], 1)
 
 

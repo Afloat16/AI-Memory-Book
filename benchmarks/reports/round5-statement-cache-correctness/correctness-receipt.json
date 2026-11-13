@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "candidate": "I",
+  "status": "functional-correctness-complete-corpus-not-started",
+  "scope_commit": "9949d7a0aeb69798451b759686f7f8dd79844198",
+  "scope_path": "benchmarks/experiments/round5-statement-cache-addendum.json",
+  "scope_sha256": "7b4a23a0fa404a6a9378ed321253824ce322d00242f10f4c00080756310da337",
+  "parent_commit": "5ac62f38440e5620413d2e49ccb1c6c2db66bc75",
+  "initial_source_checkpoint": "5cc8aaf4adade04e0f468c9a17dbd8b73cbfbf22",
+  "candidate_runtime_sha256": "71977e56c9f531b45581fabef8c12f28860937961e2788a9ad798d72fb749340",
+  "runtime_diff": "Only ordinary-native sqlite3.connect cached_statements=512; custom callable keeps exact original kwargs. G base, no E/F/H runtime changes.",
+  "tests": {
+    "unique": 142,
+    "executions": 142,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "unittest_seconds": 11.445,
+    "first_run_exit": {
+      "exit_code": 0,
+      "wall_seconds": 12.367117483001493
+    }
+  },
+  "mechanism": {
+    "invented_distinct_statements": 200,
+    "passes": 2,
+    "candidate_cumulative_preparations": [
+      200,
+      200
+    ],
+    "ordinary_control_cumulative_preparations": [
+      200,
+      400
+    ],
+    "new_parameters_observed": true,
+    "interpretation": "Authorizer observations prove only the invented working-set mechanism, not actual corpus thrash or latency improvement."
+  },
+  "invented_payload_comparison": {
+    "equal": true,
+    "pairs": 20,
+    "baseline_reference_sha256": "bf4b431d9832934b2c56d599f9a273c7c40ae6441c73c3c729984c989ca97e81",
+    "candidate_sha256": "99ab808ba3cc7957ac2a9f9fe9685e36f2cb8cb3725e2784ac69bcad933983ab",
+    "corpus_calls": 0
+  },
+  "source_unchanged_during_checks": true,
+  "files_sha256": {
+    "src/memory_book/__init__.py": "3b91357e9271f1abbe7d2dd4c01f0067ca5b5a65d6065844c850328d49e6aad7",
+    "src/memory_book/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+    "src/memory_book/cli.py": "d6eb141ab066d27637538c8423a12e379d1d8668e2145b23064aae315022b6aa",
+    "src/memory_book/clients.py": "c87c2ebd4dbd6b193b186f493586f53183a38e8108fd7011df3aa474f9b2058f",
+    "src/memory_book/importers.py": "f61aabfaa3e1fd2f46010e3c745e3275bb0d84c6d8e1b83317fda9e6b5cd7b76",
+    "src/memory_book/integration.py": "88ed9bf5a0ee90b93516dc9ded0e0a8f1459354f25fbcc5afe70197b9444c6c5",
+    "src/memory_book/mcp_server.py": "f9d4ee7f5eebd0eb76a7ca260a62bd98526b445e25e618bd6b77dff1de425fd3",
+    "src/memory_book/paths.py": "37fd4089455082aa680b1fb3dcef8645e558bb43b7d27285ef32997629622bf4",
+    "src/memory_book/segmentation.py": "773cb62777bb11a66f1d2318bd75601f9ac38ea0fb6e7a534c1d8844a1a16e75",
+    "src/memory_book/semantic.py": "41df86bced1b613deea2f1b1361eba9f32c3786f5185a06253fbfd32270ac91e",
+    "src/memory_book/service.py": "55bd05f45cafc5dcd6c1fc5ceceade85f005a85a850b908c7bb155cff5a3584f",
+    "src/memory_book/static/index.html": "52f6e2d22fd25f6d5f9bd4df345c5c5e1ecaa907c326e61abc33a9b29c70d2d7",
+    "src/memory_book/store.py": "2a8b8dfa7dd0879c24fd4552e9c8979dc6a75b896c15d628dba7ed942289027e",
+    "src/memory_book/sync.py": "89b2ac4b30b9b14ac564c3d328a51fbba97b2efc8a8dd1997892fc4142501291",
+    "src/memory_book/text.py": "e2b5dff3fc5527ffd7098e57d5f6dd81e954618c311a541ecd3794fdd9731389",
+    "src/memory_book/token_budget.py": "505ece57e7227ee1955d76883411362a1f462c28a2e8964984be818395266180",
+    "src/memory_book/web.py": "4e2cbfa33434322c78f57624c8faa32f4be9fb7fc29c8ffc4ed916e244446dcc",
+    "tests/test_round5_native_rows.py": "f557eb50cecbeb4ffe216145aca461edd3a3371b84e3da603c92a31bf79e8f42",
+    "tests/test_round5_statement_cache.py": "e575369a523f2dd9fa1260fdb280869399a9dd88094be699927997a2cdd030c5"
+  },
+  "independent_source_review_sha256": "4544311a9c201e62f841bbc40b2dcbeae87be0f58eecca0dcfd3f2520782e4e1",
+  "preexecution_fixtures": "Path-to-string expected arg and vendor-dependent pager assumption corrected before first test; original source checkpoint and snapshot retained.",
+  "corpus_calls_executed": 0,
+  "python310_tested_locally": false,
+  "artifacts_sha256": {
+    "first-run.exit.json": "6724572bb8bac872e21786b2dc86a752eeb88993a4c3731a5f77e247b1546ac7",
+    "first-run.intent.json": "7dd0e02c917dedb9ed1755571d6b07813eb453e7d8d510d9b9dd98599e756635",
+    "first-run.log": "a730f6553648b66b481110ea5ed56b17948bb9e3a6beb7b67e466e887d074381",
+    "independent-source-review.json": "4544311a9c201e62f841bbc40b2dcbeae87be0f58eecca0dcfd3f2520782e4e1",
+    "invented-candidate-payloads.json": "99ab808ba3cc7957ac2a9f9fe9685e36f2cb8cb3725e2784ac69bcad933983ab",
+    "invented-capture.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "invented-payload-capture.intent.json": "fe3a650d3d5308b3c650f1f2f77f98a870303da4a1b0d36c602cdc7cbede98be",
+    "invented-payload-equality.json": "0b780160cfdcd746615df51acafc4f92a96d7476351c1048e42af2cabd977c7c",
+    "preexecution-fixture-review.json": "8249a44a8f17e50f4f10fcf1db33eae370ffdd3badcdb56a559c5f819ce58f13",
+    "source-before-tests.json": "162a25c36f964e19caf7f6fd87066b56239253f5afbf3e946692540239a07c8e"
+  }
+}
