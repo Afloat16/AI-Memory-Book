@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "status": "candidate-l-artificial-ci-pending",
+  "scope_commit": "3f4ce4925442842c6a54ba05696106c33e38fb53",
+  "runtime_checkpoint": "dad748aa1b1c2f9de8f6864d77c35203a64b4b42",
+  "base_source": "4720728e47d53fc6c345fa89a2b5b739a67a1069",
+  "changed_runtime_files": [
+    "src/memory_book/store.py"
+  ],
+  "runtime_delta": "Three local replacements in canonical late materialization: decorate existing private entries with the complete original key, sort the entries directly, read original score/row/metadata from the tail.",
+  "base_method_sha256": "c67c33615f32a063f40992adc28c7bd148625c5c9d54ec004d0785e5411a70ab",
+  "proof": "The new artificial module reverses exactly the three declared blocks and SHA256-verifies the complete literal pre-L recall before compiling it. All other recall statements are therefore part of the reference, not a rewritten approximation.",
+  "fixture_module": "tests.test_round5_ranked_entries",
+  "fixture_methods": 15,
+  "boundaries": [
+    "IEEE bitwise scores and stable ID ordering, including multiple distinct NaN payloads and signed zero",
+    "payload tails that raise if compared",
+    "real SQLite full non-timing payloads, full wide union and limit50",
+    "duplicate route IDs, final score scale and duplicate metadata last-value behavior",
+    "custom rows and Row subclasses, late rank/metadata failures and rollback",
+    "coverage, mocked semantic adapters, active T1, both optional tokenizers and default cache",
+    "invalid UTF8 id and unchanged SQLite exception",
+    "real cProfile key callback count and unchanged application SQL; no latency comparison"
+  ],
+  "preserved": "All existing I/G, T1, K, materialization, token, source and interface fixtures remain byte-identical. SQL, full ranking arithmetic/order, schemas, limits, budgets, models, native row certificates, cache size and source/index behavior are unchanged.",
+  "risk": "This is a representation and object-allocation change. Wider retained ranking tuples and different temporary key allocation can affect GC or memory; artificial callback elimination does not predict timing or RSS. None of the original speed/resource gates is waived.",
+  "execution": {
+    "l_corpus_calls": 0,
+    "l_fresh_rows_decoded": 0,
+    "formal_attempt_started": false,
+    "ordinary_tests_ci": "Triggered by the accompanying final artificial-fixture commit only."
+  }
+}

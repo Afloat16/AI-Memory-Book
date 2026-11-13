@@ -63,14 +63,18 @@ def legacy_recall():
 
 
 def exact(value):
-    """Keep every payload field, including IEEE signs/payloads; omit only latency."""
+    """Represent floats without collapsing NaN payloads, infinities or signed zero."""
     if type(value) is float:
         return ("float64", struct.pack(">d", value).hex())
     if type(value) is dict:
-        return {key: exact(item) for key, item in value.items() if key != "latency_ms"}
+        return {key: exact(item) for key, item in value.items()}
     if type(value) in (list, tuple):
         return [exact(item) for item in value]
     return value
+
+
+def payload(value):
+    return exact({key: item for key, item in value.items() if key != "latency_ms"})
 
 
 def candidate_expressions():
@@ -180,7 +184,7 @@ class RankedEntryRecallTests(unittest.TestCase):
         options = {"budget_chars": 4000, **options}
         expected = invoke(book, True, query, **options)
         actual = invoke(book, False, query, **options)
-        self.assertEqual(exact(actual), exact(expected))
+        self.assertEqual(payload(actual), payload(expected))
         return actual
 
     def derived(self):
@@ -205,6 +209,7 @@ class RankedEntryRecallTests(unittest.TestCase):
                 with self.subTest(budget=budget, limit=limit):
                     self.compare("orbiting relay", project="lab", budget_chars=budget, limit=limit)
         self.book.cache_size = 2
+        cached_payloads = []
         for legacy in (True, False):
             self.book.db.execute("DELETE FROM recall_cache")
             method = legacy_recall() if legacy else CANDIDATE_RECALL
@@ -213,7 +218,9 @@ class RankedEntryRecallTests(unittest.TestCase):
             self.assertFalse(first["cache_hit"])
             self.assertTrue(second["cache_hit"])
             second["cache_hit"] = False
-            self.assertEqual(exact(first), exact(second))
+            self.assertEqual(payload(first), payload(second))
+            cached_payloads.append(payload(first))
+        self.assertEqual(cached_payloads[0], cached_payloads[1])
 
     def test_full_wide_union_and_limit_fifty_preserve_complete_count_and_order(self):
         helper = fixtures.WideCandidateMaterializationTests()
@@ -229,10 +236,10 @@ class RankedEntryRecallTests(unittest.TestCase):
                 result = self.compare(query, book=helper.book, project="wide",
                                       budget_chars=100000, **options)
                 self.assertGreater(result["candidate_count"], options["limit"])
-        exact_route = [(index, -float(193 - index)) for index in range(96)]
-        # The real query above exercises SQLite; a separate route fixture below
-        # proves duplicate/overlap precedence without relying on planner ranks.
-        self.assertEqual(len(exact_route), 96)
+                if query == "orbiting":
+                    self.assertGreater(result["candidate_count"], 96)
+                    self.assertLessEqual(result["candidate_count"], 192)
+                    self.assertEqual(len(result["results"]), 50)
 
     def test_duplicate_route_ids_last_rank_scale_and_metadata_last_value_match_literal_base(self):
         helper = self.derived()
@@ -247,7 +254,7 @@ class RankedEntryRecallTests(unittest.TestCase):
                 return [*rows, sqlite3.Row(cursor, tuple(values))]
             expected = self.injected(helper, True, route, stem, metadata_transform=transform)
             actual = self.injected(helper, False, route, stem, metadata_transform=transform)
-            self.assertEqual(exact(actual), exact(expected))
+            self.assertEqual(payload(actual), payload(expected))
             self.assertEqual(actual["candidate_count"], 3)
 
     def test_live_native_rows_with_nonfinite_and_signed_zero_ranks_preserve_score_bits(self):
@@ -263,7 +270,7 @@ class RankedEntryRecallTests(unittest.TestCase):
             with self.subTest(order=order, exact=[exact(x) for x in exact_values]):
                 expected = self.injected(helper, True, exact_route, stem)
                 actual = self.injected(helper, False, exact_route, stem)
-                self.assertEqual(exact(actual), exact(expected))
+                self.assertEqual(payload(actual), payload(expected))
                 self.assertEqual(actual["candidate_count"], 3)
 
     def test_custom_row_factories_and_subclasses_keep_old_named_mapping_payloads(self):
@@ -381,7 +388,7 @@ class RankedEntryRecallTests(unittest.TestCase):
         self.assertEqual(old[1], old[0]["candidate_count"])
         self.assertEqual(new[1], 0)
         self.assertEqual(old[2], new[2])
-        self.assertEqual(exact(old[0]), exact(new[0]))
+        self.assertEqual(payload(old[0]), payload(new[0]))
         print(json.dumps({"mechanism": "candidate-l-ranked-entry-keys",
             "candidate_count": old[0]["candidate_count"], "legacy_key_callbacks": old[1],
             "candidate_key_callbacks": new[1], "same_application_sql": True,
