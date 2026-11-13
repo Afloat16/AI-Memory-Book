@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "status": "registered-before-candidate-b-implementation-and-measurement",
+  "registered_at": "2026-11-13T06:08:46.815845+00:00",
+  "original_plan_commit": "7068594181c7e98c576f68a81daf85cd0d06c729",
+  "prior_candidate_commit": "2de18efd33bce939d86c345304ab18c556ac0c52",
+  "prior_candidate_runtime_sha256": "25d67aa37690e407200a759e6a5573eed852a53049b4aad2a4b39164bda4ddbb",
+  "evidence": {
+    "profile_pairs": 4732,
+    "paired_calls": 4096,
+    "paired_payload_pairs": 2048,
+    "paired_audit_sha256": "2e3dd7b8204860ed5078a1d1cffe356ece38551553f15262576f217411c0b149",
+    "paired_p95_geomean_improvement_percent": 0.7282980733094191,
+    "public_char_p95_regression_percent": 24.33796714157579
+  },
+  "disposition": "Candidate A is not selected for formal timing or release. All rows and adverse cells are retained. No formal run has started.",
+  "hypothesis": "Late materialization of private dictionaries for only the exact default lexical rerank prefix can avoid work on candidates that never affect returned evidence. Every route-union row still receives the same score and deterministic global sort.",
+  "allowed": [
+    "Apply the late materialization shortcut only when coverage is false, semantic_model is None, and all participating route/metadata objects are the exact built-in sqlite3.Row type with complete required metadata.",
+    "Sort all scored entries using the identical float operation order, route-rank tie keys and page IDs. Retain full union count separately.",
+    "For book strategy, materialize the original min(n,limit*4) prefix when current-query or multi-term novelty reranking runs; otherwise materialize min(n,limit). Preserve all current/novelty logic on that exact prefix.",
+    "Use the original full candidate count for response candidate_count and truncated. Preserve warnings, default cache payloads and token/source assembly.",
+    "Keep full materialization for coverage, Q2, custom mappings/Row subclasses and incomplete metadata so optional-route ranks, exception behavior and caller hooks retain their old contract.",
+    "Retain within-call factor reuse; remove or simplify earlier temporary dictionary work only within this materialization path."
+  ],
+  "forbidden": [
+    "No SQL text, parameters, FTS route selection/limit/weights, schema/index or normalization changes.",
+    "No rank equations, candidate ordering, score rounding, semantic fusion, coverage or temporal policy changes.",
+    "No persistent/unbounded cache or result cache change.",
+    "No loss of candidate_count or truncated/empty-budget metadata.",
+    "No changes to original plan/gates, previous reports or evaluators."
+  ],
+  "fresh_fixtures": [
+    "More than20 lexical candidates with limit5; preserve full candidate count and exact selected payload.",
+    "limit1 current-query reranking still sees the original four-candidate prefix.",
+    "limit50 and route unions larger than96; preserve all applicable selection work.",
+    "Tiny/zero context budgets, flat/single-route/fused routes.",
+    "Coverage, semantic and custom-row fallback; concurrent source snapshot remains unchanged."
+  ],
+  "development": "Repeat the fixed4732-call candidate profile against saved v032 output and the same4096-call two-round paired diagnostic in new candidate-b paths. Preserve every row and runtime hash. These remain development measurements, not a replacement for candidate A or a formal performance claim.",
+  "formal": "Unchanged registered fourteen-cell66248-call matrix and all numeric/resource gates. Select one final bounded candidate before source/evaluator binding. Historical256 character/Q2 checks remain required."
+}

@@ -59,3 +59,22 @@ initial correctness receipt remains untouched and the additional failed/passing
 checks are preserved in `candidate-a-subclass-correctness.log`. No development
 or formal measurement preceded this repair. The repaired runtime hash is
 `25d67aa37690e407200a759e6a5573eed852a53049b4aad2a4b39164bda4ddbb`.
+
+## Candidate A development disposition
+
+The repaired candidate at `2de18efd` completed all 4,732 profile calls; every
+complete non-timing payload matches the saved v0.3.2 profile. Its separate
+4,096-call, two-round native diagnostic also preserves all 2,048 payload pairs.
+The eight-cell development p95 geometric gain is only 0.7283%; public character
+p95 rises 24.3380%, and synthetic character p95 rises 6.0709%. Public token1024
+p95 improves 11.6184%, but these mixed short diagnostics do not establish the
+registered aggregate/character improvement. Every row and loss remains in the
+new lossless archives and paired audit. Candidate A is not selected for formal
+measurement or release. No formal run or historical compatibility run has begun.
+
+The next bounded hypothesis is later materialization of the default lexical
+rerank prefix. All route rows still participate in exactly the same scoring
+and tie order, with the full original candidate count retained in the response.
+Coverage, semantic and custom row paths keep full materialization. Register a
+separate addendum before implementing/measuring that variant; all original
+formal gates remain unchanged.
