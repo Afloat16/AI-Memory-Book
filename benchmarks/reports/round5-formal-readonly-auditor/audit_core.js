@@ -104,9 +104,9 @@ module.exports=function makeFormalAudit(core,exact){
   }
   return {run,binding,plan,runIdentity:PIN.runIdentity};
  }
- function unpack(encoded,spec,codec){
-  need(int(spec.bytes,1n)&&HEX.test(spec.sha256),"Compressed artifact identity missing");
-  const compressed=exact.boundedBase64(encoded);need(BigInt(compressed.length)===spec.bytes&&core.sha256Bytes(compressed)===spec.sha256,"Compressed bytes/hash differ");
+ function unpack(encoded,spec,codec){return unpackBytes(exact.boundedBase64(encoded),spec,codec);}
+ function unpackBytes(compressed,spec,codec){
+  need(compressed instanceof Uint8Array&&int(spec.bytes,1n)&&HEX.test(spec.sha256),"Compressed artifact identity missing");need(BigInt(compressed.length)===spec.bytes&&core.sha256Bytes(compressed)===spec.sha256,"Compressed bytes/hash differ");
   need(compressed[0]===31&&compressed[1]===139,"Expected gzip");
   const raw=codec.ungzip(compressed);need(raw instanceof Uint8Array,"Codec must return exact bytes");
   const rawSha=core.sha256Bytes(raw);
@@ -117,7 +117,7 @@ module.exports=function makeFormalAudit(core,exact){
  }
  function auditWorker(input,context){
   const w=exact.parseExact(input.worker_text),started=exact.parseExact(input.started_text),run=context.run,formal=context.plan.candidate.formal;
-  const issues=[],errors={compared:0,maximum_absolute_difference:0},configs=[],ledgerRows=[];
+  const issues=[],errors={compared:0n,maximum_absolute_difference:0},configs=[],ledgerRows=[];
   const check=(condition,path,extra={})=>{if(!condition)issues.push({check:path,...extra});};
   const item=run.schedule.find(x=>x.key===w.key);need(item,"Unknown worker");
   check(w.status==="completed"&&w.error===null,"worker_completed");
@@ -217,6 +217,107 @@ module.exports=function makeFormalAudit(core,exact){
    seeded_shuffle_reimplemented:false,query_order_scope:"Original complete set and paired recorded order; the pinned hosted strictauditor independently enforces the registered Python seeded shuffle.",
    tokenizer_reexecuted:false,retrieval_calls:0n,new_measurements:0n};
  }
- return {PIN,GATES,ENCODINGS,INVARIANTS,ROW_FIELDS,SESSION_FIELDS,same,number,units,roundedUnits,fsum,fmean,percentile,latency,numeric,
+
+ function reassembleChunks(chunks,manifest,spec){
+  need(Array.isArray(chunks)&&Array.isArray(manifest.chunks)&&chunks.length===manifest.chunks.length&&int(spec.bytes,1n),"Chunk inventory absent");
+  need(manifest.bytes===spec.bytes&&manifest.sha256===spec.sha256,"Transport original-file binding differs");
+  const result=new Uint8Array(number(spec.bytes));let offset=0;
+  for(let i=0;i<chunks.length;i++){
+   const claim=manifest.chunks[i],raw=exact.boundedBase64(chunks[i]);
+   need(claim.index===BigInt(i)&&claim.offset===BigInt(offset)&&claim.bytes===BigInt(raw.length)&&
+    claim.bytes>0n&&claim.bytes<=480000n&&HEX.test(claim.sha256)&&core.sha256Bytes(raw)===claim.sha256,"Compressed chunk identity/range differs");
+   need(offset+raw.length<=result.length,"Compressed chunks overrun original");
+   result.set(raw,offset);offset+=raw.length;
+  }
+  need(offset===result.length&&core.sha256Bytes(result)===spec.sha256,"Reassembled original gzip differs");
+  return result;
+ }
+ function aggregate(receipts,context,summary){
+  const formal=context.plan.candidate.formal,issues=[],errors={compared:0n,maximum_absolute_difference:0};
+  const check=(condition,check,extra={})=>{if(!condition)issues.push({check,...extra});};
+  need(receipts.length===context.run.schedule.length,"Complete sixteen worker receipts required");
+  const canonical=new Map(),canonicalHeader=new Map(),comparisons=[],pairMismatches=[],crossRoundMismatches=[];
+  let calls=0n,ledgerEvents=0n,paired=0n,comparedWithFirst=0n;
+  for(let i=0;i<receipts.length;i++){
+   const receipt=receipts[i],item=context.run.schedule[i];
+   check(receipt.key===item.key&&receipt.round===item.round&&receipt.cohort===item.cohort&&receipt.label===item.label,
+    "worker_schedule",{index:BigInt(i)});
+   check(receipt.status==="independently-checked-worker-and-ledger"&&receipt.issues.length===0,"worker_proof_valid",{worker:receipt.key,issues:receipt.issues});
+   check(receipt.run_identity_sha256===context.runIdentity,"worker_receipt_run",{worker:receipt.key});
+   calls+=receipt.calls;ledgerEvents+=receipt.ledger_events;
+   check(same(receipt.worker_header,summary.workers[i]),"summary_worker_metadata",{worker:receipt.key});
+   for(const field of ["indexed_content","fresh_ingestion_results_sha256","unchanged_reingestion_results_sha256","mcp_instructions","mcp_instructions_sha256"]){
+    const key=receipt.cohort+"/"+field,value=receipt.worker_header[field];
+    if(canonicalHeader.has(key))check(same(value,canonicalHeader.get(key)),"cross_worker_ingest_interface",{worker:receipt.key,field});
+    else canonicalHeader.set(key,value);
+   }
+   for(const config of receipt.configurations)for(const [id,hash] of config.rows){
+    const key=receipt.cohort+"/"+config.id+"/"+id;
+    if(canonical.has(key)){
+     comparedWithFirst++;const first=canonical.get(key);
+     if(first.hash!==hash)crossRoundMismatches.push({cohort:receipt.cohort,configuration:config.id,query_id:id,
+      original_worker:first.worker,observed_worker:receipt.key,baseline:first.hash,observed:hash});
+    }else canonical.set(key,{hash,worker:receipt.key});
+   }
+  }
+  check(calls===66248n&&ledgerEvents===132496n,"complete_calls_and_ledger",{calls,ledgerEvents});
+  for(const cohort of formal.cohorts)for(const spec of formal.configs){
+   const byLabel=Object.fromEntries(["baseline","candidate"].map(label=>[label,receipts.filter(w=>w.cohort===cohort&&w.label===label)]));
+   need(byLabel.baseline.length===4&&byLabel.candidate.length===4,"Four round workers per engine/cohort required");
+   const rounds=[];
+   for(let round=0;round<4;round++){
+    const left=byLabel.baseline.find(w=>w.round===BigInt(round)).configurations.find(c=>c.id===spec.id),
+     right=byLabel.candidate.find(w=>w.round===BigInt(round)).configurations.find(c=>c.id===spec.id);
+    check(same(left.rows.map(r=>r[0]),right.rows.map(r=>r[0])),"paired_complete_query_order",{cohort,configuration:spec.id,round:BigInt(round)});
+    const rightMap=new Map(right.rows.map(r=>[r[0],r[1]]));
+    for(const [id,hash] of left.rows){paired++;if(rightMap.get(id)!==hash)pairMismatches.push({cohort,configuration:spec.id,round:BigInt(round),
+      query_id:id,baseline:hash,candidate:rightMap.get(id)??null});}
+    rounds.push({round:BigInt(round),baseline:left.latency,candidate:right.latency});
+   }
+   const engines={};
+   for(const label of ["baseline","candidate"]){
+    const workers=byLabel[label],configs=workers.map(w=>w.configurations.find(c=>c.id===spec.id));
+    const latencies=configs.flatMap(c=>c.rows.map(row=>row[2]));
+    const first=workers.filter(w=>w.round===0n).flatMap(w=>w.configurations.find(c=>c.id===spec.id).rows.map(r=>r[2]));
+    const repeat=workers.filter(w=>w.round!==0n).flatMap(w=>w.configurations.find(c=>c.id===spec.id).rows.map(r=>r[2]));
+    const countMetric=field=>histogramNumeric(mergeHistograms(configs.map(c=>c.histograms[field])));
+    const tokens=Object.fromEntries(ENCODINGS.map(name=>[name,Object.fromEntries(["context","response_text","response_envelope_json"].map(field=>
+     [field,histogramNumeric(mergeHistograms(configs.map(c=>c.histograms.tokens[name][field])))]))]));
+    engines[label]={latency:latency(latencies),first_round_latency:latency(first),repeat_rounds_latency:latency(repeat),
+     response_utf8_bytes:countMetric("response_utf8_bytes"),context_chars:countMetric("context_chars"),tokens};
+   }
+   const changes=Object.fromEntries(["p50_ms","p95_ms","mean_ms"].map(metric=>[metric,100*(engines.candidate.latency[metric]/engines.baseline.latency[metric]-1)]));
+   comparisons.push({cohort,...spec,...engines,candidate_change_percent:changes,rounds});
+  }
+  check(paired===33124n,"complete_payload_pair_count",{paired});
+  check(pairMismatches.length===0,"complete_paired_non_timing_rows",{mismatch_count:BigInt(pairMismatches.length)});
+  check(crossRoundMismatches.length===0,"complete_cross_round_non_timing_rows",{mismatch_count:BigInt(crossRoundMismatches.length)});
+  compareNumbers(comparisons,summary.comparisons,"comparisons",issues,errors);
+  check(summary.status==="completed"&&summary.error===null&&summary.evaluator_unchanged===true,"saved_evaluator_completion");
+  const expectedValidation={passed:true,issues:[],workers:16n,expected_workers:16n,timed_calls:66248n,expected_calls:66248n};
+  check(same(summary.validation,expectedValidation),"saved_complete_validation");
+  need(same(formal.gate,GATES),"Gate values changed");
+  const ratios=comparisons.map(c=>c.candidate.latency.p95_ms/c.baseline.latency.p95_ms);
+  need(ratios.every(r=>Number.isFinite(r)&&r>0),"Positive pooled p95 required");
+  const geomean=100*(1-Math.exp(fmean(ratios.map(r=>Math.log(r)))));
+  const pub=(id)=>-comparisons.find(c=>c.cohort==="public1015"&&c.id===id).candidate_change_percent.p95_ms;
+  const publicNative=pub("native-char4000"),publicMcp=pub("mcp-char4000"),regressions=[];
+  for(const c of comparisons)for(const metric of ["p50_ms","p95_ms"])
+   if(c.candidate_change_percent[metric]>5+1e-9)regressions.push({cohort:c.cohort,config:c.id,metric,change_percent:c.candidate_change_percent[metric]});
+  const passed=geomean>=10-1e-9&&publicNative>=10-1e-9&&publicMcp>=5-1e-9&&regressions.length===0;
+  const numericAcceptance={numeric_gate_passed:passed,geometric_mean_p95_improvement_percent:geomean,
+   public_native_char4000_p95_improvement_percent:publicNative,public_mcp_char4000_p95_improvement_percent:publicMcp,
+   thresholds_percent:GATES,regressions_above_five_percent:regressions};
+  compareNumbers(numericAcceptance,Object.fromEntries(Object.keys(numericAcceptance).map(k=>[k,summary.acceptance[k]])),"acceptance",issues,errors);
+  return {schema_version:1n,status:issues.length?"formal_raw_audit_has_issues":"independently-recomputed-sixteen-workers-and-ledgers",
+   calls,ledger_events:ledgerEvents,full_payload_pairs:paired,comparisons_against_first_row:comparedWithFirst,
+   canonical_non_timing_rows:BigInt(canonical.size),issues,pair_mismatches:pairMismatches,cross_round_mismatches:crossRoundMismatches,
+   comparisons,numeric_acceptance:numericAcceptance,numeric_declaration_comparison:errors,
+   original_acceptance:summary.acceptance,resource_and_storage_independent_owner:"baseline_audit",
+   resource_review_overridden:false,overall_release_acceptance:false,
+   seeded_shuffle_reimplemented:false,retokenization_executed:false,retrieval_calls:0n,new_measurements:0n};
+ }
+
+ return {reassembleChunks,aggregate,unpackBytes,PIN,GATES,ENCODINGS,INVARIANTS,ROW_FIELDS,SESSION_FIELDS,same,number,units,roundedUnits,fsum,fmean,percentile,latency,numeric,
   histogram,mergeHistograms,histogramNumeric,compareNumbers,prepare,unpack,auditWorker};
 };
