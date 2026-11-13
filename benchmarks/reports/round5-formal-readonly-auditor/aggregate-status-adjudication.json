@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "status": "resolved-auditor-metadata-assumption-without-code-or-numeric-change",
+  "first_audit": {
+    "commit": "c498c65ffe54c3727e227573e4a91d514d6cae89",
+    "path": "benchmarks/reports/round5-formal-readonly-auditor/first-complete-recomputation.json",
+    "sha256": "71456c4af1ec4888a0588c6552cf88ba06560efc5d7b0d5f4227ce66b1cb51b9",
+    "preserved_status": "formal_raw_audit_has_issues",
+    "preserved_issues": [
+      {
+        "check": "saved_evaluator_completion"
+      }
+    ]
+  },
+  "frozen_auditor": {
+    "commit": "fc9138ceaaefffe5cf11b8754bfcf75fee11a3ee",
+    "path": "benchmarks/reports/round5-formal-readonly-auditor/audit_core.js",
+    "sha256": "ee2d0b9c3a94dfad984c46e60eb5a026902cfdd3bffeee3353a550ad40943ea9",
+    "changed": false
+  },
+  "cause": "The independent auditor incorrectly applied the worker terminal literal completed to the aggregate report. The original registered controller uses measurements_completed; this was an auditor assumption, not an evaluation failure.",
+  "producer": {
+    "commit": "cfe8a749efa4add1c62c516aa299ab18ee89b92c",
+    "path": "scripts/round5_performance_v2.py",
+    "sha256": "388536dd4bf3dc4c7d76cc8c5bac3afd273071cebcf7f9639ed1b65d19e4f1fb",
+    "terminal_assignment_line": 1234,
+    "snippet_first_line": 1230,
+    "snippet_last_line": 1241,
+    "snippet": "            checkpoint(args, report)\n            if publication is not None:\n                publish_checkpoint(args, run, item[\"key\"] + \" completed\")\n            print(json.dumps({\"worker_completed\": item[\"key\"], \"completed_workers\": len(report[\"workers\"])}), flush=True)\n        report[\"status\"] = \"measurements_completed\"\n    except BaseException as error:\n        report[\"status\"] = \"failed_or_interrupted\"\n        report[\"error\"] = {\"type\": type(error).__name__, \"message\": str(error)}\n        publication_failed = isinstance(error, CheckpointPublicationError)\n    finally:\n        report[\"finished_at\"] = now()\n        checkpoint(args, report)"
+  },
+  "exact_original_metadata": {
+    "source_result_commit": "762500920d715b5bca6e1eba9314d8a4c970bf04",
+    "summary_sha256": "ba9d37e9dd6520c288a1ff9ec3fbbc4e62445013bbaecb5d0d192b7c24c708a3",
+    "aggregate_status": "measurements_completed",
+    "error": null,
+    "evaluator_unchanged": true,
+    "completion_sha256": "6fb6ca001de06620dc9e866569ed46328159f4b590c2f47ccca4644dfcf6c5c1",
+    "completion_status": "completed",
+    "measurement_outcome": "failure",
+    "audit_outcome": "success",
+    "validation": {
+      "expected_calls": 66248,
+      "expected_workers": 16,
+      "issues": [],
+      "passed": true,
+      "timed_calls": 66248,
+      "workers": 16
+    },
+    "accepted": false,
+    "numeric_gate_passed": false
+  },
+  "resolution_predicate": "Only the single saved_evaluator_completion false positive is resolved, using the pinned producer's exact aggregate terminal literal plus error=null, evaluator_unchanged=true and matching original completed/audit-success fields. No other issue is waived.",
+  "effective_unresolved_audit_issues": [],
+  "statistics_recomputed_again": false,
+  "math_or_threshold_changes": false,
+  "source_runtime_changed": false,
+  "raw_reread_for_adjudication": false,
+  "source_and_metadata_only_reread_after_transient_cache_reset": true,
+  "retrieval_calls": 0,
+  "new_measurements": 0,
+  "formal_performance_rejection_preserved": true,
+  "root_authorization": "Explicitly requested keeping the frozen auditor and first false positive unchanged, with narrow source/completion-based metadata adjudication only."
+}
