@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "status": "interrupted-incomplete-not-performance-evidence",
+  "observed_at": "2026-11-13T03:30:41.789185+00:00",
+  "candidate_commit": "2d7b5e38839fb21724ad3beec6b6ebabbda45636",
+  "candidate_runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93",
+  "observation": "Execution returned session12998; later polling returned Unknown process id. Last file changes at03:28:08UTC; candidate worker stopped during ingestion, before any timed retrieval. Controller and original worker reports/ledgers preserved without editing or replay. No cause beyond lost execution session is established.",
+  "planned_calls": 2048,
+  "completed_calls": 512,
+  "completed_workers": [
+    "r0-baseline"
+  ],
+  "incomplete_workers": {
+    "r0-candidate": {
+      "attempted_calls": 0,
+      "finished_calls": 0,
+      "phase": "pre-query ingestion"
+    }
+  },
+  "unstarted_workers": [
+    "r1-candidate",
+    "r1-baseline"
+  ],
+  "decision": "Do not treat this incomplete diagnostic as paired speed evidence. Retain every raw byte through lossless archives; do not rerun a completed worker to select a better number. Formal timing remains unstarted, hosted and checkpointed.",
+  "files": [
+    {
+      "original_path": "benchmarks/reports/round4-development/final-hotpot-first-use.json",
+      "raw_bytes": 764300,
+      "raw_sha256": "52c987ad5eaffd5e2d6111a8b38972ecaed9ea643d08711238f4e125c22b189a",
+      "archive_path": "final-hotpot-first-use-interrupted/final-hotpot-first-use.json.gz",
+      "gzip_bytes": 42478,
+      "gzip_sha256": "5412e3ed9ceb088cc2ab754082df4abdfef861fc8eb7b46c9bf4fad94d2b5713"
+    },
+    {
+      "original_path": "benchmarks/reports/round4-development/final-hotpot-first-use.workers/r0-baseline.attempts.jsonl",
+      "raw_bytes": 516956,
+      "raw_sha256": "872205227aa4d044b24d63334effbd1864f47f1d923d02a082f5052be127d6f6",
+      "archive_path": "final-hotpot-first-use-interrupted/r0-baseline.attempts.jsonl.gz",
+      "gzip_bytes": 44674,
+      "gzip_sha256": "9d5c5948bee3d7d46fae4a9f6bfc70948c172b777f05835b74d53ea61497fd21"
+    },
+    {
+      "original_path": "benchmarks/reports/round4-development/final-hotpot-first-use.workers/r0-baseline.json",
+      "raw_bytes": 676261,
+      "raw_sha256": "763f28fd3750fa2b08967a1b6a8cc1062fb2744f373dde909ddd4a874c84822d",
+      "archive_path": "final-hotpot-first-use-interrupted/r0-baseline.json.gz",
+      "gzip_bytes": 40536,
+      "gzip_sha256": "63d07ee31c7a3724319068bdf41ec7cdfb2684802b64d1ba73c1a0b0d92fd634"
+    },
+    {
+      "original_path": "benchmarks/reports/round4-development/final-hotpot-first-use.workers/r0-baseline.started.json",
+      "raw_bytes": 172,
+      "raw_sha256": "9cd9c0832247aba4b3be05222ab515977488d27b661c2dec576665ff2c4b7bd2",
+      "archive_path": "final-hotpot-first-use-interrupted/r0-baseline.started.json.gz",
+      "gzip_bytes": 146,
+      "gzip_sha256": "02f421f03d81ef2cd414f54ccd5a2fbab36d2a7d9cf15f1a5e2c5701b90f75ea"
+    },
+    {
+      "original_path": "benchmarks/reports/round4-development/final-hotpot-first-use.workers/r0-candidate.attempts.jsonl",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_path": "final-hotpot-first-use-interrupted/r0-candidate.attempts.jsonl.gz",
+      "gzip_bytes": 20,
+      "gzip_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "original_path": "benchmarks/reports/round4-development/final-hotpot-first-use.workers/r0-candidate.json",
+      "raw_bytes": 658,
+      "raw_sha256": "674bf907dcf4bdc317bd140083d39a4c83b82ea1dd7c82fa7a6ca7ca186eb1af",
+      "archive_path": "final-hotpot-first-use-interrupted/r0-candidate.json.gz",
+      "gzip_bytes": 404,
+      "gzip_sha256": "d5532874c506c92dca4c8f1265daa72ca7d70e43e9e7d00af2965e65810f9b72"
+    },
+    {
+      "original_path": "benchmarks/reports/round4-development/final-hotpot-first-use.workers/r0-candidate.started.json",
+      "raw_bytes": 174,
+      "raw_sha256": "a3985b1313460409e83a2bdcc38fde0663cb9dbed8f1206d6ec5a3e0d649a6d8",
+      "archive_path": "final-hotpot-first-use-interrupted/r0-candidate.started.json.gz",
+      "gzip_bytes": 147,
+      "gzip_sha256": "4dfde482da113e37c0ca28e374643ac6587bfad81108358ca1017daccd0ef85d"
+    },
+    {
+      "original_path": ".artifacts/round4-cold-final/run.json",
+      "raw_bytes": 4227,
+      "raw_sha256": "24243a298132c5e42356af91acfafcf342f1bbe7079f19390a1de47b1a63be7a",
+      "archive_path": "final-hotpot-first-use-interrupted/controller-run.json.gz",
+      "gzip_bytes": 1694,
+      "gzip_sha256": "74a14c459dde9461551c2510ecff1a643b4c0a9875475265f2ffe04d15aa6bca"
+    }
+  ]
+}

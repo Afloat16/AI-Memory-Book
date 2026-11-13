@@ -75,7 +75,8 @@ HELPERS = ("scripts/benchmark_default_recall.py", "benchmarks/__init__.py",
     "benchmarks/hotpot_data.py", "benchmarks/query_guard.py", "benchmarks/resume.py",
     "benchmarks/locomo_split.json")
 TOOLS = ("scripts/round4_performance.py", "tests/test_round4_performance.py",
-         "tests/test_round4_sealed_counts.py", "tests/test_round4_highlight.py",
+         "tests/test_round4_token_work.py", "tests/test_round4_sealed_counts.py",
+         "tests/test_round4_highlight.py",
          "benchmarks/experiments/round4-candidate-selection.json",
          ".github/workflows/round4-performance.yml")
 # These preregistrations belong to round four, so they must not be mistaken
