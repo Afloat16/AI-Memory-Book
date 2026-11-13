@@ -1,0 +1,461 @@
+{
+  "schema_version": 1,
+  "status": "accepted-independent-observer-source-and-artificial-review-before-corpus",
+  "reviewed_source_commit": "108124188381a199735022abf21b9a0b9c812a54",
+  "reviewed_at_utc": "2026-11-13 19:19:43 UTC",
+  "review_scope": "Native C-event pairing and lifecycle, source callsite classification, nested/raw numeric reconciliation, failure-span retention, fixed diagnostic limits and exact artificial proof. Publisher/process/protocol review remains the separate baseline_audit task.",
+  "source_files": {
+    "scripts/round5_lm_sql_attribution.py": "983813673788860014fcb0900583982b46b5d6e5c231541477e54d4a05e76273",
+    "tests/test_round5_lm_sql_attribution.py": "ea6b96e06bd4766741b90a401951d21aeddc3a23e75d58e50e560a159af90dc5",
+    ".github/workflows/round5-lm-sql-attribution.yml": "4b972bad02fb9fafd1e6885ca441fc9348def85db788db6ec3dfabf5afbcb343",
+    "benchmarks/experiments/round5-lm-sql-attribution-scope.json": "0b3a249df45a25a00f76f4ad2c6e0cfa56fc7147a19e982fca429884c5ef1269",
+    "benchmarks/experiments/round5-lm-sql-attribution-pairing-addendum.json": "cf55b88d45ee7a0dca53abefa6dc651d7eceb36f6ae0e709919655c566c36d21"
+  },
+  "exact_runtime": {
+    "commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+    "runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
+    "store_sha256": "38c405b640216992b29b49c2f1937b8c5b644383f3cbfbcf764c5a7d502a9c58"
+  },
+  "reviewed_functions": [
+    "SiteCatalog",
+    "SQLiteObserver",
+    "native_book_identity",
+    "observe_call",
+    "observe_payload",
+    "summarize_observations",
+    "audit_observation",
+    "audit_cell",
+    "profile_audit"
+  ],
+  "accepted_findings": [
+    {
+      "area": "native C-event identity",
+      "status": "no-observed-blocker",
+      "reason": "Entry/exit event arguments must be exact BuiltinMethodType on exact frozen Connection/Cursor receiver classes. Strict current-stack pairing checks frame identity, receiver identity, native owner, static method descriptor and method name. Wrapper object identity is recorded independently; the preserved actual CPython witness disproves arg-is as a universal pairing requirement."
+    },
+    {
+      "area": "callback/native lifecycle",
+      "status": "no-observed-blocker",
+      "reason": "An existing profiler is not replaced. Callback exceptions, replaced callbacks, invalid lifecycle, negative spans, wrong receiver/frame/method and an unclosed target stack invalidate the observation. Native exception exits remain distinguishable from observer failure. observe_payload now retains current spans if latency removal or payload fingerprinting fails after recall."
+    },
+    {
+      "area": "source classification",
+      "status": "no-observed-blocker",
+      "reason": "frozen_filename_map verifies the complete source before installing the callback. Callback access is limited to builtin event/frame/code metadata and ephemeral native receiver identity. Code objects are retained so cached id(code) keys cannot be recycled. Frozen upper caller metadata distinguishes the two _candidate_rows fetchall uses."
+    },
+    {
+      "area": "unknown/disabled policy",
+      "status": "no-observed-blocker",
+      "reason": "Unclassified primary sites and disabled cache/coverage/optional-source categories remain in raw spans but make all_classification_sites_valid false, preventing final completion. Other ordinary SQLite builtins remain in an explicit other bucket. The residual is explicitly unattributed, not described as Python-only."
+    },
+    {
+      "area": "observed timing semantics",
+      "status": "no-observed-blocker",
+      "reason": "Terminal timestamp is taken at callback entry. Inclusive spans subtract only direct child inclusive spans for exclusive totals; callback bookkeeping is separately reported. Scope explicitly retains Python callbacks, scheduling and observer effects inside builtin spans. Neither callback bookkeeping nor fixed artificial calibration is used as an overhead correction."
+    }
+  ],
+  "verified_callsite_mapping": {
+    "source": "exact LM store.py, read directly",
+    "transaction": [
+      739,
+      1155,
+      1157
+    ],
+    "revision": [
+      439
+    ],
+    "project_bounds": [
+      675,
+      679
+    ],
+    "fts_execute": [
+      810
+    ],
+    "fts_fetchall": {
+      "callee_lines": [
+        253,
+        257
+      ],
+      "caller_lines": [
+        810,
+        811,
+        812
+      ]
+    },
+    "directory_execute": [
+      892
+    ],
+    "directory_fetchall": {
+      "callee_lines": [
+        253,
+        257
+      ],
+      "caller_lines": [
+        892,
+        893,
+        894,
+        895,
+        896,
+        897
+      ]
+    },
+    "novelty_execute_only": [
+      1017
+    ],
+    "selected_source_execute_only": [
+      1100
+    ],
+    "highlight": [
+      352,
+      354
+    ],
+    "original_turns_execute_only": [
+      1150
+    ],
+    "disabled_cache": [
+      752,
+      755,
+      1202,
+      1205,
+      1206,
+      1207,
+      1209
+    ],
+    "disabled_coverage": [
+      1067,
+      1071
+    ],
+    "note": "Multiline source expressions are covered by the declared rule ranges. Novelty/original pages/turns retain execute-only labels because implicit cursor iteration is not fully observed."
+  },
+  "prior_finding_preserved": {
+    "commit": "e51e85b3a0490f68b97d865d8c85979b1aa55250",
+    "path": "benchmarks/reports/round5-lm-sql-attribution-observer-review/pre-topology-review.json",
+    "sha256": "d0520f1730a2e19a74469c5827bf9651b348272657aeffd9882c03623e3694db",
+    "status": "Original static gap and34-case raw evidence remain unchanged."
+  },
+  "raw_topology_resolution": {
+    "finding_id": "raw-lifo-topology",
+    "status": "resolved-by-reviewed-correction-and-actual-artificial-proof",
+    "correction_commit": "108124188381a199735022abf21b9a0b9c812a54",
+    "correction_parent": "23e9add7bb2cb047096d9e4c6d6210127b6685db",
+    "observed_producer_changed": false,
+    "code_review": "The new linear active-ancestor pass follows stored sequence order, rejects backward start timestamps, and uses the declared parent to decide which prior spans must have closed. Every popped span must end no later than the next start. A parent removed from the active stack cannot reopen. Existing nonnegative integer clocks, containment, direct-child totals, native event counts and aggregate wall arithmetic remain in place.",
+    "equal_tick_proof": "No timestamp-only auto-pop rule is used. A zero-duration child can retain an active parent at the same tick; an adjacent sibling/root can close previous spans whose end equals its start. This avoids rejecting real records solely because of clock resolution.",
+    "artificial_invalid_cases": [
+      "Two overlapping roots with identical [100,200] intervals and otherwise reconciled totals.",
+      "Two positive-duration overlapping siblings contained by one parent.",
+      "An interval falsely declared a root while an earlier enclosing root remains open.",
+      "Reopening a zero-duration parent after it was closed by a later root."
+    ],
+    "artificial_legal_cases": [
+      "Adjacent nonoverlapping roots.",
+      "A zero-duration parent with same-tick children followed by a same-tick next root.",
+      "Adjacent siblings whose end/start share a boundary."
+    ],
+    "fixture": "test_raw_lifo_topology_rejects_overlap_and_reopening_but_allows_shared_ticks",
+    "original_tests_retained": 34,
+    "added_test_methods": 1,
+    "author_source_delta_verification": "Git commit has exactly two modified files. Independent whole-file top-level partition comparison finds only audit_observation changed; SiteCatalog, SQLiteObserver, observe_call, observe_payload, the worker/producer and every other top-level function remain byte-identical to23e. The only added fixture is the reviewed composite topology method.",
+    "only_changed_top_level_script_function": "audit_observation"
+  },
+  "actual_artificial_ci": {
+    "run_id": 43490470211,
+    "head_sha": "108124188381a199735022abf21b9a0b9c812a54",
+    "run_attempt": 1,
+    "status": "completed",
+    "conclusion": "success",
+    "job_id": 132109998742,
+    "job_name": "protocol-fixtures",
+    "tests_expected": 35,
+    "tests_run": 35,
+    "passed": 35,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      {
+        "method": "test_fake_clock_nested_inclusive_exclusive_and_bookkeeping",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_fixed_artificial_calibration_retains_every_sample",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_fresh_wrapper_with_exact_native_identity_is_recorded",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_missing_exit_remains_terminal_and_keeps_open_span",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_negative_span_exit_without_entry_and_open_stack_keep_partial",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_upper_caller_classification_and_unclassified_sites",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_wrong_receiver_method_frame_and_non_lifo_still_fail",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_all_4732_fake_payloads_and_orders_are_checked_and_mismatch_retained",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_artificial_evidence_must_cover_all_current_artifact_bytes_and_cases",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_bound_source_helpers_artifacts_and_prior_evidence_are_fail_closed",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_cell_intent_then_lossless_partial_result_then_next_intent",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_failed_intent_publication_prevents_a_query_or_next_stage",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_fingerprint_or_missing_latency_failure_keeps_current_native_spans",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_missing_extra_duplicate_reordered_invalid_payload_and_axes_are_rejected",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_publication_verifies_remote_and_never_retries_an_ambiguous_push",
+        "outcome": "passed",
+        "continuation": true
+      },
+      {
+        "method": "test_publisher_handoff_requires_zero_exit_and_explicit_group_absence",
+        "outcome": "passed",
+        "continuation": true
+      },
+      {
+        "method": "test_raw_lifo_topology_rejects_overlap_and_reopening_but_allows_shared_ticks",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_raw_span_corruption_cannot_pass_accounting",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_unknown_primary_and_disabled_paths_remain_raw_but_fail_completion_gate",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_worker_ownership_forbids_controller_publish_and_always_step_writes",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_cursor_factory_restoration_and_unsupported_fallback",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_real_payload_and_native_guard_with_both_upper_callsites",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_actual_builtin_identity_and_private_values_are_not_recorded",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_callback_has_no_filesystem_access_and_never_probes_user_objects",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_existing_profiler_is_not_replaced",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_interrupt_retains_other_native_builtin_and_exception",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_lifecycle_misuse_always_invalidates_the_observation",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_nested_c_exceptions_unwind_in_order",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_nested_native_udf_calls_keep_parentage_and_exclusive_sums",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_raw_native_wrapper_identity_probe",
+        "outcome": "passed",
+        "continuation": true
+      },
+      {
+        "method": "test_real_c_exception_uses_the_same_builtin_and_retains_exception_span",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_row_factory_exception_is_recorded_without_exception_values",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_full_guard_rejects_added_cache_and_modified_python",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_missing_binding_precedes_claim_download_and_export",
+        "outcome": "passed",
+        "continuation": false
+      },
+      {
+        "method": "test_namespace_cannot_publish_to_completed_lm_branch",
+        "outcome": "passed",
+        "continuation": false
+      }
+    ],
+    "actual_receipt": {
+      "expected": 35,
+      "tests": 35,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": true,
+      "source_commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+      "runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
+      "script_sha256": "983813673788860014fcb0900583982b46b5d6e5c231541477e54d4a05e76273",
+      "test_file_sha256": "ea6b96e06bd4766741b90a401951d21aeddc3a23e75d58e50e560a159af90dc5",
+      "workflow_file_sha256": "4b972bad02fb9fafd1e6885ca441fc9348def85db788db6ec3dfabf5afbcb343",
+      "scope_sha256": "0b3a249df45a25a00f76f4ad2c6e0cfa56fc7147a19e982fca429884c5ef1269",
+      "pairing_addendum_sha256": "cf55b88d45ee7a0dca53abefa6dc651d7eceb36f6ae0e709919655c566c36d21",
+      "publisher_addendum_sha256": "c9b58ce1079f449dc6809c54c6f2cf4beba45695af8b3d0ae63c409e26d776a4",
+      "corpus_calls": 0
+    },
+    "raw_log_path": "benchmarks/reports/round5-lm-sql-attribution-observer-review/ci-43490470211-job132109998742.log",
+    "raw_log_bytes": 40676,
+    "raw_log_sha256": "53633f958e57e33c99d178fcefe8a8895435ae32061e7a97af0010af587cc183",
+    "native_wrapper_probe": {
+      "exits": 9,
+      "wrapper_is_false": 8,
+      "frame_receiver_owner_descriptor_method_failures": 0,
+      "unclosed_entries": 0
+    },
+    "attribution_job": {
+      "id": 132110164729,
+      "conclusion": "skipped"
+    },
+    "log_reading": "Directly fetched the entire exact job log. Parsed all35 unique case names and terminal outcomes, including three tests with interleaved printed evidence. Exact source/test/workflow SHA256 values in the final receipt match independently read files."
+  },
+  "ordinary_ci": {
+    "run_id": 43490470236,
+    "head_sha": "108124188381a199735022abf21b9a0b9c812a54",
+    "run_attempt": 1,
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 132110000199,
+        "name": "installers (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132110000468,
+        "name": "installers (windows-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132110000582,
+        "name": "installers (macos-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132110000715,
+        "name": "reader-browser",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132110000758,
+        "name": "core (3.10)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132110000784,
+        "name": "container",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132110000855,
+        "name": "core (3.13)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132110000880,
+        "name": "core (3.12)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132110000959,
+        "name": "mcp",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "evidence_limit": "All9 terminal job states and exact completed run metadata directly read; this review's detailed raw-case analysis is for the dedicated35-case artificial protocol job."
+  },
+  "remaining_blockers_in_this_scope": [],
+  "interpretation_limits": [
+    "Accepted observations are partial instrumented native builtin boundaries, not exhaustive SQL time or SQLite CPU time.",
+    "Native builtin spans may include Python callbacks, scheduling and observer effects. The residual remains unattributed, including implicit cursor iteration and overhead.",
+    "Bookkeeping and fixed artificial calibration are recorded separately; no overhead subtraction or uninstrumented speed estimate is accepted.",
+    "Unknown primary and disabled paths are retained in raw records and prevent final diagnostic acceptance. Other ordinary SQLite builtins stay in explicit separate categories.",
+    "This source/artificial review does not authorize a trigger and makes no corpus, quality, performance, final-candidate or release claim."
+  ],
+  "author_runtime_branch_modified_by_reviewer": false,
+  "reviewer_executed_tests": false,
+  "diagnostic_corpus_calls_executed_by_reviewer": 0,
+  "fresh_rows_decoded": 0,
+  "performance_claim": false
+}
