@@ -1,0 +1,639 @@
+﻿2026-11-13T18:29:56.4219961Z Current runner version: '2.338.2'
+2026-11-13T18:29:56.4240722Z ##[group]Runner Image Provisioner
+2026-11-13T18:29:56.4241317Z Hosted Compute Agent
+2026-11-13T18:29:56.4241758Z Version: 20261103.629
+2026-11-13T18:29:56.4242221Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-13T18:29:56.4242691Z Build Date: 2026-11-03T17:26:59Z
+2026-11-13T18:29:56.4243169Z Worker ID: {2c8c3bec-e8dc-4c4f-a174-be783f9f1a7a}
+2026-11-13T18:29:56.4243657Z Region: centralus
+2026-11-13T18:29:56.4244195Z Cloud: Azure
+2026-11-13T18:29:56.4244590Z ##[endgroup]
+2026-11-13T18:29:56.4245423Z ##[group]Operating System
+2026-11-13T18:29:56.4245852Z Ubuntu
+2026-11-13T18:29:56.4246190Z 26.04.1
+2026-11-13T18:29:56.4246507Z LTS
+2026-11-13T18:29:56.4246919Z ##[endgroup]
+2026-11-13T18:29:56.4247268Z ##[group]Runner Image
+2026-11-13T18:29:56.4247678Z Image: ubuntu-26.04
+2026-11-13T18:29:56.4248082Z Version: 20261111.196.1
+2026-11-13T18:29:56.4248900Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261111.196/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-13T18:29:56.4249914Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261111.196
+2026-11-13T18:29:56.4250562Z ##[endgroup]
+2026-11-13T18:29:56.4251275Z ##[group]GITHUB_TOKEN Permissions
+2026-11-13T18:29:56.4252675Z Contents: read
+2026-11-13T18:29:56.4253033Z Metadata: read
+2026-11-13T18:29:56.4253363Z ##[endgroup]
+2026-11-13T18:29:56.4255491Z Secret source: Actions
+2026-11-13T18:29:56.4256108Z Cache mode: write
+2026-11-13T18:29:56.4256671Z Prepare workflow directory
+2026-11-13T18:29:56.4526064Z Prepare all required actions
+2026-11-13T18:29:56.4562442Z Getting action download info
+2026-11-13T18:29:56.7654005Z Download action repository 'actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803' (SHA:d23441a48e516b6c34aea4fa41551a30e30af803)
+2026-11-13T18:29:56.9212431Z Download action repository 'actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c' (SHA:e797f83bcb11b83ae66e0230d6156d7c80228e7c)
+2026-11-13T18:29:57.1621615Z Complete job name: container
+2026-11-13T18:29:57.2184725Z ##[group]Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+2026-11-13T18:29:57.2185544Z with:
+2026-11-13T18:29:57.2185829Z   repository: Afloat16/AI-Memory-Book
+2026-11-13T18:29:57.2188107Z   token: ***
+2026-11-13T18:29:57.2188366Z   ssh-strict: true
+2026-11-13T18:29:57.2188631Z   ssh-user: git
+2026-11-13T18:29:57.2188905Z   persist-credentials: true
+2026-11-13T18:29:57.2189201Z   clean: true
+2026-11-13T18:29:57.2189474Z   sparse-checkout-cone-mode: true
+2026-11-13T18:29:57.2189786Z   fetch-depth: 1
+2026-11-13T18:29:57.2190050Z   fetch-tags: false
+2026-11-13T18:29:57.2190318Z   show-progress: true
+2026-11-13T18:29:57.2190584Z   lfs: false
+2026-11-13T18:29:57.2190839Z   submodules: false
+2026-11-13T18:29:57.2191112Z   set-safe-directory: true
+2026-11-13T18:29:57.2191418Z   allow-unsafe-pr-checkout: false
+2026-11-13T18:29:57.2191814Z ##[endgroup]
+2026-11-13T18:29:57.4584509Z Syncing repository: Afloat16/AI-Memory-Book
+2026-11-13T18:29:57.4586247Z ##[group]Getting Git version info
+2026-11-13T18:29:57.4586959Z Working directory is '/home/runner/work/AI-Memory-Book/AI-Memory-Book'
+2026-11-13T18:29:57.4587985Z [command]/usr/bin/git version
+2026-11-13T18:29:57.4633035Z git version 2.56.1
+2026-11-13T18:29:57.4652277Z ##[endgroup]
+2026-11-13T18:29:57.4665531Z Temporarily overriding HOME='/home/runner/work/_temp/d3476678-760b-4a9d-94dc-721bc589dec6' before making global git config changes
+2026-11-13T18:29:57.4667099Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-13T18:29:57.4670272Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AI-Memory-Book/AI-Memory-Book
+2026-11-13T18:29:57.4741405Z Deleting the contents of '/home/runner/work/AI-Memory-Book/AI-Memory-Book'
+2026-11-13T18:29:57.4745831Z ##[group]Determining repository object format
+2026-11-13T18:29:57.4775429Z ##[endgroup]
+2026-11-13T18:29:57.4776426Z ##[group]Initializing the repository
+2026-11-13T18:29:57.4777398Z [command]/usr/bin/git init /home/runner/work/AI-Memory-Book/AI-Memory-Book
+2026-11-13T18:29:57.4875055Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-13T18:29:57.4876209Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-13T18:29:57.4877118Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-13T18:29:57.4877859Z hint: call:
+2026-11-13T18:29:57.4878279Z hint:
+2026-11-13T18:29:57.4878799Z hint: 	git config --global init.defaultBranch <name>
+2026-11-13T18:29:57.4879385Z hint:
+2026-11-13T18:29:57.4879953Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-13T18:29:57.4880887Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-13T18:29:57.4881648Z hint:
+2026-11-13T18:29:57.4882060Z hint: 	git branch -m <name>
+2026-11-13T18:29:57.4882538Z hint:
+2026-11-13T18:29:57.4883167Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-13T18:29:57.4894932Z Initialized empty Git repository in /home/runner/work/AI-Memory-Book/AI-Memory-Book/.git/
+2026-11-13T18:29:57.4906543Z [command]/usr/bin/git remote add origin https://github.com/Afloat16/AI-Memory-Book
+2026-11-13T18:29:57.4964449Z ##[endgroup]
+2026-11-13T18:29:57.4965271Z ##[group]Disabling automatic garbage collection
+2026-11-13T18:29:57.4967918Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-13T18:29:57.5002753Z ##[endgroup]
+2026-11-13T18:29:57.5004056Z ##[group]Setting up auth
+2026-11-13T18:29:57.5004585Z Removing SSH command configuration
+2026-11-13T18:29:57.5008979Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T18:29:57.5050862Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-13T18:29:57.5482008Z Removing HTTP extra header
+2026-11-13T18:29:57.5489037Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T18:29:57.5519543Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-13T18:29:57.5756125Z Removing includeIf entries pointing to credentials config files
+2026-11-13T18:29:57.5762566Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T18:29:57.5795736Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-13T18:29:57.6044497Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-adac9254-6374-4e9d-b823-5ef5fae4b820.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-13T18:29:57.6082244Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git.path /home/runner/work/_temp/git-credentials-adac9254-6374-4e9d-b823-5ef5fae4b820.config
+2026-11-13T18:29:57.6112505Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-adac9254-6374-4e9d-b823-5ef5fae4b820.config
+2026-11-13T18:29:57.6145841Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-adac9254-6374-4e9d-b823-5ef5fae4b820.config
+2026-11-13T18:29:57.6181129Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-adac9254-6374-4e9d-b823-5ef5fae4b820.config
+2026-11-13T18:29:57.6208713Z ##[endgroup]
+2026-11-13T18:29:57.6209197Z ##[group]Fetching the repository
+2026-11-13T18:29:57.6215370Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +e3d920ced29983f58f53962247e9e748ef9360d4:refs/remotes/origin/staging/v033-ascii-word-boundary-o
+2026-11-13T18:30:07.0770098Z From https://github.com/Afloat16/AI-Memory-Book
+2026-11-13T18:30:07.0771126Z  * [new ref]         e3d920ced29983f58f53962247e9e748ef9360d4 -> origin/staging/v033-ascii-word-boundary-o
+2026-11-13T18:30:07.0786838Z [command]/usr/bin/git branch --list --remote origin/staging/v033-ascii-word-boundary-o
+2026-11-13T18:30:07.0805868Z   origin/staging/v033-ascii-word-boundary-o
+2026-11-13T18:30:07.0814572Z [command]/usr/bin/git rev-parse refs/remotes/origin/staging/v033-ascii-word-boundary-o
+2026-11-13T18:30:07.0837520Z e3d920ced29983f58f53962247e9e748ef9360d4
+2026-11-13T18:30:07.0842258Z ##[endgroup]
+2026-11-13T18:30:07.0843507Z ##[group]Determining the checkout info
+2026-11-13T18:30:07.0844706Z ##[endgroup]
+2026-11-13T18:30:07.0847326Z [command]/usr/bin/git sparse-checkout disable
+2026-11-13T18:30:07.0896766Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-13T18:30:07.0930889Z ##[group]Checking out the ref
+2026-11-13T18:30:07.0932067Z [command]/usr/bin/git checkout --progress --force -B staging/v033-ascii-word-boundary-o refs/remotes/origin/staging/v033-ascii-word-boundary-o
+2026-11-13T18:30:08.1148434Z Updating files:  76% (1243/1629)
+2026-11-13T18:30:08.1415514Z Updating files:  77% (1255/1629)
+2026-11-13T18:30:08.1522056Z Updating files:  78% (1271/1629)
+2026-11-13T18:30:08.1734091Z Updating files:  79% (1287/1629)
+2026-11-13T18:30:08.1891204Z Updating files:  80% (1304/1629)
+2026-11-13T18:30:08.2080835Z Updating files:  81% (1320/1629)
+2026-11-13T18:30:08.2153179Z Updating files:  82% (1336/1629)
+2026-11-13T18:30:08.2247159Z Updating files:  83% (1353/1629)
+2026-11-13T18:30:08.2266041Z Updating files:  84% (1369/1629)
+2026-11-13T18:30:08.2322769Z Updating files:  85% (1385/1629)
+2026-11-13T18:30:08.2336165Z Updating files:  86% (1401/1629)
+2026-11-13T18:30:08.2347180Z Updating files:  87% (1418/1629)
+2026-11-13T18:30:08.2360182Z Updating files:  88% (1434/1629)
+2026-11-13T18:30:08.2372742Z Updating files:  89% (1450/1629)
+2026-11-13T18:30:08.2389830Z Updating files:  90% (1467/1629)
+2026-11-13T18:30:08.2403251Z Updating files:  91% (1483/1629)
+2026-11-13T18:30:08.2416544Z Updating files:  92% (1499/1629)
+2026-11-13T18:30:08.2432497Z Updating files:  93% (1515/1629)
+2026-11-13T18:30:08.2441592Z Updating files:  94% (1532/1629)
+2026-11-13T18:30:08.2449913Z Updating files:  95% (1548/1629)
+2026-11-13T18:30:08.2458164Z Updating files:  96% (1564/1629)
+2026-11-13T18:30:08.2468992Z Updating files:  97% (1581/1629)
+2026-11-13T18:30:08.2481567Z Updating files:  98% (1597/1629)
+2026-11-13T18:30:08.2490607Z Updating files:  99% (1613/1629)
+2026-11-13T18:30:08.2491249Z Updating files: 100% (1629/1629)
+2026-11-13T18:30:08.2491603Z Updating files: 100% (1629/1629), done.
+2026-11-13T18:30:08.2516329Z Switched to a new branch 'staging/v033-ascii-word-boundary-o'
+2026-11-13T18:30:08.2527645Z branch 'staging/v033-ascii-word-boundary-o' set up to track 'origin/staging/v033-ascii-word-boundary-o'.
+2026-11-13T18:30:08.2637585Z ##[endgroup]
+2026-11-13T18:30:08.2687970Z [command]/usr/bin/git log -1 --format=%H
+2026-11-13T18:30:08.2713388Z e3d920ced29983f58f53962247e9e748ef9360d4
+2026-11-13T18:30:08.2942640Z ##[group]Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+2026-11-13T18:30:08.2942892Z with:
+2026-11-13T18:30:08.2943030Z   python-version: 3.12
+2026-11-13T18:30:08.2943169Z   check-latest: false
+2026-11-13T18:30:08.2944844Z   token: ***
+2026-11-13T18:30:08.2944978Z   update-environment: true
+2026-11-13T18:30:08.2945134Z   allow-prereleases: false
+2026-11-13T18:30:08.2945279Z   freethreaded: false
+2026-11-13T18:30:08.2945417Z ##[endgroup]
+2026-11-13T18:30:08.3942362Z ##[group]Installed versions
+2026-11-13T18:30:08.4039980Z (node:2209) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-13T18:30:08.4040734Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-13T18:30:08.4041266Z Successfully set up CPython (3.12.16)
+2026-11-13T18:30:08.4042248Z ##[endgroup]
+2026-11-13T18:30:08.4216722Z ##[group]Run python -m pip install '.[mcp]'
+2026-11-13T18:30:08.4217005Z [36;1mpython -m pip install '.[mcp]'[0m
+2026-11-13T18:30:08.4297488Z shell: /usr/bin/bash -e {0}
+2026-11-13T18:30:08.4297777Z env:
+2026-11-13T18:30:08.4297995Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:30:08.4298283Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-13T18:30:08.4298540Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:30:08.4298780Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:30:08.4299011Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:30:08.4299253Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-13T18:30:08.4299457Z ##[endgroup]
+2026-11-13T18:30:09.4480911Z Processing ./.
+2026-11-13T18:30:09.4494436Z   Installing build dependencies: started
+2026-11-13T18:30:10.5820301Z   Installing build dependencies: finished with status 'done'
+2026-11-13T18:30:10.5825568Z   Getting requirements to build wheel: started
+2026-11-13T18:30:11.0788035Z   Getting requirements to build wheel: finished with status 'done'
+2026-11-13T18:30:11.0794630Z   /tmp/pip-build-env-oy5lc7ey/overlay/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: BuildBackendWarning: `project.license` as a TOML table is deprecated
+2026-11-13T18:30:11.0795385Z   !!
+2026-11-13T18:30:11.0795591Z   
+2026-11-13T18:30:11.0795833Z           ********************************************************************************
+2026-11-13T18:30:11.0796565Z           Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+2026-11-13T18:30:11.0797204Z   
+2026-11-13T18:30:11.0797503Z           By 2027-Feb-18, you need to update your project and remove deprecated calls
+2026-11-13T18:30:11.0797905Z           or your builds will no longer be supported.
+2026-11-13T18:30:11.0798303Z   
+2026-11-13T18:30:11.0798738Z           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+2026-11-13T18:30:11.0799268Z           ********************************************************************************
+2026-11-13T18:30:11.0799584Z   
+2026-11-13T18:30:11.0799770Z   !!
+2026-11-13T18:30:11.0799977Z     corresp(dist, value, root_dir)
+2026-11-13T18:30:11.0800609Z   /tmp/pip-build-env-oy5lc7ey/overlay/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:61: BuildBackendWarning: License classifiers are deprecated.
+2026-11-13T18:30:11.0801210Z   !!
+2026-11-13T18:30:11.0801389Z   
+2026-11-13T18:30:11.0801628Z           ********************************************************************************
+2026-11-13T18:30:11.0802067Z           Please consider removing the following classifiers in favor of a SPDX license expression:
+2026-11-13T18:30:11.0802453Z   
+2026-11-13T18:30:11.0802796Z           License :: OSI Approved :: MIT License
+2026-11-13T18:30:11.0803058Z   
+2026-11-13T18:30:11.0803470Z           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+2026-11-13T18:30:11.0804068Z           ********************************************************************************
+2026-11-13T18:30:11.0804346Z   
+2026-11-13T18:30:11.0804512Z   !!
+2026-11-13T18:30:11.0804709Z     dist._finalize_license_expression()
+2026-11-13T18:30:11.0805309Z   /tmp/pip-build-env-oy5lc7ey/overlay/lib/python3.12/site-packages/setuptools/dist.py:765: BuildBackendWarning: License classifiers are deprecated.
+2026-11-13T18:30:11.0805858Z   !!
+2026-11-13T18:30:11.0806033Z   
+2026-11-13T18:30:11.0806255Z           ********************************************************************************
+2026-11-13T18:30:11.0806693Z           Please consider removing the following classifiers in favor of a SPDX license expression:
+2026-11-13T18:30:11.0807073Z   
+2026-11-13T18:30:11.0807761Z           License :: OSI Approved :: MIT License
+2026-11-13T18:30:11.0808227Z   
+2026-11-13T18:30:11.0808612Z           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+2026-11-13T18:30:11.0809143Z           ********************************************************************************
+2026-11-13T18:30:11.0809430Z   
+2026-11-13T18:30:11.0809600Z   !!
+2026-11-13T18:30:11.0809803Z     self._finalize_license_expression()
+2026-11-13T18:30:11.0810119Z   Preparing metadata (pyproject.toml): started
+2026-11-13T18:30:11.2181536Z   Preparing metadata (pyproject.toml): finished with status 'done'
+2026-11-13T18:30:11.2185243Z   /tmp/pip-build-env-oy5lc7ey/overlay/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: BuildBackendWarning: `project.license` as a TOML table is deprecated
+2026-11-13T18:30:11.2185995Z   !!
+2026-11-13T18:30:11.2186183Z   
+2026-11-13T18:30:11.2186425Z           ********************************************************************************
+2026-11-13T18:30:11.2187208Z           Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+2026-11-13T18:30:11.2187867Z   
+2026-11-13T18:30:11.2188163Z           By 2027-Feb-18, you need to update your project and remove deprecated calls
+2026-11-13T18:30:11.2188588Z           or your builds will no longer be supported.
+2026-11-13T18:30:11.2188856Z   
+2026-11-13T18:30:11.2189223Z           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+2026-11-13T18:30:11.2189670Z           ********************************************************************************
+2026-11-13T18:30:11.2189939Z   
+2026-11-13T18:30:11.2190097Z   !!
+2026-11-13T18:30:11.2190289Z     corresp(dist, value, root_dir)
+2026-11-13T18:30:11.2191024Z   /tmp/pip-build-env-oy5lc7ey/overlay/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:61: BuildBackendWarning: License classifiers are deprecated.
+2026-11-13T18:30:11.2191816Z   !!
+2026-11-13T18:30:11.2191988Z   
+2026-11-13T18:30:11.2192201Z           ********************************************************************************
+2026-11-13T18:30:11.2192697Z           Please consider removing the following classifiers in favor of a SPDX license expression:
+2026-11-13T18:30:11.2193147Z   
+2026-11-13T18:30:11.2193557Z           License :: OSI Approved :: MIT License
+2026-11-13T18:30:11.2194011Z   
+2026-11-13T18:30:11.2194388Z           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+2026-11-13T18:30:11.2194925Z           ********************************************************************************
+2026-11-13T18:30:11.2195247Z   
+2026-11-13T18:30:11.2195423Z   !!
+2026-11-13T18:30:11.2195687Z     dist._finalize_license_expression()
+2026-11-13T18:30:11.2196318Z   /tmp/pip-build-env-oy5lc7ey/overlay/lib/python3.12/site-packages/setuptools/dist.py:765: BuildBackendWarning: License classifiers are deprecated.
+2026-11-13T18:30:11.2196940Z   !!
+2026-11-13T18:30:11.2197109Z   
+2026-11-13T18:30:11.2197326Z           ********************************************************************************
+2026-11-13T18:30:11.2197814Z           Please consider removing the following classifiers in favor of a SPDX license expression:
+2026-11-13T18:30:11.2198248Z   
+2026-11-13T18:30:11.2198467Z           License :: OSI Approved :: MIT License
+2026-11-13T18:30:11.2198769Z   
+2026-11-13T18:30:11.2199116Z           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+2026-11-13T18:30:11.2199615Z           ********************************************************************************
+2026-11-13T18:30:11.2199951Z   
+2026-11-13T18:30:11.2200112Z   !!
+2026-11-13T18:30:11.2200348Z     self._finalize_license_expression()
+2026-11-13T18:30:11.2912470Z Collecting mcp<2,>=1.28 (from ai-memory-book==0.3.3)
+2026-11-13T18:30:11.3276240Z   Downloading mcp-1.30.0-py3-none-any.whl.metadata (9.3 kB)
+2026-11-13T18:30:11.3566633Z Collecting anyio>=4.5 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:11.3674968Z   Downloading anyio-4.16.0-py3-none-any.whl.metadata (4.7 kB)
+2026-11-13T18:30:11.3899992Z Collecting httpx-sse>=0.4 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:11.3999934Z   Downloading httpx_sse-0.4.3-py3-none-any.whl.metadata (9.7 kB)
+2026-11-13T18:30:11.4282833Z Collecting httpx<1.0.0,>=0.27.1 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:11.4383806Z   Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+2026-11-13T18:30:11.4694489Z Collecting jsonschema>=4.20.0 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:11.4797237Z   Downloading jsonschema-4.26.0-py3-none-any.whl.metadata (7.6 kB)
+2026-11-13T18:30:11.5051113Z Collecting pydantic-settings>=2.5.2 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:11.5151936Z   Downloading pydantic_settings-2.16.3-py3-none-any.whl.metadata (4.0 kB)
+2026-11-13T18:30:11.6290174Z Collecting pydantic<3.0.0,>=2.11.0 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:11.6390789Z   Downloading pydantic-2.14.3-py3-none-any.whl.metadata (141 kB)
+2026-11-13T18:30:11.6830131Z Collecting pyjwt>=2.10.1 (from pyjwt[crypto]>=2.10.1->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:11.6934124Z   Downloading pyjwt-2.15.1-py3-none-any.whl.metadata (3.5 kB)
+2026-11-13T18:30:11.7164980Z Collecting python-multipart>=0.0.9 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:11.7264601Z   Downloading python_multipart-0.0.33-py3-none-any.whl.metadata (6.3 kB)
+2026-11-13T18:30:11.7521087Z Collecting sse-starlette>=1.6.1 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:11.7621477Z   Downloading sse_starlette-3.7.0-py3-none-any.whl.metadata (15 kB)
+2026-11-13T18:30:11.7927145Z Collecting starlette>=0.27 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:11.8032200Z   Downloading starlette-1.10.0-py3-none-any.whl.metadata (6.6 kB)
+2026-11-13T18:30:11.8277645Z Collecting typing-extensions>=4.9.0 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:11.8378187Z   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+2026-11-13T18:30:11.8597457Z Collecting typing-inspection>=0.4.1 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:11.8696776Z   Downloading typing_inspection-0.4.5-py3-none-any.whl.metadata (2.6 kB)
+2026-11-13T18:30:11.8977769Z Collecting uvicorn>=0.31.1 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:11.9079218Z   Downloading uvicorn-0.54.0-py3-none-any.whl.metadata (6.6 kB)
+2026-11-13T18:30:11.9349005Z Collecting certifi (from httpx<1.0.0,>=0.27.1->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:11.9448629Z   Downloading certifi-2026.10.23-py3-none-any.whl.metadata (2.5 kB)
+2026-11-13T18:30:11.9696019Z Collecting httpcore==1.* (from httpx<1.0.0,>=0.27.1->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:11.9795564Z   Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+2026-11-13T18:30:12.0047526Z Collecting idna (from httpx<1.0.0,>=0.27.1->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:12.0146219Z   Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+2026-11-13T18:30:12.0443527Z Collecting h11>=0.16 (from httpcore==1.*->httpx<1.0.0,>=0.27.1->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:12.0542534Z   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+2026-11-13T18:30:12.0767535Z Collecting annotated-types>=0.6.0 (from pydantic<3.0.0,>=2.11.0->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:12.0866813Z   Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+2026-11-13T18:30:12.5412218Z Collecting pydantic-core==2.50.4 (from pydantic<3.0.0,>=2.11.0->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:12.5514212Z   Downloading pydantic_core-2.50.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (6.6 kB)
+2026-11-13T18:30:12.5775664Z Collecting attrs>=22.2.0 (from jsonschema>=4.20.0->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:12.5873403Z   Downloading attrs-26.1.0-py3-none-any.whl.metadata (8.8 kB)
+2026-11-13T18:30:12.6107199Z Collecting jsonschema-specifications>=2023.03.6 (from jsonschema>=4.20.0->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:12.6205836Z   Downloading jsonschema_specifications-2025.9.1-py3-none-any.whl.metadata (2.9 kB)
+2026-11-13T18:30:12.6466070Z Collecting referencing>=0.28.4 (from jsonschema>=4.20.0->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:12.6565975Z   Downloading referencing-0.37.0-py3-none-any.whl.metadata (2.8 kB)
+2026-11-13T18:30:12.8161023Z Collecting rpds-py>=0.25.0 (from jsonschema>=4.20.0->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:12.8261656Z   Downloading rpds_py-2026.9.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.1 kB)
+2026-11-13T18:30:12.8530293Z Collecting python-dotenv>=1.2.2 (from pydantic-settings>=2.5.2->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:12.8630625Z   Downloading python_dotenv-1.2.4-py3-none-any.whl.metadata (29 kB)
+2026-11-13T18:30:13.0162306Z Collecting cryptography>=3.4.0 (from pyjwt[crypto]>=2.10.1->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:13.0263701Z   Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (4.4 kB)
+2026-11-13T18:30:13.1028822Z Collecting cffi>=2.0.0 (from cryptography>=3.4.0->pyjwt[crypto]>=2.10.1->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:13.1133242Z   Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.5 kB)
+2026-11-13T18:30:13.1367228Z Collecting pycparser (from cffi>=2.0.0->cryptography>=3.4.0->pyjwt[crypto]>=2.10.1->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:13.1466824Z   Downloading pycparser-3.12-py3-none-any.whl.metadata (9.7 kB)
+2026-11-13T18:30:13.1786343Z Collecting click>=7.0 (from uvicorn>=0.31.1->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:13.1887479Z   Downloading click-8.5.1-py3-none-any.whl.metadata (2.6 kB)
+2026-11-13T18:30:13.2033013Z Downloading mcp-1.30.0-py3-none-any.whl (234 kB)
+2026-11-13T18:30:13.2234149Z Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+2026-11-13T18:30:13.2355704Z Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+2026-11-13T18:30:13.2474306Z Downloading pydantic-2.14.3-py3-none-any.whl (494 kB)
+2026-11-13T18:30:13.2683376Z Downloading pydantic_core-2.50.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (2.3 MB)
+2026-11-13T18:30:13.2953238Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 90.7 MB/s  0:00:00
+2026-11-13T18:30:13.3053700Z Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+2026-11-13T18:30:13.3172605Z Downloading anyio-4.16.0-py3-none-any.whl (134 kB)
+2026-11-13T18:30:13.3295359Z Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+2026-11-13T18:30:13.3411101Z Downloading httpx_sse-0.4.3-py3-none-any.whl (9.0 kB)
+2026-11-13T18:30:13.3525827Z Downloading idna-3.20-py3-none-any.whl (69 kB)
+2026-11-13T18:30:13.3648143Z Downloading jsonschema-4.26.0-py3-none-any.whl (90 kB)
+2026-11-13T18:30:13.3770053Z Downloading attrs-26.1.0-py3-none-any.whl (67 kB)
+2026-11-13T18:30:13.3891618Z Downloading jsonschema_specifications-2025.9.1-py3-none-any.whl (18 kB)
+2026-11-13T18:30:13.4012096Z Downloading pydantic_settings-2.16.3-py3-none-any.whl (82 kB)
+2026-11-13T18:30:13.4130542Z Downloading pyjwt-2.15.1-py3-none-any.whl (33 kB)
+2026-11-13T18:30:13.4247325Z Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl (4.8 MB)
+2026-11-13T18:30:13.4559524Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.8/4.8 MB 154.2 MB/s  0:00:00
+2026-11-13T18:30:13.4659617Z Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+2026-11-13T18:30:13.4780220Z Downloading python_dotenv-1.2.4-py3-none-any.whl (23 kB)
+2026-11-13T18:30:13.4900725Z Downloading python_multipart-0.0.33-py3-none-any.whl (32 kB)
+2026-11-13T18:30:13.5017280Z Downloading referencing-0.37.0-py3-none-any.whl (26 kB)
+2026-11-13T18:30:13.5133694Z Downloading rpds_py-2026.9.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (371 kB)
+2026-11-13T18:30:13.5253971Z Downloading sse_starlette-3.7.0-py3-none-any.whl (18 kB)
+2026-11-13T18:30:13.5369221Z Downloading starlette-1.10.0-py3-none-any.whl (80 kB)
+2026-11-13T18:30:13.5489782Z Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+2026-11-13T18:30:13.5606683Z Downloading typing_inspection-0.4.5-py3-none-any.whl (14 kB)
+2026-11-13T18:30:13.5724385Z Downloading uvicorn-0.54.0-py3-none-any.whl (87 kB)
+2026-11-13T18:30:13.5848065Z Downloading click-8.5.1-py3-none-any.whl (126 kB)
+2026-11-13T18:30:13.5968272Z Downloading certifi-2026.10.23-py3-none-any.whl (135 kB)
+2026-11-13T18:30:13.6089453Z Downloading pycparser-3.12-py3-none-any.whl (62 kB)
+2026-11-13T18:30:13.6566913Z Building wheels for collected packages: ai-memory-book
+2026-11-13T18:30:13.6574706Z   Building wheel for ai-memory-book (pyproject.toml): started
+2026-11-13T18:30:13.8222165Z   Building wheel for ai-memory-book (pyproject.toml): finished with status 'done'
+2026-11-13T18:30:13.8225660Z   /tmp/pip-build-env-oy5lc7ey/overlay/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: BuildBackendWarning: `project.license` as a TOML table is deprecated
+2026-11-13T18:30:13.8226334Z   !!
+2026-11-13T18:30:13.8226503Z   
+2026-11-13T18:30:13.8226730Z           ********************************************************************************
+2026-11-13T18:30:13.8227417Z           Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+2026-11-13T18:30:13.8228009Z   
+2026-11-13T18:30:13.8228289Z           By 2027-Feb-18, you need to update your project and remove deprecated calls
+2026-11-13T18:30:13.8228665Z           or your builds will no longer be supported.
+2026-11-13T18:30:13.8228928Z   
+2026-11-13T18:30:13.8229305Z           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+2026-11-13T18:30:13.8229769Z           ********************************************************************************
+2026-11-13T18:30:13.8230051Z   
+2026-11-13T18:30:13.8230209Z   !!
+2026-11-13T18:30:13.8230393Z     corresp(dist, value, root_dir)
+2026-11-13T18:30:13.8231021Z   /tmp/pip-build-env-oy5lc7ey/overlay/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:61: BuildBackendWarning: License classifiers are deprecated.
+2026-11-13T18:30:13.8231567Z   !!
+2026-11-13T18:30:13.8231672Z   
+2026-11-13T18:30:13.8231814Z           ********************************************************************************
+2026-11-13T18:30:13.8232098Z           Please consider removing the following classifiers in favor of a SPDX license expression:
+2026-11-13T18:30:13.8232342Z   
+2026-11-13T18:30:13.8232535Z           License :: OSI Approved :: MIT License
+2026-11-13T18:30:13.8232695Z   
+2026-11-13T18:30:13.8232926Z           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+2026-11-13T18:30:13.8233227Z           ********************************************************************************
+2026-11-13T18:30:13.8233409Z   
+2026-11-13T18:30:13.8233600Z   !!
+2026-11-13T18:30:13.8233801Z     dist._finalize_license_expression()
+2026-11-13T18:30:13.8234486Z   /tmp/pip-build-env-oy5lc7ey/overlay/lib/python3.12/site-packages/setuptools/dist.py:765: BuildBackendWarning: License classifiers are deprecated.
+2026-11-13T18:30:13.8235034Z   !!
+2026-11-13T18:30:13.8235138Z   
+2026-11-13T18:30:13.8235280Z           ********************************************************************************
+2026-11-13T18:30:13.8235560Z           Please consider removing the following classifiers in favor of a SPDX license expression:
+2026-11-13T18:30:13.8235803Z   
+2026-11-13T18:30:13.8235930Z           License :: OSI Approved :: MIT License
+2026-11-13T18:30:13.8236085Z   
+2026-11-13T18:30:13.8236306Z           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+2026-11-13T18:30:13.8236848Z           ********************************************************************************
+2026-11-13T18:30:13.8237129Z   
+2026-11-13T18:30:13.8237229Z   !!
+2026-11-13T18:30:13.8237352Z     self._finalize_license_expression()
+2026-11-13T18:30:13.8237755Z   Created wheel for ai-memory-book: filename=ai_memory_book-0.3.3-py3-none-any.whl size=120072 sha256=6918f3873839d713f165ddd54157fbeb85baaf783cd655fc9e4e884958a9c357
+2026-11-13T18:30:13.8238318Z   Stored in directory: /tmp/pip-ephem-wheel-cache-5xztfga6/wheels/c0/76/ce/f684248ef29d321870ac14c879df27213df48184cbac0411bc
+2026-11-13T18:30:13.8250604Z Successfully built ai-memory-book
+2026-11-13T18:30:13.8614289Z Installing collected packages: typing-extensions, rpds-py, python-multipart, python-dotenv, pyjwt, pycparser, idna, httpx-sse, h11, click, certifi, attrs, annotated-types, ai-memory-book, uvicorn, typing-inspection, referencing, pydantic-core, httpcore, cffi, anyio, starlette, pydantic, jsonschema-specifications, httpx, cryptography, sse-starlette, pydantic-settings, jsonschema, mcp
+2026-11-13T18:30:15.1663797Z 
+2026-11-13T18:30:15.1684188Z Successfully installed ai-memory-book-0.3.3 annotated-types-0.8.0 anyio-4.16.0 attrs-26.1.0 certifi-2026.10.23 cffi-2.1.1 click-8.5.1 cryptography-50.0.2 h11-0.16.0 httpcore-1.0.9 httpx-0.28.1 httpx-sse-0.4.3 idna-3.20 jsonschema-4.26.0 jsonschema-specifications-2025.9.1 mcp-1.30.0 pycparser-3.12 pydantic-2.14.3 pydantic-core-2.50.4 pydantic-settings-2.16.3 pyjwt-2.15.1 python-dotenv-1.2.4 python-multipart-0.0.33 referencing-0.37.0 rpds-py-2026.9.1 sse-starlette-3.7.0 starlette-1.10.0 typing-extensions-4.16.0 typing-inspection-0.4.5 uvicorn-0.54.0
+2026-11-13T18:30:15.2926324Z ##[group]Run docker compose config --quiet
+2026-11-13T18:30:15.2926589Z [36;1mdocker compose config --quiet[0m
+2026-11-13T18:30:15.2926781Z [36;1mdocker build --tag ai-memory-book:ci .[0m
+2026-11-13T18:30:15.2971529Z shell: /usr/bin/bash -e {0}
+2026-11-13T18:30:15.2971688Z env:
+2026-11-13T18:30:15.2971860Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:30:15.2972125Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-13T18:30:15.2972367Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:30:15.2972584Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:30:15.2972805Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:30:15.2973022Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-13T18:30:15.2973208Z ##[endgroup]
+2026-11-13T18:30:16.0553647Z #0 building with "default" instance using docker driver
+2026-11-13T18:30:16.0554028Z 
+2026-11-13T18:30:16.0554248Z #1 [internal] load build definition from Dockerfile
+2026-11-13T18:30:16.0554529Z #1 transferring dockerfile: 558B done
+2026-11-13T18:30:16.0554763Z #1 DONE 0.0s
+2026-11-13T18:30:16.0554866Z 
+2026-11-13T18:30:16.0555012Z #2 [auth] library/python:pull token for registry-1.docker.io
+2026-11-13T18:30:16.2060175Z #2 DONE 0.0s
+2026-11-13T18:30:16.2060361Z 
+2026-11-13T18:30:16.2060555Z #3 [internal] load metadata for docker.io/library/python:3.12-slim-bookworm
+2026-11-13T18:30:16.6026398Z #3 DONE 0.7s
+2026-11-13T18:30:16.7064485Z 
+2026-11-13T18:30:16.7064981Z #4 [internal] load .dockerignore
+2026-11-13T18:30:16.7065326Z #4 transferring context: 160B done
+2026-11-13T18:30:16.7065566Z #4 DONE 0.0s
+2026-11-13T18:30:16.7065677Z 
+2026-11-13T18:30:16.7066073Z #5 [1/5] FROM docker.io/library/python:3.12-slim-bookworm@sha256:935c3c5b12357a7e10caa9c1e6ca5692344d97cf229832ef584be2cec9fc03df
+2026-11-13T18:30:16.7066924Z #5 resolve docker.io/library/python:3.12-slim-bookworm@sha256:935c3c5b12357a7e10caa9c1e6ca5692344d97cf229832ef584be2cec9fc03df 0.0s done
+2026-11-13T18:30:16.8715859Z #5 ...
+2026-11-13T18:30:16.8716111Z 
+2026-11-13T18:30:16.8716238Z #6 [internal] load build context
+2026-11-13T18:30:16.8716470Z #6 transferring context: 412.47kB done
+2026-11-13T18:30:16.8716687Z #6 DONE 0.0s
+2026-11-13T18:30:16.8716799Z 
+2026-11-13T18:30:16.8717111Z #5 [1/5] FROM docker.io/library/python:3.12-slim-bookworm@sha256:935c3c5b12357a7e10caa9c1e6ca5692344d97cf229832ef584be2cec9fc03df
+2026-11-13T18:30:16.8718220Z #5 sha256:88d15687540999237909e04714b1393c610db9dc2e13d82acd6356fa9bf8f092 249B / 249B 0.1s done
+2026-11-13T18:30:16.8718707Z #5 sha256:8691b22c22a3e005c632ab6bc07b085b98dae9cc02d1d84de175849f997439c7 4.19MB / 13.68MB 0.2s
+2026-11-13T18:30:16.9837859Z #5 sha256:a47be7bff94f52aefb243d8b245b01c74976150bb88de60875c5eb7ac964f91e 3.34MB / 3.34MB 0.3s done
+2026-11-13T18:30:16.9839030Z #5 sha256:dd051e1b8c92ff101fa3071ab97ea4924885942f15644e01c3dc095764e863e3 0B / 28.25MB 0.2s
+2026-11-13T18:30:17.1753687Z #5 sha256:8691b22c22a3e005c632ab6bc07b085b98dae9cc02d1d84de175849f997439c7 13.68MB / 13.68MB 0.3s done
+2026-11-13T18:30:17.1756522Z #5 sha256:dd051e1b8c92ff101fa3071ab97ea4924885942f15644e01c3dc095764e863e3 7.34MB / 28.25MB 0.3s
+2026-11-13T18:30:17.1756986Z #5 sha256:dd051e1b8c92ff101fa3071ab97ea4924885942f15644e01c3dc095764e863e3 28.25MB / 28.25MB 0.5s
+2026-11-13T18:30:17.3694623Z #5 sha256:dd051e1b8c92ff101fa3071ab97ea4924885942f15644e01c3dc095764e863e3 28.25MB / 28.25MB 0.5s done
+2026-11-13T18:30:17.3695318Z #5 extracting sha256:dd051e1b8c92ff101fa3071ab97ea4924885942f15644e01c3dc095764e863e3
+2026-11-13T18:30:17.7173157Z #5 extracting sha256:dd051e1b8c92ff101fa3071ab97ea4924885942f15644e01c3dc095764e863e3 0.5s done
+2026-11-13T18:30:17.7173634Z #5 DONE 1.1s
+2026-11-13T18:30:17.9343159Z 
+2026-11-13T18:30:17.9344116Z #5 [1/5] FROM docker.io/library/python:3.12-slim-bookworm@sha256:935c3c5b12357a7e10caa9c1e6ca5692344d97cf229832ef584be2cec9fc03df
+2026-11-13T18:30:17.9344995Z #5 extracting sha256:a47be7bff94f52aefb243d8b245b01c74976150bb88de60875c5eb7ac964f91e 0.1s done
+2026-11-13T18:30:17.9345443Z #5 extracting sha256:8691b22c22a3e005c632ab6bc07b085b98dae9cc02d1d84de175849f997439c7
+2026-11-13T18:30:18.0226032Z #5 extracting sha256:8691b22c22a3e005c632ab6bc07b085b98dae9cc02d1d84de175849f997439c7 0.2s done
+2026-11-13T18:30:18.0226362Z #5 DONE 1.4s
+2026-11-13T18:30:18.1791673Z 
+2026-11-13T18:30:18.1792448Z #5 [1/5] FROM docker.io/library/python:3.12-slim-bookworm@sha256:935c3c5b12357a7e10caa9c1e6ca5692344d97cf229832ef584be2cec9fc03df
+2026-11-13T18:30:18.1792955Z #5 extracting sha256:88d15687540999237909e04714b1393c610db9dc2e13d82acd6356fa9bf8f092 done
+2026-11-13T18:30:18.1793206Z #5 DONE 1.4s
+2026-11-13T18:30:18.1793287Z 
+2026-11-13T18:30:18.1793346Z #7 [2/5] WORKDIR /app
+2026-11-13T18:30:21.9211296Z #7 DONE 3.9s
+2026-11-13T18:30:22.0996246Z 
+2026-11-13T18:30:22.0996957Z #8 [3/5] COPY pyproject.toml README.md LICENSE ./
+2026-11-13T18:30:22.0997295Z #8 DONE 0.0s
+2026-11-13T18:30:22.0997377Z 
+2026-11-13T18:30:22.0997489Z #9 [4/5] COPY src ./src
+2026-11-13T18:30:22.0997622Z #9 DONE 0.0s
+2026-11-13T18:30:22.0997692Z 
+2026-11-13T18:30:22.0998172Z #10 [5/5] RUN python -m pip install --no-cache-dir '.[mcp,clients]'     && groupadd --gid 10001 memorybook     && useradd --uid 10001 --gid 10001 --create-home memorybook     && mkdir -p /data     && chown 10001:10001 /data
+2026-11-13T18:30:23.0074766Z #10 1.058 Processing /app
+2026-11-13T18:30:23.1599428Z #10 1.060   Installing build dependencies: started
+2026-11-13T18:30:24.5692310Z #10 2.620   Installing build dependencies: finished with status 'done'
+2026-11-13T18:30:24.7202332Z #10 2.621   Getting requirements to build wheel: started
+2026-11-13T18:30:24.9764237Z #10 3.027   Getting requirements to build wheel: finished with status 'done'
+2026-11-13T18:30:25.1280783Z #10 3.028   Preparing metadata (pyproject.toml): started
+2026-11-13T18:30:25.3795641Z #10 3.429   Preparing metadata (pyproject.toml): finished with status 'done'
+2026-11-13T18:30:25.5431378Z #10 3.515 Collecting mcp<2,>=1.28 (from ai-memory-book==0.3.3)
+2026-11-13T18:30:25.5431849Z #10 3.594   Downloading mcp-1.30.0-py3-none-any.whl.metadata (9.3 kB)
+2026-11-13T18:30:25.6560745Z #10 3.619 Collecting tomlkit<1,>=0.13 (from ai-memory-book==0.3.3)
+2026-11-13T18:30:25.6561109Z #10 3.634   Downloading tomlkit-0.15.2-py3-none-any.whl.metadata (3.4 kB)
+2026-11-13T18:30:25.6561389Z #10 3.659 Collecting anyio>=4.5 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:25.6562024Z #10 3.675   Downloading anyio-4.16.0-py3-none-any.whl.metadata (4.7 kB)
+2026-11-13T18:30:25.6562296Z #10 3.692 Collecting httpx-sse>=0.4 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:25.6562570Z #10 3.707   Downloading httpx_sse-0.4.3-py3-none-any.whl.metadata (9.7 kB)
+2026-11-13T18:30:25.7617882Z #10 3.732 Collecting httpx<1.0.0,>=0.27.1 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:25.7618399Z #10 3.747   Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+2026-11-13T18:30:25.7618893Z #10 3.775 Collecting jsonschema>=4.20.0 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:25.7619345Z #10 3.790   Downloading jsonschema-4.26.0-py3-none-any.whl.metadata (7.6 kB)
+2026-11-13T18:30:25.7619837Z #10 3.813 Collecting pydantic-settings>=2.5.2 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:25.8659213Z #10 3.828   Downloading pydantic_settings-2.16.3-py3-none-any.whl.metadata (4.0 kB)
+2026-11-13T18:30:25.8659878Z #10 3.917 Collecting pydantic<3.0.0,>=2.11.0 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:25.9806230Z #10 3.932   Downloading pydantic-2.14.3-py3-none-any.whl.metadata (141 kB)
+2026-11-13T18:30:25.9806809Z #10 3.998 Collecting pyjwt>=2.10.1 (from pyjwt[crypto]>=2.10.1->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:25.9807302Z #10 4.014   Downloading pyjwt-2.15.1-py3-none-any.whl.metadata (3.5 kB)
+2026-11-13T18:30:25.9807767Z #10 4.032 Collecting python-multipart>=0.0.9 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:26.0948599Z #10 4.047   Downloading python_multipart-0.0.33-py3-none-any.whl.metadata (6.3 kB)
+2026-11-13T18:30:26.0949199Z #10 4.068 Collecting sse-starlette>=1.6.1 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:26.0949832Z #10 4.083   Downloading sse_starlette-3.7.0-py3-none-any.whl.metadata (15 kB)
+2026-11-13T18:30:26.0950339Z #10 4.111 Collecting starlette>=0.27 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:26.0950824Z #10 4.126   Downloading starlette-1.10.0-py3-none-any.whl.metadata (6.6 kB)
+2026-11-13T18:30:26.0951324Z #10 4.146 Collecting typing-extensions>=4.9.0 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:26.2010199Z #10 4.161   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+2026-11-13T18:30:26.2010656Z #10 4.177 Collecting typing-inspection>=0.4.1 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:26.2010980Z #10 4.192   Downloading typing_inspection-0.4.5-py3-none-any.whl.metadata (2.6 kB)
+2026-11-13T18:30:26.2011318Z #10 4.217 Collecting uvicorn>=0.31.1 (from mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:26.2011598Z #10 4.232   Downloading uvicorn-0.54.0-py3-none-any.whl.metadata (6.6 kB)
+2026-11-13T18:30:26.2011879Z #10 4.252 Collecting idna>=2.8 (from anyio>=4.5->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:26.3063697Z #10 4.267   Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+2026-11-13T18:30:26.3064259Z #10 4.290 Collecting certifi (from httpx<1.0.0,>=0.27.1->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:26.3064617Z #10 4.305   Downloading certifi-2026.10.23-py3-none-any.whl.metadata (2.5 kB)
+2026-11-13T18:30:26.3064925Z #10 4.325 Collecting httpcore==1.* (from httpx<1.0.0,>=0.27.1->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:26.3065228Z #10 4.340   Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+2026-11-13T18:30:26.3065546Z #10 4.357 Collecting h11>=0.16 (from httpcore==1.*->httpx<1.0.0,>=0.27.1->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:26.4087917Z #10 4.372   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+2026-11-13T18:30:26.4088564Z #10 4.391 Collecting attrs>=22.2.0 (from jsonschema>=4.20.0->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:26.4089109Z #10 4.406   Downloading attrs-26.1.0-py3-none-any.whl.metadata (8.8 kB)
+2026-11-13T18:30:26.4089630Z #10 4.423 Collecting jsonschema-specifications>=2023.03.6 (from jsonschema>=4.20.0->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:26.4090293Z #10 4.438   Downloading jsonschema_specifications-2025.9.1-py3-none-any.whl.metadata (2.9 kB)
+2026-11-13T18:30:26.4090649Z #10 4.460 Collecting referencing>=0.28.4 (from jsonschema>=4.20.0->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:26.5691750Z #10 4.475   Downloading referencing-0.37.0-py3-none-any.whl.metadata (2.8 kB)
+2026-11-13T18:30:26.5692148Z #10 4.620 Collecting rpds-py>=0.25.0 (from jsonschema>=4.20.0->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:26.7667505Z #10 4.636   Downloading rpds_py-2026.9.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.1 kB)
+2026-11-13T18:30:26.7667977Z #10 4.652 Collecting annotated-types>=0.6.0 (from pydantic<3.0.0,>=2.11.0->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:26.7668321Z #10 4.667   Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+2026-11-13T18:30:27.0009767Z #10 5.052 Collecting pydantic-core==2.50.4 (from pydantic<3.0.0,>=2.11.0->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:27.1729746Z #10 5.067   Downloading pydantic_core-2.50.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (6.6 kB)
+2026-11-13T18:30:27.1730825Z #10 5.095 Collecting python-dotenv>=1.2.2 (from pydantic-settings>=2.5.2->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:27.1731563Z #10 5.111   Downloading python_dotenv-1.2.4-py3-none-any.whl.metadata (29 kB)
+2026-11-13T18:30:27.1732256Z #10 5.224 Collecting cryptography>=3.4.0 (from pyjwt[crypto]>=2.10.1->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:27.3393974Z #10 5.240   Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (4.4 kB)
+2026-11-13T18:30:27.3394611Z #10 5.278 Collecting click>=7.0 (from uvicorn>=0.31.1->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:27.3395083Z #10 5.293   Downloading click-8.5.1-py3-none-any.whl.metadata (2.6 kB)
+2026-11-13T18:30:27.3395614Z #10 5.390 Collecting cffi>=2.0.0 (from cryptography>=3.4.0->pyjwt[crypto]>=2.10.1->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:27.4478473Z #10 5.406   Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.5 kB)
+2026-11-13T18:30:27.4479150Z #10 5.435 Collecting pycparser (from cffi>=2.0.0->cryptography>=3.4.0->pyjwt[crypto]>=2.10.1->mcp<2,>=1.28->ai-memory-book==0.3.3)
+2026-11-13T18:30:27.4479581Z #10 5.450   Downloading pycparser-3.12-py3-none-any.whl.metadata (9.7 kB)
+2026-11-13T18:30:27.4479879Z #10 5.469 Downloading mcp-1.30.0-py3-none-any.whl (234 kB)
+2026-11-13T18:30:27.4480117Z #10 5.499 Downloading tomlkit-0.15.2-py3-none-any.whl (52 kB)
+2026-11-13T18:30:27.5711999Z #10 5.514 Downloading anyio-4.16.0-py3-none-any.whl (134 kB)
+2026-11-13T18:30:27.5712624Z #10 5.531 Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+2026-11-13T18:30:27.5713039Z #10 5.546 Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+2026-11-13T18:30:27.5713443Z #10 5.563 Downloading httpx_sse-0.4.3-py3-none-any.whl (9.0 kB)
+2026-11-13T18:30:27.5714023Z #10 5.578 Downloading jsonschema-4.26.0-py3-none-any.whl (90 kB)
+2026-11-13T18:30:27.5714453Z #10 5.593 Downloading pydantic-2.14.3-py3-none-any.whl (494 kB)
+2026-11-13T18:30:27.5714976Z #10 5.622 Downloading pydantic_core-2.50.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (2.3 MB)
+2026-11-13T18:30:27.6852539Z #10 5.643    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 108.6 MB/s eta 0:00:00
+2026-11-13T18:30:27.6852910Z #10 5.658 Downloading pydantic_settings-2.16.3-py3-none-any.whl (82 kB)
+2026-11-13T18:30:27.6853175Z #10 5.674 Downloading pyjwt-2.15.1-py3-none-any.whl (33 kB)
+2026-11-13T18:30:27.6853475Z #10 5.689 Downloading python_multipart-0.0.33-py3-none-any.whl (32 kB)
+2026-11-13T18:30:27.6853729Z #10 5.705 Downloading sse_starlette-3.7.0-py3-none-any.whl (18 kB)
+2026-11-13T18:30:27.6854160Z #10 5.720 Downloading starlette-1.10.0-py3-none-any.whl (80 kB)
+2026-11-13T18:30:27.6854408Z #10 5.736 Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+2026-11-13T18:30:27.7986204Z #10 5.751 Downloading typing_inspection-0.4.5-py3-none-any.whl (14 kB)
+2026-11-13T18:30:27.7987237Z #10 5.767 Downloading uvicorn-0.54.0-py3-none-any.whl (87 kB)
+2026-11-13T18:30:27.7988442Z #10 5.782 Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+2026-11-13T18:30:27.7989108Z #10 5.798 Downloading attrs-26.1.0-py3-none-any.whl (67 kB)
+2026-11-13T18:30:27.7989447Z #10 5.813 Downloading click-8.5.1-py3-none-any.whl (126 kB)
+2026-11-13T18:30:27.7989734Z #10 5.830 Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl (4.8 MB)
+2026-11-13T18:30:27.9084255Z #10 5.850    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.8/4.8 MB 290.3 MB/s eta 0:00:00
+2026-11-13T18:30:27.9084771Z #10 5.865 Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+2026-11-13T18:30:27.9085093Z #10 5.881 Downloading idna-3.20-py3-none-any.whl (69 kB)
+2026-11-13T18:30:27.9085473Z #10 5.896 Downloading jsonschema_specifications-2025.9.1-py3-none-any.whl (18 kB)
+2026-11-13T18:30:27.9085887Z #10 5.912 Downloading python_dotenv-1.2.4-py3-none-any.whl (23 kB)
+2026-11-13T18:30:27.9086249Z #10 5.928 Downloading referencing-0.37.0-py3-none-any.whl (26 kB)
+2026-11-13T18:30:27.9086728Z #10 5.943 Downloading rpds_py-2026.9.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (371 kB)
+2026-11-13T18:30:27.9087112Z #10 5.959 Downloading certifi-2026.10.23-py3-none-any.whl (135 kB)
+2026-11-13T18:30:28.1120254Z #10 5.975 Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+2026-11-13T18:30:28.1120835Z #10 5.991 Downloading pycparser-3.12-py3-none-any.whl (62 kB)
+2026-11-13T18:30:28.1121236Z #10 6.012 Building wheels for collected packages: ai-memory-book
+2026-11-13T18:30:28.1122197Z #10 6.013   Building wheel for ai-memory-book (pyproject.toml): started
+2026-11-13T18:30:28.4175840Z #10 6.468   Building wheel for ai-memory-book (pyproject.toml): finished with status 'done'
+2026-11-13T18:30:28.5982795Z #10 6.469   Created wheel for ai-memory-book: filename=ai_memory_book-0.3.3-py3-none-any.whl size=120072 sha256=ce19b8623677bf03cee8db9c91f083939215376bf06747d6316c7eedea7317fc
+2026-11-13T18:30:28.5983481Z #10 6.469   Stored in directory: /tmp/pip-ephem-wheel-cache-wffelpze/wheels/54/1b/b7/aa63e25c8f14f4f2ae7b04e6097bdecb770e455c5c1ee0a600
+2026-11-13T18:30:28.5984001Z #10 6.471 Successfully built ai-memory-book
+2026-11-13T18:30:28.5984916Z #10 6.499 Installing collected packages: typing-extensions, tomlkit, rpds-py, python-multipart, python-dotenv, pyjwt, pycparser, idna, httpx-sse, h11, click, certifi, attrs, annotated-types, ai-memory-book, uvicorn, typing-inspection, referencing, pydantic-core, httpcore, cffi, anyio, starlette, pydantic, jsonschema-specifications, httpx, cryptography, sse-starlette, pydantic-settings, jsonschema, mcp
+2026-11-13T18:30:29.6820891Z #10 7.733 Successfully installed ai-memory-book-0.3.3 annotated-types-0.8.0 anyio-4.16.0 attrs-26.1.0 certifi-2026.10.23 cffi-2.1.1 click-8.5.1 cryptography-50.0.2 h11-0.16.0 httpcore-1.0.9 httpx-0.28.1 httpx-sse-0.4.3 idna-3.20 jsonschema-4.26.0 jsonschema-specifications-2025.9.1 mcp-1.30.0 pycparser-3.12 pydantic-2.14.3 pydantic-core-2.50.4 pydantic-settings-2.16.3 pyjwt-2.15.1 python-dotenv-1.2.4 python-multipart-0.0.33 referencing-0.37.0 rpds-py-2026.9.1 sse-starlette-3.7.0 starlette-1.10.0 tomlkit-0.15.2 typing-extensions-4.16.0 typing-inspection-0.4.5 uvicorn-0.54.0
+2026-11-13T18:30:29.7936613Z #10 7.733 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+2026-11-13T18:30:29.7937857Z #10 7.844 
+2026-11-13T18:30:29.7938081Z #10 7.844 [notice] A new release of pip is available: 25.0.1 -> 26.3
+2026-11-13T18:30:29.7938325Z #10 7.844 [notice] To update, run: pip install --upgrade pip
+2026-11-13T18:30:30.2154447Z #10 DONE 8.3s
+2026-11-13T18:30:30.3687647Z 
+2026-11-13T18:30:30.3688211Z #11 exporting to image
+2026-11-13T18:30:30.3688976Z #11 exporting layers
+2026-11-13T18:30:31.3891437Z #11 exporting layers 1.2s done
+2026-11-13T18:30:31.5618688Z #11 exporting manifest sha256:fb229ec41f900bdfb049f022276d2cb09a6d42d6bc10fd7dc6f9a256ba343d98 done
+2026-11-13T18:30:31.5619143Z #11 exporting config sha256:753909fd590c1ffb64569821af019faf6c83615a56d3a2cfc5d8ad419566e5ad done
+2026-11-13T18:30:31.5619559Z #11 exporting attestation manifest sha256:202a7d7d131976f8eed20f6dc9db223143bc6606ddca6b9e43655adee1e2dfc0 done
+2026-11-13T18:30:31.5620168Z #11 exporting manifest list sha256:8cc50d1b6fc984a5a30be5bb6415701d416360b9ea6b2d8d818bbf5fb6af4756 done
+2026-11-13T18:30:31.5620557Z #11 naming to docker.io/library/ai-memory-book:ci done
+2026-11-13T18:30:31.5620773Z #11 unpacking to docker.io/library/ai-memory-book:ci
+2026-11-13T18:30:31.7124420Z #11 unpacking to docker.io/library/ai-memory-book:ci 0.3s done
+2026-11-13T18:30:31.7516431Z #11 DONE 1.5s
+2026-11-13T18:30:31.7631295Z ##[group]Run python tests/container_smoke.py
+2026-11-13T18:30:31.7631541Z [36;1mpython tests/container_smoke.py[0m
+2026-11-13T18:30:31.7674823Z shell: /usr/bin/bash -e {0}
+2026-11-13T18:30:31.7674976Z env:
+2026-11-13T18:30:31.7675139Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:30:31.7675392Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-13T18:30:31.7675642Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:30:31.7675868Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:30:31.7676094Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-13T18:30:31.7676320Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-13T18:30:31.7676506Z ##[endgroup]
+2026-11-13T18:30:33.0953506Z PASS: non-root image writes its new named data volume
+2026-11-13T18:30:34.5530354Z PASS: container MCP initializes over stdio and recalls persisted evidence
+2026-11-13T18:30:35.4565949Z PASS: localhost-published reader shares MCP data and retains Host validation
+2026-11-13T18:30:46.0798970Z PASS: container restart preserves the named volume
+2026-11-13T18:30:46.3060216Z Post job cleanup.
+2026-11-13T18:30:46.3979530Z (node:3023) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-13T18:30:46.3979980Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-13T18:30:46.4110923Z Post job cleanup.
+2026-11-13T18:30:46.4774072Z [command]/usr/bin/git version
+2026-11-13T18:30:46.4811152Z git version 2.56.1
+2026-11-13T18:30:46.4842508Z Temporarily overriding HOME='/home/runner/work/_temp/53cf8cb9-42ee-4e32-9219-2a57c5073927' before making global git config changes
+2026-11-13T18:30:46.4843320Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-13T18:30:46.4847089Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AI-Memory-Book/AI-Memory-Book
+2026-11-13T18:30:46.4889144Z Removing SSH command configuration
+2026-11-13T18:30:46.4895143Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T18:30:46.4932316Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-13T18:30:46.5232978Z Removing HTTP extra header
+2026-11-13T18:30:46.5233601Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T18:30:46.5274723Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-13T18:30:46.5540060Z Removing includeIf entries pointing to credentials config files
+2026-11-13T18:30:46.5547433Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T18:30:46.5572872Z includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git.path
+2026-11-13T18:30:46.5573725Z includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git/worktrees/*.path
+2026-11-13T18:30:46.5574266Z includeif.gitdir:/github/workspace/.git.path
+2026-11-13T18:30:46.5574598Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-13T18:30:46.5580973Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git.path
+2026-11-13T18:30:46.5602873Z /home/runner/work/_temp/git-credentials-adac9254-6374-4e9d-b823-5ef5fae4b820.config
+2026-11-13T18:30:46.5611800Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git.path /home/runner/work/_temp/git-credentials-adac9254-6374-4e9d-b823-5ef5fae4b820.config
+2026-11-13T18:30:46.5646316Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git/worktrees/*.path
+2026-11-13T18:30:46.5668189Z /home/runner/work/_temp/git-credentials-adac9254-6374-4e9d-b823-5ef5fae4b820.config
+2026-11-13T18:30:46.5676167Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/AI-Memory-Book/AI-Memory-Book/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-adac9254-6374-4e9d-b823-5ef5fae4b820.config
+2026-11-13T18:30:46.5707454Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-11-13T18:30:46.5731278Z /github/runner_temp/git-credentials-adac9254-6374-4e9d-b823-5ef5fae4b820.config
+2026-11-13T18:30:46.5737449Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-adac9254-6374-4e9d-b823-5ef5fae4b820.config
+2026-11-13T18:30:46.5770362Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-13T18:30:46.5792752Z /github/runner_temp/git-credentials-adac9254-6374-4e9d-b823-5ef5fae4b820.config
+2026-11-13T18:30:46.5798090Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-adac9254-6374-4e9d-b823-5ef5fae4b820.config
+2026-11-13T18:30:46.5831084Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-13T18:30:46.6068271Z Removing credentials config '/home/runner/work/_temp/git-credentials-adac9254-6374-4e9d-b823-5ef5fae4b820.config'
+2026-11-13T18:30:46.6223781Z Cleaning up orphan processes
