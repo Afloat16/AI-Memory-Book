@@ -732,7 +732,10 @@ class MemoryBook:
                 # Keep BM25's score scale so novelty selection does not change
                 # merely because the same ranking was observed a second time.
                 fuse_routes = use_stem and list(exact_ranks) != list(stem_ranks)
-                rows = {row["id"]: dict(row) for route in reversed(routes) for row in route}
+                # Preserve stem-first insertion and exact-route precedence,
+                # but materialize only the bounded union's private candidates.
+                rows = {row["id"]: row for route in reversed(routes) for row in route}
+                metadata_by_id = {}
                 if use_stem and rows:
                     # Exact and stem routes commonly overlap. Fetch their
                     # directory metadata once, after both bounded searches.
@@ -742,18 +745,27 @@ class MemoryBook:
                       FROM pages p JOIN chapters c ON c.id=p.chapter_id
                       JOIN sessions s ON s.id=p.session_pk WHERE p.rid IN (""" +
                       ",".join("?" for _ in ids) + ")", ids).fetchall()
-                    for row in metadata:
-                        rows[row["id"]].update(dict(row))
+                    metadata_by_id = {row["id"]: row for row in metadata}
                 qset = set(qt)
-                directory_terms = {}
+                directory_factors = {}
                 for row in rows.values():
-                    item = row  # already a private dictionary; rows is not reused
-                    title_overlap = 0.0
+                    # Row iteration supplies values directly; named lookup in
+                    # dict(Row) scans column names. Keep generic row-shaped
+                    # mappings on their existing mapping conversion path.
+                    item = (dict(zip(row.keys(), row)) if isinstance(row, sqlite3.Row)
+                            else dict(row))
+                    if use_stem:
+                        metadata = metadata_by_id.get(item["id"])
+                        if metadata is not None:
+                            item.update(zip(metadata.keys(), metadata)
+                                        if isinstance(metadata, sqlite3.Row) else metadata)
+                    factor = 1
                     if strategy == "book":
                         directory = item["chapter_title"] + " " + item["session_title"]
-                        if directory not in directory_terms:
-                            directory_terms[directory] = self._directory_tokens(directory)
-                        title_overlap = len(qset & directory_terms[directory]) / len(qset)
+                        if directory not in directory_factors:
+                            title_overlap = len(qset & self._directory_tokens(directory)) / len(qset)
+                            directory_factors[directory] = 1 + 0.15 * title_overlap
+                        factor = directory_factors[directory]
                     if fuse_routes:
                         # Retain each route's
                         # relative BM25 margins instead of only its ordinal rank.
@@ -763,7 +775,7 @@ class MemoryBook:
                                      stem_scores.get(item["id"], 0.0) / stem_scale)
                     else:
                         relevance = -item["rank"]
-                    item["score"] = relevance * (1 + 0.15 * title_overlap if strategy == "book" else 1)
+                    item["score"] = relevance * factor
                     candidates.append(item)
                 if fuse_routes:
                     candidates.sort(key=lambda item: (-item["score"], exact_ranks.get(item["id"], 97),

@@ -35,3 +35,15 @@ All round-four and earlier source tags, evaluators, reports and failed attempts
 remain immutable. New diagnostics use new filenames and record intent before
 execution. Save every completed stage remotely; never select the fastest retry
 or turn historical component results into a new competitor measurement.
+
+## Candidate A implementation checkpoint
+
+The registered candidate now retains route rows until union materialization,
+avoids temporary metadata dictionaries and reuses per-call directory score
+factors. All SQL and transaction literals remain unchanged. Its runtime hash is
+`1befe0619785df3a468705f1042c7f6e7dccb63d6ca6134d51e53211cdc90acd`.
+The new invented-response fixtures were first captured and passed against the
+released store. The candidate passes 47 focused runtime fixtures and both
+installer routing tests; the next-version defaults are 0.3.3 and all older
+wheel routes remain available. The correctness log and receipt are retained
+under `benchmarks/reports/round5-development/`. No speed measurement has run.
