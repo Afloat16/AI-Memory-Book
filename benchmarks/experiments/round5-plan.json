@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "protocol": "v033-exact-output-candidate-materialization-v1",
+  "registered_at_utc": "2026-11-13T05:50:36.949495+00:00",
+  "status": "registered-before-new-implementation-and-development-measurements",
+  "baseline": {
+    "release": "v0.3.2",
+    "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+    "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+  },
+  "development_base": "de6e2652572c4867cda2aac5637a4a6630638c7e",
+  "prior_evidence": "Read-only review of frozen round4 profiles: public1015 character path 2.70248454 profile seconds, SQLite execute1.0635/fetchall0.2547/recall self0.5758; 100192 candidate sort keys and109801 dict updates. New candidates have not been implemented or measured. Existing round4 data is now regression/development data.",
+  "preserve": [
+    "All v0.3.2 and older source tags, raw evidence, interrupted/rejected attempts and evaluator bytes.",
+    "Lexical normalization, indexed text, BM25 weights, exact/stem routing, scope-before-LIMIT, route limit96, ranking/fusion/novelty/temporal/coverage behavior.",
+    "Full non-timing valid-store responses, evidence text/spans/citations, character/token budgets, tokenizer and MCP/cache contracts.",
+    "Single SQLite source snapshot and corruption behavior.",
+    "Q2 source/model/vectors/fusion, database schema, dependencies and cross-client behavior."
+  ],
+  "candidate": {
+    "hypothesis": "Reduce repeated route-row and metadata dictionary construction, materializing one private candidate dictionary per route union member; compute identical query-specific directory score factors once per distinct directory within a recall call.",
+    "allowed": [
+      "Retain immutable sqlite3.Row references until bounded metadata materialization; preserve exact-route precedence and deterministic tie order.",
+      "Reuse exact directory overlap/score factors within a single recall call.",
+      "Within these same two paths, defer unnecessary derived score/rank structures when their branch is provably unused.",
+      "Create fresh fixtures for duplicate/disjoint routes, fused/nonfused routes, scopes/ties, current/history/coverage/semantic paths and concurrent writers."
+    ],
+    "forbidden": [
+      "Ranking/quality changes, model changes, source/index/schema changes.",
+      "New persistent or unbounded caches, result/embedding cache bypass changes.",
+      "Reopening rejected body-feature cache, highlight-range, novelty or project-local BM25 candidates.",
+      "Changing original round4 or earlier evaluators/reports.",
+      "Selecting a candidate or excluding an adverse cell after formal timing."
+    ],
+    "development": "Use saved profiles plus frozen round4 development helpers on all4732 legacy profile calls and4096 native paired calls, including all negative cells. Additional invented correctness fixtures are permitted. Preserve each attempted runtime hash and output before changing it. Development timings have no release performance claim. Select one bounded combined candidate before final binding.",
+    "formal": {
+      "cohorts": [
+        "synthetic61",
+        "public1015"
+      ],
+      "configs": [
+        {
+          "id": "native-char4000",
+          "surface": "native",
+          "budget_chars": 4000,
+          "budget_tokens": null
+        },
+        {
+          "id": "native-char100000",
+          "surface": "native",
+          "budget_chars": 100000,
+          "budget_tokens": null
+        },
+        {
+          "id": "mcp-char4000",
+          "surface": "official-sdk-mcp-stdio",
+          "budget_chars": 4000,
+          "budget_tokens": null
+        },
+        {
+          "id": "native-token512",
+          "surface": "native",
+          "budget_chars": 8000,
+          "budget_tokens": 512,
+          "tokenizer": "cl100k_base"
+        },
+        {
+          "id": "native-token1024",
+          "surface": "native",
+          "budget_chars": 8000,
+          "budget_tokens": 1024,
+          "tokenizer": "cl100k_base"
+        },
+        {
+          "id": "native-token2048",
+          "surface": "native",
+          "budget_chars": 8000,
+          "budget_tokens": 2048,
+          "tokenizer": "cl100k_base"
+        },
+        {
+          "id": "mcp-token1024",
+          "surface": "official-sdk-mcp-stdio",
+          "budget_chars": 8000,
+          "budget_tokens": 1024,
+          "tokenizer": "cl100k_base"
+        }
+      ],
+      "rounds": 4,
+      "engine_order": [
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ]
+      ],
+      "query_order": "random.Random(51061 + 1009 * round + config_index), equal for paired engines",
+      "calls": 66248,
+      "execution": "One separately claimed hosted attempt, sequential fresh worker processes on one VM; no concurrent benchmark, no OS-cold claim. Native result cache disabled; actual SDK MCP cache clear outside timing and normal write cost retained. All original call ledgers/payload hashes and every round retained.",
+      "gate": {
+        "minimum_geomean_pooled_p95_improvement_percent": 10,
+        "minimum_public_native_char4000_p95_improvement_percent": 10,
+        "minimum_public_actual_mcp_char4000_p95_improvement_percent": 5,
+        "maximum_any_pooled_p50_p95_regression_percent": 5,
+        "resource_mean_increase_review_percent": 10
+      },
+      "invariants": "All14 cells complete with identical full non-timing native/MCP payloads and exact text/reference-token counts; scope/source/cache/strict budget invariants pass. Keep all startup/ingestion/reingestion/RSS/storage records. Any resource review needs explicit evidence and independent review; do not silently waive or replace timing.",
+      "failure_rule": "If a correct frozen candidate misses a performance gate, preserve and report the failure and do not ship it as a measured speedup. Correctness bugs require retained failed attempt, demonstrated repair and a separately identified future validation; no hidden rerun."
+    }
+  },
+  "compatibility": {
+    "old_cohorts": [
+      "authored36",
+      "hotpot128",
+      "round4-hotpot256"
+    ],
+    "lexical": "Complete default payload regression on the already-scored round4 Hotpot256 at both tokenizers and512/1024/2048 budgets plus character100000. Same source/page setup and limit5; source/scope/budget invariants. No new independent-quality label.",
+    "Q2": "Check baseline and candidate on authored36 and historical Hotpot128, both tokenizers/all three budgets, identical persisted vectors/model. Q2/model/fusion files stay byte-identical apart from no changes at all.",
+    "third_party": "Do not rerun or relabel the completed round4 external-component experiment. Historical quality/timing tables retain their exact versions, dataset and interpretation. New efficiency claims compare v033 directly with v032; no inferred current whole-product competitor speed ratio.",
+    "historical_char100000_diagnostic": {
+      "cohort": "round4-hotpot256",
+      "calls": 2048,
+      "rounds": 4,
+      "engine_order": [
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ]
+      ],
+      "seed": 51256,
+      "budget_chars": 100000,
+      "limit": 5,
+      "cache_size": 0,
+      "use_cache": false,
+      "semantics": "Native historical regression/diagnostic, not a repeat of the external-component experiment. Full256 questions per worker; preserve every full payload hash and timing. No pooling into the fourteen-cell formal aggregate.",
+      "gate": "Full payload/source/scope equality; no pooled p50 or p95 regression greater than5percent. Retain separate per-round measures and resources."
+    }
+  },
+  "rss_diagnostic": {
+    "question": "Separate evaluator/corpus/tokenizer/model-hash/provenance-child costs from product process memory; explain rather than discard old tree-RSS increases.",
+    "known_limits": "Old reports retain only maxima/counts. In affected phases they observed2 processes; worker ru_maxrss does not show the same large increase. Evaluator setup/finalization includes provenance Git subprocesses, corpus/encoders, offline scoring and full-file ONNX hashing. These facts suggest causes but do not identify them without traces.",
+    "design": "Register and freeze a new diagnostic before running it. Use an external sampler recording per-PID start time, command role, RSS and PSS where available. Separate corpus/tokenizer/provenance/model-hash phases and product initialization/ingestion/query/finalization. Keep original inclusive phase views alongside disaggregated values. Match sources/data/seed and balanced order, preserve every sample and all failures; absence of PSS is explicit. No retrospective rewrite of old measurements.",
+    "runtime_claim": "Do not claim a product leak or a product memory reduction without direct evidence; no demonstrated runtime leak exists at registration."
+  },
+  "cohorts": [
+    {
+      "name": "synthetic61",
+      "queries": 168,
+      "sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26",
+      "role": "old development/regression"
+    },
+    {
+      "name": "authored36",
+      "queries": 36,
+      "sha256": "ecc46c474d5184995938419fa985b8e08c0ddb51560da49990247465db6db0b0",
+      "role": "old authored development"
+    },
+    {
+      "name": "public1015",
+      "queries": 1015,
+      "sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857",
+      "role": "old public regression"
+    },
+    {
+      "name": "hotpot128",
+      "queries": 128,
+      "sha256": "0791515aca6bccf19a97895cad681e06a07536d6c08050d54189cc64cb819822",
+      "role": "old public regression"
+    }
+  ],
+  "durability": "Commit this plan and continuation record remotely before new development measurements. Freeze candidate/evaluator/source binding before the sole formal attempt. Use new round5 paths/branches, per-worker Git checkpoints, immutable attempt claims and non-force leased ref updates. No old report edits. Commit accepted source, evidence and release verification promptly.",
+  "release": "Target v0.3.3 only after the registered gates, complete exact-output/Q2 compatibility and independent review. Pin runtime hash and versioned installers; nine exact-source CI jobs, seven verified release assets and real public installer test. Preserve all prior tags."
+}
