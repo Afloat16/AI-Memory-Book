@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "status": "accepted-prospective-diagnostic-design-for-implementation-only",
+  "scope_commit": "a3ef7df18de8336126cbb266a7b7caae1bc38100",
+  "scope_path": "benchmarks/experiments/round5-lm-sql-attribution-scope.json",
+  "scope_sha256": "0b3a249df45a25a00f76f4ad2c6e0cfa56fc7147a19e982fca429884c5ef1269",
+  "design_sha256": "677f488e70d242b089a402822b56d4ceb37017562234be386cddb8bf991bf161",
+  "source_commit": "49f10e7dec006e3a5760c93623a650dc7b6338d6",
+  "runtime_sha256": "fa56d26927ca625414ae9c9265ab285f2f8e714ec7ed015170e0bdd82d8a5bcd",
+  "reviewed_by": "root",
+  "reviewed_at_utc": "2026-11-13 18:04:00 UTC",
+  "verified": {
+    "complete18_file_inventory_matches_root_recomputed_LM": true,
+    "original_helper_and_dependency_hashes_unchanged": true,
+    "sequence_calls": 4732,
+    "original_configs_order_and_seed_preserved": true,
+    "source_site_ranges_read_from_exact_LM": true
+  },
+  "decisions": [
+    "Implement a separately named producer because existing cProfile would replace sys.setprofile; keep the original helper unchanged and never claim its producer hash.",
+    "Recognize exact native SQLite receivers and source/code/line metadata only. Preserve original MemoryBook/connection/cursor/row factories; no proxy, subclass, SQL trace, locals inspection or line tracing.",
+    "Keep raw nested C spans, exceptions, every callsite/category/query/cell and unknown buckets. Exclusive observed spans are partial attribution, not total SQL or uninstrumented speed.",
+    "Implicit cursor iteration remains unobserved and residual time explicitly unattributed; do not rewrite queries or iteration to make it measurable.",
+    "Retain calibration samples and callback bookkeeping separately, with no subtraction or best-of selection.",
+    "Use separate correctness and fresh measurement exports, one persistent worker, per-cell verified remote checkpoints, local per-query fsync and no replay."
+  ],
+  "implementation_requirements": [
+    "Use a new publication namespace; do not import bound LM publish/prepare functions with globals that would target the completed LM result branch. Copy reviewed pure mechanisms or explicitly parameterize the new controller without mutating the old module.",
+    "Avoid source-path filesystem resolution or user-object access inside observation; classify known code metadata through precomputed maps and retain unknowns.",
+    "Before any corpus launch, commit exact observer/tests/workflow/binding, complete artificial protocol/native-guard tests, and obtain independent review of final code and identities. Root alone creates the unique trigger."
+  ],
+  "corpus_execution_authorized_now": false,
+  "artificial_implementation_authorized": true,
+  "retrieval_calls_executed_by_review": 0,
+  "fresh_rows_decoded": 0,
+  "performance_accepted": false
+}
