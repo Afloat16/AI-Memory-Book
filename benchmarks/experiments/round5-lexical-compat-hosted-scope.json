@@ -40,12 +40,14 @@
     "runner": "ubuntu-24.04",
     "python": "3.12",
     "packages": {
+      "mcp": "1.30.0",
+      "pydantic": "2.14.3",
       "tiktoken": "0.12.0",
       "pyarrow": "26.0.1",
       "numpy": "2.5.4",
       "regex": "2026.11.9"
     },
-    "policy": "All workers remain on one VM/boot. Set and pass PYTHONDONTWRITEBYTECODE=1 to every child explicitly; retain exact source-file inventories without ignoring unknown files. Record actual dependency/Python/SQLite identities and original host identity. No tests run inside bound source worktrees."
+    "policy": "All workers remain on one VM/boot. Set and pass PYTHONDONTWRITEBYTECODE=1 to every child explicitly; retain exact source-file inventories without ignoring unknown files. Record actual dependency/Python/SQLite identities and original host identity. No tests run inside bound source worktrees. The original host_identity also reads MCP/Pydantic versions, so their original pins are retained although this compatibility run does not start MCP servers."
   },
   "sequence": [
     "Validate committed selection, exact controller and untouched registered inputs before a unique remote attempt claim.",
