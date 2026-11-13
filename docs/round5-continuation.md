@@ -340,3 +340,15 @@ archives remain preserved, with separate v2 output and a
 No retrieval or model call was executed for either derived audit.
 
 The exact E source also passes all nine hosted CI jobs in run `43390867313`.
+
+## E diagnostic evaluator reviewed before execution
+
+The separate GC diagnostic driver and 23 passing artificial fixtures are ready
+for an exact binding. Two preexecution defects were caught and repaired: prior
+reports could have remained live in later workers, and v032 lacks the newer
+candidate_count local inspected by the probe. The controller now validates and
+claims each job before exec creates a fresh interpreter; the actual worker
+never reads previous diagnostic reports. The v032-only local fallback is
+explicit. Root and a separate evaluator reviewer approve the fixed source.
+Bindings are compact, and complete worker reports use deterministic gzip.
+No actual probe or corpus diagnostic has run at this evaluator checkpoint.

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "status": "reviewed-before-binding-and-real-diagnostic",
+  "created_at": "2026-11-13T08:21:02.747970+00:00",
+  "registered_scope_commit": "10b04c8fdcfd0ecc95492e17b2a764c62a0651f1",
+  "registered_scope_sha256": "3bead725a2761d184ba62d76e07d7d9a06573a21f139764f6b34da21c09f142e",
+  "files_sha256": {
+    "scripts/round5_gc_diagnostic.py": "6f154b6c50c3b4636d7edfa6b85797544bdbeded8be0fb1f6f08c71f9851540b",
+    "tests/test_round5_gc_diagnostic.py": "dec0159481cc292ba2e86f8092afe7d0d8370aba0f5aafff31eb406d1817aad1"
+  },
+  "artificial_tests": {
+    "passed": 23,
+    "failures": 0,
+    "skips": 0,
+    "reported_seconds": 0.619,
+    "runner": "memory_audit: copied only script and test into isolated directory; Python -S -B; no pre-existing artifact directory; removed PYTHONPATH and PYTHONHOME",
+    "boundary": "Only artificial counters, wrappers, provenance, no-replay, exec boundary and failure-save fixtures. No MemoryBook/probe/corpus or inference call."
+  },
+  "independent_reviews": [
+    "root",
+    "evaluation_review"
+  ],
+  "resolved_preexecution_findings": [
+    "Controller preflight formerly retained prior reports and unequal GC history; os.execv now starts a new interpreter before any measured work. Internal entry never reads prior reports and requires the same PID/exclusive claim plus an exclusive started marker.",
+    "Released v032 has no candidate_count local at assembly entry; probe explicitly derives len(candidates) on that source. Pure fake-locals fixture covers the boundary.",
+    "Binding now contains compact immutable reference metadata; full reference arrays are reconstructed identically in each fresh worker. Deterministic gzip checkpoints avoid oversized public text blobs."
+  ],
+  "invariants": [
+    "exact one-clear-only E and all3source identities",
+    "9fresh one-call invented probes, then3fresh4732-call full old-cohort workers",
+    "identical fixed-signature phase wrappers, no tokenizer-method or lazy-resolver wrappers",
+    "no runtime frame inspection in frequency workers",
+    "preallocated counters/hash slots; collector enabled/settings unchanged",
+    "starts match stops; stats monotonic and bound callback counts without conflating get_count with collections",
+    "all complete payload hashes and negative cells retained",
+    "original E-vs-D decision fixed; no speed/cause-of-old-regression claim"
+  ],
+  "real_probe_calls": 0,
+  "real_corpus_calls": 0,
+  "formal_calls": 0
+}
