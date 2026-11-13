@@ -32,6 +32,10 @@ EXPECTED_JOBS = {"core (3.10)", "core (3.12)", "core (3.13)", "mcp", "reader-bro
                  "installers (ubuntu-latest)", "installers (macos-latest)",
                  "installers (windows-latest)", "container"}
 MAX_ARCHIVE_BYTES = 10 * 1024 * 1024
+APPROVED_RUNTIME_SHA256 = {
+    "0.3.0": "d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57",
+    "0.3.1": "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46",
+}
 INSTALLERS = ("install.py", "install.sh", "install.ps1")
 READ_DELAYS = (1, 2, 4)
 
@@ -218,9 +222,9 @@ def source_identity(root):
     for name, data in sorted(files.items()):
         if name.endswith(".py"):
             hasher.update(name.removeprefix("memory_book/").encode() + b"\0" + data + b"\0")
-    if version == "0.3.0":
-        require(hasher.hexdigest() == "d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57",
-                "v0.3.0 runtime differs from the approved source")
+    if version in APPROVED_RUNTIME_SHA256:
+        require(hasher.hexdigest() == APPROVED_RUNTIME_SHA256[version],
+                "v" + version + " runtime differs from the approved source")
     require(f'__version__ = "{version}"' in files["memory_book/__init__.py"].decode(), "Package version differs")
     return {"version": version, "tag": "v" + version, "commit": head,
             "tree": git(root, "rev-parse", "HEAD^{tree}").decode().strip(),
