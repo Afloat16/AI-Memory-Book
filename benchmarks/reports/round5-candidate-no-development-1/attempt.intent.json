@@ -1,0 +1,52 @@
+{
+  "attempt": "round5-candidate-no-development-1",
+  "status": "started",
+  "created_at": "2026-11-13T19:02:24.538572+00:00",
+  "workflow_commit": "8b7c721fb033c69ecb3ce07c55385f742b41c20f",
+  "run_id": "43488212773",
+  "run_attempt": 1,
+  "scope_sha256": "efc5badce593308cf58a623f31053f0b6ccb4151885fff0759c6c21ca160f6ad",
+  "candidate": "NO",
+  "source_binding_sha256": "44f0f1aa0435ebc14928c71c3b32d14a9cf276d8e0576f383d36440f567e47bf",
+  "prerequisites": {
+    "source_commit": "4a0ad4dc6aec33a91231d419239b7e90b160c695",
+    "runtime_sha256": "77310a7971677c2cebf8cd01d0aa36ab4562b55d1a3826b7fa7de895840abb32",
+    "source_ci_run": 43485616395,
+    "evidence": [
+      {
+        "kind": "independent_source_review",
+        "commit": "0610e0ddd5a0d1a89a9e96720c153c732d81e18d",
+        "path": "benchmarks/reports/round5-normalization-lexical-no-independent-source-review.json",
+        "sha256": "6a10d133a5715ab6b7b4a3e91da7dc9b32deb02611a16751422bb404b7219995"
+      },
+      {
+        "kind": "prior_decision",
+        "commit": "dca3c856d53bc5f12de70ee36968de408cf58b18",
+        "path": "benchmarks/reports/round5-candidate-j-development-2/independent-raw-audit.json",
+        "sha256": "f0d443e917e539bdaef4e83c996e94a543dfb86f34ca5ee429dab87e262648b2"
+      },
+      {
+        "kind": "prior_decision",
+        "commit": "2d5037561d6b543ee785f434d7c04fa16eb2e8b1",
+        "path": "benchmarks/reports/round5-candidate-k-development-1/independent-raw-audit.json",
+        "sha256": "c07522e9981c17aa5581c6e4315c7674971869c3109234ea93dfef581d8e9c6b"
+      },
+      {
+        "kind": "prior_decision",
+        "commit": "128952ffd4f53a30f225feb98853a7f7f6ea7121",
+        "path": "benchmarks/reports/round5-candidate-lm-development-1/independent-raw-audit.json",
+        "sha256": "eb7c9fd7b032409e7ff4d39b3ce8b03838f1901abfc3b4806fd21a8f398fdb42"
+      }
+    ],
+    "derivation": {
+      "original_driver": "scripts/round5_lm_development.py",
+      "commit": "8df838aa47e009caa8173b2ccb32fad93e4b8f90",
+      "sha256": "89998e6c55e42127d59387755031b7c7ff7cd9bcf1651c24d54c2ed237dd32ac",
+      "policy": "Retain the proven LM separate correctness and measurement exports, complete source/archive guards, and every original statistical/count/payload/data/helper/ABBA function. Change only candidate/source/attempt/evidence identities; append the two exact NO correctness modules, a separately exact frozen support-file inventory checked before and after correctness, and preclaim evidence validation for the preserved LM below-target result. Add focused negative artificial fixtures for missing, modified or substituted O witness bytes. Keep all historical LM/K/J drivers, scopes and results unchanged."
+    },
+    "prior_no_corpus_calls": 0,
+    "policy": "New whole NO candidate only; no component or cross-host timing pooling or replay."
+  },
+  "prior_evidence": "Retain complete J rejection (eight adverse cells), K below-target result (zero adverse cells; GM p95 improvement3.6355909620451876%) and LM below-target result (zero cells over5% adverse; GM p95 improvement4.791840281283378%; public native char4000 improvement5.430823483528835%). LM's public token512 p95 worsened3.7551366648520768% and its other observed regressions remain present. NO is measured directly against released v032; N/O have no component corpus timings. Never pool host timings, add component percentages, rerun unfavorable attempts or relabel below-target evidence as acceptance.",
+  "scope": "New independent old-data diagnostic only; original numerical/formal/release gates unchanged."
+}
