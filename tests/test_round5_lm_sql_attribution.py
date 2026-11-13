@@ -507,6 +507,42 @@ class CompleteProtocol(unittest.TestCase):
                 self.assertEqual(result["cells"][0]["classification_violations"],[{"site_id":0,"category":category}])
                 self.assertEqual(len(report["cells"][0]["rows"][0]["observation"]["spans"]),1)
 
+
+    def test_raw_lifo_topology_rejects_overlap_and_reopening_but_allows_shared_ticks(self):
+        def report(intervals):
+            rows=[]
+            for index,(start,end,parent) in enumerate(intervals):
+                children=sum(stop-begin for begin,stop,ancestor in intervals if ancestor==index)
+                rows.append({"sequence":index,"parent_sequence":parent,"site_id":0,
+                    "method":"Connection.execute","status":"returned","wrapper_is":False,
+                    "start_ns":start,"end_ns":end,"inclusive_ns":end-start,
+                    "child_inclusive_ns":children,"exclusive_ns":end-start-children})
+            value=fake_observation()
+            value.update(spans=rows,events={"c_call":len(rows),"c_return":len(rows)},
+                target_events={"c_call":len(rows),"c_return":len(rows)},
+                recall_wall_ns_including_observer=1000,
+                observed_exclusive_builtin_ns=sum(r["exclusive_ns"] for r in rows),
+                unattributed_wall_ns=1000-sum(r["exclusive_ns"] for r in rows))
+            return value
+        sites=[{"site_id":0,"method":"Connection.execute","category":"transaction"}]
+        invalid=[
+            [(100,200,None),(100,200,None)],
+            [(0,500,None),(100,200,0),(150,250,0)],
+            [(0,300,None),(100,200,None)],
+            [(100,100,None),(100,100,None),(100,100,0)],
+        ]
+        for intervals in invalid:
+            with self.subTest(invalid=intervals),self.assertRaises(ValueError):
+                d.audit_observation(report(intervals),sites)
+        legal=[
+            [(100,200,None),(200,300,None)],
+            [(100,100,None),(100,100,0),(100,100,0),(100,100,None)],
+            [(0,300,None),(100,200,0),(200,300,0)],
+        ]
+        for intervals in legal:
+            with self.subTest(legal=intervals):
+                self.assertTrue(d.audit_observation(report(intervals),sites))
+
     def test_raw_span_corruption_cannot_pass_accounting(self):
         with sqlite3.connect(":memory:") as db:
             sites = catalog()

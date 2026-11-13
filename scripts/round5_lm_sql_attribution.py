@@ -636,7 +636,8 @@ def audit_observation(value, sites):
             or value.get("open_sequences") != []):
         raise ValueError("Invalid or incomplete native observation")
     rows = value["spans"]
-    if [row["sequence"] for row in rows] != list(range(len(rows))):
+    if (any(type(row["sequence"]) is not int for row in rows)
+            or [row["sequence"] for row in rows] != list(range(len(rows)))):
         raise ValueError("Native call sequence changed")
     native_events = Counter()
     for row in rows:
@@ -659,6 +660,21 @@ def audit_observation(value, sites):
                 raise ValueError("Native child lies outside parent")
         native_events["c_call"] += 1
         native_events["c_exception" if row["status"] == "exception" else "c_return"] += 1
+    active, previous_start = [], None
+    for row in rows:
+        if previous_start is not None and row["start_ns"] < previous_start:
+            raise ValueError("Native entry clock moves backward in call order")
+        previous_start = row["start_ns"]
+        parent = row["parent_sequence"]
+        # The declared parent chooses legal ordering when clocks share a tick.
+        # A popped frame cannot be reopened, and roots/siblings cannot overlap.
+        while active and active[-1]["sequence"] != parent:
+            closed = active.pop()
+            if closed["end_ns"] > row["start_ns"]:
+                raise ValueError("Native roots or siblings overlap outside LIFO nesting")
+        if parent is not None and not active:
+            raise ValueError("Native parent was already closed or never active")
+        active.append(row)
     for row in rows:
         if row["child_inclusive_ns"] != sum(child["inclusive_ns"] for child in rows
                 if child["parent_sequence"] == row["sequence"]):
