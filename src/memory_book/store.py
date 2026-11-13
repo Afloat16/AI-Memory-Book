@@ -258,6 +258,9 @@ def _candidate_rows(cursor, description: tuple, connection=None) -> tuple[list, 
 
 
 
+_ORDINARY_CANDIDATE_ROWS = _candidate_rows
+
+
 def _ranked_candidate_rows(db, statement: str, parameters: list, table: str,
                            connection=None) -> tuple[list, sqlite3.Cursor | None]:
     """Probe one native FTS rank route without changing its exact top-96 set.
@@ -267,7 +270,8 @@ def _ranked_candidate_rows(db, statement: str, parameters: list, table: str,
     A tie across the 96/97 boundary requires the complete historical query.
     Neither the connection factory nor any persistent FTS configuration changes.
     """
-    ordinary = (connection is not None and db is connection and
+    ordinary = (_candidate_rows is _ORDINARY_CANDIDATE_ROWS and
+                type(parameters) is list and connection is not None and db is connection and
                 type(connection) is _NATIVE_CONNECTION and
                 connection.text_factory is str and connection.row_factory is _NATIVE_ROW and
                 sqlite3.Row is _NATIVE_ROW and sqlite3.Cursor is _NATIVE_CURSOR and
