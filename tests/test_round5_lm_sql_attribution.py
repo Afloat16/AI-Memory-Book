@@ -433,6 +433,32 @@ def fake_profile():
 
 
 class CompleteProtocol(unittest.TestCase):
+
+    def test_fingerprint_or_missing_latency_failure_keeps_current_native_spans(self):
+        from types import SimpleNamespace
+        with sqlite3.connect(":memory:") as db:
+            class Book:
+                missing = False
+                def recall(self,*args,**kwargs):
+                    value = db.execute("SELECT 1").fetchone()[0]
+                    return {"number":value} if self.missing else {"number":value,"latency_ms":0}
+            book = Book()
+            case = SimpleNamespace(id="invented",query="invented",project="invented")
+            def fail(value):
+                raise ValueError("unreported-fingerprint-sentinel")
+            row = d.observe_payload(book,case,{},catalog(),fail)
+            self.assertEqual(row["state"],"failed")
+            self.assertEqual(row["error_type"],"ValueError")
+            self.assertEqual(len(row["observation"]["spans"]),2)
+            self.assertTrue(row["observation"]["valid"])
+            self.assertNotIn("unreported-fingerprint-sentinel",json.dumps(row))
+            book.missing = True
+            row = d.observe_payload(book,case,{},catalog(),d.digest)
+            self.assertEqual(row["state"],"failed")
+            self.assertEqual(row["error_type"],"KeyError")
+            self.assertEqual(len(row["observation"]["spans"]),2)
+
+
     def test_all_4732_fake_payloads_and_orders_are_checked_and_mismatch_retained(self):
         report, old, references = fake_profile()
         self.assertTrue(d.profile_audit(report,old,references,"e"*64)["all_full_non_timing_payloads_equal_to_v032_c2"])

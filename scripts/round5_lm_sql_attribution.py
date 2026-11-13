@@ -1060,6 +1060,22 @@ def assert_publisher():
         raise PublicationError("Publication ownership has not been handed to this process")
 
 
+
+def observe_payload(book, case, options, sites, fingerprint):
+    """Keep the current C spans even if result normalization/fingerprinting fails."""
+    observer = SQLiteObserver(sites)
+    try:
+        result = observe_call(observer, book.recall, case.query,
+            project=case.project, use_cache=False, **options)
+        result.pop("latency_ms")
+        return {"query_id": case.id, "non_timing_payload_sha256": fingerprint(result),
+                "observation": observer.report()}
+    except BaseException as error:
+        return {"query_id": case.id, "state": "failed", "error_type": type(error).__name__,
+                "observation": observer.report()}
+
+
+
 def worker():
     bound = require_binding()
     if (os.environ.get("GITHUB_REF") != TRIGGER or os.environ.get("GITHUB_RUN_ATTEMPT") != "1"
@@ -1145,22 +1161,12 @@ def worker():
                             for index, case in enumerate(queries):
                                 append_ledger(ledger, {"state": "started", "query_index": index,
                                     "query_id": case.id, "cell_intent_sha256": sha(paths["intent"])})
-                                observer = SQLiteObserver(sites)
                                 report["attempted_calls"] += 1
-                                try:
-                                    result = observe_call(observer, book.recall, case.query,
-                                        project=case.project, use_cache=False, **options)
-                                except BaseException as error:
-                                    row = {"query_id": case.id, "state": "failed",
-                                        "error_type": type(error).__name__, "observation": observer.report()}
-                                    cell["rows"].append(row)
-                                    append_ledger(ledger, {"state": "failed", "query_index": index, **row})
-                                    raise RuntimeError("Original recall or native observation failed; partial evidence retained") from None
-                                result.pop("latency_ms")
-                                row = {"query_id": case.id,
-                                    "non_timing_payload_sha256": fingerprint(result),
-                                    "observation": observer.report()}
+                                row = observe_payload(book, case, options, sites, fingerprint)
                                 cell["rows"].append(row)
+                                if row.get("state") == "failed":
+                                    append_ledger(ledger, {"state": "failed", "query_index": index, **row})
+                                    raise RuntimeError("Original recall, observation or payload fingerprint failed; preserve the current raw spans") from None
                                 append_ledger(ledger, {"state": "finished", "query_index": index, **row})
                                 report["completed_calls"] += 1
                                 audit_observation(row["observation"], sites.sites)
@@ -1323,15 +1329,17 @@ def preserve():
     if (PUBLIC / "workflow-outcome.json").exists():
         print("Workflow outcome already preserved; no replay or overwrite.")
         return
+    ledger_storage = []
     for ledger in sorted((STATE / "ledgers").glob("*.jsonl")):
         target = PUBLIC / "partial-ledgers" / (ledger.name + ".gz")
-        pack_bytes(target, ledger.read_bytes())
+        ledger_storage.append(pack_bytes(target, ledger.read_bytes()))
     runner_log = ROOT / ".artifacts" / (ATTEMPT + "-runner.log")
     if runner_log.exists():
         shutil.copyfile(runner_log, PUBLIC / "runner.log.partial")
     save(PUBLIC / "workflow-outcome.json", {"created_at": stamp(),
         "run_id": os.environ.get("GITHUB_RUN_ID"), "run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
         "outcome": os.environ.get("SQL_ATTRIBUTION_OUTCOME"), "retrieval_calls": 0,
+        "available_ledger_storage": ledger_storage,
         "policy": "Preservation only. Completed/failed/partial observations remain; no stage is replayed."})
     if (PUBLIC / "publication-failure.json").exists():
         print("Publication failed; retain artifact bytes without automatic retry.")
