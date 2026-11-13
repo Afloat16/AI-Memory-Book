@@ -369,6 +369,148 @@ class CandidateMaterializationTests(unittest.TestCase):
                     self.assertNotEqual(fresh["results"], actual["results"])
 
 
+class DerivedMapMaterializationTests(unittest.TestCase):
+    """Invented native rows retain duplicate values and observable failures."""
+
+    def setUp(self):
+        self.book = MemoryBook(":memory:", segmentation="turn", max_page_chars=3000,
+                               min_page_chars=0, cache_size=0)
+        self.addCleanup(self.book.close)
+        for index in range(3):
+            self.book.ingest({"project": "derived", "session_id": f"derived-{index}",
+                "task_id": "instrument", "task_title": "Instrument archive",
+                "title": "Relay notes", "created_at": "2024-01-01T00:00:00Z",
+                "messages": [{"role": "assistant", "content":
+                    "The qzx17 relay calibration threshold is stable."}]})
+        self.pages = [dict(row) for row in self.book.db.execute(
+            "SELECT rid,id FROM pages ORDER BY id")]
+
+    def route(self, entries):
+        return [(self.pages[index]["rid"], self.pages[index]["id"], rank)
+                for index, rank in entries]
+
+    def recall_routes(self, exact, stem, *, row_type=sqlite3.Row, events=None,
+                      metadata_error=None, **options):
+        connection = self.book.db
+        events = [] if events is None else events
+
+        class RouteConnection:
+            def __getattr__(self, name):
+                return getattr(connection, name)
+
+            def execute(self, statement, *arguments):
+                if statement.startswith("SELECT p.rid,p.id,bm25("):
+                    cursor = connection.execute(statement, *arguments)
+                    values = exact if "bm25(pages_fts," in statement else stem
+                    rows = [row_type(cursor, row) for row in values]
+                    cursor.close()
+                    return SimpleNamespace(fetchall=lambda: rows)
+                if statement.startswith("SELECT p.id,p.project_id,p.chapter_id,"):
+                    events.append("metadata")
+                    if metadata_error is not None:
+                        raise metadata_error
+                return connection.execute(statement, *arguments)
+
+        self.book.db = RouteConnection()
+        connection.row_factory = row_type
+        try:
+            return stable(self.book.recall("qzx17", project="derived", budget_chars=100000,
+                                           use_cache=False, **options))
+        finally:
+            connection.row_factory = sqlite3.Row
+            self.book.db = connection
+
+    def test_duplicate_ids_keep_order_last_rank_and_final_scale(self):
+        exact = self.route([(0, -100.0), (1, -4), (0, -2), (2, -1.0)])
+        cases = [
+            # Raw route sequences differ, but ordered deduplicated IDs agree.
+            ("identical-keys", [(0, -3), (1, -1.0), (2, -2)], [4.0, 2.0, 1.0]),
+            # The discarded -100 values must not enter either final scale.
+            # Equal fused scores use the last exact ordinal, not first sight.
+            ("fused-keys", [(1, -100), (0, -4.0), (1, 0), (2, -2)], [2.0, 2.0, 1.0]),
+        ]
+        for name, entries, scores in cases:
+            with self.subTest(route=name):
+                stem = self.route(entries)
+                expected = self.recall_routes(exact, stem, row_type=RowLike)
+                actual = self.recall_routes(exact, stem)
+                self.assertEqual(actual, expected)
+                self.assertEqual(actual["candidate_count"], 3)
+                self.assertEqual([hit["id"] for hit in actual["results"]],
+                                 [self.pages[index]["id"] for index in (1, 0, 2)])
+                self.assertEqual([hit["score"] for hit in actual["results"]], scores)
+
+    def test_later_nonprimitive_id_and_rank_keep_mapping_payload(self):
+        class PageId(str):
+            pass
+
+        class ShiftedRank(float):
+            def __neg__(self):
+                return -float(self) * 3
+
+        for boundary in ("id", "rank", "bool-rank"):
+            with self.subTest(boundary=boundary):
+                exact = self.route([(0, -2.0), (1, -1), (2, -0.5)])
+                stem = self.route([(1, -3), (0, -1.0), (2, -2)])
+                rid, page_id, rank = stem[-1]
+                stem[-1] = (rid, PageId(page_id) if boundary == "id" else page_id,
+                            ShiftedRank(rank) if boundary == "rank" else
+                            False if boundary == "bool-rank" else rank)
+                expected = self.recall_routes(exact, stem, row_type=RowLike)
+                actual = self.recall_routes(exact, stem)
+                self.assertEqual(actual, expected)
+                self.assertEqual(actual["candidate_count"], 3)
+
+    def test_later_rank_failure_precedes_metadata_and_rolls_back(self):
+        class RankFailure(Exception):
+            pass
+
+        for row_type in (RowLike, sqlite3.Row):
+            with self.subTest(row_type=row_type):
+                events = []
+
+                class FailingRank:
+                    def __neg__(self):
+                        events.append("rank-failure")
+                        raise RankFailure("rank conversion precedes metadata")
+
+                exact = self.route([(0, -2.0), (1, -1), (2, FailingRank())])
+                stem = self.route([(0, -2.0), (1, -1), (2, -0.5)])
+                with self.assertRaisesRegex(RankFailure, "precedes metadata"):
+                    self.recall_routes(exact, stem, row_type=row_type, events=events,
+                                       metadata_error=AssertionError("metadata ran first"))
+                self.assertEqual(events, ["rank-failure"])
+                self.assertFalse(self.book.db.in_transaction)
+
+    def test_later_id_failure_precedes_rank_arithmetic_and_metadata(self):
+        class IdFailure(Exception):
+            pass
+
+        for row_type in (RowLike, sqlite3.Row):
+            with self.subTest(row_type=row_type):
+                events = []
+
+                class FailingId(str):
+                    def __hash__(self):
+                        events.append("id-failure")
+                        raise IdFailure("all route IDs precede rank arithmetic")
+
+                class FailingRank:
+                    def __neg__(self):
+                        events.append("rank-failure")
+                        raise AssertionError("rank arithmetic ran first")
+
+                exact = self.route([(0, FailingRank()), (1, -1), (2, -0.5)])
+                stem = self.route([(0, -2.0), (1, -1), (2, -0.5)])
+                rid, page_id, rank = stem[-1]
+                stem[-1] = (rid, FailingId(page_id), rank)
+                with self.assertRaisesRegex(IdFailure, "precede rank arithmetic"):
+                    self.recall_routes(exact, stem, row_type=row_type, events=events,
+                                       metadata_error=AssertionError("metadata ran first"))
+                self.assertEqual(events, ["id-failure"])
+                self.assertFalse(self.book.db.in_transaction)
+
+
 class WideCandidateMaterializationTests(unittest.TestCase):
     """Invented wide routes compare public payloads with the full mapping path."""
 

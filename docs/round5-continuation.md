@@ -188,3 +188,10 @@ lexical and 27 Q2 tests; Q2 also passes in a clean stdlib-only checkout without
 local artifact directories. Root and cross-review confirm that schedules,
 acceptance thresholds and old helpers remain unchanged. These are evaluator
 checks only; the real compatibility and formal executions have not started.
+
+The evaluator checkpoint `e7abb9fd2dfd097262407eff61d68412a3de4570` also passes
+all nine hosted CI jobs in run `43382911482`; its runtime is still C. Four new
+invented D-boundary fixtures pass against both exact v0.3.2 and unmodified C
+(eight checks, no failures or skips). Their preimplementation log and fixture
+hash are preserved separately before the D runtime edit. Duplicate primitive
+IDs, later custom ID/rank values and error order before metadata are covered.
