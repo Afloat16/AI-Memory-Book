@@ -1,0 +1,414 @@
+{
+  "schema_version": 1,
+  "review": "candidate-k-normalization-independent-source-review",
+  "status": "accepted-independent-source-review-of-isolated-k-on-i-t1-before-corpus",
+  "reviewed_at_utc": "2026-11-13 16:45:40 UTC",
+  "reviewer": "independent runtime audit agent",
+  "initial_source_commit": "df526ae6b01498d26db879626e899b4782b7fea5",
+  "fixed_source_commit": "3e5473e2b2c7c97a0b98489d798a45181b300c9c",
+  "normalization_scope": "Review covers the exact isolated K-on-I+T1 runtime4720728. The only runtime change from d730 is text.py; store.py remains byte-identical and does not contain J's rejected rank route. This is not performance, fresh-quality, release or final-selection acceptance.",
+  "reviewed_files": {
+    "src/memory_book/text.py": {
+      "git_blob": "4c8ee4ba0869a52810d35f8c7c04108ede5cc249",
+      "sha256": "e61747133c973a224a58738f4a74bb5d6c5c4bf614344a6c600654065bfe7d22"
+    },
+    "tests/test_round5_normalization_identity.py": {
+      "git_blob": "3d2786d7db7f4a5920a664b6c861251bc83625ab",
+      "sha256": "184195e982a74eb91f9be0ef854d9be53823c9eafe13574b80a69b97dc8ee7dc"
+    }
+  },
+  "source_changes_reviewed": [
+    "The 27,752-scalar full-string alphabet contains ASCII, unified Han ranges and the explicit punctuation set. Any other scalar takes the old whole-string normalization/deletion path.",
+    "Native str and original normalize/category/camel/strip object guards avoid applying the identity certificate to changed hooks or str subclasses; unrecognized Unicode database versions fall back.",
+    "Admitted scalars are individually NFKC/NFKD identities with combining class0 and no Mn deletion, and casefold stays inside the alphabet. Camel separation inserts ASCII spaces. The admitted set excludes composition marks and Hangul Jamo, preventing the relevant cross-character recomposition/reordering.",
+    "This is an alphabet-relative argument. A normalized scalar alone does not prove arbitrary concatenation safe, and ASCII letters are not universally stable against arbitrary following combining marks.",
+    "Canonical spelling, query phrase removal, identifier separation, stop-word behavior, indexed FTS values, source references and response packing are otherwise unchanged."
+  ],
+  "subclass_counterexample": {
+    "initial_status": "Source-derived counterexample reported before K corpus execution; coordinator accepted the finding.",
+    "input": "A str subclass containing alphaＢeta 中文 whose isascii returns a stateful truth object.",
+    "mechanism": "Initial K saved the truth object and evaluated it in both the certificate expression and the later conditional. The old terms consumed that first truth only once. A first-True/second-False object changes the first NFKC decision and therefore CamelCase boundaries; a second truth that raises adds an exception absent from the old path.",
+    "old_first_true_tokens": [
+      "alphabeta",
+      "中文"
+    ],
+    "initial_k_first_true_second_false_prefix": [
+      "alpha",
+      "beta"
+    ],
+    "reference_test_gap": "Clearing the version allowlist still ran the new double-truth control structure, so that forced fallback was not a sufficient independent reference for subclass behavior.",
+    "fix": "3e5473 restores one outer if not text.isascii() and initializes identity_source=False; the identity proof and conditional NFKC are nested inside that branch.",
+    "verification": "The fixed literal legacy body was mechanically compared with pre-K terms at910ba890 after removing only lexical. global qualifiers and its docstring; bodies match. The new stateful-truth fixture checks both first booleans, forbids a second truth, checks exact tokens/events, and passed actual MCP CI.",
+    "literal_pre_k_body_match": true,
+    "fixed_fixture": "test_stateful_isascii_truth_matches_literal_pre_k_structure",
+    "fixed_fixture_job_id": 132023178356
+  },
+  "artificial_evidence": {
+    "initial_ci_run": 43463067291,
+    "initial_ci_jobs": [
+      {
+        "id": 132014819775,
+        "name": "mcp",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132014820254,
+        "name": "reader-browser",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132014820309,
+        "name": "installers (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132014820330,
+        "name": "installers (macos-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132014820357,
+        "name": "installers (windows-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132014820550,
+        "name": "core (3.10)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132014820578,
+        "name": "core (3.13)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132014820628,
+        "name": "core (3.12)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132014821050,
+        "name": "container",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "initial_normalization_methods": 10,
+    "fixed_normalization_methods": 11,
+    "fixed_ci_run": 43465434980,
+    "fixed_ci_jobs_at_review": [
+      {
+        "id": 132023178356,
+        "name": "mcp",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132023178573,
+        "name": "installers (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132023178708,
+        "name": "installers (macos-latest)",
+        "status": "queued",
+        "conclusion": null
+      },
+      {
+        "id": 132023178773,
+        "name": "reader-browser",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132023178776,
+        "name": "core (3.10)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132023178909,
+        "name": "container",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132023179114,
+        "name": "core (3.13)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132023179133,
+        "name": "core (3.12)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132023179188,
+        "name": "installers (windows-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "observed_ucd_versions": [
+      "13.0.0",
+      "15.0.0",
+      "15.1.0"
+    ],
+    "allowlisted_versions_not_executed_in_these_logs": [
+      "14.0.0",
+      "16.0.0"
+    ],
+    "admitted_scalars": 27752,
+    "real_c_call_mechanism": {
+      "admitted": {
+        "normalize": 0,
+        "category": 0
+      },
+      "literal_legacy": {
+        "normalize": 2,
+        "category": 17
+      },
+      "accented_fallback": {
+        "normalize": 2,
+        "category": 6
+      }
+    },
+    "token_fixture": "Core jobs skip the optional-tokenizer fixture when tiktoken is absent; the actual MCP job executes it successfully for both reference tokenizers and the registered invented budgets.",
+    "observations": [
+      {
+        "name": "core (3.10)",
+        "job_id": 132014820550,
+        "retrieved_decoded_log_sha256": "aa77830ba9c85d69db6aee4f08fd7a6a90da68fb2f360c0d88451780c6b6ab36",
+        "relevant_lines": [
+          "2026-11-13T16:29:18.5263414Z test_actual_index_and_character_payload_equal_legacy (test_round5_normalization_identity.NormalizationIdentityBookTests) ... ok",
+          "2026-11-13T16:29:18.5264755Z test_actual_token_payload_and_source_spans_equal_legacy (test_round5_normalization_identity.NormalizationIdentityBookTests) ... skipped 'optional exact tokenizer is not installed'",
+          "2026-11-13T16:29:18.5278951Z test_changed_native_hooks_and_ucd_version_keep_legacy_work (test_round5_normalization_identity.NormalizationIdentityTests) ... ok",
+          "2026-11-13T16:29:18.5790079Z test_deterministic_invented_unicode_mixes_match_legacy (test_round5_normalization_identity.NormalizationIdentityTests) ... ok",
+          "2026-11-13T16:29:18.8209143Z test_every_admitted_scalar_and_complete_alphabet_are_identity_stable (test_round5_normalization_identity.NormalizationIdentityTests) ... ok",
+          "2026-11-13T16:29:18.8304535Z test_mixed_strings_match_preserved_whole_string_fallback_exactly (test_round5_normalization_identity.NormalizationIdentityTests) ... ok",
+          "2026-11-13T16:29:18.8305814Z test_real_c_call_profile_skips_only_certified_normalization (test_round5_normalization_identity.NormalizationIdentityTests) ... ok",
+          "2026-11-13T16:29:18.9980866Z test_regex_admits_exactly_registered_scalars (test_round5_normalization_identity.NormalizationIdentityTests) ... ok",
+          "2026-11-13T16:29:19.0244581Z test_representative_cross_boundaries_keep_whole_string_identity (test_round5_normalization_identity.NormalizationIdentityTests) ... ok",
+          "2026-11-13T16:29:19.0253804Z test_string_subclass_keeps_its_historical_isascii_behavior (test_round5_normalization_identity.NormalizationIdentityTests) ... ok",
+          "2026-11-13T16:29:27.2682884Z K exhaustive invented Unicode certificate: {'ucd': '13.0.0', 'admitted_scalars': 27752, 'whole_alphabet_NFKC_NFKD_identity': True, 'fresh_rows_decoded': 0, 'retrieval_calls': 0}",
+          "2026-11-13T16:29:27.2684143Z K invented C-call mechanism: {'ordinary': {'normalize': 0, 'category': 0}, 'legacy': {'normalize': 2, 'category': 17}, 'accented': {'normalize': 2, 'category': 6}}",
+          "2026-11-13T16:29:27.2689482Z Ran 917 tests in 21.757s",
+          "2026-11-13T16:29:27.2690012Z OK (skipped=90)"
+        ]
+      },
+      {
+        "name": "core (3.12)",
+        "job_id": 132014820628,
+        "retrieved_decoded_log_sha256": "000ca47daf730aa79bd0f1642202a75bb8f381b7e5b2af37e05ab74d5ff6c69e",
+        "relevant_lines": [
+          "2026-11-13T16:29:26.6836446Z test_actual_index_and_character_payload_equal_legacy (test_round5_normalization_identity.NormalizationIdentityBookTests.test_actual_index_and_character_payload_equal_legacy) ... ok",
+          "2026-11-13T16:29:26.6837661Z test_actual_token_payload_and_source_spans_equal_legacy (test_round5_normalization_identity.NormalizationIdentityBookTests.test_actual_token_payload_and_source_spans_equal_legacy) ... skipped 'optional exact tokenizer is not installed'",
+          "2026-11-13T16:29:26.6846864Z test_changed_native_hooks_and_ucd_version_keep_legacy_work (test_round5_normalization_identity.NormalizationIdentityTests.test_changed_native_hooks_and_ucd_version_keep_legacy_work) ... ok",
+          "2026-11-13T16:29:26.7272852Z test_deterministic_invented_unicode_mixes_match_legacy (test_round5_normalization_identity.NormalizationIdentityTests.test_deterministic_invented_unicode_mixes_match_legacy) ... ok",
+          "2026-11-13T16:29:26.8561590Z test_every_admitted_scalar_and_complete_alphabet_are_identity_stable (test_round5_normalization_identity.NormalizationIdentityTests.test_every_admitted_scalar_and_complete_alphabet_are_identity_stable) ... ok",
+          "2026-11-13T16:29:26.8574888Z test_mixed_strings_match_preserved_whole_string_fallback_exactly (test_round5_normalization_identity.NormalizationIdentityTests.test_mixed_strings_match_preserved_whole_string_fallback_exactly) ... ok",
+          "2026-11-13T16:29:26.8577969Z test_real_c_call_profile_skips_only_certified_normalization (test_round5_normalization_identity.NormalizationIdentityTests.test_real_c_call_profile_skips_only_certified_normalization) ... ok",
+          "2026-11-13T16:29:27.0131782Z test_regex_admits_exactly_registered_scalars (test_round5_normalization_identity.NormalizationIdentityTests.test_regex_admits_exactly_registered_scalars) ... ok",
+          "2026-11-13T16:29:27.0227023Z test_representative_cross_boundaries_keep_whole_string_identity (test_round5_normalization_identity.NormalizationIdentityTests.test_representative_cross_boundaries_keep_whole_string_identity) ... ok",
+          "2026-11-13T16:29:27.0228513Z test_string_subclass_keeps_its_historical_isascii_behavior (test_round5_normalization_identity.NormalizationIdentityTests.test_string_subclass_keeps_its_historical_isascii_behavior) ... ok",
+          "2026-11-13T16:29:34.8190952Z Ran 917 tests in 20.292s",
+          "2026-11-13T16:29:34.8191468Z OK (skipped=89)",
+          "2026-11-13T16:29:34.8192802Z K exhaustive invented Unicode certificate: {'ucd': '15.0.0', 'admitted_scalars': 27752, 'whole_alphabet_NFKC_NFKD_identity': True, 'fresh_rows_decoded': 0, 'retrieval_calls': 0}",
+          "2026-11-13T16:29:34.8194775Z K invented C-call mechanism: {'ordinary': {'normalize': 0, 'category': 0}, 'legacy': {'normalize': 2, 'category': 17}, 'accented': {'normalize': 2, 'category': 6}}"
+        ]
+      },
+      {
+        "name": "core (3.13)",
+        "job_id": 132014820578,
+        "retrieved_decoded_log_sha256": "8c465ebf0f20fcbc1f6f93435e9135149a61eaeafdc48867f8fa332b4412166a",
+        "relevant_lines": [
+          "2026-11-13T16:29:30.9675928Z test_actual_index_and_character_payload_equal_legacy (test_round5_normalization_identity.NormalizationIdentityBookTests.test_actual_index_and_character_payload_equal_legacy) ... ok",
+          "2026-11-13T16:29:30.9678400Z test_actual_token_payload_and_source_spans_equal_legacy (test_round5_normalization_identity.NormalizationIdentityBookTests.test_actual_token_payload_and_source_spans_equal_legacy) ... skipped 'optional exact tokenizer is not installed'",
+          "2026-11-13T16:29:30.9686707Z test_changed_native_hooks_and_ucd_version_keep_legacy_work (test_round5_normalization_identity.NormalizationIdentityTests.test_changed_native_hooks_and_ucd_version_keep_legacy_work) ... ok",
+          "2026-11-13T16:29:31.0172577Z test_deterministic_invented_unicode_mixes_match_legacy (test_round5_normalization_identity.NormalizationIdentityTests.test_deterministic_invented_unicode_mixes_match_legacy) ... ok",
+          "2026-11-13T16:29:31.1671770Z test_every_admitted_scalar_and_complete_alphabet_are_identity_stable (test_round5_normalization_identity.NormalizationIdentityTests.test_every_admitted_scalar_and_complete_alphabet_are_identity_stable) ... ok",
+          "2026-11-13T16:29:31.1686388Z test_mixed_strings_match_preserved_whole_string_fallback_exactly (test_round5_normalization_identity.NormalizationIdentityTests.test_mixed_strings_match_preserved_whole_string_fallback_exactly) ... ok",
+          "2026-11-13T16:29:31.1689004Z test_real_c_call_profile_skips_only_certified_normalization (test_round5_normalization_identity.NormalizationIdentityTests.test_real_c_call_profile_skips_only_certified_normalization) ... ok",
+          "2026-11-13T16:29:31.3260103Z test_regex_admits_exactly_registered_scalars (test_round5_normalization_identity.NormalizationIdentityTests.test_regex_admits_exactly_registered_scalars) ... ok",
+          "2026-11-13T16:29:31.3372791Z test_representative_cross_boundaries_keep_whole_string_identity (test_round5_normalization_identity.NormalizationIdentityTests.test_representative_cross_boundaries_keep_whole_string_identity) ... ok",
+          "2026-11-13T16:29:31.3374730Z test_string_subclass_keeps_its_historical_isascii_behavior (test_round5_normalization_identity.NormalizationIdentityTests.test_string_subclass_keeps_its_historical_isascii_behavior) ... ok",
+          "2026-11-13T16:29:44.5261625Z Ran 917 tests in 41.552s",
+          "2026-11-13T16:29:44.5261908Z OK (skipped=89)",
+          "2026-11-13T16:29:44.5262673Z K exhaustive invented Unicode certificate: {'ucd': '15.1.0', 'admitted_scalars': 27752, 'whole_alphabet_NFKC_NFKD_identity': True, 'fresh_rows_decoded': 0, 'retrieval_calls': 0}",
+          "2026-11-13T16:29:44.5263974Z K invented C-call mechanism: {'ordinary': {'normalize': 0, 'category': 0}, 'legacy': {'normalize': 2, 'category': 17}, 'accented': {'normalize': 2, 'category': 6}}"
+        ]
+      },
+      {
+        "name": "mcp",
+        "job_id": 132014819775,
+        "retrieved_decoded_log_sha256": "ff244197f75feb75bf84da817b09f3716cc31a373bd221e7d46e9710032b59b0",
+        "relevant_lines": [
+          "2026-11-13T16:29:34.3798705Z test_actual_index_and_character_payload_equal_legacy (test_round5_normalization_identity.NormalizationIdentityBookTests.test_actual_index_and_character_payload_equal_legacy) ... ok",
+          "2026-11-13T16:29:34.4039467Z test_actual_token_payload_and_source_spans_equal_legacy (test_round5_normalization_identity.NormalizationIdentityBookTests.test_actual_token_payload_and_source_spans_equal_legacy) ... ok",
+          "2026-11-13T16:29:34.4053156Z test_changed_native_hooks_and_ucd_version_keep_legacy_work (test_round5_normalization_identity.NormalizationIdentityTests.test_changed_native_hooks_and_ucd_version_keep_legacy_work) ... ok",
+          "2026-11-13T16:29:34.4698528Z test_deterministic_invented_unicode_mixes_match_legacy (test_round5_normalization_identity.NormalizationIdentityTests.test_deterministic_invented_unicode_mixes_match_legacy) ... ok",
+          "2026-11-13T16:29:34.6719314Z test_every_admitted_scalar_and_complete_alphabet_are_identity_stable (test_round5_normalization_identity.NormalizationIdentityTests.test_every_admitted_scalar_and_complete_alphabet_are_identity_stable) ... ok",
+          "2026-11-13T16:29:34.6740560Z test_mixed_strings_match_preserved_whole_string_fallback_exactly (test_round5_normalization_identity.NormalizationIdentityTests.test_mixed_strings_match_preserved_whole_string_fallback_exactly) ... ok",
+          "2026-11-13T16:29:34.6745587Z test_real_c_call_profile_skips_only_certified_normalization (test_round5_normalization_identity.NormalizationIdentityTests.test_real_c_call_profile_skips_only_certified_normalization) ... ok",
+          "2026-11-13T16:29:34.9296098Z test_regex_admits_exactly_registered_scalars (test_round5_normalization_identity.NormalizationIdentityTests.test_regex_admits_exactly_registered_scalars) ... ok",
+          "2026-11-13T16:29:34.9445367Z test_representative_cross_boundaries_keep_whole_string_identity (test_round5_normalization_identity.NormalizationIdentityTests.test_representative_cross_boundaries_keep_whole_string_identity) ... ok",
+          "2026-11-13T16:29:34.9448722Z test_string_subclass_keeps_its_historical_isascii_behavior (test_round5_normalization_identity.NormalizationIdentityTests.test_string_subclass_keeps_its_historical_isascii_behavior) ... ok",
+          "2026-11-13T16:29:52.1834927Z Ran 917 tests in 54.897s",
+          "2026-11-13T16:29:52.1835601Z OK (skipped=15)",
+          "2026-11-13T16:29:52.1837872Z K exhaustive invented Unicode certificate: {'ucd': '15.0.0', 'admitted_scalars': 27752, 'whole_alphabet_NFKC_NFKD_identity': True, 'fresh_rows_decoded': 0, 'retrieval_calls': 0}",
+          "2026-11-13T16:29:52.1839532Z K invented C-call mechanism: {'ordinary': {'normalize': 0, 'category': 0}, 'legacy': {'normalize': 2, 'category': 17}, 'accented': {'normalize': 2, 'category': 6}}"
+        ]
+      },
+      {
+        "name": "mcp after subclass fix",
+        "job_id": 132023178356,
+        "retrieved_decoded_log_sha256": "883c3468a2542f92b2ee2b13a9162257c24511a216d3a7598afe1a74782df1c6",
+        "relevant_lines": [
+          "2026-11-13T16:43:36.0198608Z test_actual_index_and_character_payload_equal_legacy (test_round5_normalization_identity.NormalizationIdentityBookTests.test_actual_index_and_character_payload_equal_legacy) ... ok",
+          "2026-11-13T16:43:36.0377596Z test_actual_token_payload_and_source_spans_equal_legacy (test_round5_normalization_identity.NormalizationIdentityBookTests.test_actual_token_payload_and_source_spans_equal_legacy) ... ok",
+          "2026-11-13T16:43:36.0388707Z test_changed_native_hooks_and_ucd_version_keep_legacy_work (test_round5_normalization_identity.NormalizationIdentityTests.test_changed_native_hooks_and_ucd_version_keep_legacy_work) ... ok",
+          "2026-11-13T16:43:36.0831948Z test_deterministic_invented_unicode_mixes_match_legacy (test_round5_normalization_identity.NormalizationIdentityTests.test_deterministic_invented_unicode_mixes_match_legacy) ... ok",
+          "2026-11-13T16:43:36.2309604Z test_every_admitted_scalar_and_complete_alphabet_are_identity_stable (test_round5_normalization_identity.NormalizationIdentityTests.test_every_admitted_scalar_and_complete_alphabet_are_identity_stable) ... ok",
+          "2026-11-13T16:43:36.2323366Z test_mixed_strings_match_preserved_whole_string_fallback_exactly (test_round5_normalization_identity.NormalizationIdentityTests.test_mixed_strings_match_preserved_whole_string_fallback_exactly) ... ok",
+          "2026-11-13T16:43:36.2326776Z test_real_c_call_profile_skips_only_certified_normalization (test_round5_normalization_identity.NormalizationIdentityTests.test_real_c_call_profile_skips_only_certified_normalization) ... ok",
+          "2026-11-13T16:43:36.3938309Z test_regex_admits_exactly_registered_scalars (test_round5_normalization_identity.NormalizationIdentityTests.test_regex_admits_exactly_registered_scalars) ... ok",
+          "2026-11-13T16:43:36.4047481Z test_representative_cross_boundaries_keep_whole_string_identity (test_round5_normalization_identity.NormalizationIdentityTests.test_representative_cross_boundaries_keep_whole_string_identity) ... ok",
+          "2026-11-13T16:43:36.4050700Z test_stateful_isascii_truth_matches_literal_pre_k_structure (test_round5_normalization_identity.NormalizationIdentityTests.test_stateful_isascii_truth_matches_literal_pre_k_structure) ... ok",
+          "2026-11-13T16:43:36.4052655Z test_string_subclass_keeps_its_historical_isascii_behavior (test_round5_normalization_identity.NormalizationIdentityTests.test_string_subclass_keeps_its_historical_isascii_behavior) ... ok",
+          "2026-11-13T16:43:52.2138835Z Ran 918 tests in 50.259s",
+          "2026-11-13T16:43:52.2139114Z OK (skipped=15)",
+          "2026-11-13T16:43:52.2140376Z K exhaustive invented Unicode certificate: {'ucd': '15.0.0', 'admitted_scalars': 27752, 'whole_alphabet_NFKC_NFKD_identity': True, 'fresh_rows_decoded': 0, 'retrieval_calls': 0}",
+          "2026-11-13T16:43:52.2141751Z K invented C-call mechanism: {'ordinary': {'normalize': 0, 'category': 0}, 'legacy': {'normalize': 2, 'category': 17}, 'accented': {'normalize': 2, 'category': 6}}"
+        ]
+      },
+      {
+        "name": "isolated K MCP",
+        "job_id": 132024650577,
+        "retrieved_decoded_log_sha256": "756f52498722c8f16d8f1794566ea45a4a4a589814a9900657fa1f7c29f56816",
+        "relevant_lines": [
+          "2026-11-13T16:46:12.3774736Z test_actual_index_and_character_payload_equal_legacy (test_round5_normalization_identity.NormalizationIdentityBookTests.test_actual_index_and_character_payload_equal_legacy) ... ok",
+          "2026-11-13T16:46:12.4000571Z test_actual_token_payload_and_source_spans_equal_legacy (test_round5_normalization_identity.NormalizationIdentityBookTests.test_actual_token_payload_and_source_spans_equal_legacy) ... ok",
+          "2026-11-13T16:46:12.4014840Z test_changed_native_hooks_and_ucd_version_keep_legacy_work (test_round5_normalization_identity.NormalizationIdentityTests.test_changed_native_hooks_and_ucd_version_keep_legacy_work) ... ok",
+          "2026-11-13T16:46:12.4615604Z test_deterministic_invented_unicode_mixes_match_legacy (test_round5_normalization_identity.NormalizationIdentityTests.test_deterministic_invented_unicode_mixes_match_legacy) ... ok",
+          "2026-11-13T16:46:12.6718302Z test_every_admitted_scalar_and_complete_alphabet_are_identity_stable (test_round5_normalization_identity.NormalizationIdentityTests.test_every_admitted_scalar_and_complete_alphabet_are_identity_stable) ... ok",
+          "2026-11-13T16:46:12.6737256Z test_mixed_strings_match_preserved_whole_string_fallback_exactly (test_round5_normalization_identity.NormalizationIdentityTests.test_mixed_strings_match_preserved_whole_string_fallback_exactly) ... ok",
+          "2026-11-13T16:46:12.6741722Z test_real_c_call_profile_skips_only_certified_normalization (test_round5_normalization_identity.NormalizationIdentityTests.test_real_c_call_profile_skips_only_certified_normalization) ... ok",
+          "2026-11-13T16:46:12.9509834Z test_regex_admits_exactly_registered_scalars (test_round5_normalization_identity.NormalizationIdentityTests.test_regex_admits_exactly_registered_scalars) ... ok",
+          "2026-11-13T16:46:12.9664672Z test_representative_cross_boundaries_keep_whole_string_identity (test_round5_normalization_identity.NormalizationIdentityTests.test_representative_cross_boundaries_keep_whole_string_identity) ... ok",
+          "2026-11-13T16:46:12.9668552Z test_stateful_isascii_truth_matches_literal_pre_k_structure (test_round5_normalization_identity.NormalizationIdentityTests.test_stateful_isascii_truth_matches_literal_pre_k_structure) ... ok",
+          "2026-11-13T16:46:12.9671511Z test_string_subclass_keeps_its_historical_isascii_behavior (test_round5_normalization_identity.NormalizationIdentityTests.test_string_subclass_keeps_its_historical_isascii_behavior) ... ok",
+          "2026-11-13T16:46:30.2625745Z Ran 900 tests in 56.550s",
+          "2026-11-13T16:46:30.2628864Z K exhaustive invented Unicode certificate: {'ucd': '15.0.0', 'admitted_scalars': 27752, 'whole_alphabet_NFKC_NFKD_identity': True, 'fresh_rows_decoded': 0, 'retrieval_calls': 0}",
+          "2026-11-13T16:46:30.2630529Z K invented C-call mechanism: {'ordinary': {'normalize': 0, 'category': 0}, 'legacy': {'normalize': 2, 'category': 17}, 'accented': {'normalize': 2, 'category': 6}}",
+          "2026-11-13T16:46:30.4383117Z OK (skipped=15)"
+        ]
+      }
+    ],
+    "isolated_ci_run": 43465851432,
+    "isolated_ci_jobs": [
+      {
+        "id": 132024650577,
+        "name": "mcp",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132024650897,
+        "name": "installers (windows-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132024650927,
+        "name": "reader-browser",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132024651111,
+        "name": "core (3.10)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132024651156,
+        "name": "installers (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132024651158,
+        "name": "core (3.12)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132024651176,
+        "name": "core (3.13)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132024651201,
+        "name": "installers (macos-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132024651377,
+        "name": "container",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "primary_references": [
+    {
+      "url": "https://www.unicode.org/reports/tr15/",
+      "sections": [
+        "1.4 Concatenation of Normalized Strings",
+        "3 Versioning and Stability",
+        "9.1 Stable Code Points"
+      ],
+      "use": "Normalization is not generally closed under concatenation; this review checks the constrained alphabet and boundaries rather than inferring safety from isolated scalar identity alone."
+    },
+    {
+      "url": "https://www.unicode.org/policies/stability_policy.html",
+      "section": "Normalization Stability",
+      "use": "Version stability has an assigned-character condition. The observed interpreter versions and the other allowlisted versions are distinguished above; no claim is made that these logs ran every allowed UCD version."
+    }
+  ],
+  "remaining_requirements": [
+    "Freeze this complete exact isolated runtime separately if selected for development; do not reintroduce the rejected J rank route.",
+    "Any corpus experiment must be separately registered and directly compare the complete candidate with v0.3.2 using the original full-payload/profile/paired/formal gates. This review supplies no speed percentage.",
+    "No fresh selection, corpus loading, model, profile, paired worker or benchmark was executed by this review."
+  ],
+  "corpus_calls_executed_by_review": 0,
+  "fresh_rows_decoded": 0,
+  "performance_accepted": false,
+  "release_accepted": false,
+  "selected_for_measurement": false,
+  "reviewed_source_commit": "4720728e47d53fc6c345fa89a2b5b739a67a1069",
+  "reviewed_source_branch": "staging/v033-normalization-identity-k-isolated",
+  "runtime_sha256": "90079d629d101370e6960a10e5391265802b1a053f65438e9b667b662638b251",
+  "isolation": {
+    "base": "d730a620bc0b7afac4de856d2a0fd01a46820c8a",
+    "text_and_tests_identical_to_subclass_fix": "3e5473e2b2c7c97a0b98489d798a45181b300c9c",
+    "only_runtime_change_from_base": "src/memory_book/text.py",
+    "store_byte_identical_to_base": true,
+    "rejected_j_rank_route_present": false,
+    "full_runtime_hash_independently_recomputed": true,
+    "complete_source_files": 18
+  }
+}
