@@ -11,6 +11,7 @@ import time
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
+from types import FunctionType
 from typing import Any
 
 from .segmentation import make_turns, segment
@@ -206,7 +207,21 @@ def _directory_tokens(text: str) -> frozenset[str]:
 
 
 _ORDINARY_DIRECTORY_TOKENS = _directory_tokens
-_ORDINARY_JSON_LOADS = json.loads
+
+
+def _ordinary_json_loader():
+    # A wrapper installed before importing this module must not be certified
+    # merely because it was the first callable we saw. Unknown origins keep
+    # the original parsing calls. Deliberately forged private code is excluded.
+    loader = json.loads
+    if (type(loader) is FunctionType and loader.__module__ == "json"
+            and loader.__name__ == loader.__qualname__ == loader.__code__.co_name == "loads"
+            and loader.__code__.co_filename == getattr(json, "__file__", None)):
+        return loader
+    return None
+
+
+_ORDINARY_JSON_LOADS = _ordinary_json_loader()
 
 
 def _refs_from_parsed(refs: list[dict], spans: list[tuple[int, int]]) -> list[dict]:
@@ -356,7 +371,7 @@ class MemoryBook:
                 return None
         statement = """WITH requested_turns(session_pk,ordinal) AS (VALUES """ + ",".join(
             "(?,?)" for _ in range(count)) + """)
-          SELECT t.session_pk,t.ordinal,t.content FROM requested_turns
+          SELECT requested_turns.session_pk AS session_pk,t.ordinal,t.content FROM requested_turns
           CROSS JOIN turns t ON t.session_pk=requested_turns.session_pk
             AND t.ordinal=requested_turns.ordinal"""
         if len(statement) > getlimit(sqlite3.SQLITE_LIMIT_SQL_LENGTH):
