@@ -20,7 +20,7 @@ Continue from main `de6e2652572c4867cda2aac5637a4a6630638c7e` and compare agains
 
 Core performance implementation, independent benchmark validation, and release-policy review run separately. Commit small completed changes to `optimization/round5-v0.3.3`; update this checkpoint with source SHAs and saved results as they become available. Main and the release tag advance only after acceptance. Code, benchmark receipts and release notes belong in this Git repository, with no dependency on transient conversation blobs.
 
-Current next steps: retain and independently audit the complete C5 rejection; observe actual MCP SQL-template reuse and duplicate source-reference parsing without new performance scoring; register any substantive C6 change before implementation and timing; preserve every original gate, then complete final-source compatibility, exact-commit CI and release verification.
+Current next steps: implement the registered C6 source-turn batching and request-local reference reuse; verify exact outputs and conservative fallbacks; freeze its actual runtime; execute its one full native development comparison, then the original formal acceptance matrix if warranted. Complete final-source compatibility, exact-commit CI and release verification only after every gate passes.
 
 ## Candidate A checkpoint
 
@@ -121,3 +121,14 @@ The sole C5 hosted run [43552372788, attempt 1](https://github.com/Afloat16/AI-M
 All 54 result files are retained from final result commit `3982ceab2bdce0e9a189135ce261445a3a38d779`, losslessly merged at `d40ac2c00b1b00653ca6b92db3c37f62e8317429`. Their 53-file completion inventory and every Git blob match the downloaded files. The full report, every original worker, all start/finish ledgers, resource values and native memo snapshots remain in [the result directory](../benchmarks/reports/round5-c5-performance-43552372788-1/). The measurement step fails its numerical gate while the saved-row audit succeeds; this is a complete rejection, not an interrupted or missing run.
 
 [The independent rejection review](round5-c5-performance-review.md) and [read-only independent audit](../benchmarks/reports/round5-c5-performance-independent-audit.json) retain all pooled/per-round cells, adverse samples and costs. C5 is not rerun for a more favorable sample. Any continuation requires materially changed product work, a new registered source/evaluator binding, and the same 10% / 15% / 10% gains, 5% pooled-regression limit and resource-review policy. No release tag or approved v0.3.3 runtime exists at this checkpoint.
+
+
+## C6 preregistration: reduce repeated source work in one snapshot
+
+The [C6 addendum](../benchmarks/experiments/round5-c6-addendum.json) and [full development plan](../benchmarks/experiments/round5-c6-development-plan.json) were saved at `099cbaf427c28351d71f3995fd0ff42f9c881b38` before C6 product edits or timing. They retain the complete C3/C5 formal rejections, the C4/C5 development evidence and every original numerical/resource gate.
+
+A [single non-timing observation of unchanged C5](../benchmarks/reports/round5-development/c6-preregistration/README.md) completed all 1,015 original public round-0 SDK calls with every full native/MCP/envelope hash and invariant matching. One connection opened and closed on the same thread. Its 20,464 application SQL executions used only 97 distinct original templates: every registered 128/256/512/1,024-entry LRU model had zero repeated misses. This rejects enlarging the statement cache; no cache-size or IN-shape change is selected. The complete raw trace and every modeled capacity are retained, along with the earlier zero-call diagnostic harness failure and its separately registered repair.
+
+The trace also records 4,289 original-turn queries and 5,073 duplicate source-reference JSON loads (3,542,467 input bytes repeated). C6 may batch the exact requested `(session_pk, ordinal)` pairs inside the existing snapshot and reuse already parsed references within that same recall. Native normal-path batches are capped at 400 pairs / 800 parameters and guarded by actual SQLite limits. Single-session, unknown-limit, restrictive-limit, malformed and custom paths retain the original loop. Parsed references never persist across calls or appear as extra output/row metadata; ordinary identity and unchanged raw-object checks guard reuse. All original source-map validation and clipping arithmetic remain required.
+
+These counts explain the implementation target, not an accepted latency gain. C6 source, final compatibility, the 18,928-call native development comparison and its separate 56,784-call formal verdict remain pending at this checkpoint. There is still no approved v0.3.3 runtime or release tag.

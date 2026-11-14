@@ -170,14 +170,15 @@ class C6AcceptanceTests(inherited.RoundFiveAcceptanceTests):
         for name, expected in prior['evaluator_files'].items():
             self.assertEqual(bench.sha((original.ROOT / name).read_bytes()), expected, name)
 
-    def test_unregistered_c6_cannot_read_binding_or_start_measurement(self):
-        self.assertIsNone(bench.CONTINUATION_COMMIT)
-        self.assertIsNone(bench.CONTINUATION_SHA256)
-        self.assertIsNone(bench.CONTINUATION_PROTOCOL)
-        self.assertIsNone(bench.CONTINUATION_STATUS)
+    def test_registered_c6_without_frozen_source_cannot_read_binding_or_start_measurement(self):
+        self.assertEqual(bench.CONTINUATION_COMMIT, '099cbaf427c28351d71f3995fd0ff42f9c881b38')
+        self.assertEqual(bench.CONTINUATION_SHA256, '7ad88598c9ccb3492083be06448e92a76da7025501a1aa578a0e39d8bd94c9d5')
+        self.assertEqual(bench.CONTINUATION_PROTOCOL, 'v033-c6-in-snapshot-source-work-continuation-v1')
+        self.assertEqual(bench.CONTINUATION_STATUS, 'registered-before-c6-implementation-and-timing')
         self.assertEqual(bench.C6_SOURCE, {'commit': None, 'runtime_sha256': None})
         self.assertEqual((bench.DEVELOPMENT_CALLS, bench.DEVELOPMENT_PAIRS, bench.DEVELOPMENT_ROUNDS,
-                          bench.DEVELOPMENT_ORDER), (18928, 9464, 2, ['AB', 'BA']))
+                          bench.DEVELOPMENT_ORDER),
+                         (18928, 9464, 2, [['baseline', 'candidate'], ['candidate', 'baseline']]))
         args = SimpleNamespace(bind=bench.ROOT/bench.C6_BINDING_PATH)
         with patch.object(Path, 'read_bytes', side_effect=AssertionError('Blocked C6 must not inspect files or measure')):
             for call in (bench.require_registered_source, bench.continuation_registration,
@@ -187,6 +188,34 @@ class C6AcceptanceTests(inherited.RoundFiveAcceptanceTests):
                          lambda: bench.main(['--binding', str(args.bind)])):
                 with self.assertRaisesRegex(ValueError, 'C6 is blocked'):
                     call()
+
+    def test_registered_scope_and_committed_documents_reject_policy_or_c5_relabeling(self):
+        for name, expected in ((bench.CONTINUATION_PATH, bench.CONTINUATION_SHA256),
+                               (bench.DEVELOPMENT_PLAN_PATH, bench.DEVELOPMENT_PLAN_SHA256)):
+            raw = (bench.ROOT/name).read_bytes()
+            self.assertEqual(bench.sha(raw), expected)
+        document = json.loads((bench.ROOT/bench.CONTINUATION_PATH).read_bytes())
+        development = json.loads((bench.ROOT/bench.DEVELOPMENT_PLAN_PATH).read_bytes())
+        self.assertEqual(development['engine_order'], bench.DEVELOPMENT_ORDER)
+        bench.check_c6_registered_scope(document)
+        for section, key, value in (
+            ('source_work_policy', 'maximum_batch_pairs', 401),
+            ('source_work_policy', 'maximum_batch_parameters', 801),
+            ('source_work_policy', 'ownership', 'persistent across recalls'),
+            ('source_work_policy', 'sqlite_statement_cache', 'enlarge to 256'),
+            ('cache_policy', 'continuation', 'additional persistent source cache'),
+            ('rejected_c5', 'binding_sha256', '0' * 64),
+            ('rejected_c5', 'summary_sha256', '0' * 64),
+            ('rejected_c5', 'result_commit', '0' * 40),
+            ('rejected_c5', 'public_mcp_token1024_gain_percent', 10),
+            ('rejected_c5', 'numeric_gate_passed', True),
+            ('rejected_c5', 'accepted', True),
+            ('rejected_c5', 'decision', 'accepted'),
+        ):
+            altered = copy.deepcopy(document)
+            altered[section][key] = value
+            with self.assertRaises(ValueError, msg=(section, key)):
+                bench.check_c6_registered_scope(altered)
 
     def test_complete_rejected_c5_and_every_original_input_remain_bound(self):
         raw = (bench.ROOT/bench.C5_SUMMARY_PATH).read_bytes()
