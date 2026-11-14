@@ -1,0 +1,127 @@
+{
+  "ast_changed_functions": {
+    "scripts/round6_comparison.py": [
+      "bind",
+      "frozen_inputs"
+    ],
+    "scripts/round6_comparison_data.py": [
+      "manifest_value"
+    ]
+  },
+  "current_runtime_sha256": "f361d2bf64a4e1088cbd5cff6ffdaf19aa15e7f1b7ea1de4577d7a488d2ac242",
+  "guards_reviewed": [
+    "New binding and copied manifest use separate registered paths and exclusive creation; original paths are unchanged.",
+    "Every original evaluator file is verified at its frozen Git commit; 68 inputs outside the three permitted existing-file changes must remain byte-identical.",
+    "Recovery registration and original freeze/binding/result ancestry are validated; original asset receipt and both runtime hashes are verified.",
+    "Existing registered_inputs and committed_manifest require distinct evaluator, binding and manifest commits with ancestry.",
+    "frozen_inputs compares the entire recovery manifest with a deep copy of the immutable original allowing only the five metadata keys.",
+    "data.load retains its full dictionary comparison to the actual loaded dataset fingerprint and statistics.",
+    "Corrected artificial fixture uses an absent temporary manifest with both patched MANIFEST and explicit manifest_path, preserving no-overwrite and no-data-read assertions."
+  ],
+  "limits": [
+    "This is preparation/evaluator review, not a product performance or quality result.",
+    "No new corpus rows, models or external assets were fetched in this review; the original committed asset receipt remains the retained provenance.",
+    "The corrected evaluator is frozen after original sample selection and before first scoring; the earlier failed CI and original hashes remain unchanged."
+  ],
+  "manifest_copy_policy": {
+    "all_other_original_values_retained_exactly": true,
+    "changed_keys": [
+      "binding_sha256",
+      "binding_commit",
+      "evaluator_commit",
+      "status_at_freeze",
+      "fixture_recovery"
+    ],
+    "dataset_sha256": "8f41f34aefb092a3757b1b4d85386dd1bacffbee72c5dc45563d1d562163a560",
+    "excluded_prior_queries": 896,
+    "original_frozen_at": "2026-11-14T13:02:03.134334+00:00",
+    "prior_selection_overlap": 0,
+    "queries": 256,
+    "selected_canonical_sha256": "6b11a39ba94be41fe778dc8caf435ffae735e2b857ecc531c9a53c64f6946957",
+    "selected_ids_sha256": "916971c92eec3267011f1b4bddf181950debe292596ca0d71b3b5336d87c293e"
+  },
+  "new_closure": {
+    "count": 75,
+    "files_sha256": "fbd514f7dec4078383d6dcedceecd09eef4375783c3b86ecbffce2876d34a67f",
+    "new_binding_exists_at_review": false,
+    "new_manifest_exists_at_review": false
+  },
+  "original_snapshot": {
+    "all_original_git_snapshot_hashes_verified": true,
+    "ancestry_verified": true,
+    "binding_commit": "214a4705dd660bd18ad17f6d4f43c4be139463e5",
+    "binding_path": "benchmarks/experiments/round6-comparison-binding.json",
+    "binding_sha256": "712b5347f970f6b90161b2b2a233423602fa9f41e79d47dce0f9a693f7fdb47b",
+    "dataset_sha256": "8f41f34aefb092a3757b1b4d85386dd1bacffbee72c5dc45563d1d562163a560",
+    "evaluator_commit": "bcd7a9ceaafc831b001e720a689512ea200293e1",
+    "evaluator_files_count": 71,
+    "evaluator_files_sha256": "b9f04b10fac3ab518c099e73b345b496e75852a66bf5e513087557328a81ad56",
+    "excluded_prior_queries": 896,
+    "manifest_path": "benchmarks/experiments/round6-hotpot256-manifest.json",
+    "manifest_sha256": "ffe9668d2e7d250c0864fe2ba4be2b7d648d3550a6ca06fa9fd24ddb203cb991",
+    "measurement_calls": 0,
+    "original_asset_receipt": {
+      "path": "benchmarks/reports/round6-comparison-freeze-43597613304-1/asset-verification.json",
+      "sha256": "e0b728c191b60cd895eeb4bd2f47fe53b9fac3cdda54b95830334b77828c2c1d"
+    },
+    "original_asset_receipt_and_locks_verified": true,
+    "original_binding_manifest_bytes_preserved": true,
+    "overlap": 0,
+    "queries": 256,
+    "result_commit": "9dfb920ead8e91f17655fe78ae49b905479d13ee",
+    "run_id": 43597613304,
+    "selected_canonical_sha256": "6b11a39ba94be41fe778dc8caf435ffae735e2b857ecc531c9a53c64f6946957",
+    "selected_ids_sha256": "916971c92eec3267011f1b4bddf181950debe292596ca0d71b3b5336d87c293e",
+    "status": "frozen-not-scored",
+    "unchanged_current_inputs": 68
+  },
+  "passed": true,
+  "protocol": "v034-round6-comparison-fixture-recovery-independent-review-v1",
+  "publication_approved": false,
+  "read_only_execution": {
+    "function": "round6_comparison_recovery.original_inputs",
+    "measurements": 0,
+    "parquet_read": false,
+    "passed": true,
+    "product_calls": 0,
+    "question_content_read": false,
+    "selection_repeated": false
+  },
+  "recommendation": "freeze-reviewed-evaluator-then-separately-commit-recovery-binding-and-copied-manifest",
+  "registration": {
+    "commit": "d99c4afaab50998a79dce906581b1732ce3b41f5",
+    "path": "benchmarks/experiments/round6-comparison-fixture-recovery-addendum.json",
+    "sha256": "53d6cd5dde7267fe7ac1be01708266a4698afa6d13797c4429e7edbc61ff1a98"
+  },
+  "remaining_checks": [
+    "Root must commit these exact reviewed evaluator bytes before generating the new binding.",
+    "Generate and separately commit the new binding; then copy and separately commit the manifest and audit exact identities/ancestry.",
+    "Verify the committed scoped startup decision and absence of any old/new scoring claim before creating the scoring trigger once.",
+    "All first-scoring results, adverse outcomes, final exact-commit CI, packages and public installer validation remain required."
+  ],
+  "reviewed_at": "2026-11-14T13:39:00.311038+00:00",
+  "reviewed_files_sha256": {
+    "scripts/round6_comparison.py": "e2cfd3983203e7527ce3912c47b87c5731a65ea25e2a93ab0611d33552f4d92e",
+    "scripts/round6_comparison_data.py": "aaad183646093d1af9620aa7ecf59836c5bfa730185c01334609423154a15d7a",
+    "scripts/round6_comparison_recovery.py": "048fe42b9e19bc50f9a255c3347f6595f12afb0ad9f6cb0b0e9b9742d05431a1",
+    "tests/test_round6_comparison.py": "8b9aa01af0ef7becf801b60ddaf571466dc59dd3631b6e02568105ae674f4803"
+  },
+  "reviewed_worktree_base": "53720f51b9f1eb3cf64da9ba2c89c1d125b0679a",
+  "schema_version": 1,
+  "sources": {
+    "baseline": {
+      "commit": "796cedfd1f5368144037a1fb72292b8d13884b8c",
+      "source_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+    },
+    "candidate": {
+      "commit": "df35007c29e4af61dd96146232fe4651cfc74391",
+      "source_sha256": "f361d2bf64a4e1088cbd5cff6ffdaf19aa15e7f1b7ea1de4577d7a488d2ac242"
+    }
+  },
+  "status": "implementation-reviewed-before-new-binding-and-first-scoring",
+  "unchanged_measurement_logic": [
+    "All other functions in round6_comparison.py and round6_comparison_data.py are AST-identical to the registered original snapshot.",
+    "Original controller, workflow, all reused adapters, locks, normalization, source fingerprinting, selection, packing, statistics, timing and complete-output equality functions retain their exact bytes.",
+    "Only declared binding/manifest paths, evaluator version/status and provenance validation change; no numeric threshold, token budget, stage, call count or quality cell changes."
+  ]
+}

@@ -1,6 +1,80 @@
 # Retrieval experiments
 
-## Current: v0.3.3 completed fifth-round validation
+## Current: v0.3.4 startup accepted; comparison and publication pending
+
+Selected A source is [`df35007`](https://github.com/Afloat16/AI-Memory-Book/commit/df35007c29e4af61dd96146232fe4651cfc74391),
+runtime SHA256 `f361d2bf64a4e1088cbd5cff6ffdaf19aa15e7f1b7ea1de4577d7a488d2ac242`.
+The baseline is published v0.3.3 at
+[`796cedf`](https://github.com/Afloat16/AI-Memory-Book/commit/796cedfd1f5368144037a1fb72292b8d13884b8c),
+runtime SHA256 `55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45`.
+v0.3.4 is not published at this checkpoint; the rejected B runtime is excluded.
+
+The sole [startup confirmation](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43598913606)
+completed all **480 original samples / 960 events** in four balanced
+AB/BA/BA/AB rounds. Forty fresh samples per source and boundary run on Ubuntu
+24.04 / Python 3.12, with fixed MCP 1.30.0 and Pydantic 2.14.3. All three
+primary startup targets and six secondary guards pass; no samples were removed
+or measurements repeated.
+
+| Boundary | Median v0.3.3 → A, ms | p95 v0.3.3 → A, ms | Median / p95 change |
+|---|---:|---:|---:|
+| New empty-archive constructor | 24.518 → 4.164 | 27.374 → 6.358 | -83.02% / -76.77% |
+| Actual CLI `--help` process | 102.903 → 48.750 | 104.104 → 49.547 | -52.63% / -52.41% |
+| Actual CLI `--version` process | 101.346 → 47.479 | 103.116 → 48.259 | -53.15% / -53.20% |
+| Full API import, including `MemoryBook` | 33.506 → 33.920 | 33.822 → 34.433 | +1.24% / +1.81% |
+| Existing empty-archive constructor | 0.640 → 0.632 | 0.668 → 0.666 | -1.23% / -0.30% |
+| Official SDK transport/server initialization | 627.601 → 620.104 | 632.233 → 624.837 | -1.19% / -1.17% |
+
+Negative changes mean less elapsed time. Constructor timing excludes Python
+launch, API import and evidence validation; actual CLI timing includes the
+whole process, and MCP timing ends at successful initialization. New-archive
+median saves **20.354 ms**, and CLI help/version save **54.153 / 53.867 ms**.
+These are the confirmed primary gains. Full API import becomes slower by
+**0.414 ms median / 0.611 ms p95**.
+
+The original automatic verdict remains **`numeric_gate_passed:true`,
+`accepted:false`**, with workflow **`failure`**. One resource increase required
+independent review: existing-archive whole-helper system CPU rises
+**18.646175 → 21.120575 ms**, or **+2.474400 ms / +13.270282%**, in every round.
+Saved user+system CPU rises **1.228375 ms**, and whole-helper wall mean rises
+**1.233748 ms / 0.889110%**; constructor median/p95 slightly improve. The exact
+phase cause remains unresolved, and the increase is not dismissed as noise or
+attributed to new-schema DDL. Two separate reviews support the bounded
+tradeoff. The [explicit startup decision](experiments/round6-startup-decision.json)
+records **`startup_accepted:true`, `publication_approved:false`** separately.
+
+All **30 resource comparisons**, **9 pooled / 27 round resource increases**
+and **6 pooled / 26 round timing increases** remain visible. Whole-child
+`wait4` high-water and sampled post-initialization MCP RSS do not establish
+isolated product-memory savings. Natural OS cache evolution and descriptive
+gates do not imply cold-OS behavior or statistical significance.
+
+| Evidence | Scope and current result |
+|---|---|
+| [Prospective startup plan](experiments/round6-startup-plan.json) and [source/evaluator binding](experiments/round6-startup-binding.json) | Exact A/v0.3.3 source identities, six boundaries, four balanced rounds, fixed numerical gates and five evaluator inputs. |
+| [Complete startup report](reports/round6-startup-43598913606-1/report.json.gz), [ledger](reports/round6-startup-43598913606-1/attempts.jsonl.gz) and [completion](reports/round6-startup-43598913606-1/completion.json) | All 480 samples and 960 events at result commit `ffcc0a6f01b3b4acdf755ecd4c01b1e564d279b6`; original automatic false and workflow failure retained. |
+| [Hosted saved-ledger audit](reports/round6-startup-43598913606-1/independent-audit.json), [local audit](reports/round6-startup-43598913606-1-local-audit/independent-audit.json) and [Git/blob verification](reports/round6-startup-43598913606-1-local-audit/verification.json) | Verify unchanged original records and recompute saved evidence without new timing. |
+| [Full saved-result review](reports/round6-startup-43598913606-1-local-audit/review.md), [independent resource review](../docs/round6-startup-resource-review.md) and [separate acceptance](experiments/round6-startup-decision.json) | Accept the disclosed whole-helper CPU tradeoff for startup scope; all adverse observations and attribution limits remain. Publication is not approved by this decision. |
+| [A development](reports/round6-development-43592983218-review.json) and [rejected B development](reports/round6-development-43595785770-review.json) | A's roughly 1% recall gains do not meet the original 10% / 15% / 10% goal; B's public native p95 rises around 19–29% and actual MCP p95 rises 23.9246%. Neither ran or passed the original formal recall matrix. |
+| [Fresh comparison plan](experiments/round6-comparison-plan.json), [original binding](experiments/round6-comparison-binding.json), [original manifest](experiments/round6-hotpot256-manifest.json) and [freeze audit](reports/round6-comparison-freeze-43597613304-local-audit.json) | 256 IDs and content fingerprints retained, excluding all 896 historical IDs with zero overlap. No scoring or human question/answer inspection in preparation. |
+| [First CI failure receipt](reports/round6-comparison-fixture-failure-43598914326/receipt.json) and [registered fixture-only recovery](experiments/round6-comparison-fixture-recovery-addendum.json) | Correct the isolated fixture's real-path dependency before first scoring. Preserve original files, failure logs, all IDs/statistics/freeze time and unchanged measurement logic; use separate new binding/manifest paths. |
+
+**The fresh comparison remains pending.** Its registered eight stages require
+**6,912 search calls / 42 quality cells**, including 1,536 native and 768
+component complete-output pairs; these are planned counts, not results. Extra
+ai-memory page fetches are counted separately. Default Book native retrieval
+and supplied-page component boundaries remain distinct; Q2 is excluded from
+this round. Future reporting must retain every engine's wins, ties, losses,
+errors and costs. There is no new competitor-win or generated-answer claim
+at this checkpoint. Historical third-party/Q2 results below retain their
+original versions and corpus boundaries.
+
+Corrected exact final nine-job CI, wheel/sdist source checks, normal release
+publication and public-installer verification remain required. See
+[release validation](../docs/validation.md) for startup scope, immutable
+report identity and the unchanged original recall goals.
+
+## Historical: v0.3.3 completed fifth-round validation
 
 Final C7 source is [`d0c84cb`](https://github.com/Afloat16/AI-Memory-Book/commit/d0c84cbfc9bad440ad447d41e211d070ef5b2cae),
 runtime SHA256 `55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45`. Its sole
