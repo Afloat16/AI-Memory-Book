@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "status": "registered-before-final-candidate-formal-measurement",
+  "candidate": "C3: reviewed C2 plus a 4096 KiB connection-local SQLite pager target",
+  "source_base_commit": "7f5a9911cc70c8e519d8ca4c1408891950b731cd",
+  "change": "Set PRAGMA cache_size=-4096 on each MemoryBook connection. The negative value is a KiB target, not a page count. Retain the existing query/result cache API, invalidation, database format and durable records.",
+  "evidence": "The separately retained 6144-call, 24-worker baseline diagnostic found about 5–6% public native p95 gains at 4 MiB with about 2.1 MiB extra RSS. 8 MiB has a public-character regression and is rejected. Candidate C already reduces wide-table reads, so baseline-only cache gains cannot be added to C gains or assumed to carry over.",
+  "selection": "Select this final combination before one full formal run. Do not repeat the full old native diagnostic to choose a faster sample. Preserve C/C2 and every prior experiment; require the final exact source to pass the unchanged formal matrix.",
+  "resource_and_compatibility": "Measure all original startup, ingestion, RSS and storage axes. Add a separate one-sample-per-source/cohort existing-archive upgrade diagnostic with full logical-content equality and index bytes; those cold-open observations are descriptive, not a statistical speed claim.",
+  "unchanged": "No ranking, scope, token budget, source projection, Q2 model, query-result cache policy, dependency or numeric acceptance gate changes. The C covering-index scope correction remains."
+}
