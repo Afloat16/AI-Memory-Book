@@ -1,6 +1,6 @@
 # v0.3.3 optimization and release checkpoint
 
-Status: development started; no v0.3.3 speed or superiority claim is accepted yet.
+Status: C3 completed all formal measurements but failed two fixed speed gates; release acceptance is rejected. A substantive C4 source is under diagnosis. No release runtime is approved.
 
 ## Source and purpose
 
@@ -69,3 +69,15 @@ The final C3 [one-sample upgrade observation](../benchmarks/reports/round5-devel
 Final C3 matches all 2,304 saved v0.3.2 complete output hashes on the already scored round-four 256-question set: 1,536 native calls (both tokenizers, 512/1,024/2,048 token caps) and 768 component-ranker calls (100,000 characters, three repeats). There are zero mismatches/errors. Original source, index and canonical-document projections remain unchanged and result caches remain empty. The complete report, all 4,608 start/finish events and source identities are retained in [the summary](../benchmarks/reports/round5-hotpot-regression.summary.json) and its linked gzip files. Only latency_ms is excluded from response equality.
 
 This supports retention of the historical default Book quality results on these same questions; it is not new-domain generalization, a new competitor speed comparison or a quality gain. The old comparison's third-party measurements and competitors' strengths remain separately labelled.
+
+## C3 complete formal result: not accepted for release
+
+The sole C3 run [43547085915](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43547085915) completed all 56,784 calls. All 28,392 complete non-timing output pairs and recorded invariants pass. Aggregate pooled p95 improves **10.499586%**, and every pooled p50/p95 cell improves. However, the best public native token gain is **10.482574%**, below its fixed 15% threshold; actual public MCP token1024 improves **5.146962%**, below its fixed 10% threshold. The numeric gate and release acceptance are therefore **false**. Resource review is not triggered.
+
+The complete original result is `e0c30deb7cdae18bb19c83534646630dfb3f673b`, merged without replacing any sample at `1cf1fde744a1f65a662b4350f88114d9e7140e70`. [Full raw evidence](../benchmarks/reports/round5-performance-43547085915-1/report.json.gz), [summary](../benchmarks/reports/round5-performance-43547085915-1/report.summary.json) and [completion](../benchmarks/reports/round5-performance-43547085915-1/completion.json) retain the measurement step's failure and the saved-result audit's success. This is a completed numerical rejection, not missing data.
+
+C3 will not be rerun to select a faster sample. Further work requires a materially changed candidate, a separate preregistered continuation, a new source/evaluator binding, the same strict numerical gates and explicit retention of this failed result.
+
+## C4 continuation registered
+
+[The C4 addendum](../benchmarks/experiments/round5-c4-addendum.json) was committed before implementation at `3b8035268cc8ceae2e7e1a19db346cc5fdff37a3`. It permits deduplicated in-snapshot directory metadata and a strict existing-score upper bound, with full invalid-metadata fallbacks and original candidate counts. Semantic/coverage/custom-factory paths stay unpruned. [C3 profiling and work-count diagnosis](../benchmarks/reports/round5-development/c4-preregistration/README.md) motivate this substantive change; they are not new performance acceptance. The complete original C3 rejection above is retained.

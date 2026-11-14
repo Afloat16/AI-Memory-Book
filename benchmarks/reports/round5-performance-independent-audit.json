@@ -1,0 +1,2395 @@
+{
+  "schema_version": 1,
+  "status": "verified_saved_measurements",
+  "audit_passed": true,
+  "created_at": "2026-11-14T02:51:51.233286+00:00",
+  "retrieval_calls_executed": 0,
+  "models_or_tokenizers_executed": 0,
+  "tests_or_timing_runs_executed": 0,
+  "sources": {
+    "baseline": {
+      "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+      "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+    },
+    "candidate": {
+      "commit": "1c9a6d3f611608e8dbce8e729fdd3099513d80e6",
+      "runtime_sha256": "7a927601b5ce710059d5a2640b3642c58a2bd4985d9ccdc48f69159938ee3623"
+    }
+  },
+  "source_git_hashes_independently_verified": true,
+  "evaluator_commit": "1c9a6d3f611608e8dbce8e729fdd3099513d80e6",
+  "evaluator_files_verified": 23,
+  "binding_sha256": "790ca15f3fbe2a5ba19fe08f83ab663bdb313a8569bfb1ee7677456ca4817c40",
+  "plan_sha256": "b83c385c2e7160318ca2c8fded161937f716d43803c03799fd86fd4f63d484a8",
+  "full_report_sha256": "aaa6f5b9c494ef775d06eb5e5444507a2314942f22f329e80a98911493b6d68a",
+  "compressed_report_sha256": "4a9b870d6bd64c2b3b8e463033cb578831c0e459add1117c946bdfbf00058e33",
+  "audit_script_sha256": "2747d64f99c5bfe85a2dd69ac159260e5dbc1e6229d24074d22c5a50543c86e1",
+  "counts": {
+    "workers": 16,
+    "cells": 12,
+    "timed_calls": 56784,
+    "ledger_events": 113568,
+    "baseline_candidate_pairs": 28392,
+    "unique_query_configuration_pairs": 7098,
+    "native_mcp_provenance_pairs": 18928,
+    "complete_output_differences": 0,
+    "recorded_invariant_failures": 0,
+    "negative_timing_samples": 0,
+    "zero_timing_samples": 0,
+    "nonfinite_or_invalid_timing_samples": 0
+  },
+  "cells": [
+    {
+      "cohort": "synthetic61",
+      "id": "native-char4000",
+      "surface": "native",
+      "budget_chars": 4000,
+      "budget_tokens": null,
+      "baseline": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 4.1496215,
+          "p95_ms": 12.50251375,
+          "mean_ms": 5.358935050595238
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 4.299488500000001,
+          "p95_ms": 12.502448300000001,
+          "mean_ms": 5.455823714285715
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 4.1382445,
+          "p95_ms": 12.497224899999999,
+          "mean_ms": 5.32663882936508
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 4.299488500000001,
+            "p95_ms": 12.502448300000001,
+            "mean_ms": 5.455823714285715
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.193481,
+            "p95_ms": 12.54982645,
+            "mean_ms": 5.434422660714286
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.11971,
+            "p95_ms": 12.23395095,
+            "mean_ms": 5.251436607142857
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.131626,
+            "p95_ms": 12.4918381,
+            "mean_ms": 5.294057220238095
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 3.8622065,
+          "p95_ms": 11.531041249999996,
+          "mean_ms": 4.865506897321429
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 3.8241145000000003,
+          "p95_ms": 11.608755900000002,
+          "mean_ms": 4.837936351190477
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 3.9188255,
+          "p95_ms": 11.502415399999999,
+          "mean_ms": 4.874697079365079
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 3.8241145000000003,
+            "p95_ms": 11.608755900000002,
+            "mean_ms": 4.837936351190477
+          },
+          {
+            "samples": 168,
+            "p50_ms": 3.952716,
+            "p95_ms": 11.43524925,
+            "mean_ms": 4.8937761250000005
+          },
+          {
+            "samples": 168,
+            "p50_ms": 3.9101885000000003,
+            "p95_ms": 11.5425387,
+            "mean_ms": 4.893914071428571
+          },
+          {
+            "samples": 168,
+            "p50_ms": 3.8730010000000004,
+            "p95_ms": 11.4420246,
+            "mean_ms": 4.836401041666666
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -6.926294362027963,
+        "p95_ms": -7.770217409279034,
+        "mean_ms": -9.207578532212334
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "id": "mcp-char4000",
+      "surface": "official-sdk-mcp-stdio",
+      "budget_chars": 4000,
+      "budget_tokens": null,
+      "baseline": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 6.2643,
+          "p95_ms": 14.989412399999999,
+          "mean_ms": 7.454784494047619
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 6.142383000000001,
+          "p95_ms": 14.83953415,
+          "mean_ms": 7.372536238095238
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 6.319048,
+          "p95_ms": 14.9894652,
+          "mean_ms": 7.48220057936508
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 6.142383000000001,
+            "p95_ms": 14.83953415,
+            "mean_ms": 7.372536238095238
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.6308635,
+            "p95_ms": 15.0748117,
+            "mean_ms": 7.762550577380952
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.9555885,
+            "p95_ms": 14.448691350000002,
+            "mean_ms": 7.19677119047619
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.295539,
+            "p95_ms": 14.928570950000001,
+            "mean_ms": 7.487279970238096
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 5.8510485,
+          "p95_ms": 13.727908449999996,
+          "mean_ms": 6.9050452247023815
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 5.8256695,
+          "p95_ms": 13.565287249999999,
+          "mean_ms": 6.877323702380953
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 5.862908,
+          "p95_ms": 13.753772849999997,
+          "mean_ms": 6.914285732142857
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 5.8256695,
+            "p95_ms": 13.565287249999999,
+            "mean_ms": 6.877323702380953
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.0479935000000005,
+            "p95_ms": 14.143512200000004,
+            "mean_ms": 7.155770964285714
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.7493045,
+            "p95_ms": 13.369473900000001,
+            "mean_ms": 6.699966571428571
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.826866,
+            "p95_ms": 13.829795800000001,
+            "mean_ms": 6.887119660714285
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -6.5969302236483,
+        "p95_ms": -8.415966659240116,
+        "mean_ms": -7.374314707342444
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "id": "native-token512",
+      "surface": "native",
+      "budget_chars": 8000,
+      "budget_tokens": 512,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 7.514309,
+          "p95_ms": 19.026127899999995,
+          "mean_ms": 8.693275416666667
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 7.46134,
+          "p95_ms": 18.78752065,
+          "mean_ms": 8.621150732142857
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 7.536412,
+          "p95_ms": 19.1440453,
+          "mean_ms": 8.717316978174603
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 7.46134,
+            "p95_ms": 18.78752065,
+            "mean_ms": 8.621150732142857
+          },
+          {
+            "samples": 168,
+            "p50_ms": 7.5949515000000005,
+            "p95_ms": 19.35430755,
+            "mean_ms": 8.896309029761905
+          },
+          {
+            "samples": 168,
+            "p50_ms": 7.381634,
+            "p95_ms": 18.8664985,
+            "mean_ms": 8.602337220238095
+          },
+          {
+            "samples": 168,
+            "p50_ms": 7.490035000000001,
+            "p95_ms": 19.04432925,
+            "mean_ms": 8.653304684523809
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 5.3580995,
+          "p95_ms": 14.9136888,
+          "mean_ms": 6.645990938988095
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 5.4878975,
+          "p95_ms": 15.070414600000003,
+          "mean_ms": 6.673715446428572
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 5.2981555,
+          "p95_ms": 14.9026926,
+          "mean_ms": 6.6367494365079365
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 5.4878975,
+            "p95_ms": 15.070414600000003,
+            "mean_ms": 6.673715446428572
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.467541000000001,
+            "p95_ms": 15.122863900000002,
+            "mean_ms": 6.743048
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.236828,
+            "p95_ms": 14.804074000000002,
+            "mean_ms": 6.570751244047619
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.1778385,
+            "p95_ms": 14.79423925,
+            "mean_ms": 6.596449065476191
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -28.694714311056412,
+        "p95_ms": -21.6146928140854,
+        "mean_ms": -23.550208403078287
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "id": "native-token1024",
+      "surface": "native",
+      "budget_chars": 8000,
+      "budget_tokens": 1024,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 6.0203545,
+          "p95_ms": 19.5178152,
+          "mean_ms": 7.53282975
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 5.9718415,
+          "p95_ms": 19.361111,
+          "mean_ms": 7.427518309523809
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 6.04901,
+          "p95_ms": 19.740674249999994,
+          "mean_ms": 7.567933563492064
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 5.9718415,
+            "p95_ms": 19.361111,
+            "mean_ms": 7.427518309523809
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.04901,
+            "p95_ms": 19.55221655,
+            "mean_ms": 7.581870220238095
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.9726099999999995,
+            "p95_ms": 19.683585650000005,
+            "mean_ms": 7.574648922619048
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.0342105,
+            "p95_ms": 19.72020925,
+            "mean_ms": 7.547281547619047
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 4.565251,
+          "p95_ms": 14.992351149999998,
+          "mean_ms": 5.855292421130953
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 4.6233885,
+          "p95_ms": 15.166036450000002,
+          "mean_ms": 5.903010845238096
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 4.53413,
+          "p95_ms": 14.9754571,
+          "mean_ms": 5.839386279761905
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 4.6233885,
+            "p95_ms": 15.166036450000002,
+            "mean_ms": 5.903010845238096
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.605586000000001,
+            "p95_ms": 14.96047265,
+            "mean_ms": 5.904480892857143
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.507061500000001,
+            "p95_ms": 14.93959875,
+            "mean_ms": 5.798697023809524
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.4951305,
+            "p95_ms": 14.96702295,
+            "mean_ms": 5.814980922619047
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -24.16973120104472,
+        "p95_ms": -23.186324922268987,
+        "mean_ms": -22.26968330021062
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "id": "native-token2048",
+      "surface": "native",
+      "budget_chars": 8000,
+      "budget_tokens": 2048,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 4.655526,
+          "p95_ms": 16.80588845,
+          "mean_ms": 6.429658895833334
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 4.5233425,
+          "p95_ms": 16.462591200000002,
+          "mean_ms": 6.349959130952381
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 4.6657685,
+          "p95_ms": 16.808001349999998,
+          "mean_ms": 6.456225484126985
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 4.5233425,
+            "p95_ms": 16.462591200000002,
+            "mean_ms": 6.349959130952381
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.6927745000000005,
+            "p95_ms": 16.77930165,
+            "mean_ms": 6.517370660714286
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.675050499999999,
+            "p95_ms": 16.7615363,
+            "mean_ms": 6.437782380952381
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.655526,
+            "p95_ms": 16.8067628,
+            "mean_ms": 6.413523410714286
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 4.349005,
+          "p95_ms": 15.8042682,
+          "mean_ms": 5.975567709821429
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 4.3866805,
+          "p95_ms": 15.85592145,
+          "mean_ms": 6.007529172619048
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 4.345129,
+          "p95_ms": 15.76554695,
+          "mean_ms": 5.964913888888889
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 4.3866805,
+            "p95_ms": 15.85592145,
+            "mean_ms": 6.007529172619048
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.3658915,
+            "p95_ms": 15.836678500000001,
+            "mean_ms": 6.024347672619048
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.319887,
+            "p95_ms": 15.732031749999999,
+            "mean_ms": 5.943878654761905
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.3343454999999995,
+            "p95_ms": 15.68300865,
+            "mean_ms": 5.926515339285714
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -6.584025091901536,
+        "p95_ms": -5.959936322200221,
+        "mean_ms": -7.062445976818044
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "id": "mcp-token1024",
+      "surface": "official-sdk-mcp-stdio",
+      "budget_chars": 8000,
+      "budget_tokens": 1024,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 8.1964405,
+          "p95_ms": 22.231939499999996,
+          "mean_ms": 10.507656822916667
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 8.3735615,
+          "p95_ms": 22.398041,
+          "mean_ms": 10.58307068452381
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 8.1886665,
+          "p95_ms": 22.17146705,
+          "mean_ms": 10.482518869047619
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 8.3735615,
+            "p95_ms": 22.398041,
+            "mean_ms": 10.58307068452381
+          },
+          {
+            "samples": 168,
+            "p50_ms": 8.287625,
+            "p95_ms": 22.209197850000002,
+            "mean_ms": 10.525182184523809
+          },
+          {
+            "samples": 168,
+            "p50_ms": 8.125849500000001,
+            "p95_ms": 22.126798700000002,
+            "mean_ms": 10.46740224404762
+          },
+          {
+            "samples": 168,
+            "p50_ms": 8.1405295,
+            "p95_ms": 22.0505815,
+            "mean_ms": 10.45497217857143
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 6.6732845,
+          "p95_ms": 17.669623899999994,
+          "mean_ms": 8.837209916666668
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 6.7122355,
+          "p95_ms": 17.6744266,
+          "mean_ms": 8.813823142857142
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 6.6732845,
+          "p95_ms": 17.632925949999997,
+          "mean_ms": 8.84500550793651
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 6.7122355,
+            "p95_ms": 17.6744266,
+            "mean_ms": 8.813823142857142
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.87643,
+            "p95_ms": 17.83349605,
+            "mean_ms": 9.060241916666667
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.6732845,
+            "p95_ms": 17.58611975,
+            "mean_ms": 8.800883845238095
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.4848145,
+            "p95_ms": 17.13678665,
+            "mean_ms": 8.673890761904762
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -18.583139839787766,
+        "p95_ms": -20.5214466331199,
+        "mean_ms": -15.897425414644673
+      }
+    },
+    {
+      "cohort": "public1015",
+      "id": "native-char4000",
+      "surface": "native",
+      "budget_chars": 4000,
+      "budget_tokens": null,
+      "baseline": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 2.893682,
+          "p95_ms": 3.528887449999999,
+          "mean_ms": 2.9119853189655176
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 2.91392,
+          "p95_ms": 3.5451357999999997,
+          "mean_ms": 2.931510021674877
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 2.886217,
+          "p95_ms": 3.5279651999999997,
+          "mean_ms": 2.905477084729064
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 2.91392,
+            "p95_ms": 3.5451357999999997,
+            "mean_ms": 2.931510021674877
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.889474,
+            "p95_ms": 3.5617824,
+            "mean_ms": 2.909462207881773
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.882497,
+            "p95_ms": 3.5244110999999996,
+            "mean_ms": 2.902422681773399
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.884692,
+            "p95_ms": 3.5055043,
+            "mean_ms": 2.9045463645320195
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 2.769403,
+          "p95_ms": 3.3665319499999997,
+          "mean_ms": 2.7781058908866996
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 2.772436,
+          "p95_ms": 3.3514073,
+          "mean_ms": 2.7759968935960595
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 2.768957,
+          "p95_ms": 3.371634,
+          "mean_ms": 2.7788088899835794
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 2.772436,
+            "p95_ms": 3.3514073,
+            "mean_ms": 2.7759968935960595
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.774077,
+            "p95_ms": 3.3664109,
+            "mean_ms": 2.781570815763547
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.761248,
+            "p95_ms": 3.3722933999999998,
+            "mean_ms": 2.770730541871921
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.775509,
+            "p95_ms": 3.3749430999999994,
+            "mean_ms": 2.784125312315271
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -4.2948395849993215,
+        "p95_ms": -4.600755969136938,
+        "mean_ms": -4.597531011124012
+      }
+    },
+    {
+      "cohort": "public1015",
+      "id": "mcp-char4000",
+      "surface": "official-sdk-mcp-stdio",
+      "budget_chars": 4000,
+      "budget_tokens": null,
+      "baseline": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 4.787084500000001,
+          "p95_ms": 5.515043449999999,
+          "mean_ms": 4.808769214778325
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 4.856842,
+          "p95_ms": 5.6707375,
+          "mean_ms": 4.896458230541873
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 4.767836,
+          "p95_ms": 5.459475399999999,
+          "mean_ms": 4.779539542857143
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 4.856842,
+            "p95_ms": 5.6707375,
+            "mean_ms": 4.896458230541873
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.782874,
+            "p95_ms": 5.4680012,
+            "mean_ms": 4.803544874876847
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.732091,
+            "p95_ms": 5.4523949,
+            "mean_ms": 4.760950708374384
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.776924,
+            "p95_ms": 5.4570614,
+            "mean_ms": 4.774123045320197
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 4.6491665,
+          "p95_ms": 5.347719999999999,
+          "mean_ms": 4.666114358128079
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 4.66273,
+          "p95_ms": 5.378248599999999,
+          "mean_ms": 4.681031287684729
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 4.646535,
+          "p95_ms": 5.3316804,
+          "mean_ms": 4.661142048275862
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 4.66273,
+            "p95_ms": 5.378248599999999,
+            "mean_ms": 4.681031287684729
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.651465,
+            "p95_ms": 5.3264541,
+            "mean_ms": 4.669000328078818
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.632164,
+            "p95_ms": 5.3220674,
+            "mean_ms": 4.6504410817733985
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.649748,
+            "p95_ms": 5.375303,
+            "mean_ms": 4.66398473497537
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -2.881043775183012,
+        "p95_ms": -3.0339461786108024,
+        "mean_ms": -2.9665565195318377
+      }
+    },
+    {
+      "cohort": "public1015",
+      "id": "native-token512",
+      "surface": "native",
+      "budget_chars": 8000,
+      "budget_tokens": 512,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 4.190024,
+          "p95_ms": 4.95628595,
+          "mean_ms": 4.207233064039409
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 4.241129,
+          "p95_ms": 5.024535,
+          "mean_ms": 4.252212566502463
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 4.177848,
+          "p95_ms": 4.9379988,
+          "mean_ms": 4.192239896551724
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 4.241129,
+            "p95_ms": 5.024535,
+            "mean_ms": 4.252212566502463
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.202837,
+            "p95_ms": 4.9564157,
+            "mean_ms": 4.203551030541872
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.1586,
+            "p95_ms": 4.9335635,
+            "mean_ms": 4.170280143842364
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.169282,
+            "p95_ms": 4.9365635999999995,
+            "mean_ms": 4.202888515270936
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 3.497722,
+          "p95_ms": 4.436739599999999,
+          "mean_ms": 3.5493613982758623
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 3.504132,
+          "p95_ms": 4.4685004,
+          "mean_ms": 3.5592099408866993
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 3.494379,
+          "p95_ms": 4.4311538,
+          "mean_ms": 3.5460785507389163
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 3.504132,
+            "p95_ms": 4.4685004,
+            "mean_ms": 3.5592099408866993
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.498399,
+            "p95_ms": 4.4348639,
+            "mean_ms": 3.546424681773399
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.483898,
+            "p95_ms": 4.428928,
+            "mean_ms": 3.539372325123153
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.502424,
+            "p95_ms": 4.4288438999999995,
+            "mean_ms": 3.5524386453201973
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -16.52262612338259,
+        "p95_ms": -10.482574154140579,
+        "mean_ms": -15.636682250541101
+      }
+    },
+    {
+      "cohort": "public1015",
+      "id": "native-token1024",
+      "surface": "native",
+      "budget_chars": 8000,
+      "budget_tokens": 1024,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 3.5639585,
+          "p95_ms": 4.2452601,
+          "mean_ms": 3.562090648768473
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 3.610092,
+          "p95_ms": 4.2744017,
+          "mean_ms": 3.6036721261083744
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 3.549875,
+          "p95_ms": 4.230287999999999,
+          "mean_ms": 3.5482301563218392
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 3.610092,
+            "p95_ms": 4.2744017,
+            "mean_ms": 3.6036721261083744
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.544364,
+            "p95_ms": 4.229513,
+            "mean_ms": 3.5433662778325123
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.542529,
+            "p95_ms": 4.2315352,
+            "mean_ms": 3.545405238423645
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.558128,
+            "p95_ms": 4.2262705,
+            "mean_ms": 3.5559189527093595
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 3.3580155,
+          "p95_ms": 3.9554674,
+          "mean_ms": 3.3553838933497535
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 3.371797,
+          "p95_ms": 3.9688512,
+          "mean_ms": 3.3634823980295567
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 3.354839,
+          "p95_ms": 3.9521995999999997,
+          "mean_ms": 3.3526843917898197
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 3.371797,
+            "p95_ms": 3.9688512,
+            "mean_ms": 3.3634823980295567
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.360327,
+            "p95_ms": 3.9574196,
+            "mean_ms": 3.359393121182266
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.326474,
+            "p95_ms": 3.9165108,
+            "mean_ms": 3.32210258817734
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.374102,
+            "p95_ms": 4.0021550999999995,
+            "mean_ms": 3.3765574660098525
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -5.778490406103209,
+        "p95_ms": -6.826264897173218,
+        "mean_ms": -5.802961681791697
+      }
+    },
+    {
+      "cohort": "public1015",
+      "id": "native-token2048",
+      "surface": "native",
+      "budget_chars": 8000,
+      "budget_tokens": 2048,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 3.4849115,
+          "p95_ms": 4.10651415,
+          "mean_ms": 3.5043268327586206
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 3.502344,
+          "p95_ms": 4.1292955,
+          "mean_ms": 3.5316268768472905
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 3.480126,
+          "p95_ms": 4.0928342,
+          "mean_ms": 3.4952268180623975
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 3.502344,
+            "p95_ms": 4.1292955,
+            "mean_ms": 3.5316268768472905
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.472663,
+            "p95_ms": 4.0917618,
+            "mean_ms": 3.4931936620689656
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.460119,
+            "p95_ms": 4.0724134,
+            "mean_ms": 3.4714001142857143
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.506486,
+            "p95_ms": 4.1433304,
+            "mean_ms": 3.5210866778325123
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 3.336082,
+          "p95_ms": 3.8996877499999996,
+          "mean_ms": 3.324893688916256
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 3.344457,
+          "p95_ms": 3.9355005999999997,
+          "mean_ms": 3.338433365517241
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 3.332258,
+          "p95_ms": 3.8881772,
+          "mean_ms": 3.320380463382594
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 3.344457,
+            "p95_ms": 3.9355005999999997,
+            "mean_ms": 3.338433365517241
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.328749,
+            "p95_ms": 3.8849985,
+            "mean_ms": 3.3199574827586207
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.322738,
+            "p95_ms": 3.8879041,
+            "mean_ms": 3.3077710709359605
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.350746,
+            "p95_ms": 3.9084044,
+            "mean_ms": 3.333412836453202
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -4.270682340139764,
+        "p95_ms": -5.0365441940581235,
+        "mean_ms": -5.120331304860459
+      }
+    },
+    {
+      "cohort": "public1015",
+      "id": "mcp-token1024",
+      "surface": "official-sdk-mcp-stdio",
+      "budget_chars": 8000,
+      "budget_tokens": 1024,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 5.522149499999999,
+          "p95_ms": 6.278956399999999,
+          "mean_ms": 5.6631378665024625
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 5.545517,
+          "p95_ms": 6.287265199999999,
+          "mean_ms": 5.684661286699508
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 5.513821,
+          "p95_ms": 6.270438599999999,
+          "mean_ms": 5.655963393103448
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 5.545517,
+            "p95_ms": 6.287265199999999,
+            "mean_ms": 5.684661286699508
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 5.567438,
+            "p95_ms": 6.3266455,
+            "mean_ms": 5.697284053201971
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 5.454429,
+            "p95_ms": 6.1843105,
+            "mean_ms": 5.588873761576355
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 5.543797,
+            "p95_ms": 6.2863723,
+            "mean_ms": 5.68173236453202
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 5.253425,
+          "p95_ms": 5.9557809,
+          "mean_ms": 5.393653969704434
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 5.339864,
+          "p95_ms": 6.0342826,
+          "mean_ms": 5.47837227093596
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 5.221668,
+          "p95_ms": 5.9054424,
+          "mean_ms": 5.365414535960591
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 5.339864,
+            "p95_ms": 6.0342826,
+            "mean_ms": 5.47837227093596
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 5.300649,
+            "p95_ms": 5.9661105999999995,
+            "mean_ms": 5.4417334650246305
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 5.164957,
+            "p95_ms": 5.814343,
+            "mean_ms": 5.3103982630541875
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 5.193438,
+            "p95_ms": 5.8881385,
+            "mean_ms": 5.344111879802956
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -4.866302514989851,
+        "p95_ms": -5.146962001519862,
+        "mean_ms": -4.758561475114876
+      }
+    }
+  ],
+  "acceptance_recomputed": {
+    "accepted": false,
+    "numeric_gate_passed": false,
+    "geometric_mean_p95_improvement_percent": 10.499586026010144,
+    "best_public_native_token_p95_improvement_percent": 10.482574154140579,
+    "public_mcp_token1024_p95_improvement_percent": 5.146962001519862,
+    "thresholds_percent": {
+      "geometric_mean_p95_improvement": 10,
+      "at_least_one_public_native_token_p95_improvement": 15,
+      "public_mcp_token1024_p95_improvement": 10,
+      "maximum_pooled_p50_p95_regression": 5
+    },
+    "regressions_above_five_percent": [],
+    "resource_comparisons": [
+      {
+        "cohort": "synthetic61",
+        "metric": "runtime_import_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 23.6640185,
+          "p50": 23.6405055,
+          "p95": 23.905446050000002,
+          "min": 23.451909,
+          "max": 23.923154
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 23.87691775,
+          "p50": 23.8597555,
+          "p95": 24.03536755,
+          "min": 23.732413,
+          "max": 24.055747
+        },
+        "mean_change_percent": 0.8996749643345625
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "native_open_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 32.7840525,
+          "p50": 30.813972,
+          "p95": 38.519880099999995,
+          "min": 29.75774,
+          "max": 39.750526
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 32.272017,
+          "p50": 32.269254000000004,
+          "p95": 33.52448215,
+          "min": 30.86531,
+          "max": 33.68425
+        },
+        "mean_change_percent": -1.561843216301595
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "fresh_ingestion_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 933.40810025,
+          "p50": 924.083507,
+          "p95": 974.3925091,
+          "min": 904.938285,
+          "max": 980.527102
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 882.55688525,
+          "p50": 885.906935,
+          "p95": 899.54974175,
+          "min": 858.274487,
+          "max": 900.139184
+        },
+        "mean_change_percent": -5.44790804647829
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "unchanged_reingestion_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 91.77059475,
+          "p50": 91.7009315,
+          "p95": 92.4110737,
+          "min": 91.16446,
+          "max": 92.516056
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 90.93394325,
+          "p50": 90.81195500000001,
+          "p95": 91.405368,
+          "min": 90.604648,
+          "max": 91.507215
+        },
+        "mean_change_percent": -0.9116771034111681
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "mcp_startup_to_initialize_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 557.7407900000001,
+          "p50": 556.7270575,
+          "p95": 562.53591535,
+          "min": 554.249651,
+          "max": 563.259394
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 560.4436557500001,
+          "p50": 562.1206595,
+          "p95": 564.0324096,
+          "min": 553.295875,
+          "max": 564.237429
+        },
+        "mean_change_percent": 0.48460966069918676
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "native_memory_after_ingestion.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 40189952.0,
+          "p50": 40204288.0,
+          "p95": 40213299.2,
+          "min": 40136704,
+          "max": 40214528
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 42308608.0,
+          "p50": 42326016.0,
+          "p95": 42352435.2,
+          "min": 42225664,
+          "max": 42356736
+        },
+        "mean_change_percent": 5.271606196494094
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "native_memory_after_ingestion.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 40631296.0,
+          "p50": 40617984.0,
+          "p95": 40697446.4,
+          "min": 40583168,
+          "max": 40706048
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 42308608.0,
+          "p50": 42326016.0,
+          "p95": 42352435.2,
+          "min": 42225664,
+          "max": 42356736
+        },
+        "mean_change_percent": 4.128128229038031
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "native_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 198219776.0,
+          "p50": 198281216.0,
+          "p95": 198324019.2,
+          "min": 197988352,
+          "max": 198328320
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 200483840.0,
+          "p50": 200503296.0,
+          "p95": 200659558.4,
+          "min": 200245248,
+          "max": 200683520
+        },
+        "mean_change_percent": 1.1421988490189827
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "native_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 198219776.0,
+          "p50": 198281216.0,
+          "p95": 198324019.2,
+          "min": 197988352,
+          "max": 198328320
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 200483840.0,
+          "p50": 200503296.0,
+          "p95": 200659558.4,
+          "min": 200245248,
+          "max": 200683520
+        },
+        "mean_change_percent": 1.1421988490189827
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "mcp_server_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 64453632.0,
+          "p50": 64464896.0,
+          "p95": 64505856.0,
+          "min": 64372736,
+          "max": 64512000
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 63687680.0,
+          "p50": 63684608.0,
+          "p95": 63801139.2,
+          "min": 63569920,
+          "max": 63811584
+        },
+        "mean_change_percent": -1.1883767853454685
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "mcp_server_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 64453632.0,
+          "p50": 64464896.0,
+          "p95": 64505856.0,
+          "min": 64372736,
+          "max": 64512000
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 63687680.0,
+          "p50": 63684608.0,
+          "p95": 63801139.2,
+          "min": 63569920,
+          "max": 63811584
+        },
+        "mean_change_percent": -1.1883767853454685
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "mcp_sessions.mcp-token1024.mcp_startup_to_initialize_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 547.4107750000001,
+          "p50": 548.1332064999999,
+          "p95": 549.06837995,
+          "min": 544.159113,
+          "max": 549.217574
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 550.640652,
+          "p50": 550.6319655,
+          "p95": 554.85455855,
+          "min": 546.144262,
+          "max": 555.154415
+        },
+        "mean_change_percent": 0.590028027855305
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 109954048.0,
+          "p50": 110209024.0,
+          "p95": 110690304.0,
+          "min": 108695552,
+          "max": 110702592
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 109331456.0,
+          "p50": 109305856.0,
+          "p95": 109980876.8,
+          "min": 108679168,
+          "max": 110034944
+        },
+        "mean_change_percent": -0.5662292669752378
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 109954048.0,
+          "p50": 110209024.0,
+          "p95": 110690304.0,
+          "min": 108695552,
+          "max": 110702592
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 109331456.0,
+          "p50": 109305856.0,
+          "p95": 109980876.8,
+          "min": 108679168,
+          "max": 110034944
+        },
+        "mean_change_percent": -0.5662292669752378
+      },
+      {
+        "cohort": "public1015",
+        "metric": "runtime_import_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 23.488142500000002,
+          "p50": 23.5335835,
+          "p95": 23.657122100000002,
+          "min": 23.21211,
+          "max": 23.673293
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 24.193513,
+          "p50": 24.0268675,
+          "p95": 24.6351664,
+          "min": 23.979991,
+          "max": 24.740326
+        },
+        "mean_change_percent": 3.0030918792322447
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_open_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 32.2299535,
+          "p50": 31.7511965,
+          "p95": 33.62766645,
+          "min": 31.500306,
+          "max": 33.917115
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 34.5624095,
+          "p50": 34.994707,
+          "p95": 36.2154439,
+          "min": 31.981064,
+          "max": 36.27916
+        },
+        "mean_change_percent": 7.236920152553128
+      },
+      {
+        "cohort": "public1015",
+        "metric": "fresh_ingestion_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 963.7794945,
+          "p50": 962.0295485,
+          "p95": 988.83597035,
+          "min": 940.390617,
+          "max": 990.668264
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 1011.17081575,
+          "p50": 1021.7908305000001,
+          "p95": 1024.87960895,
+          "min": 975.825668,
+          "max": 1025.275934
+        },
+        "mean_change_percent": 4.917236932353086
+      },
+      {
+        "cohort": "public1015",
+        "metric": "unchanged_reingestion_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 181.824834,
+          "p50": 182.3876585,
+          "p95": 182.79771780000002,
+          "min": 179.710397,
+          "max": 182.813622
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 182.24553025,
+          "p50": 182.302555,
+          "p95": 183.71869105000002,
+          "min": 180.481255,
+          "max": 183.895756
+        },
+        "mean_change_percent": 0.23137447220218377
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_startup_to_initialize_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 555.52568675,
+          "p50": 555.8449840000001,
+          "p95": 558.194625,
+          "min": 551.907267,
+          "max": 558.505512
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 558.52145025,
+          "p50": 559.1547685,
+          "p95": 564.11713285,
+          "min": 551.482611,
+          "max": 564.293653
+        },
+        "mean_change_percent": 0.5392664230390976
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_memory_after_ingestion.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 43405312.0,
+          "p50": 43393024.0,
+          "p95": 43524300.8,
+          "min": 43290624,
+          "max": 43544576
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 45452288.0,
+          "p50": 45471744.0,
+          "p95": 45512908.8,
+          "min": 45350912,
+          "max": 45514752
+        },
+        "mean_change_percent": 4.715957346418809
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_memory_after_ingestion.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 51429376.0,
+          "p50": 51404800.0,
+          "p95": 51556761.6,
+          "min": 51335168,
+          "max": 51572736
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 51558400.0,
+          "p50": 51527680.0,
+          "p95": 51725721.6,
+          "min": 51421184,
+          "max": 51757056
+        },
+        "mean_change_percent": 0.2508760751831707
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 223176704.0,
+          "p50": 223223808.0,
+          "p95": 223355289.6,
+          "min": 222887936,
+          "max": 223371264
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 225631232.0,
+          "p50": 225630208.0,
+          "p95": 225716428.8,
+          "min": 225546240,
+          "max": 225718272
+        },
+        "mean_change_percent": 1.0998137153239718
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 223176704.0,
+          "p50": 223223808.0,
+          "p95": 223355289.6,
+          "min": 222887936,
+          "max": 223371264
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 225631232.0,
+          "p50": 225630208.0,
+          "p95": 225716428.8,
+          "min": 225546240,
+          "max": 225718272
+        },
+        "mean_change_percent": 1.0998137153239718
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_server_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 63397888.0,
+          "p50": 63395840.0,
+          "p95": 63549644.8,
+          "min": 63242240,
+          "max": 63557632
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 62941184.0,
+          "p50": 62916608.0,
+          "p95": 63078400.0,
+          "min": 62828544,
+          "max": 63102976
+        },
+        "mean_change_percent": -0.720377309729936
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_server_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 63397888.0,
+          "p50": 63395840.0,
+          "p95": 63549644.8,
+          "min": 63242240,
+          "max": 63557632
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 62941184.0,
+          "p50": 62916608.0,
+          "p95": 63078400.0,
+          "min": 62828544,
+          "max": 63102976
+        },
+        "mean_change_percent": -0.720377309729936
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_sessions.mcp-token1024.mcp_startup_to_initialize_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 550.23983325,
+          "p50": 548.7378885,
+          "p95": 554.4041071,
+          "min": 548.162318,
+          "max": 555.321238
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 550.7981785,
+          "p50": 551.961822,
+          "p95": 552.3717441499999,
+          "min": 546.889064,
+          "max": 552.380006
+        },
+        "mean_change_percent": 0.10147306978889326
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 109029376.0,
+          "p50": 109015040.0,
+          "p95": 109617356.8,
+          "min": 108449792,
+          "max": 109637632
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 108843008.0,
+          "p50": 109058048.0,
+          "p95": 109120102.4,
+          "min": 108130304,
+          "max": 109125632
+        },
+        "mean_change_percent": -0.17093374908427883
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 109029376.0,
+          "p50": 109015040.0,
+          "p95": 109617356.8,
+          "min": 108449792,
+          "max": 109637632
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 108843008.0,
+          "p50": 109058048.0,
+          "p95": 109120102.4,
+          "min": 108130304,
+          "max": 109125632
+        },
+        "mean_change_percent": -0.17093374908427883
+      }
+    ],
+    "resource_review": [],
+    "resource_rule": "Any increase above 10% requires an explicit cause and independent review; no automatic override."
+  },
+  "resource_review_required": false,
+  "logical_storage": [
+    {
+      "cohort": "synthetic61",
+      "phase": "storage_after_ingestion_live",
+      "baseline_bytes": {
+        "samples": 4,
+        "mean": 20508672.0,
+        "p50": 20508672.0,
+        "p95": 20508672.0,
+        "min": 20508672,
+        "max": 20508672
+      },
+      "candidate_bytes": {
+        "samples": 4,
+        "mean": 20733952.0,
+        "p50": 20733952.0,
+        "p95": 20733952.0,
+        "min": 20733952,
+        "max": 20733952
+      },
+      "mean_difference_bytes": 225280.0,
+      "mean_change_percent": 1.098462152985813,
+      "boundary": "SQLite logical page count times page size; not an index-only storage estimate."
+    },
+    {
+      "cohort": "synthetic61",
+      "phase": "storage_after_mcp_live",
+      "baseline_bytes": {
+        "samples": 4,
+        "mean": 20508672.0,
+        "p50": 20508672.0,
+        "p95": 20508672.0,
+        "min": 20508672,
+        "max": 20508672
+      },
+      "candidate_bytes": {
+        "samples": 4,
+        "mean": 20733952.0,
+        "p50": 20733952.0,
+        "p95": 20733952.0,
+        "min": 20733952,
+        "max": 20733952
+      },
+      "mean_difference_bytes": 225280.0,
+      "mean_change_percent": 1.098462152985813,
+      "boundary": "SQLite logical page count times page size; not an index-only storage estimate."
+    },
+    {
+      "cohort": "synthetic61",
+      "phase": "storage_after_checkpoint",
+      "baseline_bytes": {
+        "samples": 4,
+        "mean": 20508672.0,
+        "p50": 20508672.0,
+        "p95": 20508672.0,
+        "min": 20508672,
+        "max": 20508672
+      },
+      "candidate_bytes": {
+        "samples": 4,
+        "mean": 20733952.0,
+        "p50": 20733952.0,
+        "p95": 20733952.0,
+        "min": 20733952,
+        "max": 20733952
+      },
+      "mean_difference_bytes": 225280.0,
+      "mean_change_percent": 1.098462152985813,
+      "boundary": "SQLite logical page count times page size; not an index-only storage estimate."
+    },
+    {
+      "cohort": "public1015",
+      "phase": "storage_after_ingestion_live",
+      "baseline_bytes": {
+        "samples": 4,
+        "mean": 12881920.0,
+        "p50": 12881920.0,
+        "p95": 12881920.0,
+        "min": 12881920,
+        "max": 12881920
+      },
+      "candidate_bytes": {
+        "samples": 4,
+        "mean": 13053952.0,
+        "p50": 13053952.0,
+        "p95": 13053952.0,
+        "min": 13053952,
+        "max": 13053952
+      },
+      "mean_difference_bytes": 172032.0,
+      "mean_change_percent": 1.3354531001589898,
+      "boundary": "SQLite logical page count times page size; not an index-only storage estimate."
+    },
+    {
+      "cohort": "public1015",
+      "phase": "storage_after_mcp_live",
+      "baseline_bytes": {
+        "samples": 4,
+        "mean": 12881920.0,
+        "p50": 12881920.0,
+        "p95": 12881920.0,
+        "min": 12881920,
+        "max": 12881920
+      },
+      "candidate_bytes": {
+        "samples": 4,
+        "mean": 13053952.0,
+        "p50": 13053952.0,
+        "p95": 13053952.0,
+        "min": 13053952,
+        "max": 13053952
+      },
+      "mean_difference_bytes": 172032.0,
+      "mean_change_percent": 1.3354531001589898,
+      "boundary": "SQLite logical page count times page size; not an index-only storage estimate."
+    },
+    {
+      "cohort": "public1015",
+      "phase": "storage_after_checkpoint",
+      "baseline_bytes": {
+        "samples": 4,
+        "mean": 12881920.0,
+        "p50": 12881920.0,
+        "p95": 12881920.0,
+        "min": 12881920,
+        "max": 12881920
+      },
+      "candidate_bytes": {
+        "samples": 4,
+        "mean": 13053952.0,
+        "p50": 13053952.0,
+        "p95": 13053952.0,
+        "min": 13053952,
+        "max": 13053952
+      },
+      "mean_difference_bytes": 172032.0,
+      "mean_change_percent": 1.3354531001589898,
+      "boundary": "SQLite logical page count times page size; not an index-only storage estimate."
+    }
+  ],
+  "all_pooled_adverse_latency_metrics": [],
+  "all_per_round_adverse_latency_metrics": [],
+  "source_and_index_records": [
+    {
+      "worker": "r0-synthetic61-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r0-synthetic61-candidate",
+      "source": {
+        "commit": "1c9a6d3f611608e8dbce8e729fdd3099513d80e6",
+        "runtime_sha256": "7a927601b5ce710059d5a2640b3642c58a2bd4985d9ccdc48f69159938ee3623"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r0-public1015-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r0-public1015-candidate",
+      "source": {
+        "commit": "1c9a6d3f611608e8dbce8e729fdd3099513d80e6",
+        "runtime_sha256": "7a927601b5ce710059d5a2640b3642c58a2bd4985d9ccdc48f69159938ee3623"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r1-synthetic61-candidate",
+      "source": {
+        "commit": "1c9a6d3f611608e8dbce8e729fdd3099513d80e6",
+        "runtime_sha256": "7a927601b5ce710059d5a2640b3642c58a2bd4985d9ccdc48f69159938ee3623"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r1-synthetic61-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r1-public1015-candidate",
+      "source": {
+        "commit": "1c9a6d3f611608e8dbce8e729fdd3099513d80e6",
+        "runtime_sha256": "7a927601b5ce710059d5a2640b3642c58a2bd4985d9ccdc48f69159938ee3623"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r1-public1015-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r2-synthetic61-candidate",
+      "source": {
+        "commit": "1c9a6d3f611608e8dbce8e729fdd3099513d80e6",
+        "runtime_sha256": "7a927601b5ce710059d5a2640b3642c58a2bd4985d9ccdc48f69159938ee3623"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r2-synthetic61-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r2-public1015-candidate",
+      "source": {
+        "commit": "1c9a6d3f611608e8dbce8e729fdd3099513d80e6",
+        "runtime_sha256": "7a927601b5ce710059d5a2640b3642c58a2bd4985d9ccdc48f69159938ee3623"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r2-public1015-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r3-synthetic61-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r3-synthetic61-candidate",
+      "source": {
+        "commit": "1c9a6d3f611608e8dbce8e729fdd3099513d80e6",
+        "runtime_sha256": "7a927601b5ce710059d5a2640b3642c58a2bd4985d9ccdc48f69159938ee3623"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r3-public1015-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r3-public1015-candidate",
+      "source": {
+        "commit": "1c9a6d3f611608e8dbce8e729fdd3099513d80e6",
+        "runtime_sha256": "7a927601b5ce710059d5a2640b3642c58a2bd4985d9ccdc48f69159938ee3623"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    }
+  ],
+  "saved_file_checksums": {
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/report.json.gz": {
+      "bytes": 8933027,
+      "sha256": "4a9b870d6bd64c2b3b8e463033cb578831c0e459add1117c946bdfbf00058e33"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/run.json": {
+      "bytes": 49791,
+      "sha256": "5c042cbb299db837a9c9c5b1b3f3e2205042287915e77b696bc5376b3075d93c"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/execution.json": {
+      "bytes": 944,
+      "sha256": "d226adf90ac6e4c30863118f804ee08059fec4936885f6ac733ce01bd21769a0"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r0-synthetic61-baseline.json.gz": {
+      "bytes": 163243,
+      "sha256": "a090753d0bf5285ef4876de9a05c6a31315f9967d55b644a3e5a90f7a27d52f2"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r0-synthetic61-baseline.started.json": {
+      "bytes": 186,
+      "sha256": "ac5532b3e2a709cf5924a9878623027ed76b0e16170f6f536fb8ac3e9a4e75a5"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r0-synthetic61-baseline.attempts.jsonl.gz": {
+      "bytes": 183684,
+      "sha256": "b8b2d0a0622a6439b01fb93aaeff629e2316e5729a7a197efd7e9acb0af98727"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r0-synthetic61-candidate.json.gz": {
+      "bytes": 163224,
+      "sha256": "af1741589b2eb66c0abdcaf85a253ec571ddcb141e4278d0f4568ec01c79f376"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r0-synthetic61-candidate.started.json": {
+      "bytes": 188,
+      "sha256": "2c0c783d028b63f0fa600f90384944ae2bd17de8e6afa881e47b8f7e5e057d13"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r0-synthetic61-candidate.attempts.jsonl.gz": {
+      "bytes": 183471,
+      "sha256": "decd6979bb30245874229362cb14ff6a1f0c3057f1d79774d93adf57ad1fb22c"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r0-public1015-baseline.json.gz": {
+      "bytes": 951501,
+      "sha256": "ca97cfdad713933f16571676f611686fd0f93ed94e640222449b8960d67a199e"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r0-public1015-baseline.started.json": {
+      "bytes": 184,
+      "sha256": "6ac391408164a15dfaf0003bc1c9f51d26646589ab524723a4e1e3f7e5dde326"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r0-public1015-baseline.attempts.jsonl.gz": {
+      "bytes": 1075098,
+      "sha256": "10fba221cfb034074f8c8a980c713f6f478734800879f49f547ee94b453f30cf"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r0-public1015-candidate.json.gz": {
+      "bytes": 951504,
+      "sha256": "365f2d32eea80378206929ca34ace2b33b0fcfe22d7b3606eb33231aa340aac7"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r0-public1015-candidate.started.json": {
+      "bytes": 186,
+      "sha256": "2190b80f82fdb26a2d794b1ad0ccb22bb6f33a2be3b83ec90b17b398438dd263"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r0-public1015-candidate.attempts.jsonl.gz": {
+      "bytes": 1075061,
+      "sha256": "8501f1581ec2661e6d75590efc933e5381839a0719711b24a98c7436cf8fa47a"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r1-synthetic61-candidate.json.gz": {
+      "bytes": 163109,
+      "sha256": "d3c8a3f9ec0efbf702708a8728afd82d1d5c494abe69cff846f7be47c98b0160"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r1-synthetic61-candidate.started.json": {
+      "bytes": 188,
+      "sha256": "208e52cd8e91aa6a962591cf3ec6350397493c9830589b3148fed51b864b004f"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r1-synthetic61-candidate.attempts.jsonl.gz": {
+      "bytes": 183668,
+      "sha256": "6f36e6c8202e5cda2b651ac38b520edfb73687a9f82efea11738e3278dac6ec0"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r1-synthetic61-baseline.json.gz": {
+      "bytes": 163301,
+      "sha256": "374cc4c633eb9eeb9552f83634681f0135ad6adf64db8a0a02c0369614b848b5"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r1-synthetic61-baseline.started.json": {
+      "bytes": 186,
+      "sha256": "b675bd057d384149f4e54e3af72b7bcbff31fc104465e2b4a8766c2c9bb40ae2"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r1-synthetic61-baseline.attempts.jsonl.gz": {
+      "bytes": 183794,
+      "sha256": "252f98a933ebce16e5dc4e42aa2f2d8b2dd3f6bd56879a9e66657a875d853439"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r1-public1015-candidate.json.gz": {
+      "bytes": 951904,
+      "sha256": "865da52245a5931d985d73428b466eab6c63dae8fc04a7fde8400a677ba45ba5"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r1-public1015-candidate.started.json": {
+      "bytes": 186,
+      "sha256": "e6162c7be9072fdcb93bbd79d3d2c51013ea788527a7708ad0c4522273313d6d"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r1-public1015-candidate.attempts.jsonl.gz": {
+      "bytes": 1074902,
+      "sha256": "86eca28345f6dbe06ccff8edcb95d7e7604fe1efab9525772f6844b263c1ae5a"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r1-public1015-baseline.json.gz": {
+      "bytes": 952018,
+      "sha256": "007859eaf242548c36658071dfaf2947c6e73aaf98b36e19a6a4d9350d298a62"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r1-public1015-baseline.started.json": {
+      "bytes": 184,
+      "sha256": "4ed9d964ffaec31a3019d953e515ea2cd798c6c2ec722755a72e2f897f93d1cb"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r1-public1015-baseline.attempts.jsonl.gz": {
+      "bytes": 1075149,
+      "sha256": "b4ebe59991db40da8e5e5f4432c5a318f1de79f3deca1704d235387089bb77af"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r2-synthetic61-candidate.json.gz": {
+      "bytes": 162750,
+      "sha256": "db17eff4db3b1205d81ee900de31b62beb24b8b6a13cb8403a6450c2965c5442"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r2-synthetic61-candidate.started.json": {
+      "bytes": 188,
+      "sha256": "f5675402d555162f59ae5aa0ccac432311cb4123e28c00ef6c2f86b6e966ffbc"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r2-synthetic61-candidate.attempts.jsonl.gz": {
+      "bytes": 182992,
+      "sha256": "e2fce8cd3d62fdbaec8c94386d8c5ed230a3a14729ac2c452f16963309530cb1"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r2-synthetic61-baseline.json.gz": {
+      "bytes": 162803,
+      "sha256": "35d581533b2e5a3ecd0be534d4b44d2a88cf314deb91c63d5bcdb67a9ff6052e"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r2-synthetic61-baseline.started.json": {
+      "bytes": 186,
+      "sha256": "53b57247355d72acca61322b13991682efc4c85807b177e337a33f47a52cf648"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r2-synthetic61-baseline.attempts.jsonl.gz": {
+      "bytes": 183121,
+      "sha256": "63eb82aff56743aff0b6d2ccbdac260484db4584ac2f8fda477c5a766ff71c75"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r2-public1015-candidate.json.gz": {
+      "bytes": 951648,
+      "sha256": "fb1a473725aa571b205671a551fc4f7b4c0e189a64a6f869ee5a72b45c68819d"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r2-public1015-candidate.started.json": {
+      "bytes": 186,
+      "sha256": "f250b4403023caea06426317da83d27f91254985a91c306592db4c2600e664d4"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r2-public1015-candidate.attempts.jsonl.gz": {
+      "bytes": 1074827,
+      "sha256": "091bb82495390378b38ae18d7ddf9de6f2e5924244a6f386473dbbdd6c253ad6"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r2-public1015-baseline.json.gz": {
+      "bytes": 951609,
+      "sha256": "cbe4beebee6f7bfac2ea5fdcd97e33e6c6fccfed2403e6c0b3d599076e8232ee"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r2-public1015-baseline.started.json": {
+      "bytes": 184,
+      "sha256": "f2a5de821e331a53d471d6971f718d64689194bbf07f0a4f05a154cbdde50b61"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r2-public1015-baseline.attempts.jsonl.gz": {
+      "bytes": 1074960,
+      "sha256": "822426f187524b84fd5748bbe09cf78842a29df5dcbd0ed054147e525e9d7c00"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r3-synthetic61-baseline.json.gz": {
+      "bytes": 163477,
+      "sha256": "4b61aec5ac7542078420fb1ac7cd7f8f1eceb74beaf06abddb4747feab41bf82"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r3-synthetic61-baseline.started.json": {
+      "bytes": 186,
+      "sha256": "aef942b662a1083de6c75e3adbfe30af715d17761f8cd9cdc21aab912b9d3047"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r3-synthetic61-baseline.attempts.jsonl.gz": {
+      "bytes": 184211,
+      "sha256": "e2d34a199232390ad5303508e04e8a779e44a7968d6f57d98dd7ed7c8ba8e70d"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r3-synthetic61-candidate.json.gz": {
+      "bytes": 163335,
+      "sha256": "93a2facb5e279f534ee7ae1c0ff8b91867e2a2853a09b235746b027b55eb6499"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r3-synthetic61-candidate.started.json": {
+      "bytes": 188,
+      "sha256": "768d2a31ec97d8bdadd151470f714469f63f2792db5b0d68b41b3e9d438a7bbd"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r3-synthetic61-candidate.attempts.jsonl.gz": {
+      "bytes": 183906,
+      "sha256": "a6892fd5585d5fd11727d830dbc5290cb852f227552a973ed61ec1923ca33a62"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r3-public1015-baseline.json.gz": {
+      "bytes": 951375,
+      "sha256": "af201d654f5757dcd17c915ffb389e8d59abc6da1ed097ff7a3fe614abb5913e"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r3-public1015-baseline.started.json": {
+      "bytes": 184,
+      "sha256": "6248a8962e6d242aeb1e42b3eb08d4f9d50302249d663371b7d5aa5dc653aa37"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r3-public1015-baseline.attempts.jsonl.gz": {
+      "bytes": 1074953,
+      "sha256": "b0c1c5466a7d4851651f1d1379cadcf01fd8642e576d1fb09d871c682e4117ac"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r3-public1015-candidate.json.gz": {
+      "bytes": 951227,
+      "sha256": "54653c62e018243efe59a8341c91993f1be9cde5d7cc14683eaf77b830022692"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r3-public1015-candidate.started.json": {
+      "bytes": 186,
+      "sha256": "34614c3007935d90f0ba50af891f8e9d4030a4d936bd407e0e5db0741acfebba"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/workers/r3-public1015-candidate.attempts.jsonl.gz": {
+      "bytes": 1074597,
+      "sha256": "c3bb807b0f8f1d142d8e638bb099ae4a5ca8c6ffd025a7ef1b738dc96d78dae3"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/report.summary.json": {
+      "bytes": 139306,
+      "sha256": "5103a9d5bf26451e6eed2425c75c21663eedc51cc7d8462446373d9fcdd2b321"
+    }
+  },
+  "sample_retention": "All 16 workers, all 56,784 calls and 113,568 start/finish events were checked in original order. No sample, round, adverse value or failed gate was dropped; no measurement was repeated.",
+  "limitations": [
+    "Independent arithmetic and digest/ledger/provenance audit of saved measurements; source text, tokenization and returned payload bodies are not rerun.",
+    "The hashes compare complete stored non-timing responses and recorded invariant fields; this is not a new retrieval-quality evaluation.",
+    "One host and old regression queries; no statistical-significance, new-domain or whole-product competitor-speed claim.",
+    "A resource-review flag remains a release decision requiring explicit evidence assessment, not an automatic waiver."
+  ]
+}
