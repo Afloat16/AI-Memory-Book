@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "scope": "Artificial fixtures and existing unit suites only; no frozen engineering queries/results were read, no engineering evaluation or product timing was run.",
+  "runtime_python_sha256": "e576330cc84230b0a60fc7483c098c792e9ef5784b0642ed698f5eb5dafa4c56",
+  "runtime_python_files": 17,
+  "files": [
+    {
+      "path": "src/memory_book/store.py",
+      "bytes": 84769,
+      "sha256": "77a552a99790a69b94b2239c4ed03f42d379ef52293b6c3164e13c2c6e0167c7"
+    },
+    {
+      "path": "src/memory_book/text.py",
+      "bytes": 14688,
+      "sha256": "d0683f1d86dbca205e2a1f4613bd4612543cd121831882ed303a1aa83d0f6296"
+    },
+    {
+      "path": "tests/test_round7_identifiers.py",
+      "bytes": 11330,
+      "sha256": "8a51329170bfa29a5eaa130128417c0c936ab678a492361efca9c4bac6245cff"
+    },
+    {
+      "path": ".artifacts/round7-identifier-correctness.log",
+      "bytes": 13272,
+      "sha256": "474ef3a8923cf9bea0816978849414ee996d9c270a67d8d1e323a400425df000"
+    },
+    {
+      "path": ".artifacts/round7-identifier-correctness-final.log",
+      "bytes": 12645,
+      "sha256": "3b0393886f888b9c41797122b9d57cf779ea7d70b8b2e113b0dd19a4b0b4f93c"
+    },
+    {
+      "path": ".artifacts/round7-runtime-readonly-fixtures.json",
+      "bytes": 6538,
+      "sha256": "3067a866412afeda6fd5866736643eddae862179840f8b888cba46b349d30fdf"
+    }
+  ],
+  "initial_test_run": {
+    "tests": 84,
+    "passed": 83,
+    "failures": [
+      "same-ID parse HTTP request to parseHTTPRequest was rejected by complete source-word boundary guard"
+    ],
+    "retained_log": ".artifacts/round7-identifier-correctness.log"
+  },
+  "correction": "A single non-stopword prefix explicitly adjacent to a spaced acronym in the query may participate in an additional complete phrase family; no unmentioned prefix/suffix is inferred.",
+  "final_test_run": {
+    "tests": 84,
+    "passed": 84,
+    "failed": 0,
+    "retained_log": ".artifacts/round7-identifier-correctness-final.log",
+    "suites": [
+      "tests.test_round7_identifiers",
+      "tests.test_lexical_cache",
+      "tests.test_recall_quality",
+      "tests.test_score_fusion",
+      "tests.test_core",
+      "tests.test_project_rowid_bounds",
+      "tests.test_conjunctive_recall"
+    ]
+  },
+  "index_rebuilt": false,
+  "schema_version_changed": false,
+  "index_version_changed": false,
+  "recall_version": 11,
+  "body_boundaries": {
+    "per_indexed_or_source_text_characters": 65536,
+    "total_indexed_plus_source_characters": 262144,
+    "fallback": "retain complete original candidate ordering and payload when any required body cannot be checked completely"
+  },
+  "original_readonly_fixture_unchanged": true,
+  "git_mutations_by_this_agent": false
+}

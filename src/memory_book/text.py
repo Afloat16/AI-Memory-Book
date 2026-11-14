@@ -25,6 +25,7 @@ CODE_WORD = re.compile(r"(?<![A-Za-z0-9_])[A-Za-z][A-Za-z0-9_]*(?![A-Za-z0-9_])"
 SPACED_ACRONYM = re.compile(
     r"(?<![A-Za-z0-9_])([A-Z][A-Z0-9]{1,15})[ \t]+"
     r"([A-Z]?[a-z][a-z0-9]*)(?![A-Za-z0-9_])")
+ACRONYM_PREFIX = re.compile(r"(?<![A-Za-z0-9_])([A-Za-z][a-z0-9]{1,31})[ \t]+")
 ZH_QUESTION = re.compile(r"为什么|请告诉我|请问|是什么|什么|怎么样|怎么|如何|多少|哪些|哪个|是否")
 STOP = frozenset("a an the is are was were be been to of in on at for from and or it this that these those with as by what which who when where why how do does did can could would should please tell me we our you your i my about now current latest final s t re ve ll d m".split())
 ZH_STOP = frozenset("什么 怎么 如何 为什么 哪个 哪些 是否 现在 当前 最后 最终 我们 这个 那个 一个 一下 请问 告诉 多少 了吗 的是 是什 么的 如何 何时 怎样".split())
@@ -93,9 +94,19 @@ def identifier_families(text: str) -> list[tuple[tuple[str, ...], tuple[str, ...
             split = ACRONYM_BOUNDARY.sub(r"\1 \2", word)
             if split != word:
                 proposals.append((match.start(), word, split))
+    prefixes = {match.end(): match for match in ACRONYM_PREFIX.finditer(text)}
     for match in SPACED_ACRONYM.finditer(text):
         if len(match.group()) <= 80:
             proposals.append((match.start(), match.group(), "".join(match.groups())))
+            prefix = prefixes.get(match.start())
+            if prefix is not None and prefix.group(1).casefold() not in STOP:
+                original = prefix.group() + match.group()
+                if len(original) <= 80:
+                    # Only reuse a prefix explicitly adjacent in this query.
+                    # This allows parse HTTP request -> parseHTTPRequest while
+                    # never inventing My/Cache around a bare HTTPServer query.
+                    proposals.append((prefix.start(), original,
+                                      prefix.group() + "".join(match.groups())))
     result = []
     seen = set()
     for _, original, alternative in sorted(proposals):
