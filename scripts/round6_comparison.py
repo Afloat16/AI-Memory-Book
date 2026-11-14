@@ -2,8 +2,9 @@
 
 Only immutable, explicitly parameterized measurement/adapter functions are
 reused. No historical registered_plan, frozen_inputs, selection or controller
-is invoked or rebound. Fresh IDs are selected only by round6_comparison_data
-after the new binding has been published and committed.
+is invoked or rebound. The registered fixture-only recovery retains the
+original selected IDs and content; it corrects evaluator provenance before
+the first scored execution.
 """
 from __future__ import annotations
 
@@ -26,9 +27,15 @@ sys.path.insert(0, str(ROOT))
 from scripts import round4_comparison as legacy
 
 PLAN = ROOT / "benchmarks/experiments/round6-comparison-plan.json"
-BINDING = ROOT / "benchmarks/experiments/round6-comparison-binding.json"
-MANIFEST = ROOT / "benchmarks/experiments/round6-hotpot256-manifest.json"
-VERSION = "round6-native-component-comparison-1"
+BINDING = ROOT / "benchmarks/experiments/round6-comparison-recovery-binding.json"
+MANIFEST = ROOT / "benchmarks/experiments/round6-hotpot256-recovery-manifest.json"
+VERSION = "round6-native-component-comparison-2"
+BINDING_STATUS = "frozen-before-scoring-fixture-only-recovery"
+MANIFEST_RECOVERY_STATUS = "original-selection-retained-evaluator-corrected-before-first-scoring"
+RECOVERY_ADDENDUM = "benchmarks/experiments/round6-comparison-fixture-recovery-addendum.json"
+RECOVERY_COMMIT = "d99c4afaab50998a79dce906581b1732ce3b41f5"
+ORIGINAL_BINDING = "benchmarks/experiments/round6-comparison-binding.json"
+ORIGINAL_MANIFEST = "benchmarks/experiments/round6-hotpot256-manifest.json"
 PROTOCOL = "v034-fresh-native-component-comparison-v1"
 MASTER_COMMIT = "afbb3233e16b80b3c0e5e76ab19466188abf41b4"
 BASELINE = {"commit": "796cedfd1f5368144037a1fb72292b8d13884b8c",
@@ -49,7 +56,8 @@ PRIOR_MANIFESTS = ("benchmarks/hotpot_manifest.json", "benchmarks/round2_hotpot2
 NEW_FILES = ("scripts/round6_comparison.py", "scripts/round6_comparison_data.py",
              "scripts/round6_comparison_controller.py", "tests/test_round6_comparison.py",
              ".github/workflows/round6-comparison.yml", "benchmarks/experiments/round6-comparison-plan.json",
-             "benchmarks/experiments/round6-plan.json")
+             "benchmarks/experiments/round6-plan.json", "scripts/round6_comparison_recovery.py",
+             RECOVERY_ADDENDUM, ORIGINAL_BINDING, ORIGINAL_MANIFEST)
 EXTRA_REUSED_FILES = ("scripts/round4_comparison.py", "scripts/benchmark_default_recall.py",
                       "benchmarks/round2_candidate.json", *PRIOR_MANIFESTS)
 UPSTREAM_LOCKS = legacy.reused.UPSTREAM_LOCKS
@@ -218,9 +226,11 @@ def verify_asset_receipt(receipt, sources, lock_hashes):
 
 
 def bind(args):
+    from scripts import round6_comparison_recovery as recovery
     plan = registered_plan()
     require(args.output.resolve() == BINDING.resolve(), "Use only the registered binding path")
     require(not args.output.exists() and not MANIFEST.exists(), "Never replace a binding or select before its freeze")
+    original, _, provenance = recovery.original_inputs(plan)
     sources = {key: source_identity(value) for key, value in (("baseline", args.baseline_src), ("candidate", args.candidate_src))}
     require(sources == {"baseline": BASELINE, "candidate": requested_candidate(plan)}, "Declared sources differ")
     preflight = Path(args.asset_verification)
@@ -228,6 +238,8 @@ def bind(args):
     require(name.startswith("benchmarks/reports/round6-comparison-freeze-")
             and preflight.name == "asset-verification.json", "Unexpected asset receipt path")
     require_committed(preflight)
+    require(original["asset_verification"] == {"path": name, "sha256": file_sha(preflight)},
+            "Reuse only the original committed asset receipt")
     extras = [name]
     hashes = evaluator_files(extras)
     commit = args.evaluator_commit
@@ -238,14 +250,15 @@ def bind(args):
     verify_asset_receipt(json.loads(preflight.read_bytes()), sources, lock_hashes)
     require({name: importlib.metadata.version(name) for name in PACKAGES} == PACKAGES,
             "Freeze environment differs from registered dependencies")
-    value = {"schema_version": 1, "evaluator": VERSION, "status": "frozen-before-selection",
+    value = {"schema_version": 1, "evaluator": VERSION, "status": BINDING_STATUS,
         "created_at": reused.now(), "plan_sha256": file_sha(PLAN), **sources,
         "optional_semantic": False, "optional_project_statistics": False,
         "upstream_locks": UPSTREAM_LOCKS, "upstream_lock_sha256": lock_hashes,
         "asset_verification": {"path": name, "sha256": file_sha(preflight)}, "model": model_identity(),
         "evaluator_commit": commit, "evaluator_files": hashes, "extra_evaluator_files": extras,
         "packages": PACKAGES, "language_runtimes": {"python_minor": "3.12", "node": NODE},
-        "policy": "Publish binding before fresh ID selection, publish manifest before scoring; one claimed execution, no implicit replay."}
+        "policy": recovery.POLICY, "fixture_recovery": provenance}
+    recovery.verify_binding(value, original, provenance)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("x", encoding="utf-8") as stream:
         json.dump(value, stream, ensure_ascii=False, indent=2)
@@ -256,12 +269,13 @@ def bind(args):
 
 
 def frozen_inputs(binding_path=BINDING):
+    from scripts import round6_comparison_recovery as recovery
     require(Path(binding_path).resolve() == BINDING.resolve(), "Use only the registered binding path")
     plan = registered_plan()
     require_committed(binding_path)
     binding = json.loads(Path(binding_path).read_bytes())
     require(binding["schema_version"] == 1 and binding["evaluator"] == VERSION
-            and binding["status"] == "frozen-before-selection"
+            and binding["status"] == BINDING_STATUS
             and binding["plan_sha256"] == file_sha(PLAN)
             and binding["baseline"] == BASELINE and binding["candidate"] == requested_candidate(plan)
             and binding["optional_semantic"] is False and binding["optional_project_statistics"] is False
@@ -269,10 +283,12 @@ def frozen_inputs(binding_path=BINDING):
             and binding["language_runtimes"] == {"python_minor": "3.12", "node": NODE}
             and binding["upstream_locks"] == UPSTREAM_LOCKS,
             "New comparison binding source/policy/dependency/model identity differs")
+    original, original_manifest, provenance = recovery.original_inputs(plan)
+    recovery.verify_binding(binding, original, provenance)
     require(binding["evaluator_files"] == evaluator_files(binding["extra_evaluator_files"]), "Evaluator bytes changed")
     for name, expected in binding["evaluator_files"].items():
         require(sha(git("show", binding["evaluator_commit"] + ":" + name)) == expected,
-                "Evaluator input did not exist before selection: " + name)
+                "Evaluator input did not exist before the recovery binding: " + name)
     for label in ("baseline", "candidate"):
         require(runtime_hash(binding[label]["commit"]) == binding[label]["source_sha256"], "Bound runtime changed: " + label)
     locks = {key: file_sha(ROOT / path) for key, path in UPSTREAM_LOCKS.items()}
@@ -282,6 +298,11 @@ def frozen_inputs(binding_path=BINDING):
             and binding["evaluator_files"].get(receipt["path"]) == receipt["sha256"], "Asset receipt was not bound")
     verify_asset_receipt(json.loads(relative_file(receipt["path"]).read_bytes()),
                          {key: binding[key] for key in ("baseline", "candidate")}, locks)
+    if MANIFEST.exists():
+        name = Path(binding_path).resolve().relative_to(ROOT.resolve()).as_posix()
+        commit = git("log", "-1", "--format=%H", "--", name).decode().strip()
+        recovery.verify_manifest(json.loads(MANIFEST.read_bytes()), original_manifest,
+                                 binding, file_sha(binding_path), commit)
     return plan, binding
 
 

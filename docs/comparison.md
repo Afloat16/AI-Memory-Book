@@ -5,6 +5,12 @@ returns a bounded evidence context with exact source addresses. Default retrieva
 needs no generative model, embedding download or separate database service.
 Optional Q2 semantic fusion adds a local model and index.
 
+## Current work: v0.3.4 startup and fresh comparison
+
+The [v0.3.4 candidate](releases/v0.3.4.md) has independently accepted startup improvements relative to v0.3.3: new-archive median/p95 decrease 83.02% / 76.77%, and actual CLI help/version elapsed times decrease about 52–53%. Its complete API import and existing-archive whole-process CPU costs remain disclosed. The original recall targets are unpassed and their formal matrix was not run. The new 256-question component comparison remains pending; no universal competitor superiority is claimed. [Startup acceptance](../benchmarks/experiments/round6-startup-decision.json) · [Complete work record](optimization-round6.md).
+
+The following v0.3.2 tables and their contemporaneous acceptance descriptions are historical evidence. They are not v0.3.4 timings or fresh competitor measurements.
+
 ## v0.3.2: measured advantages and remaining costs
 
 **The fixed C2 candidate passes the formal performance gate and the complete
@@ -105,7 +111,7 @@ This formal comparison concerns Book versions; it supplies no whole-product
 speed ratio against another repository. [Strict audit][formal-local-audit] ·
 [Raw report][formal-raw]
 
-## Current frozen 256-question comparison
+## Historical v0.3.2 frozen 256-question comparison
 
 [Run 43363060062-1](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43363060062)
 completed all **ten stages**, **4,608 native calls**, **4,608 component searches**

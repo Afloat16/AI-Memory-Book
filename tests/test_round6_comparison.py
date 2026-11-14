@@ -14,6 +14,7 @@ from unittest.mock import patch
 from scripts import round6_comparison as c
 from scripts import round6_comparison_controller as controller
 from scripts import round6_comparison_data as data
+from scripts import round6_comparison_recovery as recovery
 from scripts.smoke_round2_components import fixture
 
 
@@ -139,11 +140,14 @@ class RoundSixComparisonTests(unittest.TestCase):
             self.assertEqual(data.select_ids(["c", "a", "b"], [], "artificial/", 2), ["a", "b"])
 
     def test_source_freeze_failure_prevents_reading_any_fresh_source(self):
-        with patch.object(c, "frozen_inputs", side_effect=ValueError("uncommitted binding")), \
-                patch.object(data, "selected_dataset") as selected:
-            with self.assertRaisesRegex(ValueError, "uncommitted"):
-                data.freeze(Path("never-read.parquet"))
-            selected.assert_not_called()
+        with tempfile.TemporaryDirectory() as temporary:
+            manifest = Path(temporary) / "absent-manifest.json"
+            with patch.object(c, "MANIFEST", manifest), \
+                    patch.object(c, "frozen_inputs", side_effect=ValueError("uncommitted binding")), \
+                    patch.object(data, "selected_dataset") as selected:
+                with self.assertRaisesRegex(ValueError, "uncommitted"):
+                    data.freeze(Path("never-read.parquet"), manifest_path=manifest)
+                selected.assert_not_called()
 
     def test_manifest_must_be_committed_before_data_loading(self):
         with patch.object(data, "registered_inputs", return_value=object()), \
@@ -152,6 +156,112 @@ class RoundSixComparisonTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "uncommitted manifest"):
                 data.load(Path("never-read.parquet"))
             selected.assert_not_called()
+
+    def recovery_fixture(self):
+        prior = self.historical_manifests()
+        source = {name: "artificial-" + name for name in ("source_url", "source_revision", "upstream_sha256",
+                  "canonical_sha256", "license", "license_source")}
+        source.update(upstream_bytes=1000, upstream_rows=1200, canonical_bytes=2000)
+        old_binding = {**self.binding(), "evaluator_commit": "a" * 40, "model": {"artificial": True}}
+        prior_hashes = {name: c.reused.digest(value) for name, value in zip(c.PRIOR_MANIFESTS, prior, strict=True)}
+        old_inputs = data.Inputs({}, old_binding, "b" * 40, "c" * 64, "d" * 64, source, prior, prior_hashes)
+        ids = [f"artificial-retained-{index:04}" for index in range(256)]
+        summary = {"selected_ids": ids, "selected_ids_sha256": c.reused.digest(ids),
+            "excluded_prior_queries": 896, "prior_selection_overlap": 0, "expected_queries": 256,
+            "unique_selected_ids": 256, "dataset_sha256": "e" * 64,
+            "selected_canonical_sha256": "f" * 64, "source_characters": 1234,
+            "selected_context_count_distribution": {"10": 256}, "required_evidence": 619}
+        old_manifest = data.manifest_value(old_inputs, summary)
+        old_manifest["frozen_at"] = "2026-11-14T00:00:00+00:00"
+        provenance = {"protocol": recovery.PROTOCOL, "original_frozen_at": old_manifest["frozen_at"],
+                      "selection_repeated": False, "measurement_calls": 0}
+        binding = {**old_binding, "evaluator_commit": "1" * 40, "fixture_recovery": provenance}
+        inputs = data.Inputs({}, binding, "2" * 40, old_inputs.plan_sha256, "3" * 64,
+                             source, prior, prior_hashes)
+        return old_binding, old_manifest, inputs, summary
+
+    def test_recovery_copies_all_original_ids_statistics_and_freeze_time_without_selection(self):
+        original_binding, original, inputs, summary = self.recovery_fixture()
+        preserved = copy.deepcopy(original)
+        with tempfile.TemporaryDirectory() as temporary:
+            manifest = Path(temporary) / "recovery-manifest.json"
+            with patch.object(c, "MANIFEST", manifest), \
+                    patch.object(data, "registered_inputs", return_value=inputs), \
+                    patch.object(recovery, "original_inputs", return_value=(original_binding, original,
+                        inputs.binding["fixture_recovery"])), \
+                    patch.object(data, "selected_dataset", side_effect=AssertionError("No Parquet access")) as selected, \
+                    patch.object(data, "select_ids", side_effect=AssertionError("No reselection")) as select:
+                value = recovery.copy_manifest()
+                self.assertEqual(json.loads(manifest.read_bytes()), value)
+                selected.assert_not_called()
+                select.assert_not_called()
+            self.assertEqual(original, preserved)
+            changed = {name for name in value if value.get(name) != original.get(name)}
+            self.assertEqual(changed, {"binding_sha256", "binding_commit", "evaluator_commit",
+                                      "status_at_freeze", "fixture_recovery"})
+            self.assertEqual(value["selected_ids"], preserved["selected_ids"])
+            self.assertEqual(value["frozen_at"], preserved["frozen_at"])
+            expected = data.manifest_value(inputs, summary)
+            expected["frozen_at"] = original["frozen_at"]
+            self.assertEqual(value, expected)
+            artificial_data = object()
+            with patch.object(data, "committed_manifest", return_value=(inputs, value)), \
+                    patch.object(data, "selected_dataset", return_value=(artificial_data, summary)):
+                self.assertIs(data.load(Path("not-opened-artificial.parquet")), artificial_data)
+
+    def test_recovery_rejects_reselected_ids_changed_statistics_or_frozen_time(self):
+        _, original, inputs, summary = self.recovery_fixture()
+        value = recovery.manifest_copy(original, inputs.binding, inputs.binding_sha256, inputs.binding_commit)
+        for field, replacement in (("selected_ids", list(reversed(original["selected_ids"]))),
+                ("dataset_sha256", "0" * 64), ("source_characters", 1235),
+                ("required_evidence", 620), ("frozen_at", "a later selection"),
+                ("selected_context_count_distribution", {"9": 256})):
+            changed = copy.deepcopy(value)
+            changed[field] = replacement
+            if field == "selected_ids":
+                changed["selected_ids_sha256"] = c.reused.digest(replacement)
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, "every original"):
+                recovery.verify_manifest(changed, original, inputs.binding, inputs.binding_sha256,
+                                         inputs.binding_commit)
+            if field != "frozen_at":
+                with patch.object(data, "committed_manifest", return_value=(inputs, changed)), \
+                        patch.object(data, "selected_dataset", return_value=(object(), summary)), \
+                        self.assertRaisesRegex(ValueError, "dataset fingerprint changed"):
+                    data.load(Path("not-opened-artificial.parquet"))
+
+    def test_recovery_preserves_exclusive_output_and_separate_binding_commit_guards(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            manifest = Path(temporary) / "manifest.json"
+            manifest.write_bytes(b"preserve an existing attempt")
+            with patch.object(c, "MANIFEST", manifest), patch.object(data, "registered_inputs") as inputs:
+                with self.assertRaisesRegex(ValueError, "Never overwrite"):
+                    recovery.copy_manifest()
+                inputs.assert_not_called()
+                self.assertEqual(manifest.read_bytes(), b"preserve an existing attempt")
+            absent = Path(temporary) / "absent.json"
+            with patch.object(c, "MANIFEST", absent), \
+                    patch.object(data, "registered_inputs", side_effect=ValueError("uncommitted binding")), \
+                    patch.object(recovery, "original_inputs") as original:
+                with self.assertRaisesRegex(ValueError, "uncommitted binding"):
+                    recovery.copy_manifest()
+                original.assert_not_called()
+                self.assertFalse(absent.exists())
+
+    def test_recovery_binding_retains_original_inputs_and_explicit_provenance(self):
+        original = {"evaluator": "old", "status": "old", "created_at": "original time",
+            "evaluator_commit": "a" * 40, "evaluator_files": {"old": "b" * 64}, "policy": "old",
+            "baseline": {"commit": "c" * 40}, "candidate": {"commit": "d" * 40},
+            "asset_verification": {"path": "original receipt", "sha256": "e" * 64},
+            "packages": dict(c.PACKAGES)}
+        proof = {"selection_repeated": False, "measurement_calls": 0}
+        binding = {**original, "evaluator": c.VERSION, "status": c.BINDING_STATUS,
+                   "policy": recovery.POLICY, "fixture_recovery": proof}
+        recovery.verify_binding(binding, original, proof)
+        for key, replacement in (("candidate", {"commit": "f" * 40}),
+                ("asset_verification", {"path": "new receipt", "sha256": "e" * 64}),
+                ("packages", {}), ("fixture_recovery", {**proof, "selection_repeated": True})):
+            with self.subTest(key=key), self.assertRaisesRegex(ValueError, "undeclared"):
+                recovery.verify_binding({**binding, key: replacement}, original, proof)
 
     def test_only_authorized_first_push_can_prepare_or_score(self):
         for phase in ("run", "freeze"):
