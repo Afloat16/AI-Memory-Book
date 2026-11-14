@@ -18,24 +18,23 @@ import re
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
-# Intentionally blocked until the final C6 source is frozen. Do not substitute
-# a development source or infer approval from an earlier candidate's reports.
-# C6 registration and substantive implementation are not frozen. Do not lift
-# this guard merely by entering a source hash: bind the actual registration and
-# explicitly verify the preserved complete C5 rejection and frozen inputs first.
-C6_PROVENANCE_BOUND = False
-C6_REGISTRATION_PROTOCOL = None
-C6_REGISTRATION_STATUS = None
+# Final source and actual preregistration are bound, including the complete C5
+# rejection. The superseded pre-timing alias checkpoint is not an audit source.
+# These identities do not imply numerical acceptance or release approval.
+C6_PROVENANCE_BOUND = True
+C6_REGISTRATION_PROTOCOL = "v033-c6-in-snapshot-source-work-continuation-v1"
+C6_REGISTRATION_STATUS = "registered-before-c6-implementation-and-timing"
 KNOWN_C5_REJECTION = {'source': {'commit': '8dc6604fa32df18d53286110b215fc6657243656', 'runtime_sha256': '6af876ef5ddc851f4fff56ba3dc4f20e76b2cfc9f5e31d0cc8d1a0ec20e954be'}, 'binding_path': 'benchmarks/experiments/round5-c5-performance-binding.json', 'binding_sha256': 'bd395da21848cc01656ab45bc211a388b43b4ae63edb8690b2eabe2958d3781a', 'summary_path': 'benchmarks/reports/round5-c5-performance-43552372788-1/report.summary.json', 'summary_sha256': '930a28c40913b2eea3e38b7ce5bc04e673e288396fccb67bf16e59d42e996f25', 'result_commit': '3982ceab2bdce0e9a189135ce261445a3a38d779', 'formal_run': '43552372788-1', 'accepted': False, 'numeric_gate_passed': False}
 
 SOURCES = {
     "baseline": {"commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
                  "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"},
-    "candidate": {"commit": None, "runtime_sha256": None},
+    "candidate": {"commit": "1bd97221e31e8e975498ece00f4bbfb3e0426aac",
+                  "runtime_sha256": "cfffd8a21374cbf9152bbbc98a6a9847a1e22401f16179112e2f79eef181ff78"},
 }
 CONTINUATION_PATH = "benchmarks/experiments/round5-c6-addendum.json"
-CONTINUATION_COMMIT = None
-CONTINUATION_SHA256 = None
+CONTINUATION_COMMIT = "099cbaf427c28351d71f3995fd0ff42f9c881b38"
+CONTINUATION_SHA256 = "7ad88598c9ccb3492083be06448e92a76da7025501a1aa578a0e39d8bd94c9d5"
 C3_SOURCE = {"commit": "1c9a6d3f611608e8dbce8e729fdd3099513d80e6",
     "runtime_sha256": "7a927601b5ce710059d5a2640b3642c58a2bd4985d9ccdc48f69159938ee3623"}
 C3_BINDING_PATH = "benchmarks/experiments/round5-performance-binding.json"
@@ -49,7 +48,7 @@ C4_ARCHIVE_COMMIT = "e439c226cc2d422b44007dedd25aa750a62f88a9"
 C4_SUMMARY_PATH = "benchmarks/reports/round5-development/candidate-c4-full/summary.json"
 C4_SUMMARY_SHA256 = "c53fcd0c379888b91da3a46ed609ad50df07a0661dc21bc0701bda04b3d56d38"
 DEVELOPMENT_PLAN_PATH = "benchmarks/experiments/round5-c6-development-plan.json"
-DEVELOPMENT_PLAN_SHA256 = None
+DEVELOPMENT_PLAN_SHA256 = "40d626fea37f9a410a7c77e9aa4bff7f4019f5441090d3f3ff14c07ea67dcb7a"
 C6_BINDING_PATH = "benchmarks/experiments/round5-c6-performance-binding.json"
 MEMO_LIMITS = {"entry_limit": 2048, "text_byte_limit": 2097152}
 MEMO_COUNTERS = ("hits", "misses", "evictions", "invalidations",
@@ -257,6 +256,75 @@ def audit_native_memo(worker):
         "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."}
 
 
+def audit_rejected_c5(binding, plan, document, read):
+    """Read C5's immutable negative result and retain all 42 frozen inputs."""
+    known = KNOWN_C5_REJECTION
+    prior_raw = read(ROOT / known["binding_path"])
+    summary_raw = read(ROOT / known["summary_path"])
+    require(sha(prior_raw) == known["binding_sha256"]
+            and sha(summary_raw) == known["summary_sha256"]
+            and summary_raw == git("show", known["result_commit"] + ":" + known["summary_path"]),
+            "Original C5 binding or committed rejected summary differs")
+    prior, summary = json.loads(prior_raw), json.loads(summary_raw)
+    require(prior["evaluator"] == summary["evaluator"] == summary["run"]["evaluator"]
+                == "round5-c5-default-performance-1"
+            and prior["status"] == "frozen-before-formal-timing"
+            and prior["sources"] == {"baseline": SOURCES["baseline"], "candidate": known["source"]}
+            and prior["packages"] == PACKAGES and prior["plan_sha256"] == binding["plan_sha256"]
+            and sha(canonical(prior) + b"\n") == known["binding_sha256"]
+            and summary["plan"] == plan and summary["run"]["binding"] == prior
+            and summary["run"]["binding_sha256"] == known["binding_sha256"],
+            "C5 original source, evaluator or same-gate binding differs")
+    require(summary["status"] == "measurements_completed" and summary["error"] is None
+            and summary["evaluator_unchanged"] is True
+            and summary["validation"] == {"passed": True, "issues": [], "workers": 16,
+                "expected_workers": 16, "timed_calls": 56784, "expected_calls": 56784}
+            and summary["run"]["publication"] == {"run_id": "43552372788", "run_attempt": "1",
+                "branch": "validation/v033-round5-c5-performance-43552372788-1",
+                "claim_branch": "validation/v033-round5-c5-claim-" + known["binding_sha256"]},
+            "C5 must remain its complete valid first-attempt formal experiment")
+    accepted, recorded = summary["acceptance"], document["rejected_c5"]
+    require({key: recorded[key] for key in known["source"]} == known["source"]
+            and recorded["formal_run"] == known["formal_run"]
+            and recorded["result_commit"] == known["result_commit"]
+            and recorded["binding_sha256"] == known["binding_sha256"]
+            and recorded["summary_sha256"] == known["summary_sha256"]
+            and recorded["accepted"] is False and recorded["numeric_gate_passed"] is False
+            and recorded["decision"] == "Preserve the complete valid C5 formal rejection. Do not rerun the same source to select a faster sample.",
+            "C6 registration does not preserve C5's complete identity and rejection")
+    require(accepted["accepted"] is False and accepted["numeric_gate_passed"] is False
+            and accepted["thresholds_percent"] == {
+                key: value for key, value in THRESHOLDS.items() if key != "resource_mean_increase_review"}
+            and accepted["geometric_mean_p95_improvement_percent"]
+                == recorded["aggregate_p95_gain_percent"] == 15.220791446446002
+            and accepted["best_public_native_token_p95_improvement_percent"]
+                == recorded["public_native_best_gain_percent"] == 15.422173278138885
+            and accepted["public_mcp_token1024_p95_improvement_percent"]
+                == recorded["public_mcp_token1024_gain_percent"] == 6.673181339995871
+            and accepted["regressions_above_five_percent"] == [] and accepted["resource_review"] == [],
+            "C5's sole failed actual-MCP improvement gate must remain rejected")
+    frozen = prior["evaluator_files"]
+    require(len(frozen) == 42, "Original C5 frozen evaluator input count differs")
+    for name, expected in frozen.items():
+        require(binding["evaluator_files"].get(name) == expected
+                and sha(git("show", prior["evaluator_commit"] + ":" + name)) == expected,
+                "C6 did not preserve a frozen C5 evaluator input: " + name)
+    for name, expected in ((known["binding_path"], known["binding_sha256"]),
+                           (known["summary_path"], known["summary_sha256"])):
+        require(binding["evaluator_files"].get(name) == expected, "C6 C5-rejection input differs: " + name)
+    registration = {"rejected_c5_binding_sha256": known["binding_sha256"],
+        "rejected_c5_summary_sha256": known["summary_sha256"],
+        "rejected_c5_result_commit": known["result_commit"], "frozen_c5_evaluator_files": frozen}
+    evidence = {"source": known["source"], "result_commit": known["result_commit"],
+        "binding_sha256": known["binding_sha256"], "summary_sha256": known["summary_sha256"],
+        "valid_calls": 56784, "original_accepted": False, "original_numeric_gate_passed": False,
+        "aggregate_p95_gain_percent": accepted["geometric_mean_p95_improvement_percent"],
+        "public_native_best_gain_percent": accepted["best_public_native_token_p95_improvement_percent"],
+        "public_mcp_token1024_gain_percent": accepted["public_mcp_token1024_p95_improvement_percent"],
+        "boundary": "Original committed C5 summary and rejection verified; C5 retrieval and raw-ledger arithmetic are not rerun by this C6 audit."}
+    return registration, evidence
+
+
 def audit_continuation(run, plan, execution, report_path, state, read):
     """Verify C6 registration and retained C3/C4 evidence without any runner import."""
     binding = run["binding"]
@@ -282,6 +350,14 @@ def audit_continuation(run, plan, execution, report_path, state, read):
             and policy["retained_text_object_byte_limit"] == MEMO_LIMITS["text_byte_limit"]
             and policy["ownership"] == "one MemoryBook connection; both encoders share limits",
             "C6 registered cache kind, ownership or fixed capacity differs")
+    require(document["source_work_policy"] == {
+        "ownership": "one recall and its original read snapshot only",
+        "maximum_batch_pairs": 400, "maximum_batch_parameters": 800,
+        "sqlite_statement_cache": "unchanged ordinary driver default 128; no enlargement",
+        "source_validation": "unchanged full source-map and projected-unit checks",
+        "cold_warm_boundary": "unchanged C5 connection/configuration/query-order boundaries and all first calls; no extra warmup"}
+        and policy["continuation"] == "C6 retains the exact C5 token memo. No additional persistent feature or statement cache is introduced.",
+        "C6 changed the registered snapshot, batch bounds or no-extra-cache scope")
     development_raw = read(ROOT / DEVELOPMENT_PLAN_PATH)
     require(sha(development_raw) == DEVELOPMENT_PLAN_SHA256
             and development_raw == git("show", CONTINUATION_COMMIT + ":" + DEVELOPMENT_PLAN_PATH),
@@ -376,20 +452,23 @@ def audit_continuation(run, plan, execution, report_path, state, read):
                            (C4_SUMMARY_PATH, C4_SUMMARY_SHA256),
                            (DEVELOPMENT_PLAN_PATH, DEVELOPMENT_PLAN_SHA256)):
         require(binding["evaluator_files"].get(name) == expected, "C6 continuation input checksum differs: " + name)
+    c5_registration, c5_evidence = audit_rejected_c5(binding, plan, document, read)
     expected_registration = {"path": CONTINUATION_PATH, "commit": CONTINUATION_COMMIT,
         "sha256": CONTINUATION_SHA256, "document": document,
         "rejected_c3_binding_sha256": C3_BINDING_SHA256,
         "rejected_c3_summary_sha256": C3_SUMMARY_SHA256,
         "frozen_c3_evaluator_files": prior["evaluator_files"],
         "prior_c4_summary_sha256": C4_SUMMARY_SHA256, "prior_c4_archive_commit": C4_ARCHIVE_COMMIT,
-        "frozen_c4_evaluator_files": frozen_c4, "development_plan_sha256": DEVELOPMENT_PLAN_SHA256}
+        "frozen_c4_evaluator_files": frozen_c4, "development_plan_sha256": DEVELOPMENT_PLAN_SHA256,
+        **c5_registration}
     require(binding["continuation_registration"] == expected_registration,
             "C6 binding does not retain the exact registered continuation")
     binding_raw = read(ROOT / C6_BINDING_PATH)
     require(binding_raw == canonical(binding) + b"\n" and sha(binding_raw) == run["binding_sha256"]
             and binding["evaluator"] == execution["evaluator"] == "round5-c6-default-performance-1"
             and SOURCES["candidate"]["runtime_sha256"] not in
-                (SOURCES["baseline"]["runtime_sha256"], C3_SOURCE["runtime_sha256"], C4_SOURCE["runtime_sha256"]),
+                (SOURCES["baseline"]["runtime_sha256"], C3_SOURCE["runtime_sha256"], C4_SOURCE["runtime_sha256"],
+                 KNOWN_C5_REJECTION["source"]["runtime_sha256"]),
             "C6 binding namespace or materially changed source identity differs")
     publication = run["publication"]
     run_id = publication["run_id"]
@@ -408,6 +487,9 @@ def audit_continuation(run, plan, execution, report_path, state, read):
         "same_original_plan_and_all_gates_verified": True,
         "frozen_c3_evaluator_inputs_retained": len(prior["evaluator_files"]),
         "frozen_c4_evaluator_inputs_retained": len(frozen_c4),
+        "frozen_c5_evaluator_inputs_retained": len(c5_registration["frozen_c5_evaluator_files"]),
+        "rejected_c5": c5_evidence,
+        "registered_source_work_policy": document["source_work_policy"],
         "registered_memo_policy": policy,
         "development_plan_sha256": DEVELOPMENT_PLAN_SHA256,
         "prior_c4": {"source": C4_SOURCE, "archive_commit": C4_ARCHIVE_COMMIT,

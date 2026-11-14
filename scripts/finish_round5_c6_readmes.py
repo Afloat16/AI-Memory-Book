@@ -20,6 +20,36 @@ def validator_module():
     return module
 
 
+def upgrade_current_entry_points(text, name, require):
+    """Update four exact entry points, leaving historical evidence untouched."""
+    if name == "README.md":
+        marker = "## Measured results"
+        navigation = ("[v0.3.2 release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.2)",
+                      "[v0.3.3 release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.3)")
+        badge = ("**v0.3.2 · Experimental · MIT · Python 3.10+ · Local SQLite**",
+                 "**v0.3.3 · Normal release · MIT · Python 3.10+ · Local SQLite**")
+    elif name == "README.zh-CN.md":
+        marker = "## 实测结果"
+        navigation = ("[v0.3.2 发布版](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.2)",
+                      "[v0.3.3 发布版](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.3)")
+        badge = ("**v0.3.2 · 实验性版本 · MIT · Python 3.10+ · 本地 SQLite**",
+                 "**v0.3.3 · 正式发布 · MIT · Python 3.10+ · 本地 SQLite**")
+    else:
+        raise ValueError("Unknown README output: " + name)
+    prefix, separator, historical = text.partition(marker)
+    require(bool(separator), "README measurement boundary is missing: " + name)
+    replacements = [navigation, badge]
+    for script in ("install.sh", "install.py"):
+        replacements.append((
+            "https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.2/scripts/" + script,
+            "https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.3/scripts/" + script))
+    for previous, current in replacements:
+        require(prefix.count(previous) + prefix.count(current) == 1,
+                "README entry point is missing or ambiguous: " + name + ": " + previous)
+        prefix = prefix.replace(previous, current, 1)
+    return prefix + separator + historical
+
+
 def render_readmes(e, validator):
     root = ROOT
     a, h, run = e["a"], e["h"], e["run"]
@@ -97,7 +127,9 @@ def render_readmes(e, validator):
 
     '''
     for name,body,start,end in [('README.md',en,'## Measured results','A frozen **256-question'),('README.zh-CN.md',zh,'## 实测结果','冻结的 **256 道')]:
-        p=root/name;t=p.read_text(); begin=t.index(start); finish=t.index(end,begin); t=t[:begin]+body+t[finish:]
+        p=root/name;t=upgrade_current_entry_points(p.read_text(), name, require)
+        body=validator.normalize_markdown_template(body)
+        begin=t.index(start); finish=t.index(end,begin); t=t[:begin]+body+t[finish:]
         t=t.replace('**The fresh comparison also retains a regression against v0.3.1.**','**The historical round-four comparison also retains a regression against v0.3.1.**')
         t=t.replace('**新样本对比也保留了相对 v0.3.1 的退步。**','**历史第四轮对比也保留了相对 v0.3.1 的退步。**')
         stage(p, t)
