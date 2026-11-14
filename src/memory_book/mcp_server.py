@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import json
+import io
+import sys
 from contextlib import asynccontextmanager, contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
 from pathlib import Path
 from threading import get_ident
+from types import BuiltinFunctionType, FunctionType, MethodType
 from typing import TYPE_CHECKING, Any
 
 from .store import MemoryBook
@@ -296,9 +299,134 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
     return server
 
 
+class _FlushedStdout:
+    """A single SDK writer; retain only a one-use successful-flush marker."""
+
+    def __init__(self, stream, run_sync, checkpoint):
+        self._stream = stream
+        self._run_sync = run_sync
+        self._checkpoint = checkpoint
+        self._flushed = False
+
+    def _write_and_flush(self, data):
+        written = self._stream.write(data)
+        self._stream.flush()
+        return written
+
+    async def write(self, data):
+        self._flushed = False
+        # Keep AnyIO's default limiter and non-abandoning cancellation policy.
+        # A write failure never reaches flush; a flush failure is propagated.
+        written = await self._run_sync(self._write_and_flush, data)
+        self._flushed = True
+        return written
+
+    async def flush(self):
+        if self._flushed:
+            self._flushed = False
+            # Preserve a cancellation/scheduling checkpoint without dispatching
+            # a second worker for the flush which already completed.
+            await self._checkpoint()
+            return
+        # An independent/repeated flush, or a flush after failure, still runs.
+        await self._run_sync(self._stream.flush)
+
+
+def _ordinary_function(value, module, qualname, exported_from=None):
+    return (type(value) is FunctionType
+            and value.__module__ == (exported_from or module.__name__)
+            and value.__qualname__ == qualname
+            and value.__code__.co_name == qualname.rsplit(".", 1)[-1]
+            and value.__code__.co_filename == getattr(module, "__file__", None))
+
+
+def _ordinary_method(owner, cls, module, name):
+    value = getattr(owner, name, None)
+    original = getattr(cls, name, None)
+    return (type(value) is MethodType and value.__self__ is owner
+            and value.__func__ is original
+            and _ordinary_function(original, module, cls.__name__ + "." + name))
+
+
+def _native_method(owner, name):
+    value = getattr(owner, name, None)
+    return (type(value) is BuiltinFunctionType and value.__self__ is owner
+            and value.__name__ == name)
+
+
+def _standard_stdio_config(server):
+    """Certify the inspected SDK path; unknown/custom paths keep FastMCP.run."""
+    try:
+        from importlib.metadata import version
+        import anyio
+        from anyio._core import _eventloop
+        import mcp.server.fastmcp.server as fastmcp
+        import mcp.server.lowlevel.server as lowlevel
+        import mcp.server.stdio as stdio
+
+        if version("mcp") != "1.30.0" or type(server) is not fastmcp.FastMCP:
+            return None
+        if not all(_ordinary_method(server, fastmcp.FastMCP, fastmcp, name)
+                   for name in ("run", "run_stdio_async")):
+            return None
+        inner = server._mcp_server
+        if (type(inner) is not lowlevel.Server
+                or not all(_ordinary_method(inner, lowlevel.Server, lowlevel, name)
+                           for name in ("run", "create_initialization_options"))):
+            return None
+        transport = stdio.stdio_server
+        wrapped = getattr(transport, "__wrapped__", None)
+        closure = getattr(transport, "__closure__", None)
+        if (fastmcp.stdio_server is not transport or type(transport) is not FunctionType
+                or transport.__code__.co_filename != asynccontextmanager.__code__.co_filename
+                or transport.__code__.co_name != "helper"
+                or not _ordinary_function(wrapped, stdio, "stdio_server")
+                or not closure or len(closure) != 1 or closure[0].cell_contents is not wrapped):
+            return None
+        if (fastmcp.anyio is not anyio or anyio.run is not _eventloop.run
+                or not _ordinary_function(anyio.run, _eventloop, "run", "anyio")
+                or not _ordinary_function(anyio.to_thread.run_sync, anyio.to_thread, "run_sync")
+                or not _ordinary_function(anyio.lowlevel.checkpoint, anyio.lowlevel, "checkpoint")):
+            return None
+        stdout = sys.stdout
+        if (stdout is not sys.__stdout__ or type(stdout) is not io.TextIOWrapper
+                or stdout.closed or not all(_native_method(stdout, name) for name in ("write", "flush"))):
+            return None
+        binary = stdout.buffer
+        raw = binary.raw if type(binary) is io.BufferedWriter else binary
+        if (type(binary) not in (io.BufferedWriter, io.FileIO) or type(raw) is not io.FileIO
+                or binary.closed or raw.closed
+                or not all(_native_method(binary, name) for name in ("write", "flush"))
+                or not all(_native_method(raw, name) for name in ("write", "flush", "fileno", "writable"))
+                or raw.fileno() != 1 or not raw.writable()):
+            return None
+        return transport, binary
+    except (ImportError, AttributeError, OSError, TypeError, ValueError):
+        return None
+
+
+async def _run_standard_stdio(server, transport, binary):
+    import anyio
+
+    # Match the SDK's own UTF-8 wrapper and keep its JSON/framing/reader loop.
+    # Do not close standard process handles explicitly.
+    stdout = _FlushedStdout(io.TextIOWrapper(binary, encoding="utf-8"),
+                           anyio.to_thread.run_sync, anyio.lowlevel.checkpoint)
+    async with transport(stdout=stdout) as (read_stream, write_stream):
+        await server._mcp_server.run(read_stream, write_stream,
+                                    server._mcp_server.create_initialization_options())
+
+
 def serve(db_path: str | Path, allow_write: bool = False, *,
           semantic_model_dir: str | Path | None = None,
           source_format: str = "objects") -> None:
     """Run the SDK's stdio transport. No HTTP listener is created."""
-    create_server(db_path, allow_write=allow_write, semantic_model_dir=semantic_model_dir,
-                  source_format=source_format).run(transport="stdio")
+    server = create_server(db_path, allow_write=allow_write, semantic_model_dir=semantic_model_dir,
+                           source_format=source_format)
+    configuration = _standard_stdio_config(server)
+    if configuration is None:
+        server.run(transport="stdio")
+        return
+    import anyio
+
+    anyio.run(_run_standard_stdio, server, *configuration)

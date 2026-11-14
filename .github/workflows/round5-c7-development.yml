@@ -1,0 +1,81 @@
+name: Measure registered v0.3.3 C7 development pair
+
+on:
+  push:
+    branches: ['ci/v033-round5-c7-development']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v033-round5-c7-development
+  cancel-in-progress: false
+
+jobs:
+  development:
+    if: github.repository == 'Afloat16/AI-Memory-Book' && github.event_name == 'push' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    permissions:
+      contents: write
+    env:
+      TIKTOKEN_CACHE_DIR: .artifacts/tiktoken
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONHASHSEED: '0'
+      ORT_DISABLE_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - name: Install the original fixed SDK and tokenizers
+        run: python -m pip install -e '.[mcp,clients,benchmark]' 'mcp==1.30.0' 'pydantic==2.14.3' 'tiktoken==0.12.0'
+      - name: Verify source-boundary fixtures
+        run: python -m unittest tests.test_round5_c7_performance tests.test_round5_candidate_c7 -v
+      - name: Claim one execution and prepare source databases without retrieval
+        id: prepare
+        run: python scripts/host_round5_c7_development.py prepare
+      - name: Preserve the premeasurement checkpoint
+        id: prepared_checkpoint
+        run: python scripts/host_round5_c7_development.py preserve --stage prepared
+      - name: Run the single 18928-call native comparison
+        id: native
+        shell: bash
+        run: |
+          set -o pipefail
+          python -u scripts/host_round5_c7_development.py native 2>&1 | tee ".artifacts/round5-c7-development-$GITHUB_RUN_ID-1/native.log"
+      - name: Preserve all native observations before MCP starts
+        id: native_checkpoint
+        if: always() && steps.prepare.outcome == 'success' && steps.prepared_checkpoint.outcome == 'success'
+        env:
+          PHASE_OUTCOME: ${{ steps.native.outcome }}
+        run: python scripts/host_round5_c7_development.py preserve --stage native
+      - name: Run the single 4060-call actual SDK comparison
+        id: mcp
+        if: success() && steps.native.outcome == 'success' && steps.native_checkpoint.outcome == 'success'
+        shell: bash
+        run: |
+          set -o pipefail
+          python -u scripts/host_round5_c7_development.py mcp 2>&1 | tee ".artifacts/round5-c7-development-$GITHUB_RUN_ID-1/mcp.log"
+      - name: Preserve complete or interrupted SDK observations
+        if: always() && steps.native_checkpoint.outcome == 'success'
+        env:
+          PHASE_OUTCOME: ${{ steps.mcp.outcome }}
+        run: python scripts/host_round5_c7_development.py preserve --stage mcp
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: round5-c7-development-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            benchmarks/reports/round5-c7-development-${{ github.run_id }}-1/
+            .artifacts/round5-c7-development-${{ github.run_id }}-1/*.json
+            .artifacts/round5-c7-development-${{ github.run_id }}-1/*.json.gz
+            .artifacts/round5-c7-development-${{ github.run_id }}-1/*.log
+            .artifacts/round5-c7-development-${{ github.run_id }}-1/native-state/*.json
+            .artifacts/round5-c7-development-${{ github.run_id }}-1/mcp-state/*.json
+            .artifacts/round5-c7-development-${{ github.run_id }}-1/mcp-state/workers/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30
