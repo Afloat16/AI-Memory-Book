@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "protocol": "v033-exact-output-performance-v1",
+  "registered_at_utc": "2026-11-14",
+  "status": "registered-before-formal-timing",
+  "baseline": {
+    "release": "v0.3.2",
+    "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+    "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+  },
+  "performance_candidate": {
+    "formal": {
+      "cohorts": [
+        "synthetic61",
+        "public1015"
+      ],
+      "configs": [
+        {
+          "id": "native-char4000",
+          "surface": "native",
+          "budget_chars": 4000,
+          "budget_tokens": null
+        },
+        {
+          "id": "mcp-char4000",
+          "surface": "official-sdk-mcp-stdio",
+          "budget_chars": 4000,
+          "budget_tokens": null
+        },
+        {
+          "id": "native-token512",
+          "surface": "native",
+          "budget_chars": 8000,
+          "budget_tokens": 512,
+          "tokenizer": "cl100k_base"
+        },
+        {
+          "id": "native-token1024",
+          "surface": "native",
+          "budget_chars": 8000,
+          "budget_tokens": 1024,
+          "tokenizer": "cl100k_base"
+        },
+        {
+          "id": "native-token2048",
+          "surface": "native",
+          "budget_chars": 8000,
+          "budget_tokens": 2048,
+          "tokenizer": "cl100k_base"
+        },
+        {
+          "id": "mcp-token1024",
+          "surface": "official-sdk-mcp-stdio",
+          "budget_chars": 8000,
+          "budget_tokens": 1024,
+          "tokenizer": "cl100k_base"
+        }
+      ],
+      "rounds": 4,
+      "engine_order": [
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ]
+      ],
+      "calls": 56784,
+      "execution": "Sequential isolated workers, one host, fixed shuffled query order per round/config; no concurrent benchmark. Native cache_size=0/use_cache=False; actual MCP result cache cleared before call outside timing, cache-write cost included."
+    }
+  },
+  "thresholds_percent": {
+    "geometric_mean_p95_improvement": 10,
+    "at_least_one_public_native_token_p95_improvement": 15,
+    "public_mcp_token1024_p95_improvement": 10,
+    "maximum_pooled_p50_p95_regression": 5,
+    "resource_mean_increase_review": 10
+  },
+  "cohorts": [
+    {
+      "name": "synthetic61",
+      "queries": 168,
+      "sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26",
+      "role": "old development/regression"
+    },
+    {
+      "name": "public1015",
+      "queries": 1015,
+      "sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857",
+      "role": "old public regression"
+    }
+  ],
+  "correctness": "Complete stable output must match for every query, config, engine and round. Exclude only native latency_ms. Verify source spans, exact tokenizer counts, scope, result limits, indexed content, MCP envelope and cache policy.",
+  "durability": "Commit plan/evaluator, then exact baseline/candidate binding before formal timing. Exclusive binding execution claim and per-worker start marker prevent duplicate runs; fsync each per-query start/finish and checkpoint every completed worker. Commit raw state and results in small checkpoints. Keep interrupted attempts and adverse metrics.",
+  "failure_rule": "Do not rerun completed formal measurements to select better samples, relax gates after outcomes, hide failed attempts, or claim speedup on a failed gate. A demonstrated correctness bug requires preserved failure evidence and a new explicitly documented candidate.",
+  "scope": "Exact-output efficiency versus v0.3.2 on old regression data. Existing third-party component results remain historical and do not establish a new whole-product or all-dimensions win. No generated answer or new-domain transfer claim.",
+  "resource_review": "All recorded startup, ingest/replay and RSS means retained. Increase over 10% requires explicit cause assessment and independent review; no automatic waiver."
+}
