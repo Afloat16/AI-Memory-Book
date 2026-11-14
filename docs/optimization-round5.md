@@ -1,6 +1,6 @@
 # v0.3.3 optimization and release checkpoint
 
-Status: C3 completed all formal measurements but failed two fixed speed gates; release acceptance is rejected. A substantive C4 source is under diagnosis. No release runtime is approved.
+Status: C3 completed all formal measurements but failed two fixed speed gates. C4 completed the full native development matrix with exact outputs but insufficient public speed margin. C5 is preregistered for bounded exact token-count reuse and is being implemented. No release runtime is approved.
 
 ## Source and purpose
 
@@ -20,7 +20,7 @@ Continue from main `de6e2652572c4867cda2aac5637a4a6630638c7e` and compare agains
 
 Core performance implementation, independent benchmark validation, and release-policy review run separately. Commit small completed changes to `optimization/round5-v0.3.3`; update this checkpoint with source SHAs and saved results as they become available. Main and the release tag advance only after acceptance. Code, benchmark receipts and release notes belong in this Git repository, with no dependency on transient conversation blobs.
 
-Current next steps: profile and select an exact-output candidate; prepare the v0.3.2 comparison source and pinned data; implement the new runner without modifying historical results; add explicit stable-release policy while preserving all existing source/CI/package guards.
+Current next steps: implement the registered C5 memo with exact-output and memory/lifecycle tests; commit its exact source; run the single full native development matrix; bind and execute a separate formal attempt only if the development evidence warrants it; complete final-source compatibility, exact-commit CI and release verification.
 
 ## Candidate A checkpoint
 
@@ -89,3 +89,12 @@ Source `0141adf1dde6cd69cf96d8eea23f4b6ebab36477` implements shared-directory me
 The [fixed full-cohort development run](../benchmarks/reports/round5-development/candidate-c4-full/README.md) completed all 18,928 calls and 9,464 matching full-output pairs, with every saved source/index/revision/cache/count invariant passing. Native aggregate p95 improves 11.3339%, but public token512/token1024 improve only 12.7253%/8.8411%, and public token2048 p95 regresses 1.3269%. All raw worker records, the complete aggregate and every per-round cell are retained. This is development evidence, not formal acceptance.
 
 C4's separately prepared evaluator, workflow and independent auditor are preserved as **unused preparation**. No C4 formal binding or execution was created. The limited public margin does not justify representing C4 as accepted. Further investigation will preserve this source and all adverse results; changing cache policy requires an explicit new continuation rather than silently extending C4's no-new-cache registration.
+
+
+## C5 registration: bounded exact token-count reuse
+
+The [C5 addendum](../benchmarks/experiments/round5-c5-addendum.json) and [full native development plan](../benchmarks/experiments/round5-c5-development-plan.json) were saved remotely at `7753e7566b1cd57bf5bcaad02d15ce1fa970f839` before implementation or C5 timing. They retain all original numerical gates and every failed C3/C4 observation. C4 formal files remain unused preparation; there is no C4 binding or formal timing run.
+
+One observational trace of unchanged C4 counts on all 1,015 public questions matched every saved full payload. Replaying only that saved trace with conservative Unicode size accounting gave 63.98% eligible count reuse at 2,048 entries / 2 MiB, versus 64.74% at 4,096 entries / 4 MiB. The smaller setting is fixed for C5. Instrumented count work is not an end-to-end speed gain; no C5 latency result exists at this checkpoint. The [trace, all capacity alternatives and size-accounting correction](../benchmarks/reports/round5-development/c5-preregistration/receipt.json) remain available.
+
+C5 explicitly extends C4's feature-cache restriction: one lazy per-connection memo may retain the exact count of a complete native text string under certified, unchanged encoder objects. Both tokenizers share the 2,048-entry / 2 MiB retained-text limits. The text budget excludes container/key/value/encoder overhead; actual process RSS remains part of formal acceptance. Full source retrieval, corruption checks, assembly and query-result cache behavior are preserved. Native memo diagnostics are observed outside timers; actual SDK MCP command and wire format stay unchanged. New connections start empty, and all first calls remain in the measurements.
