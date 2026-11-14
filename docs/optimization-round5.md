@@ -1,6 +1,6 @@
 # v0.3.3 optimization and release checkpoint
 
-Status: C3 completed all formal measurements but failed two fixed speed gates. C4 completed the full native development matrix with exact outputs but insufficient public speed margin. C5 completed the fixed native development comparison with all outputs equal and improved pooled latencies, but has not passed formal acceptance. No release runtime is approved.
+Status: C3 and C5 completed their formal measurements and remain numerically rejected. C5 passes the aggregate and public native-token gates but its actual public MCP token1024 improvement is 6.673181%, below the fixed 10% gate. C4 remains a complete development-only result. All observations are retained; no release runtime is approved.
 
 ## Source and purpose
 
@@ -20,7 +20,7 @@ Continue from main `de6e2652572c4867cda2aac5637a4a6630638c7e` and compare agains
 
 Core performance implementation, independent benchmark validation, and release-policy review run separately. Commit small completed changes to `optimization/round5-v0.3.3`; update this checkpoint with source SHAs and saved results as they become available. Main and the release tag advance only after acceptance. Code, benchmark receipts and release notes belong in this Git repository, with no dependency on transient conversation blobs.
 
-Current next steps: implement the registered C5 memo with exact-output and memory/lifecycle tests; commit its exact source; run the single full native development matrix; bind and execute a separate formal attempt only if the development evidence warrants it; complete final-source compatibility, exact-commit CI and release verification.
+Current next steps: retain and independently audit the complete C5 rejection; observe actual MCP SQL-template reuse and duplicate source-reference parsing without new performance scoring; register any substantive C6 change before implementation and timing; preserve every original gate, then complete final-source compatibility, exact-commit CI and release verification.
 
 ## Candidate A checkpoint
 
@@ -112,3 +112,12 @@ These are development observations, not a passed performance gate. They support 
 ### C5 final-source historical compatibility
 
 The [C5 Hotpot256 compatibility check](../benchmarks/reports/round5-c5-hotpot-regression.summary.json) completes once on frozen source `8dc6604`: all 1,536 native and 768 component complete output hashes match saved v0.3.2 observations. There are zero errors/differences and all 4,608 original start/finish records align. The helper, dataset, references, source/runtime and unchanged source/index/document projections are verified. This is final-source historical compatibility, not a new quality or timing result; it does not replace the pending formal speed verdict.
+
+
+## C5 complete formal result: actual MCP gate not met
+
+The sole C5 hosted run [43552372788, attempt 1](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43552372788) completed all **56,784 calls** and all **28,392 matching complete non-timing payload pairs**. The aggregate pooled p95 improvement is **15.220791%**; the best public native token result is **15.422173%** (token512). These two gates pass. Public actual-SDK MCP token1024 improves **6.673181%**, below the unchanged **10%** gate, so `numeric_gate_passed` and `accepted` remain **false**. Every pooled p50, p95 and mean improves, and no resource-review threshold is triggered. These facts do not override the failed MCP gate.
+
+All 54 result files are retained from final result commit `3982ceab2bdce0e9a189135ce261445a3a38d779`, losslessly merged at `d40ac2c00b1b00653ca6b92db3c37f62e8317429`. Their 53-file completion inventory and every Git blob match the downloaded files. The full report, every original worker, all start/finish ledgers, resource values and native memo snapshots remain in [the result directory](../benchmarks/reports/round5-c5-performance-43552372788-1/). The measurement step fails its numerical gate while the saved-row audit succeeds; this is a complete rejection, not an interrupted or missing run.
+
+[The independent rejection review](round5-c5-performance-review.md) and [read-only independent audit](../benchmarks/reports/round5-c5-performance-independent-audit.json) retain all pooled/per-round cells, adverse samples and costs. C5 is not rerun for a more favorable sample. Any continuation requires materially changed product work, a new registered source/evaluator binding, and the same 10% / 15% / 10% gains, 5% pooled-regression limit and resource-review policy. No release tag or approved v0.3.3 runtime exists at this checkpoint.
