@@ -1,5 +1,6 @@
 """Protocol checks with artificial fixtures; these are not quality results."""
 import json
+import hashlib
 from pathlib import Path
 import tempfile
 import unittest
@@ -71,6 +72,47 @@ class IdentifierProtocolTests(unittest.TestCase):
             with self.assertRaises(FileExistsError):
                 bench.write_json(path, {"first": False}, exclusive=True)
             self.assertEqual(json.loads(path.read_text()), {"first": True})
+
+    def test_source_cache_must_match_independent_upstream_blob(self):
+        with tempfile.TemporaryDirectory() as directory:
+            lock = Path(directory) / "lock.json"
+            raw = b"original upstream source\n"
+            blob = hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\0" + raw).hexdigest()
+            bench.write_json(lock, {"repository": "upstream", "commit": "a" * 40,
+                "truncated": False, "files": [{"path": "x.py", "bytes": len(raw), "git_blob_sha": blob}]})
+            plan = {"upstream": {"repository": "upstream", "commit": "a" * 40}}
+            with patch.object(bench, "SOURCE_LOCK", lock):
+                bench.verify_source_bytes({"x.py": raw}, plan)
+                with self.assertRaisesRegex(ValueError, "Git blob"):
+                    bench.verify_source_bytes({"x.py": raw.replace(b"original", b"modified")}, plan)
+
+    def test_duplicate_completion_cannot_replace_missing_query_or_partial_line(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            plan, dataset = root / "plan.json", root / "dataset.json"
+            cases = [{"id": name, "query": name, "variant": variant, "expected_id": "doc"}
+                     for name, variant in (("q1", "exact"), ("q2", "spaced"))]
+            bench.write_json(plan, {"common_controls": {"repetitions": 1, "token_budgets": [1024]}})
+            bench.write_json(dataset, {"queries": cases})
+            stage = root / "stage"
+            stage.mkdir()
+            bench.write_json(root / "attempts.json", [{"state": "stage", "arm": "v0.3.4", "repetition": 0, "returncode": 0}])
+            base = {"arm": "v0.3.4", "repetition": 0, "query_id": "q1"}
+            bench.append(stage / "events.jsonl", {**base, "event": "started"})
+            completed = {**base, "event": "completed", "query": "q1", "variant": "exact",
+                "expected_id": "doc", "error": None, "lookup_wall_ms": 1,
+                "scores": [{"budget_tokens": 1024, "hit": True, "top1": True,
+                            "reciprocal_rank": 1, "context_tokens": 1, "budget_violation": False}]}
+            bench.append(stage / "events.jsonl", completed)
+            bench.append(stage / "events.jsonl", completed)
+            with (stage / "events.jsonl").open("ab") as stream:
+                stream.write(b'{"event":')
+            with patch.object(bench, "PLAN", plan), patch.object(bench, "DATASET", dataset), patch.object(bench, "ARMS", ("v0.3.4", "round7-candidate")):
+                report = bench.summarize(root, {"protocol": "fixture", "quality_calls": 4})
+            self.assertFalse(report["completed"])
+            self.assertEqual(report["observed_calls"], 1)
+            self.assertEqual(len(report["protocol_errors"]), 2)
+            self.assertEqual(report["missing_completed_cells"], 3)
 
 
 if __name__ == "__main__":

@@ -18,6 +18,7 @@ from pathlib import Path
 import platform
 import random
 import re
+import signal
 import statistics
 import subprocess
 import sys
@@ -27,6 +28,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / "benchmarks/experiments/round7-identifiers-plan.json"
 DATASET = ROOT / "benchmarks/fixtures/engineering_identifiers.json"
 LOCK = ROOT / "benchmarks/competitors/billion-round2-lock.json"
+SOURCE_LOCK = ROOT / "benchmarks/fixtures/engineering_identifiers_sources.json"
 ARMS = ("v0.3.4", "round7-candidate", "raw-text-search", "billion-context-component", "no-memory")
 ACRONYM = re.compile(r"[A-Z]{2,}[a-z]")
 WORDS = re.compile(r"[A-Za-z][A-Za-z0-9_]*")
@@ -120,26 +122,58 @@ def prepare(cache):
         return path, target.read_bytes()
     with ThreadPoolExecutor(max_workers=4) as pool:
         sources = dict(pool.map(fetch, paths))
+    verify_source_bytes(sources, plan)
     dataset = build_dataset(sources, plan)
     write_json(DATASET, dataset, exclusive=True)
     return {"dataset": str(DATASET), "sha256": sha(DATASET.read_bytes()),
             "documents": len(dataset["documents"]), "queries": len(dataset["queries"])}
 
 
+def verify_source_bytes(sources, plan):
+    lock = json.loads(SOURCE_LOCK.read_bytes())
+    if (lock["repository"] != plan["upstream"]["repository"] or
+            lock["commit"] != plan["upstream"]["commit"] or lock["truncated"]):
+        raise ValueError("Source lock belongs to another upstream")
+    expected = {item["path"]: item for item in lock["files"]}
+    if set(sources) != set(expected):
+        raise ValueError("Missing or extra upstream source files")
+    for path, raw in sources.items():
+        blob = hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\0" + raw).hexdigest()
+        if len(raw) != expected[path]["bytes"] or blob != expected[path]["git_blob_sha"]:
+            raise ValueError("Source does not match upstream Git blob: " + path)
+
+
+def audit_dataset(cache):
+    plan = json.loads(PLAN.read_bytes())
+    paths = [*plan["upstream"]["paths"], plan["upstream"]["license_path"]]
+    sources = {path: (cache / path).read_bytes() for path in paths}
+    verify_source_bytes(sources, plan)
+    expected = build_dataset(sources, plan)
+    if expected != json.loads(DATASET.read_bytes()):
+        raise ValueError("Dataset differs from complete registered selection over verified original source")
+    return {"verified_files": len(sources), "documents": len(expected["documents"]),
+            "queries": len(expected["queries"]), "source_lock_sha256": sha(SOURCE_LOCK.read_bytes())}
+
+
 def runtime_hash(source):
     from benchmarks.run import engine_source_hash
-    return engine_source_hash(Path(source) / "memory_book")
+    root = Path(source) / "memory_book"
+    paths = list(root.rglob("*.py"))
+    if not paths or root.is_symlink() or any(p.is_symlink() for p in paths):
+        raise ValueError("Missing or symbolic runtime source")
+    return engine_source_hash(root)
 
 
 def file_hashes():
     return {name: sha((ROOT / name).read_bytes()) for name in FILES}
 
 
-def bind(baseline, candidate, path):
+def bind(baseline, candidate, source_cache, path):
     plan = json.loads(PLAN.read_bytes())
     data = json.loads(DATASET.read_bytes())
     if data["plan_sha256"] != sha(PLAN.read_bytes()):
         raise ValueError("Dataset belongs to a different plan")
+    audited = audit_dataset(source_cache)
     sources = {"v0.3.4": {"path": str(baseline.resolve()), "sha256": runtime_hash(baseline)},
                "round7-candidate": {"path": str(candidate.resolve()), "sha256": runtime_hash(candidate)}}
     if sources["v0.3.4"]["sha256"] != plan["baseline"]["runtime_sha256"]:
@@ -148,6 +182,7 @@ def bind(baseline, candidate, path):
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "plan_sha256": sha(PLAN.read_bytes()), "dataset_sha256": sha(DATASET.read_bytes()),
         "harness_sha256": file_hashes(), "competitor_lock_sha256": sha(LOCK.read_bytes()),
+        "source_lock_sha256": audited["source_lock_sha256"], "source_cache": str(source_cache.resolve()),
         "sources": sources, "arms": list(ARMS), "documents": len(data["documents"]),
         "queries": len(data["queries"]), "python": platform.python_version(),
         "tiktoken": importlib.metadata.version("tiktoken"),
@@ -162,13 +197,17 @@ def verify(binding):
     if (sha(PLAN.read_bytes()) != binding["plan_sha256"] or
             sha(DATASET.read_bytes()) != binding["dataset_sha256"] or
             file_hashes() != binding["harness_sha256"] or
-            sha(LOCK.read_bytes()) != binding["competitor_lock_sha256"]):
+            sha(LOCK.read_bytes()) != binding["competitor_lock_sha256"] or
+            sha(SOURCE_LOCK.read_bytes()) != binding["source_lock_sha256"]):
         raise ValueError("Frozen experiment inputs changed")
     for source in binding["sources"].values():
         if runtime_hash(source["path"]) != source["sha256"]:
             raise ValueError("Frozen runtime changed")
     if platform.python_version() != binding["python"] or importlib.metadata.version("tiktoken") != binding["tiktoken"]:
         raise ValueError("Runtime dependencies changed")
+    if subprocess.check_output(["node", "--version"], text=True).strip() != binding["node"]:
+        raise ValueError("Node runtime changed")
+    audit_dataset(Path(binding["source_cache"]))
 
 
 def raw_index(documents):
@@ -226,6 +265,13 @@ def worker(binding_path, arm, repetition, state, cache):
     if arm in binding["sources"]:
         sys.path.insert(0, binding["sources"][arm]["path"])
         from memory_book import MemoryBook
+        import memory_book
+        expected_root = (Path(binding["sources"][arm]["path"]) / "memory_book").resolve()
+        actual_root = Path(memory_book.__file__).resolve().parent
+        actual_store = Path(sys.modules[MemoryBook.__module__].__file__).resolve()
+        if actual_root != expected_root or actual_store != expected_root / "store.py":
+            raise ValueError("Actually imported engine differs from frozen source")
+        metadata["actual_import"] = {"package": str(actual_root), "store": str(actual_store)}
         database = state / "book.db"
         engine = MemoryBook(database, segmentation="turn", max_page_chars=4000, cache_size=0)
         for doc in documents.values():
@@ -300,18 +346,45 @@ def worker(binding_path, arm, repetition, state, cache):
 
 
 def summarize(output, binding):
-    rows, attempts = [], json.loads((output / "attempts.json").read_bytes())
+    rows, attempts, protocol_errors = [], json.loads((output / "attempts.json").read_bytes()), []
+    controls = json.loads(PLAN.read_bytes())["common_controls"]
+    cases = json.loads(DATASET.read_bytes())["queries"]
+    case_map = {case["id"]: case for case in cases}
+    expected_keys = {(arm, repetition, case["id"]) for arm in ARMS
+                     for repetition in range(controls["repetitions"]) for case in cases}
+    started, completed = set(), set()
     for stage in attempts:
         path = output / stage["state"] / "events.jsonl"
         if path.exists():
-            events = [json.loads(line) for line in path.read_text().splitlines()]
-            rows.extend(event for event in events if event.get("event") == "completed")
+            for number, line in enumerate(path.read_bytes().splitlines(), 1):
+                try:
+                    event = json.loads(line)
+                    key = (event["arm"], event["repetition"], event["query_id"])
+                    if key not in expected_keys or key[:2] != (stage["arm"], stage["repetition"]):
+                        raise ValueError("Event belongs to an unregistered matrix cell")
+                    if event["event"] == "started":
+                        if key in started:
+                            raise ValueError("Duplicate started event")
+                        started.add(key)
+                    elif event["event"] == "completed":
+                        if key not in started or key in completed:
+                            raise ValueError("Unpaired or duplicate completed event")
+                        case = case_map[key[2]]
+                        if any(event[name] != case[name] for name in ("query", "variant", "expected_id")):
+                            raise ValueError("Result identity differs from the frozen query")
+                        if sorted(s["budget_tokens"] for s in event["scores"]) != controls["token_budgets"]:
+                            raise ValueError("Result budget cells differ")
+                        completed.add(key)
+                        rows.append(event)
+                    else:
+                        raise ValueError("Unknown event type")
+                except (ValueError, KeyError, TypeError, UnicodeError) as exc:
+                    protocol_errors.append({"state": stage["state"], "line": number,
+                                            "error": f"{type(exc).__name__}: {exc}"})
     grouped = defaultdict(list)
     for row in rows:
         for score in row["scores"]:
             grouped[(row["arm"], row["variant"], score["budget_tokens"])].append((row, score))
-    controls = json.loads(PLAN.read_bytes())["common_controls"]
-    cases = json.loads(DATASET.read_bytes())["queries"]
     variant_counts = defaultdict(int)
     for case in cases:
         variant_counts[case["variant"]] += 1
@@ -334,18 +407,26 @@ def summarize(output, binding):
             "p95_lookup_ms": times[min(len(times) - 1, int(.95 * len(times)))] if times else None,
             "errors": sum(r["error"] is not None for r, _ in values) + max(0, expected - len(values)),
             "budget_violations": sum(s["budget_violation"] for _, s in values)})
-    complete = len(rows) == binding["quality_calls"] and all(stage["returncode"] == 0 for stage in attempts)
-    def metric(arm, variants):
-        chosen = [c for c in cells if c["arm"] == arm and c["variant"] in variants and c["budget_tokens"] == 1024]
+    complete = (started == completed == expected_keys and not protocol_errors
+                and len(rows) == binding["quality_calls"]
+                and len(attempts) == len(ARMS) * controls["repetitions"]
+                and all(stage["returncode"] == 0 for stage in attempts))
+    def metric(arm, variants, budget=1024):
+        chosen = [c for c in cells if c["arm"] == arm and c["variant"] in variants and c["budget_tokens"] == budget]
         return sum(c["hit_rate"] * c["expected_observations"] for c in chosen) / sum(c["expected_observations"] for c in chosen) if chosen else None
     before, after = (metric(a, ("spaced", "lowercase")) for a in ARMS[:2])
-    exact_before, exact_after = (metric(a, ("exact",)) for a in ARMS[:2])
+    exact_checks = [{"budget_tokens": budget, "before": metric(ARMS[0], ("exact",), budget),
+                    "after": metric(ARMS[1], ("exact",), budget)} for budget in controls["token_budgets"]]
     numerical = bool(complete and after is not None and before is not None and after - before >= .10 - 1e-12
-        and exact_after >= exact_before and not any(c["errors"] or c["budget_violations"] for c in cells))
+        and all(c["after"] >= c["before"] for c in exact_checks)
+        and not any(c["errors"] or c["budget_violations"] for c in cells))
     report = {"protocol": binding["protocol"], "binding": binding,
         "completed": complete, "observed_calls": len(rows), "expected_calls": binding["quality_calls"],
         "generated_answers": 0, "generated_patches": 0, "cells": cells,
         "bounded_numerical_gate_passed": numerical,
+        "exact_name_nonregression": exact_checks,
+        "protocol_errors": protocol_errors,
+        "missing_completed_cells": len(expected_keys - completed),
         "spaced_lowercase_1024_delta_percentage_points": None if before is None or after is None else 100 * (after - before),
         "release_approved": False,
         "limitations": ["Small single-repository identifier retrieval pilot; repetitions are correlated",
@@ -379,11 +460,23 @@ def run(binding_path, output, cache):
                 "--binding", str(binding_path.resolve()), "--arm", arm, "--repetition", str(repetition),
                 "--state", str((output / state_name).resolve()), "--cache", str(cache.resolve())]
             with (output / (state_name + ".log")).open("wb") as log:
+                process = subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT,
+                                           start_new_session=os.name != "nt")
                 try:
-                    result = subprocess.run(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, timeout=300)
-                    attempt["returncode"] = result.returncode
+                    attempt["returncode"] = process.wait(timeout=300)
                 except subprocess.TimeoutExpired:
+                    if os.name == "nt":
+                        process.kill()
+                    else:
+                        os.killpg(process.pid, signal.SIGKILL)
+                    process.wait()
                     attempt["returncode"] = "timeout"
+                finally:
+                    if os.name != "nt":
+                        try:
+                            os.killpg(process.pid, signal.SIGKILL)
+                        except ProcessLookupError:
+                            pass
             write_json(output / "attempts.json", attempts)
     verify(binding)
     return summarize(output, binding)
@@ -397,10 +490,13 @@ def main():
     p = sub.add_parser("bind")
     p.add_argument("--baseline-src", type=Path, required=True)
     p.add_argument("--candidate-src", type=Path, required=True)
+    p.add_argument("--source-cache", type=Path, required=True)
     p.add_argument("--binding", type=Path, required=True)
     p = sub.add_parser("run")
     p.add_argument("--binding", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
+    p.add_argument("--cache", type=Path, required=True)
+    p = sub.add_parser("audit-data")
     p.add_argument("--cache", type=Path, required=True)
     p = sub.add_parser("worker")
     p.add_argument("--binding", type=Path, required=True)
@@ -412,7 +508,9 @@ def main():
     if args.command == "prepare":
         result = prepare(args.cache)
     elif args.command == "bind":
-        result = bind(args.baseline_src, args.candidate_src, args.binding)
+        result = bind(args.baseline_src, args.candidate_src, args.source_cache, args.binding)
+    elif args.command == "audit-data":
+        result = audit_dataset(args.cache)
     elif args.command == "worker":
         worker(args.binding, args.arm, args.repetition, args.state, args.cache)
         return

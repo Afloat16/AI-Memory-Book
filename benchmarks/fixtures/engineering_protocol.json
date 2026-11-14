@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "protocol": "round7-real-engineering-replay-v1",
+  "status": "protocol-and-agent-selected-source-pool-before-data-materialization-and-scoring",
+  "purpose": "Small controlled evidence-retrieval diagnostic over real algorithm-repository history. It does not score generated answers, patch correctness, actual agent completion time, or real-user conversations.",
+  "intent": "benchmarks/experiments/round7-intent.json",
+  "upstream_metadata": "benchmarks/fixtures/engineering_upstream.json",
+  "cases": "benchmarks/fixtures/engineering_cases.json",
+  "source_manifest": "benchmarks/fixtures/engineering_source_manifest.json",
+  "gold": "benchmarks/fixtures/engineering_gold.json",
+  "selection": {
+    "chains": 4,
+    "queries": 20,
+    "method": "Four explicitly listed genuine fix chains, selected by the AI research agent from official commit metadata before any candidate scores; retain all five AI-authored questions per chain without replacement. This is not a random sample, human-written query set, untouched public benchmark, or evidence of training-data novelty.",
+    "question_categories": [
+      "project_api_scope",
+      "current_update",
+      "historical_base",
+      "cross_artifact_resume",
+      "unsupported_decision"
+    ],
+    "category_counts": {
+      "project_api_scope": 4,
+      "current_update": 4,
+      "historical_base": 4,
+      "cross_artifact_resume": 4,
+      "unsupported_decision": 4
+    },
+    "no_effect_based_replacement": true
+  },
+  "source_policy": {
+    "material": "Exact UTF-8 bytes of every changed Python source/test file at the listed first parent and fix, with repository, path, commit, commit author/committer timestamps, Git blob/content hashes and the upstream BSD-3-Clause notice. Other changed files are recorded in provenance and retained where present; no synthetic developer statements or model summaries are substituted.",
+    "transport": "Deterministically chunk original text at at most 900 Unicode characters, prefer the last newline before the limit, zero overlap. Every block retains original start/end character offsets and line range. A source-document transport wrapper is not a real conversation.",
+    "indexed_fields": [
+      "original_source_text",
+      "repository",
+      "source_path",
+      "snapshot_commit",
+      "commit_committer_utc",
+      "original_line_range"
+    ],
+    "never_index": [
+      "evaluation_question",
+      "gold_required_spans",
+      "gold_stale_spans",
+      "answerable_label",
+      "reference_answer"
+    ],
+    "availability": "For every public cutoff, keep only source records with committer time <= cutoff and verified ancestor-or-identical source commit within the same repository. Repeated versions remain separate dated artifacts. Every arm receives the same eligible source blocks and metadata; project selection and cutoff are public task inputs, not hidden answer labels.",
+    "base_nonleakage": "A historical-base query cannot receive its fix snapshot, fix diff/message, future tests, or later-source bytes. Post-fix replay corpora must never be reused as the input history for a future pre-fix code-repair task.",
+    "verification": "Validate the UTF-8 bytes against the upstream GitHub Contents API Git blob SHA at the exact commit/path, then record SHA256, source-span offsets, timestamp order and official ancestry receipts before any retrieval; candidate scoring must not run if a pin, license or count is missing.",
+    "external_controls": "Repository/cutoff/ancestor selection is a shared external harness control with the same public inputs and eligible documents for every arm. It is not native MemoryBook as-of, branch-inference, or automatic repository-selection functionality. The pilot does not credit the product for this filtering."
+  },
+  "arms": [
+    {
+      "id": "flat-fts",
+      "boundary": "Independent SQLite FTS5 BM25 over the same blocks and source metadata. Both documents and queries include literal words plus deterministic underscore/camel/acronym identifier pieces; OR terms, no gold-aware expansion, bm25 then stable source ID. All candidates remain visible; no answer-conditioned fallback."
+    },
+    {
+      "id": "v0.3.4",
+      "boundary": "Published MemoryBook Python API, cache disabled; source bound to exact published runtime."
+    },
+    {
+      "id": "candidate",
+      "boundary": "Frozen candidate MemoryBook Python API, same source blocks/metadata and public controls."
+    },
+    {
+      "id": "billion-context",
+      "boundary": "Shared-source component using the unchanged locked BillionKernel default ranker, Node transport, identical project/time availability. Source setup must succeed before the unique claimed matrix; no algorithm modifications."
+    },
+    {
+      "id": "no-memory",
+      "boundary": "Empty context diagnostic, no retrieval request or fabricated timing. It is not a generated-answer abstention score."
+    }
+  ],
+  "baseline": {
+    "commit": "8ad9cbe50a0e387e8baf89690b85cac5e9d575d4",
+    "runtime_sha256": "f361d2bf64a4e1088cbd5cff6ffdaf19aa15e7f1b7ea1de4577d7a488d2ac242"
+  },
+  "candidate": null,
+  "competitor": {
+    "lock": "benchmarks/competitors/billion-round2-lock.json",
+    "repository": "ranxianglei/billion-context",
+    "commit": "9674cfafbc78c50245ae0d887483d3d6ce880c15",
+    "license": "MIT text plus Additional Term: Attribution on Product Surfaces",
+    "node": "v24.22.1",
+    "model_calls": 0
+  },
+  "controls": {
+    "limit": 5,
+    "tokenizer": "cl100k_base",
+    "tokenizer_package": "tiktoken==0.12.0",
+    "token_budgets": [
+      1024,
+      4096
+    ],
+    "retrieval_repetitions": 1,
+    "shuffle_seed": 7321,
+    "book_options": {
+      "max_page_chars": 900,
+      "cache_size": 0,
+      "use_cache": false,
+      "coverage": false,
+      "semantic": false,
+      "budget_chars": 100000
+    },
+    "readback": "Retain native responses and identify the returned original source blocks without gold access. Read each unique native-selected original block, at most five, with no replacement for duplicates or unmapped hits. These common source reads and subsequent packing are recorded separately from native search.",
+    "packing": "Same original whole source block and same repository/commit/path/line citation header for every arm. Rank-order first fit under each token budget; do not shorten code or add a fact from an unreturned block. Both budget projections reuse the one original retrieval response.",
+    "scope": "This compares common evidence projections after explicit source-block readback, not native context equivalence or whole-product speed."
+  },
+  "matrix": {
+    "actual_retrieval_arms": 4,
+    "queries_per_arm": 20,
+    "retrieval_calls": 80,
+    "intent_completion_events": 160,
+    "budget_projections_per_response": 2,
+    "measured_quality_cells": 160,
+    "no_memory_cells": 40,
+    "all_quality_cells": 200,
+    "generative_model_calls": 0,
+    "generated_answers": 0,
+    "generated_patches": 0,
+    "upstream_test_executions": 0
+  },
+  "metrics": {
+    "evidence": [
+      "Required original-source span recall",
+      "Complete required evidence per answerable question",
+      "First required-evidence rank and reciprocal rank",
+      "Stale-only and stale-before-current observations where a stale source is defined",
+      "Wrong-project/future-source/unmapped-ID/source-span/budget violations",
+      "Nonempty unsupported retrieval, explicitly not a hallucination or answer-correctness rate"
+    ],
+    "costs": [
+      "Observed native lookup wall milliseconds",
+      "Native kernel time and transport time when available",
+      "Explicit source-block readback and common packing milliseconds",
+      "Actual packed-context and native-payload reference-token counts",
+      "Source ingestion/engine setup milliseconds and persistent state bytes",
+      "Worker peak RSS if available, labeled as including evaluator/data and excluding unmeasured child usage"
+    ],
+    "reporting": "All 20 questions, both budgets, every arm, all quality losses and cost increases remain saved. Tiny sequential component timings are descriptive and cannot establish faster AI replies."
+  },
+  "scoring": {
+    "gold_boundary": "AI-authored gold span annotations are stored separately and loaded only for saved-output scoring; they are not source documents, query expansions or rank inputs. Original code/tests/commit history are genuine upstream bytes; questions and labels are authored by the research agent.",
+    "decision": "Integrity only. No universal candidate acceptance or recall-speed threshold; root's separate registered identifier candidate policy is not silently transferred here.",
+    "small_sample": "Four historical chains and authored questions are a bounded pilot, not longitudinal real-user validation or independent evidence for broad generalization."
+  },
+  "durability": {
+    "sequence": [
+      "Commit this protocol and the exact 20 questions/source pool.",
+      "Materialize pinned source bytes, licenses, ancestry proofs and separate gold spans; verify without retrieval or upstream test execution.",
+      "Freeze all input/evaluator hashes and source commits in a new binding after their separate Git checkpoint.",
+      "Create one immutable source-pair/protocol claim, save fsynced intent/completion events and atomic report checkpoints.",
+      "Execute the unique complete registered matrix only after root authorization, retain all errors/unknown outcomes, and independently audit saved results."
+    ],
+    "no_implicit_retry": true,
+    "no_silent_case_replacement": true,
+    "no_old_evidence_changes": true
+  },
+  "future_agent_layer": {
+    "status": "not_run",
+    "contract": "Separate registered pre-fix sandbox, real model and actual captured tool transcripts; execute hidden FAIL_TO_PASS and PASS_TO_PASS guards with all attempts/tokens/time counted. This replay cannot substitute for that experiment.",
+    "special_environment_note": "sympy-finitefield-integer changes the optional python-flint branch; a future repair oracle must install a pinned flint backend and establish base failure. No pure-Python false-positive repair credit."
+  }
+}
