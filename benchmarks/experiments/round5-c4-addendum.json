@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "protocol": "v033-c4-metadata-continuation-v1",
+  "registered_at_utc": "2026-11-14T02:54:53.800854+00:00",
+  "status": "registered-before-c4-implementation-and-timing",
+  "baseline": {
+    "release": "v0.3.2",
+    "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+    "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+  },
+  "rejected_c3": {
+    "commit": "1c9a6d3f611608e8dbce8e729fdd3099513d80e6",
+    "runtime_sha256": "7a927601b5ce710059d5a2640b3642c58a2bd4985d9ccdc48f69159938ee3623",
+    "formal_run": "43547085915-1",
+    "result_commit": "e0c30deb7cdae18bb19c83534646630dfb3f673b",
+    "aggregate_p95_gain_percent": 10.499586026010144,
+    "public_native_best_gain_percent": 10.482574154140579,
+    "public_mcp_token1024_gain_percent": 5.146962001519862,
+    "decision": "numeric gate failed; preserve all complete original observations and never rerun this source to select a faster sample"
+  },
+  "substantive_change": [
+    "Fetch light candidate-to-directory metadata once through the existing covering index, then batch unique chapter/session directory pairs inside the same read snapshot.",
+    "Validate all referenced directory rows and title types; malformed/orphaned/custom row/text factories retain the original full metadata path and its errors.",
+    "For eligible default lexical book recall only, compute the original finite nonnegative base relevance for every candidate. Real title boost is bounded by base and base*1.15. Retain every candidate whose upper bound is greater than or equal to the K-th base score; skip only strict lower upper bounds.",
+    "K exactly follows the existing novelty/current-query predicate: min(candidate_count, limit*4) when that pool is required, otherwise min(candidate_count, limit). Historical-query exclusion and all tie rules remain unchanged.",
+    "Expand full directory metadata and calculate final title scores only for retained candidates; preserve the original full candidate_count and truncated semantics.",
+    "Semantic, coverage, non-book, custom factory, nonfinite/negative-score or uncertified structure cases retain the unpruned original path. No persistent feature cache or query-result cache is added."
+  ],
+  "invariants": [
+    "Unchanged route SQL limits/global BM25, lexical normalization, fusion arithmetic, scopes, source text/addresses, final score expressions and top-K tie order.",
+    "Unchanged source corruption checks, source snapshots, exact character/token budgets, MCP payload/envelope, result-cache behavior, schema version and dependency requirements.",
+    "Exact complete non-timing payload equivalence against published v0.3.2, including candidate_count and truncated, across retained regression configurations."
+  ],
+  "development_protocol": {
+    "diagnostic_role": "C3 profiles and mathematical-bound simulation guide implementation; they are not accepted timing results.",
+    "requirements": [
+      "Prove pruning and every downstream candidates use, including current/historical, limit=1, ties and zero/invalid bases.",
+      "Meaningful fixtures for late score boosts, fused routes, directory duplication, scopes, malformed/orphan metadata, custom row factories, source corruption and semantic/coverage fallback.",
+      "Save a fixed native paired development comparison of the substantive C4 source against v0.3.2, retaining all selected calls and adverse cells; no repeated same-source selection for a favorable sample.",
+      "Verify full historical Hotpot256 default payload compatibility for the final C4 source before release."
+    ]
+  },
+  "formal_protocol": {
+    "matrix_plan": "benchmarks/experiments/round5-plan.json",
+    "calls": 56784,
+    "rounds": 4,
+    "order": [
+      "AB",
+      "BA",
+      "BA",
+      "AB"
+    ],
+    "thresholds_percent": {
+      "geometric_mean_p95_improvement": 10,
+      "at_least_one_public_native_token_p95_improvement": 15,
+      "public_mcp_token1024_p95_improvement": 10,
+      "maximum_pooled_p50_p95_regression": 5,
+      "resource_mean_increase_review": 10
+    },
+    "evaluator": "A separately named C4 runner/workflow may adapt only source/provenance/path/claim registration from the frozen C3 runner; retain measurement arithmetic, datasets, configurations, order, equality rules and all numerical gates. Preserve original C3 files.",
+    "binding": "Commit final materially changed C4 source, evaluator and tests, then create and commit a new C4 binding before its sole exclusive formal execution.",
+    "decision": "All correctness and numerical gates must pass; any resource trigger needs explicit independent review. C3 gains never substitute for a missing C4 gate."
+  },
+  "release": "No v0.3.3 runtime approval, main advance or release branch until final acceptance and exact-source nine-job CI."
+}
