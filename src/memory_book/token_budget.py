@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import hashlib
 import re
+import sys
 from bisect import bisect_left
+from collections import OrderedDict
 from functools import lru_cache
 from typing import Any, Callable
 
@@ -21,6 +23,7 @@ _SEALED_PATTERNS = {
 }
 _ENCODER_METHOD_NAMES = ("encode_ordinary", "encode_with_unstable", "decode_bytes")
 _ORDINARY_ENCODER_METHODS: tuple | None = None
+_ENCODING_ORIGINS: dict[str, tuple] = {}
 _ROLE = re.compile(r"^(?:USER|ASSISTANT|SYSTEM|DEVELOPER|TOOL):[ \t]*")
 _OPEN = re.compile(r"^[ \t]{0,3}(`{3,}|~{3,})(.*)$")
 _SENTENCE = re.compile(r"[。！？]|[.!?](?=\s|$)")
@@ -69,7 +72,94 @@ def _encoding(name: str):
         # Validate origin before the initial capture; later overrides must
         # also retain these exact identities to use the sealed certificate.
         _ORDINARY_ENCODER_METHODS = _trusted_encoder_methods(tiktoken)
-    return tiktoken.get_encoding(name), tiktoken.__version__
+    encoding = tiktoken.get_encoding(name)
+    version = tiktoken.__version__
+    certified = None
+    try:
+        from tiktoken import _tiktoken
+        if name in TOKENIZERS and type(encoding) is tiktoken.Encoding:
+            core = getattr(encoding, "_core_bpe", None)
+            if type(core) is _tiktoken.CoreBPE:
+                # At most one original pair per registered name. Clearing the
+                # loader must not recertify a replaced private core merely
+                # because stale Python pattern/name metadata still look normal.
+                original = _ENCODING_ORIGINS.setdefault(name, (encoding, core))
+                certified = core if original[0] is encoding and original[1] is core else None
+    except Exception:
+        # Optional implementation inspection must not break a custom encoder's
+        # existing public exact-count path. Actual encode errors still propagate.
+        pass
+    return encoding, version, certified
+
+
+class _ExactTokenMemo:
+    """Connection-owned exact counts; plain text, not query/result entries."""
+
+    def __init__(self):
+        self.entry_limit, self.text_byte_limit = 2048, 2097152
+        self.entries = OrderedDict()
+        self.identities = {}
+        self.text_bytes = 0
+        self.hits = self.misses = self.evictions = self.invalidations = 0
+        self.oversized_bypasses = self.uncertified_bypasses = 0
+
+    def clear(self):
+        self.entries.clear()
+        self.identities.clear()
+        self.text_bytes = 0
+
+    def invalidate(self):
+        if self.entries or self.identities:
+            self.invalidations += 1
+            self.clear()
+
+    def lookup(self, identity, text):
+        name, encoding, core = identity
+        previous = self.identities.get(name)
+        if previous is not None and (previous[0] is not encoding or previous[1] is not core):
+            self.invalidate()
+        # At most the two registered names, one current object pair each.
+        self.identities[name] = (encoding, core)
+        key = (name, text)
+        value = self.entries.get(key)
+        if value is None:
+            self.misses += 1
+            return None
+        self.entries.move_to_end(key)
+        self.hits += 1
+        return value[0]
+
+    def store(self, identity, text, count):
+        # Encoding may allocate a UTF-8 side buffer on a Unicode str. Charge
+        # the retained object only after the successful ordinary encode.
+        size = sys.getsizeof(text)
+        if size > self.text_byte_limit:
+            self.oversized_bypasses += 1
+            return
+        while self.entries and (len(self.entries) >= self.entry_limit or
+                                self.text_bytes + size > self.text_byte_limit):
+            _, (_, old_size) = self.entries.popitem(last=False)
+            self.text_bytes -= old_size
+            self.evictions += 1
+        self.entries[(identity[0], text)] = (count, size)
+        self.text_bytes += size
+
+    def snapshot(self):
+        return {"allocated": 1, "entry_limit": self.entry_limit, "text_byte_limit": self.text_byte_limit,
+                "entries": len(self.entries), "text_bytes": self.text_bytes,
+                **{name: getattr(self, name) for name in ("hits", "misses", "evictions", "invalidations",
+                    "oversized_bypasses", "uncertified_bypasses")}}
+
+
+def _attach_count_memo(counter, memo):
+    if type(counter) is _ORDINARY_COUNTER_TYPE:
+        counter._memo = memo
+        # An immutable pattern identity avoids rehashing the same approved
+        # pattern for every block; mutable implementation identities remain
+        # checked on each lookup and again after a miss is encoded.
+        counter._memo_pattern = None
+        if _can_seal_blocks(counter):
+            counter._memo_pattern = getattr(counter.encoding, "_pat_str", None)
 
 
 class _PrefixTokenCounter:
@@ -92,11 +182,40 @@ class TokenCounter:
         if not isinstance(name, str) or name not in TOKENIZERS:
             raise ValueError("tokenizer must be cl100k_base or o200k_base")
         self.name = name
-        self.encoding, self.version = _encoding(name)
+        self.encoding, self.version, self._certified_core = _encoding(name)
+        self._certified_encoding, self._certified_name = self.encoding, name
+        self._memo = None
+        self._memo_pattern = None
 
     def count(self, text: str) -> int:
         # Historical text may literally contain <|endoftext|> or similar
         # strings. They are evidence, not privileged tokenizer control tokens.
+        memo = getattr(self, "_memo", None)
+        if memo is not None:
+            previous = memo.identities.get(getattr(self, "name", None))
+            if previous is not None and (previous[0] is not self.encoding or
+                    previous[1] is not getattr(self.encoding, "_core_bpe", None)):
+                memo.invalidate()
+            # Do not invoke overridden str hashing, slicing or sizeof methods.
+            eligible = type(text) is str and text.startswith("[")
+            newline = text.find("\n") if eligible else -1
+            eligible = eligible and 0 <= newline < len(text) - 1
+            identity = _memo_identity(self) if eligible else None
+            if identity is not None:
+                known = memo.lookup(identity, text)
+                if known is not None:  # Zero is a valid exact count.
+                    return known
+                count = len(self.encoding.encode_ordinary(text))
+                after = _memo_identity(self)
+                if (after is not None and after[0] == identity[0]
+                        and after[1] is identity[1] and after[2] is identity[2]):
+                    memo.store(identity, text, count)
+                else:
+                    memo.invalidate()
+                return count
+            memo.uncertified_bypasses += 1
+            if eligible:
+                memo.invalidate()
         return len(self.encoding.encode_ordinary(text))
 
     def count_after(self, prefix: str) -> _PrefixTokenCounter:
@@ -128,32 +247,53 @@ class TokenCounter:
 # application counters keep their historical complete-context calls.
 _ORDINARY_COUNT = TokenCounter.count
 _ORDINARY_COUNT_AFTER = TokenCounter.count_after
+_ORDINARY_COUNTER_TYPE = TokenCounter
 
 
-def _can_seal_blocks(counter: TokenCounter) -> bool:
-    """Certify only the inspected ordinary tokenizer, never a generic counter.
-
-    With these exact patterns, a piece ending in LF cannot consume the next
-    '['. cl100k's EOF whitespace branch consumes the same bytes as its newline
-    branch at this boundary. BPE therefore receives identical separate pieces.
-    Header and strict UTF-8 certificates are checked lazily on the actual text.
-    """
-    if (type(counter) is not TokenCounter
+def _ordinary_encoding(counter: TokenCounter):
+    if (type(counter) is not _ORDINARY_COUNTER_TYPE
             or getattr(counter.count, "__func__", None) is not _ORDINARY_COUNT
             or getattr(counter.count_after, "__func__", None) is not _ORDINARY_COUNT_AFTER
             or getattr(counter, "version", None) != "0.12.0"):
-        return False
+        return None
     import tiktoken
     encoding = getattr(counter, "encoding", None)
     name = getattr(counter, "name", None)
     if (tiktoken.__version__ != "0.12.0" or type(encoding) is not tiktoken.Encoding
-            or name not in _SEALED_PATTERNS or getattr(encoding, "name", None) != name):
-        return False
+            or name not in _SEALED_PATTERNS or getattr(encoding, "name", None) != name
+            or encoding is not getattr(counter, "_certified_encoding", None)
+            or name != getattr(counter, "_certified_name", None)
+            or getattr(encoding, "_core_bpe", None) is not getattr(counter, "_certified_core", None)
+            or getattr(counter, "_certified_core", None) is None):
+        return None
     if _ORDINARY_ENCODER_METHODS is None:
-        return False
+        return None
     for method, ordinary in zip(_ENCODER_METHOD_NAMES, _ORDINARY_ENCODER_METHODS):
         if getattr(getattr(encoding, method), "__func__", None) is not ordinary:
-            return False
+            return None
+    return encoding
+
+
+def _memo_identity(counter: TokenCounter):
+    encoding = _ordinary_encoding(counter)
+    if (encoding is None or getattr(counter, "_memo_pattern", None) is None
+            or encoding._pat_str is not counter._memo_pattern):
+        return None
+    return counter.name, encoding, encoding._core_bpe
+
+
+def _can_seal_blocks(counter: TokenCounter) -> bool:
+    """Certify ordinary methods, the captured native core and inspected pattern.
+
+    With these exact patterns, a piece ending in LF cannot consume the next
+    '['. cl100k's EOF whitespace branch consumes the same bytes as its newline
+    branch at this boundary. Replacing even a native core invalidates this
+    certificate: its actual vocabulary/pattern need not match Python metadata.
+    """
+    encoding = _ordinary_encoding(counter)
+    if encoding is None:
+        return False
+    name = counter.name
     pattern = getattr(encoding, "_pat_str", None)
     if not isinstance(pattern, str):
         return False
