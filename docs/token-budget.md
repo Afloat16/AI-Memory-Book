@@ -157,10 +157,60 @@ The last optimization requires ordinary encoder methods, their verified source
 origin, the exact known pattern and strict UTF-8 text. Other tokenizer versions,
 custom methods, unknown origins or unsuitable text use full counting. A strict
 UTF-8 byte bound may prove that a block fits, but an exact count still supplies
-the returned metadata. This adds no cross-call cache, ranking change or new
-runtime dependency. See the [round-four implementation and evidence](optimization-round4.md)
+the returned metadata. These v0.3.2 changes added no cross-call cache, ranking
+change or new runtime dependency. See the [round-four implementation and evidence](optimization-round4.md)
 for the preserved failed candidates, correctness coverage and separate formal
 performance status.
+
+## Exact-count reuse in v0.3.3
+
+Token-budget recalls can reuse a previously computed exact count of the same
+complete citation-and-evidence text within one `MemoryBook`. This memo is
+created lazily on the token-budget path; character-only calls do not allocate
+it or load tiktoken. A fresh `MemoryBook` starts with no retained counts. Entries
+are not written to the archive or shared between books or processes.
+
+Both tokenizer names share one least-recently-used memo, bounded by **2,048
+entries and 2 MiB (2,097,152 bytes) of retained native Python `str` objects**.
+Each text is charged with `sys.getsizeof(text)` after successful encoding,
+including any Unicode storage reported by that operation. This is a text-object
+limit, not a limit on the entire memo or process: the container, keys, count
+values, and encoder references have additional overhead. Tokenizer vocabularies
+and other process allocations are separate. An oversized text is still counted
+exactly; it is not retained and does not evict useful entries merely to attempt
+storage. Encoding errors are not cached.
+
+An entry uses the complete unchanged native string, the tokenizer name and
+certified encoder/core identities. Eligible strings start with `[` and contain
+a newline followed by nonempty evidence; there is no normalization, digest-only
+key or page-ID substitution. The known tiktoken implementation, pattern, methods
+and method receivers must remain certified. Custom counters or encoder methods,
+unknown versions or patterns, replaced encoding/core objects, and string
+subclasses use the original exact-count path. Identity replacement also
+invalidates the sealed-boundary optimization. These fallbacks preserve exact
+counting and its errors; they do not introduce estimated budgets.
+
+`MemoryBook.close()` clears the retained texts and memo identity references,
+including when database or directory-cache cleanup raises an exception. This
+does not promise an immediate reduction in process RSS or unload tiktoken's
+separate process-level vocabulary state.
+
+`MemoryBook(cache_size=...)` and `recall(use_cache=...)` continue to control the
+existing retrieval-result cache. They do not configure or disable this exact
+count memo. In particular, `cache_size=0` or `use_cache=False` still allows
+same-text count reuse while retrieval, original-source reads and source
+validation continue through their ordinary paths. Only the repeated encoding
+work is reused; rankings, source snapshots, citation spans and both context
+limits retain their existing semantics.
+
+The text memo is separate from the connection's **4 MiB SQLite pager target**
+and the archive's derived recall metadata index. The pager retains database
+pages in memory; the index occupies database space and adds first-open build
+and subsequent write-maintenance work. See the [deployment costs](deployment.md#upgrading).
+The [implementation](../src/memory_book/token_budget.py) and
+[C5 regression fixtures](../tests/test_round5_candidate_c5.py) specify the
+identity, capacity, fallback and cleanup checks. These operating limits are
+not a performance acceptance result.
 
 ## Completed measurements
 
