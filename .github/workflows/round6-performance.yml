@@ -45,7 +45,7 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p .artifacts
-          python -u scripts/round6_host.py --stage formal 2>&1 | tee .artifacts/round6-performance.log
+          python -u scripts/round6_host.py --stage formal --binding benchmarks/experiments/round6-b-performance-binding.json 2>&1 | tee .artifacts/round6-performance.log
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:

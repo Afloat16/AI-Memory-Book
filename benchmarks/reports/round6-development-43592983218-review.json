@@ -1,0 +1,2411 @@
+{
+  "schema_version": 1,
+  "review": "round6-candidate-a-development-review-1",
+  "run_id": "43592983218",
+  "workflow_commit": "06087c7442463f84ed5313f35ea22b7050cf1863",
+  "workflow_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43592983218",
+  "workflow_conclusion": "success",
+  "no_new_measurements": true,
+  "source_or_evaluator_modified": false,
+  "formal_gate_evaluated": false,
+  "formal_numeric_gate_passed": null,
+  "recommendation": "preserve_candidate_a_and_require_substantive_candidate_b_before_formal",
+  "reason": "Both complete development stages and independent saved-observation audits pass. Recall latency gains are about one percent, far below the preregistered 10/15/10 formal targets. Empty-database initialization is substantially faster; retain that improvement without treating it as recall-gate acceptance.",
+  "stages": {
+    "native": {
+      "result_commit": "a9a2213c9a8a3ff54430a6909f3062e4ce20e970",
+      "result_branch": "validation/v034-round6-development-native-43592983218-1",
+      "report_path": "benchmarks/reports/round6-development-native-43592983218-1/report.json.gz",
+      "report_sha256": "74041a3e15e541e5d34edb8f8360b4d6d3befb0843d29133d5b38c675da67142",
+      "summary_sha256": "f6c38f7d4108a2653163292ba3c21ee24225645b901fbd32605459c71fa7623b",
+      "local_audit_path": "benchmarks/reports/round6-development-native-43592983218-local-audit.json",
+      "local_audit_sha256": "b7b29c8278cea9ab882408f48e1956fbe6c6765803aa7e03d342e2b5fc9671a6",
+      "completion_inventory_verified_files": 31,
+      "binding_sha256": "6db75e22db98821396ea3b4aaf25d7cab583becf3a9505d70dec17c61dc8a951",
+      "evaluator_commit": "df5bf2d5c5fb7de0d57a3dd8310637552b3531e6",
+      "validation": {
+        "expected_calls": 18928,
+        "expected_workers": 8,
+        "issues": [],
+        "passed": true,
+        "timed_calls": 18928,
+        "workers": 8
+      },
+      "workers": 8,
+      "timed_calls": 18928,
+      "complete_output_pairs": 9464,
+      "ledger_events": 37856,
+      "original_automatic_accepted": false,
+      "formal_acceptance_evaluated": false,
+      "numeric_gate_passed": null,
+      "reported_improvements": {
+        "best_public_native_token_p95_improvement_percent": 1.241052966475198,
+        "geometric_mean_p95_improvement_percent": 0.9473223269620967,
+        "public_mcp_token1024_p95_improvement_percent": null
+      },
+      "all_latency_cells": [
+        {
+          "cohort": "synthetic61",
+          "configuration": "native-char4000",
+          "baseline": {
+            "mean_ms": 5.270011785714286,
+            "p50_ms": 4.1583255,
+            "p95_ms": 12.811453,
+            "samples": 336
+          },
+          "candidate": {
+            "mean_ms": 5.244541845238095,
+            "p50_ms": 4.1272175,
+            "p95_ms": 12.83008175,
+            "samples": 336
+          },
+          "candidate_change_percent": {
+            "mean_ms": -0.48329949745526957,
+            "p50_ms": -0.74808958557957,
+            "p95_ms": 0.1454070041860156
+          },
+          "all_rounds": [
+            {
+              "baseline": {
+                "mean_ms": 5.301029363095238,
+                "p50_ms": 4.161954,
+                "p95_ms": 12.923918800000001,
+                "samples": 168
+              },
+              "candidate": {
+                "mean_ms": 5.258036238095238,
+                "p50_ms": 4.1227915,
+                "p95_ms": 13.0074778,
+                "samples": 168
+              },
+              "round": 0
+            },
+            {
+              "baseline": {
+                "mean_ms": 5.238994208333334,
+                "p50_ms": 4.157011,
+                "p95_ms": 12.612239950000001,
+                "samples": 168
+              },
+              "candidate": {
+                "mean_ms": 5.2310474523809525,
+                "p50_ms": 4.164885999999999,
+                "p95_ms": 12.64855705,
+                "samples": 168
+              },
+              "round": 1
+            }
+          ]
+        },
+        {
+          "cohort": "synthetic61",
+          "configuration": "native-token512",
+          "baseline": {
+            "mean_ms": 6.9440293125000006,
+            "p50_ms": 5.7010445,
+            "p95_ms": 16.068836750000003,
+            "samples": 336
+          },
+          "candidate": {
+            "mean_ms": 6.951207755952381,
+            "p50_ms": 5.681659,
+            "p95_ms": 16.11521475,
+            "samples": 336
+          },
+          "candidate_change_percent": {
+            "mean_ms": 0.10337576541414872,
+            "p50_ms": -0.3400341814557062,
+            "p95_ms": 0.28862076777274037
+          },
+          "all_rounds": [
+            {
+              "baseline": {
+                "mean_ms": 6.948704839285715,
+                "p50_ms": 5.757897,
+                "p95_ms": 16.0289262,
+                "samples": 168
+              },
+              "candidate": {
+                "mean_ms": 6.996618589285715,
+                "p50_ms": 5.7245425,
+                "p95_ms": 16.36717745,
+                "samples": 168
+              },
+              "round": 0
+            },
+            {
+              "baseline": {
+                "mean_ms": 6.939353785714285,
+                "p50_ms": 5.631893,
+                "p95_ms": 15.946186500000003,
+                "samples": 168
+              },
+              "candidate": {
+                "mean_ms": 6.905796922619047,
+                "p50_ms": 5.621323,
+                "p95_ms": 15.9151609,
+                "samples": 168
+              },
+              "round": 1
+            }
+          ]
+        },
+        {
+          "cohort": "synthetic61",
+          "configuration": "native-token1024",
+          "baseline": {
+            "mean_ms": 5.771011345238096,
+            "p50_ms": 4.4692155,
+            "p95_ms": 15.13384975,
+            "samples": 336
+          },
+          "candidate": {
+            "mean_ms": 5.694605526785715,
+            "p50_ms": 4.408919,
+            "p95_ms": 14.96971525,
+            "samples": 336
+          },
+          "candidate_change_percent": {
+            "mean_ms": -1.323958902202238,
+            "p50_ms": -1.3491517694772082,
+            "p95_ms": -1.0845521973019467
+          },
+          "all_rounds": [
+            {
+              "baseline": {
+                "mean_ms": 5.72340469047619,
+                "p50_ms": 4.46293,
+                "p95_ms": 14.927878250000001,
+                "samples": 168
+              },
+              "candidate": {
+                "mean_ms": 5.70871493452381,
+                "p50_ms": 4.420373,
+                "p95_ms": 15.05751675,
+                "samples": 168
+              },
+              "round": 0
+            },
+            {
+              "baseline": {
+                "mean_ms": 5.818618,
+                "p50_ms": 4.4703715,
+                "p95_ms": 15.191644250000001,
+                "samples": 168
+              },
+              "candidate": {
+                "mean_ms": 5.6804961190476195,
+                "p50_ms": 4.395121,
+                "p95_ms": 14.9244083,
+                "samples": 168
+              },
+              "round": 1
+            }
+          ]
+        },
+        {
+          "cohort": "synthetic61",
+          "configuration": "native-token2048",
+          "baseline": {
+            "mean_ms": 5.914559770833334,
+            "p50_ms": 4.4011379999999996,
+            "p95_ms": 15.75749725,
+            "samples": 336
+          },
+          "candidate": {
+            "mean_ms": 5.840760580357143,
+            "p50_ms": 4.3169495,
+            "p95_ms": 15.44614625,
+            "samples": 336
+          },
+          "candidate_change_percent": {
+            "mean_ms": -1.2477545808247448,
+            "p50_ms": -1.912880259605576,
+            "p95_ms": -1.9758911904617316
+          },
+          "all_rounds": [
+            {
+              "baseline": {
+                "mean_ms": 5.867823994047619,
+                "p50_ms": 4.4006785,
+                "p95_ms": 15.43847945,
+                "samples": 168
+              },
+              "candidate": {
+                "mean_ms": 5.848105470238095,
+                "p50_ms": 4.271179,
+                "p95_ms": 15.426820200000002,
+                "samples": 168
+              },
+              "round": 0
+            },
+            {
+              "baseline": {
+                "mean_ms": 5.961295547619048,
+                "p50_ms": 4.4143265,
+                "p95_ms": 15.877264049999999,
+                "samples": 168
+              },
+              "candidate": {
+                "mean_ms": 5.8334156904761905,
+                "p50_ms": 4.3169495,
+                "p95_ms": 15.436828349999999,
+                "samples": 168
+              },
+              "round": 1
+            }
+          ]
+        },
+        {
+          "cohort": "public1015",
+          "configuration": "native-char4000",
+          "baseline": {
+            "mean_ms": 3.020615754679803,
+            "p50_ms": 3.0059034999999996,
+            "p95_ms": 3.6549597499999997,
+            "samples": 2030
+          },
+          "candidate": {
+            "mean_ms": 2.9733584807881774,
+            "p50_ms": 2.9653875000000003,
+            "p95_ms": 3.5688836,
+            "samples": 2030
+          },
+          "candidate_change_percent": {
+            "mean_ms": -1.5644914060456205,
+            "p50_ms": -1.3478809283132165,
+            "p95_ms": -2.355050558354299
+          },
+          "all_rounds": [
+            {
+              "baseline": {
+                "mean_ms": 3.0249606472906403,
+                "p50_ms": 3.010375,
+                "p95_ms": 3.6632104999999995,
+                "samples": 1015
+              },
+              "candidate": {
+                "mean_ms": 2.959839166502463,
+                "p50_ms": 2.954042,
+                "p95_ms": 3.5497973999999997,
+                "samples": 1015
+              },
+              "round": 0
+            },
+            {
+              "baseline": {
+                "mean_ms": 3.0162708620689656,
+                "p50_ms": 3.002583,
+                "p95_ms": 3.641306599999999,
+                "samples": 1015
+              },
+              "candidate": {
+                "mean_ms": 2.9868777950738914,
+                "p50_ms": 2.973899,
+                "p95_ms": 3.6134158999999997,
+                "samples": 1015
+              },
+              "round": 1
+            }
+          ]
+        },
+        {
+          "cohort": "public1015",
+          "configuration": "native-token512",
+          "baseline": {
+            "mean_ms": 3.592170595073892,
+            "p50_ms": 3.563738,
+            "p95_ms": 4.5754775500000004,
+            "samples": 2030
+          },
+          "candidate": {
+            "mean_ms": 3.562710332019704,
+            "p50_ms": 3.518107,
+            "p95_ms": 4.5617747500000005,
+            "samples": 2030
+          },
+          "candidate_change_percent": {
+            "mean_ms": -0.8201242751273541,
+            "p50_ms": -1.28042521644407,
+            "p95_ms": -0.2994834932585344
+          },
+          "all_rounds": [
+            {
+              "baseline": {
+                "mean_ms": 3.5887881359605913,
+                "p50_ms": 3.557451,
+                "p95_ms": 4.5691025,
+                "samples": 1015
+              },
+              "candidate": {
+                "mean_ms": 3.55840142955665,
+                "p50_ms": 3.516093,
+                "p95_ms": 4.543347399999999,
+                "samples": 1015
+              },
+              "round": 0
+            },
+            {
+              "baseline": {
+                "mean_ms": 3.5955530541871923,
+                "p50_ms": 3.571476,
+                "p95_ms": 4.577335,
+                "samples": 1015
+              },
+              "candidate": {
+                "mean_ms": 3.5670192344827587,
+                "p50_ms": 3.518457,
+                "p95_ms": 4.5662275999999995,
+                "samples": 1015
+              },
+              "round": 1
+            }
+          ]
+        },
+        {
+          "cohort": "public1015",
+          "configuration": "native-token1024",
+          "baseline": {
+            "mean_ms": 3.3633793896551722,
+            "p50_ms": 3.3560594999999998,
+            "p95_ms": 3.98692945,
+            "samples": 2030
+          },
+          "candidate": {
+            "mean_ms": 3.345770000985222,
+            "p50_ms": 3.3384460000000002,
+            "p95_ms": 3.9460715,
+            "samples": 2030
+          },
+          "candidate_change_percent": {
+            "mean_ms": -0.5235623648081944,
+            "p50_ms": -0.5248268095365827,
+            "p95_ms": -1.0247974164679485
+          },
+          "all_rounds": [
+            {
+              "baseline": {
+                "mean_ms": 3.365328045320197,
+                "p50_ms": 3.357948,
+                "p95_ms": 4.0045312,
+                "samples": 1015
+              },
+              "candidate": {
+                "mean_ms": 3.374381664039409,
+                "p50_ms": 3.353739,
+                "p95_ms": 4.0167268,
+                "samples": 1015
+              },
+              "round": 0
+            },
+            {
+              "baseline": {
+                "mean_ms": 3.3614307339901477,
+                "p50_ms": 3.351876,
+                "p95_ms": 3.9756967999999997,
+                "samples": 1015
+              },
+              "candidate": {
+                "mean_ms": 3.3171583379310343,
+                "p50_ms": 3.317892,
+                "p95_ms": 3.8859315,
+                "samples": 1015
+              },
+              "round": 1
+            }
+          ]
+        },
+        {
+          "cohort": "public1015",
+          "configuration": "native-token2048",
+          "baseline": {
+            "mean_ms": 3.249359215270936,
+            "p50_ms": 3.2514795,
+            "p95_ms": 3.81154965,
+            "samples": 2030
+          },
+          "candidate": {
+            "mean_ms": 3.2043094251231525,
+            "p50_ms": 3.2138985,
+            "p95_ms": 3.7642463,
+            "samples": 2030
+          },
+          "candidate_change_percent": {
+            "mean_ms": -1.3864207421593777,
+            "p50_ms": -1.1558123002159415,
+            "p95_ms": -1.241052966475198
+          },
+          "all_rounds": [
+            {
+              "baseline": {
+                "mean_ms": 3.2531234256157635,
+                "p50_ms": 3.260536,
+                "p95_ms": 3.8054805999999997,
+                "samples": 1015
+              },
+              "candidate": {
+                "mean_ms": 3.21161540591133,
+                "p50_ms": 3.222755,
+                "p95_ms": 3.7758757999999997,
+                "samples": 1015
+              },
+              "round": 0
+            },
+            {
+              "baseline": {
+                "mean_ms": 3.245595004926108,
+                "p50_ms": 3.237853,
+                "p95_ms": 3.818307,
+                "samples": 1015
+              },
+              "candidate": {
+                "mean_ms": 3.1970034443349755,
+                "p50_ms": 3.208117,
+                "p95_ms": 3.7444754999999996,
+                "samples": 1015
+              },
+              "round": 1
+            }
+          ]
+        }
+      ],
+      "all_pooled_adverse_changes": [
+        {
+          "cohort": "synthetic61",
+          "config": "native-char4000",
+          "metric": "p95_ms",
+          "change_percent": 0.1454070041860156
+        },
+        {
+          "cohort": "synthetic61",
+          "config": "native-token512",
+          "metric": "p95_ms",
+          "change_percent": 0.28862076777274037
+        },
+        {
+          "cohort": "synthetic61",
+          "config": "native-token512",
+          "metric": "mean_ms",
+          "change_percent": 0.10337576541414872
+        }
+      ],
+      "all_per_round_adverse_changes": [
+        {
+          "cohort": "synthetic61",
+          "config": "native-char4000",
+          "round": 0,
+          "metric": "p95_ms",
+          "change_percent": 0.6465453806472343
+        },
+        {
+          "cohort": "synthetic61",
+          "config": "native-char4000",
+          "round": 1,
+          "metric": "p50_ms",
+          "change_percent": 0.18943899835721645
+        },
+        {
+          "cohort": "synthetic61",
+          "config": "native-char4000",
+          "round": 1,
+          "metric": "p95_ms",
+          "change_percent": 0.2879512294721165
+        },
+        {
+          "cohort": "synthetic61",
+          "config": "native-token512",
+          "round": 0,
+          "metric": "p95_ms",
+          "change_percent": 2.1102552084867554
+        },
+        {
+          "cohort": "synthetic61",
+          "config": "native-token512",
+          "round": 0,
+          "metric": "mean_ms",
+          "change_percent": 0.6895349724615141
+        },
+        {
+          "cohort": "synthetic61",
+          "config": "native-token1024",
+          "round": 0,
+          "metric": "p95_ms",
+          "change_percent": 0.86843218995305
+        },
+        {
+          "cohort": "public1015",
+          "config": "native-token1024",
+          "round": 0,
+          "metric": "p95_ms",
+          "change_percent": 0.3045450114110837
+        },
+        {
+          "cohort": "public1015",
+          "config": "native-token1024",
+          "round": 0,
+          "metric": "mean_ms",
+          "change_percent": 0.26902633553962385
+        }
+      ],
+      "all_resource_comparisons": [
+        {
+          "baseline": {
+            "max": 30.491407,
+            "mean": 30.178628,
+            "min": 29.865849,
+            "p50": 30.178628,
+            "p95": 30.4601291,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 30.653516,
+            "mean": 30.581509,
+            "min": 30.509502,
+            "p50": 30.581509,
+            "p95": 30.6463153,
+            "samples": 2
+          },
+          "cohort": "synthetic61",
+          "mean_change_percent": 1.33498779334833,
+          "metric": "runtime_import_ms"
+        },
+        {
+          "baseline": {
+            "max": 29.399596,
+            "mean": 26.3333285,
+            "min": 23.267061,
+            "p50": 26.3333285,
+            "p95": 29.09296925,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 6.712916,
+            "mean": 5.3955395,
+            "min": 4.078163,
+            "p50": 5.3955395,
+            "p95": 6.58117835,
+            "samples": 2
+          },
+          "cohort": "synthetic61",
+          "mean_change_percent": -79.51060573295928,
+          "metric": "native_open_ms"
+        },
+        {
+          "baseline": {
+            "max": 861.472162,
+            "mean": 858.1314110000001,
+            "min": 854.79066,
+            "p50": 858.1314110000001,
+            "p95": 861.1380869000001,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 859.393243,
+            "mean": 854.0568135,
+            "min": 848.720384,
+            "p50": 854.0568135,
+            "p95": 858.8596000499999,
+            "samples": 2
+          },
+          "cohort": "synthetic61",
+          "mean_change_percent": -0.47482208992348784,
+          "metric": "fresh_ingestion_ms"
+        },
+        {
+          "baseline": {
+            "max": 103.920482,
+            "mean": 103.887133,
+            "min": 103.853784,
+            "p50": 103.887133,
+            "p95": 103.91714710000001,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 103.807611,
+            "mean": 103.721102,
+            "min": 103.634593,
+            "p50": 103.721102,
+            "p95": 103.79896009999999,
+            "samples": 2
+          },
+          "cohort": "synthetic61",
+          "mean_change_percent": -0.15981863702023702,
+          "metric": "unchanged_reingestion_ms"
+        },
+        {
+          "baseline": {
+            "max": 44044288,
+            "mean": 44029952.0,
+            "min": 44015616,
+            "p50": 44029952.0,
+            "p95": 44042854.4,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 44212224,
+            "mean": 44163072.0,
+            "min": 44113920,
+            "p50": 44163072.0,
+            "p95": 44207308.8,
+            "samples": 2
+          },
+          "cohort": "synthetic61",
+          "mean_change_percent": 0.3023396437043635,
+          "metric": "native_memory_after_ingestion.rss_bytes"
+        },
+        {
+          "baseline": {
+            "max": 44044288,
+            "mean": 44029952.0,
+            "min": 44015616,
+            "p50": 44029952.0,
+            "p95": 44042854.4,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 44736512,
+            "mean": 44619776.0,
+            "min": 44503040,
+            "p50": 44619776.0,
+            "p95": 44724838.4,
+            "samples": 2
+          },
+          "cohort": "synthetic61",
+          "mean_change_percent": 1.339597190566999,
+          "metric": "native_memory_after_ingestion.hwm_bytes"
+        },
+        {
+          "baseline": {
+            "max": 177029120,
+            "mean": 176988160.0,
+            "min": 176947200,
+            "p50": 176988160.0,
+            "p95": 177025024.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 175079424,
+            "mean": 175009792.0,
+            "min": 174940160,
+            "p50": 175009792.0,
+            "p95": 175072460.8,
+            "samples": 2
+          },
+          "cohort": "synthetic61",
+          "mean_change_percent": -1.1177968062948351,
+          "metric": "native_memory_after_calls.rss_bytes"
+        },
+        {
+          "baseline": {
+            "max": 177029120,
+            "mean": 176988160.0,
+            "min": 176947200,
+            "p50": 176988160.0,
+            "p95": 177025024.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 175079424,
+            "mean": 175009792.0,
+            "min": 174940160,
+            "p50": 175009792.0,
+            "p95": 175072460.8,
+            "samples": 2
+          },
+          "cohort": "synthetic61",
+          "mean_change_percent": -1.1177968062948351,
+          "metric": "native_memory_after_calls.hwm_bytes"
+        },
+        {
+          "baseline": {
+            "max": 20733952,
+            "mean": 20733952.0,
+            "min": 20733952,
+            "p50": 20733952.0,
+            "p95": 20733952.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 20733952,
+            "mean": 20733952.0,
+            "min": 20733952,
+            "p50": 20733952.0,
+            "p95": 20733952.0,
+            "samples": 2
+          },
+          "cohort": "synthetic61",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_ingestion_live.logical_db_bytes"
+        },
+        {
+          "baseline": {
+            "max": 19165184,
+            "mean": 19165184.0,
+            "min": 19165184,
+            "p50": 19165184.0,
+            "p95": 19165184.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 19165184,
+            "mean": 19165184.0,
+            "min": 19165184,
+            "p50": 19165184.0,
+            "p95": 19165184.0,
+            "samples": 2
+          },
+          "cohort": "synthetic61",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_ingestion_live.files_bytes.db"
+        },
+        {
+          "baseline": {
+            "max": 5722712,
+            "mean": 5722712.0,
+            "min": 5722712,
+            "p50": 5722712.0,
+            "p95": 5722712.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 5722712,
+            "mean": 5722712.0,
+            "min": 5722712,
+            "p50": 5722712.0,
+            "p95": 5722712.0,
+            "samples": 2
+          },
+          "cohort": "synthetic61",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_ingestion_live.files_bytes.wal"
+        },
+        {
+          "baseline": {
+            "max": 32768,
+            "mean": 32768.0,
+            "min": 32768,
+            "p50": 32768.0,
+            "p95": 32768.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 32768,
+            "mean": 32768.0,
+            "min": 32768,
+            "p50": 32768.0,
+            "p95": 32768.0,
+            "samples": 2
+          },
+          "cohort": "synthetic61",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_ingestion_live.files_bytes.shm"
+        },
+        {
+          "baseline": {
+            "max": 20733952,
+            "mean": 20733952.0,
+            "min": 20733952,
+            "p50": 20733952.0,
+            "p95": 20733952.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 20733952,
+            "mean": 20733952.0,
+            "min": 20733952,
+            "p50": 20733952.0,
+            "p95": 20733952.0,
+            "samples": 2
+          },
+          "cohort": "synthetic61",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_checkpoint.logical_db_bytes"
+        },
+        {
+          "baseline": {
+            "max": 20733952,
+            "mean": 20733952.0,
+            "min": 20733952,
+            "p50": 20733952.0,
+            "p95": 20733952.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 20733952,
+            "mean": 20733952.0,
+            "min": 20733952,
+            "p50": 20733952.0,
+            "p95": 20733952.0,
+            "samples": 2
+          },
+          "cohort": "synthetic61",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_checkpoint.files_bytes.db"
+        },
+        {
+          "baseline": {
+            "max": 0,
+            "mean": 0.0,
+            "min": 0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 0,
+            "mean": 0.0,
+            "min": 0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "samples": 2
+          },
+          "cohort": "synthetic61",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_checkpoint.files_bytes.wal"
+        },
+        {
+          "baseline": {
+            "max": 32768,
+            "mean": 32768.0,
+            "min": 32768,
+            "p50": 32768.0,
+            "p95": 32768.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 32768,
+            "mean": 32768.0,
+            "min": 32768,
+            "p50": 32768.0,
+            "p95": 32768.0,
+            "samples": 2
+          },
+          "cohort": "synthetic61",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_checkpoint.files_bytes.shm"
+        },
+        {
+          "baseline": {
+            "max": 29.97093,
+            "mean": 29.947878,
+            "min": 29.924826,
+            "p50": 29.947878,
+            "p95": 29.9686248,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 30.880313,
+            "mean": 30.7437365,
+            "min": 30.60716,
+            "p50": 30.7437365,
+            "p95": 30.866655350000002,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 2.657478770282151,
+          "metric": "runtime_import_ms"
+        },
+        {
+          "baseline": {
+            "max": 24.00096,
+            "mean": 23.158578499999997,
+            "min": 22.316197,
+            "p50": 23.158578499999997,
+            "p95": 23.91672185,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 6.625056,
+            "mean": 5.471238,
+            "min": 4.31742,
+            "p50": 5.471238,
+            "p95": 6.509674199999999,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": -76.37489710346428,
+          "metric": "native_open_ms"
+        },
+        {
+          "baseline": {
+            "max": 803.34228,
+            "mean": 798.922424,
+            "min": 794.502568,
+            "p50": 798.922424,
+            "p95": 802.9002944,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 801.15051,
+            "mean": 799.5311375,
+            "min": 797.911765,
+            "p50": 799.5311375,
+            "p95": 800.98857275,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.07619181558984334,
+          "metric": "fresh_ingestion_ms"
+        },
+        {
+          "baseline": {
+            "max": 205.060485,
+            "mean": 204.9347755,
+            "min": 204.809066,
+            "p50": 204.9347755,
+            "p95": 205.04791405,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 202.622395,
+            "mean": 202.447562,
+            "min": 202.272729,
+            "p50": 202.447562,
+            "p95": 202.6049117,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": -1.2136610265054748,
+          "metric": "unchanged_reingestion_ms"
+        },
+        {
+          "baseline": {
+            "max": 47022080,
+            "mean": 46991360.0,
+            "min": 46960640,
+            "p50": 46991360.0,
+            "p95": 47019008.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 47071232,
+            "mean": 47054848.0,
+            "min": 47038464,
+            "p50": 47054848.0,
+            "p95": 47069593.6,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.13510568751362584,
+          "metric": "native_memory_after_ingestion.rss_bytes"
+        },
+        {
+          "baseline": {
+            "max": 53604352,
+            "mean": 53553152.0,
+            "min": 53501952,
+            "p50": 53553152.0,
+            "p95": 53599232.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 53846016,
+            "mean": 53784576.0,
+            "min": 53723136,
+            "p50": 53784576.0,
+            "p95": 53839872.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.4321388963248962,
+          "metric": "native_memory_after_ingestion.hwm_bytes"
+        },
+        {
+          "baseline": {
+            "max": 189706240,
+            "mean": 189648896.0,
+            "min": 189591552,
+            "p50": 189648896.0,
+            "p95": 189700505.6,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 188915712,
+            "mean": 188831744.0,
+            "min": 188747776,
+            "p50": 188831744.0,
+            "p95": 188907315.2,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": -0.43087622297574013,
+          "metric": "native_memory_after_calls.rss_bytes"
+        },
+        {
+          "baseline": {
+            "max": 189706240,
+            "mean": 189648896.0,
+            "min": 189591552,
+            "p50": 189648896.0,
+            "p95": 189700505.6,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 188915712,
+            "mean": 188831744.0,
+            "min": 188747776,
+            "p50": 188831744.0,
+            "p95": 188907315.2,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": -0.43087622297574013,
+          "metric": "native_memory_after_calls.hwm_bytes"
+        },
+        {
+          "baseline": {
+            "max": 13053952,
+            "mean": 13053952.0,
+            "min": 13053952,
+            "p50": 13053952.0,
+            "p95": 13053952.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 13053952,
+            "mean": 13053952.0,
+            "min": 13053952,
+            "p50": 13053952.0,
+            "p95": 13053952.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_ingestion_live.logical_db_bytes"
+        },
+        {
+          "baseline": {
+            "max": 12775424,
+            "mean": 12775424.0,
+            "min": 12775424,
+            "p50": 12775424.0,
+            "p95": 12775424.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 12775424,
+            "mean": 12775424.0,
+            "min": 12775424,
+            "p50": 12775424.0,
+            "p95": 12775424.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_ingestion_live.files_bytes.db"
+        },
+        {
+          "baseline": {
+            "max": 4453752,
+            "mean": 4453752.0,
+            "min": 4453752,
+            "p50": 4453752.0,
+            "p95": 4453752.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 4453752,
+            "mean": 4453752.0,
+            "min": 4453752,
+            "p50": 4453752.0,
+            "p95": 4453752.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_ingestion_live.files_bytes.wal"
+        },
+        {
+          "baseline": {
+            "max": 32768,
+            "mean": 32768.0,
+            "min": 32768,
+            "p50": 32768.0,
+            "p95": 32768.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 32768,
+            "mean": 32768.0,
+            "min": 32768,
+            "p50": 32768.0,
+            "p95": 32768.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_ingestion_live.files_bytes.shm"
+        },
+        {
+          "baseline": {
+            "max": 13053952,
+            "mean": 13053952.0,
+            "min": 13053952,
+            "p50": 13053952.0,
+            "p95": 13053952.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 13053952,
+            "mean": 13053952.0,
+            "min": 13053952,
+            "p50": 13053952.0,
+            "p95": 13053952.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_checkpoint.logical_db_bytes"
+        },
+        {
+          "baseline": {
+            "max": 13053952,
+            "mean": 13053952.0,
+            "min": 13053952,
+            "p50": 13053952.0,
+            "p95": 13053952.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 13053952,
+            "mean": 13053952.0,
+            "min": 13053952,
+            "p50": 13053952.0,
+            "p95": 13053952.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_checkpoint.files_bytes.db"
+        },
+        {
+          "baseline": {
+            "max": 0,
+            "mean": 0.0,
+            "min": 0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 0,
+            "mean": 0.0,
+            "min": 0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_checkpoint.files_bytes.wal"
+        },
+        {
+          "baseline": {
+            "max": 32768,
+            "mean": 32768.0,
+            "min": 32768,
+            "p50": 32768.0,
+            "p95": 32768.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 32768,
+            "mean": 32768.0,
+            "min": 32768,
+            "p50": 32768.0,
+            "p95": 32768.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_checkpoint.files_bytes.shm"
+        }
+      ],
+      "all_adverse_resource_means": [
+        {
+          "baseline": {
+            "max": 30.491407,
+            "mean": 30.178628,
+            "min": 29.865849,
+            "p50": 30.178628,
+            "p95": 30.4601291,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 30.653516,
+            "mean": 30.581509,
+            "min": 30.509502,
+            "p50": 30.581509,
+            "p95": 30.6463153,
+            "samples": 2
+          },
+          "cohort": "synthetic61",
+          "mean_change_percent": 1.33498779334833,
+          "metric": "runtime_import_ms"
+        },
+        {
+          "baseline": {
+            "max": 44044288,
+            "mean": 44029952.0,
+            "min": 44015616,
+            "p50": 44029952.0,
+            "p95": 44042854.4,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 44212224,
+            "mean": 44163072.0,
+            "min": 44113920,
+            "p50": 44163072.0,
+            "p95": 44207308.8,
+            "samples": 2
+          },
+          "cohort": "synthetic61",
+          "mean_change_percent": 0.3023396437043635,
+          "metric": "native_memory_after_ingestion.rss_bytes"
+        },
+        {
+          "baseline": {
+            "max": 44044288,
+            "mean": 44029952.0,
+            "min": 44015616,
+            "p50": 44029952.0,
+            "p95": 44042854.4,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 44736512,
+            "mean": 44619776.0,
+            "min": 44503040,
+            "p50": 44619776.0,
+            "p95": 44724838.4,
+            "samples": 2
+          },
+          "cohort": "synthetic61",
+          "mean_change_percent": 1.339597190566999,
+          "metric": "native_memory_after_ingestion.hwm_bytes"
+        },
+        {
+          "baseline": {
+            "max": 29.97093,
+            "mean": 29.947878,
+            "min": 29.924826,
+            "p50": 29.947878,
+            "p95": 29.9686248,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 30.880313,
+            "mean": 30.7437365,
+            "min": 30.60716,
+            "p50": 30.7437365,
+            "p95": 30.866655350000002,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 2.657478770282151,
+          "metric": "runtime_import_ms"
+        },
+        {
+          "baseline": {
+            "max": 803.34228,
+            "mean": 798.922424,
+            "min": 794.502568,
+            "p50": 798.922424,
+            "p95": 802.9002944,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 801.15051,
+            "mean": 799.5311375,
+            "min": 797.911765,
+            "p50": 799.5311375,
+            "p95": 800.98857275,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.07619181558984334,
+          "metric": "fresh_ingestion_ms"
+        },
+        {
+          "baseline": {
+            "max": 47022080,
+            "mean": 46991360.0,
+            "min": 46960640,
+            "p50": 46991360.0,
+            "p95": 47019008.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 47071232,
+            "mean": 47054848.0,
+            "min": 47038464,
+            "p50": 47054848.0,
+            "p95": 47069593.6,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.13510568751362584,
+          "metric": "native_memory_after_ingestion.rss_bytes"
+        },
+        {
+          "baseline": {
+            "max": 53604352,
+            "mean": 53553152.0,
+            "min": 53501952,
+            "p50": 53553152.0,
+            "p95": 53599232.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 53846016,
+            "mean": 53784576.0,
+            "min": 53723136,
+            "p50": 53784576.0,
+            "p95": 53839872.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.4321388963248962,
+          "metric": "native_memory_after_ingestion.hwm_bytes"
+        }
+      ],
+      "resource_review_triggers": [],
+      "all_worker_resource_values": [
+        {
+          "worker": "r0-synthetic61-baseline",
+          "round": 0,
+          "cohort": "synthetic61",
+          "label": "baseline",
+          "values": {
+            "runtime_import_ms": 29.865849,
+            "native_open_ms": 29.399596,
+            "fresh_ingestion_ms": 861.472162,
+            "unchanged_reingestion_ms": 103.920482,
+            "native_memory_after_ingestion.rss_bytes": 44015616,
+            "native_memory_after_ingestion.hwm_bytes": 44015616,
+            "native_memory_after_calls.rss_bytes": 176947200,
+            "native_memory_after_calls.hwm_bytes": 176947200,
+            "storage_after_ingestion_live.logical_db_bytes": 20733952,
+            "storage_after_ingestion_live.files_bytes.db": 19165184,
+            "storage_after_ingestion_live.files_bytes.wal": 5722712,
+            "storage_after_ingestion_live.files_bytes.shm": 32768,
+            "storage_after_checkpoint.logical_db_bytes": 20733952,
+            "storage_after_checkpoint.files_bytes.db": 20733952,
+            "storage_after_checkpoint.files_bytes.wal": 0,
+            "storage_after_checkpoint.files_bytes.shm": 32768
+          }
+        },
+        {
+          "worker": "r0-synthetic61-candidate",
+          "round": 0,
+          "cohort": "synthetic61",
+          "label": "candidate",
+          "values": {
+            "runtime_import_ms": 30.653516,
+            "native_open_ms": 6.712916,
+            "fresh_ingestion_ms": 859.393243,
+            "unchanged_reingestion_ms": 103.634593,
+            "native_memory_after_ingestion.rss_bytes": 44113920,
+            "native_memory_after_ingestion.hwm_bytes": 44503040,
+            "native_memory_after_calls.rss_bytes": 174940160,
+            "native_memory_after_calls.hwm_bytes": 174940160,
+            "storage_after_ingestion_live.logical_db_bytes": 20733952,
+            "storage_after_ingestion_live.files_bytes.db": 19165184,
+            "storage_after_ingestion_live.files_bytes.wal": 5722712,
+            "storage_after_ingestion_live.files_bytes.shm": 32768,
+            "storage_after_checkpoint.logical_db_bytes": 20733952,
+            "storage_after_checkpoint.files_bytes.db": 20733952,
+            "storage_after_checkpoint.files_bytes.wal": 0,
+            "storage_after_checkpoint.files_bytes.shm": 32768
+          }
+        },
+        {
+          "worker": "r0-public1015-baseline",
+          "round": 0,
+          "cohort": "public1015",
+          "label": "baseline",
+          "values": {
+            "runtime_import_ms": 29.97093,
+            "native_open_ms": 24.00096,
+            "fresh_ingestion_ms": 803.34228,
+            "unchanged_reingestion_ms": 205.060485,
+            "native_memory_after_ingestion.rss_bytes": 46960640,
+            "native_memory_after_ingestion.hwm_bytes": 53604352,
+            "native_memory_after_calls.rss_bytes": 189706240,
+            "native_memory_after_calls.hwm_bytes": 189706240,
+            "storage_after_ingestion_live.logical_db_bytes": 13053952,
+            "storage_after_ingestion_live.files_bytes.db": 12775424,
+            "storage_after_ingestion_live.files_bytes.wal": 4453752,
+            "storage_after_ingestion_live.files_bytes.shm": 32768,
+            "storage_after_checkpoint.logical_db_bytes": 13053952,
+            "storage_after_checkpoint.files_bytes.db": 13053952,
+            "storage_after_checkpoint.files_bytes.wal": 0,
+            "storage_after_checkpoint.files_bytes.shm": 32768
+          }
+        },
+        {
+          "worker": "r0-public1015-candidate",
+          "round": 0,
+          "cohort": "public1015",
+          "label": "candidate",
+          "values": {
+            "runtime_import_ms": 30.60716,
+            "native_open_ms": 6.625056,
+            "fresh_ingestion_ms": 797.911765,
+            "unchanged_reingestion_ms": 202.622395,
+            "native_memory_after_ingestion.rss_bytes": 47071232,
+            "native_memory_after_ingestion.hwm_bytes": 53846016,
+            "native_memory_after_calls.rss_bytes": 188915712,
+            "native_memory_after_calls.hwm_bytes": 188915712,
+            "storage_after_ingestion_live.logical_db_bytes": 13053952,
+            "storage_after_ingestion_live.files_bytes.db": 12775424,
+            "storage_after_ingestion_live.files_bytes.wal": 4453752,
+            "storage_after_ingestion_live.files_bytes.shm": 32768,
+            "storage_after_checkpoint.logical_db_bytes": 13053952,
+            "storage_after_checkpoint.files_bytes.db": 13053952,
+            "storage_after_checkpoint.files_bytes.wal": 0,
+            "storage_after_checkpoint.files_bytes.shm": 32768
+          }
+        },
+        {
+          "worker": "r1-synthetic61-candidate",
+          "round": 1,
+          "cohort": "synthetic61",
+          "label": "candidate",
+          "values": {
+            "runtime_import_ms": 30.509502,
+            "native_open_ms": 4.078163,
+            "fresh_ingestion_ms": 848.720384,
+            "unchanged_reingestion_ms": 103.807611,
+            "native_memory_after_ingestion.rss_bytes": 44212224,
+            "native_memory_after_ingestion.hwm_bytes": 44736512,
+            "native_memory_after_calls.rss_bytes": 175079424,
+            "native_memory_after_calls.hwm_bytes": 175079424,
+            "storage_after_ingestion_live.logical_db_bytes": 20733952,
+            "storage_after_ingestion_live.files_bytes.db": 19165184,
+            "storage_after_ingestion_live.files_bytes.wal": 5722712,
+            "storage_after_ingestion_live.files_bytes.shm": 32768,
+            "storage_after_checkpoint.logical_db_bytes": 20733952,
+            "storage_after_checkpoint.files_bytes.db": 20733952,
+            "storage_after_checkpoint.files_bytes.wal": 0,
+            "storage_after_checkpoint.files_bytes.shm": 32768
+          }
+        },
+        {
+          "worker": "r1-synthetic61-baseline",
+          "round": 1,
+          "cohort": "synthetic61",
+          "label": "baseline",
+          "values": {
+            "runtime_import_ms": 30.491407,
+            "native_open_ms": 23.267061,
+            "fresh_ingestion_ms": 854.79066,
+            "unchanged_reingestion_ms": 103.853784,
+            "native_memory_after_ingestion.rss_bytes": 44044288,
+            "native_memory_after_ingestion.hwm_bytes": 44044288,
+            "native_memory_after_calls.rss_bytes": 177029120,
+            "native_memory_after_calls.hwm_bytes": 177029120,
+            "storage_after_ingestion_live.logical_db_bytes": 20733952,
+            "storage_after_ingestion_live.files_bytes.db": 19165184,
+            "storage_after_ingestion_live.files_bytes.wal": 5722712,
+            "storage_after_ingestion_live.files_bytes.shm": 32768,
+            "storage_after_checkpoint.logical_db_bytes": 20733952,
+            "storage_after_checkpoint.files_bytes.db": 20733952,
+            "storage_after_checkpoint.files_bytes.wal": 0,
+            "storage_after_checkpoint.files_bytes.shm": 32768
+          }
+        },
+        {
+          "worker": "r1-public1015-candidate",
+          "round": 1,
+          "cohort": "public1015",
+          "label": "candidate",
+          "values": {
+            "runtime_import_ms": 30.880313,
+            "native_open_ms": 4.31742,
+            "fresh_ingestion_ms": 801.15051,
+            "unchanged_reingestion_ms": 202.272729,
+            "native_memory_after_ingestion.rss_bytes": 47038464,
+            "native_memory_after_ingestion.hwm_bytes": 53723136,
+            "native_memory_after_calls.rss_bytes": 188747776,
+            "native_memory_after_calls.hwm_bytes": 188747776,
+            "storage_after_ingestion_live.logical_db_bytes": 13053952,
+            "storage_after_ingestion_live.files_bytes.db": 12775424,
+            "storage_after_ingestion_live.files_bytes.wal": 4453752,
+            "storage_after_ingestion_live.files_bytes.shm": 32768,
+            "storage_after_checkpoint.logical_db_bytes": 13053952,
+            "storage_after_checkpoint.files_bytes.db": 13053952,
+            "storage_after_checkpoint.files_bytes.wal": 0,
+            "storage_after_checkpoint.files_bytes.shm": 32768
+          }
+        },
+        {
+          "worker": "r1-public1015-baseline",
+          "round": 1,
+          "cohort": "public1015",
+          "label": "baseline",
+          "values": {
+            "runtime_import_ms": 29.924826,
+            "native_open_ms": 22.316197,
+            "fresh_ingestion_ms": 794.502568,
+            "unchanged_reingestion_ms": 204.809066,
+            "native_memory_after_ingestion.rss_bytes": 47022080,
+            "native_memory_after_ingestion.hwm_bytes": 53501952,
+            "native_memory_after_calls.rss_bytes": 189591552,
+            "native_memory_after_calls.hwm_bytes": 189591552,
+            "storage_after_ingestion_live.logical_db_bytes": 13053952,
+            "storage_after_ingestion_live.files_bytes.db": 12775424,
+            "storage_after_ingestion_live.files_bytes.wal": 4453752,
+            "storage_after_ingestion_live.files_bytes.shm": 32768,
+            "storage_after_checkpoint.logical_db_bytes": 13053952,
+            "storage_after_checkpoint.files_bytes.db": 13053952,
+            "storage_after_checkpoint.files_bytes.wal": 0,
+            "storage_after_checkpoint.files_bytes.shm": 32768
+          }
+        }
+      ],
+      "interpretation": "Historical diagnostics; complete equality and integrity pass do not constitute formal acceptance."
+    },
+    "mcp": {
+      "result_commit": "8af9771bd50b15f29bfb3d21f1157c65e77e6a1e",
+      "result_branch": "validation/v034-round6-development-mcp-43592983218-1",
+      "report_path": "benchmarks/reports/round6-development-mcp-43592983218-1/report.json.gz",
+      "report_sha256": "b615f1b95a83c2aeda30829c4b8b0014cf5d4b4b6f133afd518401d0b7a66ad6",
+      "summary_sha256": "e878182108018faaee52c845e2dc1ae38e901cc32011bcf5bc1194332dbf401f",
+      "local_audit_path": "benchmarks/reports/round6-development-mcp-43592983218-local-audit.json",
+      "local_audit_sha256": "df8400532302868d8b3facc4d5af2f96f06cbb1cd24ac13ecbc19591ea153805",
+      "completion_inventory_verified_files": 19,
+      "binding_sha256": "46d9b1b93fd5d85373b9b3f1ad7ac7053f1d357bebc91da1855178e02eec6f01",
+      "evaluator_commit": "df5bf2d5c5fb7de0d57a3dd8310637552b3531e6",
+      "validation": {
+        "expected_calls": 4060,
+        "expected_workers": 4,
+        "issues": [],
+        "passed": true,
+        "timed_calls": 4060,
+        "workers": 4
+      },
+      "workers": 4,
+      "timed_calls": 4060,
+      "complete_output_pairs": 2030,
+      "ledger_events": 8120,
+      "original_automatic_accepted": false,
+      "formal_acceptance_evaluated": false,
+      "numeric_gate_passed": null,
+      "reported_improvements": {
+        "best_public_native_token_p95_improvement_percent": null,
+        "geometric_mean_p95_improvement_percent": 1.0266545019452011,
+        "public_mcp_token1024_p95_improvement_percent": 1.0266545019452011
+      },
+      "all_latency_cells": [
+        {
+          "cohort": "public1015",
+          "configuration": "mcp-token1024",
+          "baseline": {
+            "mean_ms": 5.441498581280789,
+            "p50_ms": 5.260112,
+            "p95_ms": 6.12486965,
+            "samples": 2030
+          },
+          "candidate": {
+            "mean_ms": 5.402201154679803,
+            "p50_ms": 5.225584,
+            "p95_ms": 6.0619884,
+            "samples": 2030
+          },
+          "candidate_change_percent": {
+            "mean_ms": -0.7221802232232899,
+            "p50_ms": -0.6564118786824502,
+            "p95_ms": -1.0266545019452011
+          },
+          "all_rounds": [
+            {
+              "baseline": {
+                "mean_ms": 5.430543536945813,
+                "p50_ms": 5.235938,
+                "p95_ms": 6.111857999999999,
+                "samples": 1015
+              },
+              "candidate": {
+                "mean_ms": 5.385641578325123,
+                "p50_ms": 5.198798,
+                "p95_ms": 6.049080399999999,
+                "samples": 1015
+              },
+              "round": 0
+            },
+            {
+              "baseline": {
+                "mean_ms": 5.452453625615763,
+                "p50_ms": 5.28508,
+                "p95_ms": 6.1338884,
+                "samples": 1015
+              },
+              "candidate": {
+                "mean_ms": 5.418760731034483,
+                "p50_ms": 5.259102,
+                "p95_ms": 6.0745866,
+                "samples": 1015
+              },
+              "round": 1
+            }
+          ]
+        }
+      ],
+      "all_pooled_adverse_changes": [],
+      "all_per_round_adverse_changes": [],
+      "all_resource_comparisons": [
+        {
+          "baseline": {
+            "max": 31.014901,
+            "mean": 30.438958,
+            "min": 29.863015,
+            "p50": 30.438958,
+            "p95": 30.957306699999997,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 31.111083,
+            "mean": 31.1100535,
+            "min": 31.109024,
+            "p50": 31.1100535,
+            "p95": 31.110980050000002,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 2.2047256019736228,
+          "metric": "runtime_import_ms"
+        },
+        {
+          "baseline": {
+            "max": 26.984142,
+            "mean": 25.265979,
+            "min": 23.547816,
+            "p50": 25.265979,
+            "p95": 26.8123257,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 4.337017,
+            "mean": 4.238659500000001,
+            "min": 4.140302,
+            "p50": 4.238659500000001,
+            "p95": 4.327181250000001,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": -83.22384618462637,
+          "metric": "native_open_ms"
+        },
+        {
+          "baseline": {
+            "max": 815.332571,
+            "mean": 810.4135395000001,
+            "min": 805.494508,
+            "p50": 810.4135395000001,
+            "p95": 814.84066785,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 819.075871,
+            "mean": 804.2451935,
+            "min": 789.414516,
+            "p50": 804.2451935,
+            "p95": 817.59280325,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": -0.7611356053855767,
+          "metric": "fresh_ingestion_ms"
+        },
+        {
+          "baseline": {
+            "max": 204.708256,
+            "mean": 204.585167,
+            "min": 204.462078,
+            "p50": 204.585167,
+            "p95": 204.6959471,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 204.941569,
+            "mean": 203.9555985,
+            "min": 202.969628,
+            "p50": 203.9555985,
+            "p95": 204.84297195,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": -0.30772929886945244,
+          "metric": "unchanged_reingestion_ms"
+        },
+        {
+          "baseline": {
+            "max": 47079424,
+            "mean": 47022080.0,
+            "min": 46964736,
+            "p50": 47022080.0,
+            "p95": 47073689.6,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 47181824,
+            "mean": 47126528.0,
+            "min": 47071232,
+            "p50": 47126528.0,
+            "p95": 47176294.4,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.22212543554007702,
+          "metric": "native_memory_after_ingestion.rss_bytes"
+        },
+        {
+          "baseline": {
+            "max": 53592064,
+            "mean": 53506048.0,
+            "min": 53420032,
+            "p50": 53506048.0,
+            "p95": 53583462.4,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 53837824,
+            "mean": 53733376.0,
+            "min": 53628928,
+            "p50": 53733376.0,
+            "p95": 53827379.2,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.42486412003368557,
+          "metric": "native_memory_after_ingestion.hwm_bytes"
+        },
+        {
+          "baseline": {
+            "max": 199704576,
+            "mean": 199634944.0,
+            "min": 199565312,
+            "p50": 199634944.0,
+            "p95": 199697612.8,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 199806976,
+            "mean": 199761920.0,
+            "min": 199716864,
+            "p50": 199761920.0,
+            "p95": 199802470.4,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0636040952830319,
+          "metric": "native_memory_after_calls.rss_bytes"
+        },
+        {
+          "baseline": {
+            "max": 199704576,
+            "mean": 199634944.0,
+            "min": 199565312,
+            "p50": 199634944.0,
+            "p95": 199697612.8,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 199806976,
+            "mean": 199761920.0,
+            "min": 199716864,
+            "p50": 199761920.0,
+            "p95": 199802470.4,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0636040952830319,
+          "metric": "native_memory_after_calls.hwm_bytes"
+        },
+        {
+          "baseline": {
+            "max": 640.438372,
+            "mean": 639.7116105,
+            "min": 638.984849,
+            "p50": 639.7116105,
+            "p95": 640.36569585,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 636.016653,
+            "mean": 635.7493775,
+            "min": 635.482102,
+            "p50": 635.7493775,
+            "p95": 635.98992545,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": -0.6193780033010632,
+          "metric": "mcp_sessions.mcp-token1024.mcp_startup_to_initialize_ms"
+        },
+        {
+          "baseline": {
+            "max": 110587904,
+            "mean": 110559232.0,
+            "min": 110530560,
+            "p50": 110559232.0,
+            "p95": 110585036.8,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 110387200,
+            "mean": 110364672.0,
+            "min": 110342144,
+            "p50": 110364672.0,
+            "p95": 110384947.2,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": -0.17597806757557732,
+          "metric": "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.rss_bytes"
+        },
+        {
+          "baseline": {
+            "max": 110587904,
+            "mean": 110559232.0,
+            "min": 110530560,
+            "p50": 110559232.0,
+            "p95": 110585036.8,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 110387200,
+            "mean": 110364672.0,
+            "min": 110342144,
+            "p50": 110364672.0,
+            "p95": 110384947.2,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": -0.17597806757557732,
+          "metric": "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.hwm_bytes"
+        },
+        {
+          "baseline": {
+            "max": 13053952,
+            "mean": 13053952.0,
+            "min": 13053952,
+            "p50": 13053952.0,
+            "p95": 13053952.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 13053952,
+            "mean": 13053952.0,
+            "min": 13053952,
+            "p50": 13053952.0,
+            "p95": 13053952.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_ingestion_live.logical_db_bytes"
+        },
+        {
+          "baseline": {
+            "max": 12775424,
+            "mean": 12775424.0,
+            "min": 12775424,
+            "p50": 12775424.0,
+            "p95": 12775424.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 12775424,
+            "mean": 12775424.0,
+            "min": 12775424,
+            "p50": 12775424.0,
+            "p95": 12775424.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_ingestion_live.files_bytes.db"
+        },
+        {
+          "baseline": {
+            "max": 4453752,
+            "mean": 4453752.0,
+            "min": 4453752,
+            "p50": 4453752.0,
+            "p95": 4453752.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 4453752,
+            "mean": 4453752.0,
+            "min": 4453752,
+            "p50": 4453752.0,
+            "p95": 4453752.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_ingestion_live.files_bytes.wal"
+        },
+        {
+          "baseline": {
+            "max": 32768,
+            "mean": 32768.0,
+            "min": 32768,
+            "p50": 32768.0,
+            "p95": 32768.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 32768,
+            "mean": 32768.0,
+            "min": 32768,
+            "p50": 32768.0,
+            "p95": 32768.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_ingestion_live.files_bytes.shm"
+        },
+        {
+          "baseline": {
+            "max": 13053952,
+            "mean": 13053952.0,
+            "min": 13053952,
+            "p50": 13053952.0,
+            "p95": 13053952.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 13053952,
+            "mean": 13053952.0,
+            "min": 13053952,
+            "p50": 13053952.0,
+            "p95": 13053952.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_checkpoint.logical_db_bytes"
+        },
+        {
+          "baseline": {
+            "max": 13053952,
+            "mean": 13053952.0,
+            "min": 13053952,
+            "p50": 13053952.0,
+            "p95": 13053952.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 13053952,
+            "mean": 13053952.0,
+            "min": 13053952,
+            "p50": 13053952.0,
+            "p95": 13053952.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_checkpoint.files_bytes.db"
+        },
+        {
+          "baseline": {
+            "max": 0,
+            "mean": 0.0,
+            "min": 0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 0,
+            "mean": 0.0,
+            "min": 0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_checkpoint.files_bytes.wal"
+        },
+        {
+          "baseline": {
+            "max": 32768,
+            "mean": 32768.0,
+            "min": 32768,
+            "p50": 32768.0,
+            "p95": 32768.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 32768,
+            "mean": 32768.0,
+            "min": 32768,
+            "p50": 32768.0,
+            "p95": 32768.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0,
+          "metric": "storage_after_checkpoint.files_bytes.shm"
+        },
+        {
+          "baseline": {
+            "max": 13053952,
+            "mean": 13053952.0,
+            "min": 13053952,
+            "p50": 13053952.0,
+            "p95": 13053952.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 13053952,
+            "mean": 13053952.0,
+            "min": 13053952,
+            "p50": 13053952.0,
+            "p95": 13053952.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0,
+          "metric": "mcp_sessions.mcp-token1024.storage_after_mcp_live.logical_db_bytes"
+        },
+        {
+          "baseline": {
+            "max": 13053952,
+            "mean": 13053952.0,
+            "min": 13053952,
+            "p50": 13053952.0,
+            "p95": 13053952.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 13053952,
+            "mean": 13053952.0,
+            "min": 13053952,
+            "p50": 13053952.0,
+            "p95": 13053952.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0,
+          "metric": "mcp_sessions.mcp-token1024.storage_after_mcp_live.files_bytes.db"
+        },
+        {
+          "baseline": {
+            "max": 4453752,
+            "mean": 4453752.0,
+            "min": 4453752,
+            "p50": 4453752.0,
+            "p95": 4453752.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 4453752,
+            "mean": 4453752.0,
+            "min": 4453752,
+            "p50": 4453752.0,
+            "p95": 4453752.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0,
+          "metric": "mcp_sessions.mcp-token1024.storage_after_mcp_live.files_bytes.wal"
+        },
+        {
+          "baseline": {
+            "max": 32768,
+            "mean": 32768.0,
+            "min": 32768,
+            "p50": 32768.0,
+            "p95": 32768.0,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 32768,
+            "mean": 32768.0,
+            "min": 32768,
+            "p50": 32768.0,
+            "p95": 32768.0,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0,
+          "metric": "mcp_sessions.mcp-token1024.storage_after_mcp_live.files_bytes.shm"
+        }
+      ],
+      "all_adverse_resource_means": [
+        {
+          "baseline": {
+            "max": 31.014901,
+            "mean": 30.438958,
+            "min": 29.863015,
+            "p50": 30.438958,
+            "p95": 30.957306699999997,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 31.111083,
+            "mean": 31.1100535,
+            "min": 31.109024,
+            "p50": 31.1100535,
+            "p95": 31.110980050000002,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 2.2047256019736228,
+          "metric": "runtime_import_ms"
+        },
+        {
+          "baseline": {
+            "max": 47079424,
+            "mean": 47022080.0,
+            "min": 46964736,
+            "p50": 47022080.0,
+            "p95": 47073689.6,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 47181824,
+            "mean": 47126528.0,
+            "min": 47071232,
+            "p50": 47126528.0,
+            "p95": 47176294.4,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.22212543554007702,
+          "metric": "native_memory_after_ingestion.rss_bytes"
+        },
+        {
+          "baseline": {
+            "max": 53592064,
+            "mean": 53506048.0,
+            "min": 53420032,
+            "p50": 53506048.0,
+            "p95": 53583462.4,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 53837824,
+            "mean": 53733376.0,
+            "min": 53628928,
+            "p50": 53733376.0,
+            "p95": 53827379.2,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.42486412003368557,
+          "metric": "native_memory_after_ingestion.hwm_bytes"
+        },
+        {
+          "baseline": {
+            "max": 199704576,
+            "mean": 199634944.0,
+            "min": 199565312,
+            "p50": 199634944.0,
+            "p95": 199697612.8,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 199806976,
+            "mean": 199761920.0,
+            "min": 199716864,
+            "p50": 199761920.0,
+            "p95": 199802470.4,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0636040952830319,
+          "metric": "native_memory_after_calls.rss_bytes"
+        },
+        {
+          "baseline": {
+            "max": 199704576,
+            "mean": 199634944.0,
+            "min": 199565312,
+            "p50": 199634944.0,
+            "p95": 199697612.8,
+            "samples": 2
+          },
+          "candidate": {
+            "max": 199806976,
+            "mean": 199761920.0,
+            "min": 199716864,
+            "p50": 199761920.0,
+            "p95": 199802470.4,
+            "samples": 2
+          },
+          "cohort": "public1015",
+          "mean_change_percent": 0.0636040952830319,
+          "metric": "native_memory_after_calls.hwm_bytes"
+        }
+      ],
+      "resource_review_triggers": [],
+      "all_worker_resource_values": [
+        {
+          "worker": "r0-public1015-baseline",
+          "round": 0,
+          "cohort": "public1015",
+          "label": "baseline",
+          "values": {
+            "runtime_import_ms": 31.014901,
+            "native_open_ms": 23.547816,
+            "fresh_ingestion_ms": 805.494508,
+            "unchanged_reingestion_ms": 204.462078,
+            "native_memory_after_ingestion.rss_bytes": 46964736,
+            "native_memory_after_ingestion.hwm_bytes": 53592064,
+            "native_memory_after_calls.rss_bytes": 199704576,
+            "native_memory_after_calls.hwm_bytes": 199704576,
+            "mcp_sessions.mcp-token1024.mcp_startup_to_initialize_ms": 640.438372,
+            "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.rss_bytes": 110587904,
+            "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.hwm_bytes": 110587904,
+            "storage_after_ingestion_live.logical_db_bytes": 13053952,
+            "storage_after_ingestion_live.files_bytes.db": 12775424,
+            "storage_after_ingestion_live.files_bytes.wal": 4453752,
+            "storage_after_ingestion_live.files_bytes.shm": 32768,
+            "storage_after_checkpoint.logical_db_bytes": 13053952,
+            "storage_after_checkpoint.files_bytes.db": 13053952,
+            "storage_after_checkpoint.files_bytes.wal": 0,
+            "storage_after_checkpoint.files_bytes.shm": 32768,
+            "mcp_sessions.mcp-token1024.storage_after_mcp_live.logical_db_bytes": 13053952,
+            "mcp_sessions.mcp-token1024.storage_after_mcp_live.files_bytes.db": 13053952,
+            "mcp_sessions.mcp-token1024.storage_after_mcp_live.files_bytes.wal": 4453752,
+            "mcp_sessions.mcp-token1024.storage_after_mcp_live.files_bytes.shm": 32768
+          }
+        },
+        {
+          "worker": "r0-public1015-candidate",
+          "round": 0,
+          "cohort": "public1015",
+          "label": "candidate",
+          "values": {
+            "runtime_import_ms": 31.109024,
+            "native_open_ms": 4.337017,
+            "fresh_ingestion_ms": 819.075871,
+            "unchanged_reingestion_ms": 204.941569,
+            "native_memory_after_ingestion.rss_bytes": 47181824,
+            "native_memory_after_ingestion.hwm_bytes": 53628928,
+            "native_memory_after_calls.rss_bytes": 199806976,
+            "native_memory_after_calls.hwm_bytes": 199806976,
+            "mcp_sessions.mcp-token1024.mcp_startup_to_initialize_ms": 636.016653,
+            "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.rss_bytes": 110387200,
+            "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.hwm_bytes": 110387200,
+            "storage_after_ingestion_live.logical_db_bytes": 13053952,
+            "storage_after_ingestion_live.files_bytes.db": 12775424,
+            "storage_after_ingestion_live.files_bytes.wal": 4453752,
+            "storage_after_ingestion_live.files_bytes.shm": 32768,
+            "storage_after_checkpoint.logical_db_bytes": 13053952,
+            "storage_after_checkpoint.files_bytes.db": 13053952,
+            "storage_after_checkpoint.files_bytes.wal": 0,
+            "storage_after_checkpoint.files_bytes.shm": 32768,
+            "mcp_sessions.mcp-token1024.storage_after_mcp_live.logical_db_bytes": 13053952,
+            "mcp_sessions.mcp-token1024.storage_after_mcp_live.files_bytes.db": 13053952,
+            "mcp_sessions.mcp-token1024.storage_after_mcp_live.files_bytes.wal": 4453752,
+            "mcp_sessions.mcp-token1024.storage_after_mcp_live.files_bytes.shm": 32768
+          }
+        },
+        {
+          "worker": "r1-public1015-candidate",
+          "round": 1,
+          "cohort": "public1015",
+          "label": "candidate",
+          "values": {
+            "runtime_import_ms": 31.111083,
+            "native_open_ms": 4.140302,
+            "fresh_ingestion_ms": 789.414516,
+            "unchanged_reingestion_ms": 202.969628,
+            "native_memory_after_ingestion.rss_bytes": 47071232,
+            "native_memory_after_ingestion.hwm_bytes": 53837824,
+            "native_memory_after_calls.rss_bytes": 199716864,
+            "native_memory_after_calls.hwm_bytes": 199716864,
+            "mcp_sessions.mcp-token1024.mcp_startup_to_initialize_ms": 635.482102,
+            "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.rss_bytes": 110342144,
+            "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.hwm_bytes": 110342144,
+            "storage_after_ingestion_live.logical_db_bytes": 13053952,
+            "storage_after_ingestion_live.files_bytes.db": 12775424,
+            "storage_after_ingestion_live.files_bytes.wal": 4453752,
+            "storage_after_ingestion_live.files_bytes.shm": 32768,
+            "storage_after_checkpoint.logical_db_bytes": 13053952,
+            "storage_after_checkpoint.files_bytes.db": 13053952,
+            "storage_after_checkpoint.files_bytes.wal": 0,
+            "storage_after_checkpoint.files_bytes.shm": 32768,
+            "mcp_sessions.mcp-token1024.storage_after_mcp_live.logical_db_bytes": 13053952,
+            "mcp_sessions.mcp-token1024.storage_after_mcp_live.files_bytes.db": 13053952,
+            "mcp_sessions.mcp-token1024.storage_after_mcp_live.files_bytes.wal": 4453752,
+            "mcp_sessions.mcp-token1024.storage_after_mcp_live.files_bytes.shm": 32768
+          }
+        },
+        {
+          "worker": "r1-public1015-baseline",
+          "round": 1,
+          "cohort": "public1015",
+          "label": "baseline",
+          "values": {
+            "runtime_import_ms": 29.863015,
+            "native_open_ms": 26.984142,
+            "fresh_ingestion_ms": 815.332571,
+            "unchanged_reingestion_ms": 204.708256,
+            "native_memory_after_ingestion.rss_bytes": 47079424,
+            "native_memory_after_ingestion.hwm_bytes": 53420032,
+            "native_memory_after_calls.rss_bytes": 199565312,
+            "native_memory_after_calls.hwm_bytes": 199565312,
+            "mcp_sessions.mcp-token1024.mcp_startup_to_initialize_ms": 638.984849,
+            "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.rss_bytes": 110530560,
+            "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.hwm_bytes": 110530560,
+            "storage_after_ingestion_live.logical_db_bytes": 13053952,
+            "storage_after_ingestion_live.files_bytes.db": 12775424,
+            "storage_after_ingestion_live.files_bytes.wal": 4453752,
+            "storage_after_ingestion_live.files_bytes.shm": 32768,
+            "storage_after_checkpoint.logical_db_bytes": 13053952,
+            "storage_after_checkpoint.files_bytes.db": 13053952,
+            "storage_after_checkpoint.files_bytes.wal": 0,
+            "storage_after_checkpoint.files_bytes.shm": 32768,
+            "mcp_sessions.mcp-token1024.storage_after_mcp_live.logical_db_bytes": 13053952,
+            "mcp_sessions.mcp-token1024.storage_after_mcp_live.files_bytes.db": 13053952,
+            "mcp_sessions.mcp-token1024.storage_after_mcp_live.files_bytes.wal": 4453752,
+            "mcp_sessions.mcp-token1024.storage_after_mcp_live.files_bytes.shm": 32768
+          }
+        }
+      ],
+      "interpretation": "Historical diagnostics; complete equality and integrity pass do not constitute formal acceptance."
+    }
+  },
+  "sources": {
+    "baseline": {
+      "commit": "796cedfd1f5368144037a1fb72292b8d13884b8c",
+      "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+    },
+    "candidate": {
+      "commit": "df35007c29e4af61dd96146232fe4651cfc74391",
+      "runtime_sha256": "f361d2bf64a4e1088cbd5cff6ffdaf19aa15e7f1b7ea1de4577d7a488d2ac242"
+    }
+  },
+  "host": {
+    "boot_sha256": "4e7e23dca7725c9d30f6803045dabad6a27fa909e6a955c222f24acb59d39a9c",
+    "cpu_count": 4,
+    "github_run_attempt": "1",
+    "github_run_id": "43592983218",
+    "machine_sha256": "2d7cd150cb01302e14e0b8e29cb71b1898ac68aa12f05c975ffca4a81e374ddc",
+    "packages": {
+      "mcp": "1.30.0",
+      "pydantic": "2.14.3",
+      "tiktoken": "0.12.0"
+    },
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+    "processor": "x86_64",
+    "python": "3.12.16",
+    "sqlite": "3.45.1"
+  },
+  "total_timed_calls": 22988,
+  "total_output_pairs": 11494,
+  "total_ledger_events": 45976,
+  "completion_inventory_verified_files": 50,
+  "scope": "All nine diagnostic latency cells, all four/eight workers, all 55 resource-comparison rows and every adverse pooled/per-round observation retained. Actual MCP protocol boundary is separate from native. No fresh cohort, quality score or formal latency gate was run during this review."
+}
