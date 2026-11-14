@@ -175,12 +175,15 @@ class C6AcceptanceTests(inherited.RoundFiveAcceptanceTests):
         self.assertEqual(bench.CONTINUATION_SHA256, '7ad88598c9ccb3492083be06448e92a76da7025501a1aa578a0e39d8bd94c9d5')
         self.assertEqual(bench.CONTINUATION_PROTOCOL, 'v033-c6-in-snapshot-source-work-continuation-v1')
         self.assertEqual(bench.CONTINUATION_STATUS, 'registered-before-c6-implementation-and-timing')
-        self.assertEqual(bench.C6_SOURCE, {'commit': None, 'runtime_sha256': None})
+        self.assertEqual(bench.C6_SOURCE, {
+            'commit': '1bd97221e31e8e975498ece00f4bbfb3e0426aac',
+            'runtime_sha256': 'cfffd8a21374cbf9152bbbc98a6a9847a1e22401f16179112e2f79eef181ff78'})
         self.assertEqual((bench.DEVELOPMENT_CALLS, bench.DEVELOPMENT_PAIRS, bench.DEVELOPMENT_ROUNDS,
                           bench.DEVELOPMENT_ORDER),
                          (18928, 9464, 2, [['baseline', 'candidate'], ['candidate', 'baseline']]))
         args = SimpleNamespace(bind=bench.ROOT/bench.C6_BINDING_PATH)
-        with patch.object(Path, 'read_bytes', side_effect=AssertionError('Blocked C6 must not inspect files or measure')):
+        with patch.object(bench, 'C6_SOURCE', {'commit': None, 'runtime_sha256': None}), \
+                patch.object(Path, 'read_bytes', side_effect=AssertionError('Blocked C6 must not inspect files or measure')):
             for call in (bench.require_registered_source, bench.continuation_registration,
                          lambda: bench.bind(args),
                          lambda: bench.load_binding(bench.ROOT/bench.C6_BINDING_PATH),

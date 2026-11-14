@@ -69,7 +69,8 @@ CONTINUATION_COMMIT = "099cbaf427c28351d71f3995fd0ff42f9c881b38"
 CONTINUATION_SHA256 = "7ad88598c9ccb3492083be06448e92a76da7025501a1aa578a0e39d8bd94c9d5"
 CONTINUATION_PROTOCOL = "v033-c6-in-snapshot-source-work-continuation-v1"
 CONTINUATION_STATUS = "registered-before-c6-implementation-and-timing"
-C6_SOURCE = {"commit": None, "runtime_sha256": None}
+C6_SOURCE = {"commit": "1bd97221e31e8e975498ece00f4bbfb3e0426aac",
+             "runtime_sha256": "cfffd8a21374cbf9152bbbc98a6a9847a1e22401f16179112e2f79eef181ff78"}
 C3_BINDING_PATH = "benchmarks/experiments/round5-performance-binding.json"
 C3_BINDING_SHA256 = "790ca15f3fbe2a5ba19fe08f83ab663bdb313a8569bfb1ee7677456ca4817c40"
 C3_SUMMARY_PATH = "benchmarks/reports/round5-performance-43547085915-1/report.summary.json"

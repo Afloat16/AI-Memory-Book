@@ -44,6 +44,17 @@ def require(condition, message):
         raise ValueError(message)
 
 
+def normalize_markdown_template(text):
+    """Remove the one Python-block indent from newly rendered Markdown only.
+
+    The first literal line and generated table rows already start at column
+    zero. A generic dedent would therefore leave the remaining literal lines
+    indented. Never apply this helper to retained historical document text.
+    """
+    return "".join(line[4:] if line.startswith("    ") else line
+                   for line in text.splitlines(keepends=True))
+
+
 def sha(raw):
     return hashlib.sha256(raw).hexdigest()
 
@@ -335,7 +346,7 @@ def render_release_docs(e):
     [Source and decisions](docs/optimization-round5.md) · [Upgrade guide](docs/deployment.md#upgrading)
 
     '''
-    stage(p, '# Changelog\n\n'+entry+old[len('# Changelog\n\n'):])
+    stage(p, '# Changelog\n\n'+normalize_markdown_template(entry)+old[len('# Changelog\n\n'):])
 
     p = ROOT/'benchmarks/README.md'; old = p.read_text(); old = old.replace('## Current: v0.3.2 completed fourth-round validation','## Historical: v0.3.2 completed fourth-round validation',1)
     section = f'''## Current: v0.3.3 completed fifth-round validation
@@ -375,7 +386,7 @@ def render_release_docs(e):
     corpus and component boundaries. Competitors were not remeasured in this round.
 
     '''
-    require(old.startswith('# Retrieval experiments\n\n'), 'C6 document precondition failed');stage(p, '# Retrieval experiments\n\n'+section+old[len('# Retrieval experiments\n\n'):])
+    require(old.startswith('# Retrieval experiments\n\n'), 'C6 document precondition failed');stage(p, '# Retrieval experiments\n\n'+normalize_markdown_template(section)+old[len('# Retrieval experiments\n\n'):])
 
     p=ROOT/'docs/validation.md';old=p.read_text();marker='## Historical: v0.3.2 completed fourth-round methods and evidence';require(marker in old, 'C6 document precondition failed')
     section=f'''## Current: v0.3.3 completed fifth-round methods and evidence
@@ -404,7 +415,7 @@ def render_release_docs(e):
     resource comparisons. [Independent audit](../benchmarks/reports/round5-c6-performance-independent-audit.json) ·
     [Frozen saved-ledger audit](../benchmarks/reports/round5-c6-performance-local-audit.json).
 
-    The existing evaluator phrase "uncached API" refers to query-result caching.
+    Query-result caching is disabled or cleared before timing.
     The per-book exact-count memo is enabled under its registered 2,048-entry /
     2 MiB retained-text cap. Each native book starts empty, character recall does
     not allocate it, and later token configurations reuse earlier counts. Each
@@ -434,7 +445,7 @@ def render_release_docs(e):
     publication requirements.
 
     '''
-    stage(p, old.replace(marker,section+marker,1))
+    stage(p, old.replace(marker,normalize_markdown_template(section)+marker,1))
 
     p=ROOT/'docs/releases/v0.3.3.md';old=p.read_text()
     require("Candidate C6" in old and SOURCE in old and RUNTIME in old,
@@ -482,7 +493,7 @@ def render_release_docs(e):
     missing gate. [Plan]({url('benchmarks/experiments/round5-plan.json')}) ·
     [Frozen binding]({url('benchmarks/experiments/round5-c6-performance-binding.json')}).
     '''
-    old=old[:start]+formal+old[end:]
+    old=old[:start]+normalize_markdown_template(formal)+old[end:]
     old=old.replace('Final C6 startup, ingestion, RSS and storage costs belong to its separate formal acceptance.',
         f'Final C6 startup, ingestion, RSS and storage costs are retained in the [formal review]({url("docs/round5-c6-performance-review.md")}).')
     require('PENDING_' not in old, 'C6 document precondition failed')
