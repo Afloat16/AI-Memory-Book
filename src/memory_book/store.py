@@ -25,6 +25,8 @@ CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现
 HISTORICAL_QUERY = re.compile(r"\b(?:original|initial|previous|earlier|before|history|historical|formerly|old|as of)\b|最初|最早|之前|以前|原来|原始|历史|旧|\b(?:19|20)\d{2}\b", re.IGNORECASE)
 ASCII_WORD = re.compile(r"[a-zA-Z]")
 QUERY_CONJUNCTION = re.compile(r"\band\b|以及|并且|和", re.IGNORECASE)
+RECALL_METADATA_INDEX_SQL = """CREATE INDEX IF NOT EXISTS pages_recall_metadata
+ON pages(rid,id,project_id,chapter_id,session_pk);"""
 STEM_INDEX_SQL = "CREATE VIRTUAL TABLE IF NOT EXISTS pages_stem_fts USING fts5(title, question, body, directory, tokenize='porter unicode61');"
 STEM_DELETE_SQL = """CREATE TRIGGER IF NOT EXISTS pages_delete_stem_fts AFTER DELETE ON pages BEGIN
  DELETE FROM pages_stem_fts WHERE rowid = OLD.rid;
@@ -92,7 +94,7 @@ END;
 CREATE TABLE IF NOT EXISTS recall_cache (
  key TEXT PRIMARY KEY, revision INTEGER NOT NULL, payload TEXT NOT NULL, touched_ns INTEGER NOT NULL
 );
-""" + STEM_INDEX_SQL + "\n" + STEM_DELETE_SQL + """
+""" + RECALL_METADATA_INDEX_SQL + "\n" + STEM_INDEX_SQL + "\n" + STEM_DELETE_SQL + """
 INSERT OR IGNORE INTO meta(key,value)
  SELECT 'stem_revision',value FROM meta WHERE key='revision';
 """ + STEM_REVISION_SQL + """
@@ -267,6 +269,10 @@ class MemoryBook:
                 self.db.executescript(SCHEMA)
             elif version < SCHEMA_VERSION or not self._stem_guard_ready():
                 self._migrate_schema()
+            # The narrow covering index is derived metadata only. Adding it
+            # leaves source rows, addresses, revision and schema compatibility
+            # unchanged; SQLite also maintains it for older/external writers.
+            self.db.execute(RECALL_METADATA_INDEX_SQL)
             self.db.execute("PRAGMA journal_mode=WAL")
             self.db.execute("PRAGMA synchronous=NORMAL")
         except BaseException:
@@ -698,13 +704,20 @@ class MemoryBook:
                 # display-only fields are deferred to the final page fetch.
                 scope_join = " JOIN sessions s ON s.id=p.session_pk" if session is not None else ""
                 project_bounds = self._project_rowid_bounds(project) if qt and session is None else None
+                # A chapter/session-only scope can be more selective than
+                # MATCH. Leave those unconstrained join orders free to use
+                # pages_chapter/pages_session. FTS-first bounded routes and
+                # ordinary global/project routes use the narrow covering map.
+                covering_hint = (" INDEXED BY pages_recall_metadata" if
+                                 project_bounds is not None or (chapter is None and session is None) else "")
                 routes = []
                 for table in (("pages_fts", "pages_stem_fts") if use_stem else ("pages_fts",)):
                     # Table identifiers are fixed above; query text and every
                     # caller-supplied scope remain bound SQL parameters.
                     page_join = " CROSS JOIN" if project_bounds is not None else " JOIN"
                     statement = (f"""SELECT p.rid,p.id,bm25({table},2.0,2.0,1.0,0.25) rank
-                      FROM {table}""" + page_join + f" pages p ON p.rid={table}.rowid" + scope_join +
+                      FROM {table}""" + page_join +
+                      f" pages p{covering_hint} ON p.rid={table}.rowid" + scope_join +
                       f" WHERE {table} MATCH ?" + where)
                     route_params = [expression, *params]
                     if project_bounds is not None:
@@ -718,7 +731,8 @@ class MemoryBook:
                         # Keep the single-route path to one candidate query.
                         statement = """SELECT p.id,p.rid,p.project_id,p.chapter_id,
                           c.title chapter_title,s.external_id session_id,s.title session_title,s.created_at,hits.rank
-                          FROM (""" + statement + """) hits JOIN pages p ON p.rid=hits.rid
+                          FROM (""" + statement + """) hits
+                          JOIN pages p INDEXED BY pages_recall_metadata ON p.rid=hits.rid
                           JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk
                           ORDER BY hits.rank,p.id"""
                     routes.append(self.db.execute(statement, route_params).fetchall() if qt else [])
@@ -747,7 +761,8 @@ class MemoryBook:
                     ids = [row["rid"] for row in rows.values()]
                     metadata = self.db.execute("""SELECT p.id,p.project_id,p.chapter_id,
                       c.title chapter_title,s.external_id session_id,s.title session_title,s.created_at
-                      FROM pages p JOIN chapters c ON c.id=p.chapter_id
+                      FROM pages p INDEXED BY pages_recall_metadata
+                      JOIN chapters c ON c.id=p.chapter_id
                       JOIN sessions s ON s.id=p.session_pk WHERE p.rid IN (""" +
                       ",".join("?" for _ in ids) + ")", ids)
                     metadata_columns = tuple(column[0] for column in metadata.description)

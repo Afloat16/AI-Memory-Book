@@ -36,7 +36,8 @@ BASELINE = {"commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
             "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"}
 TOOLS = (*previous.HELPERS, "scripts/round4_performance.py",
          "scripts/round5_performance.py", "tests/test_round5_performance.py",
-         "tests/test_round5_recall_work.py",
+         "tests/test_round5_recall_work.py", "tests/test_round5_covering_index.py",
+         "benchmarks/experiments/round5-index-addendum.json",
          ".github/workflows/round5-performance.yml")
 
 
