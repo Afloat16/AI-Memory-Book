@@ -3,17 +3,27 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
-import sqlite3
 import sys
-from dataclasses import replace
 from pathlib import Path
 
+import memory_book as _memory_book
 from . import __version__
-from .store import MemoryBook
+from .formats import FORMATS
 from .paths import default_config, default_database
+
+
+def __getattr__(name):
+    if name == "MemoryBook":
+        book_type = _memory_book.MemoryBook
+        globals()[name] = book_type
+        return book_type
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def __dir__():
+    return sorted(set(globals()) | {"MemoryBook"})
 
 
 def _print(value: object) -> None:
@@ -30,7 +40,6 @@ def parser() -> argparse.ArgumentParser:
     sub.add_parser("stats", help="Show database and index counts")
     imp = sub.add_parser("import", help="Import canonical JSON or supported client text transcripts")
     imp.add_argument("files", nargs="+")
-    from .importers import FORMATS
     imp.add_argument("--format", choices=FORMATS, default="auto")
     imp.add_argument("--project")
     imp.add_argument("--task", help="Explicit task id, used to group sessions into one chapter")
@@ -140,7 +149,7 @@ def parser() -> argparse.ArgumentParser:
     return p
 
 
-def export_book(book: MemoryBook, project: str, output: str) -> dict:
+def export_book(book: _memory_book.MemoryBook, project: str, output: str) -> dict:
     dest = Path(output)
     if dest.exists() and any(dest.iterdir()):
         raise ValueError("export-book output must be absent or an empty directory")
@@ -187,15 +196,16 @@ def export_book(book: MemoryBook, project: str, output: str) -> dict:
 
 def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
+    import sqlite3
     try:
         # Environment/explicit --db wins; a saved shared configuration then wins
         # over the platform default. No current-working-directory dependence.
         database_override = args.db or os.environ.get("MEMORY_BOOK_DB")
         config_file = Path(getattr(args, "config", default_config()))
-        from .integration import get_config
         needs_capture_config = args.command in {"setup", "watch", "sync", "daemon", "doctor"}
         independent_command = args.command in {"clients", "disconnect", "service"}
         if needs_capture_config or (not database_override and not independent_command):
+            from .integration import get_config
             config = get_config(config_file, database_override)
             args.db = str(config.database)
         else:
@@ -229,6 +239,8 @@ def main(argv: list[str] | None = None) -> int:
             _print([plan.as_dict() if args.dry_run else apply_plan(plan) for plan in plans])
             return 0
         if args.command == "watch":
+            import hashlib
+            from dataclasses import replace
             from .sync import WatchSource, save_config
             from .integration import absolute_workspace
             sources = {source.id: source for source in config.sources}
@@ -288,7 +300,10 @@ def main(argv: list[str] | None = None) -> int:
             serve(args.db, host=args.host, port=args.port, container_bind=args.container_bind)
             return 0
         mode = getattr(args, "mode", "adaptive")
-        with MemoryBook(args.db, segmentation=mode, max_page_chars=getattr(args, "page_chars", 900),
+        book_type = globals().get("MemoryBook")
+        if book_type is None:
+            book_type = __getattr__("MemoryBook")
+        with book_type(args.db, segmentation=mode, max_page_chars=getattr(args, "page_chars", 900),
                         semantic_model_dir=getattr(args, "semantic_model_dir", None)) as book:
             if args.command in {"init", "stats"}:
                 _print(book.stats())

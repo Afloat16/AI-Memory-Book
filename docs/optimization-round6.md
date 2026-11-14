@@ -26,3 +26,8 @@ Incremental work is checkpointed on `validation/v034-round6-work`. This branch a
 ## Recovery instructions
 
 Read this file and the plan, then inspect the latest remote work-branch commit and any new round6 binding/run records. Do not replay an already claimed unchanged formal experiment or select a favorable repeat. Resume incomplete work from retained per-worker ledgers only when the original controller permits it; otherwise preserve the interruption and register a materially justified continuation. Keep newly completed work in remote Git before starting long measurements.
+
+
+## Command loading checkpoint
+
+The package exposes the same `MemoryBook` class lazily, keeping its original identity, star import and discovery. CLI help/version now load only command metadata; transcript format names live in a lightweight shared module, and archive, capture configuration and command-specific helpers load only when used. Explicit database commands avoid unrelated capture configuration. The [correctness receipt](../benchmarks/reports/round6-command-correctness.json) records 92 passing tests, including four isolated process checks of imports, type hints, class overrides and real database creation. This is an implementation/correctness checkpoint, not a measured CLI speed claim or final-source release approval.

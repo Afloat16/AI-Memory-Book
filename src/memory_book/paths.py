@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
-from typing import Mapping
+from collections.abc import Mapping
 
 
 def data_dir(*, home: Path | str | None = None, platform: str | None = None,
