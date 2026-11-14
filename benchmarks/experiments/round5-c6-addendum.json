@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "protocol": "v033-c6-in-snapshot-source-work-continuation-v1",
+  "registered_at_utc": "2026-11-14T04:06:02.742163+00:00",
+  "status": "registered-before-c6-implementation-and-timing",
+  "baseline": {
+    "release": "v0.3.2",
+    "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+    "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+  },
+  "rejected_c3": {
+    "commit": "1c9a6d3f611608e8dbce8e729fdd3099513d80e6",
+    "runtime_sha256": "7a927601b5ce710059d5a2640b3642c58a2bd4985d9ccdc48f69159938ee3623",
+    "formal_run": "43547085915-1",
+    "result_commit": "e0c30deb7cdae18bb19c83534646630dfb3f673b",
+    "aggregate_p95_gain_percent": 10.499586026010144,
+    "public_native_best_gain_percent": 10.482574154140579,
+    "public_mcp_token1024_gain_percent": 5.146962001519862,
+    "decision": "numeric gate failed; preserve all complete original observations and never rerun this source to select a faster sample"
+  },
+  "prior_c4": {
+    "commit": "0141adf1dde6cd69cf96d8eea23f4b6ebab36477",
+    "runtime_sha256": "1c7c644c5187332e6fb5034fef0e232b5c1ae1e5f352b53fea90f7fd8acc4fb3",
+    "development_report": "benchmarks/reports/round5-development/candidate-c4-full/summary.json",
+    "development_archive_commit": "e439c226cc2d422b44007dedd25aa750a62f88a9",
+    "calls": 18928,
+    "version_pairs": 9464,
+    "decision": "Complete development comparison retained, insufficient public token speed margin. C4 formal runner/workflow were prepared but never bound or executed. No same-source timing retry."
+  },
+  "rejected_c5": {
+    "commit": "8dc6604fa32df18d53286110b215fc6657243656",
+    "runtime_sha256": "6af876ef5ddc851f4fff56ba3dc4f20e76b2cfc9f5e31d0cc8d1a0ec20e954be",
+    "formal_run": "43552372788-1",
+    "result_commit": "3982ceab2bdce0e9a189135ce261445a3a38d779",
+    "binding_sha256": "bd395da21848cc01656ab45bc211a388b43b4ae63edb8690b2eabe2958d3781a",
+    "summary_sha256": "930a28c40913b2eea3e38b7ce5bc04e673e288396fccb67bf16e59d42e996f25",
+    "aggregate_p95_gain_percent": 15.220791446446002,
+    "public_native_best_gain_percent": 15.422173278138885,
+    "public_mcp_token1024_gain_percent": 6.673181339995871,
+    "numeric_gate_passed": false,
+    "accepted": false,
+    "decision": "Preserve the complete valid C5 formal rejection. Do not rerun the same source to select a faster sample."
+  },
+  "diagnostic_evidence": {
+    "registration_commit": "df3eb6bdf33c49f5eb0eb289c50d0437f9332f13",
+    "plan_sha256": "4a2550b5dc5a6f7fc895dae4929afdfc05c8f499fa75e457eee79b548ab44fcd",
+    "summary": "benchmarks/reports/round5-development/c6-preregistration/observation-02/summary.json",
+    "summary_sha256": "e4cd6fe5ef29c929018084026b21243faf9f5f87cb89d3ed8a7c9001b7554f1a",
+    "receipt": "benchmarks/reports/round5-development/c6-preregistration/observation-02/receipt.json",
+    "receipt_sha256": "93cb5406c9c963cf393091005c559c43dc2fdd706710aa8c8492a5e76b29b95d",
+    "calls": 1015,
+    "sdk_connections": 1,
+    "sql_statements": 20464,
+    "sql_templates": 97,
+    "capacity_models": [
+      128,
+      256,
+      512,
+      1024
+    ],
+    "repeat_misses_each_model": 0,
+    "repeated_source_json_loads": 5073,
+    "repeated_source_json_input_bytes": 3542467,
+    "original_turn_queries": 4289,
+    "boundary": "One fixed actual-SDK observation of unchanged C5; complete original hashes and invariants match. No latency, speedup or true SQLite compile counts are measured. Preserve the zero-call v1 harness failure and separately registered v2 repair."
+  },
+  "substantive_change": [
+    "Retain the entire C5 product behavior and its fixed memo/pager/index policies. Reduce only duplicate source work inside the same recall and SQLite snapshot.",
+    "Batch exact unique (session_pk, ordinal) original-turn pairs through a parameterized VALUES relation and the existing UNIQUE(session_pk,ordinal) lookup. Fetch only those source turns, preserve each original text, and still run all original source-map and projected-unit checks in the same snapshot.",
+    "Enable batching only for a normal native SQLite connection, native Row/str factories, ordinary source preparation, at least two nonempty sessions, native string session keys, and signed-64-bit native integer ordinals. Bound a batch to 400 pairs / 800 parameters. Require supported actual getlimit checks for variables and SQL text length; conservatively fall back under restrictive expression/column/VM/compound limits. No chunking, limit increases, catch-and-ignore SQL errors or new SQLite feature requirements.",
+    "For a single session, Python without getlimit, excessive/empty/malformed input, custom factories/connections/preparation or unsupported/restrictive limits, keep the original per-session query loop, sorting and error behavior.",
+    "Reuse the source-reference JSON already parsed in the snapshot when rendering the final references, only under ordinary source-preparation, JSON-loader and reference-projection identities and when the current raw source_refs object is still the captured one. Keep span order, clipping arithmetic and fresh output dictionaries exactly as before.",
+    "Keep custom _refs(row,spans) calls and signature, unknown/custom preparation and JSON behavior on the original path. Empty spans must not newly parse invalid source text. Reuse state is local to this recall and must not leak extra row keys into assembly, custom breadcrumbs or response payloads."
+  ],
+  "rejected_alternatives": [
+    "Do not enlarge the SQLite prepared-statement cache or reshape IN lists: all four registered LRU models have zero repeat misses. The ordinary 128-statement default remains.",
+    "No persistent parsed-reference or source-turn cache, no result-cache bypass, no fewer source corruption checks, no extra prewarming, no changed ranking or question selection."
+  ],
+  "invariants": [
+    "Unchanged route SQL limits/global BM25, lexical normalization, fusion arithmetic, scopes, source text/addresses, final score expressions and top-K tie order.",
+    "Unchanged source corruption checks, source snapshots, exact character/token budgets, MCP payload/envelope, result-cache behavior, schema version and dependency requirements.",
+    "Exact complete non-timing payload equivalence against published v0.3.2, including candidate_count and truncated, across retained regression configurations."
+  ],
+  "cache_policy": {
+    "kind": "derived-exact-token-count-only",
+    "entry_limit": 2048,
+    "retained_text_object_byte_limit": 2097152,
+    "ownership": "one MemoryBook connection; both encoders share limits",
+    "capacity_choice_evidence": "benchmarks/reports/round5-development/c5-preregistration/capacity-extension.json",
+    "cold_warm_boundary": "Preserve original connection lifecycles, configuration order and shuffled query orders. Each fresh connection starts empty; native later token configurations can reuse prior counts on that connection. Each actual MCP configuration starts a fresh official server process. No extra prewarming, no discarded first queries, and no selective cache clearing.",
+    "diagnostics": "Save native memo state before/after every configuration outside timing, including start/hits/misses/evictions/entries/text bytes and cold-prefix observations where available. Preserve original actual SDK MCP command, protocol and measured envelope; private memo counters are not exposed over MCP. Its cold process boundary and actual process RSS are recorded. Do not describe this experiment as disabling every cache.",
+    "continuation": "C6 retains the exact C5 token memo. No additional persistent feature or statement cache is introduced."
+  },
+  "source_work_policy": {
+    "ownership": "one recall and its original read snapshot only",
+    "maximum_batch_pairs": 400,
+    "maximum_batch_parameters": 800,
+    "sqlite_statement_cache": "unchanged ordinary driver default 128; no enlargement",
+    "source_validation": "unchanged full source-map and projected-unit checks",
+    "cold_warm_boundary": "unchanged C5 connection/configuration/query-order boundaries and all first calls; no extra warmup"
+  },
+  "development_protocol": {
+    "plan": "benchmarks/experiments/round5-c6-development-plan.json",
+    "calls": 18928,
+    "version_pairs": 9464,
+    "requirements": [
+      "Before timing, verify complete outputs for both encoders and character/token caps, multi-session SQL work counts, single-session and custom fallbacks, low/absent SQLite getlimit, source corruption, malformed/overflow ordinals, empty spans and invalid/custom JSON/source preparation.",
+      "Commit the exact materially changed C6 runtime and tests, then run one complete native AB/BA development invocation on all old queries. Retain all worker rows and adverse values; never rerun a failed unchanged source for a faster result.",
+      "Perform final C6-source historical Hotpot256 default complete-output compatibility before release; C5 compatibility or old competitor timings cannot be relabeled C6."
+    ]
+  },
+  "formal_protocol": {
+    "matrix_plan": "benchmarks/experiments/round5-plan.json",
+    "calls": 56784,
+    "rounds": 4,
+    "order": [
+      "AB",
+      "BA",
+      "BA",
+      "AB"
+    ],
+    "thresholds_percent": {
+      "geometric_mean_p95_improvement": 10,
+      "at_least_one_public_native_token_p95_improvement": 15,
+      "public_mcp_token1024_p95_improvement": 10,
+      "maximum_pooled_p50_p95_regression": 5,
+      "resource_mean_increase_review": 10
+    },
+    "evaluator": "New C6 runner/workflow changes only source/provenance/path/claim registration while retaining every frozen C5 measurement primitive, native memo observation, original matrix, equality check and numerical/resource gate. Preserve original C3/C4/C5 files and rejected results.",
+    "binding": "Commit the final materially changed C6 runtime, evaluator and tests, then commit its one binding before its sole exclusive formal execution.",
+    "decision": "Every original correctness and numerical gate must pass. Any resource trigger requires explicit independent review. Earlier sources and development gains never substitute for a missing final-source gate."
+  },
+  "release": "No v0.3.3 runtime approval, main advance or release branch until final acceptance and exact-source nine-job CI."
+}

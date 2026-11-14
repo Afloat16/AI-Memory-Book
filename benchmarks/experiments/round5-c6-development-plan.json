@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "status": "registered-before-c6-paired-development-timing",
+  "created_at_utc": "2026-11-14T04:06:02.742163+00:00",
+  "continuation": "round5-c6-addendum.json",
+  "baseline_commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+  "candidate": "First substantive C6 source passing directed correctness; freeze exact source commit/runtime and require that identity in every parent/worker before the sole invocation.",
+  "cohorts": [
+    {
+      "name": "synthetic61",
+      "queries": 168,
+      "selection": "all fixed original queries"
+    },
+    {
+      "name": "public1015",
+      "queries": 1015,
+      "selection": "all fixed original queries"
+    }
+  ],
+  "configs": [
+    {
+      "id": "char4000",
+      "budget_chars": 4000,
+      "budget_tokens": null
+    },
+    {
+      "id": "token512",
+      "budget_chars": 8000,
+      "budget_tokens": 512,
+      "tokenizer": "cl100k_base"
+    },
+    {
+      "id": "token1024",
+      "budget_chars": 8000,
+      "budget_tokens": 1024,
+      "tokenizer": "cl100k_base"
+    },
+    {
+      "id": "token2048",
+      "budget_chars": 8000,
+      "budget_tokens": 2048,
+      "tokenizer": "cl100k_base"
+    }
+  ],
+  "rounds": 2,
+  "engine_order": [
+    [
+      "baseline",
+      "candidate"
+    ],
+    [
+      "candidate",
+      "baseline"
+    ]
+  ],
+  "calls": 18928,
+  "version_pairs": 9464,
+  "query_order": "Same deterministic fixed order for each source pair; record every original query ID in every worker.",
+  "cache": "Native MemoryBook cache_size=0 and use_cache=False. Derived exact-token-count memo is enabled with fixed 2048-entry/2MiB text-object limits, initially empty per new connection and naturally retained across native configurations. No extra prewarming or discarded queries. Save read-only before/after memo diagnostics. C6 source-turn and parsed-reference reuse is confined to the original request/snapshot; the SQLite statement-cache default is unchanged.",
+  "timing": "Complete native recall, excluding post-call hash validation. Fresh worker per source/cohort/round; retain all cells, calls, errors and adverse results.",
+  "correctness": "Every complete payload except latency_ms matches the published baseline. Unchanged source/index projections and exact count/invariant checks from the retained development helper.",
+  "attempt_policy": "One registered invocation for this substantive C6 source. Preserve every adverse row. A substantive correctness fix requires a new explicitly identified attempt.",
+  "decision_boundary": "Development diagnosis on old regression cohorts, not formal release acceptance, an MCP timing result, competitor timing or new quality. The separate 56784-call bound run must pass every original gate."
+}
