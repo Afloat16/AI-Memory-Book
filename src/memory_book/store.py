@@ -247,6 +247,7 @@ class MemoryBook:
             raise ValueError("semantic_model_dir must be an explicit local model directory")
         self.semantic_model_dir = Path(semantic_model_dir).expanduser().resolve() if semantic_model_dir is not None else None
         self._semantic_model = None
+        self._token_count_memo = None
         # Directory text is immutable as a key: a rename or a concurrent
         # writer naturally gets a new entry. Cache only within this connection
         # and bound retained text independently of result-cache settings.
@@ -296,8 +297,20 @@ class MemoryBook:
         try:
             self.db.close()
         finally:
-            self._directory_tokens.cache_clear()
-            self._semantic_model = None
+            try:
+                self._directory_tokens.cache_clear()
+            finally:
+                self._semantic_model = None
+                if self._token_count_memo is not None:
+                    self._token_count_memo.clear()
+
+    def _token_memo_snapshot(self) -> dict[str, int]:
+        """Read-only private diagnostics; never allocate or warm the memo."""
+        if self._token_count_memo is not None:
+            return self._token_count_memo.snapshot()
+        return {"allocated": 0, "entry_limit": 2048, "text_byte_limit": 2097152,
+                **dict.fromkeys(("entries", "text_bytes", "hits", "misses", "evictions",
+                                 "invalidations", "oversized_bypasses", "uncertified_bypasses"), 0)}
 
     def _highlighted_bodies(self, expression: str, ids: list[int]) -> list[sqlite3.Row]:
         """Retain the original point-whitelist read for selected excerpts."""
@@ -702,6 +715,11 @@ class MemoryBook:
         if budget_tokens is not None:
             _integer(budget_tokens, "budget_tokens", 0, 100_000)
         token_counter = TokenCounter(tokenizer) if budget_tokens is not None else None
+        if token_counter is not None:
+            from .token_budget import _ExactTokenMemo, _attach_count_memo
+            if self._token_count_memo is None:
+                self._token_count_memo = _ExactTokenMemo()
+            _attach_count_memo(token_counter, self._token_count_memo)
         if strategy not in {"book", "flat"}:
             raise ValueError("strategy must be book or flat")
         if not isinstance(coverage, bool):
