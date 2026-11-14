@@ -1,0 +1,149 @@
+name: Validate frozen v0.3.3 C4 recall performance
+
+on:
+  push:
+    branches: ['ci/v033-round5-c4-performance']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v033-round5-c4-performance
+  cancel-in-progress: false
+
+jobs:
+  measurement:
+    if: github.repository == 'Afloat16/AI-Memory-Book' && github.event_name == 'push' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    env:
+      TIKTOKEN_CACHE_DIR: .artifacts/tiktoken
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONHASHSEED: '0'
+      ORT_DISABLE_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - name: Install the bound SDK and reference tokenizers
+        run: python -m pip install -e '.[mcp,clients,benchmark]' 'mcp==1.30.0' 'pydantic==2.14.3' 'tiktoken==0.12.0'
+      - name: Check the evaluator and source-boundary fixtures
+        run: python -m unittest tests.test_round5_performance tests.test_round5_c4_performance tests.test_round5_candidate_c4 tests.test_round5_recall_work tests.test_round5_covering_index tests.test_round4_sealed_counts tests.test_round4_token_work tests.test_token_budget -v
+      - name: Prepare the two frozen sources and verified old regression input
+        id: prepare
+        run: |
+          python - <<'PY'
+          import hashlib, json, pathlib, re, subprocess, urllib.request
+          from scripts.round5_c4_performance import CONTINUATION_COMMIT, load_binding, load_plan, source_identity
+          load_plan()
+          raw_binding = json.loads(pathlib.Path('benchmarks/experiments/round5-c4-performance-binding.json').read_bytes())
+          evaluator = raw_binding['evaluator_commit']
+          assert re.fullmatch(r'[0-9a-f]{40}', evaluator)
+          for provenance_commit in (evaluator, CONTINUATION_COMMIT):
+              subprocess.run(['git', 'fetch', '--depth', '1', 'origin', provenance_commit], check=True)
+          binding = load_binding(pathlib.Path('benchmarks/experiments/round5-c4-performance-binding.json'))
+          for label, source in binding['sources'].items():
+              assert label in ('baseline', 'candidate') and re.fullmatch(r'[0-9a-f]{40}', source['commit'])
+              subprocess.run(['git', 'fetch', '--depth', '1', 'origin', source['commit']], check=True)
+              location = pathlib.Path('.artifacts/round5-c4-perf-' + label)
+              location.parent.mkdir(parents=True, exist_ok=True)
+              subprocess.run(['git', 'worktree', 'add', '--no-checkout', '--detach', str(location), source['commit']], check=True)
+              subprocess.run(['git', '-C', str(location), 'sparse-checkout', 'set', 'src'], check=True)
+              subprocess.run(['git', '-C', str(location), 'read-tree', '-mu', 'HEAD'], check=True)
+              assert source_identity(location / 'src') == source
+          source = json.loads(pathlib.Path('benchmarks/locomo_split.json').read_bytes())
+          with urllib.request.urlopen(source['url'], timeout=60) as response:
+              raw = response.read(source['bytes'] + 1)
+          assert len(raw) == source['bytes'] and hashlib.sha256(raw).hexdigest() == source['sha256']
+          pathlib.Path('.artifacts/round5-c4-locomo10.json').write_bytes(raw)
+          import tiktoken
+          assert tiktoken.__version__ == '0.12.0'
+          for name in ('cl100k_base', 'o200k_base'):
+              tiktoken.get_encoding(name).encode('Initialize outside all timed workers.')
+          print('Verified frozen sources, evaluator, old input and reference tokenizers.')
+          PY
+      - name: Measure all 56784 calls with remote checkpoints on this isolated VM
+        id: measure
+        shell: bash
+        run: |
+          set -o pipefail
+          python -u scripts/round5_c4_performance.py \
+            --binding benchmarks/experiments/round5-c4-performance-binding.json \
+            --baseline-src .artifacts/round5-c4-perf-baseline/src \
+            --candidate-src .artifacts/round5-c4-perf-candidate/src \
+            --locomo-path .artifacts/round5-c4-locomo10.json \
+            --state-dir ".artifacts/round5-c4-performance-$GITHUB_RUN_ID-1" \
+            --output "benchmarks/reports/round5-c4-performance-$GITHUB_RUN_ID-1/report.json.gz" \
+            --publish-branch "validation/v033-round5-c4-performance-$GITHUB_RUN_ID-1" \
+            2>&1 | tee .artifacts/round5-c4-performance.log
+      - name: Audit saved observations without repeating retrieval
+        id: audit
+        if: always() && steps.prepare.outcome == 'success'
+        run: |
+          python scripts/round5_c4_performance.py \
+            --audit "benchmarks/reports/round5-c4-performance-$GITHUB_RUN_ID-1/report.json.gz" \
+            --state-dir "benchmarks/reports/round5-c4-performance-$GITHUB_RUN_ID-1"
+      - name: Preserve completion or interrupted evidence
+        if: always()
+        env:
+          MEASUREMENT_OUTCOME: ${{ steps.measure.outcome }}
+          AUDIT_OUTCOME: ${{ steps.audit.outcome }}
+        run: |
+          python - <<'PY'
+          from datetime import datetime, timezone
+          import hashlib, json, os, pathlib, subprocess
+          from types import SimpleNamespace
+          from scripts.round5_c4_performance import export_checkpoint
+          suffix = os.environ['GITHUB_RUN_ID'] + '-1'
+          public = pathlib.Path('benchmarks/reports/round5-c4-performance-' + suffix)
+          state = pathlib.Path('.artifacts/round5-c4-performance-' + suffix)
+          public.mkdir(parents=True, exist_ok=True)
+          export_checkpoint(SimpleNamespace(
+              binding=pathlib.Path('benchmarks/experiments/round5-c4-performance-binding.json'),
+              state_dir=state, output=public / 'report.json.gz'))
+          summary = public / 'report.summary.json'
+          report = json.loads(summary.read_bytes()) if summary.is_file() else {}
+          record = {'created_at_utc': datetime.now(timezone.utc).isoformat(),
+              'workflow_commit': os.environ['GITHUB_SHA'], 'run_id': os.environ['GITHUB_RUN_ID'],
+              'run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'measurement_outcome': os.environ.get('MEASUREMENT_OUTCOME'),
+              'audit_outcome': os.environ.get('AUDIT_OUTCOME'),
+              'validation': report.get('validation'), 'acceptance': report.get('acceptance'),
+              'status': 'completed' if report.get('acceptance', {}).get('accepted') and os.environ.get('AUDIT_OUTCOME') == 'success' else 'failed_or_incomplete',
+              'files_sha256': {str(p.relative_to(public)): hashlib.sha256(p.read_bytes()).hexdigest()
+                               for p in sorted(public.rglob('*')) if p.is_file()},
+              'scope': 'All ABBA rounds, resource costs and adverse samples retained. No repeated scoring during audit.'}
+          (public / 'completion.json').write_text(json.dumps(record, indent=2) + '\n')
+          if (public / 'publication-failure.json').exists():
+              print('Preserved ambiguous publication locally; no automatic push retry. Artifact upload follows.')
+              raise SystemExit(0)
+          branch = 'validation/v033-round5-c4-performance-' + suffix
+          head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+          remote = subprocess.check_output(['git', 'ls-remote', '--heads', 'origin', 'refs/heads/' + branch], text=True).split()
+          assert not remote or remote == [head, 'refs/heads/' + branch], 'Another writer advanced the result ref'
+          staged = subprocess.check_output(['git', 'diff', '--cached', '--name-only'], text=True).splitlines()
+          assert all(path.startswith(str(public) + '/') for path in staged), 'Unrelated staged changes'
+          def call(*args):
+              subprocess.run(args, check=True)
+          call('git', 'add', '--', str(public))
+          call('git', '-c', 'user.name=github-actions[bot]', '-c',
+               'user.email=41898282+github-actions[bot]@users.noreply.github.com',
+               'commit', '-m', 'bench: preserve v0.3.3 round5 C4 completion ' + suffix)
+          call('git', 'push', 'origin', 'HEAD:refs/heads/' + branch)
+          print(json.dumps({'result_branch': branch, 'status': record['status']}))
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: round5-c4-performance-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            benchmarks/reports/round5-c4-performance-${{ github.run_id }}-1/
+            .artifacts/round5-c4-performance.log
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30
