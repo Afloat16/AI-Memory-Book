@@ -36,3 +36,35 @@ are checked before and after the planned observation.
 
 At this checkpoint the files are prepared, not executed. Any observations,
 failures and complete raw traces will be saved separately; no result is implied.
+
+
+## Complete observation, including the negative result
+
+The first prepared harness stopped before starting an SDK process or issuing a
+retrieval because a frozen helper received a list instead of its dataset object.
+All original bytes and the zero-call failure are retained in `observation-01/`.
+The isolated repair and new output namespace were committed at
+`df3eb6bdf33c49f5eb0eb289c50d0437f9332f13` before execution.
+
+The repaired observation completed all **1,015** fixed actual-SDK calls, matching
+every original compact MCP, envelope and full native payload hash, with all
+source/index/revision/budget invariants preserved. There was **one connection
+open and one close on the same thread**, confirming reuse in this actual run.
+
+The trace contains **20,464 application SQL executions and 97 distinct original
+templates**. Every modeled capacity (128 / 256 / 512 / 1,024) has exactly
+20,367 hits, 97 compulsory misses and **zero repeated misses**. This negative
+result provides no basis for enlarging the statement cache or reshaping IN lists.
+No such product change is selected. The cache model remains distinct from real
+SQLite compilation and FTS internal work.
+
+The same source-reference JSON was parsed **5,073 times / 3,542,467 input bytes**
+in the snapshot, then the same totals again in `_refs`. Original-turn reads
+issued **4,289 SQL statements**. These are work counts, not latency savings.
+A separately registered candidate may batch the same exact source-turn pairs
+and reuse parsed references only within their original request/snapshot while
+retaining full validation and custom/malformed fallbacks.
+
+`observation-02/receipt.json` hashes every complete raw trace, call ledger and
+all four capacity models; gzip preserves their original bytes. No duration or
+new performance acceptance is collected by this diagnostic.
