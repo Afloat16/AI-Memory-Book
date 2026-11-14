@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "protocol": "v034-startup-confirmation-v1",
+  "registered_at_utc": "2026-11-14",
+  "status": "registered-before-startup-confirmation-implementation-and-measurement",
+  "purpose": "Confirm a narrowly scoped startup/atomic-initialization release promptly, following the user's request for a formal version with a clear improvement. This independent study does not replace or pass the original recall 10/15/10 gates.",
+  "selection_history": {
+    "hypothesis_informed_by": "Candidate A development run 43592983218 observed fresh empty-database creation mean reductions around 76-83%; CLI help/version latency has not yet been measured in this turn.",
+    "recall_outcome": "A's roughly 1% recall gains were insufficient for advancing to the original formal matrix; B regressed public native p95 around 19-29% and actual MCP p95 23.9246%. Neither candidate ran or passed that formal matrix. Both complete development attempts, their original verdicts, source and ledgers remain immutable.",
+    "release_choice": "Use exact A runtime, excluding B's unsupported dense-rank route. Preserve B as an explicitly rejected experiment. Release claims are restricted to independently confirmed startup and already verified initialization correctness."
+  },
+  "sources": {
+    "baseline": {
+      "tag": "v0.3.3",
+      "commit": "796cedfd1f5368144037a1fb72292b8d13884b8c",
+      "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45",
+      "version": "0.3.3"
+    },
+    "candidate": {
+      "commit": "df35007c29e4af61dd96146232fe4651cfc74391",
+      "runtime_sha256": "f361d2bf64a4e1088cbd5cff6ffdaf19aa15e7f1b7ea1de4577d7a488d2ac242",
+      "version": "0.3.4"
+    }
+  },
+  "environment": {
+    "os": "ubuntu-24.04",
+    "python": "3.12",
+    "mcp": "1.30.0",
+    "pydantic": "2.14.3",
+    "pythonhashseed": "0",
+    "bytecode_writes": false,
+    "execution": "One exclusive Linux runner, sequential fresh processes/servers. Each source uses a committed sparse source checkout selected through an explicit source path. No installed/editable package substitution.",
+    "cache": "No warmup exclusion or discarded first samples. OS caches evolve naturally in fixed balanced order; no privileged cache flushing."
+  },
+  "matrix": {
+    "rounds": 4,
+    "engine_order": [
+      [
+        "baseline",
+        "candidate"
+      ],
+      [
+        "candidate",
+        "baseline"
+      ],
+      [
+        "candidate",
+        "baseline"
+      ],
+      [
+        "baseline",
+        "candidate"
+      ]
+    ],
+    "boundaries": [
+      "cli-help",
+      "cli-version",
+      "api-import",
+      "api-new",
+      "api-existing",
+      "mcp-initialize"
+    ],
+    "samples_per_engine_boundary_round": 10,
+    "total_samples": 480,
+    "samples_per_engine_boundary": 40,
+    "schedule": "For each round and boundary in listed order, execute ten fresh samples for the first engine then ten for the second. Record intent and completion for every sample; no concurrent benchmarks or selective reruns."
+  },
+  "definitions": {
+    "cli-help": "End-to-end wall time of the actual fresh `python -m memory_book --help` process, including interpreter launch and captured output; no measurement wrapper in that child.",
+    "cli-version": "End-to-end wall time of actual fresh `python -m memory_book --version`; verify the exact expected version and successful exit.",
+    "api-import": "A fresh helper process records only `import memory_book; from memory_book import MemoryBook` elapsed time after its identical standard-library bootstrap. Verify module path and declared version. Do not substitute cheap package-only import.",
+    "api-new": "Fresh helper records only MemoryBook(nonexistent_path) construction after the full API import; close/stats/invariants are outside this constructor timer. Separately retain whole-process wall time.",
+    "api-existing": "Fresh helper opens an identical copy of one baseline-created, closed empty schema-3 archive. Copy/setup is outside the constructor timer; verify schema/source content remains unchanged. Retain whole-process wall time separately.",
+    "mcp-initialize": "Fresh official SDK stdio transport/server per sample, from before process/transport creation through successful ClientSession.initialize. Use a fresh copy of the same existing archive; metadata/provenance checks and server teardown are outside the initialization timer."
+  },
+  "validation": {
+    "all_samples": "Require all 480 original attempts and outcomes, source/evaluator/plan/binding integrity, zero errors and no missing/reordered/duplicate observations.",
+    "cli": "Exact version output for each known source; help output and successful exit behavior identical; no unexpected stderr or archive creation.",
+    "api": "Exact frozen module path/version, expected empty schema-3 archive state, unchanged existing archive source/schema data, and clean close.",
+    "mcp": "Official SDK initialized successfully; retain the complete initialization result and tool-schema/instruction identities. Any deliberate source-version field normalization must be explicit and limited to the two declared versions.",
+    "timing": "Parent-monotonic wall clocks and recorded child timer bounds; all finite nonnegative observations retained, no outlier removal.",
+    "resources": "Retain per-sample whole-process wall/CPU/RSS where applicable. CLI/API child rusage comes from the actual child, not cumulative RUSAGE_CHILDREN. MCP sampled RSS/HWM after initialization is labeled as such, not an unobserved whole-lifetime peak."
+  },
+  "acceptance": {
+    "primary_targets": [
+      {
+        "boundary": "api-new",
+        "median_minimum_improvement_percent": 50,
+        "p95_minimum_improvement_percent": 50,
+        "median_minimum_absolute_reduction_ms": 5
+      },
+      {
+        "boundary": "cli-help",
+        "median_minimum_improvement_percent": 20,
+        "p95_minimum_improvement_percent": 20,
+        "median_minimum_absolute_reduction_ms": 5
+      },
+      {
+        "boundary": "cli-version",
+        "median_minimum_improvement_percent": 20,
+        "p95_minimum_improvement_percent": 20,
+        "median_minimum_absolute_reduction_ms": 5
+      }
+    ],
+    "secondary_regression_guards": {
+      "boundaries": [
+        "api-import",
+        "api-existing",
+        "mcp-initialize"
+      ],
+      "metrics": [
+        "median",
+        "p95"
+      ],
+      "rule": "Fail if candidate increases by both more than 10% and more than 1 millisecond. Report every increase even below this materiality guard."
+    },
+    "resource_review": "Any per-boundary recorded resource mean increase over 10% requires explicit cause assessment and independent review; raw automated review flags stay unchanged. Missing required resource evidence is invalid, not zero.",
+    "statistics": "Pool all forty observations per source/boundary; median and linearly interpolated p95 at index (n-1)*0.95. Also report every round, means, min/max and all adverse cells. Passing descriptive gates is not a significance or whole-product superiority claim.",
+    "original_recall_gates": "Remain 10% / 15% / 10%, unchanged and unpassed. Startup acceptance must never set a recall report's accepted/numeric_gate_passed fields to true."
+  },
+  "durability": {
+    "workflow_ref": "ci/v034-round6-startup",
+    "attempt": "Only first-attempt push at the exact committed binding/evaluator. A single source-pair/protocol claim prevents repeating a completed comparison.",
+    "binding": "Commit this plan, implementation and an exact evaluator/source binding before triggering. Refuse existing output/claims or mismatched hashes.",
+    "checkpoints": "Fsync each started/finished sample event; publish a Git checkpoint before and after each boundary batch plus completion/failure. If publication is ambiguous, stop timing and preserve artifacts; no blind retry.",
+    "review": "Independent saved-result auditor recomputes every metric and gate, verifies raw ledger/source/binding identities and all expected samples without rerunning commands or servers."
+  },
+  "release_requirements": [
+    "Independent startup confirmation passes its own new prospective gates; original recall goal is explicitly disclosed as unaccepted and formal unrun.",
+    "Final runtime equals the exact verified A SHA256; reuse only that source's complete historical-output and development correctness evidence.",
+    "Run the separately frozen fresh 256-question component comparison after final candidate acceptance, retaining every win/loss and native/component boundary.",
+    "Exact final nine-job CI, wheel/sdist source checks, normal release publication and public installer verification all pass.",
+    "Publish startup/initialization scope with absolute timings, all adverse measurements, supported-version/fallback limits and competitor claim boundaries. No all-dimensions or new retrieval-quality superiority claim."
+  ]
+}
