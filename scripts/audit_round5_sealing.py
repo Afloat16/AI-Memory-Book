@@ -46,6 +46,31 @@ def cases():
     return values
 
 
+def header_cases():
+    """The 36 headers and 20 bodies from the independent early-prune review."""
+    prefixes = ["[p] proj / session | 2026-11-14T00:00:00+00:00",
+                "[中文] café / e\u0301 | x", "[p] a / I'm | we'",
+                "[p] a / I | ", "[p] a / 1234567 | 0",
+                "[p] a\r\n / 👩🏽‍💻 | a"]
+    endings = ["\n", "'\n", " \t\r\n", ".../\n", "\x00\x7f\n", "\n\n"]
+    bodies = ["", "a", "s", "ll", "re", "1234", "'s", "'ll", "/", " /a",
+              "\n", "\r\n\t", "   a", "\u0301a", "é中文", "👩🏽‍💻",
+              "<|endoftext|>", "\ud800", "\udc00", "\u0130\u017f"]
+    headers = [prefix + ending for prefix, ending in itertools.product(prefixes, endings)]
+    invalid = ("[p] a\ud800 / b | 0\n", "[p] | a\u0301\n", "[p] | a\u00a0\n",
+               "[p] | a" + " " * 65 + "\n")
+    return headers, bodies, invalid
+
+
+def runtime_sha256():
+    package = ROOT / "src/memory_book"
+    value = hashlib.sha256()
+    for path in sorted(package.rglob("*.py")):
+        value.update(path.relative_to(package).as_posix().encode() + b"\0")
+        value.update(path.read_bytes() + b"\0")
+    return value.hexdigest()
+
+
 def audit():
     import tiktoken
     from memory_book import token_budget
@@ -56,6 +81,7 @@ def audit():
     generated = cases()
     fallback_examples = ("a\u0301", "a\u00a0", "a\u2028", "a\u0085", "a\ud800",
                          "a" + " " * 65, "中文", " " * 100)
+    headers, bodies, invalid_headers = header_cases()
     rows = []
     for name, expected_pattern in EXPECTED_PATTERNS.items():
         counter = token_budget.TokenCounter(name)
@@ -82,10 +108,32 @@ def audit():
         for index, text in enumerate(fallback_examples):
             assert token_budget._ascii_sealing_suffix(text) is None, (name, index, "fallback")
         assert (pairs, fallbacks) == (5784, 8), "Registered fixture coverage changed"
+        header_pairs, header_fallbacks = 0, 0
+        for header in headers:
+            header.encode("utf-8")
+            suffix = token_budget._ascii_sealing_suffix(header)
+            assert suffix is not None and suffix.endswith("\n"), (name, "header certificate")
+            stable = encoding.encode_ordinary(header[:-len(suffix)])
+            for body in bodies:
+                assert encoding.encode_ordinary(header + body) == (
+                    stable + encoding.encode_ordinary(suffix + body)
+                ), (name, header_pairs, "stable citation prefix")
+                header_pairs += 1
+        for header in invalid_headers:
+            try:
+                header.encode("utf-8")
+            except UnicodeEncodeError:
+                header_fallbacks += 1
+                continue
+            assert token_budget._ascii_sealing_suffix(header) is None, (name, "header fallback")
+            header_fallbacks += 1
+        assert (header_pairs, header_fallbacks) == (720, 4), "Header fixture coverage changed"
         rows.append({"name": name, "pattern_sha256": pattern_sha,
                      "boundary_pairs": pairs, "bounded_fallbacks": fallbacks,
                      "explicit_unicode_or_overlong_fallbacks": len(fallback_examples),
-                     "token_id_equalities": 2 * pairs})
+                     "token_id_equalities": 2 * pairs,
+                     "header_body_pairs": header_pairs,
+                     "invalid_or_uncertified_header_fallbacks": header_fallbacks})
     return {
         "schema_version": 1,
         "status": "passed",
@@ -93,6 +141,7 @@ def audit():
         "tokenizer_version": tiktoken.__version__,
         "token_budget_source": "src/memory_book/token_budget.py",
         "token_budget_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+        "runtime_source_sha256": runtime_sha256(),
         "audit_script": "scripts/audit_round5_sealing.py",
         "audit_script_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "random_seed": 109752,
@@ -101,6 +150,10 @@ def audit():
         "bounded_fallbacks": sum(row["bounded_fallbacks"] for row in rows),
         "explicit_unicode_or_overlong_fallbacks": sum(row["explicit_unicode_or_overlong_fallbacks"] for row in rows),
         "token_id_equalities": sum(row["token_id_equalities"] for row in rows),
+        "header_body_pairs": sum(row["header_body_pairs"] for row in rows),
+        "invalid_or_uncertified_header_fallbacks": sum(row["invalid_or_uncertified_header_fallbacks"] for row in rows),
+        "header_equation": "encode(header + body) = encode(stable_header_prefix) + encode(header_suffix + body)",
+        "header_scope": "The tested all-ASCII suffix ends in LF. Candidate B uses the narrower suffix == LF case, and retains prior snapshot source-map validation.",
         "equations": ["encode(block) = encode(prefix) + encode(suffix)",
                       "encode(block + LF + LF) = encode(prefix) + encode(suffix + LF + LF)"],
         "certificate_reason": "The ASCII tail has no letters or digits, so it cannot extend either fixed pattern's letter, number, or contraction piece. All remaining changes after appending LF are confined to that tail.",
@@ -111,13 +164,14 @@ def audit():
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path,
-                        default=ROOT / "benchmarks/reports/round5-sealing-independent-audit.json")
+                        default=ROOT / "benchmarks/reports/round5-candidate-b-boundary-audit.json")
     args = parser.parse_args()
     report = audit()
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"status": report["status"], "boundary_pairs": report["boundary_pairs"],
-                      "bounded_fallbacks": report["bounded_fallbacks"], "output": str(args.output)}))
+                      "bounded_fallbacks": report["bounded_fallbacks"],
+                      "header_body_pairs": report["header_body_pairs"], "output": str(args.output)}))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "scope": "Exploratory old-data diagnostics only. No formal acceptance or new retrieval quality claim. Summary timings were observed in tool output; per-query timing samples were not retained for these rejected probes.",
+  "hidden_rank_streaming": {
+    "status": "rejected_without_runtime_change",
+    "method": "Use the same weighted BM25 via rank MATCH, stream ORDER BY hidden rank until the complete rank tie at position 96, then sort by (rank,id) and truncate to 96.",
+    "cohort": "synthetic61",
+    "route_pairs": 336,
+    "full_route_tuple_mismatches": 0,
+    "order": [
+      "old",
+      "new",
+      "new",
+      "old"
+    ],
+    "sum_ms": [
+      404.618933,
+      578.667161,
+      575.694994,
+      320.128486
+    ],
+    "reason": "Both candidate passes cost more total time; do not pursue an implementation based on this probe."
+  },
+  "source_term_cache_simulation": {
+    "status": "rejected_without_runtime_change",
+    "runtime_source_sha256": "a46983c7c4a4c58e92d6895a677efcc565314b3645b49fa687ad541ffba86dfb",
+    "cohort": "public1015",
+    "configuration": "native-token512",
+    "term_calls": 39042,
+    "distinct_texts": 12747,
+    "byte_budget": 2097152,
+    "max_text_characters": 8192,
+    "accounting": "sys.getsizeof(text)+sys.getsizeof(frozenset)+sum(sys.getsizeof(term))+128; LRU by full text, without storing queries/results.",
+    "simulations": [
+      {
+        "max_entries": 128,
+        "hits": 1091,
+        "peak_accounted_bytes": 259125
+      },
+      {
+        "max_entries": 256,
+        "hits": 1734,
+        "peak_accounted_bytes": 487063
+      },
+      {
+        "max_entries": 512,
+        "hits": 2776,
+        "peak_accounted_bytes": 936794
+      },
+      {
+        "max_entries": 1024,
+        "hits": 4929,
+        "peak_accounted_bytes": 1836239
+      }
+    ],
+    "reason": "At 512 entries only 7.11% of term calls would hit, under 1% of profiled total call cost before cache overhead; not worth a retained source-text cache."
+  },
+  "project_rowid_bounds": {
+    "cohort": "public1015",
+    "calls": 1015,
+    "observed_total_ms": 9.053,
+    "decision": "Do not add a cache; upper-bound benefit below 0.5% of complete recall."
+  }
+}
