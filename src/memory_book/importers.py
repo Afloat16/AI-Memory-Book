@@ -14,7 +14,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-FORMATS = ("auto", "canonical", "chatgpt", "claude-code", "codex", "gemini", "kimi-legacy")
+from .formats import FORMATS
+
 ROLES = frozenset(("user", "assistant", "system", "developer", "tool"))
 MAX_IMPORT_BYTES = 64 * 1024 * 1024
 

@@ -1,0 +1,27 @@
+{
+  "checks": [
+    "Help/version and subcommand help work without importing SQLite, store, importers or client/capture modules.",
+    "Public MemoryBook class identity, star import, dir discovery, unknown-attribute errors and export_book type hints remain valid.",
+    "Explicit database init works without capture/importer configuration.",
+    "Existing cli.MemoryBook overrides remain honored."
+  ],
+  "files_sha256": {
+    "src/memory_book/__init__.py": "c6afbb91e7ceaaeb465126d1e6a43b78e34bd4ce9e33dd0665565b0965a7188a",
+    "src/memory_book/cli.py": "1ef7f9052b4806f23d8ef4571db5f67d592fb8d62905c62dfc0e4ec7c099e2b4",
+    "src/memory_book/formats.py": "9b03524f6ae77aa1f0b73b4b74266da506421919135a6975ea692cac30eb48d1",
+    "src/memory_book/importers.py": "655b39b6d1ab82d53a9f7635170b94225b9b7da81cd68dc4acfe2d43a304685c",
+    "src/memory_book/paths.py": "d7865c48e2c09eca14c00b20efd306f591d3876fa5c19ba39c2716eb09be7137",
+    "tests/test_round6_startup.py": "b31d0f0dcf41a74001acc5f8fba3e99348a91b943ccb487417c14d3088cadf3a"
+  },
+  "plan_commit": "afbb3233e16b80b3c0e5e76ab19466188abf41b4",
+  "preflight_note": "First outer test invocation lacked PYTHONPATH=src; four new isolated tests passed, four existing test modules could not import the package. No benchmark ran. Corrected environment then passed all 92 tests; original local preflight log retained.",
+  "schema_version": 1,
+  "scope": "Command dependency loading and public API compatibility; no timing, retrieval benchmark or released runtime approval. Final exact-source CI is separately required.",
+  "status": "passed",
+  "tests": {
+    "command": "PYTHONPATH=src .venv/bin/python -m unittest tests.test_round6_startup tests.test_core tests.test_setup tests.test_importers tests.test_coverage_cli -v",
+    "failed": 0,
+    "new_isolated_cases": 4,
+    "run": 92
+  }
+}
