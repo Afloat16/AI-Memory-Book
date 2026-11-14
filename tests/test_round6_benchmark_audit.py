@@ -163,7 +163,7 @@ class SavedObservationIntegrationTests(unittest.TestCase):
             "evaluator_files": binding["evaluator_files"], "cohorts": {"public1015": cohort}, "schedule": schedule,
             "host": {"packages": audit.PACKAGES, "boot_sha256": "5" * 64, "machine_sha256": "6" * 64, "github_run_id": "123", "github_run_attempt": "1"},
             "locomo_file_sha256": "1" * 64, "output": str(path),
-            "publication": {"run_id": "123", "run_attempt": "1", "branch": "validation/v034-round6-development-mcp-123-1",
+            "publication": {"run_id": "123", "run_attempt": "1", "workflow_commit": "9" * 40, "branch": "validation/v034-round6-development-mcp-123-1",
                 "claim_branch": "validation/v034-round6-claim-" + pair_key, "source_pair_stage_sha256": pair_key}}
         def save(location, value, compressed=False):
             raw = audit.canonical(value) + b"\n"
