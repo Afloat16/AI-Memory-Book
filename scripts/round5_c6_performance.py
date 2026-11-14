@@ -65,10 +65,10 @@ TOOLS = (*C5_TOOLS, "scripts/round5_c6_performance.py", "scripts/round5_c6_devel
 
 
 CONTINUATION_PATH = "benchmarks/experiments/round5-c6-addendum.json"
-CONTINUATION_COMMIT = None  # Set only after the C6 preregistration is committed.
-CONTINUATION_SHA256 = None
-CONTINUATION_PROTOCOL = None
-CONTINUATION_STATUS = None
+CONTINUATION_COMMIT = "099cbaf427c28351d71f3995fd0ff42f9c881b38"
+CONTINUATION_SHA256 = "7ad88598c9ccb3492083be06448e92a76da7025501a1aa578a0e39d8bd94c9d5"
+CONTINUATION_PROTOCOL = "v033-c6-in-snapshot-source-work-continuation-v1"
+CONTINUATION_STATUS = "registered-before-c6-implementation-and-timing"
 C6_SOURCE = {"commit": None, "runtime_sha256": None}
 C3_BINDING_PATH = "benchmarks/experiments/round5-performance-binding.json"
 C3_BINDING_SHA256 = "790ca15f3fbe2a5ba19fe08f83ab663bdb313a8569bfb1ee7677456ca4817c40"
@@ -89,11 +89,11 @@ C5_SUMMARY_PATH = "benchmarks/reports/round5-c5-performance-43552372788-1/report
 C5_SUMMARY_SHA256 = "930a28c40913b2eea3e38b7ce5bc04e673e288396fccb67bf16e59d42e996f25"
 C5_RESULT_COMMIT = "3982ceab2bdce0e9a189135ce261445a3a38d779"
 DEVELOPMENT_PLAN_PATH = "benchmarks/experiments/round5-c6-development-plan.json"
-DEVELOPMENT_PLAN_SHA256 = None
+DEVELOPMENT_PLAN_SHA256 = "40d626fea37f9a410a7c77e9aa4bff7f4019f5441090d3f3ff14c07ea67dcb7a"
 DEVELOPMENT_CALLS = 18928
 DEVELOPMENT_PAIRS = 9464
 DEVELOPMENT_ROUNDS = 2
-DEVELOPMENT_ORDER = ["AB", "BA"]
+DEVELOPMENT_ORDER = [["baseline", "candidate"], ["candidate", "baseline"]]
 C6_BINDING_PATH = "benchmarks/experiments/round5-c6-performance-binding.json"
 MEMO_FIELDS = ("allocated", "entry_limit", "text_byte_limit", "entries", "text_bytes",
                "hits", "misses", "evictions", "invalidations", "oversized_bypasses", "uncertified_bypasses")
@@ -163,6 +163,34 @@ def rejected_c5_registration():
             "frozen_c5_evaluator_files": prior["evaluator_files"]}
 
 
+def check_c6_registered_scope(document):
+    """Keep source-work reuse local and retain the original complete C5 rejection."""
+    require(document["source_work_policy"] == {
+        "ownership": "one recall and its original read snapshot only",
+        "maximum_batch_pairs": 400,
+        "maximum_batch_parameters": 800,
+        "sqlite_statement_cache": "unchanged ordinary driver default 128; no enlargement",
+        "source_validation": "unchanged full source-map and projected-unit checks",
+        "cold_warm_boundary": "unchanged C5 connection/configuration/query-order boundaries and all first calls; no extra warmup",
+    } and document["cache_policy"]["continuation"] ==
+        "C6 retains the exact C5 token memo. No additional persistent feature or statement cache is introduced.",
+        "C6 must retain bounded in-snapshot source work without an additional persistent cache")
+    recorded_c5 = document["rejected_c5"]
+    require({key: recorded_c5[key] for key in C5_SOURCE} == C5_SOURCE
+            and recorded_c5["formal_run"] == "43552372788-1"
+            and recorded_c5["result_commit"] == C5_RESULT_COMMIT
+            and recorded_c5["binding_sha256"] == C5_BINDING_SHA256
+            and recorded_c5["summary_sha256"] == C5_SUMMARY_SHA256
+            and recorded_c5["aggregate_p95_gain_percent"] == 15.220791446446002
+            and recorded_c5["public_native_best_gain_percent"] == 15.422173278138885
+            and recorded_c5["public_mcp_token1024_gain_percent"] == 6.673181339995871
+            and recorded_c5["numeric_gate_passed"] is False
+            and recorded_c5["accepted"] is False
+            and recorded_c5["decision"] ==
+                "Preserve the complete valid C5 formal rejection. Do not rerun the same source to select a faster sample.",
+            "C6 preregistration must preserve the full rejected C5 identity and original false decision")
+
+
 def continuation_registration():
     """Remain blocked until C6 is registered, preserving every earlier outcome."""
     require_registered_source()
@@ -191,6 +219,7 @@ def continuation_registration():
             and policy["retained_text_object_byte_limit"] == 2097152
             and policy["ownership"] == "one MemoryBook connection; both encoders share limits",
             "The registered per-book text-only memo limits changed")
+    check_c6_registered_scope(document)
     development_raw = (ROOT / DEVELOPMENT_PLAN_PATH).read_bytes()
     require(sha(development_raw) == DEVELOPMENT_PLAN_SHA256
             and development_raw == git("show", CONTINUATION_COMMIT + ":" + DEVELOPMENT_PLAN_PATH),
@@ -240,11 +269,6 @@ def continuation_registration():
     for name, expected in frozen_c4.items():
         require(sha((ROOT / name).read_bytes()) == expected, "A retained C4 evaluator file changed: " + name)
     c5 = rejected_c5_registration()
-    recorded_c5 = document["rejected_c5"]
-    require({key: recorded_c5[key] for key in C5_SOURCE} == C5_SOURCE
-            and recorded_c5["formal_run"] == "43552372788-1"
-            and recorded_c5["result_commit"] == C5_RESULT_COMMIT,
-            "C6 preregistration must preserve the original rejected C5 source and formal run")
     return {"path": CONTINUATION_PATH, "commit": CONTINUATION_COMMIT,
             "sha256": CONTINUATION_SHA256, "document": document,
             "rejected_c3_binding_sha256": C3_BINDING_SHA256,

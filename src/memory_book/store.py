@@ -206,6 +206,20 @@ def _directory_tokens(text: str) -> frozenset[str]:
 
 
 _ORDINARY_DIRECTORY_TOKENS = _directory_tokens
+_ORDINARY_JSON_LOADS = json.loads
+
+
+def _refs_from_parsed(refs: list[dict], spans: list[tuple[int, int]]) -> list[dict]:
+    """Clip one already captured source map without sharing output objects."""
+    result = []
+    for lo, hi in spans:
+        for ref in refs:
+            start, end = max(lo, ref["start"]), min(hi, ref["end"])
+            if start < end:
+                result.append({**ref, "start": start, "end": end,
+                    "turn_start": ref["turn_start"] + start - ref["start"],
+                    "turn_end": ref["turn_start"] + end - ref["start"]})
+    return result
 
 
 def _query_facets(query: str) -> list[list[str]]:
@@ -311,6 +325,46 @@ class MemoryBook:
         return {"allocated": 0, "entry_limit": 2048, "text_byte_limit": 2097152,
                 **dict.fromkeys(("entries", "text_bytes", "hits", "misses", "evictions",
                                  "invalidations", "oversized_bypasses", "uncertified_bypasses"), 0)}
+
+    def _batch_original_turns(self, wanted: dict[str, set[int]]) -> dict | None:
+        """Read a small native pair set under the caller's existing snapshot.
+
+        Unknown/customized limits and input shapes keep the old per-session
+        loop, including its sort, binding and corruption errors. In particular
+        Python 3.10 has no getlimit, so it retains that original query path.
+        """
+        if (type(self.db) is not sqlite3.Connection or self.db.row_factory is not sqlite3.Row
+                or self.db.text_factory is not str or len(wanted) < 2
+                or any(type(session) is not str or type(ordinals) is not set or not ordinals
+                    or any(type(ordinal) is not int or not -(1 << 63) <= ordinal < (1 << 63)
+                           for ordinal in ordinals) for session, ordinals in wanted.items())):
+            return None
+        count = sum(map(len, wanted.values()))
+        getlimit = getattr(self.db, "getlimit", None)
+        if count > 400 or getlimit is None:
+            return None
+        if 2 * count > getlimit(sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER):
+            return None
+        # The new relation must not turn a lowered compiler limit into a new
+        # failure. Accept only ordinary or more permissive structural limits;
+        # do not swallow SQL errors or retry a possibly interrupted snapshot.
+        for category, minimum in ((sqlite3.SQLITE_LIMIT_COLUMN, 2000),
+                (sqlite3.SQLITE_LIMIT_EXPR_DEPTH, 1000),
+                (sqlite3.SQLITE_LIMIT_COMPOUND_SELECT, 500),
+                (sqlite3.SQLITE_LIMIT_VDBE_OP, 250000000)):
+            if getlimit(category) < minimum:
+                return None
+        statement = """WITH requested_turns(session_pk,ordinal) AS (VALUES """ + ",".join(
+            "(?,?)" for _ in range(count)) + """)
+          SELECT t.session_pk,t.ordinal,t.content FROM requested_turns
+          CROSS JOIN turns t ON t.session_pk=requested_turns.session_pk
+            AND t.ordinal=requested_turns.ordinal"""
+        if len(statement) > getlimit(sqlite3.SQLITE_LIMIT_SQL_LENGTH):
+            return None  # This fixed SQL contains ASCII only.
+        parameters = [value for session, ordinals in wanted.items()
+                      for ordinal in sorted(ordinals) for value in (session, ordinal)]
+        return {(row["session_pk"], row["ordinal"]): row["content"]
+                for row in self.db.execute(statement, parameters)}
 
     def _highlighted_bodies(self, expression: str, ids: list[int]) -> list[sqlite3.Row]:
         """Retain the original point-whitelist read for selected excerpts."""
@@ -772,6 +826,7 @@ class MemoryBook:
             allocations: list[tuple[dict, str, int]] = []
             selected_pages: list[dict] = []
             source_units_for = None
+            captured_refs = None
             if (qt or (semantic and query)) and budget_chars:
                 expression = " OR ".join('"' + token.replace('"', '""') + '"' for token in qt)
                 # The index enforces a body match, so a chapter name alone is
@@ -1017,20 +1072,29 @@ class MemoryBook:
                         # page boundary cannot turn a cut sentence/fence into a
                         # purportedly complete new source unit. Read them under
                         # the same snapshot as ranking and page coordinates.
-                        from .token_budget import prepare_source_units
+                        from .token_budget import prepare_source_units, _ORDINARY_PREPARE_SOURCE_UNITS
+                        ordinary_prepare = prepare_source_units is _ORDINARY_PREPARE_SOURCE_UNITS
+                        if (ordinary_prepare and json.loads is _ORDINARY_JSON_LOADS
+                                and self.db.row_factory is sqlite3.Row and self.db.text_factory is str):
+                            captured_refs = {}
                         wanted: dict[str, set[int]] = {}
                         refs_by_page = {}
                         for row in selected_pages:
-                            refs = refs_by_page[row["id"]] = json.loads(row["source_refs"])
+                            raw = row["source_refs"]
+                            refs = refs_by_page[row["id"]] = json.loads(raw)
+                            if captured_refs is not None and type(raw) is str:
+                                captured_refs[row["id"]] = (raw, refs)
                             wanted.setdefault(row["session_pk"], set()).update(
                                 ref["turn_index"] for ref in refs)
-                        original_turns = {}
-                        for session_pk, ordinals in wanted.items():
-                            ordered = sorted(ordinals)
-                            for source in self.db.execute(
-                                "SELECT ordinal,content FROM turns WHERE session_pk=? AND ordinal IN (" +
-                                ",".join("?" for _ in ordered) + ")", [session_pk, *ordered]):
-                                original_turns[(session_pk, source["ordinal"])] = source["content"]
+                        original_turns = self._batch_original_turns(wanted) if ordinary_prepare else None
+                        if original_turns is None:
+                            original_turns = {}
+                            for session_pk, ordinals in wanted.items():
+                                ordered = sorted(ordinals)
+                                for source in self.db.execute(
+                                    "SELECT ordinal,content FROM turns WHERE session_pk=? AND ordinal IN (" +
+                                    ",".join("?" for _ in ordered) + ")", [session_pk, *ordered]):
+                                    original_turns[(session_pk, source["ordinal"])] = source["content"]
                         source_units_for = prepare_source_units(selected_pages, original_turns, refs_by_page)
             self.db.execute("COMMIT")
         except BaseException:
@@ -1056,7 +1120,21 @@ class MemoryBook:
             # repeating three long titles in every context block crowds out
             # evidence at small budgets without adding source identity.
             block = header + text
-            refs = self._refs(row, spans)
+            reference_method = self._refs
+            captured = None
+            if (reference_method is _ORDINARY_REFS and captured_refs is not None and type(row) is dict
+                    and type(row.get("id")) is str
+                    and json.loads is _ORDINARY_JSON_LOADS
+                    and type(spans) in (tuple, list) and spans
+                    and all(type(span) in (tuple, list) and len(span) == 2
+                            and all(type(value) is int for value in span) for span in spans)):
+                captured = captured_refs.get(row.get("id"))
+                if captured is not None and row.get("source_refs") is not captured[0]:
+                    captured = None
+            if captured is not None:
+                refs = _refs_from_parsed(captured[1], spans)
+            else:
+                refs = reference_method(row, spans)
             coverage = len(set(qt) & set(terms(text, query=True))) / len(qt) if qt else 0.0
             results.append({"id": row["id"], "title": row["title"], "text": text, "source_refs": refs, "breadcrumb": crumbs, "score": row["score"], "lexical_coverage": coverage, "created_at": row["created_at"], "truncated": len(text) < len(row["content"]), "page_chars": len(row["content"]), "excerpt_spans": [[a, b] for a, b in spans]})
             blocks.append(block)
@@ -1089,3 +1167,6 @@ class MemoryBook:
                 raise
         result["latency_ms"] = (time.perf_counter_ns() - started) / 1e6
         return result
+
+
+_ORDINARY_REFS = MemoryBook._refs

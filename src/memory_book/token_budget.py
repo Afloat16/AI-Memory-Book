@@ -465,6 +465,9 @@ def prepare_source_units(pages: list[dict], turns: dict[tuple[str, int], str],
     return resolve
 
 
+_ORDINARY_PREPARE_SOURCE_UNITS = prepare_source_units
+
+
 def _render(text: str, start: int, end: int) -> str:
     return ("…" if start else "") + text[start:end] + ("…" if end < len(text) else "")
 
