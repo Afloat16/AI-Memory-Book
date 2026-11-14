@@ -205,6 +205,9 @@ def _directory_tokens(text: str) -> frozenset[str]:
     return frozenset(terms(text, query=True))
 
 
+_ORDINARY_DIRECTORY_TOKENS = _directory_tokens
+
+
 def _query_facets(query: str) -> list[list[str]]:
     """Recognize a small explicit conjunction, without semantic query rewriting.
 
@@ -248,6 +251,7 @@ class MemoryBook:
         # writer naturally gets a new entry. Cache only within this connection
         # and bound retained text independently of result-cache settings.
         self._directory_tokens = lru_cache(maxsize=512)(_directory_tokens)
+        self._ordinary_directory_cache = self._directory_tokens
         if self.path != ":memory:":
             Path(self.path).expanduser().resolve().parent.mkdir(parents=True, exist_ok=True)
             self.path = str(Path(self.path).expanduser())
@@ -634,6 +638,59 @@ class MemoryBook:
             return (lo, hi)
         return None
 
+    def _bounded_candidate_metadata(self, rows: dict[str, dict], relevance: dict[str, float],
+                                    count: int) -> dict[str, dict] | None:
+        """Load shared directories once, retaining a certified ranking prefix.
+
+        Each native title multiplier lies in [1, 1.15]. At least ``count``
+        actual scores reach the count-th base relevance, so a strictly lower
+        upper bound cannot enter that prefix, under any existing tie rule.
+        Validate directories for the full union before omitting tail work:
+        malformed archives must still take the old path and raise its errors.
+        All queries stay inside recall's existing read snapshot.
+        """
+        if (len(rows) <= count or self.db.row_factory is not sqlite3.Row
+                or self.db.text_factory is not str
+                or self._directory_tokens is not self._ordinary_directory_cache
+                or getattr(self._directory_tokens, "__wrapped__", None) is not _ORDINARY_DIRECTORY_TOKENS
+                or any(type(row["rid"]) is not int for row in rows.values())
+                or any(not math.isfinite(value) or value < 0 for value in relevance.values())):
+            return None
+        floor = sorted(relevance.values(), reverse=True)[count - 1]
+        retained = {identity for identity, value in relevance.items() if value * 1.15 >= floor}
+        if len(retained) == len(rows):
+            return None
+        ids = [row["rid"] for row in rows.values()]
+        light = self.db.execute("""SELECT id,project_id,chapter_id,session_pk
+          FROM pages INDEXED BY pages_recall_metadata WHERE rid IN (""" +
+          ",".join("?" for _ in ids) + ")", ids).fetchall()
+        if (len(light) != len(rows) or {row[0] for row in light} != set(rows)
+                or any(type(value) is not str for row in light for value in row)):
+            return None
+        pairs = list(dict.fromkeys((row[2], row[3]) for row in light))
+        directories = self.db.execute("""WITH requested(chapter_id,session_pk) AS (VALUES """ +
+            ",".join("(?,?)" for _ in pairs) + """)
+          SELECT requested.chapter_id,requested.session_pk,c.id,s.id,
+            c.title chapter_title,s.external_id session_id,s.title session_title,s.created_at
+          FROM requested LEFT JOIN chapters c ON c.id=requested.chapter_id
+          LEFT JOIN sessions s ON s.id=requested.session_pk""",
+          [value for pair in pairs for value in pair]).fetchall()
+        # Empty titles are valid. Missing rows and non-text titles fall back
+        # before mutating any candidate, preserving the old exception order.
+        if (len(directories) != len(pairs) or
+                any(type(value) is not str for row in directories for value in row)):
+            return None
+        metadata = {(row[0], row[1]): row for row in directories}
+        if set(metadata) != set(pairs):
+            return None
+        for identity, project, chapter, session_pk in light:
+            if identity in retained:
+                directory = metadata[(chapter, session_pk)]
+                rows[identity].update(project_id=project, chapter_id=chapter,
+                    chapter_title=directory[4], session_id=directory[5],
+                    session_title=directory[6], created_at=directory[7])
+        return {identity: row for identity, row in rows.items() if identity in retained}
+
     def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False) -> dict:
         started = time.perf_counter_ns()
         query = _string(query, "query", maximum=8000, required=False)
@@ -693,6 +750,7 @@ class MemoryBook:
                 params.append(session)
             where = " AND " + " AND ".join(clauses) if clauses else ""
             candidates: list[dict] = []
+            full_candidate_count = None
             allocations: list[tuple[dict, str, int]] = []
             selected_pages: list[dict] = []
             source_units_for = None
@@ -758,7 +816,22 @@ class MemoryBook:
                     rows = {row["id"]: dict(row) for route in reversed(routes) for row in route}
                 else:
                     rows = {row["id"]: dict(row) for row in routes[0]}
-                if use_stem and rows:
+                bounded = None
+                base_relevance = None
+                if (use_stem and rows and strategy == "book" and not coverage and not semantic
+                        and self.db.row_factory is sqlite3.Row and self.db.text_factory is str
+                        and self._directory_tokens is self._ordinary_directory_cache
+                        and getattr(self._directory_tokens, "__wrapped__", None) is _ORDINARY_DIRECTORY_TOKENS):
+                    pool_size = limit * 4 if current_query or (len(qt) > 1 and limit > 1) else limit
+                    if len(rows) > pool_size:
+                        base_relevance = ({identity: 2 * exact_scores.get(identity, 0.0) / exact_scale +
+                            stem_scores.get(identity, 0.0) / stem_scale for identity in rows}
+                            if fuse_routes else {identity: -row["rank"] for identity, row in rows.items()})
+                        bounded = self._bounded_candidate_metadata(rows, base_relevance, pool_size)
+                if bounded is not None:
+                    full_candidate_count = len(rows)
+                    rows = bounded
+                elif use_stem and rows:
                     # Exact and stem routes commonly overlap. Fetch their
                     # directory metadata once, after both bounded searches.
                     ids = [row["rid"] for row in rows.values()]
@@ -788,7 +861,9 @@ class MemoryBook:
                         if directory not in directory_overlaps:
                             directory_overlaps[directory] = len(qset & self._directory_tokens(directory)) / len(qset)
                         title_overlap = directory_overlaps[directory]
-                    if fuse_routes:
+                    if bounded is not None:
+                        relevance = base_relevance[item["id"]]
+                    elif fuse_routes:
                         # Retain each route's
                         # relative BM25 margins instead of only its ordinal rank.
                         # Exact relevance retains the predeclared 2:1 preference.
@@ -975,7 +1050,8 @@ class MemoryBook:
             warnings.append("Historical evidence can conflict. Check source timestamps; retrieval does not resolve which decision is authoritative.")
         if not results and candidates:
             warnings.append("Budget too small to return an evidence block including its citation.")
-        result = {"query": query, "results": results, "context": context, "context_chars": len(context), "estimated_tokens": estimate_tokens(context), "candidate_count": len(candidates), "revision": revision, "cache_hit": False, "warnings": warnings, "strategy": strategy, "budget_chars": budget_chars, "truncated": len(candidates) > len(results) or any(r["truncated"] for r in results)}
+        candidate_count = len(candidates) if full_candidate_count is None else full_candidate_count
+        result = {"query": query, "results": results, "context": context, "context_chars": len(context), "estimated_tokens": estimate_tokens(context), "candidate_count": candidate_count, "revision": revision, "cache_hit": False, "warnings": warnings, "strategy": strategy, "budget_chars": budget_chars, "truncated": candidate_count > len(results) or any(r["truncated"] for r in results)}
         if semantic_model is not None:
             result.update(semantic=True, semantic_model_fingerprint=semantic_model.fingerprint)
         if token_counter is not None:
