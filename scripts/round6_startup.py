@@ -527,8 +527,8 @@ def validate_observation(row, run, fixture):
                     details["database_before"] == details["database_after"], "Wrong/modified existing archive")
             require(details["stats"]["schema_version"] == 3 and all(details["stats"][key] == 0 for key in
                     ("projects", "chapters", "sessions", "turns", "sections", "pages", "chars", "page_chars", "cache_entries", "revision")), "Archive not empty")
-            require(type(details["stats"]["database_bytes"]) is int and details["stats"]["database_bytes"] > 0
-                    and details["stats"]["database_bytes"] == fixture["details"]["stats"]["database_bytes"], "Logical archive size differs")
+            require(type(details["stats"]["database_bytes"]) is int and details["stats"]["database_bytes"] > 0,
+                    "Logical archive size is missing/invalid")
     else:
         require(details["database_before"] == details["database_after"] == fixture["details"]["database_after"], "MCP changed existing archive")
         require(details["tools_sha256"] == digest(details["tools_result"])

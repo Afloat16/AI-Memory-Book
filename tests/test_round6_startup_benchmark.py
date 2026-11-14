@@ -160,6 +160,9 @@ class StartupProtocolTests(unittest.TestCase):
             with patch.dict(runner.os.environ, {"GITHUB_SHA": "b" * 40}):
                 with self.assertRaises(ValueError):
                     runner.publication_identity(binding)
+            with patch.dict(runner.os.environ, {"GITHUB_RUN_ATTEMPT": "2"}):
+                with self.assertRaises(ValueError):
+                    runner.publication_identity(binding)
 
     def test_ambiguous_checkpoint_and_existing_claim_block_all_further_publication(self):
         for existing_claim in (False, True):
@@ -213,9 +216,6 @@ class StartupProtocolTests(unittest.TestCase):
             blobs["/proc/88/cmdline"] = blobs["/proc/99/cmdline"]
             with self.assertRaises(ValueError):
                 runner.server_sample(command)
-            with patch.dict(runner.os.environ, {"GITHUB_RUN_ATTEMPT": "2"}):
-                with self.assertRaises(ValueError):
-                    runner.publication_identity(binding)
 
 
 if __name__ == "__main__":
