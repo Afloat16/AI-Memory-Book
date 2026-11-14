@@ -1,0 +1,26 @@
+{"worker_completed": "r0-public1015-baseline", "calls": 1015, "completed_workers": 1}
+{"worker_completed": "r0-public1015-candidate", "calls": 1015, "completed_workers": 2}
+{"worker_completed": "r1-public1015-candidate", "calls": 1015, "completed_workers": 3}
+{"worker_completed": "r1-public1015-baseline", "calls": 1015, "completed_workers": 4}
+Traceback (most recent call last):
+  File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_c7_mcp_development_pair.py", line 381, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_c7_mcp_development_pair.py", line 366, in main
+    report["verification"] = inspect_saved(report, state)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round5_c7_mcp_development_pair.py", line 256, in inspect_saved
+    frozen.require(field not in projections or projections[field] == value[field], "Cross-source archive/ingestion differs")
+  File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/round4_performance.py", line 101, in require
+    raise ValueError(message)
+ValueError: Cross-source archive/ingestion differs
+Traceback (most recent call last):
+  File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/host_round5_c7_development.py", line 213, in <module>
+    main()
+  File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/host_round5_c7_development.py", line 209, in main
+    measure(args.phase, state)
+  File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/scripts/host_round5_c7_development.py", line 137, in measure
+    subprocess.run(argv, cwd=ROOT, check=True)
+  File "/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/opt/hostedtoolcache/Python/3.12.16/x64/bin/python', '-u', 'scripts/round5_c7_mcp_development_pair.py', '--baseline-src', '/home/runner/work/AI-Memory-Book/AI-Memory-Book/.artifacts/round5-c7-development-43562541460-1/source-baseline/src', '--candidate-src', '/home/runner/work/AI-Memory-Book/AI-Memory-Book/.artifacts/round5-c7-development-43562541460-1/source-candidate/src', '--locomo-path', '/home/runner/work/AI-Memory-Book/AI-Memory-Book/.artifacts/round5-c7-development-43562541460-1/locomo10.json', '--state-dir', '/home/runner/work/AI-Memory-Book/AI-Memory-Book/.artifacts/round5-c7-development-43562541460-1/mcp-state', '--output', '/home/runner/work/AI-Memory-Book/AI-Memory-Book/.artifacts/round5-c7-development-43562541460-1/mcp-manifest.json.gz']' returned non-zero exit status 1.
