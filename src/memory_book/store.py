@@ -262,6 +262,9 @@ class MemoryBook:
                 raise ValueError("refusing to open a database belonging to another application")
             if version not in {0, 1, 2, SCHEMA_VERSION}:
                 raise ValueError(f"unsupported database schema {version}; expected {SCHEMA_VERSION}")
+            # A modest connection-local pager target, independent of the
+            # query-result cache. This does not persist a file-format setting.
+            self.db.execute("PRAGMA cache_size=-4096")
             if version == 0:
                 existing = self.db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").fetchall()
                 if existing:

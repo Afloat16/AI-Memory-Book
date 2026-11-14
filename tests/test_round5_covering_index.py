@@ -38,6 +38,19 @@ class RecallCoveringIndexTests(unittest.TestCase):
         self.assertEqual(actual, expected)
         return actual
 
+    def test_pager_target_is_connection_local_and_not_a_result_cache(self):
+        with tempfile.TemporaryDirectory(dir=Path(__file__).parent) as directory:
+            path = Path(directory) / "book.db"
+            with sqlite3.connect(path) as plain:
+                original_default = plain.execute("PRAGMA cache_size").fetchone()[0]
+            with MemoryBook(path, cache_size=0) as book:
+                self.assertEqual(book.db.execute("PRAGMA cache_size").fetchone()[0], -4096)
+                self.assertEqual(book.cache_size, 0)
+                with sqlite3.connect(path) as plain:
+                    self.assertEqual(plain.execute("PRAGMA cache_size").fetchone()[0], original_default)
+            with sqlite3.connect(path) as plain:
+                self.assertEqual(plain.execute("PRAGMA cache_size").fetchone()[0], original_default)
+
     def test_existing_schema_three_archive_adds_only_a_derived_index(self):
         with tempfile.TemporaryDirectory(dir=Path(__file__).parent) as directory:
             path = Path(directory) / "book.db"

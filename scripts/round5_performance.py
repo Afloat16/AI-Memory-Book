@@ -38,6 +38,7 @@ TOOLS = (*previous.HELPERS, "scripts/round4_performance.py",
          "scripts/round5_performance.py", "tests/test_round5_performance.py",
          "tests/test_round5_recall_work.py", "tests/test_round5_covering_index.py",
          "benchmarks/experiments/round5-index-addendum.json",
+         "benchmarks/experiments/round5-cache-addendum.json",
          ".github/workflows/round5-performance.yml")
 
 
