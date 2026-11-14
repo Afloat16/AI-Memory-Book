@@ -5,7 +5,113 @@ Product fixtures, examples, screenshots, and capture measurements are synthetic;
 the published experiments also evaluate LoCoMo and HotpotQA text corpora. No private
 user conversation history was used in development or published.
 
-## Current: v0.3.3 completed fifth-round methods and evidence
+## Current: v0.3.4 startup accepted; comparison and publication pending
+
+The [prospective startup plan](../benchmarks/experiments/round6-startup-plan.json)
+and [frozen binding](../benchmarks/experiments/round6-startup-binding.json)
+compare published v0.3.3 source `796cedfd1f5368144037a1fb72292b8d13884b8c`
+with selected A source `df35007c29e4af61dd96146232fe4651cfc74391`.
+The candidate runtime SHA256 is
+`f361d2bf64a4e1088cbd5cff6ffdaf19aa15e7f1b7ea1de4577d7a488d2ac242`;
+the baseline runtime SHA256 is
+`55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45`.
+B's rejected dense-rank experiment is excluded. v0.3.3 remains the published
+version at this checkpoint.
+
+**Startup scope is accepted after the required independent resource review.**
+The [separate explicit decision](../benchmarks/experiments/round6-startup-decision.json)
+records `startup_accepted:true` and `publication_approved:false`. The original
+automatic report remains `numeric_gate_passed:true`, `accepted:false`, and its
+workflow conclusion remains `failure`: one resource increase required review.
+Neither that verdict nor any threshold, sample or flag was rewritten.
+
+The sole [confirmation run 43598913606](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43598913606)
+retains all **480 samples and 960 start/finish events**, with zero missing or
+invalid observations. Measurement and saved-result audit return codes are both
+zero. Four AB/BA/BA/AB rounds provide forty fresh observations per source and
+boundary on Ubuntu 24.04 / Python 3.12, with MCP 1.30.0 and Pydantic 2.14.3.
+No first sample or outlier was removed; no measurement was repeated. OS caches
+evolve naturally, so this is not an OS-cold or statistical-significance claim.
+
+| Startup boundary | Median v0.3.3 → A, ms | p95 v0.3.3 → A, ms | Median / p95 change |
+|---|---:|---:|---:|
+| New empty-archive constructor | 24.518 → 4.164 | 27.374 → 6.358 | -83.02% / -76.77% |
+| Actual CLI `--help` process | 102.903 → 48.750 | 104.104 → 49.547 | -52.63% / -52.41% |
+| Actual CLI `--version` process | 101.346 → 47.479 | 103.116 → 48.259 | -53.15% / -53.20% |
+| Full API import, including `MemoryBook` | 33.506 → 33.920 | 33.822 → 34.433 | +1.24% / +1.81% |
+| Existing empty-archive constructor | 0.640 → 0.632 | 0.668 → 0.666 | -1.23% / -0.30% |
+| Official SDK transport/server initialization | 627.601 → 620.104 | 632.233 → 624.837 | -1.19% / -1.17% |
+
+Negative changes mean less elapsed time. The new-archive median falls by
+**20.354 ms**; CLI help/version medians fall by **54.153 / 53.867 ms**. All
+three prospective primary percentage/absolute targets and all six secondary
+guards pass. Constructor timing starts after the full API import and excludes
+validation/close; CLI timing covers the complete actual process; MCP timing
+ends at successful initialization. These are separate boundaries, and the
+existing-archive/MCP observations are secondary results.
+
+The import regression remains visible: **+0.414 ms median / +0.611 ms p95**.
+The sole >10% resource flag is existing-archive **whole-helper system CPU**:
+**18.646175 → 21.120575 ms**, or **+2.474400 ms / +13.270282%**. All four
+rounds increase. The same saved rows show total user+system CPU **+1.228375 ms**
+and whole-helper wall mean **+1.233748 ms / +0.889110%**, while constructor
+median/p95 slightly improve. Total CPU is arithmetic on saved samples, not a
+new measurement. The exact phase cause is unresolved; the existing schema-3
+path does not execute new-schema DDL. The increase is neither dismissed as
+noise nor attributed to the new transaction.
+
+The [independent resource review](round6-startup-resource-review.md) and
+[separate saved-result review](../benchmarks/reports/round6-startup-43598913606-1-local-audit/review.md)
+support the bounded startup tradeoff accepted in the explicit decision. All
+**30 resource comparisons**, **9 pooled / 27 per-round resource increases**,
+and **6 pooled / 26 per-round adverse timing entries** remain retained.
+Child `wait4` RSS high-water values do not isolate post-exec product memory;
+MCP RSS/HWM is sampled after initialization. These records do not establish
+equal, lower or superior product-memory use.
+
+The immutable [complete report](../benchmarks/reports/round6-startup-43598913606-1/report.json.gz)
+has SHA256 `381f5d99e5844af1d6d1681723f489ac98f099bb86551abcc6dd9cfd162a5b5a`
+at result commit `ffcc0a6f01b3b4acdf755ecd4c01b1e564d279b6`.
+[Hosted saved-ledger audit](../benchmarks/reports/round6-startup-43598913606-1/independent-audit.json),
+[local audit](../benchmarks/reports/round6-startup-43598913606-1-local-audit/independent-audit.json)
+and [Git/blob verification](../benchmarks/reports/round6-startup-43598913606-1-local-audit/verification.json)
+retain the original source, evaluator, ledger and result identities.
+
+### Recall and fresh-comparison limits
+
+The original **10% aggregate / 15% public native / 10% actual-MCP p95** recall
+targets remain unchanged and unpassed. A's [complete development review](../benchmarks/reports/round6-development-43592983218-review.json)
+records roughly 1% recall gains; B's [complete rejected development review](../benchmarks/reports/round6-development-43595785770-review.json)
+retains public native p95 regressions around 19–29% and actual-MCP p95
+**+23.9246%**. Neither candidate ran or passed the original four-round formal
+recall matrix. Startup acceptance does not substitute for that study or imply
+a retrieval-quality improvement.
+
+The [fresh-comparison plan](../benchmarks/experiments/round6-comparison-plan.json)
+retains the original **256 selected IDs**, excludes all **896 historical IDs**
+with zero overlap, and preserves their content fingerprints. The
+[original freeze audit](../benchmarks/reports/round6-comparison-freeze-43597613304-local-audit.json)
+records preparation and selection without scoring or human question/answer
+inspection. A unit fixture's real manifest-path dependency caused the
+[preserved first CI failure](../benchmarks/reports/round6-comparison-fixture-failure-43598914326/receipt.json).
+The [prospective fixture-only recovery](../benchmarks/experiments/round6-comparison-fixture-recovery-addendum.json)
+requires separate new binding/manifest paths while retaining the original
+files, all 256 IDs, content/statistics, freeze time and measurement logic.
+It corrects evaluator provenance before first scoring; it is not a new sample
+selection or product retuning.
+
+**Fresh scoring remains pending:** eight registered stages, **6,912 search
+calls / 42 quality cells** are the required matrix, not completed results.
+Native and supplied-page component boundaries remain separate; the planned
+1,536 native and 768 component complete-output pairs must match. Any ai-memory
+page fetches are accounted separately. Q2 is excluded from this new comparison;
+historical Q2 and third-party results retain their old versions and boundaries.
+No new competitor win, generated-answer accuracy or whole-product superiority
+is established at this checkpoint. Corrected exact final nine-job CI,
+wheel/sdist source checks, normal publication and public-installer verification
+remain separate release requirements.
+
+## Historical: v0.3.3 completed fifth-round methods and evidence
 
 The [original plan](../benchmarks/experiments/round5-plan.json),
 [C7 continuation](../benchmarks/experiments/round5-c7-addendum.json) and
