@@ -199,11 +199,11 @@ separate process-level vocabulary state.
 existing retrieval-result cache. They do not configure or disable this exact
 count memo. In particular, `cache_size=0` or `use_cache=False` still allows
 same-text count reuse while retrieval, original-source reads and source
-validation continue through their ordinary paths. Only the repeated encoding
+validation still run for the current recall. Only the repeated encoding
 work is reused; rankings, source snapshots, citation spans and both context
 limits retain their existing semantics.
 
-The text memo is separate from the connection's **4 MiB SQLite pager target**
+The text memo is separate from the connection's **4 MiB (4096 KiB) SQLite pager target**
 and the archive's derived recall metadata index. The pager retains database
 pages in memory; the index occupies database space and adds first-open build
 and subsequent write-maintenance work. See the [deployment costs](deployment.md#upgrading).
@@ -211,6 +211,33 @@ The [implementation](../src/memory_book/token_budget.py) and
 [C5 regression fixtures](../tests/test_round5_candidate_c5.py) specify the
 identity, capacity, fallback and cleanup checks. These operating limits are
 not a performance acceptance result.
+
+## Source reads and references in v0.3.3
+
+Token-budget assembly can fetch the original turns needed from multiple
+sessions in one query, within the same SQLite read snapshot as the selected
+pages. This applies only to the standard SQLite connection, native `Row`/`str`
+factories and ordinary source preparation, with supported connection-limit
+checks. A batch contains at most **400 unique session/turn pairs and 800 bound
+parameters**. Single-session or larger requests, Python without `getlimit`
+(including Python 3.10), restrictive limits and custom implementations retain
+the original per-session queries and error behavior. All source-map,
+original-text and projected-unit checks still run.
+
+Final references may reuse JSON already parsed in that recall only for an
+ordinary single-span projection whose raw reference text is still the captured
+object. Each page's captured reference graph can be used once. Multiple spans,
+repeated output of the same page and custom reference hooks retain the original
+parsing path, preserving independent nested reference values for Python callers.
+Empty spans do not newly parse reference text.
+
+This source work adds no persistent source or reference cache, no configuration
+option and no relaxation of citation or budget validation. Its temporary state
+ends with the recall; the separate exact-count memo and SQLite pager described
+above keep their existing lifetimes and limits. The
+[C6 regression fixtures](../tests/test_round5_candidate_c6.py) cover batching,
+fallbacks, source corruption and reference-object independence. These are
+operating and consistency boundaries, not a performance acceptance result.
 
 ## Completed measurements
 
