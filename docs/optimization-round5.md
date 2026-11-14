@@ -107,3 +107,8 @@ Final C5 source is `8dc6604fa32df18d53286110b215fc6657243656`, runtime SHA256 `6
 The sole registered [full native development invocation](../benchmarks/reports/round5-development/candidate-c5-full/summary.json) retained all 18,928 calls and 9,464 complete payload pairs, with zero mismatches or invariant failures. All eight pooled p50/p95/mean values improve; pooled p95 geometric-mean improvement is 13.429705%. Public native token512/1024/2048 p95 improves 11.141053% / 14.144746% / 11.364435%. The best public value is still 0.855254 percentage points below the formal 15% gate. One per-round adverse value remains: public char4000 round 1 p95 increases 1.591165%.
 
 These are development observations, not a passed performance gate. They support proceeding to the already registered single hosted four-round comparison, which still must pass every unchanged threshold, including actual SDK MCP and resource review. No timing is repeated on this source to seek a favorable sample. All candidate memo snapshots respect the empty initial state, character-only nonallocation, native configuration continuity and fixed capacity.
+
+
+### C5 final-source historical compatibility
+
+The [C5 Hotpot256 compatibility check](../benchmarks/reports/round5-c5-hotpot-regression.summary.json) completes once on frozen source `8dc6604`: all 1,536 native and 768 component complete output hashes match saved v0.3.2 observations. There are zero errors/differences and all 4,608 original start/finish records align. The helper, dataset, references, source/runtime and unchanged source/index/document projections are verified. This is final-source historical compatibility, not a new quality or timing result; it does not replace the pending formal speed verdict.
