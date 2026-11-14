@@ -722,17 +722,25 @@ class MemoryBook:
                           JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk
                           ORDER BY hits.rank,p.id"""
                     routes.append(self.db.execute(statement, route_params).fetchall() if qt else [])
-                exact_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[0])}
-                stem_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[1])} if use_stem else {}
-                exact_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[0]}
-                stem_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[1]} if use_stem else {}
-                exact_scale = max(exact_scores.values(), default=1.0) or 1.0
-                stem_scale = max(stem_scores.values(), default=1.0) or 1.0
                 # Identical ordered routes add no candidate/ranking information.
                 # Keep BM25's score scale so novelty selection does not change
                 # merely because the same ranking was observed a second time.
-                fuse_routes = use_stem and list(exact_ranks) != list(stem_ranks)
-                rows = {row["id"]: dict(row) for route in reversed(routes) for row in route}
+                fuse_routes = use_stem and (
+                    len(routes[0]) != len(routes[1]) or
+                    any(exact["id"] != stem["id"] for exact, stem in zip(*routes)))
+                if fuse_routes:
+                    # Scores and ordinal maps are only consulted by fusion.
+                    # The common equal-route path needs one copy of each exact
+                    # candidate, not a stem copy that is immediately replaced.
+                    exact_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[0])}
+                    stem_ranks = {row["id"]: i + 1 for i, row in enumerate(routes[1])}
+                    exact_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[0]}
+                    stem_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[1]}
+                    exact_scale = max(exact_scores.values(), default=1.0) or 1.0
+                    stem_scale = max(stem_scores.values(), default=1.0) or 1.0
+                    rows = {row["id"]: dict(row) for route in reversed(routes) for row in route}
+                else:
+                    rows = {row["id"]: dict(row) for row in routes[0]}
                 if use_stem and rows:
                     # Exact and stem routes commonly overlap. Fetch their
                     # directory metadata once, after both bounded searches.

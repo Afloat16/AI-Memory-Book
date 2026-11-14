@@ -163,6 +163,26 @@ def _can_seal_blocks(counter: TokenCounter) -> bool:
         return False
 
 
+def _ascii_sealing_suffix(block: str) -> str | None:
+    """Find a small suffix separated from its prefix in both pinned patterns.
+
+    After the last ASCII letter or digit, an all-ASCII punctuation/whitespace
+    suffix cannot extend a preceding letter, number or contraction piece in
+    either inspected tokenizer pattern. Appending two LF characters therefore
+    changes only this suffix's pieces. Combining marks or other non-ASCII tail
+    characters are deliberately uncertified. This helper is used only after
+    the existing tokenizer/version/method-origin certificate has succeeded.
+    """
+    for offset in range(1, min(len(block), 65) + 1):
+        character = block[-offset]
+        if ("a" <= character <= "z" or "A" <= character <= "Z" or
+                "0" <= character <= "9"):
+            return block[len(block) - offset + 1:]
+        if not character.isascii():
+            return None
+    return None
+
+
 def source_units(text: str) -> list[tuple[int, int]]:
     """Find intact source lines/sentences and atomic closed fenced blocks.
 
@@ -338,6 +358,8 @@ def assemble_with_count(
     """Pack exactly as ``assemble`` with per-call certified prefix work reuse."""
     kept: list[tuple[dict, str, str, list[tuple[int, int]]]] = []
     blocks: list[str] = []
+    block_token_counts: list[int | None] = []
+    separator_deltas: dict[str, int] = {}
     seen: set[str] = set()
     term_cache: dict[str, set[str]] = {}
     accepted_tokens: int | None = 0
@@ -365,7 +387,16 @@ def assemble_with_count(
         # Only accepted blocks are sealed, once each, and only when needed by
         # a later candidate. Their counts include the exact two-LF separator.
         while sealed_blocks < len(blocks):
-            sealed_tokens += counter.count(blocks[sealed_blocks] + "\n\n")
+            block = blocks[sealed_blocks]
+            known = block_token_counts[sealed_blocks]
+            suffix = _ascii_sealing_suffix(block) if known is not None else None
+            if suffix is None:
+                sealed_tokens += counter.count(block + "\n\n")
+            else:
+                if suffix not in separator_deltas:
+                    separator_deltas[suffix] = (counter.count(suffix + "\n\n") -
+                                                counter.count(suffix))
+                sealed_tokens += known + separator_deltas[suffix]
             sealed_blocks += 1
         return sealed_tokens
 
@@ -403,6 +434,8 @@ def assemble_with_count(
             block_chars += len(block)
             seen.add(row["id"])
             accepted_tokens, accepted_prefix_tokens = fit
+            block_token_counts.append(None if accepted_tokens is None else
+                                      accepted_tokens - accepted_prefix_tokens)
     if budget_tokens == 0:
         return kept, final_count()
 
@@ -466,5 +499,6 @@ def assemble_with_count(
                 block_chars += len(block)
                 seen.add(row["id"])
                 accepted_tokens, accepted_prefix_tokens = count, base
+                block_token_counts.append(None if count is None else count - base)
                 break
     return kept, final_count()
