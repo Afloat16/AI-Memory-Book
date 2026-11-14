@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "candidate_runtime_sha256": "e576330cc84230b0a60fc7483c098c792e9ef5784b0642ed698f5eb5dafa4c56",
+  "initial_invocation": {
+    "command": ".venv/bin/python -m unittest discover -s tests -v",
+    "tests": 636,
+    "errors": 55,
+    "reason": "Missing src on PYTHONPATH and sparse-checkout omissions of retained historical test evidence; original failure log preserved"
+  },
+  "configured_invocation": {
+    "command": "PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v",
+    "tests": 992,
+    "errors": 1,
+    "skipped": 3,
+    "remaining_error": "A historical round2 unit fixture incorrectly enumerated the growing current benchmark directory instead of its registered historical evaluator set"
+  },
+  "correction": {
+    "production_round2_guard_modified": false,
+    "test_file": "tests/test_round2_validation.py",
+    "change": "Use the exact registered historical file-hash fixture and additionally assert a new unregistered helper is still rejected",
+    "targeted_test_passed": true
+  },
+  "files": {
+    "round7-core-tests-configured.log": {
+      "bytes": 176222,
+      "sha256": "8d30a930cf6fe002b86595eba46cfcd7edb27f0d196e4fb4bf6b6554d1766620"
+    },
+    "round7-core-tests.log": {
+      "bytes": 165618,
+      "sha256": "cd74632e3274890f54e6dc71a4f6ebf7ea281b583ae925743a589c6d1bdad354"
+    }
+  },
+  "final_ci_required": true
+}
