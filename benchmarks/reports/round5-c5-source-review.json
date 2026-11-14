@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "review": "round5-c5-independent-static-source-review-1",
+  "created_at_utc": "2026-11-14T03:28:32.402107+00:00",
+  "status": "ready_for_single_registered_development_comparison",
+  "static_review_passed": true,
+  "remaining_correctness_blockers": [],
+  "reviewer": "release_audit (independent from core implementation)",
+  "registration": {
+    "path": "benchmarks/experiments/round5-c5-addendum.json",
+    "commit": "7753e7566b1cd57bf5bcaad02d15ce1fa970f839",
+    "sha256": "3329b2605103e2e52623fd8b463dc551f39ab4d3697b438c41d5cf1cc193d170"
+  },
+  "comparison_base": {
+    "commit": "0141adf1dde6cd69cf96d8eea23f4b6ebab36477",
+    "runtime_sha256": "1c7c644c5187332e6fb5034fef0e232b5c1ae1e5f352b53fea90f7fd8acc4fb3"
+  },
+  "candidate": {
+    "runtime_sha256": "6af876ef5ddc851f4fff56ba3dc4f20e76b2cfc9f5e31d0cc8d1a0ec20e954be",
+    "file_sha256": {
+      "src/memory_book/token_budget.py": "78a56191a07c56b57be06dbcef58c5dd938d98497f45c575107cddc789895a80",
+      "src/memory_book/store.py": "419b8856a225497392cd204e892b1029644292ddf3b5dd61014bbba0cbedcf82",
+      "tests/test_round5_candidate_c5.py": "3d24eac4e1bb626d41f3fcebe6af84285c6a681af14305b47324feee1e697b29"
+    },
+    "source_commit_boundary": "Parent will freeze these exact bytes; no provisional Git commit is asserted by this review."
+  },
+  "scope": [
+    "Read the complete C5 changes to store.py and token_budget.py relative to C4, including follow-up guard fixes.",
+    "Read every new test in tests/test_round5_candidate_c5.py and independently recompute runtime and listed file hashes.",
+    "Review exact-text memo keys, both-encoder shared entry/text-object bounds, method and native core identities, fallback behavior, exceptional cleanup and unchanged source-validation placement."
+  ],
+  "findings_fixed": [
+    {
+      "id": "receiver-identity",
+      "identified_by": "independent release_audit reviewer",
+      "problem": "An original Encoding method rebound to another Encoding has the same __func__ but a different __self__. A warm count keyed to the first encoding could therefore be returned for a call that now uses the other encoding. The same function-only guard also allowed a counter method rebound to another counter to retain sealed-boundary certification.",
+      "fix_verified": "_ordinary_encoding now requires the original function and the exact bound receiver for counter.count, counter.count_after and all three Encoding methods.",
+      "regression_test": "test_rebinding_original_methods_to_another_receiver_is_uncertified"
+    },
+    {
+      "id": "optional-private-inspection",
+      "identified_by": "parent reviewer; independently checked here",
+      "problem": "Unconditional private _tiktoken import and direct _core_bpe access could reject a custom encoder whose original public exact-count method still worked.",
+      "fix_verified": "_encoding obtains the public encoder/version first, treats optional typed native-core inspection as certification only, and returns an uncertified fallback when private inspection is unavailable.",
+      "regression_test": "test_fake_encoder_without_private_core_uses_original_exact_path"
+    },
+    {
+      "id": "removed-pattern-fallback",
+      "identified_by": "core implementation follow-up; independently checked here",
+      "problem": "Removing private Python pattern metadata after memo warming must disable the optimization without adding an AttributeError before an otherwise working original encode.",
+      "fix_verified": "_memo_identity uses tolerant getattr for the current pattern and requires identity with the previously approved immutable pattern.",
+      "regression_test": "test_unknown_or_removed_pattern_and_versions_keep_full_counting"
+    }
+  ],
+  "reviewed_invariants": [
+    "The original TokenCounter.count method owns the optional memo; no replacement wrapper changes its sealed-boundary method identity.",
+    "Eligible keys contain the complete unchanged native str and tokenizer name; a bounded current Encoding/CoreBPE identity map governs reuse. No page/query/result identity or normalized/digest-only text key is used.",
+    "Both registered tokenizer names share 2048 entries and 2097152 retained str-object bytes. sys.getsizeof is charged after successful encode; oversized values bypass storage without evicting normal entries.",
+    "Encoding/core/method/version/pattern changes bypass reuse and invalidate retained generations. The same core identity guard protects sealed-boundary certification; clearing the encoding loader cannot recertify a replaced private core.",
+    "Identity is checked again after a real encode before insertion. Zero counts remain valid hits and encode exceptions are not cached.",
+    "Subclass text and counters, class/instance wrappers, cross-receiver original methods, unknown implementations and missing private metadata retain original exact counting.",
+    "Memo allocation is lazy for token-budget recalls; character-only recall and nonallocating diagnostics leave it absent. Standalone counters do not receive a connection memo.",
+    "MemoryBook.close clears entries, text-byte accounting and retained encoder identities even if DB close and directory-cache cleanup raise.",
+    "All retrieval, corruption validation, source projection and full response assembly still execute. New warm-memo source-corruption and complete-payload differential tests cover that boundary."
+  ],
+  "test_evidence_boundary": "The core agent reported its directed suite and dependency-free checks passed. This independent reviewer inspected the tests and changes but did not rerun or add those test counts. The parent retains the separate correctness execution receipt.",
+  "independent_actions": {
+    "static_source_review": true,
+    "test_source_review": true,
+    "sha256_recomputed": true,
+    "repeated_runtime_tests": 0,
+    "retrieval_calls_executed": 0,
+    "tokenizer_or_model_executions": 0,
+    "timing_runs_executed": 0
+  },
+  "limits": [
+    "A static review and small targeted regression suite do not prove every possible program execution.",
+    "The certification trusts the initially observed native tokenizer implementation. Deliberately forging the private tokenizer registry/core and matching metadata before first observation remains outside the pre-existing certification contract.",
+    "The 2 MiB bound covers retained text objects, not key/container/encoder overhead or whole-process memory. Actual RSS and the original independent resource-review gate still apply.",
+    "This verdict authorizes the next preregistered development comparison only. It is not numerical performance acceptance, a release approval, a new retrieval-quality evaluation or competitor superiority evidence. No v0.3.3 approved-runtime hash may be inferred from it."
+  ]
+}

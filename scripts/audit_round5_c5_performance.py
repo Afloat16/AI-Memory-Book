@@ -23,7 +23,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCES = {
     "baseline": {"commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
                  "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"},
-    "candidate": {"commit": None, "runtime_sha256": None},
+    "candidate": {"commit": "8dc6604fa32df18d53286110b215fc6657243656",
+                  "runtime_sha256": "6af876ef5ddc851f4fff56ba3dc4f20e76b2cfc9f5e31d0cc8d1a0ec20e954be"},
 }
 CONTINUATION_PATH = "benchmarks/experiments/round5-c5-addendum.json"
 CONTINUATION_COMMIT = "7753e7566b1cd57bf5bcaad02d15ce1fa970f839"
