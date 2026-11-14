@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "protocol": "round7-cpython-identifiers-v1",
+  "status": "selection-rule-registered-before-download-and-scoring",
+  "purpose": "Measure code-evidence retrieval for real API identifiers and ordinary spelling variants; this is not AI answer or patch success.",
+  "upstream": {
+    "repository": "python/cpython",
+    "tag": "v3.12.0",
+    "commit": "0fb18b02c8ad56299d6a2910be0bab8ad601ef24",
+    "license_path": "LICENSE",
+    "paths": ["Lib/http/client.py", "Lib/http/server.py", "Lib/html/parser.py", "Lib/json/decoder.py", "Lib/json/encoder.py", "Lib/xml/etree/ElementTree.py", "Lib/urllib/request.py", "Lib/xmlrpc/server.py"]
+  },
+  "corpus_rule": "All AST ClassDef nodes plus module-level FunctionDef/AsyncFunctionDef nodes in the eight fixed files. Each document is at most the first 1800 characters of the original definition, with original path, line range, commit and source hash. Never generate or add synonyms to indexed source. Conditional class definitions remain included. Stable document ID uses path and source line.",
+  "query_rule": "Every ClassDef name matching [A-Z]{2,}[a-z], without outcome-based exclusions. Four queries per definition: exact name; acronym/camel boundaries split with spaces; the same spaced text lowercased; Where is <spaced text> defined? Duplicate query strings across variants are retained and identified. These are automatically authored queries over real source, not real user transcripts or an unseen random population.",
+  "splitting": "This is a hypothesis-aligned confirmation pilot selected before scoring; once scored it becomes regression data. Existing HTTPServer artificial fixture is disclosed overlap in identifier family. No engineering task or real-user generalization claim follows.",
+  "arms": ["v0.3.4", "round7-candidate", "raw-text-search", "billion-context-component", "no-memory"],
+  "baseline": {"commit": "8ad9cbe50a0e387e8baf89690b85cac5e9d575d4", "runtime_sha256": "f361d2bf64a4e1088cbd5cff6ffdaf19aa15e7f1b7ea1de4577d7a488d2ac242"},
+  "competitor_lock": "benchmarks/competitors/billion-round2-lock.json",
+  "raw_text_search": "Independent case-insensitive identifier/camel/acronym token search over all original documents; rank full compact-identifier equality before complete token coverage, then matching token count and stable source ID. This competent code-search baseline deliberately handles name splitting and receives the same original text.",
+  "common_controls": {"limit": 5, "tokenizer": "cl100k_base", "token_budgets": [1024, 4096], "result_cache": false, "repetitions": 3, "shuffle_seed": 7319, "packing": "Same original whole document blocks, same source citation header and token counter; stop when next whole block cannot fit. Native response costs measured separately; no cross-boundary whole-product speed ranking."},
+  "quality": ["Correct source-definition hit at rank 1", "Correct source-definition retained under common token budget", "Reciprocal rank", "Missing/duplicate/unmapped-source errors", "Budget violations"],
+  "costs": ["Observed lookup wall milliseconds", "Native search milliseconds where provided", "Context tokens", "Ingestion and initialization milliseconds", "Source database bytes when applicable"],
+  "acceptance": {"type": "bounded retrieval candidate acceptance, not universal product superiority", "required": ["At least 10 percentage points higher aggregate budgeted definition hit rate than v0.3.4 on spaced and lowercased variants at 1024 tokens", "Exact-name hit rate does not decrease", "No invented source, unknown IDs or token budget violations", "All existing applicable core tests pass", "All timing regressions and code-search/competitor losses reported"]},
+  "timing_interpretation": "Small local component pilot, descriptive only. Repetitions are correlated, not independent user tasks. A slower candidate cannot be called a faster AI solely because retrieval quality improves.",
+  "before_first_score": ["Freeze downloaded source hashes and complete dataset/query IDs", "Freeze candidate runtime and evaluator hashes", "Review denominator and evidence mapping; preserve every attempt"],
+  "real_agent_execution": {"status": "blocked", "observed_reason": "codex login status returned Not logged in (exit 1); no authenticated standalone inference backend observed", "generated_answers": 0, "generated_patches": 0}
+}

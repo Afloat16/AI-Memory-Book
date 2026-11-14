@@ -1,0 +1,279 @@
+{
+  "scope": "round7 development-only artificial logical fixtures; no heldout or timing evaluation; no repository code changes",
+  "tokens": {
+    "HTTPServer": {
+      "index_terms": [
+        "httpserver"
+      ],
+      "query_terms": [
+        "httpserver"
+      ]
+    },
+    "HTTP Server": {
+      "index_terms": [
+        "http",
+        "server"
+      ],
+      "query_terms": [
+        "http",
+        "server"
+      ]
+    },
+    "parseHTTPRequest": {
+      "index_terms": [
+        "parse",
+        "httprequest"
+      ],
+      "query_terms": [
+        "parse",
+        "httprequest"
+      ]
+    },
+    "parse HTTP request": {
+      "index_terms": [
+        "parse",
+        "http",
+        "request"
+      ],
+      "query_terms": [
+        "parse",
+        "http",
+        "request"
+      ]
+    },
+    "read_page": {
+      "index_terms": [
+        "read",
+        "page"
+      ],
+      "query_terms": [
+        "read",
+        "page"
+      ]
+    },
+    "readPage": {
+      "index_terms": [
+        "read",
+        "page"
+      ],
+      "query_terms": [
+        "read",
+        "page"
+      ]
+    },
+    "read/page": {
+      "index_terms": [
+        "read",
+        "page"
+      ],
+      "query_terms": [
+        "read",
+        "page"
+      ]
+    },
+    "read page": {
+      "index_terms": [
+        "read",
+        "page"
+      ],
+      "query_terms": [
+        "read",
+        "page"
+      ]
+    },
+    "std::vector": {
+      "index_terms": [
+        "std",
+        "vector"
+      ],
+      "query_terms": [
+        "std",
+        "vector"
+      ]
+    },
+    "C++": {
+      "index_terms": [
+        "c"
+      ],
+      "query_terms": [
+        "c"
+      ]
+    },
+    "C": {
+      "index_terms": [
+        "c"
+      ],
+      "query_terms": [
+        "c"
+      ]
+    },
+    "C#": {
+      "index_terms": [
+        "c"
+      ],
+      "query_terms": [
+        "c"
+      ]
+    },
+    "latest_snapshot": {
+      "index_terms": [
+        "latest",
+        "snapshot"
+      ],
+      "query_terms": [
+        "snapshot"
+      ]
+    },
+    "current_state": {
+      "index_terms": [
+        "current",
+        "state"
+      ],
+      "query_terms": [
+        "state"
+      ]
+    }
+  },
+  "recall_calls": 5,
+  "cases": [
+    {
+      "name": "acronym_exact_vs_spaced",
+      "results": [
+        {
+          "query": "HTTPServer",
+          "context": "[p_5ac5fd30a8cd69bbbc4f6059] engineering / http | 2025-01-01T00:00:00+00:00\nUSER: Record this engineering decision.\n\nASSISTANT: HTTPServer rejects duplicate Content-Length headers.",
+          "sessions": [
+            "http"
+          ],
+          "candidate_count": 1,
+          "warnings": []
+        },
+        {
+          "query": "HTTP Server",
+          "context": "",
+          "sessions": [],
+          "candidate_count": 0,
+          "warnings": []
+        }
+      ]
+    },
+    {
+      "name": "latest_with_or_without_explicit_task",
+      "task_id": null,
+      "chapters": 2,
+      "results": [
+        {
+          "query": "What is the current request retry backoff?",
+          "context": "[p_da3fdefaeaecc04fb50a6bfc] engineering / old | 2024-01-01T00:00:00+00:00\nUSER: Record this engineering decision.\n\nASSISTANT: Request retry backoff is 7 seconds. Request retry backoff, request retry backoff, request retry backoff.",
+          "sessions": [
+            "old"
+          ],
+          "candidate_count": 2,
+          "warnings": [
+            "Historical evidence can conflict. Check source timestamps; retrieval does not resolve which decision is authoritative."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "latest_with_or_without_explicit_task",
+      "task_id": "retry-policy",
+      "chapters": 1,
+      "results": [
+        {
+          "query": "What is the current request retry backoff?",
+          "context": "[p_773a180e6d9c3ce0c7615c06] engineering / new | 2025-01-01T00:00:00+00:00\nUSER: Record this engineering decision.\n\nASSISTANT: Request retry backoff is 19 seconds.",
+          "sessions": [
+            "new"
+          ],
+          "candidate_count": 2,
+          "warnings": [
+            "Historical evidence can conflict. Check source timestamps; retrieval does not resolve which decision is authoritative."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "as_of_is_not_a_time_filter",
+      "results": [
+        {
+          "query": "What was cache invalidation as of 2024?",
+          "context": "[p_c6572e7fd7daf8f224112698] engineering / new | 2025-01-01T00:00:00+00:00\nUSER: Record this engineering decision.\n\nASSISTANT: Cache invalidation uses event notifications. Cache invalidation, cache invalidation, cache invalidation.",
+          "sessions": [
+            "new"
+          ],
+          "candidate_count": 2,
+          "warnings": []
+        }
+      ]
+    }
+  ],
+  "capture": {
+    "input": [
+      {
+        "type": "session_meta",
+        "timestamp": "2025-01-01T00:00:00Z",
+        "payload": {
+          "id": "synthetic-session",
+          "cwd": "/work/api",
+          "git": {
+            "branch": "feature/cache",
+            "commit_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "repository_url": "https://example.invalid/team/api"
+          }
+        }
+      },
+      {
+        "type": "response_item",
+        "timestamp": "2025-02-01T00:00:00Z",
+        "payload": {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "Use the revised cache policy."
+            }
+          ]
+        }
+      },
+      {
+        "type": "response_item",
+        "timestamp": "2025-02-01T00:00:01Z",
+        "payload": {
+          "type": "function_call_output",
+          "output": "test_cache_invalidation PASSED"
+        }
+      }
+    ],
+    "transcript_info": {
+      "format": "codex",
+      "workspaces": [
+        "/work/api"
+      ],
+      "projects": [],
+      "project_hashes": []
+    },
+    "parsed": [
+      {
+        "project": "engineering",
+        "session_id": "synthetic-session",
+        "title": "Use the revised cache policy.",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Use the revised cache policy."
+          }
+        ],
+        "created_at": "2025-01-01T00:00:00Z"
+      }
+    ]
+  },
+  "workspace_ids": {
+    "/work/api": "api-c24c3b6218aa",
+    "/work/api/src": "src-5d86aef5e856",
+    "/work/api-wt-feature": "api-wt-feature-27b7b6ff47e4",
+    "/team-one/api": "api-dae96ee43c49",
+    "/team-two/api": "api-f0e541b8e799"
+  }
+}
