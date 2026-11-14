@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "status": "static_review_completed",
+  "created_at_utc": "2026-11-14T03:56:07.928529+00:00",
+  "candidate_source": {
+    "commit": "8dc6604fa32df18d53286110b215fc6657243656",
+    "runtime_sha256": "6af876ef5ddc851f4fff56ba3dc4f20e76b2cfc9f5e31d0cc8d1a0ec20e954be"
+  },
+  "local_versions": {
+    "mcp": "1.30.0",
+    "anyio": "4.16.0",
+    "pydantic": "2.14.3",
+    "tiktoken": "0.12.0"
+  },
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "primary_sources": [
+    {
+      "role": "mcp FastMCP dispatch",
+      "path": "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/mcp/server/fastmcp/server.py",
+      "bytes": 54820,
+      "sha256": "1b1c8cd4f6e350f7d4f62627764ed7c0f51e85872d32aba9d9da560a2bd2c50c",
+      "symbols": [
+        "lifespan_wrapper",
+        "FastMCP.run",
+        "FastMCP.run_stdio_async",
+        "FastMCP.call_tool"
+      ]
+    },
+    {
+      "role": "mcp low-level dispatch",
+      "path": "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/mcp/server/lowlevel/server.py",
+      "bytes": 35263,
+      "sha256": "1e8df33dc1c8084891cabaa94a6c9ffb46ea054126433e0f8596d290b79ccc24",
+      "symbols": [
+        "Server.run",
+        "Server._handle_message",
+        "Server._handle_request"
+      ]
+    },
+    {
+      "role": "mcp tool manager",
+      "path": "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/mcp/server/fastmcp/tools/tool_manager.py",
+      "bytes": 2972,
+      "sha256": "acd8c9ebfba0e8764426e60868deeaa931a012a8824e16ba4f479e4991bd2a76",
+      "symbols": [
+        "ToolManager.call_tool"
+      ]
+    },
+    {
+      "role": "mcp tool execution",
+      "path": "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/mcp/server/fastmcp/tools/base.py",
+      "bytes": 4740,
+      "sha256": "87626ba624d33218ffb7542140dc888453e33130fdefeadc8909d47bc600ca54",
+      "symbols": [
+        "Tool.run"
+      ]
+    },
+    {
+      "role": "mcp sync function call",
+      "path": "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/mcp/server/fastmcp/utilities/func_metadata.py",
+      "bytes": 23275,
+      "sha256": "c951a064ea3f1488c2f9685168ab049a31d9772c5ff06340f1b435399e1db18c",
+      "symbols": [
+        "FuncMetadata.call_fn_with_arg_validation"
+      ]
+    },
+    {
+      "role": "AnyIO asyncio spawn",
+      "path": "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py",
+      "bytes": 112180,
+      "sha256": "b8a895e8b5f53777ab174c8ec6faec328fd56a278b7ce78cee2fdf27727a9bb7",
+      "symbols": [
+        "TaskGroup._spawn"
+      ]
+    },
+    {
+      "role": "AnyIO task wrapper",
+      "path": "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/anyio/_core/_tasks.py",
+      "bytes": 15391,
+      "sha256": "27676133f26adc6aec7e0fde9cd5a9473d92c5f335e6e2edfa911fbe842adee0",
+      "symbols": [
+        "TaskHandle._run_coro"
+      ]
+    },
+    {
+      "role": "Python task ContextVar inheritance",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/tasks.py",
+      "bytes": 37362,
+      "sha256": "6f6aad82d597fea1800004075b9a2481604da0035f1143af1eb267823ec460e3",
+      "symbols": [
+        "Task.__init__"
+      ]
+    },
+    {
+      "role": "stdlib JSON encoder construction",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/__init__.py",
+      "bytes": 14020,
+      "sha256": "d5d41e2c29049515d295d81a6d40b4890fbec8d8482cfb401630f8ef2f77e4d5",
+      "symbols": [
+        "dumps"
+      ]
+    },
+    {
+      "role": "product server",
+      "path": "/workspace/scratch/36b34eafc753/AI-Memory-Book/src/memory_book/mcp_server.py",
+      "bytes": 14020,
+      "sha256": "f9d4ee7f5eebd0eb76a7ca260a62bd98526b445e25e618bd6b77dff1de425fd3",
+      "symbols": [
+        "create_server.lifespan",
+        "create_server.acquire_book",
+        "serve"
+      ],
+      "matches_frozen_c5_source_file": true
+    },
+    {
+      "role": "product token memo ownership",
+      "path": "/workspace/scratch/36b34eafc753/AI-Memory-Book/src/memory_book/store.py",
+      "bytes": 69299,
+      "sha256": "419b8856a225497392cd204e892b1029644292ddf3b5dd61014bbba0cbedcf82",
+      "symbols": [
+        "MemoryBook.__init__",
+        "MemoryBook.close",
+        "MemoryBook.recall"
+      ],
+      "matches_frozen_c5_source_file": true
+    },
+    {
+      "role": "product token memo generation",
+      "path": "/workspace/scratch/36b34eafc753/AI-Memory-Book/src/memory_book/token_budget.py",
+      "bytes": 30632,
+      "sha256": "78a56191a07c56b57be06dbcef58c5dd938d98497f45c575107cddc789895a80",
+      "symbols": [
+        "_ExactTokenMemo.clear",
+        "_ExactTokenMemo.invalidate",
+        "TokenCounter.count"
+      ],
+      "matches_frozen_c5_source_file": true
+    },
+    {
+      "role": "lifecycle tests",
+      "path": "/workspace/scratch/36b34eafc753/AI-Memory-Book/tests/test_mcp_lifecycle.py",
+      "bytes": 10457,
+      "sha256": "a0dd5ae4d30a531b0fdd0624a3dad0d1cd136735372d08b05e4084261e0539de",
+      "symbols": [
+        "MCPLifecycleTests"
+      ]
+    },
+    {
+      "role": "stdio token-budget tests",
+      "path": "/workspace/scratch/36b34eafc753/AI-Memory-Book/tests/test_token_budget_mcp.py",
+      "bytes": 3772,
+      "sha256": "05a59a060cf752a6cb77bffcd54b022b9ec00ad9c3534fce0ed5e2e2d9f49938",
+      "symbols": [
+        "TokenBudgetMCPTests"
+      ]
+    },
+    {
+      "role": "frozen actual MCP evaluator",
+      "path": "/workspace/scratch/36b34eafc753/AI-Memory-Book/scripts/round4_performance.py",
+      "bytes": 74354,
+      "sha256": "7e1b987e62e1950b7c6f842942d2e294a74284a16cf4cdc58bfe326e4e4044a7",
+      "symbols": [
+        "mcp_configuration"
+      ]
+    }
+  ],
+  "execution": {
+    "retrieval_calls": 0,
+    "timing_runs": 0,
+    "tests_executed": 0,
+    "stdio_sessions_started": 0,
+    "source_files_modified": 0
+  },
+  "conclusion": {
+    "kind": "static code-path inference, not a new wire observation",
+    "sync_tools_offloaded_to_worker_thread": false,
+    "expected_connection_lifetime": "One lazy MemoryBook per actual stdio transport lifespan on the event-loop thread, for an existing stable on-disk database.",
+    "automatic_per_call_fallback_found_in_normal_sdk_path": false,
+    "actual_formal_c5_constructor_count_or_memo_hit_rate_observed": false,
+    "explains_c5_mcp_numeric_shortfall": false
+  },
+  "inheritance_chain": [
+    "Product serve calls FastMCP.run(transport=stdio); its stdio branch invokes anyio.run(run_stdio_async).",
+    "FastMCP lifespan_wrapper enters the product lifespan in the same task. Product lifespan creates _BookResource(owner_thread=get_ident()) and sets its own ContextVar before yielding.",
+    "Low-level Server.run enters that lifespan before creating the ServerSession and starting each _handle_message through an AnyIO task group.",
+    "AnyIO asyncio TaskGroup._spawn calls loop.create_task without overriding context. Python Task copies the current Context when none is passed. The copied Context holds the same mutable _BookResource object; it does not clone the Book.",
+    "SDK request_ctx.set changes a separate request ContextVar; it does not reset the product resource ContextVar.",
+    "FastMCP.call_tool awaits ToolManager.call_tool, which awaits Tool.run, which awaits FuncMetadata.call_fn_with_arg_validation. For synchronous functions its branch directly returns fn(**arguments_parsed_dict), with no to_thread/run_sync/executor boundary.",
+    "Product acquire_book therefore observes the active resource and same owner thread under the normal path. A stable before/after (st_dev,st_ino) retains the Book until transport cleanup."
+  ],
+  "intentional_temporary_connection_cases": [
+    "Direct SDK calls without transport lifespan",
+    "Inactive resource retained by a stale context",
+    "A foreign thread, including copied ContextVars under asyncio.to_thread",
+    ":memory: database",
+    "Missing/unusable file identity or a newly created file without stable before/after identity",
+    "Database replacement: close old Book and retain a new one only after stable identity checks"
+  ],
+  "memo_cleanup": [
+    "MemoryBook initializes _token_count_memo=None, lazily creates it for the first token-budget recall, and attaches the same memo to each ordinary TokenCounter on that Book.",
+    "MemoryBook.close clears retained memo entries/encoder identities in a finally block, including exceptional close cleanup; counters remain cumulative.",
+    "TokenCounter.count/_ExactTokenMemo.lookup invalidate a memo when certified encoder/core identity changes or eligible encoding loses certification. Ordinary fixed encoders preserve the memo.",
+    "The external DELETE FROM recall_cache in the frozen MCP helper changes query-result records only; there is no corresponding _token_count_memo clear/reset path. Each MCP configuration intentionally gets a new server process, so warmth is not shared across configurations."
+  ],
+  "test_coverage": {
+    "manual_lifespan_real_sdk_calls": "test_lifespan_reuses_one_connection_and_preserves_payload_and_schema counts one open across four gathered direct server.call_tool calls and one close at lifespan exit, with schema/payload equality.",
+    "fallback_guards": "Direct/no-lifespan and asyncio.to_thread calls assert temporary connection closure; exceptional lifespan cleanup, distinct servers, file replacement and unusable inode cases are covered.",
+    "actual_stdio": "test_real_stdio_observes_external_writer_and_invalidates_cached_recall uses ClientSession/stdio and checks repeated results and external ingestion visibility, but does not count Book/SQLite constructors or closes.",
+    "token_stdio": "test_stdio_strict_integer_and_compact_detailed_budget_parity checks real protocol argument types and exact budgets, not Book or token-memo reuse.",
+    "gap": "No existing real-stdio test records the connection count/thread/memo identity. Successful wire payload equality alone cannot distinguish retained connections from correct per-call fallback."
+  },
+  "next_observation": "No additional calls planned here. The core agent’s already planned one actual-stdio SQL-template observation should record connection identifiers/counts and open/close threads on the pre-existing stable fixture, alongside its normal SQL trace. That observation remains diagnostic, not a new formal timing sample.",
+  "normal_result_cache_static_review": {
+    "baseline_boundary": "Actual MCP uses default cache_size=128/use_cache=True and retains the normal read/write transaction path; native formal calls use cache_size=0/use_cache=False. This legitimate surface difference must remain.",
+    "required_work": [
+      "BEGIN IMMEDIATE",
+      "Recheck revision under the write lock",
+      "Serialize and INSERT OR REPLACE the complete native result only when revision still matches",
+      "Prune by original touched_ns ordering and configured capacity",
+      "COMMIT or original rollback/error behavior"
+    ],
+    "low_risk_small_candidate": "A private reusable stdlib JSONEncoder with the exact existing ensure_ascii=False, sort_keys=True and compact separators can avoid constructing that encoder on every _json call; actual gain is unmeasured and likely small. Preserve ordinary stdlib encoding, output bytes, errors and per-call local encode state; do not introduce cached response strings.",
+    "not_prioritized": "A touched_ns pruning index can help a populated production result cache but adds index write/storage costs and requires tie-order scrutiny. It offers no evident leverage when a normal query leaves a single row, so it is not a justified primary C6 direction without SQL evidence.",
+    "not_equivalent_without_more_proof": [
+      "Skipping writes/pruning based on benchmark cache clearing",
+      "Moving result serialization before the guarded revision check (extra work/error behavior on concurrent changes)",
+      "Replacing the guarded revision SELECT with INSERT SELECT while unconditionally serializing its parameters",
+      "Changing result-cache payload, touched time, eviction semantics or SQLite durability"
+    ],
+    "recommendation": "Keep every real MCP cache write and choose larger work reduction from the planned SQL-template/reuse trace. No unconditional safe large reduction in the normal cache write path is established by static reading."
+  }
+}
