@@ -103,6 +103,42 @@ PRAGMA application_id = 1296191307;
 PRAGMA user_version = 3;
 """
 
+# sqlite_schema omits IF NOT EXISTS and the final semicolon. Accept only the
+# exact tables we create; an INTEGER PRIMARY KEY DESC lookalike is not a rowid
+# alias and cannot certify a dense project by its count alone.
+_DENSE_RANK_SCHEMAS = tuple(
+    prefix.replace("IF NOT EXISTS ", "", 1) + SCHEMA.split(prefix, 1)[1].split(";", 1)[0]
+    for prefix in ("CREATE TABLE IF NOT EXISTS pages (",
+                   "CREATE VIRTUAL TABLE IF NOT EXISTS pages_fts ",
+                   "CREATE VIRTUAL TABLE IF NOT EXISTS pages_stem_fts "))
+
+
+class _RecallConnection(sqlite3.Connection):
+    """Track normal customization APIs before using native FTS rank ordering."""
+
+    __slots__ = ("_rank_ordinary",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._rank_ordinary = True
+
+
+def _rank_customization(method):
+    def forwarded(self, *args, **kwargs):
+        self._rank_ordinary = False
+        return method(self, *args, **kwargs)
+    return forwarded
+
+
+# Preserve the available Python/SQLite API, including Python 3.10's absence
+# of setlimit and create_window_function. Invalidation is deliberately final.
+for _method_name in ("create_function", "create_aggregate", "create_window_function",
+        "load_extension", "enable_load_extension", "create_collation", "set_authorizer",
+        "set_progress_handler", "set_trace_callback", "setlimit"):
+    _connection_method = getattr(sqlite3.Connection, _method_name, None)
+    if _connection_method is not None:
+        setattr(_RecallConnection, _method_name, _rank_customization(_connection_method))
+
 
 def _json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
@@ -291,7 +327,7 @@ class MemoryBook:
         if self.path != ":memory:":
             Path(self.path).expanduser().resolve().parent.mkdir(parents=True, exist_ok=True)
             self.path = str(Path(self.path).expanduser())
-        self.db = sqlite3.connect(self.path, timeout=10, isolation_level=None)
+        self.db = sqlite3.connect(self.path, timeout=10, isolation_level=None, factory=_RecallConnection)
         self.db.row_factory = sqlite3.Row
         self.db.execute("PRAGMA foreign_keys=ON")
         self.db.execute("PRAGMA busy_timeout=10000")
@@ -349,7 +385,7 @@ class MemoryBook:
         loop, including its sort, binding and corruption errors. In particular
         Python 3.10 has no getlimit, so it retains that original query path.
         """
-        if (type(self.db) is not sqlite3.Connection or self.db.row_factory is not sqlite3.Row
+        if (type(self.db) not in (sqlite3.Connection, _RecallConnection) or self.db.row_factory is not sqlite3.Row
                 or self.db.text_factory is not str or len(wanted) < 2
                 or any(type(session) is not str or type(ordinals) is not set or not ordinals
                     or any(type(ordinal) is not int or not -(1 << 63) <= ordinal < (1 << 63)
@@ -736,6 +772,85 @@ class MemoryBook:
             return (lo, hi)
         return None
 
+    def _dense_project_rank(self, project: str | None, bounds: tuple[int, int] | None) -> bool:
+        """Certify a dense ordinary project under recall's current snapshot.
+
+        The actual rowid-alias schema plus count == integer span proves every
+        rowid in the range has exactly one page belonging to this project.
+        FTS may then rank that range without first joining each hit to pages.
+        No schema or data certificate survives this request.
+        """
+        if (type(self.db) is not _RecallConnection or not self.db._rank_ordinary
+                or self.db.row_factory is not sqlite3.Row or self.db.text_factory is not str
+                or type(project) is not str or type(bounds) is not tuple or len(bounds) != 2
+                or any(type(value) is not int for value in bounds)
+                or bounds[1] - bounds[0] + 1 <= 96
+                or any((kind, sqlite3.PrepareProtocol) in sqlite3.adapters
+                       for kind in (int, float, str))):
+            return False
+        getlimit = getattr(self.db, "getlimit", None)
+        if getlimit is None or any(getlimit(category) < minimum
+                for category, minimum in ((sqlite3.SQLITE_LIMIT_COLUMN, 2000),
+                    (sqlite3.SQLITE_LIMIT_EXPR_DEPTH, 1000),
+                    (sqlite3.SQLITE_LIMIT_COMPOUND_SELECT, 500),
+                    (sqlite3.SQLITE_LIMIT_VDBE_OP, 250000000),
+                    (sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER, 1024),
+                    (sqlite3.SQLITE_LIMIT_SQL_LENGTH, 10000),
+                    (sqlite3.SQLITE_LIMIT_LENGTH, 1000000000))):
+            return False
+        # CASE avoids scanning a noncanonical or shadowed table. Any temp
+        # object is conservatively ineligible, including mixed-case shadows.
+        count = self.db.execute("""SELECT CASE WHEN
+          (SELECT sql FROM main.sqlite_master WHERE type='table' AND name='pages')=?
+          AND (SELECT sql FROM main.sqlite_master WHERE type='table' AND name='pages_fts')=?
+          AND (SELECT sql FROM main.sqlite_master WHERE type='table' AND name='pages_stem_fts')=?
+          AND NOT EXISTS(SELECT 1 FROM temp.sqlite_master)
+          THEN (SELECT COUNT(*) FROM pages WHERE project_id=?) END""",
+          (*_DENSE_RANK_SCHEMAS, project)).fetchone()[0]
+        return type(count) is int and count == bounds[1] - bounds[0] + 1
+
+    def _dense_rank_route(self, table: str, expression: str, bounds: tuple[int, int],
+                          metadata: str) -> list[sqlite3.Row] | None:
+        """Keep a complete cutoff tie, then apply the original SQL tie-break.
+
+        Only rowid/rank cross into Python before the final LIMIT. In particular
+        the boundary lookahead never decodes an unselected page identifier.
+        More than 512 required pairs chooses the unchanged original route.
+        SQL failures are not swallowed or retried.
+        """
+        cursor = self.db.execute(f"""SELECT rowid,rank FROM {table}
+          WHERE {table} MATCH ? AND rank MATCH 'bm25(2.0,2.0,1.0,0.25)'
+            AND rowid BETWEEN ? AND ? ORDER BY rank""", (expression, *bounds))
+        pairs = []
+        cutoff = previous = None
+        try:
+            for rowid, rank in cursor:
+                if (type(rowid) is not int or type(rank) is not float or not math.isfinite(rank)
+                        or (previous is not None and rank < previous)):
+                    return None
+                if cutoff is not None and rank > cutoff:
+                    break
+                if len(pairs) == 512:
+                    return None
+                pairs.append((rowid, rank))
+                previous = rank
+                if len(pairs) == 96:
+                    cutoff = rank
+        finally:
+            cursor.close()
+        if not pairs:
+            return []
+        # An adapter can be registered outside this connection's API. Never
+        # rebind numeric ranks through a currently customized scalar adapter.
+        if (not self.db._rank_ordinary or any((kind, sqlite3.PrepareProtocol) in sqlite3.adapters
+                                             for kind in (int, float, str))):
+            return None
+        statement = ("WITH scored(rid,rank) AS (VALUES " + ",".join("(?,?)" for _ in pairs) +
+            f""") SELECT p.rid,p.id,scored.rank AS rank{metadata}
+              FROM scored JOIN pages p INDEXED BY pages_recall_metadata ON p.rid=scored.rid
+              ORDER BY scored.rank,p.id LIMIT 96""")
+        return self.db.execute(statement, [value for pair in pairs for value in pair]).fetchall()
+
     def _bounded_candidate_metadata(self, rows: dict[str, dict], relevance: dict[str, float],
                                     count: int) -> dict[str, dict] | None:
         """Load shared directories once, retaining a certified ranking prefix.
@@ -882,7 +997,7 @@ class MemoryBook:
                 covering_hint = (" INDEXED BY pages_recall_metadata" if
                                  project_bounds is not None or (chapter is None and session is None) else "")
                 carry_metadata = (use_stem and not coverage and not semantic
-                    and type(self.db) is sqlite3.Connection
+                    and type(self.db) in (sqlite3.Connection, _RecallConnection)
                     and self.db.row_factory is sqlite3.Row and self.db.text_factory is str
                     and self._directory_tokens is self._ordinary_directory_cache
                     and getattr(self._directory_tokens, "__wrapped__", None) is _ORDINARY_DIRECTORY_TOKENS)
@@ -898,6 +1013,8 @@ class MemoryBook:
                             (sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER, 192),
                             (sqlite3.SQLITE_LIMIT_SQL_LENGTH, 10000)))
                 route_metadata = ",p.project_id,p.chapter_id,p.session_pk" if carry_metadata else ""
+                dense_rank = (carry_metadata and chapter is None and session is None
+                              and self._dense_project_rank(project, project_bounds))
                 routes = []
                 for table in (("pages_fts", "pages_stem_fts") if use_stem else ("pages_fts",)):
                     # Table identifiers are fixed above; query text and every
@@ -923,7 +1040,10 @@ class MemoryBook:
                           JOIN pages p INDEXED BY pages_recall_metadata ON p.rid=hits.rid
                           JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk
                           ORDER BY hits.rank,p.id"""
-                    routes.append(self.db.execute(statement, route_params).fetchall() if qt else [])
+                    route = (self._dense_rank_route(table, expression, project_bounds, route_metadata)
+                             if dense_rank else None)
+                    routes.append((route if route is not None else
+                                   self.db.execute(statement, route_params).fetchall()) if qt else [])
                 # Identical ordered routes add no candidate/ranking information.
                 # Keep BM25's score scale so novelty selection does not change
                 # merely because the same ranking was observed a second time.
