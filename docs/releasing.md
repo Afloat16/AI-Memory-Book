@@ -18,8 +18,9 @@ existing **Tests** workflow to complete all nine jobs successfully on that exact
 commit. These include three core Python versions, MCP, the browser, three
 platform installers and the container. Benchmark acceptance precedes this
 packaging gate: register the v0.3.3 runtime hash only after the committed
-round-five acceptance report passes or a separately documented permitted
-resource review is completed. Packaging never repeats a benchmark.
+round-five acceptance report passes every correctness and numeric performance
+gate, and any required resource review has been independently completed and
+explicitly accepted. Packaging never repeats a benchmark.
 
 Fast-forward `main` to that same tested commit. Only after it is ready, create
 the branch `release/vVERSION` at exactly that SHA. The push starts
