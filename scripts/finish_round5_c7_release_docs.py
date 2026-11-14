@@ -17,15 +17,23 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
-RUN = None
-SOURCE = None
-RUNTIME = None
-BINDING_COMMIT = None
-BINDING_SHA256 = None
-EVALUATOR_COMMIT = None
-RESULT_COMMIT = None
-C7_CHANGE_SUMMARY = None
-C7_CHANGE_SUMMARY_ZH = None
+RUN = "43563390252-1"
+SOURCE = "d0c84cbfc9bad440ad447d41e211d070ef5b2cae"
+RUNTIME = "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+BINDING_COMMIT = "f0d51d62c60b61047f96b4a6b7a9771f8b0668f7"
+BINDING_SHA256 = "2560b0eae9d3332fb09da43fd49ebef069b8e41ddaef0fe9df1880db1e132588"
+EVALUATOR_COMMIT = "259fde01a3d189cf01b55b9765457daebc953bff"
+RESULT_COMMIT = "03838687f7d8d5995c2afa4c22ff5c30e7b12750"
+C7_CHANGE_SUMMARY = ("C7 combines the official MCP SDK's native stdout write and immediate flush in one worker dispatch, "
+    "reducing dispatch overhead while preserving complete messages, serialization and lifecycle.")
+C7_CHANGE_SUMMARY_ZH = ("C7 将官方 MCP SDK 的原生 stdout 写入与立即 flush 合并到一次工作线程调度，"
+    "减少调度开销，同时保留完整消息、序列化和生命周期。")
+RESOURCE_DECISION_SHA256 = "6f011ed654ca30bcd7a3833021b53f45af1afa967f84d722f760ec479b3c4f72"
+RESOURCE_DECISION_PATH = "benchmarks/experiments/round5-c7-resource-decision.json"
+RESOURCE_REVIEW_PATHS = {
+    "benchmarks/reports/round5-c7-resource-independent-review.json",
+    "benchmarks/reports/round5-c7-resource-secondary-review.json",
+}
 PUBLIC = "https://github.com/Afloat16/AI-Memory-Book/blob/v0.3.3/"
 BASELINE = {"commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
     "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"}
@@ -93,6 +101,77 @@ def equivalent(actual, expected):
     if type(actual) in (int, float) and type(expected) in (int, float):
         return math.isfinite(actual) and math.isfinite(expected) and math.isclose(actual, expected, rel_tol=1e-11, abs_tol=1e-9)
     return type(actual) is type(expected) and actual == expected
+
+
+def validate_resource_decision(decision, review_bytes, acceptance, context):
+    """Validate an explicit review under the original policy; never edit its verdict."""
+    require(acceptance["numeric_gate_passed"] is True
+            and acceptance["accepted"] is False
+            and acceptance["regressions_above_five_percent"] == [],
+            "A resource decision cannot override a numerical failure")
+    require(decision.get("schema_version") == 1
+            and decision.get("status") == "approved_after_independent_resource_review"
+            and decision.get("release_accepted") is True
+            and decision.get("original_automatic_accepted") is False
+            and decision.get("numeric_gate_passed") is True
+            and decision.get("thresholds_changed") is False
+            and decision.get("raw_reports_changed") is False
+            and decision.get("measurements_repeated") is False,
+            "Missing explicit resource decision or changed original verdict/policy")
+    require(all(decision.get(key) == value for key, value in context.items()),
+            "Resource decision belongs to another source, binding or original result")
+    triggers = acceptance["resource_review"]
+    expected_keys = {(r["cohort"], r["metric"]) for r in triggers}
+    require(expected_keys == {("synthetic61", "runtime_import_ms"),
+            ("public1015", "runtime_import_ms"), ("public1015", "native_open_ms")}
+            and len(triggers) == 3
+            and decision.get("triggered_resources") == triggers,
+            "Every original resource trigger and sample must be reviewed exactly")
+    records = decision.get("independent_reviews", [])
+    require(len(records) == 2 and {r.get("path") for r in records} == RESOURCE_REVIEW_PATHS
+            and set(review_bytes) == RESOURCE_REVIEW_PATHS,
+            "Both separately recorded independent reviews are required")
+    for record in records:
+        raw = review_bytes[record["path"]]
+        require(sha(raw) == record.get("sha256"), "Independent resource review bytes changed")
+        review = json.loads(raw)
+        require(review.get("recommendation") == "accept_disclosed_startup_tradeoff"
+                and review.get("original_automatic_accepted") is False
+                and review.get("numeric_gate_passed") is True
+                and review.get("no_new_measurements") is True,
+                "Independent review does not accept this disclosed tradeoff")
+        require(all(review.get(key) == context[key] for key in
+                ("original_result_commit", "report_sha256", "summary_sha256", "sources")),
+                "Independent review identifies another original result")
+        reviewed = review.get("reviewed_trigger_keys", [])
+        require(len(reviewed) == 3
+                and {(r["cohort"], r["metric"]) for r in reviewed} == expected_keys,
+                "Independent review omits or duplicates a resource trigger")
+    require(bool(decision.get("rationale")) and bool(decision.get("limitations")),
+            "Resource approval needs explicit reasons and evidence limits")
+    return decision
+
+
+def resource_disclosure(e, link, language="en"):
+    if e.get("resource_decision") is None:
+        maximum = max(r["mean_change_percent"] for r in e["g"]["resource_comparisons"])
+        return (f"All resource means remain below the 10% review trigger (maximum {maximum:.4f}%)."
+                if language == "en" else f"所有资源均值增幅均低于 10% 复核阈值（最大 {maximum:.4f}%）。")
+    rows = {(r["cohort"], r["metric"]): r for r in e["g"]["resource_review"]}
+    changes = [rows[key]["candidate"]["mean"] - rows[key]["baseline"]["mean"] for key in
+        (("synthetic61", "runtime_import_ms"), ("public1015", "runtime_import_ms"),
+         ("public1015", "native_open_ms"))]
+    open_change = rows["public1015", "native_open_ms"]["mean_change_percent"]
+    if language == "zh":
+        return (f"固定数值门槛全部通过。原始自动结论仍保留 `accepted:false`，因为三项启动资源增幅触发了复核："
+                f"两组语料的导入均值分别增加 {changes[0]:.3f} / {changes[1]:.3f} ms，公开语料标记下的空库首次打开增加 "
+                f"{changes[2]:.3f} ms（{open_change:.4f}%）。[单独的资源复核]({link})在保留全部样本和归因限制后接受这些启动成本；"
+                "没有重跑计时、降低门槛或改写原始自动结论。")
+    return (f"All fixed numerical gates pass. The original automated verdict remains `accepted:false` because three startup "
+            f"resource increases required review: import means rise {changes[0]:.3f} / {changes[1]:.3f} ms, and public-labeled "
+            f"fresh-empty-database opening rises {changes[2]:.3f} ms ({open_change:.4f}%). A [separate resource review]({link}) "
+            "accepts these startup costs with all samples and attribution limits retained. No timing was repeated, threshold "
+            "lowered or original automatic verdict rewritten.")
 
 
 def load_accepted_evidence():
@@ -177,23 +256,37 @@ def load_accepted_evidence():
                 "expected_workers": 16, "timed_calls": 56784, "expected_calls": 56784}, "C7 complete call/equality matrix differs")
     g = a["acceptance_recomputed"]
     require(equivalent(s["acceptance"], g), "Saved C7 acceptance differs from independent arithmetic")
-    # This renderer intentionally supports only the no-resource-exception path.
-    # A future explicit resource decision needs a separately reviewed document
-    # branch; no numeric failure or earlier C3/C5/C6 rejection can be overridden.
-    require(g["accepted"] is True and g["numeric_gate_passed"] is True and l["accepted"] is True
-            and s["acceptance"]["accepted"] is True and s["acceptance"]["numeric_gate_passed"] is True,
-            "C7 documentation is blocked: all original acceptance decisions must pass")
+    require(g["numeric_gate_passed"] is True and s["acceptance"]["numeric_gate_passed"] is True,
+            "C7 documentation cannot override any fixed numerical gate")
     require(g["thresholds_percent"] == THRESHOLDS
             and g["geometric_mean_p95_improvement_percent"] >= 10 - 1e-9
             and g["best_public_native_token_p95_improvement_percent"] >= 15 - 1e-9
             and g["public_mcp_token1024_p95_improvement_percent"] >= 10 - 1e-9
-            and g["regressions_above_five_percent"] == [] and g["resource_review"] == []
+            and g["regressions_above_five_percent"] == []
             and len(g["resource_comparisons"]) == 28
             and all(type(r["mean_change_percent"]) in (int, float)
-                    and math.isfinite(r["mean_change_percent"]) and r["mean_change_percent"] <= 10 + 1e-9
-                    for r in g["resource_comparisons"]), "C7 fixed numerical/resource gates do not all pass")
-    require(len(a["cells"]) == 12 and a["resource_review_required"] is False,
-            "C7 comparison matrix or resource decision differs")
+                    and math.isfinite(r["mean_change_percent"])
+                    for r in g["resource_comparisons"]), "C7 fixed numerical gates or resource records differ")
+    require(len(a["cells"]) == 12, "C7 comparison matrix differs")
+    resource_decision = None
+    if g["resource_review"]:
+        require(a["resource_review_required"] is True and g["accepted"] is False
+                and l["accepted"] is False and s["acceptance"]["accepted"] is False,
+                "Preserve the original pending-resource automatic verdict")
+        require(isinstance(RESOURCE_DECISION_SHA256, str)
+                and re.fullmatch(r"[0-9a-f]{64}", RESOURCE_DECISION_SHA256),
+                "An explicit, source-bound resource decision is still required")
+        decision_raw = (ROOT / RESOURCE_DECISION_PATH).read_bytes()
+        require(sha(decision_raw) == RESOURCE_DECISION_SHA256, "Resource decision bytes changed")
+        context = {"original_result_commit": RESULT_COMMIT, "report_sha256": sha(report_raw),
+            "summary_sha256": sha(summary_raw), "sources": expected_sources,
+            "binding_sha256": BINDING_SHA256, "original_plan_sha256": PLAN_SHA256}
+        resource_decision = validate_resource_decision(json.loads(decision_raw),
+            {path: (ROOT / path).read_bytes() for path in RESOURCE_REVIEW_PATHS}, g, context)
+    else:
+        require(a["resource_review_required"] is False and g["accepted"] is True
+                and l["accepted"] is True and s["acceptance"]["accepted"] is True,
+                "C7 automatic acceptance is missing")
 
     hprefix = "benchmarks/reports/round5-c7-hotpot-regression"
     h = json.loads((ROOT / (hprefix + ".summary.json")).read_bytes())
@@ -281,7 +374,7 @@ def load_accepted_evidence():
             and continuation["rejected_c6_result_commit"] == C6_RESULT_COMMIT,
             "C7 binding omitted the retained C6 rejection")
     return {"a": a, "l": l, "h": h, "b": b, "g": g, "s": s, "c5": c5, "c6": c6,
-            "run": RUN, "prefix": prefix}
+            "run": RUN, "prefix": prefix, "resource_decision": resource_decision}
 
 
 def write_outputs(outputs):
@@ -317,7 +410,10 @@ def render_release_docs(e):
     agg = g['geometric_mean_p95_improvement_percent']
     max_resource = max(g['resource_comparisons'], key=lambda x: x['mean_change_percent'])
     maxres = max_resource['mean_change_percent']
-    require(maxres <= 10 and not g['resource_review'], 'C7 document precondition failed')
+    require((maxres <= 10 and not g['resource_review']) or
+            (g['numeric_gate_passed'] is True and g['accepted'] is False
+             and e.get('resource_decision', {}).get('release_accepted') is True),
+            'C7 requires automatic acceptance or the separately validated resource decision')
     def gain(config): return -cells['public1015', config]['candidate_change_percent']['p95_ms']
     def delta(config): return cells['public1015', config]['candidate_change_percent']['p95_ms']
     def lat(config, label): return cells['public1015', config][label]['latency']['p95_ms']
@@ -337,8 +433,9 @@ def render_release_docs(e):
     entry = f'''## 0.3.3 — 2026-11-14
 
     A normal GitHub release that reduces retrieval metadata, exact token-counting
-    work and certified MCP output dispatch while preserving complete default evidence. All fixed formal performance
-    and resource gates pass against published v0.3.2.
+    work and certified MCP output dispatch while preserving complete default evidence.
+    All fixed numerical performance gates pass against published v0.3.2; a separate
+    independent resource review accepts three disclosed startup costs.
 
     ### Retrieval, exact counts and MCP output
 
@@ -372,9 +469,8 @@ def render_release_docs(e):
       four balanced AB/BA/BA/AB rounds and twelve pooled cells. All 28,392 complete
       non-timing output pairs and source/scope/budget/cache invariants match.
     - {summary}
-    - {pooled_sentence} All per-round observations are retained. The largest
-      registered resource mean increase is {maxres:.4f}%, below the 10% review
-      trigger; no resource exception is needed.
+    - {pooled_sentence} All per-round observations are retained.
+    - {resource_disclosure(e, 'docs/round5-c7-resource-review.md')}
     - Reproduce all 2,304 saved default outputs on historical Hotpot256: 1,536
       native calls over both tokenizers and three caps, plus 768 component calls.
       This retains old default quality results without a new competitor or Q2 run.
@@ -398,7 +494,8 @@ def render_release_docs(e):
     Final C7 source is [`{SOURCE[:7]}`](https://github.com/Afloat16/AI-Memory-Book/commit/{SOURCE}),
     runtime SHA256 `{RUNTIME}`. Its sole
     [formal run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/{RUN[:-2]})
-    passes all fixed numerical gates and requires no resource exception.
+    passes all fixed numerical gates. Three startup costs were accepted in the
+    separate resource review required by the original plan.
 
     {summary}
 
@@ -409,6 +506,8 @@ def render_release_docs(e):
     resource mean increase is **{maxres:.4f}%**. Full per-round adverse observations,
     all resource samples and derived count-memo diagnostics remain in the review.
 
+    {resource_disclosure(e, '../docs/round5-c7-resource-review.md')}
+
     | Evidence | Scope and decision |
     |---|---|
     | [Original plan](experiments/round5-plan.json), [C7 addendum](experiments/round5-c7-addendum.json) and [frozen binding](experiments/round5-c7-performance-binding.json) | Exact versions, {len(b['evaluator_files'])} evaluator files, old inputs, ABBA order, cache policy and unchanged acceptance gates. |
@@ -416,6 +515,7 @@ def render_release_docs(e):
     | [Retained C5 native development](reports/round5-development/candidate-c5-full/README.md) | C5's 18,928 calls / 9,464 pairs remain retained. Its best public native p95 was below 15%; this historical diagnostic does not substitute for C7 formal acceptance. |
     | [Formal review](../docs/round5-c7-performance-review.md), [summary](reports/round5-c7-performance-{RUN}/report.summary.json) and [original report](reports/round5-c7-performance-{RUN}/report.json.gz) | All formal calls, configurations, source/invariant checks and resource observations. |
     | [Independent arithmetic audit](reports/round5-c7-performance-independent-audit.json) and [frozen saved-ledger audit](reports/round5-c7-performance-local-audit.json) | Recompute saved evidence without further retrieval or timing. |
+    | [Explicit resource decision](experiments/round5-c7-resource-decision.json) and [independent resource review](../docs/round5-c7-resource-review.md) | Accept the three disclosed startup costs under the original review policy. Original automatic `accepted:false` and all samples remain unchanged. |
     | [Final-source Hotpot compatibility](reports/round5-c7-hotpot-regression.summary.json) | All 2,304 historical default output hashes and 4,608 attempt events match. No new quality, competitor timing or Q2 evaluation. |
     | [Retained C3 rejection](../docs/round5-performance-review.md), [retained C5 rejection](../docs/round5-c5-performance-review.md), [retained C6 rejection](../docs/round5-c6-performance-review.md) and [all development decisions](../docs/optimization-round5.md) | All three complete formal rejections remain intact; C5/C6 actual-MCP p95 gains were {C5_MCP_GAIN:.6f}% / {C6_MCP_GAIN:.6f}%, below 10%. C4 has development evidence, not a formal acceptance. |
 
@@ -452,8 +552,11 @@ def render_release_docs(e):
 
     {C7_CHANGE_SUMMARY}
 
-    {pooled_sentence} All fixed numerical gates pass. The largest registered
-    resource mean increase is **{maxres:.4f}%**, so no resource exception is needed.
+    {pooled_sentence}
+
+    {resource_disclosure(e, 'round5-c7-resource-review.md')}
+    The [explicit resource decision](../benchmarks/experiments/round5-c7-resource-decision.json)
+    binds both independent reviews to the unchanged original report and source.
     The [complete review](round5-c7-performance-review.md) retains all twelve pooled
     cells, forty-eight per-round cells, adverse observations and twenty-eight
     resource comparisons. [Independent audit](../benchmarks/reports/round5-c7-performance-independent-audit.json) ·
@@ -500,7 +603,7 @@ def render_release_docs(e):
         'performance acceptance is pending; completed compatibility checks are below.')
     require(old.count(draft_intro) == 1, 'C7 release-note introduction is missing or ambiguous')
     old=old.replace(draft_intro,
-        'v0.3.3 reduces repeated retrieval work and certified MCP output dispatch\nwhile preserving complete default output. Its registered formal performance\ngates and final-source historical compatibility checks pass against published v0.3.2.', 1)
+        'v0.3.3 reduces repeated retrieval work and certified MCP output dispatch\nwhile preserving complete default output. Its fixed numerical performance gates\nand final-source historical compatibility checks pass against published v0.3.2.\nThree startup costs are accepted through the original plan\'s independent resource review.\n', 1)
     start=old.index('**PENDING_FORMAL_ACCEPTANCE**');end=old.index('\n## Historical component strengths and limits',start)
     rows=[]
     for cohort in ('synthetic61','public1015'):
@@ -509,9 +612,11 @@ def render_release_docs(e):
       rows.append(f'| {cohort} | {config} | {c["baseline"]["latency"]["p95_ms"]:.3f} | {c["candidate"]["latency"]["p95_ms"]:.3f} | {c["candidate_change_percent"]["p95_ms"]:+.2f}% |')
     formal=f'''The [sole frozen run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/{RUN[:-2]})
     completes **56,784 calls**, four balanced rounds and all **28,392 complete
-    non-timing output pairs**. All correctness and fixed numerical gates pass;
-    the largest registered resource mean increase is **{maxres:.4f}%**, below the
-    10% review trigger. No resource exception is needed.
+    non-timing output pairs**. All correctness and fixed numerical gates pass.
+
+    {resource_disclosure(e, url('docs/round5-c7-resource-review.md'))}
+    The [explicit decision]({url(RESOURCE_DECISION_PATH)}) binds the two independent
+    resource reviews to this exact source and original report.
 
     {summary}
 

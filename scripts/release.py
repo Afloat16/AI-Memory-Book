@@ -36,6 +36,10 @@ APPROVED_RUNTIME_SHA256 = {
     "0.3.0": "d4558f6649762a09e10ad2906c06ab36b21786ef32be131906fc3213cf1a3c57",
     "0.3.1": "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46",
     "0.3.2": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93",
+    # C7 passes all fixed numerical gates; the original resource-review policy
+    # is resolved by benchmarks/experiments/round5-c7-resource-decision.json.
+    # Its original automatic accepted:false record remains unchanged.
+    "0.3.3": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45",
 }
 # Publication channels are explicit: older prereleases remain prereleases when
 # an interrupted run reconciles them. A new version needs a reviewed entry.

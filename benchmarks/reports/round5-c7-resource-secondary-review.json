@@ -1,0 +1,354 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-11-14T06:08:23.449431+00:00",
+  "reviewer_role": "Independent saved-data and static-source reviewer; no runtime edits or new timing workload.",
+  "resource_review_passed": true,
+  "recommendation": "accept_disclosed_startup_tradeoff",
+  "numeric_gate_passed": true,
+  "release_authorized_by_this_review": false,
+  "release_owner_decision_required": true,
+  "resource_threshold_percent": 10,
+  "gates_modified": false,
+  "measurement_repeated": false,
+  "retrieval_calls_executed": 0,
+  "timing_runs_executed": 0,
+  "evidence": {
+    "report": "benchmarks/reports/round5-c7-performance-43563390252-1/report.json.gz",
+    "report_sha256": "156087043702b5f223f898800547c576f469ac780066b0af431227cfeda66b25",
+    "independent_audit": "benchmarks/reports/round5-c7-performance-independent-audit.json",
+    "independent_audit_sha256": "f5464289fabf478af390a3f45313768c825f4cfa57f3caf0a8ab995e5be1056f",
+    "sources": {
+      "baseline": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "candidate": {
+        "commit": "d0c84cbfc9bad440ad447d41e211d070ef5b2cae",
+        "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+      }
+    },
+    "binding_sha256": "2560b0eae9d3332fb09da43fd49ebef069b8e41ddaef0fe9df1880db1e132588",
+    "counts": {
+      "workers": 16,
+      "cells": 12,
+      "timed_calls": 56784,
+      "ledger_events": 113568,
+      "baseline_candidate_pairs": 28392,
+      "unique_query_configuration_pairs": 7098,
+      "native_mcp_provenance_pairs": 18928,
+      "complete_output_differences": 0,
+      "recorded_invariant_failures": 0,
+      "negative_timing_samples": 0,
+      "zero_timing_samples": 0,
+      "nonfinite_or_invalid_timing_samples": 0
+    },
+    "source_files": {
+      "src/memory_book/store.py": {
+        "baseline": {
+          "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+          "bytes": 61126,
+          "sha256": "090174302619d06baeccb8d3266ff4fad5ef033d30b63cd709d88d2b3dd73835"
+        },
+        "candidate": {
+          "commit": "d0c84cbfc9bad440ad447d41e211d070ef5b2cae",
+          "bytes": 74966,
+          "sha256": "c65e8542b4174c26fcccb72468e167b31accdfe7626d7a0692ee86adca1c489a"
+        }
+      },
+      "src/memory_book/__init__.py": {
+        "baseline": {
+          "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+          "bytes": 148,
+          "sha256": "89ac7224ee0450a2dc359f50fa03218ac3a8eedc75b637be2e442436da36c51f"
+        },
+        "candidate": {
+          "commit": "d0c84cbfc9bad440ad447d41e211d070ef5b2cae",
+          "bytes": 148,
+          "sha256": "3b91357e9271f1abbe7d2dd4c01f0067ca5b5a65d6065844c850328d49e6aad7"
+        }
+      },
+      "src/memory_book/mcp_server.py": {
+        "baseline": {
+          "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+          "bytes": 14020,
+          "sha256": "f9d4ee7f5eebd0eb76a7ca260a62bd98526b445e25e618bd6b77dff1de425fd3"
+        },
+        "candidate": {
+          "commit": "d0c84cbfc9bad440ad447d41e211d070ef5b2cae",
+          "bytes": 21371,
+          "sha256": "f118cfa79026dd60a7d97ba30ce31c6ab62bd2ca222c411f48f3197c8a62616a"
+        }
+      },
+      "src/memory_book/token_budget.py": {
+        "baseline": {
+          "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+          "bytes": 21605,
+          "sha256": "505ece57e7227ee1955d76883411362a1f462c28a2e8964984be818395266180"
+        },
+        "candidate": {
+          "commit": "d0c84cbfc9bad440ad447d41e211d070ef5b2cae",
+          "bytes": 30688,
+          "sha256": "0af09aaae1219e978f688c3aa4bb6c180c0b435bdb4a3113e5c3758b19b290ed"
+        }
+      },
+      "scripts/round5_c7_performance.py": {
+        "evaluator": {
+          "commit": "259fde01a3d189cf01b55b9765457daebc953bff",
+          "bytes": 60895,
+          "sha256": "6043301b0af3a2adb2f1e540b702c778fc51a6372a07a78f68a601838d551fca"
+        }
+      },
+      ".github/workflows/round5-c7-performance.yml": {
+        "evaluator": {
+          "commit": "259fde01a3d189cf01b55b9765457daebc953bff",
+          "bytes": 9236,
+          "sha256": "d9442f47ebe99020ea3237ed9190bdef2e43ee50fdb1f80cd39583ae86b22e43"
+        }
+      }
+    }
+  },
+  "reviewed_triggers": [
+    {
+      "cohort": "synthetic61",
+      "metric": "runtime_import_ms",
+      "baseline": {
+        "samples": 4,
+        "mean": 27.89452125,
+        "p50": 27.925970999999997,
+        "p95": 28.179279400000002,
+        "min": 27.536354,
+        "max": 28.189789
+      },
+      "candidate": {
+        "samples": 4,
+        "mean": 31.09176525,
+        "p50": 30.973489999999998,
+        "p95": 31.6514363,
+        "min": 30.670893,
+        "max": 31.749188
+      },
+      "mean_change_percent": 11.461906699689294,
+      "mean_difference_ms": 3.1972440000000013,
+      "all_original_rounds": [
+        {
+          "round": 0,
+          "baseline": 28.189789,
+          "candidate": 31.749188,
+          "difference_ms": 3.559398999999999,
+          "change_percent": 12.62655424629109
+        },
+        {
+          "round": 1,
+          "baseline": 27.732217,
+          "candidate": 30.84947,
+          "difference_ms": 3.1172530000000016,
+          "change_percent": 11.24054741097693
+        },
+        {
+          "round": 2,
+          "baseline": 28.119725,
+          "candidate": 31.09751,
+          "difference_ms": 2.977785000000001,
+          "change_percent": 10.589666150718058
+        },
+        {
+          "round": 3,
+          "baseline": 27.536354,
+          "candidate": 30.670893,
+          "difference_ms": 3.134539,
+          "change_percent": 11.383275360274636
+        }
+      ]
+    },
+    {
+      "cohort": "public1015",
+      "metric": "runtime_import_ms",
+      "baseline": {
+        "samples": 4,
+        "mean": 27.76485525,
+        "p50": 27.713759500000002,
+        "p95": 28.09167845,
+        "min": 27.497201,
+        "max": 28.134701
+      },
+      "candidate": {
+        "samples": 4,
+        "mean": 30.75521,
+        "p50": 30.9098725,
+        "p95": 30.97168135,
+        "min": 30.220358,
+        "max": 30.980737
+      },
+      "mean_change_percent": 10.770287556244341,
+      "mean_difference_ms": 2.9903547500000016,
+      "all_original_rounds": [
+        {
+          "round": 0,
+          "baseline": 28.134701,
+          "candidate": 30.899379,
+          "difference_ms": 2.764678,
+          "change_percent": 9.826576795680175
+        },
+        {
+          "round": 1,
+          "baseline": 27.847884,
+          "candidate": 30.980737,
+          "difference_ms": 3.1328530000000008,
+          "change_percent": 11.249878087685229
+        },
+        {
+          "round": 2,
+          "baseline": 27.579635,
+          "candidate": 30.920366,
+          "difference_ms": 3.3407310000000017,
+          "change_percent": 12.113035578607189
+        },
+        {
+          "round": 3,
+          "baseline": 27.497201,
+          "candidate": 30.220358,
+          "difference_ms": 2.7231570000000005,
+          "change_percent": 9.90339707666974
+        }
+      ]
+    },
+    {
+      "cohort": "public1015",
+      "metric": "native_open_ms",
+      "baseline": {
+        "samples": 4,
+        "mean": 23.82188725,
+        "p50": 23.678554,
+        "p95": 25.03493605,
+        "min": 22.757635,
+        "max": 25.172806
+      },
+      "candidate": {
+        "samples": 4,
+        "mean": 28.922366750000002,
+        "p50": 26.969925,
+        "p95": 38.0229789,
+        "min": 22.066283,
+        "max": 39.683334
+      },
+      "mean_change_percent": 21.410895981803456,
+      "mean_difference_ms": 5.100479500000002,
+      "all_original_rounds": [
+        {
+          "round": 0,
+          "baseline": 23.103435,
+          "candidate": 28.6143,
+          "difference_ms": 5.510864999999999,
+          "change_percent": 23.853011467775232
+        },
+        {
+          "round": 1,
+          "baseline": 25.172806,
+          "candidate": 39.683334,
+          "difference_ms": 14.510528,
+          "change_percent": 57.64366515198982
+        },
+        {
+          "round": 2,
+          "baseline": 22.757635,
+          "candidate": 22.066283,
+          "difference_ms": -0.691352000000002,
+          "change_percent": -3.037890360751472
+        },
+        {
+          "round": 3,
+          "baseline": 24.253673,
+          "candidate": 25.32555,
+          "difference_ms": 1.0718770000000006,
+          "change_percent": 4.419441954214531
+        }
+      ]
+    }
+  ],
+  "explicit_cause_assessment": [
+    {
+      "metrics": [
+        "synthetic61.runtime_import_ms",
+        "public1015.runtime_import_ms"
+      ],
+      "verified_work": "The timer surrounds the fresh import of memory_book and MemoryBook. __init__ imports store; store imports segmentation/text and executes ordinary-json-loader certification. Candidate store.py grows from 61126 to 74966 bytes and adds class/function bodies. The workflow sets PYTHONDONTWRITEBYTECODE=1, and the sparse frozen source checkouts contain no generated Python bytecode.",
+      "excluded_claims": "The MCP stdio adapter is not executed in this interval; mcp_server.py and token_budget.py are not imported by store at this stage. No new model or third-party dependency load explains this metric.",
+      "strength": "Every one of the eight original cohort/round import comparisons is slower, by roughly three milliseconds. Added source compilation/initialization work is a code-supported contributor.",
+      "uncertainty": "No subphase attribution was measured. This review does not claim that source-size growth quantitatively explains the entire increase or that every installation will share this source-only import cost."
+    },
+    {
+      "metrics": [
+        "public1015.native_open_ms"
+      ],
+      "verified_work": "The timer measures construction of a fresh empty database before any corpus ingestion. Candidate adds pages_recall_metadata creation within SCHEMA, an idempotent CREATE INDEX check after schema setup, and PRAGMA cache_size=-4096, plus small per-book fields. This is additional initialization work, not retrieval or growth with public corpus size.",
+      "strength": "The four complete round pairs are retained. Candidate is slower in three and faster in one; the largest candidate opening is 39.683334ms. The largest round increase is not discarded.",
+      "uncertainty": "The saved measurements do not isolate DDL execution, filesystem/SQLite synchronization or scheduling contributions. The 14.510528ms second-round excess cannot be assigned to I/O or any single cause. Its full cost is accepted as observed."
+    }
+  ],
+  "tradeoff_rationale": [
+    "All three latency gates and complete-output/invariant checks passed independently. No pooled mean, p50 or p95 cell regresses. This permits evaluating startup costs against retained steady-call gains, not replacing a failed numeric gate.",
+    "Mean import excess is 3.197244ms on synthetic and 2.99035475ms on public; these are separate cohort observations and must not be added together. Mean public empty-open excess is 5.1004795ms. Candidate means remain near 31ms for import and 29ms for empty-open on this host.",
+    "The intended persistent MCP service and repeated native-connection use pay setup once per process/connection. This review accepts those bounded observed setup costs to obtain the measured repeated-query gains; it makes no promise for one-shot CLI workloads.",
+    "The existing original rule explicitly calls for cause assessment and independent review when resource means rise above 10%. The added-work paths are identified, uncertainty remains explicit, and every observed excess is retained. Acceptance is a documented product tradeoff, not a claim of complete causal decomposition.",
+    "All 28 registered resource comparisons were checked. Only these three trigger review; the other registered resource mean increases remain at or below 10%. The added index has nonzero storage cost, retained in the independent audit."
+  ],
+  "public_import_plus_empty_open_mean_difference_ms": 8.090834250000004,
+  "preserved_adverse_observations": {
+    "all_pooled_latency_adverse": [],
+    "all_per_round_latency_adverse": [
+      {
+        "cohort": "public1015",
+        "config": "mcp-char4000",
+        "round": 2,
+        "metric": "p95_ms",
+        "change_percent": 2.3889852650702093
+      },
+      {
+        "cohort": "public1015",
+        "config": "mcp-char4000",
+        "round": 2,
+        "metric": "mean_ms",
+        "change_percent": 0.366838051951901
+      }
+    ],
+    "synthetic_round0_baseline_empty_open_ms": 946.793415,
+    "synthetic_outlier_treatment": "Retained in original arithmetic and raw records. Not presented as an initialization speed advantage, not discarded, and no cause is established."
+  },
+  "release_conditions": [
+    "Keep the original raw accepted=false and all three review triggers visible; record any resource decision separately.",
+    "Keep the accepted runtime at SHA256 55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45; any substantive runtime change needs its own validation.",
+    "Disclose startup regressions and the old-cohort one-host scope in release notes; do not claim all-metric speedup or newly measured superiority over competitors.",
+    "Complete the exact release-commit nine-job CI, package contents/hashes, normal release policy and public installer verification."
+  ],
+  "independent_judgment": "Accept the three explicitly disclosed startup tradeoffs for the exact frozen v0.3.3 runtime under the original resource-review provision.",
+  "original_result_commit": "03838687f7d8d5995c2afa4c22ff5c30e7b12750",
+  "original_automatic_accepted": false,
+  "report_sha256": "156087043702b5f223f898800547c576f469ac780066b0af431227cfeda66b25",
+  "summary_sha256": "16af31606dcfcbd2a443b56bf4ec9c0aa0f0bf89da8de5811c07fb7d924c4262",
+  "sources": {
+    "baseline": {
+      "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+      "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+    },
+    "candidate": {
+      "commit": "d0c84cbfc9bad440ad447d41e211d070ef5b2cae",
+      "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+    }
+  },
+  "reviewed_trigger_keys": [
+    {
+      "cohort": "synthetic61",
+      "metric": "runtime_import_ms"
+    },
+    {
+      "cohort": "public1015",
+      "metric": "runtime_import_ms"
+    },
+    {
+      "cohort": "public1015",
+      "metric": "native_open_ms"
+    }
+  ],
+  "no_new_measurements": true,
+  "scope": "Independent resource review only; a separate explicit release-owner decision is still required."
+}

@@ -1,5 +1,60 @@
 # Changelog
 
+## 0.3.3 — 2026-11-14
+
+A normal GitHub release that reduces retrieval metadata, exact token-counting
+work and certified MCP output dispatch while preserving complete default evidence.
+All fixed numerical performance gates pass against published v0.3.2; a separate
+independent resource review accepts three disclosed startup costs.
+
+### Retrieval, exact counts and MCP output
+
+- C7 combines the official MCP SDK's native stdout write and immediate flush in one worker dispatch, reducing dispatch overhead while preserving complete messages, serialization and lifecycle.
+- On the certified official SDK 1.30.0 standard-stream path, combine each
+  native UTF-8 write and its immediate flush in one default worker dispatch.
+  Keep official JSON serialization, framing, stdin, lowlevel initialization,
+  lifespan and ordinary result-cache writes. Unsupported/custom paths retain
+  FastMCP's original stdio execution. No response batching or text buffering.
+- Add a narrow derived metadata index and batch shared chapter/session rows.
+  Validate every referenced directory before pruning; use a strict title-score
+  upper bound to skip candidates that cannot enter the existing ranking pool.
+  Retain ties, full candidate counts and custom/semantic/coverage fallbacks.
+- Reuse identical ordered lexical routes and per-query directory overlaps.
+  Reuse certified sealed-block suffix counts and reject impossible supplemental
+  pages after the existing source-map checks.
+- Add a lazy per-connection exact-count memo, shared by both tokenizers and
+  bounded by 2,048 entries / 2 MiB of retained text objects. Charge Unicode text
+  after encoding, preserve complete string keys and exact encoder/core/method
+  receiver identities, and release retained text when the connection closes.
+- Keep query-result cache controls, source reads, corruption checks, ranking,
+  citations, context limits, schema 3 and dependency requirements unchanged.
+  Unknown/custom tokenizer cases retain complete exact counting.
+- Set a separate 4 MiB SQLite pager target. The index has first-open and storage
+  costs, and memo container/key/value overhead is additional to its text cap.
+  Neither memory setting is a whole-process limit.
+
+### Accepted performance and compatibility
+
+- Complete the single frozen 56,784-call comparison, sixteen sequential workers,
+  four balanced AB/BA/BA/AB rounds and twelve pooled cells. All 28,392 complete
+  non-timing output pairs and source/scope/budget/cache invariants match.
+- Pooled p95 geometric mean improves **14.7976%** against published v0.3.2. Public native token512/token1024/token2048 p95 changes **-15.1867% / -14.2362% / -15.7406%**. Actual public SDK MCP token1024 p95 is **6.711 → 5.894 ms**, an improvement of **12.1734%**.
+- All twelve pooled p50 and p95 values improve. All per-round observations are retained.
+- All fixed numerical gates pass. The original automated verdict remains `accepted:false` because three startup resource increases required review: import means rise 3.197 / 2.990 ms, and public-labeled fresh-empty-database opening rises 5.100 ms (21.4109%). A [separate resource review](docs/round5-c7-resource-review.md) accepts these startup costs with all samples and attribution limits retained. No timing was repeated, threshold lowered or original automatic verdict rewritten.
+- Reproduce all 2,304 saved default outputs on historical Hotpot256: 1,536
+  native calls over both tokenizers and three caps, plus 768 component calls.
+  This retains old default quality results without a new competitor or Q2 run.
+- Preserve the complete rejected C3, C5 and C6 formal runs, every earlier
+  development candidate and all C4/C5/C6/C7 development observations. C5 and C6
+  retain their actual-MCP p95 failures (6.673181% and 5.798911%
+  against the unchanged 10% gate). Commit formal source,
+  evaluator, binding and each worker checkpoint before progressing.
+- Publish through the explicit normal GitHub release channel, preserving older
+  prerelease metadata and existing exact-source CI, package and installer gates.
+
+[Release notes](docs/releases/v0.3.3.md) · [Full performance review](docs/round5-c7-performance-review.md) ·
+[Source and decisions](docs/optimization-round5.md) · [Upgrade guide](docs/deployment.md#upgrading)
+
 ## 0.3.2 — 2026-11-13
 
 An experimental release that reduces repeated token-budget assembly work while

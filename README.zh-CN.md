@@ -4,9 +4,9 @@
 
 项目是书，任务是章，之前的决定可以跨会话、跨客户端保留。AI 通过一次 MCP 调用，取得预算范围内的相关原文，用来继续当前任务。
 
-[English](README.md) · [快速开始](#快速开始) · [实测结果](#实测结果) · [文档导航](#文档导航) · [v0.3.2 发布版](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.2)
+[English](README.md) · [快速开始](#快速开始) · [实测结果](#实测结果) · [文档导航](#文档导航) · [v0.3.3 发布版](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.3)
 
-**v0.3.2 · 实验性版本 · MIT · Python 3.10+ · 本地 SQLite**
+**v0.3.3 · 正式发布 · MIT · Python 3.10+ · 本地 SQLite**
 
 ## 如何运作
 
@@ -38,14 +38,14 @@ flowchart TD
 **macOS / Linux**
 
 ```bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.2/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.3/scripts/install.sh
 bash install-memory-book.sh
 ```
 
 **Windows PowerShell**
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.2/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.3/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ```
 
@@ -64,26 +64,33 @@ memory-book doctor
 
 ## 实测结果
 
-**v0.3.2 已通过预先登记的效率测试，在完整默认检索输出不变的前提下，相比已发布的 v0.3.1 降低延迟。** 独立进行的冻结新样本组件对比也已完成。源码身份、完整测量及未通过的实验保留在[基准索引](benchmarks/README.md)和[第四轮记录](docs/optimization-round4.md)。
+**v0.3.3 已通过相对已发布 v0.3.2 的全部固定数值性能门槛，并保持完整默认检索输出一致。** 三项启动成本已按原计划完成单独的独立资源复核并获接受。唯一一次冻结正式测量完成了 56,784 次调用；两项独立的保存结果检查分别复核数值和原始逐次调用日志。[正式复核](docs/round5-c7-performance-review.md) · [源码与开发记录](docs/optimization-round5.md) · [基准索引](benchmarks/README.md)。
 
-### 效率优势
+### v0.3.3 效率与兼容性
 
-| 已验证改进 | 结果 | 测量范围 |
+| 已验证结果 | 测量结果 | 证据 |
 |---|---|---|
-| **非计时输出相同，尾部延迟降低** | 十二组设置的合并 p95 几何均值**降低 10.13%** | **56,784 次调用**，两组旧语料，原生与真实 SDK MCP，字符与 token 预算，四轮平衡测试。[正式复核](docs/round4-performance-review.md) |
-| **公开会话原生 token 检索更快** | 512 / 1,024 / 2,048 token 下，p95 分别**降低 19.07% / 18.41% / 18.20%** | 1,015 道公开会话问题，`cl100k_base`，完整无结果缓存检索；每个版本、每组设置各 4,060 次调用。[已保存测量](benchmarks/reports/round4-performance-43361086255-1/report.summary.json) |
-| **真实 MCP token 检索更快** | 1,024 token 下，p95 **4.358 → 3.887 ms（−10.80%）** | 同一公开语料，官方 SDK stdio 调用，包含正常的服务端缓存写入和往返开销。[报告与计时边界](docs/round4-performance-review.md) |
-| **可选精简引用的历史测量** | 响应文本 token **减少 19.63%**；首次调用参考总量**减少 8.15%** | 之前的 1,015 题测量，4,000 字符、compact 响应、`o200k_base`；此选项未改变，v0.3.2 未重新测量。[报告](docs/indexed-references.md) |
+| **综合尾部延迟降低** | 合并 p95 几何均值**降低 14.80%** | 56,784 次调用，两组历史语料，原生与真实 SDK MCP，字符与 token 预算，四轮平衡测试。[全部设置](docs/round5-c7-performance-review.md) |
+| **公开会话原生 token 检索** | 512 / 1,024 / 2,048 token 下，p95 **变化 -15.19% / -14.24% / -15.74%** | 1,015 道公开会话问题；每个版本、每组设置 4,060 个样本。[保存报告](benchmarks/reports/round5-c7-performance-43563390252-1/report.summary.json) |
+| **真实 MCP token 检索更快** | p95 **6.711 → 5.894 ms（−12.17%）** | 官方 SDK stdio、1,024-token 上限，包含正常服务端缓存写入和传输开销。[计时边界](docs/round5-c7-performance-review.md) |
+| **历史竞品样本输出保留** | **2,304 / 2,304** 次完整默认输出与 v0.3.2 相同 | 原 Hotpot256，两种 tokenizer、三种原生 token 预算及组件排序器。[兼容性报告](benchmarks/reports/round5-c7-hotpot-regression.summary.json) |
 
-全部 **28,392 对观测**的完整非计时输出相同，十二组的合并 p50 均降低。公开语料的 4,000 字符 MCP 设置 **p95 增加 1.44%**。登记的资源均值中，最大增幅为 **6.02%**，对应公开语料 MCP token 模式从启动到完成初始化的耗时；所有资源均值均未超过 10% 复核阈值。**预先登记的正式性能门槛全部通过，没有使用例外或豁免。**[独立数值审计](benchmarks/reports/round4-performance-independent-audit.json)、[严格逐次调用记录审计](benchmarks/reports/round4-performance-local-audit.json)与[完整报告](benchmarks/reports/round4-performance-43361086255-1/report.json.gz)保留每一轮、不利结果和资源成本。
+全部 **28,392 对版本观测**的完整非计时输出相同。十二组设置的合并 p50 和 p95 均降低。[独立数值审计](benchmarks/reports/round5-c7-performance-independent-audit.json) · [严格原始日志审计](benchmarks/reports/round5-c7-performance-local-audit.json) · [完整报告](benchmarks/reports/round5-c7-performance-43563390252-1/report.json.gz)。
 
-总体改进为 **10.1294%**，仅高于预先登记的 10% 门槛 **0.1294 个百分点**。这是同一机器上重复查询得到的窄幅通过结果，不宣称统计显著性或普遍提速。成对测试比较的是 Book 的两个版本，不能据此推导对其他仓库的整套产品速度优势。
+固定数值门槛全部通过。原始自动结论仍保留 `accepted:false`，因为三项启动资源增幅触发了复核：两组语料的导入均值分别增加 3.197 / 2.990 ms，公开语料标记下的空库首次打开增加 5.100 ms（21.4109%）。[单独的资源复核](docs/round5-c7-resource-review.md)在保留全部样本和归因限制后接受这些启动成本；没有重跑计时、降低门槛或改写原始自动结论。
+[明确的资源决定](benchmarks/experiments/round5-c7-resource-decision.json)将两份独立复核绑定到未改动的原始报告与源码。
 
-精简引用保留相同上下文，并可还原全部来源字段。首次调用计数包含 schema、初始化说明和参数；参考 tokenizer 计数不等于服务商账单。引用稀少时可能增加 token。之前的格式对比测得 **p95 为 7.126 → 7.131 ms**，不宣称此选项提速。
+C7 将官方 MCP SDK 的原生 stdout 写入与立即 flush 合并到一次工作线程调度，减少调度开销，同时保留完整消息、序列化和生命周期。 stdout 优化仅适用于已验证的官方 SDK 1.30.0 方法和原生标准流；每条成功消息仍立即 flush，保留官方序列化与生命周期。未知或自定义环境回退原 FastMCP stdio 路径。较早加入的更窄数据库元数据读取、减少重复 Python 工作及已验证的精确 token 计数复用继续保留。历史 C3 的两份旧库索引观察记录了 **196 KiB / 148 KiB**；单次首次打开耗时从 **0.910 → 5.419 ms / 0.844 → 4.502 ms**。这些旧探针不是新的 C7 升级测量。每个连接使用 **4 MiB** 的 SQLite 页缓存目标，并在两种 tokenizer 间共享最多 **2,048 项 / 2 MiB 文本对象**的精确计数缓存；容器、键和值等开销另计，两者都不是整个进程的内存上限。连接从空缓存开始；同一原生连接的后续配置会自然复用计数，真实 MCP 的每组配置则启动新服务进程。检索结果缓存按原规则禁用或在计时前清空，派生计数复用保持启用。正式内存、初始化、导入和存储观测均保留在[成本复核](docs/round5-c7-performance-review.md)中。原文、引用字段及返回 token 数保持一致，本版没有新增输出 token 节省声明。
 
-**v0.3.1 对比 v0.3.0 的历史结果：**独立的 47,320 次调用记录了总体 p95 **降低 11.36%**、公开语料原生字符模式 p95 **降低 26.05%**、真实 MCP 字符模式 p95 **降低 19.87%**。合成语料 token512 的 p95 **增加 0.125%**，以及公开语料空数据库打开耗时**增加 4.838 ms（+14.04%）**、经复核明确接受的代价，均原样保留在[第三轮报告](docs/round3-performance-review.md)。这些历史测量不属于 v0.3.2 结果。
+这些结果来自单机上的历史问题重复测量，不构成统计显著性、新样本质量或所有场景加速的证明。本轮性能测试比较 Book 的两个版本，未重测竞品。历史 v0.3.2 相对 v0.3.1 的总体 p95 **降低 10.13%**、v0.3.1 相对 v0.3.0 **降低 11.36%**，仍分别保留在[第四轮](docs/round4-performance-review.md)和[第三轮](docs/round3-performance-review.md)报告中，不与本轮百分比相加。
 
-### 当前开源组件对比
+可选精简引用保留其历史**响应文本 token 减少 19.63%**、**首次调用参考总量减少 8.15%**的独立测量（`o200k_base`、1,015 题、4,000 字符）。该选项未在 v0.3.3 重测。相关计数按报告边界包含 schema、指令和参数，不是服务商账单；稀疏引用可能更贵。[格式测量](docs/indexed-references.md)。
+
+完整的 [C3 拒绝记录](docs/round5-performance-review.md)、[C5 拒绝记录](docs/round5-c5-performance-review.md)和 [C6 拒绝记录](docs/round5-c6-performance-review.md)保持原样。C5 和 C6 的公开语料真实 MCP p95 分别仅改善 6.673181% 和 5.798911%，未达到 10% 要求，两者均保留 `accepted:false`。本次发布只能使用独立绑定且通过验收的 C7 证据，不会把较早候选改写为通过。
+
+### 历史开源组件对比
+
+**下表保留原来的 v0.3.2 测量身份。** v0.3.3 在同一批问题上重现了全部 1,536 次原生及 768 次组件默认输出哈希，保留原默认模式的证据质量结果。这不是新的竞品计时，也不是本轮 Q2 评估。
 
 冻结的 **256 道 HotpotQA 问题**排除了全部 **640 个历史问题 ID**，重叠数为零。源码、评估器、依赖和模型在选题前完成绑定，题目清单在首次评分前发布。完整对比保留 **9,216 次实测调用，其中原生调用和组件搜索各 4,608 次**，对应 **635 条必需证据标注**。下表采用相同原始页面、前五条结果及统一的完整块打包器，预算为 **1,024 个 `cl100k_base` token**，测量返回的来源证据。[完整报告](benchmarks/results/round4-comparison-43363060062-1/report.md)保留所有预算、原生调用及逐题得失。
 
@@ -101,7 +108,7 @@ memory-book doctor
 
 这个预算下，Q2 相对默认词法的完整率提高 **1.171875 个百分点**：**26 道题获得完整证据、23 道题失去完整证据**，净增加三道。在原生 API 的 512-token 预算下，`cl100k_base` 完整率从 **39.45% 降至 36.33%**（19 题改善、27 题退步），`o200k_base` 从 **39.45% 降至 36.72%**（19 题改善、26 题退步）。Q2 组件初始化耗时 **277.60 秒**，其中索引构建为 **275.43 秒**；查询阶段采样得到的进程树峰值 RSS 为 **1,247.69 MiB**。其搜索 p95 为 20.406 ms，也高于默认词法的 3.488 ms，因此保持主动开启。[完整得失与成本](benchmarks/results/round4-comparison-43363060062-1/report.md)
 
-**新样本对比也保留了相对 v0.3.1 的退步。** 组件排序器使用 100,000 字符上限时，默认 Book 的 p95 从 **3.304 升至 3.488 ms（+5.56%）**，p50 从 **2.239 升至 2.353 ms（+5.12%）**。初始化阶段采样得到的进程树峰值 RSS 从 **548.65 升至 943.53 MiB**，查询阶段峰值则从 **529.77 降至 524.91 MiB**。这些是按顺序执行、未经平衡排列的组件描述性观测，与上方预先登记的 ABBA 性能门槛分别报告。RSS 包含评估器、语料和子进程内存，共享映射可能被重复计算；这些数据没有确立初始化内存增加的原因。[详细证据与限制](docs/optimization-round4.md)
+**历史第四轮对比也保留了相对 v0.3.1 的退步。** 组件排序器使用 100,000 字符上限时，默认 Book 的 p95 从 **3.304 升至 3.488 ms（+5.56%）**，p50 从 **2.239 升至 2.353 ms（+5.12%）**。初始化阶段采样得到的进程树峰值 RSS 从 **548.65 升至 943.53 MiB**，查询阶段峰值则从 **529.77 降至 524.91 MiB**。这些是按顺序执行、未经平衡排列的组件描述性观测，与上方预先登记的 ABBA 性能门槛分别报告。RSS 包含评估器、语料和子进程内存，共享映射可能被重复计算；这些数据没有确立初始化内存增加的原因。[详细证据与限制](docs/optimization-round4.md)
 
 ![v0.3.2 完整证据率、搜索适配器延迟与独立配对性能测量](docs/assets/v0.3.2-comparison.svg)
 

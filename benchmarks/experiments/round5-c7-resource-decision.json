@@ -1,0 +1,127 @@
+{
+  "binding_sha256": "2560b0eae9d3332fb09da43fd49ebef069b8e41ddaef0fe9df1880db1e132588",
+  "decision_author": "release coordinator, after two separately recorded independent agent reviews",
+  "decision_date": "2026-11-14",
+  "independent_reviews": [
+    {
+      "path": "benchmarks/reports/round5-c7-resource-independent-review.json",
+      "sha256": "656dd5562b06fe37b279f812b3ca5dfa3d38c348b6e19ce7c7faad68f52a2725"
+    },
+    {
+      "path": "benchmarks/reports/round5-c7-resource-secondary-review.json",
+      "sha256": "df6b7b8cceeafb4e09ae674c19cd695ce7477831ddedc92ccb532662d0d3ac2f"
+    }
+  ],
+  "limitations": [
+    "This is a separate explicit resource decision under the original registered review policy. The original automatic accepted:false verdict and failed workflow conclusion are retained, not converted into an automatic pass.",
+    "Import timing does not execute the C7 MCP stdout adapter or token_budget module. Its cost cannot be attributed to that transport change; compilation is not a quantitatively isolated cause.",
+    "Both labeled native-open measurements create fresh empty databases before ingestion. The public label is not evidence that a larger corpus caused the increase.",
+    "The public candidate 39.683334 ms opening sample is retained without claiming a proven I/O or scheduler cause. The synthetic baseline 946.793415 ms opening sample is retained and its apparent mean improvement is not used as a benefit or offset.",
+    "Startup intervals overlap and must not be added. Short-lived processes or workloads repeatedly creating archives may care more about startup costs. Four rounds do not establish worst-case bounds or universal performance superiority.",
+    "No new timing was performed for this decision. The source/evaluator/thresholds are frozen; earlier C3/C5/C6 failures and C7 development limitations remain available.",
+    "Historical competitor outputs remain compatible, but competitor timings were not rerun for C7. This decision does not establish that AI Memory Book wins every metric or every repository comparison."
+  ],
+  "measurements_repeated": false,
+  "numeric_gate_passed": true,
+  "original_automatic_accepted": false,
+  "original_plan_sha256": "b83c385c2e7160318ca2c8fded161937f716d43803c03799fd86fd4f63d484a8",
+  "original_resource_rule": "Any increase above 10% requires an explicit cause and independent review; no automatic override.",
+  "original_result_commit": "03838687f7d8d5995c2afa4c22ff5c30e7b12750",
+  "rationale": [
+    "All unchanged numerical recall gates pass: pooled p95 geometric mean improves 14.797575645674566%, best public native token p95 improves 15.740556756207392%, and real public MCP token1024 p95 improves 12.173437630095552%. No pooled p50/p95 regression exceeds 5%; every pooled mean/p50/p95 improves.",
+    "All 56,784 calls, 28,392 complete paired outputs and original invariants pass independent saved-data audit. A separate 2,304-call Hotpot256 comparison reproduces the historical complete default outputs.",
+    "The three reviewed resource increases are one-time import and fresh-empty-database construction costs, with mean absolute increases 3.197244 ms, 2.99035475 ms, and 5.1004795 ms. Two independent reviews accept this disclosed startup tradeoff for the measured persistent-service use.",
+    "Added Python source compilation/definitions/initialization and added empty-database schema/index/pager setup are code-supported cost sources. Exact quantitative subphase attribution was not measured and is not claimed.",
+    "The other 25 registered resource means remain below the unchanged 10% review trigger; actual SDK startup mean changes range from -0.28667612309926094% to +1.579351094597059%. Original resource samples, including adverse outliers, remain unchanged."
+  ],
+  "raw_reports_changed": false,
+  "release": "v0.3.3",
+  "release_accepted": true,
+  "remaining_release_gates": [
+    "final exact-source nine-job CI",
+    "approved runtime hash gate",
+    "wheel and sdist source/install verification",
+    "remote release asset hash verification",
+    "public installer acceptance"
+  ],
+  "report_sha256": "156087043702b5f223f898800547c576f469ac780066b0af431227cfeda66b25",
+  "schema_version": 1,
+  "sources": {
+    "baseline": {
+      "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+      "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+    },
+    "candidate": {
+      "commit": "d0c84cbfc9bad440ad447d41e211d070ef5b2cae",
+      "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+    }
+  },
+  "status": "approved_after_independent_resource_review",
+  "summary_sha256": "16af31606dcfcbd2a443b56bf4ec9c0aa0f0bf89da8de5811c07fb7d924c4262",
+  "thresholds_changed": false,
+  "triggered_resources": [
+    {
+      "baseline": {
+        "max": 28.189789,
+        "mean": 27.89452125,
+        "min": 27.536354,
+        "p50": 27.925970999999997,
+        "p95": 28.179279400000002,
+        "samples": 4
+      },
+      "candidate": {
+        "max": 31.749188,
+        "mean": 31.09176525,
+        "min": 30.670893,
+        "p50": 30.973489999999998,
+        "p95": 31.6514363,
+        "samples": 4
+      },
+      "cohort": "synthetic61",
+      "mean_change_percent": 11.461906699689294,
+      "metric": "runtime_import_ms"
+    },
+    {
+      "baseline": {
+        "max": 28.134701,
+        "mean": 27.76485525,
+        "min": 27.497201,
+        "p50": 27.713759500000002,
+        "p95": 28.09167845,
+        "samples": 4
+      },
+      "candidate": {
+        "max": 30.980737,
+        "mean": 30.75521,
+        "min": 30.220358,
+        "p50": 30.9098725,
+        "p95": 30.97168135,
+        "samples": 4
+      },
+      "cohort": "public1015",
+      "mean_change_percent": 10.770287556244341,
+      "metric": "runtime_import_ms"
+    },
+    {
+      "baseline": {
+        "max": 25.172806,
+        "mean": 23.82188725,
+        "min": 22.757635,
+        "p50": 23.678554,
+        "p95": 25.03493605,
+        "samples": 4
+      },
+      "candidate": {
+        "max": 39.683334,
+        "mean": 28.922366750000002,
+        "min": 22.066283,
+        "p50": 26.969925,
+        "p95": 38.0229789,
+        "samples": 4
+      },
+      "cohort": "public1015",
+      "mean_change_percent": 21.410895981803456,
+      "metric": "native_open_ms"
+    }
+  ]
+}
