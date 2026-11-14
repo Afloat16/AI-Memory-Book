@@ -1,4 +1,4 @@
-"""Blocked C6 namespace/provenance guards with unchanged C5 measurement fixtures plus inherited unchanged failure fixtures.
+"""C7 registration/source guards with unchanged C6 measurement and failure fixtures.
 
 These tests construct artificial records only; no recall or benchmark is run.
 """
@@ -170,7 +170,15 @@ class C7AcceptanceTests(inherited.RoundFiveAcceptanceTests):
         fields = ('CONTINUATION_COMMIT', 'CONTINUATION_SHA256', 'CONTINUATION_PROTOCOL',
                   'CONTINUATION_STATUS', 'DEVELOPMENT_PLAN_SHA256', 'C7_POLICY_KEY', 'C7_POLICY')
         for name in fields:
-            self.assertIsNone(getattr(bench, name))
+            self.assertIsNotNone(getattr(bench, name))
+        self.assertEqual(bench.CONTINUATION_COMMIT, '718ce3bbe42e23774e616219bd8ae60d143fb76f')
+        self.assertEqual(bench.CONTINUATION_SHA256, '7dc67e10049bf28ffc57060432442a0bdc371da2cc95506bf373e8381d50afeb')
+        self.assertEqual(bench.C7_POLICY_KEY, 'mcp_stdout_policy')
+        registered = json.loads((bench.ROOT/bench.CONTINUATION_PATH).read_bytes())
+        self.assertEqual(bench.C7_POLICY, registered['mcp_stdout_policy'])
+        for path, expected in ((bench.CONTINUATION_PATH, bench.CONTINUATION_SHA256),
+                               (bench.DEVELOPMENT_PLAN_PATH, bench.DEVELOPMENT_PLAN_SHA256)):
+            self.assertEqual(bench.sha((bench.ROOT/path).read_bytes()), expected)
         self.assertEqual(bench.C7_SOURCE, {'commit': None, 'runtime_sha256': None})
         valid = {'CONTINUATION_COMMIT': '1' * 40, 'CONTINUATION_SHA256': '2' * 64,
                  'CONTINUATION_PROTOCOL': 'artificial-unit-fixture', 'CONTINUATION_STATUS': 'artificial-unit-fixture',
@@ -196,8 +204,9 @@ class C7AcceptanceTests(inherited.RoundFiveAcceptanceTests):
                         call()
 
     def test_unbound_transport_policy_cannot_be_guessed_or_relabel_c6(self):
-        with self.assertRaisesRegex(ValueError, 'C7 transport policy is blocked'):
-            bench.check_c7_registered_scope({})
+        with patch.object(bench, 'C7_POLICY_KEY', None), patch.object(bench, 'C7_POLICY', None):
+            with self.assertRaisesRegex(ValueError, 'C7 transport policy is blocked'):
+                bench.check_c7_registered_scope({})
         # Only an in-memory artificial registration fixture; no C7 measured data is created.
         document = json.loads((bench.ROOT/'benchmarks/experiments/round5-c6-addendum.json').read_bytes())
         document['fixture_policy'] = {'purpose': 'unit fixture only'}

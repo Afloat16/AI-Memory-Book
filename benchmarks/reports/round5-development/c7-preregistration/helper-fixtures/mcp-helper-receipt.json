@@ -1,0 +1,70 @@
+{
+  "candidate_source": {
+    "commit": null,
+    "runtime_sha256": null
+  },
+  "files": {
+    ".artifacts/test_round5_c7_mcp_helper.py": {
+      "bytes": 6127,
+      "sha256": "709f18b7f4d71da66fb7fde55ad925be6d377293ddc0a1ff947d33033387e44d"
+    },
+    ".github/workflows/round5-c7-performance.yml": {
+      "bytes": 9236,
+      "sha256": "d9442f47ebe99020ea3237ed9190bdef2e43ee50fdb1f80cd39583ae86b22e43"
+    },
+    "benchmarks/experiments/round5-c7-mcp-development-plan.json": {
+      "bytes": 5051,
+      "sha256": "d9dc8110810aa425839d73e4d877423b48aaf6ea0c1aec523a867685d641868f"
+    },
+    "scripts/round5_c7_development_pair.py": {
+      "bytes": 13053,
+      "sha256": "b19f6a473868ab6c8b3c2c49d572740401ffd6812efac71e0b4aa9ef290769ad"
+    },
+    "scripts/round5_c7_mcp_development_pair.py": {
+      "bytes": 24440,
+      "sha256": "f5134503531afad08bbe251acf36f503e45bd474e1937f7b7e46592b86e94870"
+    },
+    "scripts/round5_c7_performance.py": {
+      "bytes": 60782,
+      "sha256": "416b961d8995dd8e2d64616a240058d07c45b60c6941310f3c314253f16262a3"
+    },
+    "tests/test_round5_c7_performance.py": {
+      "bytes": 19696,
+      "sha256": "1e997759d1d4c331b77f88536f8e97ee1cc5b05e3c38f73febfd539c3e99cf40"
+    }
+  },
+  "formal_fixtures": {
+    "command": "python -m unittest tests.test_round5_c7_performance -v",
+    "outcome": "passed",
+    "tests": 19
+  },
+  "mcp_artificial_fixtures": {
+    "adverse_metrics_retained": 9,
+    "command": "python .artifacts/test_round5_c7_mcp_helper.py",
+    "negative_checks": [
+      "missing source before file read in registration/main/worker",
+      "original ledger corruption",
+      "complete MCP envelope mismatch",
+      "mandatory real SDK process RSS unavailable"
+    ],
+    "outcome": "passed",
+    "scope": "Artificial saved-record validation only; synthetic rows exist only in a deleted temporary directory and are not measurements.",
+    "synthetic_ledger_events": 8120,
+    "synthetic_pairs": 2030,
+    "synthetic_rows": 4060,
+    "tests": 2
+  },
+  "performance_calls": 0,
+  "product_calls": 0,
+  "read_only_provenance": {
+    "actual_registration_and_native_and_mcp_plan_git_bytes": true,
+    "all_frozen_c6_inputs_verified": 51,
+    "formal_tools": 60,
+    "original_formal_calls": 56784,
+    "scope": "The source guard was patched only in an in-memory pure-read fixture to inspect the registered documents; the persisted candidate source remains None and all actual execution entrypoints stay blocked."
+  },
+  "registration_commit": "718ce3bbe42e23774e616219bd8ae60d143fb76f",
+  "registration_sha256": "7dc67e10049bf28ffc57060432442a0bdc371da2cc95506bf373e8381d50afeb",
+  "sdk_sessions": 0,
+  "status": "pure-fixtures-passed-source-still-blocked"
+}
