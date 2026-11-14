@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "protocol": "v034-exact-output-performance-v1",
+  "registered_at_utc": "2026-11-14",
+  "status": "registered-before-round6-implementation-and-scored-timing",
+  "baseline": {
+    "release": "v0.3.3",
+    "commit": "796cedfd1f5368144037a1fb72292b8d13884b8c",
+    "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+  },
+  "performance_candidate": {
+    "formal": {
+      "cohorts": [
+        "synthetic61",
+        "public1015"
+      ],
+      "configs": [
+        {
+          "id": "native-char4000",
+          "surface": "native",
+          "budget_chars": 4000,
+          "budget_tokens": null
+        },
+        {
+          "id": "mcp-char4000",
+          "surface": "official-sdk-mcp-stdio",
+          "budget_chars": 4000,
+          "budget_tokens": null
+        },
+        {
+          "id": "native-token512",
+          "surface": "native",
+          "budget_chars": 8000,
+          "budget_tokens": 512,
+          "tokenizer": "cl100k_base"
+        },
+        {
+          "id": "native-token1024",
+          "surface": "native",
+          "budget_chars": 8000,
+          "budget_tokens": 1024,
+          "tokenizer": "cl100k_base"
+        },
+        {
+          "id": "native-token2048",
+          "surface": "native",
+          "budget_chars": 8000,
+          "budget_tokens": 2048,
+          "tokenizer": "cl100k_base"
+        },
+        {
+          "id": "mcp-token1024",
+          "surface": "official-sdk-mcp-stdio",
+          "budget_chars": 8000,
+          "budget_tokens": 1024,
+          "tokenizer": "cl100k_base"
+        }
+      ],
+      "rounds": 4,
+      "engine_order": [
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ],
+        [
+          "baseline",
+          "candidate"
+        ]
+      ],
+      "calls": 56784,
+      "execution": "Sequential isolated workers, one host, fixed shuffled query order per round/config; no concurrent benchmark. Native cache_size=0/use_cache=False; actual MCP result cache cleared before call outside timing, cache-write cost included."
+    }
+  },
+  "thresholds_percent": {
+    "geometric_mean_p95_improvement": 10,
+    "at_least_one_public_native_token_p95_improvement": 15,
+    "public_mcp_token1024_p95_improvement": 10,
+    "maximum_pooled_p50_p95_regression": 5,
+    "resource_mean_increase_review": 10
+  },
+  "cohorts": [
+    {
+      "name": "synthetic61",
+      "queries": 168,
+      "sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26",
+      "role": "old development/regression"
+    },
+    {
+      "name": "public1015",
+      "queries": 1015,
+      "sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857",
+      "role": "old public regression"
+    }
+  ],
+  "correctness": "Complete stable output must match for every query, config, engine and round. Exclude only native latency_ms. Verify source spans, exact tokenizer counts, scope, result limits, indexed content, MCP envelope and cache policy.",
+  "durability": "Remote Git checkpoint this plan before product edits, then each completed implementation/audit stage. Freeze exact baseline/candidate/evaluator/input identities before scored timing. Exclusive per-binding execution claim, fsync per-call start/finish, worker start/finish remote checkpoints; preserve interruptions and failures. Final source must pass all nine CI jobs and package/public-installer gates before main/publication.",
+  "failure_rule": "Do not rerun completed formal measurements to select better samples, relax gates after outcomes, hide failed attempts, or claim speedup on a failed gate. A demonstrated correctness bug requires preserved failure evidence and a new explicitly documented candidate.",
+  "scope": "Exact-output efficiency versus published v0.3.3 on historical regression data, plus startup/correctness improvements and a separately frozen fresh component comparison. Previous v0.3.3 accepted tradeoffs and earlier failed candidates remain immutable. No new-domain or generated-answer accuracy claim.",
+  "resource_review": "All recorded startup, ingest/replay and RSS means retained. Increase over 10% requires explicit cause assessment and independent review; no automatic waiver.",
+  "implementation_hypotheses": [
+    {
+      "id": "atomic-fresh-schema",
+      "target": "Startup and correctness of new empty archive creation",
+      "proposal": "Wrap the existing new-database schema statements in one explicit SQLite transaction, preserving complete schema and index contents, rejecting unrelated nonempty databases, retaining existing-archive migration behavior, and rolling back/closing on setup failure. Test interrupted schema setup and competing initialization before timing."
+    },
+    {
+      "id": "request-local-work",
+      "target": "Native and actual MCP recall work",
+      "proposal": "Use old-data profiles and call counts to remove repeated lexical normalization, scoring, token packing, metadata or source projection work. Preserve full public output, errors, source-map integrity, budgets, ranking, scope and custom-path fallbacks. Document each concrete candidate before comparing it."
+    },
+    {
+      "id": "command-startup",
+      "target": "Command startup without archive access",
+      "proposal": "If justified by dependency analysis, defer heavyweight archive/importer/integration imports until the selected command requires them, preserving public imports, help/version behavior and errors. Do not present CLI-only gains as full MemoryBook import gains."
+    }
+  ],
+  "development": {
+    "data_role": "Historical inputs only; no fresh heldout scores for tuning",
+    "profiling": "cProfile and deterministic operation-count diagnostics; retain reports, no speed gate or quality claim",
+    "native": {
+      "rounds": 2,
+      "order": [
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ]
+      ],
+      "config_ids": [
+        "native-char4000",
+        "native-token512",
+        "native-token1024",
+        "native-token2048"
+      ],
+      "calls": 18928,
+      "complete_output_pairs": 9464
+    },
+    "actual_mcp": {
+      "rounds": 2,
+      "order": [
+        [
+          "baseline",
+          "candidate"
+        ],
+        [
+          "candidate",
+          "baseline"
+        ]
+      ],
+      "cohort": "public1015",
+      "config_id": "mcp-token1024",
+      "calls": 4060,
+      "complete_output_pairs": 2030
+    },
+    "repetition_rule": "A complete development comparison runs once per materially changed frozen source; preserve failures and all adverse cells. A version-only edit is not a new optimization candidate."
+  },
+  "derived_cache_policy": {
+    "both_sources_have_exact_token_memo": true,
+    "entry_limit": 2048,
+    "retained_text_bytes": 2097152,
+    "natural_warmth": "Each native book begins with empty derived memo; fixed subsequent configurations may naturally reuse counts. Each actual MCP configuration starts a fresh server process. Include first calls; no extra prewarming, selective clearing or response-result caching. Retain both sources memo diagnostics."
+  },
+  "historical_compatibility": {
+    "baseline_release": "v0.3.3",
+    "reference": "The same 2304 historical Hotpot256 complete default-output hashes reproduced by published v0.3.3",
+    "native_calls": 1536,
+    "component_calls": 768,
+    "tokenizers": [
+      "cl100k_base",
+      "o200k_base"
+    ],
+    "native_token_caps": [
+      512,
+      1024,
+      2048
+    ],
+    "rule": "Full dependency/input/source preflight before recall. Exclude only latency_ms from payload equality; retain every original started/finished event and invariant."
+  },
+  "competitor_comparison": {
+    "status": "separate plan and source/evaluator/dependency freeze required before fresh selection or scoring",
+    "target": "New same-boundary component comparison against pinned claude-mem FTS, ai-memory hybrid and billion-context kernel, including published Book baseline and final candidate",
+    "fresh_selection": "Deterministic ID-only selection of 256 Hotpot validation questions, excluding all 896 historical IDs, after full source/evaluator/model/input identities are frozen; verify actual exclusion union before selection",
+    "reporting": "Retain all wins and losses, original native/component boundaries, all fixed token caps and no-answer cases. Do not claim whole-product or all-dimensions superiority from this component sample."
+  }
+}
