@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "protocol": "v033-c6-directed-correctness-v1",
+  "recorded_at_utc": "2026-11-14T04:14:17.895371+00:00",
+  "status": "directed-correctness-passed-not-performance-acceptance",
+  "registration_commit": "099cbaf427c28351d71f3995fd0ff42f9c881b38",
+  "registration_sha256": "7ad88598c9ccb3492083be06448e92a76da7025501a1aa578a0e39d8bd94c9d5",
+  "source_commit": "Parent will freeze these exact tested file hashes in a separate source checkpoint.",
+  "runtime_sha256": "91305c9e39acfbbf1063af46e6759f46cf8a3a0c48917847feea6dd6113e2eb3",
+  "files": {
+    "src/memory_book/store.py": "367a93ff0760e2e4e0705660e80430d586b9bab89dd0b9737ad7eb2fb9892e1d",
+    "src/memory_book/token_budget.py": "0af09aaae1219e978f688c3aa4bb6c180c0b435bdb4a3113e5c3758b19b290ed",
+    "tests/test_round5_candidate_c6.py": "de2cb0eb8e4e3e2658bb1705d0f95d55e65c065a0ec05b5e0cdb5962a693ceb8"
+  },
+  "environment": {
+    "python_version": "3.12.14",
+    "python_build": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/workspace/scratch/36b34eafc753/.venv/bin/python",
+    "packages": {
+      "tiktoken": "0.12.0",
+      "mcp": "1.30.0",
+      "anyio": "4.16.0"
+    },
+    "working_directory": "/workspace/scratch/36b34eafc753/AI-Memory-Book"
+  },
+  "runs": [
+    {
+      "command": "PYTHONPATH=src:. TIKTOKEN_CACHE_DIR=/workspace/scratch/36b34eafc753/AI-Memory-Book/.artifacts/tiktoken /workspace/scratch/36b34eafc753/.venv/bin/python -m unittest tests.test_round5_candidate_c6 tests.test_round5_candidate_c5 tests.test_round5_candidate_c4 tests.test_round5_recall_work tests.test_round4_sealed_counts tests.test_token_prefix_bound tests.test_token_budget tests.test_token_budget_mcp tests.test_mcp_lifecycle -q",
+      "exit_code": 0,
+      "cases": 94,
+      "skipped": 0,
+      "unittest_reported_seconds": 7.541,
+      "completion_output_path": "benchmarks/reports/round5-c6-correctness-token-tests.log",
+      "completion_output_sha256": "c64a2e76598161e15b8bc22db2c481917e7c486699aac312918f46c0cdb05dc8",
+      "tool_session_id": 57087,
+      "tool_completion_chunk_id": "6ea997"
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/scratch/36b34eafc753/.venv/bin/python -S -m unittest tests.test_round5_candidate_c6 tests.test_round5_candidate_c5 tests.test_round5_candidate_c4 -q",
+      "exit_code": 0,
+      "cases": 42,
+      "skipped": 19,
+      "unittest_reported_seconds": 0.375,
+      "completion_output_path": "benchmarks/reports/round5-c6-correctness-no-site-tests.log",
+      "completion_output_sha256": "749f616b884b836687d91d77a9fc448ff001d6f53f8ac5862eadc3c83ddd7afa",
+      "tool_completion_chunk_id": "58fae9",
+      "dependency_mode": "Site initialization disabled; only tokenizer-dependent cases skipped."
+    }
+  ],
+  "suite_overlap": "The 42 C6+C5+C4 cases are a subset of the 94-case suite, rerun with python -S. Do not add them as unique tests. Preliminary 93/41-case runs preceded the final import-time JSON certification fixture and are superseded by these final 94/42-case results.",
+  "log_capture": "The linked files preserve the exact combined stdout/stderr completion output returned by exec_command/write_stdin. They were copied from the observed tool results; no separate original stdout or stderr file was created during execution.",
+  "coverage": [
+    "Multi-session batching returns the same exact requested source-turn mapping, including missing turns. EXPLAIN confirms the existing composite session/ordinal index lookup.",
+    "Real SQL work counts show one batch in place of multiple per-session queries; read-only Python call observation confirms one source_refs parse per selected page and removal of the final duplicate parse.",
+    "Single/empty sessions, non-native types, mixed/overflow ordinals, 400-pair boundary, 401 pairs, absent getlimit, custom connection/row/text factories, and restrictive variable/SQL length/column/expression/compound/VM limits use the original path.",
+    "Full payloads and exact counts match the original source work path for both encoders, zero/tiny/large token caps, character caps, project scope and single-session scope.",
+    "Original source-map and projected-unit errors survive changed source text, invalid JSON, missing/overflow/mixed source ordinals.",
+    "Custom prepare mutation, custom reference projection and JSON loaders retain their original calls; a JSON wrapper installed before store import is not certified.",
+    "Late custom breadcrumbs replacing raw references, replacing id with a nonhashable list, replacing _refs/json.loads or deleting raw references preserve original outputs/errors; empty spans do not parse/access missing raw references.",
+    "No private keys are added to selected rows or assembly/breadcrumb inputs; reference clipping preserves span order and creates fresh output dictionaries.",
+    "Existing C5 memo, C4 scope/ranking, token assembly, prefix/sealed counting, real SDK token payloads and persistent MCP lifecycle tests pass."
+  ],
+  "limits": [
+    "These are correctness fixtures, not elapsed recall/MCP performance evidence or release acceptance.",
+    "Unit-test durations describe test execution only; no C6 development or formal performance invocation was run by this agent.",
+    "The local environment is Python 3.12.14. Missing-getlimit behavior is simulated in a directed test; actual Python 3.10/3.13 execution remains the exact-source CI responsibility.",
+    "Identity certification does not attempt to detect deliberate forgery of private module code or metadata."
+  ]
+}

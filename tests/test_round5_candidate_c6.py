@@ -262,6 +262,63 @@ class InSnapshotSourceWorkTests(unittest.TestCase):
         finally:
             self.book.db.set_trace_callback(None)
 
+    def add_nested_reference_fields(self):
+        for row in self.book.db.execute("SELECT id,source_refs FROM pages").fetchall():
+            refs = json.loads(row["source_refs"])
+            for ref in refs:
+                self.assertIs(type(ref["message_indices"]), list)
+                ref["extra"] = {"labels": ["original"]}
+            self.book.db.execute("UPDATE pages SET source_refs=? WHERE id=?", (json.dumps(refs), row["id"]))
+
+    def assert_independent_nested_references(self, left, right):
+        self.assertEqual(left, right)
+        self.assertIsNot(left, right)
+        self.assertIsNot(left["message_indices"], right["message_indices"])
+        self.assertIsNot(left["extra"], right["extra"])
+        self.assertIsNot(left["extra"]["labels"], right["extra"]["labels"])
+        left["message_indices"].append(999)
+        left["extra"]["labels"].append("changed")
+        self.assertNotIn(999, right["message_indices"])
+        self.assertEqual(right["extra"]["labels"], ["original"])
+
+    def test_multiple_spans_keep_independent_nested_json_containers(self):
+        self.add_nested_reference_fields()
+        ordinary = budget.assemble_with_count
+        def multi_span(*args, **kwargs):
+            kept, count = ordinary(*args, **kwargs)
+            row, header, text, spans = kept[0]
+            self.assertEqual(len(spans), 1)
+            return [(row, header, text, spans + spans), *kept[1:]], count
+        with patch.object(budget, "assemble_with_count", multi_span):
+            with json_callers() as counts:
+                actual = response(self.book, budget_tokens=10000, budget_chars=8000)
+            with previous_source_path(self.book):
+                expected = response(self.book, budget_tokens=10000, budget_chars=8000)
+        self.assertEqual(actual, expected)
+        refs = actual["results"][0]["source_refs"]
+        self.assertEqual(len(refs), 2)
+        self.assert_independent_nested_references(refs[0], refs[1])
+        self.assertEqual(counts["_refs"], 2)
+
+    def test_repeated_page_consumes_its_captured_reference_map_once(self):
+        self.add_nested_reference_fields()
+        ordinary = budget.assemble_with_count
+        def repeated_page(*args, **kwargs):
+            kept, _ = ordinary(*args, **kwargs)
+            kept = [kept[0], kept[0], *kept[1:]]
+            count = kwargs["counter"].count("\n\n".join(header + text for _, header, text, _ in kept))
+            return kept, count
+        with patch.object(budget, "assemble_with_count", repeated_page):
+            with json_callers() as counts:
+                actual = response(self.book, budget_tokens=10000, budget_chars=8000)
+            with previous_source_path(self.book):
+                expected = response(self.book, budget_tokens=10000, budget_chars=8000)
+        self.assertEqual(actual, expected)
+        first, second = actual["results"][:2]
+        self.assertEqual(first["id"], second["id"])
+        self.assert_independent_nested_references(first["source_refs"][0], second["source_refs"][0])
+        self.assertEqual(counts["_refs"], 1)
+
     def test_custom_reference_and_json_methods_are_called_with_original_arguments(self):
         original_refs, original_loads = self.book._refs, json.loads
         calls = []
