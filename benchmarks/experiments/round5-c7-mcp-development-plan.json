@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "protocol": "v033-c7-actual-mcp-development-v1",
+  "status": "registered-before-c7-actual-mcp-development-timing",
+  "created_at_utc": "2026-11-14T05:04:20.462404+00:00",
+  "continuation": "round5-c7-addendum.json",
+  "baseline_commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+  "candidate": "The exact substantive C7 commit/runtime frozen after directed correctness and independent review; no candidate timing before that identity and this plan are committed.",
+  "reason": "C5 and C6 complete formal runs passed correctness and the aggregate/native gates but missed the fixed actual public MCP token1024 p95 gate. Diagnose that same surface once before another full formal run.",
+  "cohort": {
+    "name": "public1015",
+    "queries": 1015,
+    "sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857",
+    "selection": "Every fixed old public query, unchanged."
+  },
+  "config": {
+    "id": "mcp-token1024",
+    "surface": "official-sdk-mcp-stdio",
+    "budget_chars": 8000,
+    "budget_tokens": 1024,
+    "tokenizer": "cl100k_base"
+  },
+  "rounds": 2,
+  "engine_order": [
+    [
+      "baseline",
+      "candidate"
+    ],
+    [
+      "candidate",
+      "baseline"
+    ]
+  ],
+  "workers": 4,
+  "fresh_sdk_servers": 4,
+  "calls": 4060,
+  "version_pairs": 2030,
+  "query_order": {
+    "reference_run": "benchmarks/reports/round5-c6-performance-43557136276-1/run.json",
+    "reference_run_sha256": "8b94951b56304466968d45a32f438b69d05ccf964e2ef57124af1327bf4a19a3",
+    "reference_result_commit": "c6b384778e12ce9c72771911af37bbb2c5d3474f",
+    "reference_formal_rounds": [
+      0,
+      1
+    ],
+    "formal_config_index": 5,
+    "primitive": "scripts.round4_performance.query_order",
+    "rule": "Use public1015 query_ids_original_order from the frozen formal run, then the unchanged query_order(ids, round, 5). Both source workers share exactly that complete order in each round."
+  },
+  "measurement": {
+    "module": "scripts/round4_performance.py",
+    "module_sha256": "7e1b987e62e1950b7c6f842942d2e294a74284a16cf4cdc58bfe326e4e4044a7",
+    "entrypoint": "mcp_configuration",
+    "row_validation": "make_row",
+    "attempt_ledger": "Ledger",
+    "packages": {
+      "mcp": "1.30.0",
+      "pydantic": "2.14.3",
+      "tiktoken": "0.12.0"
+    },
+    "boundary": "Directly call the unchanged frozen mcp_configuration; do not implement another client, timer, message loop, profiler, observer hook or transport shim in the evaluator.",
+    "command": "The unchanged Python -m memory_book --db <fresh-worker-db> mcp command supplied by the frozen primitive.",
+    "cold_start": "One fresh worker process and one fresh actual SDK server per source/round. Keep all first calls; no extra product prewarming, discarded prefix or cache prepopulation.",
+    "database": "Fresh ingestion and unchanged reingestion through the frozen runtime outside query timing; retain full source/index/revision projections and compare both sources.",
+    "cache": "The frozen helper clears recall_cache before each measured tool call and verifies normal cache writes leave exactly one native provenance record. Retain normal result-cache costs. Candidate derived token memo starts empty with each server and naturally persists during its 1015 calls.",
+    "resources": "Preserve the frozen startup/session/schema/instruction/storage and live server RSS observations. Require a Linux host exposing the live SDK child through procfs; unavailable mandatory RSS is an error, never a waiver."
+  },
+  "correctness": {
+    "complete_outputs": "Compare every stable_row, including complete MCP response, envelope and native payload hashes, token counts and metadata, source provenance checks, cache counts and all original invariants. Only elapsed time and source identity are excluded from version equality.",
+    "ledgers": "Retain every started/finished Ledger event, including any interrupted attempt, and match every successful row to its original event pair.",
+    "expected_ledger_events_on_success": 8120,
+    "source_binding": "Require exact baseline/C7 commit and runtime in parent and every worker before importing or calling the product; recheck source and helper bytes after completion."
+  },
+  "attempt_policy": "One exclusive invocation per frozen C7 source and registered MCP plan. Preserve all workers, errors, first calls, negative cells and raw ledgers. Never rerun an unchanged source to select faster timings.",
+  "coexistence": "The separate 18928-call native development diagnostic remains registered and is also executed at most once. Serialize development runs on one otherwise idle host; neither diagnostic replaces the formal matrix.",
+  "decision_boundary": "Old-data MCP development evidence only, not release acceptance or a competitor result. Report pooled and both per-round mean/p50/p95, absolute values and all adverse observations. No new formal acceptance threshold is introduced; the unchanged 56784-call formal run and all original correctness/numerical/resource gates remain required."
+}

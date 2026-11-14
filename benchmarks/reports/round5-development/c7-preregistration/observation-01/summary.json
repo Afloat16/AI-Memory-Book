@@ -1,0 +1,693 @@
+{
+  "schema_version": 1,
+  "status": "complete-calls-validated-with-preserved-diagnostic-finalization-failure",
+  "source": {
+    "commit": "1bd97221e31e8e975498ece00f4bbfb3e0426aac",
+    "runtime_sha256": "cfffd8a21374cbf9152bbbc98a6a9847a1e22401f16179112e2f79eef181ff78"
+  },
+  "reference_worker": "benchmarks/reports/round5-c6-performance-43557136276-1/workers/r0-public1015-candidate.json.gz",
+  "reference_worker_sha256": "6cb2542081e769b0e975258505f674bf11d9bfe64f55304b4cc91a701585f963",
+  "plan_sha256": "671c667684902d1e39bea3a507d23bcee9bf78cd85147653ac7435ee8e3c6cc3",
+  "registration_commit": "592e2abc0b3176a25fe070453f7f5ea403a95409",
+  "calls": 1015,
+  "attempt_events": 2030,
+  "all_payload_envelope_and_native_hashes_equal": true,
+  "all_recorded_invariants_passed": true,
+  "query_order_sha256": "4095a599f8623e2a5b557ade3f975f5941bbf4d409c1408a810fe447aa3a4496",
+  "observer_finished": {
+    "event": "observer_finished",
+    "profile": {
+      "functions": 465,
+      "functions_path": "all-calls.functions.json",
+      "pstats_path": "all-calls.pstats",
+      "pstats_sha256": "53456b51b8da116d092118cc65b03ee7f9df1597b560da8b9910ddd4688167c7",
+      "tool_calls_included": 1015
+    },
+    "server_count": 1,
+    "tool_calls": 1015,
+    "tool_errors": 0,
+    "transport_counts": {
+      "sdk_stdout_flush": 1017,
+      "sdk_stdout_write": 1017,
+      "to_thread_run_sync:other:TextIOWrapper.readline": 1019,
+      "to_thread_run_sync:sdk_stdout:TextIOWrapper.flush": 1017,
+      "to_thread_run_sync:sdk_stdout:TextIOWrapper.write": 1017
+    }
+  },
+  "source_and_index_offline_comparison": {
+    "pinned_base": {
+      "source": "556e125f93d2a00ce6b5352f716867001da0a064b2714d3ed5d88c52b1905c51",
+      "indexed": {
+        "pages": {
+          "rows": 1339,
+          "sha256": "13c5596f03c9f8aeece345083096b4797c6a38e051052754c11375ab53efa65d"
+        },
+        "sections": {
+          "rows": 1339,
+          "sha256": "bcb0bebff9624cf31a2d99afe08febf96e9b8fc4d11f91c23d0cc418c9f0dac1"
+        },
+        "turns": {
+          "rows": 4684,
+          "sha256": "e27f1c9db4ac65faa788252f0e0f06e08c8c502636a0aa32f26d20808cc5d31c"
+        },
+        "chapters": {
+          "rows": 8,
+          "sha256": "aafa9ce0329560160f459b6ae92022687c67e34e72d3d0ca9e2e9fc69651d30b"
+        },
+        "sessions": {
+          "rows": 216,
+          "sha256": "5595e97804bb9cb95e9a2de5a50879f25c4f133bcdfd6243d2228c740e4d7df0"
+        },
+        "pages_fts": {
+          "rows": 1339,
+          "sha256": "9db14b70700449eca7b2a9d851f4cfc2461d4b192aa6b2acd590432268bae784"
+        },
+        "pages_stem_fts": {
+          "rows": 1339,
+          "sha256": "9db14b70700449eca7b2a9d851f4cfc2461d4b192aa6b2acd590432268bae784"
+        }
+      },
+      "revision": "216",
+      "cache_rows": 0
+    },
+    "completed_observation": {
+      "source": "556e125f93d2a00ce6b5352f716867001da0a064b2714d3ed5d88c52b1905c51",
+      "indexed": {
+        "pages": {
+          "rows": 1339,
+          "sha256": "13c5596f03c9f8aeece345083096b4797c6a38e051052754c11375ab53efa65d"
+        },
+        "sections": {
+          "rows": 1339,
+          "sha256": "bcb0bebff9624cf31a2d99afe08febf96e9b8fc4d11f91c23d0cc418c9f0dac1"
+        },
+        "turns": {
+          "rows": 4684,
+          "sha256": "e27f1c9db4ac65faa788252f0e0f06e08c8c502636a0aa32f26d20808cc5d31c"
+        },
+        "chapters": {
+          "rows": 8,
+          "sha256": "aafa9ce0329560160f459b6ae92022687c67e34e72d3d0ca9e2e9fc69651d30b"
+        },
+        "sessions": {
+          "rows": 216,
+          "sha256": "5595e97804bb9cb95e9a2de5a50879f25c4f133bcdfd6243d2228c740e4d7df0"
+        },
+        "pages_fts": {
+          "rows": 1339,
+          "sha256": "9db14b70700449eca7b2a9d851f4cfc2461d4b192aa6b2acd590432268bae784"
+        },
+        "pages_stem_fts": {
+          "rows": 1339,
+          "sha256": "9db14b70700449eca7b2a9d851f4cfc2461d4b192aa6b2acd590432268bae784"
+        }
+      },
+      "revision": "216",
+      "cache_rows": 0
+    },
+    "boundary": "Read-only immutable SQLite projections after execution; no MemoryBook construction or recall. Original script also asserted before==after before the failing final root-count assertion."
+  },
+  "failure_preserved": {
+    "path": "failure.json",
+    "sha256": "96c452c962fe397f66db4eb9e01512a545df65c1954af96438f7fe1b26d6d6a5",
+    "bytes": 77,
+    "value": {
+      "status": "failed-no-retry",
+      "type": "AssertionError",
+      "error": ""
+    }
+  },
+  "profile_boundary_anomaly": {
+    "root": {
+      "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/mcp_server.py",
+      "line": 211,
+      "name": "recall_memory",
+      "primitive_calls": 0,
+      "total_calls": 391,
+      "profile_self_seconds": 0.016774188000000002,
+      "profile_cumulative_seconds": 0.0,
+      "callers": []
+    },
+    "root_absent_in_first_call_snapshot": true,
+    "interpretation": "The profiler was repeatedly enabled/disabled at the tool boundary; the saved root node and its caller edges do not account for complete calls. The precise profiler-internal cause was not established. Do not use this root node to infer missing tool executions or end-to-end duration.",
+    "independent_completion_evidence": "1015 ordered observer starts/finishes with zero errors; 1015 saved SDK outputs; interior store.recall and recall_payload each report 1015 invocations.",
+    "invalidated_claims": [
+      "Original diagnostic exit success",
+      "Complete root call graph",
+      "Root inclusive time",
+      "Any formal latency, transport-time subtraction or speedup conclusion"
+    ]
+  },
+  "diagnostic_hotspots": {
+    "boundary": "Instrumented interior attribution only; caller edges to the root are incomplete and instrumentation overhead remains included.",
+    "top_self": [
+      {
+        "filename": "~",
+        "line": 0,
+        "name": "<method 'execute' of 'sqlite3.Connection' objects>",
+        "primitive_calls": 17190,
+        "total_calls": 17190,
+        "profile_self_seconds": 1.333602304,
+        "profile_cumulative_seconds": 1.333602304
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/store.py",
+        "line": 776,
+        "name": "recall",
+        "primitive_calls": 1015,
+        "total_calls": 1015,
+        "profile_self_seconds": 0.614241338,
+        "profile_cumulative_seconds": 4.260783526
+      },
+      {
+        "filename": "~",
+        "line": 0,
+        "name": "<method 'fetchall' of 'sqlite3.Cursor' objects>",
+        "primitive_calls": 3912,
+        "total_calls": 3912,
+        "profile_self_seconds": 0.284177406,
+        "profile_cumulative_seconds": 0.284177406
+      },
+      {
+        "filename": "~",
+        "line": 0,
+        "name": "<method 'encode_ordinary' of 'builtins.CoreBPE' objects>",
+        "primitive_calls": 4027,
+        "total_calls": 4027,
+        "profile_self_seconds": 0.20026237000000002,
+        "profile_cumulative_seconds": 0.20026237000000002
+      },
+      {
+        "filename": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/encoder.py",
+        "line": 205,
+        "name": "iterencode",
+        "primitive_calls": 3045,
+        "total_calls": 3045,
+        "profile_self_seconds": 0.134348988,
+        "profile_cumulative_seconds": 0.134348988
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/tiktoken/core.py",
+        "line": 17,
+        "name": "__init__",
+        "primitive_calls": 1,
+        "total_calls": 1,
+        "profile_self_seconds": 0.096552842,
+        "profile_cumulative_seconds": 0.09773168500000001
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/store.py",
+        "line": 723,
+        "name": "_bounded_candidate_metadata",
+        "primitive_calls": 1009,
+        "total_calls": 1009,
+        "profile_self_seconds": 0.08631032000000001,
+        "profile_cumulative_seconds": 0.566197976
+      },
+      {
+        "filename": "~",
+        "line": 0,
+        "name": "<method 'split' of 'str' objects>",
+        "primitive_calls": 21261,
+        "total_calls": 21261,
+        "profile_self_seconds": 0.08436421200000001,
+        "profile_cumulative_seconds": 0.08436421200000001
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/tiktoken/load.py",
+        "line": 160,
+        "name": "load_tiktoken_bpe",
+        "primitive_calls": 1,
+        "total_calls": 1,
+        "profile_self_seconds": 0.08082149000000001,
+        "profile_cumulative_seconds": 0.19873521800000002
+      },
+      {
+        "filename": "~",
+        "line": 0,
+        "name": "<method 'findall' of 're.Pattern' objects>",
+        "primitive_calls": 8100,
+        "total_calls": 8100,
+        "profile_self_seconds": 0.079153917,
+        "profile_cumulative_seconds": 0.079153917
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/text.py",
+        "line": 34,
+        "name": "terms",
+        "primitive_calls": 7320,
+        "total_calls": 7320,
+        "profile_self_seconds": 0.074686325,
+        "profile_cumulative_seconds": 0.23557441
+      },
+      {
+        "filename": "~",
+        "line": 0,
+        "name": "<built-in method builtins.any>",
+        "primitive_calls": 6938,
+        "total_calls": 11227,
+        "profile_self_seconds": 0.066978534,
+        "profile_cumulative_seconds": 0.196003106
+      },
+      {
+        "filename": "~",
+        "line": 0,
+        "name": "<method 'intersection' of 'set' objects>",
+        "primitive_calls": 21250,
+        "total_calls": 21250,
+        "profile_self_seconds": 0.064219815,
+        "profile_cumulative_seconds": 0.064219815
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/store.py",
+        "line": 344,
+        "name": "_batch_original_turns",
+        "primitive_calls": 1015,
+        "total_calls": 1015,
+        "profile_self_seconds": 0.051725846000000006,
+        "profile_cumulative_seconds": 0.096413435
+      },
+      {
+        "filename": "~",
+        "line": 0,
+        "name": "<method 'get' of 'dict' objects>",
+        "primitive_calls": 427621,
+        "total_calls": 427621,
+        "profile_self_seconds": 0.051213052,
+        "profile_cumulative_seconds": 0.051213052
+      },
+      {
+        "filename": "~",
+        "line": 0,
+        "name": "<method 'disable' of '_lsprof.Profiler' objects>",
+        "primitive_calls": 1015,
+        "total_calls": 1015,
+        "profile_self_seconds": 0.047182379,
+        "profile_cumulative_seconds": 0.047182379
+      },
+      {
+        "filename": "~",
+        "line": 0,
+        "name": "<method 'sub' of 're.Pattern' objects>",
+        "primitive_calls": 7760,
+        "total_calls": 7760,
+        "profile_self_seconds": 0.047179709,
+        "profile_cumulative_seconds": 0.047230415000000005
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/store.py",
+        "line": 750,
+        "name": "<genexpr>",
+        "primitive_calls": 393813,
+        "total_calls": 393813,
+        "profile_self_seconds": 0.045039686,
+        "profile_cumulative_seconds": 0.045039686
+      },
+      {
+        "filename": "~",
+        "line": 0,
+        "name": "<built-in method builtins.max>",
+        "primitive_calls": 208561,
+        "total_calls": 208561,
+        "profile_self_seconds": 0.043553416000000005,
+        "profile_cumulative_seconds": 0.082987212
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/token_budget.py",
+        "line": 253,
+        "name": "_ordinary_encoding",
+        "primitive_calls": 8965,
+        "total_calls": 8965,
+        "profile_self_seconds": 0.038235950000000005,
+        "profile_cumulative_seconds": 0.058028068
+      },
+      {
+        "filename": "~",
+        "line": 0,
+        "name": "<built-in method builtins.len>",
+        "primitive_calls": 383235,
+        "total_calls": 383260,
+        "profile_self_seconds": 0.033223145,
+        "profile_cumulative_seconds": 0.033227568
+      },
+      {
+        "filename": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py",
+        "line": 344,
+        "name": "raw_decode",
+        "primitive_calls": 5073,
+        "total_calls": 5073,
+        "profile_self_seconds": 0.033216344,
+        "profile_cumulative_seconds": 0.033216344
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/store.py",
+        "line": 763,
+        "name": "<genexpr>",
+        "primitive_calls": 207101,
+        "total_calls": 207101,
+        "profile_self_seconds": 0.032987638,
+        "profile_cumulative_seconds": 0.032987638
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/token_budget.py",
+        "line": 421,
+        "name": "_source_map_matches",
+        "primitive_calls": 5073,
+        "total_calls": 5073,
+        "profile_self_seconds": 0.032957332,
+        "profile_cumulative_seconds": 0.07882955
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/store.py",
+        "line": 1001,
+        "name": "<lambda>",
+        "primitive_calls": 70783,
+        "total_calls": 70783,
+        "profile_self_seconds": 0.030386457000000002,
+        "profile_cumulative_seconds": 0.039420025000000004
+      },
+      {
+        "filename": "~",
+        "line": 0,
+        "name": "<method 'join' of 'str' objects>",
+        "primitive_calls": 12289,
+        "total_calls": 12289,
+        "profile_self_seconds": 0.028835418,
+        "profile_cumulative_seconds": 0.046804612
+      },
+      {
+        "filename": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/base64.py",
+        "line": 65,
+        "name": "b64decode",
+        "primitive_calls": 100256,
+        "total_calls": 100256,
+        "profile_self_seconds": 0.025863872000000003,
+        "profile_cumulative_seconds": 0.069830826
+      },
+      {
+        "filename": "~",
+        "line": 0,
+        "name": "<built-in method builtins.getattr>",
+        "primitive_calls": 240360,
+        "total_calls": 240360,
+        "profile_self_seconds": 0.025663873,
+        "profile_cumulative_seconds": 0.025663873
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/mcp_server.py",
+        "line": 81,
+        "name": "recall_payload",
+        "primitive_calls": 1015,
+        "total_calls": 1015,
+        "profile_self_seconds": 0.023758187,
+        "profile_cumulative_seconds": 0.028502882
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/token_budget.py",
+        "line": 190,
+        "name": "count",
+        "primitive_calls": 7346,
+        "total_calls": 7346,
+        "profile_self_seconds": 0.023343685000000003,
+        "profile_cumulative_seconds": 0.297618545
+      }
+    ],
+    "top_cumulative": [
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/store.py",
+        "line": 776,
+        "name": "recall",
+        "primitive_calls": 1015,
+        "total_calls": 1015,
+        "profile_self_seconds": 0.614241338,
+        "profile_cumulative_seconds": 4.260783526
+      },
+      {
+        "filename": "~",
+        "line": 0,
+        "name": "<method 'execute' of 'sqlite3.Connection' objects>",
+        "primitive_calls": 17190,
+        "total_calls": 17190,
+        "profile_self_seconds": 1.333602304,
+        "profile_cumulative_seconds": 1.333602304
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/store.py",
+        "line": 723,
+        "name": "_bounded_candidate_metadata",
+        "primitive_calls": 1009,
+        "total_calls": 1009,
+        "profile_self_seconds": 0.08631032000000001,
+        "profile_cumulative_seconds": 0.566197976
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/token_budget.py",
+        "line": 495,
+        "name": "assemble_with_count",
+        "primitive_calls": 1015,
+        "total_calls": 1015,
+        "profile_self_seconds": 0.018619578,
+        "profile_cumulative_seconds": 0.392797481
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/token_budget.py",
+        "line": 550,
+        "name": "fitting_count",
+        "primitive_calls": 5073,
+        "total_calls": 5073,
+        "profile_self_seconds": 0.007295893,
+        "profile_cumulative_seconds": 0.31599322300000005
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/token_budget.py",
+        "line": 181,
+        "name": "__init__",
+        "primitive_calls": 1015,
+        "total_calls": 1015,
+        "profile_self_seconds": 0.0014872140000000002,
+        "profile_cumulative_seconds": 0.303885234
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/token_budget.py",
+        "line": 64,
+        "name": "_encoding",
+        "primitive_calls": 1,
+        "total_calls": 1,
+        "profile_self_seconds": 2.8201000000000003e-05,
+        "profile_cumulative_seconds": 0.302320755
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/token_budget.py",
+        "line": 190,
+        "name": "count",
+        "primitive_calls": 7346,
+        "total_calls": 7346,
+        "profile_self_seconds": 0.023343685000000003,
+        "profile_cumulative_seconds": 0.297618545
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/tiktoken/registry.py",
+        "line": 63,
+        "name": "get_encoding",
+        "primitive_calls": 1,
+        "total_calls": 1,
+        "profile_self_seconds": 2.79e-05,
+        "profile_cumulative_seconds": 0.29734698600000004
+      },
+      {
+        "filename": "~",
+        "line": 0,
+        "name": "<method 'fetchall' of 'sqlite3.Cursor' objects>",
+        "primitive_calls": 3912,
+        "total_calls": 3912,
+        "profile_self_seconds": 0.284177406,
+        "profile_cumulative_seconds": 0.284177406
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/text.py",
+        "line": 34,
+        "name": "terms",
+        "primitive_calls": 7320,
+        "total_calls": 7320,
+        "profile_self_seconds": 0.074686325,
+        "profile_cumulative_seconds": 0.23557441
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/tiktoken/core.py",
+        "line": 63,
+        "name": "encode_ordinary",
+        "primitive_calls": 4027,
+        "total_calls": 4027,
+        "profile_self_seconds": 0.002439362,
+        "profile_cumulative_seconds": 0.202904668
+      },
+      {
+        "filename": "~",
+        "line": 0,
+        "name": "<method 'encode_ordinary' of 'builtins.CoreBPE' objects>",
+        "primitive_calls": 4027,
+        "total_calls": 4027,
+        "profile_self_seconds": 0.20026237000000002,
+        "profile_cumulative_seconds": 0.20026237000000002
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/tiktoken_ext/openai_public.py",
+        "line": 75,
+        "name": "cl100k_base",
+        "primitive_calls": 1,
+        "total_calls": 1,
+        "profile_self_seconds": 6.641000000000001e-05,
+        "profile_cumulative_seconds": 0.198801628
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/tiktoken/load.py",
+        "line": 160,
+        "name": "load_tiktoken_bpe",
+        "primitive_calls": 1,
+        "total_calls": 1,
+        "profile_self_seconds": 0.08082149000000001,
+        "profile_cumulative_seconds": 0.19873521800000002
+      },
+      {
+        "filename": "~",
+        "line": 0,
+        "name": "<built-in method builtins.any>",
+        "primitive_calls": 6938,
+        "total_calls": 11227,
+        "profile_self_seconds": 0.066978534,
+        "profile_cumulative_seconds": 0.196003106
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/token_budget.py",
+        "line": 532,
+        "name": "prefix_tokens",
+        "primitive_calls": 5181,
+        "total_calls": 5181,
+        "profile_self_seconds": 0.007143423,
+        "profile_cumulative_seconds": 0.188262637
+      },
+      {
+        "filename": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/__init__.py",
+        "line": 183,
+        "name": "dumps",
+        "primitive_calls": 3045,
+        "total_calls": 3045,
+        "profile_self_seconds": 0.009826205000000001,
+        "profile_cumulative_seconds": 0.15483934000000002
+      },
+      {
+        "filename": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/encoder.py",
+        "line": 183,
+        "name": "encode",
+        "primitive_calls": 3045,
+        "total_calls": 3045,
+        "profile_self_seconds": 0.0065071420000000005,
+        "profile_cumulative_seconds": 0.14337338900000002
+      },
+      {
+        "filename": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/encoder.py",
+        "line": 205,
+        "name": "iterencode",
+        "primitive_calls": 3045,
+        "total_calls": 3045,
+        "profile_self_seconds": 0.134348988,
+        "profile_cumulative_seconds": 0.134348988
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/store.py",
+        "line": 107,
+        "name": "_json",
+        "primitive_calls": 2030,
+        "total_calls": 2030,
+        "profile_self_seconds": 0.0032548660000000004,
+        "profile_cumulative_seconds": 0.127880138
+      },
+      {
+        "filename": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/contextlib.py",
+        "line": 132,
+        "name": "__enter__",
+        "primitive_calls": 1015,
+        "total_calls": 1015,
+        "profile_self_seconds": 0.0026919020000000004,
+        "profile_cumulative_seconds": 0.10137027700000001
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/tiktoken/core.py",
+        "line": 17,
+        "name": "__init__",
+        "primitive_calls": 1,
+        "total_calls": 1,
+        "profile_self_seconds": 0.096552842,
+        "profile_cumulative_seconds": 0.09773168500000001
+      },
+      {
+        "filename": "~",
+        "line": 0,
+        "name": "<built-in method builtins.next>",
+        "primitive_calls": 2030,
+        "total_calls": 2030,
+        "profile_self_seconds": 0.002654922,
+        "profile_cumulative_seconds": 0.097531196
+      },
+      {
+        "filename": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src/memory_book/store.py",
+        "line": 344,
+        "name": "_batch_original_turns",
+        "primitive_calls": 1015,
+        "total_calls": 1015,
+        "profile_self_seconds": 0.051725846000000006,
+        "profile_cumulative_seconds": 0.096413435
+      }
+    ]
+  },
+  "transport_conclusion": "The unchanged SDK makes 1017 stdout writes and 1017 flushes, each with a separate worker dispatch. Coalescing each write/flush pair could remove 1017 dispatches; no duration or speedup was measured for transport.",
+  "raw_files": {
+    "all-calls.functions.json": {
+      "sha256": "23deeacc4492ef96fa74131271b7a005f7934415c84ca73a7b42aa454510fa48",
+      "bytes": 429169
+    },
+    "failure.json": {
+      "sha256": "96c452c962fe397f66db4eb9e01512a545df65c1954af96438f7fe1b26d6d6a5",
+      "bytes": 77
+    },
+    "server-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "started.json": {
+      "sha256": "0476bf2b7f5832b6286221e5aa99e45b2a2470846438264bde0369462703183a",
+      "bytes": 199
+    },
+    "all-calls.pstats": {
+      "sha256": "53456b51b8da116d092118cc65b03ee7f9df1597b560da8b9910ddd4688167c7",
+      "bytes": 69304
+    },
+    "first-call.pstats": {
+      "sha256": "54927431ad303c0806f26a06b12c670e6e427149af36fc472a3ba63144f69a14",
+      "bytes": 62659
+    },
+    "attempts.jsonl": {
+      "sha256": "b6def0fbd38c964399541346a4654c7692614624d76c7f4314a68a0e4e8a634c",
+      "bytes": 1512279
+    },
+    "book.db": {
+      "sha256": "eefa77d9b90f0d9cb72ad34d6968d92a6c5ab8040644f9a8f1558d481b27f807",
+      "bytes": 12881920
+    },
+    "observer-events.jsonl": {
+      "sha256": "f335659dacedefaff1ea7a30320851d02aed7b89785ecd9db4def67494a7d606",
+      "bytes": 96632
+    },
+    "first-call.functions.json": {
+      "sha256": "6fd885fe46de7e9d96e8ab1db418efd045fa5d27e5154acde27c97fa97dbef2f",
+      "bytes": 376450
+    }
+  },
+  "retrieval_calls_during_audit": 0,
+  "timing_runs_during_audit": 0,
+  "limits": [
+    "No original files, failure status or profiler counters were repaired or overwritten.",
+    "Saved hashes and invariant flags validate recorded observations; omitted response bodies cannot be independently re-tokenized in this audit.",
+    "Local instrumented profile times are not hosted performance evidence. C6 remains formally rejected; no threshold changes or same-source reruns are authorized by this supplement."
+  ]
+}
