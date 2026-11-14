@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "protocol": "v033-c6-unchanged-c5-sql-observation-v2",
+  "status": "pre-call-harness-repair-prepared-awaiting-remote-checkpoint-and-start-signal",
+  "prepared_at_utc": "2026-11-14T03:59:35.314428+00:00",
+  "scope": "Read-only work attribution on the complete old C5 formal public round0 MCP token1024 query order. No product source edits, no cache capacity changes, no measured latencies or formal acceptance.",
+  "source": {
+    "commit": "8dc6604fa32df18d53286110b215fc6657243656",
+    "runtime_sha256": "6af876ef5ddc851f4fff56ba3dc4f20e76b2cfc9f5e31d0cc8d1a0ec20e954be"
+  },
+  "source_path": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c5/src",
+  "reference_worker": "benchmarks/reports/round5-c5-performance-43552372788-1/workers/r0-public1015-candidate.json.gz",
+  "reference_formal_run": "43552372788-1",
+  "reference_worker_sha256": "dea3a0347cc6d310dc04191c7c5f4a3d2bdcbf5bb20490ab94004ff770e8f706",
+  "configuration": {
+    "budget_chars": 8000,
+    "budget_tokens": 1024,
+    "id": "mcp-token1024",
+    "surface": "official-sdk-mcp-stdio",
+    "tokenizer": "cl100k_base"
+  },
+  "dataset_sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857",
+  "calls": 1015,
+  "query_order_sha256": "4095a599f8623e2a5b557ade3f975f5941bbf4d409c1408a810fe447aa3a4496",
+  "first_query_id": "conv-50-q0177",
+  "last_query_id": "conv-48-q0225",
+  "locomo_path": ".artifacts/locomo10.json",
+  "database_path": ".artifacts/round5-development-dbs/public1015.db",
+  "database_policy": "Verify original file hash and empty/absent WAL; copy to output before opening. Original data file is not opened by MemoryBook. Ordinary C5 first-open derived index creation is retained.",
+  "input_files": {
+    "benchmarks/reports/round5-c5-performance-43552372788-1/workers/r0-public1015-candidate.json.gz": "dea3a0347cc6d310dc04191c7c5f4a3d2bdcbf5bb20490ab94004ff770e8f706",
+    ".artifacts/locomo10.json": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+    ".artifacts/round5-development-dbs/public1015.db": "6dafc1ce2756a8ba4723d1319e8da326d60d883c358a4e70a4eafb53a53b4584",
+    "scripts/round4_performance.py": "7e1b987e62e1950b7c6f842942d2e294a74284a16cf4cdc58bfe326e4e4044a7",
+    "scripts/benchmark_default_recall.py": "ce74bd117ef54da865963f6a185f40707dbf8a0eaf0019957288b71edf8c305a",
+    "benchmarks/semantic_eval.py": "46fa3b3fd6298ba1669bd0b17f3ad6f77a2fdaf5b79ba25e4632012090ca0b4e",
+    "benchmarks/run.py": "e557475d5701ea7271de9103aa8267e204796336b5277352fad015d9399521a4",
+    "benchmarks/native_budget_eval.py": "737230950fd4ddd7f415aa93137f65cd59b5c61a72676c58ca854aee59682b1b",
+    "benchmarks/token_compare.py": "bb34650d947a89c17c87e179dc9e376fe44b6d10c0bf4bb70ca4cdfd46913f18"
+  },
+  "diagnostic_files": {
+    "diagnostic_v2.py": "55d85004938b8bfc63612737de948f5b6c4957f33a0714e1d76629c7873c47de",
+    "hook-v2/sitecustomize.py": "74625de40bc120d909f33f0c578ad1b9c5257350c3888b9cf52a6eed1d6e2221"
+  },
+  "output_directory": "observation-02",
+  "execution_boundary": [
+    "One real official SDK stdio process, normal python -m memory_book --db copied.db mcp command; diagnostic sitecustomize added via PYTHONPATH only.",
+    "Transparent sqlite3.Connection subclass records every application execute/executemany/executescript SQL template, order, connection id, thread id and parameter count. Delegate to native connection; do not alter cached_statements, row/text factories, queries or token counter methods.",
+    "A plain read transaction BEGIN numbers each real recall; its later BEGIN IMMEDIATE cache writes remain assigned to that same query. Startup SQL is retained with no query number.",
+    "Fixed 1015 questions and their complete reference payload/envelope/native hashes are read directly from the saved formal round0 candidate worker. No extra retrieval, calibration, discarded requests or alternate candidate occurs.",
+    "Exactly as in the original MCP helper, externally clear and commit retrieval results before each call and require exactly one complete native cached record afterward. Normal server cache lookup and write work is preserved.",
+    "Use sys.setprofile/threading.setprofile to count Python json.loads caller, input type and UTF-8 byte length (surrogatepass for observer sizing); never record elapsed time or input text, and never replace JSON/token methods.",
+    "Retain every started/completed call and error; output directory and started marker are exclusive. Any interruption or failure stops without automatic retries."
+  ],
+  "validation": [
+    "Exact raw compact MCP text SHA256, raw SDK envelope SHA256, full canonical cached native payload SHA256 and context hash match saved formal values for every query.",
+    "Reuse the frozen make_row provenance/character/token/cache/scope/projection checks without its timer; pass elapsed=None and discard its wall_ms field. Reference counters validate both tokenizers outside calls without additional retrieval.",
+    "Native payload comes from the actual server-written retrieval cache, not a second native recall. Check revision and source/index projections unchanged before/after; final retrieval cache is empty.",
+    "Require the observed server to finish, SQL calls to succeed, and exactly1015 read transactions; save actual connection count, even if it disproves persistence.",
+    "Verify all pinned inputs and exact candidate runtime before/after. Initialization instructions and tool schema match saved official MCP values."
+  ],
+  "offline_statement_lru_capacities": [
+    128,
+    256,
+    512,
+    1024
+  ],
+  "offline_outputs": [
+    "Per-connection cold-start LRU replay including startup statements; calls/hits/compulsory/repeat misses by capacity, SQL family and query.",
+    "Exact per-connection distinct-template reuse distances and original SQL byte lengths; family template counts, repeated-miss fraction among misses and large templates >=32 placeholders with shape/length distributions.",
+    "Full trace and per-caller json.loads counts/input bytes; no timing summaries."
+  ],
+  "limitations": [
+    "Application SQL LRU simulation is not measured sqlite3 prepare/compile events; busy statements, SQLite/FTS internal statements and schema invalidation are not modeled.",
+    "Instrumentation changes call overhead and child startup. No observed duration, throughput or speedup is collected or claimed.",
+    "Local SQLite/Python runtime may differ from the hosted formal VM; this is mechanism diagnosis, not a replacement formal result.",
+    "No formal timing policy or numeric acceptance threshold is modified; C5 remains rejected until a materially changed source passes separately registered acceptance."
+  ],
+  "observer_hook_directory": "hook-v2",
+  "prior_zero_call_failure": {
+    "plan_path": "plan.json",
+    "plan_sha256": "bb8a3cda9aecadb8c9c1ec6696542def306136b0c129e19400bdc9ecd694f4c9",
+    "script_path": "diagnostic.py",
+    "script_sha256": "c0ff073934d86c27f1445ac0dc76e6794c065fdd506ab70f0ec9653a8ac0c55b",
+    "checkpoint_commit": "f403b3b78f908f5daefbe69522bbc71847a6bc00",
+    "failure_path": "observation-01/failure.json",
+    "failure_sha256": "c41873801b3cf31e7a2e13935fd1b11d57ead6795c8f885086b61dee22721413",
+    "started_sha256": "a86e097a7a49f72f45ad89aecf3a80131fe849a4c10e364f053c69c2aefa9d49",
+    "attempts_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "server_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sdk_calls": 0,
+    "sdk_process_started": false,
+    "server_trace_exists": false,
+    "error": "AttributeError: list object has no attribute sessions at original_turn_texts(data.sessions), before stdio_client is entered",
+    "repair": "Pass the dataset object to the frozen original_turn_texts helper: original_turn_texts(data). No retrieval logic changes.",
+    "artifact_wiring": "Use diagnostic_v2.py, plan-v2.json, hook-v2/sitecustomize.py importing diagnostic_v2, and exclusive observation-02 output. All v1 artifacts remain unchanged."
+  }
+}
