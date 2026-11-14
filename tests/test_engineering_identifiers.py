@@ -26,6 +26,7 @@ class IdentifierProtocolTests(unittest.TestCase):
     def test_search_baseline_handles_acronym_and_rejects_fragment_as_full_name(self):
         docs = [
             {"id": "a", "project": "p", "text": "generic HTTP transport and server logs"},
+            {"id": "aa", "project": "p", "text": "class ServerHTTP: pass"},
             {"id": "b", "project": "p", "text": "class HTTPServer: pass"},
             {"id": "c", "project": "p", "text": "class HTTPServerless: pass"}]
         index = bench.raw_index(docs)

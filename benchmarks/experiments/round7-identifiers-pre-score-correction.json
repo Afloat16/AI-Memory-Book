@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "status": "evaluator-conformance-correction-before-first-score",
+  "original_binding": "benchmarks/experiments/round7-identifiers-binding.json",
+  "replacement_binding": "benchmarks/experiments/round7-identifiers-binding-v2.json",
+  "reason": "Root pre-execution review found that the raw-text control used unordered token-set equality where the registered plan required ordered compact-identifier equality. Correct the comparator to the registered stronger literal-name order, and retain the original binding unchanged.",
+  "changed": [
+    "Raw-text control prepares compact source names and compares the ordered compact query name; full token coverage is the second ranking criterion as registered",
+    "Negative unit fixture proves ServerHTTP cannot win over HTTPServer for HTTP Server queries"
+  ],
+  "unchanged": [
+    "Product candidate runtime",
+    "v0.3.4 baseline",
+    "Source selection and all 176 queries",
+    "Budgets and comparison arms",
+    "Acceptance thresholds"
+  ],
+  "engineering_retrieval_calls_before_correction": 0,
+  "model_calls": 0
+}

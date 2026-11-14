@@ -218,20 +218,21 @@ def raw_index(documents):
         families = {frozenset(split_name(word).lower().split()) for word in words}
         fields = frozenset(part for family in families for part in family)
         index.append({"id": doc["id"], "project": doc["project"],
-                      "folded": doc["text"].casefold(), "families": families, "fields": fields})
+                      "compact_names": {word.replace("_", "").casefold() for word in words},
+                      "fields": fields})
     return index
 
 
 def raw_search(query, index, limit):
     """Competent independent spelling-aware text baseline, not product code."""
-    tokens = set(split_name(query).lower().split()) - {"where", "is", "defined?"}
+    parts = [part for part in split_name(query).lower().split() if part not in {"where", "is", "defined?"}]
+    tokens, compact = set(parts), "".join(parts)
     ranked = []
     for doc in index:
         coverage = len(tokens & doc["fields"])
-        full = frozenset(tokens) in doc["families"]
-        literal = query.casefold() in doc["folded"]
-        if coverage or full or literal:
-            ranked.append((not full, not literal, -coverage, doc["id"]))
+        full = compact in doc["compact_names"]
+        if coverage or full:
+            ranked.append((not full, coverage != len(tokens), -coverage, doc["id"]))
     return [item[-1] for item in sorted(ranked)[:limit]]
 
 
