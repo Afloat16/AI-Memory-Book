@@ -10,11 +10,11 @@ creates an isolated environment with the `mcp` and `clients` extras. It does not
 require Node.js, an embedding server, a database server, or a memory-service API
 key. Your AI client's own model and account requirements remain separate.
 
-## Install v0.3.3
+## Install v0.3.4
 
 Download the pinned installer, run it, and connect your AI
-client. The installer uses the small **v0.3.3 wheel** from the
-[GitHub release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.3),
+client. The installer uses the small **v0.3.4 wheel** from the
+[GitHub release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.4),
 so you do not need Git or a source checkout. The wheel excludes the repository's
 historical benchmark reports. MCP and client configuration dependencies are
 included in the installation; capture and the browser reader remain optional.
@@ -22,19 +22,19 @@ included in the installation; capture and the browser reader remain optional.
 ### macOS / Linux
 
 ```bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.3/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.4/scripts/install.sh
 bash install-memory-book.sh
 ```
 
 ### Windows PowerShell
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.3/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.4/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ```
 
 The shared Python installer also works on macOS/Linux. A PowerShell wrapper is
-available at [the v0.3.3 `scripts/install.ps1`](https://github.com/Afloat16/AI-Memory-Book/blob/v0.3.3/scripts/install.ps1). Neither wrapper
+available at [the v0.3.4 `scripts/install.ps1`](https://github.com/Afloat16/AI-Memory-Book/blob/v0.3.4/scripts/install.ps1). Neither wrapper
 changes your shell profile or PowerShell execution policy. Use Python 3.10 or
 newer; some Linux distributions package `venv` separately.
 
@@ -44,13 +44,13 @@ live under the data directory's `install` subdirectory. The usual POSIX launcher
 is `~/.local/bin/memory-book`; Windows uses the data directory's `bin` directory.
 Custom `--prefix`, `--bin-dir`, or `MEMORY_BOOK_HOME` can change these locations.
 
-The downloaded helper defaults to `--version v0.3.3`. It also accepts an older
+The downloaded helper defaults to `--version v0.3.4`. It also accepts an older
 release tag, a full commit SHA, or `--source /absolute/path/to/checkout-or-wheel`.
 `--without-extras` installs only
 the core and therefore omits MCP/client integration. Installation stages a new
 environment before switching its managed launcher; previous environments and
 memory data are retained. An unrelated existing launcher is not overwritten.
-The v0.3.0, v0.3.1, v0.3.2 and v0.3.3 routes use their pinned release wheels;
+The v0.3.0, v0.3.1, v0.3.2, v0.3.3 and v0.3.4 routes use their pinned release wheels;
 other release tags and commit SHAs keep the source-archive installation path.
 
 Once installed:
@@ -61,7 +61,7 @@ memory-book setup --client claude-code
 memory-book doctor
 ```
 
-The version should be `0.3.3`. Replace `claude-code` with your client profile,
+The version should be `0.3.4`. Replace `claude-code` with your client profile,
 such as `codex`; add `--dry-run` to setup if you want to preview configuration
 changes. Restart the selected client so it loads the new MCP connection. The
 server sends concise operating instructions at initialization; it does not preload your
@@ -84,13 +84,13 @@ and reconnect clients to the new environment.
 Use a persistent tool environment and the same pinned release wheel:
 
 ```bash
-uv tool install "ai-memory-book[mcp,clients] @ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.3.3/ai_memory_book-0.3.3-py3-none-any.whl"
+uv tool install "ai-memory-book[mcp,clients] @ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.3.4/ai_memory_book-0.3.4-py3-none-any.whl"
 ```
 
 Or:
 
 ```bash
-pipx install "ai-memory-book[mcp,clients] @ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.3.3/ai_memory_book-0.3.3-py3-none-any.whl"
+pipx install "ai-memory-book[mcp,clients] @ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.3.4/ai_memory_book-0.3.4-py3-none-any.whl"
 ```
 
 These wheel URLs do not require Git. The persistent tool workflows are described
@@ -109,7 +109,7 @@ indexes; this is not an offline installation promise.
 ### Source checkout
 
 ```bash
-git clone --branch v0.3.3 https://github.com/Afloat16/AI-Memory-Book.git
+git clone --branch v0.3.4 https://github.com/Afloat16/AI-Memory-Book.git
 cd AI-Memory-Book
 python -m venv .venv
 source .venv/bin/activate
@@ -323,17 +323,24 @@ unnecessary when the daemon already provides that reader.
 
 ## Upgrading
 
-To upgrade to **v0.3.3**, download and run the v0.3.3 installer shown above,
+To upgrade to **v0.3.4**, download and run the v0.3.4 installer shown above,
 using the same `--prefix`, `--bin-dir`, or `MEMORY_BOOK_HOME` overrides if you
 originally selected them. Download the new helper rather than reusing a helper
 that defaults to an older release. For uv, pipx, or a source checkout, use your
-original installation method with the pinned v0.3.3 URL or tag.
+original installation method with the pinned v0.3.4 URL or tag.
 
-v0.3.3 retains **schema 3**. The first open of an existing archive adds a small
-derived metadata index for recall candidates; SQLite maintains it during later
-writes. Adding this index to a schema 3 archive preserves its original source
-text, page addresses and revision. The first open takes additional time to build
-the index, which occupies database space even when it reuses existing free pages.
+v0.3.4 retains **schema 3** and the derived recall metadata index introduced in
+v0.3.3. An existing v0.3.3 archive needs no schema migration or reimport. An older
+archive that lacks the index receives it on first open; SQLite maintains it
+during later writes. Adding the index preserves source text, page addresses and
+revision, takes additional time on that first open, and occupies database space
+even when existing free pages are reused.
+
+New empty archives create their initial schema and FTS objects in one immediate
+transaction. Existing-archive checks, the later covering-index step and connection
+PRAGMA settings retain their documented boundaries. The measured v0.3.4 gains
+are new-archive construction and CLI startup; see the [release notes](releases/v0.3.4.md)
+for the complete results, retained costs and scope.
 
 Each MemoryBook connection uses a **4096 KiB SQLite pager cache target**.
 The cache is filled on demand. This connection-local target applies to cached
@@ -396,7 +403,7 @@ memory-book setup --client claude-code --client codex
 memory-book doctor
 ```
 
-Confirm that the new launcher prints `0.3.3`. If you already use background
+Confirm that the new launcher prints `0.3.4`. If you already use background
 capture, update its service to the new environment:
 
 ```bash
