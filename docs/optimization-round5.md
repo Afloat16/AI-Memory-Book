@@ -81,3 +81,11 @@ C3 will not be rerun to select a faster sample. Further work requires a material
 ## C4 continuation registered
 
 [The C4 addendum](../benchmarks/experiments/round5-c4-addendum.json) was committed before implementation at `3b8035268cc8ceae2e7e1a19db346cc5fdff37a3`. It permits deduplicated in-snapshot directory metadata and a strict existing-score upper bound, with full invalid-metadata fallbacks and original candidate counts. Semantic/coverage/custom-factory paths stay unpruned. [C3 profiling and work-count diagnosis](../benchmarks/reports/round5-development/c4-preregistration/README.md) motivate this substantive change; they are not new performance acceptance. The complete original C3 rejection above is retained.
+
+## C4 implementation and complete development result
+
+Source `0141adf1dde6cd69cf96d8eea23f4b6ebab36477` implements shared-directory metadata and the exact score upper bound; runtime SHA256 is `1c7c644c5187332e6fb5034fef0e232b5c1ae1e5f352b53fea90f7fd8acc4fb3`. Dedicated correctness and optional-token environment fixtures pass, and all nine CI jobs pass on evaluator commit `c92d4049b3d488fa7ef06792198075b91592644e` ([run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43549534451)). The independent source review found no correctness blocker.
+
+The [fixed full-cohort development run](../benchmarks/reports/round5-development/candidate-c4-full/README.md) completed all 18,928 calls and 9,464 matching full-output pairs, with every saved source/index/revision/cache/count invariant passing. Native aggregate p95 improves 11.3339%, but public token512/token1024 improve only 12.7253%/8.8411%, and public token2048 p95 regresses 1.3269%. All raw worker records, the complete aggregate and every per-round cell are retained. This is development evidence, not formal acceptance.
+
+C4's separately prepared evaluator, workflow and independent auditor are preserved as **unused preparation**. No C4 formal binding or execution was created. The limited public margin does not justify representing C4 as accepted. Further investigation will preserve this source and all adverse results; changing cache policy requires an explicit new continuation rather than silently extending C4's no-new-cache registration.
