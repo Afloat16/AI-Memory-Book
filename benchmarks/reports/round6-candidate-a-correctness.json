@@ -1,0 +1,48 @@
+{
+  "candidate": "round6-a",
+  "changes": [
+    "Initialize a verified empty archive under the existing immediate transaction and locked schema recheck, with rollback and closure on failure.",
+    "Carry narrow native FTS metadata within one recall snapshot, avoiding redundant candidate-union reads while retaining complete directory validation.",
+    "Unsupported/custom row/text factories, connections and constrained or uninspectable SQLite limits retain the previous metadata query path.",
+    "Defer archive/client/importer machinery for metadata commands while preserving public MemoryBook identity and ordinary command behavior."
+  ],
+  "no_runtime_release_approval": true,
+  "no_speed_claim": true,
+  "plan_commit": "afbb3233e16b80b3c0e5e76ab19466188abf41b4",
+  "runtime_files_sha256": {
+    "__init__.py": "b53371564cf34cc53141de9df5de4e4726dd7f338ab14217a351467ae86d0319",
+    "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+    "cli.py": "1ef7f9052b4806f23d8ef4571db5f67d592fb8d62905c62dfc0e4ec7c099e2b4",
+    "clients.py": "c87c2ebd4dbd6b193b186f493586f53183a38e8108fd7011df3aa474f9b2058f",
+    "formats.py": "9b03524f6ae77aa1f0b73b4b74266da506421919135a6975ea692cac30eb48d1",
+    "importers.py": "655b39b6d1ab82d53a9f7635170b94225b9b7da81cd68dc4acfe2d43a304685c",
+    "integration.py": "88ed9bf5a0ee90b93516dc9ded0e0a8f1459354f25fbcc5afe70197b9444c6c5",
+    "mcp_server.py": "f118cfa79026dd60a7d97ba30ce31c6ab62bd2ca222c411f48f3197c8a62616a",
+    "paths.py": "d7865c48e2c09eca14c00b20efd306f591d3876fa5c19ba39c2716eb09be7137",
+    "segmentation.py": "773cb62777bb11a66f1d2318bd75601f9ac38ea0fb6e7a534c1d8844a1a16e75",
+    "semantic.py": "41df86bced1b613deea2f1b1361eba9f32c3786f5185a06253fbfd32270ac91e",
+    "service.py": "55bd05f45cafc5dcd6c1fc5ceceade85f005a85a850b908c7bb155cff5a3584f",
+    "store.py": "cff058b0c2ee64c0ab288f61bf627602fbe89a22418a92b94041dd6c6afde19d",
+    "sync.py": "89b2ac4b30b9b14ac564c3d328a51fbba97b2efc8a8dd1997892fc4142501291",
+    "text.py": "e2b5dff3fc5527ffd7098e57d5f6dd81e954618c311a541ecd3794fdd9731389",
+    "token_budget.py": "0af09aaae1219e978f688c3aa4bb6c180c0b435bdb4a3113e5c3758b19b290ed",
+    "web.py": "4e2cbfa33434322c78f57624c8faa32f4be9fb7fc29c8ffc4ed916e244446dcc"
+  },
+  "runtime_sha256": "f361d2bf64a4e1088cbd5cff6ffdaf19aa15e7f1b7ea1de4577d7a488d2ac242",
+  "schema_version": 1,
+  "status": "correctness-checked-awaiting-frozen-development",
+  "validation_note": "These runs overlap and are not additive unique-test counts. Exact final runtime CI and complete-source development/compatibility/performance remain required.",
+  "validation_runs": [
+    {
+      "failed": 0,
+      "scope": "CLI startup, initial atomic/carry cases, C7 MCP protocol, installer and release fixtures; before final SQLite-limit guard addition",
+      "tests": 40
+    },
+    {
+      "failed": 0,
+      "scope": "Final atomic/carry tests including all five constrained SQLite limit fallbacks after last store edit",
+      "tests": 10
+    }
+  ],
+  "version": "0.3.4"
+}

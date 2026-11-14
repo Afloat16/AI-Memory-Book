@@ -1,0 +1,733 @@
+{
+  "archived_at": "2026-11-14T11:48:56.006357+00:00",
+  "assets": {
+    "baseline-candidate-metadata-work.json.gz": {
+      "bytes": 2838,
+      "lossless": true,
+      "sha256": "6f9481327918550a17da493ba2c1856bcbe25ac9e482523701a37e64c403858a",
+      "uncompressed_bytes": 58149,
+      "uncompressed_sha256": "8c9c2b8fede9d61c3f925efbce02b3776599a43ceb7f3b0ceba419544fddc5ed"
+    },
+    "baseline-public1015-profile.json.gz": {
+      "bytes": 188692,
+      "lossless": true,
+      "sha256": "53638ed2702d6ae21b78cef06c44f45f0603dbfee263670dfd33922a33419db0",
+      "uncompressed_bytes": 734740,
+      "uncompressed_sha256": "d3c11219db14cb9a82c431c92a4ad663eb8dea9688d66bb9b70cc5c7ad284533"
+    },
+    "baseline-synthetic61-profile.json.gz": {
+      "bytes": 38024,
+      "lossless": true,
+      "sha256": "37ab49cf6d58a79b0a547fcb828e23fad2fbb1e270825be748842c101b5f4c2e",
+      "uncompressed_bytes": 199496,
+      "uncompressed_sha256": "0e400c28c729a6ff95ae6e54c034ff513419dc1943d3649d463ed18a0f28da93"
+    },
+    "preflight-default-python.json.gz": {
+      "bytes": 177,
+      "lossless": true,
+      "sha256": "c4e5a47e1af9b6888fefd8fcedf526d3784c0eb6a03065e487a6084e1e06a5fb",
+      "uncompressed_bytes": 221,
+      "uncompressed_sha256": "66e9f9e97acc1c2fb000281b1c1f04b00eb81473daea77da87bb35729b24f347"
+    }
+  },
+  "baseline": {
+    "commit": "796cedfd1f5368144037a1fb72292b8d13884b8c",
+    "release": "v0.3.3",
+    "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+  },
+  "completed_profile_calls": 4732,
+  "operation_diagnostic_payloads_equal_profile": true,
+  "operation_diagnostic_recall_calls": 1183,
+  "preflight_failure": {
+    "reason": "default Python did not have tiktoken; used existing pinned .venv before profiling",
+    "recall_calls": 0,
+    "retained": "preflight-default-python.json.gz",
+    "stage": "default-interpreter dependency check",
+    "timing_samples": 0
+  },
+  "profile_settings": {
+    "cache_size": 0,
+    "character_budgets": {
+      "char4000": 4000,
+      "token1024": 8000,
+      "token2048": 8000,
+      "token512": 8000
+    },
+    "configuration_order": [
+      "char4000",
+      "token512",
+      "token1024",
+      "token2048"
+    ],
+    "coverage": false,
+    "fresh_book_per_cohort": true,
+    "limit": 5,
+    "profile_covers": "recall only; excludes ingest, response digest and report I/O",
+    "query_result_cache": "disabled",
+    "query_shuffle_seed": 41061,
+    "semantic": false,
+    "token_caps": {
+      "char4000": null,
+      "token1024": 1024,
+      "token2048": 2048,
+      "token512": 512
+    },
+    "token_count_memo": "normal per-book allocation, no clearing or added prewarming between configurations; standalone reference counter initializes vocabulary before profiling",
+    "tokenizer": "cl100k_base",
+    "use_cache": false
+  },
+  "profiles": [
+    {
+      "calls": 672,
+      "cohort": "synthetic61",
+      "configurations": [
+        {
+          "calls": 168,
+          "configuration": "char4000",
+          "profile_total_seconds": 0.9000412330000002,
+          "top_self": [
+            {
+              "cumulative_seconds": 0.303335589,
+              "function": "<method 'execute' of 'sqlite3.Connection' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 1584,
+              "self_seconds": 0.303335589,
+              "total_calls": 1584
+            },
+            {
+              "cumulative_seconds": 0.08429344700000001,
+              "function": "<method 'fetchall' of 'sqlite3.Cursor' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 592,
+              "self_seconds": 0.08429344700000001,
+              "total_calls": 592
+            },
+            {
+              "cumulative_seconds": 0.8978572170000001,
+              "function": "recall",
+              "line": 776,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/src/memory_book/store.py",
+              "primitive_calls": 168,
+              "self_seconds": 0.082353011,
+              "total_calls": 168
+            },
+            {
+              "cumulative_seconds": 0.099115989,
+              "function": "_fold_excerpt_source",
+              "line": 124,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/src/memory_book/text.py",
+              "primitive_calls": 80,
+              "self_seconds": 0.048795179,
+              "total_calls": 80
+            },
+            {
+              "cumulative_seconds": 0.14303475100000002,
+              "function": "terms",
+              "line": 34,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/src/memory_book/text.py",
+              "primitive_calls": 1100,
+              "self_seconds": 0.039124252000000005,
+              "total_calls": 1100
+            },
+            {
+              "cumulative_seconds": 0.025200372000000002,
+              "function": "<built-in method unicodedata.normalize>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 27635,
+              "self_seconds": 0.025200372000000002,
+              "total_calls": 27635
+            },
+            {
+              "cumulative_seconds": 0.023639749,
+              "function": "<method 'split' of 'str' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 5937,
+              "self_seconds": 0.023639749,
+              "total_calls": 5937
+            },
+            {
+              "cumulative_seconds": 0.15003866000000002,
+              "function": "excerpt",
+              "line": 148,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/src/memory_book/text.py",
+              "primitive_calls": 820,
+              "self_seconds": 0.021666701,
+              "total_calls": 820
+            }
+          ]
+        },
+        {
+          "calls": 168,
+          "configuration": "token512",
+          "profile_total_seconds": 1.368083487,
+          "top_self": [
+            {
+              "cumulative_seconds": 0.319530633,
+              "function": "<method 'execute' of 'sqlite3.Connection' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 1688,
+              "self_seconds": 0.319530633,
+              "total_calls": 1688
+            },
+            {
+              "cumulative_seconds": 0.14245860200000002,
+              "function": "<method 'encode_ordinary' of 'builtins.CoreBPE' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 3383,
+              "self_seconds": 0.14245860200000002,
+              "total_calls": 3383
+            },
+            {
+              "cumulative_seconds": 0.372447815,
+              "function": "terms",
+              "line": 34,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/src/memory_book/text.py",
+              "primitive_calls": 6035,
+              "self_seconds": 0.09778104700000001,
+              "total_calls": 6035
+            },
+            {
+              "cumulative_seconds": 1.365425729,
+              "function": "recall",
+              "line": 776,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/src/memory_book/store.py",
+              "primitive_calls": 168,
+              "self_seconds": 0.089251076,
+              "total_calls": 168
+            },
+            {
+              "cumulative_seconds": 0.11688680600000001,
+              "function": "source_units",
+              "line": 330,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/src/memory_book/token_budget.py",
+              "primitive_calls": 381,
+              "self_seconds": 0.06553033500000001,
+              "total_calls": 381
+            },
+            {
+              "cumulative_seconds": 0.089703423,
+              "function": "_strip_nonspacing_marks",
+              "line": 28,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/src/memory_book/text.py",
+              "primitive_calls": 4278,
+              "self_seconds": 0.0620971,
+              "total_calls": 4278
+            },
+            {
+              "cumulative_seconds": 0.053862239000000006,
+              "function": "<built-in method unicodedata.normalize>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 10016,
+              "self_seconds": 0.053862239000000006,
+              "total_calls": 10016
+            },
+            {
+              "cumulative_seconds": 0.041525049,
+              "function": "<method 'fetchall' of 'sqlite3.Cursor' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 532,
+              "self_seconds": 0.041525049,
+              "total_calls": 532
+            }
+          ]
+        },
+        {
+          "calls": 168,
+          "configuration": "token1024",
+          "profile_total_seconds": 1.1066479490000003,
+          "top_self": [
+            {
+              "cumulative_seconds": 0.318488528,
+              "function": "<method 'execute' of 'sqlite3.Connection' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 1688,
+              "self_seconds": 0.318488528,
+              "total_calls": 1688
+            },
+            {
+              "cumulative_seconds": 1.1041211320000002,
+              "function": "recall",
+              "line": 776,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/src/memory_book/store.py",
+              "primitive_calls": 168,
+              "self_seconds": 0.09113019300000001,
+              "total_calls": 168
+            },
+            {
+              "cumulative_seconds": 0.30597096500000004,
+              "function": "terms",
+              "line": 34,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/src/memory_book/text.py",
+              "primitive_calls": 3789,
+              "self_seconds": 0.07989433600000001,
+              "total_calls": 3789
+            },
+            {
+              "cumulative_seconds": 0.06828200400000001,
+              "function": "<method 'encode_ordinary' of 'builtins.CoreBPE' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 1264,
+              "self_seconds": 0.06828200400000001,
+              "total_calls": 1264
+            },
+            {
+              "cumulative_seconds": 0.07364617100000001,
+              "function": "_strip_nonspacing_marks",
+              "line": 28,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/src/memory_book/text.py",
+              "primitive_calls": 3076,
+              "self_seconds": 0.050949333000000006,
+              "total_calls": 3076
+            },
+            {
+              "cumulative_seconds": 0.04392747,
+              "function": "<built-in method unicodedata.normalize>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 6381,
+              "self_seconds": 0.04392747,
+              "total_calls": 6381
+            },
+            {
+              "cumulative_seconds": 0.039398833,
+              "function": "<method 'fetchall' of 'sqlite3.Cursor' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 532,
+              "self_seconds": 0.039398833,
+              "total_calls": 532
+            },
+            {
+              "cumulative_seconds": 0.057231019,
+              "function": "<method 'extend' of 'list' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 34146,
+              "self_seconds": 0.031342599,
+              "total_calls": 34146
+            }
+          ]
+        },
+        {
+          "calls": 168,
+          "configuration": "token2048",
+          "profile_total_seconds": 1.1008361780000009,
+          "top_self": [
+            {
+              "cumulative_seconds": 0.299192664,
+              "function": "<method 'execute' of 'sqlite3.Connection' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 1688,
+              "self_seconds": 0.299192664,
+              "total_calls": 1688
+            },
+            {
+              "cumulative_seconds": 0.35101985700000005,
+              "function": "terms",
+              "line": 34,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/src/memory_book/text.py",
+              "primitive_calls": 4024,
+              "self_seconds": 0.093125839,
+              "total_calls": 4024
+            },
+            {
+              "cumulative_seconds": 1.0982577470000001,
+              "function": "recall",
+              "line": 776,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/src/memory_book/store.py",
+              "primitive_calls": 168,
+              "self_seconds": 0.08649765400000001,
+              "total_calls": 168
+            },
+            {
+              "cumulative_seconds": 0.081816465,
+              "function": "_strip_nonspacing_marks",
+              "line": 28,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/src/memory_book/text.py",
+              "primitive_calls": 3311,
+              "self_seconds": 0.057206658,
+              "total_calls": 3311
+            },
+            {
+              "cumulative_seconds": 0.051435818,
+              "function": "<built-in method unicodedata.normalize>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 6851,
+              "self_seconds": 0.051435818,
+              "total_calls": 6851
+            },
+            {
+              "cumulative_seconds": 0.042735010000000004,
+              "function": "<method 'encode_ordinary' of 'builtins.CoreBPE' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 465,
+              "self_seconds": 0.042735010000000004,
+              "total_calls": 465
+            },
+            {
+              "cumulative_seconds": 0.03727346,
+              "function": "<method 'fetchall' of 'sqlite3.Cursor' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 532,
+              "self_seconds": 0.03727346,
+              "total_calls": 532
+            },
+            {
+              "cumulative_seconds": 0.067775582,
+              "function": "<method 'extend' of 'list' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 39981,
+              "self_seconds": 0.036550263,
+              "total_calls": 39981
+            }
+          ]
+        }
+      ],
+      "dataset_sha256": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26",
+      "queries": 168,
+      "sessions": 112
+    },
+    {
+      "calls": 4060,
+      "cohort": "public1015",
+      "configurations": [
+        {
+          "calls": 1015,
+          "configuration": "char4000",
+          "profile_total_seconds": 3.081528731000001,
+          "top_self": [
+            {
+              "cumulative_seconds": 1.1675094780000002,
+              "function": "<method 'execute' of 'sqlite3.Connection' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 10099,
+              "self_seconds": 1.1675094780000002,
+              "total_calls": 10099
+            },
+            {
+              "cumulative_seconds": 3.066903355,
+              "function": "recall",
+              "line": 776,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/.artifacts/round6-baseline/src/memory_book/store.py",
+              "primitive_calls": 1015,
+              "self_seconds": 0.543218785,
+              "total_calls": 1015
+            },
+            {
+              "cumulative_seconds": 0.26083546900000004,
+              "function": "<method 'fetchall' of 'sqlite3.Cursor' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 3935,
+              "self_seconds": 0.26083546900000004,
+              "total_calls": 3935
+            },
+            {
+              "cumulative_seconds": 0.5326817460000001,
+              "function": "_bounded_candidate_metadata",
+              "line": 723,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/.artifacts/round6-baseline/src/memory_book/store.py",
+              "primitive_calls": 1009,
+              "self_seconds": 0.087498197,
+              "total_calls": 1009
+            },
+            {
+              "cumulative_seconds": 0.08490375700000001,
+              "function": "<method 'findall' of 're.Pattern' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 7092,
+              "self_seconds": 0.08490375700000001,
+              "total_calls": 7092
+            },
+            {
+              "cumulative_seconds": 0.24049207800000003,
+              "function": "terms",
+              "line": 34,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/.artifacts/round6-baseline/src/memory_book/text.py",
+              "primitive_calls": 6304,
+              "self_seconds": 0.07618875400000001,
+              "total_calls": 6304
+            },
+            {
+              "cumulative_seconds": 0.067273181,
+              "function": "<method 'split' of 'str' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 20662,
+              "self_seconds": 0.067273181,
+              "total_calls": 20662
+            },
+            {
+              "cumulative_seconds": 0.17837402000000002,
+              "function": "<built-in method builtins.any>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 5932,
+              "self_seconds": 0.065043977,
+              "total_calls": 5932
+            }
+          ]
+        },
+        {
+          "calls": 1015,
+          "configuration": "token512",
+          "profile_total_seconds": 4.403671894999998,
+          "top_self": [
+            {
+              "cumulative_seconds": 1.235627247,
+              "function": "<method 'execute' of 'sqlite3.Connection' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 11091,
+              "self_seconds": 1.235627247,
+              "total_calls": 11091
+            },
+            {
+              "cumulative_seconds": 4.391122563000001,
+              "function": "recall",
+              "line": 776,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/.artifacts/round6-baseline/src/memory_book/store.py",
+              "primitive_calls": 1015,
+              "self_seconds": 0.6013757620000001,
+              "total_calls": 1015
+            },
+            {
+              "cumulative_seconds": 0.421750369,
+              "function": "<method 'encode_ordinary' of 'builtins.CoreBPE' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 12103,
+              "self_seconds": 0.421750369,
+              "total_calls": 12103
+            },
+            {
+              "cumulative_seconds": 0.298314323,
+              "function": "<method 'fetchall' of 'sqlite3.Cursor' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 3912,
+              "self_seconds": 0.298314323,
+              "total_calls": 3912
+            },
+            {
+              "cumulative_seconds": 0.5502045950000001,
+              "function": "_bounded_candidate_metadata",
+              "line": 723,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/.artifacts/round6-baseline/src/memory_book/store.py",
+              "primitive_calls": 1009,
+              "self_seconds": 0.10164693200000001,
+              "total_calls": 1009
+            },
+            {
+              "cumulative_seconds": 0.248837567,
+              "function": "terms",
+              "line": 34,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/.artifacts/round6-baseline/src/memory_book/text.py",
+              "primitive_calls": 16253,
+              "self_seconds": 0.07480402800000001,
+              "total_calls": 16253
+            },
+            {
+              "cumulative_seconds": 1.055654458,
+              "function": "assemble_with_count",
+              "line": 495,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/.artifacts/round6-baseline/src/memory_book/token_budget.py",
+              "primitive_calls": 1015,
+              "self_seconds": 0.07193250100000001,
+              "total_calls": 1015
+            },
+            {
+              "cumulative_seconds": 0.070959347,
+              "function": "<method 'split' of 'str' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 20233,
+              "self_seconds": 0.070959347,
+              "total_calls": 20233
+            }
+          ]
+        },
+        {
+          "calls": 1015,
+          "configuration": "token1024",
+          "profile_total_seconds": 3.477836280000002,
+          "top_self": [
+            {
+              "cumulative_seconds": 1.129938974,
+              "function": "<method 'execute' of 'sqlite3.Connection' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 11091,
+              "self_seconds": 1.129938974,
+              "total_calls": 11091
+            },
+            {
+              "cumulative_seconds": 3.4655761340000004,
+              "function": "recall",
+              "line": 776,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/.artifacts/round6-baseline/src/memory_book/store.py",
+              "primitive_calls": 1015,
+              "self_seconds": 0.542494491,
+              "total_calls": 1015
+            },
+            {
+              "cumulative_seconds": 0.23996383500000001,
+              "function": "<method 'fetchall' of 'sqlite3.Cursor' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 3912,
+              "self_seconds": 0.23996383500000001,
+              "total_calls": 3912
+            },
+            {
+              "cumulative_seconds": 0.138478643,
+              "function": "<method 'encode_ordinary' of 'builtins.CoreBPE' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 3253,
+              "self_seconds": 0.138478643,
+              "total_calls": 3253
+            },
+            {
+              "cumulative_seconds": 0.496502109,
+              "function": "_bounded_candidate_metadata",
+              "line": 723,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/.artifacts/round6-baseline/src/memory_book/store.py",
+              "primitive_calls": 1009,
+              "self_seconds": 0.08088065500000001,
+              "total_calls": 1009
+            },
+            {
+              "cumulative_seconds": 0.07763170200000001,
+              "function": "<method 'findall' of 're.Pattern' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 7884,
+              "self_seconds": 0.07763170200000001,
+              "total_calls": 7884
+            },
+            {
+              "cumulative_seconds": 0.228806696,
+              "function": "terms",
+              "line": 34,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/.artifacts/round6-baseline/src/memory_book/text.py",
+              "primitive_calls": 7104,
+              "self_seconds": 0.07229956300000001,
+              "total_calls": 7104
+            },
+            {
+              "cumulative_seconds": 0.188776448,
+              "function": "<built-in method builtins.any>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 6938,
+              "self_seconds": 0.066732154,
+              "total_calls": 11227
+            }
+          ]
+        },
+        {
+          "calls": 1015,
+          "configuration": "token2048",
+          "profile_total_seconds": 3.550115603000002,
+          "top_self": [
+            {
+              "cumulative_seconds": 1.1787729260000002,
+              "function": "<method 'execute' of 'sqlite3.Connection' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 11091,
+              "self_seconds": 1.1787729260000002,
+              "total_calls": 11091
+            },
+            {
+              "cumulative_seconds": 3.537195274,
+              "function": "recall",
+              "line": 776,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/.artifacts/round6-baseline/src/memory_book/store.py",
+              "primitive_calls": 1015,
+              "self_seconds": 0.590376915,
+              "total_calls": 1015
+            },
+            {
+              "cumulative_seconds": 0.242844104,
+              "function": "<method 'fetchall' of 'sqlite3.Cursor' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 3912,
+              "self_seconds": 0.242844104,
+              "total_calls": 3912
+            },
+            {
+              "cumulative_seconds": 0.5299853600000001,
+              "function": "_bounded_candidate_metadata",
+              "line": 723,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/.artifacts/round6-baseline/src/memory_book/store.py",
+              "primitive_calls": 1009,
+              "self_seconds": 0.08957590700000001,
+              "total_calls": 1009
+            },
+            {
+              "cumulative_seconds": 0.085453181,
+              "function": "<method 'findall' of 're.Pattern' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 6874,
+              "self_seconds": 0.085453181,
+              "total_calls": 6874
+            },
+            {
+              "cumulative_seconds": 0.24141678500000002,
+              "function": "terms",
+              "line": 34,
+              "path": "/workspace/scratch/414e710059ef/AI-Memory-Book/.artifacts/round6-baseline/src/memory_book/text.py",
+              "primitive_calls": 6088,
+              "self_seconds": 0.074810602,
+              "total_calls": 6088
+            },
+            {
+              "cumulative_seconds": 0.070561438,
+              "function": "<method 'split' of 'str' objects>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 20233,
+              "self_seconds": 0.070561438,
+              "total_calls": 20233
+            },
+            {
+              "cumulative_seconds": 0.184896276,
+              "function": "<built-in method builtins.any>",
+              "line": 0,
+              "path": "~",
+              "primitive_calls": 6938,
+              "self_seconds": 0.068316496,
+              "total_calls": 11227
+            }
+          ]
+        }
+      ],
+      "dataset_sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857",
+      "queries": 1015,
+      "sessions": 216
+    }
+  ],
+  "schema_version": 1,
+  "scope": "Non-scored development diagnostics on frozen old synthetic61/public1015. cProfile overhead is included; these totals are not release performance evidence. No new heldout or competitor scoring."
+}

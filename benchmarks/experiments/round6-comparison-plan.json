@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "protocol": "v034-fresh-native-component-comparison-v1",
+  "status": "registered-before-fresh-selection-and-scoring",
+  "master_plan": {
+    "path": "benchmarks/experiments/round6-plan.json",
+    "commit": "afbb3233e16b80b3c0e5e76ab19466188abf41b4"
+  },
+  "baseline": {
+    "release": "v0.3.3",
+    "commit": "796cedfd1f5368144037a1fb72292b8d13884b8c",
+    "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+  },
+  "candidate": {
+    "release": "v0.3.4",
+    "commit": null,
+    "runtime_sha256": null,
+    "rule": "Declare and commit the final candidate before freezing assets or selecting fresh IDs. Null identities prohibit a freeze."
+  },
+  "independent_validation": {
+    "cohort": {
+      "count": 256,
+      "exclude_prior_count": 896,
+      "selection_prefix": "AI-Memory-Book/v034/round6/2026-11-14/",
+      "selection": "Sort SHA256(prefix + ID), then ID; exclude the complete distinct union of all four historical cohorts before selection.",
+      "prior_manifests": [
+        "benchmarks/hotpot_manifest.json",
+        "benchmarks/round2_hotpot256_manifest.json",
+        "benchmarks/experiments/round3-hotpot256-manifest.json",
+        "benchmarks/experiments/round4-hotpot256-manifest.json"
+      ],
+      "prior_counts": [128, 256, 256, 256],
+      "source": "The exact original HotpotQA validation Parquet bytes in benchmarks/hotpot_manifest.json. Selection decodes IDs before selected rows; no human inspection or outcome filtering."
+    },
+    "native": {
+      "modes": ["v033_lexical", "candidate_lexical"],
+      "tokenizers": ["cl100k_base", "o200k_base"],
+      "token_budgets": [512, 1024, 2048],
+      "budget_chars": 8000,
+      "limit": 5,
+      "repeats": 1,
+      "calls": 3072,
+      "boundary": "Complete in-process native Python recall, including native context assembly and exact token budgeting. Fresh ingestion and initialization recorded separately."
+    },
+    "components": {
+      "modes": ["v033_lexical", "candidate_lexical", "claude_mem_supplied_source_fts", "ai_memory_released_binary", "billion_locked_search_kernel"],
+      "repeats": 3,
+      "top_k": 5,
+      "search_calls": 3840,
+      "book_budget_chars": 100000,
+      "projections": "First response only; common whole-block packing at both registered tokenizers and all three token caps, offline and outside search latency.",
+      "ai_memory_reads": "On repetition zero read every mapped native top-five page completely; retain None/unmapped slots without replacement. Record actual read count, payload, latency and per-query search-plus-all-reads separately; at most 1280 page reads."
+    },
+    "stages": ["export", "baseline-native", "candidate-native", "baseline-component", "candidate-component", "claude-mem-fts", "ai-memory-hybrid", "billion-context"],
+    "retrieval_and_search_calls": 6912,
+    "quality_cells": 42,
+    "query_shuffle_seed": 41061,
+    "optional_semantic": false,
+    "optional_project_statistics": false,
+    "cache_policy": "Native and component Book query-result caches disabled. Both sources' bounded derived token-count memo remains enabled and naturally warms across fixed native configurations. Include every first call; no additional warmup, selective clearing or omitted sample."
+  },
+  "dependencies": {
+    "python_minor": "3.12",
+    "node": "v24.22.1",
+    "python_packages": {"tiktoken": "0.12.0", "pyarrow": "26.0.1"},
+    "upstream_locks": {
+      "claude-mem": "benchmarks/competitors/claude-mem-round2-lock.json",
+      "ai-memory": "benchmarks/competitors/ai-memory-lock.json",
+      "billion-context": "benchmarks/competitors/billion-round2-lock.json"
+    },
+    "upstream_versions": {
+      "claude-mem": {"version": "15.18.1", "commit": "c4a9f5725f420bf9c6e866cdd3b94bd36498af09", "bun": "1.3.13"},
+      "ai-memory": {"version": "v3.4.5", "commit": "ee73c04c542fa41ca629b046deb4ac108518f407", "embedding_model": "all-MiniLM-L6-v2"},
+      "billion-context": {"commit": "9674cfafbc78c50245ae0d887483d3d6ce880c15"}
+    },
+    "model_policy": "Only ai-memory's locked local embedding model is prepared and verified. Q2 is excluded; no Book semantic model or generative model is used. Existing lock byte counts and SHA256 values remain mandatory."
+  },
+  "freeze_order": [
+    "Commit this plan and all new evaluator/controller/workflow/test code.",
+    "Commit the declared exact v0.3.3 baseline and final candidate source hashes.",
+    "Verify all evaluator/reused-helper bytes, Python/Node dependencies, locked upstream assets and local model files without reading question content or scoring.",
+    "Publish the asset receipt, then the complete source/evaluator/dependency/model binding to Git before fresh ID selection.",
+    "Read the exact Parquet ID column, exclude all 896 historical IDs, select the deterministic fresh 256, and publish the manifest before scoring.",
+    "Claim the binding once, then publish each stage intent before execution and all raw/summary/ledger bytes after completion or failure before progressing."
+  ],
+  "acceptance": {
+    "integrity": "Every registered call, complete ledger event, source/scope/budget invariant and all 42 cells must verify. All 1536 native and 768 component baseline/candidate complete non-timing payload pairs must match; exclude only latency_ms.",
+    "competitor_outcome": "Report all measured wins, ties and losses. No minimum competitor win is imposed after observing outcomes. This comparison never substitutes for the separately registered 10/15/10 balanced performance gates.",
+    "no_replay": "One first-attempt hosted execution per immutable binding. No scoring before committed freeze/selection, replay into alternate directories, resumed failed stage, replaced adverse sample, retuning on these IDs or implicit workflow retry. Preserve incomplete attempts; any recovery requires a new explicit registration."
+  },
+  "reporting": [
+    "All native and component quality cells, per-query gains/losses, exact source/upstream identities and full raw source-free records.",
+    "Search, first-search-plus-all-reads, offline packing, setup/ingestion, RSS and storage as distinct boundaries. Preserve all adverse cells and errors.",
+    "Sequential component timings are descriptive; Python assembly, SQLite/Bun, HTTP/MCP and Node kernel boundaries differ and do not establish whole-product speed ratios.",
+    "This is a new selection from the same public HotpotQA source, not a new domain. All selected questions are answerable; unsupported/no-answer behavior and hallucination rates remain unmeasured. Empty retrievals remain in the results.",
+    "After first scoring these IDs are regression data. Q2, generated-answer quality, private-conversation transfer and universal superiority are outside this comparison."
+  ]
+}

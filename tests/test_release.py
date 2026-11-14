@@ -17,7 +17,7 @@ from scripts import release
 
 class ReleaseTests(unittest.TestCase):
     def test_preparation_preserves_historical_manifest_shape(self):
-        for version in ("0.3.0", "0.3.1", "0.3.2", "0.3.3"):
+        for version in ("0.3.0", "0.3.1", "0.3.2", "0.3.3", "0.3.4"):
             with self.subTest(version=version), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
                 output = root / "assets"
@@ -42,7 +42,7 @@ class ReleaseTests(unittest.TestCase):
                     release.prepare(root, output)
                 manifest = json.loads((output / "release-manifest.json").read_text())
                 base_keys = set(identity) | {"schema_version", "build_tools", "assets", "runtime_files_sha256", "checks", "scope"}
-                if version == "0.3.3":
+                if version in {"0.3.3", "0.3.4"}:
                     self.assertEqual(set(manifest), base_keys | {"prerelease"})
                     self.assertIs(manifest["prerelease"], False)
                     self.assertEqual(manifest["scope"], "GitHub release; no PyPI publication, model download or benchmark execution.")
