@@ -1,6 +1,7 @@
 """Small release-integrity fixtures; no GitHub calls or package installations."""
 import copy
 import io
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -15,6 +16,40 @@ from scripts import release
 
 
 class ReleaseTests(unittest.TestCase):
+    def test_preparation_preserves_historical_manifest_shape(self):
+        for version in ("0.3.0", "0.3.1", "0.3.2", "0.3.3"):
+            with self.subTest(version=version), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                output = root / "assets"
+                identity = {"version": version, "tag": "v" + version, "commit": "a" * 40}
+                for name in ("pyproject.toml", "README.md", "LICENSE"):
+                    (root / name).write_text("fixture", encoding="utf-8")
+                (root / "scripts").mkdir()
+                installer = ("installer v" + version).encode()
+                for name in release.INSTALLERS:
+                    (root / "scripts" / name).write_bytes(installer)
+
+                def build(argv, **kwargs):
+                    (output / f"ai_memory_book-{version}-py3-none-any.whl").write_bytes(b"wheel fixture")
+                    (output / f"ai_memory_book-{version}.tar.gz").write_bytes(b"sdist fixture")
+
+                with patch.object(release, "source_identity", return_value=(identity, {})), \
+                        patch.object(release.importlib.metadata, "version", side_effect=release.BUILD_TOOLS.__getitem__), \
+                        patch.object(release, "command", side_effect=build), \
+                        patch.object(release, "canonicalize_and_check"), patch.object(release, "install_smoke"), \
+                        patch.object(release, "git", return_value=installer):
+                    identity["epoch"] = 1760000000
+                    release.prepare(root, output)
+                manifest = json.loads((output / "release-manifest.json").read_text())
+                base_keys = set(identity) | {"schema_version", "build_tools", "assets", "runtime_files_sha256", "checks", "scope"}
+                if version == "0.3.3":
+                    self.assertEqual(set(manifest), base_keys | {"prerelease"})
+                    self.assertIs(manifest["prerelease"], False)
+                    self.assertEqual(manifest["scope"], "GitHub release; no PyPI publication, model download or benchmark execution.")
+                else:
+                    self.assertEqual(set(manifest), base_keys)
+                    self.assertEqual(manifest["scope"], "Experimental GitHub release; no PyPI publication, model download or benchmark execution.")
+
     @unittest.skipIf(sys.version_info < (3, 11), "Release preparation uses Python 3.12 and tomllib")
     def test_approved_packaging_refuses_a_changed_but_committed_runtime(self):
         """An approved runtime is independent of the current checkout's version."""
@@ -78,6 +113,124 @@ class ReleaseTests(unittest.TestCase):
                 self.assertRaises(ValueError):
             release.create_draft("v0.3.1", "a" * 40, "notes")
         self.assertEqual(api.call_count, 1)
+
+    def test_formal_draft_has_explicit_channel_and_unknown_versions_cannot_publish(self):
+        draft = {"id": 17, "tag_name": "v0.3.3", "target_commitish": "a" * 40,
+                 "draft": True, "prerelease": False}
+        with patch.object(release, "api", return_value=draft) as api:
+            self.assertEqual(release.create_draft("v0.3.3", "a" * 40, "notes"), draft)
+            # A draft cannot be Latest; the publication command sets that flag.
+            api.assert_called_once_with("releases", body={"tag_name": "v0.3.3", "target_commitish": "a" * 40,
+                "name": "v0.3.3", "body": "notes", "draft": True, "prerelease": False, "make_latest": "false"})
+        with patch.object(release, "api", return_value={**draft, "prerelease": True}), \
+                self.assertRaisesRegex(ValueError, "Created draft does not match"):
+            release.create_draft("v0.3.3", "a" * 40, "notes")
+        with patch.object(release, "api") as api, self.assertRaisesRegex(ValueError, "not registered"):
+            release.create_draft("v9.9.9", "a" * 40, "notes")
+        api.assert_not_called()
+        for tag in ("v0.3.0", "v0.3.1", "v0.3.2"):
+            self.assertIs(release.release_prerelease(tag), True)
+
+    def test_formal_publication_requires_ci_and_verifies_assets_and_latest(self):
+        identity = {"version": "0.3.3", "tag": "v0.3.3", "commit": "a" * 40}
+        names = ["asset-" + str(i) for i in range(7)]
+        state = {"ci": False, "tag": False, "latest": False, "writes": []}
+        published = {"id": 17, "tag_name": identity["tag"], "target_commitish": identity["commit"],
+                     "draft": True, "prerelease": False, "html_url": "https://github.com/example/release",
+                     "assets": []}
+
+        def ci_gate(head):
+            self.assertEqual(head, identity["commit"])
+            state["ci"] = True
+            return {"html_url": "https://github.com/ci"}
+
+        def api(path, *, body=None, missing=False):
+            if body is not None:
+                self.assertTrue(state["ci"], "No remote write may precede successful CI")
+                state["writes"].append(path)
+                if path == "git/refs":
+                    self.assertEqual(body, {"ref": "refs/tags/v0.3.3", "sha": identity["commit"]})
+                    state["tag"] = True
+                    return {}
+                self.assertEqual(path, "releases")
+                self.assertIs(body["prerelease"], False)
+                self.assertIs(body["draft"], True)
+                return copy.deepcopy(published)
+            if path == "git/ref/heads/main":
+                return {"object": {"sha": identity["commit"], "type": "commit"}}
+            if path == "git/ref/tags/v0.3.3":
+                return {"object": {"sha": identity["commit"], "type": "commit"}} if state["tag"] else None
+            if path == "releases/latest":
+                self.assertTrue(state["latest"])
+                return copy.deepcopy(published)
+            self.assertEqual(path, "releases/17")
+            return copy.deepcopy(published)
+
+        def command(argv, **kwargs):
+            if argv == ["gh", "--version"]:
+                return subprocess.CompletedProcess(argv, 0, b"gh version 2.1.0", b"")
+            self.assertTrue(state["ci"])
+            self.assertEqual(argv[:2], ["gh", "release"])
+            if argv[2] == "upload":
+                self.assertTrue(published["draft"])
+                published["assets"].append({"name": Path(argv[4]).name, "state": "uploaded"})
+            else:
+                self.assertEqual(argv[2], "edit")
+                self.assertEqual({asset["name"] for asset in published["assets"]}, set(names))
+                self.assertIn("--draft=false", argv)
+                self.assertIn("--prerelease=false", argv)
+                self.assertIn("--latest=true", argv)
+                published["draft"] = False
+                state["latest"] = True
+            return subprocess.CompletedProcess(argv, 0, b"", b"")
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            output = root / "assets"
+            output.mkdir()
+            for name in names:
+                (output / name).write_bytes(b"fixture")
+            notes = root / "docs/releases/v0.3.3.md"
+            notes.parent.mkdir(parents=True)
+            notes.write_text("Formal release fixture")
+            env = {"GITHUB_ACTIONS": "true", "GITHUB_REPOSITORY": release.REPOSITORY,
+                   "GITHUB_EVENT_NAME": "push", "GITHUB_SHA": identity["commit"],
+                   "GITHUB_REF": "refs/heads/release/v0.3.3", "GITHUB_RUN_ID": "7"}
+            with patch.object(release, "ROOT", root), patch.dict(os.environ, env), \
+                    patch.dict(release.APPROVED_RUNTIME_SHA256, {"0.3.3": "fixture"}), \
+                    patch.object(release.sys, "argv", ["release.py", "--output", str(output)]), \
+                    patch.object(release, "source_identity", return_value=(identity, {})), \
+                    patch.object(release, "command", side_effect=command), \
+                    patch.object(release, "api", side_effect=api), \
+                    patch.object(release, "ci_gate", side_effect=ci_gate), \
+                    patch.object(release, "find_release", return_value=None), \
+                    patch.object(release, "prepare", return_value=identity), \
+                    patch.object(release, "verify_remote_assets") as verify, \
+                    patch.object(release.sys, "stdout", new_callable=io.StringIO) as stdout:
+                release.main()
+                self.assertIn('"prerelease": false', stdout.getvalue())
+                self.assertEqual(verify.call_count, 2)
+                self.assertTrue(all(call.kwargs == {"complete": True} for call in verify.call_args_list))
+        self.assertEqual(state["writes"], ["git/refs", "releases"])
+        self.assertFalse(published["draft"])
+        self.assertTrue(state["latest"])
+
+    def test_latest_visibility_never_republishes_and_checks_exact_identity(self):
+        formal = {"id": 17, "tag_name": "v0.3.3", "target_commitish": "a" * 40,
+                  "draft": False, "prerelease": False}
+        with patch.object(release, "api", side_effect=[None, formal]) as api, \
+                patch.object(release.time, "sleep") as sleep:
+            self.assertEqual(release.visible_latest(formal), formal)
+            self.assertTrue(all(call.kwargs == {"missing": True} for call in api.call_args_list))
+            sleep.assert_called_once_with(1)
+        for altered in ({**formal, "target_commitish": "b" * 40}, {**formal, "prerelease": True}):
+            with self.subTest(altered=altered), patch.object(release, "api", return_value=altered), \
+                    self.assertRaisesRegex(ValueError, "identity or channel differs"):
+                release.visible_latest(formal)
+        with patch.object(release, "api", return_value=None) as api, patch.object(release.time, "sleep"), \
+                self.assertRaisesRegex(ValueError, "no write was retried"):
+            release.visible_latest(formal)
+        self.assertTrue(all(call.kwargs == {"missing": True} for call in api.call_args_list))
 
     def test_tag_visibility_poll_is_bounded_and_never_retries_writes(self):
         tag = {"object": {"sha": "a" * 40, "type": "commit"}}

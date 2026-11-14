@@ -1,4 +1,4 @@
-"""Build audited small packages, then publish one exact-commit experimental release.
+"""Build audited small packages, then publish one exact-commit versioned release.
 
 Publication requires the dedicated push ref, the exact current main commit and
 an already successful nine-job CI run. --prepare-only builds/checks local assets
@@ -37,6 +37,14 @@ APPROVED_RUNTIME_SHA256 = {
     "0.3.1": "9c8118d26ae1a0eae4f31d9d4f44b2afa0ee5c54314bde5187deb27c473dee46",
     "0.3.2": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93",
 }
+# Publication channels are explicit: older prereleases remain prereleases when
+# an interrupted run reconciles them. A new version needs a reviewed entry.
+RELEASE_PRERELEASE = {
+    "v0.3.0": True,
+    "v0.3.1": True,
+    "v0.3.2": True,
+    "v0.3.3": False,
+}
 INSTALLERS = ("install.py", "install.sh", "install.ps1")
 READ_DELAYS = (1, 2, 4)
 
@@ -44,6 +52,11 @@ READ_DELAYS = (1, 2, 4)
 def require(value, message):
     if not value:
         raise ValueError(message)
+
+
+def release_prerelease(tag):
+    require(tag in RELEASE_PRERELEASE, "Release channel is not registered for " + tag)
+    return RELEASE_PRERELEASE[tag]
 
 
 def sha(data):
@@ -155,26 +168,47 @@ def visible_release(release_id, tag, head, *, draft, asset_names=None):
 
 def create_draft(tag, head, notes):
     """The creation response is authoritative; listing can lag behind it."""
+    prerelease = release_prerelease(tag)
     value = api("releases", body={"tag_name": tag, "target_commitish": head,
-        "name": tag, "body": notes, "draft": True, "prerelease": True, "make_latest": "false"})
+        "name": tag, "body": notes, "draft": True, "prerelease": prerelease, "make_latest": "false"})
     require(type(value.get("id")) is int and value["id"] > 0 and value["tag_name"] == tag
-            and value["target_commitish"] == head and value["draft"] and value["prerelease"],
+            and value["target_commitish"] == head and value["draft"] and value["prerelease"] is prerelease,
             "Created draft does not match the requested release")
     return value
+
+
+def visible_latest(release):
+    """Verify a newly published formal release is Latest, without another write."""
+    for attempt in range(len(READ_DELAYS) + 1):
+        value = api("releases/latest", missing=True)
+        if value is not None and value["id"] == release["id"]:
+            require(value["tag_name"] == release["tag_name"]
+                    and value["target_commitish"] == release["target_commitish"]
+                    and value["draft"] is False and value["prerelease"] is False,
+                    "Latest release identity or channel differs")
+            return value
+        if attempt < len(READ_DELAYS):
+            time.sleep(READ_DELAYS[attempt])
+    raise ValueError("Published formal release is not yet Latest; no write was retried")
 
 
 def finish_release(identity, release, output, *, reconciled=False):
     """Final reconciliation is read-only, including after an interrupted publish."""
     head, tag = identity["commit"], identity["tag"]
-    require(not release["draft"] and release["prerelease"], "Published release must remain experimental")
+    prerelease = release_prerelease(tag)
+    require(release["draft"] is False and release["prerelease"] is prerelease,
+            "Published release channel differs from the registered version")
     require(release["target_commitish"] == head and release["tag_name"] == tag,
             "Published release identity differs")
     visible_tag(tag, head)
     verify_remote_assets(release, output, complete=True)
+    if not prerelease and not reconciled:
+        visible_latest(release)
     if os.environ.get("GITHUB_OUTPUT"):
         with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as stream:
             stream.write(f"tag={tag}\nversion={identity['version']}\ncommit={head}\n")
     print(json.dumps({"published": release["html_url"], "tag": tag, "commit": head,
+                      "prerelease": prerelease,
                       "assets": 7, "reconciled_read_only": reconciled}))
 
 
@@ -350,6 +384,11 @@ def prepare(root, output):
         "checks": {"wheel_and_sdist_installed_in_separate_clean_environments": True,
                    "runtime_and_reader_bytes_match_source": True, "large_research_data_excluded": True},
         "scope": "Experimental GitHub release; no PyPI publication, model download or benchmark execution."}
+    # Older public manifests are immutable asset bytes. Preserve their original
+    # schema and wording so interrupted prerelease runs still reconcile exactly.
+    if not release_prerelease(identity["tag"]):
+        manifest["prerelease"] = False
+        manifest["scope"] = "GitHub release; no PyPI publication, model download or benchmark execution."
     (output / "release-manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
     (output / "SHA256SUMS").write_text("".join(sha(p.read_bytes()) + "  " + p.name + "\n" for p in sorted(output.iterdir())))
     return identity
@@ -387,6 +426,9 @@ def main():
             "Publication is restricted to this repository's dedicated push workflow")
     identity, _ = source_identity(root)
     head, tag = identity["commit"], identity["tag"]
+    prerelease = release_prerelease(tag)
+    require(identity["version"] in APPROVED_RUNTIME_SHA256,
+            "Release runtime must be approved before publication")
     require(os.environ.get("GITHUB_SHA") == head and os.environ.get("GITHUB_REF") == "refs/heads/release/" + tag,
             "Release ref/version/head mismatch")
     version_output = command(["gh", "--version"], check=False).stdout
@@ -429,7 +471,8 @@ def main():
     release = visible_release(release_id, tag, head, draft=True,
                               asset_names={p.name for p in output.iterdir()})
     verify_remote_assets(release, output, complete=True)
-    command(["gh", "release", "edit", tag, "--repo", REPOSITORY, "--draft=false", "--prerelease",
+    command(["gh", "release", "edit", tag, "--repo", REPOSITORY, "--draft=false",
+             "--prerelease=" + str(prerelease).lower(), "--latest=" + str(not prerelease).lower(),
              "--notes-file", str(final_notes)])
     release = visible_release(release_id, tag, head, draft=False,
                               asset_names={p.name for p in output.iterdir()})
