@@ -341,6 +341,32 @@ database pages; it is not a memory limit for the entire process. See SQLite's
 [cache_size documentation](https://www.sqlite.org/pragma.html#pragma_cache_size)
 for its allocation and session lifetime.
 
+Exact token budgets add a separate, lazy **per-`MemoryBook` exact-count memo**.
+It is allocated only on the token-budget path; character-only operation neither
+allocates this memo nor loads tiktoken. `cl100k_base` and `o200k_base` share its
+**2,048-entry / 2 MiB retained-text limit**. The text charge is the native Python
+`str` object's size measured after successful encoding, not just its UTF-8 byte
+length. Container, key/value and encoder-reference overhead is additional, and
+the tokenizer vocabulary has its own memory cost. Neither this text limit nor
+the SQLite pager target is a whole-process memory ceiling.
+
+The memo retains complete unchanged citation-and-evidence strings only when
+their encoder implementation and object identities are certified. Custom or
+unknown implementations use the original exact-count path; oversized texts
+are counted without storage, and encoding failures are not cached. Each new
+book starts empty. `MemoryBook.close()` releases its retained text and identity
+references, including exceptional cleanup; a process allocator or tiktoken may
+retain separate memory afterward. Counts are not persisted to the database or
+shared between MCP processes. See [exact-count behavior](token-budget.md#exact-count-reuse-in-v033).
+
+The Python `cache_size` constructor argument and recall's `use_cache` option
+still control the retrieval-result cache. Setting `cache_size=0` or
+`use_cache=False` does not disable the exact-count memo or the SQLite pager.
+Retrieval with those settings still reads original source text and performs
+source validation; memo hits reuse only exact token counts. The derived
+metadata index described above remains a separate on-disk and write-maintenance
+cost, with no change to original stored evidence.
+
 When upgrading from a version before v0.3.0, back up the archive before opening
 it with the new binary: the source-preserving schema 3 migration introduced in v0.3.0 has no
 automatic downgrade, and a pre-v0.3.0 binary needs the pre-upgrade database backup
