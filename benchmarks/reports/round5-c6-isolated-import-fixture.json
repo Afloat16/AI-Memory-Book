@@ -1,0 +1,31 @@
+{
+  "created_at_utc": "2026-11-14T04:27:29.616558+00:00",
+  "status": "test-harness-import-fixed-before-c6-development",
+  "source_commit": "1bd97221e31e8e975498ece00f4bbfb3e0426aac",
+  "runtime_sha256": "cfffd8a21374cbf9152bbbc98a6a9847a1e22401f16179112e2f79eef181ff78",
+  "runtime_files_changed": false,
+  "ci_failure": {
+    "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556318382",
+    "conclusion": "failure",
+    "mcp_and_core312_error": "test_json_wrapper_installed_before_store_import_is_uncertified: subprocess.CalledProcessError with captured child stderr absent from outer traceback",
+    "observed_jobs": {
+      "success": 5,
+      "failure": 2,
+      "cancelled": 2
+    }
+  },
+  "diagnosis": "CI installs the package in site-packages and does not set PYTHONPATH; the isolated -S child disabled site-packages without adding an explicit package path. Local PYTHONPATH had masked this fixture setup issue.",
+  "fix": "Pass the actual imported store package root as an explicit child argv; insert it into sys.path before importing memory_book. Preserve -S, replacement-before-store-import ordering and all algorithm assertions; include captured stdout/stderr on failure.",
+  "verification": {
+    "PYTHONPATH": "removed from environment",
+    "tests_run": 1,
+    "failures": 0,
+    "errors": 0,
+    "log": "benchmarks/reports/round5-c6-isolated-import-fixture.log",
+    "log_sha256": "7c0d84a6274797e3350d534760c71ed46f3954670d87ca338deb4198fb590d83",
+    "test_file_sha256": "600a99243fa005ad961d78622e316111873fdae175bffd52116b3fb85f9a61a7"
+  },
+  "prior_local_selector_error": "An initial unittest selection used nonexistent ReferenceProjectionTests and ran zero test bodies; corrected to OriginalTurnBatchTests. No performance calls occurred.",
+  "c6_performance_calls_at_fix": 0,
+  "prior_96_test_correctness_receipt": "Retained unchanged for the original source/test snapshot; this supplemental receipt documents only the isolated child import fixture correction."
+}
