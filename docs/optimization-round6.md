@@ -91,3 +91,12 @@ The selected A identity was declared before preparation at `ef377047c83745749f9c
 The exact original result head is `9dfb920ead8e91f17655fe78ae49b905479d13ee`; its complete ancestry must remain preserved. The [saved-freeze audit](../benchmarks/reports/round6-comparison-freeze-43597613304-local-audit.json) verifies all five original files, 71 bound evaluator/receipt hashes and separate claim → asset → binding → manifest commits without repeating selection or downloading the dataset. Status remains `frozen-not-scored`, with zero measurement calls.
 
 Startup confirmation is still awaiting its final independent evaluator check and committed binding. The comparison scoring ref must not be created until exact-A startup evidence, independent audit and any required resource decision are accepted and committed. This ordering is an explicit coordination prerequisite; the frozen component controller itself does not implement a startup-result gate.
+
+
+## Startup confirmation in progress
+
+The final five-file evaluator closure was committed at `2981df099893708b062934770905f07f47b34d98` after the [18-test verification](../benchmarks/reports/round6-startup-evaluator-verification.json), including a complete artificial 480-observation/960-event exchange between independently implemented producer and auditor. The final independent-auditor test hash is `63597fa68c53ea160c4e48b2be0dc71eacaa6ce94341a3a8bf43d850bd8b97b3`.
+
+The [startup binding](../benchmarks/experiments/round6-startup-binding.json) was separately committed at `c3ffaa4d5b158148471516fe72f7253ef7b89f9c` (binding SHA256 `c968ab50f2f5e153954983046e0cbcdadf122515d8736832acdb8687121a4c88`). The sole first-attempt [confirmation run 43598913606](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43598913606) uses that exact trigger; every boundary batch publishes its own checkpoint on `validation/v034-round6-startup-43598913606-1`. Source/runtime identities remain the declared baseline and A. Do not repeat the claimed study if interrupted; inspect its original retained ledger and publication status first.
+
+No startup outcome or release approval is recorded at this in-progress checkpoint. Fresh comparison scoring remains blocked by the explicit startup prerequisite.
