@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "review": "round5-c6-independent-auditor-binding-static-review-1",
+  "checked_at_utc": "2026-11-14T04:38:46.588Z",
+  "status": "static_identity_checks_passed_awaiting_complete_formal_result",
+  "formal_run": "43557136276-1",
+  "binding_commit": "4d737fc60a12b60433f6f020614b296908b4c833",
+  "binding_sha256": "2b57caea5b3d7f12b38aba9472d798e846a5231b936551784f0963259e2a715a",
+  "evaluator_commit": "0bd9ccf48bc9ed6a666888838ca11580c3104b98",
+  "source": {
+    "commit": "1bd97221e31e8e975498ece00f4bbfb3e0426aac",
+    "runtime_sha256": "cfffd8a21374cbf9152bbbc98a6a9847a1e22401f16179112e2f79eef181ff78"
+  },
+  "auditor": {
+    "path": "scripts/audit_round5_c6_performance.py",
+    "sha256": "fe9bf79e6c998ae6aa9523a2876ec2111f5c66a9f184c3fa1de69f3fed9027e2",
+    "source_constants_equal_binding": true,
+    "registration_identity_and_hashes_match": true,
+    "all_51_local_and_committed_evaluator_inputs_match": true
+  },
+  "comparison_with_c5": {
+    "all_other_common_function_asts_unchanged": true,
+    "common_function_asts_with_expected_changes": [
+      "require_frozen_source",
+      "audit_continuation",
+      "audit"
+    ],
+    "added_function": "audit_rejected_c5",
+    "main_audit_ast_identical_after_only_literal_replacements": [
+      {
+        "previous": "round5-c5-default-performance-1",
+        "current": "round5-c6-default-performance-1"
+      },
+      {
+        "previous": "validation/v033-round5-c5-claim-",
+        "current": "validation/v033-round5-c6-claim-"
+      }
+    ],
+    "numeric_and_resource_arithmetic_unchanged": true,
+    "native_memo_audit_unchanged": true,
+    "retained_c5_names": "C5 source, binding, summary, original evaluator, failed decision and cache-continuation text intentionally retain their historical C5 namespace. No C5 result is substituted for C6 performance or acceptance."
+  },
+  "review_formatter": {
+    "path": "scripts/render_round5_c6_performance_review.py",
+    "sha256": "cdc6e999dc5c78c64513e7344bc07a9851f2c2171c97ce2e4a02999309a722cf",
+    "outside_frozen_51_evaluator_files": true,
+    "syntax_and_static_compile_checked": true,
+    "executed_or_rendered": false,
+    "requires_exact_final_result_commit": true,
+    "requires_complete_source_bound_report_and_both_saved_result_audits": true,
+    "retains_original_false_and_resource_review_decisions": true,
+    "planned_complete_tables": {
+      "pooled_latency_cells": 12,
+      "per_round_latency_cells": 48,
+      "resource_mean_comparisons": 28,
+      "logical_storage_comparisons": 6,
+      "native_memo_configurations": 32,
+      "aggregate_native_lookup_shares": 6
+    },
+    "output": "docs/round5-c6-performance-review.md",
+    "grade_or_acceptance_filled_before_complete_result": false
+  },
+  "actions": {
+    "frozen_files_modified": 0,
+    "retrieval_calls": 0,
+    "tokenizer_or_model_calls": 0,
+    "runtime_tests": 0,
+    "timing_runs": 0,
+    "final_auditor_executions": 0
+  },
+  "boundary": "This is a pre-result static identity and formatter preparation receipt. It is not the independent saved-measurement audit, a performance acceptance, a resource waiver or a release approval. The final full report must be independently audited before any C6 review is rendered."
+}
