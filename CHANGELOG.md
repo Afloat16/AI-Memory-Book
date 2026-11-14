@@ -1,12 +1,12 @@
 # Changelog
 
-## 0.3.4 — Unreleased; startup confirmation complete
+## 0.3.4 — Unreleased; startup scope accepted
 
-A narrowly scoped startup and initialization-correctness candidate using the
-exact A runtime selected for this confirmation. The new prospective startup study has
-completed; resource acceptance, the fresh component comparison and final
-release checks remain separate. No publication or final-CI success is claimed
-at this documentation checkpoint.
+A candidate focused on startup performance and initialization correctness,
+using the exact A runtime selected for this confirmation. The prospective
+startup study and its disclosed resource tradeoff are accepted under the
+original review policy. The fresh component comparison and final release checks
+remain separate. No publication or final-CI success is claimed at this checkpoint.
 
 ### Initialization and command loading
 
@@ -41,8 +41,9 @@ at this documentation checkpoint.
   the original resource-review rule. Whole-helper wall time increases
   **138.762 → 139.996 ms (+0.8891%)**. The increase occurs in every round;
   its phase-specific causal allocation is not established by saved data.
-  Independent recommendations and an explicit release decision remain separate
-  from that unchanged original verdict.
+  Two independent reviews and the [explicit startup decision](benchmarks/experiments/round6-startup-decision.json)
+  accept this disclosed tradeoff under the original resource policy. The raw
+  automatic verdict and original workflow `failure` remain unchanged.
 - Retain all **6 pooled / 26 round timing increases** and **9 pooled / 27 round
   resource increases**. Kernel child-usage records and sampled MCP RSS/HWM
   retain their stated boundaries and do not establish isolated product-memory

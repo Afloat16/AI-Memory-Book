@@ -137,7 +137,9 @@ def selected_dataset(parquet_path, inputs):
 
 def manifest_value(inputs, summary):
     return {"schema_version": 1, "protocol": VERSION,
-        "status_at_freeze": "source-and-evaluator-bound-before-selection-not-scored",
+        "status_at_freeze": (comparison.MANIFEST_RECOVERY_STATUS if "fixture_recovery" in inputs.binding
+                             else "source-and-evaluator-bound-before-selection-not-scored"),
+        **({"fixture_recovery": inputs.binding["fixture_recovery"]} if "fixture_recovery" in inputs.binding else {}),
         "human_content_inspection": "ID-only selection; no questions, answers or source passages displayed; no outcome filtering.",
         "plan_sha256": inputs.plan_sha256, "binding_sha256": inputs.binding_sha256,
         "binding_commit": inputs.binding_commit, "evaluator_commit": inputs.binding["evaluator_commit"],
