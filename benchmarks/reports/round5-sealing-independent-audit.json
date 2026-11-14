@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "scope": "Artificial non-timing boundary regression; no benchmark corpus or performance claim.",
+  "tokenizer_version": "0.12.0",
+  "token_budget_source": "src/memory_book/token_budget.py",
+  "token_budget_sha256": "d3006d1e4d96bf83f5f4f72208900c182c7c15b058ae11896555d0b99821a6ff",
+  "audit_script": "scripts/audit_round5_sealing.py",
+  "audit_script_sha256": "1a9cd1157535bd3f7dece80a3544b3d329797b6fe11913f675a5ff944f27081f",
+  "random_seed": 109752,
+  "generated_cases_per_tokenizer": 5792,
+  "boundary_pairs": 11568,
+  "bounded_fallbacks": 16,
+  "explicit_unicode_or_overlong_fallbacks": 16,
+  "token_id_equalities": 23136,
+  "equations": [
+    "encode(block) = encode(prefix) + encode(suffix)",
+    "encode(block + LF + LF) = encode(prefix) + encode(suffix + LF + LF)"
+  ],
+  "certificate_reason": "The ASCII tail has no letters or digits, so it cannot extend either fixed pattern's letter, number, or contraction piece. All remaining changes after appending LF are confined to that tail.",
+  "tokenizers": [
+    {
+      "name": "cl100k_base",
+      "pattern_sha256": "f021c3d976978e62ee64cdad150cc3405c2e3d6e3b40407850bb9e8d9eb65899",
+      "boundary_pairs": 5784,
+      "bounded_fallbacks": 8,
+      "explicit_unicode_or_overlong_fallbacks": 8,
+      "token_id_equalities": 11568
+    },
+    {
+      "name": "o200k_base",
+      "pattern_sha256": "2d1b8dc11e89af71459b36004f698ab3693f59fd84f63e8ec2b49564ab857420",
+      "boundary_pairs": 5784,
+      "bounded_fallbacks": 8,
+      "explicit_unicode_or_overlong_fallbacks": 8,
+      "token_id_equalities": 11568
+    }
+  ]
+}
