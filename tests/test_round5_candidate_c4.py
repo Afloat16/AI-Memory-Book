@@ -1,5 +1,6 @@
 """Exact ranking-prefix bounds, shared directories and conservative fallback."""
 import copy
+import importlib.util
 import math
 import sqlite3
 from types import SimpleNamespace
@@ -63,14 +64,17 @@ class CandidateMetadataBoundTests(unittest.TestCase):
                     for limit in (1, 5):
                         with self.subTest(query=query, scope=scope, limit=limit):
                             self.assert_original(query, budget_chars=4000, limit=limit, **scope)
-            for tokenizer in ("cl100k_base", "o200k_base"):
-                for tokens in (0, 512, 1024, 2048):
-                    self.assert_original("quartz pressure", project="fixture", budget_chars=8000,
-                                         budget_tokens=tokens, tokenizer=tokenizer)
             for chars in (0, 100, 100000):
                 self.assert_original("quartz pressure", budget_chars=chars, limit=50)
         self.assertTrue(retained, "Fixture must execute real pruning")
         self.assertTrue(all(before > after for before, after in retained))
+
+    @unittest.skipUnless(importlib.util.find_spec("tiktoken"), "Install .[tokens]")
+    def test_full_token_payloads_match_for_both_encoders_and_all_caps(self):
+        for tokenizer in ("cl100k_base", "o200k_base"):
+            for tokens in (0, 512, 1024, 2048):
+                self.assert_original("quartz pressure", project="fixture", budget_chars=8000,
+                                     budget_tokens=tokens, tokenizer=tokenizer)
 
     def test_original_novelty_pool_including_current_single_word_limit_one(self):
         for query, limit, expected in (("quartz", 1, 1), ("quartz pressure", 1, 1),
@@ -185,6 +189,7 @@ class CandidateMetadataBoundTests(unittest.TestCase):
         self.assertTrue(all(row["chapter_title"] == row["session_title"] == "" for row in result.values()))
         self.assert_original("quartz pressure", project="fixture")
 
+    @unittest.skipUnless(importlib.util.find_spec("tiktoken"), "Install .[tokens]")
     def test_selected_source_corruption_still_raises_original_error(self):
         response = self.assert_original("quartz pressure", project="fixture", budget_chars=8000, budget_tokens=1024)
         identity = response["results"][0]["id"]
