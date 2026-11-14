@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "protocol": "v033-c7-unchanged-c6-mcp-profile-observation-v1",
+  "status": "prepared-awaiting-remote-checkpoint-and-explicit-start-signal",
+  "prepared_at_utc": "2026-11-14T04:53:53.542614+00:00",
+  "scope": "One instrumented attribution run on the complete old C6 formal public round0 MCP token1024 order; no source modification, alternative retrieval, latency comparison or acceptance decision.",
+  "source": {
+    "commit": "1bd97221e31e8e975498ece00f4bbfb3e0426aac",
+    "runtime_sha256": "cfffd8a21374cbf9152bbbc98a6a9847a1e22401f16179112e2f79eef181ff78"
+  },
+  "source_path": "/workspace/scratch/36b34eafc753/candidate-v0.3.3-c6/src",
+  "reference_worker": "benchmarks/reports/round5-c6-performance-43557136276-1/workers/r0-public1015-candidate.json.gz",
+  "reference_formal_run": "43557136276-1",
+  "reference_worker_sha256": "6cb2542081e769b0e975258505f674bf11d9bfe64f55304b4cc91a701585f963",
+  "configuration": {
+    "id": "mcp-token1024",
+    "surface": "official-sdk-mcp-stdio",
+    "budget_chars": 8000,
+    "budget_tokens": 1024,
+    "tokenizer": "cl100k_base"
+  },
+  "dataset_sha256": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857",
+  "calls": 1015,
+  "query_order_sha256": "4095a599f8623e2a5b557ade3f975f5941bbf4d409c1408a810fe447aa3a4496",
+  "first_query_id": "conv-50-q0177",
+  "last_query_id": "conv-48-q0225",
+  "locomo_path": ".artifacts/locomo10.json",
+  "database_path": ".artifacts/round5-development-dbs/public1015.db",
+  "database_policy": "Verify the v0.3.2 base file hash and empty/absent WAL; copy before opening. Keep ordinary C6 native sqlite3.Connection and first-open derived-index work. Do not replace sqlite3.connect or any connection factory.",
+  "packages": {
+    "mcp": "1.30.0",
+    "pydantic": "2.14.3",
+    "tiktoken": "0.12.0",
+    "anyio": "4.16.0"
+  },
+  "input_files": {
+    ".artifacts/locomo10.json": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+    ".artifacts/round5-development-dbs/public1015.db": "6dafc1ce2756a8ba4723d1319e8da326d60d883c358a4e70a4eafb53a53b4584",
+    "scripts/round4_performance.py": "7e1b987e62e1950b7c6f842942d2e294a74284a16cf4cdc58bfe326e4e4044a7",
+    "scripts/benchmark_default_recall.py": "ce74bd117ef54da865963f6a185f40707dbf8a0eaf0019957288b71edf8c305a",
+    "benchmarks/semantic_eval.py": "46fa3b3fd6298ba1669bd0b17f3ad6f77a2fdaf5b79ba25e4632012090ca0b4e",
+    "benchmarks/run.py": "e557475d5701ea7271de9103aa8267e204796336b5277352fad015d9399521a4",
+    "benchmarks/native_budget_eval.py": "737230950fd4ddd7f415aa93137f65cd59b5c61a72676c58ca854aee59682b1b",
+    "benchmarks/token_compare.py": "bb34650d947a89c17c87e179dc9e376fe44b6d10c0bf4bb70ca4cdfd46913f18",
+    "benchmarks/reports/round5-c6-performance-43557136276-1/workers/r0-public1015-candidate.json.gz": "6cb2542081e769b0e975258505f674bf11d9bfe64f55304b4cc91a701585f963"
+  },
+  "environment_files": {
+    "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/mcp/server/stdio.py": "1469644bfc9afc3a230933fe2fbad8846ec5f2dc13f6392826bcb060e8c94141",
+    "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/mcp/server/fastmcp/server.py": "1b1c8cd4f6e350f7d4f62627764ed7c0f51e85872d32aba9d9da560a2bd2c50c",
+    "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/mcp/server/fastmcp/tools/base.py": "87626ba624d33218ffb7542140dc888453e33130fdefeadc8909d47bc600ca54",
+    "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/mcp/server/fastmcp/utilities/func_metadata.py": "c951a064ea3f1488c2f9685168ab049a31d9772c5ff06340f1b435399e1db18c",
+    "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/anyio/_core/_fileio.py": "1df4f9221a3e3ad5e47f16ebfb3804e842a09933de8ff041d9e06858e7f30401",
+    "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/anyio/to_thread.py": "f0c3d5aeb42af2db46bd5db571277af2b32da396e1c49d3e8bd0aea576a0e46b"
+  },
+  "diagnostic_files": {
+    "diagnostic.py": "874696f2ed62c70f2d82a7233a83fd6e74fcb48f253a2b39ad94bc42feeb62b0",
+    "hook/sitecustomize.py": "996376da56a690121392d9a035118aa7bba14d9d2622870880534b9fd278546a"
+  },
+  "output_directory": "observation-01",
+  "execution_boundary": [
+    "Exactly one original official SDK stdio server command and 1015 recall_memory requests, in the saved C6 worker order. No extra calibration, test query, alternate candidate or retry.",
+    "Hook observes only the registered synchronous recall_memory Tool.fn after original create_server registration. functools.wraps wrapper calls the exact original function with unchanged args. Tool.fn_metadata, arg model, parameters, return conversion, schema, annotations and is_async are retained and checked.",
+    "One cProfile.Profile is enabled immediately before original tool.fn and disabled in finally immediately after it returns or raises. This includes acquire_book, book.recall, result-cache writes, recall_payload and JSON serialization. Argument validation, transport, parent validation, logging and gaps between calls are not profiled.",
+    "Save a cumulative first-call profile and the cumulative all-1015 profile, with original pstats and every function/caller record, including terms/estimate_tokens/source-unit work. Do not drop the first call or turn these diagnostic durations into latency or speedup claims.",
+    "Count-only async wrappers delegate each original anyio.AsyncFile.write/flush and anyio.to_thread.run_sync with unchanged arguments/kwargs and awaited result. No writes are coalesced, delayed or omitted; no flush, limiter or cancellation option is changed. Count default SDK stdout separately through its native TextIOWrapper/buffer identity; record other worker-dispatch counts too.",
+    "Never replace sqlite3.connect, use an ObservedConnection subclass, or patch json.loads/prepare_source_units/_refs/TokenCounter/encoding. Native C6 source-work and count-memo certification remains active.",
+    "As in formal MCP, externally clear and commit result cache before each call, require one server-written full native cache record afterward, and validate that record without making a second native recall. Keep normal cache lookups/writes/transactions in the observed tool body.",
+    "Preserve every started/finished request, observed tool event and stderr. Exclusive output directory prevents overwrite; save failures and stop without automatic retry. Normal SDK stdin-close shutdown executes observer atexit and final profile export."
+  ],
+  "validation": [
+    "All 1015 exact compact JSON text hashes, actual SDK envelope hashes, full canonical native payload hashes, context/token metadata and token totals match the retained C6 formal worker.",
+    "Use frozen make_row source/provenance/scope/cap/cache checks with elapsed=None and remove wall_ms. Independent tokenizer budget validation remains outside the profiled child calls.",
+    "Check original source, index projections and revision before/after, and require final query-result cache empty. Verify exact source worktree, all helper/input/environment hashes before/after.",
+    "Initialization instructions and tool schemas must match saved SDK values. Require one server registration, 1015 original tool executions, zero tool errors, matching tool event sequence and exactly one successful observer finish.",
+    "Retain every function and caller, not only selected hot spots. Require complete first/all pstats checksum bindings and at least initialize/list_tools/1015 matched stdout write/flush pairs."
+  ],
+  "outputs": [
+    "attempts.jsonl",
+    "observer-events.jsonl",
+    "server-stderr.log",
+    "started.json",
+    "first-call.pstats",
+    "first-call.functions.json",
+    "all-calls.pstats",
+    "all-calls.functions.json",
+    "summary.json or failure.json"
+  ],
+  "limitations": [
+    "cProfile changes execution overhead and includes database blocking inside tool.fn; its times are instrumented attribution, not accepted latency, statistical evidence or a benchmark comparison.",
+    "Transport wrappers count the unchanged call structure only and do not measure transport duration. The tool-body profile excludes SDK input validation, conversion, queueing and transport.",
+    "Local environment can differ from hosted formal VM. The unchanged C6 formal rejection remains authoritative; no acceptance threshold or timing boundary is changed.",
+    "A first-call snapshot distinguishes initialization work but remains included in the all-call profile; no requests are discarded or re-executed."
+  ]
+}
