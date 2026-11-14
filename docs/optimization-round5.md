@@ -63,3 +63,9 @@ Final runtime SHA256: `7a927601b5ce710059d5a2640b3642c58a2bd4985d9ccdc48f6915993
 ### Existing-archive upgrade cost
 
 The final C3 [one-sample upgrade observation](../benchmarks/reports/round5-development/final-index-upgrade.json) preserves old logical content, revision and schema in both copied archives. First open including index construction took 5.419 ms versus 0.910 ms on synthetic61 and 4.502 ms versus 0.844 ms on public1015; open plus close/checkpoint took 9.495/7.791 ms versus 1.000/0.930 ms. The added index occupied 200,704/151,552 bytes. Reused free pages meant zero observed file growth in these copies, not zero storage cost. These warm-OS single observations are descriptive; formal workers separately measure repeated startup, ingestion and RSS. [Interpretation and reproduction](../benchmarks/reports/round5-development/final-index-upgrade-review.json).
+
+## Completed historical Hotpot256 compatibility
+
+Final C3 matches all 2,304 saved v0.3.2 complete output hashes on the already scored round-four 256-question set: 1,536 native calls (both tokenizers, 512/1,024/2,048 token caps) and 768 component-ranker calls (100,000 characters, three repeats). There are zero mismatches/errors. Original source, index and canonical-document projections remain unchanged and result caches remain empty. The complete report, all 4,608 start/finish events and source identities are retained in [the summary](../benchmarks/reports/round5-hotpot-regression.summary.json) and its linked gzip files. Only latency_ms is excluded from response equality.
+
+This supports retention of the historical default Book quality results on these same questions; it is not new-domain generalization, a new competitor speed comparison or a quality gain. The old comparison's third-party measurements and competitors' strengths remain separately labelled.

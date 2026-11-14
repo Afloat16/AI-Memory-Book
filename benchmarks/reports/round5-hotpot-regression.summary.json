@@ -1,0 +1,167 @@
+{
+  "attempt_ledger": {
+    "events": 4608,
+    "finishes": 2304,
+    "gzip_sha256": "8950f82fc841a9f4194f2f8a4609ca6359c2eab717f253f472bd76d0b2d59a0e",
+    "path": "benchmarks/reports/round5-hotpot-regression.attempts.jsonl.gz",
+    "raw_bytes": 1548884,
+    "raw_sha256": "3d66d467f9e2fb8d9ba4fd9e5003e7e76d258a8509847a29b7fc71443540ea0f",
+    "starts": 2304
+  },
+  "boundary": "Old round4 Hotpot256; complete Book payload excluding latency_ms only. No new quality or performance claim.",
+  "call_matrix": [
+    {
+      "calls": 256,
+      "configuration": {
+        "budget_chars": 8000,
+        "budget_tokens": 512,
+        "tokenizer": "cl100k_base"
+      },
+      "errors": 0,
+      "mismatches": 0,
+      "stage": "native"
+    },
+    {
+      "calls": 256,
+      "configuration": {
+        "budget_chars": 8000,
+        "budget_tokens": 1024,
+        "tokenizer": "cl100k_base"
+      },
+      "errors": 0,
+      "mismatches": 0,
+      "stage": "native"
+    },
+    {
+      "calls": 256,
+      "configuration": {
+        "budget_chars": 8000,
+        "budget_tokens": 2048,
+        "tokenizer": "cl100k_base"
+      },
+      "errors": 0,
+      "mismatches": 0,
+      "stage": "native"
+    },
+    {
+      "calls": 256,
+      "configuration": {
+        "budget_chars": 8000,
+        "budget_tokens": 512,
+        "tokenizer": "o200k_base"
+      },
+      "errors": 0,
+      "mismatches": 0,
+      "stage": "native"
+    },
+    {
+      "calls": 256,
+      "configuration": {
+        "budget_chars": 8000,
+        "budget_tokens": 1024,
+        "tokenizer": "o200k_base"
+      },
+      "errors": 0,
+      "mismatches": 0,
+      "stage": "native"
+    },
+    {
+      "calls": 256,
+      "configuration": {
+        "budget_chars": 8000,
+        "budget_tokens": 2048,
+        "tokenizer": "o200k_base"
+      },
+      "errors": 0,
+      "mismatches": 0,
+      "stage": "native"
+    },
+    {
+      "calls": 768,
+      "configuration": {
+        "budget_chars": 100000
+      },
+      "errors": 0,
+      "mismatches": 0,
+      "stage": "component"
+    }
+  ],
+  "candidate": {
+    "checkout_commit": "06e655eadf25e909cabb890cfb2479452d5cd53a",
+    "commit": "1c9a6d3f611608e8dbce8e729fdd3099513d80e6",
+    "runtime_sha256": "7a927601b5ce710059d5a2640b3642c58a2bd4985d9ccdc48f69159938ee3623"
+  },
+  "counts": {
+    "component": {
+      "match": 768
+    },
+    "native": {
+      "match": 1536
+    }
+  },
+  "dataset": {
+    "binding_sha256": "84dbe28c068a3067f9706c6439d42301eaddfef95c44ae2633398346c66a8c79",
+    "fingerprint": "fb3cd70ea58fafa5bd9cef0f04dba7399aaafba76f5f92605eee9e516f115e1b",
+    "manifest_sha256": "b0485b3a089c9b04fc4453fd9f129364e123ce1b9f25b593edf4f6ee6df4a20b",
+    "parquet_bytes": 27452575,
+    "parquet_sha256": "c20b638ca82b21d04fe12e14ff417ad05153d4d215a65de54497fca4e972f7c6",
+    "queries": 256,
+    "selected_ids_sha256": "b678a288a815d651b09acfa8927c2cb2cf7d74aca5ca0557c221cf19318bc23b",
+    "sessions": 2548,
+    "source_characters": 1418003,
+    "turns": 10693
+  },
+  "derived_from_report": {
+    "bytes": 141555,
+    "path": "benchmarks/reports/round5-hotpot-regression.json.gz",
+    "sha256": "8c145771dda0060f444204310301d0831a647261ad6f65db358de5a795e7ca43"
+  },
+  "environment_observed_after_execution": {
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "sqlite": "3.53.1"
+  },
+  "evaluator": "round5-historical-hotpot-regression-1",
+  "expected_calls": 2304,
+  "finished_at": "2026-11-14T02:37:47.295224+00:00",
+  "helper_sha256": "d9ac31c6a6de13da5844e4b945fef3adc799c0a283c440ddcd062b164e260f01",
+  "historical_quality_boundary": "The same previously scored 256 HotpotQA questions retain exactly the saved v0.3.2 default Book outputs at all six native token configurations and the component ranker cap. This is regression compatibility evidence, not unseen quality improvement, not a new competitor evaluation, and not a performance measurement.",
+  "historical_timestamp_boundary": "Project created/updated and chapter/session updated host timestamps are not cross-archive compared; each complete source snapshot must remain unchanged within this run.",
+  "packages": {
+    "pyarrow": "26.0.1",
+    "tiktoken": "0.12.0"
+  },
+  "post_run_checks": {
+    "cache_entries_after": 0,
+    "canonical_documents_unchanged": true,
+    "every_ledger_finish_matches_report_row": true,
+    "helper_matches_recorded_hash": true,
+    "historical_reports_match_committed_blobs": true,
+    "indexed_content_unchanged": true,
+    "only_excluded_payload_field": "latency_ms",
+    "source_snapshot_unchanged": true
+  },
+  "reference_reports": {
+    "component": {
+      "calls": 768,
+      "file_sha256": "f5cb0c29a87b4dd1ab430e3fa07d164d416a17e2ba1ff4f4769e1d6ec6ddabd8",
+      "path": "benchmarks/results/round4-comparison-43363060062-1/candidate-component.json.gz",
+      "payload_field": "book_payload_sha256",
+      "runtime_commit": "2d7b5e38839fb21724ad3beec6b6ebabbda45636",
+      "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+    },
+    "native": {
+      "calls": 1536,
+      "file_sha256": "b5823b067480828654ee0cda198e390eba666699e9205920b2be9fb712321f4d",
+      "path": "benchmarks/results/round4-comparison-43363060062-1/candidate-native.json.gz",
+      "payload_field": "payload_sha256",
+      "runtime_commit": "2d7b5e38839fb21724ad3beec6b6ebabbda45636",
+      "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+    }
+  },
+  "runtime_sha256_after": "7a927601b5ce710059d5a2640b3642c58a2bd4985d9ccdc48f69159938ee3623",
+  "schema_version": 1,
+  "setup": "One fresh C3 archive; verify all source/index projections and canonical documents against both historical archives before recall.",
+  "started_at": "2026-11-14T02:37:24.024547+00:00",
+  "status": "passed"
+}
