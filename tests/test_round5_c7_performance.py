@@ -179,7 +179,8 @@ class C7AcceptanceTests(inherited.RoundFiveAcceptanceTests):
         for path, expected in ((bench.CONTINUATION_PATH, bench.CONTINUATION_SHA256),
                                (bench.DEVELOPMENT_PLAN_PATH, bench.DEVELOPMENT_PLAN_SHA256)):
             self.assertEqual(bench.sha((bench.ROOT/path).read_bytes()), expected)
-        self.assertEqual(bench.C7_SOURCE, {'commit': None, 'runtime_sha256': None})
+        self.assertEqual(bench.C7_SOURCE, {'commit': 'd0c84cbfc9bad440ad447d41e211d070ef5b2cae',
+            'runtime_sha256': '55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45'})
         valid = {'CONTINUATION_COMMIT': '1' * 40, 'CONTINUATION_SHA256': '2' * 64,
                  'CONTINUATION_PROTOCOL': 'artificial-unit-fixture', 'CONTINUATION_STATUS': 'artificial-unit-fixture',
                  'DEVELOPMENT_PLAN_SHA256': '3' * 64, 'C7_POLICY_KEY': 'fixture_policy',

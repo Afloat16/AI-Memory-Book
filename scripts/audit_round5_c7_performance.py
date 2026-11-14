@@ -18,9 +18,9 @@ import re
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
-# Exact C7 preregistration is bound; the final source remains blocked.
-# Preserve every previous complete rejection and wait for the source freeze.
-C7_PROVENANCE_BOUND = False
+# Exact C7 preregistration and independently reviewed final source are bound.
+# Preserve every previous complete rejection and the original acceptance gates.
+C7_PROVENANCE_BOUND = True
 C7_REGISTRATION_PROTOCOL = 'v033-c7-mcp-stdout-write-flush-continuation-v1'
 C7_REGISTRATION_STATUS = 'registered-before-c7-implementation-and-timing'
 C7_POLICY_KEY = 'mcp_stdout_policy'
@@ -61,7 +61,8 @@ KNOWN_C6_REJECTION = {'source': {'commit': '1bd97221e31e8e975498ece00f4bbfb3e042
 SOURCES = {
     "baseline": {"commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
                  "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"},
-    "candidate": {"commit": None, "runtime_sha256": None},
+    "candidate": {"commit": "d0c84cbfc9bad440ad447d41e211d070ef5b2cae",
+                  "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"},
 }
 CONTINUATION_PATH = "benchmarks/experiments/round5-c7-addendum.json"
 CONTINUATION_COMMIT = '718ce3bbe42e23774e616219bd8ae60d143fb76f'

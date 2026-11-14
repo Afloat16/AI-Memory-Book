@@ -13,7 +13,7 @@ from c6_development_memo_verifier import audit_native_memo
 
 SOURCES = {
     "baseline": {"commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82", "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"},
-    "candidate": {"commit": None, "runtime_sha256": None}}
+    "candidate": {"commit": "d0c84cbfc9bad440ad447d41e211d070ef5b2cae", "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"}}
 CONFIGS = ("native-char4000", "native-token512", "native-token1024", "native-token2048")
 COHORTS = {"synthetic61": (168, "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26"),
     "public1015": (1015, "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857")}
