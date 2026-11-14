@@ -446,6 +446,18 @@ def assemble_with_count(
         remaining_chars = budget_chars - block_chars - 2 * len(blocks) - len(header)
         if remaining_chars <= 0:
             continue
+        if (can_seal and certified_bytes(header, header) is not None and
+                _ascii_sealing_suffix(header) == "\n"):
+            # The final ASCII letter/number piece is terminated by LF in both
+            # certified patterns, even when arbitrary evidence follows it.
+            # Count only that stable header prefix, not the trailing LF: the
+            # latter may merge with a following whitespace/punctuation piece.
+            # If this lower bound already exceeds the cap, no source unit can
+            # fit and parsing/ranking every supplemental span is unnecessary.
+            # Source-map validation has already run under the read snapshot.
+            base = prefix_tokens()
+            if base >= budget_tokens or base + counter.count(header[:-1]) > budget_tokens:
+                continue
         qset = set(row.get("excerpt_terms", query_terms))
         choices = []
         units = source_units_for(row) if source_units_for is not None else row.get("token_source_units", [])

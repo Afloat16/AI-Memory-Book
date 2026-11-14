@@ -749,19 +749,27 @@ class MemoryBook:
                       c.title chapter_title,s.external_id session_id,s.title session_title,s.created_at
                       FROM pages p JOIN chapters c ON c.id=p.chapter_id
                       JOIN sessions s ON s.id=p.session_pk WHERE p.rid IN (""" +
-                      ",".join("?" for _ in ids) + ")", ids).fetchall()
+                      ",".join("?" for _ in ids) + ")", ids)
+                    metadata_columns = tuple(column[0] for column in metadata.description)
                     for row in metadata:
-                        rows[row["id"]].update(dict(row))
+                        # sqlite3.Row's string-key lookup scans its columns.
+                        # This query has unique fixed column names, so one
+                        # ordered value pass avoids repeated scans and a
+                        # temporary dictionary for every candidate.
+                        if type(row) is sqlite3.Row:
+                            rows[row[0]].update(zip(metadata_columns, row))
+                        else:
+                            rows[row["id"]].update(dict(row))
                 qset = set(qt)
-                directory_terms = {}
+                directory_overlaps = {}
                 for row in rows.values():
                     item = row  # already a private dictionary; rows is not reused
                     title_overlap = 0.0
                     if strategy == "book":
                         directory = item["chapter_title"] + " " + item["session_title"]
-                        if directory not in directory_terms:
-                            directory_terms[directory] = self._directory_tokens(directory)
-                        title_overlap = len(qset & directory_terms[directory]) / len(qset)
+                        if directory not in directory_overlaps:
+                            directory_overlaps[directory] = len(qset & self._directory_tokens(directory)) / len(qset)
+                        title_overlap = directory_overlaps[directory]
                     if fuse_routes:
                         # Retain each route's
                         # relative BM25 margins instead of only its ordinal rank.

@@ -1,7 +1,11 @@
-# Publishing an experimental release
+# Publishing a verified release
 
-The release workflow publishes an exact commit as a GitHub **prerelease**. It
-does not publish to PyPI or enable GitHub's immutable-release repository setting.
+The release workflow publishes an exact commit using an explicitly registered
+release channel. **v0.3.3 is a normal GitHub release** (`prerelease=false`) and
+is marked Latest when first published. v0.3.0 through v0.3.2 retain their original
+prerelease channels. Unknown versions are rejected until their policy and
+accepted runtime hash are registered. This workflow does not publish to PyPI or
+enable GitHub's immutable-release repository setting.
 Only accepted, source-bound runtime improvements enter a release; rejected
 research candidates are not enabled by packaging. Published tags stay fixed.
 
@@ -12,7 +16,10 @@ README installation links and `docs/releases/vVERSION.md` together. Commit all
 changes, including the release tooling, on a preparation branch. Wait for the
 existing **Tests** workflow to complete all nine jobs successfully on that exact
 commit. These include three core Python versions, MCP, the browser, three
-platform installers and the container. No benchmark is part of this release gate.
+platform installers and the container. Benchmark acceptance precedes this
+packaging gate: register the v0.3.3 runtime hash only after the committed
+round-five acceptance report passes or a separately documented permitted
+resource review is completed. Packaging never repeats a benchmark.
 
 Fast-forward `main` to that same tested commit. Only after it is ready, create
 the branch `release/vVERSION` at exactly that SHA. The push starts
@@ -95,8 +102,10 @@ Before resuming a draft, every existing asset must have an expected name, an
 uploaded state, the expected size and the exact downloaded SHA-256. Extra,
 partial or different assets fail closed and remain available for inspection.
 Only missing assets are uploaded, without `--clobber`. After all seven are
-downloaded and verified, the draft is made public as a prerelease. The script
-then checks the published state, tag and downloaded asset bytes again.
+downloaded and verified, the draft is made public in its registered channel.
+The script then checks the published state, tag and downloaded asset bytes
+again. A new normal release also receives a bounded GET-only Latest check;
+no failed visibility check causes a second publication write.
 
 The workflow preserves built assets and final notes through an `always()`
 artifact step. If publication fails while the release is still a matching draft,
@@ -105,7 +114,7 @@ rebuilding must match existing bytes. Do not delete or replace mismatched assets
 to bypass the check. If publication succeeded but its final verification was
 interrupted, rerunning the publishing job takes a **read-only reconciliation**
 path: it checks the same main/CI/tag/source gates, rebuilds deterministic local
-assets, verifies the public prerelease and all seven downloaded hashes, and
+assets, verifies the registered public release channel and all seven downloaded hashes, and
 restores job outputs. It never edits, recreates, uploads to or republishes that
 public release.
 
