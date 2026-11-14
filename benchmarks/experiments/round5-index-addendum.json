@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "status": "registered-before-candidate-c-measurement",
+  "baseline_release": "v0.3.2",
+  "reason": "Candidates A and B preserved complete output but did not provide sufficiently robust development speed gains. Public profiling attributes about half the recall time to SQL; FTS routes repeatedly read a wide pages table only for small identity/scope columns.",
+  "hypothesis": "An additive narrow SQLite covering index on pages(rid,id,project_id,chapter_id,session_pk), used by the existing candidate-route and directory-metadata queries, can reduce wide-table page reads while preserving all query filters, global BM25 scores, deterministic ordering and candidate limits.",
+  "allowed_changes": [
+    "Create the derived index with CREATE INDEX IF NOT EXISTS for new and existing archives.",
+    "Use INDEXED BY only where this index covers the existing metadata read; retain final source/body reads.",
+    "Retain candidate B's reviewed exact-output work reductions.",
+    "Keep table contents, revision counters, cache identities, FTS tokenization, source maps, source transactions, Q2 vectors, scopes, ORDER BY and LIMIT unchanged."
+  ],
+  "compatibility_checks": [
+    "Opening an existing archive creates the index without rewriting original evidence or revision.",
+    "Older code can still open the archive; normal SQLite writes maintain the derived index.",
+    "Full outputs, scope-before-LIMIT, deterministic ties, external writers and original-source integrity remain checked.",
+    "Record index bytes, startup/index creation and ingestion/RSS costs alongside query results."
+  ],
+  "unchanged_acceptance": "The committed round5-plan.json 56784-call ABBA matrix and all numeric/resource gates remain unchanged. No formal run has begun. Do not treat development results as acceptance; retain all A/B/cache experiments and negative cells.",
+  "sqlite_cache": "The 4/8 MiB cache exploration remains separate. No cache-size change is included in this covering-index hypothesis."
+}
