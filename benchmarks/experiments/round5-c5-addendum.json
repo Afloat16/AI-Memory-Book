@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "protocol": "v033-c5-exact-count-memo-continuation-v1",
+  "registered_at_utc": "2026-11-14T03:17:31.115799+00:00",
+  "status": "registered-before-c5-implementation-and-timing",
+  "baseline": {
+    "release": "v0.3.2",
+    "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+    "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+  },
+  "rejected_c3": {
+    "commit": "1c9a6d3f611608e8dbce8e729fdd3099513d80e6",
+    "runtime_sha256": "7a927601b5ce710059d5a2640b3642c58a2bd4985d9ccdc48f69159938ee3623",
+    "formal_run": "43547085915-1",
+    "result_commit": "e0c30deb7cdae18bb19c83534646630dfb3f673b",
+    "aggregate_p95_gain_percent": 10.499586026010144,
+    "public_native_best_gain_percent": 10.482574154140579,
+    "public_mcp_token1024_gain_percent": 5.146962001519862,
+    "decision": "numeric gate failed; preserve all complete original observations and never rerun this source to select a faster sample"
+  },
+  "prior_c4": {
+    "commit": "0141adf1dde6cd69cf96d8eea23f4b6ebab36477",
+    "runtime_sha256": "1c7c644c5187332e6fb5034fef0e232b5c1ae1e5f352b53fea90f7fd8acc4fb3",
+    "development_report": "benchmarks/reports/round5-development/candidate-c4-full/summary.json",
+    "development_archive_commit": "e439c226cc2d422b44007dedd25aa750a62f88a9",
+    "calls": 18928,
+    "version_pairs": 9464,
+    "decision": "Complete development comparison retained, insufficient public token speed margin. C4 formal runner/workflow were prepared but never bound or executed. No same-source timing retry."
+  },
+  "substantive_change": [
+    "Retain C4 metadata pruning and existing C3 exact suffix, covering-index and bounded SQLite pager work. Add one lazy bounded memo of exact full text token counts owned by each MemoryBook.",
+    "This explicitly extends C4's no-persistent-feature-cache scope. Query-result caching remains disabled/cleared exactly as before; derived token-count reuse is enabled in ordinary product behavior and measured as part of the candidate.",
+    "For certified ordinary TokenCounter instances, eligible exact native str inputs beginning with [ and containing LF plus nonempty evidence may reuse the count of the complete unchanged text with the same certified Encoding/CoreBPE objects. No normalization, digest-only keys, page identifiers or retrieved-result reuse.",
+    "Implement inside the ordinary count method, without replacing it or altering downstream sealed-boundary method identity. Preserve all SQL retrieval, source corruption checks, assembly, provenance, score, budget and response behavior.",
+    "Use a shared LRU for both tokenizer names, at most 2048 entries and 2097152 retained text-object bytes per MemoryBook. Measure sys.getsizeof(text) after successful encoding. Oversized text bypasses storage without flushing normal entries. Container/key/value/encoder overhead is separately disclosed and actual RSS remains measured.",
+    "Retain exact Encoding/CoreBPE object identities; identity changes invalidate memo generation and sealing certification. Check identity again before insertion. Unknown versions/patterns, customized class/instance methods, subclass counters/text and uncertified implementations use the original exact path. Do not retain an unbounded history of encoder generations.",
+    "Lazily allocate only for token-budget recalls. Standalone TokenCounter without a connection memo retains its old behavior. Clear retained text at MemoryBook.close, including exceptional close cleanup. Encoding errors are never memoized."
+  ],
+  "invariants": [
+    "Unchanged route SQL limits/global BM25, lexical normalization, fusion arithmetic, scopes, source text/addresses, final score expressions and top-K tie order.",
+    "Unchanged source corruption checks, source snapshots, exact character/token budgets, MCP payload/envelope, result-cache behavior, schema version and dependency requirements.",
+    "Exact complete non-timing payload equivalence against published v0.3.2, including candidate_count and truncated, across retained regression configurations."
+  ],
+  "cache_policy": {
+    "kind": "derived-exact-token-count-only",
+    "entry_limit": 2048,
+    "retained_text_object_byte_limit": 2097152,
+    "ownership": "one MemoryBook connection; both encoders share limits",
+    "capacity_choice_evidence": "benchmarks/reports/round5-development/c5-preregistration/capacity-extension.json",
+    "cold_warm_boundary": "Preserve original connection lifecycles, configuration order and shuffled query orders. Each fresh connection starts empty; native later token configurations can reuse prior counts on that connection. Each actual MCP configuration starts a fresh official server process. No extra prewarming, no discarded first queries, and no selective cache clearing.",
+    "diagnostics": "Save native memo state before/after every configuration outside timing, including start/hits/misses/evictions/entries/text bytes and cold-prefix observations where available. Preserve original actual SDK MCP command, protocol and measured envelope; private memo counters are not exposed over MCP. Its cold process boundary and actual process RSS are recorded. Do not describe this experiment as disabling every cache."
+  },
+  "development_protocol": {
+    "plan": "benchmarks/experiments/round5-c5-development-plan.json",
+    "calls": 18928,
+    "version_pairs": 9464,
+    "requirements": [
+      "Before timing, verify first count/hit/LRU bounds, both encoders, exact Unicode/special-token text, oversized and exceptional cases, identity/custom fallbacks, close cleanup and source corruption after memo warming.",
+      "Commit exact C5 runtime and tests, then run one full native development invocation with both complete old cohorts, all four configurations and AB/BA rounds. Save every worker and adverse observation. A source fix after a failed run requires a new explicitly registered source/attempt.",
+      "Verify final-source historical Hotpot256 default complete payload compatibility before release; do not relabel C3 compatibility or old competitor timing as C5 evidence."
+    ]
+  },
+  "formal_protocol": {
+    "matrix_plan": "benchmarks/experiments/round5-plan.json",
+    "calls": 56784,
+    "rounds": 4,
+    "order": [
+      "AB",
+      "BA",
+      "BA",
+      "AB"
+    ],
+    "thresholds_percent": {
+      "geometric_mean_p95_improvement": 10,
+      "at_least_one_public_native_token_p95_improvement": 15,
+      "public_mcp_token1024_p95_improvement": 10,
+      "maximum_pooled_p50_p95_regression": 5,
+      "resource_mean_increase_review": 10
+    },
+    "evaluator": "A separately named C5 runner/workflow adapts source/provenance/path/claim registration and adds read-only native memo diagnostics outside timing. Retain frozen original measurement arithmetic, datasets, configurations, ABBA order, equality and all numerical gates. Keep C3 and C4 evaluator files unchanged.",
+    "binding": "Commit final materially changed C5 source, evaluator and tests, then create and commit one new C5 binding before its sole exclusive formal execution.",
+    "decision": "All correctness and numeric gates must pass; any resource trigger needs explicit independent review. No earlier source gain substitutes for a missing C5 gate."
+  },
+  "release": "No v0.3.3 runtime approval, main advance or release branch until final acceptance and exact-source nine-job CI."
+}

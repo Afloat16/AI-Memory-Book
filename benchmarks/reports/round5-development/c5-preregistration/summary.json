@@ -1,0 +1,718 @@
+{
+  "status": "completed",
+  "source_report": ".artifacts/round5-c5-token-reuse-probe.json",
+  "source_report_sha256": "277f468fc7901ef2fbc7ca40118f9576ba9edcdc885b22b10e271b495cdf2de7",
+  "runtime_sha256": "1c7c644c5187332e6fb5034fef0e232b5c1ae1e5f352b53fea90f7fd8acc4fb3",
+  "queries": 1015,
+  "payload_mismatches": 0,
+  "boundary": "One real original-count trace; this summary only replays saved observations. No new retrieval or BPE encoding. Instrumented count-duration hits estimate removed work, not end-to-end speedup.",
+  "memory_correction": "Original trace charges str size measured before actual encoding. A native encode may create a UTF8 side cache. Conservative replay charges pre-encode size + UTF8 bytes + 1 for every stored text, even ASCII/already-cached text; it may overcharge but cannot inflate reuse from undercounting that allocation. Production must measure actual str size after encoding. OrderedDict/key/value/encoder overhead remains outside this text-only cap.",
+  "totals": {
+    "utf8_bytes": 3225019,
+    "count_duration_ns": 459467674,
+    "count_calls": 7346,
+    "eligible_calls": 5127,
+    "eligible_utf8_bytes": 3215505,
+    "eligible_count_duration_ns": 451084270
+  },
+  "conservative_simulations": [
+    {
+      "label": "256-entries-1048576-text-object-bytes",
+      "entry_limit": 256,
+      "text_object_byte_limit": 1048576,
+      "hit_calls": 929,
+      "hit_utf8_bytes": 595438,
+      "hit_count_duration_ns": 86913727,
+      "evictions": 3942,
+      "peak_entries": 256,
+      "peak_text_object_bytes": 357702,
+      "cold_prefixes": {
+        "1": {
+          "hit_calls": 0,
+          "hit_count_duration_ns": 0,
+          "entries": 5,
+          "text_object_bytes": 7040
+        },
+        "10": {
+          "hit_calls": 0,
+          "hit_count_duration_ns": 0,
+          "entries": 51,
+          "text_object_bytes": 74727
+        },
+        "50": {
+          "hit_calls": 20,
+          "hit_count_duration_ns": 1399768,
+          "entries": 232,
+          "text_object_bytes": 307784
+        },
+        "100": {
+          "hit_calls": 63,
+          "hit_count_duration_ns": 4904908,
+          "entries": 256,
+          "text_object_bytes": 335041
+        },
+        "256": {
+          "hit_calls": 193,
+          "hit_count_duration_ns": 16139456,
+          "entries": 256,
+          "text_object_bytes": 340569
+        },
+        "512": {
+          "hit_calls": 449,
+          "hit_count_duration_ns": 39825360,
+          "entries": 256,
+          "text_object_bytes": 351594
+        },
+        "1015": {
+          "hit_calls": 929,
+          "hit_count_duration_ns": 86913727,
+          "entries": 256,
+          "text_object_bytes": 350699
+        }
+      },
+      "hit_fraction_all_count_duration_percent": 18.916178856142988,
+      "hit_fraction_eligible_calls_percent": 18.119758143163644,
+      "hit_fraction_utf8_bytes_percent": 18.46308502368513
+    },
+    {
+      "label": "512-entries-1048576-text-object-bytes",
+      "entry_limit": 512,
+      "text_object_byte_limit": 1048576,
+      "hit_calls": 1664,
+      "hit_utf8_bytes": 1060787,
+      "hit_count_duration_ns": 154020513,
+      "evictions": 2951,
+      "peak_entries": 512,
+      "peak_text_object_bytes": 703677,
+      "cold_prefixes": {
+        "1": {
+          "hit_calls": 0,
+          "hit_count_duration_ns": 0,
+          "entries": 5,
+          "text_object_bytes": 7040
+        },
+        "10": {
+          "hit_calls": 0,
+          "hit_count_duration_ns": 0,
+          "entries": 51,
+          "text_object_bytes": 74727
+        },
+        "50": {
+          "hit_calls": 20,
+          "hit_count_duration_ns": 1399768,
+          "entries": 232,
+          "text_object_bytes": 307784
+        },
+        "100": {
+          "hit_calls": 75,
+          "hit_count_duration_ns": 5867064,
+          "entries": 434,
+          "text_object_bytes": 575246
+        },
+        "256": {
+          "hit_calls": 335,
+          "hit_count_duration_ns": 31753200,
+          "entries": 512,
+          "text_object_bytes": 677157
+        },
+        "512": {
+          "hit_calls": 806,
+          "hit_count_duration_ns": 72114643,
+          "entries": 512,
+          "text_object_bytes": 694649
+        },
+        "1015": {
+          "hit_calls": 1664,
+          "hit_count_duration_ns": 154020513,
+          "entries": 512,
+          "text_object_bytes": 685630
+        }
+      },
+      "hit_fraction_all_count_duration_percent": 33.521512331681464,
+      "hit_fraction_eligible_calls_percent": 32.455627072362006,
+      "hit_fraction_utf8_bytes_percent": 32.89242637020123
+    },
+    {
+      "label": "512-entries-2097152-text-object-bytes",
+      "entry_limit": 512,
+      "text_object_byte_limit": 2097152,
+      "hit_calls": 1664,
+      "hit_utf8_bytes": 1060787,
+      "hit_count_duration_ns": 154020513,
+      "evictions": 2951,
+      "peak_entries": 512,
+      "peak_text_object_bytes": 703677,
+      "cold_prefixes": {
+        "1": {
+          "hit_calls": 0,
+          "hit_count_duration_ns": 0,
+          "entries": 5,
+          "text_object_bytes": 7040
+        },
+        "10": {
+          "hit_calls": 0,
+          "hit_count_duration_ns": 0,
+          "entries": 51,
+          "text_object_bytes": 74727
+        },
+        "50": {
+          "hit_calls": 20,
+          "hit_count_duration_ns": 1399768,
+          "entries": 232,
+          "text_object_bytes": 307784
+        },
+        "100": {
+          "hit_calls": 75,
+          "hit_count_duration_ns": 5867064,
+          "entries": 434,
+          "text_object_bytes": 575246
+        },
+        "256": {
+          "hit_calls": 335,
+          "hit_count_duration_ns": 31753200,
+          "entries": 512,
+          "text_object_bytes": 677157
+        },
+        "512": {
+          "hit_calls": 806,
+          "hit_count_duration_ns": 72114643,
+          "entries": 512,
+          "text_object_bytes": 694649
+        },
+        "1015": {
+          "hit_calls": 1664,
+          "hit_count_duration_ns": 154020513,
+          "entries": 512,
+          "text_object_bytes": 685630
+        }
+      },
+      "hit_fraction_all_count_duration_percent": 33.521512331681464,
+      "hit_fraction_eligible_calls_percent": 32.455627072362006,
+      "hit_fraction_utf8_bytes_percent": 32.89242637020123
+    },
+    {
+      "label": "1024-entries-4194304-text-object-bytes",
+      "entry_limit": 1024,
+      "text_object_byte_limit": 4194304,
+      "hit_calls": 2747,
+      "hit_utf8_bytes": 1759868,
+      "hit_count_duration_ns": 253986343,
+      "evictions": 1356,
+      "peak_entries": 1024,
+      "peak_text_object_bytes": 1378826,
+      "cold_prefixes": {
+        "1": {
+          "hit_calls": 0,
+          "hit_count_duration_ns": 0,
+          "entries": 5,
+          "text_object_bytes": 7040
+        },
+        "10": {
+          "hit_calls": 0,
+          "hit_count_duration_ns": 0,
+          "entries": 51,
+          "text_object_bytes": 74727
+        },
+        "50": {
+          "hit_calls": 20,
+          "hit_count_duration_ns": 1399768,
+          "entries": 232,
+          "text_object_bytes": 307784
+        },
+        "100": {
+          "hit_calls": 75,
+          "hit_count_duration_ns": 5867064,
+          "entries": 434,
+          "text_object_bytes": 575246
+        },
+        "256": {
+          "hit_calls": 410,
+          "hit_count_duration_ns": 38993762,
+          "entries": 888,
+          "text_object_bytes": 1165341
+        },
+        "512": {
+          "hit_calls": 1194,
+          "hit_count_duration_ns": 104585112,
+          "entries": 1024,
+          "text_object_bytes": 1357991
+        },
+        "1015": {
+          "hit_calls": 2747,
+          "hit_count_duration_ns": 253986343,
+          "entries": 1024,
+          "text_object_bytes": 1374863
+        }
+      },
+      "hit_fraction_all_count_duration_percent": 55.278392229177804,
+      "hit_fraction_eligible_calls_percent": 53.579091086405306,
+      "hit_fraction_utf8_bytes_percent": 54.569228894465425
+    }
+  ],
+  "original_simulations": {
+    "256-entries-1048576-text-object-bytes": {
+      "hit_calls": 929,
+      "hit_utf8_bytes": 595438,
+      "hit_count_duration_ns": 86913727,
+      "evictions": 3942,
+      "oversized": 0,
+      "peak_entries": 256,
+      "peak_text_object_bytes": 193819,
+      "peak_container_bytes": 34960,
+      "current_entries": 256,
+      "current_text_object_bytes": 187833,
+      "entry_limit": 256,
+      "text_object_byte_limit": 1048576
+    },
+    "512-entries-1048576-text-object-bytes": {
+      "hit_calls": 1664,
+      "hit_utf8_bytes": 1060787,
+      "hit_count_duration_ns": 154020513,
+      "evictions": 2951,
+      "oversized": 0,
+      "peak_entries": 512,
+      "peak_text_object_bytes": 379360,
+      "peak_container_bytes": 69784,
+      "current_entries": 512,
+      "current_text_object_bytes": 364651,
+      "entry_limit": 512,
+      "text_object_byte_limit": 1048576
+    },
+    "512-entries-2097152-text-object-bytes": {
+      "hit_calls": 1664,
+      "hit_utf8_bytes": 1060787,
+      "hit_count_duration_ns": 154020513,
+      "evictions": 2951,
+      "oversized": 0,
+      "peak_entries": 512,
+      "peak_text_object_bytes": 379360,
+      "peak_container_bytes": 69784,
+      "current_entries": 512,
+      "current_text_object_bytes": 364651,
+      "entry_limit": 512,
+      "text_object_byte_limit": 2097152
+    },
+    "1024-entries-4194304-text-object-bytes": {
+      "hit_calls": 2747,
+      "hit_utf8_bytes": 1759868,
+      "hit_count_duration_ns": 253986343,
+      "evictions": 1356,
+      "oversized": 0,
+      "peak_entries": 1024,
+      "peak_text_object_bytes": 737273,
+      "peak_container_bytes": 139408,
+      "current_entries": 1024,
+      "current_text_object_bytes": 734290,
+      "entry_limit": 1024,
+      "text_object_byte_limit": 4194304
+    }
+  },
+  "original_cold_prefixes": {
+    "1": {
+      "256-entries-1048576-text-object-bytes": {
+        "hit_calls": 0,
+        "hit_utf8_bytes": 0,
+        "hit_count_duration_ns": 0,
+        "evictions": 0,
+        "oversized": 0,
+        "peak_entries": 5,
+        "peak_text_object_bytes": 3620,
+        "peak_container_bytes": 512,
+        "current_entries": 5,
+        "current_text_object_bytes": 3620,
+        "entry_limit": 256,
+        "text_object_byte_limit": 1048576
+      },
+      "512-entries-1048576-text-object-bytes": {
+        "hit_calls": 0,
+        "hit_utf8_bytes": 0,
+        "hit_count_duration_ns": 0,
+        "evictions": 0,
+        "oversized": 0,
+        "peak_entries": 5,
+        "peak_text_object_bytes": 3620,
+        "peak_container_bytes": 512,
+        "current_entries": 5,
+        "current_text_object_bytes": 3620,
+        "entry_limit": 512,
+        "text_object_byte_limit": 1048576
+      },
+      "512-entries-2097152-text-object-bytes": {
+        "hit_calls": 0,
+        "hit_utf8_bytes": 0,
+        "hit_count_duration_ns": 0,
+        "evictions": 0,
+        "oversized": 0,
+        "peak_entries": 5,
+        "peak_text_object_bytes": 3620,
+        "peak_container_bytes": 512,
+        "current_entries": 5,
+        "current_text_object_bytes": 3620,
+        "entry_limit": 512,
+        "text_object_byte_limit": 2097152
+      },
+      "1024-entries-4194304-text-object-bytes": {
+        "hit_calls": 0,
+        "hit_utf8_bytes": 0,
+        "hit_count_duration_ns": 0,
+        "evictions": 0,
+        "oversized": 0,
+        "peak_entries": 5,
+        "peak_text_object_bytes": 3620,
+        "peak_container_bytes": 512,
+        "current_entries": 5,
+        "current_text_object_bytes": 3620,
+        "entry_limit": 1024,
+        "text_object_byte_limit": 4194304
+      }
+    },
+    "10": {
+      "256-entries-1048576-text-object-bytes": {
+        "hit_calls": 0,
+        "hit_utf8_bytes": 0,
+        "hit_count_duration_ns": 0,
+        "evictions": 0,
+        "oversized": 0,
+        "peak_entries": 51,
+        "peak_text_object_bytes": 39956,
+        "peak_container_bytes": 4984,
+        "current_entries": 51,
+        "current_text_object_bytes": 39956,
+        "entry_limit": 256,
+        "text_object_byte_limit": 1048576
+      },
+      "512-entries-1048576-text-object-bytes": {
+        "hit_calls": 0,
+        "hit_utf8_bytes": 0,
+        "hit_count_duration_ns": 0,
+        "evictions": 0,
+        "oversized": 0,
+        "peak_entries": 51,
+        "peak_text_object_bytes": 39956,
+        "peak_container_bytes": 4984,
+        "current_entries": 51,
+        "current_text_object_bytes": 39956,
+        "entry_limit": 512,
+        "text_object_byte_limit": 1048576
+      },
+      "512-entries-2097152-text-object-bytes": {
+        "hit_calls": 0,
+        "hit_utf8_bytes": 0,
+        "hit_count_duration_ns": 0,
+        "evictions": 0,
+        "oversized": 0,
+        "peak_entries": 51,
+        "peak_text_object_bytes": 39956,
+        "peak_container_bytes": 4984,
+        "current_entries": 51,
+        "current_text_object_bytes": 39956,
+        "entry_limit": 512,
+        "text_object_byte_limit": 2097152
+      },
+      "1024-entries-4194304-text-object-bytes": {
+        "hit_calls": 0,
+        "hit_utf8_bytes": 0,
+        "hit_count_duration_ns": 0,
+        "evictions": 0,
+        "oversized": 0,
+        "peak_entries": 51,
+        "peak_text_object_bytes": 39956,
+        "peak_container_bytes": 4984,
+        "current_entries": 51,
+        "current_text_object_bytes": 39956,
+        "entry_limit": 1024,
+        "text_object_byte_limit": 4194304
+      }
+    },
+    "50": {
+      "256-entries-1048576-text-object-bytes": {
+        "hit_calls": 20,
+        "hit_utf8_bytes": 11020,
+        "hit_count_duration_ns": 1399768,
+        "evictions": 0,
+        "oversized": 0,
+        "peak_entries": 232,
+        "peak_text_object_bytes": 162313,
+        "peak_container_bytes": 20888,
+        "current_entries": 232,
+        "current_text_object_bytes": 162313,
+        "entry_limit": 256,
+        "text_object_byte_limit": 1048576
+      },
+      "512-entries-1048576-text-object-bytes": {
+        "hit_calls": 20,
+        "hit_utf8_bytes": 11020,
+        "hit_count_duration_ns": 1399768,
+        "evictions": 0,
+        "oversized": 0,
+        "peak_entries": 232,
+        "peak_text_object_bytes": 162313,
+        "peak_container_bytes": 20888,
+        "current_entries": 232,
+        "current_text_object_bytes": 162313,
+        "entry_limit": 512,
+        "text_object_byte_limit": 1048576
+      },
+      "512-entries-2097152-text-object-bytes": {
+        "hit_calls": 20,
+        "hit_utf8_bytes": 11020,
+        "hit_count_duration_ns": 1399768,
+        "evictions": 0,
+        "oversized": 0,
+        "peak_entries": 232,
+        "peak_text_object_bytes": 162313,
+        "peak_container_bytes": 20888,
+        "current_entries": 232,
+        "current_text_object_bytes": 162313,
+        "entry_limit": 512,
+        "text_object_byte_limit": 2097152
+      },
+      "1024-entries-4194304-text-object-bytes": {
+        "hit_calls": 20,
+        "hit_utf8_bytes": 11020,
+        "hit_count_duration_ns": 1399768,
+        "evictions": 0,
+        "oversized": 0,
+        "peak_entries": 232,
+        "peak_text_object_bytes": 162313,
+        "peak_container_bytes": 20888,
+        "current_entries": 232,
+        "current_text_object_bytes": 162313,
+        "entry_limit": 1024,
+        "text_object_byte_limit": 4194304
+      }
+    },
+    "100": {
+      "256-entries-1048576-text-object-bytes": {
+        "hit_calls": 63,
+        "hit_utf8_bytes": 38061,
+        "hit_count_duration_ns": 4904908,
+        "evictions": 190,
+        "oversized": 0,
+        "peak_entries": 256,
+        "peak_text_object_bytes": 179277,
+        "peak_container_bytes": 34960,
+        "current_entries": 256,
+        "current_text_object_bytes": 177177,
+        "entry_limit": 256,
+        "text_object_byte_limit": 1048576
+      },
+      "512-entries-1048576-text-object-bytes": {
+        "hit_calls": 75,
+        "hit_utf8_bytes": 45206,
+        "hit_count_duration_ns": 5867064,
+        "evictions": 0,
+        "oversized": 0,
+        "peak_entries": 434,
+        "peak_text_object_bytes": 303817,
+        "peak_container_bytes": 40656,
+        "current_entries": 434,
+        "current_text_object_bytes": 303817,
+        "entry_limit": 512,
+        "text_object_byte_limit": 1048576
+      },
+      "512-entries-2097152-text-object-bytes": {
+        "hit_calls": 75,
+        "hit_utf8_bytes": 45206,
+        "hit_count_duration_ns": 5867064,
+        "evictions": 0,
+        "oversized": 0,
+        "peak_entries": 434,
+        "peak_text_object_bytes": 303817,
+        "peak_container_bytes": 40656,
+        "current_entries": 434,
+        "current_text_object_bytes": 303817,
+        "entry_limit": 512,
+        "text_object_byte_limit": 2097152
+      },
+      "1024-entries-4194304-text-object-bytes": {
+        "hit_calls": 75,
+        "hit_utf8_bytes": 45206,
+        "hit_count_duration_ns": 5867064,
+        "evictions": 0,
+        "oversized": 0,
+        "peak_entries": 434,
+        "peak_text_object_bytes": 303817,
+        "peak_container_bytes": 40656,
+        "current_entries": 434,
+        "current_text_object_bytes": 303817,
+        "entry_limit": 1024,
+        "text_object_byte_limit": 4194304
+      }
+    },
+    "256": {
+      "256-entries-1048576-text-object-bytes": {
+        "hit_calls": 193,
+        "hit_utf8_bytes": 119542,
+        "hit_count_duration_ns": 16139456,
+        "evictions": 849,
+        "oversized": 0,
+        "peak_entries": 256,
+        "peak_text_object_bytes": 185091,
+        "peak_container_bytes": 34960,
+        "current_entries": 256,
+        "current_text_object_bytes": 180567,
+        "entry_limit": 256,
+        "text_object_byte_limit": 1048576
+      },
+      "512-entries-1048576-text-object-bytes": {
+        "hit_calls": 335,
+        "hit_utf8_bytes": 206922,
+        "hit_count_duration_ns": 31753200,
+        "evictions": 451,
+        "oversized": 0,
+        "peak_entries": 512,
+        "peak_text_object_bytes": 360932,
+        "peak_container_bytes": 69784,
+        "current_entries": 512,
+        "current_text_object_bytes": 358971,
+        "entry_limit": 512,
+        "text_object_byte_limit": 1048576
+      },
+      "512-entries-2097152-text-object-bytes": {
+        "hit_calls": 335,
+        "hit_utf8_bytes": 206922,
+        "hit_count_duration_ns": 31753200,
+        "evictions": 451,
+        "oversized": 0,
+        "peak_entries": 512,
+        "peak_text_object_bytes": 360932,
+        "peak_container_bytes": 69784,
+        "current_entries": 512,
+        "current_text_object_bytes": 358971,
+        "entry_limit": 512,
+        "text_object_byte_limit": 2097152
+      },
+      "1024-entries-4194304-text-object-bytes": {
+        "hit_calls": 410,
+        "hit_utf8_bytes": 255828,
+        "hit_count_duration_ns": 38993762,
+        "evictions": 0,
+        "oversized": 0,
+        "peak_entries": 888,
+        "peak_text_object_bytes": 616698,
+        "peak_container_bytes": 81816,
+        "current_entries": 888,
+        "current_text_object_bytes": 616698,
+        "entry_limit": 1024,
+        "text_object_byte_limit": 4194304
+      }
+    },
+    "512": {
+      "256-entries-1048576-text-object-bytes": {
+        "hit_calls": 449,
+        "hit_utf8_bytes": 286946,
+        "hit_count_duration_ns": 39825360,
+        "evictions": 1883,
+        "oversized": 0,
+        "peak_entries": 256,
+        "peak_text_object_bytes": 190866,
+        "peak_container_bytes": 34960,
+        "current_entries": 256,
+        "current_text_object_bytes": 188347,
+        "entry_limit": 256,
+        "text_object_byte_limit": 1048576
+      },
+      "512-entries-1048576-text-object-bytes": {
+        "hit_calls": 806,
+        "hit_utf8_bytes": 511579,
+        "hit_count_duration_ns": 72114643,
+        "evictions": 1270,
+        "oversized": 0,
+        "peak_entries": 512,
+        "peak_text_object_bytes": 374007,
+        "peak_container_bytes": 69784,
+        "current_entries": 512,
+        "current_text_object_bytes": 373398,
+        "entry_limit": 512,
+        "text_object_byte_limit": 1048576
+      },
+      "512-entries-2097152-text-object-bytes": {
+        "hit_calls": 806,
+        "hit_utf8_bytes": 511579,
+        "hit_count_duration_ns": 72114643,
+        "evictions": 1270,
+        "oversized": 0,
+        "peak_entries": 512,
+        "peak_text_object_bytes": 374007,
+        "peak_container_bytes": 69784,
+        "current_entries": 512,
+        "current_text_object_bytes": 373398,
+        "entry_limit": 512,
+        "text_object_byte_limit": 2097152
+      },
+      "1024-entries-4194304-text-object-bytes": {
+        "hit_calls": 1194,
+        "hit_utf8_bytes": 764185,
+        "hit_count_duration_ns": 104585112,
+        "evictions": 370,
+        "oversized": 0,
+        "peak_entries": 1024,
+        "peak_text_object_bytes": 726509,
+        "peak_container_bytes": 139408,
+        "current_entries": 1024,
+        "current_text_object_bytes": 723265,
+        "entry_limit": 1024,
+        "text_object_byte_limit": 4194304
+      }
+    },
+    "1015": {
+      "256-entries-1048576-text-object-bytes": {
+        "hit_calls": 929,
+        "hit_utf8_bytes": 595438,
+        "hit_count_duration_ns": 86913727,
+        "evictions": 3942,
+        "oversized": 0,
+        "peak_entries": 256,
+        "peak_text_object_bytes": 193819,
+        "peak_container_bytes": 34960,
+        "current_entries": 256,
+        "current_text_object_bytes": 187833,
+        "entry_limit": 256,
+        "text_object_byte_limit": 1048576
+      },
+      "512-entries-1048576-text-object-bytes": {
+        "hit_calls": 1664,
+        "hit_utf8_bytes": 1060787,
+        "hit_count_duration_ns": 154020513,
+        "evictions": 2951,
+        "oversized": 0,
+        "peak_entries": 512,
+        "peak_text_object_bytes": 379360,
+        "peak_container_bytes": 69784,
+        "current_entries": 512,
+        "current_text_object_bytes": 364651,
+        "entry_limit": 512,
+        "text_object_byte_limit": 1048576
+      },
+      "512-entries-2097152-text-object-bytes": {
+        "hit_calls": 1664,
+        "hit_utf8_bytes": 1060787,
+        "hit_count_duration_ns": 154020513,
+        "evictions": 2951,
+        "oversized": 0,
+        "peak_entries": 512,
+        "peak_text_object_bytes": 379360,
+        "peak_container_bytes": 69784,
+        "current_entries": 512,
+        "current_text_object_bytes": 364651,
+        "entry_limit": 512,
+        "text_object_byte_limit": 2097152
+      },
+      "1024-entries-4194304-text-object-bytes": {
+        "hit_calls": 2747,
+        "hit_utf8_bytes": 1759868,
+        "hit_count_duration_ns": 253986343,
+        "evictions": 1356,
+        "oversized": 0,
+        "peak_entries": 1024,
+        "peak_text_object_bytes": 737273,
+        "peak_container_bytes": 139408,
+        "current_entries": 1024,
+        "current_text_object_bytes": 734290,
+        "entry_limit": 1024,
+        "text_object_byte_limit": 4194304
+      }
+    }
+  }
+}
