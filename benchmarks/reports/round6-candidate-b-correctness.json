@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "candidate": "B",
+  "runtime_sha256": "01ce749679af461d03c3499d5423ffa82d73fe190fb318327301b58a643edf52",
+  "runtime_python_files": 17,
+  "files": {
+    "src/memory_book/store.py": {
+      "sha256": "7e9870509c2a98d21dc214ebe14c8adf53a5f2145d5d989a2cd165d9101bcccf",
+      "bytes": 85192
+    },
+    "tests/test_round6_dense_rank.py": {
+      "sha256": "379efb94662daf2a57975701d63b9e46f4ee99b545ea57f58da0beed3b5cd8a4",
+      "bytes": 15141
+    }
+  },
+  "no_performance_measurements": true,
+  "verification": [
+    {
+      "stage": "initial-environment",
+      "command": ".venv/bin/python -m unittest tests.test_round6_recall_work.AtomicInitializationTests -v",
+      "status": "import_failed_without_PYTHONPATH",
+      "error": "ModuleNotFoundError: No module named memory_book",
+      "product_calls": 0
+    },
+    {
+      "stage": "atomic-before-connector-fix",
+      "tests": 4,
+      "passed": 4
+    },
+    {
+      "stage": "initial-dense-fixtures",
+      "tests": 14,
+      "passed": 13,
+      "errors": 1,
+      "reason": "Temporary shadow view correctly selected legacy SQL, whose INDEXED BY raised the pre-existing no such index error; corrected fixture to compare equal exceptions."
+    },
+    {
+      "stage": "related-regressions-before-connector-fix",
+      "command": "PYTHONPATH=src .venv/bin/python -m unittest tests.test_round6_dense_rank tests.test_round6_recall_work tests.test_round5_candidate_c4 tests.test_round5_candidate_c6 tests.test_round5_covering_index tests.test_round5_recall_work tests.test_index_migration tests.test_core -v",
+      "tests": 119,
+      "passed": 118,
+      "errors": 1,
+      "failed_test": "tests.test_round5_candidate_c6.OriginalTurnBatchTests.test_absent_getlimit_and_custom_factories_keep_original_queries",
+      "error": "TypeError: _sqlite3.connect() got multiple values for keyword argument factory",
+      "fix": "Inject the private factory only for the captured native builtin connect; customized connectors retain their original call arguments."
+    },
+    {
+      "stage": "after-connector-fix",
+      "command": "PYTHONPATH=src .venv/bin/python -m unittest tests.test_round6_dense_rank tests.test_round5_candidate_c6.OriginalTurnBatchTests.test_absent_getlimit_and_custom_factories_keep_original_queries tests.test_round6_recall_work.AtomicInitializationTests -v",
+      "tests": 19,
+      "passed": 19
+    },
+    {
+      "stage": "explicit-custom-bm25-registration-assertion",
+      "tests": 1,
+      "passed": 1
+    },
+    {
+      "stage": "after-per-route-customization-recheck",
+      "tests": 14,
+      "passed": 14,
+      "reason": "Recheck adapter/customization state at each route entry, before any new SQL, as well as before rebinding its ranks."
+    }
+  ],
+  "diff_check": "passed",
+  "prior_runtime_sha256": "c3492e3768ded967379c6c1bc9a06ac0d34b7578330c462b6bcb9fafa866b9aa"
+}

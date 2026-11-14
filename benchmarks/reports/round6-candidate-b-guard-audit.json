@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "audit": "round6-candidate-b-independent-guards",
+  "created_at": "2026-11-14T12:37:12.021457+00:00",
+  "candidate": "B",
+  "runtime_sha256": "01ce749679af461d03c3499d5423ffa82d73fe190fb318327301b58a643edf52",
+  "passed": true,
+  "tests": 5,
+  "concrete_cases": 10,
+  "command": "PYTHONPATH=src python -m unittest tests.test_round6_dense_rank_guards -v",
+  "test_file": "tests/test_round6_dense_rank_guards.py",
+  "test_sha256": "d5462560dea5bb0b4428579816e86b89c22a70aee5e2d748105cfe3ac48056ea",
+  "test_names": [
+    "test_adapter_registered_after_first_rank_stops_rebinding_and_later_rank_routes",
+    "test_integer_primary_key_desc_is_not_a_rowid_alias",
+    "test_each_real_fts_tokenizer_schema_change_disables_dense_ranking",
+    "test_external_plain_and_custom_connection_factories_keep_original_call_shape",
+    "test_other_connection_commit_between_rank_and_metadata_keeps_one_snapshot"
+  ],
+  "coverage": [
+    "Late global int/float/str adapters after first cursor; no VALUES rebinding or second new rank query; full old payload retained; registry restored",
+    "Real INTEGER PRIMARY KEY DESC non-rowid-alias schema rejected despite dense numeric range",
+    "Both noncanonical FTS tokenizer schemas rejected with preserved outputs",
+    "Plain/custom/private-subclass external connectors preserve original call arguments and use old ranking",
+    "Concurrent second WAL connection deletion preserves current snapshot and is visible on next recall"
+  ],
+  "positive_precondition": "Each case first certifies canonical dense range and observes 96 rows from both new routes.",
+  "performance_measured": false,
+  "reviewed_by": "independent benchmark_audit task"
+}
