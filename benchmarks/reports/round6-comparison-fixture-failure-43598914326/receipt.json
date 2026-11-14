@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "evidence": "original-round6-comparison-fixture-failure-1",
+  "workflow_run_id": "43598914326",
+  "head_commit": "c3ffaa4d5b158148471516fe72f7253ef7b89f9c",
+  "workflow_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43598914326",
+  "run_attempt": 1,
+  "log_origin": "Complete decoded original GitHub job logs, saved as UTF-8 with their BOM and terminal newline and losslessly gzip-compressed with mtime=0. No filtering, truncation or rerun. Decompressed SHA256/byte counts preserve the complete original connector text; these are not the original redirected binary archives.",
+  "jobs": [
+    {
+      "job": "core (3.13)",
+      "job_id": 132459253450,
+      "conclusion": "failure",
+      "path": "benchmarks/reports/round6-comparison-fixture-failure-43598914326/core-3.13-job132459253450.log.gz",
+      "sha256": "edd913d12f59b39b8f1b4dd7380f57ff86bdf6a5847ffd02896fc8d643063b4f",
+      "bytes": 43111,
+      "encoding": "UTF-8; retained original decoded BOM and terminal newline",
+      "tests_run": 957,
+      "failures": 1,
+      "skipped": 114,
+      "job_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43598914326/job/132459253450",
+      "uncompressed_sha256": "8388ad684c02351d1ffb17a9e14b9170b3b53b749e251da9f1054c8418cfb0be",
+      "uncompressed_bytes": 254102,
+      "compression": {
+        "format": "gzip",
+        "mtime": 0,
+        "lossless": true
+      }
+    },
+    {
+      "job": "mcp",
+      "job_id": 132459253283,
+      "conclusion": "failure",
+      "path": "benchmarks/reports/round6-comparison-fixture-failure-43598914326/mcp-job132459253283.log.gz",
+      "sha256": "ef09ab562332c5ff898eafda5574ea98d303b1d6195751eac141ff1ad0392771",
+      "bytes": 43083,
+      "encoding": "UTF-8; retained original decoded BOM and terminal newline",
+      "tests_run": 957,
+      "failures": 1,
+      "skipped": 15,
+      "job_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43598914326/job/132459253283",
+      "uncompressed_sha256": "653cc0a8c1ebcd7133625ec0bd1fe2e7d2c00e7f0ac8e36fd483beac351955b7",
+      "uncompressed_bytes": 242490,
+      "compression": {
+        "format": "gzip",
+        "mtime": 0,
+        "lossless": true
+      }
+    }
+  ],
+  "other_jobs": {
+    "core (3.10)": "cancelled",
+    "core (3.12)": "cancelled",
+    "reader-browser": "success",
+    "container": "success",
+    "installers (windows-latest)": "success",
+    "installers (macos-latest)": "success",
+    "installers (ubuntu-latest)": "success"
+  },
+  "failing_fixture": {
+    "path": "tests/test_round6_comparison.py",
+    "test": "RoundSixComparisonTests.test_source_freeze_failure_prevents_reading_any_fresh_source",
+    "assertion_line": 144,
+    "expected_exception_text": "uncommitted",
+    "actual_exception_text": "Never overwrite or reselect the fresh manifest"
+  },
+  "cause": "The artificial negative fixture calls freeze() with its default real manifest path. After the genuine fresh manifest was committed, the intended existing-manifest protection fires before mocked frozen_inputs() can raise uncommitted binding. The test did not isolate its manifest path.",
+  "scope": "One artificial fixture failure in each completed failing job; no fresh scoring was attempted. This is not evidence of a product retrieval regression. Ordinary release CI remains failed until a transparent correction receives a new complete passing run.",
+  "correction_not_applied_by_this_receipt": "Use an absent manifest inside a temporary directory in this fixture, patch the expected manifest constant and pass that path explicitly; retain the uncommitted exception and selected_dataset-not-called assertions. Do not skip/filter the test or weaken overwrite protection.",
+  "source_or_frozen_evaluator_modified": false,
+  "new_measurements": 0
+}

@@ -1,5 +1,71 @@
 # Changelog
 
+## 0.3.4 — Unreleased; startup confirmation complete
+
+A narrowly scoped startup and initialization-correctness candidate using the
+exact A runtime selected for this confirmation. The new prospective startup study has
+completed; resource acceptance, the fresh component comparison and final
+release checks remain separate. No publication or final-CI success is claimed
+at this documentation checkpoint.
+
+### Initialization and command loading
+
+- Put initial schema and FTS setup in one transaction, preserving rollback on
+  setup failure and competing-initializer behavior. The later covering-index
+  and connection PRAGMA steps retain their existing boundaries; this is not a
+  claim that every constructor side effect shares that transaction.
+- Load command metadata without importing archive/client machinery. Preserve
+  the public `MemoryBook` class, its identity, full explicit API import and
+  existing command behavior. Keep schema 3 and the existing dependency floor.
+- Retain A's request-local metadata reuse with complete-output compatibility.
+  Exclude B's unsupported dense-project ranking implementation.
+
+### Prospective startup confirmation and disclosed costs
+
+- Complete the unique registered 480-sample startup matrix: six boundaries,
+  four balanced AB/BA/BA/AB rounds, and forty observations per source/boundary.
+  Independent offline auditing verifies every original sample and all 960
+  start/finish events, source/evaluator identities, protocol output and state.
+- New empty-archive constructor median improves **24.518 → 4.164 ms
+  (−83.02%)** and p95 **27.374 → 6.358 ms (−76.77%)**. Real CLI help median
+  improves **102.903 → 48.750 ms** and p95 **104.104 → 49.547 ms**; real CLI
+  version median improves **101.346 → 47.479 ms** and p95 **103.116 → 48.259 ms**.
+  All three primary targets pass their original percentage and absolute gates.
+- Preserve the complete API-import slowdown: median **33.506 → 33.920 ms
+  (+1.24%)**, p95 **33.822 → 34.433 ms (+1.81%)**. Existing-archive constructor
+  median/p95 are **0.640 → 0.632 / 0.668 → 0.666 ms**; actual official-SDK
+  initialization median/p95 are **627.601 → 620.104 / 632.233 → 624.837 ms**.
+  All registered secondary regression guards pass.
+- Keep the original automatic `accepted:false`: existing-archive whole-helper
+  system CPU increases **18.646 → 21.121 ms (+2.474 ms, +13.2703%)**, triggering
+  the original resource-review rule. Whole-helper wall time increases
+  **138.762 → 139.996 ms (+0.8891%)**. The increase occurs in every round;
+  its phase-specific causal allocation is not established by saved data.
+  Independent recommendations and an explicit release decision remain separate
+  from that unchanged original verdict.
+- Retain all **6 pooled / 26 round timing increases** and **9 pooled / 27 round
+  resource increases**. Kernel child-usage records and sampled MCP RSS/HWM
+  retain their stated boundaries and do not establish isolated product-memory
+  savings. No samples were discarded or timing repeated.
+
+### Retrieval evidence and limits
+
+- Preserve all **2,304** historical Hotpot256 complete default outputs against
+  v0.3.3, with **4,608** audited start/finish events, on A's exact final runtime.
+- Disclose that A's roughly **1%** development recall gains did not justify
+  advancing to the original **10% / 15% / 10%** formal recall targets. That
+  four-round formal matrix was **not run or accepted**. B regressed public
+  native p95 by approximately **19–29%** and actual-MCP p95 by **23.9246%**;
+  its implementation is excluded and its complete experiment remains saved.
+- The separately frozen fresh comparison and exact final CI/package/public
+  installer checks are pending. Historical C7 and Q2 numbers are not new
+  v0.3.4 improvements; no whole-product or all-dimensions superiority is claimed.
+
+[Startup review and every adverse observation](benchmarks/reports/round6-startup-43598913606-1-local-audit/review.md) ·
+[Original startup plan](benchmarks/experiments/round6-startup-plan.json) ·
+[Source selection and experiments](docs/optimization-round6.md) ·
+[Release notes and remaining checks](docs/releases/v0.3.4.md)
+
 ## 0.3.3 — 2026-11-14
 
 A normal GitHub release that reduces retrieval metadata, exact token-counting
