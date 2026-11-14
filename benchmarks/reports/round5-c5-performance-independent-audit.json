@@ -1,0 +1,4750 @@
+{
+  "schema_version": 1,
+  "status": "verified_saved_measurements",
+  "audit_passed": true,
+  "created_at": "2026-11-14T03:53:21.416689+00:00",
+  "retrieval_calls_executed": 0,
+  "models_or_tokenizers_executed": 0,
+  "tests_or_timing_runs_executed": 0,
+  "sources": {
+    "baseline": {
+      "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+      "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+    },
+    "candidate": {
+      "commit": "8dc6604fa32df18d53286110b215fc6657243656",
+      "runtime_sha256": "6af876ef5ddc851f4fff56ba3dc4f20e76b2cfc9f5e31d0cc8d1a0ec20e954be"
+    }
+  },
+  "source_git_hashes_independently_verified": true,
+  "evaluator_commit": "7852e26e582bdc9d5de2cc37e6c516c744c1c9aa",
+  "evaluator_files_verified": 42,
+  "binding_sha256": "bd395da21848cc01656ab45bc211a388b43b4ae63edb8690b2eabe2958d3781a",
+  "plan_sha256": "b83c385c2e7160318ca2c8fded161937f716d43803c03799fd86fd4f63d484a8",
+  "continuation_provenance": {
+    "preregistration": {
+      "path": "benchmarks/experiments/round5-c5-addendum.json",
+      "commit": "7753e7566b1cd57bf5bcaad02d15ce1fa970f839",
+      "sha256": "3329b2605103e2e52623fd8b463dc551f39ab4d3697b438c41d5cf1cc193d170"
+    },
+    "same_original_plan_and_all_gates_verified": true,
+    "frozen_c3_evaluator_inputs_retained": 23,
+    "frozen_c4_evaluator_inputs_retained": 30,
+    "registered_memo_policy": {
+      "kind": "derived-exact-token-count-only",
+      "entry_limit": 2048,
+      "retained_text_object_byte_limit": 2097152,
+      "ownership": "one MemoryBook connection; both encoders share limits",
+      "capacity_choice_evidence": "benchmarks/reports/round5-development/c5-preregistration/capacity-extension.json",
+      "cold_warm_boundary": "Preserve original connection lifecycles, configuration order and shuffled query orders. Each fresh connection starts empty; native later token configurations can reuse prior counts on that connection. Each actual MCP configuration starts a fresh official server process. No extra prewarming, no discarded first queries, and no selective cache clearing.",
+      "diagnostics": "Save native memo state before/after every configuration outside timing, including start/hits/misses/evictions/entries/text bytes and cold-prefix observations where available. Preserve original actual SDK MCP command, protocol and measured envelope; private memo counters are not exposed over MCP. Its cold process boundary and actual process RSS are recorded. Do not describe this experiment as disabling every cache."
+    },
+    "development_plan_sha256": "53ffcf7b605ce33616208eadc095008c046fd7e20fb89998f07682f9bb31e989",
+    "prior_c4": {
+      "source": {
+        "commit": "0141adf1dde6cd69cf96d8eea23f4b6ebab36477",
+        "runtime_sha256": "1c7c644c5187332e6fb5034fef0e232b5c1ae1e5f352b53fea90f7fd8acc4fb3"
+      },
+      "archive_commit": "e439c226cc2d422b44007dedd25aa750a62f88a9",
+      "summary_path": "benchmarks/reports/round5-development/candidate-c4-full/summary.json",
+      "summary_sha256": "c53fcd0c379888b91da3a46ed609ad50df07a0661dc21bc0701bda04b3d56d38",
+      "development_calls": 18928,
+      "development_pairs": 9464,
+      "boundary": "Original complete development summary verified. C4 formal runner was never bound or executed; no C4 formal acceptance is inferred and development arithmetic is not rerun here."
+    },
+    "rejected_c3": {
+      "source": {
+        "commit": "1c9a6d3f611608e8dbce8e729fdd3099513d80e6",
+        "runtime_sha256": "7a927601b5ce710059d5a2640b3642c58a2bd4985d9ccdc48f69159938ee3623"
+      },
+      "result_commit": "e0c30deb7cdae18bb19c83534646630dfb3f673b",
+      "binding_sha256": "790ca15f3fbe2a5ba19fe08f83ab663bdb313a8569bfb1ee7677456ca4817c40",
+      "summary_sha256": "5103a9d5bf26451e6eed2425c75c21663eedc51cc7d8462446373d9fcdd2b321",
+      "status": "measurements_completed",
+      "valid_calls": 56784,
+      "original_accepted": false,
+      "original_numeric_gate_passed": false,
+      "aggregate_p95_gain_percent": 10.499586026010144,
+      "public_native_best_gain_percent": 10.482574154140579,
+      "public_mcp_token1024_gain_percent": 5.146962001519862,
+      "boundary": "Original committed summary and rejection verified; C3 retrieval and raw-ledger arithmetic are not rerun by this C5 audit."
+    },
+    "binding_path": "benchmarks/experiments/round5-c5-performance-binding.json",
+    "publication": {
+      "branch": "validation/v033-round5-c5-performance-43552372788-1",
+      "claim_branch": "validation/v033-round5-c5-claim-bd395da21848cc01656ab45bc211a388b43b4ae63edb8690b2eabe2958d3781a",
+      "run_attempt": "1",
+      "run_id": "43552372788"
+    }
+  },
+  "native_token_count_memo_audit": [
+    {
+      "worker": "r0-synthetic61-baseline",
+      "label": "baseline",
+      "available": false,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": false,
+      "native_configurations": [],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r0-synthetic61-candidate",
+      "label": "candidate",
+      "available": true,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": true,
+      "native_configurations": [
+        {
+          "id": "native-char4000",
+          "first_query_id": "orchid-journal-indigo-manual-middle",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        },
+        {
+          "id": "native-token512",
+          "first_query_id": "comet-cache-paraphrase",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 7,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 7,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 9519,
+            "uncertified_bypasses": 6
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 767,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 548,
+            "invalidations": 0,
+            "misses": 767,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1217779,
+            "uncertified_bypasses": 2616
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 7,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 6
+          },
+          "configuration_counter_delta": {
+            "hits": 548,
+            "misses": 767,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2616
+          }
+        },
+        {
+          "id": "native-token1024",
+          "first_query_id": "orchid-cache-current",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 767,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 548,
+            "invalidations": 0,
+            "misses": 767,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1217779,
+            "uncertified_bypasses": 2616
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 767,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 554,
+            "invalidations": 0,
+            "misses": 767,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1217779,
+            "uncertified_bypasses": 2616
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 943,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1455,
+            "invalidations": 0,
+            "misses": 943,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1488100,
+            "uncertified_bypasses": 3704
+          },
+          "retained_entries_at_start": 767,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 6,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 907,
+            "misses": 176,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 1088
+          }
+        },
+        {
+          "id": "native-token2048",
+          "first_query_id": "umber-poison",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 943,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1455,
+            "invalidations": 0,
+            "misses": 943,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1488100,
+            "uncertified_bypasses": 3704
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 946,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1460,
+            "invalidations": 0,
+            "misses": 946,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1496203,
+            "uncertified_bypasses": 3730
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 1117,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 2314,
+            "invalidations": 0,
+            "misses": 1117,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1749265,
+            "uncertified_bypasses": 3995
+          },
+          "retained_entries_at_start": 943,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 5,
+            "misses": 3,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 26
+          },
+          "configuration_counter_delta": {
+            "hits": 859,
+            "misses": 174,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 291
+          }
+        }
+      ],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r0-public1015-baseline",
+      "label": "baseline",
+      "available": false,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": false,
+      "native_configurations": [],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r0-public1015-candidate",
+      "label": "candidate",
+      "available": true,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": true,
+      "native_configurations": [
+        {
+          "id": "native-char4000",
+          "first_query_id": "conv-48-q0092",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        },
+        {
+          "id": "native-token512",
+          "first_query_id": "conv-43-q0229",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 8,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 8,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 6031,
+            "uncertified_bypasses": 8
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 146,
+            "hits": 4131,
+            "invalidations": 0,
+            "misses": 2194,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1546625,
+            "uncertified_bypasses": 9913
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 8,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 8
+          },
+          "configuration_counter_delta": {
+            "hits": 4131,
+            "misses": 2194,
+            "evictions": 146,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 9913
+          }
+        },
+        {
+          "id": "native-token1024",
+          "first_query_id": "conv-44-q0081",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 146,
+            "hits": 4131,
+            "invalidations": 0,
+            "misses": 2194,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1546625,
+            "uncertified_bypasses": 9913
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 148,
+            "hits": 4134,
+            "invalidations": 0,
+            "misses": 2196,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1546599,
+            "uncertified_bypasses": 9917
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1174,
+            "hits": 8230,
+            "invalidations": 0,
+            "misses": 3222,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1501628,
+            "uncertified_bypasses": 12132
+          },
+          "retained_entries_at_start": 2048,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 3,
+            "misses": 2,
+            "evictions": 2,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 4
+          },
+          "configuration_counter_delta": {
+            "hits": 4099,
+            "misses": 1028,
+            "evictions": 1028,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2219
+          }
+        },
+        {
+          "id": "native-token2048",
+          "first_query_id": "conv-43-q0171",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1174,
+            "hits": 8230,
+            "invalidations": 0,
+            "misses": 3222,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1501628,
+            "uncertified_bypasses": 12132
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1174,
+            "hits": 8235,
+            "invalidations": 0,
+            "misses": 3222,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1501628,
+            "uncertified_bypasses": 12132
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1295,
+            "hits": 13182,
+            "invalidations": 0,
+            "misses": 3343,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1516725,
+            "uncertified_bypasses": 12132
+          },
+          "retained_entries_at_start": 2048,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 5,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 4952,
+            "misses": 121,
+            "evictions": 121,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        }
+      ],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r1-synthetic61-candidate",
+      "label": "candidate",
+      "available": true,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": true,
+      "native_configurations": [
+        {
+          "id": "native-char4000",
+          "first_query_id": "xenon-canary",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        },
+        {
+          "id": "native-token512",
+          "first_query_id": "comet-worker-concurrency",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 5,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 5,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 4492,
+            "uncertified_bypasses": 8
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 767,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 548,
+            "invalidations": 0,
+            "misses": 767,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1217779,
+            "uncertified_bypasses": 2616
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 5,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 8
+          },
+          "configuration_counter_delta": {
+            "hits": 548,
+            "misses": 767,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2616
+          }
+        },
+        {
+          "id": "native-token1024",
+          "first_query_id": "comet-journal-cedar-multi-section",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 767,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 548,
+            "invalidations": 0,
+            "misses": 767,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1217779,
+            "uncertified_bypasses": 2616
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 768,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 552,
+            "invalidations": 0,
+            "misses": 768,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1218789,
+            "uncertified_bypasses": 2620
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 943,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1455,
+            "invalidations": 0,
+            "misses": 943,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1488100,
+            "uncertified_bypasses": 3704
+          },
+          "retained_entries_at_start": 767,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 4,
+            "misses": 1,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 4
+          },
+          "configuration_counter_delta": {
+            "hits": 907,
+            "misses": 176,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 1088
+          }
+        },
+        {
+          "id": "native-token2048",
+          "first_query_id": "pebble-refresh",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 943,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1455,
+            "invalidations": 0,
+            "misses": 943,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1488100,
+            "uncertified_bypasses": 3704
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 944,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1459,
+            "invalidations": 0,
+            "misses": 944,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1490592,
+            "uncertified_bypasses": 3704
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 1117,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 2314,
+            "invalidations": 0,
+            "misses": 1117,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1749265,
+            "uncertified_bypasses": 3995
+          },
+          "retained_entries_at_start": 943,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 4,
+            "misses": 1,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 859,
+            "misses": 174,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 291
+          }
+        }
+      ],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r1-synthetic61-baseline",
+      "label": "baseline",
+      "available": false,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": false,
+      "native_configurations": [],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r1-public1015-candidate",
+      "label": "candidate",
+      "available": true,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": true,
+      "native_configurations": [
+        {
+          "id": "native-char4000",
+          "first_query_id": "conv-41-q0181",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        },
+        {
+          "id": "native-token512",
+          "first_query_id": "conv-50-q0177",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 7,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 7,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 5566,
+            "uncertified_bypasses": 11
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 146,
+            "hits": 4131,
+            "invalidations": 0,
+            "misses": 2194,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1542373,
+            "uncertified_bypasses": 9913
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 7,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 11
+          },
+          "configuration_counter_delta": {
+            "hits": 4131,
+            "misses": 2194,
+            "evictions": 146,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 9913
+          }
+        },
+        {
+          "id": "native-token1024",
+          "first_query_id": "conv-42-q0219",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 146,
+            "hits": 4131,
+            "invalidations": 0,
+            "misses": 2194,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1542373,
+            "uncertified_bypasses": 9913
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 148,
+            "hits": 4134,
+            "invalidations": 0,
+            "misses": 2196,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1542455,
+            "uncertified_bypasses": 9915
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1189,
+            "hits": 8215,
+            "invalidations": 0,
+            "misses": 3237,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1501039,
+            "uncertified_bypasses": 12132
+          },
+          "retained_entries_at_start": 2048,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 3,
+            "misses": 2,
+            "evictions": 2,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2
+          },
+          "configuration_counter_delta": {
+            "hits": 4084,
+            "misses": 1043,
+            "evictions": 1043,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2219
+          }
+        },
+        {
+          "id": "native-token2048",
+          "first_query_id": "conv-43-q0029",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1189,
+            "hits": 8215,
+            "invalidations": 0,
+            "misses": 3237,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1501039,
+            "uncertified_bypasses": 12132
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1189,
+            "hits": 8220,
+            "invalidations": 0,
+            "misses": 3237,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1501039,
+            "uncertified_bypasses": 12132
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1310,
+            "hits": 13167,
+            "invalidations": 0,
+            "misses": 3358,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1516509,
+            "uncertified_bypasses": 12132
+          },
+          "retained_entries_at_start": 2048,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 5,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 4952,
+            "misses": 121,
+            "evictions": 121,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        }
+      ],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r1-public1015-baseline",
+      "label": "baseline",
+      "available": false,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": false,
+      "native_configurations": [],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r2-synthetic61-candidate",
+      "label": "candidate",
+      "available": true,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": true,
+      "native_configurations": [
+        {
+          "id": "native-char4000",
+          "first_query_id": "umber-unrelated",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        },
+        {
+          "id": "native-token512",
+          "first_query_id": "umber-cache-paraphrase",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 8,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 8,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 16364,
+            "uncertified_bypasses": 15
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 767,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 548,
+            "invalidations": 0,
+            "misses": 767,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1217779,
+            "uncertified_bypasses": 2616
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 8,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 15
+          },
+          "configuration_counter_delta": {
+            "hits": 548,
+            "misses": 767,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2616
+          }
+        },
+        {
+          "id": "native-token1024",
+          "first_query_id": "pebble-journal-indigo-manual-middle",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 767,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 548,
+            "invalidations": 0,
+            "misses": 767,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1217779,
+            "uncertified_bypasses": 2616
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 769,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 556,
+            "invalidations": 0,
+            "misses": 769,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1222447,
+            "uncertified_bypasses": 2671
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 943,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1455,
+            "invalidations": 0,
+            "misses": 943,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1488100,
+            "uncertified_bypasses": 3704
+          },
+          "retained_entries_at_start": 767,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 8,
+            "misses": 2,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 55
+          },
+          "configuration_counter_delta": {
+            "hits": 907,
+            "misses": 176,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 1088
+          }
+        },
+        {
+          "id": "native-token2048",
+          "first_query_id": "solstice-journal-cedar-manual-middle",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 943,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1455,
+            "invalidations": 0,
+            "misses": 943,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1488100,
+            "uncertified_bypasses": 3704
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 945,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1458,
+            "invalidations": 0,
+            "misses": 945,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1490008,
+            "uncertified_bypasses": 3704
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 1117,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 2314,
+            "invalidations": 0,
+            "misses": 1117,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1749265,
+            "uncertified_bypasses": 3995
+          },
+          "retained_entries_at_start": 943,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 3,
+            "misses": 2,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 859,
+            "misses": 174,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 291
+          }
+        }
+      ],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r2-synthetic61-baseline",
+      "label": "baseline",
+      "available": false,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": false,
+      "native_configurations": [],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r2-public1015-candidate",
+      "label": "candidate",
+      "available": true,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": true,
+      "native_configurations": [
+        {
+          "id": "native-char4000",
+          "first_query_id": "conv-50-q0197",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        },
+        {
+          "id": "native-token512",
+          "first_query_id": "conv-26-q0087",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 7,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 7,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 8426,
+            "uncertified_bypasses": 8
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 139,
+            "hits": 4138,
+            "invalidations": 0,
+            "misses": 2187,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1546474,
+            "uncertified_bypasses": 9913
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 7,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 8
+          },
+          "configuration_counter_delta": {
+            "hits": 4138,
+            "misses": 2187,
+            "evictions": 139,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 9913
+          }
+        },
+        {
+          "id": "native-token1024",
+          "first_query_id": "conv-42-q0178",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 139,
+            "hits": 4138,
+            "invalidations": 0,
+            "misses": 2187,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1546474,
+            "uncertified_bypasses": 9913
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 142,
+            "hits": 4140,
+            "invalidations": 0,
+            "misses": 2190,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1546330,
+            "uncertified_bypasses": 9915
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1160,
+            "hits": 8244,
+            "invalidations": 0,
+            "misses": 3208,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1507938,
+            "uncertified_bypasses": 12132
+          },
+          "retained_entries_at_start": 2048,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 2,
+            "misses": 3,
+            "evictions": 3,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2
+          },
+          "configuration_counter_delta": {
+            "hits": 4106,
+            "misses": 1021,
+            "evictions": 1021,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2219
+          }
+        },
+        {
+          "id": "native-token2048",
+          "first_query_id": "conv-43-q0206",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1160,
+            "hits": 8244,
+            "invalidations": 0,
+            "misses": 3208,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1507938,
+            "uncertified_bypasses": 12132
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1160,
+            "hits": 8249,
+            "invalidations": 0,
+            "misses": 3208,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1507938,
+            "uncertified_bypasses": 12132
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1281,
+            "hits": 13196,
+            "invalidations": 0,
+            "misses": 3329,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1516367,
+            "uncertified_bypasses": 12132
+          },
+          "retained_entries_at_start": 2048,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 5,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 4952,
+            "misses": 121,
+            "evictions": 121,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        }
+      ],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r2-public1015-baseline",
+      "label": "baseline",
+      "available": false,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": false,
+      "native_configurations": [],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r3-synthetic61-baseline",
+      "label": "baseline",
+      "available": false,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": false,
+      "native_configurations": [],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r3-synthetic61-candidate",
+      "label": "candidate",
+      "available": true,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": true,
+      "native_configurations": [
+        {
+          "id": "native-char4000",
+          "first_query_id": "xenon-journal-cedar-manual-middle",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        },
+        {
+          "id": "native-token512",
+          "first_query_id": "willow-journal-cedar-manual-late",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 7,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 7,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 7727,
+            "uncertified_bypasses": 6
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 767,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 548,
+            "invalidations": 0,
+            "misses": 767,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1217779,
+            "uncertified_bypasses": 2616
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 7,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 6
+          },
+          "configuration_counter_delta": {
+            "hits": 548,
+            "misses": 767,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2616
+          }
+        },
+        {
+          "id": "native-token1024",
+          "first_query_id": "xenon-poison",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 767,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 548,
+            "invalidations": 0,
+            "misses": 767,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1217779,
+            "uncertified_bypasses": 2616
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 768,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 552,
+            "invalidations": 0,
+            "misses": 768,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1218426,
+            "uncertified_bypasses": 2618
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 943,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1455,
+            "invalidations": 0,
+            "misses": 943,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1488100,
+            "uncertified_bypasses": 3704
+          },
+          "retained_entries_at_start": 767,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 4,
+            "misses": 1,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2
+          },
+          "configuration_counter_delta": {
+            "hits": 907,
+            "misses": 176,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 1088
+          }
+        },
+        {
+          "id": "native-token2048",
+          "first_query_id": "orchid-journal-cedar-multi-section",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 943,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1455,
+            "invalidations": 0,
+            "misses": 943,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1488100,
+            "uncertified_bypasses": 3704
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 943,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1463,
+            "invalidations": 0,
+            "misses": 943,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1488100,
+            "uncertified_bypasses": 3708
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 1117,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 2314,
+            "invalidations": 0,
+            "misses": 1117,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1749265,
+            "uncertified_bypasses": 3995
+          },
+          "retained_entries_at_start": 943,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 8,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 4
+          },
+          "configuration_counter_delta": {
+            "hits": 859,
+            "misses": 174,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 291
+          }
+        }
+      ],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r3-public1015-baseline",
+      "label": "baseline",
+      "available": false,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": false,
+      "native_configurations": [],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r3-public1015-candidate",
+      "label": "candidate",
+      "available": true,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": true,
+      "native_configurations": [
+        {
+          "id": "native-char4000",
+          "first_query_id": "conv-43-q0106",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        },
+        {
+          "id": "native-token512",
+          "first_query_id": "conv-41-q0116",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 7,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 7,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 4549,
+            "uncertified_bypasses": 8
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 139,
+            "hits": 4138,
+            "invalidations": 0,
+            "misses": 2187,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1546574,
+            "uncertified_bypasses": 9913
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 7,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 8
+          },
+          "configuration_counter_delta": {
+            "hits": 4138,
+            "misses": 2187,
+            "evictions": 139,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 9913
+          }
+        },
+        {
+          "id": "native-token1024",
+          "first_query_id": "conv-43-q0232",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 139,
+            "hits": 4138,
+            "invalidations": 0,
+            "misses": 2187,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1546574,
+            "uncertified_bypasses": 9913
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 141,
+            "hits": 4141,
+            "invalidations": 0,
+            "misses": 2189,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1546879,
+            "uncertified_bypasses": 9915
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1175,
+            "hits": 8229,
+            "invalidations": 0,
+            "misses": 3223,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1505000,
+            "uncertified_bypasses": 12132
+          },
+          "retained_entries_at_start": 2048,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 3,
+            "misses": 2,
+            "evictions": 2,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2
+          },
+          "configuration_counter_delta": {
+            "hits": 4091,
+            "misses": 1036,
+            "evictions": 1036,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2219
+          }
+        },
+        {
+          "id": "native-token2048",
+          "first_query_id": "conv-50-q0150",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1175,
+            "hits": 8229,
+            "invalidations": 0,
+            "misses": 3223,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1505000,
+            "uncertified_bypasses": 12132
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1176,
+            "hits": 8233,
+            "invalidations": 0,
+            "misses": 3224,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1504644,
+            "uncertified_bypasses": 12132
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1296,
+            "hits": 13181,
+            "invalidations": 0,
+            "misses": 3344,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1513939,
+            "uncertified_bypasses": 12132
+          },
+          "retained_entries_at_start": 2048,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 4,
+            "misses": 1,
+            "evictions": 1,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 4952,
+            "misses": 121,
+            "evictions": 121,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        }
+      ],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    }
+  ],
+  "full_report_sha256": "b52ef054a39eb83e3124f7c316eede91593df9ef14ee50a04b3490cd24df7ec8",
+  "compressed_report_sha256": "a4342fc156518e097a6988f0534fd5a2e1a0ff8761033e483736cd403d467479",
+  "audit_script_sha256": "78bcde8d0a0c161ad4d4dab7768dbb7ba435effd8a86ced2815b1e7625d2e7a0",
+  "counts": {
+    "workers": 16,
+    "cells": 12,
+    "timed_calls": 56784,
+    "ledger_events": 113568,
+    "baseline_candidate_pairs": 28392,
+    "unique_query_configuration_pairs": 7098,
+    "native_mcp_provenance_pairs": 18928,
+    "complete_output_differences": 0,
+    "recorded_invariant_failures": 0,
+    "negative_timing_samples": 0,
+    "zero_timing_samples": 0,
+    "nonfinite_or_invalid_timing_samples": 0
+  },
+  "cells": [
+    {
+      "cohort": "synthetic61",
+      "id": "native-char4000",
+      "surface": "native",
+      "budget_chars": 4000,
+      "budget_tokens": null,
+      "baseline": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 3.525399,
+          "p95_ms": 11.0083281,
+          "mean_ms": 4.605155178571429
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 3.4596875000000002,
+          "p95_ms": 10.90680715,
+          "mean_ms": 4.563315988095238
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 3.5407075,
+          "p95_ms": 11.019931999999999,
+          "mean_ms": 4.619101575396825
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 3.4596875000000002,
+            "p95_ms": 10.90680715,
+            "mean_ms": 4.563315988095238
+          },
+          {
+            "samples": 168,
+            "p50_ms": 3.5311875,
+            "p95_ms": 10.93487665,
+            "mean_ms": 4.594619559523809
+          },
+          {
+            "samples": 168,
+            "p50_ms": 3.5064615000000003,
+            "p95_ms": 10.99318665,
+            "mean_ms": 4.5992568035714285
+          },
+          {
+            "samples": 168,
+            "p50_ms": 3.648841,
+            "p95_ms": 11.335349650000003,
+            "mean_ms": 4.663428363095238
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 3.1838699999999998,
+          "p95_ms": 9.814945799999998,
+          "mean_ms": 4.030330813988095
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 3.159886,
+          "p95_ms": 9.74104325,
+          "mean_ms": 4.0300187916666665
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 3.1980304999999998,
+          "p95_ms": 9.8218114,
+          "mean_ms": 4.030434821428572
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 3.159886,
+            "p95_ms": 9.74104325,
+            "mean_ms": 4.0300187916666665
+          },
+          {
+            "samples": 168,
+            "p50_ms": 3.178106,
+            "p95_ms": 9.576124750000002,
+            "mean_ms": 3.993669654761905
+          },
+          {
+            "samples": 168,
+            "p50_ms": 3.2248605,
+            "p95_ms": 9.8785631,
+            "mean_ms": 4.089494744047619
+          },
+          {
+            "samples": 168,
+            "p50_ms": 3.1768085,
+            "p95_ms": 9.698082150000001,
+            "mean_ms": 4.008140065476191
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -9.687669395719478,
+        "p95_ms": -10.840722489003586,
+        "mean_ms": -12.482193157313992
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "id": "mcp-char4000",
+      "surface": "official-sdk-mcp-stdio",
+      "budget_chars": 4000,
+      "budget_tokens": null,
+      "baseline": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 5.142404,
+          "p95_ms": 12.7196296,
+          "mean_ms": 6.250273660714286
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 5.2171959999999995,
+          "p95_ms": 12.6148369,
+          "mean_ms": 6.400653630952381
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 5.118486,
+          "p95_ms": 12.7219208,
+          "mean_ms": 6.200147003968254
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 5.2171959999999995,
+            "p95_ms": 12.6148369,
+            "mean_ms": 6.400653630952381
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.099711,
+            "p95_ms": 12.80464555,
+            "mean_ms": 6.170278839285714
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.986864,
+            "p95_ms": 12.482773300000002,
+            "mean_ms": 6.1085221785714285
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.246224,
+            "p95_ms": 13.123684500000003,
+            "mean_ms": 6.32163999404762
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 4.681878,
+          "p95_ms": 11.43520625,
+          "mean_ms": 5.596176711309523
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 4.623718,
+          "p95_ms": 11.2844019,
+          "mean_ms": 5.524864297619048
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 4.697661999999999,
+          "p95_ms": 11.47923475,
+          "mean_ms": 5.619947515873016
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 4.623718,
+            "p95_ms": 11.2844019,
+            "mean_ms": 5.524864297619048
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.874708,
+            "p95_ms": 11.644445300000001,
+            "mean_ms": 5.748933738095238
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.6432015,
+            "p95_ms": 11.3218847,
+            "mean_ms": 5.527717
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.752651999999999,
+            "p95_ms": 11.46526715,
+            "mean_ms": 5.583191809523809
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -8.955461297867684,
+        "p95_ms": -10.097961893481544,
+        "mean_ms": -10.465092968905498
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "id": "native-token512",
+      "surface": "native",
+      "budget_chars": 8000,
+      "budget_tokens": 512,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 6.414151,
+          "p95_ms": 16.364684399999998,
+          "mean_ms": 7.461454601190476
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 6.414151,
+          "p95_ms": 16.326848249999998,
+          "mean_ms": 7.434578345238096
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 6.4097764999999995,
+          "p95_ms": 16.3732412,
+          "mean_ms": 7.470413353174603
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 6.414151,
+            "p95_ms": 16.326848249999998,
+            "mean_ms": 7.434578345238096
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.4288495,
+            "p95_ms": 16.24616425,
+            "mean_ms": 7.424664976190477
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.4506325,
+            "p95_ms": 16.487291199999998,
+            "mean_ms": 7.56382811904762
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.3355345,
+            "p95_ms": 16.1292366,
+            "mean_ms": 7.4227469642857145
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 4.3413924999999995,
+          "p95_ms": 12.28597115,
+          "mean_ms": 5.362638973214286
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 4.515658,
+          "p95_ms": 12.35632685,
+          "mean_ms": 5.393340488095238
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 4.32484,
+          "p95_ms": 12.149818549999999,
+          "mean_ms": 5.352405134920635
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 4.515658,
+            "p95_ms": 12.35632685,
+            "mean_ms": 5.393340488095238
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.30813,
+            "p95_ms": 12.061485650000002,
+            "mean_ms": 5.3381195535714285
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.242734499999999,
+            "p95_ms": 12.254361300000003,
+            "mean_ms": 5.368944380952381
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.3908525,
+            "p95_ms": 11.9446728,
+            "mean_ms": 5.350151470238096
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -32.31539918533257,
+        "p95_ms": -24.923873570088517,
+        "mean_ms": -28.128773009505736
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "id": "native-token1024",
+      "surface": "native",
+      "budget_chars": 8000,
+      "budget_tokens": 1024,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 5.321315500000001,
+          "p95_ms": 16.95648,
+          "mean_ms": 6.474158410714286
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 5.1993765,
+          "p95_ms": 16.90472105,
+          "mean_ms": 6.455163904761904
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 5.3854575,
+          "p95_ms": 17.0155131,
+          "mean_ms": 6.480489912698413
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 5.1993765,
+            "p95_ms": 16.90472105,
+            "mean_ms": 6.455163904761904
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.2957545,
+            "p95_ms": 16.74060425,
+            "mean_ms": 6.439800220238096
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.407576000000001,
+            "p95_ms": 17.0326235,
+            "mean_ms": 6.529006988095238
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.298151,
+            "p95_ms": 16.959292,
+            "mean_ms": 6.472662529761904
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 3.4380170000000003,
+          "p95_ms": 11.698119349999999,
+          "mean_ms": 4.451949254464286
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 3.443597,
+          "p95_ms": 11.6051796,
+          "mean_ms": 4.472197833333333
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 3.426838,
+          "p95_ms": 11.704648549999998,
+          "mean_ms": 4.445199728174603
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 3.443597,
+            "p95_ms": 11.6051796,
+            "mean_ms": 4.472197833333333
+          },
+          {
+            "samples": 168,
+            "p50_ms": 3.426838,
+            "p95_ms": 11.869576800000003,
+            "mean_ms": 4.436987476190477
+          },
+          {
+            "samples": 168,
+            "p50_ms": 3.481815,
+            "p95_ms": 11.716831149999999,
+            "mean_ms": 4.468813309523809
+          },
+          {
+            "samples": 168,
+            "p50_ms": 3.3912155,
+            "p95_ms": 11.60403615,
+            "mean_ms": 4.429798398809524
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -35.39159630734168,
+        "p95_ms": -31.010921193549613,
+        "mean_ms": -31.235089226475875
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "id": "native-token2048",
+      "surface": "native",
+      "budget_chars": 8000,
+      "budget_tokens": 2048,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 4.01976,
+          "p95_ms": 14.5099401,
+          "mean_ms": 5.570672811011905
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 3.965803,
+          "p95_ms": 14.4935501,
+          "mean_ms": 5.533620053571429
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 4.0422175,
+          "p95_ms": 14.5076169,
+          "mean_ms": 5.583023730158731
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 3.965803,
+            "p95_ms": 14.4935501,
+            "mean_ms": 5.533620053571429
+          },
+          {
+            "samples": 168,
+            "p50_ms": 3.999194,
+            "p95_ms": 14.3700536,
+            "mean_ms": 5.607382559523809
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.049238,
+            "p95_ms": 14.51150645,
+            "mean_ms": 5.578983571428571
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.060861,
+            "p95_ms": 14.5057661,
+            "mean_ms": 5.562705059523809
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 3.374827,
+          "p95_ms": 11.930265699999998,
+          "mean_ms": 4.568375418154762
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 3.440988,
+          "p95_ms": 11.88636965,
+          "mean_ms": 4.589118857142857
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 3.366079,
+          "p95_ms": 11.91930055,
+          "mean_ms": 4.561460938492064
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 3.440988,
+            "p95_ms": 11.88636965,
+            "mean_ms": 4.589118857142857
+          },
+          {
+            "samples": 168,
+            "p50_ms": 3.332589,
+            "p95_ms": 11.846525350000002,
+            "mean_ms": 4.541854321428572
+          },
+          {
+            "samples": 168,
+            "p50_ms": 3.388577,
+            "p95_ms": 12.038073050000001,
+            "mean_ms": 4.595664357142857
+          },
+          {
+            "samples": 168,
+            "p50_ms": 3.290201,
+            "p95_ms": 11.854035300000001,
+            "mean_ms": 4.546864136904762
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -16.044067307500942,
+        "p95_ms": -17.778670223456004,
+        "mean_ms": -17.992393860860712
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "id": "mcp-token1024",
+      "surface": "official-sdk-mcp-stdio",
+      "budget_chars": 8000,
+      "budget_tokens": 1024,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 6.967815,
+          "p95_ms": 18.756881349999997,
+          "mean_ms": 8.75800621875
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 7.034471,
+          "p95_ms": 18.90496445,
+          "mean_ms": 8.795122392857143
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 6.955642,
+          "p95_ms": 18.7146732,
+          "mean_ms": 8.745634160714285
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 7.034471,
+            "p95_ms": 18.90496445,
+            "mean_ms": 8.795122392857143
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.9279215,
+            "p95_ms": 18.4206901,
+            "mean_ms": 8.676735017857144
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.757118500000001,
+            "p95_ms": 18.75996515,
+            "mean_ms": 8.788968482142858
+          },
+          {
+            "samples": 168,
+            "p50_ms": 7.0107785,
+            "p95_ms": 18.768266699999998,
+            "mean_ms": 8.771198982142858
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 5.302155,
+          "p95_ms": 14.1909906,
+          "mean_ms": 7.095426580357143
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 5.358129,
+          "p95_ms": 14.41147615,
+          "mean_ms": 7.130004654761905
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 5.287075,
+          "p95_ms": 14.1766247,
+          "mean_ms": 7.083900555555555
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 5.358129,
+            "p95_ms": 14.41147615,
+            "mean_ms": 7.130004654761905
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.2941725,
+            "p95_ms": 14.1438976,
+            "mean_ms": 7.022107160714286
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.3562525,
+            "p95_ms": 14.135246800000001,
+            "mean_ms": 7.163550327380952
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.265314500000001,
+            "p95_ms": 14.1765963,
+            "mean_ms": 7.066044178571429
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -23.905054884493914,
+        "p95_ms": -24.34248351205782,
+        "mean_ms": -18.98354028150201
+      }
+    },
+    {
+      "cohort": "public1015",
+      "id": "native-char4000",
+      "surface": "native",
+      "budget_chars": 4000,
+      "budget_tokens": null,
+      "baseline": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 2.434568,
+          "p95_ms": 2.9763034999999998,
+          "mean_ms": 2.445109574630542
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 2.440721,
+          "p95_ms": 2.9763219999999997,
+          "mean_ms": 2.444906818719212
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 2.432664,
+          "p95_ms": 2.9761757999999996,
+          "mean_ms": 2.4451771599343184
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 2.440721,
+            "p95_ms": 2.9763219999999997,
+            "mean_ms": 2.444906818719212
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.430291,
+            "p95_ms": 2.9899226,
+            "mean_ms": 2.445062545812808
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.437401,
+            "p95_ms": 2.9830687999999994,
+            "mean_ms": 2.4489488926108374
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.431393,
+            "p95_ms": 2.9547584999999996,
+            "mean_ms": 2.4415200413793103
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 2.3009255,
+          "p95_ms": 2.79460155,
+          "mean_ms": 2.3186179874384236
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 2.295783,
+          "p95_ms": 2.7652576,
+          "mean_ms": 2.3097888256157635
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 2.301621,
+          "p95_ms": 2.801508,
+          "mean_ms": 2.3215610413793106
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 2.295783,
+            "p95_ms": 2.7652576,
+            "mean_ms": 2.3097888256157635
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.313228,
+            "p95_ms": 2.8537913,
+            "mean_ms": 2.338995051231527
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.302042,
+            "p95_ms": 2.7906915999999997,
+            "mean_ms": 2.3202467201970443
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.291026,
+            "p95_ms": 2.7589722,
+            "mean_ms": 2.3054413527093596
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -5.4893722418104645,
+        "p95_ms": -6.104953678279113,
+        "mean_ms": -5.1732482055014355
+      }
+    },
+    {
+      "cohort": "public1015",
+      "id": "mcp-char4000",
+      "surface": "official-sdk-mcp-stdio",
+      "budget_chars": 4000,
+      "budget_tokens": null,
+      "baseline": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 3.878881,
+          "p95_ms": 4.47279295,
+          "mean_ms": 3.89249166502463
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 3.889044,
+          "p95_ms": 4.4862648,
+          "mean_ms": 3.910985997044335
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 3.872272,
+          "p95_ms": 4.4546220000000005,
+          "mean_ms": 3.8863268876847292
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 3.889044,
+            "p95_ms": 4.4862648,
+            "mean_ms": 3.910985997044335
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.867765,
+            "p95_ms": 4.4565233,
+            "mean_ms": 3.8833241862068966
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.879632,
+            "p95_ms": 4.4530551,
+            "mean_ms": 3.8889989113300496
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.873514,
+            "p95_ms": 4.4503685,
+            "mean_ms": 3.8866575655172415
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 3.7682754999999997,
+          "p95_ms": 4.3496825,
+          "mean_ms": 3.7892025453201974
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 3.734067,
+          "p95_ms": 4.3075082,
+          "mean_ms": 3.76038875270936
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 3.778363,
+          "p95_ms": 4.3601218,
+          "mean_ms": 3.7988071428571426
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 3.734067,
+            "p95_ms": 4.3075082,
+            "mean_ms": 3.76038875270936
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.758945,
+            "p95_ms": 4.325660599999999,
+            "mean_ms": 3.7837405832512316
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.802409,
+            "p95_ms": 4.456410699999999,
+            "mean_ms": 3.83494801182266
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.775911,
+            "p95_ms": 4.2992476,
+            "mean_ms": 3.777732833497537
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -2.85147958908768,
+        "p95_ms": -2.752428994058387,
+        "mean_ms": -2.6535476140519654
+      }
+    },
+    {
+      "cohort": "public1015",
+      "id": "native-token512",
+      "surface": "native",
+      "budget_chars": 8000,
+      "budget_tokens": 512,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 3.53688,
+          "p95_ms": 4.19676195,
+          "mean_ms": 3.5503213714285713
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 3.543174,
+          "p95_ms": 4.1969918,
+          "mean_ms": 3.5475901901477833
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 3.534773,
+          "p95_ms": 4.195613399999999,
+          "mean_ms": 3.551231765188834
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 3.543174,
+            "p95_ms": 4.1969918,
+            "mean_ms": 3.5475901901477833
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.534773,
+            "p95_ms": 4.2094477999999995,
+            "mean_ms": 3.5530137950738916
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.543386,
+            "p95_ms": 4.1925487,
+            "mean_ms": 3.549749750738916
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.526441,
+            "p95_ms": 4.156491099999999,
+            "mean_ms": 3.5509317497536945
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 2.759833,
+          "p95_ms": 3.5495300499999995,
+          "mean_ms": 2.8017779174876845
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 2.768711,
+          "p95_ms": 3.5169241999999996,
+          "mean_ms": 2.800968239408867
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 2.756755,
+          "p95_ms": 3.5518221999999997,
+          "mean_ms": 2.802047810180624
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 2.768711,
+            "p95_ms": 3.5169241999999996,
+            "mean_ms": 2.800968239408867
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.75298,
+            "p95_ms": 3.5535399,
+            "mean_ms": 2.793414887684729
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.760839,
+            "p95_ms": 3.5750666,
+            "mean_ms": 2.8105442600985224
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.756755,
+            "p95_ms": 3.5333219999999996,
+            "mean_ms": 2.802184282758621
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -21.9698434778675,
+        "p95_ms": -15.422173278138885,
+        "mean_ms": -21.083822438296316
+      }
+    },
+    {
+      "cohort": "public1015",
+      "id": "native-token1024",
+      "surface": "native",
+      "budget_chars": 8000,
+      "budget_tokens": 1024,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 3.0192930000000002,
+          "p95_ms": 3.60316505,
+          "mean_ms": 3.0115945578817733
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 3.010077,
+          "p95_ms": 3.5960807,
+          "mean_ms": 3.0068760719211824
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 3.020494,
+          "p95_ms": 3.6039757999999997,
+          "mean_ms": 3.013167386535304
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 3.010077,
+            "p95_ms": 3.5960807,
+            "mean_ms": 3.0068760719211824
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.024781,
+            "p95_ms": 3.5919109,
+            "mean_ms": 3.0084996975369456
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.008424,
+            "p95_ms": 3.6028783,
+            "mean_ms": 3.01136261182266
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.023719,
+            "p95_ms": 3.6189178,
+            "mean_ms": 3.0196398502463055
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 2.6205525,
+          "p95_ms": 3.098782,
+          "mean_ms": 2.6195825967980295
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 2.623347,
+          "p95_ms": 3.1003008,
+          "mean_ms": 2.6197016039408867
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 2.61899,
+          "p95_ms": 3.0980999999999996,
+          "mean_ms": 2.6195429277504103
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 2.623347,
+            "p95_ms": 3.1003008,
+            "mean_ms": 2.6197016039408867
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.608935,
+            "p95_ms": 3.0765293,
+            "mean_ms": 2.6149673862068967
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.624237,
+            "p95_ms": 3.0994165999999996,
+            "mean_ms": 2.6237730857142854
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.615706,
+            "p95_ms": 3.1160473,
+            "mean_ms": 2.6198883113300493
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -13.206419516092016,
+        "p95_ms": -13.998333215404601,
+        "mean_ms": -13.016757519958732
+      }
+    },
+    {
+      "cohort": "public1015",
+      "id": "native-token2048",
+      "surface": "native",
+      "budget_chars": 8000,
+      "budget_tokens": 2048,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 2.941618,
+          "p95_ms": 3.467317,
+          "mean_ms": 2.959424246551724
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 2.953487,
+          "p95_ms": 3.462413399999999,
+          "mean_ms": 2.964814718226601
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 2.940204,
+          "p95_ms": 3.4669607999999994,
+          "mean_ms": 2.9576274226600985
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 2.953487,
+            "p95_ms": 3.462413399999999,
+            "mean_ms": 2.964814718226601
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.932703,
+            "p95_ms": 3.4605812,
+            "mean_ms": 2.956779666995074
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.9447,
+            "p95_ms": 3.4673369999999997,
+            "mean_ms": 2.9572446630541873
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.942258,
+            "p95_ms": 3.4722988999999997,
+            "mean_ms": 2.9588579379310347
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 2.5290515,
+          "p95_ms": 2.9862055,
+          "mean_ms": 2.552556525369458
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 2.523388,
+          "p95_ms": 2.9784283,
+          "mean_ms": 2.5431961625615767
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 2.530289,
+          "p95_ms": 2.989239,
+          "mean_ms": 2.555676646305419
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 2.523388,
+            "p95_ms": 2.9784283,
+            "mean_ms": 2.5431961625615767
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.520294,
+            "p95_ms": 2.9572579,
+            "mean_ms": 2.5453832374384238
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.543719,
+            "p95_ms": 3.0367808,
+            "mean_ms": 2.57290318817734
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.525513,
+            "p95_ms": 2.9819682,
+            "mean_ms": 2.5487435133004928
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -14.025155543649792,
+        "p95_ms": -13.875613334460047,
+        "mean_ms": -13.748205302309803
+      }
+    },
+    {
+      "cohort": "public1015",
+      "id": "mcp-token1024",
+      "surface": "official-sdk-mcp-stdio",
+      "budget_chars": 8000,
+      "budget_tokens": 1024,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 4.4610145,
+          "p95_ms": 5.1003836499999995,
+          "mean_ms": 4.632241876600985
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 4.470095,
+          "p95_ms": 5.213366399999999,
+          "mean_ms": 4.7892104788177345
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 4.458929,
+          "p95_ms": 5.083406599999999,
+          "mean_ms": 4.579919009195402
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 4.470095,
+            "p95_ms": 5.213366399999999,
+            "mean_ms": 4.7892104788177345
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.449224,
+            "p95_ms": 5.0606291,
+            "mean_ms": 4.568567318226601
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.443095,
+            "p95_ms": 5.068611,
+            "mean_ms": 4.566582798029557
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.488083,
+            "p95_ms": 5.101240799999999,
+            "mean_ms": 4.604606911330049
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 4.1555975,
+          "p95_ms": 4.760025799999999,
+          "mean_ms": 4.334789761576355
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 4.166857,
+          "p95_ms": 4.7457619,
+          "mean_ms": 4.287598748768473
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 4.152926,
+          "p95_ms": 4.766486799999999,
+          "mean_ms": 4.350520099178982
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 4.166857,
+            "p95_ms": 4.7457619,
+            "mean_ms": 4.287598748768473
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.132476,
+            "p95_ms": 4.7082393,
+            "mean_ms": 4.266889106403941
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.172836,
+            "p95_ms": 4.8596506999999995,
+            "mean_ms": 4.493556978325123
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.15038,
+            "p95_ms": 4.737110599999999,
+            "mean_ms": 4.291114212807882
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -6.846357482137755,
+        "p95_ms": -6.673181339995871,
+        "mean_ms": -6.42134247192836
+      }
+    }
+  ],
+  "acceptance_recomputed": {
+    "accepted": false,
+    "numeric_gate_passed": false,
+    "geometric_mean_p95_improvement_percent": 15.220791446446002,
+    "best_public_native_token_p95_improvement_percent": 15.422173278138885,
+    "public_mcp_token1024_p95_improvement_percent": 6.673181339995871,
+    "thresholds_percent": {
+      "geometric_mean_p95_improvement": 10,
+      "at_least_one_public_native_token_p95_improvement": 15,
+      "public_mcp_token1024_p95_improvement": 10,
+      "maximum_pooled_p50_p95_regression": 5
+    },
+    "regressions_above_five_percent": [],
+    "resource_comparisons": [
+      {
+        "cohort": "synthetic61",
+        "metric": "runtime_import_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 22.46427625,
+          "p50": 22.442256,
+          "p95": 22.58829495,
+          "min": 22.365985,
+          "max": 22.606608
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 23.654351249999998,
+          "p50": 23.699188499999998,
+          "p95": 23.72966955,
+          "min": 23.487654,
+          "max": 23.731374
+        },
+        "mean_change_percent": 5.297633392484635
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "native_open_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 23.77713775,
+          "p50": 23.328447,
+          "p95": 28.042861799999997,
+          "min": 19.638259,
+          "max": 28.813398
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 25.429078750000002,
+          "p50": 25.301003,
+          "p95": 28.076240300000002,
+          "min": 22.892986,
+          "max": 28.221323
+        },
+        "mean_change_percent": 6.947602429564936
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "fresh_ingestion_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 1011.76794075,
+          "p50": 1012.5348745000001,
+          "p95": 1109.9663558,
+          "min": 906.682838,
+          "max": 1115.319176
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 893.0562639999999,
+          "p50": 880.9509089999999,
+          "p95": 945.65067425,
+          "min": 855.800477,
+          "max": 954.522761
+        },
+        "mean_change_percent": -11.73309332790302
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "unchanged_reingestion_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 75.65009625,
+          "p50": 75.66295600000001,
+          "p95": 76.16610084999999,
+          "min": 75.071544,
+          "max": 76.202929
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 75.56316275,
+          "p50": 75.5405505,
+          "p95": 76.02762105000001,
+          "min": 75.109361,
+          "max": 76.062189
+        },
+        "mean_change_percent": -0.1149152536603637
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "mcp_startup_to_initialize_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 483.579918,
+          "p50": 482.99168199999997,
+          "p95": 487.1311624,
+          "min": 480.556344,
+          "max": 487.779964
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 489.43026050000003,
+          "p50": 489.695076,
+          "p95": 494.3083962,
+          "min": 484.014608,
+          "max": 494.316282
+        },
+        "mean_change_percent": 1.2097984805067963
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "native_memory_after_ingestion.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 40834048.0,
+          "p50": 40845312.0,
+          "p95": 40902246.4,
+          "min": 40734720,
+          "max": 40910848
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 43099136.0,
+          "p50": 43087872.0,
+          "p95": 43176140.8,
+          "min": 43036672,
+          "max": 43184128
+        },
+        "mean_change_percent": 5.547057200892747
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "native_memory_after_ingestion.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 41400320.0,
+          "p50": 41394176.0,
+          "p95": 41575014.4,
+          "min": 41213952,
+          "max": 41598976
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 43099136.0,
+          "p50": 43087872.0,
+          "p95": 43176140.8,
+          "min": 43036672,
+          "max": 43184128
+        },
+        "mean_change_percent": 4.1033885728419595
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "native_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 198950912.0,
+          "p50": 199034880.0,
+          "p95": 199096320.0,
+          "min": 198631424,
+          "max": 199102464
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 202834944.0,
+          "p50": 202792960.0,
+          "p95": 202992435.2,
+          "min": 202735616,
+          "max": 203018240
+        },
+        "mean_change_percent": 1.9522564440418444
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "native_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 198950912.0,
+          "p50": 199034880.0,
+          "p95": 199096320.0,
+          "min": 198631424,
+          "max": 199102464
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 202834944.0,
+          "p50": 202792960.0,
+          "p95": 202992435.2,
+          "min": 202735616,
+          "max": 203018240
+        },
+        "mean_change_percent": 1.9522564440418444
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "mcp_server_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 64308224.0,
+          "p50": 64397312.0,
+          "p95": 64634470.4,
+          "min": 63795200,
+          "max": 64643072
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 63836160.0,
+          "p50": 63834112.0,
+          "p95": 63940403.2,
+          "min": 63725568,
+          "max": 63950848
+        },
+        "mean_change_percent": -0.7340647441919756
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "mcp_server_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 64368640.0,
+          "p50": 64471040.0,
+          "p95": 64634470.4,
+          "min": 63889408,
+          "max": 64643072
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 63836160.0,
+          "p50": 63834112.0,
+          "p95": 63940403.2,
+          "min": 63725568,
+          "max": 63950848
+        },
+        "mean_change_percent": -0.8272351256761068
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "mcp_sessions.mcp-token1024.mcp_startup_to_initialize_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 483.0471925,
+          "p50": 482.583702,
+          "p95": 491.19257825,
+          "min": 475.392191,
+          "max": 491.629175
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 478.45342800000003,
+          "p50": 478.694319,
+          "p95": 478.99197925,
+          "min": 477.397286,
+          "max": 479.027788
+        },
+        "mean_change_percent": -0.9509970394869782
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 110232576.0,
+          "p50": 110225408.0,
+          "p95": 110790656.0,
+          "min": 109670400,
+          "max": 110809088
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 110146560.0,
+          "p50": 109953024.0,
+          "p95": 110740684.8,
+          "min": 109805568,
+          "max": 110874624
+        },
+        "mean_change_percent": -0.07803137976200025
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 110232576.0,
+          "p50": 110225408.0,
+          "p95": 110790656.0,
+          "min": 109670400,
+          "max": 110809088
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 110146560.0,
+          "p50": 109953024.0,
+          "p95": 110740684.8,
+          "min": 109805568,
+          "max": 110874624
+        },
+        "mean_change_percent": -0.07803137976200025
+      },
+      {
+        "cohort": "public1015",
+        "metric": "runtime_import_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 22.37472275,
+          "p50": 22.392295500000003,
+          "p95": 22.4511097,
+          "min": 22.253023,
+          "max": 22.461277
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 23.5500485,
+          "p50": 23.497677,
+          "p95": 23.688765099999998,
+          "min": 23.48278,
+          "max": 23.72206
+        },
+        "mean_change_percent": 5.252917603191309
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_open_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 38.1597655,
+          "p50": 22.2224255,
+          "p95": 77.98513049999998,
+          "min": 20.389212,
+          "max": 87.804999
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 25.565437,
+          "p50": 23.514055499999998,
+          "p95": 32.604799899999996,
+          "min": 21.104286,
+          "max": 34.129351
+        },
+        "mean_change_percent": -33.00420831988603
+      },
+      {
+        "cohort": "public1015",
+        "metric": "fresh_ingestion_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 1043.793509,
+          "p50": 959.9224615,
+          "p95": 1256.97357535,
+          "min": 946.406879,
+          "max": 1308.922234
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 1030.8556365,
+          "p50": 996.266847,
+          "p95": 1137.1076197,
+          "min": 969.351038,
+          "max": 1161.537814
+        },
+        "mean_change_percent": -1.2395049776076084
+      },
+      {
+        "cohort": "public1015",
+        "metric": "unchanged_reingestion_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 144.20605475,
+          "p50": 144.100065,
+          "p95": 144.98102005,
+          "min": 143.544862,
+          "max": 145.079227
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 143.58584825,
+          "p50": 143.4707745,
+          "p95": 144.33613125,
+          "min": 142.962902,
+          "max": 144.438942
+        },
+        "mean_change_percent": -0.43008353641961206
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_startup_to_initialize_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 483.804876,
+          "p50": 483.821217,
+          "p95": 484.43904975,
+          "min": 483.115356,
+          "max": 484.461714
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 485.29289625,
+          "p50": 484.9933955,
+          "p95": 488.0219455,
+          "min": 482.949169,
+          "max": 488.235625
+        },
+        "mean_change_percent": 0.3075661953436004
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_memory_after_ingestion.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 44185600.0,
+          "p50": 44163072.0,
+          "p95": 44265881.6,
+          "min": 44134400,
+          "max": 44281856
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 46221312.0,
+          "p50": 46223360.0,
+          "p95": 46289100.8,
+          "min": 46141440,
+          "max": 46297088
+        },
+        "mean_change_percent": 4.607184241019691
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_memory_after_ingestion.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 52212736.0,
+          "p50": 52242432.0,
+          "p95": 52251443.2,
+          "min": 52113408,
+          "max": 52252672
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 52480000.0,
+          "p50": 52477952.0,
+          "p95": 52596531.2,
+          "min": 52363264,
+          "max": 52600832
+        },
+        "mean_change_percent": 0.5118751103179164
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 223823872.0,
+          "p50": 223834112.0,
+          "p95": 223953715.2,
+          "min": 223653888,
+          "max": 223973376
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 228473856.0,
+          "p50": 228499456.0,
+          "p95": 228534476.8,
+          "min": 228360192,
+          "max": 228536320
+        },
+        "mean_change_percent": 2.0775192379836938
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 223823872.0,
+          "p50": 223834112.0,
+          "p95": 223953715.2,
+          "min": 223653888,
+          "max": 223973376
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 228473856.0,
+          "p50": 228499456.0,
+          "p95": 228534476.8,
+          "min": 228360192,
+          "max": 228536320
+        },
+        "mean_change_percent": 2.0775192379836938
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_server_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 63470592.0,
+          "p50": 63481856.0,
+          "p95": 63572992.0,
+          "min": 63336448,
+          "max": 63582208
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 63065088.0,
+          "p50": 63055872.0,
+          "p95": 63186534.4,
+          "min": 62947328,
+          "max": 63201280
+        },
+        "mean_change_percent": -0.6388848555249016
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_server_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 63470592.0,
+          "p50": 63481856.0,
+          "p95": 63572992.0,
+          "min": 63336448,
+          "max": 63582208
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 63065088.0,
+          "p50": 63055872.0,
+          "p95": 63186534.4,
+          "min": 62947328,
+          "max": 63201280
+        },
+        "mean_change_percent": -0.6388848555249016
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_sessions.mcp-token1024.mcp_startup_to_initialize_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 480.343365,
+          "p50": 476.218263,
+          "p95": 491.91649225,
+          "min": 474.317084,
+          "max": 494.61985
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 477.5776265,
+          "p50": 477.0719575,
+          "p95": 479.97291655,
+          "min": 475.745345,
+          "max": 480.421246
+        },
+        "mean_change_percent": -0.5757836376068193
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 108880896.0,
+          "p50": 108658688.0,
+          "p95": 109537280.0,
+          "min": 108515328,
+          "max": 109690880
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 109643776.0,
+          "p50": 109414400.0,
+          "p95": 110284595.2,
+          "min": 109322240,
+          "max": 110424064
+        },
+        "mean_change_percent": 0.7006555126070957
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 108880896.0,
+          "p50": 108658688.0,
+          "p95": 109537280.0,
+          "min": 108515328,
+          "max": 109690880
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 109643776.0,
+          "p50": 109414400.0,
+          "p95": 110284595.2,
+          "min": 109322240,
+          "max": 110424064
+        },
+        "mean_change_percent": 0.7006555126070957
+      }
+    ],
+    "resource_review": [],
+    "resource_rule": "Any increase above 10% requires an explicit cause and independent review; no automatic override."
+  },
+  "resource_review_required": false,
+  "logical_storage": [
+    {
+      "cohort": "synthetic61",
+      "phase": "storage_after_ingestion_live",
+      "baseline_bytes": {
+        "samples": 4,
+        "mean": 20508672.0,
+        "p50": 20508672.0,
+        "p95": 20508672.0,
+        "min": 20508672,
+        "max": 20508672
+      },
+      "candidate_bytes": {
+        "samples": 4,
+        "mean": 20733952.0,
+        "p50": 20733952.0,
+        "p95": 20733952.0,
+        "min": 20733952,
+        "max": 20733952
+      },
+      "mean_difference_bytes": 225280.0,
+      "mean_change_percent": 1.098462152985813,
+      "boundary": "SQLite logical page count times page size; not an index-only storage estimate."
+    },
+    {
+      "cohort": "synthetic61",
+      "phase": "storage_after_mcp_live",
+      "baseline_bytes": {
+        "samples": 4,
+        "mean": 20508672.0,
+        "p50": 20508672.0,
+        "p95": 20508672.0,
+        "min": 20508672,
+        "max": 20508672
+      },
+      "candidate_bytes": {
+        "samples": 4,
+        "mean": 20733952.0,
+        "p50": 20733952.0,
+        "p95": 20733952.0,
+        "min": 20733952,
+        "max": 20733952
+      },
+      "mean_difference_bytes": 225280.0,
+      "mean_change_percent": 1.098462152985813,
+      "boundary": "SQLite logical page count times page size; not an index-only storage estimate."
+    },
+    {
+      "cohort": "synthetic61",
+      "phase": "storage_after_checkpoint",
+      "baseline_bytes": {
+        "samples": 4,
+        "mean": 20508672.0,
+        "p50": 20508672.0,
+        "p95": 20508672.0,
+        "min": 20508672,
+        "max": 20508672
+      },
+      "candidate_bytes": {
+        "samples": 4,
+        "mean": 20733952.0,
+        "p50": 20733952.0,
+        "p95": 20733952.0,
+        "min": 20733952,
+        "max": 20733952
+      },
+      "mean_difference_bytes": 225280.0,
+      "mean_change_percent": 1.098462152985813,
+      "boundary": "SQLite logical page count times page size; not an index-only storage estimate."
+    },
+    {
+      "cohort": "public1015",
+      "phase": "storage_after_ingestion_live",
+      "baseline_bytes": {
+        "samples": 4,
+        "mean": 12881920.0,
+        "p50": 12881920.0,
+        "p95": 12881920.0,
+        "min": 12881920,
+        "max": 12881920
+      },
+      "candidate_bytes": {
+        "samples": 4,
+        "mean": 13053952.0,
+        "p50": 13053952.0,
+        "p95": 13053952.0,
+        "min": 13053952,
+        "max": 13053952
+      },
+      "mean_difference_bytes": 172032.0,
+      "mean_change_percent": 1.3354531001589898,
+      "boundary": "SQLite logical page count times page size; not an index-only storage estimate."
+    },
+    {
+      "cohort": "public1015",
+      "phase": "storage_after_mcp_live",
+      "baseline_bytes": {
+        "samples": 4,
+        "mean": 12881920.0,
+        "p50": 12881920.0,
+        "p95": 12881920.0,
+        "min": 12881920,
+        "max": 12881920
+      },
+      "candidate_bytes": {
+        "samples": 4,
+        "mean": 13053952.0,
+        "p50": 13053952.0,
+        "p95": 13053952.0,
+        "min": 13053952,
+        "max": 13053952
+      },
+      "mean_difference_bytes": 172032.0,
+      "mean_change_percent": 1.3354531001589898,
+      "boundary": "SQLite logical page count times page size; not an index-only storage estimate."
+    },
+    {
+      "cohort": "public1015",
+      "phase": "storage_after_checkpoint",
+      "baseline_bytes": {
+        "samples": 4,
+        "mean": 12881920.0,
+        "p50": 12881920.0,
+        "p95": 12881920.0,
+        "min": 12881920,
+        "max": 12881920
+      },
+      "candidate_bytes": {
+        "samples": 4,
+        "mean": 13053952.0,
+        "p50": 13053952.0,
+        "p95": 13053952.0,
+        "min": 13053952,
+        "max": 13053952
+      },
+      "mean_difference_bytes": 172032.0,
+      "mean_change_percent": 1.3354531001589898,
+      "boundary": "SQLite logical page count times page size; not an index-only storage estimate."
+    }
+  ],
+  "all_pooled_adverse_latency_metrics": [],
+  "all_per_round_adverse_latency_metrics": [
+    {
+      "cohort": "public1015",
+      "config": "mcp-char4000",
+      "round": 2,
+      "metric": "p95_ms",
+      "change_percent": 0.07535500739703771
+    }
+  ],
+  "source_and_index_records": [
+    {
+      "worker": "r0-synthetic61-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r0-synthetic61-candidate",
+      "source": {
+        "commit": "8dc6604fa32df18d53286110b215fc6657243656",
+        "runtime_sha256": "6af876ef5ddc851f4fff56ba3dc4f20e76b2cfc9f5e31d0cc8d1a0ec20e954be"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r0-public1015-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r0-public1015-candidate",
+      "source": {
+        "commit": "8dc6604fa32df18d53286110b215fc6657243656",
+        "runtime_sha256": "6af876ef5ddc851f4fff56ba3dc4f20e76b2cfc9f5e31d0cc8d1a0ec20e954be"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r1-synthetic61-candidate",
+      "source": {
+        "commit": "8dc6604fa32df18d53286110b215fc6657243656",
+        "runtime_sha256": "6af876ef5ddc851f4fff56ba3dc4f20e76b2cfc9f5e31d0cc8d1a0ec20e954be"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r1-synthetic61-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r1-public1015-candidate",
+      "source": {
+        "commit": "8dc6604fa32df18d53286110b215fc6657243656",
+        "runtime_sha256": "6af876ef5ddc851f4fff56ba3dc4f20e76b2cfc9f5e31d0cc8d1a0ec20e954be"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r1-public1015-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r2-synthetic61-candidate",
+      "source": {
+        "commit": "8dc6604fa32df18d53286110b215fc6657243656",
+        "runtime_sha256": "6af876ef5ddc851f4fff56ba3dc4f20e76b2cfc9f5e31d0cc8d1a0ec20e954be"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r2-synthetic61-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r2-public1015-candidate",
+      "source": {
+        "commit": "8dc6604fa32df18d53286110b215fc6657243656",
+        "runtime_sha256": "6af876ef5ddc851f4fff56ba3dc4f20e76b2cfc9f5e31d0cc8d1a0ec20e954be"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r2-public1015-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r3-synthetic61-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r3-synthetic61-candidate",
+      "source": {
+        "commit": "8dc6604fa32df18d53286110b215fc6657243656",
+        "runtime_sha256": "6af876ef5ddc851f4fff56ba3dc4f20e76b2cfc9f5e31d0cc8d1a0ec20e954be"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r3-public1015-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r3-public1015-candidate",
+      "source": {
+        "commit": "8dc6604fa32df18d53286110b215fc6657243656",
+        "runtime_sha256": "6af876ef5ddc851f4fff56ba3dc4f20e76b2cfc9f5e31d0cc8d1a0ec20e954be"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    }
+  ],
+  "saved_file_checksums": {
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/report.json.gz": {
+      "bytes": 8941122,
+      "sha256": "a4342fc156518e097a6988f0534fd5a2e1a0ff8761033e483736cd403d467479"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/run.json": {
+      "bytes": 67256,
+      "sha256": "063f8c11e804992b4e3cc8583213c412ce91c815ac4f273e39c888dcae7c49d5"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/execution.json": {
+      "bytes": 953,
+      "sha256": "84e578faab9e9e6fb812efba4e5a6eec0d3a511ff242d6b818bbb863aabfd906"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/experiments/round5-c5-addendum.json": {
+      "bytes": 7391,
+      "sha256": "3329b2605103e2e52623fd8b463dc551f39ab4d3697b438c41d5cf1cc193d170"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/experiments/round5-c5-development-plan.json": {
+      "bytes": 2568,
+      "sha256": "53ffcf7b605ce33616208eadc095008c046fd7e20fb89998f07682f9bb31e989"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/experiments/round5-performance-binding.json": {
+      "bytes": 3066,
+      "sha256": "790ca15f3fbe2a5ba19fe08f83ab663bdb313a8569bfb1ee7677456ca4817c40"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/report.summary.json": {
+      "bytes": 139306,
+      "sha256": "5103a9d5bf26451e6eed2425c75c21663eedc51cc7d8462446373d9fcdd2b321"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-development/candidate-c4-full/summary.json": {
+      "bytes": 14369,
+      "sha256": "c53fcd0c379888b91da3a46ed609ad50df07a0661dc21bc0701bda04b3d56d38"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/experiments/round5-c5-performance-binding.json": {
+      "bytes": 18312,
+      "sha256": "bd395da21848cc01656ab45bc211a388b43b4ae63edb8690b2eabe2958d3781a"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r0-synthetic61-baseline.json.gz": {
+      "bytes": 163469,
+      "sha256": "8abb836b5b92f1157c99c9b4b212f583fb579a6845056fe61347309ab03ab4de"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r0-synthetic61-baseline.started.json": {
+      "bytes": 186,
+      "sha256": "ae9a57e657a8f70b21efbdd7a3490e22404c760fdb37985f96a170815ea8e31d"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r0-synthetic61-baseline.attempts.jsonl.gz": {
+      "bytes": 183391,
+      "sha256": "50b33525c780a3eb1dfe828ca708f50fa4ee451b98e790a4c36c6a21d7df0223"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r0-synthetic61-candidate.json.gz": {
+      "bytes": 163589,
+      "sha256": "315af183a17a9e9a8a25b404f88e2a98acca8c0a3cec4594206dcc9af6b2c163"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r0-synthetic61-candidate.started.json": {
+      "bytes": 188,
+      "sha256": "5510e2b108908564bd9c7ed2576389f96a01012bb477903507254f5140565803"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r0-synthetic61-candidate.attempts.jsonl.gz": {
+      "bytes": 183226,
+      "sha256": "978429f6dc2f42eec5bcd9cb77165a05f35ee416f049625b3be35aeb31c2284e"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r0-public1015-baseline.json.gz": {
+      "bytes": 951805,
+      "sha256": "c80a43169e1243c01e17f1561d4aa8e3313bb72e4a2645d785e4ef892794cfa7"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r0-public1015-baseline.started.json": {
+      "bytes": 184,
+      "sha256": "9a113d5e911e5a1b25ea6ee60cec8a897b65cbc52d7a65aa4af5acde7653f73a"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r0-public1015-baseline.attempts.jsonl.gz": {
+      "bytes": 1073217,
+      "sha256": "85e0fba2133a5513f3811d876986914b903546af51a487c7c530101619c00c08"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r0-public1015-candidate.json.gz": {
+      "bytes": 951213,
+      "sha256": "dea3a0347cc6d310dc04191c7c5f4a3d2bdcbf5bb20490ab94004ff770e8f706"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r0-public1015-candidate.started.json": {
+      "bytes": 186,
+      "sha256": "874ed64e9c54b29880ebd8abfed78d6c1ed351ad5f83139b005791dc66983cb2"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r0-public1015-candidate.attempts.jsonl.gz": {
+      "bytes": 1072311,
+      "sha256": "a9f176e9f2ee8e2f39e9611db836496ec12b1abcad7701b644fc0f6427e74b2b"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r1-synthetic61-candidate.json.gz": {
+      "bytes": 163492,
+      "sha256": "ed0ee6563d189eceeb23edc6931e676e6eb42118bc20c4e1422390d7a204f00f"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r1-synthetic61-candidate.started.json": {
+      "bytes": 188,
+      "sha256": "5627ec1698b04674c703cf67458696dfc07ab16266278c7ed6b9b2fdf919a311"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r1-synthetic61-candidate.attempts.jsonl.gz": {
+      "bytes": 183134,
+      "sha256": "b2cf00403bd57ad904880e64788ba775c328adde94fcf9ea51f2d2f70c81b047"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r1-synthetic61-baseline.json.gz": {
+      "bytes": 163505,
+      "sha256": "a8843cb67116f07a2ce978be9b964cba6ff8ab9a554e5031c79d8ee2294a2380"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r1-synthetic61-baseline.started.json": {
+      "bytes": 186,
+      "sha256": "a5a32dac64442fa03c5e77605fa209195de99e14d186cfabc119630014bc20c0"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r1-synthetic61-baseline.attempts.jsonl.gz": {
+      "bytes": 183567,
+      "sha256": "dfdbc6cb7f3416b11c2fe95b98b0211a0f71d84120fcd59a8358738eb9ae7c58"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r1-public1015-candidate.json.gz": {
+      "bytes": 951651,
+      "sha256": "09882e0ba25238e02582d75f4d534ffef14ba3bc69e79aa184668e17281f10bb"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r1-public1015-candidate.started.json": {
+      "bytes": 186,
+      "sha256": "42d4b202c6c85c685e627493a4322ee113536a59d6f5cb8e4279ad3da6f9d598"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r1-public1015-candidate.attempts.jsonl.gz": {
+      "bytes": 1072553,
+      "sha256": "58a1244b21b0e2f8418f9d0dc9505bb1d7d1cb0ef6e393915217ee60d148b92e"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r1-public1015-baseline.json.gz": {
+      "bytes": 952008,
+      "sha256": "5ad26b43a409cf546661901ddce6af463c2fc657de8fc426d3058c7ca59e8373"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r1-public1015-baseline.started.json": {
+      "bytes": 184,
+      "sha256": "747b7842c107fe15e732f68b1bba8a40422e3a959406674b5354875353c36795"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r1-public1015-baseline.attempts.jsonl.gz": {
+      "bytes": 1073139,
+      "sha256": "f9234a17582525bbbf224793bb80a0c0a3fb19f11aba38a27a116219ea03bdca"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r2-synthetic61-candidate.json.gz": {
+      "bytes": 163122,
+      "sha256": "d033b52ae2b38a8eec2da93b230fc3f77c7abf34c2b49ba5af7c4b41dca95c93"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r2-synthetic61-candidate.started.json": {
+      "bytes": 188,
+      "sha256": "5b67a83a8534ea18c4104a329f085ff19f19a7dad2ab1d448b31bcd3a9e7d070"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r2-synthetic61-candidate.attempts.jsonl.gz": {
+      "bytes": 182577,
+      "sha256": "e0261d27c3fff5d3be3a6bc4bc2ce6f27ffed7ff18e56cfa0c4fcaff718dc15c"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r2-synthetic61-baseline.json.gz": {
+      "bytes": 163129,
+      "sha256": "1d4b06d5aee14430b9ef0b9981bd2e2847b64e793baf24fab7fde77f215a785c"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r2-synthetic61-baseline.started.json": {
+      "bytes": 186,
+      "sha256": "157509c93ff3c3ab88ad09fef56bcc8be46172254b0a53f4c142d2c636e1c255"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r2-synthetic61-baseline.attempts.jsonl.gz": {
+      "bytes": 182846,
+      "sha256": "2543132dafac7af391c6a608ab3c464ea8db321addaea4742fc781ef106958da"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r2-public1015-candidate.json.gz": {
+      "bytes": 951638,
+      "sha256": "deb566067fa29e611addb3f3cfba4c4fdd13f6831eda0265328628bdc52c1fb4"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r2-public1015-candidate.started.json": {
+      "bytes": 186,
+      "sha256": "33d69f1714265068312a5486ef8402f42ba65636b61be5cbf851470095a73649"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r2-public1015-candidate.attempts.jsonl.gz": {
+      "bytes": 1072754,
+      "sha256": "3c1f845878ab5e9c6f187e628cbd7161120765956f48b0ee0c5b4210907be690"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r2-public1015-baseline.json.gz": {
+      "bytes": 951805,
+      "sha256": "c96a6186124939b5f2aee552abbf8e3577eff073e3b6c40293d442bf15491a05"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r2-public1015-baseline.started.json": {
+      "bytes": 184,
+      "sha256": "9519fa2a73d8247082e8ea9ecbf9a63019919a4db173af51bc893d2be105d45a"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r2-public1015-baseline.attempts.jsonl.gz": {
+      "bytes": 1073366,
+      "sha256": "39781f0c4ebdd2607044dfaa0bee298c3e454642960a8349c6225fad31793d25"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r3-synthetic61-baseline.json.gz": {
+      "bytes": 163748,
+      "sha256": "051ca988d75560a33017f64d35592df4ef12eefdb3adf95f0d9ca8994082f1a9"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r3-synthetic61-baseline.started.json": {
+      "bytes": 186,
+      "sha256": "dd2fcddf1d2d79a88f2e211aff02621ff49fd2dd651c2fc3daac8a6a2125aedb"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r3-synthetic61-baseline.attempts.jsonl.gz": {
+      "bytes": 183858,
+      "sha256": "da86abd51534deaa25e81a0d8622de947941472cbc0c41cd902d424817b9818a"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r3-synthetic61-candidate.json.gz": {
+      "bytes": 163720,
+      "sha256": "3a8d1ceff10c292b22dd59b82d2947317e562f246d9fad0fd15c6f256a420ea9"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r3-synthetic61-candidate.started.json": {
+      "bytes": 188,
+      "sha256": "30a90c6fa90694d6addd2198a47940edecab58981d0b21ff7ec5f99e6e919836"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r3-synthetic61-candidate.attempts.jsonl.gz": {
+      "bytes": 183649,
+      "sha256": "30f1aacaeb7e4a901ca29da923627ab799617cad4634b2360995081ca4503aab"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r3-public1015-baseline.json.gz": {
+      "bytes": 951405,
+      "sha256": "63cf13c0b1e93b42c6a25cd7d9591b2303bfd44f578500bc035f499e247c3ac8"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r3-public1015-baseline.started.json": {
+      "bytes": 184,
+      "sha256": "4e2f210332efedc511e968061b6b34c827656f3ea2f2f5c9f067728eb7d728ad"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r3-public1015-baseline.attempts.jsonl.gz": {
+      "bytes": 1072835,
+      "sha256": "069cb022e23ead471d486706f9db55fc1e5a16d2ee39a0a266a1d972251c1b41"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r3-public1015-candidate.json.gz": {
+      "bytes": 951006,
+      "sha256": "c82c347959b2fba504a83a335f776c3412f49ce4665660f7f555f033b2e02a03"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r3-public1015-candidate.started.json": {
+      "bytes": 186,
+      "sha256": "2757d691f7ed88b4afd665d2ff08a3722a8544bae0d6182e775c2b3c7235517b"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/workers/r3-public1015-candidate.attempts.jsonl.gz": {
+      "bytes": 1072191,
+      "sha256": "4b89bf607bbc5b9382ccac0a1fa87df7b0805b80b06e08a415972ea349bfbe04"
+    },
+    "/workspace/scratch/36b34eafc753/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/report.summary.json": {
+      "bytes": 196764,
+      "sha256": "930a28c40913b2eea3e38b7ce5bc04e673e288396fccb67bf16e59d42e996f25"
+    }
+  },
+  "sample_retention": "All 16 workers, all 56,784 calls and 113,568 start/finish events were checked in original order. No sample, round, adverse value or failed gate was dropped; no measurement was repeated.",
+  "limitations": [
+    "Independent arithmetic and digest/ledger/provenance audit of saved measurements; source text, tokenization and returned payload bodies are not rerun.",
+    "The hashes compare complete stored non-timing responses and recorded invariant fields; this is not a new retrieval-quality evaluation.",
+    "One host and old regression queries; no statistical-significance, new-domain or whole-product competitor-speed claim.",
+    "Native memo snapshots include each retained first query and natural reuse across later native configurations. No query is added or omitted. They do not establish MCP memo hit rates or a whole-process 2 MiB memory limit.",
+    "A resource-review flag remains a release decision requiring explicit evidence assessment, not an automatic waiver."
+  ]
+}
