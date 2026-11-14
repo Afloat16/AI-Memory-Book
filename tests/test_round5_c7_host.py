@@ -69,6 +69,9 @@ class HostedCheckpointTests(unittest.TestCase):
         # An interrupted SDK ledger has only a start event. Preserve it exactly.
         mcp = self.state / "mcp-state/workers"
         mcp.mkdir(parents=True)
+        metadata = b'{"original":"run and worker intent"}\n'
+        (mcp.parent / "run.json").write_bytes(metadata)
+        (mcp / "r0-public1015-baseline.started.json").write_bytes(metadata)
         ledger = b'{"event":"started","seq":0,"query_id":"first"}\n'
         (mcp / "r0-public1015-baseline.attempts.jsonl").write_bytes(ledger)
         # Full corpus databases are deliberately outside the exported evidence.
@@ -83,6 +86,8 @@ class HostedCheckpointTests(unittest.TestCase):
         self.assertEqual(self.git("rev-parse", "HEAD"), self.initial)
         self.assertEqual(self.git("diff", "--cached", "--name-only"), "")
         self.assertEqual(gzip.decompress(self.blob(second, relative + "/mcp-state/workers/r0-public1015-baseline.attempts.jsonl.gz")), ledger)
+        self.assertEqual(self.blob(second, relative + "/mcp-state/run.json"), metadata)
+        self.assertEqual(self.blob(second, relative + "/mcp-state/workers/r0-public1015-baseline.started.json"), metadata)
         self.assertEqual(self.blob(second, relative + "/" + claim.name), claim.read_bytes())
         self.assertNotIn("memory.db", self.git("ls-tree", "-r", "--name-only", second))
         self.assertEqual((self.root / "source.txt").read_text(), "unchanged evaluator and source\n")

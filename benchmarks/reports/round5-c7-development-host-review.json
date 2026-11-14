@@ -1,0 +1,80 @@
+{
+  "changes_by_reviewer": [
+    "Created this review report only; no helper, workflow, frozen input or measurement changes."
+  ],
+  "created_at_utc": "2026-11-14T05:18:01.524886+00:00",
+  "files": {
+    ".github/workflows/round5-c7-development.yml": {
+      "bytes": 3687,
+      "sha256": "0cb3b0a9c281ac1e3ec03b157d99ce3f6c881637bb873555dd6dd4e9a7443ca1"
+    },
+    "benchmarks/experiments/round5-c7-development-plan.json": {
+      "bytes": 2853,
+      "sha256": "b6b61348a178cabbc4f787eb8ccd18ebdbeeb11cd18f6f82149b098c1057593c"
+    },
+    "benchmarks/experiments/round5-c7-mcp-development-plan.json": {
+      "bytes": 5051,
+      "sha256": "d9dc8110810aa425839d73e4d877423b48aaf6ea0c1aec523a867685d641868f"
+    },
+    "scripts/host_round5_c7_development.py": {
+      "bytes": 12098,
+      "sha256": "49990940216eb46b46e06f1f1ee452900dfd483613d254a48aa0f715752e661f"
+    },
+    "scripts/round5_c7_development_pair.py": {
+      "bytes": 13053,
+      "sha256": "b19f6a473868ab6c8b3c2c49d572740401ffd6812efac71e0b4aa9ef290769ad"
+    },
+    "scripts/round5_c7_mcp_development_pair.py": {
+      "bytes": 24440,
+      "sha256": "f5134503531afad08bbe251acf36f503e45bd474e1937f7b7e46592b86e94870"
+    },
+    "tests/test_round5_c7_host.py": {
+      "bytes": 6034,
+      "sha256": "10113e91dbfe13646ff0b208e1eaa42be20de30edff3053a445efeb50c5f6f03"
+    }
+  },
+  "findings": {
+    "complete_or_failed_evidence": "Export patterns retain manifests, worker records, original full or interrupted ledgers, MCP run and started markers, logs, setup/resource records and the MCP execution claim outside state. Corpus database bodies and isolated runtime homes are excluded.",
+    "correctness_fixture_boundary": "The workflow candidate correctness fixture uses two independent synthetic-lab SDK transcript sessions, with four recall calls and two read_page calls, without performance timing. These are separate from the registered old-data comparison and its four fresh SDK servers. prepare sdk_sessions=0 describes only prepare, not the entire workflow.",
+    "evaluator_head": "Publication uses a separate GIT_INDEX_FILE, commit-tree and a remote lease; it does not checkout or commit over evaluator HEAD or source worktrees. measure rechecks the original evaluator commit.",
+    "execution_claim": "A remote source-and-plan claim is created with an empty-target lease before preparation. Existing claims block replay. Publication checks the expected previous result commit and does not automatically retry an ambiguous or rejected push.",
+    "fixed_protocol": "The wrapper introduces no query timer. Native 18928 calls and actual MCP 4060 calls run once, sequentially, through their registered helpers. Source DB setup, tokenizer initialization and the harmless procfs child preflight occur outside query timing. No fixed old-data queries are added by this wrapper.",
+    "metadata_export_fix": "Current preserve keeps MCP run.json and workers/*.started.json byte-for-byte uncompressed. Worker JSON.gz and deterministic gzip ledgers remain unchanged. Public MCP state therefore has the filenames expected by the helper saved-data auditor; the earlier metadata decompression limitation is resolved.",
+    "provenance": "prepare fetches the exact registration, C4 archive, C5 and C6 result commits and both source commits before the real continuation validation. Native plan does not require the historical database binary SHA; fresh baseline ingestion retains fixed dataset and logical source/index checks.",
+    "source_isolation": "Baseline databases are created by a fresh Python child that inserts the frozen baseline src before importing memory_book and checks its actual module path. Native and MCP workers keep their exact commit/runtime/import guards; actual SDK server PYTHONPATH points to the selected source."
+  },
+  "fixture_coverage": {
+    "parent_reported_execution": {
+      "elapsed_seconds": 0.212,
+      "passed": 2,
+      "reexecuted_by_this_reviewer": false,
+      "tests": 2
+    },
+    "statically_inspected": [
+      "exact original run and started-marker bytes",
+      "interrupted start-only ledger bytes",
+      "external MCP execution claim preservation",
+      "large corpus database exclusion",
+      "consecutive checkpoint ancestry",
+      "evaluator HEAD and normal index unchanged",
+      "conflicting remote writer rejected"
+    ]
+  },
+  "limits": [
+    "Remote publication occurs at prepared, native and MCP phase boundaries, not after each worker or call. Local original ledgers and workflow artifacts are not a substitute for a completed remote checkpoint if the VM disappears between phases.",
+    "Actual hosted prepare, GitHub authentication/network, data download, source worktree setup and the real procfs selector have not been executed by this review. Their behavior here is a static assessment; the hosted attempt must still satisfy every guard.",
+    "Saved-data audit requires a complete successful comparison; failed or interrupted observations remain evidence and cannot be relabeled as acceptance.",
+    "This review supplies no performance result, formal release acceptance, new quality result or competitor comparison."
+  ],
+  "review_execution": {
+    "helpers_modified": false,
+    "performance_calls": 0,
+    "product_calls": 0,
+    "remote_writes": 0,
+    "sdk_sessions": 0,
+    "tests_run": 0
+  },
+  "reviewer": "benchmark_acceptance independent evaluator review",
+  "schema_version": 1,
+  "status": "static-review-complete-no-identified-blocker"
+}

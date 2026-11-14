@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "protocol": "v033-c7-directed-correctness-v1",
+  "recorded_at_utc": "2026-11-14T05:21:09.497674+00:00",
+  "status": "directed-correctness-passed-not-performance-acceptance",
+  "registration_commit": "718ce3bbe42e23774e616219bd8ae60d143fb76f",
+  "registration_path": "benchmarks/experiments/round5-c7-addendum.json",
+  "registration_sha256": "7dc67e10049bf28ffc57060432442a0bdc371da2cc95506bf373e8381d50afeb",
+  "source_commit": "Parent will freeze these exact tested source hashes after independent review. This receipt makes no claim that the current uncommitted correction is already a git source identity.",
+  "runtime_sha256": "2bbd7a9ed0f8f026f2f007177ebe2e639451d58b6ff91481e54c65a284a7fc31",
+  "files": {
+    "src/memory_book/mcp_server.py": "529230b410977d35cad24c01845a7c834f6303b73dc771a8ae16200d970093a9",
+    "tests/test_round5_candidate_c7.py": "d189b923d0faa4e66be4fca2334628ca17a92c8373499f952619e499f1452987"
+  },
+  "environment": {
+    "python_version": "3.12.14",
+    "python_build": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/workspace/scratch/36b34eafc753/.venv/bin/python",
+    "working_directory": "/workspace/scratch/36b34eafc753/AI-Memory-Book",
+    "packages": {
+      "mcp": "1.30.0",
+      "anyio": "4.16.0",
+      "pydantic": "2.14.3",
+      "tiktoken": "0.12.0"
+    }
+  },
+  "runs": [
+    {
+      "command_argv": [
+        "/workspace/scratch/36b34eafc753/.venv/bin/python",
+        "-m",
+        "unittest",
+        "tests.test_round5_candidate_c7",
+        "tests.test_mcp",
+        "tests.test_mcp_lifecycle",
+        "tests.test_mcp_costs",
+        "tests.test_token_budget_mcp",
+        "-v"
+      ],
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "TIKTOKEN_CACHE_DIR": "/workspace/scratch/36b34eafc753/AI-Memory-Book/.artifacts/tiktoken"
+      },
+      "exit_code": 0,
+      "cases": 26,
+      "passed": 26,
+      "skipped": 0,
+      "unittest_reported_seconds": 6.794,
+      "stdout": {
+        "path": "benchmarks/reports/round5-c7-correctness/revision2-mcp.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "benchmarks/reports/round5-c7-correctness/revision2-mcp.stderr.log",
+        "bytes": 5123,
+        "sha256": "89275cd2f6aff6201bc368cd6c9d384af2e426ee5055ec87463b88de037a2e04"
+      }
+    },
+    {
+      "command_argv": [
+        "/workspace/scratch/36b34eafc753/.venv/bin/python",
+        "-S",
+        "-m",
+        "unittest",
+        "tests.test_round5_candidate_c7",
+        "tests.test_mcp",
+        "tests.test_mcp_lifecycle",
+        "tests.test_mcp_costs",
+        "tests.test_token_budget_mcp",
+        "-v"
+      ],
+      "environment": {
+        "PYTHONPATH": "src:."
+      },
+      "exit_code": 0,
+      "cases": 26,
+      "passed": 6,
+      "skipped": 20,
+      "unittest_reported_seconds": 0.009,
+      "stdout": {
+        "path": "benchmarks/reports/round5-c7-correctness/revision2-no-site.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "benchmarks/reports/round5-c7-correctness/revision2-no-site.stderr.log",
+        "bytes": 5647,
+        "sha256": "9db47452ec2ef467cb4f3f00b2a4a4b8b4482695f8cc91147451b66d01815ab2"
+      }
+    }
+  ],
+  "suite_overlap": "The dependency-free invocation uses the identical 26 case names; 20 dependency-specific cases skip and six execute. Do not add the two runs as 52 distinct tests. The 11 new C7 tests are included in the 26-case suite, not additional tests. Earlier ten-case development checks overlap and are not evidence for the final source.",
+  "log_capture": "Every listed stdout/stderr stream was directly redirected to separate files by the actual unittest command, then copied byte-for-byte into this repository. Empty stdout logs are intentionally retained. Durations are unittest execution durations only, not product or benchmark latency.",
+  "prior_correctness_runs_before_any_c7_performance": [
+    {
+      "source_checkpoint": "d556acfffbb33c14afe386e20f2cef6c29fa4f99",
+      "runtime_sha256": "ad4b0226652869c3a493c2f6e81fb77604414e616f8bce64fab3fabd5c38a1f6",
+      "mcp_server_sha256": "e8b4df6b395219be893e5115bbb030d2e76a0577a50ff4234317ed6c7905c406",
+      "command_argv": [
+        "/workspace/scratch/36b34eafc753/.venv/bin/python",
+        "-m",
+        "unittest",
+        "tests.test_round5_candidate_c7",
+        "-v"
+      ],
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "TIKTOKEN_CACHE_DIR": "/workspace/scratch/36b34eafc753/AI-Memory-Book/.artifacts/tiktoken"
+      },
+      "exit_code": 1,
+      "cases": 10,
+      "passed": 8,
+      "failures": 1,
+      "errors": 1,
+      "unittest_reported_seconds": 1.431,
+      "stdout": {
+        "path": "benchmarks/reports/round5-c7-correctness/initial.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "benchmarks/reports/round5-c7-correctness/initial.stderr.log",
+        "bytes": 6560,
+        "sha256": "7c3eca7c6d1b8112ce78b9634a5201b542aca0d2ae71a48017f228d5bb02648a"
+      },
+      "reason": "The native FileIO.write method in this CPython build has builtin_method type, a built-in subtype of builtin_function_or_method. The initial exact-type native-method guard conservatively rejected standard stdout. Both SDK cases stopped at their positive certification assertion; scheduling/error/cancellation cases passed. No performance test was run with this source."
+    },
+    {
+      "runtime_sha256": "cb6c757dbc331a3450ea23edbaab25823966d6537b3f37eba5e7d3c7241600c5",
+      "mcp_server_sha256": "b963ca5e0a76cc08d985bf81098d60cefdfb98290557169d521558151c18ba16",
+      "command_argv": [
+        "/workspace/scratch/36b34eafc753/.venv/bin/python",
+        "-m",
+        "unittest",
+        "tests.test_round5_candidate_c7",
+        "-v"
+      ],
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "TIKTOKEN_CACHE_DIR": "/workspace/scratch/36b34eafc753/AI-Memory-Book/.artifacts/tiktoken"
+      },
+      "exit_code": 0,
+      "cases": 10,
+      "passed": 10,
+      "failures": 0,
+      "errors": 0,
+      "unittest_reported_seconds": 2.047,
+      "stdout": {
+        "path": "benchmarks/reports/round5-c7-correctness/revision1.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "benchmarks/reports/round5-c7-correctness/revision1.stderr.log",
+        "bytes": 1879,
+        "sha256": "e55fa9528aefdf0b467760ebc57fa729af9044b20149dd717bc1ed0a2a3b7d2d"
+      },
+      "reason": "After accepting the native built-in subtype with the exact native owner/receiver/name guards intact, all ten initial cases passed. Final source additionally certifies the bypassed SDK/AnyIO wrapper and file methods; final tests add cancellation-before-dispatch, -u stdout and actual transport dispatch observations."
+    }
+  ],
+  "coverage": [
+    "A successful adapter write invokes the same native write then flush in one worker dispatch and returns the exact write return value. Only the following paired flush consumes its completed-flush marker; standalone/repeated flushes delegate.",
+    "Write errors propagate by object identity without flushing; flush errors propagate and do not leave a success marker. UTF-8 encoding errors preserve their original args. UTF-8, Unicode, control characters, newline framing and a greater-than-64-KiB payload produce exact expected bytes.",
+    "Real AnyIO cancellation before dispatch performs no write. Cancellation during the worker waits for the original non-abandoning write/flush to finish. A pending cancellation is observed at the paired-flush checkpoint and consumes its one-use marker.",
+    "Ordinary child stdout is certified in buffered and unbuffered modes. Unknown SDK version, replaced/wrapped/rebound FastMCP/Server methods, replaced stdio helpers, AnyIO file construction/write/flush or thread-dispatch helpers, custom stdout and non-native output buffers fall back.",
+    "The real official SDK compares initialization instructions, full list_tools output, two complete recall CallToolResult payloads and one complete large read_page CallToolResult between the optimized path and original FastMCP path. The first recall writes the ordinary result cache; the second preserves the original cache-hit response and stored cache payload.",
+    "The actual five-response SDK sequence observes five combined output worker dispatches on the optimized path versus five write and five flush dispatches on the original path. This test observer is installed only after genuine certification and delegates every operation; it is absent from product source and performance runs.",
+    "Graceful stdin EOF completes the official transport and closes the persistent MemoryBook exactly once in both paths. Standard stream closed-state behavior matches the original SDK. No explicit standard handle close was added.",
+    "Existing tests preserve actual stdio handshake, schema/read-only permissions, explicit write tool, navigation, source references, external-writer invalidation, direct/worker-thread fallbacks, lifecycle cleanup and exact token-budget MCP payloads."
+  ],
+  "limitations": [
+    "Correctness tests and operation counts establish no end-to-end performance benefit or formal acceptance. No C7 development or formal timing was executed by this agent.",
+    "Local execution uses Python 3.12.14 with MCP 1.30.0 and AnyIO 4.16.0. Actual Python 3.10/3.13 behavior remains the exact-source CI responsibility; optional dependencies are absent in the python -S check.",
+    "API transcript assertions compare the listed complete SDK result payloads plus initialization instructions; raw JSON-RPC request ids and the remaining initialization fields are not independently recaptured. The unchanged official SDK remains the sole wire serializer; adapter byte output is tested separately.",
+    "Origin/receiver guards cover ordinary replaced/custom functions and native stream types. They do not attempt to detect malicious forgery of module code filenames, names, globals or private metadata."
+  ]
+}

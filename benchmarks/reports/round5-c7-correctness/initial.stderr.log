@@ -1,0 +1,78 @@
+test_cancel_does_not_abandon_write_flush_worker (tests.test_round5_candidate_c7.CancellationTests.test_cancel_does_not_abandon_write_flush_worker) ... ok
+test_paired_flush_still_checks_cancellation_and_consumes_marker (tests.test_round5_candidate_c7.CancellationTests.test_paired_flush_still_checks_cancellation_and_consumes_marker) ... ok
+test_flush_error_propagates_and_next_flush_is_not_skipped (tests.test_round5_candidate_c7.OutputSchedulingTests.test_flush_error_propagates_and_next_flush_is_not_skipped) ... ok
+test_one_dispatch_per_message_and_independent_repeated_flush (tests.test_round5_candidate_c7.OutputSchedulingTests.test_one_dispatch_per_message_and_independent_repeated_flush) ... ok
+test_unicode_control_characters_large_lines_and_exact_return_values (tests.test_round5_candidate_c7.OutputSchedulingTests.test_unicode_control_characters_large_lines_and_exact_return_values) ... ok
+test_unknown_server_keeps_original_run_and_arguments (tests.test_round5_candidate_c7.OutputSchedulingTests.test_unknown_server_keeps_original_run_and_arguments) ... ok
+test_utf8_encoding_failure_keeps_original_error (tests.test_round5_candidate_c7.OutputSchedulingTests.test_utf8_encoding_failure_keeps_original_error) ... ok
+test_write_error_propagates_without_flushing_or_marking_success (tests.test_round5_candidate_c7.OutputSchedulingTests.test_write_error_propagates_without_flushing_or_marking_success) ... ok
+test_guards_use_real_native_child_stdout_and_reject_custom_paths (tests.test_round5_candidate_c7.StandardSdkTests.test_guards_use_real_native_child_stdout_and_reject_custom_paths) ... FAIL
+test_real_sdk_transcript_large_unicode_cache_writes_and_eof (tests.test_round5_candidate_c7.StandardSdkTests.test_real_sdk_transcript_large_unicode_cache_writes_and_eof) ... ERROR
+
+======================================================================
+ERROR: test_real_sdk_transcript_large_unicode_cache_writes_and_eof (tests.test_round5_candidate_c7.StandardSdkTests.test_real_sdk_transcript_large_unicode_cache_writes_and_eof)
+----------------------------------------------------------------------
+  + Exception Group Traceback (most recent call last):
+  |   File "/workspace/scratch/36b34eafc753/AI-Memory-Book/tests/test_round5_candidate_c7.py", line 327, in test_real_sdk_transcript_large_unicode_cache_writes_and_eof
+  |     asyncio.run(scenario(root, original))
+  |   File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py", line 195, in run
+  |     return runner.run(main)
+  |            ^^^^^^^^^^^^^^^^
+  |   File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py", line 118, in run
+  |     return self._loop.run_until_complete(task)
+  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+  |     return future.result()
+  |            ^^^^^^^^^^^^^^^
+  |   File "/workspace/scratch/36b34eafc753/AI-Memory-Book/tests/test_round5_candidate_c7.py", line 287, in scenario
+  |     async with stdio_client(parameters, errlog=errors) as (reader, writer):
+  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/contextlib.py", line 231, in __aexit__
+  |     await self.gen.athrow(value)
+  |   File "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/mcp/client/stdio/__init__.py", line 183, in stdio_client
+  |     anyio.create_task_group() as tg,
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 871, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Exception Group Traceback (most recent call last):
+    |   File "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/mcp/client/stdio/__init__.py", line 189, in stdio_client
+    |     yield read_stream, write_stream
+    |   File "/workspace/scratch/36b34eafc753/AI-Memory-Book/tests/test_round5_candidate_c7.py", line 288, in scenario
+    |     async with ClientSession(reader, writer) as client:
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/mcp/shared/session.py", line 238, in __aexit__
+    |     return await self._task_group.__aexit__(exc_type, exc_val, exc_tb)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 871, in __aexit__
+    |     raise BaseExceptionGroup(
+    | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+    +-+---------------- 1 ----------------
+      | Traceback (most recent call last):
+      |   File "/workspace/scratch/36b34eafc753/AI-Memory-Book/tests/test_round5_candidate_c7.py", line 289, in scenario
+      |     init = await client.initialize()
+      |            ^^^^^^^^^^^^^^^^^^^^^^^^^
+      |   File "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/mcp/client/session.py", line 183, in initialize
+      |     result = await self.send_request(
+      |              ^^^^^^^^^^^^^^^^^^^^^^^^
+      |   File "/workspace/scratch/36b34eafc753/.venv/lib/python3.12/site-packages/mcp/shared/session.py", line 306, in send_request
+      |     raise McpError(response_or_error.error)
+      | mcp.shared.exceptions.McpError: Connection closed
+      +------------------------------------
+
+======================================================================
+FAIL: test_guards_use_real_native_child_stdout_and_reject_custom_paths (tests.test_round5_candidate_c7.StandardSdkTests.test_guards_use_real_native_child_stdout_and_reject_custom_paths)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/36b34eafc753/AI-Memory-Book/tests/test_round5_candidate_c7.py", line 249, in test_guards_use_real_native_child_stdout_and_reject_custom_paths
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 11, in <module>
+AssertionError
+
+
+----------------------------------------------------------------------
+Ran 10 tests in 1.431s
+
+FAILED (failures=1, errors=1)

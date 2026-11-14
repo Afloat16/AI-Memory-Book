@@ -350,7 +350,7 @@ def _ordinary_method(owner, cls, module, name):
 
 def _native_method(owner, name):
     value = getattr(owner, name, None)
-    return (type(value) is BuiltinFunctionType and value.__self__ is owner
+    return (isinstance(value, BuiltinFunctionType) and value.__self__ is owner
             and value.__name__ == name)
 
 
@@ -359,7 +359,7 @@ def _standard_stdio_config(server):
     try:
         from importlib.metadata import version
         import anyio
-        from anyio._core import _eventloop
+        from anyio._core import _eventloop, _fileio
         import mcp.server.fastmcp.server as fastmcp
         import mcp.server.lowlevel.server as lowlevel
         import mcp.server.stdio as stdio
@@ -378,6 +378,8 @@ def _standard_stdio_config(server):
         wrapped = getattr(transport, "__wrapped__", None)
         closure = getattr(transport, "__closure__", None)
         if (fastmcp.stdio_server is not transport or type(transport) is not FunctionType
+                or stdio.TextIOWrapper is not io.TextIOWrapper or stdio.anyio is not anyio
+                or stdio.sys is not sys
                 or transport.__code__.co_filename != asynccontextmanager.__code__.co_filename
                 or transport.__code__.co_name != "helper"
                 or not _ordinary_function(wrapped, stdio, "stdio_server")
@@ -387,6 +389,28 @@ def _standard_stdio_config(server):
                 or not _ordinary_function(anyio.run, _eventloop, "run", "anyio")
                 or not _ordinary_function(anyio.to_thread.run_sync, anyio.to_thread, "run_sync")
                 or not _ordinary_function(anyio.lowlevel.checkpoint, anyio.lowlevel, "checkpoint")):
+            return None
+        if (anyio.wrap_file is not _fileio.wrap_file
+                or not _ordinary_function(anyio.wrap_file, _fileio, "wrap_file", "anyio")
+                or anyio.AsyncFile is not _fileio.AsyncFile
+                or _fileio.to_thread is not anyio.to_thread
+                or not all(_ordinary_function(getattr(_fileio.AsyncFile, name, None),
+                                               _fileio, "AsyncFile." + name)
+                           for name in ("__init__", "write", "flush"))):
+            return None
+        # The SDK normally constructs stdin first. Certify its native input
+        # before owning a new stdout wrapper, so unsupported/custom inputs keep
+        # the original construction and failure order.
+        stdin = sys.stdin
+        if stdin is not sys.__stdin__ or type(stdin) is not io.TextIOWrapper or stdin.closed:
+            return None
+        input_binary = stdin.buffer
+        input_raw = input_binary.raw if type(input_binary) is io.BufferedReader else input_binary
+        if (type(input_binary) not in (io.BufferedReader, io.FileIO)
+                or type(input_raw) is not io.FileIO or input_binary.closed or input_raw.closed
+                or not all(_native_method(input_binary, name) for name in ("read", "readable"))
+                or not all(_native_method(input_raw, name) for name in ("read", "fileno", "readable"))
+                or input_raw.fileno() != 0 or not input_raw.readable()):
             return None
         stdout = sys.stdout
         if (stdout is not sys.__stdout__ or type(stdout) is not io.TextIOWrapper
