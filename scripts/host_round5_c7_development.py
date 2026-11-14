@@ -154,7 +154,9 @@ def preserve(stage, state, public, branch):
                 destination = public / folder / source.relative_to(state / folder)
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 raw = source.read_bytes()
-                if source.suffix in (".json", ".jsonl"):
+                # Keep small MCP run/started metadata directly readable by the
+                # frozen saved-data auditor; compress large rows and ledgers.
+                if source.suffix == ".jsonl" or (source.suffix == ".json" and folder == "native-state"):
                     destination = destination.with_name(destination.name + ".gz")
                     raw = gzip.compress(raw, mtime=0)
                 destination.write_bytes(raw)

@@ -18,14 +18,42 @@ import re
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
-# Intentionally blocked: C7 transport policy, preregistration and final source
-# have not been frozen. Preserve every previous complete rejection; do not infer
-# C7 identities or approval from a development or historical candidate.
+# Exact C7 preregistration is bound; the final source remains blocked.
+# Preserve every previous complete rejection and wait for the source freeze.
 C7_PROVENANCE_BOUND = False
-C7_REGISTRATION_PROTOCOL = None
-C7_REGISTRATION_STATUS = None
-C7_POLICY_KEY = None
-C7_POLICY = None
+C7_REGISTRATION_PROTOCOL = 'v033-c7-mcp-stdout-write-flush-continuation-v1'
+C7_REGISTRATION_STATUS = 'registered-before-c7-implementation-and-timing'
+C7_POLICY_KEY = 'mcp_stdout_policy'
+C7_POLICY = {'sdk_version': '1.30.0',
+ 'scope': 'serve standard stdio path with verified original SDK methods and a native standard '
+          'stdout stream',
+ 'serialization': 'unchanged official SDK JSONRPCMessage.model_dump_json and newline',
+ 'encoding': 'same owned native UTF-8 TextIOWrapper over the standard stdout binary buffer',
+ 'write_and_flush': 'one default anyio.to_thread.run_sync operation calls the original native '
+                    'write(data), then flush(), in that order',
+ 'flush_frequency': 'every successful message is flushed immediately; no batching across responses',
+ 'followup_flush': 'skip only the immediately following SDK flush already completed successfully '
+                   'by that write; standalone flush and a flush after failed write/flush delegate '
+                   'normally',
+ 'cross_message_text_buffer': False,
+ 'thread_cancellation': 'preserve default non-abandoning worker behavior; propagate write and '
+                        'flush errors; do not change limiters or cancellation options',
+ 'lifecycle': 'official stdio_server(stdout=adapter), unchanged lowlevel server '
+              'initialization/lifespan/context/handlers; no explicit closing of standard process '
+              'handles',
+ 'fallback': 'unknown SDK version, replaced or custom SDK method, unsupported standard-stream '
+             'identity or custom stdout uses the original FastMCP.run(transport=stdio) path',
+ 'unchanged': ['CLI command and arguments',
+               'stdin reader',
+               'client SDK',
+               'tool schema and instructions',
+               'JSON framing and response fields',
+               'retrieval and source validation',
+               'ranking and exact token budgets',
+               'normal result-cache lookup/write/revision checks/pruning/transactions',
+               'C6 request-local source work',
+               'C5 bounded exact-count memo and cold/warm policy',
+               'dependencies and database schema']}
 C7_EVALUATOR_FILE_COUNT = 60
 KNOWN_C5_REJECTION = {'source': {'commit': '8dc6604fa32df18d53286110b215fc6657243656', 'runtime_sha256': '6af876ef5ddc851f4fff56ba3dc4f20e76b2cfc9f5e31d0cc8d1a0ec20e954be'}, 'binding_path': 'benchmarks/experiments/round5-c5-performance-binding.json', 'binding_sha256': 'bd395da21848cc01656ab45bc211a388b43b4ae63edb8690b2eabe2958d3781a', 'summary_path': 'benchmarks/reports/round5-c5-performance-43552372788-1/report.summary.json', 'summary_sha256': '930a28c40913b2eea3e38b7ce5bc04e673e288396fccb67bf16e59d42e996f25', 'result_commit': '3982ceab2bdce0e9a189135ce261445a3a38d779', 'formal_run': '43552372788-1', 'accepted': False, 'numeric_gate_passed': False}
 KNOWN_C6_REJECTION = {'source': {'commit': '1bd97221e31e8e975498ece00f4bbfb3e0426aac', 'runtime_sha256': 'cfffd8a21374cbf9152bbbc98a6a9847a1e22401f16179112e2f79eef181ff78'}, 'binding_path': 'benchmarks/experiments/round5-c6-performance-binding.json', 'binding_sha256': '2b57caea5b3d7f12b38aba9472d798e846a5231b936551784f0963259e2a715a', 'summary_path': 'benchmarks/reports/round5-c6-performance-43557136276-1/report.summary.json', 'summary_sha256': 'f05d011e3477eee69953ab3a5097e3d69f5657c12c6692d4d96af4f87cb6ad9e', 'result_commit': 'c6b384778e12ce9c72771911af37bbb2c5d3474f', 'formal_run': '43557136276-1', 'accepted': False, 'numeric_gate_passed': False}
@@ -36,8 +64,8 @@ SOURCES = {
     "candidate": {"commit": None, "runtime_sha256": None},
 }
 CONTINUATION_PATH = "benchmarks/experiments/round5-c7-addendum.json"
-CONTINUATION_COMMIT = None
-CONTINUATION_SHA256 = None
+CONTINUATION_COMMIT = '718ce3bbe42e23774e616219bd8ae60d143fb76f'
+CONTINUATION_SHA256 = '7dc67e10049bf28ffc57060432442a0bdc371da2cc95506bf373e8381d50afeb'
 C3_SOURCE = {"commit": "1c9a6d3f611608e8dbce8e729fdd3099513d80e6",
     "runtime_sha256": "7a927601b5ce710059d5a2640b3642c58a2bd4985d9ccdc48f69159938ee3623"}
 C3_BINDING_PATH = "benchmarks/experiments/round5-performance-binding.json"
@@ -51,7 +79,7 @@ C4_ARCHIVE_COMMIT = "e439c226cc2d422b44007dedd25aa750a62f88a9"
 C4_SUMMARY_PATH = "benchmarks/reports/round5-development/candidate-c4-full/summary.json"
 C4_SUMMARY_SHA256 = "c53fcd0c379888b91da3a46ed609ad50df07a0661dc21bc0701bda04b3d56d38"
 DEVELOPMENT_PLAN_PATH = "benchmarks/experiments/round5-c7-development-plan.json"
-DEVELOPMENT_PLAN_SHA256 = None
+DEVELOPMENT_PLAN_SHA256 = 'b6b61348a178cabbc4f787eb8ccd18ebdbeeb11cd18f6f82149b098c1057593c'
 C7_BINDING_PATH = "benchmarks/experiments/round5-c7-performance-binding.json"
 MEMO_LIMITS = {"entry_limit": 2048, "text_byte_limit": 2097152}
 MEMO_COUNTERS = ("hits", "misses", "evictions", "invalidations",
