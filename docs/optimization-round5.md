@@ -1,6 +1,6 @@
 # v0.3.3 optimization and release checkpoint
 
-Status: C6 is frozen, its complete 18,928-call development comparison and 2,304-call historical compatibility check are saved, and its sole formal run [43557136276](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43557136276) is in progress. Formal acceptance and runtime approval remain pending. C3 and C5 remain numerically rejected; C5's actual public MCP token1024 improvement is 6.673181%, below the unchanged 10% gate. C4 remains development-only. All earlier observations are retained.
+Status: C6 completed its sole formal run [43557136276](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43557136276), but remains numerically rejected: aggregate p95 improves 14.919173%, the best public native token setting improves 16.286785%, and actual public MCP token1024 improves only 5.798911%, below the unchanged 10% gate. All 56,784 calls and 28,392 complete output pairs are valid; no resource-review threshold is triggered. C3 and C5 remain rejected, C4 remains development-only, and no v0.3.3 runtime is approved.
 
 ## Source and purpose
 
@@ -20,7 +20,7 @@ Continue from main `de6e2652572c4867cda2aac5637a4a6630638c7e` and compare agains
 
 Core performance implementation, independent benchmark validation, and release-policy review run separately. Commit small completed changes to `optimization/round5-v0.3.3`; update this checkpoint with source SHAs and saved results as they become available. Main and the release tag advance only after acceptance. Code, benchmark receipts and release notes belong in this Git repository, with no dependency on transient conversation blobs.
 
-Current next steps: preserve the running C6 formal checkpoints, audit every saved observation and resource cost, and assess the original acceptance gates. Only a passing final-source result can approve the runtime and advance main. The final release commit must then pass all nine CI jobs and package checks before a normal v0.3.3 release and public-installer verification. Do not rerun the same binding for a more favorable sample.
+Current next steps: preserve the complete C6 rejection, inspect the actual MCP call boundary and register a transparent full-cohort diagnostic before executing it. Any C7 continuation requires substantive product work, a new source/evaluator binding and the same original gates. Only a passing final-source result can approve the runtime and advance main. The final release commit must then pass all nine CI jobs and package checks before a normal v0.3.3 release and public-installer verification. Do not rerun an unchanged binding for a more favorable sample.
 
 ## Candidate A checkpoint
 
@@ -155,10 +155,16 @@ The [C6 Hotpot256 compatibility check](../benchmarks/reports/round5-c6-hotpot-re
 
 All development, compatibility and CI evidence was committed before formal binding at `0bd9ccf48bc9ed6a666888838ca11580c3104b98`.
 
-## C6 sole formal execution in progress
+## C6 sole formal execution and complete rejection
 
 The [new binding](../benchmarks/experiments/round5-c6-performance-binding.json) was committed at `4d737fc60a12b60433f6f020614b296908b4c833`, SHA256 `2b57caea5b3d7f12b38aba9472d798e846a5231b936551784f0963259e2a715a`, with evaluator commit `0bd9ccf48bc9ed6a666888838ca11580c3104b98` and the frozen C6 source above. Its 51 measurement files, pinned SDK/tokenizer versions and original v0.3.2 source are verified before timing.
 
-The single [hosted run 43557136276, attempt 1](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43557136276) uses an isolated VM and publishes immutable progress to `validation/v033-round5-c6-performance-43557136276-1`. It retains four balanced rounds, all 56,784 calls, all 28,392 complete non-timing output pairs, the native and actual SDK MCP surfaces, cold first calls, resource measurements and every adverse sample. No completed result is available at this checkpoint.
+The single [hosted run 43557136276, attempt 1](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43557136276) used an isolated VM and published immutable progress to `validation/v033-round5-c6-performance-43557136276-1`. It completed four balanced rounds, all 56,784 calls and all 28,392 matching complete non-timing output pairs, with native and actual SDK MCP surfaces, cold first calls, resource measurements and every adverse sample retained.
 
 The original numerical gates remain unchanged: aggregate p95 gain at least 10%, at least one public native token p95 gain at least 15%, public actual-MCP token1024 p95 gain at least 10%, and no pooled p50/p95 regression above 5%. A resource mean increase above 10% requires explicit independent review. Passing development or compatibility alone cannot authorize a release, and a completed numerical failure cannot be relabeled as an interrupted run.
+
+The final result commit is `c6b384778e12ce9c72771911af37bbb2c5d3474f`; all 54 original files were verified against the 53-file completion inventory and their Git blob IDs, then losslessly merged at `5126acfd7fe6d94055d9b056b188d4948857b25e`. [Integrity receipt](../benchmarks/reports/round5-c6-result-integrity.json). The complete [independent review](round5-c6-performance-review.md) retains all twelve pooled and forty-eight per-round latency cells, all twenty-eight resource comparisons, storage and memo observations. Both saved-result audits pass without retrieval or timing, while `accepted:false` and `numeric_gate_passed:false` remain unchanged.
+
+Aggregate p95 improves **14.919173%** and the best public native token configuration improves **16.286785%**. Actual public SDK MCP token1024 p95 is **7.289725 → 6.867000 ms**, only **5.798911%** better, so this gate fails. Its four individual round gains are **4.494251% / 7.220592% / 5.388878% / 2.590947%**, all below 10%. Every pooled p50, p95 and mean improves. The only adverse per-round latency metric is synthetic MCP char4000 round 0 p50, **+0.073375%**. Maximum resource mean increase is runtime import on synthetic61, **+9.189807%**, below the 10% review trigger. None of these favorable results overrides the failed MCP requirement.
+
+The workflow measurement step therefore fails; its saved-observation audit, completion checkpoint and artifact upload succeed. The completion schema's generic `failed_or_incomplete` status accompanies a complete `measurements_completed` report with no errors or missing calls. C6 is not rerun, the original gate is not lowered, and the v0.3.3 approved runtime, main branch, tag and release remain untouched.
