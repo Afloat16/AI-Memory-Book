@@ -31,3 +31,12 @@ Read this file and the plan, then inspect the latest remote work-branch commit a
 ## Command loading checkpoint
 
 The package exposes the same `MemoryBook` class lazily, keeping its original identity, star import and discovery. CLI help/version now load only command metadata; transcript format names live in a lightweight shared module, and archive, capture configuration and command-specific helpers load only when used. Explicit database commands avoid unrelated capture configuration. The [correctness receipt](../benchmarks/reports/round6-command-correctness.json) records 92 passing tests, including four isolated process checks of imports, type hints, class overrides and real database creation. This is an implementation/correctness checkpoint, not a measured CLI speed claim or final-source release approval.
+
+
+## Candidate A implementation ready for source freeze
+
+Version metadata and installers now identify candidate v0.3.4. Runtime SHA256 is `f361d2bf64a4e1088cbd5cff6ffdaf19aa15e7f1b7ea1de4577d7a488d2ac242` (17 Python files). The new archive schema runs under one immediate transaction with a locked empty/schema recheck; partial failures roll back and close, and competing initializers safely recheck. Native FTS results carry already-read narrow metadata within the same recall, avoiding a second union query. All candidate-directory checks remain; custom factories and restrictive/uninspectable SQLite limits keep the original query path. Python 3.10 uses that conservative metadata fallback.
+
+[Candidate correctness](../benchmarks/reports/round6-candidate-a-correctness.json) records the overlapping 40-test protocol/release/startup check and final 10-test atomic/metadata suite. [Baseline diagnostics](../benchmarks/reports/round6-development/baseline-profile/manifest.json) preserve all 4,732 old-data cProfile calls and 1,183 operation-count calls, including preflight failure evidence. These are diagnostic observations, not an accepted speed result.
+
+The new performance/compatibility and fresh-comparison controllers are checkpointed as scaffolds, with no bound final evaluation and no fresh selected/scored questions. Runtime release approval remains absent. Next: exact-source CI, once-per-source development runs and complete historical output compatibility, then the independent frozen formal comparison under the original 10/15/10 gates.

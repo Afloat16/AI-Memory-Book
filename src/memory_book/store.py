@@ -251,6 +251,12 @@ def _query_facets(query: str) -> list[list[str]]:
     return facets if all(len(facet) >= 2 for facet in facets) else []
 
 
+class _RecallCandidates(dict):
+    """Candidate rows with request-local, same-snapshot covering metadata."""
+
+    __slots__ = ("metadata",)
+
+
 class MemoryBook:
     """One SQLite connection per instance. Use a separate instance per thread.
 
@@ -299,12 +305,7 @@ class MemoryBook:
             # A modest connection-local pager target, independent of the
             # query-result cache. This does not persist a file-format setting.
             self.db.execute("PRAGMA cache_size=-4096")
-            if version == 0:
-                existing = self.db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").fetchall()
-                if existing:
-                    raise ValueError("refusing to initialize a non-Memory-Book database")
-                self.db.executescript(SCHEMA)
-            elif version < SCHEMA_VERSION or not self._stem_guard_ready():
+            if version < SCHEMA_VERSION or not self._stem_guard_ready():
                 self._migrate_schema()
             # The narrow covering index is derived metadata only. Adding it
             # leaves source rows, addresses, revision and schema compatibility
@@ -414,7 +415,7 @@ class MemoryBook:
           AND EXISTS(SELECT 1 FROM meta WHERE key='stem_revision')""").fetchone()[0])
 
     def _migrate_schema(self) -> None:
-        """Upgrade all derived indexes atomically without changing page addresses."""
+        """Initialize or upgrade atomically without changing page addresses."""
         self.db.execute("BEGIN IMMEDIATE")
         try:
             # Another connection may have upgraded while this one waited for
@@ -423,9 +424,24 @@ class MemoryBook:
             app_id = self.db.execute("PRAGMA application_id").fetchone()[0]
             if app_id not in {0, APPLICATION_ID}:
                 raise ValueError("refusing to migrate a database belonging to another application")
-            if version not in {1, 2, SCHEMA_VERSION}:
+            if version not in {0, 1, 2, SCHEMA_VERSION}:
                 raise ValueError(f"unsupported database schema {version}; expected {SCHEMA_VERSION}")
-            if version < SCHEMA_VERSION or not self._stem_guard_ready():
+            if version == 0:
+                existing = self.db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").fetchall()
+                if existing:
+                    raise ValueError("refusing to initialize a non-Memory-Book database")
+                # executescript commits an already-open transaction. Execute
+                # complete statements instead, retaining whole triggers and
+                # the lock that protects the empty-database check above.
+                statement = ""
+                for line in SCHEMA.splitlines(keepends=True):
+                    statement += line
+                    if sqlite3.complete_statement(statement):
+                        self.db.execute(statement)
+                        statement = ""
+                if statement.strip():
+                    self.db.execute(statement)
+            elif version < SCHEMA_VERSION or not self._stem_guard_ready():
                 names = {row[0] for row in self.db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
                 if not {"meta", "projects", "sessions", "pages", "pages_fts", "recall_cache"} <= names:
                     raise ValueError("refusing to migrate a non-Memory-Book database")
@@ -742,10 +758,16 @@ class MemoryBook:
         retained = {identity for identity, value in relevance.items() if value * 1.15 >= floor}
         if len(retained) == len(rows):
             return None
-        ids = [row["rid"] for row in rows.values()]
-        light = self.db.execute("""SELECT id,project_id,chapter_id,session_pk
-          FROM pages INDEXED BY pages_recall_metadata WHERE rid IN (""" +
-          ",".join("?" for _ in ids) + ")", ids).fetchall()
+        if type(rows) is _RecallCandidates:
+            # The native FTS queries already visited this covering index.
+            # Reuse only this call's captured fields; ordinary dictionaries
+            # and customized connection paths retain the independent read.
+            light = rows.metadata.values()
+        else:
+            ids = [row["rid"] for row in rows.values()]
+            light = self.db.execute("""SELECT id,project_id,chapter_id,session_pk
+              FROM pages INDEXED BY pages_recall_metadata WHERE rid IN (""" +
+              ",".join("?" for _ in ids) + ")", ids).fetchall()
         if (len(light) != len(rows) or {row[0] for row in light} != set(rows)
                 or any(type(value) is not str for row in light for value in row)):
             return None
@@ -859,12 +881,29 @@ class MemoryBook:
                 # ordinary global/project routes use the narrow covering map.
                 covering_hint = (" INDEXED BY pages_recall_metadata" if
                                  project_bounds is not None or (chapter is None and session is None) else "")
+                carry_metadata = (use_stem and not coverage and not semantic
+                    and type(self.db) is sqlite3.Connection
+                    and self.db.row_factory is sqlite3.Row and self.db.text_factory is str
+                    and self._directory_tokens is self._ordinary_directory_cache
+                    and getattr(self._directory_tokens, "__wrapped__", None) is _ORDINARY_DIRECTORY_TOKENS)
+                if carry_metadata:
+                    # Extra projected fields and removing the old IN query
+                    # must not change errors under customized SQLite limits.
+                    # Python 3.10 cannot inspect them and retains the old SQL.
+                    getlimit = getattr(self.db, "getlimit", None)
+                    carry_metadata = getlimit is not None and all(getlimit(category) >= minimum
+                        for category, minimum in ((sqlite3.SQLITE_LIMIT_COLUMN, 2000),
+                            (sqlite3.SQLITE_LIMIT_EXPR_DEPTH, 1000),
+                            (sqlite3.SQLITE_LIMIT_VDBE_OP, 250000000),
+                            (sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER, 192),
+                            (sqlite3.SQLITE_LIMIT_SQL_LENGTH, 10000)))
+                route_metadata = ",p.project_id,p.chapter_id,p.session_pk" if carry_metadata else ""
                 routes = []
                 for table in (("pages_fts", "pages_stem_fts") if use_stem else ("pages_fts",)):
                     # Table identifiers are fixed above; query text and every
                     # caller-supplied scope remain bound SQL parameters.
                     page_join = " CROSS JOIN" if project_bounds is not None else " JOIN"
-                    statement = (f"""SELECT p.rid,p.id,bm25({table},2.0,2.0,1.0,0.25) rank
+                    statement = (f"""SELECT p.rid,p.id,bm25({table},2.0,2.0,1.0,0.25) rank{route_metadata}
                       FROM {table}""" + page_join +
                       f" pages p{covering_hint} ON p.rid={table}.rowid" + scope_join +
                       f" WHERE {table} MATCH ?" + where)
@@ -901,6 +940,15 @@ class MemoryBook:
                     stem_scores = {row["id"]: max(0.0, -row["rank"]) for row in routes[1]}
                     exact_scale = max(exact_scores.values(), default=1.0) or 1.0
                     stem_scale = max(stem_scores.values(), default=1.0) or 1.0
+                if carry_metadata:
+                    rows = _RecallCandidates()
+                    rows.metadata = {}
+                    for route in reversed(routes) if fuse_routes else routes[:1]:
+                        for row in route:
+                            identity = row[1]
+                            rows[identity] = {"rid": row[0], "id": identity, "rank": row[2]}
+                            rows.metadata[identity] = (identity, row[3], row[4], row[5])
+                elif fuse_routes:
                     rows = {row["id"]: dict(row) for route in reversed(routes) for row in route}
                 else:
                     rows = {row["id"]: dict(row) for row in routes[0]}
