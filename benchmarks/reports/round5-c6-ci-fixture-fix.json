@@ -1,0 +1,1304 @@
+{
+  "schema_version": 1,
+  "protocol": "round5-c6-exact-ci-fixture-fix-audit-v1",
+  "checked_at_utc": "2026-11-14T04:30:01.337Z",
+  "status": "all_nine_jobs_passed_for_fixture_fix_commit_not_final_release_approval",
+  "reviewer": "release_audit (independent remote CI read and Git-object inspection)",
+  "source": {
+    "performance_source_commit": "1bd97221e31e8e975498ece00f4bbfb3e0426aac",
+    "ci_fixture_fix_commit": "3ad5b591f4cb403f43cb2b92d21a842a1d8a5bb6",
+    "runtime_sha256": "cfffd8a21374cbf9152bbbc98a6a9847a1e22401f16179112e2f79eef181ff78",
+    "product_tree_path": "src/memory_book",
+    "git_tree_object_ids": {
+      "1bd97221e31e8e975498ece00f4bbfb3e0426aac": "3c168e98eea25b30fdf98a606c90ea5a91ab35d4",
+      "3ad5b591f4cb403f43cb2b92d21a842a1d8a5bb6": "3c168e98eea25b30fdf98a606c90ea5a91ab35d4"
+    },
+    "product_runtime_tree_unchanged": true,
+    "boundary": "All nine successful jobs belong to the fixture-fix commit 3ad5b59, not to the earlier failed 1bd9722 run. Both commits contain the exact same complete product runtime tree."
+  },
+  "required_jobs": [
+    "container",
+    "core (3.10)",
+    "core (3.12)",
+    "core (3.13)",
+    "installers (macos-latest)",
+    "installers (ubuntu-latest)",
+    "installers (windows-latest)",
+    "mcp",
+    "reader-browser"
+  ],
+  "original_ci_failure": {
+    "run": {
+      "id": 43556318382,
+      "attempt": 1,
+      "name": "Tests",
+      "path": ".github/workflows/ci.yml",
+      "event": "push",
+      "head_branch": "optimization/round5-v0.3.3",
+      "head_sha": "1bd97221e31e8e975498ece00f4bbfb3e0426aac",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-14T04:22:20Z",
+      "updated_at": "2026-11-14T04:23:46Z",
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556318382",
+      "api_url": "https://api.github.com/repos/Afloat16/AI-Memory-Book/actions/runs/43556318382"
+    },
+    "jobs": [
+      {
+        "id": 132329853488,
+        "name": "core (3.10)",
+        "head_sha": "1bd97221e31e8e975498ece00f4bbfb3e0426aac",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "started_at": "2026-11-14T04:22:22Z",
+        "completed_at": "2026-11-14T04:23:07Z",
+        "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556318382/job/132329853488",
+        "steps": [
+          {
+            "number": 1,
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 2,
+            "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 3,
+            "name": "Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 4,
+            "name": "Run python -m pip install .",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 5,
+            "name": "Run python -m unittest discover -s tests -v",
+            "status": "completed",
+            "conclusion": "cancelled"
+          },
+          {
+            "number": 6,
+            "name": "Run python -m memory_book --version",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "number": 11,
+            "name": "Post Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "number": 12,
+            "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 13,
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 132329853594,
+        "name": "installers (macos-latest)",
+        "head_sha": "1bd97221e31e8e975498ece00f4bbfb3e0426aac",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-11-14T04:22:23Z",
+        "completed_at": "2026-11-14T04:23:11Z",
+        "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556318382/job/132329853594",
+        "steps": [
+          {
+            "number": 1,
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 2,
+            "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 3,
+            "name": "Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 4,
+            "name": "Install local wheel build tools",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 5,
+            "name": "Test isolated installation, reinstall, failure recovery, and default extras",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 9,
+            "name": "Post Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 10,
+            "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 11,
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 132329853646,
+        "name": "installers (ubuntu-latest)",
+        "head_sha": "1bd97221e31e8e975498ece00f4bbfb3e0426aac",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-11-14T04:22:22Z",
+        "completed_at": "2026-11-14T04:22:58Z",
+        "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556318382/job/132329853646",
+        "steps": [
+          {
+            "number": 1,
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 2,
+            "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 3,
+            "name": "Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 4,
+            "name": "Install local wheel build tools",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 5,
+            "name": "Test isolated installation, reinstall, failure recovery, and default extras",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 9,
+            "name": "Post Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 10,
+            "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 11,
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 132329853665,
+        "name": "installers (windows-latest)",
+        "head_sha": "1bd97221e31e8e975498ece00f4bbfb3e0426aac",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-11-14T04:22:22Z",
+        "completed_at": "2026-11-14T04:23:28Z",
+        "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556318382/job/132329853665",
+        "steps": [
+          {
+            "number": 1,
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 2,
+            "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 3,
+            "name": "Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 4,
+            "name": "Install local wheel build tools",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 5,
+            "name": "Test isolated installation, reinstall, failure recovery, and default extras",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 9,
+            "name": "Post Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 10,
+            "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 11,
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 132329853687,
+        "name": "mcp",
+        "head_sha": "1bd97221e31e8e975498ece00f4bbfb3e0426aac",
+        "status": "completed",
+        "conclusion": "failure",
+        "started_at": "2026-11-14T04:22:22Z",
+        "completed_at": "2026-11-14T04:23:45Z",
+        "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556318382/job/132329853687",
+        "steps": [
+          {
+            "number": 1,
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 2,
+            "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 3,
+            "name": "Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 4,
+            "name": "Run python -m pip install '.[mcp,clients,benchmark]'",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 5,
+            "name": "Run python -m unittest discover -s tests -v",
+            "status": "completed",
+            "conclusion": "failure"
+          },
+          {
+            "number": 9,
+            "name": "Post Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "number": 10,
+            "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 11,
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 132329853694,
+        "name": "core (3.12)",
+        "head_sha": "1bd97221e31e8e975498ece00f4bbfb3e0426aac",
+        "status": "completed",
+        "conclusion": "failure",
+        "started_at": "2026-11-14T04:22:22Z",
+        "completed_at": "2026-11-14T04:23:04Z",
+        "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556318382/job/132329853694",
+        "steps": [
+          {
+            "number": 1,
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 2,
+            "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 3,
+            "name": "Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 4,
+            "name": "Run python -m pip install .",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 5,
+            "name": "Run python -m unittest discover -s tests -v",
+            "status": "completed",
+            "conclusion": "failure"
+          },
+          {
+            "number": 6,
+            "name": "Run python -m memory_book --version",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "number": 11,
+            "name": "Post Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "number": 12,
+            "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 13,
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 132329853714,
+        "name": "container",
+        "head_sha": "1bd97221e31e8e975498ece00f4bbfb3e0426aac",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-11-14T04:22:23Z",
+        "completed_at": "2026-11-14T04:23:41Z",
+        "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556318382/job/132329853714",
+        "steps": [
+          {
+            "number": 1,
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 2,
+            "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 3,
+            "name": "Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 4,
+            "name": "Install the MCP test client",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 5,
+            "name": "Validate Compose and build the image",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 6,
+            "name": "Test container stdio MCP, local reader, and volume persistence",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 11,
+            "name": "Post Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 12,
+            "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 13,
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 132329853878,
+        "name": "reader-browser",
+        "head_sha": "1bd97221e31e8e975498ece00f4bbfb3e0426aac",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-11-14T04:22:22Z",
+        "completed_at": "2026-11-14T04:22:57Z",
+        "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556318382/job/132329853878",
+        "steps": [
+          {
+            "number": 1,
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 2,
+            "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 3,
+            "name": "Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 4,
+            "name": "Install the package and browser test driver",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 5,
+            "name": "Prepare Chromium when runner Chrome is unavailable",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 6,
+            "name": "Install Chinese fonts for readable screenshots",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 7,
+            "name": "Exercise the reader in a real browser",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 8,
+            "name": "Upload reader screenshots and browser report",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 15,
+            "name": "Post Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 16,
+            "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 17,
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 132329853902,
+        "name": "core (3.13)",
+        "head_sha": "1bd97221e31e8e975498ece00f4bbfb3e0426aac",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "started_at": "2026-11-14T04:22:22Z",
+        "completed_at": "2026-11-14T04:23:07Z",
+        "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556318382/job/132329853902",
+        "steps": [
+          {
+            "number": 1,
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 2,
+            "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 3,
+            "name": "Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 4,
+            "name": "Run python -m pip install .",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 5,
+            "name": "Run python -m unittest discover -s tests -v",
+            "status": "completed",
+            "conclusion": "cancelled"
+          },
+          {
+            "number": 6,
+            "name": "Run python -m memory_book --version",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "number": 11,
+            "name": "Post Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "number": 12,
+            "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 13,
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ],
+    "job_counts": {
+      "success": 5,
+      "failure": 2,
+      "cancelled": 2
+    },
+    "observed_error": {
+      "fixture": "OriginalTurnBatchTests.test_json_wrapper_installed_before_store_import_is_uncertified",
+      "file": "tests/test_round5_candidate_c6.py",
+      "line_in_source_commit": 197,
+      "exception": "subprocess.CalledProcessError",
+      "child_exit_code": 1,
+      "child_stderr_in_outer_trace": false,
+      "core312_summary": {
+        "tests_run": 821,
+        "errors": 1,
+        "skipped": 108
+      },
+      "mcp_summary": {
+        "tests_run": 821,
+        "errors": 1,
+        "skipped": 15
+      }
+    },
+    "retention": "The original failed run and its recorded fixture setup failure remain unchanged."
+  },
+  "fixture_fix": {
+    "files_sha256": {
+      "tests/test_round5_candidate_c6.py": "600a99243fa005ad961d78622e316111873fdae175bffd52116b3fb85f9a61a7",
+      "benchmarks/reports/round5-c6-isolated-import-fixture.json": "920cff4651d73de3786e67e487a102a01ff7efc0ced191cb0c9f97e3d7136d87",
+      "benchmarks/reports/round5-c6-isolated-import-fixture.log": "7c0d84a6274797e3350d534760c71ed46f3954670d87ca338deb4198fb590d83"
+    },
+    "diagnosis": "CI installs the package in site-packages and does not set PYTHONPATH; the isolated -S child disabled site-packages without adding an explicit package path. Local PYTHONPATH had masked this fixture setup issue.",
+    "implementation": "Pass the actual imported store package root as an explicit child argv; insert it into sys.path before importing memory_book. Preserve -S, replacement-before-store-import ordering and all algorithm assertions; include captured stdout/stderr on failure.",
+    "parent_execution_receipt": "benchmarks/reports/round5-c6-isolated-import-fixture.json",
+    "parent_execution_log": "benchmarks/reports/round5-c6-isolated-import-fixture.log",
+    "local_isolated_verification": {
+      "PYTHONPATH": "removed from environment",
+      "tests_run": 1,
+      "failures": 0,
+      "errors": 0,
+      "log": "benchmarks/reports/round5-c6-isolated-import-fixture.log",
+      "log_sha256": "7c0d84a6274797e3350d534760c71ed46f3954670d87ca338deb4198fb590d83",
+      "test_file_sha256": "600a99243fa005ad961d78622e316111873fdae175bffd52116b3fb85f9a61a7"
+    },
+    "independent_boundary": "This reviewer read the correction and verified its committed receipt/log hashes; the parent's isolated fixture execution was not rerun."
+  },
+  "fixed_ci": {
+    "run": {
+      "id": 43556752610,
+      "attempt": 1,
+      "name": "Tests",
+      "path": ".github/workflows/ci.yml",
+      "event": "push",
+      "head_branch": "optimization/round5-v0.3.3",
+      "head_sha": "3ad5b591f4cb403f43cb2b92d21a842a1d8a5bb6",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-14T04:27:34Z",
+      "updated_at": "2026-11-14T04:28:53Z",
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556752610",
+      "api_url": "https://api.github.com/repos/Afloat16/AI-Memory-Book/actions/runs/43556752610"
+    },
+    "jobs": [
+      {
+        "id": 132331226095,
+        "name": "container",
+        "head_sha": "3ad5b591f4cb403f43cb2b92d21a842a1d8a5bb6",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-11-14T04:27:36Z",
+        "completed_at": "2026-11-14T04:28:29Z",
+        "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556752610/job/132331226095",
+        "steps": [
+          {
+            "number": 1,
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 2,
+            "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 3,
+            "name": "Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 4,
+            "name": "Install the MCP test client",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 5,
+            "name": "Validate Compose and build the image",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 6,
+            "name": "Test container stdio MCP, local reader, and volume persistence",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 11,
+            "name": "Post Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 12,
+            "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 13,
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 132331226241,
+        "name": "mcp",
+        "head_sha": "3ad5b591f4cb403f43cb2b92d21a842a1d8a5bb6",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-11-14T04:27:36Z",
+        "completed_at": "2026-11-14T04:28:53Z",
+        "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556752610/job/132331226241",
+        "steps": [
+          {
+            "number": 1,
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 2,
+            "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 3,
+            "name": "Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 4,
+            "name": "Run python -m pip install '.[mcp,clients,benchmark]'",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 5,
+            "name": "Run python -m unittest discover -s tests -v",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 9,
+            "name": "Post Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 10,
+            "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 11,
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 132331226286,
+        "name": "reader-browser",
+        "head_sha": "3ad5b591f4cb403f43cb2b92d21a842a1d8a5bb6",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-11-14T04:27:36Z",
+        "completed_at": "2026-11-14T04:28:20Z",
+        "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556752610/job/132331226286",
+        "steps": [
+          {
+            "number": 1,
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 2,
+            "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 3,
+            "name": "Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 4,
+            "name": "Install the package and browser test driver",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 5,
+            "name": "Prepare Chromium when runner Chrome is unavailable",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 6,
+            "name": "Install Chinese fonts for readable screenshots",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 7,
+            "name": "Exercise the reader in a real browser",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 8,
+            "name": "Upload reader screenshots and browser report",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 15,
+            "name": "Post Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 16,
+            "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 17,
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 132331226291,
+        "name": "core (3.12)",
+        "head_sha": "3ad5b591f4cb403f43cb2b92d21a842a1d8a5bb6",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-11-14T04:27:36Z",
+        "completed_at": "2026-11-14T04:28:21Z",
+        "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556752610/job/132331226291",
+        "steps": [
+          {
+            "number": 1,
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 2,
+            "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 3,
+            "name": "Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 4,
+            "name": "Run python -m pip install .",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 5,
+            "name": "Run python -m unittest discover -s tests -v",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 6,
+            "name": "Run python -m memory_book --version",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 11,
+            "name": "Post Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 12,
+            "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 13,
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 132331226307,
+        "name": "core (3.10)",
+        "head_sha": "3ad5b591f4cb403f43cb2b92d21a842a1d8a5bb6",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-11-14T04:27:36Z",
+        "completed_at": "2026-11-14T04:28:22Z",
+        "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556752610/job/132331226307",
+        "steps": [
+          {
+            "number": 1,
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 2,
+            "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 3,
+            "name": "Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 4,
+            "name": "Run python -m pip install .",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 5,
+            "name": "Run python -m unittest discover -s tests -v",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 6,
+            "name": "Run python -m memory_book --version",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 11,
+            "name": "Post Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 12,
+            "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 13,
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 132331226311,
+        "name": "installers (ubuntu-latest)",
+        "head_sha": "3ad5b591f4cb403f43cb2b92d21a842a1d8a5bb6",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-11-14T04:27:36Z",
+        "completed_at": "2026-11-14T04:28:18Z",
+        "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556752610/job/132331226311",
+        "steps": [
+          {
+            "number": 1,
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 2,
+            "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 3,
+            "name": "Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 4,
+            "name": "Install local wheel build tools",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 5,
+            "name": "Test isolated installation, reinstall, failure recovery, and default extras",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 9,
+            "name": "Post Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 10,
+            "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 11,
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 132331226349,
+        "name": "installers (macos-latest)",
+        "head_sha": "3ad5b591f4cb403f43cb2b92d21a842a1d8a5bb6",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-11-14T04:27:36Z",
+        "completed_at": "2026-11-14T04:28:25Z",
+        "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556752610/job/132331226349",
+        "steps": [
+          {
+            "number": 1,
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 2,
+            "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 3,
+            "name": "Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 4,
+            "name": "Install local wheel build tools",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 5,
+            "name": "Test isolated installation, reinstall, failure recovery, and default extras",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 9,
+            "name": "Post Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 10,
+            "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 11,
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 132331226374,
+        "name": "core (3.13)",
+        "head_sha": "3ad5b591f4cb403f43cb2b92d21a842a1d8a5bb6",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-11-14T04:27:36Z",
+        "completed_at": "2026-11-14T04:28:17Z",
+        "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556752610/job/132331226374",
+        "steps": [
+          {
+            "number": 1,
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 2,
+            "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 3,
+            "name": "Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 4,
+            "name": "Run python -m pip install .",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 5,
+            "name": "Run python -m unittest discover -s tests -v",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 6,
+            "name": "Run python -m memory_book --version",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 11,
+            "name": "Post Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 12,
+            "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 13,
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 132331226378,
+        "name": "installers (windows-latest)",
+        "head_sha": "3ad5b591f4cb403f43cb2b92d21a842a1d8a5bb6",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-11-14T04:27:37Z",
+        "completed_at": "2026-11-14T04:28:45Z",
+        "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43556752610/job/132331226378",
+        "steps": [
+          {
+            "number": 1,
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 2,
+            "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 3,
+            "name": "Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 4,
+            "name": "Install local wheel build tools",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 5,
+            "name": "Test isolated installation, reinstall, failure recovery, and default extras",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 9,
+            "name": "Post Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 10,
+            "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "number": 11,
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ],
+    "job_counts": {
+      "success": 9,
+      "failure": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "exact_required_job_names_match": true,
+    "all_job_head_shas_match": true,
+    "all_required_jobs_completed_successfully": true,
+    "api_job_list": "https://api.github.com/repos/Afloat16/AI-Memory-Book/actions/runs/43556752610/jobs?per_page=100"
+  },
+  "independent_actions": {
+    "remote_ci_reads": true,
+    "committed_fixture_diff_review": true,
+    "runtime_tree_identity_checked": true,
+    "runtime_sha256_recomputed_from_git_objects": true,
+    "repeated_runtime_tests": 0,
+    "retrieval_calls_executed": 0,
+    "tokenizer_or_model_executions": 0,
+    "timing_runs_executed": 0
+  },
+  "release_boundary": {
+    "final_release_commit_requires_own_exact_nine_successful_ci_jobs": true,
+    "formal_performance_accepted_by_this_receipt": false,
+    "release_approved_by_this_receipt": false,
+    "approved_runtime_table_modified": false,
+    "requirements": "The final release commit must independently pass all nine required CI jobs, together with the complete registered correctness/numeric acceptance and any required explicit resource review, exact runtime approval, package assets and installer gates. This fixture-fix CI receipt cannot replace those final-commit checks."
+  }
+}
