@@ -1,0 +1,34 @@
+{
+  "status": "completed",
+  "source_report": "round5-final-index-upgrade.json",
+  "rows": [
+    {
+      "cohort": "synthetic61",
+      "baseline_first_open_ms": 0.91032,
+      "candidate_first_open_ms": 5.419327,
+      "baseline_open_and_close_ms": 0.9997750000000001,
+      "candidate_open_and_close_ms": 9.494591,
+      "derived_index_bytes": 200704,
+      "file_growth_bytes": 0,
+      "logical_contents_identical": true,
+      "revision_unchanged": true
+    },
+    {
+      "cohort": "public1015",
+      "baseline_first_open_ms": 0.84367,
+      "candidate_first_open_ms": 4.501765,
+      "baseline_open_and_close_ms": 0.9297,
+      "candidate_open_and_close_ms": 7.791396,
+      "derived_index_bytes": 151552,
+      "file_growth_bytes": 0,
+      "logical_contents_identical": true,
+      "revision_unchanged": true
+    }
+  ],
+  "limitations": [
+    "Each source/cohort has one first-open observation only, sequential baseline then candidate, with warm OS caches. These are descriptive upgrade costs, not p50/p95 or a speed gate.",
+    "The allocated index reuses free database pages in both copied old archives. Zero observed file growth does not mean the index is free: 200704/151552 bytes are allocated to it.",
+    "The ru_maxrss fields are process high-water marks and may retain launcher/fork high-water usage. The identical values between sources do not establish equal live RSS or zero memory overhead. Use the formal worker resource measurements for memory assessment."
+  ],
+  "retrieval_calls": 0
+}
