@@ -4,9 +4,9 @@
 
 项目是书，任务是章，之前的决定可以跨会话、跨客户端保留。AI 通过一次 MCP 调用，取得预算范围内的相关原文，用来继续当前任务。
 
-[English](README.md) · [快速开始](#快速开始) · [实测结果](#实测结果) · [文档导航](#文档导航) · [v0.3.3 发布版](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.3)
+[English](README.md) · [快速开始](#快速开始) · [实测结果](#实测结果) · [文档导航](#文档导航) · [v0.3.4 发布版](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.4)
 
-**v0.3.3 · 正式发布 · MIT · Python 3.10+ · 本地 SQLite**
+**v0.3.4 · 更快的新库初始化与 CLI 启动 · MIT · Python 3.10+ · 本地 SQLite**
 
 ## 如何运作
 
@@ -29,7 +29,7 @@ flowchart TD
 - **默认轻量运行。** 记忆写入和词法检索零模型调用，核心只需 Python 与 SQLite，无需下载嵌入模型、启动数据库服务器或配置记忆服务 API Key。
 - **原文可追溯。** 保留项目、会话、轮次和精确来源区间；内置字符预算，可选精确 tokenizer 上限，连同上下文中的引用和分隔符一起计数。
 - **多个客户端共用记忆。** 支持 Claude Code/Desktop、Codex、Gemini、Cursor 等 MCP 配置；主动开启后可后台采集支持的会话，默认不启动网页服务。
-- **效率有实测依据。** 当前核心在输出相同证据的同时降低延迟；可选精简引用减少重复来源元数据，具体结果与适用范围见下文。
+- **启动改善有实测依据。** v0.3.4 缩短新库初始化及 CLI 帮助、版本命令的启动时间，完整检索输出保持一致。导入与检索成本同样在下文披露；可选精简引用的 token 格式收益保留其独立历史归属。
 
 ## 快速开始
 
@@ -38,14 +38,14 @@ flowchart TD
 **macOS / Linux**
 
 ```bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.3/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.4/scripts/install.sh
 bash install-memory-book.sh
 ```
 
 **Windows PowerShell**
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.3/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.4/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ```
 
@@ -64,11 +64,11 @@ memory-book doctor
 
 ## 实测结果
 
-### v0.3.4 启动专项已验收，发布检查仍在进行
+### v0.3.4：更快的新库初始化与 CLI 启动
 
-**新候选版相对已发布 v0.3.3，显著缩短了空库创建时间，CLI 帮助与版本命令的启动耗时约减半。** 唯一一次预先登记的确认实验完成 **480 个全新样本**，在 Ubuntu 24.04 / Python 3.12 上执行四轮 AB/BA/BA/AB 平衡顺序，**每个版本、每个边界各 40 个样本**。全部固定启动数值门槛通过。[单独的明确决定](benchmarks/experiments/round6-startup-decision.json)已按原复核规则接受下方披露的一项资源成本；原始自动结果仍保留 `accepted:false`，原工作流也保留 `failure`。v0.3.4 尚未发布。[注册计划](benchmarks/experiments/round6-startup-plan.json) · [原始报告](benchmarks/reports/round6-startup-43598913606-1/report.json.gz) · [独立保存结果复核](benchmarks/reports/round6-startup-43598913606-1-local-audit/review.md)。
+**v0.3.4 相对 v0.3.3 显著缩短了空库创建时间，CLI 帮助与版本命令的启动耗时约减半。** 唯一一次预先登记的确认实验完成 **480 个全新样本**，在 Ubuntu 24.04 / Python 3.12 上执行四轮 AB/BA/BA/AB 平衡顺序，**每个版本、每个边界各 40 个样本**。全部固定启动数值门槛通过。[单独的明确决定](benchmarks/experiments/round6-startup-decision.json)已按原复核规则接受下方披露的一项资源成本；原始自动结果仍保留 `accepted:false`，原工作流也保留 `failure`。[注册计划](benchmarks/experiments/round6-startup-plan.json) · [原始报告](benchmarks/reports/round6-startup-43598913606-1/report.json.gz) · [独立保存结果复核](benchmarks/reports/round6-startup-43598913606-1-local-audit/review.md)。
 
-时间单位均为毫秒。箭头表示 **v0.3.3 → v0.3.4 候选版**；负值表示耗时降低。
+时间单位均为毫秒。箭头表示 **v0.3.3 → v0.3.4**；负值表示耗时降低。
 
 | 测量边界 | 中位数 | 中位数变化 | p95 | p95 变化 |
 |---|---:|---:|---:|---:|
@@ -83,14 +83,14 @@ memory-book doctor
 
 实现将**初始 schema 与 FTS 设置放入同一事务**，这部分设置失败时一起回滚；后续 covering index 和连接设置保留原有执行边界。命令元数据可以在不导入归档和客户端模块的情况下加载；显式获取公开的 `MemoryBook` 类仍执行完整 API 导入。已有归档、schema 3、类身份和完整检索输出保持兼容。
 
-**成本同样保留。** 完整 API 导入的中位数变慢 **0.414 ms**，p95 变慢 **0.611 ms**。已有归档场景的整个辅助进程系统 CPU 均值从 **18.646 升至 21.121 ms（+2.474 ms，+13.2703%）**，是唯一触发复核的合并资源项；整个辅助进程的 wall time 均值也从 **138.762 升至 139.996 ms（+0.8891%）**，尽管其中的构造器区间略有改善。四轮都出现系统 CPU 增幅，不能当作被丢弃的异常值。保存的数据不能量化导入、验证、序列化等各阶段分别贡献了多少成本。两份独立复核评估了该成本及归因限制，[明确的启动验收决定](benchmarks/experiments/round6-startup-decision.json)已按原资源政策接受这一代价，没有重跑计时或改写原始结论。[资源复核](docs/round6-startup-resource-review.md)。新竞品对比、最终 CI、打包和公开安装器检查仍须在发布前完成。
+**成本同样保留。** 完整 API 导入的中位数变慢 **0.414 ms**，p95 变慢 **0.611 ms**。已有归档场景的整个辅助进程系统 CPU 均值从 **18.646 升至 21.121 ms（+2.474 ms，+13.2703%）**，是唯一触发复核的合并资源项；整个辅助进程的 wall time 均值也从 **138.762 升至 139.996 ms（+0.8891%）**，尽管其中的构造器区间略有改善。四轮都出现系统 CPU 增幅，不能当作被丢弃的异常值。保存的数据不能量化导入、验证、序列化等各阶段分别贡献了多少成本。两份独立复核评估了该成本及归因限制，[明确的启动验收决定](benchmarks/experiments/round6-startup-decision.json)已按原资源政策接受这一代价，没有重跑计时或改写原始结论。[资源复核](docs/round6-startup-resource-review.md)。正式发布还设有独立的最终 CI、打包与公网安装器门槛，对应证据归入[发布记录](docs/releases/v0.3.4.md)。
 
 <details>
 <summary>全部合并资源增幅与保留的不利观测</summary>
 
 下方 CPU 和 wall time 是毫秒均值；RSS 是内核记录的 KiB 均值。完整复核还保留每一轮的正负结果。
 
-| 边界与资源 | v0.3.3 → 候选版 | 增幅 |
+| 边界与资源 | v0.3.3 → v0.3.4 | 增幅 |
 |---|---:|---:|
 | API 导入：整个辅助进程系统 CPU | 18.727 → 19.576 ms | +4.5343% |
 | API 导入：内核最大 RSS 记录 | 49,221.4 → 49,243.8 KiB | +0.0455% |
@@ -110,41 +110,87 @@ memory-book doctor
 
 ### 检索兼容性与发布范围
 
-本次发布范围是**启动性能与初始化正确性**。候选 A 的两轮开发测量中，检索改善约为 **1%**，不足以推进原先登记的 **综合 p95 10% / 公开语料原生 token p95 15% / 真实 MCP p95 10%** 目标；对应四轮正式检索矩阵**没有运行，也没有通过验收**。候选 B 的稠密项目排序使公开语料原生 p95 回退约 **19–29%**、真实 MCP p95 回退 **23.9246%**，已排除。发布候选采用 A 的精确运行时代码，所有失败实验继续保留。[开发结果与源码选择](docs/optimization-round6.md)。
+v0.3.4 的发布范围是**启动性能与初始化正确性**。候选 A 的两轮开发测量中，检索改善约为 **1%**，不足以推进原先登记的 **综合 p95 10% / 公开语料原生 token p95 15% / 真实 MCP p95 10%** 目标；对应四轮正式检索矩阵**没有运行，也没有通过验收**。候选 B 的稠密项目排序使公开语料原生 p95 回退约 **19–29%**、真实 MCP p95 回退 **23.9246%**，已排除。v0.3.4 采用 A 的精确运行时代码，所有失败实验继续保留。[开发结果与源码选择](docs/optimization-round6.md)。
 
 A 相对 v0.3.3 重现了历史 Hotpot256 的 **2,304 / 2,304** 个完整默认输出：两种 tokenizer、三档预算下的 **1,536 次原生调用**，以及 **768 次组件调用**。独立保存日志审计核对了 **4,608 条事件**。这是兼容性证据，不构成新的证据质量或检索提速声明。[历史兼容检查](benchmarks/reports/round6-hotpot-compatibility.summary.json) · [保存输出审计](benchmarks/reports/round6-hotpot-compatibility.audit.json)。
 
 **旧版结果保持历史归属。** v0.3.3 的 C7 相对 v0.3.2 曾取得 **综合 p95 降低 14.80%**、**真实 MCP token p95 降低 12.17%**，并单独复核接受了启动成本。这些不是 v0.3.4 的收益，也不与新启动百分比相加。[原 v0.3.3 性能与成本](docs/round5-c7-performance-review.md) · [资源决定](benchmarks/experiments/round5-c7-resource-decision.json) · [此前拒绝的候选](docs/optimization-round5.md)。可选精简引用继续保留未在本轮重测的[历史 token 格式结果](docs/indexed-references.md)。
 
-### 历史开源组件对比
+### 新样本开源组件对比
 
-**下表保留原来的 v0.3.2 测量身份。** v0.3.3 在同一批问题上重现了全部 1,536 次原生及 768 次组件默认输出哈希，保留原默认模式的证据质量结果。这不是新的竞品计时，也不是本轮 Q2 评估。
+本次完整对比使用 **256 道新 HotpotQA 问题**，排除全部 **896 个历史 ID**，交集为零，共有 **619 条必需证据标注**。保存的矩阵包含 **42 个质量结果单元**、**6,912 次检索/搜索调用**（3,072 次原生调用、3,840 次组件搜索），以及单独计数的 **1,280 次 ai-memory 页面读取**。移除实测 `latency_ms` 字段后，v0.3.3 与 v0.3.4 的 **1,536 对原生输出和 768 对组件完整输出全部一致**，两版 Book 的检索质量相同。本轮不含 Q2 或项目统计排序。[原始完整报告](benchmarks/results/round6-comparison-43601518020-1/report.md) · [机器可读评估](benchmarks/results/round6-comparison-43601518020-1/assessment.json) · [保存日志与身份审计](benchmarks/reports/round6-comparison-43601518020-1-local-audit.json) · [独立复核与全部不利观测](benchmarks/reports/round6-comparison-43601518020-1-independent-review.json)。
 
-冻结的 **256 道 HotpotQA 问题**排除了全部 **640 个历史问题 ID**，重叠数为零。源码、评估器、依赖和模型在选题前完成绑定，题目清单在首次评分前发布。完整对比保留 **9,216 次实测调用，其中原生调用和组件搜索各 4,608 次**，对应 **635 条必需证据标注**。下表采用相同原始页面、前五条结果及统一的完整块打包器，预算为 **1,024 个 `cl100k_base` token**，测量返回的来源证据。[完整报告](benchmarks/results/round4-comparison-43363060062-1/report.md)保留所有预算、原生调用及逐题得失。
+**阅读原报告时，需要结合两处历史模板句的实际来源。** 原 v1 源码与评测器在选样前冻结；仅修复测试 fixture 的 v2 恢复版本是在**同一批 256 个 ID 固定后、首次评分前**冻结，没有重新选样或评分重跑。原报告把发布门槛归于旧数据 ABBA 检索实验的句子**不适用于 v0.3.4 验收**：原 **10% / 15% / 10% 正式检索矩阵没有运行，也没有通过验收**。本版确认的性能改善来自上方单独预先登记的启动实验。原报告保持不变。[恢复登记](benchmarks/experiments/round6-comparison-fixture-recovery-addendum.json) · [精确恢复绑定](benchmarks/experiments/round6-comparison-recovery-binding.json)。
 
-| 实测组件 | 证据召回率 | 完整证据率 | 打包后 MRR | 平均上下文 token | 搜索适配器 p95 |
+下表使用相同的给定页面、前五项结果和共同的完整块打包规则，预算为 **1,024 个 `cl100k_base` token**。外部组件使用表中固定版本，不代表其最新发布版本的表现。
+
+| 实测组件（固定版本） | 证据召回率 | 完整证据率 | 打包后 MRR | 平均上下文 token | 搜索适配器 p95 |
 |---|---:|---:|---:|---:|---:|
-| **Book v0.3.2 · 默认词法** | 75.75% | 53.91% | 0.8578 | 714.8 | 3.488 ms |
-| **Book v0.3.2 · 可选 Q2** | 76.69% | 55.08% | **0.8663** | 730.0 | 20.406 ms |
-| claude-mem 15.18.1 · 原生 FTS | 70.39% | 44.53% | 0.8280 | 709.4 | 34.655 ms |
-| ai-memory v3.4.5 · 本地混合检索 | 77.48% | 55.86% | 0.8400 | 709.9 | 39.925 ms |
-| billion-context `9674cfa` · 搜索内核 | **80.94%** | **60.55%** | 0.8606 | 757.4 | **1.449 ms** |
+| Book v0.3.3 · 默认词法 | 75.93% | 53.12% | 0.8556 | 715.5 | 3.518 ms |
+| **Book v0.3.4 · 默认词法** | 75.93% | 53.12% | 0.8556 | 715.5 | 3.582 ms |
+| claude-mem 15.18.1 · 原生 FTS | 70.60% | 48.05% | 0.8060 | 710.6 | 42.840 ms |
+| ai-memory v3.4.5 · 本地混合检索 | 77.87% | 57.42% | 0.8279 | 715.3 | 40.409 ms |
+| billion-context `9674cfa` · 搜索内核 | 80.94% | 60.55% | 0.8481 | 760.4 | 1.399 ms |
 
-在这个切片上，Book 默认词法的完整证据率比 claude-mem FTS **高 9.375 个百分点**，其已测搜索适配器 p95 相对 claude-mem **低 89.94%**、相对 ai-memory **低 91.26%**；Q2 的 p95 也低于两者，且在这五个组件中具有最高的打包后 MRR。**ai-memory 的证据召回率和完整率高于 Book 的两种模式；billion-context 的召回率、完整率和搜索延迟领先。** 这些优势具有明确的测量范围，不据此宣称总体胜出。
+Book 的完整证据率比 claude-mem 高 **5.0781 个百分点**，对应 **24 道问题获得完整证据、11 道失去完整证据**；打包后 MRR 最高，两版 Book 并列。Book 的搜索适配器 p95 低于 claude-mem 和 ai-memory。**ai-memory 的证据召回率、完整率均高于 Book；billion-context 在召回、完整率和实测搜索延迟上领先。** Book 的完整率分别低于后两者 **4.2969** 和 **7.4219 个百分点**。这些结果体现具体组件维度上的优势与不足，不构成全面领先。
 
-搜索 p95 合并每题三次搜索，不包含离线统一打包及额外原文读取。适配器分别跨越 Python 检索与组装、SQLite/Bun、HTTP/MCP 和 Node 等不同边界，因此不能据此推导整套产品的倍数优势。ai-memory 首次搜索加全部五次原文读取的 p95 为 **45.897 ms**；读取响应、原始命中位置与初始化成本另行记录。打包后 MRR 衡量统一打包器省略元数据或超大块之后的证据排序。
+搜索 p95 合并每道问题的三次搜索，不含离线共同打包与额外页面读取。Book 使用进程内 Python 检索及上下文组装；claude-mem 使用 SQLite/Bun，ai-memory 使用本地混合 HTTP/MCP，billion-context 使用给定源码的搜索内核/Node。接口边界不同，不能据此换算整个产品的提速倍数。ai-memory 首次搜索加全部五次读取的 p95 是 **46.338 ms**，而仅搜索 p95 为 **40.409 ms**。打包后 MRR 衡量共同打包器移除元数据或过大块后的证据顺序，原始结果位置也完整保留。
 
-这个预算下，Q2 相对默认词法的完整率提高 **1.171875 个百分点**：**26 道题获得完整证据、23 道题失去完整证据**，净增加三道。在原生 API 的 512-token 预算下，`cl100k_base` 完整率从 **39.45% 降至 36.33%**（19 题改善、27 题退步），`o200k_base` 从 **39.45% 降至 36.72%**（19 题改善、26 题退步）。Q2 组件初始化耗时 **277.60 秒**，其中索引构建为 **275.43 秒**；查询阶段采样得到的进程树峰值 RSS 为 **1,247.69 MiB**。其搜索 p95 为 20.406 ms，也高于默认词法的 3.488 ms，因此保持主动开启。[完整得失与成本](benchmarks/results/round4-comparison-43363060062-1/report.md)
+**新样本的描述性计时包含相对 v0.3.3 的回退。** Book 组件搜索的 p50/p95 从 **2.351 → 2.374 / 3.518 → 3.582 ms（+0.99% / +1.83%）**；首次搜索加全部读取的 p95 从 **3.535 → 3.573 ms（+1.06%）**，重复搜索 p95 从 **3.501 → 3.576 ms（+2.14%）**。六档原生设置中，有五档的 p50/p95 增加；六档平均延迟全部增加 **0.1360–3.4936%**。这些阶段按顺序执行，属于描述性测量，不是平衡顺序的正式检索性能验收。
 
-**历史第四轮对比也保留了相对 v0.3.1 的退步。** 组件排序器使用 100,000 字符上限时，默认 Book 的 p95 从 **3.304 升至 3.488 ms（+5.56%）**，p50 从 **2.239 升至 2.353 ms（+5.12%）**。初始化阶段采样得到的进程树峰值 RSS 从 **548.65 升至 943.53 MiB**，查询阶段峰值则从 **529.77 降至 524.91 MiB**。这些是按顺序执行、未经平衡排列的组件描述性观测，与上方预先登记的 ABBA 性能门槛分别报告。RSS 包含评估器、语料和子进程内存，共享映射可能被重复计算；这些数据没有确立初始化内存增加的原因。[详细证据与限制](docs/optimization-round4.md)
+<details>
+<summary>全部原生延迟单元与 18 项竞品完整率对照</summary>
 
-![v0.3.2 完整证据率、搜索适配器延迟与独立配对性能测量](docs/assets/v0.3.2-comparison.svg)
+六档原生设置每版各有 256 次调用，统一使用 8,000 字符、前五项结果，关闭结果缓存。下方变化为正表示变慢。
 
-图表使用与表格相同的已保存测量。完整评估验证了 Book 两个版本间 **1,536 对原生调用和 768 对组件调用**的完整输出相同。[离线审计](benchmarks/reports/round4-comparison-independent-audit.json) · [完整对比与原始结果](benchmarks/results/round4-comparison-43363060062-1/report.md) · [已归档的 v0.3.1 对比及限制](docs/round3-continuation.md#published-release-and-supplemental-audit)。
+| Tokenizer / 预算 | p50：v0.3.3 → v0.3.4，ms | 变化 | p95：v0.3.3 → v0.3.4，ms | 变化 |
+|---|---:|---:|---:|---:|
+| `cl100k_base` / 512 | 2.994 → 3.091 | +3.23% | 4.289 → 4.415 | +2.92% |
+| `cl100k_base` / 1024 | 2.865 → 2.885 | +0.70% | 3.987 → 4.087 | +2.49% |
+| `cl100k_base` / 2048 | 2.694 → 2.702 | +0.31% | 3.899 → 3.923 | +0.60% |
+| `o200k_base` / 512 | 3.374 → 3.345 | −0.84% | 4.988 → 4.819 | −3.39% |
+| `o200k_base` / 1024 | 2.977 → 3.010 | +1.11% | 4.245 → 4.334 | +2.11% |
+| `o200k_base` / 2048 | 2.729 → 2.782 | +1.92% | 3.990 → 4.000 | +0.23% |
 
-所有题目都有答案，且来自同一公开 HotpotQA 数据源；ID 不重叠不能证明跨数据域泛化。这些已评分的 ID 现已成为回归数据。这些结果衡量返回的证据，不衡量答案生成、幻觉或私人会话迁移能力。本次对比没有调用生成式模型。
+每个竞品单元表示 Book 减去该组件的完整证据率，单位为百分点；括号内是**获得完整证据 / 失去完整证据的问题数**。每种预算与 tokenizer 均保留，包括负向结果。完整评估另保留全部标注级得失及分组结果。
 
-[部署与架构对比](docs/comparison.md#popular-projects-and-the-workload-they-address)还包括 **Mem0、Graphiti、PageIndex 和 Letta**，与实跑基准明确区分。ai-memory 也支持默认零 LLM 路径；claude-mem 支持本地模型供应端。
+| Tokenizer / 预算 | Book − claude-mem | Book − ai-memory | Book − billion-context |
+|---|---:|---:|---:|
+| `cl100k_base` / 512 | +7.4219 pp (28 / 9) | −1.1719 pp (27 / 30) | +1.1719 pp (43 / 40) |
+| `cl100k_base` / 1024 | +5.0781 pp (24 / 11) | −4.2969 pp (16 / 27) | −7.4219 pp (28 / 47) |
+| `cl100k_base` / 2048 | +5.0781 pp (24 / 11) | −4.2969 pp (16 / 27) | −7.4219 pp (28 / 47) |
+| `o200k_base` / 512 | +7.4219 pp (29 / 10) | −0.7812 pp (27 / 29) | +0.3906 pp (40 / 39) |
+| `o200k_base` / 1024 | +5.0781 pp (24 / 11) | −4.2969 pp (16 / 27) | −7.4219 pp (28 / 47) |
+| `o200k_base` / 2048 | +5.0781 pp (24 / 11) | −4.2969 pp (16 / 27) | −7.4219 pp (28 / 47) |
+
+**仅含 7 道问题的低词面重叠组**还显示了另一项限制：在 512 个 `cl100k_base` token 下，Book 原生及组件路径的完整证据率均为 **0%**；claude-mem 为 **14.29%**，ai-memory 和 billion-context 各为 **28.57%**。该组样本很少，不能据此作宽泛泛化。
+
+</details>
+
+<details>
+<summary>设置、存储、内存及原生响应负载成本</summary>
+
+| 实测阶段 | 设置耗时 ms | 设置 RSS MiB | 查询 RSS MiB | 原生状态文件字节 |
+|---|---:|---:|---:|---:|
+| Book v0.3.3 原生 | 3916.344 | 547.41 | 533.12 | 39,037,696 |
+| Book v0.3.4 原生 | 3890.425 | 551.45 | 537.18 | 39,037,696 |
+| Book v0.3.3 组件 | 840.940 | 531.80 | 511.84 | 34,340,864 |
+| Book v0.3.4 组件 | 843.362 | 525.79 | 504.87 | 34,340,864 |
+| claude-mem FTS | 2444.687 | 682.05 | 594.81 | 20,659,514 |
+| ai-memory hybrid | 845167.166 | 706.79 | 710.69 | 74,208,780 |
+| billion-context kernel | 225.397 | 532.91 | 650.98 | 0 |
+
+Book 原生阶段的设置包含新数据摄取和初始化，组件阶段则复制同一份规范归档，二者的设置边界不同。相对 v0.3.3，组件设置时间从 **840.940 → 843.362 ms（+0.2881%）**；原生设置时间减少 **0.6618%**，但其中单独记录的运行时导入从 **48.455 → 51.401 ms（+6.0803%）**。原生阶段采样的设置/查询/收尾 RSS 分别增加 **0.7378% / 0.7613% / 0.7596%**；组件 RSS 在这三个阶段均下降。两版 Book 的原生及组件状态文件大小分别保持相同；Book 组件状态文件大于 claude-mem、小于 ai-memory。
+
+RSS 每 20 ms 采样工作进程及存活后代，包含评测器和语料内存，可能重复计入共享页面，只代表观测到的下界，不能当作产品独立运行的 RAM。状态字节不含符号链接指向的模型缓存；billion-context 的零值表示这一边界没有生成原生状态文件，并非整个产品不占存储。全部收尾、main/WAL/SHM 与存活统计保存在阶段报告及[独立复核](benchmarks/reports/round6-comparison-43601518020-1-independent-review.json)中。
+
+共同打包后的上下文与原生响应负载是不同的成本。在此 1,024-token 投影中，Book 平均使用 **715.5 个打包后 token**，略高于 claude-mem 的 **710.6** 和 ai-memory 的 **715.3**。Book 原生搜索响应平均为 **3,992.9 个 `cl100k_base` token**；claude-mem、ai-memory、billion-context 分别为 **1,634.7、1,019.3、585.0**，ai-memory 另有每题 **1,836.3 个页面读取负载 token**。相对 v0.3.3，Book 原生负载均值在两种 tokenizer 下各增加 **0.0078125 token**，因为这项计数保留实测 `latency_ms` 字段；去掉该计时字段后的完整负载仍完全一致。本轮不构成新的 token 节省声明。
+
+</details>
+
+全部问题都有答案，且来自同一公开 HotpotQA 来源；ID 不重叠不能证明跨新领域泛化。首次评分后，这些 ID 已成为回归数据。评测对象是返回的证据，不是生成答案、幻觉率或私人对话迁移，没有调用生成模型。旧 v0.3.2 对比、可选 Q2 的得失与成本保留在[历史报告](benchmarks/results/round4-comparison-43363060062-1/report.md)，不计为 v0.3.4 的新测量。
+
+[部署与架构对比](docs/comparison.md#popular-projects-and-the-workload-they-address)还覆盖 **Mem0、Graphiti、PageIndex 和 Letta**，并与已执行的基准明确区分。ai-memory 同样提供零 LLM 默认路径；claude-mem 支持本地模型提供方。
 
 ## 文档导航
 

@@ -1,12 +1,14 @@
 # Changelog
 
-## 0.3.4 — Unreleased; startup scope accepted
+## 0.3.4 — 2026-11-14
 
-A candidate focused on startup performance and initialization correctness,
-using the exact A runtime selected for this confirmation. The prospective
-startup study and its disclosed resource tradeoff are accepted under the
-original review policy. The fresh component comparison and final release checks
-remain separate. No publication or final-CI success is claimed at this checkpoint.
+A release focused on startup performance and initialization correctness,
+using the exact A runtime selected for confirmation. The prospective startup
+study and its disclosed resource tradeoff are accepted under the original
+review policy; the fresh 42-cell component comparison is complete. Publication
+requires exact-commit nine-job CI and the verified package/public-installer
+[release workflow](.github/workflows/release.yml). Those publication checks are
+separate from the performance and evidence measurements below.
 
 ### Initialization and command loading
 
@@ -18,7 +20,7 @@ remain separate. No publication or final-CI success is claimed at this checkpoin
   the public `MemoryBook` class, its identity, full explicit API import and
   existing command behavior. Keep schema 3 and the existing dependency floor.
 - Retain A's request-local metadata reuse with complete-output compatibility.
-  Exclude B's unsupported dense-project ranking implementation.
+  Exclude B's rejected dense-project ranking implementation.
 
 ### Prospective startup confirmation and disclosed costs
 
@@ -49,7 +51,7 @@ remain separate. No publication or final-CI success is claimed at this checkpoin
   retain their stated boundaries and do not establish isolated product-memory
   savings. No samples were discarded or timing repeated.
 
-### Retrieval evidence and limits
+### Retrieval compatibility and original performance limits
 
 - Preserve all **2,304** historical Hotpot256 complete default outputs against
   v0.3.3, with **4,608** audited start/finish events, on A's exact final runtime.
@@ -58,14 +60,67 @@ remain separate. No publication or final-CI success is claimed at this checkpoin
   four-round formal matrix was **not run or accepted**. B regressed public
   native p95 by approximately **19–29%** and actual-MCP p95 by **23.9246%**;
   its implementation is excluded and its complete experiment remains saved.
-- The separately frozen fresh comparison and exact final CI/package/public
-  installer checks are pending. Historical C7 and Q2 numbers are not new
-  v0.3.4 improvements; no whole-product or all-dimensions superiority is claimed.
+- Historical C7 and Q2 numbers retain their original release and experiment
+  identities. They are not new v0.3.4 improvements and are not added to the
+  startup percentages.
+
+### Fresh comparison, retained regressions and provenance
+
+- Complete the unique fresh comparison on 256 HotpotQA questions, excluding
+  all 896 historical IDs with zero overlap, across 619 evidence annotations.
+  Retain all **42 quality cells**, **6,912 retrieval/search calls** and **1,280
+  separately counted ai-memory page reads**. All **1,536 native and 768 component
+  complete-output pairs** match v0.3.3 after removing only `latency_ms`. Q2 and
+  project-statistics ranking are excluded; Book's retrieval quality is unchanged.
+- At common top-five, whole-block **1,024 `cl100k_base`** packing, Book v0.3.3
+  and v0.3.4 both record **75.93% evidence recall, 53.125% complete evidence
+  and 0.8556 packed MRR**. Complete evidence is **48.046875%** for claude-mem
+  15.18.1, **57.421875%** for ai-memory v3.4.5 and **60.546875%** for the
+  billion-context `9674cfa` search kernel. Book's **+5.0781 pp** against
+  claude-mem comprises **24 question gains and 11 losses**; it trails the latter
+  two components by **4.2969 pp** and **7.4219 pp**. Book has the highest packed
+  MRR, tied across its two versions; billion-context leads recall, completeness
+  and measured search latency. No whole-product or all-dimensions superiority
+  is claimed.
+- Preserve the new descriptive retrieval regressions: Book component search
+  p50/p95 rises **2.351 → 2.374 / 3.518 → 3.582 ms (+0.99% / +1.83%)**;
+  first-search-plus-all-reads p95 rises **3.535 → 3.573 ms (+1.06%)** and repeat
+  p95 **3.501 → 3.576 ms (+2.14%)**. Five of six native p50/p95 settings rise;
+  all six native mean latencies increase **0.1360–3.4936%**. These sequential
+  measurements do not replace the unrun balanced recall gate.
+- Retain all setup, storage, RSS, packing and payload costs. Component setup
+  rises **840.940 → 843.362 ms (+0.2881%)**; native runtime import rises
+  **48.455 → 51.401 ms (+6.0803%)**. Native sampled setup/query/finalization
+  RSS rises **0.7378% / 0.7613% / 0.7596%**, while component RSS decreases.
+  State-file bytes stay equal between Book versions. Book's native search
+  payload is larger than those of all three measured external components;
+  its mean increases by **0.0078125 token** in each tokenizer because payload
+  accounting includes the changing timing field, not because evidence changed.
+  The seven-question low-overlap group also remains visible: at 512
+  `cl100k_base` tokens Book has **0%** complete evidence, claude-mem **14.29%**,
+  and ai-memory/billion-context **28.57%** each.
+- Preserve the original report and clarify its two historical template
+  statements: original v1 source/evaluator identities were frozen before
+  selecting the IDs; the registered fixture-only **v2 recovery was frozen after
+  those same IDs were fixed and before their first scoring**. No reselection or
+  scored rerun occurred. The template's old-data ABBA release-gate statement
+  does not apply to v0.3.4 acceptance: the original 10% / 15% / 10% formal recall
+  matrix was not run or accepted. The separate prospective startup study
+  establishes this version's confirmed performance gain.
+- Keep the scope explicit: these pinned external revisions have different
+  Python/SQLite-Bun/HTTP-MCP/Node adapter boundaries, and RSS includes evaluator
+  data and descendants. No cross-product speed multiplier or isolated-memory
+  superiority follows. Same-source, disjoint HotpotQA IDs do not establish
+  new-domain generalization, generated-answer accuracy or hallucination rates.
+  No generative model is called; after scoring these IDs are regression data.
 
 [Startup review and every adverse observation](benchmarks/reports/round6-startup-43598913606-1-local-audit/review.md) ·
 [Original startup plan](benchmarks/experiments/round6-startup-plan.json) ·
+[Fresh report, with the provenance qualifications above](benchmarks/results/round6-comparison-43601518020-1/report.md) ·
+[Independent fresh review and every adverse observation](benchmarks/reports/round6-comparison-43601518020-1-independent-review.json) ·
+[Fixture recovery registration](benchmarks/experiments/round6-comparison-fixture-recovery-addendum.json) ·
 [Source selection and experiments](docs/optimization-round6.md) ·
-[Release notes and remaining checks](docs/releases/v0.3.4.md)
+[Release notes and publication evidence](docs/releases/v0.3.4.md)
 
 ## 0.3.3 — 2026-11-14
 
