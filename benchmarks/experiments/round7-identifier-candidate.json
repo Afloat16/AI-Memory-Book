@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "candidate": "R7-I1",
+  "status": "design-registered-before-implementation-and-engineering-scores",
+  "purpose": "Recover explicit acronym identifier spelling variants without rewriting existing memory indexes.",
+  "design": {
+    "activation": "book lexical only, semantic=false and coverage=false, no CURRENT_QUERY/HISTORICAL_QUERY marker, explicit ASCII acronym boundary in original query",
+    "families": "At most four identifier families of at most eight terms and 80 ASCII characters; preserve original form and bounded acronym/camel/spaced aliases. Do not join arbitrary ordinary words.",
+    "retrieval": "Original exact and porter routes retained; at most one additional exact FTS phrase route, scoped before LIMIT 96; no independent OR of generic alias tokens; bounded candidate union and source-token verification.",
+    "ranking": "Complete family matches before fragment matches, retaining other query-term coverage; prefer original form when coverage ties, followed by existing lexical order and stable ID. Activate only when a full alias phrase matches without that family's original form; this can improve an old partially matched candidate ID. When all alias hits also contain the original form, retain original output.",
+    "excerpts": "Only actual alias matches supply additional bounded excerpt terms; original source bytes, identities and references stay unchanged.",
+    "compatibility": "No terms/index_text/schema/index version change, no reindex, existing archives supported; recall cache version changes so old result caches cannot hide the new behavior. Non-activated queries preserve results.",
+    "excluded": ["unmarked lowercase phrase inference", "semantic retrieval changes", "coverage strategy changes", "current/latest/as-of query changes", "global recency changes", "branch or as-of inference"]
+  },
+  "known_risks": ["Extra scoped query and bounded body inspection may increase lookup latency", "Natural-language acronym phrases may activate", "Phrase matching can be too strict", "Family prioritization may suppress another query subject; coverage and original-form controls need tests"],
+  "development_checks": ["HTTPServer and HTTP Server", "parseHTTPRequest and parse HTTP request", "unrelated shared HTTP/request words", "multiple families", "Chinese surrounding English identifier", "long input bounds", "project/chapter/session isolation", "old indexed database and cached response", "unchanged natural-language and flat paths"],
+  "measured_results": null
+}
