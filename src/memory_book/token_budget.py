@@ -253,7 +253,9 @@ _ORDINARY_COUNTER_TYPE = TokenCounter
 def _ordinary_encoding(counter: TokenCounter):
     if (type(counter) is not _ORDINARY_COUNTER_TYPE
             or getattr(counter.count, "__func__", None) is not _ORDINARY_COUNT
+            or getattr(counter.count, "__self__", None) is not counter
             or getattr(counter.count_after, "__func__", None) is not _ORDINARY_COUNT_AFTER
+            or getattr(counter.count_after, "__self__", None) is not counter
             or getattr(counter, "version", None) != "0.12.0"):
         return None
     import tiktoken
@@ -269,7 +271,9 @@ def _ordinary_encoding(counter: TokenCounter):
     if _ORDINARY_ENCODER_METHODS is None:
         return None
     for method, ordinary in zip(_ENCODER_METHOD_NAMES, _ORDINARY_ENCODER_METHODS):
-        if getattr(getattr(encoding, method), "__func__", None) is not ordinary:
+        actual = getattr(encoding, method, None)
+        if (getattr(actual, "__func__", None) is not ordinary
+                or getattr(actual, "__self__", None) is not encoding):
             return None
     return encoding
 
@@ -277,7 +281,7 @@ def _ordinary_encoding(counter: TokenCounter):
 def _memo_identity(counter: TokenCounter):
     encoding = _ordinary_encoding(counter)
     if (encoding is None or getattr(counter, "_memo_pattern", None) is None
-            or encoding._pat_str is not counter._memo_pattern):
+            or getattr(encoding, "_pat_str", None) is not counter._memo_pattern):
         return None
     return counter.name, encoding, encoding._core_bpe
 
