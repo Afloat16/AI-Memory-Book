@@ -225,7 +225,7 @@ _ORDINARY_JSON_LOADS = _ordinary_json_loader()
 
 
 def _refs_from_parsed(refs: list[dict], spans: list[tuple[int, int]]) -> list[dict]:
-    """Clip one already captured source map without sharing output objects."""
+    """Clip a single-span capture which the caller may consume only once."""
     result = []
     for lo, hi in spans:
         for ref in refs:
@@ -1140,13 +1140,18 @@ class MemoryBook:
             if (reference_method is _ORDINARY_REFS and captured_refs is not None and type(row) is dict
                     and type(row.get("id")) is str
                     and json.loads is _ORDINARY_JSON_LOADS
-                    and type(spans) in (tuple, list) and spans
+                    and type(spans) in (tuple, list) and len(spans) == 1
                     and all(type(span) in (tuple, list) and len(span) == 2
                             and all(type(value) is int for value in span) for span in spans)):
                 captured = captured_refs.get(row.get("id"))
                 if captured is not None and row.get("source_refs") is not captured[0]:
                     captured = None
             if captured is not None:
+                # A fresh JSON parse per span previously kept nested fields
+                # such as message_indices independent. Expose this captured
+                # object graph only once; multiple spans or a repeated page
+                # retain the original per-span parsing path.
+                captured_refs.pop(row["id"])
                 refs = _refs_from_parsed(captured[1], spans)
             else:
                 refs = reference_method(row, spans)

@@ -1,0 +1,27 @@
+test_multiple_spans_keep_independent_nested_json_containers (tests.test_round5_candidate_c6.InSnapshotSourceWorkTests.test_multiple_spans_keep_independent_nested_json_containers) ... FAIL
+test_repeated_page_consumes_its_captured_reference_map_once (tests.test_round5_candidate_c6.InSnapshotSourceWorkTests.test_repeated_page_consumes_its_captured_reference_map_once) ... FAIL
+
+======================================================================
+FAIL: test_multiple_spans_keep_independent_nested_json_containers (tests.test_round5_candidate_c6.InSnapshotSourceWorkTests.test_multiple_spans_keep_independent_nested_json_containers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/36b34eafc753/AI-Memory-Book/tests/test_round5_candidate_c6.py", line 300, in test_multiple_spans_keep_independent_nested_json_containers
+    self.assert_independent_nested_references(refs[0], refs[1])
+  File "/workspace/scratch/36b34eafc753/AI-Memory-Book/tests/test_round5_candidate_c6.py", line 276, in assert_independent_nested_references
+    self.assertIsNot(left["message_indices"], right["message_indices"])
+AssertionError: unexpectedly identical: [0]
+
+======================================================================
+FAIL: test_repeated_page_consumes_its_captured_reference_map_once (tests.test_round5_candidate_c6.InSnapshotSourceWorkTests.test_repeated_page_consumes_its_captured_reference_map_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/36b34eafc753/AI-Memory-Book/tests/test_round5_candidate_c6.py", line 319, in test_repeated_page_consumes_its_captured_reference_map_once
+    self.assert_independent_nested_references(first["source_refs"][0], second["source_refs"][0])
+  File "/workspace/scratch/36b34eafc753/AI-Memory-Book/tests/test_round5_candidate_c6.py", line 276, in assert_independent_nested_references
+    self.assertIsNot(left["message_indices"], right["message_indices"])
+AssertionError: unexpectedly identical: [0]
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.329s
+
+FAILED (failures=2)

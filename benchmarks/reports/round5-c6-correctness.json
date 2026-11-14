@@ -1,16 +1,16 @@
 {
-  "schema_version": 1,
-  "protocol": "v033-c6-directed-correctness-v1",
-  "recorded_at_utc": "2026-11-14T04:14:17.895371+00:00",
+  "schema_version": 2,
+  "protocol": "v033-c6-directed-correctness-v2",
+  "recorded_at_utc": "2026-11-14T04:21:40.718791+00:00",
   "status": "directed-correctness-passed-not-performance-acceptance",
   "registration_commit": "099cbaf427c28351d71f3995fd0ff42f9c881b38",
   "registration_sha256": "7ad88598c9ccb3492083be06448e92a76da7025501a1aa578a0e39d8bd94c9d5",
-  "source_commit": "Parent will freeze these exact tested file hashes in a separate source checkpoint.",
-  "runtime_sha256": "91305c9e39acfbbf1063af46e6759f46cf8a3a0c48917847feea6dd6113e2eb3",
+  "source_commit": "Parent will freeze these exact tested file hashes in a superseding source checkpoint; ae6208e is not this source.",
+  "runtime_sha256": "cfffd8a21374cbf9152bbbc98a6a9847a1e22401f16179112e2f79eef181ff78",
   "files": {
-    "src/memory_book/store.py": "367a93ff0760e2e4e0705660e80430d586b9bab89dd0b9737ad7eb2fb9892e1d",
+    "src/memory_book/store.py": "c65e8542b4174c26fcccb72468e167b31accdfe7626d7a0692ee86adca1c489a",
     "src/memory_book/token_budget.py": "0af09aaae1219e978f688c3aa4bb6c180c0b435bdb4a3113e5c3758b19b290ed",
-    "tests/test_round5_candidate_c6.py": "de2cb0eb8e4e3e2658bb1705d0f95d55e65c065a0ec05b5e0cdb5962a693ceb8"
+    "tests/test_round5_candidate_c6.py": "acf40b1d547ee9173c0c6f25e6ec007a10b356c1b98cdff3af21db460f1745c1"
   },
   "environment": {
     "python_version": "3.12.14",
@@ -25,39 +25,104 @@
   },
   "runs": [
     {
-      "command": "PYTHONPATH=src:. TIKTOKEN_CACHE_DIR=/workspace/scratch/36b34eafc753/AI-Memory-Book/.artifacts/tiktoken /workspace/scratch/36b34eafc753/.venv/bin/python -m unittest tests.test_round5_candidate_c6 tests.test_round5_candidate_c5 tests.test_round5_candidate_c4 tests.test_round5_recall_work tests.test_round4_sealed_counts tests.test_token_prefix_bound tests.test_token_budget tests.test_token_budget_mcp tests.test_mcp_lifecycle -q",
+      "command_argv": [
+        "/workspace/scratch/36b34eafc753/.venv/bin/python",
+        "-m",
+        "unittest",
+        "tests.test_round5_candidate_c6",
+        "tests.test_round5_candidate_c5",
+        "tests.test_round5_candidate_c4",
+        "tests.test_round5_recall_work",
+        "tests.test_round4_sealed_counts",
+        "tests.test_token_prefix_bound",
+        "tests.test_token_budget",
+        "tests.test_token_budget_mcp",
+        "tests.test_mcp_lifecycle",
+        "-q"
+      ],
+      "command": "/workspace/scratch/36b34eafc753/.venv/bin/python -m unittest tests.test_round5_candidate_c6 tests.test_round5_candidate_c5 tests.test_round5_candidate_c4 tests.test_round5_recall_work tests.test_round4_sealed_counts tests.test_token_prefix_bound tests.test_token_budget tests.test_token_budget_mcp tests.test_mcp_lifecycle -q",
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "TIKTOKEN_CACHE_DIR": "/workspace/scratch/36b34eafc753/AI-Memory-Book/.artifacts/tiktoken"
+      },
       "exit_code": 0,
-      "cases": 94,
+      "cases": 96,
       "skipped": 0,
-      "unittest_reported_seconds": 7.541,
-      "completion_output_path": "benchmarks/reports/round5-c6-correctness-token-tests.log",
-      "completion_output_sha256": "c64a2e76598161e15b8bc22db2c481917e7c486699aac312918f46c0cdb05dc8",
-      "tool_session_id": 57087,
-      "tool_completion_chunk_id": "6ea997"
+      "unittest_reported_seconds": 7.988,
+      "stdout_stderr_log_path": "benchmarks/reports/round5-c6-correctness-v2-token-tests.log",
+      "stdout_stderr_log_sha256": "b6d4cc04627e87464d386c86bd87d26944022a4f87000a931a9a068d01ba4db1",
+      "capture": "subprocess stdout pipe with stderr=STDOUT; bytes saved directly"
     },
     {
-      "command": "PYTHONPATH=src:. /workspace/scratch/36b34eafc753/.venv/bin/python -S -m unittest tests.test_round5_candidate_c6 tests.test_round5_candidate_c5 tests.test_round5_candidate_c4 -q",
+      "command_argv": [
+        "/workspace/scratch/36b34eafc753/.venv/bin/python",
+        "-S",
+        "-m",
+        "unittest",
+        "tests.test_round5_candidate_c6",
+        "tests.test_round5_candidate_c5",
+        "tests.test_round5_candidate_c4",
+        "-q"
+      ],
+      "command": "/workspace/scratch/36b34eafc753/.venv/bin/python -S -m unittest tests.test_round5_candidate_c6 tests.test_round5_candidate_c5 tests.test_round5_candidate_c4 -q",
+      "environment": {
+        "PYTHONPATH": "src:."
+      },
       "exit_code": 0,
-      "cases": 42,
-      "skipped": 19,
-      "unittest_reported_seconds": 0.375,
-      "completion_output_path": "benchmarks/reports/round5-c6-correctness-no-site-tests.log",
-      "completion_output_sha256": "749f616b884b836687d91d77a9fc448ff001d6f53f8ac5862eadc3c83ddd7afa",
-      "tool_completion_chunk_id": "58fae9",
-      "dependency_mode": "Site initialization disabled; only tokenizer-dependent cases skipped."
+      "cases": 44,
+      "skipped": 21,
+      "unittest_reported_seconds": 0.501,
+      "stdout_stderr_log_path": "benchmarks/reports/round5-c6-correctness-v2-no-site-tests.log",
+      "stdout_stderr_log_sha256": "98fedfbfb30ad5afd513e450e1b9aba042fc9ab63d05412a472c50415588c8c1",
+      "capture": "subprocess stdout pipe with stderr=STDOUT; bytes saved directly"
     }
   ],
-  "suite_overlap": "The 42 C6+C5+C4 cases are a subset of the 94-case suite, rerun with python -S. Do not add them as unique tests. Preliminary 93/41-case runs preceded the final import-time JSON certification fixture and are superseded by these final 94/42-case results.",
-  "log_capture": "The linked files preserve the exact combined stdout/stderr completion output returned by exec_command/write_stdin. They were copied from the observed tool results; no separate original stdout or stderr file was created during execution.",
+  "suite_overlap": "The 44 C6+C5+C4 cases are a subset of the 96-case suite, rerun with python -S. Do not add them as unique tests. The 21 skipped cases require the unavailable optional tokenizer dependency; remaining no-site cases execute. The archived 94/42 and earlier 93/41 results do not describe this corrected source.",
+  "log_capture": "Each listed v2 log contains the actual child process stdout plus stderr captured by subprocess.run(stdout=PIPE, stderr=STDOUT) and written directly as bytes. No independent stdout/stderr streams are claimed. Both suites were correctness executions, not latency measurements.",
+  "superseded_before_performance": {
+    "source_checkpoint": "ae6208e302036f5dce420297d56aa3c95c525e8e",
+    "runtime_sha256": "91305c9e39acfbbf1063af46e6759f46cf8a3a0c48917847feea6dd6113e2eb3",
+    "reason": "Independent review found cross-span and repeated-page sharing of mutable nested source-reference JSON containers. The fixed fast path is single-span and consumes each captured graph only once.",
+    "old_receipt_path": "benchmarks/reports/round5-c6-pre-alias-fix/round5-c6-correctness.json",
+    "old_receipt_sha256": "33c9d92f8b3483a8ccf2a3bfd6fce5f8dd7ec3cf0f363e945a141a07ea2e7668",
+    "archive_path": "benchmarks/reports/round5-c6-pre-alias-fix/archive.json",
+    "archive_sha256": "96f4570712a6ae50eec2d95c3fa0c7ad42424d12bbcda92d5d8767171408eddc",
+    "new_regression_tests_failed_before_fix": {
+      "receipt_path": "benchmarks/reports/round5-c6-pre-alias-fix/alias-regression-failure.json",
+      "receipt_sha256": "195426704c4a7453267cd323633279f29098b1d11c5e38c22100209cd8c954a9",
+      "status": "review-blocker-reproduced-before-fix",
+      "command": [
+        "/workspace/scratch/36b34eafc753/.venv/bin/python",
+        "-m",
+        "unittest",
+        "tests.test_round5_candidate_c6.InSnapshotSourceWorkTests.test_multiple_spans_keep_independent_nested_json_containers",
+        "tests.test_round5_candidate_c6.InSnapshotSourceWorkTests.test_repeated_page_consumes_its_captured_reference_map_once",
+        "-v"
+      ],
+      "exit_code": 1,
+      "runtime_sha256": "91305c9e39acfbbf1063af46e6759f46cf8a3a0c48917847feea6dd6113e2eb3",
+      "log_path": "benchmarks/reports/round5-c6-pre-alias-fix/alias-regression-failure.log",
+      "log_sha256": "c34dc721695f94b8d9fd008334a6829ce09f73b74e9cba27e7e8cb3808d19ceb",
+      "test_file_sha256": "acf40b1d547ee9173c0c6f25e6ec007a10b356c1b98cdff3af21db460f1745c1",
+      "expected_failures": 2,
+      "performance_calls": 0
+    },
+    "c6_development_or_formal_performance_calls_before_fix": 0
+  },
+  "independent_static_review": {
+    "path": "benchmarks/reports/round5-c6-source-review.json",
+    "sha256": "a5a91134ec205d20eeeef309017fe27fce80b47bc96bff2aa74c0767d606ce08",
+    "remaining_correctness_blockers": []
+  },
   "coverage": [
     "Multi-session batching returns the same exact requested source-turn mapping, including missing turns. EXPLAIN confirms the existing composite session/ordinal index lookup.",
-    "Real SQL work counts show one batch in place of multiple per-session queries; read-only Python call observation confirms one source_refs parse per selected page and removal of the final duplicate parse.",
+    "A single-span fixture observes one batch instead of multiple per-session queries and removal of a duplicate final source_refs parse. Multiple spans and repeated pages intentionally retain original independent JSON parses.",
     "Single/empty sessions, non-native types, mixed/overflow ordinals, 400-pair boundary, 401 pairs, absent getlimit, custom connection/row/text factories, and restrictive variable/SQL length/column/expression/compound/VM limits use the original path.",
     "Full payloads and exact counts match the original source work path for both encoders, zero/tiny/large token caps, character caps, project scope and single-session scope.",
     "Original source-map and projected-unit errors survive changed source text, invalid JSON, missing/overflow/mixed source ordinals.",
     "Custom prepare mutation, custom reference projection and JSON loaders retain their original calls; a JSON wrapper installed before store import is not certified.",
     "Late custom breadcrumbs replacing raw references, replacing id with a nonhashable list, replacing _refs/json.loads or deleting raw references preserve original outputs/errors; empty spans do not parse/access missing raw references.",
-    "No private keys are added to selected rows or assembly/breadcrumb inputs; reference clipping preserves span order and creates fresh output dictionaries.",
+    "No private keys are added to selected rows or assembly/breadcrumb inputs. Source-reference reuse is restricted to one ordinary span and consumes each captured page graph once; multi-span and repeated-page outputs preserve independent message_indices lists and unknown nested JSON objects, verified by identity and mutation tests.",
     "Existing C5 memo, C4 scope/ranking, token assembly, prefix/sealed counting, real SDK token payloads and persistent MCP lifecycle tests pass."
   ],
   "limits": [

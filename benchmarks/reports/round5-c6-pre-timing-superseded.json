@@ -1,0 +1,13 @@
+{
+  "status": "pre-timing-source-checkpoint-superseded",
+  "source": {
+    "commit": "ae6208e302036f5dce420297d56aa3c95c525e8e",
+    "runtime_sha256": "91305c9e39acfbbf1063af46e6759f46cf8a3a0c48917847feea6dd6113e2eb3"
+  },
+  "reason": "Independent pre-timing review found that parsed-reference reuse made nested message_indices lists alias across spans. The original path parsed separately for each span and returned independently allocated nested lists. Equal serialized payloads do not preserve this observable object-freshness behavior.",
+  "action": "Restore C6_SOURCE to null and block binding/development/formal execution until a corrected source commit and runtime hash are frozen.",
+  "c6_development_performance_calls": 0,
+  "c6_formal_performance_calls": 0,
+  "c6_binding_created": false,
+  "attempt_boundary": "No performance invocation began for this superseded source. Preserve this source checkpoint and correctness-review failure; do not relabel it as measured performance or release acceptance."
+}

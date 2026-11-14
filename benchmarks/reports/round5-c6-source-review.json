@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "review": "round5-c6-independent-static-source-review-1",
+  "created_at_utc": "2026-11-14T04:20:21.779989+00:00",
+  "status": "ready_for_single_registered_development_comparison_after_exact_source_freeze_and_correctness_receipt",
+  "static_review_passed": true,
+  "remaining_correctness_blockers": [],
+  "reviewer": "release_audit (independent from core implementation)",
+  "registration": {
+    "path": "benchmarks/experiments/round5-c6-addendum.json",
+    "commit": "099cbaf427c28351d71f3995fd0ff42f9c881b38",
+    "sha256": "7ad88598c9ccb3492083be06448e92a76da7025501a1aa578a0e39d8bd94c9d5"
+  },
+  "comparison_base": {
+    "commit": "8dc6604fa32df18d53286110b215fc6657243656",
+    "runtime_sha256": "6af876ef5ddc851f4fff56ba3dc4f20e76b2cfc9f5e31d0cc8d1a0ec20e954be"
+  },
+  "candidate": {
+    "runtime_sha256": "cfffd8a21374cbf9152bbbc98a6a9847a1e22401f16179112e2f79eef181ff78",
+    "file_sha256": {
+      "src/memory_book/store.py": "c65e8542b4174c26fcccb72468e167b31accdfe7626d7a0692ee86adca1c489a",
+      "src/memory_book/token_budget.py": "0af09aaae1219e978f688c3aa4bb6c180c0b435bdb4a3113e5c3758b19b290ed",
+      "tests/test_round5_candidate_c6.py": "acf40b1d547ee9173c0c6f25e6ec007a10b356c1b98cdff3af21db460f1745c1"
+    },
+    "source_commit_boundary": "Parent will freeze these exact reviewed bytes in a superseding source checkpoint. This receipt does not assert an uncreated Git commit."
+  },
+  "superseded_before_performance": {
+    "commit": "ae6208e302036f5dce420297d56aa3c95c525e8e",
+    "runtime_sha256": "91305c9e39acfbbf1063af46e6759f46cf8a3a0c48917847feea6dd6113e2eb3",
+    "reason": "Independent review found cross-span sharing of mutable source-reference JSON values before any C6 development or formal performance invocation. The corrective source is separately identified above.",
+    "correctness_archive": "benchmarks/reports/round5-c6-pre-alias-fix/",
+    "boundary": "The archived 94-case and 42-case execution results describe the superseded source, not the fixed candidate."
+  },
+  "scope": [
+    "Read the complete changes to store.py and token_budget.py relative to frozen C5, the follow-up single-span/one-use correction, and every test in tests/test_round5_candidate_c6.py.",
+    "Check the registered same-recall/read-snapshot policy, exact SQL pair mapping and affinity, supported limits and legacy fallbacks, source validation order, final reference identity checks and mutable-container independence.",
+    "Independently recompute the runtime aggregate and listed file SHA256 values without importing runtime modules or executing retrieval, tokenization, runtime tests or benchmark timing."
+  ],
+  "findings_fixed": [
+    {
+      "id": "per-span-json-container-freshness",
+      "identified_by": "independent release_audit reviewer; confirmed by parent and core",
+      "problem": "The previous _refs implementation parses source_refs separately inside each span loop. Reusing a single parsed ref with a shallow dictionary copy introduced cross-span sharing of ordinary message_indices lists and arbitrary nested JSON containers. Serialized outputs could remain equal while mutating one returned reference changed another.",
+      "fix_verified": "The final fast path requires exactly one ordinary span and consumes a matching captured page map at most once. Multi-span and repeated-page cases call the original _refs path, retaining its independent parses and object graphs. No deepcopy, new cache or row-private key was introduced.",
+      "regression_tests": [
+        "test_multiple_spans_keep_independent_nested_json_containers",
+        "test_repeated_page_consumes_its_captured_reference_map_once"
+      ]
+    },
+    {
+      "id": "late-unhashable-page-identity",
+      "identified_by": "parent and independent release_audit review",
+      "problem": "A custom breadcrumb can replace row.id with a list before reference projection; a new captured_refs lookup would then add a TypeError that the old reference method did not raise.",
+      "fix_verified": "Reference reuse requires an exact native-str current row id, after the original breadcrumb call. Other ids retain the original reference-method call and downstream behavior.",
+      "regression_test": "test_breadcrumb_changes_raw_id_or_refs_after_assembly_without_private_keys"
+    },
+    {
+      "id": "pre-import-json-wrapper-certification",
+      "identified_by": "core hardening during independent review",
+      "problem": "Capturing whichever json.loads callable was present at import could certify a wrapper installed before store import. Its per-call effects must remain observable.",
+      "fix_verified": "Initial certification requires a native Python function with ordinary json module/name/qualname/code-name and matching json source-file origin. Unknown origins produce None, retaining every original parse. Current loader identity is checked again at reuse.",
+      "regression_test": "test_json_wrapper_installed_before_store_import_is_uncertified"
+    }
+  ],
+  "reviewed_invariants": [
+    "The source-turn relation is built only inside the original recall read transaction. Every original source-map and projected-unit check still runs with the same selected pages, parsed reference values and exact original-turn text.",
+    "Batching accepts only an exact sqlite3.Connection with native Row/str factories, ordinary source preparation, at least two nonempty sessions, native-str keys and signed-64-bit native-int ordinal sets. Boolean, mixed, overflow, custom and excessive inputs return to the unchanged original per-session loop before sorting or binding.",
+    "At most 400 requested pairs and 800 parameters are bound. Actual variable and ASCII SQL-length limits are checked. Restrictive column/expression/compound/VM limits and absent getlimit retain the original path; no limits are raised, queries chunked or SQL errors swallowed.",
+    "The parameterized VALUES relation uses the existing unique session_pk/ordinal lookup. The comparison places native turns columns on the same affinity-bearing side as the legacy predicates. Selecting requested_turns.session_pk retains the original requested dictionary key; missing turns remain absent for the original validator to handle.",
+    "The standard prepare_source_units identity is an optimization guard, not a replacement for source integrity checks. Custom preparation preserves the old per-session reads and fresh reference projection.",
+    "Reference capture is confined to the current recall and exact raw source_refs object. The final current _refs/JSON loader/row/id/span guards run after breadcrumb construction. Late mutations, empty or malformed spans and unsupported row types retain the original call and parse/error behavior.",
+    "Single-span reference clipping preserves the old nested loop order, comparisons, offsets and fresh outer dictionaries. A captured graph is exposed at most once, preserving nested message_indices/extra-container independence across output references.",
+    "No private key is inserted into rows, assembly inputs, breadcrumbs or returned results. No query/result/statement cache or new database schema is introduced by C6. The previously registered bounded token-count memo and connection-local pager remain unchanged.",
+    "The original character path, semantic/coverage routing, custom methods, rank ordering, result counts, complete payload shape and named-tokenizer exact counts are not intentionally changed."
+  ],
+  "test_evidence_boundary": "The core implementation agent owns execution and the separate final correctness receipt. This reviewer inspected test source but did not rerun it, add its counts or treat superseded 94/42-case runs as evidence for the fixed runtime. Final-source directed checks and exact-source CI must be assessed from their own receipts.",
+  "independent_actions": {
+    "static_source_review": true,
+    "test_source_review": true,
+    "sha256_recomputed": true,
+    "repeated_runtime_tests": 0,
+    "retrieval_calls_executed": 0,
+    "tokenizer_or_model_executions": 0,
+    "timing_runs_executed": 0
+  },
+  "limits": [
+    "Static inspection and targeted tests do not prove all possible program executions. Certification does not attempt to detect deliberate forgery or mutation of private module code/decoder internals and matching origin metadata.",
+    "Python 3.10 deliberately retains the legacy SQL path because sqlite3.Connection.getlimit is unavailable; this review does not claim the new batch optimization runs on every supported interpreter.",
+    "The source-review verdict permits the separately registered development comparison after source freeze and final correctness evidence. It is not a numerical performance pass, formal release approval, new quality evaluation or competitor advantage claim.",
+    "All C3/C5 rejections and the superseded pre-performance C6 checkpoint must remain retained. The fixed formal gates and source/package/installer/CI requirements remain mandatory; no v0.3.3 approved-runtime hash follows from this review."
+  ]
+}
