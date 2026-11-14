@@ -11,7 +11,7 @@ useful lexical matches. It does not guarantee complete evidence, resolve old
 versus current decisions, or establish final-answer accuracy. Keep using the
 returned source references to check the original conversation.
 
-## Current v0.3.2 C2 validation — 2026-11-13
+## Historical v0.3.2 C2 validation — 2026-11-13
 
 The round-four candidate is frozen at
 [`2d7b5e3`](https://github.com/Afloat16/AI-Memory-Book/commit/2d7b5e38839fb21724ad3beec6b6ebabbda45636),

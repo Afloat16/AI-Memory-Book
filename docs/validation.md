@@ -5,7 +5,7 @@ Product fixtures, examples, screenshots, and capture measurements are synthetic;
 the published experiments also evaluate LoCoMo and HotpotQA text corpora. No private
 user conversation history was used in development or published.
 
-## Current: v0.3.2 completed fourth-round methods and evidence
+## Historical: v0.3.2 completed fourth-round methods and evidence
 
 The [registered plan](../benchmarks/experiments/round4-plan.json),
 [development addendum](../benchmarks/experiments/round4-development-addendum.json)
