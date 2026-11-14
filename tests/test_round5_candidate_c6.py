@@ -2,6 +2,7 @@
 from contextlib import contextmanager
 import importlib.util
 import json
+from pathlib import Path
 import sqlite3
 import subprocess
 import sys
@@ -183,7 +184,9 @@ class OriginalTurnBatchTests(unittest.TestCase):
         self.assertEqual(store._refs_from_parsed(None, []), [])
 
     def test_json_wrapper_installed_before_store_import_is_uncertified(self):
-        code = """import json
+        code = """import sys
+sys.path.insert(0, sys.argv[1])
+import json
 from functools import wraps
 ordinary = json.loads
 @wraps(ordinary)
@@ -194,7 +197,10 @@ from memory_book import store
 assert store._ORDINARY_JSON_LOADS is None
 assert store.MemoryBook._refs({'source_refs': '[]'}, [(0, 1)]) == []
 """
-        subprocess.run([sys.executable, "-S", "-c", code], check=True, capture_output=True, text=True)
+        completed = subprocess.run([sys.executable, "-S", "-c", code,
+                                    str(Path(store.__file__).resolve().parents[1])],
+                                   capture_output=True, text=True)
+        self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
 
 
 @unittest.skipUnless(HAS_TOKENS, "Install .[tokens] for complete token-path regression")
