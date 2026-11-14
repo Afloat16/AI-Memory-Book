@@ -1,0 +1,154 @@
+{
+  "all_completion_hashes_verified": true,
+  "all_git_blobs_verified": true,
+  "attempt": 1,
+  "auditor_commit": "2981df099893708b062934770905f07f47b34d98",
+  "auditor_sha256": "70f5c886eade03be94c173ab7f87d6c10b7c6bcdfc58ee5c91429d57cad64413",
+  "branch": "refs/heads/validation/v034-round6-startup-43598913606-1",
+  "files": {
+    "attempts.jsonl.gz": {
+      "bytes": 28930,
+      "git_blob": "4b9928e11a6f629fb65edce94b832c899f4590a8",
+      "sha256": "f3ed59cda09d66bde17fb758874381c3e1295a86a072be57b6febd5d47fa6f9f"
+    },
+    "binding.json": {
+      "bytes": 1854,
+      "git_blob": "1314b519b539db842a0bdfbebc054630125be4e5",
+      "sha256": "c968ab50f2f5e153954983046e0cbcdadf122515d8736832acdb8687121a4c88"
+    },
+    "completion.json": {
+      "bytes": 2585,
+      "git_blob": "db4c46aaec052bace0ac9d20f6f2c261d3cda290",
+      "sha256": "5c7674a95cbd2c6394c5435f33bc53d785cc8c3fb7a7547928687b9005621663"
+    },
+    "execution.json": {
+      "bytes": 245,
+      "git_blob": "b3e91702416e39fa28b6fbb7df235986cc6c6b85",
+      "sha256": "56f2e86744da1524b5792bc87497cfb401be10a252a82831fa2813d5940b0c27"
+    },
+    "fixture.json": {
+      "bytes": 18908,
+      "git_blob": "8121f670563c88473ac1eb0d0adc9b6774c0c054",
+      "sha256": "a9086f4d63481e0774681a4a7c8a67fad4a03f617c7da35a9dd2c80ea5b625c5"
+    },
+    "independent-audit.json": {
+      "bytes": 54050,
+      "git_blob": "5201beff5b86af92a559ba17cf8a7adeac040e31",
+      "sha256": "e6b28455e3fb8f770ff1353ecaadcbd174cff102bfe319012114a0f40e9938c9"
+    },
+    "report.json.gz": {
+      "bytes": 498224,
+      "git_blob": "37a6232359657ad5990ccbd38c97f759d2333761",
+      "sha256": "381f5d99e5844af1d6d1681723f489ac98f099bb86551abcc6dd9cfd162a5b5a"
+    },
+    "run.json": {
+      "bytes": 45092,
+      "git_blob": "44f7691ea2970f7182d5ea80af4655712da754c6",
+      "sha256": "946d892a348bf720de6f1b7a2618fc3bec737d08b41ee69bfb982d453699e556"
+    }
+  },
+  "formal_directory_exact_copy_verified": true,
+  "frozen_auditor_invocation": [
+    ".venv/bin/python",
+    "scripts/round6_audit_startup.py",
+    "--report",
+    "benchmarks/reports/round6-startup-43598913606-1/report.json.gz",
+    "--ledger",
+    "benchmarks/reports/round6-startup-43598913606-1/attempts.jsonl.gz",
+    "--binding",
+    "benchmarks/reports/round6-startup-43598913606-1/binding.json",
+    "--output",
+    "benchmarks/reports/round6-startup-43598913606-1-local-audit/independent-audit.json"
+  ],
+  "job_results": [
+    {
+      "conclusion": "failure",
+      "id": 132459251443,
+      "logs_url": null,
+      "name": "confirmation",
+      "run_id": 43598913606,
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install only the frozen official SDK dependencies",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Check artificial protocol and independent-auditor counterexamples",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "failure",
+          "name": "Claim and execute the sole frozen startup confirmation",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Post Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c",
+          "number": 13,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+          "number": 14,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 15,
+          "status": "completed"
+        }
+      ]
+    }
+  ],
+  "local_audit_equals_original_remote_audit": true,
+  "local_audit_sha256": "e6b28455e3fb8f770ff1353ecaadcbd174cff102bfe319012114a0f40e9938c9",
+  "no_new_measurements": true,
+  "repository": "Afloat16/AI-Memory-Book",
+  "result_commit": "ffcc0a6f01b3b4acdf755ecd4c01b1e564d279b6",
+  "result_tree": "e067bd1fa20fc5776965e18e012ebf77a6cc2a8a",
+  "run_id": 43598913606,
+  "saved_record_audit": {
+    "git_identity_verified": true,
+    "ledger_events_checked": 960,
+    "no_new_measurements": true,
+    "original_automatic_accepted": false,
+    "passed": true,
+    "samples_checked": 480,
+    "startup_numeric_gate_passed": true
+  },
+  "schema_version": 1,
+  "trigger_commit": "c3ffaa4d5b158148471516fe72f7253ef7b89f9c",
+  "workflow_conclusion": "failure"
+}

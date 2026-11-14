@@ -64,29 +64,57 @@ Replace `claude-code` with your [client profile](docs/integrations.md#supported-
 
 ## Measured results
 
-**v0.3.3 passes all fixed numerical performance gates against published v0.3.2 while preserving complete default retrieval output.** Three startup costs were accepted through the original plan's separate independent resource review. The single frozen run completed 56,784 calls; two separate saved-result audits verify its arithmetic and original call ledgers. [Formal review](docs/round5-c7-performance-review.md) · [Source and development record](docs/optimization-round5.md) · [Benchmark index](benchmarks/README.md).
+### v0.3.4 startup confirmation — release checks pending
 
-### v0.3.3 efficiency and compatibility
+**The new candidate creates an empty archive much faster and halves CLI help/version startup time against published v0.3.3.** The single prospective confirmation completed **480 fresh samples**, with **40 per version and boundary**, in four balanced AB/BA/BA/AB rounds on Ubuntu 24.04 / Python 3.12. All fixed numerical startup gates pass; the saved automatic result remains `accepted:false` for the separate resource-review item below. v0.3.4 has not yet been published. [Registered plan](benchmarks/experiments/round6-startup-plan.json) · [Original report](benchmarks/reports/round6-startup-43598913606-1/report.json.gz) · [Independent saved-result review](benchmarks/reports/round6-startup-43598913606-1-local-audit/review.md).
 
-| Verified result | Measurement | Evidence |
-|---|---|---|
-| **Lower aggregate tail latency** | Pooled p95 geometric mean **−14.80%** | 56,784 calls, two historical corpora, native/actual SDK MCP, character/token budgets and four balanced rounds. [All cells](docs/round5-c7-performance-review.md) |
-| **Public native token recall** | p95 change **-15.19% / -14.24% / -15.74%** at 512 / 1,024 / 2,048 tokens | 1,015 public-conversation questions; 4,060 samples per version/setting. [Saved report](benchmarks/reports/round5-c7-performance-43563390252-1/report.summary.json) |
-| **Faster actual MCP token recall** | p95 **6.711 → 5.894 ms (−12.17%)** | Official SDK stdio, 1,024-token cap, normal server cache writes and transport included. [Timing boundary](docs/round5-c7-performance-review.md) |
-| **Historical comparison output retained** | **2,304 / 2,304** complete default outputs match v0.3.2 | Old Hotpot256, two tokenizers, three native token caps and the component ranker. [Compatibility report](benchmarks/reports/round5-c7-hotpot-regression.summary.json) |
+All times are milliseconds. Each arrow is **v0.3.3 → v0.3.4 candidate**; negative changes are improvements.
 
-All **28,392 baseline/candidate observations** match on complete non-timing output. All twelve pooled p50 and p95 values improve. [Independent arithmetic audit](benchmarks/reports/round5-c7-performance-independent-audit.json) · [Strict saved-ledger audit](benchmarks/reports/round5-c7-performance-local-audit.json) · [Full report](benchmarks/reports/round5-c7-performance-43563390252-1/report.json.gz).
+| Measured boundary | Median | Median change | p95 | p95 change |
+|---|---:|---:|---:|---:|
+| **Construct a new empty archive** | **24.518 → 4.164** | **−83.02%** | **27.374 → 6.358** | **−76.77%** |
+| **Actual CLI `--help` process** | **102.903 → 48.750** | **−52.63%** | **104.104 → 49.547** | **−52.41%** |
+| **Actual CLI `--version` process** | **101.346 → 47.479** | **−53.15%** | **103.116 → 48.259** | **−53.20%** |
+| Complete API import, including `MemoryBook` | 33.506 → 33.920 | **+1.24%** | 33.822 → 34.433 | **+1.81%** |
+| Construct a connection to an existing empty archive | 0.640 → 0.632 | −1.23% | 0.668 → 0.666 | −0.30% |
+| Official SDK MCP startup through initialization | 627.601 → 620.104 | −1.19% | 632.233 → 624.837 | −1.17% |
 
-All fixed numerical gates pass. The original automated verdict remains `accepted:false` because three startup resource increases required review: import means rise 3.197 / 2.990 ms, and public-labeled fresh-empty-database opening rises 5.100 ms (21.4109%). A [separate resource review](docs/round5-c7-resource-review.md) accepts these startup costs with all samples and attribution limits retained. No timing was repeated, threshold lowered or original automatic verdict rewritten.
-The [explicit resource decision](benchmarks/experiments/round5-c7-resource-decision.json) binds both independent reviews to the unchanged report and source.
+New-archive construction saves **20.354 ms** at the median; CLI help and version save **54.153 ms** and **53.867 ms**. The API constructor timers exclude Python/import and helper validation; CLI values include the actual fresh process and captured output. MCP values start before transport/server creation and end at successful initialization. They are different boundaries, not interchangeable whole-product startup times. No first sample or outlier was removed. All **960 intent/completion events** and original source/evaluator identities passed independent offline verification.
 
-C7 combines the official MCP SDK's native stdout write and immediate flush in one worker dispatch, reducing dispatch overhead while preserving complete messages, serialization and lifecycle. The stdout optimization is limited to verified official SDK 1.30.0 methods and native standard streams; every successful message is flushed immediately, with original serialization and lifecycle. Unknown/custom paths use the original FastMCP stdio path. Earlier improvements in narrower database metadata reads, reduced Python work and certified exact token-count reuse remain in the candidate. A historical C3 probe of its derived metadata index recorded **196 KiB / 148 KiB** in two existing archives; their one-sample first opens rise **0.910 → 5.419 ms / 0.844 → 4.502 ms**. Those historical probes are not new C7 upgrade measurements. The connection-local SQLite pager target is **4 MiB**. The exact-count memo retains at most **2,048 entries / 2 MiB of text objects** per connection, shared by both tokenizers; container/key/value/encoder overhead is additional. Neither is a process-memory limit. Connections start empty, later native configurations reuse counts naturally, and actual MCP configurations each start a new server process. Query-result caches are disabled or cleared before timing; derived count reuse is enabled. Formal memory, initialization, ingestion and storage observations are all retained in the [cost review](docs/round5-c7-performance-review.md). Source text, citation fields and returned token totals are preserved; this version claims no new output-token savings.
+The implementation puts **initial schema and FTS setup in one transaction**, with rollback if that setup fails. Subsequent covering-index and connection-setting steps retain their existing boundaries. Command metadata is loaded without importing archive/client machinery; requesting the public `MemoryBook` class still performs the full API import. Existing archives, schema 3, class identity and complete retrieval output are preserved.
 
-These are repeated old queries on one host, with no statistical-significance, unseen-quality or universal-speedup claim. The paired performance test compares Book versions; competitors were not remeasured. Historical v0.3.2 versus v0.3.1 aggregate p95 **−10.13%**, and v0.3.1 versus v0.3.0 **−11.36%**, remain separate measurements in the [round-four](docs/round4-performance-review.md) and [round-three](docs/round3-performance-review.md) reports; their percentages are not added to this run.
+**The costs remain visible.** Full API import is slower by **0.414 ms median / 0.611 ms p95**. Existing-archive whole-helper system CPU rises **18.646 → 21.121 ms (+2.474 ms, +13.2703%)**, the sole pooled resource-review trigger; whole-helper wall time rises **138.762 → 139.996 ms (+0.8891%)** even though its constructor interval improves slightly. The increase occurs in all four rounds. Saved data cannot quantify how much belongs to imports, validation, serialization or other phases. Two independent reviews recommend accepting this disclosed cost; the explicit release decision and remaining release checks are separate from the unchanged raw verdict.
 
-Optional indexed references retain their separate historical **19.63% response-text token reduction** and **8.15% first-call reference-total reduction** (`o200k_base`, 1,015 questions, 4,000 characters). That option was not remeasured for v0.3.3. Counts include specified schema/instructions/arguments where stated, are not provider bills, and sparse references can cost more. [Format measurement](docs/indexed-references.md).
+<details>
+<summary>All pooled resource increases and retained adverse observations</summary>
 
-The complete [C3 rejection](docs/round5-performance-review.md), [C5 rejection](docs/round5-c5-performance-review.md) and [C6 rejection](docs/round5-c6-performance-review.md) remain unchanged. C5 and C6 achieved only 6.673181% and 5.798911% public actual-MCP p95 improvement against the 10% requirement; both retain `accepted:false`. This release uses C7's separately bound accepted evidence and does not relabel earlier candidates as passed.
+CPU and wall values below are means in milliseconds; RSS values are mean kernel records in KiB. The review also retains every positive and negative per-round cell.
+
+| Boundary and resource | v0.3.3 → candidate | Increase |
+|---|---:|---:|
+| API import: whole-helper system CPU | 18.727 → 19.576 ms | +4.5343% |
+| API import: kernel maximum-RSS record | 49,221.4 → 49,243.8 KiB | +0.0455% |
+| New archive: whole-helper user CPU | 120.770 → 121.288 ms | +0.4289% |
+| New archive: kernel maximum-RSS record | 49,460.1 → 49,496.3 KiB | +0.0732% |
+| Existing archive: whole-helper wall time | 138.762 → 139.996 ms | +0.8891% |
+| Existing archive: whole-helper system CPU | 18.646 → 21.121 ms | **+13.2703%** |
+| Existing archive: kernel maximum-RSS record | 52,993.8 → 53,012.9 KiB | +0.0360% |
+| MCP helper: system CPU | 101.166 → 102.880 ms | +1.6940% |
+| MCP live server: sampled system CPU | 40.500 → 42.750 ms | +5.5556% |
+
+The complete record contains **6 pooled timing increases, 26 round timing increases, 9 pooled resource increases and 27 round resource increases**. Beyond the import median/p95 above, import mean/minimum/maximum rise **1.4785% / 1.3192% / 4.2380%**; the existing-archive constructor maximum rises **0.672010 → 0.703721 ms (+4.7188%)**. Round-level increases include API-import system CPU **+13.8606%** and sampled MCP-server system CPU **+15.00%**. The original review rule applies to pooled resource means; none of these observations was discarded. [Every adverse cell](benchmarks/reports/round6-startup-43598913606-1-local-audit/review.json).
+
+Both sources' new/existing logical archives are **159,744 bytes**. Kernel `wait4` RSS records include the measurement process and can include inherited/reaped-descendant effects; they do not establish equal or lower isolated product memory. MCP RSS/HWM and CPU are live samples after initialization, not unobserved lifetime maxima or totals.
+
+</details>
+
+### Retrieval compatibility and release scope
+
+This is a **startup and initialization-correctness release scope**. Candidate A's two-round development recall gains were approximately **1%**, insufficient to advance to the original **10% aggregate / 15% public native-token / 10% actual-MCP p95** goals. That four-round formal recall matrix was **not run or accepted**. Candidate B's dense-project ranking regressed public native p95 by roughly **19–29%** and actual-MCP p95 by **23.9246%**; it is excluded. The release candidate uses A's exact runtime, and all failed experiments remain available. [Development outcomes and source selection](docs/optimization-round6.md).
+
+A preserves **2,304 / 2,304** complete historical Hotpot256 default outputs against v0.3.3: **1,536 native** calls across two tokenizers and three caps, plus **768 component** calls. Its independent saved-ledger audit checks **4,608 events**. This is compatibility evidence, not a new evidence-quality or recall-speed claim. [Historical compatibility](benchmarks/reports/round6-hotpot-compatibility.summary.json) · [Saved-output audit](benchmarks/reports/round6-hotpot-compatibility.audit.json).
+
+**Historical results remain historical.** v0.3.3's accepted C7 comparison against v0.3.2 recorded **14.80% aggregate p95** and **12.17% actual-MCP token p95** improvements, with separately reviewed startup costs. Those values are not v0.3.4 gains and are not added to the new startup percentages. [Original v0.3.3 performance and costs](docs/round5-c7-performance-review.md) · [Resource decision](benchmarks/experiments/round5-c7-resource-decision.json) · [Earlier rejected candidates](docs/optimization-round5.md). Optional indexed references retain their separate, unremeasured [historical token-format results](docs/indexed-references.md).
 
 ### Historical open-source component comparison
 
