@@ -11,12 +11,14 @@ import time
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
-from types import FunctionType
+from types import BuiltinFunctionType, FunctionType
 from typing import Any
 
 from .segmentation import make_turns, segment
 from .text import estimate_tokens, excerpt, headline, index_text, query_terms, terms
 
+_ORDINARY_SQLITE_CONNECT = (sqlite3.connect if type(sqlite3.connect) is BuiltinFunctionType
+    and sqlite3.connect.__module__ == "_sqlite3" and sqlite3.connect.__name__ == "connect" else None)
 SCHEMA_VERSION = 3
 INDEX_VERSION = 3
 RECALL_VERSION = 10
@@ -327,7 +329,12 @@ class MemoryBook:
         if self.path != ":memory:":
             Path(self.path).expanduser().resolve().parent.mkdir(parents=True, exist_ok=True)
             self.path = str(Path(self.path).expanduser())
-        self.db = sqlite3.connect(self.path, timeout=10, isolation_level=None, factory=_RecallConnection)
+        if sqlite3.connect is _ORDINARY_SQLITE_CONNECT:
+            self.db = sqlite3.connect(self.path, timeout=10, isolation_level=None, factory=_RecallConnection)
+        else:
+            # A caller-supplied connector may choose its own factory. Keep its
+            # original call shape; only our known connection enables ranking.
+            self.db = sqlite3.connect(self.path, timeout=10, isolation_level=None)
         self.db.row_factory = sqlite3.Row
         self.db.execute("PRAGMA foreign_keys=ON")
         self.db.execute("PRAGMA busy_timeout=10000")
@@ -818,6 +825,9 @@ class MemoryBook:
         More than 512 required pairs chooses the unchanged original route.
         SQL failures are not swallowed or retried.
         """
+        if (not self.db._rank_ordinary or any((kind, sqlite3.PrepareProtocol) in sqlite3.adapters
+                                             for kind in (int, float, str))):
+            return None
         cursor = self.db.execute(f"""SELECT rowid,rank FROM {table}
           WHERE {table} MATCH ? AND rank MATCH 'bm25(2.0,2.0,1.0,0.25)'
             AND rowid BETWEEN ? AND ? ORDER BY rank""", (expression, *bounds))

@@ -1,6 +1,6 @@
 # v0.3.4 optimization and recovery checkpoint
 
-Status: candidate A completed its source CI, development comparison and all 2,304 historical compatibility calls. Its roughly 1% recall improvement is insufficient for the registered formal goals, so A will not advance. Candidate B is registered before its runtime implementation or timing. Published v0.3.3 remains the baseline and current release; no v0.3.4 runtime is approved.
+Status: candidate A completed its source CI, development comparison and all 2,304 historical compatibility calls. Its roughly 1% recall improvement is insufficient for the registered formal goals, so A will not advance. Candidate B implementation and directed correctness checks are complete; its source is being frozen before any B performance measurement. Published v0.3.3 remains the baseline and current release; no v0.3.4 runtime is approved.
 
 ## User goal and immutable baseline
 
@@ -55,3 +55,10 @@ A does establish an empty-database creation improvement: native means drop from 
 The [candidate B plan](../benchmarks/experiments/round6-candidate-b-plan.json) proposes a narrow two-stage FTS route for demonstrably dense project rowid intervals. It preserves global BM25 and full cutoff ties, leaving final page-ID sorting and metadata decoding to SQLite. Actual schema validation and customization guards are prerequisites, including trace callbacks that could reenter and mutate the connection. Unknown or uncertified cases retain the old route. This is a performance hypothesis, not a measured B improvement.
 
 The two workflows now name separate B bindings explicitly. A's original binding files, claims, controller identity and result branches remain unchanged. B must have materially different frozen runtime source before its own single development run, historical compatibility and any formal run. The original 10/15/10 thresholds and all evidence-preservation rules remain unchanged.
+
+
+## Candidate B correctness checkpoint
+
+B runtime SHA256 is `01ce749679af461d03c3499d5423ffa82d73fe190fb318327301b58a643edf52` across 17 Python files. [Implementation verification](../benchmarks/reports/round6-candidate-b-correctness.json) retains the initial custom-connector regression, its native-factory identity fix, and all directed reruns: the final 14 core cases pass. The independent [guard audit](../benchmarks/reports/round6-candidate-b-guard-audit.json) adds five tests covering ten concrete cases, including late global adapters, real non-rowid-alias schema, external factories and a concurrent WAL writer between the two ranking stages. A second route-entry guard closes the late-customization gap found by that review. Test totals overlap and must not be summed as unique tests.
+
+No B profile, development measurement, formal measurement or fresh competitor scoring has run at this correctness checkpoint. Freeze this exact source, run its full CI, create separately committed B development bindings and retain the complete results before deciding whether to advance.
