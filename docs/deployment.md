@@ -367,6 +367,16 @@ source validation; memo hits reuse only exact token counts. The derived
 metadata index described above remains a separate on-disk and write-maintenance
 cost, with no change to original stored evidence.
 
+Token-budget recall can also batch original-turn reads from multiple sessions
+inside its existing read snapshot and reuse parsed references within that call.
+This adds no persistent source/reference cache or new deployment setting.
+Batching requires the standard SQLite connection and supported, sufficient
+connection limits; Python 3.10, restrictive limits, custom implementations and
+requests beyond the 400-pair / 800-parameter bound keep the original read path.
+Source validation remains complete. Single-span reference reuse is consumed
+once per page, preserving independent nested values when a page is returned
+more than once. See the [source-read and reference compatibility boundaries](token-budget.md#source-reads-and-references-in-v033).
+
 When upgrading from a version before v0.3.0, back up the archive before opening
 it with the new binary: the source-preserving schema 3 migration introduced in v0.3.0 has no
 automatic downgrade, and a pre-v0.3.0 binary needs the pre-upgrade database backup

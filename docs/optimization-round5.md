@@ -1,6 +1,6 @@
 # v0.3.3 optimization and release checkpoint
 
-Status: C3 and C5 completed their formal measurements and remain numerically rejected. C5 passes the aggregate and public native-token gates but its actual public MCP token1024 improvement is 6.673181%, below the fixed 10% gate. C4 remains a complete development-only result. All observations are retained; no release runtime is approved.
+Status: C6 is frozen, its complete 18,928-call development comparison and 2,304-call historical compatibility check are saved, and its sole formal run [43557136276](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43557136276) is in progress. Formal acceptance and runtime approval remain pending. C3 and C5 remain numerically rejected; C5's actual public MCP token1024 improvement is 6.673181%, below the unchanged 10% gate. C4 remains development-only. All earlier observations are retained.
 
 ## Source and purpose
 
@@ -20,7 +20,7 @@ Continue from main `de6e2652572c4867cda2aac5637a4a6630638c7e` and compare agains
 
 Core performance implementation, independent benchmark validation, and release-policy review run separately. Commit small completed changes to `optimization/round5-v0.3.3`; update this checkpoint with source SHAs and saved results as they become available. Main and the release tag advance only after acceptance. Code, benchmark receipts and release notes belong in this Git repository, with no dependency on transient conversation blobs.
 
-Current next steps: implement the registered C6 source-turn batching and request-local reference reuse; verify exact outputs and conservative fallbacks; freeze its actual runtime; execute its one full native development comparison, then the original formal acceptance matrix if warranted. Complete final-source compatibility, exact-commit CI and release verification only after every gate passes.
+Current next steps: preserve the running C6 formal checkpoints, audit every saved observation and resource cost, and assess the original acceptance gates. Only a passing final-source result can approve the runtime and advance main. The final release commit must then pass all nine CI jobs and package checks before a normal v0.3.3 release and public-installer verification. Do not rerun the same binding for a more favorable sample.
 
 ## Candidate A checkpoint
 
@@ -132,3 +132,33 @@ A [single non-timing observation of unchanged C5](../benchmarks/reports/round5-d
 The trace also records 4,289 original-turn queries and 5,073 duplicate source-reference JSON loads (3,542,467 input bytes repeated). C6 may batch the exact requested `(session_pk, ordinal)` pairs inside the existing snapshot and reuse already parsed references within that same recall. Native normal-path batches are capped at 400 pairs / 800 parameters and guarded by actual SQLite limits. Single-session, unknown-limit, restrictive-limit, malformed and custom paths retain the original loop. Parsed references never persist across calls or appear as extra output/row metadata; ordinary identity and unchanged raw-object checks guard reuse. All original source-map validation and clipping arithmetic remain required.
 
 These counts explain the implementation target, not an accepted latency gain. C6 source, final compatibility, the 18,928-call native development comparison and its separate 56,784-call formal verdict remain pending at this checkpoint. There is still no approved v0.3.3 runtime or release tag.
+
+## C6 final source and pre-formal evidence
+
+The frozen C6 product source is `1bd97221e31e8e975498ece00f4bbfb3e0426aac`, runtime SHA256 `cfffd8a21374cbf9152bbbc98a6a9847a1e22401f16179112e2f79eef181ff78`. It adds the registered same-snapshot original-turn batch and guarded request-local reference reuse to C5. Reference reuse applies only to a single span and consumes each page's captured parse at most once; repeated pages and multiple spans retain independent nested reference objects through the original parsing path. Prepared-statement cache size, persistent schema, result-cache behavior and all source corruption checks are unchanged from C5.
+
+The [final directed correctness receipt](../benchmarks/reports/round5-c6-correctness.json) records 96 unique passing tests. The overlapping dependency-free suite runs 44 cases with 21 tokenizer-dependent skips; its passes are not added to the 96. [Independent source review](../benchmarks/reports/round5-c6-source-review.json) passes. A pre-timing source version exposed nested-reference aliasing in two added regression cases; its failure and subsequent fix are retained in [the supersession record](../benchmarks/reports/round5-c6-pre-timing-superseded.json). Neither that superseded source nor the final source was timed before the registered development invocation.
+
+The final-source commit's initial full CI failed one isolated-import fixture: `-S` removed the installed package path, while the local test environment had supplied `PYTHONPATH`. The [fixture-only correction](../benchmarks/reports/round5-c6-isolated-import-fixture.json) passes the explicit package root to the isolated child, preserving all assertions and exposing stderr on failure. Product source bytes are unchanged. All nine jobs then pass on `3ad5b591f4cb403f43cb2b92d21a842a1d8a5bb6`; [the exact CI receipt](../benchmarks/reports/round5-c6-ci-fixture-fix.json) retains both runs. Final release-commit CI is still required.
+
+### C6 complete development comparison
+
+The sole [registered invocation](../benchmarks/experiments/round5-c6-development-invocation.json) completes all eight sequential workers, 18,928 calls and 9,464 matching complete non-timing output pairs. Every original query, source/index/revision/cache invariant, cold first call and bounded native memo snapshot is retained in [the complete archive](../benchmarks/reports/round5-development/candidate-c6-full/README.md). The eight pooled native p50 and p95 values improve. Geometric-mean p95 improvement is **13.758180%**; public native token512/token1024/token2048 p95 improves **6.831978% / 16.531598% / 14.434232%**.
+
+Adverse observations remain visible: pooled synthetic char4000 mean increases **0.845772%**. Synthetic char4000 round 0 mean/p95 increase **12.223894% / 3.023074%**; synthetic token2048 round 0 mean/p50 increase **1.788633% / 4.215140%**; public char4000 round 1 mean increases **0.512357%**. Public token512 round 0 p95 improves only **0.078377%**, and public token1024 round 1 improves **14.393663%**. The full eight pooled and sixteen per-round tables are retained. This two-round native diagnostic does not measure actual MCP or formal process RSS and does not replace release acceptance.
+
+The saved-data archiver's baseline, registration and original-query-reference identifiers were corrected against the frozen files before it was run. This changed only offline identity checks; the measured helper, runtime, query order and all raw observations are unchanged. The corrected archiver is retained beside the raw evidence and performs no retrieval or timing.
+
+### C6 final-source historical compatibility
+
+The [C6 Hotpot256 compatibility check](../benchmarks/reports/round5-c6-hotpot-regression.summary.json) completes all 2,304 calls once: 1,536 native calls over both tokenizers and all three caps, plus 768 component calls. Every complete non-timing payload hash matches the saved v0.3.2 result. All 4,608 start/finish events align, and source/index/documents/revision remain unchanged. The separate C6 report binds the exact runtime, helper, environment and execution time. The ledger's bytes match C5 because case/configuration/output hashes are the same; neither source identity nor execution provenance is inferred from that shared ledger alone. This is historical compatibility, with no new quality, competitor or timing claim.
+
+All development, compatibility and CI evidence was committed before formal binding at `0bd9ccf48bc9ed6a666888838ca11580c3104b98`.
+
+## C6 sole formal execution in progress
+
+The [new binding](../benchmarks/experiments/round5-c6-performance-binding.json) was committed at `4d737fc60a12b60433f6f020614b296908b4c833`, SHA256 `2b57caea5b3d7f12b38aba9472d798e846a5231b936551784f0963259e2a715a`, with evaluator commit `0bd9ccf48bc9ed6a666888838ca11580c3104b98` and the frozen C6 source above. Its 51 measurement files, pinned SDK/tokenizer versions and original v0.3.2 source are verified before timing.
+
+The single [hosted run 43557136276, attempt 1](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43557136276) uses an isolated VM and publishes immutable progress to `validation/v033-round5-c6-performance-43557136276-1`. It retains four balanced rounds, all 56,784 calls, all 28,392 complete non-timing output pairs, the native and actual SDK MCP surfaces, cold first calls, resource measurements and every adverse sample. No completed result is available at this checkpoint.
+
+The original numerical gates remain unchanged: aggregate p95 gain at least 10%, at least one public native token p95 gain at least 15%, public actual-MCP token1024 p95 gain at least 10%, and no pooled p50/p95 regression above 5%. A resource mean increase above 10% requires explicit independent review. Passing development or compatibility alone cannot authorize a release, and a completed numerical failure cannot be relabeled as an interrupted run.
