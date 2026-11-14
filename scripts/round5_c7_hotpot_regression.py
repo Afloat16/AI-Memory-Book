@@ -27,8 +27,8 @@ from memory_book import MemoryBook
 
 REFERENCE = ROOT / "benchmarks/results/round4-comparison-43363060062-1"
 BASELINE = "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
-CANDIDATE_COMMIT = None  # Blocked until the final C7 source is frozen.
-CANDIDATE = None  # Blocked until the final C7 runtime SHA256 is frozen.
+CANDIDATE_COMMIT = "d0c84cbfc9bad440ad447d41e211d070ef5b2cae"
+CANDIDATE = "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
 NAMESPACE = "round5-c7-hotpot-regression"
 CONFIGS = [{"budget_chars": 8000, "tokenizer": name, "budget_tokens": cap}
            for name in ("cl100k_base", "o200k_base") for cap in (512, 1024, 2048)]

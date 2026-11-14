@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "review": "round5-c7-independent-static-source-review-1",
+  "created_at_utc": "2026-11-14T05:23:56.057175+00:00",
+  "status": "ready_for_single_registered_development_comparisons_after_exact_source_freeze",
+  "static_review_passed": true,
+  "remaining_correctness_blockers": [],
+  "reviewer": "release_audit (independent from core implementation)",
+  "registration": {
+    "path": "benchmarks/experiments/round5-c7-addendum.json",
+    "commit": "718ce3bbe42e23774e616219bd8ae60d143fb76f",
+    "sha256": "7dc67e10049bf28ffc57060432442a0bdc371da2cc95506bf373e8381d50afeb"
+  },
+  "comparison_base": {
+    "commit": "1bd97221e31e8e975498ece00f4bbfb3e0426aac",
+    "runtime_sha256": "cfffd8a21374cbf9152bbbc98a6a9847a1e22401f16179112e2f79eef181ff78"
+  },
+  "candidate": {
+    "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45",
+    "file_sha256": {
+      "src/memory_book/mcp_server.py": "f118cfa79026dd60a7d97ba30ce31c6ab62bd2ca222c411f48f3197c8a62616a",
+      "tests/test_round5_candidate_c7.py": "212af29927e15def7a7f0c33c23ff6e9adc47065a3f95b6b7ae13186b2c9cd02"
+    },
+    "source_commit_boundary": "Parent froze the exact reviewed runtime and directed-test bytes at this source commit; Git blob SHA256 values were independently checked after freeze.",
+    "commit": "d0c84cbfc9bad440ad447d41e211d070ef5b2cae"
+  },
+  "runtime_diff": {
+    "changed_files": [
+      "src/memory_book/mcp_server.py"
+    ],
+    "unchanged_scope": "All other C6 runtime files, including retrieval, source validation, token counting, caches and database operations, are byte-identical to the C6 source."
+  },
+  "correctness_receipt": {
+    "path": "benchmarks/reports/round5-c7-correctness.json",
+    "sha256": "56a33898c7d028b0ba12aa486cd7a1818a346aab8d8ed3c0f946d180e2591754",
+    "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45",
+    "final_cases": 26,
+    "final_passed": 26,
+    "final_skipped": 0,
+    "dependency_free_cases": 26,
+    "dependency_free_passed": 6,
+    "dependency_free_skipped": 20,
+    "boundary": "Core executed the two overlapping invocations; independent review verified the receipt and original stdout/stderr hashes, without rerunning tests. These are 26 distinct suite cases, including 11 new C7 cases, not 52."
+  },
+  "scope": [
+    "Read the complete mcp_server.py diff relative to frozen C6 and every test in test_round5_candidate_c7.py, including the final native-stdin and alias corrections.",
+    "Read installed official MCP 1.30.0 stdio_server/FastMCP.run/run_stdio_async and AnyIO AsyncFile implementation to compare construction, scheduling, cancellation, serialization and lifecycle boundaries.",
+    "Independently recompute runtime and file SHA256 values, verify only mcp_server.py changed in the runtime, and verify the final execution-log bytes without importing product/runtime modules."
+  ],
+  "findings_fixed": [
+    {
+      "id": "custom-stdio-sys-alias",
+      "identified_by": "independent release_audit reviewer",
+      "problem": "The original stdio function reads stdout from its own sys global. Replacing that alias with a proxy would have been bypassed by an adapter selected from process-global sys.stdout.",
+      "fix_verified": "stdio.sys must be the same sys module; replacement proxies return to the original FastMCP path. The existing native-child guard fixture includes this replacement."
+    },
+    {
+      "id": "custom-fileio-thread-alias",
+      "identified_by": "independent release_audit reviewer",
+      "problem": "Original AsyncFile write/flush use _fileio.to_thread; replacing this alias could preserve the ordinary method objects while changing their dispatch behavior.",
+      "fix_verified": "_fileio.to_thread must be the same anyio.to_thread module. A proxy replacement is covered in the same fallback fixture."
+    },
+    {
+      "id": "stdin-before-stdout-construction-order",
+      "identified_by": "parent and independent release_audit review",
+      "problem": "Constructing the new stdout wrapper before official stdio constructs stdin could change failure cleanup with a custom, closed or unsupported input stream.",
+      "fix_verified": "Before allocating the new stdout wrapper, input must be the exact native standard TextIOWrapper, with an open BufferedReader/FileIO and native open readable FileIO on fd0. Unsupported or closed inputs use the original FastMCP construction order. The official stdin reader remains unchanged."
+    },
+    {
+      "id": "complete-initialize-comparison",
+      "identified_by": "core coverage note and independent release_audit review",
+      "problem": "The earlier SDK comparison checked only InitializeResult.instructions rather than the complete initialization payload.",
+      "fix_verified": "The final test compares complete InitializeResult.model_dump_json(exclude_none=True), in addition to complete list_tools and tool results. Raw JSON-RPC ids are not claimed independently captured."
+    },
+    {
+      "id": "native-builtin-method-subtype",
+      "identified_by": "core directed positive-guard failure before review",
+      "problem": "An exact BuiltinFunctionType check rejected the current interpreter native FileIO.write builtin_method subtype.",
+      "fix_verified": "isinstance accepts the native subtype while exact stream classes and bound method receiver/name checks remain. Buffered and -u native-child guards pass in the core receipt; original failed logs are retained."
+    }
+  ],
+  "reviewed_invariants": [
+    "Only the verified official SDK 1.30.0 ordinary FastMCP/lowlevel/stdout construction path is optimized. Version, function origin, current method identity and bound receiver checks retain the original FastMCP.run path for supported custom/replaced cases.",
+    "The official stdio_server(stdout=adapter) remains the JSON-RPC serializer, newline framing loop and stdin reader. The same lowlevel server.run and create_initialization_options calls retain initialization, handlers, request context and lifespan ownership.",
+    "A successful output write executes native UTF-8 write(data) then native flush in one default run_sync worker, returning the original write count. Only a successful completion sets the one-use marker; no message text is retained across writes.",
+    "The immediately following single SDK writer flush consumes the marker and preserves an AnyIO cancellation/scheduling checkpoint. Independent/repeated flushes and post-error flushes execute the original native flush in a worker.",
+    "Write failures propagate without attempting flush. Flush failures propagate without a success marker. Default limiter and non-abandoning cancellation options remain unchanged; cancellation before dispatch prevents output, while already-started combined work completes before cancellation is observed at the next checkpoint.",
+    "Exact native TextIOWrapper/BufferedWriter-or-FileIO/FileIO output identities, native bound methods, open writable fd1, and the corresponding native input checks reject unsupported/custom streams before allocating an output wrapper.",
+    "The actual SDK test compares all five complete application response payloads, verifies ordinary result-cache writes/hit behavior, large Unicode output, five combined dispatches versus ten original write/flush dispatches, EOF completion and one MemoryBook.close per path.",
+    "No explicit standard-process handle close, protocol-loop replacement, response batching, alternate client, extra queue, retrieval bypass, result-cache suppression, dependency change or database schema change is introduced."
+  ],
+  "independent_actions": {
+    "static_source_review": true,
+    "test_source_review": true,
+    "saved_correctness_log_hash_checks": true,
+    "sha256_recomputed": true,
+    "repeated_runtime_tests": 0,
+    "retrieval_calls_executed": 0,
+    "tokenizer_or_model_executions": 0,
+    "timing_runs_executed": 0,
+    "frozen_source_git_blob_hash_checks": true
+  },
+  "limits": [
+    "Static review and directed tests do not prove every possible execution. Origin/receiver certification covers ordinary custom/replaced callables, not deliberate forgery of source filenames, names, module globals and private metadata.",
+    "The local correctness environment is the one recorded in the core receipt. Other supported Python/platform combinations remain the exact-source CI responsibility; unknown SDK versions and unsupported streams retain the original path.",
+    "API payload comparison and adapter byte tests are separate evidence. Raw JSON-RPC request ids are not independently recaptured; the unchanged official SDK remains responsible for wire serialization.",
+    "This verdict permits only the separately preregistered development comparisons after source freeze. Operation-count reduction establishes no end-to-end speedup, formal acceptance or release approval.",
+    "The complete C3/C5/C6 formal rejections, earlier development records and pre-review correctness evidence remain retained. All fixed formal gates, resource review and exact-release CI/package/installer requirements still apply; no approved-runtime hash follows from this review."
+  ],
+  "source_identity_verified_at_utc": "2026-11-14T05:24:41.898623+00:00"
+}

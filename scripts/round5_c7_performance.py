@@ -109,7 +109,8 @@ C6_BINDING_SHA256 = "2b57caea5b3d7f12b38aba9472d798e846a5231b936551784f0963259e2
 C6_SUMMARY_PATH = "benchmarks/reports/round5-c6-performance-43557136276-1/report.summary.json"
 C6_SUMMARY_SHA256 = "f05d011e3477eee69953ab3a5097e3d69f5657c12c6692d4d96af4f87cb6ad9e"
 C6_RESULT_COMMIT = "c6b384778e12ce9c72771911af37bbb2c5d3474f"
-C7_SOURCE = {"commit": None, "runtime_sha256": None}
+C7_SOURCE = {"commit": "d0c84cbfc9bad440ad447d41e211d070ef5b2cae",
+             "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"}
 C7_POLICY_KEY = 'mcp_stdout_policy'
 C7_POLICY = {'sdk_version': '1.30.0',
  'scope': 'serve standard stdio path with verified original SDK methods and a native standard stdout '
