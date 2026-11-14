@@ -138,6 +138,12 @@ def registered_plan():
     master = relative_file(plan["master_plan"]["path"])
     require(master.read_bytes() == git("show", MASTER_COMMIT + ":" + plan["master_plan"]["path"]),
             "Original round-six master registration changed")
+    claude, ai, billion = (json.loads(relative_file(UPSTREAM_LOCKS[name]).read_bytes())
+                           for name in ("claude-mem", "ai-memory", "billion-context"))
+    require(plan["dependencies"]["upstream_versions"] == {
+        "claude-mem": {"version": claude["package_version"], "commit": claude["commit"], "bun": claude["runtime"]["version"]},
+        "ai-memory": {"version": ai["version"], "commit": ai["commit"], "embedding_model": ai["embedding_model"]["name"]},
+        "billion-context": {"commit": billion["commit"]}}, "Registered upstream labels differ from the locked assets")
     return plan
 
 
@@ -188,7 +194,9 @@ def host_record():
     require(platform.system() == "Linux" and boot.is_file(), "Live resource measurements require Linux boot identity")
     identity = {"node": platform.node(), "boot_id": boot.read_text().strip(),
                 "github_run_id": os.environ.get("GITHUB_RUN_ID"), "github_run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT")}
-    return {**identity, "id": reused.digest(identity), "python": platform.python_version(),
+    node = subprocess.check_output(["node", "--version"], timeout=30).decode().strip()
+    require(sys.version_info[:2] == (3, 12) and node == NODE, "Measured language runtimes differ from their freeze")
+    return {**identity, "id": reused.digest(identity), "python": platform.python_version(), "node": node,
             "platform": platform.platform(), "sqlite": sqlite3.sqlite_version, "logical_cpus": os.cpu_count(),
             "packages": {name: importlib.metadata.version(name) for name in PACKAGES}}
 
@@ -564,6 +572,7 @@ def assess(checkpoint_path, binding_path=BINDING, manifest_path=MANIFEST, *, ver
             report = read_report(directory / stage)
             require(report["stage"] == stage and report["host_id"] == checkpoint["host"]["id"]
                     and report["host"]["packages"] == PACKAGES
+                    and report["host"]["node"] == NODE and report["host"]["python"].startswith("3.12.")
                     and report["source_commit"] == checkpoint["source_commit"]
                     and report["execution_claim"] == checkpoint["claim_commit"]
                     and report["execution_intent"] == record["execution_intent"]

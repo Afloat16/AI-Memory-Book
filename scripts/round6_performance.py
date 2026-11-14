@@ -615,6 +615,9 @@ def publication_identity(args, binding):
     stage = binding["stage"]
     run_id, attempt = os.environ.get("GITHUB_RUN_ID", ""), os.environ.get("GITHUB_RUN_ATTEMPT", "")
     trigger = "ci/v034-round6-" + ("performance" if stage == "formal" else "development")
+    workflow_commit = os.environ.get("GITHUB_SHA", "")
+    require(re.fullmatch(r"[0-9a-f]{40}", workflow_commit) is not None
+            and git("rev-parse", "HEAD").decode().strip() == workflow_commit, "Checkout must equal the exact triggering workflow commit")
     require(run_id.isdigit() and attempt == "1" and os.environ.get("GITHUB_REPOSITORY") == "Afloat16/AI-Memory-Book"
             and os.environ.get("GITHUB_EVENT_NAME") == "push" and os.environ.get("GITHUB_REF") == "refs/heads/" + trigger,
             "Only the registered first-attempt hosted push may measure")
@@ -627,7 +630,7 @@ def publication_identity(args, binding):
             and args.state_dir.resolve() == ROOT / (".artifacts/round6-" + suffix), "Unexpected publication paths")
     # Keyed by actual Python source pair, not an editable binding filename or evaluator revision.
     key = digest({"stage": stage, "sources": {k: v["runtime_sha256"] for k, v in binding["sources"].items()}})
-    return {"run_id": run_id, "run_attempt": attempt, "branch": branch,
+    return {"run_id": run_id, "run_attempt": attempt, "workflow_commit": workflow_commit, "branch": branch,
             "claim_branch": "validation/v034-round6-claim-" + key, "source_pair_stage_sha256": key}
 
 

@@ -390,7 +390,10 @@ def audit(report_path, state, result_commit=None):
             and host["github_run_attempt"] == "1", "Hosted machine/run identity absent")
     suffix = ("performance" if stage == "formal" else stage) + "-" + host["github_run_id"] + "-1"
     pair_key = digest({"stage": stage, "sources": {k: v["runtime_sha256"] for k, v in sources.items()}})
-    expected_publication = {"run_id": host["github_run_id"], "run_attempt": "1", "branch": "validation/v034-round6-" + suffix,
+    workflow_commit = run["publication"]["workflow_commit"]
+    require(isinstance(workflow_commit, str) and re.fullmatch(r"[0-9a-f]{40}", workflow_commit) is not None
+            and git("show", workflow_commit + ":" + run["binding_path"]) == binding_raw, "Trigger commit does not identify the exact original binding")
+    expected_publication = {"run_id": host["github_run_id"], "run_attempt": "1", "workflow_commit": workflow_commit, "branch": "validation/v034-round6-" + suffix,
         "claim_branch": "validation/v034-round6-claim-" + pair_key, "source_pair_stage_sha256": pair_key}
     require(run["publication"] == expected_publication, "Exclusive source-pair/stage claim differs")
     require(json.loads(read(state / "run.json")) == run, "Saved run identity differs")

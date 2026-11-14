@@ -90,12 +90,16 @@ class RoundSixPlanTests(unittest.TestCase):
             output=benchmark.ROOT / "benchmarks/reports/round6-performance-123-1/report.json.gz",
             state_dir=benchmark.ROOT / ".artifacts/round6-performance-123-1", binding=Path("old-binding.json"))
         environment = {"GITHUB_RUN_ID": "123", "GITHUB_RUN_ATTEMPT": "1", "GITHUB_REPOSITORY": "Afloat16/AI-Memory-Book",
-                       "GITHUB_EVENT_NAME": "push", "GITHUB_REF": "refs/heads/ci/v034-round6-performance"}
-        with patch.dict(benchmark.os.environ, environment), patch.object(benchmark, "git", return_value=b"https://github.com/Afloat16/AI-Memory-Book.git\n"):
+                       "GITHUB_EVENT_NAME": "push", "GITHUB_REF": "refs/heads/ci/v034-round6-performance", "GITHUB_SHA": "f" * 40}
+        with patch.dict(benchmark.os.environ, environment), patch.object(benchmark, "git", side_effect=lambda *args: ("f" * 40).encode() if args == ("rev-parse", "HEAD") else b"https://github.com/Afloat16/AI-Memory-Book.git\n"):
             first = benchmark.publication_identity(args, binding)
             args.binding = Path("renamed-binding.json")
             second = benchmark.publication_identity(args, binding)
             self.assertEqual(first["claim_branch"], second["claim_branch"])
+            self.assertEqual(first["workflow_commit"], environment["GITHUB_SHA"])
+            with patch.dict(benchmark.os.environ, {"GITHUB_SHA": "e" * 40}):
+                with self.assertRaisesRegex(ValueError, "exact triggering"):
+                    benchmark.publication_identity(args, binding)
             with patch.dict(benchmark.os.environ, {"GITHUB_RUN_ATTEMPT": "2"}):
                 with self.assertRaises(ValueError):
                     benchmark.publication_identity(args, binding)
