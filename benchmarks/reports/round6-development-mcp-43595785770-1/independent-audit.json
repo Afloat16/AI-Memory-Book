@@ -1,0 +1,656 @@
+{
+  "schema_version": 1,
+  "audit": "round6-independent-saved-observations-1",
+  "passed": true,
+  "stage": "development-mcp",
+  "original_result_commit": null,
+  "report_sha256": "7baf70dc47b5ded2edc9d91dff76adda9648b15ccfa1a2904e01bf414f7f6798",
+  "summary_sha256": "a8e89cd9ce3de9f04d0cb704379041105ffd58b94fb2493e02058eb1c0b3a336",
+  "sources": {
+    "baseline": {
+      "commit": "796cedfd1f5368144037a1fb72292b8d13884b8c",
+      "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+    },
+    "candidate": {
+      "commit": "e89737ce82baffd349e84d01184113142c0de602",
+      "runtime_sha256": "01ce749679af461d03c3499d5423ffa82d73fe190fb318327301b58a643edf52"
+    }
+  },
+  "binding_sha256": "54564852e93535bc96e982c95bd24fa5a29d9b09db693c9fae82a7fda316e9cd",
+  "no_new_measurements": true,
+  "workers": 4,
+  "timed_calls": 4060,
+  "complete_output_pairs": 2030,
+  "ledger_events": 8120,
+  "unique_query_configurations": 1015,
+  "native_actual_mcp_provenance_pairs": 0,
+  "original_automatic_accepted": false,
+  "numeric_gate_passed": null,
+  "acceptance_recomputed": {
+    "accepted": false,
+    "numeric_gate_passed": null,
+    "formal_acceptance_evaluated": false,
+    "geometric_mean_p95_improvement_percent": -23.924613680580254,
+    "best_public_native_token_p95_improvement_percent": null,
+    "public_mcp_token1024_p95_improvement_percent": -23.924613680580254,
+    "thresholds_percent": {
+      "geometric_mean_p95_improvement": 10,
+      "at_least_one_public_native_token_p95_improvement": 15,
+      "public_mcp_token1024_p95_improvement": 10,
+      "maximum_pooled_p50_p95_regression": 5,
+      "resource_mean_increase_review": 10
+    },
+    "regressions_above_five_percent": [
+      {
+        "cohort": "public1015",
+        "config": "mcp-token1024",
+        "metric": "p50_ms",
+        "change_percent": 19.30125316785287
+      },
+      {
+        "cohort": "public1015",
+        "config": "mcp-token1024",
+        "metric": "p95_ms",
+        "change_percent": 23.924613680580254
+      }
+    ],
+    "resource_comparisons": [
+      {
+        "cohort": "public1015",
+        "metric": "runtime_import_ms",
+        "baseline": {
+          "samples": 2,
+          "mean": 30.511436500000002,
+          "p50": 30.511436500000002,
+          "p95": 30.73164985,
+          "min": 30.266755,
+          "max": 30.756118
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 32.664415500000004,
+          "p50": 32.664415500000004,
+          "p95": 33.04774305,
+          "min": 32.238496,
+          "max": 33.090335
+        },
+        "mean_change_percent": 7.056301659215558
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_open_ms",
+        "baseline": {
+          "samples": 2,
+          "mean": 24.761886500000003,
+          "p50": 24.761886500000003,
+          "p95": 25.11771005,
+          "min": 24.366527,
+          "max": 25.157246
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 4.045973,
+          "p50": 4.045973,
+          "p95": 4.1698013,
+          "min": 3.908386,
+          "max": 4.18356
+        },
+        "mean_change_percent": -83.66048160345134
+      },
+      {
+        "cohort": "public1015",
+        "metric": "fresh_ingestion_ms",
+        "baseline": {
+          "samples": 2,
+          "mean": 793.725626,
+          "p50": 793.725626,
+          "p95": 796.8709694,
+          "min": 790.2308,
+          "max": 797.220452
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 806.6882535,
+          "p50": 806.6882535,
+          "p95": 809.0136820499999,
+          "min": 804.104444,
+          "max": 809.272063
+        },
+        "mean_change_percent": 1.6331370785299448
+      },
+      {
+        "cohort": "public1015",
+        "metric": "unchanged_reingestion_ms",
+        "baseline": {
+          "samples": 2,
+          "mean": 204.39367349999998,
+          "p50": 204.39367349999998,
+          "p95": 205.05392834999998,
+          "min": 203.660057,
+          "max": 205.12729
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 198.1822575,
+          "p50": 198.1822575,
+          "p95": 199.82068635000002,
+          "min": 196.361781,
+          "max": 200.002734
+        },
+        "mean_change_percent": -3.03894728913906
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_memory_after_ingestion.rss_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 47063040.0,
+          "p50": 47063040.0,
+          "p95": 47122022.4,
+          "min": 46997504,
+          "max": 47128576
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 47097856.0,
+          "p50": 47097856.0,
+          "p95": 47140249.6,
+          "min": 47050752,
+          "max": 47144960
+        },
+        "mean_change_percent": 0.07397737162750939
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_memory_after_ingestion.hwm_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 53704704.0,
+          "p50": 53704704.0,
+          "p95": 53724979.2,
+          "min": 53682176,
+          "max": 53727232
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 54321152.0,
+          "p50": 54321152.0,
+          "p95": 54435430.4,
+          "min": 54194176,
+          "max": 54448128
+        },
+        "mean_change_percent": 1.1478473096137032
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 199544832.0,
+          "p50": 199544832.0,
+          "p95": 199570636.8,
+          "min": 199516160,
+          "max": 199573504
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 200030208.0,
+          "p50": 200030208.0,
+          "p95": 200094720.0,
+          "min": 199958528,
+          "max": 200101888
+        },
+        "mean_change_percent": 0.24324157891495446
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 199544832.0,
+          "p50": 199544832.0,
+          "p95": 199570636.8,
+          "min": 199516160,
+          "max": 199573504
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 200030208.0,
+          "p50": 200030208.0,
+          "p95": 200094720.0,
+          "min": 199958528,
+          "max": 200101888
+        },
+        "mean_change_percent": 0.24324157891495446
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_sessions.mcp-token1024.mcp_startup_to_initialize_ms",
+        "baseline": {
+          "samples": 2,
+          "mean": 654.6082174999999,
+          "p50": 654.6082174999999,
+          "p95": 657.93855365,
+          "min": 650.907844,
+          "max": 658.308591
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 645.0020305,
+          "p50": 645.0020305,
+          "p95": 655.12031695,
+          "min": 633.75949,
+          "max": 656.244571
+        },
+        "mean_change_percent": -1.4674711901244808
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 110100480.0,
+          "p50": 110100480.0,
+          "p95": 110587084.8,
+          "min": 109559808,
+          "max": 110641152
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 110028800.0,
+          "p50": 110028800.0,
+          "p95": 110063820.8,
+          "min": 109989888,
+          "max": 110067712
+        },
+        "mean_change_percent": -0.06510416666666297
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 110100480.0,
+          "p50": 110100480.0,
+          "p95": 110587084.8,
+          "min": 109559808,
+          "max": 110641152
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 110028800.0,
+          "p50": 110028800.0,
+          "p95": 110063820.8,
+          "min": 109989888,
+          "max": 110067712
+        },
+        "mean_change_percent": -0.06510416666666297
+      },
+      {
+        "cohort": "public1015",
+        "metric": "storage_after_ingestion_live.logical_db_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 13053952.0,
+          "p50": 13053952.0,
+          "p95": 13053952.0,
+          "min": 13053952,
+          "max": 13053952
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 13053952.0,
+          "p50": 13053952.0,
+          "p95": 13053952.0,
+          "min": 13053952,
+          "max": 13053952
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "public1015",
+        "metric": "storage_after_ingestion_live.files_bytes.db",
+        "baseline": {
+          "samples": 2,
+          "mean": 12775424.0,
+          "p50": 12775424.0,
+          "p95": 12775424.0,
+          "min": 12775424,
+          "max": 12775424
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 12775424.0,
+          "p50": 12775424.0,
+          "p95": 12775424.0,
+          "min": 12775424,
+          "max": 12775424
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "public1015",
+        "metric": "storage_after_ingestion_live.files_bytes.wal",
+        "baseline": {
+          "samples": 2,
+          "mean": 4453752.0,
+          "p50": 4453752.0,
+          "p95": 4453752.0,
+          "min": 4453752,
+          "max": 4453752
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 4453752.0,
+          "p50": 4453752.0,
+          "p95": 4453752.0,
+          "min": 4453752,
+          "max": 4453752
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "public1015",
+        "metric": "storage_after_ingestion_live.files_bytes.shm",
+        "baseline": {
+          "samples": 2,
+          "mean": 32768.0,
+          "p50": 32768.0,
+          "p95": 32768.0,
+          "min": 32768,
+          "max": 32768
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 32768.0,
+          "p50": 32768.0,
+          "p95": 32768.0,
+          "min": 32768,
+          "max": 32768
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "public1015",
+        "metric": "storage_after_checkpoint.logical_db_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 13053952.0,
+          "p50": 13053952.0,
+          "p95": 13053952.0,
+          "min": 13053952,
+          "max": 13053952
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 13053952.0,
+          "p50": 13053952.0,
+          "p95": 13053952.0,
+          "min": 13053952,
+          "max": 13053952
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "public1015",
+        "metric": "storage_after_checkpoint.files_bytes.db",
+        "baseline": {
+          "samples": 2,
+          "mean": 13053952.0,
+          "p50": 13053952.0,
+          "p95": 13053952.0,
+          "min": 13053952,
+          "max": 13053952
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 13053952.0,
+          "p50": 13053952.0,
+          "p95": 13053952.0,
+          "min": 13053952,
+          "max": 13053952
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "public1015",
+        "metric": "storage_after_checkpoint.files_bytes.wal",
+        "baseline": {
+          "samples": 2,
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "public1015",
+        "metric": "storage_after_checkpoint.files_bytes.shm",
+        "baseline": {
+          "samples": 2,
+          "mean": 32768.0,
+          "p50": 32768.0,
+          "p95": 32768.0,
+          "min": 32768,
+          "max": 32768
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 32768.0,
+          "p50": 32768.0,
+          "p95": 32768.0,
+          "min": 32768,
+          "max": 32768
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_sessions.mcp-token1024.storage_after_mcp_live.logical_db_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 13053952.0,
+          "p50": 13053952.0,
+          "p95": 13053952.0,
+          "min": 13053952,
+          "max": 13053952
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 13053952.0,
+          "p50": 13053952.0,
+          "p95": 13053952.0,
+          "min": 13053952,
+          "max": 13053952
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_sessions.mcp-token1024.storage_after_mcp_live.files_bytes.db",
+        "baseline": {
+          "samples": 2,
+          "mean": 13053952.0,
+          "p50": 13053952.0,
+          "p95": 13053952.0,
+          "min": 13053952,
+          "max": 13053952
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 13053952.0,
+          "p50": 13053952.0,
+          "p95": 13053952.0,
+          "min": 13053952,
+          "max": 13053952
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_sessions.mcp-token1024.storage_after_mcp_live.files_bytes.wal",
+        "baseline": {
+          "samples": 2,
+          "mean": 4453752.0,
+          "p50": 4453752.0,
+          "p95": 4453752.0,
+          "min": 4453752,
+          "max": 4453752
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 4453752.0,
+          "p50": 4453752.0,
+          "p95": 4453752.0,
+          "min": 4453752,
+          "max": 4453752
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_sessions.mcp-token1024.storage_after_mcp_live.files_bytes.shm",
+        "baseline": {
+          "samples": 2,
+          "mean": 32768.0,
+          "p50": 32768.0,
+          "p95": 32768.0,
+          "min": 32768,
+          "max": 32768
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 32768.0,
+          "p50": 32768.0,
+          "p95": 32768.0,
+          "min": 32768,
+          "max": 32768
+        },
+        "mean_change_percent": 0.0
+      }
+    ],
+    "resource_review": [],
+    "resource_rule": "Any increase above 10% requires explicit cause assessment and independent review; no automatic override.",
+    "scope": "Diagnostic observations only; no release acceptance or speed gate."
+  },
+  "all_pooled_adverse_changes": [
+    {
+      "cohort": "public1015",
+      "config": "mcp-token1024",
+      "metric": "p50_ms",
+      "change_percent": 19.30125316785287
+    },
+    {
+      "cohort": "public1015",
+      "config": "mcp-token1024",
+      "metric": "p95_ms",
+      "change_percent": 23.924613680580254
+    },
+    {
+      "cohort": "public1015",
+      "config": "mcp-token1024",
+      "metric": "mean_ms",
+      "change_percent": 19.70904338091115
+    }
+  ],
+  "all_per_round_adverse_changes": [
+    {
+      "cohort": "public1015",
+      "config": "mcp-token1024",
+      "round": 0,
+      "metric": "p50_ms",
+      "change_percent": 21.280789831719527
+    },
+    {
+      "cohort": "public1015",
+      "config": "mcp-token1024",
+      "round": 0,
+      "metric": "p95_ms",
+      "change_percent": 25.831553904443783
+    },
+    {
+      "cohort": "public1015",
+      "config": "mcp-token1024",
+      "round": 0,
+      "metric": "mean_ms",
+      "change_percent": 21.523404845726745
+    },
+    {
+      "cohort": "public1015",
+      "config": "mcp-token1024",
+      "round": 1,
+      "metric": "p50_ms",
+      "change_percent": 17.702682582817065
+    },
+    {
+      "cohort": "public1015",
+      "config": "mcp-token1024",
+      "round": 1,
+      "metric": "p95_ms",
+      "change_percent": 22.654173685298872
+    },
+    {
+      "cohort": "public1015",
+      "config": "mcp-token1024",
+      "round": 1,
+      "metric": "mean_ms",
+      "change_percent": 17.928265703985314
+    }
+  ],
+  "checked_file_sha256": {
+    "benchmarks/reports/round6-development-mcp-43595785770-1/report.json.gz": "7baf70dc47b5ded2edc9d91dff76adda9648b15ccfa1a2904e01bf414f7f6798",
+    "benchmarks/experiments/round6-plan.json": "12bf9e8bcc4774beda526e3dcce6244fa7ac777fcc59c821a992fe3908e2841f",
+    "benchmarks/experiments/round6-b-development-mcp-binding.json": "54564852e93535bc96e982c95bd24fa5a29d9b09db693c9fae82a7fda316e9cd",
+    ".github/workflows/round6-development.yml": "52bcdc0e91c2614ff3ea74809f04e6321f4d05e5fdd4ccd9d84eb79e18e79fc8",
+    ".github/workflows/round6-performance.yml": "72a4ae0552ab5df0139347306dc0b444c115eb76a26dd5eaa8b271a0c3bc37bb",
+    "benchmarks/__init__.py": "82c1a9c2c4363d02d1ec7e504ce64a1c90051df12f852ec4978f32be5cf5bce0",
+    "benchmarks/component_eval.py": "77970a7043ab909e475c4950f4e4019db7b89328028b35c0f76a06273375aef0",
+    "benchmarks/data.py": "090d0460a6887eff32b3adb89d1684da9b7c9094f96246e187c1298051b64625",
+    "benchmarks/hotpot_data.py": "5c206176665690044da9862bb70fe374b12348c4b5e6d0bdb0b098bb73c85760",
+    "benchmarks/locomo_split.json": "a64086f1dc194c3fe9157e60f9696a77d3c650af836a60fab192f3db48c527f5",
+    "benchmarks/long_data.py": "85223c53740dc4a22530222886a4697c9a3c171530abdc1153363ca0587469bf",
+    "benchmarks/native_budget_eval.py": "737230950fd4ddd7f415aa93137f65cd59b5c61a72676c58ca854aee59682b1b",
+    "benchmarks/public_data.py": "269625183d8bef8f3b34f534d1c6d52ce7c623f795015e3e1508835c3eee08e8",
+    "benchmarks/query_guard.py": "c98285d97784513baa259e26514323e9f7a01b5b42196ebeb35e19a16039c1e6",
+    "benchmarks/resume.py": "7003368a60db4d07f2a72dd21a3a636abb103918a509f54741dcf6461c6d2dd8",
+    "benchmarks/run.py": "e557475d5701ea7271de9103aa8267e204796336b5277352fad015d9399521a4",
+    "benchmarks/semantic_eval.py": "46fa3b3fd6298ba1669bd0b17f3ad6f77a2fdaf5b79ba25e4632012090ca0b4e",
+    "benchmarks/token_compare.py": "bb34650d947a89c17c87e179dc9e376fe44b6d10c0bf4bb70ca4cdfd46913f18",
+    "benchmarks/transfer_data.py": "a532783fd2562f02846d6cd0604dc7d885f7dfa0b258d3fdca2e6c205ea4d57e",
+    "scripts/benchmark_default_recall.py": "ce74bd117ef54da865963f6a185f40707dbf8a0eaf0019957288b71edf8c305a",
+    "scripts/round4_performance.py": "7e1b987e62e1950b7c6f842942d2e294a74284a16cf4cdc58bfe326e4e4044a7",
+    "scripts/round6_audit_performance.py": "7f78163d84c0b83479018ca3affd351258d96f07bccb6865d7fd436f8d50a4eb",
+    "scripts/round6_host.py": "549927c680bdaa3c9bd3d0464fa6b57dc6d9ddaa67810c3ee70516c0cf513c89",
+    "scripts/round6_hotpot_compatibility.py": "590a6212b0b4897eee5427082fac0d9c3dfd935a2e64a94a38075677c22fabcc",
+    "scripts/round6_performance.py": "fac19df24b48b14c3cc8337010ecaea8fd8bf8bf8592df9ace99b189f09746d6",
+    "tests/test_round6_benchmark.py": "77db53aa211d43ad54ca987e52f91100d3c70710a6c94c8b871f21bd4244fafd",
+    "tests/test_round6_benchmark_audit.py": "5e0657939f43fef4ac7f502457569383a3ebf6cb58528d0f5af9a831d22c914e",
+    "benchmarks/reports/round6-development-mcp-43595785770-1/run.json": "ef3e9fe0343b40733c2aa682135b8f2b3ddbe765379821e5276c6202b61f106c",
+    "benchmarks/reports/round6-development-mcp-43595785770-1/execution.json": "cc767d7d1e35bd6ee41520b833c8c9b2acd84cffe0b6531c2e0f3187afdafae3",
+    "benchmarks/reports/round6-development-mcp-43595785770-1/resource-preflight.json": "d3075896f23d6d283963486cd2c5116391b550c5befe06cdfd1780251a2713d2",
+    "benchmarks/reports/round6-development-mcp-43595785770-1/workers/r0-public1015-baseline.json.gz": "21c48de0326ac2b60d69131366307452a575758156ee35e9827798a4b28613bc",
+    "benchmarks/reports/round6-development-mcp-43595785770-1/workers/r0-public1015-baseline.started.json": "0e05896f69cfa8008c5923b879575de47635d4ee727d02c3c7675f61b54e0a92",
+    "benchmarks/reports/round6-development-mcp-43595785770-1/workers/r0-public1015-baseline.attempts.jsonl.gz": "c1b8fe00eaad30467f66af6e90ef019eeaeff27dc224a0a4ef93959f710c981a",
+    "benchmarks/reports/round6-development-mcp-43595785770-1/workers/r0-public1015-candidate.json.gz": "0421d8461c47d638c16b5c350c16e99a31d2407470892843d1c5fbff8be319be",
+    "benchmarks/reports/round6-development-mcp-43595785770-1/workers/r0-public1015-candidate.started.json": "119494e1a1609e220d342726413b47d34357632e2be73f8f3a7d22ceaaa0b0f6",
+    "benchmarks/reports/round6-development-mcp-43595785770-1/workers/r0-public1015-candidate.attempts.jsonl.gz": "025a0bbdec2ddb0f4da0f79fb4532030ae6b666bcc29e0cba6e2dff4d31881ad",
+    "benchmarks/reports/round6-development-mcp-43595785770-1/workers/r1-public1015-candidate.json.gz": "41d2510fdb11b0a573f45acc5dfb9e7741a7f60157083978fab5483278ce1da6",
+    "benchmarks/reports/round6-development-mcp-43595785770-1/workers/r1-public1015-candidate.started.json": "a59d4aa4e43425194b342d5c9f4759a5cd3ddf44ce36aaf32b17e0ee985da9b1",
+    "benchmarks/reports/round6-development-mcp-43595785770-1/workers/r1-public1015-candidate.attempts.jsonl.gz": "26e0342b05ee670327e7519bf7c3f9f3c999484dcc3636b6c99ec4e458987657",
+    "benchmarks/reports/round6-development-mcp-43595785770-1/workers/r1-public1015-baseline.json.gz": "e3a78887f6728260d8ba4fbe257534c9f4b7e7c485ece0e5f89ece69a7f7ae42",
+    "benchmarks/reports/round6-development-mcp-43595785770-1/workers/r1-public1015-baseline.started.json": "cd471844f862cc26519a2ac4de52ca2442d91283476aa05ded68e5810606a407",
+    "benchmarks/reports/round6-development-mcp-43595785770-1/workers/r1-public1015-baseline.attempts.jsonl.gz": "b783e4ce6d8f9d413d30aecb27a8c5579a2ba522e24c02b73380ae11ae69e43d",
+    "benchmarks/reports/round6-development-mcp-43595785770-1/report.summary.json": "a8e89cd9ce3de9f04d0cb704379041105ffd58b94fb2493e02058eb1c0b3a336"
+  },
+  "limits": "One-host balanced repeated observations; no significance/cold-OS claim. Stored payload hashes certify exact outputs only within the frozen evaluator/provenance trust boundary; no new retrieval was run. Resource review is separate from this numerical audit."
+}
