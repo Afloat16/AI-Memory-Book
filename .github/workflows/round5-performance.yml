@@ -41,6 +41,10 @@ jobs:
           import hashlib, json, pathlib, re, subprocess, urllib.request
           from scripts.round5_performance import load_binding, load_plan, source_identity
           load_plan()
+          raw_binding = json.loads(pathlib.Path('benchmarks/experiments/round5-performance-binding.json').read_bytes())
+          evaluator = raw_binding['evaluator_commit']
+          assert re.fullmatch(r'[0-9a-f]{40}', evaluator)
+          subprocess.run(['git', 'fetch', '--depth', '1', 'origin', evaluator], check=True)
           binding = load_binding(pathlib.Path('benchmarks/experiments/round5-performance-binding.json'))
           for label, source in binding['sources'].items():
               assert label in ('baseline', 'candidate') and re.fullmatch(r'[0-9a-f]{40}', source['commit'])
@@ -78,7 +82,7 @@ jobs:
             2>&1 | tee .artifacts/round5-performance.log
       - name: Audit saved observations without repeating retrieval
         id: audit
-        if: always() && steps.measure.outcome == 'success'
+        if: always() && steps.prepare.outcome == 'success'
         run: |
           python scripts/round5_performance.py \
             --audit "benchmarks/reports/round5-performance-$GITHUB_RUN_ID-1/report.json.gz" \
