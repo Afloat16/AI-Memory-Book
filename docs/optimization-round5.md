@@ -1,6 +1,7 @@
 # v0.3.3 optimization and release checkpoint
 
-Status: C7 is accepted for release after all unchanged numerical gates pass and the original plan's independent resource review accepts three disclosed startup costs. The sole [formal run 43563390252](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43563390252) completes all 56,784 calls; all 28,392 complete output pairs match. The original automatic `accepted:false` verdict and failed workflow conclusion remain unchanged because three resource means require review. The [separate explicit decision](../benchmarks/experiments/round5-c7-resource-decision.json) binds both independent reviews to the frozen source and original result at `03838687f7d8d5995c2afa4c22ff5c30e7b12750`. Historical compatibility matches all 2,304 complete v0.3.2 outputs. The v0.3.3 runtime hash is approved; publication still requires the final exact-commit CI, package and public-installer gates. All earlier rejections and development observations remain unchanged below.
+Status: **v0.3.3 is published as a normal, non-draft, non-prerelease GitHub release and verified as Latest.** Tag and release source are `796cedfd1f5368144037a1fb72292b8d13884b8c`. All nine exact-source CI jobs pass; publication and the real public installer both pass. The [publication receipt](../benchmarks/reports/round5-release-verification.json) verifies all seven downloaded assets and source-identical wheel/sdist runtime bytes. C7 passes the unchanged numerical gates, and the original plan's separate resource review accepts three disclosed startup costs. The original automatic `accepted:false`, failed formal workflow conclusion, earlier candidate rejections and all raw observations remain unchanged.
+
 
 ## Source and purpose
 
@@ -20,7 +21,8 @@ Continue from main `de6e2652572c4867cda2aac5637a4a6630638c7e` and compare agains
 
 Core performance implementation, independent benchmark validation, and release-policy review run separately. Commit small completed changes to `optimization/round5-v0.3.3`; update this checkpoint with source SHAs and saved results as they become available. Main and the release tag advance only after acceptance. Code, benchmark receipts and release notes belong in this Git repository, with no dependency on transient conversation blobs.
 
-Current next steps: commit the independent audits, explicit resource decision and final documentation, verify all nine CI jobs on that exact commit, advance main, then publish a normal v0.3.3 release and verify the public installer. Numeric thresholds and original results are unchanged; the three startup triggers are addressed by the original independent-review policy, with attribution limits retained. Do not repeat an unchanged measurement for a more favorable sample.
+Completion checkpoint: published [v0.3.3](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.3) at the exact accepted runtime and CI-tested commit. The tag and public assets are immutable. Further changes require a new version and fresh applicable validation; do not replay the unchanged formal experiment for a more favorable sample. All release evidence is retained in Git.
+
 
 ## Candidate A checkpoint
 
@@ -215,3 +217,12 @@ Automatic `accepted:false` remains intact because three resource mean increases 
 Two independently recorded reviews recommend accepting these startup costs. The [explicit release decision](../benchmarks/experiments/round5-c7-resource-decision.json), SHA256 `6f011ed654ca30bcd7a3833021b53f45af1afa967f84d722f760ec479b3c4f72`, records that acceptance under the original review rule. All other 25 resource means remain below the review threshold, and actual SDK startup mean changes range from **−0.286676% to +1.579351%**. Overlapping startup intervals must not be added. Short-lived processes may weigh startup costs differently; four rounds do not establish worst-case bounds or universal speedups.
 
 This accepts the frozen C7 runtime for v0.3.3 while preserving the raw automatic failure, all C3/C5/C6 numerical rejections, the C7 development aggregation failure and its bounded offline supplement. It does not add a new competitor timing or claim to lead every quality, speed or memory metric. Final exact-commit CI, source-bound wheel/sdist checks, seven remote asset hashes and the public installer remain mandatory publication gates.
+
+
+## v0.3.3 publication and public installation verified
+
+The final source/documentation commit `796cedfd1f5368144037a1fb72292b8d13884b8c` has Git tree `6a79b83c73a349a8508985d3149216643335390d` and the frozen C7 runtime hash `55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45`. [Tests 43565821878](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43565821878) passes all nine required jobs on this exact commit. Main was fast-forwarded to it without force, then `release/v0.3.3` triggered the dedicated publication flow.
+
+[Publication 43566046089](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43566046089), first attempt, completes both `release` and `published-install` successfully. GitHub release `445070001` is public, `draft:false`, `prerelease:false`, and verified through the Latest endpoint. The `v0.3.3` tag directly identifies the same commit. The public installer fetches the real release wheel, reports version `0.3.3`, installs the default MCP/client extras and imports them successfully.
+
+The [postpublication receipt](../benchmarks/reports/round5-release-verification.json) and [saved API observations](../benchmarks/reports/round5-release-public-api.json) retain the public source, tag, release, workflow, job and asset identities. All seven public assets were independently downloaded: wheel, sdist, three installers, manifest and SHA256SUMS. Their byte counts, GitHub SHA256 digests, manifest hashes and checksum inventory match. Both package archives contain exactly the committed runtime and reader bytes; all three installer assets match the same source. No build, installation, retrieval or timing was repeated during this read-only check. The publication receipt is committed after the immutable tag; it does not change the released runtime or original measurement verdict.
