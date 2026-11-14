@@ -70,7 +70,7 @@ def public_commit(paths, parent, message):
         directory = Path(temporary)
         environment = {**os.environ, "GIT_INDEX_FILE": str(directory / "index")}
         git("read-tree", parent, env=environment)
-        git("add", "--", *names, env=environment)
+        git("add", "--sparse", "--", *names, env=environment)
         tree = git("write-tree", env=environment)
         body = directory / "message"
         body.write_text(message + "\n")
