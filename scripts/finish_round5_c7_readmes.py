@@ -74,7 +74,7 @@ def render_readmes(e, validator):
     latency_zh='十二组设置的合并 p50 和 p95 均降低。' if strict_improvement else '所有合并 p50/p95 退步均未超过固定的 5% 上限；全部不利结果保留在复核报告中。'
     en=f'''## Measured results
 
-    **v0.3.3 passes its registered performance test against published v0.3.2 while preserving complete default retrieval output.** The single frozen run completed 56,784 calls; two separate saved-result audits verify its arithmetic and original call ledgers. [Formal review](docs/round5-c7-performance-review.md) · [Source and development record](docs/optimization-round5.md) · [Benchmark index](benchmarks/README.md).
+    **v0.3.3 passes all fixed numerical performance gates against published v0.3.2 while preserving complete default retrieval output.** Three startup costs were accepted through the original plan's separate independent resource review. The single frozen run completed 56,784 calls; two separate saved-result audits verify its arithmetic and original call ledgers. [Formal review](docs/round5-c7-performance-review.md) · [Source and development record](docs/optimization-round5.md) · [Benchmark index](benchmarks/README.md).
 
     ### v0.3.3 efficiency and compatibility
 
@@ -85,7 +85,10 @@ def render_readmes(e, validator):
     | **Faster actual MCP token recall** | p95 **{p95('mcp-token1024','baseline'):.3f} → {p95('mcp-token1024','candidate'):.3f} ms (−{gain('mcp-token1024'):.2f}%)** | Official SDK stdio, 1,024-token cap, normal server cache writes and transport included. [Timing boundary](docs/round5-c7-performance-review.md) |
     | **Historical comparison output retained** | **2,304 / 2,304** complete default outputs match v0.3.2 | Old Hotpot256, two tokenizers, three native token caps and the component ranker. [Compatibility report](benchmarks/reports/round5-c7-hotpot-regression.summary.json) |
 
-    All **28,392 baseline/candidate observations** match on complete non-timing output. {latency_en} **All fixed numerical gates pass, with no resource exception:** the largest registered resource mean increase is **{maxres:.2f}%**, below the 10% review trigger. [Independent arithmetic audit](benchmarks/reports/round5-c7-performance-independent-audit.json) · [Strict saved-ledger audit](benchmarks/reports/round5-c7-performance-local-audit.json) · [Full report](benchmarks/reports/round5-c7-performance-{run}/report.json.gz).
+    All **28,392 baseline/candidate observations** match on complete non-timing output. {latency_en} [Independent arithmetic audit](benchmarks/reports/round5-c7-performance-independent-audit.json) · [Strict saved-ledger audit](benchmarks/reports/round5-c7-performance-local-audit.json) · [Full report](benchmarks/reports/round5-c7-performance-{run}/report.json.gz).
+
+    {validator.resource_disclosure(e, 'docs/round5-c7-resource-review.md')}
+    The [explicit resource decision](benchmarks/experiments/round5-c7-resource-decision.json) binds both independent reviews to the unchanged report and source.
 
     {change_en} The stdout optimization is limited to verified official SDK 1.30.0 methods and native standard streams; every successful message is flushed immediately, with original serialization and lifecycle. Unknown/custom paths use the original FastMCP stdio path. Earlier improvements in narrower database metadata reads, reduced Python work and certified exact token-count reuse remain in the candidate. A historical C3 probe of its derived metadata index recorded **196 KiB / 148 KiB** in two existing archives; their one-sample first opens rise **0.910 → 5.419 ms / 0.844 → 4.502 ms**. Those historical probes are not new C7 upgrade measurements. The connection-local SQLite pager target is **4 MiB**. The exact-count memo retains at most **2,048 entries / 2 MiB of text objects** per connection, shared by both tokenizers; container/key/value/encoder overhead is additional. Neither is a process-memory limit. Connections start empty, later native configurations reuse counts naturally, and actual MCP configurations each start a new server process. Query-result caches are disabled or cleared before timing; derived count reuse is enabled. Formal memory, initialization, ingestion and storage observations are all retained in the [cost review](docs/round5-c7-performance-review.md). Source text, citation fields and returned token totals are preserved; this version claims no new output-token savings.
 
@@ -102,7 +105,7 @@ def render_readmes(e, validator):
     '''
     zh=f'''## 实测结果
 
-    **v0.3.3 已通过相对已发布 v0.3.2 的预先登记性能验收，并保持完整默认检索输出一致。** 唯一一次冻结正式测量完成了 56,784 次调用；两项独立的保存结果检查分别复核数值和原始逐次调用日志。[正式复核](docs/round5-c7-performance-review.md) · [源码与开发记录](docs/optimization-round5.md) · [基准索引](benchmarks/README.md)。
+    **v0.3.3 已通过相对已发布 v0.3.2 的全部固定数值性能门槛，并保持完整默认检索输出一致。** 三项启动成本已按原计划完成单独的独立资源复核并获接受。唯一一次冻结正式测量完成了 56,784 次调用；两项独立的保存结果检查分别复核数值和原始逐次调用日志。[正式复核](docs/round5-c7-performance-review.md) · [源码与开发记录](docs/optimization-round5.md) · [基准索引](benchmarks/README.md)。
 
     ### v0.3.3 效率与兼容性
 
@@ -113,7 +116,10 @@ def render_readmes(e, validator):
     | **真实 MCP token 检索更快** | p95 **{p95('mcp-token1024','baseline'):.3f} → {p95('mcp-token1024','candidate'):.3f} ms（−{gain('mcp-token1024'):.2f}%）** | 官方 SDK stdio、1,024-token 上限，包含正常服务端缓存写入和传输开销。[计时边界](docs/round5-c7-performance-review.md) |
     | **历史竞品样本输出保留** | **2,304 / 2,304** 次完整默认输出与 v0.3.2 相同 | 原 Hotpot256，两种 tokenizer、三种原生 token 预算及组件排序器。[兼容性报告](benchmarks/reports/round5-c7-hotpot-regression.summary.json) |
 
-    全部 **28,392 对版本观测**的完整非计时输出相同。{latency_zh}**固定数值门槛全部通过，没有资源例外：**登记的资源均值最大增幅为 **{maxres:.2f}%**，低于 10% 复核阈值。[独立数值审计](benchmarks/reports/round5-c7-performance-independent-audit.json) · [严格原始日志审计](benchmarks/reports/round5-c7-performance-local-audit.json) · [完整报告](benchmarks/reports/round5-c7-performance-{run}/report.json.gz)。
+    全部 **28,392 对版本观测**的完整非计时输出相同。{latency_zh}[独立数值审计](benchmarks/reports/round5-c7-performance-independent-audit.json) · [严格原始日志审计](benchmarks/reports/round5-c7-performance-local-audit.json) · [完整报告](benchmarks/reports/round5-c7-performance-{run}/report.json.gz)。
+
+    {validator.resource_disclosure(e, 'docs/round5-c7-resource-review.md', 'zh')}
+    [明确的资源决定](benchmarks/experiments/round5-c7-resource-decision.json)将两份独立复核绑定到未改动的原始报告与源码。
 
     {change_zh} stdout 优化仅适用于已验证的官方 SDK 1.30.0 方法和原生标准流；每条成功消息仍立即 flush，保留官方序列化与生命周期。未知或自定义环境回退原 FastMCP stdio 路径。较早加入的更窄数据库元数据读取、减少重复 Python 工作及已验证的精确 token 计数复用继续保留。历史 C3 的两份旧库索引观察记录了 **196 KiB / 148 KiB**；单次首次打开耗时从 **0.910 → 5.419 ms / 0.844 → 4.502 ms**。这些旧探针不是新的 C7 升级测量。每个连接使用 **4 MiB** 的 SQLite 页缓存目标，并在两种 tokenizer 间共享最多 **2,048 项 / 2 MiB 文本对象**的精确计数缓存；容器、键和值等开销另计，两者都不是整个进程的内存上限。连接从空缓存开始；同一原生连接的后续配置会自然复用计数，真实 MCP 的每组配置则启动新服务进程。检索结果缓存按原规则禁用或在计时前清空，派生计数复用保持启用。正式内存、初始化、导入和存储观测均保留在[成本复核](docs/round5-c7-performance-review.md)中。原文、引用字段及返回 token 数保持一致，本版没有新增输出 token 节省声明。
 

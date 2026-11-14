@@ -5,6 +5,65 @@ Product fixtures, examples, screenshots, and capture measurements are synthetic;
 the published experiments also evaluate LoCoMo and HotpotQA text corpora. No private
 user conversation history was used in development or published.
 
+## Current: v0.3.3 completed fifth-round methods and evidence
+
+The [original plan](../benchmarks/experiments/round5-plan.json),
+[C7 continuation](../benchmarks/experiments/round5-c7-addendum.json) and
+[frozen binding](../benchmarks/experiments/round5-c7-performance-binding.json)
+retain published v0.3.2 as baseline. Final C7 source is `d0c84cbfc9bad440ad447d41e211d070ef5b2cae`,
+runtime SHA256 `55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45`; 60 evaluator inputs are bound before timing.
+
+The [single formal run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43563390252)
+completes all **56,784 calls**, sixteen workers and four balanced rounds.
+Independent arithmetic and the frozen saved-ledger auditor verify **113,568
+start/finish events**, **28,392 baseline/candidate complete-output pairs** and
+**18,928 native/MCP provenance pairs**, with zero differences or recorded
+invariant failures. Only `latency_ms` is excluded from payload comparisons.
+
+Pooled p95 geometric mean improves **14.7976%** against published v0.3.2. Public native token512/token1024/token2048 p95 changes **-15.1867% / -14.2362% / -15.7406%**. Actual public SDK MCP token1024 p95 is **6.711 → 5.894 ms**, an improvement of **12.1734%**.
+
+C7 combines the official MCP SDK's native stdout write and immediate flush in one worker dispatch, reducing dispatch overhead while preserving complete messages, serialization and lifecycle.
+
+All twelve pooled p50 and p95 values improve.
+
+All fixed numerical gates pass. The original automated verdict remains `accepted:false` because three startup resource increases required review: import means rise 3.197 / 2.990 ms, and public-labeled fresh-empty-database opening rises 5.100 ms (21.4109%). A [separate resource review](round5-c7-resource-review.md) accepts these startup costs with all samples and attribution limits retained. No timing was repeated, threshold lowered or original automatic verdict rewritten.
+The [explicit resource decision](../benchmarks/experiments/round5-c7-resource-decision.json)
+binds both independent reviews to the unchanged original report and source.
+The [complete review](round5-c7-performance-review.md) retains all twelve pooled
+cells, forty-eight per-round cells, adverse observations and twenty-eight
+resource comparisons. [Independent audit](../benchmarks/reports/round5-c7-performance-independent-audit.json) ·
+[Frozen saved-ledger audit](../benchmarks/reports/round5-c7-performance-local-audit.json).
+
+Query-result caching is disabled or cleared before timing.
+The per-book exact-count memo is enabled under its registered 2,048-entry /
+2 MiB retained-text cap. Each native book starts empty, character recall does
+not allocate it, and later token configurations reuse earlier counts. Each
+MCP configuration uses a fresh official SDK stdio server process; no MCP memo
+hit rate is inferred from native diagnostics. Transport and normal server
+result-cache writes remain inside MCP timers. Container/keys/counts and
+vocabulary memory are additional to the text-object cap, and actual process
+RSS remains part of the registered resource measurements.
+
+[Final-source historical compatibility](../benchmarks/reports/round5-c7-hotpot-regression.summary.json)
+reproduces all **2,304** saved default Hotpot256 payload hashes: 1,536 native
+calls over both encoders and three caps plus 768 component calls. All 4,608
+attempt events and unchanged source/index/document projections are checked.
+This supports retention of the old default quality result on these same
+questions. It adds no new competitor timing, Q2 measurement, generated-answer
+accuracy or unseen-domain quality claim.
+
+The complete [C3 formal rejection](round5-performance-review.md),
+[C5 formal rejection](round5-c5-performance-review.md),
+[C6 formal rejection](round5-c6-performance-review.md) and
+[C4/C5/C6/C7 development records](optimization-round5.md) remain unchanged.
+C5 and C6 retain `accepted:false`: their actual-MCP p95 gains were
+6.673181% and 5.798911%, below the unchanged 10% gate. The retained C5
+development best public native p95 was below the formal 15% threshold, and is
+not used as a passed gate. Saved hashes and invariants support output equality;
+the offline audit cannot independently re-tokenize omitted response bodies.
+Exact release-commit CI and package/public-installer verification are separate
+publication requirements.
+
 ## Historical: v0.3.2 completed fourth-round methods and evidence
 
 The [registered plan](../benchmarks/experiments/round4-plan.json),

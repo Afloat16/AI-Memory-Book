@@ -4,9 +4,9 @@
 
 Projects become books, tasks become chapters, and earlier decisions stay available across sessions and clients. One MCP call returns relevant evidence within a context budget so the agent can continue your work.
 
-[简体中文](README.zh-CN.md) · [Quick start](#quick-start) · [Measured results](#measured-results) · [Documentation](#documentation) · [v0.3.2 release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.2)
+[简体中文](README.zh-CN.md) · [Quick start](#quick-start) · [Measured results](#measured-results) · [Documentation](#documentation) · [v0.3.3 release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.3.3)
 
-**v0.3.2 · Experimental · MIT · Python 3.10+ · Local SQLite**
+**v0.3.3 · Normal release · MIT · Python 3.10+ · Local SQLite**
 
 ## How it works
 
@@ -38,14 +38,14 @@ You need **Python 3.10+ with SQLite FTS5**. The installer downloads the release 
 **macOS / Linux**
 
 ```bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.2/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.3/scripts/install.sh
 bash install-memory-book.sh
 ```
 
 **Windows PowerShell**
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.2/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.3.3/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ```
 
@@ -64,26 +64,33 @@ Replace `claude-code` with your [client profile](docs/integrations.md#supported-
 
 ## Measured results
 
-**v0.3.2 passes its registered efficiency test against published v0.3.1 while preserving complete default retrieval output.** The separate frozen component comparison is also complete. Source identities, full measurements and unsuccessful experiments remain in the [benchmark index](benchmarks/README.md) and [round-four record](docs/optimization-round4.md).
+**v0.3.3 passes all fixed numerical performance gates against published v0.3.2 while preserving complete default retrieval output.** Three startup costs were accepted through the original plan's separate independent resource review. The single frozen run completed 56,784 calls; two separate saved-result audits verify its arithmetic and original call ledgers. [Formal review](docs/round5-c7-performance-review.md) · [Source and development record](docs/optimization-round5.md) · [Benchmark index](benchmarks/README.md).
 
-### Efficiency highlights
+### v0.3.3 efficiency and compatibility
 
-| Verified improvement | Result | Measurement |
+| Verified result | Measurement | Evidence |
 |---|---|---|
-| **Identical non-timing output, less tail latency** | Pooled p95 geometric mean **−10.13%** across twelve settings | **56,784 calls**, two old corpora, native/actual SDK MCP, character/token budgets and four balanced rounds. [Formal review](docs/round4-performance-review.md) |
-| **Faster public native token recall** | p95 **−19.07% / −18.41% / −18.20%** at 512 / 1,024 / 2,048 tokens | 1,015 public-conversation questions, `cl100k_base`, complete uncached recall; 4,060 calls per version/setting. [Saved measurements](benchmarks/reports/round4-performance-43361086255-1/report.summary.json) |
-| **Faster actual MCP token recall** | p95 **4.358 → 3.887 ms (−10.80%)** at 1,024 tokens | Same public cohort, official SDK stdio call including normal server cache writes and roundtrip costs. [Report and boundaries](docs/round4-performance-review.md) |
-| **Optional indexed references, historical measurement** | Response-text tokens **−19.63%**; first-call reference total **−8.15%** | Earlier 1,015-question measurement, 4,000 characters, compact responses, `o200k_base`; this option is unchanged and was not remeasured for v0.3.2. [Report](docs/indexed-references.md) |
+| **Lower aggregate tail latency** | Pooled p95 geometric mean **−14.80%** | 56,784 calls, two historical corpora, native/actual SDK MCP, character/token budgets and four balanced rounds. [All cells](docs/round5-c7-performance-review.md) |
+| **Public native token recall** | p95 change **-15.19% / -14.24% / -15.74%** at 512 / 1,024 / 2,048 tokens | 1,015 public-conversation questions; 4,060 samples per version/setting. [Saved report](benchmarks/reports/round5-c7-performance-43563390252-1/report.summary.json) |
+| **Faster actual MCP token recall** | p95 **6.711 → 5.894 ms (−12.17%)** | Official SDK stdio, 1,024-token cap, normal server cache writes and transport included. [Timing boundary](docs/round5-c7-performance-review.md) |
+| **Historical comparison output retained** | **2,304 / 2,304** complete default outputs match v0.3.2 | Old Hotpot256, two tokenizers, three native token caps and the component ranker. [Compatibility report](benchmarks/reports/round5-c7-hotpot-regression.summary.json) |
 
-All **28,392 paired observations** matched on complete non-timing output, and all twelve pooled p50 values improved. Public MCP at 4,000 characters has **1.44% higher p95**. The largest registered resource mean increase is **6.02%**, for public MCP token startup through initialization; every resource mean stays below the 10% review trigger. **All registered formal performance gates passed with no exception or waiver.** The [independent arithmetic audit](benchmarks/reports/round4-performance-independent-audit.json), [strict-ledger audit](benchmarks/reports/round4-performance-local-audit.json) and [full report](benchmarks/reports/round4-performance-43361086255-1/report.json.gz) retain every round, adverse result and resource cost.
+All **28,392 baseline/candidate observations** match on complete non-timing output. All twelve pooled p50 and p95 values improve. [Independent arithmetic audit](benchmarks/reports/round5-c7-performance-independent-audit.json) · [Strict saved-ledger audit](benchmarks/reports/round5-c7-performance-local-audit.json) · [Full report](benchmarks/reports/round5-c7-performance-43563390252-1/report.json.gz).
 
-The aggregate gain is **10.1294%**, only **0.1294 percentage points** above its registered 10% threshold. These repeated queries on one host establish a narrow observed pass, with no statistical-significance or universal-speedup claim. The paired test measures Book versions; it establishes no whole-product speed ratio against another repository.
+All fixed numerical gates pass. The original automated verdict remains `accepted:false` because three startup resource increases required review: import means rise 3.197 / 2.990 ms, and public-labeled fresh-empty-database opening rises 5.100 ms (21.4109%). A [separate resource review](docs/round5-c7-resource-review.md) accepts these startup costs with all samples and attribution limits retained. No timing was repeated, threshold lowered or original automatic verdict rewritten.
+The [explicit resource decision](benchmarks/experiments/round5-c7-resource-decision.json) binds both independent reviews to the unchanged report and source.
 
-Indexed references preserve context and reconstruct every source field. The first-call count includes schema, instructions and arguments; reference-token counts are not provider bills. Sparse references can cost more. The earlier format comparison measured **7.126 → 7.131 ms p95**, with no speedup claim.
+C7 combines the official MCP SDK's native stdout write and immediate flush in one worker dispatch, reducing dispatch overhead while preserving complete messages, serialization and lifecycle. The stdout optimization is limited to verified official SDK 1.30.0 methods and native standard streams; every successful message is flushed immediately, with original serialization and lifecycle. Unknown/custom paths use the original FastMCP stdio path. Earlier improvements in narrower database metadata reads, reduced Python work and certified exact token-count reuse remain in the candidate. A historical C3 probe of its derived metadata index recorded **196 KiB / 148 KiB** in two existing archives; their one-sample first opens rise **0.910 → 5.419 ms / 0.844 → 4.502 ms**. Those historical probes are not new C7 upgrade measurements. The connection-local SQLite pager target is **4 MiB**. The exact-count memo retains at most **2,048 entries / 2 MiB of text objects** per connection, shared by both tokenizers; container/key/value/encoder overhead is additional. Neither is a process-memory limit. Connections start empty, later native configurations reuse counts naturally, and actual MCP configurations each start a new server process. Query-result caches are disabled or cleared before timing; derived count reuse is enabled. Formal memory, initialization, ingestion and storage observations are all retained in the [cost review](docs/round5-c7-performance-review.md). Source text, citation fields and returned token totals are preserved; this version claims no new output-token savings.
 
-**Historical v0.3.1 versus v0.3.0:** the separate 47,320-call run recorded **−11.36%** aggregate p95, **−26.05%** public native character p95 and **−19.87%** actual MCP character p95. Its synthetic token512 p95 increase of **0.125%** and public empty-database opening increase of **4.838 ms (+14.04%)**, explicitly accepted after review, remain unchanged in the [round-three report](docs/round3-performance-review.md). These earlier measurements are not v0.3.2 results.
+These are repeated old queries on one host, with no statistical-significance, unseen-quality or universal-speedup claim. The paired performance test compares Book versions; competitors were not remeasured. Historical v0.3.2 versus v0.3.1 aggregate p95 **−10.13%**, and v0.3.1 versus v0.3.0 **−11.36%**, remain separate measurements in the [round-four](docs/round4-performance-review.md) and [round-three](docs/round3-performance-review.md) reports; their percentages are not added to this run.
 
-### Current open-source component comparison
+Optional indexed references retain their separate historical **19.63% response-text token reduction** and **8.15% first-call reference-total reduction** (`o200k_base`, 1,015 questions, 4,000 characters). That option was not remeasured for v0.3.3. Counts include specified schema/instructions/arguments where stated, are not provider bills, and sparse references can cost more. [Format measurement](docs/indexed-references.md).
+
+The complete [C3 rejection](docs/round5-performance-review.md), [C5 rejection](docs/round5-c5-performance-review.md) and [C6 rejection](docs/round5-c6-performance-review.md) remain unchanged. C5 and C6 achieved only 6.673181% and 5.798911% public actual-MCP p95 improvement against the 10% requirement; both retain `accepted:false`. This release uses C7's separately bound accepted evidence and does not relabel earlier candidates as passed.
+
+### Historical open-source component comparison
+
+**The table below retains its original v0.3.2 measurements.** The v0.3.3 regression check reproduces all 1,536 native and 768 component default-output hashes on these same questions, preserving the old default evidence-quality result. It is not a new competitor timing or Q2 evaluation.
 
 A frozen **256-question HotpotQA** selection excludes all **640 historical question IDs**, with zero overlap. Sources, evaluator, dependencies and models were bound before selection; the manifest was published before scoring. The completed comparison retains **9,216 measured calls: 4,608 native calls and 4,608 component searches**, across **635 required evidence annotations**. The table uses the same supplied pages, top five results and common whole-block packing at **1,024 `cl100k_base` tokens**. It measures source evidence; the [full report](benchmarks/results/round4-comparison-43363060062-1/report.md) retains every budget, native call, gain and loss.
 
@@ -101,7 +108,7 @@ Search p95 pools three searches per question and excludes offline common packing
 
 Q2 raises completeness by **1.171875 percentage points** at this budget: **26 questions gain complete evidence and 23 lose it**, a net gain of three. At the native API's 512-token budget, completeness falls from **39.45% to 36.33%** with `cl100k_base` (19 gains, 27 losses), and from **39.45% to 36.72%** with `o200k_base` (19 gains, 26 losses). Its component setup takes **277.60 seconds**, including **275.43 seconds** of index construction; sampled query process-tree peak RSS is **1,247.69 MiB**. Its 20.406 ms search p95 is also higher than default Book's 3.488 ms. Q2 stays opt-in. [Full gains, losses and costs](benchmarks/results/round4-comparison-43363060062-1/report.md)
 
-**The fresh comparison also retains a regression against v0.3.1.** With the component ranker's 100,000-character ceiling, default Book's p95 rises **3.304 → 3.488 ms (+5.56%)**, and p50 rises **2.239 → 2.353 ms (+5.12%)**. Sampled setup process-tree peak RSS rises **548.65 → 943.53 MiB**; query-phase peak RSS falls **529.77 → 524.91 MiB**. These are sequential, unbalanced descriptive component observations, separate from the registered ABBA performance gate above. The RSS samples include evaluator/corpus memory and descendants, can count shared mappings twice, and do not establish the cause of the setup increase. [Detailed evidence and limitations](docs/optimization-round4.md)
+**The historical round-four comparison also retains a regression against v0.3.1.** With the component ranker's 100,000-character ceiling, default Book's p95 rises **3.304 → 3.488 ms (+5.56%)**, and p50 rises **2.239 → 2.353 ms (+5.12%)**. Sampled setup process-tree peak RSS rises **548.65 → 943.53 MiB**; query-phase peak RSS falls **529.77 → 524.91 MiB**. These are sequential, unbalanced descriptive component observations, separate from the registered ABBA performance gate above. The RSS samples include evaluator/corpus memory and descendants, can count shared mappings twice, and do not establish the cause of the setup increase. [Detailed evidence and limitations](docs/optimization-round4.md)
 
 ![v0.3.2 evidence completeness, search-adapter latency and separate paired performance](docs/assets/v0.3.2-comparison.svg)
 

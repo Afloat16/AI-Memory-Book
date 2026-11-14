@@ -1,0 +1,4901 @@
+{
+  "schema_version": 1,
+  "status": "verified_saved_measurements",
+  "audit_passed": true,
+  "created_at": "2026-11-14T06:06:17.968702+00:00",
+  "retrieval_calls_executed": 0,
+  "models_or_tokenizers_executed": 0,
+  "tests_or_timing_runs_executed": 0,
+  "sources": {
+    "baseline": {
+      "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+      "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+    },
+    "candidate": {
+      "commit": "d0c84cbfc9bad440ad447d41e211d070ef5b2cae",
+      "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+    }
+  },
+  "source_git_hashes_independently_verified": true,
+  "evaluator_commit": "259fde01a3d189cf01b55b9765457daebc953bff",
+  "evaluator_files_verified": 60,
+  "binding_sha256": "2560b0eae9d3332fb09da43fd49ebef069b8e41ddaef0fe9df1880db1e132588",
+  "plan_sha256": "b83c385c2e7160318ca2c8fded161937f716d43803c03799fd86fd4f63d484a8",
+  "continuation_provenance": {
+    "preregistration": {
+      "path": "benchmarks/experiments/round5-c7-addendum.json",
+      "commit": "718ce3bbe42e23774e616219bd8ae60d143fb76f",
+      "sha256": "7dc67e10049bf28ffc57060432442a0bdc371da2cc95506bf373e8381d50afeb"
+    },
+    "same_original_plan_and_all_gates_verified": true,
+    "frozen_c3_evaluator_inputs_retained": 23,
+    "frozen_c4_evaluator_inputs_retained": 30,
+    "frozen_c5_evaluator_inputs_retained": 42,
+    "rejected_c5": {
+      "source": {
+        "commit": "8dc6604fa32df18d53286110b215fc6657243656",
+        "runtime_sha256": "6af876ef5ddc851f4fff56ba3dc4f20e76b2cfc9f5e31d0cc8d1a0ec20e954be"
+      },
+      "result_commit": "3982ceab2bdce0e9a189135ce261445a3a38d779",
+      "binding_sha256": "bd395da21848cc01656ab45bc211a388b43b4ae63edb8690b2eabe2958d3781a",
+      "summary_sha256": "930a28c40913b2eea3e38b7ce5bc04e673e288396fccb67bf16e59d42e996f25",
+      "valid_calls": 56784,
+      "original_accepted": false,
+      "original_numeric_gate_passed": false,
+      "aggregate_p95_gain_percent": 15.220791446446002,
+      "public_native_best_gain_percent": 15.422173278138885,
+      "public_mcp_token1024_gain_percent": 6.673181339995871,
+      "boundary": "Original committed C5 summary and rejection verified; C5 retrieval and raw-ledger arithmetic are not rerun by this C7 audit."
+    },
+    "frozen_c6_evaluator_inputs_retained": 51,
+    "rejected_c6": {
+      "source": {
+        "commit": "1bd97221e31e8e975498ece00f4bbfb3e0426aac",
+        "runtime_sha256": "cfffd8a21374cbf9152bbbc98a6a9847a1e22401f16179112e2f79eef181ff78"
+      },
+      "result_commit": "c6b384778e12ce9c72771911af37bbb2c5d3474f",
+      "binding_sha256": "2b57caea5b3d7f12b38aba9472d798e846a5231b936551784f0963259e2a715a",
+      "summary_sha256": "f05d011e3477eee69953ab3a5097e3d69f5657c12c6692d4d96af4f87cb6ad9e",
+      "valid_calls": 56784,
+      "original_accepted": false,
+      "original_numeric_gate_passed": false,
+      "aggregate_p95_gain_percent": 14.91917268891384,
+      "public_native_best_gain_percent": 16.286785133390612,
+      "public_mcp_token1024_gain_percent": 5.7989107559001996,
+      "boundary": "Original committed C6 summary and rejection verified; C6 retrieval and raw-ledger arithmetic are not rerun by this C7 audit."
+    },
+    "registered_c7_policy": {
+      "key": "mcp_stdout_policy",
+      "policy": {
+        "sdk_version": "1.30.0",
+        "scope": "serve standard stdio path with verified original SDK methods and a native standard stdout stream",
+        "serialization": "unchanged official SDK JSONRPCMessage.model_dump_json and newline",
+        "encoding": "same owned native UTF-8 TextIOWrapper over the standard stdout binary buffer",
+        "write_and_flush": "one default anyio.to_thread.run_sync operation calls the original native write(data), then flush(), in that order",
+        "flush_frequency": "every successful message is flushed immediately; no batching across responses",
+        "followup_flush": "skip only the immediately following SDK flush already completed successfully by that write; standalone flush and a flush after failed write/flush delegate normally",
+        "cross_message_text_buffer": false,
+        "thread_cancellation": "preserve default non-abandoning worker behavior; propagate write and flush errors; do not change limiters or cancellation options",
+        "lifecycle": "official stdio_server(stdout=adapter), unchanged lowlevel server initialization/lifespan/context/handlers; no explicit closing of standard process handles",
+        "fallback": "unknown SDK version, replaced or custom SDK method, unsupported standard-stream identity or custom stdout uses the original FastMCP.run(transport=stdio) path",
+        "unchanged": [
+          "CLI command and arguments",
+          "stdin reader",
+          "client SDK",
+          "tool schema and instructions",
+          "JSON framing and response fields",
+          "retrieval and source validation",
+          "ranking and exact token budgets",
+          "normal result-cache lookup/write/revision checks/pruning/transactions",
+          "C6 request-local source work",
+          "C5 bounded exact-count memo and cold/warm policy",
+          "dependencies and database schema"
+        ]
+      }
+    },
+    "registered_memo_policy": {
+      "kind": "derived-exact-token-count-only",
+      "entry_limit": 2048,
+      "retained_text_object_byte_limit": 2097152,
+      "ownership": "one MemoryBook connection; both encoders share limits",
+      "capacity_choice_evidence": "benchmarks/reports/round5-development/c5-preregistration/capacity-extension.json",
+      "cold_warm_boundary": "Preserve original connection lifecycles, configuration order and shuffled query orders. Each fresh connection starts empty; native later token configurations can reuse prior counts on that connection. Each actual MCP configuration starts a fresh official server process. No extra prewarming, no discarded first queries, and no selective cache clearing.",
+      "diagnostics": "Save native memo state before/after every configuration outside timing, including start/hits/misses/evictions/entries/text bytes and cold-prefix observations where available. Preserve original actual SDK MCP command, protocol and measured envelope; private memo counters are not exposed over MCP. Its cold process boundary and actual process RSS are recorded. Do not describe this experiment as disabling every cache.",
+      "continuation": "C6 retains the exact C5 token memo. No additional persistent feature or statement cache is introduced."
+    },
+    "development_plan_sha256": "b6b61348a178cabbc4f787eb8ccd18ebdbeeb11cd18f6f82149b098c1057593c",
+    "prior_c4": {
+      "source": {
+        "commit": "0141adf1dde6cd69cf96d8eea23f4b6ebab36477",
+        "runtime_sha256": "1c7c644c5187332e6fb5034fef0e232b5c1ae1e5f352b53fea90f7fd8acc4fb3"
+      },
+      "archive_commit": "e439c226cc2d422b44007dedd25aa750a62f88a9",
+      "summary_path": "benchmarks/reports/round5-development/candidate-c4-full/summary.json",
+      "summary_sha256": "c53fcd0c379888b91da3a46ed609ad50df07a0661dc21bc0701bda04b3d56d38",
+      "development_calls": 18928,
+      "development_pairs": 9464,
+      "boundary": "Original complete development summary verified. C4 formal runner was never bound or executed; no C4 formal acceptance is inferred and development arithmetic is not rerun here."
+    },
+    "rejected_c3": {
+      "source": {
+        "commit": "1c9a6d3f611608e8dbce8e729fdd3099513d80e6",
+        "runtime_sha256": "7a927601b5ce710059d5a2640b3642c58a2bd4985d9ccdc48f69159938ee3623"
+      },
+      "result_commit": "e0c30deb7cdae18bb19c83534646630dfb3f673b",
+      "binding_sha256": "790ca15f3fbe2a5ba19fe08f83ab663bdb313a8569bfb1ee7677456ca4817c40",
+      "summary_sha256": "5103a9d5bf26451e6eed2425c75c21663eedc51cc7d8462446373d9fcdd2b321",
+      "status": "measurements_completed",
+      "valid_calls": 56784,
+      "original_accepted": false,
+      "original_numeric_gate_passed": false,
+      "aggregate_p95_gain_percent": 10.499586026010144,
+      "public_native_best_gain_percent": 10.482574154140579,
+      "public_mcp_token1024_gain_percent": 5.146962001519862,
+      "boundary": "Original committed summary and rejection verified; C3 retrieval and raw-ledger arithmetic are not rerun by this C7 audit."
+    },
+    "binding_path": "benchmarks/experiments/round5-c7-performance-binding.json",
+    "publication": {
+      "branch": "validation/v033-round5-c7-performance-43563390252-1",
+      "claim_branch": "validation/v033-round5-c7-claim-2560b0eae9d3332fb09da43fd49ebef069b8e41ddaef0fe9df1880db1e132588",
+      "run_attempt": "1",
+      "run_id": "43563390252"
+    }
+  },
+  "native_token_count_memo_audit": [
+    {
+      "worker": "r0-synthetic61-baseline",
+      "label": "baseline",
+      "available": false,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": false,
+      "native_configurations": [],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r0-synthetic61-candidate",
+      "label": "candidate",
+      "available": true,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": true,
+      "native_configurations": [
+        {
+          "id": "native-char4000",
+          "first_query_id": "orchid-journal-indigo-manual-middle",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        },
+        {
+          "id": "native-token512",
+          "first_query_id": "comet-cache-paraphrase",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 7,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 7,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 9519,
+            "uncertified_bypasses": 6
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 767,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 548,
+            "invalidations": 0,
+            "misses": 767,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1217779,
+            "uncertified_bypasses": 2616
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 7,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 6
+          },
+          "configuration_counter_delta": {
+            "hits": 548,
+            "misses": 767,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2616
+          }
+        },
+        {
+          "id": "native-token1024",
+          "first_query_id": "orchid-cache-current",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 767,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 548,
+            "invalidations": 0,
+            "misses": 767,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1217779,
+            "uncertified_bypasses": 2616
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 767,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 554,
+            "invalidations": 0,
+            "misses": 767,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1217779,
+            "uncertified_bypasses": 2616
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 943,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1455,
+            "invalidations": 0,
+            "misses": 943,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1488100,
+            "uncertified_bypasses": 3704
+          },
+          "retained_entries_at_start": 767,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 6,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 907,
+            "misses": 176,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 1088
+          }
+        },
+        {
+          "id": "native-token2048",
+          "first_query_id": "umber-poison",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 943,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1455,
+            "invalidations": 0,
+            "misses": 943,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1488100,
+            "uncertified_bypasses": 3704
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 946,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1460,
+            "invalidations": 0,
+            "misses": 946,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1496203,
+            "uncertified_bypasses": 3730
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 1117,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 2314,
+            "invalidations": 0,
+            "misses": 1117,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1749265,
+            "uncertified_bypasses": 3995
+          },
+          "retained_entries_at_start": 943,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 5,
+            "misses": 3,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 26
+          },
+          "configuration_counter_delta": {
+            "hits": 859,
+            "misses": 174,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 291
+          }
+        }
+      ],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r0-public1015-baseline",
+      "label": "baseline",
+      "available": false,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": false,
+      "native_configurations": [],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r0-public1015-candidate",
+      "label": "candidate",
+      "available": true,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": true,
+      "native_configurations": [
+        {
+          "id": "native-char4000",
+          "first_query_id": "conv-48-q0092",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        },
+        {
+          "id": "native-token512",
+          "first_query_id": "conv-43-q0229",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 8,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 8,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 6031,
+            "uncertified_bypasses": 8
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 146,
+            "hits": 4131,
+            "invalidations": 0,
+            "misses": 2194,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1546625,
+            "uncertified_bypasses": 9913
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 8,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 8
+          },
+          "configuration_counter_delta": {
+            "hits": 4131,
+            "misses": 2194,
+            "evictions": 146,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 9913
+          }
+        },
+        {
+          "id": "native-token1024",
+          "first_query_id": "conv-44-q0081",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 146,
+            "hits": 4131,
+            "invalidations": 0,
+            "misses": 2194,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1546625,
+            "uncertified_bypasses": 9913
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 148,
+            "hits": 4134,
+            "invalidations": 0,
+            "misses": 2196,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1546599,
+            "uncertified_bypasses": 9917
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1174,
+            "hits": 8230,
+            "invalidations": 0,
+            "misses": 3222,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1501628,
+            "uncertified_bypasses": 12132
+          },
+          "retained_entries_at_start": 2048,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 3,
+            "misses": 2,
+            "evictions": 2,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 4
+          },
+          "configuration_counter_delta": {
+            "hits": 4099,
+            "misses": 1028,
+            "evictions": 1028,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2219
+          }
+        },
+        {
+          "id": "native-token2048",
+          "first_query_id": "conv-43-q0171",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1174,
+            "hits": 8230,
+            "invalidations": 0,
+            "misses": 3222,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1501628,
+            "uncertified_bypasses": 12132
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1174,
+            "hits": 8235,
+            "invalidations": 0,
+            "misses": 3222,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1501628,
+            "uncertified_bypasses": 12132
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1295,
+            "hits": 13182,
+            "invalidations": 0,
+            "misses": 3343,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1516725,
+            "uncertified_bypasses": 12132
+          },
+          "retained_entries_at_start": 2048,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 5,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 4952,
+            "misses": 121,
+            "evictions": 121,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        }
+      ],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r1-synthetic61-candidate",
+      "label": "candidate",
+      "available": true,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": true,
+      "native_configurations": [
+        {
+          "id": "native-char4000",
+          "first_query_id": "xenon-canary",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        },
+        {
+          "id": "native-token512",
+          "first_query_id": "comet-worker-concurrency",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 5,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 5,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 4492,
+            "uncertified_bypasses": 8
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 767,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 548,
+            "invalidations": 0,
+            "misses": 767,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1217779,
+            "uncertified_bypasses": 2616
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 5,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 8
+          },
+          "configuration_counter_delta": {
+            "hits": 548,
+            "misses": 767,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2616
+          }
+        },
+        {
+          "id": "native-token1024",
+          "first_query_id": "comet-journal-cedar-multi-section",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 767,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 548,
+            "invalidations": 0,
+            "misses": 767,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1217779,
+            "uncertified_bypasses": 2616
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 768,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 552,
+            "invalidations": 0,
+            "misses": 768,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1218789,
+            "uncertified_bypasses": 2620
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 943,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1455,
+            "invalidations": 0,
+            "misses": 943,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1488100,
+            "uncertified_bypasses": 3704
+          },
+          "retained_entries_at_start": 767,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 4,
+            "misses": 1,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 4
+          },
+          "configuration_counter_delta": {
+            "hits": 907,
+            "misses": 176,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 1088
+          }
+        },
+        {
+          "id": "native-token2048",
+          "first_query_id": "pebble-refresh",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 943,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1455,
+            "invalidations": 0,
+            "misses": 943,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1488100,
+            "uncertified_bypasses": 3704
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 944,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1459,
+            "invalidations": 0,
+            "misses": 944,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1490592,
+            "uncertified_bypasses": 3704
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 1117,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 2314,
+            "invalidations": 0,
+            "misses": 1117,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1749265,
+            "uncertified_bypasses": 3995
+          },
+          "retained_entries_at_start": 943,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 4,
+            "misses": 1,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 859,
+            "misses": 174,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 291
+          }
+        }
+      ],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r1-synthetic61-baseline",
+      "label": "baseline",
+      "available": false,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": false,
+      "native_configurations": [],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r1-public1015-candidate",
+      "label": "candidate",
+      "available": true,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": true,
+      "native_configurations": [
+        {
+          "id": "native-char4000",
+          "first_query_id": "conv-41-q0181",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        },
+        {
+          "id": "native-token512",
+          "first_query_id": "conv-50-q0177",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 7,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 7,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 5566,
+            "uncertified_bypasses": 11
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 146,
+            "hits": 4131,
+            "invalidations": 0,
+            "misses": 2194,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1542373,
+            "uncertified_bypasses": 9913
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 7,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 11
+          },
+          "configuration_counter_delta": {
+            "hits": 4131,
+            "misses": 2194,
+            "evictions": 146,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 9913
+          }
+        },
+        {
+          "id": "native-token1024",
+          "first_query_id": "conv-42-q0219",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 146,
+            "hits": 4131,
+            "invalidations": 0,
+            "misses": 2194,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1542373,
+            "uncertified_bypasses": 9913
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 148,
+            "hits": 4134,
+            "invalidations": 0,
+            "misses": 2196,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1542455,
+            "uncertified_bypasses": 9915
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1189,
+            "hits": 8215,
+            "invalidations": 0,
+            "misses": 3237,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1501039,
+            "uncertified_bypasses": 12132
+          },
+          "retained_entries_at_start": 2048,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 3,
+            "misses": 2,
+            "evictions": 2,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2
+          },
+          "configuration_counter_delta": {
+            "hits": 4084,
+            "misses": 1043,
+            "evictions": 1043,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2219
+          }
+        },
+        {
+          "id": "native-token2048",
+          "first_query_id": "conv-43-q0029",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1189,
+            "hits": 8215,
+            "invalidations": 0,
+            "misses": 3237,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1501039,
+            "uncertified_bypasses": 12132
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1189,
+            "hits": 8220,
+            "invalidations": 0,
+            "misses": 3237,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1501039,
+            "uncertified_bypasses": 12132
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1310,
+            "hits": 13167,
+            "invalidations": 0,
+            "misses": 3358,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1516509,
+            "uncertified_bypasses": 12132
+          },
+          "retained_entries_at_start": 2048,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 5,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 4952,
+            "misses": 121,
+            "evictions": 121,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        }
+      ],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r1-public1015-baseline",
+      "label": "baseline",
+      "available": false,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": false,
+      "native_configurations": [],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r2-synthetic61-candidate",
+      "label": "candidate",
+      "available": true,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": true,
+      "native_configurations": [
+        {
+          "id": "native-char4000",
+          "first_query_id": "umber-unrelated",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        },
+        {
+          "id": "native-token512",
+          "first_query_id": "umber-cache-paraphrase",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 8,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 8,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 16364,
+            "uncertified_bypasses": 15
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 767,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 548,
+            "invalidations": 0,
+            "misses": 767,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1217779,
+            "uncertified_bypasses": 2616
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 8,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 15
+          },
+          "configuration_counter_delta": {
+            "hits": 548,
+            "misses": 767,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2616
+          }
+        },
+        {
+          "id": "native-token1024",
+          "first_query_id": "pebble-journal-indigo-manual-middle",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 767,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 548,
+            "invalidations": 0,
+            "misses": 767,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1217779,
+            "uncertified_bypasses": 2616
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 769,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 556,
+            "invalidations": 0,
+            "misses": 769,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1222447,
+            "uncertified_bypasses": 2671
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 943,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1455,
+            "invalidations": 0,
+            "misses": 943,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1488100,
+            "uncertified_bypasses": 3704
+          },
+          "retained_entries_at_start": 767,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 8,
+            "misses": 2,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 55
+          },
+          "configuration_counter_delta": {
+            "hits": 907,
+            "misses": 176,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 1088
+          }
+        },
+        {
+          "id": "native-token2048",
+          "first_query_id": "solstice-journal-cedar-manual-middle",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 943,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1455,
+            "invalidations": 0,
+            "misses": 943,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1488100,
+            "uncertified_bypasses": 3704
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 945,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1458,
+            "invalidations": 0,
+            "misses": 945,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1490008,
+            "uncertified_bypasses": 3704
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 1117,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 2314,
+            "invalidations": 0,
+            "misses": 1117,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1749265,
+            "uncertified_bypasses": 3995
+          },
+          "retained_entries_at_start": 943,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 3,
+            "misses": 2,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 859,
+            "misses": 174,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 291
+          }
+        }
+      ],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r2-synthetic61-baseline",
+      "label": "baseline",
+      "available": false,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": false,
+      "native_configurations": [],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r2-public1015-candidate",
+      "label": "candidate",
+      "available": true,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": true,
+      "native_configurations": [
+        {
+          "id": "native-char4000",
+          "first_query_id": "conv-50-q0197",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        },
+        {
+          "id": "native-token512",
+          "first_query_id": "conv-26-q0087",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 7,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 7,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 8426,
+            "uncertified_bypasses": 8
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 139,
+            "hits": 4138,
+            "invalidations": 0,
+            "misses": 2187,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1546474,
+            "uncertified_bypasses": 9913
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 7,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 8
+          },
+          "configuration_counter_delta": {
+            "hits": 4138,
+            "misses": 2187,
+            "evictions": 139,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 9913
+          }
+        },
+        {
+          "id": "native-token1024",
+          "first_query_id": "conv-42-q0178",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 139,
+            "hits": 4138,
+            "invalidations": 0,
+            "misses": 2187,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1546474,
+            "uncertified_bypasses": 9913
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 142,
+            "hits": 4140,
+            "invalidations": 0,
+            "misses": 2190,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1546330,
+            "uncertified_bypasses": 9915
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1160,
+            "hits": 8244,
+            "invalidations": 0,
+            "misses": 3208,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1507938,
+            "uncertified_bypasses": 12132
+          },
+          "retained_entries_at_start": 2048,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 2,
+            "misses": 3,
+            "evictions": 3,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2
+          },
+          "configuration_counter_delta": {
+            "hits": 4106,
+            "misses": 1021,
+            "evictions": 1021,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2219
+          }
+        },
+        {
+          "id": "native-token2048",
+          "first_query_id": "conv-43-q0206",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1160,
+            "hits": 8244,
+            "invalidations": 0,
+            "misses": 3208,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1507938,
+            "uncertified_bypasses": 12132
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1160,
+            "hits": 8249,
+            "invalidations": 0,
+            "misses": 3208,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1507938,
+            "uncertified_bypasses": 12132
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1281,
+            "hits": 13196,
+            "invalidations": 0,
+            "misses": 3329,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1516367,
+            "uncertified_bypasses": 12132
+          },
+          "retained_entries_at_start": 2048,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 5,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 4952,
+            "misses": 121,
+            "evictions": 121,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        }
+      ],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r2-public1015-baseline",
+      "label": "baseline",
+      "available": false,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": false,
+      "native_configurations": [],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r3-synthetic61-baseline",
+      "label": "baseline",
+      "available": false,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": false,
+      "native_configurations": [],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r3-synthetic61-candidate",
+      "label": "candidate",
+      "available": true,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": true,
+      "native_configurations": [
+        {
+          "id": "native-char4000",
+          "first_query_id": "xenon-journal-cedar-manual-middle",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        },
+        {
+          "id": "native-token512",
+          "first_query_id": "willow-journal-cedar-manual-late",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 7,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 7,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 7727,
+            "uncertified_bypasses": 6
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 767,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 548,
+            "invalidations": 0,
+            "misses": 767,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1217779,
+            "uncertified_bypasses": 2616
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 7,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 6
+          },
+          "configuration_counter_delta": {
+            "hits": 548,
+            "misses": 767,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2616
+          }
+        },
+        {
+          "id": "native-token1024",
+          "first_query_id": "xenon-poison",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 767,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 548,
+            "invalidations": 0,
+            "misses": 767,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1217779,
+            "uncertified_bypasses": 2616
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 768,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 552,
+            "invalidations": 0,
+            "misses": 768,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1218426,
+            "uncertified_bypasses": 2618
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 943,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1455,
+            "invalidations": 0,
+            "misses": 943,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1488100,
+            "uncertified_bypasses": 3704
+          },
+          "retained_entries_at_start": 767,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 4,
+            "misses": 1,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2
+          },
+          "configuration_counter_delta": {
+            "hits": 907,
+            "misses": 176,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 1088
+          }
+        },
+        {
+          "id": "native-token2048",
+          "first_query_id": "orchid-journal-cedar-multi-section",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 943,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1455,
+            "invalidations": 0,
+            "misses": 943,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1488100,
+            "uncertified_bypasses": 3704
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 943,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 1463,
+            "invalidations": 0,
+            "misses": 943,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1488100,
+            "uncertified_bypasses": 3708
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 1117,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 2314,
+            "invalidations": 0,
+            "misses": 1117,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1749265,
+            "uncertified_bypasses": 3995
+          },
+          "retained_entries_at_start": 943,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 8,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 4
+          },
+          "configuration_counter_delta": {
+            "hits": 859,
+            "misses": 174,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 291
+          }
+        }
+      ],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r3-public1015-baseline",
+      "label": "baseline",
+      "available": false,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": false,
+      "native_configurations": [],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    },
+    {
+      "worker": "r3-public1015-candidate",
+      "label": "candidate",
+      "available": true,
+      "limits": {
+        "entry_limit": 2048,
+        "text_byte_limit": 2097152
+      },
+      "empty_connection_start_verified": true,
+      "native_configurations": [
+        {
+          "id": "native-char4000",
+          "first_query_id": "conv-43-q0106",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        },
+        {
+          "id": "native-token512",
+          "first_query_id": "conv-41-q0116",
+          "before": {
+            "allocated": 0,
+            "available": true,
+            "entries": 0,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 0,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 0,
+            "uncertified_bypasses": 0
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 7,
+            "entry_limit": 2048,
+            "evictions": 0,
+            "hits": 0,
+            "invalidations": 0,
+            "misses": 7,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 4549,
+            "uncertified_bypasses": 8
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 139,
+            "hits": 4138,
+            "invalidations": 0,
+            "misses": 2187,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1546574,
+            "uncertified_bypasses": 9913
+          },
+          "retained_entries_at_start": 0,
+          "later_native_configuration": false,
+          "first_call_counter_delta": {
+            "hits": 0,
+            "misses": 7,
+            "evictions": 0,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 8
+          },
+          "configuration_counter_delta": {
+            "hits": 4138,
+            "misses": 2187,
+            "evictions": 139,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 9913
+          }
+        },
+        {
+          "id": "native-token1024",
+          "first_query_id": "conv-43-q0232",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 139,
+            "hits": 4138,
+            "invalidations": 0,
+            "misses": 2187,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1546574,
+            "uncertified_bypasses": 9913
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 141,
+            "hits": 4141,
+            "invalidations": 0,
+            "misses": 2189,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1546879,
+            "uncertified_bypasses": 9915
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1175,
+            "hits": 8229,
+            "invalidations": 0,
+            "misses": 3223,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1505000,
+            "uncertified_bypasses": 12132
+          },
+          "retained_entries_at_start": 2048,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 3,
+            "misses": 2,
+            "evictions": 2,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2
+          },
+          "configuration_counter_delta": {
+            "hits": 4091,
+            "misses": 1036,
+            "evictions": 1036,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 2219
+          }
+        },
+        {
+          "id": "native-token2048",
+          "first_query_id": "conv-50-q0150",
+          "before": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1175,
+            "hits": 8229,
+            "invalidations": 0,
+            "misses": 3223,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1505000,
+            "uncertified_bypasses": 12132
+          },
+          "after_first_call": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1176,
+            "hits": 8233,
+            "invalidations": 0,
+            "misses": 3224,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1504644,
+            "uncertified_bypasses": 12132
+          },
+          "after": {
+            "allocated": 1,
+            "available": true,
+            "entries": 2048,
+            "entry_limit": 2048,
+            "evictions": 1296,
+            "hits": 13181,
+            "invalidations": 0,
+            "misses": 3344,
+            "oversized_bypasses": 0,
+            "text_byte_limit": 2097152,
+            "text_bytes": 1513939,
+            "uncertified_bypasses": 12132
+          },
+          "retained_entries_at_start": 2048,
+          "later_native_configuration": true,
+          "first_call_counter_delta": {
+            "hits": 4,
+            "misses": 1,
+            "evictions": 1,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          },
+          "configuration_counter_delta": {
+            "hits": 4952,
+            "misses": 121,
+            "evictions": 121,
+            "invalidations": 0,
+            "oversized_bypasses": 0,
+            "uncertified_bypasses": 0
+          }
+        }
+      ],
+      "boundary": "Read-only native snapshots outside timing. Same book retains exact token counts across native configurations; actual MCP uses fresh server processes and measured RSS without private memo counters.",
+      "memory_boundary": "The 2 MiB cap counts retained str object sizes after encoding; key/container/encoder overhead and other process allocations are outside this cap and remain subject to the original RSS review."
+    }
+  ],
+  "full_report_sha256": "4f2b9ea30b6360acd0e71fd3a39a0d53ee689f7c552933bed2acf58df11afd6f",
+  "compressed_report_sha256": "156087043702b5f223f898800547c576f469ac780066b0af431227cfeda66b25",
+  "audit_script_sha256": "432a9c784c32aa242138e8200294e4c6d6ced3c7bdbea5b459998bb1d20f77fe",
+  "counts": {
+    "workers": 16,
+    "cells": 12,
+    "timed_calls": 56784,
+    "ledger_events": 113568,
+    "baseline_candidate_pairs": 28392,
+    "unique_query_configuration_pairs": 7098,
+    "native_mcp_provenance_pairs": 18928,
+    "complete_output_differences": 0,
+    "recorded_invariant_failures": 0,
+    "negative_timing_samples": 0,
+    "zero_timing_samples": 0,
+    "nonfinite_or_invalid_timing_samples": 0
+  },
+  "cells": [
+    {
+      "cohort": "synthetic61",
+      "id": "native-char4000",
+      "surface": "native",
+      "budget_chars": 4000,
+      "budget_tokens": null,
+      "baseline": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 4.513837499999999,
+          "p95_ms": 14.137126149999997,
+          "mean_ms": 5.916978467261905
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 4.73262,
+          "p95_ms": 14.935267600000003,
+          "mean_ms": 6.182796535714286
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 4.4298945,
+          "p95_ms": 13.908113499999999,
+          "mean_ms": 5.828372444444444
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 4.73262,
+            "p95_ms": 14.935267600000003,
+            "mean_ms": 6.182796535714286
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.4966255,
+            "p95_ms": 13.8045527,
+            "mean_ms": 5.822707761904762
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.40892,
+            "p95_ms": 13.945290850000001,
+            "mean_ms": 5.8620703333333335
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.4650905000000005,
+            "p95_ms": 13.900643500000001,
+            "mean_ms": 5.800339238095238
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 4.215153,
+          "p95_ms": 12.892497299999999,
+          "mean_ms": 5.2999217723214285
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 4.263562,
+          "p95_ms": 13.115074950000004,
+          "mean_ms": 5.412056291666667
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 4.158987,
+          "p95_ms": 12.883872299999998,
+          "mean_ms": 5.262543599206349
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 4.263562,
+            "p95_ms": 13.115074950000004,
+            "mean_ms": 5.412056291666667
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.124407,
+            "p95_ms": 12.7280947,
+            "mean_ms": 5.2475985297619046
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.228111999999999,
+            "p95_ms": 12.821717000000001,
+            "mean_ms": 5.302713011904761
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.193121,
+            "p95_ms": 12.8975617,
+            "mean_ms": 5.237319255952381
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -6.617085794515187,
+        "p95_ms": -8.803973571389534,
+        "mean_ms": -10.428577666026573
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "id": "mcp-char4000",
+      "surface": "official-sdk-mcp-stdio",
+      "budget_chars": 4000,
+      "budget_tokens": null,
+      "baseline": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 6.6037055,
+          "p95_ms": 16.359655349999997,
+          "mean_ms": 7.984312794642857
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 6.8808255,
+          "p95_ms": 16.413000099999998,
+          "mean_ms": 8.253808011904763
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 6.548477,
+          "p95_ms": 16.3158175,
+          "mean_ms": 7.894481055555556
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 6.8808255,
+            "p95_ms": 16.413000099999998,
+            "mean_ms": 8.253808011904763
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.5940265,
+            "p95_ms": 16.257086100000002,
+            "mean_ms": 7.881808071428571
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.6437105,
+            "p95_ms": 16.3094195,
+            "mean_ms": 7.981169029761905
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.384283,
+            "p95_ms": 16.295046100000004,
+            "mean_ms": 7.82046606547619
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 6.1049525,
+          "p95_ms": 15.111370349999998,
+          "mean_ms": 7.273901904761904
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 6.514575000000001,
+          "p95_ms": 15.5403917,
+          "mean_ms": 7.71288143452381
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 6.0029865000000004,
+          "p95_ms": 14.858091349999997,
+          "mean_ms": 7.127575394841269
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 6.514575000000001,
+            "p95_ms": 15.5403917,
+            "mean_ms": 7.71288143452381
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.0479780000000005,
+            "p95_ms": 14.927554450000002,
+            "mean_ms": 7.161016339285714
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.04832,
+            "p95_ms": 14.84520515,
+            "mean_ms": 7.1801643154761905
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.956381,
+            "p95_ms": 14.7486037,
+            "mean_ms": 7.041545529761906
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -7.552623296117622,
+        "p95_ms": -7.630264655911589,
+        "mean_ms": -8.897583400760666
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "id": "native-token512",
+      "surface": "native",
+      "budget_chars": 8000,
+      "budget_tokens": 512,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 8.163190499999999,
+          "p95_ms": 20.644509,
+          "mean_ms": 9.47200577827381
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 8.4779465,
+          "p95_ms": 21.07641045,
+          "mean_ms": 9.635259654761905
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 8.113714,
+          "p95_ms": 20.46584015,
+          "mean_ms": 9.417587819444444
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 8.4779465,
+            "p95_ms": 21.07641045,
+            "mean_ms": 9.635259654761905
+          },
+          {
+            "samples": 168,
+            "p50_ms": 8.072441,
+            "p95_ms": 20.372579400000003,
+            "mean_ms": 9.353099190476192
+          },
+          {
+            "samples": 168,
+            "p50_ms": 8.093017,
+            "p95_ms": 20.603760349999998,
+            "mean_ms": 9.452838708333333
+          },
+          {
+            "samples": 168,
+            "p50_ms": 8.123718,
+            "p95_ms": 20.3084411,
+            "mean_ms": 9.44682555952381
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 5.8280955,
+          "p95_ms": 16.02134425,
+          "mean_ms": 7.004359578869048
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 5.968676,
+          "p95_ms": 16.195098,
+          "mean_ms": 7.119907869047619
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 5.65286,
+          "p95_ms": 15.968632549999999,
+          "mean_ms": 6.965843482142858
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 5.968676,
+            "p95_ms": 16.195098,
+            "mean_ms": 7.119907869047619
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.7282779999999995,
+            "p95_ms": 15.997818,
+            "mean_ms": 7.028793130952382
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.8080595,
+            "p95_ms": 16.112494,
+            "mean_ms": 7.008815464285714
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.652656,
+            "p95_ms": 15.710808450000002,
+            "mean_ms": 6.859921851190476
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -28.605175880680466,
+        "p95_ms": -22.39416180835302,
+        "mean_ms": -26.051992124676136
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "id": "native-token1024",
+      "surface": "native",
+      "budget_chars": 8000,
+      "budget_tokens": 1024,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 6.713316,
+          "p95_ms": 21.22875805,
+          "mean_ms": 8.178844846726191
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 6.665393,
+          "p95_ms": 21.422069500000003,
+          "mean_ms": 8.314716166666667
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 6.713316,
+          "p95_ms": 21.1698022,
+          "mean_ms": 8.133554406746033
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 6.665393,
+            "p95_ms": 21.422069500000003,
+            "mean_ms": 8.314716166666667
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.746527,
+            "p95_ms": 21.198926800000002,
+            "mean_ms": 8.158370589285713
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.4859405,
+            "p95_ms": 21.273982800000002,
+            "mean_ms": 8.181384196428573
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.4551704999999995,
+            "p95_ms": 21.04503855,
+            "mean_ms": 8.060908434523808
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 4.453771,
+          "p95_ms": 14.959201049999999,
+          "mean_ms": 5.7253612827380955
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 4.502255,
+          "p95_ms": 15.24062245,
+          "mean_ms": 5.846821821428572
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 4.404463,
+          "p95_ms": 14.87849155,
+          "mean_ms": 5.684874436507936
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 4.502255,
+            "p95_ms": 15.24062245,
+            "mean_ms": 5.846821821428572
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.32843,
+            "p95_ms": 14.715088800000002,
+            "mean_ms": 5.651875190476191
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.472776,
+            "p95_ms": 14.95093475,
+            "mean_ms": 5.763565559523809
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.32577,
+            "p95_ms": 14.68220165,
+            "mean_ms": 5.639182559523809
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -33.65765889762973,
+        "p95_ms": -29.533319778921317,
+        "mean_ms": -29.99792281143675
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "id": "native-token2048",
+      "surface": "native",
+      "budget_chars": 8000,
+      "budget_tokens": 2048,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 5.0059265,
+          "p95_ms": 18.306601449999995,
+          "mean_ms": 6.999862190476191
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 5.126303500000001,
+          "p95_ms": 18.4855336,
+          "mean_ms": 7.125782892857142
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 4.9939205,
+          "p95_ms": 18.216102449999998,
+          "mean_ms": 6.957888623015873
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 5.126303500000001,
+            "p95_ms": 18.4855336,
+            "mean_ms": 7.125782892857142
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.9536225,
+            "p95_ms": 18.33263475,
+            "mean_ms": 7.016260148809524
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.0327905,
+            "p95_ms": 18.1595423,
+            "mean_ms": 6.956926797619047
+          },
+          {
+            "samples": 168,
+            "p50_ms": 5.007289,
+            "p95_ms": 17.99191275,
+            "mean_ms": 6.900478922619048
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 4.379491,
+          "p95_ms": 15.382632399999997,
+          "mean_ms": 5.886661266369048
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 4.467006,
+          "p95_ms": 15.684610750000001,
+          "mean_ms": 6.0552345178571425
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 4.338976499999999,
+          "p95_ms": 15.26291225,
+          "mean_ms": 5.830470182539682
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 4.467006,
+            "p95_ms": 15.684610750000001,
+            "mean_ms": 6.0552345178571425
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.324021500000001,
+            "p95_ms": 15.269850300000002,
+            "mean_ms": 5.851079738095239
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.5379445,
+            "p95_ms": 15.347993,
+            "mean_ms": 5.856515898809524
+          },
+          {
+            "samples": 168,
+            "p50_ms": 4.2752254999999995,
+            "p95_ms": 15.13344995,
+            "mean_ms": 5.783814910714286
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -12.513877301234855,
+        "p95_ms": -15.972211215643195,
+        "mean_ms": -15.903183431550005
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "id": "mcp-token1024",
+      "surface": "official-sdk-mcp-stdio",
+      "budget_chars": 8000,
+      "budget_tokens": 1024,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 8.737662,
+          "p95_ms": 23.59732995,
+          "mean_ms": 11.203747151785715
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 8.8314345,
+          "p95_ms": 24.158375250000002,
+          "mean_ms": 11.385302101190476
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 8.737662,
+          "p95_ms": 23.5147383,
+          "mean_ms": 11.14322883531746
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 8.8314345,
+            "p95_ms": 24.158375250000002,
+            "mean_ms": 11.385302101190476
+          },
+          {
+            "samples": 168,
+            "p50_ms": 8.693229,
+            "p95_ms": 23.28916805,
+            "mean_ms": 10.990482613095239
+          },
+          {
+            "samples": 168,
+            "p50_ms": 8.9838945,
+            "p95_ms": 23.70123355,
+            "mean_ms": 11.312407702380952
+          },
+          {
+            "samples": 168,
+            "p50_ms": 8.564766500000001,
+            "p95_ms": 23.55476475,
+            "mean_ms": 11.12679619047619
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 672,
+          "p50_ms": 6.8403505,
+          "p95_ms": 18.10726305,
+          "mean_ms": 9.013731043154761
+        },
+        "first_round_latency": {
+          "samples": 168,
+          "p50_ms": 6.947198,
+          "p95_ms": 18.5870989,
+          "mean_ms": 9.200285851190475
+        },
+        "repeat_rounds_latency": {
+          "samples": 504,
+          "p50_ms": 6.8339725,
+          "p95_ms": 17.8491504,
+          "mean_ms": 8.951546107142857
+        },
+        "by_round": [
+          {
+            "samples": 168,
+            "p50_ms": 6.947198,
+            "p95_ms": 18.5870989,
+            "mean_ms": 9.200285851190475
+          },
+          {
+            "samples": 168,
+            "p50_ms": 7.019246,
+            "p95_ms": 18.187636500000004,
+            "mean_ms": 9.118603273809523
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.785139,
+            "p95_ms": 17.843502700000002,
+            "mean_ms": 8.935397708333333
+          },
+          {
+            "samples": 168,
+            "p50_ms": 6.6075885,
+            "p95_ms": 17.51889765,
+            "mean_ms": 8.800637339285714
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -21.714178232117476,
+        "p95_ms": -23.265627558850145,
+        "mean_ms": -19.547175413378515
+      }
+    },
+    {
+      "cohort": "public1015",
+      "id": "native-char4000",
+      "surface": "native",
+      "budget_chars": 4000,
+      "budget_tokens": null,
+      "baseline": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 3.1202674999999997,
+          "p95_ms": 3.80554405,
+          "mean_ms": 3.1374293455665025
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 3.170461,
+          "p95_ms": 3.8439446999999998,
+          "mean_ms": 3.178499145812808
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 3.1062,
+          "p95_ms": 3.7763555999999996,
+          "mean_ms": 3.123739412151067
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 3.170461,
+            "p95_ms": 3.8439446999999998,
+            "mean_ms": 3.178499145812808
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.114986,
+            "p95_ms": 3.7605226000000003,
+            "mean_ms": 3.1245444975369456
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.104881,
+            "p95_ms": 3.7757696000000003,
+            "mean_ms": 3.115652208866995
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.103476,
+            "p95_ms": 3.7871220999999995,
+            "mean_ms": 3.131021530049261
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 2.97511,
+          "p95_ms": 3.583489,
+          "mean_ms": 2.983879021182266
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 2.956429,
+          "p95_ms": 3.5672424,
+          "mean_ms": 2.9655473320197046
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 2.981236,
+          "p95_ms": 3.587471799999999,
+          "mean_ms": 2.989989584236453
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 2.956429,
+            "p95_ms": 3.5672424,
+            "mean_ms": 2.9655473320197046
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.975946,
+            "p95_ms": 3.5718226,
+            "mean_ms": 2.9886250837438424
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.015305,
+            "p95_ms": 3.6349138,
+            "mean_ms": 3.023857975369458
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 2.940155,
+            "p95_ms": 3.5189073,
+            "mean_ms": 2.9574856935960594
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -4.652085117702242,
+        "p95_ms": -5.835040853094309,
+        "mean_ms": -4.894144456231919
+      }
+    },
+    {
+      "cohort": "public1015",
+      "id": "mcp-char4000",
+      "surface": "official-sdk-mcp-stdio",
+      "budget_chars": 4000,
+      "budget_tokens": null,
+      "baseline": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 4.99949,
+          "p95_ms": 5.7403153,
+          "mean_ms": 5.007605874137932
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 5.004464,
+          "p95_ms": 5.774780499999999,
+          "mean_ms": 5.023290300492611
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 4.995296,
+          "p95_ms": 5.716556199999999,
+          "mean_ms": 5.0023777320197045
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 5.004464,
+            "p95_ms": 5.774780499999999,
+            "mean_ms": 5.023290300492611
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.936307,
+            "p95_ms": 5.6412495,
+            "mean_ms": 4.951183963546798
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.9607,
+            "p95_ms": 5.6418389,
+            "mean_ms": 4.972420109359606
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 5.070969,
+            "p95_ms": 5.8386002999999995,
+            "mean_ms": 5.083529123152709
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 4.767187,
+          "p95_ms": 5.58033615,
+          "mean_ms": 4.827459281527093
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 4.78016,
+          "p95_ms": 5.6273658,
+          "mean_ms": 4.842063692610837
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 4.763772,
+          "p95_ms": 5.5692053999999995,
+          "mean_ms": 4.822591144499179
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 4.78016,
+            "p95_ms": 5.6273658,
+            "mean_ms": 4.842063692610837
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.713779,
+            "p95_ms": 5.3758748999999995,
+            "mean_ms": 4.746897206896552
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.934308,
+            "p95_ms": 5.7766215999999995,
+            "mean_ms": 4.990660838423645
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.685075,
+            "p95_ms": 5.3637333,
+            "mean_ms": 4.73021538817734
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -4.646533946462538,
+        "p95_ms": -2.786940118080272,
+        "mean_ms": -3.5974594874012666
+      }
+    },
+    {
+      "cohort": "public1015",
+      "id": "native-token512",
+      "surface": "native",
+      "budget_chars": 8000,
+      "budget_tokens": 512,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 4.5478595,
+          "p95_ms": 5.4078029,
+          "mean_ms": 4.569487489162562
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 4.561112,
+          "p95_ms": 5.4630069,
+          "mean_ms": 4.598167955665025
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 4.542216,
+          "p95_ms": 5.3888526,
+          "mean_ms": 4.55992733366174
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 4.561112,
+            "p95_ms": 5.4630069,
+            "mean_ms": 4.598167955665025
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.519403,
+            "p95_ms": 5.332067,
+            "mean_ms": 4.523697462068965
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.521773,
+            "p95_ms": 5.359340099999999,
+            "mean_ms": 4.5287382581280795
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 4.587431,
+            "p95_ms": 5.4580440999999995,
+            "mean_ms": 4.627346280788178
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 3.5413855,
+          "p95_ms": 4.58653715,
+          "mean_ms": 3.5884592586206896
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 3.545415,
+          "p95_ms": 4.5579132,
+          "mean_ms": 3.591216281773399
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 3.537566,
+          "p95_ms": 4.590242599999999,
+          "mean_ms": 3.58754025090312
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 3.545415,
+            "p95_ms": 4.5579132,
+            "mean_ms": 3.591216281773399
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.551237,
+            "p95_ms": 4.6145112,
+            "mean_ms": 3.588369658128079
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.586883,
+            "p95_ms": 4.6437164,
+            "mean_ms": 3.6341850384236456
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.498277,
+            "p95_ms": 4.507671299999999,
+            "mean_ms": 3.5400660561576354
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -22.13071885795945,
+        "p95_ms": -15.186680527872054,
+        "mean_ms": -21.469108578775487
+      }
+    },
+    {
+      "cohort": "public1015",
+      "id": "native-token1024",
+      "surface": "native",
+      "budget_chars": 8000,
+      "budget_tokens": 1024,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 3.8537675,
+          "p95_ms": 4.5994502,
+          "mean_ms": 3.8535168940886697
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 3.902786,
+          "p95_ms": 4.6651608,
+          "mean_ms": 3.8947946945812806
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 3.84112,
+          "p95_ms": 4.571577399999999,
+          "mean_ms": 3.8397576272578
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 3.902786,
+            "p95_ms": 4.6651608,
+            "mean_ms": 3.8947946945812806
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.802919,
+            "p95_ms": 4.5165223,
+            "mean_ms": 3.7968547172413794
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.795951,
+            "p95_ms": 4.5077717999999996,
+            "mean_ms": 3.790829083743842
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.917566,
+            "p95_ms": 4.6808516,
+            "mean_ms": 3.9315890807881777
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 3.3358685,
+          "p95_ms": 3.9446655,
+          "mean_ms": 3.3324964662561576
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 3.330042,
+          "p95_ms": 3.9632975999999998,
+          "mean_ms": 3.340086127093596
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 3.336724,
+          "p95_ms": 3.9331417999999996,
+          "mean_ms": 3.3299665793103452
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 3.330042,
+            "p95_ms": 3.9632975999999998,
+            "mean_ms": 3.340086127093596
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.337335,
+            "p95_ms": 3.923771499999999,
+            "mean_ms": 3.334562318226601
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.367874,
+            "p95_ms": 3.9688589999999997,
+            "mean_ms": 3.361639608866995
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.288443,
+            "p95_ms": 3.8688469999999997,
+            "mean_ms": 3.2936978108374384
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -13.438771280312057,
+        "p95_ms": -14.236151529589335,
+        "mean_ms": -13.520647298361721
+      }
+    },
+    {
+      "cohort": "public1015",
+      "id": "native-token2048",
+      "surface": "native",
+      "budget_chars": 8000,
+      "budget_tokens": 2048,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 3.7754155000000003,
+          "p95_ms": 4.47828505,
+          "mean_ms": 3.80116227955665
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 3.78764,
+          "p95_ms": 4.4497392,
+          "mean_ms": 3.8101295625615763
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 3.769984,
+          "p95_ms": 4.487483599999999,
+          "mean_ms": 3.7981731852216747
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 3.78764,
+            "p95_ms": 4.4497392,
+            "mean_ms": 3.8101295625615763
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.686959,
+            "p95_ms": 4.3443973,
+            "mean_ms": 3.7200001901477835
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.706099,
+            "p95_ms": 4.3638538,
+            "mean_ms": 3.722141735960591
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.935768,
+            "p95_ms": 4.683336499999999,
+            "mean_ms": 3.95237762955665
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 3.2152255,
+          "p95_ms": 3.77337805,
+          "mean_ms": 3.227209769950739
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 3.215125,
+          "p95_ms": 3.7876816,
+          "mean_ms": 3.2328419812807883
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 3.215326,
+          "p95_ms": 3.7705834,
+          "mean_ms": 3.2253323661740554
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 3.215125,
+            "p95_ms": 3.7876816,
+            "mean_ms": 3.2328419812807883
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.229663,
+            "p95_ms": 3.785338,
+            "mean_ms": 3.2545318472906404
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.218544,
+            "p95_ms": 3.7745963999999996,
+            "mean_ms": 3.2158153773399016
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 3.201089,
+            "p95_ms": 3.7380443999999997,
+            "mean_ms": 3.2056498738916255
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -14.837837053961355,
+        "p95_ms": -15.740556756207392,
+        "mean_ms": -15.099395063787025
+      }
+    },
+    {
+      "cohort": "public1015",
+      "id": "mcp-token1024",
+      "surface": "official-sdk-mcp-stdio",
+      "budget_chars": 8000,
+      "budget_tokens": 1024,
+      "tokenizer": "cl100k_base",
+      "baseline": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 5.7980585,
+          "p95_ms": 6.7114132,
+          "mean_ms": 5.974385969211823
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 5.686022,
+          "p95_ms": 6.4954521000000005,
+          "mean_ms": 5.8501332768472905
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 5.842407,
+          "p95_ms": 6.780904799999999,
+          "mean_ms": 6.015803533333334
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 5.686022,
+            "p95_ms": 6.4954521000000005,
+            "mean_ms": 5.8501332768472905
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 5.862474,
+            "p95_ms": 6.7044437,
+            "mean_ms": 6.033940600985222
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 5.662715,
+            "p95_ms": 6.4403184,
+            "mean_ms": 5.8268414019704435
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 6.006615,
+            "p95_ms": 7.006035499999999,
+            "mean_ms": 6.186628597044335
+          }
+        ]
+      },
+      "candidate": {
+        "latency": {
+          "samples": 4060,
+          "p50_ms": 5.170008,
+          "p95_ms": 5.8944035,
+          "mean_ms": 5.332500152955665
+        },
+        "first_round_latency": {
+          "samples": 1015,
+          "p50_ms": 5.182057,
+          "p95_ms": 5.897357199999999,
+          "mean_ms": 5.335008306403941
+        },
+        "repeat_rounds_latency": {
+          "samples": 3045,
+          "p50_ms": 5.164274,
+          "p95_ms": 5.8934486,
+          "mean_ms": 5.33166410180624
+        },
+        "by_round": [
+          {
+            "samples": 1015,
+            "p50_ms": 5.182057,
+            "p95_ms": 5.897357199999999,
+            "mean_ms": 5.335008306403941
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 5.136031,
+            "p95_ms": 5.8727098,
+            "mean_ms": 5.288743395073891
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 5.240595,
+            "p95_ms": 6.0142904999999995,
+            "mean_ms": 5.435284167487685
+          },
+          {
+            "samples": 1015,
+            "p50_ms": 5.113178,
+            "p95_ms": 5.7840029,
+            "mean_ms": 5.270964742857143
+          }
+        ]
+      },
+      "candidate_change_percent": {
+        "p50_ms": -10.832082842903358,
+        "p95_ms": -12.173437630095552,
+        "mean_ms": -10.743962970655542
+      }
+    }
+  ],
+  "acceptance_recomputed": {
+    "accepted": false,
+    "numeric_gate_passed": true,
+    "geometric_mean_p95_improvement_percent": 14.797575645674566,
+    "best_public_native_token_p95_improvement_percent": 15.740556756207392,
+    "public_mcp_token1024_p95_improvement_percent": 12.173437630095552,
+    "thresholds_percent": {
+      "geometric_mean_p95_improvement": 10,
+      "at_least_one_public_native_token_p95_improvement": 15,
+      "public_mcp_token1024_p95_improvement": 10,
+      "maximum_pooled_p50_p95_regression": 5
+    },
+    "regressions_above_five_percent": [],
+    "resource_comparisons": [
+      {
+        "cohort": "synthetic61",
+        "metric": "runtime_import_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 27.89452125,
+          "p50": 27.925970999999997,
+          "p95": 28.179279400000002,
+          "min": 27.536354,
+          "max": 28.189789
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 31.09176525,
+          "p50": 30.973489999999998,
+          "p95": 31.6514363,
+          "min": 30.670893,
+          "max": 31.749188
+        },
+        "mean_change_percent": 11.461906699689294
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "native_open_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 254.50159875,
+          "p50": 24.395018999999998,
+          "p95": 808.5238256999996,
+          "min": 22.422942,
+          "max": 946.793415
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 24.6138435,
+          "p50": 24.377048000000002,
+          "p95": 26.8394175,
+          "min": 22.560302,
+          "max": 27.140976
+        },
+        "mean_change_percent": -90.32860947793948
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "fresh_ingestion_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 859.72378175,
+          "p50": 857.3175335000001,
+          "p95": 876.070137,
+          "min": 846.625693,
+          "max": 877.634367
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 853.093461,
+          "p50": 853.185422,
+          "p95": 858.8199698,
+          "min": 846.229446,
+          "max": 859.773554
+        },
+        "mean_change_percent": -0.7712152310714981
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "unchanged_reingestion_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 104.861748,
+          "p50": 104.8707175,
+          "p95": 105.5932022,
+          "min": 104.064164,
+          "max": 105.641393
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 104.16483475,
+          "p50": 104.18628050000001,
+          "p95": 104.5054097,
+          "min": 103.780318,
+          "max": 104.50646
+        },
+        "mean_change_percent": -0.6646019766903044
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "mcp_startup_to_initialize_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 546.88284825,
+          "p50": 547.1469890000001,
+          "p95": 553.84185155,
+          "min": 539.243742,
+          "max": 553.993673
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 555.5200485,
+          "p50": 556.1560475,
+          "p95": 563.5805778,
+          "min": 546.137009,
+          "max": 563.63109
+        },
+        "mean_change_percent": 1.579351094597059
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "native_memory_after_ingestion.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 41517056.0,
+          "p50": 41535488.0,
+          "p95": 41549209.6,
+          "min": 41447424,
+          "max": 41549824
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 43760640.0,
+          "p50": 43796480.0,
+          "p95": 43798528.0,
+          "min": 43651072,
+          "max": 43798528
+        },
+        "mean_change_percent": 5.404005524861888
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "native_memory_after_ingestion.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 41703424.0,
+          "p50": 41699328.0,
+          "p95": 41760563.2,
+          "min": 41644032,
+          "max": 41771008
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 44410880.0,
+          "p50": 44392448.0,
+          "p95": 44510003.2,
+          "min": 44335104,
+          "max": 44523520
+        },
+        "mean_change_percent": 6.492167165938212
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "native_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 199260160.0,
+          "p50": 199268352.0,
+          "p95": 199473561.6,
+          "min": 198995968,
+          "max": 199507968
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 203655168.0,
+          "p50": 203632640.0,
+          "p95": 203770470.4,
+          "min": 203567104,
+          "max": 203788288
+        },
+        "mean_change_percent": 2.2056631892697576
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "native_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 199260160.0,
+          "p50": 199268352.0,
+          "p95": 199473561.6,
+          "min": 198995968,
+          "max": 199507968
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 203655168.0,
+          "p50": 203632640.0,
+          "p95": 203770470.4,
+          "min": 203567104,
+          "max": 203788288
+        },
+        "mean_change_percent": 2.2056631892697576
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "mcp_server_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 64428032.0,
+          "p50": 64497664.0,
+          "p95": 64587980.8,
+          "min": 64126976,
+          "max": 64589824
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 63703040.0,
+          "p50": 63680512.0,
+          "p95": 63826739.2,
+          "min": 63598592,
+          "max": 63852544
+        },
+        "mean_change_percent": -1.1252741663752786
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "mcp_server_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 64460800.0,
+          "p50": 64497664.0,
+          "p95": 64587980.8,
+          "min": 64258048,
+          "max": 64589824
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 63703040.0,
+          "p50": 63680512.0,
+          "p95": 63826739.2,
+          "min": 63598592,
+          "max": 63852544
+        },
+        "mean_change_percent": -1.1755361397934871
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "mcp_sessions.mcp-token1024.mcp_startup_to_initialize_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 534.819922,
+          "p50": 532.922131,
+          "p95": 545.086543,
+          "min": 527.135731,
+          "max": 546.299695
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 540.53996325,
+          "p50": 540.278006,
+          "p95": 545.6214254,
+          "min": 535.779039,
+          "max": 545.824802
+        },
+        "mean_change_percent": 1.0695265854363534
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 110572544.0,
+          "p50": 110557184.0,
+          "p95": 110654464.0,
+          "min": 110505984,
+          "max": 110669824
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 110776320.0,
+          "p50": 110596096.0,
+          "p95": 111871590.4,
+          "min": 109903872,
+          "max": 112009216
+        },
+        "mean_change_percent": 0.18429168094387105
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 110572544.0,
+          "p50": 110557184.0,
+          "p95": 110654464.0,
+          "min": 110505984,
+          "max": 110669824
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 110776320.0,
+          "p50": 110596096.0,
+          "p95": 111871590.4,
+          "min": 109903872,
+          "max": 112009216
+        },
+        "mean_change_percent": 0.18429168094387105
+      },
+      {
+        "cohort": "public1015",
+        "metric": "runtime_import_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 27.76485525,
+          "p50": 27.713759500000002,
+          "p95": 28.09167845,
+          "min": 27.497201,
+          "max": 28.134701
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 30.75521,
+          "p50": 30.9098725,
+          "p95": 30.97168135,
+          "min": 30.220358,
+          "max": 30.980737
+        },
+        "mean_change_percent": 10.770287556244341
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_open_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 23.82188725,
+          "p50": 23.678554,
+          "p95": 25.03493605,
+          "min": 22.757635,
+          "max": 25.172806
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 28.922366750000002,
+          "p50": 26.969925,
+          "p95": 38.0229789,
+          "min": 22.066283,
+          "max": 39.683334
+        },
+        "mean_change_percent": 21.410895981803456
+      },
+      {
+        "cohort": "public1015",
+        "metric": "fresh_ingestion_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 792.57526125,
+          "p50": 789.9740065,
+          "p95": 801.8929264999999,
+          "min": 786.608462,
+          "max": 803.74457
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 800.7999955,
+          "p50": 800.777687,
+          "p95": 805.98700955,
+          "min": 795.347512,
+          "max": 806.297096
+        },
+        "mean_change_percent": 1.037722807172714
+      },
+      {
+        "cohort": "public1015",
+        "metric": "unchanged_reingestion_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 204.500809,
+          "p50": 204.65038149999998,
+          "p95": 204.80635105000002,
+          "min": 203.881522,
+          "max": 204.820951
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 201.0157415,
+          "p50": 201.70725,
+          "p95": 203.3528194,
+          "min": 197.086045,
+          "max": 203.562421
+        },
+        "mean_change_percent": -1.7041827448223024
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_startup_to_initialize_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 547.18559225,
+          "p50": 546.244447,
+          "p95": 557.3628570000001,
+          "min": 537.641724,
+          "max": 558.611751
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 552.80835975,
+          "p50": 549.9122165,
+          "p95": 566.25203575,
+          "min": 542.720923,
+          "max": 568.688083
+        },
+        "mean_change_percent": 1.027579596326622
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_memory_after_ingestion.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 44803072.0,
+          "p50": 44800000.0,
+          "p95": 44871680.0,
+          "min": 44728320,
+          "max": 44883968
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 46819328.0,
+          "p50": 46790656.0,
+          "p95": 46894284.8,
+          "min": 46784512,
+          "max": 46911488
+        },
+        "mean_change_percent": 4.500262839119595
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_memory_after_ingestion.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 52830208.0,
+          "p50": 52836352.0,
+          "p95": 52911513.6,
+          "min": 52736000,
+          "max": 52912128
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 53645312.0,
+          "p50": 53649408.0,
+          "p95": 53759385.6,
+          "min": 53522432,
+          "max": 53760000
+        },
+        "mean_change_percent": 1.542874864320054
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 224233472.0,
+          "p50": 224225280.0,
+          "p95": 224325632.0,
+          "min": 224145408,
+          "max": 224337920
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 229137408.0,
+          "p50": 229113856.0,
+          "p95": 229252096.0,
+          "min": 229048320,
+          "max": 229273600
+        },
+        "mean_change_percent": 2.186977687256264
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 224233472.0,
+          "p50": 224225280.0,
+          "p95": 224325632.0,
+          "min": 224145408,
+          "max": 224337920
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 229137408.0,
+          "p50": 229113856.0,
+          "p95": 229252096.0,
+          "min": 229048320,
+          "max": 229273600
+        },
+        "mean_change_percent": 2.186977687256264
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_server_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 63536128.0,
+          "p50": 63526912.0,
+          "p95": 63563776.0,
+          "min": 63520768,
+          "max": 63569920
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 63172608.0,
+          "p50": 63174656.0,
+          "p95": 63194112.0,
+          "min": 63143936,
+          "max": 63197184
+        },
+        "mean_change_percent": -0.5721469208825547
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_server_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 63536128.0,
+          "p50": 63526912.0,
+          "p95": 63563776.0,
+          "min": 63520768,
+          "max": 63569920
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 63172608.0,
+          "p50": 63174656.0,
+          "p95": 63194112.0,
+          "min": 63143936,
+          "max": 63197184
+        },
+        "mean_change_percent": -0.5721469208825547
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_sessions.mcp-token1024.mcp_startup_to_initialize_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 540.3105195,
+          "p50": 537.9432495,
+          "p95": 553.6209983,
+          "min": 529.22074,
+          "max": 556.134839
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 538.76157825,
+          "p50": 537.7199780000001,
+          "p95": 543.6150857499999,
+          "min": 535.133368,
+          "max": 544.472989
+        },
+        "mean_change_percent": -0.28667612309926094
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 109349888.0,
+          "p50": 109531136.0,
+          "p95": 109691904.0,
+          "min": 108630016,
+          "max": 109707264
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 109369344.0,
+          "p50": 109383680.0,
+          "p95": 109470924.8,
+          "min": 109228032,
+          "max": 109481984
+        },
+        "mean_change_percent": 0.017792427917262543
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp_sessions.mcp-token1024.mcp_server_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 4,
+          "mean": 109349888.0,
+          "p50": 109531136.0,
+          "p95": 109691904.0,
+          "min": 108630016,
+          "max": 109707264
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 109369344.0,
+          "p50": 109383680.0,
+          "p95": 109470924.8,
+          "min": 109228032,
+          "max": 109481984
+        },
+        "mean_change_percent": 0.017792427917262543
+      }
+    ],
+    "resource_review": [
+      {
+        "cohort": "synthetic61",
+        "metric": "runtime_import_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 27.89452125,
+          "p50": 27.925970999999997,
+          "p95": 28.179279400000002,
+          "min": 27.536354,
+          "max": 28.189789
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 31.09176525,
+          "p50": 30.973489999999998,
+          "p95": 31.6514363,
+          "min": 30.670893,
+          "max": 31.749188
+        },
+        "mean_change_percent": 11.461906699689294
+      },
+      {
+        "cohort": "public1015",
+        "metric": "runtime_import_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 27.76485525,
+          "p50": 27.713759500000002,
+          "p95": 28.09167845,
+          "min": 27.497201,
+          "max": 28.134701
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 30.75521,
+          "p50": 30.9098725,
+          "p95": 30.97168135,
+          "min": 30.220358,
+          "max": 30.980737
+        },
+        "mean_change_percent": 10.770287556244341
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_open_ms",
+        "baseline": {
+          "samples": 4,
+          "mean": 23.82188725,
+          "p50": 23.678554,
+          "p95": 25.03493605,
+          "min": 22.757635,
+          "max": 25.172806
+        },
+        "candidate": {
+          "samples": 4,
+          "mean": 28.922366750000002,
+          "p50": 26.969925,
+          "p95": 38.0229789,
+          "min": 22.066283,
+          "max": 39.683334
+        },
+        "mean_change_percent": 21.410895981803456
+      }
+    ],
+    "resource_rule": "Any increase above 10% requires an explicit cause and independent review; no automatic override."
+  },
+  "resource_review_required": true,
+  "logical_storage": [
+    {
+      "cohort": "synthetic61",
+      "phase": "storage_after_ingestion_live",
+      "baseline_bytes": {
+        "samples": 4,
+        "mean": 20508672.0,
+        "p50": 20508672.0,
+        "p95": 20508672.0,
+        "min": 20508672,
+        "max": 20508672
+      },
+      "candidate_bytes": {
+        "samples": 4,
+        "mean": 20733952.0,
+        "p50": 20733952.0,
+        "p95": 20733952.0,
+        "min": 20733952,
+        "max": 20733952
+      },
+      "mean_difference_bytes": 225280.0,
+      "mean_change_percent": 1.098462152985813,
+      "boundary": "SQLite logical page count times page size; not an index-only storage estimate."
+    },
+    {
+      "cohort": "synthetic61",
+      "phase": "storage_after_mcp_live",
+      "baseline_bytes": {
+        "samples": 4,
+        "mean": 20508672.0,
+        "p50": 20508672.0,
+        "p95": 20508672.0,
+        "min": 20508672,
+        "max": 20508672
+      },
+      "candidate_bytes": {
+        "samples": 4,
+        "mean": 20733952.0,
+        "p50": 20733952.0,
+        "p95": 20733952.0,
+        "min": 20733952,
+        "max": 20733952
+      },
+      "mean_difference_bytes": 225280.0,
+      "mean_change_percent": 1.098462152985813,
+      "boundary": "SQLite logical page count times page size; not an index-only storage estimate."
+    },
+    {
+      "cohort": "synthetic61",
+      "phase": "storage_after_checkpoint",
+      "baseline_bytes": {
+        "samples": 4,
+        "mean": 20508672.0,
+        "p50": 20508672.0,
+        "p95": 20508672.0,
+        "min": 20508672,
+        "max": 20508672
+      },
+      "candidate_bytes": {
+        "samples": 4,
+        "mean": 20733952.0,
+        "p50": 20733952.0,
+        "p95": 20733952.0,
+        "min": 20733952,
+        "max": 20733952
+      },
+      "mean_difference_bytes": 225280.0,
+      "mean_change_percent": 1.098462152985813,
+      "boundary": "SQLite logical page count times page size; not an index-only storage estimate."
+    },
+    {
+      "cohort": "public1015",
+      "phase": "storage_after_ingestion_live",
+      "baseline_bytes": {
+        "samples": 4,
+        "mean": 12881920.0,
+        "p50": 12881920.0,
+        "p95": 12881920.0,
+        "min": 12881920,
+        "max": 12881920
+      },
+      "candidate_bytes": {
+        "samples": 4,
+        "mean": 13053952.0,
+        "p50": 13053952.0,
+        "p95": 13053952.0,
+        "min": 13053952,
+        "max": 13053952
+      },
+      "mean_difference_bytes": 172032.0,
+      "mean_change_percent": 1.3354531001589898,
+      "boundary": "SQLite logical page count times page size; not an index-only storage estimate."
+    },
+    {
+      "cohort": "public1015",
+      "phase": "storage_after_mcp_live",
+      "baseline_bytes": {
+        "samples": 4,
+        "mean": 12881920.0,
+        "p50": 12881920.0,
+        "p95": 12881920.0,
+        "min": 12881920,
+        "max": 12881920
+      },
+      "candidate_bytes": {
+        "samples": 4,
+        "mean": 13053952.0,
+        "p50": 13053952.0,
+        "p95": 13053952.0,
+        "min": 13053952,
+        "max": 13053952
+      },
+      "mean_difference_bytes": 172032.0,
+      "mean_change_percent": 1.3354531001589898,
+      "boundary": "SQLite logical page count times page size; not an index-only storage estimate."
+    },
+    {
+      "cohort": "public1015",
+      "phase": "storage_after_checkpoint",
+      "baseline_bytes": {
+        "samples": 4,
+        "mean": 12881920.0,
+        "p50": 12881920.0,
+        "p95": 12881920.0,
+        "min": 12881920,
+        "max": 12881920
+      },
+      "candidate_bytes": {
+        "samples": 4,
+        "mean": 13053952.0,
+        "p50": 13053952.0,
+        "p95": 13053952.0,
+        "min": 13053952,
+        "max": 13053952
+      },
+      "mean_difference_bytes": 172032.0,
+      "mean_change_percent": 1.3354531001589898,
+      "boundary": "SQLite logical page count times page size; not an index-only storage estimate."
+    }
+  ],
+  "all_pooled_adverse_latency_metrics": [],
+  "all_per_round_adverse_latency_metrics": [
+    {
+      "cohort": "public1015",
+      "config": "mcp-char4000",
+      "round": 2,
+      "metric": "p95_ms",
+      "change_percent": 2.3889852650702093
+    },
+    {
+      "cohort": "public1015",
+      "config": "mcp-char4000",
+      "round": 2,
+      "metric": "mean_ms",
+      "change_percent": 0.366838051951901
+    }
+  ],
+  "source_and_index_records": [
+    {
+      "worker": "r0-synthetic61-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r0-synthetic61-candidate",
+      "source": {
+        "commit": "d0c84cbfc9bad440ad447d41e211d070ef5b2cae",
+        "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r0-public1015-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r0-public1015-candidate",
+      "source": {
+        "commit": "d0c84cbfc9bad440ad447d41e211d070ef5b2cae",
+        "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r1-synthetic61-candidate",
+      "source": {
+        "commit": "d0c84cbfc9bad440ad447d41e211d070ef5b2cae",
+        "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r1-synthetic61-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r1-public1015-candidate",
+      "source": {
+        "commit": "d0c84cbfc9bad440ad447d41e211d070ef5b2cae",
+        "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r1-public1015-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r2-synthetic61-candidate",
+      "source": {
+        "commit": "d0c84cbfc9bad440ad447d41e211d070ef5b2cae",
+        "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r2-synthetic61-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r2-public1015-candidate",
+      "source": {
+        "commit": "d0c84cbfc9bad440ad447d41e211d070ef5b2cae",
+        "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r2-public1015-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r3-synthetic61-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r3-synthetic61-candidate",
+      "source": {
+        "commit": "d0c84cbfc9bad440ad447d41e211d070ef5b2cae",
+        "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+      },
+      "indexed_content_sha256": "efdda4b474aa3b366b3a80e4dd9a4e96e3b576b591867e0fcd774f83e14e5cc7"
+    },
+    {
+      "worker": "r3-public1015-baseline",
+      "source": {
+        "commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82",
+        "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    },
+    {
+      "worker": "r3-public1015-candidate",
+      "source": {
+        "commit": "d0c84cbfc9bad440ad447d41e211d070ef5b2cae",
+        "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+      },
+      "indexed_content_sha256": "6fc908b66e9616679a074a89e8c7d360eebe984fa54e8c8afb3190b7aba64f1d"
+    }
+  ],
+  "saved_file_checksums": {
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/report.json.gz": {
+      "bytes": 8951330,
+      "sha256": "156087043702b5f223f898800547c576f469ac780066b0af431227cfeda66b25"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/run.json": {
+      "bytes": 89181,
+      "sha256": "1e2a017341b928666d8c5b93a07a5ae0e51f2999d28525e000b0a38f97f96df2"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/execution.json": {
+      "bytes": 953,
+      "sha256": "1161f9915d4e309cff6ac870b797c994028e0dcdb9c47d0dbf0d39a6d74a1fe9"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/experiments/round5-c7-addendum.json": {
+      "bytes": 15230,
+      "sha256": "7dc67e10049bf28ffc57060432442a0bdc371da2cc95506bf373e8381d50afeb"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/experiments/round5-c7-development-plan.json": {
+      "bytes": 2853,
+      "sha256": "b6b61348a178cabbc4f787eb8ccd18ebdbeeb11cd18f6f82149b098c1057593c"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/experiments/round5-performance-binding.json": {
+      "bytes": 3066,
+      "sha256": "790ca15f3fbe2a5ba19fe08f83ab663bdb313a8569bfb1ee7677456ca4817c40"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-performance-43547085915-1/report.summary.json": {
+      "bytes": 139306,
+      "sha256": "5103a9d5bf26451e6eed2425c75c21663eedc51cc7d8462446373d9fcdd2b321"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-development/candidate-c4-full/summary.json": {
+      "bytes": 14369,
+      "sha256": "c53fcd0c379888b91da3a46ed609ad50df07a0661dc21bc0701bda04b3d56d38"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/experiments/round5-c5-performance-binding.json": {
+      "bytes": 18312,
+      "sha256": "bd395da21848cc01656ab45bc211a388b43b4ae63edb8690b2eabe2958d3781a"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c5-performance-43552372788-1/report.summary.json": {
+      "bytes": 196764,
+      "sha256": "930a28c40913b2eea3e38b7ce5bc04e673e288396fccb67bf16e59d42e996f25"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/experiments/round5-c6-performance-binding.json": {
+      "bytes": 26758,
+      "sha256": "2b57caea5b3d7f12b38aba9472d798e846a5231b936551784f0963259e2a715a"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c6-performance-43557136276-1/report.summary.json": {
+      "bytes": 206358,
+      "sha256": "f05d011e3477eee69953ab3a5097e3d69f5657c12c6692d4d96af4f87cb6ad9e"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/experiments/round5-c7-performance-binding.json": {
+      "bytes": 38155,
+      "sha256": "2560b0eae9d3332fb09da43fd49ebef069b8e41ddaef0fe9df1880db1e132588"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r0-synthetic61-baseline.json.gz": {
+      "bytes": 163637,
+      "sha256": "770b7ef0e91d0ed541d0b1ec59aa92a83d1b8540e8f5e72f64472c98acd67e5e"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r0-synthetic61-baseline.started.json": {
+      "bytes": 186,
+      "sha256": "089e07e8dadb96d8c2f46a1544be2810b65461bede468ee8cc7e0de42dba3dbb"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r0-synthetic61-baseline.attempts.jsonl.gz": {
+      "bytes": 183587,
+      "sha256": "d989f62ad7759e7a0c4760c41f01269643b1fd20961f40a21b3dcdf02643b3b4"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r0-synthetic61-candidate.json.gz": {
+      "bytes": 163742,
+      "sha256": "2cb56e70e5215b97972027497010a3dbe0b42b00820adbabd2e1d4d57c8e91f6"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r0-synthetic61-candidate.started.json": {
+      "bytes": 188,
+      "sha256": "5b229d11c4c09ce7731c3f54d16765241b7ce3c54a239ebb62335b6c74a736ee"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r0-synthetic61-candidate.attempts.jsonl.gz": {
+      "bytes": 183441,
+      "sha256": "5430afe4d3376859b18f9392b5380906f55d0db587196e77b076333dcd8c1cf2"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r0-public1015-baseline.json.gz": {
+      "bytes": 951960,
+      "sha256": "0716d29449b100b41cbe1fec04630d87d394bc6e6b21437f0e48c9f20d246900"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r0-public1015-baseline.started.json": {
+      "bytes": 184,
+      "sha256": "92fc3a63bd977ae59df6c8af97b5620952a3afac68dd697db65ecbecb76222bc"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r0-public1015-baseline.attempts.jsonl.gz": {
+      "bytes": 1075071,
+      "sha256": "280a6eba98ff2778f9634434d76f2c9d9ceed773fe6eb2ae29f37ef0f577a3dd"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r0-public1015-candidate.json.gz": {
+      "bytes": 951983,
+      "sha256": "0d8d0235c7fec760ff976ccc77bdb8222a8c4a9b35686ac1eebb9f3e27d65b1b"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r0-public1015-candidate.started.json": {
+      "bytes": 186,
+      "sha256": "2653ab977f369028618ae5bf7333179f576ab949901d114cbda9d9ffef140026"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r0-public1015-candidate.attempts.jsonl.gz": {
+      "bytes": 1074637,
+      "sha256": "7f7e8bfb29fd47dc30e510dfe151e66047929bcc5bea12753c32f130f35ecbcf"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r1-synthetic61-candidate.json.gz": {
+      "bytes": 163753,
+      "sha256": "268bb3ef1781f903a44d0093a291b88ec23a974ef2a984263a37bb41a8e04b7b"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r1-synthetic61-candidate.started.json": {
+      "bytes": 188,
+      "sha256": "707c8eefd486e6df8b29ec0bb736651aaeb5af3b1b89c9ee9184595d079e6a39"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r1-synthetic61-candidate.attempts.jsonl.gz": {
+      "bytes": 183541,
+      "sha256": "348cbb2406b3f0483c751837948b106d0e6a122b40c8e08392e458598e5bf38a"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r1-synthetic61-baseline.json.gz": {
+      "bytes": 163627,
+      "sha256": "6b2343dfa69fc2c3258da62f686e4a726639b397f09374196f4cdb14029d34ae"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r1-synthetic61-baseline.started.json": {
+      "bytes": 186,
+      "sha256": "4aff77cac00532cdd1aa0f676a5f8dfa7e70b32175c50a813329a94c2b3fc0e9"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r1-synthetic61-baseline.attempts.jsonl.gz": {
+      "bytes": 183700,
+      "sha256": "6cd5ada23c53573968c8389e3d9cc785847589748d547ebcedc0b34b54c46a92"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r1-public1015-candidate.json.gz": {
+      "bytes": 952409,
+      "sha256": "2b90c45349a0b2a52a05f977ba9b79746ce5fc2c64f49286c6ff896178911a99"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r1-public1015-candidate.started.json": {
+      "bytes": 186,
+      "sha256": "8f18012839d249aa53814d67bc9f0f93c95a3adf07e678ea27a3442af1df6af5"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r1-public1015-candidate.attempts.jsonl.gz": {
+      "bytes": 1074624,
+      "sha256": "a5775cd9898d4eb70551fb70f238ac7b294a873f74da107cd225af1af4f8a863"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r1-public1015-baseline.json.gz": {
+      "bytes": 952362,
+      "sha256": "22899077e16d86d193cd86f31136613950158768b56786060f69657158394f03"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r1-public1015-baseline.started.json": {
+      "bytes": 184,
+      "sha256": "b24b70918c933f6334111677845b08d55a2f5711222b8f2f3f9e97c8507b6be4"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r1-public1015-baseline.attempts.jsonl.gz": {
+      "bytes": 1074954,
+      "sha256": "19c2e0d29c3fa6fd4a2c3ad5b255599a264ba755314ccb277ce514d788997e55"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r2-synthetic61-candidate.json.gz": {
+      "bytes": 163263,
+      "sha256": "7bea6b91698c2a5b022a7b4862e2e902128da935b44b7a7208b58e40071a9960"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r2-synthetic61-candidate.started.json": {
+      "bytes": 188,
+      "sha256": "0a682245c04480e1bf9918622878368aa997e41c10593a4f30baa8afca8f861f"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r2-synthetic61-candidate.attempts.jsonl.gz": {
+      "bytes": 182900,
+      "sha256": "b24040a848de259f5c1dd8519dab04fad6c64d35408a13da715d99117414c743"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r2-synthetic61-baseline.json.gz": {
+      "bytes": 163175,
+      "sha256": "7b38767a74c71031fe50846ce5b0bee537286cf0b7f29e137562be2aa23c3ce9"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r2-synthetic61-baseline.started.json": {
+      "bytes": 186,
+      "sha256": "4d953517d62baa57e0572e6803a80eb222f71b1808ec45ee31eaca92eaf31a95"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r2-synthetic61-baseline.attempts.jsonl.gz": {
+      "bytes": 183064,
+      "sha256": "f0bb3a7346c73b7df6b306c22be2643b42b23031cb7b91fc150c8c177111b5df"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r2-public1015-candidate.json.gz": {
+      "bytes": 952356,
+      "sha256": "0ea81601e4384551240bdef515b6b33960678682eb23a3e56c834c1e39a40bc2"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r2-public1015-candidate.started.json": {
+      "bytes": 186,
+      "sha256": "ed0e1e4ca4fc7de9ae99235b8085b56aaa4d8e8372963bd596114e96696bc88d"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r2-public1015-candidate.attempts.jsonl.gz": {
+      "bytes": 1074674,
+      "sha256": "dda39bb22195669ab151e434abfe8990a356647cb1871b0083f3219ac82ab831"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r2-public1015-baseline.json.gz": {
+      "bytes": 952018,
+      "sha256": "b7860b69dc4f04435a22e1d7ab6da20545f2ee3a87b5b792a7a82a24b3fdad49"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r2-public1015-baseline.started.json": {
+      "bytes": 184,
+      "sha256": "6b1ca8a74525c6fc73502354ea566ad52bf32b49212f346ed05d94ff43ba4c12"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r2-public1015-baseline.attempts.jsonl.gz": {
+      "bytes": 1074914,
+      "sha256": "cc395e3a9ea9627d99b0f35e2883cf146cde7db7c586381c0cd1c7a085828ee1"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r3-synthetic61-baseline.json.gz": {
+      "bytes": 163899,
+      "sha256": "6f997625d035b82e8505bdbe5f3fce2187b48dd79468008d6012f08787da7e7e"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r3-synthetic61-baseline.started.json": {
+      "bytes": 186,
+      "sha256": "e8016669bd48c63d73ad8ebb5abc502b783df6c7b7f91121ea036e5a6be193fd"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r3-synthetic61-baseline.attempts.jsonl.gz": {
+      "bytes": 184102,
+      "sha256": "5e2a963ddb449c73400c18904ec4d4164f892f01e99f92102419c87dbab2fb1b"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r3-synthetic61-candidate.json.gz": {
+      "bytes": 163881,
+      "sha256": "496d59feb997a6ebba66ec637f080d69f321e6a93effcef74c35a018590a7831"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r3-synthetic61-candidate.started.json": {
+      "bytes": 188,
+      "sha256": "f93943ea8c44d2490fc261b7bdc3a0f9227648af2f392a3821944c2c4e03b78a"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r3-synthetic61-candidate.attempts.jsonl.gz": {
+      "bytes": 183876,
+      "sha256": "36433217d3709ef6c514d7c8827469d7311ba8bdb263e4f1e0b9f52c767cadd2"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r3-public1015-baseline.json.gz": {
+      "bytes": 951818,
+      "sha256": "342d667462740c1de702bb66b3ca6803239b059f36ed4d3093fced17651c34bd"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r3-public1015-baseline.started.json": {
+      "bytes": 184,
+      "sha256": "5d758c9b6be82f94166dedd26b917e2bd402ad63363eeb858a8c635ab711f23d"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r3-public1015-baseline.attempts.jsonl.gz": {
+      "bytes": 1075016,
+      "sha256": "03ead47db05176c6630c3a9ac0452ab859eb4ff66522ff77b4065912d4c034ec"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r3-public1015-candidate.json.gz": {
+      "bytes": 951690,
+      "sha256": "7d231ee9b315e101475cb3eaf1332442b0e04d8a8f8222388a6fc4cbc875c4e9"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r3-public1015-candidate.started.json": {
+      "bytes": 186,
+      "sha256": "90765e85d82da26da35cc6cd8305a0917388959aeae5efcd787c86034b38f248"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/workers/r3-public1015-candidate.attempts.jsonl.gz": {
+      "bytes": 1074029,
+      "sha256": "72a776727770fec62be7ed1ce9f90a591854ddc9e8af6a49d3966e4776eb1096"
+    },
+    "/workspace/scratch/414e710059ef/AI-Memory-Book/benchmarks/reports/round5-c7-performance-43563390252-1/report.summary.json": {
+      "bytes": 219757,
+      "sha256": "16af31606dcfcbd2a443b56bf4ec9c0aa0f0bf89da8de5811c07fb7d924c4262"
+    }
+  },
+  "sample_retention": "All 16 workers, all 56,784 calls and 113,568 start/finish events were checked in original order. No sample, round, adverse value or failed gate was dropped; no measurement was repeated.",
+  "limitations": [
+    "Independent arithmetic and digest/ledger/provenance audit of saved measurements; source text, tokenization and returned payload bodies are not rerun.",
+    "The hashes compare complete stored non-timing responses and recorded invariant fields; this is not a new retrieval-quality evaluation.",
+    "One host and old regression queries; no statistical-significance, new-domain or whole-product competitor-speed claim.",
+    "Native memo snapshots include each retained first query and natural reuse across later native configurations. No query is added or omitted. They do not establish MCP memo hit rates or a whole-process 2 MiB memory limit.",
+    "A resource-review flag remains a release decision requiring explicit evidence assessment, not an automatic waiver."
+  ]
+}

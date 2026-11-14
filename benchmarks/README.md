@@ -1,6 +1,46 @@
 # Retrieval experiments
 
-## Current: v0.3.2 completed fourth-round validation
+## Current: v0.3.3 completed fifth-round validation
+
+Final C7 source is [`d0c84cb`](https://github.com/Afloat16/AI-Memory-Book/commit/d0c84cbfc9bad440ad447d41e211d070ef5b2cae),
+runtime SHA256 `55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45`. Its sole
+[formal run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43563390252)
+passes all fixed numerical gates. Three startup costs were accepted in the
+separate resource review required by the original plan.
+
+Pooled p95 geometric mean improves **14.7976%** against published v0.3.2. Public native token512/token1024/token2048 p95 changes **-15.1867% / -14.2362% / -15.7406%**. Actual public SDK MCP token1024 p95 is **6.711 → 5.894 ms**, an improvement of **12.1734%**.
+
+C7 combines the official MCP SDK's native stdout write and immediate flush in one worker dispatch, reducing dispatch overhead while preserving complete messages, serialization and lifecycle.
+
+All **56,784 calls**, **28,392 complete payload pairs**, twelve pooled cells and
+four balanced rounds are retained. All twelve pooled p50 and p95 values improve. The largest registered
+resource mean increase is **21.4109%**. Full per-round adverse observations,
+all resource samples and derived count-memo diagnostics remain in the review.
+
+All fixed numerical gates pass. The original automated verdict remains `accepted:false` because three startup resource increases required review: import means rise 3.197 / 2.990 ms, and public-labeled fresh-empty-database opening rises 5.100 ms (21.4109%). A [separate resource review](../docs/round5-c7-resource-review.md) accepts these startup costs with all samples and attribution limits retained. No timing was repeated, threshold lowered or original automatic verdict rewritten.
+
+| Evidence | Scope and decision |
+|---|---|
+| [Original plan](experiments/round5-plan.json), [C7 addendum](experiments/round5-c7-addendum.json) and [frozen binding](experiments/round5-c7-performance-binding.json) | Exact versions, 60 evaluator files, old inputs, ABBA order, cache policy and unchanged acceptance gates. |
+| [C7 correctness checks](reports/round5-c7-correctness.json) and [independent source review](reports/round5-c7-source-review.json) | C7-specific correctness and fallback evidence. Publication separately checks its exact final commit and the required nine CI jobs. |
+| [Retained C5 native development](reports/round5-development/candidate-c5-full/README.md) | C5's 18,928 calls / 9,464 pairs remain retained. Its best public native p95 was below 15%; this historical diagnostic does not substitute for C7 formal acceptance. |
+| [Formal review](../docs/round5-c7-performance-review.md), [summary](reports/round5-c7-performance-43563390252-1/report.summary.json) and [original report](reports/round5-c7-performance-43563390252-1/report.json.gz) | All formal calls, configurations, source/invariant checks and resource observations. |
+| [Independent arithmetic audit](reports/round5-c7-performance-independent-audit.json) and [frozen saved-ledger audit](reports/round5-c7-performance-local-audit.json) | Recompute saved evidence without further retrieval or timing. |
+| [Explicit resource decision](experiments/round5-c7-resource-decision.json) and [independent resource review](../docs/round5-c7-resource-review.md) | Accept the three disclosed startup costs under the original review policy. Original automatic `accepted:false` and all samples remain unchanged. |
+| [Final-source Hotpot compatibility](reports/round5-c7-hotpot-regression.summary.json) | All 2,304 historical default output hashes and 4,608 attempt events match. No new quality, competitor timing or Q2 evaluation. |
+| [Retained C3 rejection](../docs/round5-performance-review.md), [retained C5 rejection](../docs/round5-c5-performance-review.md), [retained C6 rejection](../docs/round5-c6-performance-review.md) and [all development decisions](../docs/optimization-round5.md) | All three complete formal rejections remain intact; C5/C6 actual-MCP p95 gains were 6.673181% / 5.798911%, below 10%. C4 has development evidence, not a formal acceptance. |
+
+Query-result caches are disabled or cleared before timers. C7's bounded exact
+count memo is enabled: native token512 starts empty, later native token settings
+reuse counts naturally, and each actual SDK MCP configuration has a fresh
+server process. The 2 MiB text-object cap excludes container/key/value overhead;
+actual RSS is measured separately. These are old-query measurements on one
+host, not a significance or universal-speedup claim.
+
+Historical competitor measurements below retain their original v0.3.2 version,
+corpus and component boundaries. Competitors were not remeasured in this round.
+
+## Historical: v0.3.2 completed fourth-round validation
 
 The final development candidate is frozen at
 [`2d7b5e3`](https://github.com/Afloat16/AI-Memory-Book/commit/2d7b5e38839fb21724ad3beec6b6ebabbda45636),
