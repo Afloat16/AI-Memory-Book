@@ -1,13 +1,13 @@
 # Retrieval experiments
 
-## Current: v0.3.4 startup accepted; comparison and publication pending
+## Current: v0.3.4 startup accepted and fresh comparison complete
 
 Selected A source is [`df35007`](https://github.com/Afloat16/AI-Memory-Book/commit/df35007c29e4af61dd96146232fe4651cfc74391),
 runtime SHA256 `f361d2bf64a4e1088cbd5cff6ffdaf19aa15e7f1b7ea1de4577d7a488d2ac242`.
 The baseline is published v0.3.3 at
 [`796cedf`](https://github.com/Afloat16/AI-Memory-Book/commit/796cedfd1f5368144037a1fb72292b8d13884b8c),
 runtime SHA256 `55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45`.
-v0.3.4 is not published at this checkpoint; the rejected B runtime is excluded.
+The rejected B runtime is excluded; publication must retain this exact A runtime.
 
 The sole [startup confirmation](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43598913606)
 completed all **480 original samples / 960 events** in four balanced
@@ -59,20 +59,141 @@ gates do not imply cold-OS behavior or statistical significance.
 | [Fresh comparison plan](experiments/round6-comparison-plan.json), [original binding](experiments/round6-comparison-binding.json), [original manifest](experiments/round6-hotpot256-manifest.json) and [freeze audit](reports/round6-comparison-freeze-43597613304-local-audit.json) | 256 IDs and content fingerprints retained, excluding all 896 historical IDs with zero overlap. No scoring or human question/answer inspection in preparation. |
 | [First CI failure receipt](reports/round6-comparison-fixture-failure-43598914326/receipt.json) and [registered fixture-only recovery](experiments/round6-comparison-fixture-recovery-addendum.json) | Correct the isolated fixture's real-path dependency before first scoring. Preserve original files, failure logs, all IDs/statistics/freeze time and unchanged measurement logic; use separate new binding/manifest paths. |
 
-**The fresh comparison remains pending.** Its registered eight stages require
-**6,912 search calls / 42 quality cells**, including 1,536 native and 768
-component complete-output pairs; these are planned counts, not results. Extra
-ai-memory page fetches are counted separately. Default Book native retrieval
-and supplied-page component boundaries remain distinct; Q2 is excluded from
-this round. Future reporting must retain every engine's wins, ties, losses,
-errors and costs. There is no new competitor-win or generated-answer claim
-at this checkpoint. Historical third-party/Q2 results below retain their
-original versions and corpus boundaries.
+### Complete fresh comparison and interpretation
 
-Corrected exact final nine-job CI, wheel/sdist source checks, normal release
-publication and public-installer verification remain required. See
-[release validation](../docs/validation.md) for startup scope, immutable
-report identity and the unchanged original recall goals.
+The [single fresh run 43601518020](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43601518020)
+completed all **eight stages, 6,912 retrieval/search calls and 42 quality cells**
+at original result commit `3e6e492422705feda61b9c967d0a07dd7766dd72`.
+These comprise 3,072 native calls and 3,840 component searches; **1,280 ai-memory
+page reads** are counted separately. All **1,536 native and 768 component
+complete-output pairs** match between v0.3.3 and A, excluding only
+`latency_ms`. The original [assessment](results/round6-comparison-43601518020-1/assessment.json)
+records `complete-verified`, zero validation failures and
+`performance_gate_evaluated:false`. The [frozen saved-result audit](reports/round6-comparison-43601518020-1-local-audit.json)
+verifies all **28 original files and 13,824 ledger events** against the exact
+result commit without dataset reads or new measurement. Retrieval quality is
+retained, not newly improved relative to v0.3.3.
+
+The [complete original report](results/round6-comparison-43601518020-1/report.md)
+and [independent complete technical review](reports/round6-comparison-43601518020-1-independent-review.json)
+retain every budget/tokenizer cell, paired evidence/query gain and loss,
+latency distribution, resource observation and native payload/read cost.
+**Two historical template statements in the immutable report need this scope
+clarification:** the original v1 evaluator/assets were committed before the
+original ID selection; the v2 fixture-only correction was committed **after
+those same 256 IDs were fixed and before first scoring**. The new binding and
+copied manifest retain all original IDs, content statistics and freeze time;
+the [recovery freeze audit](reports/round6-comparison-recovery-freeze-audit.json)
+verifies the separate commits and 75-file closure. Also, the report's inherited
+statement that an old-data ABBA recall experiment supplies the release gate
+does not apply to this startup-scoped version. The original recall
+**10% / 15% / 10%** gates remain unchanged and unpassed, and that formal matrix
+was not run. The prospective startup study above supplies this version's
+measured improvement. Neither template statement changes the stored results.
+
+At **1,024 cl100k tokens**, the common whole-block projection gives all five
+components the same supplied-page evidence representation and budget:
+
+| Component | Evidence recall | Complete evidence | Packed-context MRR | Mean packed tokens | First search + all reads p95, ms |
+|---|---:|---:|---:|---:|---:|
+| Book v0.3.3 default | 75.93% | 53.12% | 0.8556 | 715.5 | 3.535 |
+| Book v0.3.4 default | 75.93% | 53.12% | 0.8556 | 715.5 | 3.573 |
+| claude-mem 15.18.1 supplied-source FTS | 70.60% | 48.05% | 0.8060 | 710.6 | 43.137 |
+| ai-memory v3.4.5 local hybrid | 77.87% | 57.42% | 0.8279 | 715.3 | 46.338 |
+| billion-context locked search kernel | 80.94% | 60.55% | 0.8481 | 760.4 | 2.279 |
+
+Book's complete-evidence lead over claude-mem FTS is **5.0781 percentage
+points** (24 query gains / 11 losses). Book trails ai-memory by **4.2969 points**
+(16 gains / 27 losses) and billion-context by **7.4219 points** (28 gains /
+47 losses). Book's packed-context MRR is higher in this cell, but that does not
+remove the complete-evidence deficits. The same Book quality values appear
+for v0.3.3 and v0.3.4. Across both tokenizers and all three caps, Book leads
+claude-mem in complete evidence, trails ai-memory, and leads billion-context
+only narrowly at the 512-token caps; billion-context has higher evidence recall
+in all six component cells. The full 42-cell record remains available rather
+than treating this one table as the entire experiment.
+
+Latency columns describe distinct component boundaries: Book runs in-process
+Python with context assembly, claude-mem uses native SQLite/Bun, ai-memory uses
+local hybrid HTTP/MCP and its locked embedding model, and billion-context uses
+its Node search kernel. First-search-plus-reads percentiles sum each query's
+roundtrips before aggregation; offline token counting and common packing are
+excluded. The billion kernel is faster than Book at this boundary. These
+measurements do not establish a whole-product speed ratio. The six quality
+projections reuse each first response; three search repetitions remain in the
+raw records without replacement queries. Native payload, native content and
+packed evidence are separate token surfaces.
+
+### Retained fresh timing and resource costs
+
+All six native p50/p95 comparisons are retained here. Positive changes mean
+slower. Each cell has 256 calls per source, with an 8,000-character cap,
+registered token cap, top five and disabled result cache; the stages are
+sequential descriptive measurements, not the unrun balanced recall gate.
+
+| Tokenizer / cap | p50 baseline → A, ms | p50 change | p95 baseline → A, ms | p95 change |
+|---|---:|---:|---:|---:|
+| cl100k_base / 512 | 2.994 → 3.091 | +3.23% | 4.289 → 4.415 | +2.92% |
+| cl100k_base / 1024 | 2.865 → 2.885 | +0.70% | 3.987 → 4.087 | +2.49% |
+| cl100k_base / 2048 | 2.694 → 2.702 | +0.31% | 3.899 → 3.923 | +0.60% |
+| o200k_base / 512 | 3.374 → 3.345 | -0.84% | 4.988 → 4.819 | -3.39% |
+| o200k_base / 1024 | 2.977 → 3.010 | +1.11% | 4.245 → 4.334 | +2.11% |
+| o200k_base / 2048 | 2.729 → 2.782 | +1.92% | 3.990 → 4.000 | +0.23% |
+
+Five of six native p50 and p95 cells increase, and all six native means
+increase (**+0.1360% to +3.4936%**). Component search p95 rises
+**3.517899 → 3.582246 ms**; first-search-plus-reads p95 rises
+**3.535148 → 3.572512 ms**. Book component setup rises
+**840.939681 → 843.362073 ms**, and its recorded open step rises
+**0.894878 → 0.906219 ms**. These costs are retained; no fresh recall-speed
+improvement is claimed.
+
+Native query sampled RSS rises **533.12 → 537.18 MiB**
+(**+4,255,744 bytes**); component query sampled RSS falls
+**511.84 → 504.87 MiB**. The complete stage records retain setup, finalization,
+worker peaks and every other resource field. Sampling covers the evaluator
+worker and live descendants every 20 ms, includes loaded-corpus/evaluator
+memory, can count shared mappings more than once and records observed lower
+bounds. It does not isolate product memory or prove general memory savings.
+
+Book's raw search payload averages **3,992.9 cl100k tokens**, above claude-mem's
+**1,634.7**, ai-memory's **1,019.3 search + 1,836.3 read** payload tokens and the
+billion kernel's **585.0**. Book needs no separate page reads at this boundary,
+while ai-memory records five per question; this does not imply the smallest
+total payload. Book component state is **34,340,864 bytes**, compared with
+claude-mem's **20,659,514** and ai-memory's **74,208,780**; billion-context's
+in-memory kernel records no persisted native state, so that zero is not a
+like-for-like persistence advantage. Symlinked model caches are excluded.
+
+The small low-lexical-overlap group remains adverse: at 512 cl100k tokens,
+both Book modes return complete evidence for **0/7** questions, versus
+claude-mem **1/7**, ai-memory **2/7** and billion-context **2/7**. These seven
+examples limit any generalization. All 256 selected questions are answerable;
+this evaluates evidence retrieval from another selection of the same HotpotQA
+source, not new-domain transfer, abstention, hallucination or generated-answer
+accuracy. Cross-session/chapter groups reflect the supplied-paragraph mapping.
+Q2 is excluded; its older results retain their historical versions and scope.
+
+### Final publication requirements
+
+The completed fresh comparison establishes output retention and scoped
+component comparisons. It does not change the startup resource decision or
+approve publication by itself. Publication requires a separate final release
+decision bound to the exact A runtime, nine successful CI jobs for the exact
+publication commit, and matching `main` and release refs. An earlier source CI
+is not a substitute for that final-commit gate.
+
+The release workflow builds wheel/sdist archives, verifies every runtime and
+reader file against committed source, installs the two packages in separate
+clean environments, and verifies all seven remote asset hashes. Normal
+publication uses `prerelease:false` and verifies Latest. Its subsequent
+public-install job exercises the real public installer URL and default release
+wheel, including the expected version and MCP/client extras. Publication
+receipts must identify those exact commits, workflow runs and asset hashes;
+these requirements do not rewrite any original experiment verdict.
+
+See [release validation](../docs/validation.md) for the startup study and retained recall history.
+Historical third-party/Q2 results below retain their original versions and corpus boundaries.
 
 ## Historical: v0.3.3 completed fifth-round validation
 

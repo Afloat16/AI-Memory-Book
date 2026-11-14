@@ -40,6 +40,10 @@ APPROVED_RUNTIME_SHA256 = {
     # is resolved by benchmarks/experiments/round5-c7-resource-decision.json.
     # Its original automatic accepted:false record remains unchanged.
     "0.3.3": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45",
+    # Startup/atomic-initialization scope and complete fresh output equivalence;
+    # original recall gates remain unpassed. Full evidence and retained costs:
+    # benchmarks/experiments/round6-release-decision.json.
+    "0.3.4": "f361d2bf64a4e1088cbd5cff6ffdaf19aa15e7f1b7ea1de4577d7a488d2ac242",
 }
 # Publication channels are explicit: older prereleases remain prereleases when
 # an interrupted run reconciles them. A new version needs a reviewed entry.

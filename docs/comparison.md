@@ -5,11 +5,65 @@ returns a bounded evidence context with exact source addresses. Default retrieva
 needs no generative model, embedding download or separate database service.
 Optional Q2 semantic fusion adds a local model and index.
 
-## Current work: v0.3.4 startup and fresh comparison
+## v0.3.4: accepted startup gains and complete fresh comparison
 
-The [v0.3.4 candidate](releases/v0.3.4.md) has independently accepted startup improvements relative to v0.3.3: new-archive median/p95 decrease 83.02% / 76.77%, and actual CLI help/version elapsed times decrease about 52–53%. Its complete API import and existing-archive whole-process CPU costs remain disclosed. The original recall targets are unpassed and their formal matrix was not run. The new 256-question component comparison remains pending; no universal competitor superiority is claimed. [Startup acceptance](../benchmarks/experiments/round6-startup-decision.json) · [Complete work record](optimization-round6.md).
+The [v0.3.4 release scope](releases/v0.3.4.md) is faster new-archive construction and CLI startup, with unchanged retrieval outputs. Against v0.3.3, new-archive median/p95 decrease **83.02% / 76.77%**, while actual help/version elapsed times decrease about **52–53%** in the separate 480-sample confirmation. Full API import increases **0.414 ms median / 0.611 ms p95**. Existing-archive whole-helper system CPU increases **2.4744 ms / 13.2703%** in all four rounds; the [independent resource review](round6-startup-resource-review.md) accepts that bounded cost without changing the original automatic `accepted:false`. Constructor timing and whole-helper CPU are different boundaries. [Startup decision](../benchmarks/experiments/round6-startup-decision.json).
 
-The following v0.3.2 tables and their contemporaneous acceptance descriptions are historical evidence. They are not v0.3.4 timings or fresh competitor measurements.
+The sole fresh [run 43601518020](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43601518020) completes **all eight stages, 6,912 retrieval/search calls, 42 quality cells and 1,280 separately recorded ai-memory page reads**. The 256 questions exclude all 896 historical IDs with zero overlap. All **1,536 native + 768 component complete-output pairs** match v0.3.3 after removing only latency fields. The [saved-result audit](../benchmarks/reports/round6-comparison-43601518020-1-local-audit.json) verifies 28 original files against result commit `3e6e492422705feda61b9c967d0a07dd7766dd72`, all 13,824 ledger events, and exact reconstruction of the assessment and Markdown, without repeating product calls. Fresh quality is preserved, not improved against v0.3.3.
+
+**Read the [complete raw report](../benchmarks/results/round6-comparison-43601518020-1/report.md) with two provenance corrections.** Original v1 source/evaluator/assets were frozen before ID selection; the disclosed [fixture-only recovery v2](../benchmarks/experiments/round6-comparison-fixture-recovery-addendum.json) was frozen after that selection and before the first scoring, using the same IDs and content. The report also retains a historical sentence referring to an ABBA recall release gate. The original **10% / 15% / 10% recall formal matrix was not run or accepted**; this version's acceptance comes from the separate startup confirmation. Both original renderer statements and every raw result remain unchanged. [Recovery freeze audit](../benchmarks/reports/round6-comparison-recovery-freeze-audit.json) · [Full assessment](../benchmarks/results/round6-comparison-43601518020-1/assessment.json).
+
+### Evidence quality at a common 1,024-token cap
+
+The following is the common whole-block projection under `cl100k_base`, with 256 answerable questions and 619 required source annotations. MRR describes the order of evidence in packed context. It is not generated-answer accuracy.
+
+| Component | Annotation recall | Complete evidence | Packed-context MRR | Mean context tokens |
+|---|---:|---:|---:|---:|
+| Book v0.3.3 | 75.93% | 53.12% | 0.8556 | 715.5 |
+| Book v0.3.4 | 75.93% | 53.12% | 0.8556 | 715.5 |
+| claude-mem 15.18.1 FTS | 70.60% | 48.05% | 0.8060 | 710.6 |
+| ai-memory v3.4.5 hybrid | 77.87% | 57.42% | 0.8279 | 715.3 |
+| billion-context locked kernel | 80.94% | 60.55% | 0.8481 | 760.4 |
+
+Book exceeds claude-mem annotation recall and complete evidence in all six registered tokenizer/cap cells. Book has the highest packed-context MRR among these four component implementations in all six cells, but ai-memory has higher annotation recall and complete evidence in all six. Billion-context leads annotation recall in all six and complete evidence at 1,024/2,048 tokens. Book's small completeness advantage over billion at 512 tokens is retained with every per-question loss; it does not establish general superiority.
+
+All six complete-evidence comparisons below are **Book v0.3.4 minus the named component, in percentage points**. Positive favors Book; zero would be a tie. Full per-annotation gains/losses and all diagnostic groups remain in the assessment.
+
+| Tokenizer | Token cap | Minus claude-mem | Minus ai-memory | Minus billion-context |
+|---|---:|---:|---:|---:|
+| cl100k_base | 512 | +7.4219 | -1.1719 | +1.1719 |
+| cl100k_base | 1024 | +5.0781 | -4.2969 | -7.4219 |
+| cl100k_base | 2048 | +5.0781 | -4.2969 | -7.4219 |
+| o200k_base | 512 | +7.4219 | -0.7812 | +0.3906 |
+| o200k_base | 1024 | +5.0781 | -4.2969 | -7.4219 |
+| o200k_base | 2048 | +5.0781 | -4.2969 | -7.4219 |
+
+The seven-question low-lexical-overlap group exposes a remaining weakness: Book completes **0/7**, claude-mem **1/7**, and ai-memory and billion **2/7** under the 512-token `cl100k_base` projection. These small-group observations are not a cross-domain estimate. Every selected question is answerable; abstention, hallucination rates, generated-answer accuracy and private-conversation transfer are not evaluated. Q2 is excluded from this fresh study.
+
+### Retained latency and resource increases
+
+These are sequential descriptive measurements from the fresh quality study, not the independent balanced startup confirmation or a formal recall performance gate. Five of six native p95 cells increase; all six native means increase by approximately **0.136–3.494%**. No causal explanation or universal recall speedup follows from this stage order.
+
+| Native tokenizer | Token cap | v0.3.3 p95 ms | v0.3.4 p95 ms | Change |
+|---|---:|---:|---:|---:|
+| cl100k_base | 512 | 4.289419 | 4.414752 | +2.9219% |
+| cl100k_base | 1024 | 3.987313 | 4.086580 | +2.4896% |
+| cl100k_base | 2048 | 3.899344 | 3.922662 | +0.5980% |
+| o200k_base | 512 | 4.988383 | 4.819293 | -3.3897% |
+| o200k_base | 1024 | 4.244929 | 4.334309 | +2.1056% |
+| o200k_base | 2048 | 3.990396 | 3.999581 | +0.2302% |
+
+The component search-adapter p95 is **3.517899 → 3.582246 ms**, about **+1.83%**. In the same adapter records, claude-mem is **42.840 ms**, ai-memory **40.409 ms**, and billion **1.399 ms**. Book runs in-process Python including context assembly; the others use SQLite/Bun, local hybrid HTTP/MCP and a supplied-source Node search kernel respectively. These different boundaries do not yield a whole-product speed ratio. First-search-plus-read costs, repetitions and offline packing remain separate in the complete report.
+
+Book's native response payload is also larger: **3,992.9 cl100k tokens** on average, compared with claude-mem **1,634.7**, ai-memory **1,019.3** before its separately counted **1,836.3** read tokens, and billion **585.0**. Native response payloads and the common 1,024-token packed projection are distinct surfaces; the packed-context budget must not be presented as an end-to-end tool-traffic saving.
+
+All setup, RSS and storage rows remain in the raw report. Native Book setup/query sampled RSS increases **547.41 → 551.45 MiB / 533.12 → 537.18 MiB**; component setup wall increases **840.940 → 843.362 ms** while its setup/query RSS decreases. Book native/component live database bytes are unchanged at **39,037,696 / 34,340,864**. These sampled worker-plus-descendant RSS values include evaluator/data memory, can double-count shared pages, and are observed lower bounds, not isolated core allocations. Setup paths differ: native Book ingests originals, component Book copies a canonical archive, and ai-memory writes/indexes/embeds supplied pages. No common ingestion-speed or whole-product-memory claim is made.
+
+The [independent fresh review](../benchmarks/reports/round6-comparison-43601518020-1-independent-review.json) retains every quality cell, paired gain/loss, timing increase and resource cost. The [release decision](../benchmarks/experiments/round6-release-decision.json) preserves the startup-only acceptance, exact A runtime, original unpassed recall goals and the final exact-commit CI/package/public-installer requirements.
+
+## Historical v0.3.2 comparison below
+
+The following tables and their contemporaneous acceptance descriptions retain the original v0.3.2 experiment. They are not v0.3.4 timings or fresh competitor measurements.
 
 ## v0.3.2: measured advantages and remaining costs
 
