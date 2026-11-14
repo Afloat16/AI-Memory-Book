@@ -1,6 +1,6 @@
 # v0.3.3 optimization and release checkpoint
 
-Status: C3 completed all formal measurements but failed two fixed speed gates. C4 completed the full native development matrix with exact outputs but insufficient public speed margin. C5 is preregistered for bounded exact token-count reuse and is being implemented. No release runtime is approved.
+Status: C3 completed all formal measurements but failed two fixed speed gates. C4 completed the full native development matrix with exact outputs but insufficient public speed margin. C5 completed the fixed native development comparison with all outputs equal and improved pooled latencies, but has not passed formal acceptance. No release runtime is approved.
 
 ## Source and purpose
 
@@ -98,3 +98,12 @@ The [C5 addendum](../benchmarks/experiments/round5-c5-addendum.json) and [full n
 One observational trace of unchanged C4 counts on all 1,015 public questions matched every saved full payload. Replaying only that saved trace with conservative Unicode size accounting gave 63.98% eligible count reuse at 2,048 entries / 2 MiB, versus 64.74% at 4,096 entries / 4 MiB. The smaller setting is fixed for C5. Instrumented count work is not an end-to-end speed gain; no C5 latency result exists at this checkpoint. The [trace, all capacity alternatives and size-accounting correction](../benchmarks/reports/round5-development/c5-preregistration/receipt.json) remain available.
 
 C5 explicitly extends C4's feature-cache restriction: one lazy per-connection memo may retain the exact count of a complete native text string under certified, unchanged encoder objects. Both tokenizers share the 2,048-entry / 2 MiB retained-text limits. The text budget excludes container/key/value/encoder overhead; actual process RSS remains part of formal acceptance. Full source retrieval, corruption checks, assembly and query-result cache behavior are preserved. Native memo diagnostics are observed outside timers; actual SDK MCP command and wire format stay unchanged. New connections start empty, and all first calls remain in the measurements.
+
+
+## C5 source freeze and full native development result
+
+Final C5 source is `8dc6604fa32df18d53286110b215fc6657243656`, runtime SHA256 `6af876ef5ddc851f4fff56ba3dc4f20e76b2cfc9f5e31d0cc8d1a0ec20e954be`. Its [72 directed checks](../benchmarks/reports/round5-c5-correctness.json), [independent static review](../benchmarks/reports/round5-c5-source-review.json) and [nine source CI jobs](../benchmarks/reports/round5-c5-source-ci.json) pass. The overlapping dependency-free suite ran 28 cases with 12 tokenizer-only skips; these are not added to the 72 checks. Static review fixed custom encoder private-state fallback, deleted pattern fallback, and original methods rebound to a different receiver before timing.
+
+The sole registered [full native development invocation](../benchmarks/reports/round5-development/candidate-c5-full/summary.json) retained all 18,928 calls and 9,464 complete payload pairs, with zero mismatches or invariant failures. All eight pooled p50/p95/mean values improve; pooled p95 geometric-mean improvement is 13.429705%. Public native token512/1024/2048 p95 improves 11.141053% / 14.144746% / 11.364435%. The best public value is still 0.855254 percentage points below the formal 15% gate. One per-round adverse value remains: public char4000 round 1 p95 increases 1.591165%.
+
+These are development observations, not a passed performance gate. They support proceeding to the already registered single hosted four-round comparison, which still must pass every unchanged threshold, including actual SDK MCP and resource review. No timing is repeated on this source to seek a favorable sample. All candidate memo snapshots respect the empty initial state, character-only nonallocation, native configuration continuity and fixed capacity.
