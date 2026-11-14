@@ -1,6 +1,6 @@
 # v0.3.4 optimization and recovery checkpoint
 
-Status: candidate A source is frozen and its nine-job CI has passed. Once-per-source development measurements are in progress; all 2,304 historical compatibility calls and their saved-ledger audit passed. Published v0.3.3 remains the baseline and current release; no v0.3.4 runtime is approved.
+Status: candidate A completed its source CI, development comparison and all 2,304 historical compatibility calls. Its roughly 1% recall improvement is insufficient for the registered formal goals, so A will not advance. Candidate B is registered before its runtime implementation or timing. Published v0.3.3 remains the baseline and current release; no v0.3.4 runtime is approved.
 
 ## User goal and immutable baseline
 
@@ -44,3 +44,14 @@ The frozen source commit is `df35007c29e4af61dd96146232fe4651cfc74391`. [Source 
 Development bindings were committed remotely at `06087c7442463f84ed5313f35ea22b7050cf1863` before the single hosted run [43592983218](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43592983218). Native and actual-MCP stages publish their own per-worker ledgers and independent audits to `validation/v034-round6-development-<surface>-<run>-1` branches. The [historical zero-call preflight](../benchmarks/reports/round6-development/hotpot-preflight/zero-call-verification.json) verified all fixed inputs without consuming the actual compatibility claim. The sole actual [historical compatibility run](../benchmarks/reports/round6-hotpot-compatibility.summary.json) then matched all 2,304 complete outputs (1,536 native and 768 component); its [independent saved-ledger audit](../benchmarks/reports/round6-hotpot-compatibility.audit.json) verifies all 4,608 start/finish events and unchanged source/index records without repeating retrieval. The original claim and compressed raw report/ledger are preserved.
 
 Fresh-comparison control tests now cover independent source/evaluator/asset/ID-manifest commits and adverse results. No new question IDs have been selected or scored. Runtime release approval remains absent. Next: preserve and inspect development measurements, then bind the independent formal comparison under the original 10/15/10 gates. The final release commit still needs its own nine-job CI and package/public-installer verification.
+
+
+## Candidate A result and candidate B registration
+
+The single development run completed and both hosted and local saved-result audits passed: 22,988 calls, 11,494 complete output pairs and 45,976 ledger events. [Complete development review](../benchmarks/reports/round6-development-43592983218-review.json) retains all nine latency cells, all 55 resource comparisons, every worker sample and every adverse observation. The native eight-cell geometric p95 improvement is 0.9473%; best public native-token p95 improves 1.2411%; actual public MCP token1024 p95 is 6.124870 to 6.061988 ms (1.0267%). These two-round diagnostics do not satisfy or evaluate the formal four-round gates. A is not approved, and no A formal timing will be run.
+
+A does establish an empty-database creation improvement: native means drop from 26.333329 to 5.395540 ms for the synthetic cohort and 23.158578 to 5.471238 ms for the public cohort; the separate MCP-stage construction means drop 25.265979 to 4.238660 ms. Actual MCP initialization improves only 0.6194%, which is a different boundary. The two small synthetic pooled p95 regressions and all eight native round-level adverse metrics remain recorded. No resource mean crosses the 10% review threshold.
+
+The [candidate B plan](../benchmarks/experiments/round6-candidate-b-plan.json) proposes a narrow two-stage FTS route for demonstrably dense project rowid intervals. It preserves global BM25 and full cutoff ties, leaving final page-ID sorting and metadata decoding to SQLite. Actual schema validation and customization guards are prerequisites, including trace callbacks that could reenter and mutate the connection. Unknown or uncertified cases retain the old route. This is a performance hypothesis, not a measured B improvement.
+
+The two workflows now name separate B bindings explicitly. A's original binding files, claims, controller identity and result branches remain unchanged. B must have materially different frozen runtime source before its own single development run, historical compatibility and any formal run. The original 10/15/10 thresholds and all evidence-preservation rules remain unchanged.

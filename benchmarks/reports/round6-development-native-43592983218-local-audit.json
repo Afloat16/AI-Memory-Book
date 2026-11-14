@@ -1,0 +1,858 @@
+{
+  "schema_version": 1,
+  "audit": "round6-independent-saved-observations-1",
+  "passed": true,
+  "stage": "development-native",
+  "original_result_commit": "a9a2213c9a8a3ff54430a6909f3062e4ce20e970",
+  "report_sha256": "74041a3e15e541e5d34edb8f8360b4d6d3befb0843d29133d5b38c675da67142",
+  "summary_sha256": "f6c38f7d4108a2653163292ba3c21ee24225645b901fbd32605459c71fa7623b",
+  "sources": {
+    "baseline": {
+      "commit": "796cedfd1f5368144037a1fb72292b8d13884b8c",
+      "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+    },
+    "candidate": {
+      "commit": "df35007c29e4af61dd96146232fe4651cfc74391",
+      "runtime_sha256": "f361d2bf64a4e1088cbd5cff6ffdaf19aa15e7f1b7ea1de4577d7a488d2ac242"
+    }
+  },
+  "binding_sha256": "6db75e22db98821396ea3b4aaf25d7cab583becf3a9505d70dec17c61dc8a951",
+  "no_new_measurements": true,
+  "workers": 8,
+  "timed_calls": 18928,
+  "complete_output_pairs": 9464,
+  "ledger_events": 37856,
+  "unique_query_configurations": 4732,
+  "native_actual_mcp_provenance_pairs": 0,
+  "original_automatic_accepted": false,
+  "numeric_gate_passed": null,
+  "acceptance_recomputed": {
+    "accepted": false,
+    "numeric_gate_passed": null,
+    "formal_acceptance_evaluated": false,
+    "geometric_mean_p95_improvement_percent": 0.9473223269620967,
+    "best_public_native_token_p95_improvement_percent": 1.241052966475198,
+    "public_mcp_token1024_p95_improvement_percent": null,
+    "thresholds_percent": {
+      "geometric_mean_p95_improvement": 10,
+      "at_least_one_public_native_token_p95_improvement": 15,
+      "public_mcp_token1024_p95_improvement": 10,
+      "maximum_pooled_p50_p95_regression": 5,
+      "resource_mean_increase_review": 10
+    },
+    "regressions_above_five_percent": [],
+    "resource_comparisons": [
+      {
+        "cohort": "synthetic61",
+        "metric": "runtime_import_ms",
+        "baseline": {
+          "samples": 2,
+          "mean": 30.178628,
+          "p50": 30.178628,
+          "p95": 30.4601291,
+          "min": 29.865849,
+          "max": 30.491407
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 30.581509,
+          "p50": 30.581509,
+          "p95": 30.6463153,
+          "min": 30.509502,
+          "max": 30.653516
+        },
+        "mean_change_percent": 1.33498779334833
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "native_open_ms",
+        "baseline": {
+          "samples": 2,
+          "mean": 26.3333285,
+          "p50": 26.3333285,
+          "p95": 29.09296925,
+          "min": 23.267061,
+          "max": 29.399596
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 5.3955395,
+          "p50": 5.3955395,
+          "p95": 6.58117835,
+          "min": 4.078163,
+          "max": 6.712916
+        },
+        "mean_change_percent": -79.51060573295928
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "fresh_ingestion_ms",
+        "baseline": {
+          "samples": 2,
+          "mean": 858.1314110000001,
+          "p50": 858.1314110000001,
+          "p95": 861.1380869000001,
+          "min": 854.79066,
+          "max": 861.472162
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 854.0568135,
+          "p50": 854.0568135,
+          "p95": 858.8596000499999,
+          "min": 848.720384,
+          "max": 859.393243
+        },
+        "mean_change_percent": -0.47482208992348784
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "unchanged_reingestion_ms",
+        "baseline": {
+          "samples": 2,
+          "mean": 103.887133,
+          "p50": 103.887133,
+          "p95": 103.91714710000001,
+          "min": 103.853784,
+          "max": 103.920482
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 103.721102,
+          "p50": 103.721102,
+          "p95": 103.79896009999999,
+          "min": 103.634593,
+          "max": 103.807611
+        },
+        "mean_change_percent": -0.15981863702023702
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "native_memory_after_ingestion.rss_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 44029952.0,
+          "p50": 44029952.0,
+          "p95": 44042854.4,
+          "min": 44015616,
+          "max": 44044288
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 44163072.0,
+          "p50": 44163072.0,
+          "p95": 44207308.8,
+          "min": 44113920,
+          "max": 44212224
+        },
+        "mean_change_percent": 0.3023396437043635
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "native_memory_after_ingestion.hwm_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 44029952.0,
+          "p50": 44029952.0,
+          "p95": 44042854.4,
+          "min": 44015616,
+          "max": 44044288
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 44619776.0,
+          "p50": 44619776.0,
+          "p95": 44724838.4,
+          "min": 44503040,
+          "max": 44736512
+        },
+        "mean_change_percent": 1.339597190566999
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "native_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 176988160.0,
+          "p50": 176988160.0,
+          "p95": 177025024.0,
+          "min": 176947200,
+          "max": 177029120
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 175009792.0,
+          "p50": 175009792.0,
+          "p95": 175072460.8,
+          "min": 174940160,
+          "max": 175079424
+        },
+        "mean_change_percent": -1.1177968062948351
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "native_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 176988160.0,
+          "p50": 176988160.0,
+          "p95": 177025024.0,
+          "min": 176947200,
+          "max": 177029120
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 175009792.0,
+          "p50": 175009792.0,
+          "p95": 175072460.8,
+          "min": 174940160,
+          "max": 175079424
+        },
+        "mean_change_percent": -1.1177968062948351
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "storage_after_ingestion_live.logical_db_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 20733952.0,
+          "p50": 20733952.0,
+          "p95": 20733952.0,
+          "min": 20733952,
+          "max": 20733952
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 20733952.0,
+          "p50": 20733952.0,
+          "p95": 20733952.0,
+          "min": 20733952,
+          "max": 20733952
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "storage_after_ingestion_live.files_bytes.db",
+        "baseline": {
+          "samples": 2,
+          "mean": 19165184.0,
+          "p50": 19165184.0,
+          "p95": 19165184.0,
+          "min": 19165184,
+          "max": 19165184
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 19165184.0,
+          "p50": 19165184.0,
+          "p95": 19165184.0,
+          "min": 19165184,
+          "max": 19165184
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "storage_after_ingestion_live.files_bytes.wal",
+        "baseline": {
+          "samples": 2,
+          "mean": 5722712.0,
+          "p50": 5722712.0,
+          "p95": 5722712.0,
+          "min": 5722712,
+          "max": 5722712
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 5722712.0,
+          "p50": 5722712.0,
+          "p95": 5722712.0,
+          "min": 5722712,
+          "max": 5722712
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "storage_after_ingestion_live.files_bytes.shm",
+        "baseline": {
+          "samples": 2,
+          "mean": 32768.0,
+          "p50": 32768.0,
+          "p95": 32768.0,
+          "min": 32768,
+          "max": 32768
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 32768.0,
+          "p50": 32768.0,
+          "p95": 32768.0,
+          "min": 32768,
+          "max": 32768
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "storage_after_checkpoint.logical_db_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 20733952.0,
+          "p50": 20733952.0,
+          "p95": 20733952.0,
+          "min": 20733952,
+          "max": 20733952
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 20733952.0,
+          "p50": 20733952.0,
+          "p95": 20733952.0,
+          "min": 20733952,
+          "max": 20733952
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "storage_after_checkpoint.files_bytes.db",
+        "baseline": {
+          "samples": 2,
+          "mean": 20733952.0,
+          "p50": 20733952.0,
+          "p95": 20733952.0,
+          "min": 20733952,
+          "max": 20733952
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 20733952.0,
+          "p50": 20733952.0,
+          "p95": 20733952.0,
+          "min": 20733952,
+          "max": 20733952
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "storage_after_checkpoint.files_bytes.wal",
+        "baseline": {
+          "samples": 2,
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "storage_after_checkpoint.files_bytes.shm",
+        "baseline": {
+          "samples": 2,
+          "mean": 32768.0,
+          "p50": 32768.0,
+          "p95": 32768.0,
+          "min": 32768,
+          "max": 32768
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 32768.0,
+          "p50": 32768.0,
+          "p95": 32768.0,
+          "min": 32768,
+          "max": 32768
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "public1015",
+        "metric": "runtime_import_ms",
+        "baseline": {
+          "samples": 2,
+          "mean": 29.947878,
+          "p50": 29.947878,
+          "p95": 29.9686248,
+          "min": 29.924826,
+          "max": 29.97093
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 30.7437365,
+          "p50": 30.7437365,
+          "p95": 30.866655350000002,
+          "min": 30.60716,
+          "max": 30.880313
+        },
+        "mean_change_percent": 2.657478770282151
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_open_ms",
+        "baseline": {
+          "samples": 2,
+          "mean": 23.158578499999997,
+          "p50": 23.158578499999997,
+          "p95": 23.91672185,
+          "min": 22.316197,
+          "max": 24.00096
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 5.471238,
+          "p50": 5.471238,
+          "p95": 6.509674199999999,
+          "min": 4.31742,
+          "max": 6.625056
+        },
+        "mean_change_percent": -76.37489710346428
+      },
+      {
+        "cohort": "public1015",
+        "metric": "fresh_ingestion_ms",
+        "baseline": {
+          "samples": 2,
+          "mean": 798.922424,
+          "p50": 798.922424,
+          "p95": 802.9002944,
+          "min": 794.502568,
+          "max": 803.34228
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 799.5311375,
+          "p50": 799.5311375,
+          "p95": 800.98857275,
+          "min": 797.911765,
+          "max": 801.15051
+        },
+        "mean_change_percent": 0.07619181558984334
+      },
+      {
+        "cohort": "public1015",
+        "metric": "unchanged_reingestion_ms",
+        "baseline": {
+          "samples": 2,
+          "mean": 204.9347755,
+          "p50": 204.9347755,
+          "p95": 205.04791405,
+          "min": 204.809066,
+          "max": 205.060485
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 202.447562,
+          "p50": 202.447562,
+          "p95": 202.6049117,
+          "min": 202.272729,
+          "max": 202.622395
+        },
+        "mean_change_percent": -1.2136610265054748
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_memory_after_ingestion.rss_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 46991360.0,
+          "p50": 46991360.0,
+          "p95": 47019008.0,
+          "min": 46960640,
+          "max": 47022080
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 47054848.0,
+          "p50": 47054848.0,
+          "p95": 47069593.6,
+          "min": 47038464,
+          "max": 47071232
+        },
+        "mean_change_percent": 0.13510568751362584
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_memory_after_ingestion.hwm_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 53553152.0,
+          "p50": 53553152.0,
+          "p95": 53599232.0,
+          "min": 53501952,
+          "max": 53604352
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 53784576.0,
+          "p50": 53784576.0,
+          "p95": 53839872.0,
+          "min": 53723136,
+          "max": 53846016
+        },
+        "mean_change_percent": 0.4321388963248962
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_memory_after_calls.rss_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 189648896.0,
+          "p50": 189648896.0,
+          "p95": 189700505.6,
+          "min": 189591552,
+          "max": 189706240
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 188831744.0,
+          "p50": 188831744.0,
+          "p95": 188907315.2,
+          "min": 188747776,
+          "max": 188915712
+        },
+        "mean_change_percent": -0.43087622297574013
+      },
+      {
+        "cohort": "public1015",
+        "metric": "native_memory_after_calls.hwm_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 189648896.0,
+          "p50": 189648896.0,
+          "p95": 189700505.6,
+          "min": 189591552,
+          "max": 189706240
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 188831744.0,
+          "p50": 188831744.0,
+          "p95": 188907315.2,
+          "min": 188747776,
+          "max": 188915712
+        },
+        "mean_change_percent": -0.43087622297574013
+      },
+      {
+        "cohort": "public1015",
+        "metric": "storage_after_ingestion_live.logical_db_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 13053952.0,
+          "p50": 13053952.0,
+          "p95": 13053952.0,
+          "min": 13053952,
+          "max": 13053952
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 13053952.0,
+          "p50": 13053952.0,
+          "p95": 13053952.0,
+          "min": 13053952,
+          "max": 13053952
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "public1015",
+        "metric": "storage_after_ingestion_live.files_bytes.db",
+        "baseline": {
+          "samples": 2,
+          "mean": 12775424.0,
+          "p50": 12775424.0,
+          "p95": 12775424.0,
+          "min": 12775424,
+          "max": 12775424
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 12775424.0,
+          "p50": 12775424.0,
+          "p95": 12775424.0,
+          "min": 12775424,
+          "max": 12775424
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "public1015",
+        "metric": "storage_after_ingestion_live.files_bytes.wal",
+        "baseline": {
+          "samples": 2,
+          "mean": 4453752.0,
+          "p50": 4453752.0,
+          "p95": 4453752.0,
+          "min": 4453752,
+          "max": 4453752
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 4453752.0,
+          "p50": 4453752.0,
+          "p95": 4453752.0,
+          "min": 4453752,
+          "max": 4453752
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "public1015",
+        "metric": "storage_after_ingestion_live.files_bytes.shm",
+        "baseline": {
+          "samples": 2,
+          "mean": 32768.0,
+          "p50": 32768.0,
+          "p95": 32768.0,
+          "min": 32768,
+          "max": 32768
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 32768.0,
+          "p50": 32768.0,
+          "p95": 32768.0,
+          "min": 32768,
+          "max": 32768
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "public1015",
+        "metric": "storage_after_checkpoint.logical_db_bytes",
+        "baseline": {
+          "samples": 2,
+          "mean": 13053952.0,
+          "p50": 13053952.0,
+          "p95": 13053952.0,
+          "min": 13053952,
+          "max": 13053952
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 13053952.0,
+          "p50": 13053952.0,
+          "p95": 13053952.0,
+          "min": 13053952,
+          "max": 13053952
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "public1015",
+        "metric": "storage_after_checkpoint.files_bytes.db",
+        "baseline": {
+          "samples": 2,
+          "mean": 13053952.0,
+          "p50": 13053952.0,
+          "p95": 13053952.0,
+          "min": 13053952,
+          "max": 13053952
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 13053952.0,
+          "p50": 13053952.0,
+          "p95": 13053952.0,
+          "min": 13053952,
+          "max": 13053952
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "public1015",
+        "metric": "storage_after_checkpoint.files_bytes.wal",
+        "baseline": {
+          "samples": 2,
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "mean_change_percent": 0.0
+      },
+      {
+        "cohort": "public1015",
+        "metric": "storage_after_checkpoint.files_bytes.shm",
+        "baseline": {
+          "samples": 2,
+          "mean": 32768.0,
+          "p50": 32768.0,
+          "p95": 32768.0,
+          "min": 32768,
+          "max": 32768
+        },
+        "candidate": {
+          "samples": 2,
+          "mean": 32768.0,
+          "p50": 32768.0,
+          "p95": 32768.0,
+          "min": 32768,
+          "max": 32768
+        },
+        "mean_change_percent": 0.0
+      }
+    ],
+    "resource_review": [],
+    "resource_rule": "Any increase above 10% requires explicit cause assessment and independent review; no automatic override.",
+    "scope": "Diagnostic observations only; no release acceptance or speed gate."
+  },
+  "all_pooled_adverse_changes": [
+    {
+      "cohort": "synthetic61",
+      "config": "native-char4000",
+      "metric": "p95_ms",
+      "change_percent": 0.1454070041860156
+    },
+    {
+      "cohort": "synthetic61",
+      "config": "native-token512",
+      "metric": "p95_ms",
+      "change_percent": 0.28862076777274037
+    },
+    {
+      "cohort": "synthetic61",
+      "config": "native-token512",
+      "metric": "mean_ms",
+      "change_percent": 0.10337576541414872
+    }
+  ],
+  "all_per_round_adverse_changes": [
+    {
+      "cohort": "synthetic61",
+      "config": "native-char4000",
+      "round": 0,
+      "metric": "p95_ms",
+      "change_percent": 0.6465453806472343
+    },
+    {
+      "cohort": "synthetic61",
+      "config": "native-char4000",
+      "round": 1,
+      "metric": "p50_ms",
+      "change_percent": 0.18943899835721645
+    },
+    {
+      "cohort": "synthetic61",
+      "config": "native-char4000",
+      "round": 1,
+      "metric": "p95_ms",
+      "change_percent": 0.2879512294721165
+    },
+    {
+      "cohort": "synthetic61",
+      "config": "native-token512",
+      "round": 0,
+      "metric": "p95_ms",
+      "change_percent": 2.1102552084867554
+    },
+    {
+      "cohort": "synthetic61",
+      "config": "native-token512",
+      "round": 0,
+      "metric": "mean_ms",
+      "change_percent": 0.6895349724615141
+    },
+    {
+      "cohort": "synthetic61",
+      "config": "native-token1024",
+      "round": 0,
+      "metric": "p95_ms",
+      "change_percent": 0.86843218995305
+    },
+    {
+      "cohort": "public1015",
+      "config": "native-token1024",
+      "round": 0,
+      "metric": "p95_ms",
+      "change_percent": 0.3045450114110837
+    },
+    {
+      "cohort": "public1015",
+      "config": "native-token1024",
+      "round": 0,
+      "metric": "mean_ms",
+      "change_percent": 0.26902633553962385
+    }
+  ],
+  "checked_file_sha256": {
+    "benchmarks/reports/round6-development-native-43592983218-1/report.json.gz": "74041a3e15e541e5d34edb8f8360b4d6d3befb0843d29133d5b38c675da67142",
+    "benchmarks/experiments/round6-plan.json": "12bf9e8bcc4774beda526e3dcce6244fa7ac777fcc59c821a992fe3908e2841f",
+    "benchmarks/experiments/round6-development-native-binding.json": "6db75e22db98821396ea3b4aaf25d7cab583becf3a9505d70dec17c61dc8a951",
+    ".github/workflows/round6-development.yml": "04c273da06542267956f4dceb5f76d32285bceacc1d139e170dfd099b9e4e982",
+    ".github/workflows/round6-performance.yml": "5c0adcb90bf8b2d3fd1cc07efcdd9e482c362bbc4e8834d89b242a111f7ef4c8",
+    "benchmarks/__init__.py": "82c1a9c2c4363d02d1ec7e504ce64a1c90051df12f852ec4978f32be5cf5bce0",
+    "benchmarks/component_eval.py": "77970a7043ab909e475c4950f4e4019db7b89328028b35c0f76a06273375aef0",
+    "benchmarks/data.py": "090d0460a6887eff32b3adb89d1684da9b7c9094f96246e187c1298051b64625",
+    "benchmarks/hotpot_data.py": "5c206176665690044da9862bb70fe374b12348c4b5e6d0bdb0b098bb73c85760",
+    "benchmarks/locomo_split.json": "a64086f1dc194c3fe9157e60f9696a77d3c650af836a60fab192f3db48c527f5",
+    "benchmarks/long_data.py": "85223c53740dc4a22530222886a4697c9a3c171530abdc1153363ca0587469bf",
+    "benchmarks/native_budget_eval.py": "737230950fd4ddd7f415aa93137f65cd59b5c61a72676c58ca854aee59682b1b",
+    "benchmarks/public_data.py": "269625183d8bef8f3b34f534d1c6d52ce7c623f795015e3e1508835c3eee08e8",
+    "benchmarks/query_guard.py": "c98285d97784513baa259e26514323e9f7a01b5b42196ebeb35e19a16039c1e6",
+    "benchmarks/resume.py": "7003368a60db4d07f2a72dd21a3a636abb103918a509f54741dcf6461c6d2dd8",
+    "benchmarks/run.py": "e557475d5701ea7271de9103aa8267e204796336b5277352fad015d9399521a4",
+    "benchmarks/semantic_eval.py": "46fa3b3fd6298ba1669bd0b17f3ad6f77a2fdaf5b79ba25e4632012090ca0b4e",
+    "benchmarks/token_compare.py": "bb34650d947a89c17c87e179dc9e376fe44b6d10c0bf4bb70ca4cdfd46913f18",
+    "benchmarks/transfer_data.py": "a532783fd2562f02846d6cd0604dc7d885f7dfa0b258d3fdca2e6c205ea4d57e",
+    "scripts/benchmark_default_recall.py": "ce74bd117ef54da865963f6a185f40707dbf8a0eaf0019957288b71edf8c305a",
+    "scripts/round4_performance.py": "7e1b987e62e1950b7c6f842942d2e294a74284a16cf4cdc58bfe326e4e4044a7",
+    "scripts/round6_audit_performance.py": "7f78163d84c0b83479018ca3affd351258d96f07bccb6865d7fd436f8d50a4eb",
+    "scripts/round6_host.py": "549927c680bdaa3c9bd3d0464fa6b57dc6d9ddaa67810c3ee70516c0cf513c89",
+    "scripts/round6_hotpot_compatibility.py": "590a6212b0b4897eee5427082fac0d9c3dfd935a2e64a94a38075677c22fabcc",
+    "scripts/round6_performance.py": "fac19df24b48b14c3cc8337010ecaea8fd8bf8bf8592df9ace99b189f09746d6",
+    "tests/test_round6_benchmark.py": "77db53aa211d43ad54ca987e52f91100d3c70710a6c94c8b871f21bd4244fafd",
+    "tests/test_round6_benchmark_audit.py": "5e0657939f43fef4ac7f502457569383a3ebf6cb58528d0f5af9a831d22c914e",
+    "benchmarks/reports/round6-development-native-43592983218-1/run.json": "b8452259be76f8714e30a8a850b53fdce7c42377f6874aa7434244cf88a22361",
+    "benchmarks/reports/round6-development-native-43592983218-1/execution.json": "3d848cdab718bdd75c262e509523460e86215a5356cfa2fd348cb49e80546365",
+    "benchmarks/reports/round6-development-native-43592983218-1/resource-preflight.json": "d3075896f23d6d283963486cd2c5116391b550c5befe06cdfd1780251a2713d2",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r0-synthetic61-baseline.json.gz": "8ddbe60647a65439f56958081e1a33ade1cd6f94d82c000cff091ee743432a35",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r0-synthetic61-baseline.started.json": "ac7ef5cdddaa5876af449b2ef6d9d241ab391d9d930ca7aafbca7bf5ef82b530",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r0-synthetic61-baseline.attempts.jsonl.gz": "1dcd6c35d147b348c9ebb927fa45c12e2c1fcc9dee0309afb4ef7591f06c0528",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r0-synthetic61-candidate.json.gz": "d9860cf9511b3b52c6a1827a50cd5954eeef7f81d1f3007942f8d3883254ae3e",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r0-synthetic61-candidate.started.json": "d0df2a84a8439cfe546f9e76acea608d72dffa69eaa26888b10272424df5b941",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r0-synthetic61-candidate.attempts.jsonl.gz": "80aedc0333b4362f1387b0b4a56ef2d6f9cda9a2ecb97cac89d01787c50fc497",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r0-public1015-baseline.json.gz": "cc1e1bfef10e00be6a3749b981fa92166fcf5a8a1464e6971c752e58413f371d",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r0-public1015-baseline.started.json": "aa879df21db79d890733c3541a62ffaee73cb5a0e2729545a6e044b46c3b949a",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r0-public1015-baseline.attempts.jsonl.gz": "77d6295fd438305079c285c438312d5c2b3f7d3ff09b864df7a06261ff52c529",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r0-public1015-candidate.json.gz": "fd7a85196367a10d2a78415fa423573a05fbb555bb5e1373162edacaa1b234ea",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r0-public1015-candidate.started.json": "4ffe543dac8913afbae18c06c4037ae5d346c10fd0407265175a48db2a07f5a7",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r0-public1015-candidate.attempts.jsonl.gz": "1a0a3026c99f7ec925c51f14374e28c8517eb4d44f0e7954875c7de777e9a214",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r1-synthetic61-candidate.json.gz": "ab28e1338b5d33b56d1435f878c5d610745d15962de6a7928ec7e17273d6c3a0",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r1-synthetic61-candidate.started.json": "d9f381bf9063d288cd22e4be5b10f4867468a337476bfb49d201174bbc9542b7",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r1-synthetic61-candidate.attempts.jsonl.gz": "014f1980a8997ef9af2557acf3c9a722b69b23f35ef6d5a004a9798bfa0a0de1",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r1-synthetic61-baseline.json.gz": "549615109b111243acff5330231e26c0162f797e32068b21ed18257d5be7a791",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r1-synthetic61-baseline.started.json": "5bd290eb13feacc569046f28f79f0e9742ccc88c46078f4a881f531b893c38f0",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r1-synthetic61-baseline.attempts.jsonl.gz": "aa72d035dbc760bf6c696414042f9c087295e4d222e6581eb8bc811f782dddf3",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r1-public1015-candidate.json.gz": "d40171e08c3a7ccc8d86b086bcabd81d117485edf47690f76ea14ee3c35e9548",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r1-public1015-candidate.started.json": "01a4340bc9e72e40aecb7b8a402cad313b035e7c2c269e4586b8124bf0c6ae70",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r1-public1015-candidate.attempts.jsonl.gz": "f4ae77d283d1406e4b49a5ab30ba480c97762822dd489a6c9cd08017923e31b9",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r1-public1015-baseline.json.gz": "0ed3783a24b8bad0cfe58841abeed1cce752e3f345540deff858b9ca9e94767a",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r1-public1015-baseline.started.json": "a045ac911c54d5142e91b6ff562563aea37b08d54a191db5eea1612fd59179b3",
+    "benchmarks/reports/round6-development-native-43592983218-1/workers/r1-public1015-baseline.attempts.jsonl.gz": "fba561e69011fea867075417e1802f27ad183237c449b1bb66a2079584c8a7ab",
+    "benchmarks/reports/round6-development-native-43592983218-1/report.summary.json": "f6c38f7d4108a2653163292ba3c21ee24225645b901fbd32605459c71fa7623b"
+  },
+  "limits": "One-host balanced repeated observations; no significance/cold-OS claim. Stored payload hashes certify exact outputs only within the frozen evaluator/provenance trust boundary; no new retrieval was run. Resource review is separate from this numerical audit."
+}

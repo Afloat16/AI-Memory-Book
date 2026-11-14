@@ -47,7 +47,7 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p .artifacts
-          python -u scripts/round6_host.py --stage development-native 2>&1 | tee .artifacts/round6-development-native.log
+          python -u scripts/round6_host.py --stage development-native --binding benchmarks/experiments/round6-b-development-native-binding.json 2>&1 | tee .artifacts/round6-development-native.log
       - name: Measure one frozen AB and BA actual MCP development matrix
         id: mcp
         continue-on-error: true
@@ -55,7 +55,7 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p .artifacts
-          python -u scripts/round6_host.py --stage development-mcp 2>&1 | tee .artifacts/round6-development-mcp.log
+          python -u scripts/round6_host.py --stage development-mcp --binding benchmarks/experiments/round6-b-development-mcp-binding.json 2>&1 | tee .artifacts/round6-development-mcp.log
       - name: Require complete independently audited diagnostics
         if: always()
         env:

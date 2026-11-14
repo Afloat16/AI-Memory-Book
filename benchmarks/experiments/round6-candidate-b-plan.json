@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "candidate": "B",
+  "status": "registered-before-B-runtime-edit-or-timing",
+  "registered_at_utc": "2026-11-14",
+  "baseline": {
+    "tag": "v0.3.3",
+    "commit": "796cedfd1f5368144037a1fb72292b8d13884b8c",
+    "runtime_sha256": "55529a217e6dcf6af0c81639cfc0e88b3ea94c39e6911f659fcfb7543e853d45"
+  },
+  "previous_candidate": {
+    "source_commit": "df35007c29e4af61dd96146232fe4651cfc74391",
+    "runtime_sha256": "f361d2bf64a4e1088cbd5cff6ffdaf19aa15e7f1b7ea1de4577d7a488d2ac242",
+    "development_run": 43592983218,
+    "native_result_commit": "a9a2213c9a8a3ff54430a6909f3062e4ce20e970",
+    "mcp_result_commit": "8af9771bd50b15f29bfb3d21f1157c65e77e6a1e",
+    "review": "benchmarks/reports/round6-development-43592983218-review.json",
+    "decision": "Do not advance A to formal performance acceptance. Complete exact outputs and resource checks pass, but native pooled p95 geometric improvement is about 0.9473%, best public native token p95 about 1.2411%, and actual public MCP token1024 p95 about 1.0267%. Preserve every adverse value and startup improvement; do not rerun A."
+  },
+  "proposal": {
+    "name": "Dense-project, two-stage FTS ranking",
+    "purpose": "Reduce pages/index joins for matching rows that cannot survive the existing route's 96-candidate limit, without changing global BM25, scope, weights, exact ties or metadata/error validation.",
+    "eligibility": [
+      "Ordinary known internal SQLite connection, native row/text factories, unmodified relevant callback/function/extension interfaces and inspectable ordinary limits.",
+      "Only ordinary dual-route, non-semantic, non-coverage project-scoped recall with no chapter/session filter.",
+      "Existing narrow rowid bounds and a span greater than 96.",
+      "Inside the original read snapshot, verify the actual pages schema supports the required unique integer rowid alias and page-id ordering guarantees, then require COUNT(project pages) == hi - lo + 1; unknown schema or incomplete/interleaved ranges retain the old SQL."
+    ],
+    "algorithm": [
+      "Use the original MATCH expression and explicit hidden-rank mapping bm25(2.0,2.0,1.0,0.25), with the certified FTS rowid BETWEEN bounds. Project only integer rowid and unrounded rank; do not join or decode page metadata at this stage.",
+      "Read the first 96 scoped hits plus every exactly equal rank at the boundary. The one boundary lookahead contains only rowid/rank. Do not use epsilon or truncate ties.",
+      "Retain at most 512 candidate pairs; if the complete boundary tie does not fit, close the cursor and structurally select the unchanged original query.",
+      "Use a second VALUES(rowid,rank) query to join pages and perform ORDER BY rank,p.id LIMIT 96 inside SQLite before returning the original metadata column names/order.",
+      "Keep downstream route fusion, candidate counts, directory/corruption checks, selected-page/source reads, token budgets, caches, source coordinates and public payload fields unchanged."
+    ],
+    "connection_guard": {
+      "approach": "A private exact SQLite Connection subclass forwards normal Python methods and permanently invalidates only this new ranking optimization when relevant customization APIs are used. Existing ordinary metadata/turn batching recognizes the exact internal type, not arbitrary subclasses.",
+      "invalidate_on": [
+        "create_function",
+        "create_aggregate",
+        "create_window_function",
+        "load_extension",
+        "enable_load_extension",
+        "create_collation",
+        "set_authorizer",
+        "set_progress_handler",
+        "set_trace_callback",
+        "setlimit"
+      ],
+      "scope_limit": "No claim to detect deliberate C API or explicit base-class bypass of the private guard. No extra cross-query source/result/features cache."
+    }
+  },
+  "proof": "With actual integer-rowid uniqueness verified, a project having exactly hi-lo+1 distinct integers between its minimum and maximum occupies every integer in that interval. The first-stage FTS rowid range therefore has the same eligible page set as the original project join. SQLite's internal sorted FTS cursor receives those bounds. Complete cutoff ties and the original SQL secondary sort retain the same 96 rows.",
+  "primary_references": [
+    "https://www.sqlite.org/fts5.html#sorting_by_auxiliary_function_results",
+    "https://github.com/sqlite/sqlite/blob/master/ext/fts5/fts5_main.c"
+  ],
+  "correctness_requirements": [
+    "Dense, sparse, interleaved and mutated projects; actual noncanonical schema must fall back.",
+    "Exact cutoff ties, more than 512 ties, and tie-break identities/types.",
+    "Corrupt FTS docsize inside/outside the certified interval; invalid UTF-8 in an unselected page identifier; no early metadata decoding.",
+    "Same-arity bm25 overrides, callback reentry including trace, custom connections/factories and lowered SQLite limits.",
+    "Explicit weighted rank even if persistent FTS rank configuration differs; no changed ranking or source payload.",
+    "Current/historical queries, all supported scopes, complete default token/character outputs, unchanged source/index snapshots, transaction cleanup."
+  ],
+  "risks": [
+    "SQLite still computes and sorts all matching ranks inside the range; this does not compute only 96 BM25 scores.",
+    "Extra density/schema probes, an additional candidate CTE, tie collection, sort memory and possible temporary I/O can erase the benefit. Preserve all startup/ingest/RSS/storage and adverse measurements.",
+    "Python 3.10 or uninspectable/customized SQLite paths may retain the prior route; do not extrapolate gains to them."
+  ],
+  "measurement": {
+    "registered_plan": "benchmarks/experiments/round6-plan.json",
+    "unchanged_thresholds_percent": {
+      "aggregate_p95": 10,
+      "best_public_native_token_p95": 15,
+      "public_actual_mcp_token1024_p95": 10,
+      "max_pooled_regression": 5,
+      "resource_increase_review": 10
+    },
+    "new_bindings": [
+      "benchmarks/experiments/round6-b-development-native-binding.json",
+      "benchmarks/experiments/round6-b-development-mcp-binding.json",
+      "benchmarks/experiments/round6-b-performance-binding.json"
+    ],
+    "historical_compatibility_report": "benchmarks/reports/round6-hotpot-compatibility-b.json.gz",
+    "rule": "Commit materially changed frozen B runtime and evaluator before B bindings. Each actual source pair/stage gets one first-attempt execution. A bindings, original execution claims and reports remain immutable. No fresh comparison questions are selected or scored before an accepted final candidate."
+  }
+}
