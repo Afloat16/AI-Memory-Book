@@ -15,11 +15,11 @@ from types import FunctionType
 from typing import Any
 
 from .segmentation import make_turns, segment
-from .text import estimate_tokens, excerpt, headline, index_text, query_terms, terms
+from .text import estimate_tokens, excerpt, headline, identifier_families, identifier_phrase_matches, index_text, query_terms, terms
 
 SCHEMA_VERSION = 3
 INDEX_VERSION = 3
-RECALL_VERSION = 10
+RECALL_VERSION = 11
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -795,6 +795,114 @@ class MemoryBook:
                     session_title=directory[6], created_at=directory[7])
         return {identity: row for identity, row in rows.items() if identity in retained}
 
+    def _identifier_candidates(self, candidates: list[dict], families: list,
+                               qt: list[str], where: str, params: list,
+                               project_bounds: tuple[int, int] | None) -> list[dict] | None:
+        """Supplement old token streams with bounded, exact acronym phrases.
+
+        None means keep the original candidates and their scores verbatim.
+        Incomplete/oversized indexed bodies cannot prove a missing phrase, so
+        those queries also retain the original path without partial reranking.
+        """
+        phrases = list(dict.fromkeys(form for family in families for form in family))
+        expression = "body : (" + " OR ".join('"' + " ".join(form) + '"' for form in phrases) + ")"
+        page_join = " CROSS JOIN" if project_bounds is not None else " JOIN"
+        statement = """SELECT p.rid,p.id,p.project_id,p.chapter_id,
+          c.title chapter_title,s.external_id session_id,s.title session_title,s.created_at,
+          bm25(pages_fts,2.0,2.0,1.0,0.25) rank,
+          CASE WHEN length(pages_fts.body)<=65536 THEN pages_fts.body END identifier_body,
+          CASE WHEN length(p.content)<=65536 THEN p.content END identifier_source
+          FROM pages_fts""" + page_join + """ pages p ON p.rid=pages_fts.rowid
+          JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk
+          WHERE pages_fts MATCH ?""" + where
+        route_params = [expression, *params]
+        if project_bounds is not None:
+            statement += " AND pages_fts.rowid BETWEEN ? AND ?"
+            route_params.extend(project_bounds)
+        statement += " ORDER BY rank,p.id LIMIT 96"
+        bodies, source_matches, extra_rows = {}, {}, []
+        body_chars = 0
+        cursor = self.db.execute(statement, route_params)
+        try:
+            for row in cursor:
+                body = row["identifier_body"]
+                source = row["identifier_source"]
+                if (not isinstance(body, str) or not isinstance(source, str)
+                        or body_chars + len(body) + len(source) > 262144):
+                    return None
+                body_chars += len(body) + len(source)
+                bodies[row["rid"]] = tuple(body.split())
+                source_matches[row["rid"]] = identifier_phrase_matches(source, phrases)
+                item = dict(row)
+                item.pop("identifier_body")
+                item.pop("identifier_source")
+                extra_rows.append(item)
+        finally:
+            cursor.close()
+
+        # A same-ID page may previously have matched only a generic fragment.
+        # Its complete alias is new evidence too. Original-form-only results
+        # never activate this ranking change, even if this extra route finds
+        # additional original-form pages beyond an old route's candidate cap.
+        if not any(alternative in source_matches[row["rid"]]
+                   and original not in source_matches[row["rid"]]
+                   for row in extra_rows for original, alternative in families):
+            return None
+        missing = [item["rid"] for item in candidates if item["rid"] not in bodies]
+        if missing:
+            cursor = self.db.execute("""SELECT pages_fts.rowid,
+              CASE WHEN length(body)<=65536 THEN body END identifier_body,
+              CASE WHEN length(p.content)<=65536 THEN p.content END identifier_source
+              FROM pages_fts JOIN pages p ON p.rid=pages_fts.rowid
+              WHERE pages_fts.rowid IN (""" + ",".join("?" for _ in missing) + ")", missing)
+            try:
+                for row in cursor:
+                    body = row["identifier_body"]
+                    source = row["identifier_source"]
+                    if (not isinstance(body, str) or not isinstance(source, str)
+                            or body_chars + len(body) + len(source) > 262144):
+                        return None
+                    body_chars += len(body) + len(source)
+                    bodies[row["rowid"]] = tuple(body.split())
+                    source_matches[row["rowid"]] = identifier_phrase_matches(source, phrases)
+            finally:
+                cursor.close()
+        if any(item["rid"] not in bodies for item in candidates):
+            return None
+        # Keep every original exact/porter candidate. The supplementary route
+        # has its own 96-row cap; the combined pool has at most 288 pages.
+        merged = {item["id"]: dict(item) for item in candidates}
+        original_order = {item["id"]: i for i, item in enumerate(candidates)}
+        anchor = max((item["score"] for item in candidates), default=1.0) or 1.0
+        scale = max((-item["rank"] for item in extra_rows), default=1.0) or 1.0
+        for item in extra_rows:
+            if item["id"] not in merged:
+                item["score"] = anchor * max(0.0, -item["rank"]) / scale
+                merged[item["id"]] = item
+        qset = set(qt)
+        protected = qset.intersection(term for original, _ in families for term in original)
+        ordering = {}
+        for identity, item in merged.items():
+            tokens = bodies[item["rid"]]
+            covered = qset.intersection(tokens) - protected
+            original_hits = family_hits = 0
+            excerpt_terms = list(qt)
+            for original, alternative in families:
+                exact = original in source_matches[item["rid"]]
+                alias = alternative in source_matches[item["rid"]]
+                original_hits += exact
+                family_hits += exact or alias
+                if exact or alias:
+                    covered.update(qset.intersection(original))
+                    if alias and not exact:
+                        excerpt_terms.extend(alternative)
+            if len(excerpt_terms) > len(qt):
+                item["excerpt_terms"] = list(dict.fromkeys(excerpt_terms))
+            ordering[identity] = (-bool(family_hits), -len(covered), -original_hits,
+                                  -family_hits, -item["score"],
+                                  original_order.get(identity, len(candidates)), identity)
+        return sorted(merged.values(), key=lambda item: ordering[item["id"]])
+
     def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 4000, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False) -> dict:
         started = time.perf_counter_ns()
         query = _string(query, "query", maximum=8000, required=False)
@@ -826,6 +934,9 @@ class MemoryBook:
                 _string(val, key)
         qt = query_terms(query)
         current_query = bool(CURRENT_QUERY.search(query) and not HISTORICAL_QUERY.search(query))
+        identifiers = (identifier_families(query) if strategy == "book" and not coverage
+                       and not semantic and not CURRENT_QUERY.search(query)
+                       and not HISTORICAL_QUERY.search(query) else [])
         use_stem = strategy == "book" and any(ASCII_WORD.search(token) for token in qt)
         semantic_model = self._semantic_encoder() if semantic else None
         # A read snapshot ties candidates, sources, and the cache revision together.
@@ -954,7 +1065,7 @@ class MemoryBook:
                     rows = {row["id"]: dict(row) for row in routes[0]}
                 bounded = None
                 base_relevance = None
-                if (use_stem and rows and strategy == "book" and not coverage and not semantic
+                if (use_stem and rows and strategy == "book" and not coverage and not semantic and not identifiers
                         and self.db.row_factory is sqlite3.Row and self.db.text_factory is str
                         and self._directory_tokens is self._ordinary_directory_cache
                         and getattr(self._directory_tokens, "__wrapped__", None) is _ORDINARY_DIRECTORY_TOKENS):
@@ -1091,6 +1202,11 @@ class MemoryBook:
                             preferred.append(candidates[original_positions[leader]])
                             seen.add(leader)
                     candidates = preferred + [item for item in candidates if item["rid"] not in seen]
+                if identifiers:
+                    expanded = self._identifier_candidates(
+                        candidates, identifiers, qt, where, params, project_bounds)
+                    if expanded is not None:
+                        candidates = expanded
                 if semantic_model is not None:
                     candidates = fuse_candidates(candidates, rank_pages(self.db, semantic_model, query, where, params))
                 if candidates:
@@ -1129,7 +1245,9 @@ class MemoryBook:
                                 forms[row["rowid"]] = qt + extra
                         for item, _, _ in allocations:
                             if item["rid"] in forms:
-                                item["excerpt_terms"] = forms[item["rid"]]
+                                item["excerpt_terms"] = (list(dict.fromkeys(
+                                    item["excerpt_terms"] + forms[item["rid"]]))
+                                    if "excerpt_terms" in item else forms[item["rid"]])
                     if token_counter is not None and budget_tokens:
                         # Supplemental units are parsed in original turns so a
                         # page boundary cannot turn a cut sentence/fence into a

@@ -20,6 +20,11 @@ CJK_RUN = re.compile(rf"^[{CJK}]+$")
 CJK_CHARACTER = re.compile(rf"[{CJK}]")
 CAMEL_BOUNDARY = re.compile(r"([a-z])([A-Z])")
 IDENTIFIER_SEPARATOR = re.compile(r"[_./:-]+")
+ACRONYM_BOUNDARY = re.compile(r"([A-Z][A-Z0-9]+)([A-Z][a-z])")
+CODE_WORD = re.compile(r"(?<![A-Za-z0-9_])[A-Za-z][A-Za-z0-9_]*(?![A-Za-z0-9_])")
+SPACED_ACRONYM = re.compile(
+    r"(?<![A-Za-z0-9_])([A-Z][A-Z0-9]{1,15})[ \t]+"
+    r"([A-Z]?[a-z][a-z0-9]*)(?![A-Za-z0-9_])")
 ZH_QUESTION = re.compile(r"为什么|请告诉我|请问|是什么|什么|怎么样|怎么|如何|多少|哪些|哪个|是否")
 STOP = frozenset("a an the is are was were be been to of in on at for from and or it this that these those with as by what which who when where why how do does did can could would should please tell me we our you your i my about now current latest final s t re ve ll d m".split())
 ZH_STOP = frozenset("什么 怎么 如何 为什么 哪个 哪些 是否 现在 当前 最后 最终 我们 这个 那个 一个 一下 请问 告诉 多少 了吗 的是 是什 么的 如何 何时 怎样".split())
@@ -70,6 +75,67 @@ def index_text(text: str) -> str:
 def query_terms(text: str) -> list[str]:
     # Bound SQL expression complexity and preserve repeated-word neutrality.
     return list(dict.fromkeys(terms(text, query=True)))[:64]
+
+
+def identifier_families(text: str) -> list[tuple[tuple[str, ...], tuple[str, ...]]]:
+    """Bounded query aliases for acronym boundaries in the existing index.
+
+    These are alternative *phrases*, not extra OR words. The stored token
+    stream is unchanged: HTTPServer is still indexed as ``httpserver``.
+    Lowercase prose and arbitrary adjacent words do not create aliases.
+    """
+    if len(text) > 8000:
+        return []
+    proposals = []
+    for match in CODE_WORD.finditer(text):
+        word = match.group()
+        if len(word) <= 80:
+            split = ACRONYM_BOUNDARY.sub(r"\1 \2", word)
+            if split != word:
+                proposals.append((match.start(), word, split))
+    for match in SPACED_ACRONYM.finditer(text):
+        if len(match.group()) <= 80:
+            proposals.append((match.start(), match.group(), "".join(match.groups())))
+    result = []
+    seen = set()
+    for _, original, alternative in sorted(proposals):
+        family = (tuple(terms(original)), tuple(terms(alternative)))
+        if (family[0] != family[1] and all(0 < len(form) <= 8 for form in family)
+                and family not in seen):
+            seen.add(family)
+            result.append(family)
+            if len(result) == 4:
+                break
+    return result
+
+
+def identifier_phrase_matches(text: str, phrases: list[tuple[str, ...]]) -> set[tuple[str, ...]]:
+    """Check indexed phrases at complete ASCII source-word boundaries.
+
+    A legacy token inside MyHTTPServerCache is not the source identifier
+    HTTPServer. Phrases may span complete words or separators, but may not
+    begin/end inside a longer camelCase or underscore-delimited identifier.
+    """
+    tokens, starts, ends = [], [], set()
+    previous = 0
+    for match in CODE_WORD.finditer(text):
+        if any(character.isalnum() or character == "_" for character in text[previous:match.start()]):
+            # Do not join ASCII words across omitted CJK/numeric source words.
+            tokens.append("\x00")
+        starts.append(len(tokens))
+        tokens.extend(terms(match.group()))
+        ends.add(len(tokens))
+        previous = match.end()
+    by_first = {}
+    for phrase in phrases:
+        by_first.setdefault(phrase[0], []).append(phrase)
+    found = set()
+    for start in starts:
+        for phrase in by_first.get(tokens[start], ()):
+            end = start + len(phrase)
+            if end in ends and tuple(tokens[start:end]) == phrase:
+                found.add(phrase)
+    return found
 
 
 def estimate_tokens(text: str) -> int:
