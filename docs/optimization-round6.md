@@ -1,6 +1,6 @@
 # v0.3.4 optimization and recovery checkpoint
 
-Status: candidate A completed its source CI, development comparison and all 2,304 historical compatibility calls. Its roughly 1% recall improvement is insufficient for the registered formal goals, so A will not advance. Candidate B implementation and directed correctness checks are complete; its source is being frozen before any B performance measurement. Published v0.3.3 remains the baseline and current release; no v0.3.4 runtime is approved.
+Status: A and B completed their development comparisons. The original recall improvement target is unaccepted and no four-round recall formal matrix was run. B is rejected for clear latency regressions; active runtime is restored byte for byte to A. A separate startup/initialization confirmation is registered before its new measurements. v0.3.3 remains the released baseline; v0.3.4 is not approved yet.
 
 ## User goal and immutable baseline
 
@@ -71,3 +71,14 @@ Source `e89737ce82baffd349e84d01184113142c0de602` is frozen at runtime `01ce7496
 The [B non-scored profile](../benchmarks/reports/round6-development/candidate-b-profile/manifest.json) completed all 4,732 old-data calls with identical complete payload hashes. It preserves all eight instrumented cells, including public diagnostic-time increases of approximately 25.30%, 10.42%, 31.07% and 23.79%; profiler overhead and the unbalanced diagnostic order mean these are not formal latency estimates. The new route is active in all 2,030 public route calls per configuration, so an inactive optimization is not being mistaken for compatibility.
 
 The separately claimed [B historical compatibility check](../benchmarks/reports/round6-hotpot-compatibility-b.summary.json) reproduced all 2,304 saved output hashes, and its [saved-ledger audit](../benchmarks/reports/round6-hotpot-compatibility-b.audit.json) verified every one of 4,608 events. All preflight, claim, raw report and compressed ledger evidence is retained. No B formal performance run or fresh competitor scoring has started. The balanced hosted measurements will determine whether the additional SQL/Python work is justified.
+
+
+## Release scope after the completed B result
+
+B's complete balanced development result regressed public native p95 by 19.4896–28.9987% and actual MCP token1024 p95 by 23.9246%. Both engine orders show the public regressions. Its validation success establishes exact outputs, not a successful optimization. B is rejected for formal advancement and release; all original raw reports, claims, independent audits and per-round values remain available. Its exact source commit remains `e89737ce82baffd349e84d01184113142c0de602`, and its implementation-specific tests are preserved under `benchmarks/experiments/round6-candidate-b/`.
+
+To meet the user's priority of promptly delivering a formal version with a clear verified benefit, the release scope is now atomic initialization and command startup. [Source selection](../benchmarks/reports/round6-startup-source-selection.json) verifies that active `src/` is byte-identical to A commit `df35007c29e4af61dd96146232fe4651cfc74391` (runtime `f361d2bf64a4e1088cbd5cff6ffdaf19aa15e7f1b7ea1de4577d7a488d2ac242`). No B optimization is included. A's own completed exact-output evidence remains applicable to those identical bytes.
+
+The independent [startup confirmation plan](../benchmarks/experiments/round6-startup-plan.json) was registered remotely at `17bbd1feb767b92ccdba6c20565923a516ff6afc` before its implementation or measurements. It explicitly acknowledges that the initialization hypothesis arose from A development observations. Its new 480-sample matrix separates actual CLI help/version, complete API import, new/previously initialized archive construction and official-SDK MCP initialization. Gates require at least 50% median/p95 improvement in new archive construction and 20% in each CLI command, each with at least 5 ms median absolute reduction; other startup boundaries and resources have prospective regression/review guards. Every sample and adverse result is retained.
+
+The original recall plan and 10/15/10 gates remain immutable and unpassed. Startup confirmation cannot change either original recall verdict or be presented as completion of the original formal matrix. Publication still requires the independently audited new confirmation, a separately frozen fresh component comparison, exact final nine-job CI, verified packages and the public installer. Until those finish, this remains a release candidate.
