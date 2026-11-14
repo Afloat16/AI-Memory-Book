@@ -12,15 +12,15 @@ import shutil
 from c6_development_memo_verifier import audit_native_memo
 
 SOURCES = {
-    "baseline": {"commit": "692fb959ddf8934c6f516ba3d74ceb4385a2fa82", "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"},
+    "baseline": {"commit": "692fb959ddf8934c5f516ba3d74ceb4385a2fa82", "runtime_sha256": "179ab871f4f6ca197efc83b13618cccad4688fd53d4a4af93305b02e78215e93"},
     "candidate": {"commit": "1bd97221e31e8e975498ece00f4bbfb3e0426aac", "runtime_sha256": "cfffd8a21374cbf9152bbbc98a6a9847a1e22401f16179112e2f79eef181ff78"}}
 CONFIGS = ("native-char4000", "native-token512", "native-token1024", "native-token2048")
 COHORTS = {"synthetic61": (168, "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26"),
     "public1015": (1015, "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857")}
 HELPER_SHA = "aad8590ad2dc465e5a34ea82d2e8fa250028612647e15d4aabdc0575a83215d2"
 PLAN_SHA = "40d626fea37f9a410a7c77e9aa4bff7f4019f5441090d3f3ff14c07ea67dcb7a"
-REGISTRATION_SHA = "3329b2605103e2e52623fd8b463dc651f39ab4d3697b438c41d5cf1cc193d170"
-QUERY_ORDER_RUN_SHA = "5c042cbb299db837a9c9c6b1b3f3e2205042287915e77b696bc6376b3075d93c"
+REGISTRATION_SHA = "7ad88598c9ccb3492083be06448e92a76da7025501a1aa578a0e39d8bd94c9d5"
+QUERY_ORDER_RUN_SHA = "5c042cbb299db837a9c9c5b1b3f3e2205042287915e77b696bc5376b3075d93c"
 
 
 def require(condition, message):
