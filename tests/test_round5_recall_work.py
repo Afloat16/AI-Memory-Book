@@ -139,6 +139,43 @@ class AcceptedCountReuseTests(unittest.TestCase):
                 self.assertEqual(actual[1], counter.count(context))
                 self.assertLessEqual(actual[1], tokens)
 
+    def test_header_lower_bound_is_a_token_id_prefix_for_arbitrary_evidence(self):
+        headers = ["[p] fixture / one | 2026-11-14T00:00:00+00:00\n",
+                   "[p] café 中文 👩🏽‍💻 / O'BRIEN | 2026-11-14T00:00:00Z\n"]
+        bodies = ["", "'s", "'ll", "I've", "/", "///\n", "\r\n\t ", "!", "]",
+                  "\u0301combining", "é中文", "👩🏽‍💻", "\ud800", "\udfff",
+                  "<|endoftext|>", "123456789", "\u0085\u2028\u2029"]
+        bodies += ["".join(value) for value in itertools.product("aA1' /\r\n", repeat=3)]
+        for name in budget.TOKENIZERS:
+            counter = budget.TokenCounter(name)
+            encode = counter.encoding.encode_ordinary
+            for header, body in itertools.product(headers, bodies):
+                self.assertEqual(budget._ascii_sealing_suffix(header), "\n")
+                stable = encode(header[:-1])
+                self.assertEqual(encode(header + body)[:len(stable)], stable,
+                                 (name, repr(header), repr(body)))
+
+    def test_exhausted_budget_skips_supplemental_source_work_with_equal_output(self):
+        entries = [fixture("one", "Pressure is 82. " * 20),
+                   fixture("two", "A complete supplemental detail.\n" * 30)]
+        pages = [entry[0] for entry in entries]
+        for name in budget.TOKENIZERS:
+            counter = budget.TokenCounter(name)
+            cap = counter.count(entries[0][1] + entries[0][2])
+            expected = budget.assemble_with_count(entries, pages, ["pressure"],
+                        budget_chars=8000, budget_tokens=cap, counter=CompleteCounter(name))
+            visited = []
+
+            def units(row):
+                visited.append(row["id"])
+                return row["token_source_units"]
+
+            actual = budget.assemble_with_count(entries, pages, ["pressure"],
+                        budget_chars=8000, budget_tokens=cap, counter=counter,
+                        source_units_for=units)
+            self.assertEqual(actual, expected)
+            self.assertEqual(visited, [])
+
 
 class EqualRouteScoreTests(unittest.TestCase):
     def test_equal_routes_keep_the_exact_raw_bm25_scale(self):
