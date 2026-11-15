@@ -1,0 +1,42 @@
+{
+  "scope": "Seven pure-predicate sentence-boundary checks; no recall/scorer.",
+  "store_sha256": "8ebcf29541ea0c46a99c01e1e0ad2fe28a1643908c5a325220d868efd68ad92e",
+  "query": "current Redis service retry_limit",
+  "checks": [
+    {
+      "delimiter": ". ",
+      "content": "Redis service audit finished. Memcache retry_limit=9.",
+      "qualifies": false
+    },
+    {
+      "delimiter": "; ",
+      "content": "Redis service audit finished; Memcache retry_limit=9.",
+      "qualifies": false
+    },
+    {
+      "delimiter": "\n",
+      "content": "Redis service audit finished\nMemcache retry_limit=9.",
+      "qualifies": false
+    },
+    {
+      "delimiter": "。",
+      "content": "Redis service audit finished。Memcache retry_limit=9.",
+      "qualifies": false
+    },
+    {
+      "delimiter": "；",
+      "content": "Redis service audit finished；Memcache retry_limit=9.",
+      "qualifies": false
+    },
+    {
+      "delimiter": "！",
+      "content": "Redis service audit finished！Memcache retry_limit=9.",
+      "qualifies": false
+    },
+    {
+      "delimiter": "？",
+      "content": "Redis service audit finished？Memcache retry_limit=9.",
+      "qualifies": false
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "schema": "c5-independent-preflight-closure-v1",
+  "scope": "Five independent regression recalls against the same final store hash; no engineering workload, scoring, or timing. Earlier failures are retained separately. This closes the defects found in this review, not a claim of general entity reasoning or product superiority.",
+  "store_sha256": "08c03064fd75033db01cdfea5f0c93c9ed384cefe1b50f87da733f4b96d56841",
+  "runs": [
+    {
+      "name": "entity-capitalized",
+      "artifact": "benchmarks/results/engineering-2400-20261115/candidate-c5-preflight/independent-final-entity-capitalized.json",
+      "sha256": "dc9d88e5aa296268abf350d29fcb24b28c4353cf6b0b096190c7b444fe8cb5e2",
+      "command": [
+        "PYTHONPATH=/workspace/scratch/2421a8727f3c/AI-Memory-Book-noise-fix/src",
+        "/workspace/scratch/2421a8727f3c/AI-Memory-Book/.venv/bin/python",
+        "benchmarks/results/engineering-2400-20261115/candidate-c5-preflight/independent_reproduce_cross_entity.py"
+      ]
+    },
+    {
+      "name": "entity-lowercase",
+      "artifact": "benchmarks/results/engineering-2400-20261115/candidate-c5-preflight/independent-final-entity-lowercase.json",
+      "sha256": "dc9d88e5aa296268abf350d29fcb24b28c4353cf6b0b096190c7b444fe8cb5e2",
+      "command": [
+        "PYTHONPATH=/workspace/scratch/2421a8727f3c/AI-Memory-Book-noise-fix/src",
+        "/workspace/scratch/2421a8727f3c/AI-Memory-Book/.venv/bin/python",
+        "benchmarks/results/engineering-2400-20261115/candidate-c5-preflight/independent_reproduce_cross_entity.py",
+        "--query",
+        "current redis service retry_limit"
+      ]
+    },
+    {
+      "name": "variables-native",
+      "artifact": "benchmarks/results/engineering-2400-20261115/candidate-c5-preflight/independent-final-variables-native.json",
+      "sha256": "3a44b8342babb5cf8f92a44aceec7b417c9a2b7349459db1cfbdaf85b2f73a2e",
+      "command": [
+        "PYTHONPATH=/workspace/scratch/2421a8727f3c/AI-Memory-Book-noise-fix/src",
+        "/workspace/scratch/2421a8727f3c/AI-Memory-Book/.venv/bin/python",
+        "benchmarks/results/engineering-2400-20261115/candidate-c5-preflight/independent_reproduce_variable_limit.py",
+        "--variable-limit",
+        "0"
+      ]
+    },
+    {
+      "name": "variables-192",
+      "artifact": "benchmarks/results/engineering-2400-20261115/candidate-c5-preflight/independent-final-variables-192.json",
+      "sha256": "b0a28c844eca13066bd765cdec137f3933f3f6868d17678cbf91307b6b0c95a1",
+      "command": [
+        "PYTHONPATH=/workspace/scratch/2421a8727f3c/AI-Memory-Book-noise-fix/src",
+        "/workspace/scratch/2421a8727f3c/AI-Memory-Book/.venv/bin/python",
+        "benchmarks/results/engineering-2400-20261115/candidate-c5-preflight/independent_reproduce_variable_limit.py",
+        "--variable-limit",
+        "192"
+      ]
+    },
+    {
+      "name": "variables-100",
+      "artifact": "benchmarks/results/engineering-2400-20261115/candidate-c5-preflight/independent-final-variables-100.json",
+      "sha256": "918262371b5b62357c18f23449079fc94a509ee567518a8e469f7b2ce2fa4bd2",
+      "command": [
+        "PYTHONPATH=/workspace/scratch/2421a8727f3c/AI-Memory-Book-noise-fix/src",
+        "/workspace/scratch/2421a8727f3c/AI-Memory-Book/.venv/bin/python",
+        "benchmarks/results/engineering-2400-20261115/candidate-c5-preflight/independent_reproduce_variable_limit.py",
+        "--variable-limit",
+        "100"
+      ]
+    }
+  ],
+  "checks": {
+    "capitalized_entity_returns_redis": true,
+    "lowercase_entity_returns_redis": true,
+    "wrong_entity_absent_from_original_96": true,
+    "all_variable_limits_succeed": true,
+    "all_variable_limit_candidate_counts_288": true,
+    "variable_192_stable_response_equals_native": true,
+    "variable_100_stable_response_equals_native": true,
+    "all_snapshots_closed": true
+  },
+  "passed": true,
+  "remaining_limits": [
+    "Current value recognition is syntactic and lexical; quoted/trial/rejected assignments and same-unit entity ambiguity are not authority resolution.",
+    "Partial local-topic candidates can still be retrieved; recency interchange requires the same per-property local-topic signature.",
+    "A value route returns at most96 candidates but can scan every scoped FTS hit; no constant-time or constant-small-memory claim."
+  ]
+}

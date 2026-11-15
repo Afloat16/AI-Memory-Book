@@ -8,6 +8,7 @@ import math
 import re
 import sqlite3
 import time
+from bisect import bisect_left, bisect_right
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
@@ -19,7 +20,7 @@ from .text import estimate_tokens, excerpt, headline, index_text, query_terms, t
 
 SCHEMA_VERSION = 3
 INDEX_VERSION = 3
-RECALL_VERSION = 14
+RECALL_VERSION = 15
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -48,6 +49,7 @@ _EXPLICIT_BINDING = re.compile(rf"(?<![\w./:-])(?P<key>{_PROPERTY_NAME})[ \t]*=(
 _NUMERIC_STATEMENT = re.compile(
     rf"(?:^|(?<=[\n.!?;:]))[ \t]*(?P<key>[^\W\d]\w*(?:[ \t]+[^\W\d]\w*)*)"
     rf"[ \t]+(?:is|are)[ \t]+(?:now[ \t]+)?{_NUMBER_VALUE}(?![\w.])", re.IGNORECASE)
+CURRENT_VALUE_ROUTE_LIMIT = 96
 RECALL_METADATA_INDEX_SQL = """CREATE INDEX IF NOT EXISTS pages_recall_metadata
 ON pages(rid,id,project_id,chapter_id,session_pk);"""
 STEM_INDEX_SQL = "CREATE VIRTUAL TABLE IF NOT EXISTS pages_stem_fts USING fts5(title, question, body, directory, tokenize='porter unicode61');"
@@ -307,26 +309,10 @@ def _latest_matching_turn(content: str, raw_refs: str, matched: set[str]) -> int
     return max((ref["turn_index"] for ref in _matching_turn_refs(content, refs, matched)), default=None)
 
 
-def _current_binding_keys(content: str, query: str) -> frozenset[tuple[str, str]]:
-    """Find literal query properties with a concrete syntactic value binding.
-
-    Only ``name=scalar`` and an exact queried phrase followed by
-    ``is/are [now] number`` qualify. Names retain code punctuation; related
-    words or similar values do not establish the same property. Assignment
-    names preserve case; numeric phrases may omit one explicit temporal
-    prefix already recognized by the query-intent guards. Natural multiword
-    phrases ignore case but retain a separate syntax identity. If several
-    punctuated identifiers occur in the query, all must have bindings before a whole page can
-    participate in cross-source timestamp preference. This is not a parser
-    for every natural-language conjunction or quoted property list.
-
-    This does not resolve authority: a trial, rejected option, or quotation
-    can contain this syntax too. Unrecognized prose keeps lexical order;
-    source text, all candidates and the current-evidence warning remain.
-    """
+def _query_bindings(content: str, query: str):
+    """Yield literal query property identities and their original spans."""
     if not isinstance(content, str):
-        return frozenset()
-    keys = set()
+        return
     for expression in (_EXPLICIT_BINDING, _NUMERIC_STATEMENT):
         for match in expression.finditer(content):
             name = " ".join(match["key"].split())
@@ -345,10 +331,142 @@ def _current_binding_keys(content: str, query: str) -> frozenset[tuple[str, str]
             literal = r"[ \t]+".join(re.escape(word) for word in name.split())
             if re.search(rf"(?<![\w./:-]){literal}(?![\w./:-])", query,
                          re.IGNORECASE if natural_phrase else 0):
-                keys.add((syntax, name))
+                yield (syntax, name), (match.start("key"), match.end())
+
+
+def _current_binding_keys(content: str, query: str) -> frozenset[tuple[str, str]]:
+    """Find literal query properties with a concrete syntactic value binding.
+
+    Only ``name=scalar`` and an exact queried phrase followed by
+    ``is/are [now] number`` qualify. Names retain code punctuation; related
+    words or similar values do not establish the same property. Assignment
+    names preserve case; numeric phrases may omit one explicit temporal
+    prefix already recognized by the query-intent guards. Natural multiword
+    phrases ignore case but retain a separate syntax identity. If several
+    punctuated identifiers occur in the query, all must have bindings before a whole page can
+    participate in cross-source timestamp preference. This is not a parser
+    for every natural-language conjunction or quoted property list.
+
+    This does not resolve authority: a trial, rejected option, or quotation
+    can contain this syntax too. Unrecognized prose keeps lexical order;
+    source text, all candidates and the current-evidence warning remain.
+    """
+    keys = {key for key, _ in _query_bindings(content, query)}
     identifiers = {match.group() for match in _PROPERTY_MENTION.finditer(query)
                    if any(separator in match.group() for separator in "_./:-")}
     return frozenset(keys) if identifiers.issubset(name for _, name in keys) else frozenset()
+
+
+def _has_current_value_topic(query: str) -> bool:
+    """Skip scans that cannot have a topic outside the explicit properties."""
+    topic_query = CURRENT_QUERY.sub(" ", query)
+    query_set = set(query_terms(topic_query))
+    identifiers = [match.group() for match in _PROPERTY_MENTION.finditer(topic_query)
+                   if any(separator in match.group() for separator in "_./:-")]
+    known = set().union(*(set(query_terms(name)) for name in identifiers)) if identifiers else set()
+    return len(query_set) > 1 and bool(query_set - known)
+
+
+def _current_value_filter(query: str, *, include_context: bool = False):
+    """Compile a conservative, query-local value-evidence predicate.
+
+    A literal property binding alone is not enough to prefer an entire page.
+    Require an additional queried topic in the binding's original sentence
+    or source line, and complete lexical coverage of its query clause in
+    that unit plus directory. Capitalized or quoted query subjects must
+    occur in the same unit; a chapter, another sentence or a user question
+    cannot lend ``Redis`` to a separate ``Memcache`` assignment.
+
+    A contiguous block of bare ``name=scalar`` lines may inherit its directly
+    preceding topic line. Blank lines, code fences, role-prefixed assignments
+    and headers that already contain an assignment stop this exception. The
+    archive separates messages/turns with blank lines, so this never borrows
+    a previous question across an archive boundary. This predicate-only view
+    does not alter the returned original text or its source coordinates.
+
+    This is syntax and lexical evidence, not entity resolution or authority
+    inference. Lowercase ambiguous subjects and unrecognized prose retain
+    those limitations. Bare-property queries keep the existing relevance and
+    same-source ordering because there is no separate topic anchor.
+    """
+    topic_query = CURRENT_QUERY.sub(" ", query)
+    pieces = QUERY_CONJUNCTION.split(topic_query)
+    if not 2 <= len(pieces) <= 3 or not all(len(query_terms(piece)) >= 2 for piece in pieces):
+        pieces = [topic_query]
+    prepared = []
+    for piece in pieces:
+        explicit = []
+        for mention in _PROPERTY_MENTION.finditer(piece):
+            name = mention.group()
+            if any(char.isupper() for char in name) and query_terms(name):
+                explicit.append((frozenset(query_terms(name)), re.compile(
+                    rf"(?<![\w./:-]){re.escape(name)}(?![\w./:-])", re.IGNORECASE)))
+        for mention in re.finditer(r"`([^`\n]+)`|\"([^\"\n]+)\"|'([^'\n]+)'", piece):
+            name = next(group for group in mention.groups() if group is not None)
+            explicit.append((frozenset(query_terms(name)), re.compile(
+                rf"(?<![\w./:-]){re.escape(name)}(?![\w./:-])")))
+        prepared.append((piece, frozenset(query_terms(piece)), explicit))
+
+    @lru_cache(maxsize=CURRENT_VALUE_ROUTE_LIMIT)
+    def qualifies(content: str, chapter_title: str, session_title: str) -> frozenset:
+        keys = _current_binding_keys(content, query)
+        if not keys:
+            return frozenset()
+        property_terms = set().union(*(set(query_terms(name)) for _, name in keys))
+        directory = set(terms(chapter_title + " " + session_title))
+        boundaries = list(re.finditer(r"[;\n。！？；]|[.!?](?=\s|$)", content))
+        starts, ends = [boundary.start() for boundary in boundaries], [boundary.end() for boundary in boundaries]
+        line_starts, inherited = [], []
+        offset, header = 0, None
+        for line in content.splitlines(keepends=True):
+            stripped = line.strip()
+            assignment = _EXPLICIT_BINDING.match(stripped)
+            bare = bool(assignment and stripped[assignment.end():].strip() in ("", ".", ";", "。", "；"))
+            line_starts.append(offset)
+            inherited.append((header + "\n" + line) if bare and header is not None else None)
+            if not bare:
+                header = (stripped if stripped and not stripped.startswith(("```", "~~~"))
+                          and not _EXPLICIT_BINDING.search(stripped) and not _NUMERIC_STATEMENT.search(stripped)
+                          else None)
+            offset += len(line)
+        units = {}
+        unit_records = {}
+        for key, (start, _) in _query_bindings(content, query):
+            before, after = bisect_right(ends, start), bisect_left(starts, start)
+            lo, hi = ends[before - 1] if before else 0, starts[after] if after < len(starts) else len(content)
+            span = (lo, hi)
+            if span not in unit_records:
+                line = bisect_right(line_starts, start) - 1
+                unit = inherited[line] if line >= 0 and inherited[line] is not None else content[lo:hi]
+                unit_records[span] = (unit, set(terms(unit)))
+            units.setdefault(key, set()).add(span)
+        supported = set()
+        for piece, facet, explicit in prepared:
+            properties = []
+            for syntax, name in keys:
+                literal = r"[ \t]+".join(re.escape(word) for word in name.split())
+                if re.search(rf"(?<![\w./:-]){literal}(?![\w./:-])", piece,
+                             re.IGNORECASE if syntax == "numeric_phrase" else 0):
+                    properties.append((syntax, name))
+            if not properties:
+                continue
+            topic = facet - property_terms
+            if not topic:
+                continue
+            contexts = set()
+            for key in properties:
+                matching = {(key, frozenset(topic & body))
+                    for unit, body in (unit_records[span] for span in units.get(key, ()))
+                    if topic & body and facet.issubset(body | directory | property_terms)
+                    and all(not (subject - property_terms) or literal.search(unit) for subject, literal in explicit)}
+                if not matching:
+                    break
+                contexts.update(matching)
+            else:
+                supported.add((facet, frozenset(contexts)))
+        return frozenset(supported) if include_context else frozenset(facet for facet, _ in supported)
+
+    return qualifies
 
 
 def _current_excerpt_ref(content: str, refs: list[dict], matched: set[str], allowance: int) -> dict | None:
@@ -870,6 +988,43 @@ class MemoryBook:
         values["revision"], values["schema_version"] = self.revision, SCHEMA_VERSION
         return values
 
+    def _current_value_route(self, query: str, expression: str, where: str, params: list,
+                             project_bounds: tuple[int, int] | None) -> list[dict]:
+        """Supplement current recall with at most 96 precise value pages.
+
+        Apply the original FTS match, scopes and raw-text predicate *before*
+        the limit. No generated markers enter either normal FTS index, so
+        their corpus lengths, BM25 statistics and historical routes do not
+        change. This bounds returned candidates, not scanning: the worst case
+        examines every scoped FTS hit, including its source body. Ordinary,
+        historical and event queries do not execute this extra route.
+        """
+        qualifies = _current_value_filter(query, include_context=True)
+        name = "memory_book_current_value"
+        self.db.create_function(name, 3,
+            lambda content, chapter_title, session_title: bool(qualifies(content, chapter_title, session_title)))
+        try:
+            statement = """SELECT p.rid,p.id,bm25(pages_fts,2.0,2.0,1.0,0.25) rank,
+              p.project_id,p.chapter_id,c.title chapter_title,s.external_id session_id,
+              s.title session_title,s.created_at,p.content
+              FROM pages_fts CROSS JOIN pages p ON p.rid=pages_fts.rowid
+              JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk
+              WHERE pages_fts MATCH ?""" + where
+            route_params = [expression, *params]
+            if project_bounds is not None:
+                statement += " AND pages_fts.rowid BETWEEN ? AND ?"
+                route_params.extend(project_bounds)
+            statement += (f" AND {name}(p.content,c.title,s.title) "
+                          f"ORDER BY rank,p.id LIMIT {CURRENT_VALUE_ROUTE_LIMIT}")
+            rows = [dict(row) for row in self.db.execute(statement, route_params).fetchall()]
+            for row in rows:
+                context = qualifies(row["content"], row["chapter_title"], row["session_title"])
+                row["value_context"] = context
+                row["value_facets"] = frozenset(facet for facet, _ in context)
+            return rows
+        finally:
+            self.db.create_function(name, 3, None)
+
     def _project_rowid_bounds(self, project: str | None) -> tuple[int, int] | None:
         """Bound FTS iteration only when a project occupies a narrow rowid span.
 
@@ -1110,9 +1265,28 @@ class MemoryBook:
                     rows = {row["id"]: dict(row) for route in reversed(routes) for row in route}
                 else:
                     rows = {row["id"]: dict(row) for row in routes[0]}
+                value_rows = (self._current_value_route(query, expression, where, params, project_bounds)
+                              if qt and strategy == "book" and current_query and not EVENT_QUERY.search(query)
+                              and _has_current_value_topic(query)
+                              else [])
+                value_evidence = {row["rid"]: row["value_facets"] for row in value_rows}
+                value_contexts = {row["rid"]: row["value_context"] for row in value_rows}
+                value_batch_size = 192
+                if value_rows:
+                    getlimit = getattr(self.db, "getlimit", None)
+                    if getlimit is not None:
+                        value_batch_size = max(1, min(value_batch_size, getlimit(sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER)))
+                for row in value_rows:
+                    if row["id"] not in rows:
+                        rows[row["id"]] = row
+                        if fuse_routes:
+                            # This route uses the same exact BM25 expression.
+                            # It supplies missing evidence, not a fabricated
+                            # score or an extra fusion weight.
+                            exact_scores[row["id"]] = max(0.0, -row["rank"])
                 bounded = None
                 base_relevance = None
-                if (use_stem and rows and strategy == "book" and not coverage and not semantic
+                if (use_stem and rows and not value_rows and strategy == "book" and not coverage and not semantic
                         and self.db.row_factory is sqlite3.Row and self.db.text_factory is str
                         and self._directory_tokens is self._ordinary_directory_cache
                         and getattr(self._directory_tokens, "__wrapped__", None) is _ORDINARY_DIRECTORY_TOKENS):
@@ -1129,22 +1303,27 @@ class MemoryBook:
                     # Exact and stem routes commonly overlap. Fetch their
                     # directory metadata once, after both bounded searches.
                     ids = [row["rid"] for row in rows.values()]
-                    metadata = self.db.execute("""SELECT p.id,p.project_id,p.chapter_id,
-                      c.title chapter_title,s.external_id session_id,s.title session_title,s.created_at
-                      FROM pages p INDEXED BY pages_recall_metadata
-                      JOIN chapters c ON c.id=p.chapter_id
-                      JOIN sessions s ON s.id=p.session_pk WHERE p.rid IN (""" +
-                      ",".join("?" for _ in ids) + ")", ids)
-                    metadata_columns = tuple(column[0] for column in metadata.description)
-                    for row in metadata:
-                        # sqlite3.Row's string-key lookup scans its columns.
-                        # This query has unique fixed column names, so one
-                        # ordered value pass avoids repeated scans and a
-                        # temporary dictionary for every candidate.
-                        if type(row) is sqlite3.Row:
-                            rows[row[0]].update(zip(metadata_columns, row))
-                        else:
-                            rows[row["id"]].update(dict(row))
+                    # A new third route may exceed the old two-route maximum
+                    # of 192 parameters. Batch only that added path; preserve
+                    # candidate identities, relevance and ordinary SQL calls.
+                    batches = [ids[i:i + value_batch_size] for i in range(0, len(ids), value_batch_size)] if value_rows else [ids]
+                    for batch in batches:
+                        metadata = self.db.execute("""SELECT p.id,p.project_id,p.chapter_id,
+                          c.title chapter_title,s.external_id session_id,s.title session_title,s.created_at
+                          FROM pages p INDEXED BY pages_recall_metadata
+                          JOIN chapters c ON c.id=p.chapter_id
+                          JOIN sessions s ON s.id=p.session_pk WHERE p.rid IN (""" +
+                          ",".join("?" for _ in batch) + ")", batch)
+                        metadata_columns = tuple(column[0] for column in metadata.description)
+                        for row in metadata:
+                            # sqlite3.Row's string-key lookup scans its columns.
+                            # This query has unique fixed column names, so one
+                            # ordered value pass avoids repeated scans and a
+                            # temporary dictionary for every candidate.
+                            if type(row) is sqlite3.Row:
+                                rows[row[0]].update(zip(metadata_columns, row))
+                            else:
+                                rows[row["id"]].update(dict(row))
                 qset = set(qt)
                 directory_overlaps = {}
                 for row in rows.values():
@@ -1174,17 +1353,23 @@ class MemoryBook:
                 else:
                     candidates.sort(key=lambda item: (-item["score"], item["id"]))
                 if strategy == "book" and candidates and (current_query or (len(qt) > 1 and limit > 1)):
-                    # Rerank a bounded pool using the FTS body's existing
-                    # tokens. Complementary query facets can otherwise be
-                    # crowded out by several almost-identical high scores.
+                    # Retain the ordinary relevance prefix and add each
+                    # precise-value route hit. At the default limit this is
+                    # at most 20 + 96 pages; the entire three-route union is
+                    # at most 288. The source filter runs before its own cap,
+                    # so a value page need not rank in the ordinary top 96.
                     pool = candidates[:limit * 4]
-                    pool_count = len(pool)
+                    pool_ids = {item["rid"] for item in pool}
+                    pool.extend(item for item in candidates if item["rid"] in value_evidence
+                                and item["rid"] not in pool_ids)
+                    pool_ids = {item["rid"] for item in pool}
                     deferred = []
                     ids = [item["rid"] for item in pool]
+                    batches = [ids[i:i + value_batch_size] for i in range(0, len(ids), value_batch_size)] if value_rows else [ids]
                     matched = {row["rowid"]: qset.intersection(row["body"].split())
-                               for row in self.db.execute(
+                               for batch in batches for row in self.db.execute(
                                    "SELECT rowid,body FROM pages_fts WHERE rowid IN (" +
-                                   ",".join("?" for _ in ids) + ")", ids)}
+                                   ",".join("?" for _ in batch) + ")", batch)}
                     if current_query:
                         current_matches = matched
                         # Shared topic terms do not establish factual revisions.
@@ -1225,9 +1410,11 @@ class MemoryBook:
                         wanted_sources = repeated | cross_session | ({item["rid"] for item in pool} if distinct_current else set())
                         if wanted_sources:
                             ids = sorted(wanted_sources)
-                            for row in self.db.execute(
+                            batches = [ids[i:i + value_batch_size] for i in range(0, len(ids), value_batch_size)] if value_rows else [ids]
+                            sources = (row for batch in batches for row in self.db.execute(
                                     "SELECT rid,content,source_refs FROM pages WHERE rid IN (" +
-                                    ",".join("?" for _ in ids) + ")", ids):
+                                    ",".join("?" for _ in batch) + ")", batch))
+                            for row in sources:
                                 if distinct_current:
                                     contents[row["rid"]] = row["content"]
                                 if row["rid"] in cross_session:
@@ -1240,11 +1427,20 @@ class MemoryBook:
                             scores = [pool[i]["score"] for i in positions]
                             revisions = [pool[i] for i in positions]
                             if binding_order:
+                                # Explicitly scoped value evidence precedes
+                                # mere mentions of the same body facets.
+                                # Bare-property queries and distinct projects,
+                                # tasks or body-match sets keep their slots.
+                                revisions.sort(key=lambda item: item["rid"] in value_evidence, reverse=True)
                                 bindings = {}
                                 for i, item in enumerate(revisions):
                                     keys = binding_keys.get(item["rid"])
                                     if keys:
-                                        bindings.setdefault(keys, []).append(i)
+                                        # Directory completion or a topic in
+                                        # another sentence cannot make two
+                                        # differently matched binding units
+                                        # equivalent cross-source revisions.
+                                        bindings.setdefault((keys, value_contexts.get(item["rid"])), []).append(i)
                                 for comparable in bindings.values():
                                     ordered = sorted((revisions[i] for i in comparable),
                                                      key=lambda item: item["created_at"], reverse=True)
@@ -1272,15 +1468,25 @@ class MemoryBook:
                             pool, deferred = _distinct_current_pages(pool, contents)
                     chosen, pending = [pool[0]], pool[1:]
                     covered = set(matched[pool[0]["rid"]])
+                    covered_values = set(value_evidence.get(pool[0]["rid"], ()))
+                    explicit_facets = [set(facet) for facet in _query_facets(CURRENT_QUERY.sub(" ", query))]
+                    if not value_evidence:
+                        explicit_facets = []
                     while (pending or deferred) and len(chosen) < limit:
                         if not pending:
                             pending, deferred = deferred, []
-                        best = max(range(len(pending)), key=lambda i: pending[i]["score"] *
-                                   (1 + len(matched[pending[i]["rid"]] - covered) / len(qset)))
+                        best = max(range(len(pending)), key=lambda i: (
+                            bool(set(value_evidence.get(pending[i]["rid"], ())) - covered_values)
+                            or any(facet.issubset(matched[pending[i]["rid"]]) and not facet.issubset(covered)
+                                   for facet in explicit_facets),
+                            pending[i]["rid"] in value_evidence,
+                            pending[i]["score"] *
+                            (1 + len(matched[pending[i]["rid"]] - covered) / len(qset))))
                         item = pending.pop(best)
                         chosen.append(item)
                         covered.update(matched[item["rid"]])
-                    candidates = chosen + pending + deferred + candidates[pool_count:]
+                        covered_values.update(value_evidence.get(item["rid"], ()))
+                    candidates = chosen + pending + deferred + [item for item in candidates if item["rid"] not in pool_ids]
                 facets = (_query_facets(query) if coverage and strategy == "book" and limit > 1 and
                           not CURRENT_QUERY.search(query) and not HISTORICAL_QUERY.search(query) else [])
                 if candidates and facets:
