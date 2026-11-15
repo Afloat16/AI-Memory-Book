@@ -1,109 +1,142 @@
 # AI-Memory-Book
 
-**Keep engineering decisions available across projects, sessions, and AI clients.**
+**Give coding agents engineering memory they can verify and continue from.**
 
-AI-Memory-Book gives coding agents a shared local archive of earlier work. Projects become books, tasks become chapters, and a scoped MCP query returns original evidence with source references—so the agent can recover a decision, check a correction, and continue the task.
+Projects are books, tasks are chapters, and evidence is a page you can open. AI-Memory-Book preserves normalized original text conversations, so an agent can recover constraints, parameter corrections, and failed attempts after a session or client switch, cite the source, and continue the work.
 
-[简体中文](README.zh-CN.md) · [Quick start](#quick-start) · [Default configuration](#default-configuration) · [Measured results](#measured-results) · [v0.4.0 release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.4.0)
+[简体中文](README.zh-CN.md) · [Quick start](#quick-start) · [2400-character results](#2400-character-results) · [Open-source comparison](#open-source-comparison)
 
-**v0.4.0 · Engineering memory with original evidence · MIT · Python 3.10+ · Local SQLite**
+**v0.4.0 · MIT · Python 3.10+ · Local SQLite / FTS5**
 
-## What it adds to your workflow
+## Engineering advantages
 
-- **Recover the reasoning behind earlier work.** Keep decisions, constraints, failed attempts, and original conversations addressable by project, session, turn, and page.
-- **Find corrections in a long conversation.** Explicit current/latest queries use source turn order to help surface later corrections. Distinct source text gets priority over repeated copies within the same project and task.
-- **Keep similar projects in scope.** Pass the known project ID when recalling its history; multiple supported clients can use the same archive.
-- **Run a lightweight memory layer.** Default ingestion and lexical retrieval make no model calls and need no embedding download, database server, or memory-service API key.
+- **Recover decisions together with their reasons.** Locate evidence by project, task, session, and original turn, retaining page IDs and source references. Open the original page to check a boundary condition, error message, or failed approach during code review or a task handoff.
+- **Retrieve current corrections and historical reasoning.** Explicit current/latest queries use comparable turns within a session to surface later corrections and favor distinct source text over repeated copies. Historical questions retain historical query semantics; ranking does not determine which statement is authoritative.
+- **Spend bounded context on engineering constraints.** Apply project scope before retrieval and context assembly. The default is 2400 characters and up to five results; read further only when evidence is missing. This supports recovering implementation conventions, data-split rules, and edge cases together.
+- **Continue across existing clients.** Supported clients such as Claude Code, Codex, and Gemini can share the same database. Switching tools does not require abandoning the archived project history. MCP configuration and native transcript capture have separate [support matrices](docs/integrations.md#supported-profiles).
+- **Keep the memory layer simple to operate.** Default ingestion and lexical retrieval make no model calls and need no embedding model, database server, or memory-service API key. Background capture skips unchanged files; stable session IDs and content hashes prevent duplicate ingestion. Changed sessions are replaced transactionally; existing client configuration files are backed up before changes.
 
-Capture and retrieval are separate. Opt-in background capture updates supported transcripts; an agent recalls when history matters and opens a cited page only if it needs more detail. [Agent workflow and source semantics](docs/agent-guide.md).
+When resuming a long-running task, ask which constraints the current implementation must satisfy, follow the citations to check later corrections and failed attempts, and then continue editing. Recovering a convention, checking its source, and continuing implementation gives a task handoff an explicit evidence trail. [Source semantics and agent guidance](docs/agent-guide.md).
 
 ## Quick start
 
-You need **Python 3.10+ with SQLite FTS5**. The installer downloads the release wheel into an isolated environment with MCP/client dependencies. No Git checkout or Node.js is needed.
+You need **Python 3.10+ with SQLite FTS5**. The installer uses an isolated environment with MCP/client dependencies. No Git checkout or Node.js is required.
 
 **macOS / Linux**
 
-```bash
+~~~bash
 curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.4.0/scripts/install.sh
 bash install-memory-book.sh
-```
+~~~
 
 **Windows PowerShell**
 
-```powershell
+~~~powershell
 Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.4.0/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
-```
+~~~
 
-**Connect your agent**
+**Connect and check**
 
-```bash
+~~~bash
 memory-book setup --client claude-code --capture --background
 memory-book doctor
-```
+~~~
 
-If `memory-book` is not on your PATH yet, use the full launcher path printed by the installer. Restart the client and ask: **“Recall the current decision for this project, cite the original source, and continue the task.”**
+Replace `claude-code` with your [client profile](docs/integrations.md#supported-profiles), or repeat `--client` to connect more clients. Keep the capture flags only for profiles with native capture support; omit both `--capture` and `--background` for other profiles. If the command is not on PATH, use the full launcher path printed by the installer, then restart your client.
 
-Replace `claude-code` with your [client profile](docs/integrations.md#supported-profiles), or repeat `--client` to connect more clients. MCP profiles include Claude Code/Desktop, Codex, Gemini, Cursor and others. Native transcript capture supports Claude Code, Codex, Gemini and legacy Python Kimi; other profiles use explicit imports or enabled MCP writing.
-
-`--capture` opts in to existing and future supported text transcripts. Omit it for MCP access alone. The host and model control tool invocation; connecting MCP does not install an automatic recall hook.
-
-**Upgrade:** re-run the installer, then your `setup` command with the same client and capture options. Existing memory and the previous environment are retained. [Upgrade details](docs/deployment.md#upgrading).
+`--capture` opts in to existing and future supported text transcripts; `--background` installs and starts the user service. Omit both flags for MCP configuration alone. The host and model control tool invocation, so connecting MCP does not guarantee automatic recall. To upgrade, rerun the installer and your setup command. [Deployment guide](docs/deployment.md#upgrading).
 
 ## Default configuration
 
-v0.4.0 uses **native lexical recall, a 2,400-character context budget, and up to five results**. There is no token cap by default. The character budget includes citation headings and separators in `context`; it does not cap the complete JSON response.
+The defaults are **native lexical retrieval, 2400 characters, and up to five results**, with no additional token cap. The character allowance includes citation headings and separators inside `context`; it does not cap the complete JSON response or model tokens.
 
-Start with one query scoped to the active project. For example, call the MCP tool `recall_memory` with:
+Example call to the MCP tool `recall_memory`:
 
-```json
+~~~json
 {
   "query": "current gradient accumulation steps",
   "project": "your-project-id",
   "budget_chars": 2400,
   "limit": 5
 }
-```
+~~~
 
-Replace `your-project-id` with an existing project ID. MCP returns compact source references; use the returned page ID to read more evidence when needed. The same configuration is available from the CLI:
+Use an actual project ID. Read the returned page ID when more evidence is needed. The CLI supports the same configuration:
 
-```bash
+~~~bash
 memory-book projects
-memory-book recall "current gradient accumulation steps" \
-  --project your-project-id --budget 2400 --limit 5
-```
+memory-book recall "current gradient accumulation steps" --project your-project-id --budget 2400 --limit 5
+~~~
 
-Use “original” or a specific historical question when you need the earlier decision. Current-query preferences help rank evidence; they do not make every later mention authoritative. [Handling conflicting or missing evidence](docs/agent-guide.md#when-evidence-is-insufficient).
+## 2400-character results
 
-## Measured results
+### Engineering replay against practical strategies
 
-The default retrieval profile was evaluated on **80 chronological engineering questions across eight projects and four algorithm families**. All cases are retained. The table compares v0.3.4 with the retrieval implementation adopted in v0.4.0, using **2,400 characters and five results**; result caching was disabled for timing.
+The workload contains **eight projects, four algorithm families, six chronological checkpoints, and 80 questions**. Only history available before each question is ingested. There are 72 answerable questions with 80 required evidence spans, 48 questions with executable policy checks, and eight missing-evidence questions. Algorithm families cover negative-edge shortest paths, Top-k ties, data splitting, and fully masked softmax.
 
-| Native retrieval metric | v0.3.4 baseline | v0.4.0 profile |
+The current default entry point matches the complete non-timing responses from explicit 2400/5 calls and frozen outputs on all 80 questions. The numbers below come from that retained, reproducible development experiment; repeated calls add timing samples, not independent quality cases. [Default-equivalence verification](benchmarks/reports/v040-release-preparation/default-profile/report.json).
+
+| Strategy | Evidence-span recall | Complete evidence | Policy checks passing | Mean characters |
+|---|---:|---:|---:|---:|
+| **AI-Memory-Book** | **76/80 · 95.00%** | **68/72 · 94.44%** | **44/48 · 91.67%** | **1812.0** |
+| Scoped flat FTS | 58/80 · 72.50% | 50/72 · 69.44% | 26/48 · 54.17% | 1803.7 |
+| Recent history within budget | 64/80 · 80.00% | 56/72 · 77.78% | 32/48 · 66.67% | 2260.9 |
+
+Book covers **18 more complete-evidence cases** than flat FTS, a **25-percentage-point** difference. Against recent history it covers **12 more cases** while returning approximately **19.9% fewer characters** on average. Flat FTS is this repository's baseline using the same scope, index, and packer. Recent history uses resident text, shorter citation headings, and no top-five limit; it is a practical strategy comparison. [Native replay data](benchmarks/results/engineering-memory-20261115/final/2-candidate-workflow/report.json).
+
+### Where the engineering benefit appears
+
+Complete-evidence case counts at 2400 characters, retaining all nine answerable categories:
+
+| Scenario | Book | Flat FTS | Recent history |
+|---|---:|---:|---:|
+| Later decision correction | **8/8** | 2/8 | 8/8 |
+| Recovery after a long gap | **8/8** | 2/8 | 0/8 |
+| Recovering multiple constraints | **8/8** | 2/8 | 8/8 |
+| Looking up a historical decision | **6/8** | 6/8 | 0/8 |
+| Chinese/English queries | 6/8 | 6/8 | **8/8** |
+| Initial decisions, code identifiers, failed attempts, source replacements combined | 32/32 | 32/32 | 32/32 |
+
+The gains concentrate on evidence pushed back by intervening messages, corrected decisions, and combinations of constraints. Bilingual queries still have gaps. Book has zero stale-only cases versus eight for flat FTS; this does not establish a zero hallucination rate.
+
+Local retrieval and context assembly have **p50 / p95 of 1.117 / 2.056 ms**, pooling 480 calls across two experiment blocks. Result caching is disabled; SQLite and operating-system caches are not cleared. Ingestion and model generation are excluded. [Pooled timing summary](benchmarks/results/engineering-memory-20261115/summary.json).
+
+### An executed open-source component comparison
+
+The benchmark runs the actual [pinned billion-context search kernel](https://github.com/ranxianglei/billion-context/tree/9674cfafbc78c50245ae0d887483d3d6ce880c15). Both engines receive **the same complete pages, project scope, top-five limit, and common whole-block packing at 2400 characters**. This track is recorded separately from the native-excerpt track above.
+
+| Metric | Book | billion-context kernel |
 |---|---:|---:|
-| Complete evidence in answerable cases | 44/72 · 61.11% | **68/72 · 94.44%** |
-| Fixed known-policy consumer: all checks pass | 20/48 · 41.67% | **44/48 · 91.67%** |
-| Local recall p95, including context assembly | 1.986 ms | 2.056 ms · **+3.54%** |
+| Evidence-span recall | **76/80 · 95.00%** | 72/80 · 90.00% |
+| Complete evidence | **68/72 · 94.44%** | 64/72 · 88.89% |
+| Policy checks passing | **44/48 · 91.67%** | 40/48 · 83.33% |
+| Mean characters | **1812.0** | 1955.0 |
+| Budget violations / source-validation failures | 0 / 0 | 0 / 0 |
 
-Evidence completeness improves with a small local p95 increase. The consumer extracts an explicit recorded policy and applies handwritten algorithm variants; its pass rate is not generated-code accuracy.
+Within this component comparison, Book has **5.56 percentage points** more complete evidence, **8.33 points** more passing policy checks, and **7.31% fewer characters** on average. Paired cases show **six gains and two losses**: the gains are historical-decision queries and the losses are bilingual queries. [Component data and timing boundaries](benchmarks/results/engineering-memory-20261115/final/2-candidate-components/report.json).
 
-A separate **shared-page component comparison** gives both engines the same complete source pages, project scope, top-five limit, and common whole-block packing at 2,400 characters. Book returns complete evidence for **68/72 cases (94.44%)**, versus **64/72 (88.89%)** for the [pinned billion-context search kernel](https://github.com/ranxianglei/billion-context/tree/9674cfafbc78c50245ae0d887483d3d6ce880c15): six case gains and two losses. This measures that pinned component and packing boundary, not the complete products or their latest versions.
+This is a pinned-component result. Book retains hierarchy/FTS metadata, and the engines' timing interfaces differ; no whole-product speed ratio follows. At the smaller 1200-character whole-block budget, Book has 61.11% complete evidence versus 88.89% for the kernel. All budgets and failures remain in the [detailed report](docs/engineering-memory-results.md).
 
-**These are synthetic development replays, not measurements of coding-LLM productivity.** Full budget results, failed cases, timing boundaries, and tradeoffs are retained in the [detailed engineering report](docs/engineering-memory-results.md), with [raw evidence and recomputation](benchmarks/results/engineering-memory-20261115/). The [evaluation protocol](docs/engineering-memory-evaluation.md) defines the next step: real project replay with hidden tests and time to a correct patch.
+**Evidence limits:** these are synthetic cases used during development, without a coding LLM or an independent holdout. A fixed consumer extracts recorded configuration and executes handwritten algorithm variants; its pass rate is not generated-code accuracy. All eight missing-evidence questions still return related context, requiring further checking or an explicit statement that evidence is missing. Real task completion time, patch success, and total model cost have not been measured. [Evaluation protocol](docs/engineering-memory-evaluation.md) · [Raw records](benchmarks/results/engineering-memory-20261115/).
 
-Earlier measurements remain available in the [v0.3.4 startup record](docs/releases/v0.3.4.md), [full HotpotQA component comparison](benchmarks/results/round6-comparison-43601518020-1/report.md), and [benchmark history](benchmarks/README.md).
+## Open-source comparison
 
-## Documentation
+This table compares engineering roles using each project's official documentation. Except for the pinned kernel above, these projects were not benchmarked on this workload.
 
-| Task | Guide |
-|---|---|
-| Connect clients or import conversations | [Client profiles and formats](docs/integrations.md) |
-| Install, upgrade, use Docker, or manage capture | [Deployment](docs/deployment.md) |
-| Recall, cite sources, and resolve missing evidence | [Agent guide](docs/agent-guide.md) |
-| Inspect the archive in a browser | Run `memory-book serve`, then open [127.0.0.1:8765](http://127.0.0.1:8765) |
-| Configure advanced retrieval options | [Token budgets](docs/token-budget.md) · [Semantic retrieval](docs/semantic-retrieval.md) · [Reference formats](docs/indexed-references.md) |
-| Review engineering experiments or contribute | [Results](docs/engineering-memory-results.md) · [Validation](docs/validation.md) · [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) |
+| Project | Main approach | When Book fits |
+|---|---|---|
+| [billion-context](https://github.com/ranxianglei/billion-context) | Model proxy and client plugins with model-directed reversible compression, decompression, and context search | An independent original-evidence archive queried by project through MCP, without changing model API routing |
+| [claude-mem](https://github.com/thedotmack/claude-mem) | Hooks capture activity; an observer generates observations/summaries; local HTTP worker, SQLite, optional Chroma | Default capture and lexical queries add no summarization model calls; stdio MCP and capture need no HTTP listener |
+| [Mem0](https://docs.mem0.ai/open-source/python-quickstart) | User/agent memory for applications; default model-based fact extraction and embeddings, with configurable local storage | Engineering conversations become original evidence without configuring additional extraction or embedding models |
+| [Letta Code](https://github.com/letta-ai/letta-code) | Stateful agents managing memory, skills, and Git-backed MemFS, with local or cloud operation | A shared evidence layer for existing coding clients while retaining their tools and workflows |
 
-The archive is local, unencrypted data. Evidence returned to an AI client enters that client's model context. The optional browser reader is for inspection; normal MCP and capture need no HTTP listener. [Data and configuration locations](docs/deployment.md#data-and-configuration-paths).
+Multiple clients, source lookup, and local operation are not unique to this project. Book brings **original evidence, project scope, bounded context, and low additional inference requirements** together in a lightweight memory layer for long-running development, incident review, and continuity across clients.
 
-Independently implemented under the [MIT License](LICENSE). [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml).
+## Documentation and data boundaries
+
+[Integrations](docs/integrations.md) · [Deployment and Docker](docs/deployment.md) · [Agent guide](docs/agent-guide.md) · [Token budgets](docs/token-budget.md) · [Optional semantic retrieval](docs/semantic-retrieval.md) · [Contributing](CONTRIBUTING.md)
+
+Run `memory-book serve` and open [127.0.0.1:8765](http://127.0.0.1:8765) to inspect the archive. It is local, unencrypted data; recalled evidence enters the selected client's model context. Project filtering is not multi-user access control. Client-configuration backups are not automatic database backups. [Data locations and maintenance](docs/deployment.md#data-and-configuration-paths).
+
+Independently implemented under the [MIT License](LICENSE). [Current release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.4.0) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml).
