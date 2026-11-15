@@ -339,7 +339,163 @@ The daemon reloads the change. Set `reader_enabled` back to `false` to return it
 to headless operation. Run one reader per port; a separate `serve` process is
 unnecessary when the daemon already provides that reader.
 
+## Current main and schema 4
+
+The maintenance commands below and the schema-4 identifier-aware lexical index
+are **available from the current `main` source checkout**. The published
+installers earlier on this page still install **v0.4.0, with schema 3**;
+rerunning that release installer does not install these new commands. These
+source changes have not changed the published release or its version metadata.
+
+To use them, install the current `main` checkout into a separate Python
+environment, following the [source installation method](#source-checkout) with
+the current checkout rather than the release tag. In that environment, run
+`python -m pip install -e ".[mcp,clients]"`. Use that environment's full Python
+or launcher path for maintenance and migration; the package's version string
+alone does not distinguish unreleased source changes from the published wheel.
+
+Before moving an existing archive to schema 4:
+
+1. Stop background capture and close all old MCP servers and other writers.
+   Install or prepare the current-source environment without opening the archive
+   through ordinary commands.
+2. Use the **current-source** launcher to run `backup --output NEW_PATH` against
+   the existing database. This maintenance path reads the old schema without
+   migrating it. `check-database` reports `migration_required` while preserving
+   the snapshot and source. Keep that pre-migration snapshot.
+3. Open the working archive with a normal current-source command, such as
+   `memory-book stats`. The schema-3-to-4 migration transactionally rebuilds the
+   derived exact and stem FTS indexes. Original normalized source text, page IDs
+   and source content hashes remain intact. The source-hashing `INDEX_VERSION`
+   stays unchanged so an unchanged transcript is not resegmented on its next
+   import. The database revision advances and old recall caches are invalidated.
+   Existing optional semantic indexes become stale under their normal revision
+   check and must be explicitly rebuilt; default lexical recall is ready after
+   migration without an embedding model.
+4. Update **every writer's** environment and client/service configuration to the
+   current-source launcher, preserving the database, background configuration
+   and intended capture/write settings. Reinstall the user service with the new
+   launcher where needed, then restart all clients and capture workers.
+
+Do not mix writer generations after migration. An older connection that was
+already open cannot produce the new identifier index: its next revision update
+is explicitly rejected, and the complete write transaction rolls back. An older
+binary cannot reopen a schema-4 archive. For rollback, use the preserved
+pre-migration snapshot with its matching runtime at a separate working path;
+there is no automatic downgrade of the migrated file.
+
+## Back up and check the archive
+
+These commands require the [current source installation](#current-main-and-schema-4).
+
+Create a verified database snapshot with:
+
+```bash
+memory-book backup --output ./backups/memory-snapshot.db
+memory-book --db ./backups/memory-snapshot.db check-database
+```
+
+Both commands select the same configured database as ordinary CLI commands;
+an explicit `--db PATH` before the subcommand or `MEMORY_BOOK_DB` overrides it.
+An explicit database also lets maintenance run when the background configuration
+cannot be read. The source must already exist: a mistyped path does not create
+an empty archive.
+
+`backup` uses SQLite's online backup API, including committed data still in the
+source's WAL. Existing MCP connections and capture can keep running. It copies
+into a private temporary location, checks the completed snapshot, and publishes
+one standalone SQLite file. Source sessions, page IDs, source spans, indexes,
+database revision and schema are preserved. This is a database snapshot, whereas
+`export` produces normalized source JSON for re-import and can rebuild different
+pages and indexes.
+
+**Choose a new output path for each snapshot.** Backup never overwrites an
+existing file or directory, including symbolic links, and refuses the source
+database and its `-wal`, `-shm` and `-journal` paths. Existing journal files beside
+the proposed output also cause a refusal. Source WAL files are supported and
+remain in place; they are read through SQLite rather than copied individually.
+Source symbolic links are resolved. A source with hard-link aliases is refused
+because different pathnames can associate the same database with different WAL
+files; resolve those aliases and use the original archive path. POSIX output
+filesystems must support hard links for atomic publication without overwriting;
+Windows uses a non-overwriting rename. Unsupported publication fails safely.
+
+`check-database` opens the archive read-only. It verifies the application/schema
+identity and expected tables, runs SQLite's `integrity_check` and
+`foreign_key_check`, and returns JSON with revision, record counts and check
+results. It recognizes supported older schemas without migrating them.
+`ok` reports the structural, integrity and foreign-key checks. The separate
+`runtime_state` describes compatibility and repairable index metadata:
+
+| Runtime state | Meaning |
+|---|---|
+| `ready` | The current schema has the expected lexical-index version, matching lexical/stem revision markers and both revision guards |
+| `migration_required` | A supported older schema was preserved; ordinary use with the current runtime requires migration |
+| `repair_required` | The current schema has missing or inconsistent lexical/stem markers or a missing revision guard; warnings identify the condition |
+
+A structurally valid archive can have `ok: true` and still require migration or
+runtime repair. Such a condition does not block making a faithful backup before
+any repair. Maintenance never repairs the source, and these metadata checks do
+not certify the factual correctness of stored text or the semantic consistency
+of every retrieval-index entry. `doctor` remains the separate runtime,
+configuration and client diagnostic.
+
+Both maintenance commands default to a **30-second SQLite processing deadline**;
+increase it for a large archive when necessary:
+
+```bash
+memory-book check-database --timeout 120
+memory-book backup --output ./backups/large-snapshot.db --timeout 120
+```
+
+The deadline covers backup progress and SQL verification, including cancellation
+of long-running checks; filesystem operations still depend on the operating
+system. Exit status is `0` for success, `1` for a completed check that finds
+integrity/foreign-key failures, `2` for an invalid source or other operation
+error, and `130` for keyboard interruption. Runtime warnings alone retain exit
+status `0`; automation that requires a ready current archive must also check
+`runtime_state == "ready"`. Failed or interrupted backups do not publish an
+incomplete snapshot. JSON counts and revision come from the verified copy,
+rather than combining values observed at different times on a live source.
+
+Snapshots contain the same unencrypted conversation text and cached evidence as
+the database. They do not include capture configuration, sync state/logs, client
+configuration, original transcript files or optional model files. Keep those
+separately when moving a complete installation.
+
+### Verify recovery at a new path
+
+Preserve the snapshot and first create a separate working copy:
+
+```bash
+memory-book --db ./backups/memory-snapshot.db backup --output ./recovery/memory.db
+memory-book --db ./recovery/memory.db check-database
+memory-book --db ./recovery/memory.db stats
+memory-book --db ./recovery/memory.db recall "a known engineering decision" --project your-project-id
+```
+
+Use a real project ID and a decision whose original evidence you can verify.
+Opening the recovered working copy with normal commands may migrate an older
+schema; the preserved snapshot is unchanged. There is no in-place restore or
+overwrite option.
+
+After verification, stop background capture and close existing client MCP
+connections, then use `setup` with the new absolute database path and the clients
+you use. Preserve your existing background config and source settings, and
+restart the clients and capture service when ready. The existing
+[database selection controls](#data-and-configuration-paths) apply.
+
+Reconnecting capture can import current transcript contents into the recovered
+archive. A changed database path, generation or older revision invalidates the
+worker's skip state; a snapshot is not a permanent freeze of the watched files.
+Verify the recovered evidence before resuming capture if you need to inspect a
+particular point in history.
+
 ## Upgrading
+
+This section describes the published release. See
+[current main and schema 4](#current-main-and-schema-4) for the unreleased source
+upgrade and its writer compatibility requirements.
 
 To upgrade to **v0.4.0**, download and run the v0.4.0 installer shown above,
 using the same `--prefix`, `--bin-dir`, or `MEMORY_BOOK_HOME` overrides if you

@@ -1,0 +1,938 @@
+{
+  "report_schema": 1,
+  "purpose": "Full CLI smoke of the developer workflow example; fresh local demo data only",
+  "started_at": "2026-11-15T14:21:57.252360+00:00",
+  "runtime": {
+    "python": "3.12.14",
+    "sqlite": "3.53.1"
+  },
+  "source_files": {
+    "examples/engineering-workflow.json": "bd818f4583a33e9e514c3cfebe055fe1a296179a94dc0093519acc7eefecac3d",
+    "src/memory_book/text.py": "3da5eeebbb786192b2c26435a7e6a9c04ea12c36f3cb702cc92d523a6c8bb85c",
+    "src/memory_book/store.py": "eecd366d08fc3dee8f517964f14786af9e458ccea9a7e2b14a399dc98c700047",
+    "src/memory_book/cli.py": "3640fdc72f8def1154cb655c11d4a1c6c1740496e0f1dfc2635506f2b0379261",
+    "src/memory_book/maintenance.py": "a9fb2d53b2afc7fcf8347750118b6f581dbdd80dbb270f1808daa14af73ba7ba"
+  },
+  "commands": [
+    {
+      "label": "import-fresh",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "import",
+        "/workspace/scratch/3c1f3115f539/AI-Memory-Book/examples/engineering-workflow.json",
+        "--format",
+        "canonical"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 191.033,
+      "stdout": "[\n  {\n    \"project\": \"routing-demo\",\n    \"session_id\": \"negative-edges\",\n    \"chapter_id\": \"ch_26c09ab7975224e5dcda68b3\",\n    \"pages\": 1,\n    \"sections\": 1,\n    \"turns\": 2,\n    \"skipped\": false,\n    \"revision\": 1\n  },\n  {\n    \"project\": \"training-demo\",\n    \"session_id\": \"input-contract\",\n    \"chapter_id\": \"ch_2596331e51aaa05bcf40a286\",\n    \"pages\": 1,\n    \"sections\": 1,\n    \"turns\": 1,\n    \"skipped\": false,\n    \"revision\": 2\n  },\n  {\n    \"project\": \"gateway-demo\",\n    \"session_id\": \"parser-contract\",\n    \"chapter_id\": \"ch_398321a56f499dcd396ba941\",\n    \"pages\": 1,\n    \"sections\": 1,\n    \"turns\": 1,\n    \"skipped\": false,\n    \"revision\": 3\n  },\n  {\n    \"project\": \"inference-demo\",\n    \"session_id\": \"cache-configuration\",\n    \"chapter_id\": \"ch_94b980d275f7ffff9e4211b0\",\n    \"pages\": 1,\n    \"sections\": 1,\n    \"turns\": 2,\n    \"skipped\": false,\n    \"revision\": 4\n  },\n  {\n    \"project\": \"gateway-demo\",\n    \"session_id\": \"cache-configuration\",\n    \"chapter_id\": \"ch_71dc3ad55f189a81eeb8815c\",\n    \"pages\": 1,\n    \"sections\": 1,\n    \"turns\": 1,\n    \"skipped\": false,\n    \"revision\": 5\n  }\n]\n",
+      "stderr": ""
+    },
+    {
+      "label": "stats-fresh",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "stats"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 91.687,
+      "stdout": "{\n  \"projects\": 4,\n  \"chapters\": 5,\n  \"sessions\": 5,\n  \"turns\": 7,\n  \"sections\": 5,\n  \"pages\": 5,\n  \"chars\": 1925,\n  \"page_chars\": 1929,\n  \"cache_entries\": 0,\n  \"database_bytes\": 176128,\n  \"revision\": 5,\n  \"schema_version\": 4\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "projects",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "projects"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 104.259,
+      "stdout": "[\n  {\n    \"id\": \"gateway-demo\",\n    \"name\": \"Gateway service\",\n    \"created_at\": \"2026-11-15T14:21:57.434063+00:00\",\n    \"updated_at\": \"2026-11-15T14:21:57.435985+00:00\",\n    \"sessions\": 2,\n    \"chapters\": 2,\n    \"pages\": 2\n  },\n  {\n    \"id\": \"inference-demo\",\n    \"name\": \"Inference memory planning\",\n    \"created_at\": \"2026-11-15T14:21:57.434850+00:00\",\n    \"updated_at\": \"2026-11-15T14:21:57.434850+00:00\",\n    \"sessions\": 1,\n    \"chapters\": 1,\n    \"pages\": 1\n  },\n  {\n    \"id\": \"routing-demo\",\n    \"name\": \"Routing algorithms\",\n    \"created_at\": \"2026-11-15T14:21:57.426054+00:00\",\n    \"updated_at\": \"2026-11-15T14:21:57.426054+00:00\",\n    \"sessions\": 1,\n    \"chapters\": 1,\n    \"pages\": 1\n  },\n  {\n    \"id\": \"training-demo\",\n    \"name\": \"Training data pipeline\",\n    \"created_at\": \"2026-11-15T14:21:57.431213+00:00\",\n    \"updated_at\": \"2026-11-15T14:21:57.431213+00:00\",\n    \"sessions\": 1,\n    \"chapters\": 1,\n    \"pages\": 1\n  }\n]\n",
+      "stderr": ""
+    },
+    {
+      "label": "routing-current",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "recall",
+        "current shortest-path constraints",
+        "--project",
+        "routing-demo",
+        "--json",
+        "--no-cache"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 121.975,
+      "stdout": "{\n  \"query\": \"current shortest-path constraints\",\n  \"results\": [\n    {\n      \"id\": \"p_46c9b97a069303c28ed36144\",\n      \"title\": \"What are the shortest-path constraints for this project?\",\n      \"text\": \"USER: What are the shortest-path constraints for this project?\\n\\nASSISTANT: The initial prototype uses visited-once Dijkstra. Its input contract requires every edge weight to be nonnegative.\\n\\nUSER: The product now accepts negative edges. Record the current shortest-path policy and the failed approach.\\n\\nASSISTANT: The current shortest-path policy is Bellman-Ford with reachable-negative-cycle detection. Do not reuse visited-once Dijkstra for this contract. The failing prototype settled a vertex before a later negative edge improved its distance.\",\n      \"source_refs\": [\n        {\n          \"created_at\": \"2026-11-01T09:00:00+00:00\",\n          \"end\": 189,\n          \"message_indices\": [\n            0,\n            1\n          ],\n          \"project\": \"routing-demo\",\n          \"session_id\": \"negative-edges\",\n          \"start\": 0,\n          \"turn_end\": 189,\n          \"turn_index\": 0,\n          \"turn_start\": 0\n        },\n        {\n          \"created_at\": \"2026-11-01T09:00:00+00:00\",\n          \"end\": 548,\n          \"message_indices\": [\n            2,\n            3\n          ],\n          \"project\": \"routing-demo\",\n          \"session_id\": \"negative-edges\",\n          \"start\": 191,\n          \"turn_end\": 357,\n          \"turn_index\": 1,\n          \"turn_start\": 0\n        }\n      ],\n      \"breadcrumb\": [\n        {\n          \"id\": \"routing-demo\",\n          \"title\": \"Routing algorithms\",\n          \"kind\": \"project\"\n        },\n        {\n          \"id\": \"ch_26c09ab7975224e5dcda68b3\",\n          \"title\": \"Shortest-path policy\",\n          \"kind\": \"chapter\"\n        },\n        {\n          \"id\": \"sec_7d8501a1c041c92c3ead27d8\",\n          \"title\": \"What are the shortest-path constraints for this project?\",\n          \"kind\": \"section\"\n        },\n        {\n          \"id\": \"p_46c9b97a069303c28ed36144\",\n          \"title\": \"What are the shortest-path constraints for this project?\",\n          \"kind\": \"page\"\n        }\n      ],\n      \"score\": 11.987986666933114,\n      \"lexical_coverage\": 1.0,\n      \"created_at\": \"2026-11-01T09:00:00+00:00\",\n      \"truncated\": false,\n      \"page_chars\": 548,\n      \"excerpt_spans\": [\n        [\n          0,\n          548\n        ]\n      ]\n    }\n  ],\n  \"context\": \"[p_46c9b97a069303c28ed36144] routing-demo / negative-edges | 2026-11-01T09:00:00+00:00\\nUSER: What are the shortest-path constraints for this project?\\n\\nASSISTANT: The initial prototype uses visited-once Dijkstra. Its input contract requires every edge weight to be nonnegative.\\n\\nUSER: The product now accepts negative edges. Record the current shortest-path policy and the failed approach.\\n\\nASSISTANT: The current shortest-path policy is Bellman-Ford with reachable-negative-cycle detection. Do not reuse visited-once Dijkstra for this contract. The failing prototype settled a vertex before a later negative edge improved its distance.\",\n  \"context_chars\": 635,\n  \"estimated_tokens\": 159,\n  \"candidate_count\": 1,\n  \"revision\": 5,\n  \"cache_hit\": false,\n  \"warnings\": [\n    \"Historical evidence can conflict. Check source timestamps; retrieval does not resolve which decision is authoritative.\"\n  ],\n  \"strategy\": \"book\",\n  \"budget_chars\": 2400,\n  \"truncated\": false,\n  \"latency_ms\": 2.460428\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "training-contract",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "recall",
+        "jsonl_reader",
+        "--project",
+        "training-demo",
+        "--json",
+        "--no-cache"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 125.522,
+      "stdout": "{\n  \"query\": \"jsonl_reader\",\n  \"results\": [\n    {\n      \"id\": \"p_13c305f38bc3778f804bef62\",\n      \"title\": \"Record the JSONLReader input contract and validation split.\",\n      \"text\": \"USER: Record the JSONLReader input contract and validation split.\\n\\nASSISTANT: JSONLReader rejects records missing sample_id, event_time, or target. Keep every sample_id in exactly one split. Sort by event_time before splitting; training must precede validation. Fit normalization statistics using training records only.\",\n      \"source_refs\": [\n        {\n          \"created_at\": \"2026-11-02T09:00:00+00:00\",\n          \"end\": 319,\n          \"message_indices\": [\n            0,\n            1\n          ],\n          \"project\": \"training-demo\",\n          \"session_id\": \"input-contract\",\n          \"start\": 0,\n          \"turn_end\": 319,\n          \"turn_index\": 0,\n          \"turn_start\": 0\n        }\n      ],\n      \"breadcrumb\": [\n        {\n          \"id\": \"training-demo\",\n          \"title\": \"Training data pipeline\",\n          \"kind\": \"project\"\n        },\n        {\n          \"id\": \"ch_2596331e51aaa05bcf40a286\",\n          \"title\": \"Dataset input and split rules\",\n          \"kind\": \"chapter\"\n        },\n        {\n          \"id\": \"sec_ef5077b16641e867ac2ceb8d\",\n          \"title\": \"Record the JSONLReader input contract and validation split.\",\n          \"kind\": \"section\"\n        },\n        {\n          \"id\": \"p_13c305f38bc3778f804bef62\",\n          \"title\": \"Record the JSONLReader input contract and validation split.\",\n          \"kind\": \"page\"\n        }\n      ],\n      \"score\": 12.635488545699458,\n      \"lexical_coverage\": 1.0,\n      \"created_at\": \"2026-11-02T09:00:00+00:00\",\n      \"truncated\": false,\n      \"page_chars\": 319,\n      \"excerpt_spans\": [\n        [\n          0,\n          319\n        ]\n      ]\n    }\n  ],\n  \"context\": \"[p_13c305f38bc3778f804bef62] training-demo / input-contract | 2026-11-02T09:00:00+00:00\\nUSER: Record the JSONLReader input contract and validation split.\\n\\nASSISTANT: JSONLReader rejects records missing sample_id, event_time, or target. Keep every sample_id in exactly one split. Sort by event_time before splitting; training must precede validation. Fit normalization statistics using training records only.\",\n  \"context_chars\": 407,\n  \"estimated_tokens\": 102,\n  \"candidate_count\": 1,\n  \"revision\": 5,\n  \"cache_hit\": false,\n  \"warnings\": [],\n  \"strategy\": \"book\",\n  \"budget_chars\": 2400,\n  \"truncated\": false,\n  \"latency_ms\": 3.99222\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "gateway-parser",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "recall",
+        "http_parser",
+        "--project",
+        "gateway-demo",
+        "--json",
+        "--no-cache"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 426.74,
+      "stdout": "{\n  \"query\": \"http_parser\",\n  \"results\": [\n    {\n      \"id\": \"p_75ce33f5993150264e20393a\",\n      \"title\": \"What does HTTPParser do when request lengths are ambiguous?\",\n      \"text\": \"USER: What does HTTPParser do when request lengths are ambiguous?\\n\\nASSISTANT: HTTPParser rejects conflicting Content-Length fields. The gateway returns status 400 and closes the connection. Tests must cover duplicate equal lengths, conflicting lengths, truncated bodies, and valid chunked requests according to the gateway's configured protocol policy.\",\n      \"source_refs\": [\n        {\n          \"created_at\": \"2026-11-03T09:00:00+00:00\",\n          \"end\": 352,\n          \"message_indices\": [\n            0,\n            1\n          ],\n          \"project\": \"gateway-demo\",\n          \"session_id\": \"parser-contract\",\n          \"start\": 0,\n          \"turn_end\": 352,\n          \"turn_index\": 0,\n          \"turn_start\": 0\n        }\n      ],\n      \"breadcrumb\": [\n        {\n          \"id\": \"gateway-demo\",\n          \"title\": \"Gateway service\",\n          \"kind\": \"project\"\n        },\n        {\n          \"id\": \"ch_398321a56f499dcd396ba941\",\n          \"title\": \"HTTP parsing behavior\",\n          \"kind\": \"chapter\"\n        },\n        {\n          \"id\": \"sec_952f9b790e0106a109eb7c43\",\n          \"title\": \"What does HTTPParser do when request lengths are ambiguous?\",\n          \"kind\": \"section\"\n        },\n        {\n          \"id\": \"p_75ce33f5993150264e20393a\",\n          \"title\": \"What does HTTPParser do when request lengths are ambiguous?\",\n          \"kind\": \"page\"\n        }\n      ],\n      \"score\": 12.673140419527058,\n      \"lexical_coverage\": 1.0,\n      \"created_at\": \"2026-11-03T09:00:00+00:00\",\n      \"truncated\": false,\n      \"page_chars\": 352,\n      \"excerpt_spans\": [\n        [\n          0,\n          352\n        ]\n      ]\n    }\n  ],\n  \"context\": \"[p_75ce33f5993150264e20393a] gateway-demo / parser-contract | 2026-11-03T09:00:00+00:00\\nUSER: What does HTTPParser do when request lengths are ambiguous?\\n\\nASSISTANT: HTTPParser rejects conflicting Content-Length fields. The gateway returns status 400 and closes the connection. Tests must cover duplicate equal lengths, conflicting lengths, truncated bodies, and valid chunked requests according to the gateway's configured protocol policy.\",\n  \"context_chars\": 440,\n  \"estimated_tokens\": 110,\n  \"candidate_count\": 1,\n  \"revision\": 5,\n  \"cache_hit\": false,\n  \"warnings\": [],\n  \"strategy\": \"book\",\n  \"budget_chars\": 2400,\n  \"truncated\": false,\n  \"latency_ms\": 2.321349\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "inference-current",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "recall",
+        "current kv_cache block_size",
+        "--project",
+        "inference-demo",
+        "--json",
+        "--no-cache"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 78.087,
+      "stdout": "{\n  \"query\": \"current kv_cache block_size\",\n  \"results\": [\n    {\n      \"id\": \"p_06110917e38f407cb08b45e9\",\n      \"title\": \"Set the initial KVCache block_size for this experiment.\",\n      \"text\": \"USER: Set the initial KVCache block_size for this experiment.\\n\\nASSISTANT: The initial KVCache block_size is 128. This is a provisional configuration for the synthetic workload.\\n\\nUSER: The longer sequence workload exceeds the memory budget. Record the current KVCache block_size.\\n\\nASSISTANT: The current KVCache block_size is 32. The value 128 is superseded for this experiment because the longer sequence workload exceeded the memory budget. Keep the same dataset and seed when comparing memory usage.\",\n      \"source_refs\": [\n        {\n          \"created_at\": \"2026-11-04T09:00:00+00:00\",\n          \"end\": 176,\n          \"message_indices\": [\n            0,\n            1\n          ],\n          \"project\": \"inference-demo\",\n          \"session_id\": \"cache-configuration\",\n          \"start\": 0,\n          \"turn_end\": 176,\n          \"turn_index\": 0,\n          \"turn_start\": 0\n        },\n        {\n          \"created_at\": \"2026-11-04T09:00:00+00:00\",\n          \"end\": 501,\n          \"message_indices\": [\n            2,\n            3\n          ],\n          \"project\": \"inference-demo\",\n          \"session_id\": \"cache-configuration\",\n          \"start\": 178,\n          \"turn_end\": 323,\n          \"turn_index\": 1,\n          \"turn_start\": 0\n        }\n      ],\n      \"breadcrumb\": [\n        {\n          \"id\": \"inference-demo\",\n          \"title\": \"Inference memory planning\",\n          \"kind\": \"project\"\n        },\n        {\n          \"id\": \"ch_94b980d275f7ffff9e4211b0\",\n          \"title\": \"KVCache block-size decision\",\n          \"kind\": \"chapter\"\n        },\n        {\n          \"id\": \"sec_b25463871336407ebcd9021f\",\n          \"title\": \"Set the initial KVCache block_size for this experiment.\",\n          \"kind\": \"section\"\n        },\n        {\n          \"id\": \"p_06110917e38f407cb08b45e9\",\n          \"title\": \"Set the initial KVCache block_size for this experiment.\",\n          \"kind\": \"page\"\n        }\n      ],\n      \"score\": 7.941022106163813,\n      \"lexical_coverage\": 1.0,\n      \"created_at\": \"2026-11-04T09:00:00+00:00\",\n      \"truncated\": false,\n      \"page_chars\": 501,\n      \"excerpt_spans\": [\n        [\n          0,\n          501\n        ]\n      ]\n    }\n  ],\n  \"context\": \"[p_06110917e38f407cb08b45e9] inference-demo / cache-configuration | 2026-11-04T09:00:00+00:00\\nUSER: Set the initial KVCache block_size for this experiment.\\n\\nASSISTANT: The initial KVCache block_size is 128. This is a provisional configuration for the synthetic workload.\\n\\nUSER: The longer sequence workload exceeds the memory budget. Record the current KVCache block_size.\\n\\nASSISTANT: The current KVCache block_size is 32. The value 128 is superseded for this experiment because the longer sequence workload exceeded the memory budget. Keep the same dataset and seed when comparing memory usage.\",\n  \"context_chars\": 595,\n  \"estimated_tokens\": 149,\n  \"candidate_count\": 1,\n  \"revision\": 5,\n  \"cache_hit\": false,\n  \"warnings\": [\n    \"Historical evidence can conflict. Check source timestamps; retrieval does not resolve which decision is authoritative.\"\n  ],\n  \"strategy\": \"book\",\n  \"budget_chars\": 2400,\n  \"truncated\": false,\n  \"latency_ms\": 2.648441\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "inference-history",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "recall",
+        "initial KVCache block_size",
+        "--project",
+        "inference-demo",
+        "--json",
+        "--no-cache"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 76.684,
+      "stdout": "{\n  \"query\": \"initial KVCache block_size\",\n  \"results\": [\n    {\n      \"id\": \"p_06110917e38f407cb08b45e9\",\n      \"title\": \"Set the initial KVCache block_size for this experiment.\",\n      \"text\": \"USER: Set the initial KVCache block_size for this experiment.\\n\\nASSISTANT: The initial KVCache block_size is 128. This is a provisional configuration for the synthetic workload.\\n\\nUSER: The longer sequence workload exceeds the memory budget. Record the current KVCache block_size.\\n\\nASSISTANT: The current KVCache block_size is 32. The value 128 is superseded for this experiment because the longer sequence workload exceeded the memory budget. Keep the same dataset and seed when comparing memory usage.\",\n      \"source_refs\": [\n        {\n          \"created_at\": \"2026-11-04T09:00:00+00:00\",\n          \"end\": 176,\n          \"message_indices\": [\n            0,\n            1\n          ],\n          \"project\": \"inference-demo\",\n          \"session_id\": \"cache-configuration\",\n          \"start\": 0,\n          \"turn_end\": 176,\n          \"turn_index\": 0,\n          \"turn_start\": 0\n        },\n        {\n          \"created_at\": \"2026-11-04T09:00:00+00:00\",\n          \"end\": 501,\n          \"message_indices\": [\n            2,\n            3\n          ],\n          \"project\": \"inference-demo\",\n          \"session_id\": \"cache-configuration\",\n          \"start\": 178,\n          \"turn_end\": 323,\n          \"turn_index\": 1,\n          \"turn_start\": 0\n        }\n      ],\n      \"breadcrumb\": [\n        {\n          \"id\": \"inference-demo\",\n          \"title\": \"Inference memory planning\",\n          \"kind\": \"project\"\n        },\n        {\n          \"id\": \"ch_94b980d275f7ffff9e4211b0\",\n          \"title\": \"KVCache block-size decision\",\n          \"kind\": \"chapter\"\n        },\n        {\n          \"id\": \"sec_b25463871336407ebcd9021f\",\n          \"title\": \"Set the initial KVCache block_size for this experiment.\",\n          \"kind\": \"section\"\n        },\n        {\n          \"id\": \"p_06110917e38f407cb08b45e9\",\n          \"title\": \"Set the initial KVCache block_size for this experiment.\",\n          \"kind\": \"page\"\n        }\n      ],\n      \"score\": 8.925984059937525,\n      \"lexical_coverage\": 1.0,\n      \"created_at\": \"2026-11-04T09:00:00+00:00\",\n      \"truncated\": false,\n      \"page_chars\": 501,\n      \"excerpt_spans\": [\n        [\n          0,\n          501\n        ]\n      ]\n    }\n  ],\n  \"context\": \"[p_06110917e38f407cb08b45e9] inference-demo / cache-configuration | 2026-11-04T09:00:00+00:00\\nUSER: Set the initial KVCache block_size for this experiment.\\n\\nASSISTANT: The initial KVCache block_size is 128. This is a provisional configuration for the synthetic workload.\\n\\nUSER: The longer sequence workload exceeds the memory budget. Record the current KVCache block_size.\\n\\nASSISTANT: The current KVCache block_size is 32. The value 128 is superseded for this experiment because the longer sequence workload exceeded the memory budget. Keep the same dataset and seed when comparing memory usage.\",\n  \"context_chars\": 595,\n  \"estimated_tokens\": 149,\n  \"candidate_count\": 1,\n  \"revision\": 5,\n  \"cache_hit\": false,\n  \"warnings\": [],\n  \"strategy\": \"book\",\n  \"budget_chars\": 2400,\n  \"truncated\": false,\n  \"latency_ms\": 2.460732\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "read-p_46c9b97a069303c28ed36144",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "read",
+        "p_46c9b97a069303c28ed36144"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 798.354,
+      "stdout": "{\n  \"id\": \"p_46c9b97a069303c28ed36144\",\n  \"title\": \"What are the shortest-path constraints for this project?\",\n  \"content\": \"USER: What are the shortest-path constraints for this project?\\n\\nASSISTANT: The initial prototype uses visited-once Dijkstra. Its input contract requires every edge weight to be nonnegative.\\n\\nUSER: The product now accepts negative edges. Record the current shortest-path policy and the failed approach.\\n\\nASSISTANT: The current shortest-path policy is Bellman-Ford with reachable-negative-cycle detection. Do not reuse visited-once Dijkstra for this contract. The failing prototype settled a vertex before a later negative edge improved its distance.\",\n  \"offset\": 0,\n  \"total_chars\": 548,\n  \"next_offset\": null,\n  \"source_refs\": [\n    {\n      \"created_at\": \"2026-11-01T09:00:00+00:00\",\n      \"end\": 189,\n      \"message_indices\": [\n        0,\n        1\n      ],\n      \"project\": \"routing-demo\",\n      \"session_id\": \"negative-edges\",\n      \"start\": 0,\n      \"turn_end\": 189,\n      \"turn_index\": 0,\n      \"turn_start\": 0\n    },\n    {\n      \"created_at\": \"2026-11-01T09:00:00+00:00\",\n      \"end\": 548,\n      \"message_indices\": [\n        2,\n        3\n      ],\n      \"project\": \"routing-demo\",\n      \"session_id\": \"negative-edges\",\n      \"start\": 191,\n      \"turn_end\": 357,\n      \"turn_index\": 1,\n      \"turn_start\": 0\n    }\n  ],\n  \"breadcrumb\": [\n    {\n      \"id\": \"routing-demo\",\n      \"title\": \"Routing algorithms\",\n      \"kind\": \"project\"\n    },\n    {\n      \"id\": \"ch_26c09ab7975224e5dcda68b3\",\n      \"title\": \"Shortest-path policy\",\n      \"kind\": \"chapter\"\n    },\n    {\n      \"id\": \"sec_7d8501a1c041c92c3ead27d8\",\n      \"title\": \"What are the shortest-path constraints for this project?\",\n      \"kind\": \"section\"\n    },\n    {\n      \"id\": \"p_46c9b97a069303c28ed36144\",\n      \"title\": \"What are the shortest-path constraints for this project?\",\n      \"kind\": \"page\"\n    }\n  ],\n  \"created_at\": \"2026-11-01T09:00:00+00:00\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "source-routing-demo-negative-edges",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "source",
+        "routing-demo",
+        "negative-edges"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 359.252,
+      "stdout": "{\n  \"created_at\": \"2026-11-01T09:00:00+00:00\",\n  \"messages\": [\n    {\n      \"content\": \"What are the shortest-path constraints for this project?\",\n      \"role\": \"user\"\n    },\n    {\n      \"content\": \"The initial prototype uses visited-once Dijkstra. Its input contract requires every edge weight to be nonnegative.\",\n      \"role\": \"assistant\"\n    },\n    {\n      \"content\": \"The product now accepts negative edges. Record the current shortest-path policy and the failed approach.\",\n      \"role\": \"user\"\n    },\n    {\n      \"content\": \"The current shortest-path policy is Bellman-Ford with reachable-negative-cycle detection. Do not reuse visited-once Dijkstra for this contract. The failing prototype settled a vertex before a later negative edge improved its distance.\",\n      \"role\": \"assistant\"\n    }\n  ],\n  \"project\": \"routing-demo\",\n  \"project_name\": \"Routing algorithms\",\n  \"session_id\": \"negative-edges\",\n  \"task_id\": \"shortest-path\",\n  \"task_title\": \"Shortest-path policy\",\n  \"title\": \"Routing constraints and failed prototype\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "read-p_13c305f38bc3778f804bef62",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "read",
+        "p_13c305f38bc3778f804bef62"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 264.151,
+      "stdout": "{\n  \"id\": \"p_13c305f38bc3778f804bef62\",\n  \"title\": \"Record the JSONLReader input contract and validation split.\",\n  \"content\": \"USER: Record the JSONLReader input contract and validation split.\\n\\nASSISTANT: JSONLReader rejects records missing sample_id, event_time, or target. Keep every sample_id in exactly one split. Sort by event_time before splitting; training must precede validation. Fit normalization statistics using training records only.\",\n  \"offset\": 0,\n  \"total_chars\": 319,\n  \"next_offset\": null,\n  \"source_refs\": [\n    {\n      \"created_at\": \"2026-11-02T09:00:00+00:00\",\n      \"end\": 319,\n      \"message_indices\": [\n        0,\n        1\n      ],\n      \"project\": \"training-demo\",\n      \"session_id\": \"input-contract\",\n      \"start\": 0,\n      \"turn_end\": 319,\n      \"turn_index\": 0,\n      \"turn_start\": 0\n    }\n  ],\n  \"breadcrumb\": [\n    {\n      \"id\": \"training-demo\",\n      \"title\": \"Training data pipeline\",\n      \"kind\": \"project\"\n    },\n    {\n      \"id\": \"ch_2596331e51aaa05bcf40a286\",\n      \"title\": \"Dataset input and split rules\",\n      \"kind\": \"chapter\"\n    },\n    {\n      \"id\": \"sec_ef5077b16641e867ac2ceb8d\",\n      \"title\": \"Record the JSONLReader input contract and validation split.\",\n      \"kind\": \"section\"\n    },\n    {\n      \"id\": \"p_13c305f38bc3778f804bef62\",\n      \"title\": \"Record the JSONLReader input contract and validation split.\",\n      \"kind\": \"page\"\n    }\n  ],\n  \"created_at\": \"2026-11-02T09:00:00+00:00\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "source-training-demo-input-contract",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "source",
+        "training-demo",
+        "input-contract"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 331.969,
+      "stdout": "{\n  \"created_at\": \"2026-11-02T09:00:00+00:00\",\n  \"messages\": [\n    {\n      \"content\": \"Record the JSONLReader input contract and validation split.\",\n      \"role\": \"user\"\n    },\n    {\n      \"content\": \"JSONLReader rejects records missing sample_id, event_time, or target. Keep every sample_id in exactly one split. Sort by event_time before splitting; training must precede validation. Fit normalization statistics using training records only.\",\n      \"role\": \"assistant\"\n    }\n  ],\n  \"project\": \"training-demo\",\n  \"project_name\": \"Training data pipeline\",\n  \"session_id\": \"input-contract\",\n  \"task_id\": \"dataset-reader\",\n  \"task_title\": \"Dataset input and split rules\",\n  \"title\": \"JSONLReader and split contract\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "read-p_75ce33f5993150264e20393a",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "read",
+        "p_75ce33f5993150264e20393a"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 426.679,
+      "stdout": "{\n  \"id\": \"p_75ce33f5993150264e20393a\",\n  \"title\": \"What does HTTPParser do when request lengths are ambiguous?\",\n  \"content\": \"USER: What does HTTPParser do when request lengths are ambiguous?\\n\\nASSISTANT: HTTPParser rejects conflicting Content-Length fields. The gateway returns status 400 and closes the connection. Tests must cover duplicate equal lengths, conflicting lengths, truncated bodies, and valid chunked requests according to the gateway's configured protocol policy.\",\n  \"offset\": 0,\n  \"total_chars\": 352,\n  \"next_offset\": null,\n  \"source_refs\": [\n    {\n      \"created_at\": \"2026-11-03T09:00:00+00:00\",\n      \"end\": 352,\n      \"message_indices\": [\n        0,\n        1\n      ],\n      \"project\": \"gateway-demo\",\n      \"session_id\": \"parser-contract\",\n      \"start\": 0,\n      \"turn_end\": 352,\n      \"turn_index\": 0,\n      \"turn_start\": 0\n    }\n  ],\n  \"breadcrumb\": [\n    {\n      \"id\": \"gateway-demo\",\n      \"title\": \"Gateway service\",\n      \"kind\": \"project\"\n    },\n    {\n      \"id\": \"ch_398321a56f499dcd396ba941\",\n      \"title\": \"HTTP parsing behavior\",\n      \"kind\": \"chapter\"\n    },\n    {\n      \"id\": \"sec_952f9b790e0106a109eb7c43\",\n      \"title\": \"What does HTTPParser do when request lengths are ambiguous?\",\n      \"kind\": \"section\"\n    },\n    {\n      \"id\": \"p_75ce33f5993150264e20393a\",\n      \"title\": \"What does HTTPParser do when request lengths are ambiguous?\",\n      \"kind\": \"page\"\n    }\n  ],\n  \"created_at\": \"2026-11-03T09:00:00+00:00\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "source-gateway-demo-parser-contract",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "source",
+        "gateway-demo",
+        "parser-contract"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 94.758,
+      "stdout": "{\n  \"created_at\": \"2026-11-03T09:00:00+00:00\",\n  \"messages\": [\n    {\n      \"content\": \"What does HTTPParser do when request lengths are ambiguous?\",\n      \"role\": \"user\"\n    },\n    {\n      \"content\": \"HTTPParser rejects conflicting Content-Length fields. The gateway returns status 400 and closes the connection. Tests must cover duplicate equal lengths, conflicting lengths, truncated bodies, and valid chunked requests according to the gateway's configured protocol policy.\",\n      \"role\": \"assistant\"\n    }\n  ],\n  \"project\": \"gateway-demo\",\n  \"project_name\": \"Gateway service\",\n  \"session_id\": \"parser-contract\",\n  \"task_id\": \"http-parsing\",\n  \"task_title\": \"HTTP parsing behavior\",\n  \"title\": \"HTTPParser rejects ambiguous lengths\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "read-p_06110917e38f407cb08b45e9",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "read",
+        "p_06110917e38f407cb08b45e9"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 231.531,
+      "stdout": "{\n  \"id\": \"p_06110917e38f407cb08b45e9\",\n  \"title\": \"Set the initial KVCache block_size for this experiment.\",\n  \"content\": \"USER: Set the initial KVCache block_size for this experiment.\\n\\nASSISTANT: The initial KVCache block_size is 128. This is a provisional configuration for the synthetic workload.\\n\\nUSER: The longer sequence workload exceeds the memory budget. Record the current KVCache block_size.\\n\\nASSISTANT: The current KVCache block_size is 32. The value 128 is superseded for this experiment because the longer sequence workload exceeded the memory budget. Keep the same dataset and seed when comparing memory usage.\",\n  \"offset\": 0,\n  \"total_chars\": 501,\n  \"next_offset\": null,\n  \"source_refs\": [\n    {\n      \"created_at\": \"2026-11-04T09:00:00+00:00\",\n      \"end\": 176,\n      \"message_indices\": [\n        0,\n        1\n      ],\n      \"project\": \"inference-demo\",\n      \"session_id\": \"cache-configuration\",\n      \"start\": 0,\n      \"turn_end\": 176,\n      \"turn_index\": 0,\n      \"turn_start\": 0\n    },\n    {\n      \"created_at\": \"2026-11-04T09:00:00+00:00\",\n      \"end\": 501,\n      \"message_indices\": [\n        2,\n        3\n      ],\n      \"project\": \"inference-demo\",\n      \"session_id\": \"cache-configuration\",\n      \"start\": 178,\n      \"turn_end\": 323,\n      \"turn_index\": 1,\n      \"turn_start\": 0\n    }\n  ],\n  \"breadcrumb\": [\n    {\n      \"id\": \"inference-demo\",\n      \"title\": \"Inference memory planning\",\n      \"kind\": \"project\"\n    },\n    {\n      \"id\": \"ch_94b980d275f7ffff9e4211b0\",\n      \"title\": \"KVCache block-size decision\",\n      \"kind\": \"chapter\"\n    },\n    {\n      \"id\": \"sec_b25463871336407ebcd9021f\",\n      \"title\": \"Set the initial KVCache block_size for this experiment.\",\n      \"kind\": \"section\"\n    },\n    {\n      \"id\": \"p_06110917e38f407cb08b45e9\",\n      \"title\": \"Set the initial KVCache block_size for this experiment.\",\n      \"kind\": \"page\"\n    }\n  ],\n  \"created_at\": \"2026-11-04T09:00:00+00:00\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "source-inference-demo-cache-configuration",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "source",
+        "inference-demo",
+        "cache-configuration"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 81.292,
+      "stdout": "{\n  \"created_at\": \"2026-11-04T09:00:00+00:00\",\n  \"messages\": [\n    {\n      \"content\": \"Set the initial KVCache block_size for this experiment.\",\n      \"role\": \"user\"\n    },\n    {\n      \"content\": \"The initial KVCache block_size is 128. This is a provisional configuration for the synthetic workload.\",\n      \"role\": \"assistant\"\n    },\n    {\n      \"content\": \"The longer sequence workload exceeds the memory budget. Record the current KVCache block_size.\",\n      \"role\": \"user\"\n    },\n    {\n      \"content\": \"The current KVCache block_size is 32. The value 128 is superseded for this experiment because the longer sequence workload exceeded the memory budget. Keep the same dataset and seed when comparing memory usage.\",\n      \"role\": \"assistant\"\n    }\n  ],\n  \"project\": \"inference-demo\",\n  \"project_name\": \"Inference memory planning\",\n  \"session_id\": \"cache-configuration\",\n  \"task_id\": \"cache-budget\",\n  \"task_title\": \"KVCache block-size decision\",\n  \"title\": \"KVCache block size and correction\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "import-repeat",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "import",
+        "/workspace/scratch/3c1f3115f539/AI-Memory-Book/examples/engineering-workflow.json",
+        "--format",
+        "canonical"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 83.575,
+      "stdout": "[\n  {\n    \"project\": \"routing-demo\",\n    \"session_id\": \"negative-edges\",\n    \"chapter_id\": \"ch_26c09ab7975224e5dcda68b3\",\n    \"pages\": 1,\n    \"sections\": 1,\n    \"turns\": 2,\n    \"skipped\": true,\n    \"revision\": 5\n  },\n  {\n    \"project\": \"training-demo\",\n    \"session_id\": \"input-contract\",\n    \"chapter_id\": \"ch_2596331e51aaa05bcf40a286\",\n    \"pages\": 1,\n    \"sections\": 1,\n    \"turns\": 1,\n    \"skipped\": true,\n    \"revision\": 5\n  },\n  {\n    \"project\": \"gateway-demo\",\n    \"session_id\": \"parser-contract\",\n    \"chapter_id\": \"ch_398321a56f499dcd396ba941\",\n    \"pages\": 1,\n    \"sections\": 1,\n    \"turns\": 1,\n    \"skipped\": true,\n    \"revision\": 5\n  },\n  {\n    \"project\": \"inference-demo\",\n    \"session_id\": \"cache-configuration\",\n    \"chapter_id\": \"ch_94b980d275f7ffff9e4211b0\",\n    \"pages\": 1,\n    \"sections\": 1,\n    \"turns\": 2,\n    \"skipped\": true,\n    \"revision\": 5\n  },\n  {\n    \"project\": \"gateway-demo\",\n    \"session_id\": \"cache-configuration\",\n    \"chapter_id\": \"ch_71dc3ad55f189a81eeb8815c\",\n    \"pages\": 1,\n    \"sections\": 1,\n    \"turns\": 1,\n    \"skipped\": true,\n    \"revision\": 5\n  }\n]\n",
+      "stderr": ""
+    },
+    {
+      "label": "stats-after-repeat",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "stats"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 194.535,
+      "stdout": "{\n  \"projects\": 4,\n  \"chapters\": 5,\n  \"sessions\": 5,\n  \"turns\": 7,\n  \"sections\": 5,\n  \"pages\": 5,\n  \"chars\": 1925,\n  \"page_chars\": 1929,\n  \"cache_entries\": 0,\n  \"database_bytes\": 176128,\n  \"revision\": 5,\n  \"schema_version\": 4\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "check-source",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "check-database"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 108.765,
+      "stdout": "{\n  \"database\": \"/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3\",\n  \"ok\": true,\n  \"application_id\": 1296191307,\n  \"schema_version\": 4,\n  \"revision\": 5,\n  \"runtime_state\": \"ready\",\n  \"projects\": 4,\n  \"chapters\": 5,\n  \"sessions\": 5,\n  \"turns\": 7,\n  \"sections\": 5,\n  \"pages\": 5,\n  \"database_bytes\": 176128,\n  \"integrity_check\": [\n    \"ok\"\n  ],\n  \"foreign_key_violations\": 0,\n  \"foreign_key_errors\": [],\n  \"warnings\": []\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "backup",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "backup",
+        "--output",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/backup.sqlite3"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 252.253,
+      "stdout": "{\n  \"source\": \"/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3\",\n  \"output\": \"/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/backup.sqlite3\",\n  \"ok\": true,\n  \"application_id\": 1296191307,\n  \"schema_version\": 4,\n  \"revision\": 5,\n  \"runtime_state\": \"ready\",\n  \"projects\": 4,\n  \"chapters\": 5,\n  \"sessions\": 5,\n  \"turns\": 7,\n  \"sections\": 5,\n  \"pages\": 5,\n  \"database_bytes\": 176128,\n  \"integrity_check\": [\n    \"ok\"\n  ],\n  \"foreign_key_violations\": 0,\n  \"foreign_key_errors\": [],\n  \"warnings\": []\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "check-backup",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/backup.sqlite3",
+        "check-database"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 308.007,
+      "stdout": "{\n  \"database\": \"/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/backup.sqlite3\",\n  \"ok\": true,\n  \"application_id\": 1296191307,\n  \"schema_version\": 4,\n  \"revision\": 5,\n  \"runtime_state\": \"ready\",\n  \"projects\": 4,\n  \"chapters\": 5,\n  \"sessions\": 5,\n  \"turns\": 7,\n  \"sections\": 5,\n  \"pages\": 5,\n  \"database_bytes\": 176128,\n  \"integrity_check\": [\n    \"ok\"\n  ],\n  \"foreign_key_violations\": 0,\n  \"foreign_key_errors\": [],\n  \"warnings\": []\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "recall-on-backup",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/backup.sqlite3",
+        "recall",
+        "current kv_cache block_size",
+        "--project",
+        "inference-demo",
+        "--json",
+        "--no-cache"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 92.106,
+      "stdout": "{\n  \"query\": \"current kv_cache block_size\",\n  \"results\": [\n    {\n      \"id\": \"p_06110917e38f407cb08b45e9\",\n      \"title\": \"Set the initial KVCache block_size for this experiment.\",\n      \"text\": \"USER: Set the initial KVCache block_size for this experiment.\\n\\nASSISTANT: The initial KVCache block_size is 128. This is a provisional configuration for the synthetic workload.\\n\\nUSER: The longer sequence workload exceeds the memory budget. Record the current KVCache block_size.\\n\\nASSISTANT: The current KVCache block_size is 32. The value 128 is superseded for this experiment because the longer sequence workload exceeded the memory budget. Keep the same dataset and seed when comparing memory usage.\",\n      \"source_refs\": [\n        {\n          \"created_at\": \"2026-11-04T09:00:00+00:00\",\n          \"end\": 176,\n          \"message_indices\": [\n            0,\n            1\n          ],\n          \"project\": \"inference-demo\",\n          \"session_id\": \"cache-configuration\",\n          \"start\": 0,\n          \"turn_end\": 176,\n          \"turn_index\": 0,\n          \"turn_start\": 0\n        },\n        {\n          \"created_at\": \"2026-11-04T09:00:00+00:00\",\n          \"end\": 501,\n          \"message_indices\": [\n            2,\n            3\n          ],\n          \"project\": \"inference-demo\",\n          \"session_id\": \"cache-configuration\",\n          \"start\": 178,\n          \"turn_end\": 323,\n          \"turn_index\": 1,\n          \"turn_start\": 0\n        }\n      ],\n      \"breadcrumb\": [\n        {\n          \"id\": \"inference-demo\",\n          \"title\": \"Inference memory planning\",\n          \"kind\": \"project\"\n        },\n        {\n          \"id\": \"ch_94b980d275f7ffff9e4211b0\",\n          \"title\": \"KVCache block-size decision\",\n          \"kind\": \"chapter\"\n        },\n        {\n          \"id\": \"sec_b25463871336407ebcd9021f\",\n          \"title\": \"Set the initial KVCache block_size for this experiment.\",\n          \"kind\": \"section\"\n        },\n        {\n          \"id\": \"p_06110917e38f407cb08b45e9\",\n          \"title\": \"Set the initial KVCache block_size for this experiment.\",\n          \"kind\": \"page\"\n        }\n      ],\n      \"score\": 7.941022106163813,\n      \"lexical_coverage\": 1.0,\n      \"created_at\": \"2026-11-04T09:00:00+00:00\",\n      \"truncated\": false,\n      \"page_chars\": 501,\n      \"excerpt_spans\": [\n        [\n          0,\n          501\n        ]\n      ]\n    }\n  ],\n  \"context\": \"[p_06110917e38f407cb08b45e9] inference-demo / cache-configuration | 2026-11-04T09:00:00+00:00\\nUSER: Set the initial KVCache block_size for this experiment.\\n\\nASSISTANT: The initial KVCache block_size is 128. This is a provisional configuration for the synthetic workload.\\n\\nUSER: The longer sequence workload exceeds the memory budget. Record the current KVCache block_size.\\n\\nASSISTANT: The current KVCache block_size is 32. The value 128 is superseded for this experiment because the longer sequence workload exceeded the memory budget. Keep the same dataset and seed when comparing memory usage.\",\n  \"context_chars\": 595,\n  \"estimated_tokens\": 149,\n  \"candidate_count\": 1,\n  \"revision\": 5,\n  \"cache_hit\": false,\n  \"warnings\": [\n    \"Historical evidence can conflict. Check source timestamps; retrieval does not resolve which decision is authoritative.\"\n  ],\n  \"strategy\": \"book\",\n  \"budget_chars\": 2400,\n  \"truncated\": false,\n  \"latency_ms\": 2.713827\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "stats-source-final",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/source.sqlite3",
+        "stats"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 286.983,
+      "stdout": "{\n  \"projects\": 4,\n  \"chapters\": 5,\n  \"sessions\": 5,\n  \"turns\": 7,\n  \"sections\": 5,\n  \"pages\": 5,\n  \"chars\": 1925,\n  \"page_chars\": 1929,\n  \"cache_entries\": 0,\n  \"database_bytes\": 176128,\n  \"revision\": 5,\n  \"schema_version\": 4\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "stats-backup-final",
+      "argv": [
+        "/workspace/scratch/3c1f3115f539/.venv/bin/python",
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/developer-workflow-smoke-gdpgei9g/backup.sqlite3",
+        "stats"
+      ],
+      "returncode": 0,
+      "elapsed_ms": 615.071,
+      "stdout": "{\n  \"projects\": 4,\n  \"chapters\": 5,\n  \"sessions\": 5,\n  \"turns\": 7,\n  \"sections\": 5,\n  \"pages\": 5,\n  \"chars\": 1925,\n  \"page_chars\": 1929,\n  \"cache_entries\": 0,\n  \"database_bytes\": 176128,\n  \"revision\": 5,\n  \"schema_version\": 4\n}\n",
+      "stderr": ""
+    }
+  ],
+  "checks": [
+    {
+      "name": "fresh import has five changed sessions",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "fresh database has five sessions and four projects",
+      "passed": true,
+      "details": {
+        "projects": 4,
+        "chapters": 5,
+        "sessions": 5,
+        "turns": 7,
+        "sections": 5,
+        "pages": 5,
+        "chars": 1925,
+        "page_chars": 1929,
+        "cache_entries": 0,
+        "database_bytes": 176128,
+        "revision": 5,
+        "schema_version": 4
+      }
+    },
+    {
+      "name": "project IDs are exact",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "routing-current respects default character budget",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "routing-current returns evidence only from requested project",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "training-contract respects default character budget",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "training-contract returns evidence only from requested project",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "gateway-parser respects default character budget",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "gateway-parser returns evidence only from requested project",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "inference-current respects default character budget",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "inference-current returns evidence only from requested project",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "inference-history respects default character budget",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "inference-history returns evidence only from requested project",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "routing current policy is Bellman-Ford with the failed-prototype explanation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "training code spelling and all input fields preserved",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "training leakage-prevention constraints recovered",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "gateway code identifier is original HTTPParser spelling",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "inference current configuration is 32 and excludes gateway 256",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "history retains original 128 and its original-turn provenance",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "routing-current page read is complete p_46c9b97a069303c28ed36144",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "routing-current excerpt is an exact original substring p_46c9b97a069303c28ed36144",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "routing-current normalized source preserves original messages ('routing-demo', 'negative-edges')",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "routing-current reference maps to exact source turn p_46c9b97a069303c28ed36144",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "routing-current normalized source preserves original messages ('routing-demo', 'negative-edges')",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "routing-current reference maps to exact source turn p_46c9b97a069303c28ed36144",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "training-contract page read is complete p_13c305f38bc3778f804bef62",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "training-contract excerpt is an exact original substring p_13c305f38bc3778f804bef62",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "training-contract normalized source preserves original messages ('training-demo', 'input-contract')",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "training-contract reference maps to exact source turn p_13c305f38bc3778f804bef62",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "gateway-parser page read is complete p_75ce33f5993150264e20393a",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "gateway-parser excerpt is an exact original substring p_75ce33f5993150264e20393a",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "gateway-parser normalized source preserves original messages ('gateway-demo', 'parser-contract')",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "gateway-parser reference maps to exact source turn p_75ce33f5993150264e20393a",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "inference-current page read is complete p_06110917e38f407cb08b45e9",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "inference-current excerpt is an exact original substring p_06110917e38f407cb08b45e9",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "inference-current normalized source preserves original messages ('inference-demo', 'cache-configuration')",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "inference-current reference maps to exact source turn p_06110917e38f407cb08b45e9",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "inference-current normalized source preserves original messages ('inference-demo', 'cache-configuration')",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "inference-current reference maps to exact source turn p_06110917e38f407cb08b45e9",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "inference-history page read is complete p_06110917e38f407cb08b45e9",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "inference-history excerpt is an exact original substring p_06110917e38f407cb08b45e9",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "inference-history normalized source preserves original messages ('inference-demo', 'cache-configuration')",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "inference-history reference maps to exact source turn p_06110917e38f407cb08b45e9",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "inference-history normalized source preserves original messages ('inference-demo', 'cache-configuration')",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "inference-history reference maps to exact source turn p_06110917e38f407cb08b45e9",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "second import skips all five sessions",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "idempotent import leaves source counts and revision unchanged",
+      "passed": true,
+      "details": {
+        "projects": 4,
+        "chapters": 5,
+        "sessions": 5,
+        "turns": 7,
+        "sections": 5,
+        "pages": 5,
+        "chars": 1925,
+        "page_chars": 1929,
+        "revision": 5
+      }
+    },
+    {
+      "name": "source and backup pass actual maintenance CLI",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "source and backup counts/schema/revision agree",
+      "passed": true,
+      "details": {
+        "projects": 4,
+        "chapters": 5,
+        "sessions": 5,
+        "turns": 7,
+        "sections": 5,
+        "pages": 5,
+        "schema_version": 4,
+        "revision": 5
+      }
+    },
+    {
+      "name": "backup can independently recall original current evidence",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "backup recall preserves the same context and source IDs",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "source/backup still have equal source counts after independent recall",
+      "passed": true,
+      "details": null
+    }
+  ],
+  "provenance": [
+    {
+      "query": "routing-current",
+      "page_id": "p_46c9b97a069303c28ed36144",
+      "reference": {
+        "created_at": "2026-11-01T09:00:00+00:00",
+        "end": 189,
+        "message_indices": [
+          0,
+          1
+        ],
+        "project": "routing-demo",
+        "session_id": "negative-edges",
+        "start": 0,
+        "turn_end": 189,
+        "turn_index": 0,
+        "turn_start": 0
+      },
+      "page_fragment": "USER: What are the shortest-path constraints for this project?\n\nASSISTANT: The initial prototype uses visited-once Dijkstra. Its input contract requires every edge weight to be nonnegative.",
+      "source_fragment": "USER: What are the shortest-path constraints for this project?\n\nASSISTANT: The initial prototype uses visited-once Dijkstra. Its input contract requires every edge weight to be nonnegative.",
+      "matches": true
+    },
+    {
+      "query": "routing-current",
+      "page_id": "p_46c9b97a069303c28ed36144",
+      "reference": {
+        "created_at": "2026-11-01T09:00:00+00:00",
+        "end": 548,
+        "message_indices": [
+          2,
+          3
+        ],
+        "project": "routing-demo",
+        "session_id": "negative-edges",
+        "start": 191,
+        "turn_end": 357,
+        "turn_index": 1,
+        "turn_start": 0
+      },
+      "page_fragment": "USER: The product now accepts negative edges. Record the current shortest-path policy and the failed approach.\n\nASSISTANT: The current shortest-path policy is Bellman-Ford with reachable-negative-cycle detection. Do not reuse visited-once Dijkstra for this contract. The failing prototype settled a vertex before a later negative edge improved its distance.",
+      "source_fragment": "USER: The product now accepts negative edges. Record the current shortest-path policy and the failed approach.\n\nASSISTANT: The current shortest-path policy is Bellman-Ford with reachable-negative-cycle detection. Do not reuse visited-once Dijkstra for this contract. The failing prototype settled a vertex before a later negative edge improved its distance.",
+      "matches": true
+    },
+    {
+      "query": "training-contract",
+      "page_id": "p_13c305f38bc3778f804bef62",
+      "reference": {
+        "created_at": "2026-11-02T09:00:00+00:00",
+        "end": 319,
+        "message_indices": [
+          0,
+          1
+        ],
+        "project": "training-demo",
+        "session_id": "input-contract",
+        "start": 0,
+        "turn_end": 319,
+        "turn_index": 0,
+        "turn_start": 0
+      },
+      "page_fragment": "USER: Record the JSONLReader input contract and validation split.\n\nASSISTANT: JSONLReader rejects records missing sample_id, event_time, or target. Keep every sample_id in exactly one split. Sort by event_time before splitting; training must precede validation. Fit normalization statistics using training records only.",
+      "source_fragment": "USER: Record the JSONLReader input contract and validation split.\n\nASSISTANT: JSONLReader rejects records missing sample_id, event_time, or target. Keep every sample_id in exactly one split. Sort by event_time before splitting; training must precede validation. Fit normalization statistics using training records only.",
+      "matches": true
+    },
+    {
+      "query": "gateway-parser",
+      "page_id": "p_75ce33f5993150264e20393a",
+      "reference": {
+        "created_at": "2026-11-03T09:00:00+00:00",
+        "end": 352,
+        "message_indices": [
+          0,
+          1
+        ],
+        "project": "gateway-demo",
+        "session_id": "parser-contract",
+        "start": 0,
+        "turn_end": 352,
+        "turn_index": 0,
+        "turn_start": 0
+      },
+      "page_fragment": "USER: What does HTTPParser do when request lengths are ambiguous?\n\nASSISTANT: HTTPParser rejects conflicting Content-Length fields. The gateway returns status 400 and closes the connection. Tests must cover duplicate equal lengths, conflicting lengths, truncated bodies, and valid chunked requests according to the gateway's configured protocol policy.",
+      "source_fragment": "USER: What does HTTPParser do when request lengths are ambiguous?\n\nASSISTANT: HTTPParser rejects conflicting Content-Length fields. The gateway returns status 400 and closes the connection. Tests must cover duplicate equal lengths, conflicting lengths, truncated bodies, and valid chunked requests according to the gateway's configured protocol policy.",
+      "matches": true
+    },
+    {
+      "query": "inference-current",
+      "page_id": "p_06110917e38f407cb08b45e9",
+      "reference": {
+        "created_at": "2026-11-04T09:00:00+00:00",
+        "end": 176,
+        "message_indices": [
+          0,
+          1
+        ],
+        "project": "inference-demo",
+        "session_id": "cache-configuration",
+        "start": 0,
+        "turn_end": 176,
+        "turn_index": 0,
+        "turn_start": 0
+      },
+      "page_fragment": "USER: Set the initial KVCache block_size for this experiment.\n\nASSISTANT: The initial KVCache block_size is 128. This is a provisional configuration for the synthetic workload.",
+      "source_fragment": "USER: Set the initial KVCache block_size for this experiment.\n\nASSISTANT: The initial KVCache block_size is 128. This is a provisional configuration for the synthetic workload.",
+      "matches": true
+    },
+    {
+      "query": "inference-current",
+      "page_id": "p_06110917e38f407cb08b45e9",
+      "reference": {
+        "created_at": "2026-11-04T09:00:00+00:00",
+        "end": 501,
+        "message_indices": [
+          2,
+          3
+        ],
+        "project": "inference-demo",
+        "session_id": "cache-configuration",
+        "start": 178,
+        "turn_end": 323,
+        "turn_index": 1,
+        "turn_start": 0
+      },
+      "page_fragment": "USER: The longer sequence workload exceeds the memory budget. Record the current KVCache block_size.\n\nASSISTANT: The current KVCache block_size is 32. The value 128 is superseded for this experiment because the longer sequence workload exceeded the memory budget. Keep the same dataset and seed when comparing memory usage.",
+      "source_fragment": "USER: The longer sequence workload exceeds the memory budget. Record the current KVCache block_size.\n\nASSISTANT: The current KVCache block_size is 32. The value 128 is superseded for this experiment because the longer sequence workload exceeded the memory budget. Keep the same dataset and seed when comparing memory usage.",
+      "matches": true
+    },
+    {
+      "query": "inference-history",
+      "page_id": "p_06110917e38f407cb08b45e9",
+      "reference": {
+        "created_at": "2026-11-04T09:00:00+00:00",
+        "end": 176,
+        "message_indices": [
+          0,
+          1
+        ],
+        "project": "inference-demo",
+        "session_id": "cache-configuration",
+        "start": 0,
+        "turn_end": 176,
+        "turn_index": 0,
+        "turn_start": 0
+      },
+      "page_fragment": "USER: Set the initial KVCache block_size for this experiment.\n\nASSISTANT: The initial KVCache block_size is 128. This is a provisional configuration for the synthetic workload.",
+      "source_fragment": "USER: Set the initial KVCache block_size for this experiment.\n\nASSISTANT: The initial KVCache block_size is 128. This is a provisional configuration for the synthetic workload.",
+      "matches": true
+    },
+    {
+      "query": "inference-history",
+      "page_id": "p_06110917e38f407cb08b45e9",
+      "reference": {
+        "created_at": "2026-11-04T09:00:00+00:00",
+        "end": 501,
+        "message_indices": [
+          2,
+          3
+        ],
+        "project": "inference-demo",
+        "session_id": "cache-configuration",
+        "start": 178,
+        "turn_end": 323,
+        "turn_index": 1,
+        "turn_start": 0
+      },
+      "page_fragment": "USER: The longer sequence workload exceeds the memory budget. Record the current KVCache block_size.\n\nASSISTANT: The current KVCache block_size is 32. The value 128 is superseded for this experiment because the longer sequence workload exceeded the memory budget. Keep the same dataset and seed when comparing memory usage.",
+      "source_fragment": "USER: The longer sequence workload exceeds the memory budget. Record the current KVCache block_size.\n\nASSISTANT: The current KVCache block_size is 32. The value 128 is superseded for this experiment because the longer sequence workload exceeded the memory budget. Keep the same dataset and seed when comparing memory usage.",
+      "matches": true
+    }
+  ],
+  "scope_note": "Current-context output may retain the original 128 statement or mention that 128 is superseded; the smoke checks explicit current=32 and excludes the other project's 256, rather than rewriting source text.",
+  "summary": {
+    "sessions": 5,
+    "projects": 4,
+    "pages": 5,
+    "query_labels": [
+      "routing-current",
+      "training-contract",
+      "gateway-parser",
+      "inference-current",
+      "inference-history"
+    ],
+    "source_pages_read": 4,
+    "source_sessions_read": 4,
+    "repeat_import_skipped": 5,
+    "backup_source_counts": {
+      "projects": 4,
+      "chapters": 5,
+      "sessions": 5,
+      "turns": 7,
+      "sections": 5,
+      "pages": 5,
+      "chars": 1925,
+      "page_chars": 1929,
+      "revision": 5
+    },
+    "backup_copy_counts": {
+      "projects": 4,
+      "chapters": 5,
+      "sessions": 5,
+      "turns": 7,
+      "sections": 5,
+      "pages": 5,
+      "chars": 1925,
+      "page_chars": 1929,
+      "revision": 5
+    },
+    "source_runtime_state": "ready",
+    "backup_runtime_state": "ready"
+  },
+  "temporary_databases": "Fresh demo source and verified backup were created for this smoke and removed after validation. Full CLI outputs and references are retained here.",
+  "status": "passed",
+  "finished_at": "2026-11-15T14:22:03.020586+00:00",
+  "check_count": 52,
+  "command_count": 24,
+  "failed_checks": []
+}

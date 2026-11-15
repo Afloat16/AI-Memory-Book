@@ -15,11 +15,12 @@ from types import FunctionType
 from typing import Any
 
 from .segmentation import make_turns, segment
-from .text import estimate_tokens, excerpt, headline, index_text, query_terms, terms
+from .text import estimate_tokens, excerpt, headline, identifier_terms as terms, index_text, query_terms
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 INDEX_VERSION = 3
-RECALL_VERSION = 13
+LEXICAL_INDEX_VERSION = 1
+RECALL_VERSION = 14
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -53,6 +54,13 @@ BEGIN
  INSERT INTO pages_stem_fts(rowid,title,question,body,directory)
   SELECT rowid,title,question,body,directory FROM pages_fts;
  INSERT OR REPLACE INTO meta(key,value) VALUES('stem_revision',NEW.value);
+END;"""
+LEXICAL_REVISION_SQL = """CREATE TRIGGER IF NOT EXISTS meta_revision_require_lexical
+BEFORE UPDATE OF value ON meta
+WHEN NEW.key='revision'
+ AND COALESCE((SELECT value FROM meta WHERE key='lexical_revision'), '') != NEW.value
+BEGIN
+ SELECT RAISE(ABORT,'Memory Book lexical index changed; restart older writers with the current version');
 END;"""
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
@@ -110,9 +118,12 @@ CREATE TABLE IF NOT EXISTS recall_cache (
 """ + RECALL_METADATA_INDEX_SQL + "\n" + STEM_INDEX_SQL + "\n" + STEM_DELETE_SQL + """
 INSERT OR IGNORE INTO meta(key,value)
  SELECT 'stem_revision',value FROM meta WHERE key='revision';
-""" + STEM_REVISION_SQL + """
+INSERT OR IGNORE INTO meta(key,value)
+ SELECT 'lexical_revision',value FROM meta WHERE key='revision';
+INSERT OR IGNORE INTO meta VALUES ('lexical_index_version', '1');
+""" + STEM_REVISION_SQL + "\n" + LEXICAL_REVISION_SQL + """
 PRAGMA application_id = 1296191307;
-PRAGMA user_version = 3;
+PRAGMA user_version = 4;
 """
 
 
@@ -297,9 +308,14 @@ def _latest_matching_turn(content: str, raw_refs: str, matched: set[str]) -> int
     return max((ref["turn_index"] for ref in _matching_turn_refs(content, refs, matched)), default=None)
 
 
-def _current_excerpt_ref(content: str, refs: list[dict], matched: set[str], allowance: int) -> dict | None:
-    """Propose one latest matching turn; the caller verifies its original text."""
-    if (allowance >= len(content) or not isinstance(refs, list)
+def _current_excerpt_ref(content: str, refs: list[dict], matched: set[str], allowance: int | None = None) -> dict | None:
+    """Propose a complete matching turn, optionally bounded by excerpt size.
+
+    The caller verifies original text before using the span. An unbounded
+    proposal can restrict token supplements without shortening a full page
+    that already fits both budgets.
+    """
+    if (not isinstance(refs, list)
             or len({ref.get("turn_index") for ref in refs if isinstance(ref, dict)
                     and type(ref.get("turn_index")) is int}) < 2):
         return None
@@ -317,7 +333,8 @@ def _current_excerpt_ref(content: str, refs: list[dict], matched: set[str], allo
     start, end = ref["start"], ref["end"]
     if (type(ref.get("turn_start")) is not int or ref["turn_start"] != 0
             or type(ref.get("turn_end")) is not int or ref["turn_end"] != end - start
-            or end - start + bool(start) + (end < len(content)) > allowance):
+            or (allowance is not None
+                and end - start + bool(start) + (end < len(content)) > allowance)):
         return None
     return ref
 
@@ -400,12 +417,12 @@ class MemoryBook:
             app_id = self.db.execute("PRAGMA application_id").fetchone()[0]
             if app_id not in {0, APPLICATION_ID}:
                 raise ValueError("refusing to open a database belonging to another application")
-            if version not in {0, 1, 2, SCHEMA_VERSION}:
+            if version not in {0, 1, 2, 3, SCHEMA_VERSION}:
                 raise ValueError(f"unsupported database schema {version}; expected {SCHEMA_VERSION}")
             # A modest connection-local pager target, independent of the
             # query-result cache. This does not persist a file-format setting.
             self.db.execute("PRAGMA cache_size=-4096")
-            if version < SCHEMA_VERSION or not self._stem_guard_ready():
+            if version < SCHEMA_VERSION or not self._stem_guard_ready() or not self._lexical_guard_ready():
                 self._migrate_schema()
             # The narrow covering index is derived metadata only. Adding it
             # leaves source rows, addresses, revision and schema compatibility
@@ -514,6 +531,14 @@ class MemoryBook:
           EXISTS(SELECT 1 FROM sqlite_master WHERE type='trigger' AND name='meta_revision_sync_stem')
           AND EXISTS(SELECT 1 FROM meta WHERE key='stem_revision')""").fetchone()[0])
 
+    def _lexical_guard_ready(self) -> bool:
+        return bool(self.db.execute("""SELECT
+          EXISTS(SELECT 1 FROM sqlite_master WHERE type='trigger' AND name='meta_revision_require_lexical')
+          AND EXISTS(SELECT 1 FROM meta WHERE key='lexical_index_version' AND value=?)
+          AND EXISTS(SELECT 1 FROM meta WHERE key='lexical_revision'
+                     AND value=(SELECT value FROM meta WHERE key='revision'))""",
+          (str(LEXICAL_INDEX_VERSION),)).fetchone()[0])
+
     def _migrate_schema(self) -> None:
         """Initialize or upgrade atomically without changing page addresses."""
         self.db.execute("BEGIN IMMEDIATE")
@@ -524,7 +549,7 @@ class MemoryBook:
             app_id = self.db.execute("PRAGMA application_id").fetchone()[0]
             if app_id not in {0, APPLICATION_ID}:
                 raise ValueError("refusing to migrate a database belonging to another application")
-            if version not in {0, 1, 2, SCHEMA_VERSION}:
+            if version not in {0, 1, 2, 3, SCHEMA_VERSION}:
                 raise ValueError(f"unsupported database schema {version}; expected {SCHEMA_VERSION}")
             if version == 0:
                 existing = self.db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").fetchall()
@@ -541,13 +566,16 @@ class MemoryBook:
                         statement = ""
                 if statement.strip():
                     self.db.execute(statement)
-            elif version < SCHEMA_VERSION or not self._stem_guard_ready():
+            elif version < SCHEMA_VERSION or not self._stem_guard_ready() or not self._lexical_guard_ready():
                 names = {row[0] for row in self.db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
                 if not {"meta", "projects", "sessions", "pages", "pages_fts", "recall_cache"} <= names:
                     raise ValueError("refusing to migrate a non-Memory-Book database")
                 if version == 1:
                     self._migrate_v1()
-                self._migrate_v2()
+                if version < SCHEMA_VERSION or not self._lexical_guard_ready():
+                    self._migrate_v3()
+                else:
+                    self._migrate_v2()
                 self._changed()
                 self.db.execute(f"PRAGMA application_id={APPLICATION_ID}")
                 self.db.execute(f"PRAGMA user_version={SCHEMA_VERSION}")
@@ -587,19 +615,49 @@ class MemoryBook:
           SELECT 'stem_revision',value FROM meta WHERE key='revision'""")
         self.db.execute(STEM_REVISION_SQL)
 
+    def _migrate_v3(self) -> None:
+        """Rebuild only derived lexical indexes, preserving all page addresses.
+
+        INDEX_VERSION also participates in source hashes and stays unchanged:
+        an unchanged transcript must not be resegmented after this upgrade.
+        A bounded cursor avoids materializing the archive's source text at once.
+        Older connections cannot run this tokenizer, so their next revision
+        update is rejected atomically instead of silently restoring stale tokens.
+        """
+        self.db.execute("DELETE FROM pages_fts")
+        pages = self.db.execute("""SELECT p.rid,p.title,p.question,p.content,
+          c.title chapter_title,s.title session_title FROM pages p
+          JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk
+          ORDER BY p.rid""")
+        directory_text = lru_cache(maxsize=512)(index_text)
+        while batch := pages.fetchmany(128):
+            self.db.executemany(
+                "INSERT INTO pages_fts(rowid,title,question,body,directory) VALUES(?,?,?,?,?)",
+                ((page["rid"], index_text(page["title"]), index_text(page["question"]),
+                  index_text(page["content"]), directory_text(page["chapter_title"] + " " + page["session_title"]))
+                 for page in batch))
+        self._migrate_v2()
+        self.db.execute("INSERT OR REPLACE INTO meta VALUES ('lexical_index_version',?)",
+                        (str(LEXICAL_INDEX_VERSION),))
+        self.db.execute("""INSERT OR REPLACE INTO meta(key,value)
+          SELECT 'lexical_revision',value FROM meta WHERE key='revision'""")
+        self.db.execute("DROP TRIGGER IF EXISTS meta_revision_require_lexical")
+        self.db.execute(LEXICAL_REVISION_SQL)
+
     @property
     def revision(self) -> int:
         return int(self.db.execute("SELECT value FROM meta WHERE key='revision'").fetchone()[0])
 
     def _changed(self) -> None:
-        # Current writers already update both indexes in their transaction.
+        # Current writers already update both lexical indexes in their transaction.
         # Mark that work before advancing revision, so the database guard does
-        # nothing on the normal path. An already-open older writer advances
-        # only revision: the guard then rebuilds the entire stem index from
-        # exact tokens inside that same write transaction. This compatibility
-        # fallback is deliberately more expensive than current incremental writes.
+        # nothing on the normal path. The lexical guard rejects an already-open
+        # older writer: copying its exact tokens into the stem index cannot
+        # reproduce identifier aliases. Its caller rolls back the whole write.
         self.db.execute("""INSERT OR REPLACE INTO meta(key,value)
           SELECT 'stem_revision',CAST(value AS INTEGER)+1 FROM meta WHERE key='revision'""")
+        self.db.execute("""INSERT OR REPLACE INTO meta(key,value)
+          SELECT 'lexical_revision',CAST(value AS INTEGER)+1 FROM meta WHERE key='revision'""")
         self.db.execute("UPDATE meta SET value=CAST(value AS INTEGER)+1 WHERE key='revision'")
         self.db.execute("DELETE FROM recall_cache")
 
@@ -966,6 +1024,7 @@ class MemoryBook:
             captured_refs = None
             current_matches: dict[int, set[str]] = {}
             current_spans: dict[str, tuple[int, int]] = {}
+            current_unit_spans: dict[str, tuple[int, int]] = {}
             original_turns = None
             refs_by_page = None
             if (qt or (semantic and query)) and budget_chars:
@@ -1317,17 +1376,25 @@ class MemoryBook:
                         source_units_for = prepare_source_units(selected_pages, original_turns, refs_by_page)
                     if current_matches and budget_tokens != 0:
                         # A current correction may share one page with its
-                        # obsolete version. Only shorten an already-truncated
-                        # page to a complete comparable original turn that fits.
-                        # Otherwise keep the established lexical excerpt.
+                        # obsolete version. Character excerpts still change
+                        # only when a complete comparable turn fits. Token
+                        # supplements also need this source boundary when the
+                        # entire page fits the character budget, or a selected
+                        # page was omitted from the character allocations.
                         proposed = {}
-                        for row, _, allowance in allocations:
+                        char_allowances = {row["id"]: allowance for row, _, allowance in allocations}
+                        current_pages = (selected_pages if source_units_for is not None
+                                         else [row for row, _, _ in allocations])
+                        for row in current_pages:
                             match_set = current_matches.get(row["rid"])
-                            if not match_set or allowance >= len(row["content"]):
+                            allowance = char_allowances.get(row["id"])
+                            if (not match_set or (source_units_for is None
+                                                  and allowance >= len(row["content"]))):
                                 continue
                             refs = (refs_by_page[row["id"]] if refs_by_page is not None
                                     else json.loads(row["source_refs"]))
-                            ref = _current_excerpt_ref(row["content"], refs, match_set, allowance)
+                            ref = _current_excerpt_ref(row["content"], refs, match_set,
+                                                       None if source_units_for is not None else allowance)
                             if ref is not None:
                                 proposed[row["id"]] = (row, ref)
                         known_turns = original_turns if original_turns is not None else {}
@@ -1350,13 +1417,17 @@ class MemoryBook:
                             start, end = ref["start"], ref["end"]
                             if (isinstance(original, str) and ref["turn_end"] == len(original)
                                     and row["content"][start:end] == original):
-                                current_spans[identity] = (start, end)
-                        if source_units_for is not None and current_spans:
+                                current_unit_spans[identity] = (start, end)
+                                allowance = char_allowances.get(identity)
+                                if (allowance is not None and allowance < len(row["content"])
+                                        and end - start + bool(start) + (end < len(row["content"])) <= allowance):
+                                    current_spans[identity] = (start, end)
+                        if source_units_for is not None and current_unit_spans:
                             ordinary_units_for = source_units_for
 
                             def source_units_for(row):
                                 units = ordinary_units_for(row)
-                                span = current_spans.get(row["id"])
+                                span = current_unit_spans.get(row["id"])
                                 if span is None:
                                     return units
                                 # If the full current turn exceeds the token

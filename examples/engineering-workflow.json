@@ -1,0 +1,113 @@
+[
+  {
+    "project": "routing-demo",
+    "project_name": "Routing algorithms",
+    "session_id": "negative-edges",
+    "task_id": "shortest-path",
+    "task_title": "Shortest-path policy",
+    "title": "Routing constraints and failed prototype",
+    "created_at": "2026-11-01T09:00:00Z",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What are the shortest-path constraints for this project?"
+      },
+      {
+        "role": "assistant",
+        "content": "The initial prototype uses visited-once Dijkstra. Its input contract requires every edge weight to be nonnegative."
+      },
+      {
+        "role": "user",
+        "content": "The product now accepts negative edges. Record the current shortest-path policy and the failed approach."
+      },
+      {
+        "role": "assistant",
+        "content": "The current shortest-path policy is Bellman-Ford with reachable-negative-cycle detection. Do not reuse visited-once Dijkstra for this contract. The failing prototype settled a vertex before a later negative edge improved its distance."
+      }
+    ]
+  },
+  {
+    "project": "training-demo",
+    "project_name": "Training data pipeline",
+    "session_id": "input-contract",
+    "task_id": "dataset-reader",
+    "task_title": "Dataset input and split rules",
+    "title": "JSONLReader and split contract",
+    "created_at": "2026-11-02T09:00:00Z",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Record the JSONLReader input contract and validation split."
+      },
+      {
+        "role": "assistant",
+        "content": "JSONLReader rejects records missing sample_id, event_time, or target. Keep every sample_id in exactly one split. Sort by event_time before splitting; training must precede validation. Fit normalization statistics using training records only."
+      }
+    ]
+  },
+  {
+    "project": "gateway-demo",
+    "project_name": "Gateway service",
+    "session_id": "parser-contract",
+    "task_id": "http-parsing",
+    "task_title": "HTTP parsing behavior",
+    "title": "HTTPParser rejects ambiguous lengths",
+    "created_at": "2026-11-03T09:00:00Z",
+    "messages": [
+      {
+        "role": "user",
+        "content": "What does HTTPParser do when request lengths are ambiguous?"
+      },
+      {
+        "role": "assistant",
+        "content": "HTTPParser rejects conflicting Content-Length fields. The gateway returns status 400 and closes the connection. Tests must cover duplicate equal lengths, conflicting lengths, truncated bodies, and valid chunked requests according to the gateway's configured protocol policy."
+      }
+    ]
+  },
+  {
+    "project": "inference-demo",
+    "project_name": "Inference memory planning",
+    "session_id": "cache-configuration",
+    "task_id": "cache-budget",
+    "task_title": "KVCache block-size decision",
+    "title": "KVCache block size and correction",
+    "created_at": "2026-11-04T09:00:00Z",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Set the initial KVCache block_size for this experiment."
+      },
+      {
+        "role": "assistant",
+        "content": "The initial KVCache block_size is 128. This is a provisional configuration for the synthetic workload."
+      },
+      {
+        "role": "user",
+        "content": "The longer sequence workload exceeds the memory budget. Record the current KVCache block_size."
+      },
+      {
+        "role": "assistant",
+        "content": "The current KVCache block_size is 32. The value 128 is superseded for this experiment because the longer sequence workload exceeded the memory budget. Keep the same dataset and seed when comparing memory usage."
+      }
+    ]
+  },
+  {
+    "project": "gateway-demo",
+    "project_name": "Gateway service",
+    "session_id": "cache-configuration",
+    "task_id": "cache-budget",
+    "task_title": "Gateway cache scope control",
+    "title": "KVCache belongs to a different project here",
+    "created_at": "2026-11-05T09:00:00Z",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Record this gateway test double's KVCache block_size."
+      },
+      {
+        "role": "assistant",
+        "content": "The gateway test double uses KVCache block_size 256. This value belongs only to gateway-demo; it is not the inference-demo configuration."
+      }
+    ]
+  }
+]

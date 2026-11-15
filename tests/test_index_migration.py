@@ -13,6 +13,7 @@ from unittest.mock import patch
 
 from memory_book import MemoryBook
 from memory_book.store import SCHEMA_VERSION, STEM_REVISION_SQL
+from memory_book.text import terms
 
 
 class IndexMigrationTests(unittest.TestCase):
@@ -23,7 +24,7 @@ class IndexMigrationTests(unittest.TestCase):
     def tearDown(self):
         self.temporary.cleanup()
 
-    def _legacy(self, version=2):
+    def _legacy(self, version=2, *, identifier=False):
         source = {
             "project": "travel", "session_id": "visit", "task_id": "journey",
             "created_at": "2025-07-03T12:00:00Z",
@@ -31,16 +32,34 @@ class IndexMigrationTests(unittest.TestCase):
                          {"role": "assistant", "content": "Mira attended a conference in Tallinn. " +
                           "The archived itinerary also records transit and accommodation details. " * 25}],
         }
+        if identifier:
+            source["messages"][1]["content"] += " HTTPParser uses a 317ms deadline."
         with MemoryBook(self.path, segmentation="adaptive", max_page_chars=700, min_page_chars=150) as book:
             book.ingest(source)
             book.recall("conference", project="travel")
-        # These derived tables/triggers are the only schema-3 additions. Dropping
-        # them produces the prior source schema, including custom page boundaries.
+        # Recreate the actual legacy derived format, not merely user_version:
+        # schema 1/2/3 used the unchanged segmentation tokenizer for FTS, and
+        # had no lexical writer marker. Preserve their custom page boundaries.
         with sqlite3.connect(self.path) as db:
-            db.execute("DROP TRIGGER meta_revision_sync_stem")
-            db.execute("DELETE FROM meta WHERE key='stem_revision'")
-            db.execute("DROP TRIGGER pages_delete_stem_fts")
-            db.execute("DROP TABLE pages_stem_fts")
+            db.execute("DROP TRIGGER meta_revision_require_lexical")
+            db.execute("DELETE FROM meta WHERE key IN ('lexical_revision','lexical_index_version')")
+            pages = db.execute("""SELECT p.rid,p.title,p.question,p.content,c.title,s.title
+              FROM pages p JOIN chapters c ON c.id=p.chapter_id
+              JOIN sessions s ON s.id=p.session_pk""").fetchall()
+            db.execute("DELETE FROM pages_fts")
+            db.executemany("INSERT INTO pages_fts(rowid,title,question,body,directory) VALUES(?,?,?,?,?)",
+                           ((rid, " ".join(terms(title)), " ".join(terms(question)),
+                             " ".join(terms(content)), " ".join(terms(chapter + " " + session)))
+                            for rid, title, question, content, chapter, session in pages))
+            if version < 3:
+                db.execute("DROP TRIGGER meta_revision_sync_stem")
+                db.execute("DELETE FROM meta WHERE key='stem_revision'")
+                db.execute("DROP TRIGGER pages_delete_stem_fts")
+                db.execute("DROP TABLE pages_stem_fts")
+            else:
+                db.execute("DELETE FROM pages_stem_fts")
+                db.execute("""INSERT INTO pages_stem_fts(rowid,title,question,body,directory)
+                  SELECT rowid,title,question,body,directory FROM pages_fts""")
             if version == 1:
                 db.execute("ALTER TABLE sessions DROP COLUMN settings_json")
                 row = db.execute("SELECT raw_json FROM sessions").fetchone()
@@ -59,6 +78,7 @@ class IndexMigrationTests(unittest.TestCase):
                 "meta": db.execute("SELECT key,value FROM meta ORDER BY key").fetchall(),
                 "pages": db.execute("SELECT rid,id,content,source_refs FROM pages ORDER BY rid").fetchall(),
                 "sources": db.execute("SELECT id,raw_json,created_at,content_hash FROM sessions ORDER BY id").fetchall(),
+                "chapters": db.execute("SELECT id,title,summary FROM chapters ORDER BY id").fetchall(),
                 "exact": db.execute("SELECT rowid,title,question,body,directory FROM pages_fts ORDER BY rowid").fetchall(),
                 "stem": (db.execute("SELECT rowid,title,question,body,directory FROM pages_stem_fts ORDER BY rowid").fetchall()
                          if "pages_stem_fts" in tables else None),
@@ -75,14 +95,22 @@ class IndexMigrationTests(unittest.TestCase):
         self.assertEqual(stem, exact)
         marker = book.db.execute("SELECT value FROM meta WHERE key='stem_revision'").fetchone()[0]
         self.assertEqual(int(marker), book.revision)
+        lexical = book.db.execute("SELECT value FROM meta WHERE key='lexical_revision'").fetchone()[0]
+        self.assertEqual(int(lexical), book.revision)
 
     @staticmethod
-    def _legacy_change(db, statements):
-        """Schema-2 writers know only exact-index edits and revision invalidation."""
+    def _legacy_change(db, statements, *, lexical_aware=False, stem_aware=False):
+        """Simulate old writes; lexical_aware isolates the retained stem guard."""
         db.execute("BEGIN IMMEDIATE")
         try:
             for statement, parameters in statements:
                 db.execute(statement, parameters)
+            if lexical_aware:
+                db.execute("""INSERT OR REPLACE INTO meta(key,value)
+                  SELECT 'lexical_revision',CAST(value AS INTEGER)+1 FROM meta WHERE key='revision'""")
+            if stem_aware:
+                db.execute("""INSERT OR REPLACE INTO meta(key,value)
+                  SELECT 'stem_revision',CAST(value AS INTEGER)+1 FROM meta WHERE key='revision'""")
             db.execute("UPDATE meta SET value=CAST(value AS INTEGER)+1 WHERE key='revision'")
             db.execute("DELETE FROM recall_cache")
             db.execute("COMMIT")
@@ -120,18 +148,18 @@ class IndexMigrationTests(unittest.TestCase):
         self.assertEqual(self._snapshot()["pages"], old["pages"])
 
     def test_failed_backfill_rolls_back_schema_data_cache_and_version(self):
-        for version in (1, 2):
+        for version in (1, 2, 3):
             with self.subTest(version=version):
                 if self.path.exists():
                     self.path.unlink()
                 old = self._legacy(version)
-                migrate = MemoryBook._migrate_v2
+                migrate = MemoryBook._migrate_v3
 
                 def interrupted(book):
                     migrate(book)
-                    raise sqlite3.OperationalError("interrupted after stem backfill")
+                    raise sqlite3.OperationalError("interrupted after identifier backfill")
 
-                with patch.object(MemoryBook, "_migrate_v2", interrupted):
+                with patch.object(MemoryBook, "_migrate_v3", interrupted):
                     with self.assertRaisesRegex(sqlite3.OperationalError, "interrupted"):
                         MemoryBook(self.path)
                 self.assertEqual(self._snapshot(), old)
@@ -174,7 +202,7 @@ class IndexMigrationTests(unittest.TestCase):
             self.assertEqual(reopened.revision, revision + 1)
             self._assert_indexes_match(reopened)
 
-    def test_already_open_legacy_writer_repairs_insert_directory_update_and_delete(self):
+    def test_lexical_aware_writer_keeps_historical_stem_sync_contract(self):
         self._legacy()
         legacy = sqlite3.connect(self.path, isolation_level=None)
         legacy.execute("PRAGMA foreign_keys=ON")
@@ -183,8 +211,9 @@ class IndexMigrationTests(unittest.TestCase):
             with MemoryBook(self.path) as book:
                 original = book.db.execute("SELECT * FROM pages ORDER BY rid LIMIT 1").fetchone()
                 duplicate_rid = book.db.execute("SELECT max(rid)+1 FROM pages").fetchone()[0]
-                # Copy a real source page, retaining valid original text and refs,
-                # through only the SQL objects known to a schema-2 writer.
+                # Isolate the historical exact -> stem synchronization path.
+                # This simulated writer explicitly acknowledges the current
+                # lexical format; an unmodified legacy writer is rejected below.
                 self._legacy_change(legacy, [
                     ("""INSERT INTO pages
                         SELECT ?,?,section_id,session_pk,chapter_id,project_id,title,question,content,source_refs,ordinal
@@ -192,7 +221,7 @@ class IndexMigrationTests(unittest.TestCase):
                     ("""INSERT INTO pages_fts(rowid,title,question,body,directory)
                         SELECT ?,title,question,body,directory FROM pages_fts WHERE rowid=?""",
                      (duplicate_rid, original["rid"])),
-                ])
+                ], lexical_aware=True)
                 self._assert_indexes_match(book)
                 self.assertEqual(book.db.execute(
                     "SELECT rowid FROM pages_stem_fts WHERE pages_stem_fts MATCH 'conferences' AND rowid=?",
@@ -203,7 +232,7 @@ class IndexMigrationTests(unittest.TestCase):
                     ("UPDATE chapters SET title=? WHERE id=?", ("Workshop planning", original["chapter_id"])),
                     ("""UPDATE pages_fts SET directory=? WHERE rowid IN
                         (SELECT rid FROM pages WHERE chapter_id=?)""", ("workshop planning", original["chapter_id"])),
-                ])
+                ], lexical_aware=True)
                 self._assert_indexes_match(book)
                 self.assertEqual(book.stats()["cache_entries"], 0)
                 self.assertEqual(book.db.execute(
@@ -211,7 +240,7 @@ class IndexMigrationTests(unittest.TestCase):
                     "workshop planning")
                 self._legacy_change(legacy, [
                     ("DELETE FROM sessions WHERE id=?", (original["session_pk"],)),
-                ])
+                ], lexical_aware=True)
                 self._assert_indexes_match(book)
                 self.assertEqual(book.db.execute("SELECT count(*) FROM pages_stem_fts").fetchone()[0], 0)
         finally:
@@ -234,12 +263,13 @@ class IndexMigrationTests(unittest.TestCase):
             book.delete_project("travel")
             self._assert_indexes_match(book)
             self.assertEqual(repairs, [])
-            # Confirm the probe itself observes the legacy path.
-            self._legacy_change(book.db, [])
+            # Exercise the retained stem repair independently of the lexical
+            # guard: current lexical tokens can still need a stem-only repair.
+            self._legacy_change(book.db, [], lexical_aware=True)
             self.assertEqual(repairs, [True])
             self._assert_indexes_match(book)
 
-    def test_failed_legacy_rebuild_rolls_back_exact_stem_revision_and_cache(self):
+    def test_failed_stem_rebuild_rolls_back_exact_stem_revision_and_cache(self):
         self._legacy()
         legacy = sqlite3.connect(self.path, isolation_level=None)
         try:
@@ -254,15 +284,87 @@ class IndexMigrationTests(unittest.TestCase):
                 book.db.execute(broken)
                 edits = [("UPDATE pages_fts SET directory=?", ("incomplete legacy rename",))]
                 with self.assertRaisesRegex(sqlite3.IntegrityError, "legacy stem rebuild interrupted"):
-                    self._legacy_change(legacy, edits)
+                    self._legacy_change(legacy, edits, lexical_aware=True)
                 self.assertEqual(self._snapshot(), before)
                 book.db.execute("DROP TRIGGER meta_revision_sync_stem")
                 book.db.execute(STEM_REVISION_SQL)
-                self._legacy_change(legacy, edits)
+                self._legacy_change(legacy, edits, lexical_aware=True)
                 self._assert_indexes_match(book)
                 self.assertEqual(book.stats()["cache_entries"], 0)
         finally:
             legacy.close()
+
+    def test_schema_three_identifier_upgrade_preserves_source_hashes_and_skips_reingest(self):
+        old = self._legacy(version=3, identifier=True)
+        with sqlite3.connect(self.path) as db:
+            self.assertEqual(db.execute("SELECT count(*) FROM pages_fts WHERE pages_fts MATCH 'parser'").fetchone()[0], 0)
+        with MemoryBook(self.path, segmentation="adaptive", max_page_chars=700, min_page_chars=150) as book:
+            self.assertEqual(book.revision, old["revision"] + 1)
+            self.assertIn("HTTPParser uses a 317ms deadline", book.recall("http_parser", project="travel")["context"])
+            self._assert_indexes_match(book)
+            source = json.loads(old["sources"][0][1])
+            revision = book.revision
+            self.assertTrue(book.ingest(source)["skipped"])
+            self.assertEqual(book.revision, revision)
+        new = self._snapshot()
+        self.assertEqual(new["pages"], old["pages"])
+        self.assertEqual(new["sources"], old["sources"])
+        self.assertNotEqual(new["exact"], old["exact"])
+        with MemoryBook(self.path) as book:
+            self.assertEqual(book.revision, new["revision"])
+
+    def test_missing_lexical_guard_is_repaired_once_from_original_pages(self):
+        self._legacy(version=3, identifier=True)
+        with MemoryBook(self.path) as book:
+            revision = book.revision
+        with sqlite3.connect(self.path) as db:
+            db.execute("DROP TRIGGER meta_revision_require_lexical")
+            db.execute("DELETE FROM meta WHERE key='lexical_index_version'")
+            db.execute("DELETE FROM pages_fts")
+        with MemoryBook(self.path) as book:
+            self.assertEqual(book.revision, revision + 1)
+            self.assertIn("317ms", book.recall("http_parser", project="travel")["context"])
+            self._assert_indexes_match(book)
+        with MemoryBook(self.path) as book:
+            self.assertEqual(book.revision, revision + 1)
+
+    def test_already_open_schema_two_and_three_writers_are_rejected_atomically(self):
+        # A schema-3 writer updates both FTS tables and stem_revision, but it
+        # cannot produce identifier aliases. Neither old writer may commit a
+        # new source, rename or deletion after a schema-4 index upgrade.
+        for version in (2, 3):
+            with self.subTest(version=version):
+                if self.path.exists():
+                    self.path.unlink()
+                self._legacy(version=version, identifier=True)
+                legacy = sqlite3.connect(self.path, isolation_level=None)
+                legacy.execute("PRAGMA foreign_keys=ON")
+                self.assertEqual(legacy.execute("PRAGMA user_version").fetchone()[0], version)
+                try:
+                    with MemoryBook(self.path) as book:
+                        book.recall("http_parser", project="travel")
+                        original = book.db.execute("SELECT * FROM pages ORDER BY rid LIMIT 1").fetchone()
+                        duplicate_rid = book.db.execute("SELECT max(rid)+1 FROM pages").fetchone()[0]
+                        operations = [
+                            [("""INSERT INTO pages
+                                SELECT ?,?,section_id,session_pk,chapter_id,project_id,title,question,content,source_refs,ordinal
+                                FROM pages WHERE rid=?""", (duplicate_rid, "stale-writer-page", original["rid"])),
+                             ("""INSERT INTO pages_fts(rowid,title,question,body,directory)
+                                SELECT ?,title,question,body,directory FROM pages_fts WHERE rowid=?""",
+                              (duplicate_rid, original["rid"]))],
+                            [("UPDATE chapters SET title=? WHERE id=?", ("Old rename", original["chapter_id"])),
+                             ("UPDATE pages_fts SET directory=?", ("old rename",))],
+                            [("DELETE FROM sessions WHERE id=?", (original["session_pk"],))],
+                        ]
+                        before = self._snapshot()
+                        for edits in operations:
+                            with self.assertRaisesRegex(sqlite3.IntegrityError, "restart older writers"):
+                                self._legacy_change(legacy, edits, stem_aware=version == 3)
+                            self.assertEqual(self._snapshot(), before)
+                            self._assert_indexes_match(book)
+                        self.assertIn("317ms", book.recall("http_parser", project="travel")["context"])
+                finally:
+                    legacy.close()
 
 
 if __name__ == "__main__":

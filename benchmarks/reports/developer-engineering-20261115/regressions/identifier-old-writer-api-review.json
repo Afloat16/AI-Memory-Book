@@ -1,0 +1,57 @@
+{
+  "kind": "independent real baseline API writer review",
+  "baseline": {
+    "ready": true,
+    "schema": 3,
+    "revision": 2
+  },
+  "upgraded_schema": 4,
+  "old_writer_rejections": [
+    {
+      "op": "new_source",
+      "status": "rejected",
+      "error_type": "IntegrityError",
+      "message": "Memory Book lexical index changed; restart older writers with the current version",
+      "in_transaction": false,
+      "all_source_index_meta_cache_tables_unchanged": true
+    },
+    {
+      "op": "replace_source",
+      "status": "rejected",
+      "error_type": "IntegrityError",
+      "message": "Memory Book lexical index changed; restart older writers with the current version",
+      "in_transaction": false,
+      "all_source_index_meta_cache_tables_unchanged": true
+    },
+    {
+      "op": "relink_and_rename",
+      "status": "rejected",
+      "error_type": "IntegrityError",
+      "message": "Memory Book lexical index changed; restart older writers with the current version",
+      "in_transaction": false,
+      "all_source_index_meta_cache_tables_unchanged": true
+    },
+    {
+      "op": "delete_session",
+      "status": "rejected",
+      "error_type": "IntegrityError",
+      "message": "Memory Book lexical index changed; restart older writers with the current version",
+      "in_transaction": false,
+      "all_source_index_meta_cache_tables_unchanged": true
+    },
+    {
+      "op": "delete_project",
+      "status": "rejected",
+      "error_type": "IntegrityError",
+      "message": "Memory Book lexical index changed; restart older writers with the current version",
+      "in_transaction": false,
+      "all_source_index_meta_cache_tables_unchanged": true
+    }
+  ],
+  "unchanged_source_remains_safe_noop": true,
+  "new_writer_after_rejections_succeeded": true,
+  "source_sha256": {
+    "src/memory_book/store.py": "eecd366d08fc3dee8f517964f14786af9e458ccea9a7e2b14a399dc98c700047",
+    "src/memory_book/text.py": "3da5eeebbb786192b2c26435a7e6a9c04ea12c36f3cb702cc92d523a6c8bb85c"
+  }
+}

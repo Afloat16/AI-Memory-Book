@@ -13,6 +13,7 @@ from unittest.mock import patch
 from scripts import round5_c5_performance as original
 from scripts import round5_c6_performance as bench
 from tests import test_round5_performance as inherited
+from tests.round5_historical_fixture import historical_round5_inputs
 
 
 def empty_snapshot():
@@ -165,10 +166,11 @@ class C6AcceptanceTests(inherited.RoundFiveAcceptanceTests):
                      bench.DEVELOPMENT_PLAN_PATH,
                      bench.CONTINUATION_PATH, bench.C3_BINDING_PATH, bench.C3_SUMMARY_PATH, bench.C4_SUMMARY_PATH):
             self.assertIn(name, bench.TOOLS)
-        prior = json.loads((original.ROOT / bench.C3_BINDING_PATH).read_bytes())
-        self.assertEqual(bench.sha((original.ROOT / bench.C3_BINDING_PATH).read_bytes()), bench.C3_BINDING_SHA256)
-        for name, expected in prior['evaluator_files'].items():
-            self.assertEqual(bench.sha((original.ROOT / name).read_bytes()), expected, name)
+        with historical_round5_inputs(bench) as root:
+            prior = json.loads((root / bench.C3_BINDING_PATH).read_bytes())
+            self.assertEqual(bench.sha((root / bench.C3_BINDING_PATH).read_bytes()), bench.C3_BINDING_SHA256)
+            for name, expected in prior['evaluator_files'].items():
+                self.assertEqual(bench.sha((root / name).read_bytes()), expected, name)
 
     def test_registered_c6_without_frozen_source_cannot_read_binding_or_start_measurement(self):
         self.assertEqual(bench.CONTINUATION_COMMIT, '099cbaf427c28351d71f3995fd0ff42f9c881b38')
@@ -221,18 +223,19 @@ class C6AcceptanceTests(inherited.RoundFiveAcceptanceTests):
                 bench.check_c6_registered_scope(altered)
 
     def test_complete_rejected_c5_and_every_original_input_remain_bound(self):
-        raw = (bench.ROOT/bench.C5_SUMMARY_PATH).read_bytes()
-        with patch.object(bench, 'git', return_value=raw) as git:
-            result = bench.rejected_c5_registration()
-            git.assert_called_once_with('show', bench.C5_RESULT_COMMIT + ':' + bench.C5_SUMMARY_PATH)
-        self.assertEqual(result['rejected_c5_binding_sha256'], bench.C5_BINDING_SHA256)
-        self.assertEqual(result['rejected_c5_summary_sha256'], bench.C5_SUMMARY_SHA256)
-        self.assertEqual(result['rejected_c5_result_commit'], bench.C5_RESULT_COMMIT)
-        self.assertEqual(set(result['frozen_c5_evaluator_files']), set(original.TOOLS))
-        self.assertEqual(set(bench.C5_TOOLS), set(original.TOOLS))
-        with patch.object(bench, 'git', return_value=raw + b' '):
-            with self.assertRaisesRegex(ValueError, 'committed rejected summary bytes changed'):
-                bench.rejected_c5_registration()
+        with historical_round5_inputs(bench):
+            raw = (bench.ROOT/bench.C5_SUMMARY_PATH).read_bytes()
+            with patch.object(bench, 'git', return_value=raw) as git:
+                result = bench.rejected_c5_registration()
+                git.assert_called_once_with('show', bench.C5_RESULT_COMMIT + ':' + bench.C5_SUMMARY_PATH)
+            self.assertEqual(result['rejected_c5_binding_sha256'], bench.C5_BINDING_SHA256)
+            self.assertEqual(result['rejected_c5_summary_sha256'], bench.C5_SUMMARY_SHA256)
+            self.assertEqual(result['rejected_c5_result_commit'], bench.C5_RESULT_COMMIT)
+            self.assertEqual(set(result['frozen_c5_evaluator_files']), set(original.TOOLS))
+            self.assertEqual(set(bench.C5_TOOLS), set(original.TOOLS))
+            with patch.object(bench, 'git', return_value=raw + b' '):
+                with self.assertRaisesRegex(ValueError, 'committed rejected summary bytes changed'):
+                    bench.rejected_c5_registration()
 
     def test_prior_runtime_cannot_be_replayed_under_c6_label(self):
         args = SimpleNamespace(bind=bench.ROOT/bench.C6_BINDING_PATH,
