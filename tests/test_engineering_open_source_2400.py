@@ -70,6 +70,21 @@ class FakeEngine:
 
 
 class EngineeringOpenSource2400Tests(unittest.TestCase):
+    def setUp(self):
+        # The archived control runner intentionally accepts only its measured
+        # release. These protocol fixtures replace all ranking engines; keep
+        # their simulated release explicit when the installed product advances.
+        version = patch("memory_book.__version__", "0.4.0")
+        version.start()
+        self.addCleanup(version.stop)
+
+    def test_control_runner_rejects_another_real_runtime_version(self):
+        with tempfile.TemporaryDirectory() as directory, \
+                patch("memory_book.__version__", "9.9.9"):
+            with self.assertRaisesRegex(ValueError, "requires Book v0.4.0"):
+                runner.run(Path(directory) / "unused", offline=True)
+            self.assertFalse((Path(directory) / "unused").exists())
+
     def test_all_native_shapes_map_to_source_spans(self):
         doc = document()
         for backend in runner.BACKENDS:

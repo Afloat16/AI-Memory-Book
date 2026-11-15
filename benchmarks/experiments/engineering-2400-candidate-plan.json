@@ -1,0 +1,495 @@
+{
+  "book_version": "0.4.1",
+  "runtime": {
+    "imported_runtime_root": "/workspace/scratch/2421a8727f3c/AI-Memory-Book/src/memory_book",
+    "files": {
+      "__init__.py": "9e7c92602e7cec725573ddb5c723c1ab08131ba2529f48de0b5309fbce1b78c6",
+      "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+      "cli.py": "8a72e5cb54eb7125b0b8f82ca421e130b5315c13856be2f0dff07b4876db5b6a",
+      "clients.py": "c87c2ebd4dbd6b193b186f493586f53183a38e8108fd7011df3aa474f9b2058f",
+      "formats.py": "9b03524f6ae77aa1f0b73b4b74266da506421919135a6975ea692cac30eb48d1",
+      "importers.py": "655b39b6d1ab82d53a9f7635170b94225b9b7da81cd68dc4acfe2d43a304685c",
+      "integration.py": "88ed9bf5a0ee90b93516dc9ded0e0a8f1459354f25fbcc5afe70197b9444c6c5",
+      "mcp_server.py": "9d228171c7e901fea64d29b81593777e962b1736f2c3d09648cd842ce99e91c5",
+      "paths.py": "d7865c48e2c09eca14c00b20efd306f591d3876fa5c19ba39c2716eb09be7137",
+      "segmentation.py": "773cb62777bb11a66f1d2318bd75601f9ac38ea0fb6e7a534c1d8844a1a16e75",
+      "semantic.py": "41df86bced1b613deea2f1b1361eba9f32c3786f5185a06253fbfd32270ac91e",
+      "service.py": "55bd05f45cafc5dcd6c1fc5ceceade85f005a85a850b908c7bb155cff5a3584f",
+      "store.py": "8ad8762cf067a89a6e1e233ead8c9d13915102737ddcfc21550fafd54b68bbe5",
+      "sync.py": "89b2ac4b30b9b14ac564c3d328a51fbba97b2efc8a8dd1997892fc4142501291",
+      "text.py": "e2b5dff3fc5527ffd7098e57d5f6dd81e954618c311a541ecd3794fdd9731389",
+      "token_budget.py": "0af09aaae1219e978f688c3aa4bb6c180c0b435bdb4a3113e5c3758b19b290ed",
+      "web.py": "82d7d31271898fd6ee4fc24e88ec24f939149ca79563b8e523e7a080a159efd7"
+    },
+    "sha256": "dc49c921efaae11d5c00d93f251f75bde7402c62a408e6eded7b251d07dfa91b"
+  },
+  "evaluator": {
+    "files": {
+      "benchmarks/competitors/ai-memory-lock.json": "77edebbd68ca4f190065b9795481c524f50e3af73b10f05334a6d76d2c4cbd4c",
+      "benchmarks/competitors/ai_memory.py": "c6ad6a08956f04dc531b49f08a775c1f9e965e8e7612fcd523b19e197e2a5f11",
+      "benchmarks/competitors/billion-round2-lock.json": "0f56614fb56f3f269f6e40eb28646a8939fdf4e6dddcc93187465d31311dfd69",
+      "benchmarks/competitors/billion.py": "659d8296742b84a32d8094dc9756f48675582551e15bb411ff73842fa7ba9f14",
+      "benchmarks/competitors/billion_bridge.mjs": "8279eac093e3e51c5dfdcc9dc8dd2730f36c4653b78175a127e85b0ec62f6c93",
+      "benchmarks/competitors/claude-mem-round2-lock.json": "49267441d4a1292bdd6232abfd78a109fc97fcfcfcf740a51a84d767d6c3edae",
+      "benchmarks/competitors/claude_mem.py": "40e23f39527e2c7e9232668de2a9536d537132c886d47018bef5c8023c2edbdc",
+      "benchmarks/competitors/claude_mem_bridge.ts": "51ce601093267d610644fcbc75241b4a75061f611c937888964e14588e0f660c",
+      "benchmarks/competitors/compile_billion.mjs": "64cfba78b1c8bea6cf606aedb3e76c27c0ccefecb1a7f26a14c9a72029619b91",
+      "benchmarks/competitors/download.py": "2bb2bc414826223f515d7b89e3a001e6586ab8813c5f6eaa2eaa7580d4376365",
+      "benchmarks/engineering_components.py": "48b2f7752f80622296b9ace09d4941ae5396296d06cf00f39afe8ea0764be5e7",
+      "benchmarks/engineering_workflow.py": "3d1c53ef016a7143c86cf1326f2bf5b5cf7260863e91225d9a7e09a9773cdc6e",
+      "scripts/engineering_open_source_2400.py": "1bf9034a4a3b7a8646809019776895e9c6201d68ea68e81818f61ffd40bc8a72",
+      "tests/test_engineering_open_source_2400.py": "806738cf4aaa0e6e7a6a3b40b508b5cad08600cd5e9845c8141cd1ae9cfa2dde",
+      "scripts/engineering_2400_candidate.py": "97a0592c3572bcb33662d2587c5e94df684b963c5ccb3e4056d485206b5755f1",
+      "scripts/verify_engineering_2400_default.py": "2c8533472c901e9a7f1af6088f3f21f6f1ac3067437594272e7449a385f24baa"
+    },
+    "sha256": "7686f48e05747964446bf67309c591e94db50d1602b8628b9b6b7d37a7bd1d3f"
+  },
+  "settings": {
+    "budget_chars": 2400,
+    "limit": 5,
+    "repeats": 3,
+    "noise_grid": [
+      2,
+      8,
+      32
+    ]
+  },
+  "control_plan_sha256": "e19b78e7ea1682c1f2dcd894884e0cec135a4f21329c942ba2854430298e67b1",
+  "control_source_archive": {
+    "directory": "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source",
+    "source_commit": "e94edff22e9970c0603045e8f1739822ec731020",
+    "files": {
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/manifest.json": {
+        "sha256": "955bd3e19c44423f6a091fabd54f605debe084076872c70ea3bee62915de573c",
+        "bytes": 11814,
+        "decoded_sha256": "955bd3e19c44423f6a091fabd54f605debe084076872c70ea3bee62915de573c",
+        "decoded_bytes": 11814
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/src/memory_book/__init__.py.gz": {
+        "sha256": "3e90b8d2037caab13d43acdb6a1824cf05847f159c6e7249743572ada6ad40c5",
+        "bytes": 357,
+        "decoded_sha256": "bc4a4fb0b333fc4adb314d2d6c154bad75284785b19a32e115d37bbb58cd8756",
+        "decoded_bytes": 568
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/src/memory_book/__main__.py.gz": {
+        "sha256": "f3c68993f774c3ef8981e263621c7d612293d8cd4f7d868312c3f98948ebe140",
+        "bytes": 66,
+        "decoded_sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+        "decoded_bytes": 48
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/src/memory_book/cli.py.gz": {
+        "sha256": "cc9feee739c3cc6c2926a47718e6da1b57b93b4d56c7e8d6890960f47dc41422",
+        "bytes": 6494,
+        "decoded_sha256": "8a72e5cb54eb7125b0b8f82ca421e130b5315c13856be2f0dff07b4876db5b6a",
+        "decoded_bytes": 23651
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/src/memory_book/clients.py.gz": {
+        "sha256": "e80b40b10f3cbaf2c5f95b4edfe67ebf2b1170107a6d15dc4beb5e213a587ae8",
+        "bytes": 8558,
+        "decoded_sha256": "c87c2ebd4dbd6b193b186f493586f53183a38e8108fd7011df3aa474f9b2058f",
+        "decoded_bytes": 29930
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/src/memory_book/formats.py.gz": {
+        "sha256": "70ddcec0138d803cc9f87f56ba7a6527bb4c728448e1c939f29226b15abbe8c0",
+        "bytes": 150,
+        "decoded_sha256": "9b03524f6ae77aa1f0b73b4b74266da506421919135a6975ea692cac30eb48d1",
+        "decoded_bytes": 173
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/src/memory_book/importers.py.gz": {
+        "sha256": "1608e4cb52a12b5344eac7a588b7f61ccf74310ec821783263742188ddc9fe1a",
+        "bytes": 5989,
+        "decoded_sha256": "655b39b6d1ab82d53a9f7635170b94225b9b7da81cd68dc4acfe2d43a304685c",
+        "decoded_bytes": 24469
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/src/memory_book/integration.py.gz": {
+        "sha256": "a20f9e15019c632276d0c612f64e0a2f4e9916776c1ed204ef09f1621b7d543e",
+        "bytes": 4209,
+        "decoded_sha256": "88ed9bf5a0ee90b93516dc9ded0e0a8f1459354f25fbcc5afe70197b9444c6c5",
+        "decoded_bytes": 14073
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/src/memory_book/mcp_server.py.gz": {
+        "sha256": "09bfaaf63038da325363a6aa0fa0f374f920b6fec691a5c9f56c0ffcec90c525",
+        "bytes": 6418,
+        "decoded_sha256": "9d228171c7e901fea64d29b81593777e962b1736f2c3d09648cd842ce99e91c5",
+        "decoded_bytes": 21371
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/src/memory_book/paths.py.gz": {
+        "sha256": "71f54f65dd1477ecac0698fa5a3378e9be9b2ae4b7873d35954f300941b8f750",
+        "bytes": 568,
+        "decoded_sha256": "d7865c48e2c09eca14c00b20efd306f591d3876fa5c19ba39c2716eb09be7137",
+        "decoded_bytes": 1326
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/src/memory_book/segmentation.py.gz": {
+        "sha256": "66787f5f19b42c8783afedb7250ef3ada70c1951b68a8c19a21fb90408ecd155",
+        "bytes": 1941,
+        "decoded_sha256": "773cb62777bb11a66f1d2318bd75601f9ac38ea0fb6e7a534c1d8844a1a16e75",
+        "decoded_bytes": 5302
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/src/memory_book/semantic.py.gz": {
+        "sha256": "d26d77f8076b3a63682c907227ec03f774d29adb76e61fd1e7f6f6dc8bef651d",
+        "bytes": 5804,
+        "decoded_sha256": "41df86bced1b613deea2f1b1361eba9f32c3786f5185a06253fbfd32270ac91e",
+        "decoded_bytes": 15730
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/src/memory_book/service.py.gz": {
+        "sha256": "8b15908a36dbfa1f8bbce7e60ff673e6d0bbafd51b58d68365123d54cb21f499",
+        "bytes": 4173,
+        "decoded_sha256": "55bd05f45cafc5dcd6c1fc5ceceade85f005a85a850b908c7bb155cff5a3584f",
+        "decoded_bytes": 12334
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/src/memory_book/store.py.gz": {
+        "sha256": "8bf04697c0f5b8aa88c93e75cbd7fd424dfc63f9547b44227cf6d6a42763c1c0",
+        "bytes": 23182,
+        "decoded_sha256": "6674254cf8429f2bfb7d80eacb463a8990a714f0d30365eb7f55e14a0323e85e",
+        "decoded_bytes": 90566
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/src/memory_book/sync.py.gz": {
+        "sha256": "d4d49d86dc08f5d9a8d9efebdc75241a9df5ec70cb05051de296e420f7503937",
+        "bytes": 9953,
+        "decoded_sha256": "89b2ac4b30b9b14ac564c3d328a51fbba97b2efc8a8dd1997892fc4142501291",
+        "decoded_bytes": 37120
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/src/memory_book/text.py.gz": {
+        "sha256": "91c47e5c711b486f783a3d87e7f0c3101921c50b8cd7baede4b9bba8b4b2c568",
+        "bytes": 4488,
+        "decoded_sha256": "e2b5dff3fc5527ffd7098e57d5f6dd81e954618c311a541ecd3794fdd9731389",
+        "decoded_bytes": 11145
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/src/memory_book/token_budget.py.gz": {
+        "sha256": "fc16a2c067a619d8a59ca4134f1d30886276e3b08dc018f0852d6a0ebbe7e008",
+        "bytes": 9309,
+        "decoded_sha256": "0af09aaae1219e978f688c3aa4bb6c180c0b435bdb4a3113e5c3758b19b290ed",
+        "decoded_bytes": 30688
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/src/memory_book/web.py.gz": {
+        "sha256": "1bf88814e167c350ed34830742086ca43012ec90904642eb81396d3d2efec3bd",
+        "bytes": 3710,
+        "decoded_sha256": "82d7d31271898fd6ee4fc24e88ec24f939149ca79563b8e523e7a080a159efd7",
+        "decoded_bytes": 13490
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/benchmarks/competitors/ai-memory-lock.json.gz": {
+        "sha256": "f5ed57a2d8b4bbc9401829dafba43c68b58032cfdf2935f98e49f9b58d14eb5c",
+        "bytes": 767,
+        "decoded_sha256": "77edebbd68ca4f190065b9795481c524f50e3af73b10f05334a6d76d2c4cbd4c",
+        "decoded_bytes": 2031
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/benchmarks/competitors/ai_memory.py.gz": {
+        "sha256": "450dce7589313fdd9c9a566375e762f28a23810e148601c2e1897b2646a7a134",
+        "bytes": 5789,
+        "decoded_sha256": "c6ad6a08956f04dc531b49f08a775c1f9e965e8e7612fcd523b19e197e2a5f11",
+        "decoded_bytes": 20291
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/benchmarks/competitors/billion-round2-lock.json.gz": {
+        "sha256": "fbd7145cb3948f10d8af147fee385783b98bce323e733c5cea8006e93d1ee44a",
+        "bytes": 1615,
+        "decoded_sha256": "0f56614fb56f3f269f6e40eb28646a8939fdf4e6dddcc93187465d31311dfd69",
+        "decoded_bytes": 4249
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/benchmarks/competitors/billion.py.gz": {
+        "sha256": "0d3c409b6b7eb72837595c8547baf7ea6f62c8405efd20e9286ce030726575f5",
+        "bytes": 3216,
+        "decoded_sha256": "659d8296742b84a32d8094dc9756f48675582551e15bb411ff73842fa7ba9f14",
+        "decoded_bytes": 9752
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/benchmarks/competitors/billion_bridge.mjs.gz": {
+        "sha256": "22cb13402eaf1b18a2759c947020f0be43239e9fb5fbfaa98ec39086b448d1d8",
+        "bytes": 882,
+        "decoded_sha256": "8279eac093e3e51c5dfdcc9dc8dd2730f36c4653b78175a127e85b0ec62f6c93",
+        "decoded_bytes": 2150
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/benchmarks/competitors/claude-mem-round2-lock.json.gz": {
+        "sha256": "69dcbba9778cfc23ac63269e709e914813ca0a45f0e7478926d74f67999ad584",
+        "bytes": 780,
+        "decoded_sha256": "49267441d4a1292bdd6232abfd78a109fc97fcfcfcf740a51a84d767d6c3edae",
+        "decoded_bytes": 1609
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/benchmarks/competitors/claude_mem.py.gz": {
+        "sha256": "d5cffefc0b4b7884fc32d88c237af505b5019d0ba190b9f25ef755fd7da554d8",
+        "bytes": 4191,
+        "decoded_sha256": "40e23f39527e2c7e9232668de2a9536d537132c886d47018bef5c8023c2edbdc",
+        "decoded_bytes": 13552
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/benchmarks/competitors/claude_mem_bridge.ts.gz": {
+        "sha256": "685f8f17685e65d262cef70523151223277a81f39e83bec3dbc5993d56ca9637",
+        "bytes": 2196,
+        "decoded_sha256": "51ce601093267d610644fcbc75241b4a75061f611c937888964e14588e0f660c",
+        "decoded_bytes": 5763
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/benchmarks/competitors/compile_billion.mjs.gz": {
+        "sha256": "18e89a671d47a13ba5038b1a07422553386f05bdf37d14797fb0386df7744cae",
+        "bytes": 528,
+        "decoded_sha256": "64cfba78b1c8bea6cf606aedb3e76c27c0ccefecb1a7f26a14c9a72029619b91",
+        "decoded_bytes": 1023
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/benchmarks/competitors/download.py.gz": {
+        "sha256": "efdfe1350710dbc229b716b0cede1aa8c60b2b98bdd6efe958fdd96cbd5540af",
+        "bytes": 488,
+        "decoded_sha256": "2bb2bc414826223f515d7b89e3a001e6586ab8813c5f6eaa2eaa7580d4376365",
+        "decoded_bytes": 959
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/benchmarks/engineering_components.py.gz": {
+        "sha256": "bb4b67b9269099dc4b0281bb943266d28745eee437d1a5c20aeb46619c807f3f",
+        "bytes": 6267,
+        "decoded_sha256": "48b2f7752f80622296b9ace09d4941ae5396296d06cf00f39afe8ea0764be5e7",
+        "decoded_bytes": 19302
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/benchmarks/engineering_workflow.py.gz": {
+        "sha256": "596679d185bda8bbd8bc095eb5cfbee09a5e64d67f3085008ac1351b97238ac5",
+        "bytes": 10159,
+        "decoded_sha256": "3d1c53ef016a7143c86cf1326f2bf5b5cf7260863e91225d9a7e09a9773cdc6e",
+        "decoded_bytes": 32533
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/scripts/engineering_open_source_2400.py.gz": {
+        "sha256": "d12953a70a513b5b5d917841ec1e946962570438da6edbafe11f016ed3ddf7f4",
+        "bytes": 9734,
+        "decoded_sha256": "1bf9034a4a3b7a8646809019776895e9c6201d68ea68e81818f61ffd40bc8a72",
+        "decoded_bytes": 34457
+      },
+      "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/frozen-source/tests/test_engineering_open_source_2400.py.gz": {
+        "sha256": "ca917b53cd05eae1813f49a65346a477d0fb306d4d97cab0862a2d5d6db28e09",
+        "bytes": 4412,
+        "decoded_sha256": "0f2d975b8507c3cd8e38b4a01067cdc1e5a653aeb2041c91d44c615393ab8814",
+        "decoded_bytes": 17644
+      }
+    },
+    "live_nonexecuted_test_exception": "tests/test_engineering_open_source_2400.py"
+  },
+  "input_directories": [
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-2",
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-8",
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-32"
+  ],
+  "control_inputs": {
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-2/report.json.gz": {
+      "sha256": "d09cc4a1714e5ded85758f9752112f8db558a952227ae6f6d9e7f1897f744be9",
+      "bytes": 677536,
+      "decoded_sha256": "f7f42445847aa41ebfc40e31d7b82a4e77d508ff2cb5af4d1b0131e6d35c7118",
+      "decoded_bytes": 2433300
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-2/raw.jsonl.gz": {
+      "sha256": "c2243a6aa050ec7a4fbfe493d64882dc5d9b6245b00be1d3f65db537b21ba38f",
+      "bytes": 104951,
+      "decoded_sha256": "73b32265761fba89632007cd642427dccf256311d7f6fb905a16249a35d797b1",
+      "decoded_bytes": 2831011
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-2/dataset.json.gz": {
+      "sha256": "95e0a1fc1be3a5f26ec067d538476466aa97bc7aa40f084617e6aabbee5b12af",
+      "bytes": 5996,
+      "decoded_sha256": "160bad8fe452ddc3de3538f9c416f5a69b657107d14c3dedb2da8ac4f13c2de2",
+      "decoded_bytes": 161344
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-2/documents-1.json.gz": {
+      "sha256": "14b3ed763890d17437ce14b1422e89e730b70799b5643d3f134c6fc42bded66f",
+      "bytes": 1655,
+      "decoded_sha256": "d382fde96ec88902308a84b09e7bf27be9fc89d33a450ffbeb2c30be729682fe",
+      "decoded_bytes": 20395
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-2/documents-2.json.gz": {
+      "sha256": "3e287c0b7bfc18b7079bbc0df2adbdcce3864146e4df4c1d10e0b94152e2ce49",
+      "bytes": 3202,
+      "decoded_sha256": "ac13a5c68b5a332dff00b25ed124316616a4076fe1af4b525997e60e837122f7",
+      "decoded_bytes": 46217
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-2/documents-3.json.gz": {
+      "sha256": "ece9a96a81009ca816e96dc1382d6763001de8f7fd6dae21e874c9efd5c40ccd",
+      "bytes": 4317,
+      "decoded_sha256": "ea6041394a5d0f0949e301d35134f320ae42af80ce93743c2edbb003e81d7e65",
+      "decoded_bytes": 67220
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-2/documents-4.json.gz": {
+      "sha256": "89385481f2016e70540dcc20c6255b04b9a35e574ccc134b274431db99ad7ab6",
+      "bytes": 5650,
+      "decoded_sha256": "21f86f38dd29e45aa2d477a43bc0a619033e9ea1696b1f17b3450b73af9131a6",
+      "decoded_bytes": 87478
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-2/documents-5.json.gz": {
+      "sha256": "a64e733a4dba740449e2f3c5f897b55306acea1a2d74f9404a2a596e19798e7b",
+      "bytes": 6351,
+      "decoded_sha256": "5493a934504dae7ebe47661c62ea86a616af6bbd673688a6035eac9268c4d0a3",
+      "decoded_bytes": 102170
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-2/documents-6.json.gz": {
+      "sha256": "d18434566a570890524c55e46aa6e9a804fea7c335819df69142c39d3503e420",
+      "bytes": 7490,
+      "decoded_sha256": "ebbdcaecbb1805058e1bfc12c0e75599328b0f8e28fccc4f069bda26e651a56c",
+      "decoded_bytes": 122946
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-8/report.json.gz": {
+      "sha256": "fabaa8206e05729a94dc966aaf9e31ab032f5416ee75f681b0bf073d86d7f5f2",
+      "bytes": 776140,
+      "decoded_sha256": "750516e532c72fd89b8a83b7e4ae7556ce4dc392f6b47c3ce758ed3d5a30c3f7",
+      "decoded_bytes": 2687026
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-8/raw.jsonl.gz": {
+      "sha256": "521c2aa8eafe82430cc95452d5d099b51171695265bbd77f89b5928565b7577d",
+      "bytes": 129449,
+      "decoded_sha256": "8f67bd758f193e983f3d44054ccfb848167d617bec48347f8a4e5103c57c7c33",
+      "decoded_bytes": 2962846
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-8/dataset.json.gz": {
+      "sha256": "057245814fb34552d83b867d5c70e2c65da07457519accd2d5ca310ac976a316",
+      "bytes": 11358,
+      "decoded_sha256": "f04cd2cc423fdf8a8951ad61a6988bc760ac156688a46de8f05e1edf80b1918b",
+      "decoded_bytes": 401392
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-8/documents-1.json.gz": {
+      "sha256": "4ddbbd2c50f134c123392d839b4273bf515014b141752f1a6214020cf5e4371f",
+      "bytes": 3314,
+      "decoded_sha256": "968b25b8b84a7c36930df15b081b182df45bd4ffde70098770655d3d95ac707f",
+      "decoded_bytes": 64447
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-8/documents-2.json.gz": {
+      "sha256": "e2ca96dffb95ef1bc6072aa884a76b1ecf749b533ebb3a33dadd607bf8e8d1b5",
+      "bytes": 6873,
+      "decoded_sha256": "29a88e7721166d0bae2ed9eb3d876354c2ee9f30ea3baff1db97a2fd92a8ebea",
+      "decoded_bytes": 134321
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-8/documents-3.json.gz": {
+      "sha256": "07b8833150af5e030b60f2fd204f00e4909dd99d2fa66cc38716151a4e9ee510",
+      "bytes": 10009,
+      "decoded_sha256": "fa024009a168d1ca693fb8ea2f7cd80bb89066de068fa1c72556c43e2c4b3d29",
+      "decoded_bytes": 199376
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-8/documents-4.json.gz": {
+      "sha256": "7c0c0f943946ac19445d12ee7ea13d7e238e6fdca06343c1f65e2b4c67f4d0e6",
+      "bytes": 13264,
+      "decoded_sha256": "d411235d2adae95d2c287fc8ca30bd70c1a85ecac776201f1d850d2aad30233d",
+      "decoded_bytes": 263686
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-8/documents-5.json.gz": {
+      "sha256": "acfc57ed98efce728122b24940ca69413aaffa2e4f1a12369a3fc69041ffeed8",
+      "bytes": 15903,
+      "decoded_sha256": "a924610455a295143c7c1a944e32758954ee0a29b13e3b0c3bc21400aead28b8",
+      "decoded_bytes": 322430
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-8/documents-6.json.gz": {
+      "sha256": "4e27f8b447d9295d90b2a8f7bbbf668660bb7d91318ae8e82bfe46a25a907e42",
+      "bytes": 18896,
+      "decoded_sha256": "3bc974326be00f3f4020fa16c1ebc0e45e47867791bc323a409c120faea2d0b8",
+      "decoded_bytes": 387258
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-32/report.json.gz": {
+      "sha256": "f84332ca49da23428bc1a8a4dc6fe6686ae280e4015c354a01e693d72af1d538",
+      "bytes": 1142499,
+      "decoded_sha256": "aa158429a9c6d5504ec0ac670704fd83734fe34e7f65a28f54c964aa3a08d91c",
+      "decoded_bytes": 3749516
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-32/raw.jsonl.gz": {
+      "sha256": "b283231f2f6d3c2744ec2ed33532c388da289a90da439e75a8de0a15683ea718",
+      "bytes": 148339,
+      "decoded_sha256": "dd26441fe2ea565e2fe30f635e9a9743681e1c5e9ddbf0345e452ed1037049e0",
+      "decoded_bytes": 2964334
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-32/dataset.json.gz": {
+      "sha256": "f34cd14135fb0ff4e2944322bec5e78a4b72e9e5a0e1c00ca6db9e903f605cce",
+      "bytes": 24971,
+      "decoded_sha256": "8ee3eabc58e918f78c8724fd1d322166a1d824931c53d7bd25254d38cd2c47ee",
+      "decoded_bytes": 1364752
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-32/documents-1.json.gz": {
+      "sha256": "a9339fb2f4b006c88e610e1a6c983bb166554053e9486787d1d340ca55f7f4b0",
+      "bytes": 10371,
+      "decoded_sha256": "3da874ed30a857ae127217dcb88d40be4ab1f787b83991379294c10958674600",
+      "decoded_bytes": 241183
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-32/documents-2.json.gz": {
+      "sha256": "9c46bf7206ed05cc9967572d4c53cd396be68d11cf739c8ddf82d984cf5dd2b5",
+      "bytes": 21688,
+      "decoded_sha256": "8f0f90db5a9ee087312555728965f3c5bda89f3b56f3d1b8fd3d2241f73e22b6",
+      "decoded_bytes": 487793
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-32/documents-3.json.gz": {
+      "sha256": "7148da6567dbba1404c00b166f61db0bab388d65e690e0e816fcd870041e2bfb",
+      "bytes": 32378,
+      "decoded_sha256": "b3886d6d6234745a0240e6e684a2a6a4575a5f85c117b205121f5a895818124b",
+      "decoded_bytes": 729584
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-32/documents-4.json.gz": {
+      "sha256": "21f032243ca4caee8ca93f108a947ad070aa655b46444f9adcf41b00633e1797",
+      "bytes": 42870,
+      "decoded_sha256": "60e582c78d1c7345837e3cee381c27352389f2c845acf1512ca3ab936d93d300",
+      "decoded_bytes": 970630
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-32/documents-5.json.gz": {
+      "sha256": "186dbaa84b90d31acd25f4fbfa42b3ac1a03270a1e7c7f7f78564974b0b65c9c",
+      "bytes": 52428,
+      "decoded_sha256": "9c399ce6604837c87c91a60264181cbd40ef8f361c2c77ff80ad91617080871d",
+      "decoded_bytes": 1206110
+    },
+    "/workspace/scratch/2421a8727f3c/AI-Memory-Book/benchmarks/results/engineering-2400-20261115/noise-32/documents-6.json.gz": {
+      "sha256": "0a1a50eb26b911ffdad4540711faf263bd7a3eea902f5f551781fa215d32fceb",
+      "bytes": 63630,
+      "decoded_sha256": "95da7b11ccf1d2bc5a98fe7e4180587c89dec9250fa13f118cbdd86d5f0fdceb",
+      "decoded_bytes": 1447674
+    }
+  },
+  "preflight_validation": {
+    "status": "passed",
+    "artifacts": [
+      {
+        "path": "benchmarks/results/engineering-2400-20261115/candidate-preflight/01-current-binding-and-turn.log",
+        "sha256": "5c51ddd89f7120de851d94c58e21af22c6f3e01222d4feeea571cff397d968ae"
+      },
+      {
+        "path": "benchmarks/results/engineering-2400-20261115/candidate-preflight/02-initial-source-identity.json",
+        "sha256": "2acd0a73f96a8b35b637ff350dc86a7e52609a11393579f0564c53377cec67fa"
+      },
+      {
+        "path": "benchmarks/results/engineering-2400-20261115/candidate-preflight/02-source-history-cache.log",
+        "sha256": "e56bc9f441fa869d9cb86add7197f7a661fc02bd14953220ac16de9629b2ce73"
+      },
+      {
+        "path": "benchmarks/results/engineering-2400-20261115/candidate-preflight/03-final-targeted.log",
+        "sha256": "85b1fcb6c91c33e546bfbd3e44c4fe7ebfd4be3dca96cf7347d74d9503529167"
+      },
+      {
+        "path": "benchmarks/results/engineering-2400-20261115/candidate-preflight/summary.json",
+        "sha256": "dbc5514fbbaa8f7f1f01be871ec70fd5c64554512edf6b6fc492b323ca309379"
+      }
+    ]
+  },
+  "scope": {
+    "evidence": "Known authored synthetic development cases, used to diagnose the candidate; not an independent holdout.",
+    "cohort": "The same 80 project/checkpoint case IDs at three noise levels; 25 query texts and 56 project/query combinations, not 240 independent questions.",
+    "execution": "Only candidate Book is executed; every external row is copied from a completed immutable control and carries its source file and canonical row hash.",
+    "ranking": "Unmodified shared.book_search: top five, native budget 100000, result cache disabled, no gold or future sources passed to retrieval.",
+    "packing": "Unmodified shared.common_pack: complete original blocks, native order, 2400 characters including headings, no truncation or refill.",
+    "consumer": "Unmodified known-policy extraction and handwritten algorithm checks; not generated-code accuracy.",
+    "timing": "Candidate Book is a new execution batch. External timing values are retained control observations, not concurrent or interleaved measurements; no cross-batch speed winner or ratio is established.",
+    "default_bridge": "After all timed searches of each checkpoint, call recall(query, project=...) with every recall option omitted. Compare context, ordered IDs, text, source_refs, created_at and score; do not aggregate its incidental latency as performance.",
+    "validation": "Preflight test status is an attestation in the frozen candidate plan whose artifact hashes are checked. This runner does not execute regression tests.",
+    "control_source": "The complete original source closure is checked against frozen-source, including the original test bytes. Only the unexecuted original runner test may differ in the live tree for version-fixture compatibility; its current bytes are still frozen in the candidate evaluator. All original execution helpers and locks must retain their exact control bytes."
+  },
+  "schema": "engineering-2400-candidate-frozen-plan-v1",
+  "frozen_at_utc": "2026-11-15T08:52:05.776704+00:00",
+  "state": "frozen before candidate engineering scoring",
+  "control_source_commit": "e94edff22e9970c0603045e8f1739822ec731020",
+  "candidate_name": "explicit-property-revision-scope",
+  "hypothesis": "Confining cross-session timestamp preference to the same explicitly bound queried property prevents newer value-free maintenance notes from displacing an existing contract while preserving genuine corrections.",
+  "acceptance": {
+    "every_noise_condition": [
+      "no reduction in complete-evidence count versus original Book control",
+      "no reduction in fixed-consumer pass count versus original Book control",
+      "all source/budget/repetition/input/runtime identity integrity checks pass",
+      "default API context, source identity and scores equal the shared-pack result"
+    ],
+    "standard_condition": [
+      "no loss of any previously retrieved required evidence unit"
+    ],
+    "release": [
+      "full existing CI and release packaging/public installer gates remain required"
+    ],
+    "external_comparison": "Report every condition and pairwise gain/loss against all three unchanged external controls, without choosing favorable repeats or claiming a cross-batch speed winner."
+  },
+  "changes": {
+    "runtime": [
+      "Constrain cross-session time preference to matching explicit queried property bindings",
+      "Preserve code property case and punctuation; retain distinct numeric-phrase syntax identity",
+      "Recognize a single explicit temporal qualifier in an existing numeric-statement syntax",
+      "Retain same-source current-turn/excerpt, exact-body deferral, ordinary/history/event paths",
+      "Recall cache version 14; schema unchanged; defaults remain lexical 2400 chars / limit 5"
+    ],
+    "historical_protocol_fixture": "Pure mocked control tests now explicitly simulate v0.4.0; their original bytes remain in the frozen control source archive. Real original runner/scorer/packer/adapter/lock code is unchanged."
+  },
+  "evidence_limit": "Known synthetic development cases and fixed handwritten policy consumer. Generic regression fixtures are additional software checks, not a hidden coding holdout. Original adverse results and initial preflight test failure are retained."
+}

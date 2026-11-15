@@ -19,7 +19,7 @@ from .text import estimate_tokens, excerpt, headline, index_text, query_terms, t
 
 SCHEMA_VERSION = 3
 INDEX_VERSION = 3
-RECALL_VERSION = 13
+RECALL_VERSION = 14
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -38,6 +38,16 @@ EVENT_QUERY = re.compile(
     r"统计.{0,12}(?:会话|事件|次数)|(?:会话|事件).{0,12}(?:数量|个数|总数)", re.IGNORECASE)
 ASCII_WORD = re.compile(r"[a-zA-Z]")
 QUERY_CONJUNCTION = re.compile(r"\band\b|以及|并且|和", re.IGNORECASE)
+# These are deliberately narrow syntax signals, not extracted facts. A
+# mention of a subject does not by itself establish a replacement value.
+_PROPERTY_NAME = r"[^\W\d]\w*(?:[./:-]\w+)*"
+_NUMBER_VALUE = r"[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?"
+_SCALAR_VALUE = rf'''(?:"[^"\n]*"|'[^'\n]*'|{_NUMBER_VALUE}(?![\w.])|{_PROPERTY_NAME})'''
+_PROPERTY_MENTION = re.compile(rf"(?<![\w./:-]){_PROPERTY_NAME}(?![\w./:-])")
+_EXPLICIT_BINDING = re.compile(rf"(?<![\w./:-])(?P<key>{_PROPERTY_NAME})[ \t]*=(?!=)[ \t]*{_SCALAR_VALUE}")
+_NUMERIC_STATEMENT = re.compile(
+    rf"(?:^|(?<=[\n.!?;:]))[ \t]*(?P<key>[^\W\d]\w*(?:[ \t]+[^\W\d]\w*)*)"
+    rf"[ \t]+(?:is|are)[ \t]+(?:now[ \t]+)?{_NUMBER_VALUE}(?![\w.])", re.IGNORECASE)
 RECALL_METADATA_INDEX_SQL = """CREATE INDEX IF NOT EXISTS pages_recall_metadata
 ON pages(rid,id,project_id,chapter_id,session_pk);"""
 STEM_INDEX_SQL = "CREATE VIRTUAL TABLE IF NOT EXISTS pages_stem_fts USING fts5(title, question, body, directory, tokenize='porter unicode61');"
@@ -295,6 +305,50 @@ def _latest_matching_turn(content: str, raw_refs: str, matched: set[str]) -> int
     except (TypeError, ValueError):
         return None
     return max((ref["turn_index"] for ref in _matching_turn_refs(content, refs, matched)), default=None)
+
+
+def _current_binding_keys(content: str, query: str) -> frozenset[tuple[str, str]]:
+    """Find literal query properties with a concrete syntactic value binding.
+
+    Only ``name=scalar`` and an exact queried phrase followed by
+    ``is/are [now] number`` qualify. Names retain code punctuation; related
+    words or similar values do not establish the same property. Assignment
+    names preserve case; numeric phrases may omit one explicit temporal
+    prefix already recognized by the query-intent guards. Natural multiword
+    phrases ignore case but retain a separate syntax identity. If several
+    punctuated identifiers occur in the query, all must have bindings before a whole page can
+    participate in cross-source timestamp preference. This is not a parser
+    for every natural-language conjunction or quoted property list.
+
+    This does not resolve authority: a trial, rejected option, or quotation
+    can contain this syntax too. Unrecognized prose keeps lexical order;
+    source text, all candidates and the current-evidence warning remain.
+    """
+    if not isinstance(content, str):
+        return frozenset()
+    keys = set()
+    for expression in (_EXPLICIT_BINDING, _NUMERIC_STATEMENT):
+        for match in expression.finditer(content):
+            name = " ".join(match["key"].split())
+            if expression is _NUMERIC_STATEMENT:
+                for intent in (CURRENT_QUERY, HISTORICAL_QUERY):
+                    prefix = intent.match(name)
+                    if (prefix and len(prefix.group().split()) == 1 and prefix.end() < len(name)
+                            and name[prefix.end()].isspace()):
+                        name = name[prefix.end():].lstrip()
+                        break
+            natural_phrase = expression is _NUMERIC_STATEMENT and " " in name
+            if natural_phrase:
+                name = name.casefold()
+            syntax = ("numeric_phrase" if natural_phrase else "numeric_name"
+                      if expression is _NUMERIC_STATEMENT else "assignment")
+            literal = r"[ \t]+".join(re.escape(word) for word in name.split())
+            if re.search(rf"(?<![\w./:-]){literal}(?![\w./:-])", query,
+                         re.IGNORECASE if natural_phrase else 0):
+                keys.add((syntax, name))
+    identifiers = {match.group() for match in _PROPERTY_MENTION.finditer(query)
+                   if any(separator in match.group() for separator in "_./:-")}
+    return frozenset(keys) if identifiers.issubset(name for _, name in keys) else frozenset()
 
 
 def _current_excerpt_ref(content: str, refs: list[dict], matched: set[str], allowance: int) -> dict | None:
@@ -1133,17 +1187,19 @@ class MemoryBook:
                                    ",".join("?" for _ in ids) + ")", ids)}
                     if current_query:
                         current_matches = matched
-                        # Timestamp preference is confined to the same task
-                        # and identical matched query terms. Preserve each
-                        # group's relevance positions so a recent unrelated
-                        # task cannot displace a stronger topic match.
+                        # Shared topic terms do not establish factual revisions.
+                        # Keep project/task/query-facet boundaries, and restrict
+                        # cross-session timestamp preference to the same literal
+                        # queried property bindings. Event queries retain their
+                        # existing ordering of observations.
+                        binding_order = not EVENT_QUERY.search(query)
                         groups = {}
                         for i, item in enumerate(pool):
                             if not matched[item["rid"]]:
                                 # Empty exact-term sets on stem-only hits do
                                 # not establish equivalent factual revisions.
                                 continue
-                            key = (item["chapter_id"], frozenset(matched[item["rid"]]))
+                            key = (item["project_id"], item["chapter_id"], frozenset(matched[item["rid"]]))
                             groups.setdefault(key, []).append(i)
                         # Session timestamps cannot order corrections made
                         # during one long conversation. Load source coordinates
@@ -1151,7 +1207,7 @@ class MemoryBook:
                         # Ordinary queries pay no read. Exact-text duplicate
                         # detection shares this bounded source fetch when it
                         # can release result slots for other current evidence.
-                        repeated = set()
+                        repeated, cross_session = set(), set()
                         for positions in groups.values():
                             sessions = {}
                             for i in positions:
@@ -1161,10 +1217,12 @@ class MemoryBook:
                             for ids in sessions.values():
                                 if len(ids) > 1:
                                     repeated.update(ids)
+                            if binding_order and len(sessions) > 1:
+                                cross_session.update(pool[i]["rid"] for i in positions)
                         turn_positions = {}
-                        distinct_current = limit > 1 and len(pool) > 1 and not EVENT_QUERY.search(query)
-                        contents = {}
-                        wanted_sources = repeated | ({item["rid"] for item in pool} if distinct_current else set())
+                        distinct_current = limit > 1 and len(pool) > 1 and binding_order
+                        contents, binding_keys = {}, {}
+                        wanted_sources = repeated | cross_session | ({item["rid"] for item in pool} if distinct_current else set())
                         if wanted_sources:
                             ids = sorted(wanted_sources)
                             for row in self.db.execute(
@@ -1172,13 +1230,28 @@ class MemoryBook:
                                     ",".join("?" for _ in ids) + ")", ids):
                                 if distinct_current:
                                     contents[row["rid"]] = row["content"]
+                                if row["rid"] in cross_session:
+                                    binding_keys[row["rid"]] = _current_binding_keys(row["content"], query)
                                 if row["rid"] in repeated:
                                     turn = _latest_matching_turn(row["content"], row["source_refs"], matched[row["rid"]])
                                     if turn is not None:
                                         turn_positions[row["rid"]] = turn
                         for positions in groups.values():
                             scores = [pool[i]["score"] for i in positions]
-                            revisions = sorted((pool[i] for i in positions), key=lambda item: item["created_at"], reverse=True)
+                            revisions = [pool[i] for i in positions]
+                            if binding_order:
+                                bindings = {}
+                                for i, item in enumerate(revisions):
+                                    keys = binding_keys.get(item["rid"])
+                                    if keys:
+                                        bindings.setdefault(keys, []).append(i)
+                                for comparable in bindings.values():
+                                    ordered = sorted((revisions[i] for i in comparable),
+                                                     key=lambda item: item["created_at"], reverse=True)
+                                    for i, item in zip(comparable, ordered):
+                                        revisions[i] = item
+                            else:
+                                revisions.sort(key=lambda item: item["created_at"], reverse=True)
                             sessions = {}
                             for i, item in enumerate(revisions):
                                 if item["rid"] in turn_positions:
