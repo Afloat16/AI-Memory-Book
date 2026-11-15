@@ -94,13 +94,15 @@ class ImportPreflightTests(unittest.TestCase):
         self.assertFalse(self.database.parent.exists())
 
     def test_invalid_batch_does_not_migrate_existing_archive(self):
-        with sqlite3.connect(self.database) as db:
+        # Connection.__exit__ commits/rolls back but does not close the handle.
+        # Close both fixture connections before Windows removes the temp dir.
+        with contextlib.closing(sqlite3.connect(self.database)) as db, db:
             db.execute("PRAGMA user_version = 3")
             db.execute("CREATE TABLE sentinel (value TEXT)")
             db.execute("INSERT INTO sentinel VALUES ('untouched')")
         source = self.write("invalid.json", session(created_at="wrong"))
         self.assertEqual(self.run_import(source)[0], 2)
-        with sqlite3.connect(self.database) as db:
+        with contextlib.closing(sqlite3.connect(self.database)) as db, db:
             self.assertEqual(db.execute("PRAGMA user_version").fetchone()[0], 3)
             self.assertEqual(db.execute("SELECT value FROM sentinel").fetchone()[0], "untouched")
             self.assertEqual(db.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall(), [("sentinel",)])
