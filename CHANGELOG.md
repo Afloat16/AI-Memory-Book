@@ -1,6 +1,24 @@
 # Changelog
 
-## Unreleased — engineering workflows
+## 0.5.0 — explicit recall intent and dependable archive workflows
+
+Release scope: make the current engineering capabilities installable together,
+with explicit temporal retrieval controls and predictable import/export failure
+behavior. See [release notes](docs/releases/v0.5.0.md) and the
+[validation record](docs/v0.5.0-engineering-validation.md).
+
+- Add `temporal=auto|current|relevance` across Python, CLI, MCP and HTTP, with
+  separate cache identities. Automatic inference distinguishes original source
+  evidence and dataset-year labels from genuine historical/as-of intent.
+- Validate every CLI import session before opening or migrating the database.
+  Invalid later inputs no longer replace earlier sessions first. Preserve omitted
+  metadata inheritance and the documented per-session storage transactions.
+- Read each Markdown book export from one SQLite snapshot, stage the complete
+  book and source JSON, then publish the directory. Failed exports clean their
+  staging data and permit retry; nonempty destinations remain protected.
+- Exercise import/export regressions in the existing Linux, macOS and Windows
+  installer CI jobs. Register a new approved runtime and pin all installers to
+  the v0.5.0 wheel, retaining historical release identities unchanged.
 
 - Recognize acronym, camel-case, snake-case and digit-bearing code identifiers
   across naming styles. Canonical query facets also preserve current-decision

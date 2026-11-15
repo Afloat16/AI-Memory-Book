@@ -6,47 +6,37 @@
 
 [English](README.md) · [快速开始](#快速开始) · [2400 字符实测](#2400-字符实测) · [开源方案对比](#开源方案对比)
 
-**当前 main 源码 · MIT · Python 3.10+ · 本地 SQLite / FTS5**
+**v0.5.0 · MIT · Python 3.10+ · 本地 SQLite / FTS5**
 
 ## 工程中的优势
 
 - **把决策与理由一起找回来。** 按项目、任务、会话和原始轮次定位证据，保留页面 ID 与来源；需要核对边界条件、错误信息或某次失败原因时，可以继续读原页，便于代码评审和任务交接。
 - **跨命名方式找回代码约定。** `http_parser`、`JSONLReader`、`kv_cache` 等查询可以匹配对应的缩写、驼峰及下划线形式。词法索引补充别名，保留原始拼写、来源坐标与项目边界，便于恢复接口和算法实现约束。
-- **兼顾当前修正与历史依据。** 明确询问“当前/current/latest”时，结合可比较的同会话轮次寻找后续修正，覆盖只有 token 上限触发截断的情况。询问历史决定则保留历史查询语义；排序不等于自动判断哪条决定权威。
+- **明确控制当前证据与历史回查。** `temporal=auto/current/relevance` 在 Python、CLI、MCP 和 HTTP 中一致。自动模式区分“请给原始证据”与“最初的决定”，调用方也可直接选择当前证据排序；同会话后续修正同时覆盖字符与 token 截断。排序仍需结合来源判断。
 - **让有限上下文用于工程约束。** 先按项目过滤，再检索和组装证据；默认 2400 字符、最多五条，缺什么再补读，便于同时恢复实现约定、数据划分和边界条件。
 - **在已有客户端之间接续任务。** Claude Code、Codex、Gemini 等受支持客户端可以配置同一数据库。切换工具后仍可查询同一项目归档；客户端接入与原生历史采集的支持范围分别列在[集成指南](docs/integrations.md#supported-profiles)。
 - **降低记忆层的部署与维护负担。** 默认写入和词法检索不调用模型，无需嵌入模型、数据库服务器或记忆服务 API Key。后台采集跳过未变文件，以稳定会话 ID 和内容哈希避免重复灌入；变更会话事务性替换，修改已有客户端配置前会创建备份。
 - **让长期归档可检查、可恢复。** 在线 SQLite 备份包含 WAL 中已提交数据，校验完成后才生成新快照；只读检查提供完整性与运行状态，不迁移源库。派生索引升级保留已有页面地址，旧写入进程的不兼容操作会整笔回滚。
 
+**可靠导入与交接。** CLI 在打开数据库前校验全部会话，无效的后续输入不会先覆盖前面的记录。`export-book` 在同一数据库快照中生成 Markdown 与 JSON，完整写入临时目录后发布；失败可清理并重试，已有非空目录受保护。
+
 接续长期任务时，可以先问“当前实现必须遵守哪些约束？”，再按引用核对后续修正和失败尝试，最后继续修改代码。这类“恢复约定—核对出处—继续实现”的工作流，为任务交接提供明确的证据入口。[来源语义与使用方法](docs/agent-guide.md)。
 
 ## 快速开始
 
-需要 **Python 3.10+ 与 SQLite FTS5**。本页新增的标识符检索、token 修正与数据库维护能力，请从当前源码安装：
-
-~~~bash
-git clone https://github.com/Afloat16/AI-Memory-Book.git
-cd AI-Memory-Book
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install -e ".[mcp,clients,tokens]"
-~~~
-
-Windows 使用 `.venv\Scripts\Activate.ps1` 激活环境。精确 token 计数是可选能力。打开已有归档前，按 [schema 4 源码升级步骤](docs/deployment.md#current-main-and-schema-4)先保存快照，再统一升级、重启所有写入进程。
-
-**已发布安装器：**下列命令安装当前发布版 v0.4.0；上述 main 新能力尚待发布。安装器使用隔离环境并包含 MCP/客户端依赖，无需克隆仓库或安装 Node.js。
+需要 **Python 3.10+ 与 SQLite FTS5**。v0.5.0 安装包包含本页介绍的标识符检索、时间意图控制、数据库维护和可靠导入导出能力。安装器使用隔离环境，包含 MCP/客户端依赖，无需克隆仓库或安装 Node.js。已有归档请先按 [schema 4 升级步骤](docs/deployment.md#schema-4-upgrade)保存快照，再统一升级并重启所有写入进程。
 
 **macOS / Linux**
 
 ~~~bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.4.0/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.5.0/scripts/install.sh
 bash install-memory-book.sh
 ~~~
 
 **Windows PowerShell**
 
 ~~~powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.4.0/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.5.0/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ~~~
 
@@ -59,7 +49,7 @@ memory-book doctor
 
 将 `claude-code` 换成[客户端配置名](docs/integrations.md#supported-profiles)，可重复 `--client` 接入多个客户端。只有支持原生采集的客户端才保留上述采集参数；其他客户端同时省略 `--capture` 和 `--background`。找不到命令时使用安装器输出的完整路径，然后重启客户端。
 
-`--capture` 主动开启既有及未来受支持文本会话的采集，`--background` 安装并启动用户后台服务。仅配置 MCP 时同时省略这两个参数。工具调用由宿主和模型决定，MCP 接入本身不保证自动召回。升级应沿用相应安装方式，再刷新 setup 并重启客户端，详见[部署指南](docs/deployment.md#current-main-and-schema-4)。
+`--capture` 主动开启既有及未来受支持文本会话的采集，`--background` 安装并启动用户后台服务。仅配置 MCP 时同时省略这两个参数。工具调用由宿主和模型决定，MCP 接入本身不保证自动召回。升级应沿用相应安装方式，再刷新 setup 并重启客户端，详见[部署指南](docs/deployment.md#schema-4-upgrade)。
 
 ## 算法与工程开发示例
 
@@ -68,12 +58,12 @@ memory-book doctor
 ~~~bash
 memory-book --db ./demo-memory.db import examples/engineering-workflow.json --format canonical
 memory-book --db ./demo-memory.db recall "jsonl_reader input contract and split" --project training-demo
-memory-book --db ./demo-memory.db recall "current kv_cache block_size" --project inference-demo
+memory-book --db ./demo-memory.db recall "kv_cache block_size 原始证据" --project inference-demo --temporal current
 memory-book --db ./demo-memory.db backup --output ./backups/demo-snapshot.db
 memory-book --db ./backups/demo-snapshot.db check-database
 ~~~
 
-在上述源码目录执行，并选择新的数据库和快照路径。[开发工作流指南](docs/engineering-workflows.md)讲解算法约束、失败尝试、标识符检索、Python 接入、精确 token 预算、来源核对及恢复操作。示例中的参数用于演示，不代表生产配置建议。
+从 [v0.5.0 源码](https://github.com/Afloat16/AI-Memory-Book/tree/v0.5.0)取得示例后，在仓库目录执行，并选择新的数据库和快照路径。[开发工作流指南](docs/engineering-workflows.md)讲解算法约束、失败尝试、标识符检索、Python 接入、精确 token 预算、来源核对及恢复操作。示例中的参数用于演示，不代表生产配置建议。
 
 ## 默认配置
 
@@ -86,7 +76,8 @@ MCP 工具 `recall_memory` 示例：
   "query": "当前梯度累积步数",
   "project": "your-project-id",
   "budget_chars": 2400,
-  "limit": 5
+  "limit": 5,
+  "temporal": "current"
 }
 ~~~
 
@@ -103,15 +94,15 @@ memory-book recall "当前梯度累积步数" --project your-project-id --budget
 
 数据覆盖 **8 个项目、4 类算法、6 个时间检查点、80 个问题**，只摄取提问前的历史。其中 72 题有答案证据，共 80 条必需证据片段；48 题检查恢复的工程策略，另有 8 题缺证据。算法包括负边最短路、Top-k 同分、数据切分和全遮罩 softmax。
 
-当前源码已重新运行未改动的 80 题工作负载，默认入口的完整非计时响应与显式 2400/5 调用及本轮保存输出逐题一致。重复调用只增加计时样本，不增加独立质量案例。[默认一致性验证](benchmarks/reports/developer-engineering-20261115/default-profile/report.json)。
+已冻结的 v0.5.0 运行时重新运行了未改动的 80 题工作负载，默认入口的完整非计时响应与显式 2400/5 调用及本次 v0.5.0 回放的保存输出逐题一致。重复调用只增加计时样本，不增加独立质量案例。[默认一致性验证](benchmarks/reports/v0.5.0-engineering/default-profile/report.json)。
 
 | 策略 | 证据片段召回 | 完整证据 | 策略检查通过 | 平均字符 |
 |---|---:|---:|---:|---:|
-| **AI-Memory-Book** | **78/80 · 97.50%** | **70/72 · 97.22%** | **46/48 · 95.83%** | **1818.9** |
+| **AI-Memory-Book** | **80/80 · 100%** | **72/72 · 100%** | **48/48 · 100%** | **1799.0** |
 | 同项目平铺 FTS | 60/80 · 75.00% | 52/72 · 72.22% | 28/48 · 58.33% | 1801.3 |
 | 预算内最近历史 | 64/80 · 80.00% | 56/72 · 77.78% | 32/48 · 66.67% | 2260.9 |
 
-Book 比平铺 FTS 多找全 **18 题**，完整证据率高 **25 个百分点**；比最近历史多找全 **14 题**，平均上下文少约 **19.6%**。FTS 是本仓库同范围、同索引和打包器的策略；最近历史使用内存文本、更短引用头且不限制前五条，是实用策略对照。[原生回放数据](benchmarks/reports/developer-engineering-20261115/current-workflow/report.json)。
+Book 比平铺 FTS 多找全 **20 题**，完整证据率高 **27.78 个百分点**；比最近历史多找全 **16 题**，平均上下文少约 **20.4%**。FTS 是本仓库同范围、同索引和打包器的策略；最近历史使用内存文本、更短引用头且不限制前五条，是实用策略对照。[原生回放数据](benchmarks/reports/v0.5.0-engineering/current-workflow/report.json)。
 
 ### 哪些工程场景受益
 
@@ -123,12 +114,15 @@ Book 比平铺 FTS 多找全 **18 题**，完整证据率高 **25 个百分点**
 | 长间隔后恢复 | **8/8** | 2/8 | 0/8 |
 | 多项约束共同恢复 | **8/8** | 2/8 | 8/8 |
 | 回查历史决定 | **8/8** | 8/8 | 0/8 |
-| 中英双语查询 | 6/8 | 6/8 | **8/8** |
-| 初始决定、代码标识、失败尝试、来源替换合计 | 32/32 | 32/32 | 32/32 |
+| 中英双语查询 | **8/8** | 6/8 | **8/8** |
+| 初始决定 | 8/8 | 8/8 | 8/8 |
+| 代码标识符查询 | 8/8 | 8/8 | 8/8 |
+| 恢复失败尝试 | 8/8 | 8/8 | 8/8 |
+| 替换后的来源会话 | 8/8 | 8/8 | 8/8 |
 
-优势集中在较早证据被新消息推远、决定发生修正，以及需要同时恢复多项约束时。两条双语 `split_policy` 查询仍未找到当前证据，并只返回较早决定；Book **仅命中过时证据为 2 题**，平铺 FTS 为 14 题。来源引用有助于检查这个失败，不代表内容已经正确。
+优势集中在较早证据被新消息推远、决定发生修正、需要同时恢复多项约束，以及双语查询时。在这一预算下，Book 的**九类场景均为 8/8 完整证据，仅命中过时证据为 0 题**，平铺 FTS 仅命中过时证据为 14 题。这些数字衡量本工作负载中必需原文证据的恢复情况，判断事实是否正确仍需核对来源。[分类与逐题审计](benchmarks/reports/v0.5.0-engineering/comparison.json)。
 
-本次本机回放在 2400 字符下记录了 240 次调用，检索与上下文组装 **p50 / p95 为 1.573 / 2.700 ms**；结果缓存关闭，SQLite/系统缓存未清空，不包含摄取和模型生成。这是单环境诊断计时，不是受控加速结论或生产延迟保证。[本轮验证与边界](docs/developer-engineering-validation.md)。
+本次本机回放在 2400 字符下记录了 240 次调用，检索与上下文组装 **p50 / p95 为 2.036 / 7.059 ms**；结果缓存关闭，SQLite/系统缓存未清空，不包含摄取和模型生成。这是单环境诊断计时，不是受控加速结论或生产延迟保证。[本轮验证与边界](docs/v0.5.0-engineering-validation.md)。
 
 ### 与开源搜索组件的实跑对照
 
@@ -136,18 +130,22 @@ Book 比平铺 FTS 多找全 **18 题**，完整证据率高 **25 个百分点**
 
 | 指标 | Book | billion-context 内核 |
 |---|---:|---:|
-| 证据片段召回 | **78/80 · 97.50%** | 72/80 · 90.00% |
-| 完整证据 | **70/72 · 97.22%** | 64/72 · 88.89% |
-| 策略检查通过 | **46/48 · 95.83%** | 40/48 · 83.33% |
-| 平均字符 | **1818.9** | 1955.0 |
-| 仅命中过时证据 | 2 | **0** |
+| 证据片段召回 | **80/80 · 100%** | 72/80 · 90.00% |
+| 完整证据 | **72/72 · 100%** | 64/72 · 88.89% |
+| 策略检查通过 | **48/48 · 100%** | 40/48 · 83.33% |
+| 平均字符 | **1799.0** | 1955.0 |
+| 仅命中过时证据 | 0 | 0 |
 | 预算违规 / 来源校验失败 | 0 / 0 | 0 / 0 |
 
-在这项组件对照中，完整证据率高 **8.33 个百分点**，策略检查高 **12.50 个百分点**，平均上下文少 **6.96%**。逐题有 **8 个收益、2 个损失**：收益来自历史决定回查，损失来自双语查询。[组件数据与计时边界](benchmarks/reports/developer-engineering-20261115/current-components/report.json)。
+在这项组件对照中，完整证据率高 **11.11 个百分点**，策略检查高 **16.67 个百分点**，平均上下文少 **7.98%**。逐题完整证据有 **8 个收益、0 个损失**，收益来自历史决定回查。[组件数据与计时边界](benchmarks/reports/v0.5.0-engineering/current-components/report.json)。
 
-这是固定组件结果；Book 保留层级/FTS 元数据，双方计时接口不同，不能推导完整产品加速。更小的 1200 字符整块预算下，Book 完整证据为 80.56%，对方为 88.89%；全部预算与失败案例均保留在[详细报告](docs/developer-engineering-validation.md)。
+这是固定组件结果；Book 保留层级/FTS 元数据，双方计时接口不同，不能据此推导完整产品加速，或对其他记忆系统的普遍优势。
 
-**实验边界：**这些是参与开发的合成案例，未调用编码 LLM，也不是独立测试集。策略检查由固定消费者提取记录中的配置，再执行手写算法，不能当作代码生成准确率。8 个缺证据问题仍返回相关上下文，需继续核实或明确缺证据。真实任务完成时间、补丁成功率与总模型成本尚未测量。[评测协议](docs/engineering-memory-evaluation.md) · [原始记录](benchmarks/reports/developer-engineering-20261115/)。
+**更小预算的边界：**在相同整块打包规则、1200 字符预算下，Book 的完整证据为 **52/72（72.22%）**，对方为 **64/72（88.89%）**；策略检查通过 **28/48 对 40/48**，仅命中过时证据 **12 题对 0 题**。这一设置仍是弱项；[详细验证报告](docs/v0.5.0-engineering-validation.md)保留了回归及全部逐题失败。
+
+单独的 1200 字符原生摘录轨道中，Book 恢复 **76/80 条证据片段、68/72 题完整证据、48/48 题策略检查通过，仅命中过时证据为 0 题**。其打包方式不同；组件之间的比较应以上述相同整块打包轨道为准。
+
+**实验边界：**这些是参与开发的合成案例，未调用编码 LLM，也不是独立测试集。策略检查由固定消费者提取记录中的配置，再执行手写算法，不能当作代码生成准确率。8 个缺证据问题仍返回相关上下文，需继续核实或明确缺证据。真实任务完成时间、补丁成功率与总模型成本尚未测量。[评测协议](docs/engineering-memory-evaluation.md) · [原始记录](benchmarks/reports/v0.5.0-engineering/)。
 
 ## 开源方案对比
 
@@ -168,4 +166,4 @@ Book 比平铺 FTS 多找全 **18 题**，完整证据率高 **25 个百分点**
 
 运行 `memory-book serve` 可在 [127.0.0.1:8765](http://127.0.0.1:8765) 检查归档。归档是本地未加密数据，召回证据会进入所用客户端的模型上下文；项目过滤不是多用户权限控制。客户端配置备份不等于数据库自动备份，详见[数据位置与维护](docs/deployment.md#data-and-configuration-paths)。
 
-项目独立实现，采用 [MIT 许可证](LICENSE)。[当前发布版](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.4.0) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml)。
+项目独立实现，采用 [MIT 许可证](LICENSE)。[当前发布版](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.5.0) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml)。

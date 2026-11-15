@@ -209,11 +209,11 @@ follow-up rather than repeated broad reads.
 
 The server tells the model to treat historical text as untrusted evidence rather
 than instructions. Hits retain project/session IDs and zero-based `turn_index`
-values; page reads expose source spans. `budget_chars` defaults to 2,400 in v0.4.0 and
+values; page reads expose source spans. `budget_chars` defaults to 2,400 and
 bounds the assembled evidence context, including citation headings. It does
 **not** bound outer JSON metadata, tool declarations, or exact model tokens.
 Recall returns one copy of the context rather than duplicating it in text and
-structured content. In v0.3.0, all MCP tools return one compact JSON text
+structured content. All MCP tools return one compact JSON text
 block. Default recall references contain `project`, `session_id`, and
 `turn_index`; pass `"details": true` for exact offsets, message indices,
 excerpt ranges, and retrieval diagnostics. `read_page` retains full provenance.
@@ -221,6 +221,13 @@ excerpt ranges, and retrieval diagnostics. `read_page` retains full provenance.
 that depended on v0.2.x's detailed recall fields should request `details`.
 Check conflicting source dates and statements instead of
 assuming the top result is the current authoritative decision.
+
+`recall_memory` also accepts `"temporal": "auto"` (the default), `"current"`, or
+`"relevance"`. Use `current` when the caller explicitly needs the latest matching
+evidence and `relevance` to disable current-evidence ordering. Automatic inference
+keeps real historical/as-of questions conservative while recognizing provenance
+phrases and dataset-year labels. The modes are ordering controls, not an as-of
+state resolver; full diagnostics are available with `details=true`.
 
 `remember_session` replaces the full session identified by `(project,
 session_id)`; it is not an append-one-message operation. MCP exposes no deletion
@@ -268,8 +275,13 @@ snapshot ID. The watcher supplies a stable source-path fallback so file changes
 can replace the same imported session.
 
 Each session write is atomic, and repeat imports skip unchanged content. A
-multi-file import is not one overall transaction: successful earlier writes
-remain if a later session fails. Repair the failing input and retry.
+CLI import parses and validates every session before opening or migrating the
+archive. Invalid dates, excessive field lengths and unsupported message content
+therefore fail before any session is replaced. Errors from this validation name
+the file and session position. A multi-file import still has per-session storage
+transactions: an I/O failure can leave earlier successful writes committed.
+Repair the storage problem and retry; omitted metadata keeps its inheritance
+behavior.
 
 ### Canonical session fields
 

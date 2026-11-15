@@ -38,7 +38,7 @@ For example, invoke `recall_memory` with:
 ```
 
 Use the project's actual ID; `atlas` is illustrative. `budget_chars` defaults to
-2,400 in v0.4.0 and `limit` to five pages. This is the selected engineering
+2,400 and `limit` to five pages. This is the selected engineering
 profile; an explicit caller budget still overrides it. The budget covers the assembled `context`,
 including citation headings. It is a character count, not a model-token count
 or a cap on all protocol metadata. A smaller budget can omit evidence even when
@@ -125,24 +125,31 @@ evidence remains missing or contradictory, state that limit instead of inventing
 memory. Source updates can invalidate a page ID; recall again when a formerly
 returned page is reported missing or changed.
 
-The v0.4.0 current-query path also considers the original turn order
-within a session. Under a small character budget, it can prefer a later,
-complete matching turn after checking its text against the original source.
-This preference applies to explicit current/latest queries without historical
-qualifiers; ordinary and historical queries keep their relevance ordering.
+The current-query path considers original turn order within a session. Under a
+small character or exact token budget, it can prefer a later complete matching
+turn after authenticating the extract against its original source. Complete
+pages remain unchanged when both budgets fit.
+
+`temporal="auto"` is the default. It conservatively identifies a current question,
+including a request to cite original evidence, while protecting explicit
+historical, as-of and ambiguous mixed questions. Use `temporal="current"` when
+the application already knows it wants current-evidence ordering, or
+`temporal="relevance"` to keep relevance ordering. These options are available in
+Python, CLI, MCP and HTTP; CLI spells the option `--temporal`.
+
 The reranking pool remains bounded, so a later correction can still be missed.
 Later mention of a topic does not establish an authoritative change of policy.
-Current queries can also prefer distinct, byte-identical source bodies over
-repeated copies within the same project and task. The archive retains every
-source; recognized event-count or timeline queries skip this deduplication
-preference. Pure token-only truncation is not covered by the later-turn
-excerpt rule when the whole page fits the character allowance.
-See the [engineering evaluation](engineering-memory-evaluation.md) and its
-[development results](engineering-memory-results.md).
+Current queries can prefer distinct byte-identical source bodies over repeated
+copies within the same project and task. The archive retains every source;
+recognized event-count or timeline queries skip this deduplication preference.
+No temporal mode constructs a guaranteed historical state from a date. Use
+`details=true` for mode diagnostics, and inspect conflicting evidence directly.
+See the [engineering workflow guide](engineering-workflows.md#choose-how-current-evidence-is-ranked)
+and [v0.5.0 validation](v0.5.0-engineering-validation.md).
 
 ### Optional coverage for multiple facts
 
-In v0.3.0, `recall_memory` accepts
+`recall_memory` accepts
 `"coverage": true` when a question explicitly combines several subjects and
 the initial evidence misses one of them. The default is `false`. For example:
 
