@@ -1,4 +1,4 @@
-"""Lossless references and frozen MCP compatibility except approved defaults."""
+"""Lossless references and frozen MCP compatibility except approved API changes."""
 from __future__ import annotations
 
 import copy
@@ -86,7 +86,7 @@ class IndexedReferenceValueTests(unittest.TestCase):
 
 @unittest.skipUnless(HAS_MCP, "Install .[mcp] for official SDK compatibility tests")
 class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
-    async def test_schema_only_changes_the_budget_default_and_format_is_not_a_model_argument(self):
+    async def test_schema_only_adds_approved_defaults_and_temporal_control(self):
         tools = []
         for format_name in ("objects", "indexed"):
             listed = await create_server(":memory:", source_format=format_name).list_tools()
@@ -99,8 +99,9 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
         if (importlib.metadata.version("mcp") == FIXTURE["mcp"]
                 and importlib.metadata.version("pydantic") == FIXTURE["pydantic"]):
             # Preserve the historical fixture and its source bytes. v0.4.0
-            # deliberately changes only recall's omitted character budget;
-            # every other serialized schema/format field must remain equal.
+            # changed recall's omitted budget; v0.5.0 adds explicit temporal
+            # control and its documentation. Every other serialized field
+            # must remain equal, including between the two source formats.
             expected = json.loads(FIXTURE["schema"])
             compact = lambda value: json.dumps(value, ensure_ascii=False, separators=(",", ":"))
             self.assertEqual(compact(expected), FIXTURE["schema"])
@@ -108,6 +109,15 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
             budget_schema = recall_schema["inputSchema"]["properties"]["budget_chars"]
             self.assertEqual(budget_schema["default"], 4000)
             budget_schema["default"] = 2400
+            recall_schema["inputSchema"]["properties"]["temporal"] = {
+                "default": "auto", "enum": ["auto", "current", "relevance"],
+                "title": "Temporal", "type": "string"}
+            recall_schema["description"] = recall_schema["description"].rstrip() + (
+                "\n        temporal=auto distinguishes current requests from historical queries;"
+                "\n        current explicitly prefers comparable recent evidence, and relevance"
+                "\n        keeps relevance ordering. This is not an as-of state resolver. Repeated"
+                "\n        event evidence is retained. details=true includes the resolution basis."
+                "\n        ")
             self.assertEqual(tools[0], compact(expected))
 
     async def test_real_cli_modes_preserve_defaults_and_full_provenance(self):
@@ -129,7 +139,17 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
                 async with stdio_client(params) as (reader, writer):
                     async with ClientSession(reader, writer, read_timeout_seconds=timedelta(seconds=20)) as client:
                         initialized = await client.initialize()
-                        expected = FIXTURE["instructions"] + (INDEXED_REFERENCE_INSTRUCTIONS if selected == "indexed" else "")
+                        # Only the approved temporal explanation changes the
+                        # historical instructions. The stored evidence and
+                        # evaluator fixture remain byte-for-byte unchanged.
+                        old = "diagnostics. read_page also supplies full provenance. Empty results prove no\n"
+                        self.assertEqual(FIXTURE["instructions"].count(old), 1)
+                        expected = FIXTURE["instructions"].replace(old,
+                            "diagnostics, including the resolved temporal mode. temporal=auto infers time\n"
+                            "intent conservatively; current prefers comparable recent evidence; relevance\n"
+                            "keeps relevance ordering. Neither resolves authority or an as-of state.\n"
+                            "read_page also supplies full provenance. Empty results prove no\n", 1)
+                        expected += INDEXED_REFERENCE_INSTRUCTIONS if selected == "indexed" else ""
                         self.assertEqual(initialized.instructions, expected)
                         listed = await client.list_tools()
                         schemas = listed.model_dump_json(exclude_none=True)

@@ -48,6 +48,9 @@ APPROVED_RUNTIME_SHA256 = {
     # match explicit settings and the retained C3 development outputs.
     # Scope, costs and remaining release gates: docs/releases/v0.4.0.md.
     "0.4.0": "e042c6a574dcc40fbc338351a9aa3c1561da6f0d47ed023830fd858ed59ed590",
+    # Explicit temporal intent, schema-4 engineering retrieval, and reliable
+    # archive import/export. Evidence: docs/v0.5.0-engineering-validation.md.
+    "0.5.0": "bd7c34dd7f795404a5d9b65502b2e67a1f4e7fc10e742cf0f30fadc57c444980",
 }
 # Publication channels are explicit: older prereleases remain prereleases when
 # an interrupted run reconciles them. A new version needs a reviewed entry.
@@ -58,6 +61,7 @@ RELEASE_PRERELEASE = {
     "v0.3.3": False,
     "v0.3.4": False,
     "v0.4.0": False,
+    "v0.5.0": False,
 }
 INSTALLERS = ("install.py", "install.sh", "install.ps1")
 READ_DELAYS = (1, 2, 4)
@@ -358,7 +362,7 @@ with MemoryBook(":memory:") as book:
                  "messages":[{"role":"user","content":"Release verification marker atlas-heron-791."}]})
     result=book.recall("atlas heron 791", project="release-check", use_cache=False)
     assert "atlas-heron-791" in result["context"] and result["results"][0]["source_refs"]
-    if VERSION == "0.4.0":
+    if tuple(map(int, VERSION.split("."))) >= (0, 4, 0):
         assert result["budget_chars"] == 2400 and len(result["results"]) <= 5
         explicit = book.recall("atlas heron 791", project="release-check", budget_chars=2400, limit=5, use_cache=False)
         stable = lambda value: {key: item for key, item in value.items() if key != "latency_ms"}

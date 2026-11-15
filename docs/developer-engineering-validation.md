@@ -1,6 +1,9 @@
-# Developer engineering validation
+# Developer engineering validation — retained source snapshot
 
-This report covers the current source's identifier retrieval, current-turn token
+This retained report describes the source validated on 2026-11-15. For the
+current release, see [v0.5.0 engineering validation](v0.5.0-engineering-validation.md).
+
+This report covers that source's identifier retrieval, current-turn token
 packing, schema-4 migration and database maintenance. The runtime was compared
 with the source at upstream
 [`a0de3f48`](https://github.com/Afloat16/AI-Memory-Book/commit/a0de3f48a7f585393c9b32b49ffcd3d29e6a5f3e).

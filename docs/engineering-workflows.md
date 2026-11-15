@@ -6,13 +6,13 @@ the cited original text, then run the project's own tests against the recovered
 contract. The archive supplies evidence; it does not execute experiments or
 decide whether a recorded conclusion is correct.
 
-The identifier improvements, token-only correction handling, `backup`, and
-`check-database` described here are available from the **current main source**.
-The published release installer is separate; use a source checkout to try these
-changes:
+The **v0.5.0 release** includes identifier normalization, current-turn handling
+for token budgets, explicit temporal modes, `backup`, and `check-database`.
+Use the [release installer](deployment.md#install-v050), or install a checkout
+for the runnable examples and optional exact token budgets:
 
 ```bash
-git clone https://github.com/Afloat16/AI-Memory-Book.git
+git clone --branch v0.5.0 https://github.com/Afloat16/AI-Memory-Book.git
 cd AI-Memory-Book
 python -m venv .venv
 source .venv/bin/activate
@@ -21,8 +21,8 @@ python -m pip install -e ".[mcp,clients,tokens]"
 
 On Windows, activate with `.venv\Scripts\Activate.ps1`. The `tokens` extra is
 needed only for exact token budgets; lexical recall and database maintenance
-use the standard library. Before opening an existing archive, follow the
-[source-upgrade procedure](deployment.md#current-main-and-schema-4).
+use the standard library. Before opening an older archive, follow the
+[schema 4 upgrade procedure](deployment.md#schema-4-upgrade).
 
 ## Try a complete local workflow
 
@@ -55,8 +55,11 @@ page fits. It must not borrow the gateway project's value `256`.
 Repeating the import with unchanged content skips the existing sessions. Keep
 stable `project`, `session_id`, and `task_id` values in your own canonical input;
 an updated session is replaced transactionally, and evidence from different
-projects remains separate. Importing a list is a series of session transactions,
-not one all-or-nothing transaction for the entire file.
+projects remains separate. The CLI parses and validates every input session before opening the database;
+an invalid date, field length or message fails the batch before any session is
+replaced. The error identifies its input file and session position. Successful
+writes still use one transaction per session: an I/O failure can leave earlier
+sessions committed, so repair the failure and retry the same input.
 
 ## Query symbols, decisions and failures
 
@@ -74,16 +77,33 @@ complete symbol graph. Include a distinctive symbol and the concrete constraint
 you need, for example `JSONLReader sample_id split`, and scope the query to its
 project.
 
+## Choose how current evidence is ranked
+
 Use `current`, `latest`, `当前`, or `最新` when asking for a present decision.
-Current-turn preference compares matching turns in the same source session and
-authenticates an extract against the original turn before using it. A later
-message from a different session is not automatically treated as an authoritative
-replacement. For an earlier decision, ask an explicitly historical question:
+The default `temporal="auto"` distinguishes requests for original source evidence
+from requests for an original historical value. Clearly historical or mixed
+ambiguous questions retain relevance ordering. A dataset label containing a
+year is not by itself an as-of date.
+
+When the application already knows the question's intent, pass an explicit mode:
+
+| Mode | Behavior | Typical use |
+|---|---|---|
+| `auto` | Infer current intent conservatively from the query | Interactive questions |
+| `current` | Enable current-evidence ordering and comparable later-turn selection | Resuming implementation with current configuration |
+| `relevance` | Keep relevance ordering, without current-evidence preference | Reviewing an initial decision or the reason for an earlier failure |
 
 ```bash
-memory-book --db ./demo-memory.db recall "historical initial KVCache block_size" --project inference-demo
-memory-book --db ./demo-memory.db recall "shortest-path failed prototype negative edge" --project routing-demo
+memory-book --db ./demo-memory.db recall "KVCache block_size source evidence" --project inference-demo --temporal current --json
+memory-book --db ./demo-memory.db recall "historical initial KVCache block_size" --project inference-demo --temporal relevance
 ```
+
+Python and MCP use the same `temporal` values; HTTP recall accepts the same query
+parameter. This changes ordering, not the archive. Recognized event-count or
+timeline requests preserve occurrences. The candidate pool remains bounded;
+neither `current` nor `relevance` constructs an as-of-date state or proves that a
+later statement is authoritative. Inspect the source and use narrow project,
+chapter or session filters when needed.
 
 For your own experiments, record the dataset or revision, seed, split, metric,
 units, configuration, result and reason for accepting or rejecting an approach.
@@ -147,7 +167,7 @@ Vocabulary initialization may need a one-time download; see
 [offline tokenizer preparation and supported encodings](token-budget.md).
 
 For client integration, run `memory-book --db ABSOLUTE_DATABASE_PATH setup
---client CLIENT_PROFILE` using the installed source environment. Add
+--client CLIENT_PROFILE` using the installed environment. Add
 `--capture --background` only when you want collection and the selected profile
 supports it. The [integration guide](integrations.md) lists those capabilities.
 Restart the client after configuration changes. The host and model decide when
@@ -175,6 +195,27 @@ Backups contain conversation text but exclude capture settings, client settings,
 logs, original transcript files and optional model files. Project filtering is
 a retrieval boundary, not authorization between mutually untrusted users.
 See [backup and recovery details](deployment.md#back-up-and-check-the-archive).
+
+## Export a consistent handoff book
+
+```bash
+memory-book --db ./demo-memory.db export-book inference-demo --output ./handoff/inference
+```
+
+The Markdown index, linked evidence pages and `sessions.json` come from one
+SQLite read snapshot, even if another connection commits an update during the
+export. All files are written to a sibling staging directory before the final
+book becomes visible. A failed export cleans up its own staging data and can be
+retried to the same absent or empty destination. Existing nonempty destinations
+and symbolic-link destinations are rejected. The current working directory
+itself cannot be replaced; choose a new child directory such as `./handoff`.
+
+A successful book is a fixed snapshot; later changes are not added to it.
+On POSIX, directory publication is an atomic rename, including an existing empty
+destination. Windows requires removing an existing empty destination just before
+the final rename, so that name can briefly be absent. Concurrent nonempty targets
+are protected. Use a new destination per export when another process depends on
+the name remaining continuously present.
 
 ## Validate changes to retrieval
 

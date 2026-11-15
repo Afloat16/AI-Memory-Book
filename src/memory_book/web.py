@@ -179,6 +179,7 @@ def make_server(db_path, host: str = "127.0.0.1", port: int = 8765, *, container
                         session=self._param(params, "session") or None,
                         budget_chars=self._integer(params, "budget_chars", 2400, 256, 24000),
                         limit=self._integer(params, "limit", 5, 1, 20),
+                        temporal=self._param(params, "temporal", "auto"),
                     )
                 self._send(HTTPStatus.OK, result)
             finally:

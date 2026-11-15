@@ -20,11 +20,30 @@ from .text import estimate_tokens, excerpt, headline, identifier_terms as terms,
 SCHEMA_VERSION = 4
 INDEX_VERSION = 3
 LEXICAL_INDEX_VERSION = 1
-RECALL_VERSION = 14
+RECALL_VERSION = 15
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
 HISTORICAL_QUERY = re.compile(r"\b(?:original|initial|previous|earlier|before|history|historical|formerly|old|as of)\b|最初|最早|之前|以前|原来|原始|历史|旧|\b(?:19|20)\d{2}\b", re.IGNORECASE)
+# These are source requests, not requests for an earlier state. Only mask them
+# for intent detection when a separate current cue exists; source/query text
+# and the lexical index stay unchanged. Bare "original decision" remains
+# ambiguous, as do comparisons and as-of references elsewhere in the query.
+PROVENANCE_QUERY = re.compile(
+    r"\boriginal\s+(?:source(?:\s+evidence)?|evidence|quotation|quote|text|transcript|message)s?\b|"
+    r"\b(?:cite|quote)\s+(?:the\s+)?original\s+(?:(?:engineering|technical|design)\s+)?decision(?:\s+record)?\b|"
+    r"原始(?:的)?(?:证据|出处|来源|引用|原文|记录|文本|会话|对话)|"
+    r"(?:找出|引用|提供|展示|给出|定位|追溯)(?:其|该|这项|对应的|相关的|所依据的)?"
+    r"原始(?:的)?(?:(?:工程|技术|设计)(?:的)?)?决策(?:记录|依据|原文)?", re.IGNORECASE)
+DATASET_YEAR_QUERY = re.compile(
+    r"\b(?:dataset|data\s+set)\s*[:=_-]?\s*(?:19|20)\d{2}\b(?![-/]\d)|"
+    r"\b(?:19|20)\d{2}\s+(?:dataset|data\s+set)\b|"
+    r"数据集\s*[:：=_-]?\s*(?:19|20)\d{2}\b(?![-/]\d)|"
+    r"\b(?:19|20)\d{2}\s*(?:年版|版)?数据集", re.IGNORECASE)
+COMPARISON_QUERY = re.compile(r"\b(?:compare|compared|comparison|versus|vs)\b|比较|对比|相比", re.IGNORECASE)
+NEGATED_CURRENT_QUERY = re.compile(
+    r"\bnot\s+(?:the\s+)?(?:current|latest|final)\b|"
+    r"(?:不要|不是|并非|不看|不查)(?:当前|现在|最新|最终)", re.IGNORECASE)
 # Repeated observations are evidence for event counts and chronology. This
 # conservative lexical guard does not interpret arbitrary intent, and avoids
 # treating parameter names such as "retention count" as event-count requests.
@@ -37,6 +56,53 @@ EVENT_QUERY = re.compile(
     r"(?:each|every)\s+(?:session|event|occurrence))\b|"
     r"次数|多少次|几次|频率|频次|逐次|每次|各次|时间线|时间顺序|先后|事件序列|"
     r"统计.{0,12}(?:会话|事件|次数)|(?:会话|事件).{0,12}(?:数量|个数|总数)", re.IGNORECASE)
+
+
+def _resolve_temporal_intent(query: str, temporal: str, strategy: str) -> dict:
+    """Resolve bounded lexical hints, with an explicit override for callers.
+
+    Relevance is the existing relevance order, not an as-of state solver.
+    A current query may ask for provenance or name a dataset edition. Ignore
+    only those narrow spans when looking for *other* historical cues; genuine
+    history/comparison/date references retain their conservative precedence.
+    Occurrence queries always retain repeated sources, even with an override.
+    """
+    if not isinstance(temporal, str) or temporal not in {"auto", "current", "relevance"}:
+        raise ValueError("temporal must be auto, current, or relevance")
+    if temporal == "current" and strategy == "flat":
+        raise ValueError("temporal=current requires the book strategy")
+    current = list(dict.fromkeys(match.group() for match in CURRENT_QUERY.finditer(query)))
+    ignored = []
+    remaining = query
+    if current and not COMPARISON_QUERY.search(query) and not NEGATED_CURRENT_QUERY.search(query):
+        def mask(match: re.Match[str]) -> str:
+            ignored.append(match.group())
+            return " " * len(match.group())
+        remaining = PROVENANCE_QUERY.sub(mask, remaining)
+        remaining = DATASET_YEAR_QUERY.sub(mask, remaining)
+    historical = list(dict.fromkeys(match.group() for match in HISTORICAL_QUERY.finditer(remaining)))
+    if strategy == "flat":
+        resolved, basis = "relevance", "flat_strategy"
+    elif temporal != "auto":
+        resolved, basis = temporal, "explicit_override"
+    elif historical:
+        resolved = "relevance"
+        basis = "mixed_temporal_cues" if current else "historical_cue"
+    elif current:
+        resolved, basis = "current", "current_cue"
+    else:
+        resolved, basis = "relevance", "no_current_cue"
+    result = {"requested": temporal, "resolved": resolved, "basis": basis,
+              "preserve_occurrences": bool(EVENT_QUERY.search(query))}
+    if current:
+        result["current_cues"] = current
+    if historical:
+        result["historical_cues"] = historical
+    if ignored:
+        result["provenance_or_dataset_labels"] = list(dict.fromkeys(ignored))
+    return result
+
+
 ASCII_WORD = re.compile(r"[a-zA-Z]")
 QUERY_CONJUNCTION = re.compile(r"\band\b|以及|并且|和", re.IGNORECASE)
 RECALL_METADATA_INDEX_SQL = """CREATE INDEX IF NOT EXISTS pages_recall_metadata
@@ -145,6 +211,10 @@ def _string(value: Any, name: str, *, maximum: int = 500, required: bool = True)
     value = value.strip()
     if len(value) > maximum or "\x00" in value:
         raise ValueError(f"{name} must be at most {maximum} characters and contain no NUL")
+    try:
+        value.encode("utf-8")
+    except UnicodeEncodeError as exc:
+        raise ValueError(f"{name} must be valid UTF-8 text without unpaired surrogates") from exc
     return value
 
 
@@ -182,6 +252,10 @@ def normalize_session(payload: dict) -> dict:
         content = message.get("content")
         if not isinstance(content, str) or "\x00" in content:
             raise ValueError(f"messages[{i}].content must be text without NUL")
+        try:
+            content.encode("utf-8")
+        except UnicodeEncodeError as exc:
+            raise ValueError(f"messages[{i}].content must be valid UTF-8 text without unpaired surrogates") from exc
         total += len(content)
         normalized.append({"role": message["role"], "content": content})
     if total > MAX_SESSION_CHARS:
@@ -366,6 +440,65 @@ def _distinct_current_pages(pool: list[dict], contents: dict[int, str]) -> tuple
         deferred.update(positions[1:])
     return ([item for index, item in enumerate(ordered) if index not in deferred],
             [item for index, item in enumerate(ordered) if index in deferred])
+
+
+def _prefer_current_pool(db: sqlite3.Connection, pool: list[dict],
+                         matched: dict[int, set[str]], *,
+                         distinct: bool) -> tuple[list[dict], list[dict]]:
+    """Order comparable revisions after any candidate route has been fused.
+
+    Recency stays within one task and an identical nonempty exact-term set.
+    Pure semantic similarity cannot establish that two pages revise one fact.
+    All source reads stay inside recall's existing SQLite read snapshot.
+    """
+    groups = {}
+    for i, item in enumerate(pool):
+        if matched[item["rid"]]:
+            key = (item["chapter_id"], frozenset(matched[item["rid"]]))
+            groups.setdefault(key, []).append(i)
+    repeated = set()
+    for positions in groups.values():
+        sessions = {}
+        for i in positions:
+            item = pool[i]
+            key = (item["project_id"], item["session_id"])
+            sessions.setdefault(key, []).append(item["rid"])
+        for ids in sessions.values():
+            if len(ids) > 1:
+                repeated.update(ids)
+    turn_positions = {}
+    distinct = distinct and len(pool) > 1
+    contents = {}
+    wanted_sources = repeated | ({item["rid"] for item in pool} if distinct else set())
+    if wanted_sources:
+        ids = sorted(wanted_sources)
+        for row in db.execute(
+                "SELECT rid,content,source_refs FROM pages WHERE rid IN (" +
+                ",".join("?" for _ in ids) + ")", ids):
+            if distinct:
+                contents[row["rid"]] = row["content"]
+            if row["rid"] in repeated:
+                turn = _latest_matching_turn(row["content"], row["source_refs"], matched[row["rid"]])
+                if turn is not None:
+                    turn_positions[row["rid"]] = turn
+    for positions in groups.values():
+        scores = [pool[i]["score"] for i in positions]
+        revisions = sorted((pool[i] for i in positions), key=lambda item: item["created_at"], reverse=True)
+        sessions = {}
+        for i, item in enumerate(revisions):
+            if item["rid"] in turn_positions:
+                key = (item["project_id"], item["session_id"])
+                sessions.setdefault(key, []).append(i)
+        for same_session in sessions.values():
+            # Turn positions order corrections only inside the same session;
+            # a continuation within one source turn keeps its relevance order.
+            ordered = sorted((revisions[i] for i in same_session),
+                             key=lambda item: turn_positions[item["rid"]], reverse=True)
+            for i, item in zip(same_session, ordered):
+                revisions[i] = item
+        for i, item, score in zip(positions, revisions, scores):
+            pool[i], item["score"] = item, score
+    return _distinct_current_pages(pool, contents) if distinct else (pool, [])
 
 
 class _RecallCandidates(dict):
@@ -953,9 +1086,18 @@ class MemoryBook:
                     session_title=directory[6], created_at=directory[7])
         return {identity: row for identity, row in rows.items() if identity in retained}
 
-    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 2400, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False) -> dict:
+    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 2400, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False, temporal: str = "auto") -> dict:
+        """Recall source evidence with optional current-state ordering.
+
+        temporal=auto conservatively infers current versus relevance ordering;
+        current explicitly prefers comparable recent evidence, and relevance
+        disables this preference. Neither mode resolves an authoritative state
+        or filters to an as-of date. Flat evaluation uses relevance ordering.
+        The returned temporal diagnostic explains the effective choice.
+        """
         started = time.perf_counter_ns()
         query = _string(query, "query", maximum=8000, required=False)
+        temporal_intent = _resolve_temporal_intent(query, temporal, strategy)
         _integer(budget_chars, "budget_chars", 0, 100_000)
         _integer(limit, "limit", 1, 50)
         from .token_budget import TOKENIZERS, TokenCounter
@@ -983,14 +1125,14 @@ class MemoryBook:
             if val is not None:
                 _string(val, key)
         qt = query_terms(query)
-        current_query = bool(CURRENT_QUERY.search(query) and not HISTORICAL_QUERY.search(query))
+        current_query = temporal_intent["resolved"] == "current"
         use_stem = strategy == "book" and any(ASCII_WORD.search(token) for token in qt)
         semantic_model = self._semantic_encoder() if semantic else None
         # A read snapshot ties candidates, sources, and the cache revision together.
         self.db.execute("BEGIN")
         try:
             revision = self.revision
-            cache_options = [INDEX_VERSION, RECALL_VERSION, query, project, chapter, session, budget_chars, limit, strategy, coverage]
+            cache_options = [INDEX_VERSION, RECALL_VERSION, query, project, chapter, session, budget_chars, limit, strategy, coverage, temporal]
             if semantic_model is not None:
                 from .semantic import FUSION_VERSION, SEMANTIC_VERSION, check_index, fuse_candidates, rank_pages
                 check_index(self.db, revision, semantic_model)
@@ -1192,70 +1334,9 @@ class MemoryBook:
                                    ",".join("?" for _ in ids) + ")", ids)}
                     if current_query:
                         current_matches = matched
-                        # Timestamp preference is confined to the same task
-                        # and identical matched query terms. Preserve each
-                        # group's relevance positions so a recent unrelated
-                        # task cannot displace a stronger topic match.
-                        groups = {}
-                        for i, item in enumerate(pool):
-                            if not matched[item["rid"]]:
-                                # Empty exact-term sets on stem-only hits do
-                                # not establish equivalent factual revisions.
-                                continue
-                            key = (item["chapter_id"], frozenset(matched[item["rid"]]))
-                            groups.setdefault(key, []).append(i)
-                        # Session timestamps cannot order corrections made
-                        # during one long conversation. Load source coordinates
-                        # only for same-session candidates in comparable groups.
-                        # Ordinary queries pay no read. Exact-text duplicate
-                        # detection shares this bounded source fetch when it
-                        # can release result slots for other current evidence.
-                        repeated = set()
-                        for positions in groups.values():
-                            sessions = {}
-                            for i in positions:
-                                item = pool[i]
-                                key = (item["project_id"], item["session_id"])
-                                sessions.setdefault(key, []).append(item["rid"])
-                            for ids in sessions.values():
-                                if len(ids) > 1:
-                                    repeated.update(ids)
-                        turn_positions = {}
-                        distinct_current = limit > 1 and len(pool) > 1 and not EVENT_QUERY.search(query)
-                        contents = {}
-                        wanted_sources = repeated | ({item["rid"] for item in pool} if distinct_current else set())
-                        if wanted_sources:
-                            ids = sorted(wanted_sources)
-                            for row in self.db.execute(
-                                    "SELECT rid,content,source_refs FROM pages WHERE rid IN (" +
-                                    ",".join("?" for _ in ids) + ")", ids):
-                                if distinct_current:
-                                    contents[row["rid"]] = row["content"]
-                                if row["rid"] in repeated:
-                                    turn = _latest_matching_turn(row["content"], row["source_refs"], matched[row["rid"]])
-                                    if turn is not None:
-                                        turn_positions[row["rid"]] = turn
-                        for positions in groups.values():
-                            scores = [pool[i]["score"] for i in positions]
-                            revisions = sorted((pool[i] for i in positions), key=lambda item: item["created_at"], reverse=True)
-                            sessions = {}
-                            for i, item in enumerate(revisions):
-                                if item["rid"] in turn_positions:
-                                    key = (item["project_id"], item["session_id"])
-                                    sessions.setdefault(key, []).append(i)
-                            for same_session in sessions.values():
-                                # Do not compare turn numbers across sessions,
-                                # or advance a continuation within one turn.
-                                # Stable sorting retains the relevance order
-                                # when the original turn positions are equal.
-                                ordered = sorted((revisions[i] for i in same_session),
-                                                 key=lambda item: turn_positions[item["rid"]], reverse=True)
-                                for i, item in zip(same_session, ordered):
-                                    revisions[i] = item
-                            for i, item, score in zip(positions, revisions, scores):
-                                pool[i], item["score"] = item, score
-                        if distinct_current:
-                            pool, deferred = _distinct_current_pages(pool, contents)
+                        pool, deferred = _prefer_current_pool(
+                            self.db, pool, matched,
+                            distinct=limit > 1 and not temporal_intent["preserve_occurrences"])
                     chosen, pending = [pool[0]], pool[1:]
                     covered = set(matched[pool[0]["rid"]])
                     while (pending or deferred) and len(chosen) < limit:
@@ -1268,7 +1349,8 @@ class MemoryBook:
                         covered.update(matched[item["rid"]])
                     candidates = chosen + pending + deferred + candidates[pool_count:]
                 facets = (_query_facets(query) if coverage and strategy == "book" and limit > 1 and
-                          not CURRENT_QUERY.search(query) and not HISTORICAL_QUERY.search(query) else [])
+                          not current_query and not temporal_intent.get("current_cues") and
+                          not temporal_intent.get("historical_cues") else [])
                 if candidates and facets:
                     # A whole-query OR score can fill every result slot with
                     # one requested subject. Rank each explicit clause over
@@ -1308,6 +1390,22 @@ class MemoryBook:
                     candidates = preferred + [item for item in candidates if item["rid"] not in seen]
                 if semantic_model is not None:
                     candidates = fuse_candidates(candidates, rank_pages(self.db, semantic_model, query, where, params))
+                    if current_query and candidates:
+                        # Fusion can add new comparable revisions or restore
+                        # an old page ahead of a newer one. Apply the same
+                        # source-checked preference to the final bounded pool.
+                        pool = candidates[:limit * 4]
+                        pool_count = len(pool)
+                        ids = [item["rid"] for item in pool]
+                        matched = {row["rowid"]: qset.intersection(row["body"].split())
+                                   for row in self.db.execute(
+                                       "SELECT rowid,body FROM pages_fts WHERE rowid IN (" +
+                                       ",".join("?" for _ in ids) + ")", ids)}
+                        current_matches = matched
+                        pool, deferred = _prefer_current_pool(
+                            self.db, pool, matched,
+                            distinct=limit > 1 and not temporal_intent["preserve_occurrences"])
+                        candidates = pool + deferred + candidates[pool_count:]
                 if candidates:
                     selected_ids = [item["id"] for item in candidates[:limit]]
                     sources = {row["id"]: dict(row) for row in self.db.execute(
@@ -1492,12 +1590,14 @@ class MemoryBook:
         warnings = []
         if project is None and len({r["breadcrumb"][0]["id"] for r in results}) > 1:
             warnings.append("Results span projects; supply project to disambiguate.")
-        if results and CURRENT_QUERY.search(query):
+        if results and (current_query or temporal_intent.get("current_cues")):
             warnings.append("Historical evidence can conflict. Check source timestamps; retrieval does not resolve which decision is authoritative.")
+        if temporal_intent["basis"] == "mixed_temporal_cues":
+            warnings.append("Current and historical cues are both present; auto kept relevance ordering. Use temporal=current only when the current state is intended; relevance is not an as-of state resolver.")
         if not results and candidates:
             warnings.append("Budget too small to return an evidence block including its citation.")
         candidate_count = len(candidates) if full_candidate_count is None else full_candidate_count
-        result = {"query": query, "results": results, "context": context, "context_chars": len(context), "estimated_tokens": estimate_tokens(context), "candidate_count": candidate_count, "revision": revision, "cache_hit": False, "warnings": warnings, "strategy": strategy, "budget_chars": budget_chars, "truncated": candidate_count > len(results) or any(r["truncated"] for r in results)}
+        result = {"query": query, "results": results, "context": context, "context_chars": len(context), "estimated_tokens": estimate_tokens(context), "candidate_count": candidate_count, "revision": revision, "cache_hit": False, "warnings": warnings, "strategy": strategy, "budget_chars": budget_chars, "temporal": temporal_intent, "truncated": candidate_count > len(results) or any(r["truncated"] for r in results)}
         if semantic_model is not None:
             result.update(semantic=True, semantic_model_fingerprint=semantic_model.fingerprint)
         if token_counter is not None:
