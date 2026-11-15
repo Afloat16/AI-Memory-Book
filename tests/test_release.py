@@ -17,7 +17,7 @@ from scripts import release
 
 class ReleaseTests(unittest.TestCase):
     def test_preparation_preserves_historical_manifest_shape(self):
-        for version in ("0.3.0", "0.3.1", "0.3.2", "0.3.3", "0.3.4"):
+        for version in ("0.3.0", "0.3.1", "0.3.2", "0.3.3", "0.3.4", "0.4.0"):
             with self.subTest(version=version), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
                 output = root / "assets"
@@ -42,7 +42,7 @@ class ReleaseTests(unittest.TestCase):
                     release.prepare(root, output)
                 manifest = json.loads((output / "release-manifest.json").read_text())
                 base_keys = set(identity) | {"schema_version", "build_tools", "assets", "runtime_files_sha256", "checks", "scope"}
-                if version in {"0.3.3", "0.3.4"}:
+                if version in {"0.3.3", "0.3.4", "0.4.0"}:
                     self.assertEqual(set(manifest), base_keys | {"prerelease"})
                     self.assertIs(manifest["prerelease"], False)
                     self.assertEqual(manifest["scope"], "GitHub release; no PyPI publication, model download or benchmark execution.")
@@ -115,16 +115,17 @@ class ReleaseTests(unittest.TestCase):
         self.assertEqual(api.call_count, 1)
 
     def test_formal_draft_has_explicit_channel_and_unknown_versions_cannot_publish(self):
-        draft = {"id": 17, "tag_name": "v0.3.3", "target_commitish": "a" * 40,
-                 "draft": True, "prerelease": False}
-        with patch.object(release, "api", return_value=draft) as api:
-            self.assertEqual(release.create_draft("v0.3.3", "a" * 40, "notes"), draft)
-            # A draft cannot be Latest; the publication command sets that flag.
-            api.assert_called_once_with("releases", body={"tag_name": "v0.3.3", "target_commitish": "a" * 40,
-                "name": "v0.3.3", "body": "notes", "draft": True, "prerelease": False, "make_latest": "false"})
-        with patch.object(release, "api", return_value={**draft, "prerelease": True}), \
-                self.assertRaisesRegex(ValueError, "Created draft does not match"):
-            release.create_draft("v0.3.3", "a" * 40, "notes")
+        for tag in ("v0.3.3", "v0.3.4", "v0.4.0"):
+            draft = {"id": 17, "tag_name": tag, "target_commitish": "a" * 40,
+                     "draft": True, "prerelease": False}
+            with self.subTest(tag=tag), patch.object(release, "api", return_value=draft) as api:
+                self.assertEqual(release.create_draft(tag, "a" * 40, "notes"), draft)
+                # A draft cannot be Latest; the publication command sets that flag.
+                api.assert_called_once_with("releases", body={"tag_name": tag, "target_commitish": "a" * 40,
+                    "name": tag, "body": "notes", "draft": True, "prerelease": False, "make_latest": "false"})
+            with patch.object(release, "api", return_value={**draft, "prerelease": True}), \
+                    self.assertRaisesRegex(ValueError, "Created draft does not match"):
+                release.create_draft(tag, "a" * 40, "notes")
         with patch.object(release, "api") as api, self.assertRaisesRegex(ValueError, "not registered"):
             release.create_draft("v9.9.9", "a" * 40, "notes")
         api.assert_not_called()

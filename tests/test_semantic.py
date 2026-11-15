@@ -128,12 +128,14 @@ class SemanticLifecycleTests(unittest.TestCase):
                              (old_key, self.book.revision, '{"legacy_only":true}', 0))
         with patch.object(self.book._semantic_model, "encode_pages", side_effect=AssertionError("must reuse index")), \
                 patch("memory_book.semantic.rank_pages", return_value=[]):
-            fresh = self.book.recall("source", semantic=True)
+            # Keep the historical key's explicit budget so a newer default
+            # cannot make this fusion-version invalidation test pass by itself.
+            fresh = self.book.recall("source", semantic=True, budget_chars=4000)
             self.assertFalse(fresh["cache_hit"])
             self.assertNotIn("legacy_only", fresh)
-            self.assertTrue(self.book.recall("source", semantic=True)["cache_hit"])
+            self.assertTrue(self.book.recall("source", semantic=True, budget_chars=4000)["cache_hit"])
             with patch("memory_book.semantic.FUSION_VERSION", 4):
-                self.assertFalse(self.book.recall("source", semantic=True)["cache_hit"])
+                self.assertFalse(self.book.recall("source", semantic=True, budget_chars=4000)["cache_hit"])
         self.assertEqual({table: [tuple(row) for row in self.book.db.execute(f"SELECT * FROM {table}")]
                           for table in before}, before)
 

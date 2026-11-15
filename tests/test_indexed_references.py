@@ -1,4 +1,4 @@
-"""Lossless operator-selected references and byte-compatible default MCP."""
+"""Lossless references and frozen MCP compatibility except approved defaults."""
 from __future__ import annotations
 
 import copy
@@ -86,7 +86,7 @@ class IndexedReferenceValueTests(unittest.TestCase):
 
 @unittest.skipUnless(HAS_MCP, "Install .[mcp] for official SDK compatibility tests")
 class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
-    async def test_schema_is_unchanged_and_format_is_not_a_model_argument(self):
+    async def test_schema_only_changes_the_budget_default_and_format_is_not_a_model_argument(self):
         tools = []
         for format_name in ("objects", "indexed"):
             listed = await create_server(":memory:", source_format=format_name).list_tools()
@@ -98,7 +98,17 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
         # between modes is checked above on every installed supported SDK.
         if (importlib.metadata.version("mcp") == FIXTURE["mcp"]
                 and importlib.metadata.version("pydantic") == FIXTURE["pydantic"]):
-            self.assertEqual(tools[0], FIXTURE["schema"])
+            # Preserve the historical fixture and its source bytes. v0.4.0
+            # deliberately changes only recall's omitted character budget;
+            # every other serialized schema/format field must remain equal.
+            expected = json.loads(FIXTURE["schema"])
+            compact = lambda value: json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+            self.assertEqual(compact(expected), FIXTURE["schema"])
+            recall_schema = next(tool for tool in expected["tools"] if tool["name"] == "recall_memory")
+            budget_schema = recall_schema["inputSchema"]["properties"]["budget_chars"]
+            self.assertEqual(budget_schema["default"], 4000)
+            budget_schema["default"] = 2400
+            self.assertEqual(tools[0], compact(expected))
 
     async def test_real_cli_modes_preserve_defaults_and_full_provenance(self):
         from memory_book import MemoryBook

@@ -1,6 +1,16 @@
 # Changelog
 
-## Unreleased — engineering-memory development
+## 0.4.0 — 2026-11-15
+
+Release scope: current engineering evidence and a **2,400-character / five-page
+default**. Publication uses the normal GitHub release channel, with exact-source
+CI, package and public-installer verification recorded separately from the
+development experiments. See the [release notes](docs/releases/v0.4.0.md).
+
+- Use 2,400 characters when the recall budget is omitted; keep the five-result
+  limit, default lexical retrieval, and no default token cap. Explicit budgets
+  remain available. This selects the larger of the two budgets measured in the
+  engineering study; it does not establish a universally optimal budget.
 
 - Prefer a comparable later source turn for explicit current queries within
   the same session, while retaining historical and ordinary query ordering.
@@ -15,8 +25,22 @@
   pinned billion-context search kernel. These are synthetic development
   diagnostics, not evidence of LLM coding productivity or general superiority.
 - Preserve source coordinates, project boundaries, schema 3 and the default
-  no-model path. See the [protocol](docs/engineering-memory-evaluation.md) and
-  [results and limitations](docs/engineering-memory-results.md).
+  no-model path. MCP retains compact references by default; `details=true`
+  exposes exact source coordinates. Cache version 13 prevents reuse of older
+  ranking results without migrating the source archive.
+- At the explicitly measured 2,400-character setting, C3's synthetic development
+  replay improves complete evidence from **44/72 to 68/72** and fixed-consumer
+  strategy checks from **20/48 to 44/48**. The associated local retrieval p95
+  rises **1.986 → 2.056 ms (+3.54%)**. These measurements precede the release
+  version/default wiring and are not a new timing run of the release package.
+- Keep the adverse 1,200-character common-block comparison, pure-token
+  truncation limitation, missing-answer cases and all intermediate candidates
+  in the [results](docs/engineering-memory-results.md). No LLM coding-success,
+  whole-product speed or universal competitor advantage is established.
+- Pin the Python, Bash and PowerShell installers to the v0.4.0 release wheel;
+  keep older wheel routes and explicit source installations available. See the
+  [upgrade guide](docs/deployment.md#upgrading) and
+  [evaluation protocol](docs/engineering-memory-evaluation.md).
 
 ## 0.3.4 — 2026-11-14
 

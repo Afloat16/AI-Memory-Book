@@ -177,7 +177,7 @@ def make_server(db_path, host: str = "127.0.0.1", port: int = 8765, *, container
                         project=self._param(params, "project") or None,
                         chapter=self._param(params, "chapter") or None,
                         session=self._param(params, "session") or None,
-                        budget_chars=self._integer(params, "budget_chars", 4000, 256, 24000),
+                        budget_chars=self._integer(params, "budget_chars", 2400, 256, 24000),
                         limit=self._integer(params, "limit", 5, 1, 20),
                     )
                 self._send(HTTPStatus.OK, result)

@@ -1,8 +1,9 @@
 # Publishing a verified release
 
 The release workflow publishes an exact commit using an explicitly registered
-release channel. **v0.3.3 is a normal GitHub release** (`prerelease=false`) and
-is marked Latest when first published. v0.3.0 through v0.3.2 retain their original
+release channel. **v0.4.0 is registered as a normal GitHub release**
+(`prerelease=false`) and is marked Latest when first published. v0.3.3 and
+v0.3.4 also use the normal channel. v0.3.0 through v0.3.2 retain their original
 prerelease channels. Unknown versions are rejected until their policy and
 accepted runtime hash are registered. This workflow does not publish to PyPI or
 enable GitHub's immutable-release repository setting.
@@ -16,11 +17,17 @@ README installation links and `docs/releases/vVERSION.md` together. Commit all
 changes, including the release tooling, on a preparation branch. Wait for the
 existing **Tests** workflow to complete all nine jobs successfully on that exact
 commit. These include three core Python versions, MCP, the browser, three
-platform installers and the container. Benchmark acceptance precedes this
-packaging gate: register the v0.3.3 runtime hash only after the committed
-round-five acceptance report passes every correctness and numeric performance
-gate, and any required resource review has been independently completed and
-explicitly accepted. Packaging never repeats a benchmark.
+platform installers and the container. Evidence acceptance precedes this
+packaging gate and is scoped to the version's committed release notes.
+v0.4.0 selects the 2,400-character engineering profile: default calls must match
+the explicit selected configuration, retain the saved development quality, and
+pass source, scope and budget checks. Its reported local p95 cost and other
+budget results remain in the complete engineering report; it is not a release
+claim of universal speed or real-LLM productivity. Register its runtime hash
+only after that validation and the requested release scope are recorded.
+The historical v0.3.3 round-five performance/resource requirements and v0.3.4
+startup decision retain their original version-specific records. Packaging
+never repeats or reinterprets those benchmarks.
 
 Fast-forward `main` to that same tested commit. Only after it is ready, create
 the branch `release/vVERSION` at exactly that SHA. The push starts

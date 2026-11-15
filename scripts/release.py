@@ -44,6 +44,10 @@ APPROVED_RUNTIME_SHA256 = {
     # original recall gates remain unpassed. Full evidence and retained costs:
     # benchmarks/experiments/round6-release-decision.json.
     "0.3.4": "f361d2bf64a4e1088cbd5cff6ffdaf19aa15e7f1b7ea1de4577d7a488d2ac242",
+    # Selected 2,400-character engineering profile: all 80 default responses
+    # match explicit settings and the retained C3 development outputs.
+    # Scope, costs and remaining release gates: docs/releases/v0.4.0.md.
+    "0.4.0": "e042c6a574dcc40fbc338351a9aa3c1561da6f0d47ed023830fd858ed59ed590",
 }
 # Publication channels are explicit: older prereleases remain prereleases when
 # an interrupted run reconciles them. A new version needs a reviewed entry.
@@ -53,6 +57,7 @@ RELEASE_PRERELEASE = {
     "v0.3.2": True,
     "v0.3.3": False,
     "v0.3.4": False,
+    "v0.4.0": False,
 }
 INSTALLERS = ("install.py", "install.sh", "install.ps1")
 READ_DELAYS = (1, 2, 4)
@@ -353,6 +358,11 @@ with MemoryBook(":memory:") as book:
                  "messages":[{"role":"user","content":"Release verification marker atlas-heron-791."}]})
     result=book.recall("atlas heron 791", project="release-check", use_cache=False)
     assert "atlas-heron-791" in result["context"] and result["results"][0]["source_refs"]
+    if VERSION == "0.4.0":
+        assert result["budget_chars"] == 2400 and len(result["results"]) <= 5
+        explicit = book.recall("atlas heron 791", project="release-check", budget_chars=2400, limit=5, use_cache=False)
+        stable = lambda value: {key: item for key, item in value.items() if key != "latency_ms"}
+        assert stable(result) == stable(explicit)
 '''.replace("VERSION", repr(identity["version"]))
         command([str(python), "-I", "-c", code], cwd=install_dir, env=env)
         version = command([str(install_dir / "venv/bin/memory-book"), "--version"], cwd=install_dir, env=env).stdout.decode().strip()
