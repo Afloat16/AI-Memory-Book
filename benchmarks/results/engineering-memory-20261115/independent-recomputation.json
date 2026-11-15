@@ -1,0 +1,860 @@
+{
+  "schema": "engineering-memory-saved-result-recomputation-v1",
+  "saved_at_utc": "2026-11-15T02:09:01.344631+00:00",
+  "performed_by": "separate collaborating agent",
+  "scope": "Read-only recomputation of already saved outputs and subsequent recording of this new receipt; no new retrieval or performance measurement.",
+  "status": "passed_for_audited_results",
+  "observed_discrepancies": 0,
+  "method_boundary": "Reused committed scoring and common-packing functions on saved responses, with independent denominator, paired-difference and percentile calculations. This is not independent verification of label truth or an independently designed scorer, and is not a human audit.",
+  "counts": {
+    "rescored_contexts": 3840,
+    "workflow_contexts": 2560,
+    "component_contexts": 1280,
+    "component_packs_reconstructed_from_native_hits": 1280,
+    "unique_component_native_samples_checked": 1920,
+    "component_document_bundles_compared": 24,
+    "targeted_records_checked": 2880,
+    "targeted_current_records": 960,
+    "targeted_control_records": 1920,
+    "unique_targeted_current_cases": 8,
+    "unique_unchanged_control_cases": 16
+  },
+  "confirmed_checks": {
+    "summary_function_result_equals_saved_summary": true,
+    "all_saved_context_scores_reproduced": true,
+    "all_context_source_coverage_and_budget_checks_passed": true,
+    "per_block_report_summaries_equal_recomputed_raw_summaries": true,
+    "all_common_component_packs_equal_reconstruction": true,
+    "all_native_component_mapping_and_saved_stable_digests_match": true,
+    "component_source_documents_identical_across_four_blocks": true,
+    "targeted_source_coverage_budget_and_correction_flags_rechecked": true,
+    "targeted_outputs_stable_within_each_arm": true,
+    "ordinary_and_historical_controls_unchanged_across_arms": true,
+    "targeted_runtime_file_manifests_match_corresponding_workflow_reports": true,
+    "quality_cases_not_multiplied_by_timing_repetitions": true,
+    "native_excerpt_and_common_whole_block_boundaries_kept_separate": true
+  },
+  "quality": [
+    {
+      "boundary": "workflow",
+      "budget_chars": 1200,
+      "backend": "book",
+      "arm": "baseline",
+      "unique_queries": 80,
+      "complete_evidence": {
+        "passed": 42,
+        "denominator": 72,
+        "rate": 0.5833333333333334
+      },
+      "evidence_recall": {
+        "matched": 48,
+        "denominator": 80,
+        "rate": 0.6
+      },
+      "fixed_consumer": {
+        "all_checks_passed": 20,
+        "denominator": 48,
+        "rate": 0.4166666666666667
+      }
+    },
+    {
+      "boundary": "workflow",
+      "budget_chars": 1200,
+      "backend": "book",
+      "arm": "candidate",
+      "unique_queries": 80,
+      "complete_evidence": {
+        "passed": 64,
+        "denominator": 72,
+        "rate": 0.8888888888888888
+      },
+      "evidence_recall": {
+        "matched": 72,
+        "denominator": 80,
+        "rate": 0.9
+      },
+      "fixed_consumer": {
+        "all_checks_passed": 44,
+        "denominator": 48,
+        "rate": 0.9166666666666666
+      }
+    },
+    {
+      "boundary": "workflow",
+      "budget_chars": 2400,
+      "backend": "book",
+      "arm": "baseline",
+      "unique_queries": 80,
+      "complete_evidence": {
+        "passed": 44,
+        "denominator": 72,
+        "rate": 0.6111111111111112
+      },
+      "evidence_recall": {
+        "matched": 52,
+        "denominator": 80,
+        "rate": 0.65
+      },
+      "fixed_consumer": {
+        "all_checks_passed": 20,
+        "denominator": 48,
+        "rate": 0.4166666666666667
+      }
+    },
+    {
+      "boundary": "workflow",
+      "budget_chars": 2400,
+      "backend": "book",
+      "arm": "candidate",
+      "unique_queries": 80,
+      "complete_evidence": {
+        "passed": 68,
+        "denominator": 72,
+        "rate": 0.9444444444444444
+      },
+      "evidence_recall": {
+        "matched": 76,
+        "denominator": 80,
+        "rate": 0.95
+      },
+      "fixed_consumer": {
+        "all_checks_passed": 44,
+        "denominator": 48,
+        "rate": 0.9166666666666666
+      }
+    },
+    {
+      "boundary": "components",
+      "budget_chars": 1200,
+      "backend": "book",
+      "arm": "baseline",
+      "unique_queries": 80,
+      "complete_evidence": {
+        "passed": 44,
+        "denominator": 72,
+        "rate": 0.6111111111111112
+      },
+      "evidence_recall": {
+        "matched": 52,
+        "denominator": 80,
+        "rate": 0.65
+      },
+      "fixed_consumer": {
+        "all_checks_passed": 20,
+        "denominator": 48,
+        "rate": 0.4166666666666667
+      }
+    },
+    {
+      "boundary": "components",
+      "budget_chars": 1200,
+      "backend": "book",
+      "arm": "candidate",
+      "unique_queries": 80,
+      "complete_evidence": {
+        "passed": 44,
+        "denominator": 72,
+        "rate": 0.6111111111111112
+      },
+      "evidence_recall": {
+        "matched": 52,
+        "denominator": 80,
+        "rate": 0.65
+      },
+      "fixed_consumer": {
+        "all_checks_passed": 20,
+        "denominator": 48,
+        "rate": 0.4166666666666667
+      }
+    },
+    {
+      "boundary": "components",
+      "budget_chars": 1200,
+      "backend": "billion",
+      "arm": "baseline",
+      "unique_queries": 80,
+      "complete_evidence": {
+        "passed": 64,
+        "denominator": 72,
+        "rate": 0.8888888888888888
+      },
+      "evidence_recall": {
+        "matched": 72,
+        "denominator": 80,
+        "rate": 0.9
+      },
+      "fixed_consumer": {
+        "all_checks_passed": 40,
+        "denominator": 48,
+        "rate": 0.8333333333333334
+      }
+    },
+    {
+      "boundary": "components",
+      "budget_chars": 1200,
+      "backend": "billion",
+      "arm": "candidate",
+      "unique_queries": 80,
+      "complete_evidence": {
+        "passed": 64,
+        "denominator": 72,
+        "rate": 0.8888888888888888
+      },
+      "evidence_recall": {
+        "matched": 72,
+        "denominator": 80,
+        "rate": 0.9
+      },
+      "fixed_consumer": {
+        "all_checks_passed": 40,
+        "denominator": 48,
+        "rate": 0.8333333333333334
+      }
+    },
+    {
+      "boundary": "components",
+      "budget_chars": 2400,
+      "backend": "book",
+      "arm": "baseline",
+      "unique_queries": 80,
+      "complete_evidence": {
+        "passed": 44,
+        "denominator": 72,
+        "rate": 0.6111111111111112
+      },
+      "evidence_recall": {
+        "matched": 52,
+        "denominator": 80,
+        "rate": 0.65
+      },
+      "fixed_consumer": {
+        "all_checks_passed": 20,
+        "denominator": 48,
+        "rate": 0.4166666666666667
+      }
+    },
+    {
+      "boundary": "components",
+      "budget_chars": 2400,
+      "backend": "book",
+      "arm": "candidate",
+      "unique_queries": 80,
+      "complete_evidence": {
+        "passed": 68,
+        "denominator": 72,
+        "rate": 0.9444444444444444
+      },
+      "evidence_recall": {
+        "matched": 76,
+        "denominator": 80,
+        "rate": 0.95
+      },
+      "fixed_consumer": {
+        "all_checks_passed": 44,
+        "denominator": 48,
+        "rate": 0.9166666666666666
+      }
+    },
+    {
+      "boundary": "components",
+      "budget_chars": 2400,
+      "backend": "billion",
+      "arm": "baseline",
+      "unique_queries": 80,
+      "complete_evidence": {
+        "passed": 64,
+        "denominator": 72,
+        "rate": 0.8888888888888888
+      },
+      "evidence_recall": {
+        "matched": 72,
+        "denominator": 80,
+        "rate": 0.9
+      },
+      "fixed_consumer": {
+        "all_checks_passed": 40,
+        "denominator": 48,
+        "rate": 0.8333333333333334
+      }
+    },
+    {
+      "boundary": "components",
+      "budget_chars": 2400,
+      "backend": "billion",
+      "arm": "candidate",
+      "unique_queries": 80,
+      "complete_evidence": {
+        "passed": 64,
+        "denominator": 72,
+        "rate": 0.8888888888888888
+      },
+      "evidence_recall": {
+        "matched": 72,
+        "denominator": 80,
+        "rate": 0.9
+      },
+      "fixed_consumer": {
+        "all_checks_passed": 40,
+        "denominator": 48,
+        "rate": 0.8333333333333334
+      }
+    }
+  ],
+  "paired_complete_evidence": {
+    "workflow_candidate_vs_baseline": {
+      "1200": {
+        "complete_evidence_wins": [
+          "m3:attention-batch:replacement",
+          "m3:attention-online:replacement",
+          "m3:ranking-batch:replacement",
+          "m3:ranking-online:replacement",
+          "m3:routing-batch:replacement",
+          "m3:routing-online:replacement",
+          "m3:training-batch:replacement",
+          "m3:training-online:replacement",
+          "m4:ranking-batch:constraints",
+          "m4:ranking-online:constraints",
+          "m4:routing-batch:constraints",
+          "m4:routing-online:constraints",
+          "m4:training-batch:constraints",
+          "m4:training-online:constraints",
+          "m6:attention-batch:long-gap",
+          "m6:attention-online:long-gap",
+          "m6:ranking-batch:long-gap",
+          "m6:ranking-online:long-gap",
+          "m6:routing-batch:long-gap",
+          "m6:routing-online:long-gap",
+          "m6:training-batch:long-gap",
+          "m6:training-online:long-gap"
+        ],
+        "complete_evidence_losses": []
+      },
+      "2400": {
+        "complete_evidence_wins": [
+          "m3:attention-batch:replacement",
+          "m3:attention-online:replacement",
+          "m3:ranking-batch:replacement",
+          "m3:ranking-online:replacement",
+          "m3:routing-batch:replacement",
+          "m3:routing-online:replacement",
+          "m3:training-batch:replacement",
+          "m3:training-online:replacement",
+          "m4:attention-batch:constraints",
+          "m4:attention-online:constraints",
+          "m4:ranking-batch:constraints",
+          "m4:ranking-online:constraints",
+          "m4:routing-batch:constraints",
+          "m4:routing-online:constraints",
+          "m4:training-batch:constraints",
+          "m4:training-online:constraints",
+          "m6:attention-batch:long-gap",
+          "m6:attention-online:long-gap",
+          "m6:ranking-batch:long-gap",
+          "m6:ranking-online:long-gap",
+          "m6:routing-batch:long-gap",
+          "m6:routing-online:long-gap",
+          "m6:training-batch:long-gap",
+          "m6:training-online:long-gap"
+        ],
+        "complete_evidence_losses": []
+      }
+    },
+    "components_candidate_book_vs_billion": {
+      "1200": {
+        "complete_evidence_wins": [
+          "m6:attention-batch:historical",
+          "m6:attention-online:historical",
+          "m6:ranking-batch:historical",
+          "m6:ranking-online:historical",
+          "m6:routing-batch:historical",
+          "m6:routing-online:historical"
+        ],
+        "complete_evidence_losses": [
+          "m3:attention-batch:replacement",
+          "m3:attention-online:replacement",
+          "m3:ranking-batch:replacement",
+          "m3:ranking-online:replacement",
+          "m3:routing-batch:replacement",
+          "m3:routing-online:replacement",
+          "m3:training-batch:replacement",
+          "m3:training-online:replacement",
+          "m4:attention-batch:constraints",
+          "m4:attention-online:constraints",
+          "m4:ranking-batch:constraints",
+          "m4:ranking-online:constraints",
+          "m4:routing-batch:constraints",
+          "m4:routing-online:constraints",
+          "m4:training-batch:chinese",
+          "m4:training-batch:constraints",
+          "m4:training-online:chinese",
+          "m4:training-online:constraints",
+          "m6:attention-batch:long-gap",
+          "m6:attention-online:long-gap",
+          "m6:ranking-batch:long-gap",
+          "m6:ranking-online:long-gap",
+          "m6:routing-batch:long-gap",
+          "m6:routing-online:long-gap",
+          "m6:training-batch:long-gap",
+          "m6:training-online:long-gap"
+        ]
+      },
+      "2400": {
+        "complete_evidence_wins": [
+          "m6:attention-batch:historical",
+          "m6:attention-online:historical",
+          "m6:ranking-batch:historical",
+          "m6:ranking-online:historical",
+          "m6:routing-batch:historical",
+          "m6:routing-online:historical"
+        ],
+        "complete_evidence_losses": [
+          "m4:training-batch:chinese",
+          "m4:training-online:chinese"
+        ]
+      }
+    }
+  },
+  "targeted_current": {
+    "baseline": {
+      "distinct_cases": 8,
+      "fully_corrected_cases": 0,
+      "calls": 480,
+      "correction_visible_calls": 0
+    },
+    "candidate": {
+      "distinct_cases": 8,
+      "fully_corrected_cases": 8,
+      "calls": 480,
+      "correction_visible_calls": 480
+    },
+    "pooled_timing": {
+      "baseline": {
+        "samples": 480,
+        "p50_ms": 1.5133605,
+        "p95_ms": 2.208118,
+        "p95_method": "nearest_rank",
+        "correction_visible_calls": 0,
+        "distinct_cases": 8
+      },
+      "candidate": {
+        "samples": 480,
+        "p50_ms": 0.796079,
+        "p95_ms": 1.174963,
+        "p95_method": "nearest_rank",
+        "correction_visible_calls": 480,
+        "distinct_cases": 8
+      }
+    }
+  },
+  "workflow_pooled_timing": {
+    "1200": {
+      "baseline": {
+        "samples": 480,
+        "p50_ms": 1.8416085,
+        "p95_ms": 3.562572499999999,
+        "p95_method": "linear_interpolation"
+      },
+      "candidate": {
+        "samples": 480,
+        "p50_ms": 1.8251135,
+        "p95_ms": 3.792747399999999,
+        "p95_method": "linear_interpolation"
+      },
+      "p95_relative_change_percent": 6.460918339205746
+    },
+    "2400": {
+      "baseline": {
+        "samples": 480,
+        "p50_ms": 1.0271625,
+        "p95_ms": 1.9859679499999994,
+        "p95_method": "linear_interpolation"
+      },
+      "candidate": {
+        "samples": 480,
+        "p50_ms": 1.1171285000000002,
+        "p95_ms": 2.056307299999998,
+        "p95_method": "linear_interpolation"
+      },
+      "p95_relative_change_percent": 3.54181697645215
+    }
+  },
+  "confirmed_call_counts": {
+    "targeted": 2880,
+    "workflow": 7680,
+    "external_components": 1920
+  },
+  "small_budget_example": {
+    "case_id": "m3:routing-online:replacement",
+    "backend": "book",
+    "arm": "candidate",
+    "boundary": "components",
+    "budget_chars": 1200,
+    "native_order": [
+      {
+        "session_id": "maintenance-3-1",
+        "body_chars": 361
+      },
+      {
+        "session_id": "maintenance-3-0",
+        "body_chars": 361
+      },
+      {
+        "session_id": "initial-design",
+        "body_chars": 172
+      },
+      {
+        "session_id": "replacement-design",
+        "body_chars": 230
+      },
+      {
+        "session_id": "active-config",
+        "body_chars": 143
+      }
+    ],
+    "packed_sessions": [
+      "maintenance-3-1",
+      "maintenance-3-0",
+      "initial-design"
+    ],
+    "omitted_for_budget": [
+      "replacement-design",
+      "active-config"
+    ]
+  },
+  "identities": {
+    "runtime_sha256": {
+      "baseline": "4f84e9f8e7fa0ee7c9abe1910f2df5622d0414fb5f3b6e218544161f8a25dd81",
+      "candidate": "107d5d7654a201d074decaa1c0b0e2b80c8f4cd409cdb37f4fb7d490a34da8ef"
+    },
+    "dataset_sha256": "87e8ccad3510fb7e8a4c68c9fa3f284473abf8381ef6444ad179e3d4196b3ac3",
+    "upstream_repository": "ranxianglei/billion-context",
+    "upstream_commit": "9674cfafbc78c50245ae0d887483d3d6ce880c15",
+    "source_receipts": [
+      {
+        "path": "scripts/summarize_engineering_memory.py",
+        "stored_sha256": "d6e2085c0aaba1c6ba20911ec3e9601498c893078fc93f26d32397f7dd174d6a",
+        "decoded_sha256": "d6e2085c0aaba1c6ba20911ec3e9601498c893078fc93f26d32397f7dd174d6a"
+      },
+      {
+        "path": "benchmarks/engineering_workflow.py",
+        "stored_sha256": "3d1c53ef016a7143c86cf1326f2bf5b5cf7260863e91225d9a7e09a9773cdc6e",
+        "decoded_sha256": "3d1c53ef016a7143c86cf1326f2bf5b5cf7260863e91225d9a7e09a9773cdc6e"
+      },
+      {
+        "path": "benchmarks/engineering_components.py",
+        "stored_sha256": "48b2f7752f80622296b9ace09d4941ae5396296d06cf00f39afe8ea0764be5e7",
+        "decoded_sha256": "48b2f7752f80622296b9ace09d4941ae5396296d06cf00f39afe8ea0764be5e7"
+      },
+      {
+        "path": "benchmarks/current_turn_replay.py",
+        "stored_sha256": "99c27f7836f1bb62f2746fb92cfc0384f7975d93b764739dd7b0672eb905b015",
+        "decoded_sha256": "99c27f7836f1bb62f2746fb92cfc0384f7975d93b764739dd7b0672eb905b015"
+      }
+    ],
+    "result_receipts": [
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/summary.json",
+        "stored_sha256": "6f6c900a0876cb0ae56203d80498dbbb743279aff0a9693b2a1cea32b713833d",
+        "decoded_sha256": "6f6c900a0876cb0ae56203d80498dbbb743279aff0a9693b2a1cea32b713833d"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/execution.json",
+        "stored_sha256": "421285685b2d55e89c768f9bebebd153a33ba37b48b95a206b9c77e4febcaf92",
+        "decoded_sha256": "421285685b2d55e89c768f9bebebd153a33ba37b48b95a206b9c77e4febcaf92"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/1-baseline-targeted.json.gz",
+        "stored_sha256": "276c2ff5a046ea7fc15aee646c8fc02d5f7aa64de968bfe075fda4adc4cc49d2",
+        "decoded_sha256": "86d60ba9118f6631b294b6fad95b060ecacb203a92d4d8ed8687ed9b6df55a63"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/1-baseline-workflow/report.json",
+        "stored_sha256": "f8c948e426bb1e0fb62f061e81f63e23a51adce00f1b4a5fab06415a283b2031",
+        "decoded_sha256": "f8c948e426bb1e0fb62f061e81f63e23a51adce00f1b4a5fab06415a283b2031"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/1-baseline-workflow/raw.jsonl.gz",
+        "stored_sha256": "a39c94e0bdd8fb72dc5d5bb95853d70f9e02cdd372b06a959f9d9c1930892820",
+        "decoded_sha256": "8607eae8b94a4f82f54e013d204a82382eefd4559f38919e90fd300571573e55"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/1-baseline-workflow/dataset.json.gz",
+        "stored_sha256": "95e0a1fc1be3a5f26ec067d538476466aa97bc7aa40f084617e6aabbee5b12af",
+        "decoded_sha256": "160bad8fe452ddc3de3538f9c416f5a69b657107d14c3dedb2da8ac4f13c2de2"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/1-baseline-components/report.json",
+        "stored_sha256": "faab31e4bcf708e8685f4c67ffb2ca4819495a54b2611c88b71c952157db4764",
+        "decoded_sha256": "faab31e4bcf708e8685f4c67ffb2ca4819495a54b2611c88b71c952157db4764"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/1-baseline-components/raw.jsonl.gz",
+        "stored_sha256": "3728da5b7e1015bb19b1ba02bf2c30f1d843ac7b91bb02e43aa01d6d457273e9",
+        "decoded_sha256": "fb98af6767cad3cadbc310a0a5cfb779a44bb7a38091ebce71c75b393b5aa994"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/1-baseline-components/dataset.json.gz",
+        "stored_sha256": "95e0a1fc1be3a5f26ec067d538476466aa97bc7aa40f084617e6aabbee5b12af",
+        "decoded_sha256": "160bad8fe452ddc3de3538f9c416f5a69b657107d14c3dedb2da8ac4f13c2de2"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/1-baseline-components/native.jsonl.gz",
+        "stored_sha256": "5c0aacce9672dfa857d8c4affb55c6da56ef12dcc47897cc3b0403fcf5e0cccd",
+        "decoded_sha256": "5cbcf05bd6836e5c6ec48688b9c8a668d37a1d02712e206656b3a298cf08a117"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/2-candidate-targeted.json.gz",
+        "stored_sha256": "20ffb340c538770984a9eb5632a8992eb78487282507fb0a1ee94f1cd54bb136",
+        "decoded_sha256": "da18c68bab97093058e9cee0a08eab0cb1671c39450c16649bafefa1ee591c6b"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/2-candidate-workflow/report.json",
+        "stored_sha256": "4d6defc081b31e921e249b740e6ca62d4ea30e468c62fbfe19a306bd4d7c8f81",
+        "decoded_sha256": "4d6defc081b31e921e249b740e6ca62d4ea30e468c62fbfe19a306bd4d7c8f81"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/2-candidate-workflow/raw.jsonl.gz",
+        "stored_sha256": "e07294ab65068e43023e909623a21c22d3eef9d81c268b56debaa9a1a00e2ec4",
+        "decoded_sha256": "aa2590ecd400c2dc9f14c4e71f91a0e44bf7075a1f42780900d40434318117e1"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/2-candidate-workflow/dataset.json.gz",
+        "stored_sha256": "95e0a1fc1be3a5f26ec067d538476466aa97bc7aa40f084617e6aabbee5b12af",
+        "decoded_sha256": "160bad8fe452ddc3de3538f9c416f5a69b657107d14c3dedb2da8ac4f13c2de2"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/2-candidate-components/report.json",
+        "stored_sha256": "bf4025d8b86e64efd4ffbf95596133781731cfc461be96ffe0362adbcd571bee",
+        "decoded_sha256": "bf4025d8b86e64efd4ffbf95596133781731cfc461be96ffe0362adbcd571bee"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/2-candidate-components/raw.jsonl.gz",
+        "stored_sha256": "91f3a565f6f55f87c211fe86629cd803b5ace7fd7f760c029bbfad49518c1d0a",
+        "decoded_sha256": "993f73fce9072cebaa5b18dc3f1d06e92369c7ba7c5ec7fb2eb391577b8f32e4"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/2-candidate-components/dataset.json.gz",
+        "stored_sha256": "95e0a1fc1be3a5f26ec067d538476466aa97bc7aa40f084617e6aabbee5b12af",
+        "decoded_sha256": "160bad8fe452ddc3de3538f9c416f5a69b657107d14c3dedb2da8ac4f13c2de2"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/2-candidate-components/native.jsonl.gz",
+        "stored_sha256": "87096d84214617aa050e5d28553859d39729c92df339e08acdfa027af59881cd",
+        "decoded_sha256": "5a94c930b111fd84ab2a4ab4924bf4165419ffa52acc2a42539a6648c65239bb"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/3-candidate-targeted.json.gz",
+        "stored_sha256": "86d7c4265193b1da216da75eed03c65573e5557be6321fba0dffa8590a5cc420",
+        "decoded_sha256": "f8ec43e407f41721c0ec8c1548cb3eb2813265fc70bc0de437a7ebacd23619da"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/3-candidate-workflow/report.json",
+        "stored_sha256": "3925fa9449aee21a0ac96e91c2e5d9778b329eb064815bb37792688c5f6b45ac",
+        "decoded_sha256": "3925fa9449aee21a0ac96e91c2e5d9778b329eb064815bb37792688c5f6b45ac"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/3-candidate-workflow/raw.jsonl.gz",
+        "stored_sha256": "cb119bde8293f870a1511aad19310888f6c9e0cd2cf1e82f25e1d664b77fd10c",
+        "decoded_sha256": "349260cd2162732a64abfdfe3400b572afa1a61ce92abb30d9c1acb418a6d793"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/3-candidate-workflow/dataset.json.gz",
+        "stored_sha256": "95e0a1fc1be3a5f26ec067d538476466aa97bc7aa40f084617e6aabbee5b12af",
+        "decoded_sha256": "160bad8fe452ddc3de3538f9c416f5a69b657107d14c3dedb2da8ac4f13c2de2"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/3-candidate-components/report.json",
+        "stored_sha256": "456e88718cd2f530464e4b09dbc317d5eff3129af8086209095af087a9355b4c",
+        "decoded_sha256": "456e88718cd2f530464e4b09dbc317d5eff3129af8086209095af087a9355b4c"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/3-candidate-components/raw.jsonl.gz",
+        "stored_sha256": "d949ff1d30f87f09e0bd662d5ebf7dace22923f8c42cd8ed26d754ad0cfb8795",
+        "decoded_sha256": "8dda302a51f50ca97dbb7604c39bea940f11feb0bb2976c653c9ef669a6f01d0"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/3-candidate-components/dataset.json.gz",
+        "stored_sha256": "95e0a1fc1be3a5f26ec067d538476466aa97bc7aa40f084617e6aabbee5b12af",
+        "decoded_sha256": "160bad8fe452ddc3de3538f9c416f5a69b657107d14c3dedb2da8ac4f13c2de2"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/3-candidate-components/native.jsonl.gz",
+        "stored_sha256": "2a55a87d7341803740774a886cb7d295d5d451770502f210275efda0b5fc3e7d",
+        "decoded_sha256": "93d02463541f4510cf5e94bf2ff9aff9bb573e93af3d3cc96ec8665689a982b8"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/4-baseline-targeted.json.gz",
+        "stored_sha256": "c14eb6b9e39dcc4ef786f242f4f573a0a3f5e1c79c3cf41642333c4f68e7b4c8",
+        "decoded_sha256": "9a111623da3b50c736e7b43be68b527ddbeef70c2e123109580d30aea70f6f51"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/4-baseline-workflow/report.json",
+        "stored_sha256": "366cd0525580ad9422746f611828b6348e15986055eca0ca3f1655d23cb627e5",
+        "decoded_sha256": "366cd0525580ad9422746f611828b6348e15986055eca0ca3f1655d23cb627e5"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/4-baseline-workflow/raw.jsonl.gz",
+        "stored_sha256": "5fcb8355a5984ecb26cbd328e517b87b870274ebc5d2dc34d09f3ef14c740f0b",
+        "decoded_sha256": "8b19e6339ae19d48f4a1cc96ab94c8b99278b6d8575148efb0a7b4504e7395e2"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/4-baseline-workflow/dataset.json.gz",
+        "stored_sha256": "95e0a1fc1be3a5f26ec067d538476466aa97bc7aa40f084617e6aabbee5b12af",
+        "decoded_sha256": "160bad8fe452ddc3de3538f9c416f5a69b657107d14c3dedb2da8ac4f13c2de2"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/4-baseline-components/report.json",
+        "stored_sha256": "661e29ca8bc66ed0b997f85fa1873be773f2419c6960556af6e30a482d4cf85a",
+        "decoded_sha256": "661e29ca8bc66ed0b997f85fa1873be773f2419c6960556af6e30a482d4cf85a"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/4-baseline-components/raw.jsonl.gz",
+        "stored_sha256": "2fff18ed3c08c61ace10cc0e81b1193a70c7a7f7dc11a157312dd690078f2fdd",
+        "decoded_sha256": "7e54faf21204689849c8496f4ee30f2d94fb5f040ee5d2f684c01ac0dc46e88f"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/4-baseline-components/dataset.json.gz",
+        "stored_sha256": "95e0a1fc1be3a5f26ec067d538476466aa97bc7aa40f084617e6aabbee5b12af",
+        "decoded_sha256": "160bad8fe452ddc3de3538f9c416f5a69b657107d14c3dedb2da8ac4f13c2de2"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/4-baseline-components/native.jsonl.gz",
+        "stored_sha256": "07530ac07e4f37b687150b3c5901a4a5c42438773b63f4aa2e163b00fcdf888a",
+        "decoded_sha256": "b19004106a914b58ef7f8db64a605eb325e6f5a299d4a6d47b449957700221e4"
+      }
+    ],
+    "component_document_receipts": [
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/1-baseline-components/documents-1.json.gz",
+        "stored_sha256": "14b3ed763890d17437ce14b1422e89e730b70799b5643d3f134c6fc42bded66f",
+        "decoded_sha256": "d382fde96ec88902308a84b09e7bf27be9fc89d33a450ffbeb2c30be729682fe"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/1-baseline-components/documents-2.json.gz",
+        "stored_sha256": "3e287c0b7bfc18b7079bbc0df2adbdcce3864146e4df4c1d10e0b94152e2ce49",
+        "decoded_sha256": "ac13a5c68b5a332dff00b25ed124316616a4076fe1af4b525997e60e837122f7"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/1-baseline-components/documents-3.json.gz",
+        "stored_sha256": "ece9a96a81009ca816e96dc1382d6763001de8f7fd6dae21e874c9efd5c40ccd",
+        "decoded_sha256": "ea6041394a5d0f0949e301d35134f320ae42af80ce93743c2edbb003e81d7e65"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/1-baseline-components/documents-4.json.gz",
+        "stored_sha256": "89385481f2016e70540dcc20c6255b04b9a35e574ccc134b274431db99ad7ab6",
+        "decoded_sha256": "21f86f38dd29e45aa2d477a43bc0a619033e9ea1696b1f17b3450b73af9131a6"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/1-baseline-components/documents-5.json.gz",
+        "stored_sha256": "a64e733a4dba740449e2f3c5f897b55306acea1a2d74f9404a2a596e19798e7b",
+        "decoded_sha256": "5493a934504dae7ebe47661c62ea86a616af6bbd673688a6035eac9268c4d0a3"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/1-baseline-components/documents-6.json.gz",
+        "stored_sha256": "d18434566a570890524c55e46aa6e9a804fea7c335819df69142c39d3503e420",
+        "decoded_sha256": "ebbdcaecbb1805058e1bfc12c0e75599328b0f8e28fccc4f069bda26e651a56c"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/2-candidate-components/documents-1.json.gz",
+        "stored_sha256": "14b3ed763890d17437ce14b1422e89e730b70799b5643d3f134c6fc42bded66f",
+        "decoded_sha256": "d382fde96ec88902308a84b09e7bf27be9fc89d33a450ffbeb2c30be729682fe"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/2-candidate-components/documents-2.json.gz",
+        "stored_sha256": "3e287c0b7bfc18b7079bbc0df2adbdcce3864146e4df4c1d10e0b94152e2ce49",
+        "decoded_sha256": "ac13a5c68b5a332dff00b25ed124316616a4076fe1af4b525997e60e837122f7"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/2-candidate-components/documents-3.json.gz",
+        "stored_sha256": "ece9a96a81009ca816e96dc1382d6763001de8f7fd6dae21e874c9efd5c40ccd",
+        "decoded_sha256": "ea6041394a5d0f0949e301d35134f320ae42af80ce93743c2edbb003e81d7e65"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/2-candidate-components/documents-4.json.gz",
+        "stored_sha256": "89385481f2016e70540dcc20c6255b04b9a35e574ccc134b274431db99ad7ab6",
+        "decoded_sha256": "21f86f38dd29e45aa2d477a43bc0a619033e9ea1696b1f17b3450b73af9131a6"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/2-candidate-components/documents-5.json.gz",
+        "stored_sha256": "a64e733a4dba740449e2f3c5f897b55306acea1a2d74f9404a2a596e19798e7b",
+        "decoded_sha256": "5493a934504dae7ebe47661c62ea86a616af6bbd673688a6035eac9268c4d0a3"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/2-candidate-components/documents-6.json.gz",
+        "stored_sha256": "d18434566a570890524c55e46aa6e9a804fea7c335819df69142c39d3503e420",
+        "decoded_sha256": "ebbdcaecbb1805058e1bfc12c0e75599328b0f8e28fccc4f069bda26e651a56c"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/3-candidate-components/documents-1.json.gz",
+        "stored_sha256": "14b3ed763890d17437ce14b1422e89e730b70799b5643d3f134c6fc42bded66f",
+        "decoded_sha256": "d382fde96ec88902308a84b09e7bf27be9fc89d33a450ffbeb2c30be729682fe"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/3-candidate-components/documents-2.json.gz",
+        "stored_sha256": "3e287c0b7bfc18b7079bbc0df2adbdcce3864146e4df4c1d10e0b94152e2ce49",
+        "decoded_sha256": "ac13a5c68b5a332dff00b25ed124316616a4076fe1af4b525997e60e837122f7"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/3-candidate-components/documents-3.json.gz",
+        "stored_sha256": "ece9a96a81009ca816e96dc1382d6763001de8f7fd6dae21e874c9efd5c40ccd",
+        "decoded_sha256": "ea6041394a5d0f0949e301d35134f320ae42af80ce93743c2edbb003e81d7e65"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/3-candidate-components/documents-4.json.gz",
+        "stored_sha256": "89385481f2016e70540dcc20c6255b04b9a35e574ccc134b274431db99ad7ab6",
+        "decoded_sha256": "21f86f38dd29e45aa2d477a43bc0a619033e9ea1696b1f17b3450b73af9131a6"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/3-candidate-components/documents-5.json.gz",
+        "stored_sha256": "a64e733a4dba740449e2f3c5f897b55306acea1a2d74f9404a2a596e19798e7b",
+        "decoded_sha256": "5493a934504dae7ebe47661c62ea86a616af6bbd673688a6035eac9268c4d0a3"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/3-candidate-components/documents-6.json.gz",
+        "stored_sha256": "d18434566a570890524c55e46aa6e9a804fea7c335819df69142c39d3503e420",
+        "decoded_sha256": "ebbdcaecbb1805058e1bfc12c0e75599328b0f8e28fccc4f069bda26e651a56c"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/4-baseline-components/documents-1.json.gz",
+        "stored_sha256": "14b3ed763890d17437ce14b1422e89e730b70799b5643d3f134c6fc42bded66f",
+        "decoded_sha256": "d382fde96ec88902308a84b09e7bf27be9fc89d33a450ffbeb2c30be729682fe"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/4-baseline-components/documents-2.json.gz",
+        "stored_sha256": "3e287c0b7bfc18b7079bbc0df2adbdcce3864146e4df4c1d10e0b94152e2ce49",
+        "decoded_sha256": "ac13a5c68b5a332dff00b25ed124316616a4076fe1af4b525997e60e837122f7"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/4-baseline-components/documents-3.json.gz",
+        "stored_sha256": "ece9a96a81009ca816e96dc1382d6763001de8f7fd6dae21e874c9efd5c40ccd",
+        "decoded_sha256": "ea6041394a5d0f0949e301d35134f320ae42af80ce93743c2edbb003e81d7e65"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/4-baseline-components/documents-4.json.gz",
+        "stored_sha256": "89385481f2016e70540dcc20c6255b04b9a35e574ccc134b274431db99ad7ab6",
+        "decoded_sha256": "21f86f38dd29e45aa2d477a43bc0a619033e9ea1696b1f17b3450b73af9131a6"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/4-baseline-components/documents-5.json.gz",
+        "stored_sha256": "a64e733a4dba740449e2f3c5f897b55306acea1a2d74f9404a2a596e19798e7b",
+        "decoded_sha256": "5493a934504dae7ebe47661c62ea86a616af6bbd673688a6035eac9268c4d0a3"
+      },
+      {
+        "path": "benchmarks/results/engineering-memory-20261115/final/4-baseline-components/documents-6.json.gz",
+        "stored_sha256": "d18434566a570890524c55e46aa6e9a804fea7c335819df69142c39d3503e420",
+        "decoded_sha256": "ebbdcaecbb1805058e1bfc12c0e75599328b0f8e28fccc4f069bda26e651a56c"
+      }
+    ]
+  },
+  "compression_note": "Source document bundles were losslessly gzip-compressed by the parent after the recomputation. Identity receipts accept plaintext or gzip and retain both stored-byte and decoded-byte SHA-256. No new measurement was performed for this receipt.",
+  "limitations": [
+    "Synthetic development fixtures informed the implementation; not an independent holdout or real-user study.",
+    "Fixed consumers apply handwritten policy variants; no LLM-generated code or time-to-correct-patch was evaluated.",
+    "80 queries, 72 answerable cases, 80 evidence requirements and 48 consumer cases are distinct denominators; repeated timing calls are not independent quality observations.",
+    "Common full-block component packing differs from native bounded excerpt assembly; their success rates must not be interchanged.",
+    "Book in-process recall and Billion native-kernel/process-roundtrip timing boundaries differ; no whole-product speed ratio follows.",
+    "This audit found zero discrepancies within the checked saved records; it does not certify universal correctness, untouched-source validity outside the recorded manifests, statistical significance or general superiority.",
+    "The summarizer relies partly on per-report quality summaries; this audit additionally recomputed those summaries from saved responses and found them consistent.",
+    "Full test-suite outcome and real Agent replay are outside this saved-result recomputation."
+  ]
+}

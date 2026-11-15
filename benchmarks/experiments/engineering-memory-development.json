@@ -1,0 +1,62 @@
+{
+  "schema": "engineering-memory-development-plan-v1",
+  "created_date": "2026-11-15",
+  "baseline_commit": "baa8c23ef1290198e4f390500da65758db131bff",
+  "evidence_level": "synthetic_development; observations already informed candidate design; not preregistered holdout",
+  "goal": "Reduce time to a correct, tested engineering change across long-running similar projects.",
+  "this_iteration": [
+    "Source-backed same-session current-turn ranking",
+    "Complete later-turn excerpt when a full page does not fit",
+    "Evaluate exact duplicate evidence crowding as a separate candidate"
+  ],
+  "candidate_selection": {
+    "source_and_budget_errors": 0,
+    "ordinary_and_historical_control_outputs": "unchanged except cache revision identity and timing",
+    "engineering_quality": "report all category changes and reject aggregate or category regressions unless separately justified",
+    "latency": "report raw timing, p50, p95 and every regression; no universal speedup gate or product speed claim",
+    "preserve": "baseline, intermediate failures, frozen evaluators, exact runtime hashes, per-case evidence"
+  },
+  "measurements": {
+    "targeted_replay": {
+      "command": "python -m benchmarks.current_turn_replay",
+      "cases": 24,
+      "current_cases": 8,
+      "controls": 16,
+      "budget_chars": 500,
+      "limit": 1,
+      "repeats": 30,
+      "order": [
+        "baseline",
+        "candidate",
+        "candidate",
+        "baseline"
+      ]
+    },
+    "engineering_workflow": {
+      "command": "python -m benchmarks.engineering_workflow",
+      "projects": 8,
+      "families": 4,
+      "checkpoints": 6,
+      "cases": 80,
+      "budgets_chars": [
+        1200,
+        2400
+      ],
+      "repeats": 3,
+      "arms": [
+        "no_memory",
+        "recent_history",
+        "flat",
+        "book"
+      ],
+      "scope": "same visible prefix and project; recent_history has different packing and no top-5 cap, so this is a policy diagnostic"
+    },
+    "external_component": "Separate common-page/common-packer comparison with pinned actual upstream search; report interface boundaries; no LLM/whole-product claim"
+  },
+  "future_e2e_gate": "Held-out real repository families, chronological replay, identical model/tool budget, hidden tests, time to correct patch and cost per successful task; not executed in this iteration",
+  "frozen_inputs_sha256": {
+    "benchmarks/engineering_workflow.py": "3d1c53ef016a7143c86cf1326f2bf5b5cf7260863e91225d9a7e09a9773cdc6e",
+    "tests/test_engineering_workflow.py": "775f9fe51ccf0be8ccd143db654255e2447941991a71454fb4b5e929dfc47578",
+    "benchmarks/current_turn_replay.py": "99c27f7836f1bb62f2746fb92cfc0384f7975d93b764739dd7b0672eb905b015"
+  }
+}

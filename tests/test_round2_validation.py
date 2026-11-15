@@ -264,6 +264,16 @@ class RoundTwoValidationTests(unittest.TestCase):
         plan = json.loads(PLAN.read_bytes())
         original_raw = evaluator.INITIAL_BINDING.read_bytes()
         original = json.loads(original_raw)
+        registration = json.loads(evaluator.RECOVERY.read_bytes())
+        # This unit fixture models the registered historical recovery, not an
+        # attempt to resume it from today's expanded benchmark directory. Read
+        # real hashes for its frozen files; independent later evaluators do not
+        # belong to that fixture. The production gate still scans every file.
+        frozen_names = (set(original["evaluator_sha256"])
+                        | set(registration["helper_changes"])
+                        | {str(path.relative_to(ROOT)) for path in
+                           (evaluator.INITIAL_BINDING, evaluator.RECOVERY)})
+        frozen_sources = {name: sha(ROOT / name) for name in frozen_names}
         checkpoint_path = ROOT / "benchmarks/reports/round2-43201620535-1-checkpoint.json"
         checkpoint_raw = checkpoint_path.read_bytes()
         # Unit CI may use a shallow checkout. Supply immutable Git fixture bytes
@@ -278,14 +288,30 @@ class RoundTwoValidationTests(unittest.TestCase):
             "initial_binding_sha256": evaluator.INITIAL_BINDING_SHA256,
             "candidate_first_frozen_at": original["frozen_at"],
             "recovery_registration_sha256": sha(evaluator.RECOVERY)}
-        with patch("subprocess.check_output", side_effect=git_object):
+        with patch("subprocess.check_output", side_effect=git_object), patch.object(
+                evaluator, "evaluator_sources", return_value=frozen_sources):
             evaluator.recovery_inputs(plan, binding)
             changed = {**binding, "optional_semantic": False}
             with self.assertRaisesRegex(ValueError, "does not preserve"):
                 evaluator.recovery_inputs(plan, changed)
+            # Isolating the historical fixture must not turn an altered file
+            # inventory or scoring helper into an accepted recovery.
+            extra = {**frozen_sources, "benchmarks/unregistered.py": "0" * 64}
+            missing = {name: value for name, value in frozen_sources.items()
+                       if name != "benchmarks/run.py"}
+            for inventory in (extra, missing):
+                with self.subTest(inventory="extra" if inventory is extra else "missing"), patch.object(
+                        evaluator, "evaluator_sources", return_value=inventory):
+                    with self.assertRaisesRegex(ValueError, "Unregistered evaluator file"):
+                        evaluator.recovery_inputs(plan, binding)
+            altered = {**frozen_sources, "benchmarks/run.py": "0" * 64}
+            with patch.object(evaluator, "evaluator_sources", return_value=altered):
+                with self.assertRaisesRegex(ValueError, "scoring, ranking or unrelated helper"):
+                    evaluator.recovery_inputs(plan, binding)
         def changed_object(command, **kwargs):
             return b"changed checkpoint" if command[2].startswith(evaluator.INITIAL_RESULTS_COMMIT + ":") else git_object(command, **kwargs)
-        with patch("subprocess.check_output", side_effect=changed_object):
+        with patch("subprocess.check_output", side_effect=changed_object), patch.object(
+                evaluator, "evaluator_sources", return_value=frozen_sources):
             with self.assertRaisesRegex(ValueError, "checkpoint differs from its immutable"):
                 evaluator.recovery_inputs(plan, binding)
 

@@ -1,0 +1,240 @@
+{
+  "schema": "engineering-memory-validation-v1",
+  "recorded_at_utc": "2026-11-15T02:12:51.050277+00:00",
+  "local_tested_commit": "e1a3f5e96bf40026664c606e0671548c2380e03b",
+  "note": "The local tested commit identifies the working checkout. Publication may use a GitHub-created commit with the same final tree; runtime and test-file hashes are the stable validation identities.",
+  "command": "PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v",
+  "exit_code": 0,
+  "discovered_tests": 991,
+  "passed_tests": 976,
+  "skipped_tests": 15,
+  "failures": 0,
+  "errors": 0,
+  "elapsed_seconds": 81.734,
+  "skips": [
+    {
+      "test": "test_file_hash_failure_prevents_any_parquet_decode (test_round3_data.ParquetTests.test_file_hash_failure_prevents_any_parquet_decode)",
+      "reason": "optional PyArrow is needed for artificial Parquet"
+    },
+    {
+      "test": "test_freeze_load_requires_committed_manifest_and_recomputes_all_fields (test_round3_data.ParquetTests.test_freeze_load_requires_committed_manifest_and_recomputes_all_fields)",
+      "reason": "optional PyArrow is needed for artificial Parquet"
+    },
+    {
+      "test": "test_id_column_precedes_filtered_conversion_and_all_context_is_retained (test_round3_data.ParquetTests.test_id_column_precedes_filtered_conversion_and_all_context_is_retained)",
+      "reason": "optional PyArrow is needed for artificial Parquet"
+    },
+    {
+      "test": "test_overwrite_and_binding_mismatch_stop_before_private_input_read (test_round3_data.ParquetTests.test_overwrite_and_binding_mismatch_stop_before_private_input_read)",
+      "reason": "optional PyArrow is needed for artificial Parquet"
+    },
+    {
+      "test": "test_verified_byte_snapshot_survives_path_replacement_between_reads (test_round3_data.ParquetTests.test_verified_byte_snapshot_survives_path_replacement_between_reads)",
+      "reason": "optional PyArrow is needed for artificial Parquet"
+    },
+    {
+      "test": "test_wrong_or_duplicate_filtered_rows_fail_before_converter (test_round3_data.ParquetTests.test_wrong_or_duplicate_filtered_rows_fail_before_converter)",
+      "reason": "optional PyArrow is needed for artificial Parquet"
+    },
+    {
+      "test": "test_file_hash_failure_prevents_any_parquet_decode (test_round4_data.ParquetTests.test_file_hash_failure_prevents_any_parquet_decode)",
+      "reason": "optional PyArrow is needed for artificial Parquet"
+    },
+    {
+      "test": "test_freeze_load_requires_committed_manifest_and_recomputes_all_fields (test_round4_data.ParquetTests.test_freeze_load_requires_committed_manifest_and_recomputes_all_fields)",
+      "reason": "optional PyArrow is needed for artificial Parquet"
+    },
+    {
+      "test": "test_id_column_precedes_filtered_conversion_and_all_context_is_retained (test_round4_data.ParquetTests.test_id_column_precedes_filtered_conversion_and_all_context_is_retained)",
+      "reason": "optional PyArrow is needed for artificial Parquet"
+    },
+    {
+      "test": "test_overwrite_and_binding_mismatch_stop_before_private_input_read (test_round4_data.ParquetTests.test_overwrite_and_binding_mismatch_stop_before_private_input_read)",
+      "reason": "optional PyArrow is needed for artificial Parquet"
+    },
+    {
+      "test": "test_verified_byte_snapshot_survives_path_replacement_between_reads (test_round4_data.ParquetTests.test_verified_byte_snapshot_survives_path_replacement_between_reads)",
+      "reason": "optional PyArrow is needed for artificial Parquet"
+    },
+    {
+      "test": "test_wrong_or_duplicate_filtered_rows_fail_before_converter (test_round4_data.ParquetTests.test_wrong_or_duplicate_filtered_rows_fail_before_converter)",
+      "reason": "optional PyArrow is needed for artificial Parquet"
+    },
+    {
+      "test": "test_cache_isolation_no_lexical_terms_and_budget_zero (test_semantic.SemanticVectorRoutingTests.test_cache_isolation_no_lexical_terms_and_budget_zero)",
+      "reason": "optional semantic vector tests need NumPy"
+    },
+    {
+      "test": "test_corrupt_vector_fails_instead_of_returning_unverified_candidates (test_semantic.SemanticVectorRoutingTests.test_corrupt_vector_fails_instead_of_returning_unverified_candidates)",
+      "reason": "optional semantic vector tests need NumPy"
+    },
+    {
+      "test": "test_scope_before_candidate_limit_and_original_source_spans (test_semantic.SemanticVectorRoutingTests.test_scope_before_candidate_limit_and_original_source_spans)",
+      "reason": "optional semantic vector tests need NumPy"
+    }
+  ],
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "sqlite": "3.53.1",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "packages": {
+      "ai-memory-book": "0.3.4",
+      "tiktoken": "0.12.0",
+      "mcp": "1.30.0",
+      "pydantic": "2.14.3"
+    }
+  },
+  "runtime": {
+    "imported_runtime_root": "/workspace/scratch/2421a8727f3c/AI-Memory-Book/src/memory_book",
+    "files": {
+      "__init__.py": "b53371564cf34cc53141de9df5de4e4726dd7f338ab14217a351467ae86d0319",
+      "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+      "cli.py": "1ef7f9052b4806f23d8ef4571db5f67d592fb8d62905c62dfc0e4ec7c099e2b4",
+      "clients.py": "c87c2ebd4dbd6b193b186f493586f53183a38e8108fd7011df3aa474f9b2058f",
+      "formats.py": "9b03524f6ae77aa1f0b73b4b74266da506421919135a6975ea692cac30eb48d1",
+      "importers.py": "655b39b6d1ab82d53a9f7635170b94225b9b7da81cd68dc4acfe2d43a304685c",
+      "integration.py": "88ed9bf5a0ee90b93516dc9ded0e0a8f1459354f25fbcc5afe70197b9444c6c5",
+      "mcp_server.py": "f118cfa79026dd60a7d97ba30ce31c6ab62bd2ca222c411f48f3197c8a62616a",
+      "paths.py": "d7865c48e2c09eca14c00b20efd306f591d3876fa5c19ba39c2716eb09be7137",
+      "segmentation.py": "773cb62777bb11a66f1d2318bd75601f9ac38ea0fb6e7a534c1d8844a1a16e75",
+      "semantic.py": "41df86bced1b613deea2f1b1361eba9f32c3786f5185a06253fbfd32270ac91e",
+      "service.py": "55bd05f45cafc5dcd6c1fc5ceceade85f005a85a850b908c7bb155cff5a3584f",
+      "store.py": "08fccb9c53198b77b770d9f21fc34685287494c8617d2f662584d15deab2f563",
+      "sync.py": "89b2ac4b30b9b14ac564c3d328a51fbba97b2efc8a8dd1997892fc4142501291",
+      "text.py": "e2b5dff3fc5527ffd7098e57d5f6dd81e954618c311a541ecd3794fdd9731389",
+      "token_budget.py": "0af09aaae1219e978f688c3aa4bb6c180c0b435bdb4a3113e5c3758b19b290ed",
+      "web.py": "4e2cbfa33434322c78f57624c8faa32f4be9fb7fc29c8ffc4ed916e244446dcc"
+    },
+    "sha256": "107d5d7654a201d074decaa1c0b0e2b80c8f4cd409cdb37f4fb7d490a34da8ef"
+  },
+  "test_file_sha256": {
+    "tests/test_anchor_fusion.py": "939bf037ccc8e12852ad3b69086aca5ca747cdbbcd15b7ba097fcbc1bab74505",
+    "tests/test_answer_eval.py": "f410c910338407640916fbe81f41c94905e2d0be0b614f83b52cc6b93c560ec0",
+    "tests/test_answer_http_errors.py": "a170328f749d860021010c39cb4936ed42b087489e63f326549a955e9ae057a1",
+    "tests/test_answer_resume.py": "2f5c5d414a91be62a12b36e96214549b733bc1ea4f5278d3bd422f6323bb7dba",
+    "tests/test_answer_source_options.py": "545595972b8b93ee393cec3ff14efd31da66ac160f5e752ff7bbbab102554aa3",
+    "tests/test_automatic_final_validation.py": "c5ac6e47078b697e4d88e6402f3daa6cb3dcb5b45720f9aa45f238636922c61d",
+    "tests/test_benchmark.py": "b7f0e20ec8f113338351c505d63d3b9d21376c0d4630fb7cc94e9071d8491906",
+    "tests/test_benchmark_gates.py": "da2886488735f381592ef3e022678f37570ebe76bcccaa505bccb48d4e5ed606",
+    "tests/test_benchmark_resume.py": "0aa05da8ec390fa69aeaf57dd1593bfc5e106c91839b07d186a3b4d36b8e1086",
+    "tests/test_claude_mem_component.py": "508231652837037fad30fede81319a467d718dbcb5312601d67e466939b725b2",
+    "tests/test_clients.py": "1077480b053b5cbc50ab55e55d34df1d7081e04411f9d4f45c58316443c54af4",
+    "tests/test_comparison_labels.py": "80c808f80f6df1bbd9e792a69499983282d447f8037d3c340694fbf5591a2b6e",
+    "tests/test_conjunctive_recall.py": "db20a9c8f86648f4356cbf3ef9b272a8c1e725ea2fcf8a7767bc9218b994a106",
+    "tests/test_core.py": "f698825f074d29e9f4b0b01661699a992bef75210e565445240a8977d8686d36",
+    "tests/test_coverage_cli.py": "0b726d353c1dc6c7c80b1b6f4adb694ebebfe5812bfab1aeef74e28ece5e42fd",
+    "tests/test_current_turn_recall.py": "548f37050123c96683d1d648c031aca4a2de50dbddd9a16b702f578ecf96b6fe",
+    "tests/test_default_recall_measurement.py": "80e667f531a01d30be7f1e81b825d938c405161f4803a75744fc325614cfa3d3",
+    "tests/test_default_recall_performance.py": "e89da275a856d8a5b2350d61b1a59dad9fb8ab77965bfa43e7b5b6148d3fb6cb",
+    "tests/test_engineering_components.py": "230f13740a89584b78ac5522356ad1442e7de6f9c4690a3ed4ba891d83c357c3",
+    "tests/test_engineering_workflow.py": "775f9fe51ccf0be8ccd143db654255e2447941991a71454fb4b5e929dfc47578",
+    "tests/test_excerpt_boundaries.py": "299303c1c3485c3f99333b77809282e1d495c5a5891fafa876a1b95ef6ff0bb4",
+    "tests/test_full_workflow_eval.py": "54c97df1a5bdc993904115cc2e4e1144514fca8aa9fc3b3ab8ec818f2b704266",
+    "tests/test_hosted_aggregation.py": "7e9e3be45f0b94ad6953ed21c1a8e1b10119c84cc131946a7d2298a63246cb56",
+    "tests/test_hosted_validation_recovery.py": "426c657b88d8b483236272eebb53775e14dccff352a5e3a4ddca4594115692f9",
+    "tests/test_hotpot_data.py": "fee24042da4eab658169f1360bf65fe48adba9616d31aa7641c2b8636bdb4234",
+    "tests/test_importers.py": "2e5eb9f7aa1bfaa78e0a7575f41bf01020b1f3e9e4afeb47b61528f7793bb142",
+    "tests/test_index_migration.py": "85ddc552229baf25aab2e2788e1276acea2a7a875968f2a28608857552f96496",
+    "tests/test_indexed_reference_benchmark.py": "0ec81fba74cfad1a14d3026f9e97f148f587d9d52c698f63787c55bff625bcd3",
+    "tests/test_indexed_references.py": "8856390b07a36eafc02fb1b0603580ba22d09ee3802765b00f044d94c137347b",
+    "tests/test_installer_release.py": "6a23a955e90ce8732e51c4ca2f8ed92853977727226f149c0a2f73f44e646ae9",
+    "tests/test_interrupted_validation_export.py": "2807f122a2a3bdd93676e859b5d603c581aca2ab7fe0020cd5f80b76382ee99a",
+    "tests/test_lexical_cache.py": "419170a018e2baf0c0bdb70fc5414ac79922da402aa27ed9151a16208cd3d354",
+    "tests/test_local_answer_server.py": "835a02d3f63d2bf696d917a2f29d344b22b90cebd14da9284893b1ebf0a8b5eb",
+    "tests/test_mcp.py": "272867a1488518cfa17e041980e85a34f93a41df198d2b842e6accd9de7a7554",
+    "tests/test_mcp_costs.py": "a8896c4a4f7fff0236093fca67ffc1c53aeb7a937c395c1ed8c5cd2bce7ff5b7",
+    "tests/test_mcp_lifecycle.py": "a0dd5ae4d30a531b0fdd0624a3dad0d1cd136735372d08b05e4084261e0539de",
+    "tests/test_native_budget_eval.py": "993405ac5754553a9aff854b6129f42089156025f60bd5d3aac74e26b4c790a3",
+    "tests/test_native_completion_summary.py": "fb5835de0624ed278d11513358ce4de74cdeb3fc63b5437fa51241c97b77172f",
+    "tests/test_novelty_cap_qualification.py": "761f435f916b62f11c1750aa71a2627669a6013f3c037e9c6c44e8e09ea5a603",
+    "tests/test_novelty_probe.py": "7583261dcd0261f3441598154fb4c8ce5800f177dd501245b454912c61018244",
+    "tests/test_novelty_probe_result_audit.py": "85d1a9ff5716d26ca7c2511793bccd584327bcc596da890d6ab18f65e64f7f48",
+    "tests/test_preflight_plan.py": "1f8d7656a131cc70ea5fff81d96712afbfdaa2e99015c6bb41550735e59d58e6",
+    "tests/test_project_rowid_bounds.py": "417a58396aa5d08d87a249e32fe41beb2e5176d82c4d6a47d0b4bd53075bb1aa",
+    "tests/test_quality_fusion.py": "449727be85ee4b7c5db5fc26e92b5e7eb8cadbad42ba5ccc052725d4cf0895bd",
+    "tests/test_query_guard.py": "057204569a815a60f1e42db17cf3f8505349290b78913dd41af073589181e11d",
+    "tests/test_recall_quality.py": "449a58b1bff6415d537c0796e487f99056d76dfc8a88ce3fff2054d0f535c5fa",
+    "tests/test_release.py": "0d85bf56853e7ea5a6f7809ffc5adddd4858d9d37d7a9e62e13e8e3abdced11d",
+    "tests/test_round2_anchor_eval.py": "e6e94ad60768fe3e610afedbc75aa520f5be938d71585de26c9fd7faff9504c8",
+    "tests/test_round2_anchor_hosted.py": "63c54fb240c80fd23b6b5782a90a82c03098b088e47fdde9c2486ab40f6d00f9",
+    "tests/test_round2_anchor_summary.py": "348f8c496b506658bcdec4961ca98add6070d882be2d3e833970d88788233154",
+    "tests/test_round2_component_cost_audit.py": "a70a8711c142e0910dbfd66ab09a04c3a9c36f4a245077cfb2cbabf7ff78a062",
+    "tests/test_round2_data.py": "512d16fc2103c20f8139becc10ce45e6cfa28584eb6afef081c483788c69232c",
+    "tests/test_round2_quality_eval.py": "16ef744e8059ef3a5790d0879dd5c34c04d2a25131312bd7648b0729baa21540",
+    "tests/test_round2_quality_hosted.py": "c5afb29239cd9c0627e8deec3d4b2dd47b3b7c4c330700b316f415c3ddaaaf03",
+    "tests/test_round2_quality_summary.py": "3d9ccde63b0f6d0e417fbd3e82d528ca22cdf4d96d3bd7f87683a85b7d7780b9",
+    "tests/test_round2_upstream_pins.py": "e1004f078d3baac3dc1def993b2b1116d3d4411e42bd42d390fc9892f34f79fd",
+    "tests/test_round2_validation.py": "2aab0f4ef8181698ce64b0d1f94bdfaee6c5e1b1519613f2601d387887d72b94",
+    "tests/test_round3_comparison.py": "3264d23a8574fb142437f2faa0c988675424ec0ed893635b5fb5698735cac3fd",
+    "tests/test_round3_comparison_controller.py": "1be9882578b0d38fd3ef83bb4a1fd442ab81055f3f28bace52e193aa0afc8da9",
+    "tests/test_round3_completion_audit.py": "849145afcc7a49c8d699139a203579d511617a5292f3fe36d99ca6e34f66d720",
+    "tests/test_round3_data.py": "42f5460873461a4f839f2d4da59207c0358de1c5eae99d2b2a7719a061640774",
+    "tests/test_round3_performance.py": "aa8ea544762d0bdf9361b092bd9b7530a7fd230f85044a87c1261ebe1c7a8a8b",
+    "tests/test_round3_project_stats.py": "63f089cb8dc24f485745facca8a22d95476d0e4dea0f2e4b0fe8d87c0c4ab304",
+    "tests/test_round3_quality_recovery.py": "040b1d64f56ef8132dad35682ba607b15550f43910a561a62c42349baaeaf6e3",
+    "tests/test_round3_startup_review.py": "0e25d885191721aada6b4f75f838532b9be9338c9cd34d31eb474f6b3693fbba",
+    "tests/test_round4_comparison.py": "7430558426c2e7e33b97c7ee4a65c019f7d2dbedd653383fa4f81f5b07cffcc9",
+    "tests/test_round4_comparison_controller.py": "19d9c2371a02b5e047ef4de955f8de1d8fa8f3a57ce90412aefa1de10941519c",
+    "tests/test_round4_data.py": "66dbe17be4cca85d8a74012749b95dba37060ace2659596a668d818094b528fb",
+    "tests/test_round4_highlight.py": "59cab84b24ea873670b5b1689d18bbdd170bf1cbb635a85ecba2a30e4104390b",
+    "tests/test_round4_performance.py": "22a229422c0a69c1a2c6830ae14c96e3d2bbedb0199dfee7a7852622fe0ad2a5",
+    "tests/test_round4_sealed_counts.py": "a2e43be0bcd9978e392b60c8ef5b5e9de54277edf84fdf4ebe9ec2b8a30df2a9",
+    "tests/test_round4_semantic_compatibility.py": "51c872489e0ec1bb2a71358ce37c1347242b4051b0354cf45867c691b6cbf247",
+    "tests/test_round4_token_work.py": "d05efe980d65f1d61017316f4410455646f4853efbe0f22194a0d9a0e9f02bdc",
+    "tests/test_round5_c4_performance.py": "d79de421df8ea7c49809a093c382e26c0f6e50e03568b6d8ca2b2a19dea780ef",
+    "tests/test_round5_c5_performance.py": "4a23597dc8de9942eefe4531b4ac5cd83bb5bb2a49c2f0128c15355e430bdb43",
+    "tests/test_round5_c6_performance.py": "7a6f6bf014b4d75928104f1ea8abc74dad55e2fac009b6c6c1abf42b24608952",
+    "tests/test_round5_c7_host.py": "10113e91dbfe13646ff0b208e1eaa42be20de30edff3053a445efeb50c5f6f03",
+    "tests/test_round5_c7_mcp_saved_audit.py": "d218c375685423cffaf93c5263574ed72ad61292673fbf4edb0f6d464dea9d1c",
+    "tests/test_round5_c7_performance.py": "03dbd55656459739ff0bfd6cdb330b86c9e87484e00dc6d42a538013e9077a19",
+    "tests/test_round5_c7_resource_decision.py": "71cb7961538e46e06826c80425265984ec787fb69e26950dff40bfdada42a7c9",
+    "tests/test_round5_candidate_c4.py": "f16d4de95d0f9c284963e22b7fe29383a154dd478a4acef271220a6aa1862ee7",
+    "tests/test_round5_candidate_c5.py": "3d24eac4e1bb626d41f3fcebe6af84285c6a681af14305b47324feee1e697b29",
+    "tests/test_round5_candidate_c6.py": "600a99243fa005ad961d78622e316111873fdae175bffd52116b3fb85f9a61a7",
+    "tests/test_round5_candidate_c7.py": "212af29927e15def7a7f0c33c23ff6e9adc47065a3f95b6b7ae13186b2c9cd02",
+    "tests/test_round5_covering_index.py": "490fec5ec90c0798a73d35929089b81d20b57f0d1062c2ed5593749bb61dbc3f",
+    "tests/test_round5_performance.py": "56b086501f7cefe6cdbe06d892ce4cf36142ca6d35d50c6b5919357640d00df2",
+    "tests/test_round5_recall_work.py": "a2e332dfa389eec5b474bc685b33cdb77732279d95419480752be5d85403f9d8",
+    "tests/test_round6_benchmark.py": "77db53aa211d43ad54ca987e52f91100d3c70710a6c94c8b871f21bd4244fafd",
+    "tests/test_round6_benchmark_audit.py": "5e0657939f43fef4ac7f502457569383a3ebf6cb58528d0f5af9a831d22c914e",
+    "tests/test_round6_comparison.py": "8b9aa01af0ef7becf801b60ddaf571466dc59dd3631b6e02568105ae674f4803",
+    "tests/test_round6_recall_work.py": "6d9db35db912e6c8b17fa4d52bd29e950518c3fc0a6a04d486e4bc76cdbab148",
+    "tests/test_round6_startup.py": "b31d0f0dcf41a74001acc5f8fba3e99348a91b943ccb487417c14d3088cadf3a",
+    "tests/test_round6_startup_audit.py": "63597fa68c53ea160c4e48b2be0dc71eacaa6ce94341a3a8bf43d850bd8b97b3",
+    "tests/test_round6_startup_benchmark.py": "38c8364acd178b891015081e58dc4d2fad828e068135bf0a65000e60691846e2",
+    "tests/test_score_fusion.py": "aee3dc387b03c62bb28485a93eacca1b26a892f086d7493b53ad2cc712c93761",
+    "tests/test_semantic.py": "f5e9531a63d05ee6795c1b356e4bd03350aecfc02e77495315ea0cca5ef5ea72",
+    "tests/test_semantic_eval.py": "c5b8a4277192a439aac7dac07bf0b50e550becb575a11377186d17fd947fd119",
+    "tests/test_semantic_interfaces.py": "69dda4bdc91966651ca9ca93d584fdbf31734f23a7540d3bbec7c2d6961e09af",
+    "tests/test_semantic_privacy.py": "6831ef31b81cdf430e84ad9d0f3bd4bc5fd6a0d34cf6792b7f0231175c86caee",
+    "tests/test_semantic_summary.py": "d0418d265d5e155b97fc566691169b48ad622692cd109c9c9722bcf92adcf644",
+    "tests/test_setup.py": "59aa961b72f4aed9c4bcf62410f294c1a4b864aaad5c08da40ab3ae788db49c8",
+    "tests/test_sync.py": "1b3f3cf8d4992893d06f372ca385a8921d70b0ae045bb4241782eeb3cfe1f34b",
+    "tests/test_token_budget.py": "89fa3919c92f97e5b3f7ff44f92fa2ebcf0f6121ed941a21dd5b450bc300aa4c",
+    "tests/test_token_budget_mcp.py": "05a59a060cf752a6cb77bffcd54b022b9ec00ad9c3534fce0ed5e2e2d9f49938",
+    "tests/test_token_prefix_bound.py": "05239df51e3e4d7236b1c314a4c0e86b7b83151b43a3084a9bc9bf4bda06874c",
+    "tests/test_transfer_data.py": "1802e1dd5b62cf49d47304283ee73795ac604825a3d7d9e08be5df2be7a03cd5",
+    "tests/test_web.py": "26d89808bda09219a0093879277cb6cbb61685358518ab73174993df0d27e1d1"
+  },
+  "log": {
+    "path": "candidate-final-full-tests.log.gz",
+    "original_sha256": "0e52afa6921c335b6ea668cb078e950bb1517be968b2922925f0d2da9f39a34b",
+    "saved_sha256": "021500eda98769f3680300d6c911cf0c29ded009ec074082867cdd8c2794b9c7"
+  },
+  "earlier_attempts": [
+    {
+      "log": "baseline-tests.log.gz",
+      "outcome": "957 tests; 11 errors, 15 skipped; missing historical sparse-checkout fixtures"
+    },
+    {
+      "log": "candidate-full-tests-before-fixture-isolation.log.gz",
+      "outcome": "991 tests; 1 error, 15 skipped; historical recovery unit fixture coupled to current benchmark file inventory"
+    }
+  ],
+  "resolutions": [
+    "Restored immutable historical fixture bytes from the base Git commit.",
+    "Isolated the historical round2 test file inventory while preserving real hashes and explicit rejection of added, missing, or altered evaluator files. Production recovery gates and historical registrations were unchanged."
+  ],
+  "github_ci_status_at_recording": "not_started",
+  "measurement_scope": "Local unit/integration tests; no coding LLM, real longitudinal user trace, or complete product comparison."
+}

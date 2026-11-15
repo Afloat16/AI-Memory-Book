@@ -19,11 +19,23 @@ from .text import estimate_tokens, excerpt, headline, index_text, query_terms, t
 
 SCHEMA_VERSION = 3
 INDEX_VERSION = 3
-RECALL_VERSION = 10
+RECALL_VERSION = 13
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
 HISTORICAL_QUERY = re.compile(r"\b(?:original|initial|previous|earlier|before|history|historical|formerly|old|as of)\b|最初|最早|之前|以前|原来|原始|历史|旧|\b(?:19|20)\d{2}\b", re.IGNORECASE)
+# Repeated observations are evidence for event counts and chronology. This
+# conservative lexical guard does not interpret arbitrary intent, and avoids
+# treating parameter names such as "retention count" as event-count requests.
+EVENT_QUERY = re.compile(
+    r"\b(?:how\s+often|how\s+many(?:\s+\w+){0,3}\s+(?:times|sessions|events|occurrences)|"
+    r"(?:count|number)\s+of\s+(?:the\s+)?(?:times|sessions|events|occurrences)|"
+    r"(?:count|list|enumerate)\s+(?:all\s+|the\s+)?(?:sessions|events|occurrences)|"
+    r"(?:session|event|occurrence)\s+counts?|occurrences?|frequenc(?:y|ies)|"
+    r"timeline|chronolog(?:y|ical)|(?:sequence|order)\s+of\s+(?:events|decisions)|"
+    r"(?:each|every)\s+(?:session|event|occurrence))\b|"
+    r"次数|多少次|几次|频率|频次|逐次|每次|各次|时间线|时间顺序|先后|事件序列|"
+    r"统计.{0,12}(?:会话|事件|次数)|(?:会话|事件).{0,12}(?:数量|个数|总数)", re.IGNORECASE)
 ASCII_WORD = re.compile(r"[a-zA-Z]")
 QUERY_CONJUNCTION = re.compile(r"\band\b|以及|并且|和", re.IGNORECASE)
 RECALL_METADATA_INDEX_SQL = """CREATE INDEX IF NOT EXISTS pages_recall_metadata
@@ -249,6 +261,94 @@ def _query_facets(query: str) -> list[list[str]]:
         return []
     facets = [query_terms(piece) for piece in pieces]
     return facets if all(len(facet) >= 2 for facet in facets) else []
+
+
+def _matching_turn_refs(content: str, refs: list[dict], matched: set[str]) -> list[dict]:
+    """Locate comparable subjects in source spans, without guessing dates.
+
+    A later unrelated turn sharing a page must not make an earlier fact newer.
+    Require one source span to contain the group's complete exact-term match.
+    Continuation pages of the same turn receive the same position. An invalid
+    reference cannot establish chronology; ordinary source validation remains
+    in the existing selected-page path.
+    """
+    if not isinstance(content, str) or not isinstance(refs, list) or not matched:
+        return []
+    matching = []
+    for ref in refs:
+        if not isinstance(ref, dict):
+            continue
+        start, end, turn = (ref.get(key) for key in ("start", "end", "turn_index"))
+        if (any(type(value) is not int for value in (start, end, turn))
+                or not 0 <= start < end <= len(content) or turn < 0):
+            continue
+        # The caller's match set already came from this complete page's FTS
+        # body. A full-page source span needs no second lexical analysis.
+        if (start == 0 and end == len(content)) or matched.issubset(terms(content[start:end])):
+            matching.append(ref)
+    return matching
+
+
+def _latest_matching_turn(content: str, raw_refs: str, matched: set[str]) -> int | None:
+    try:
+        refs = json.loads(raw_refs)
+    except (TypeError, ValueError):
+        return None
+    return max((ref["turn_index"] for ref in _matching_turn_refs(content, refs, matched)), default=None)
+
+
+def _current_excerpt_ref(content: str, refs: list[dict], matched: set[str], allowance: int) -> dict | None:
+    """Propose one latest matching turn; the caller verifies its original text."""
+    if (allowance >= len(content) or not isinstance(refs, list)
+            or len({ref.get("turn_index") for ref in refs if isinstance(ref, dict)
+                    and type(ref.get("turn_index")) is int}) < 2):
+        return None
+    matching = _matching_turn_refs(content, refs, matched)
+    if not matching:
+        return None
+    latest_turn = max(ref["turn_index"] for ref in matching)
+    latest = [ref for ref in matching if ref["turn_index"] == latest_turn]
+    # A partial or ambiguous later span must not silently promote an older
+    # turn. A complete original turn is certified separately under the read
+    # snapshot, not inferred from this page's own claimed coordinates.
+    if len(latest) != 1:
+        return None
+    ref = latest[0]
+    start, end = ref["start"], ref["end"]
+    if (type(ref.get("turn_start")) is not int or ref["turn_start"] != 0
+            or type(ref.get("turn_end")) is not int or ref["turn_end"] != end - start
+            or end - start + bool(start) + (end < len(content)) > allowance):
+        return None
+    return ref
+
+
+def _distinct_current_pages(pool: list[dict], contents: dict[int, str]) -> tuple[list[dict], list[dict]]:
+    """Prefer distinct raw pages within one project/task, retaining every source.
+
+    Exact original text is the key: FTS normalization would erase meaningful
+    code punctuation. Each duplicate group's newest source keeps that group's
+    first relevance slot; ties retain the existing order. Other occurrences
+    remain available for backfill, and are never removed from the archive.
+    """
+    groups = {}
+    for position, item in enumerate(pool):
+        body = contents.get(item["rid"])
+        key = (item["project_id"], item["chapter_id"], body if type(body) is str else object())
+        groups.setdefault(key, []).append(position)
+    ordered = list(pool)
+    deferred = set()
+    for positions in groups.values():
+        if len(positions) < 2:
+            continue
+        first = positions[0]
+        newest = max(positions, key=lambda index: pool[index]["created_at"])
+        if first != newest:
+            first_score, newest_score = ordered[first]["score"], ordered[newest]["score"]
+            ordered[first], ordered[newest] = ordered[newest], ordered[first]
+            ordered[first]["score"], ordered[newest]["score"] = first_score, newest_score
+        deferred.update(positions[1:])
+    return ([item for index, item in enumerate(ordered) if index not in deferred],
+            [item for index, item in enumerate(ordered) if index in deferred])
 
 
 class _RecallCandidates(dict):
@@ -864,6 +964,10 @@ class MemoryBook:
             selected_pages: list[dict] = []
             source_units_for = None
             captured_refs = None
+            current_matches: dict[int, set[str]] = {}
+            current_spans: dict[str, tuple[int, int]] = {}
+            original_turns = None
+            refs_by_page = None
             if (qt or (semantic and query)) and budget_chars:
                 expression = " OR ".join('"' + token.replace('"', '""') + '"' for token in qt)
                 # The index enforces a body match, so a chapter name alone is
@@ -1020,12 +1124,15 @@ class MemoryBook:
                     # tokens. Complementary query facets can otherwise be
                     # crowded out by several almost-identical high scores.
                     pool = candidates[:limit * 4]
+                    pool_count = len(pool)
+                    deferred = []
                     ids = [item["rid"] for item in pool]
                     matched = {row["rowid"]: qset.intersection(row["body"].split())
                                for row in self.db.execute(
                                    "SELECT rowid,body FROM pages_fts WHERE rowid IN (" +
                                    ",".join("?" for _ in ids) + ")", ids)}
                     if current_query:
+                        current_matches = matched
                         # Timestamp preference is confined to the same task
                         # and identical matched query terms. Preserve each
                         # group's relevance positions so a recent unrelated
@@ -1038,20 +1145,69 @@ class MemoryBook:
                                 continue
                             key = (item["chapter_id"], frozenset(matched[item["rid"]]))
                             groups.setdefault(key, []).append(i)
+                        # Session timestamps cannot order corrections made
+                        # during one long conversation. Load source coordinates
+                        # only for same-session candidates in comparable groups.
+                        # Ordinary queries pay no read. Exact-text duplicate
+                        # detection shares this bounded source fetch when it
+                        # can release result slots for other current evidence.
+                        repeated = set()
+                        for positions in groups.values():
+                            sessions = {}
+                            for i in positions:
+                                item = pool[i]
+                                key = (item["project_id"], item["session_id"])
+                                sessions.setdefault(key, []).append(item["rid"])
+                            for ids in sessions.values():
+                                if len(ids) > 1:
+                                    repeated.update(ids)
+                        turn_positions = {}
+                        distinct_current = limit > 1 and len(pool) > 1 and not EVENT_QUERY.search(query)
+                        contents = {}
+                        wanted_sources = repeated | ({item["rid"] for item in pool} if distinct_current else set())
+                        if wanted_sources:
+                            ids = sorted(wanted_sources)
+                            for row in self.db.execute(
+                                    "SELECT rid,content,source_refs FROM pages WHERE rid IN (" +
+                                    ",".join("?" for _ in ids) + ")", ids):
+                                if distinct_current:
+                                    contents[row["rid"]] = row["content"]
+                                if row["rid"] in repeated:
+                                    turn = _latest_matching_turn(row["content"], row["source_refs"], matched[row["rid"]])
+                                    if turn is not None:
+                                        turn_positions[row["rid"]] = turn
                         for positions in groups.values():
                             scores = [pool[i]["score"] for i in positions]
                             revisions = sorted((pool[i] for i in positions), key=lambda item: item["created_at"], reverse=True)
+                            sessions = {}
+                            for i, item in enumerate(revisions):
+                                if item["rid"] in turn_positions:
+                                    key = (item["project_id"], item["session_id"])
+                                    sessions.setdefault(key, []).append(i)
+                            for same_session in sessions.values():
+                                # Do not compare turn numbers across sessions,
+                                # or advance a continuation within one turn.
+                                # Stable sorting retains the relevance order
+                                # when the original turn positions are equal.
+                                ordered = sorted((revisions[i] for i in same_session),
+                                                 key=lambda item: turn_positions[item["rid"]], reverse=True)
+                                for i, item in zip(same_session, ordered):
+                                    revisions[i] = item
                             for i, item, score in zip(positions, revisions, scores):
                                 pool[i], item["score"] = item, score
+                        if distinct_current:
+                            pool, deferred = _distinct_current_pages(pool, contents)
                     chosen, pending = [pool[0]], pool[1:]
                     covered = set(matched[pool[0]["rid"]])
-                    while pending and len(chosen) < limit:
+                    while (pending or deferred) and len(chosen) < limit:
+                        if not pending:
+                            pending, deferred = deferred, []
                         best = max(range(len(pending)), key=lambda i: pending[i]["score"] *
                                    (1 + len(matched[pending[i]["rid"]] - covered) / len(qset)))
                         item = pending.pop(best)
                         chosen.append(item)
                         covered.update(matched[item["rid"]])
-                    candidates = chosen + pending + candidates[len(pool):]
+                    candidates = chosen + pending + deferred + candidates[pool_count:]
                 facets = (_query_facets(query) if coverage and strategy == "book" and limit > 1 and
                           not CURRENT_QUERY.search(query) and not HISTORICAL_QUERY.search(query) else [])
                 if candidates and facets:
@@ -1159,13 +1315,68 @@ class MemoryBook:
                                     ",".join("?" for _ in ordered) + ")", [session_pk, *ordered]):
                                     original_turns[(session_pk, source["ordinal"])] = source["content"]
                         source_units_for = prepare_source_units(selected_pages, original_turns, refs_by_page)
+                    if current_matches and budget_tokens != 0:
+                        # A current correction may share one page with its
+                        # obsolete version. Only shorten an already-truncated
+                        # page to a complete comparable original turn that fits.
+                        # Otherwise keep the established lexical excerpt.
+                        proposed = {}
+                        for row, _, allowance in allocations:
+                            match_set = current_matches.get(row["rid"])
+                            if not match_set or allowance >= len(row["content"]):
+                                continue
+                            refs = (refs_by_page[row["id"]] if refs_by_page is not None
+                                    else json.loads(row["source_refs"]))
+                            ref = _current_excerpt_ref(row["content"], refs, match_set, allowance)
+                            if ref is not None:
+                                proposed[row["id"]] = (row, ref)
+                        known_turns = original_turns if original_turns is not None else {}
+                        wanted = {}
+                        for row, ref in proposed.values():
+                            if (row["session_pk"], ref["turn_index"]) not in known_turns:
+                                wanted.setdefault(row["session_pk"], set()).add(ref["turn_index"])
+                        extra_turns = self._batch_original_turns(wanted) if wanted else {}
+                        if extra_turns is None:
+                            extra_turns = {}
+                            for session_pk, ordinals in wanted.items():
+                                ordered = sorted(ordinals)
+                                for source in self.db.execute(
+                                        "SELECT ordinal,content FROM turns WHERE session_pk=? AND ordinal IN (" +
+                                        ",".join("?" for _ in ordered) + ")", [session_pk, *ordered]):
+                                    extra_turns[(session_pk, source["ordinal"])] = source["content"]
+                        for identity, (row, ref) in proposed.items():
+                            key = (row["session_pk"], ref["turn_index"])
+                            original = known_turns.get(key, extra_turns.get(key))
+                            start, end = ref["start"], ref["end"]
+                            if (isinstance(original, str) and ref["turn_end"] == len(original)
+                                    and row["content"][start:end] == original):
+                                current_spans[identity] = (start, end)
+                        if source_units_for is not None and current_spans:
+                            ordinary_units_for = source_units_for
+
+                            def source_units_for(row):
+                                units = ordinary_units_for(row)
+                                span = current_spans.get(row["id"])
+                                if span is None:
+                                    return units
+                                # If the full current turn exceeds the token
+                                # cap, only intact units of that turn may fill
+                                # the gap. Never reselect an obsolete turn.
+                                lo, hi = span
+                                return [(start, end) for start, end in units if lo <= start < end <= hi]
             self.db.execute("COMMIT")
         except BaseException:
             self.db.execute("ROLLBACK")
             raise
         legacy = []
         for row, header, allowance in allocations:
-            text, spans = excerpt(row["content"], query, allowance, prepared_terms=row.get("excerpt_terms", qt))
+            if row["id"] in current_spans:
+                start, end = current_spans[row["id"]]
+                text = (("…" if start else "") + row["content"][start:end]
+                        + ("…" if end < len(row["content"]) else ""))
+                spans = [(start, end)]
+            else:
+                text, spans = excerpt(row["content"], query, allowance, prepared_terms=row.get("excerpt_terms", qt))
             legacy.append((row, header, text, spans))
         assembled = legacy
         if token_counter is not None:
