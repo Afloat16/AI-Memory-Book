@@ -1,0 +1,486 @@
+{
+  "schema_version": 1,
+  "audit_kind": "Read-only upstream source and adapter scope audit",
+  "audited_at_utc": "2026-11-15 08:12:21 UTC",
+  "project_head_at_audit": "2b78f32f3e29e5d5919e93dd7c1dce19a0937950",
+  "purpose": "Determine whether the existing integrity-pinned external retrieval components remain a reasonable fixed-revision comparison for the 2400-character engineering replay. This audit does not run, rescore, or replace a benchmark.",
+  "method": [
+    "Read the local adapter code and immutable lock files.",
+    "Resolve the official latest stable release pages as observed on the audit date.",
+    "Use the official GitHub compare API for the pinned revision to the observed stable release.",
+    "Compare GitHub Git blob SHA identities for named retrieval files; matching blob identities establish exact stored file equality.",
+    "Inspect changed ai-memory server/store/wiki diff hunks for the adapter's search, write, read, and local embedding paths."
+  ],
+  "local_adapter_and_lock_sha256": [
+    {
+      "path": "benchmarks/competitors/billion-round2-lock.json",
+      "sha256": "0f56614fb56f3f269f6e40eb28646a8939fdf4e6dddcc93187465d31311dfd69"
+    },
+    {
+      "path": "benchmarks/competitors/claude-mem-round2-lock.json",
+      "sha256": "49267441d4a1292bdd6232abfd78a109fc97fcfcfcf740a51a84d767d6c3edae"
+    },
+    {
+      "path": "benchmarks/competitors/ai-memory-lock.json",
+      "sha256": "77edebbd68ca4f190065b9795481c524f50e3af73b10f05334a6d76d2c4cbd4c"
+    },
+    {
+      "path": "benchmarks/competitors/billion.py",
+      "sha256": "659d8296742b84a32d8094dc9756f48675582551e15bb411ff73842fa7ba9f14"
+    },
+    {
+      "path": "benchmarks/competitors/billion_bridge.mjs",
+      "sha256": "8279eac093e3e51c5dfdcc9dc8dd2730f36c4653b78175a127e85b0ec62f6c93"
+    },
+    {
+      "path": "benchmarks/competitors/claude_mem.py",
+      "sha256": "40e23f39527e2c7e9232668de2a9536d537132c886d47018bef5c8023c2edbdc"
+    },
+    {
+      "path": "benchmarks/competitors/claude_mem_bridge.ts",
+      "sha256": "51ce601093267d610644fcbc75241b4a75061f611c937888964e14588e0f660c"
+    },
+    {
+      "path": "benchmarks/competitors/ai_memory.py",
+      "sha256": "c6ad6a08956f04dc531b49f08a775c1f9e965e8e7612fcd523b19e197e2a5f11"
+    }
+  ],
+  "summary": {
+    "competitors_audited": 3,
+    "files_compared_by_git_blob_sha": 27,
+    "equal_files": 27,
+    "material_ranking_change_identified_in_examined_release_diffs": false,
+    "recommendation": "Keep the existing tested pins and label every result with its actual revision. Explain the source comparison in the detailed report; do not relabel a pinned run as a latest-release run.",
+    "latest_binaries_executed_by_this_audit": false,
+    "latest_complete_products_evaluated_by_this_audit": false
+  },
+  "competitors": [
+    {
+      "repository": "thedotmack/claude-mem",
+      "adapter": "ClaudeMemFTS",
+      "pinned": {
+        "package_version": "15.18.1",
+        "commit": "c4a9f5725f420bf9c6e866cdd3b94bd36498af09",
+        "commit_time_utc": "2026-11-12T08:03:58Z",
+        "lock_file": "benchmarks/competitors/claude-mem-round2-lock.json",
+        "version_label_note": "This is a source snapshot whose package version is 15.18.1. The commit promotes 15.18.1 for auto-update; the official v15.18.1 release page points to 2bb98bd, so do not describe this snapshot as the exact release-tag commit."
+      },
+      "latest_stable_observed": {
+        "version": "v15.18.3",
+        "commit": "1e6f43474fa7eaa3dc2a6fa0e96154e1161dedb6",
+        "release_url": "https://github.com/thedotmack/claude-mem/releases/tag/v15.18.3",
+        "commit_url": "https://github.com/thedotmack/claude-mem/commit/1e6f43474fa7eaa3dc2a6fa0e96154e1161dedb6"
+      },
+      "comparison": {
+        "url": "https://github.com/thedotmack/claude-mem/compare/c4a9f5725f420bf9c6e866cdd3b94bd36498af09...v15.18.3",
+        "api_url": "https://api.github.com/repos/thedotmack/claude-mem/compare/c4a9f5725f420bf9c6e866cdd3b94bd36498af09...v15.18.3",
+        "status": "ahead",
+        "ahead_by": 26,
+        "behind_by": 0,
+        "returned_changed_files": 182,
+        "changed_files_under_src_services_sqlite": []
+      },
+      "identical_retrieval_files": [
+        {
+          "path": "src/services/sqlite/SessionSearch.ts",
+          "pinned_git_blob_sha": "d087440bcd6def03dd96b987b31a0f1fe21acd6d",
+          "latest_release_git_blob_sha": "d087440bcd6def03dd96b987b31a0f1fe21acd6d",
+          "identical": true,
+          "pinned_source_url": "https://github.com/thedotmack/claude-mem/blob/c4a9f5725f420bf9c6e866cdd3b94bd36498af09/src/services/sqlite/SessionSearch.ts",
+          "latest_release_source_url": "https://github.com/thedotmack/claude-mem/blob/v15.18.3/src/services/sqlite/SessionSearch.ts"
+        },
+        {
+          "path": "src/services/sqlite/SessionStore.ts",
+          "pinned_git_blob_sha": "c9a72c5953be283d9a41ffb362e13ae160d8842f",
+          "latest_release_git_blob_sha": "c9a72c5953be283d9a41ffb362e13ae160d8842f",
+          "identical": true,
+          "pinned_source_url": "https://github.com/thedotmack/claude-mem/blob/c4a9f5725f420bf9c6e866cdd3b94bd36498af09/src/services/sqlite/SessionStore.ts",
+          "latest_release_source_url": "https://github.com/thedotmack/claude-mem/blob/v15.18.3/src/services/sqlite/SessionStore.ts"
+        },
+        {
+          "path": "src/services/sqlite/search-query.ts",
+          "pinned_git_blob_sha": "27e120ee4f0d0099e7b7f70cecea9c70c767507c",
+          "latest_release_git_blob_sha": "27e120ee4f0d0099e7b7f70cecea9c70c767507c",
+          "identical": true,
+          "pinned_source_url": "https://github.com/thedotmack/claude-mem/blob/c4a9f5725f420bf9c6e866cdd3b94bd36498af09/src/services/sqlite/search-query.ts",
+          "latest_release_source_url": "https://github.com/thedotmack/claude-mem/blob/v15.18.3/src/services/sqlite/search-query.ts"
+        },
+        {
+          "path": "src/services/sqlite/project-read-keys.ts",
+          "pinned_git_blob_sha": "a72243c2c928a2c3a266e3b931cbe03711f42a03",
+          "latest_release_git_blob_sha": "a72243c2c928a2c3a266e3b931cbe03711f42a03",
+          "identical": true,
+          "pinned_source_url": "https://github.com/thedotmack/claude-mem/blob/c4a9f5725f420bf9c6e866cdd3b94bd36498af09/src/services/sqlite/project-read-keys.ts",
+          "latest_release_source_url": "https://github.com/thedotmack/claude-mem/blob/v15.18.3/src/services/sqlite/project-read-keys.ts"
+        },
+        {
+          "path": "src/services/sqlite/stream-rows.ts",
+          "pinned_git_blob_sha": "bcdc3eb3ec409acb3a23ab956152c043ae4d3e44",
+          "latest_release_git_blob_sha": "bcdc3eb3ec409acb3a23ab956152c043ae4d3e44",
+          "identical": true,
+          "pinned_source_url": "https://github.com/thedotmack/claude-mem/blob/c4a9f5725f420bf9c6e866cdd3b94bd36498af09/src/services/sqlite/stream-rows.ts",
+          "latest_release_source_url": "https://github.com/thedotmack/claude-mem/blob/v15.18.3/src/services/sqlite/stream-rows.ts"
+        },
+        {
+          "path": "src/services/sqlite/connection.ts",
+          "pinned_git_blob_sha": "30d7ed07a52c0acc216e1aab4565813b242d6750",
+          "latest_release_git_blob_sha": "30d7ed07a52c0acc216e1aab4565813b242d6750",
+          "identical": true,
+          "pinned_source_url": "https://github.com/thedotmack/claude-mem/blob/c4a9f5725f420bf9c6e866cdd3b94bd36498af09/src/services/sqlite/connection.ts",
+          "latest_release_source_url": "https://github.com/thedotmack/claude-mem/blob/v15.18.3/src/services/sqlite/connection.ts"
+        }
+      ],
+      "interpretation": "No SQLite search/schema source changes were identified between the pin and the observed stable release. Six named entry/helper files are byte-identical by Git blob SHA. Full integration files do change, including Codex hooks and local service behavior; the complete runtime is not certified equivalent.",
+      "executed_component_contract": {
+        "implementation": "Unmodified upstream SessionStore schema and SessionSearch.searchObservations(query, {limit, orderBy: relevance, project}) in pinned Bun 1.3.13.",
+        "supplied_input": "Original fixture body/title/project/created_at is directly inserted into observation text/title fields, with native FTS triggers. Narrative, subtitle and concept fields are not LLM-generated.",
+        "excludes": [
+          "observer and session summarization",
+          "Chroma or semantic retrieval",
+          "native hook capture",
+          "full worker/MCP orchestration",
+          "timeline navigation",
+          "coding-LLM answers"
+        ],
+        "timing_boundary": "Native search function and Python-to-Bun JSON round trip are separate fields; startup, ingestion, and common pack are separate work.",
+        "required_platform": "Linux x86-64 for the pinned Bun binary."
+      },
+      "official_product_context": {
+        "readme_url": "https://github.com/thedotmack/claude-mem/blob/v15.18.3/README.md",
+        "capabilities_documented": [
+          "Cross-session coding memory with a separate observing agent.",
+          "Multiple coding clients; some clients are search-only.",
+          "Progressive index, timeline, and detailed observation retrieval.",
+          "Local storage with optional hosted observer/cloud features."
+        ],
+        "claim_limit": "The supplied-text FTS comparison does not measure, remove, or disprove these full-product capabilities."
+      }
+    },
+    {
+      "repository": "akitaonrails/ai-memory",
+      "adapter": "AiMemoryNative",
+      "pinned": {
+        "version": "v3.4.5",
+        "commit": "ee73c04c542fa41ca629b046deb4ac108518f407",
+        "lock_file": "benchmarks/competitors/ai-memory-lock.json",
+        "binary_sha256": "a30d113e0e4ba35ffa1706c9093876ee1f9ae71769586a4a8400d0f3729028ef"
+      },
+      "latest_stable_observed": {
+        "version": "v3.4.6",
+        "commit": "a11eff2514f24cb30c21917236ec187c0a359143",
+        "release_url": "https://github.com/akitaonrails/ai-memory/releases/tag/v3.4.6"
+      },
+      "comparison": {
+        "url": "https://github.com/akitaonrails/ai-memory/compare/v3.4.5...v3.4.6",
+        "api_url": "https://api.github.com/repos/akitaonrails/ai-memory/compare/v3.4.5...v3.4.6",
+        "status": "ahead",
+        "ahead_by": 235,
+        "behind_by": 0,
+        "returned_changed_files": 145,
+        "all_returned_patches_present": false
+      },
+      "identical_retrieval_files": [
+        {
+          "path": "crates/ai-memory-store/src/fts_query.rs",
+          "pinned_git_blob_sha": "3c0532584237fe6a5caa314abc85442c5c90b36e",
+          "latest_release_git_blob_sha": "3c0532584237fe6a5caa314abc85442c5c90b36e",
+          "identical": true,
+          "pinned_source_url": "https://github.com/akitaonrails/ai-memory/blob/v3.4.5/crates/ai-memory-store/src/fts_query.rs",
+          "latest_release_source_url": "https://github.com/akitaonrails/ai-memory/blob/v3.4.6/crates/ai-memory-store/src/fts_query.rs"
+        },
+        {
+          "path": "crates/ai-memory-store/src/query_signals.rs",
+          "pinned_git_blob_sha": "228d1da4db756294463c1cf80b1ad78383b3a600",
+          "latest_release_git_blob_sha": "228d1da4db756294463c1cf80b1ad78383b3a600",
+          "identical": true,
+          "pinned_source_url": "https://github.com/akitaonrails/ai-memory/blob/v3.4.5/crates/ai-memory-store/src/query_signals.rs",
+          "latest_release_source_url": "https://github.com/akitaonrails/ai-memory/blob/v3.4.6/crates/ai-memory-store/src/query_signals.rs"
+        },
+        {
+          "path": "crates/ai-memory-store/src/retrieval_tuning.rs",
+          "pinned_git_blob_sha": "8fd72b98a78d2820730cb5677398aaa82fd3807b",
+          "latest_release_git_blob_sha": "8fd72b98a78d2820730cb5677398aaa82fd3807b",
+          "identical": true,
+          "pinned_source_url": "https://github.com/akitaonrails/ai-memory/blob/v3.4.5/crates/ai-memory-store/src/retrieval_tuning.rs",
+          "latest_release_source_url": "https://github.com/akitaonrails/ai-memory/blob/v3.4.6/crates/ai-memory-store/src/retrieval_tuning.rs"
+        },
+        {
+          "path": "crates/ai-memory-llm/src/local.rs",
+          "pinned_git_blob_sha": "56de2dc1bd53b7bbb7f9056af034fd94c230d150",
+          "latest_release_git_blob_sha": "56de2dc1bd53b7bbb7f9056af034fd94c230d150",
+          "identical": true,
+          "pinned_source_url": "https://github.com/akitaonrails/ai-memory/blob/v3.4.5/crates/ai-memory-llm/src/local.rs",
+          "latest_release_source_url": "https://github.com/akitaonrails/ai-memory/blob/v3.4.6/crates/ai-memory-llm/src/local.rs"
+        },
+        {
+          "path": "crates/ai-memory-cli/src/commands/search.rs",
+          "pinned_git_blob_sha": "97579bbb82aacad3b200fd22f1eab096a6b57a42",
+          "latest_release_git_blob_sha": "97579bbb82aacad3b200fd22f1eab096a6b57a42",
+          "identical": true,
+          "pinned_source_url": "https://github.com/akitaonrails/ai-memory/blob/v3.4.5/crates/ai-memory-cli/src/commands/search.rs",
+          "latest_release_source_url": "https://github.com/akitaonrails/ai-memory/blob/v3.4.6/crates/ai-memory-cli/src/commands/search.rs"
+        },
+        {
+          "path": "crates/ai-memory-cli/src/commands/write_page.rs",
+          "pinned_git_blob_sha": "8e2fd5e576ff121158cba9bf24462802c49b0068",
+          "latest_release_git_blob_sha": "8e2fd5e576ff121158cba9bf24462802c49b0068",
+          "identical": true,
+          "pinned_source_url": "https://github.com/akitaonrails/ai-memory/blob/v3.4.5/crates/ai-memory-cli/src/commands/write_page.rs",
+          "latest_release_source_url": "https://github.com/akitaonrails/ai-memory/blob/v3.4.6/crates/ai-memory-cli/src/commands/write_page.rs"
+        },
+        {
+          "path": "crates/ai-memory-cli/src/commands/read_page.rs",
+          "pinned_git_blob_sha": "6a1c1ef99764d7da115b683d2b13c6b0d8126d77",
+          "latest_release_git_blob_sha": "6a1c1ef99764d7da115b683d2b13c6b0d8126d77",
+          "identical": true,
+          "pinned_source_url": "https://github.com/akitaonrails/ai-memory/blob/v3.4.5/crates/ai-memory-cli/src/commands/read_page.rs",
+          "latest_release_source_url": "https://github.com/akitaonrails/ai-memory/blob/v3.4.6/crates/ai-memory-cli/src/commands/read_page.rs"
+        }
+      ],
+      "changed_path_review": [
+        {
+          "path": "crates/ai-memory-mcp/src/server.rs",
+          "changes": "Lint receives complete decay parameters; delete-page acknowledgment handling changes. No memory_query or memory_read_page hunk in the returned diff."
+        },
+        {
+          "path": "crates/ai-memory-mcp/src/admin.rs",
+          "changes": "Lint parameters; purge/move session guards; rename/adopt/merge project bookkeeping and scope-cache invalidation; delete acknowledgment. No /admin/search, /admin/write-page, or /admin/read-page implementation hunk in the returned diff."
+        },
+        {
+          "path": "crates/ai-memory-store/src/reader.rs",
+          "changes": "Failed-consolidation queue/list counts exclude failures superseded by a later successful generation. Search ranking functions do not change in the returned diff."
+        },
+        {
+          "path": "crates/ai-memory-store/src/ops.rs",
+          "changes": "Delete-page return value and merge-project repository identity transfer; no adapter page upsert/search ranking hunk."
+        },
+        {
+          "path": "crates/ai-memory-store/src/writer.rs",
+          "changes": "Delete-page result type changes; no adapter write-page/ranking hunk."
+        },
+        {
+          "path": "crates/ai-memory-wiki/src/wiki.rs",
+          "changes": "Deletion return values and protection for directories containing child pages. The isolated import/search/read fixture does not invoke deletion."
+        },
+        {
+          "path": "crates/ai-memory-cli/templates/config.default.toml",
+          "changes": "Comment-only clarification that abstract vectors require agent-authored abstracts; no retrieval default change."
+        }
+      ],
+      "interpretation": "The inspected official diff does not identify a material ranking change for the supplied-page FTS or local-embedding MCP query modes. Seven helper/CLI/local-model source files are identical. This is source review, not a proof that complete binaries, latency, hooks, consolidation, or all production behavior are equivalent.",
+      "executed_component_contract": {
+        "fts": "Official v3.4.5 executable with embedding_provider=none; GET /admin/search, the native CLI search route.",
+        "hybrid": "Same executable with embedding_provider=local; actual native MCP memory_query with the shipped all-MiniLM-L6-v2 model. The adapter waits for successful embedding backfill and fails instead of silently falling back.",
+        "supplied_input": "Native /admin/write-page in an isolated authenticated loopback server; original body/title/project, empty tags, episodic tier.",
+        "metadata_difference": "The existing adapter does not pass fixture created_at into /admin/write-page. Any native page timestamps arise from upstream ingestion; canonical fixture timestamps remain in external scoring/packing metadata.",
+        "native_reads": "When complete body evidence is needed, count actual /admin/read-page or memory_read_page calls. A fixed top-k read policy is not an adaptive agent's minimum required reads.",
+        "timing_boundary": "Reported search_ms is an HTTP/MCP round trip including transport and decoding, not an isolated ranking-kernel timer.",
+        "local_embedding_model_files_bytes": 91335235,
+        "excludes": [
+          "complete native capture/consolidation workflow",
+          "cross-agent handoffs",
+          "aging and dream passes",
+          "team authorization behavior",
+          "coding-LLM answers"
+        ],
+        "required_platform": "Linux x86-64 for the pinned release binary."
+      },
+      "official_product_context": {
+        "readme_url": "https://github.com/akitaonrails/ai-memory/blob/v3.4.6/README.md",
+        "changelog_url": "https://github.com/akitaonrails/ai-memory/blob/v3.4.6/CHANGELOG.md",
+        "capabilities_documented": [
+          "Long-term coding memory across agents, projects and machines.",
+          "Git-backed Markdown wiki with retained source versions.",
+          "Native hook capture and explicit handoffs.",
+          "Multi-user project sharing and per-person attribution.",
+          "Zero-LLM default capture/search/handoffs; optional local vectors and LLM passes."
+        ],
+        "claim_limit": "Project scoping, multiple clients, local operation and zero default memory-model calls are not exclusive Book advantages."
+      }
+    },
+    {
+      "repository": "ranxianglei/billion-context",
+      "adapter": "BillionKernel",
+      "pinned": {
+        "commit": "9674cfafbc78c50245ae0d887483d3d6ce880c15",
+        "commit_time_utc": "2026-11-12T06:06:31Z",
+        "lock_file": "benchmarks/competitors/billion-round2-lock.json"
+      },
+      "latest_stable_observed": {
+        "version": "v0.1.214",
+        "commit": "c26e001b6c4b0968f1efd703bfeaa9d745de5a56",
+        "release_url": "https://github.com/ranxianglei/billion-context/releases/tag/v0.1.214",
+        "commit_url": "https://github.com/ranxianglei/billion-context/commit/c26e001b6c4b0968f1efd703bfeaa9d745de5a56"
+      },
+      "comparison": {
+        "url": "https://github.com/ranxianglei/billion-context/compare/9674cfafbc78c50245ae0d887483d3d6ce880c15...v0.1.214",
+        "api_url": "https://api.github.com/repos/ranxianglei/billion-context/compare/9674cfafbc78c50245ae0d887483d3d6ce880c15...v0.1.214",
+        "status": "ahead",
+        "ahead_by": 244,
+        "behind_by": 0,
+        "returned_changed_files": 300,
+        "changed_file_list_caution": "The compare response returns 300 files; do not infer complete repository equality from absence in that capped list. Every one of the 14 locked kernel/src files was instead compared directly."
+      },
+      "identical_retrieval_files": [
+        {
+          "path": "kernel/src/search.ts",
+          "pinned_git_blob_sha": "c191f04696ca1485de124d8b380d30359bbf6ee2",
+          "latest_release_git_blob_sha": "c191f04696ca1485de124d8b380d30359bbf6ee2",
+          "identical": true,
+          "pinned_source_url": "https://github.com/ranxianglei/billion-context/blob/9674cfafbc78c50245ae0d887483d3d6ce880c15/kernel/src/search.ts",
+          "latest_release_source_url": "https://github.com/ranxianglei/billion-context/blob/v0.1.214/kernel/src/search.ts"
+        },
+        {
+          "path": "kernel/src/search/algorithms/bm25.ts",
+          "pinned_git_blob_sha": "56fd7225d7e1f268c3c9660ee107d09b2e312668",
+          "latest_release_git_blob_sha": "56fd7225d7e1f268c3c9660ee107d09b2e312668",
+          "identical": true,
+          "pinned_source_url": "https://github.com/ranxianglei/billion-context/blob/9674cfafbc78c50245ae0d887483d3d6ce880c15/kernel/src/search/algorithms/bm25.ts",
+          "latest_release_source_url": "https://github.com/ranxianglei/billion-context/blob/v0.1.214/kernel/src/search/algorithms/bm25.ts"
+        },
+        {
+          "path": "kernel/src/search/algorithms/fuzzy.ts",
+          "pinned_git_blob_sha": "c6a6d219af29ab22762e5d507a37e0a5db088b0d",
+          "latest_release_git_blob_sha": "c6a6d219af29ab22762e5d507a37e0a5db088b0d",
+          "identical": true,
+          "pinned_source_url": "https://github.com/ranxianglei/billion-context/blob/9674cfafbc78c50245ae0d887483d3d6ce880c15/kernel/src/search/algorithms/fuzzy.ts",
+          "latest_release_source_url": "https://github.com/ranxianglei/billion-context/blob/v0.1.214/kernel/src/search/algorithms/fuzzy.ts"
+        },
+        {
+          "path": "kernel/src/search/algorithms/hybrid.ts",
+          "pinned_git_blob_sha": "dce30c55386efe2162284089af2a9ab2f1fdeffa",
+          "latest_release_git_blob_sha": "dce30c55386efe2162284089af2a9ab2f1fdeffa",
+          "identical": true,
+          "pinned_source_url": "https://github.com/ranxianglei/billion-context/blob/9674cfafbc78c50245ae0d887483d3d6ce880c15/kernel/src/search/algorithms/hybrid.ts",
+          "latest_release_source_url": "https://github.com/ranxianglei/billion-context/blob/v0.1.214/kernel/src/search/algorithms/hybrid.ts"
+        },
+        {
+          "path": "kernel/src/search/algorithms/semantic.ts",
+          "pinned_git_blob_sha": "c6309e9ad05849af2f969beb76e7c13109bc0825",
+          "latest_release_git_blob_sha": "c6309e9ad05849af2f969beb76e7c13109bc0825",
+          "identical": true,
+          "pinned_source_url": "https://github.com/ranxianglei/billion-context/blob/9674cfafbc78c50245ae0d887483d3d6ce880c15/kernel/src/search/algorithms/semantic.ts",
+          "latest_release_source_url": "https://github.com/ranxianglei/billion-context/blob/v0.1.214/kernel/src/search/algorithms/semantic.ts"
+        },
+        {
+          "path": "kernel/src/search/algorithms/substring.ts",
+          "pinned_git_blob_sha": "5b64c689ad2dff12012892e8d342decfb586a396",
+          "latest_release_git_blob_sha": "5b64c689ad2dff12012892e8d342decfb586a396",
+          "identical": true,
+          "pinned_source_url": "https://github.com/ranxianglei/billion-context/blob/9674cfafbc78c50245ae0d887483d3d6ce880c15/kernel/src/search/algorithms/substring.ts",
+          "latest_release_source_url": "https://github.com/ranxianglei/billion-context/blob/v0.1.214/kernel/src/search/algorithms/substring.ts"
+        },
+        {
+          "path": "kernel/src/search/doc-cache.ts",
+          "pinned_git_blob_sha": "63d46002a42e6cfab911e23e853d338c81fae907",
+          "latest_release_git_blob_sha": "63d46002a42e6cfab911e23e853d338c81fae907",
+          "identical": true,
+          "pinned_source_url": "https://github.com/ranxianglei/billion-context/blob/9674cfafbc78c50245ae0d887483d3d6ce880c15/kernel/src/search/doc-cache.ts",
+          "latest_release_source_url": "https://github.com/ranxianglei/billion-context/blob/v0.1.214/kernel/src/search/doc-cache.ts"
+        },
+        {
+          "path": "kernel/src/search/index.ts",
+          "pinned_git_blob_sha": "ad6c778af1d63aa8c26c9367f7f612b3991aec8b",
+          "latest_release_git_blob_sha": "ad6c778af1d63aa8c26c9367f7f612b3991aec8b",
+          "identical": true,
+          "pinned_source_url": "https://github.com/ranxianglei/billion-context/blob/9674cfafbc78c50245ae0d887483d3d6ce880c15/kernel/src/search/index.ts",
+          "latest_release_source_url": "https://github.com/ranxianglei/billion-context/blob/v0.1.214/kernel/src/search/index.ts"
+        },
+        {
+          "path": "kernel/src/search/registry.ts",
+          "pinned_git_blob_sha": "98dd1944f85519e51a34585f883af4311bbe66e3",
+          "latest_release_git_blob_sha": "98dd1944f85519e51a34585f883af4311bbe66e3",
+          "identical": true,
+          "pinned_source_url": "https://github.com/ranxianglei/billion-context/blob/9674cfafbc78c50245ae0d887483d3d6ce880c15/kernel/src/search/registry.ts",
+          "latest_release_source_url": "https://github.com/ranxianglei/billion-context/blob/v0.1.214/kernel/src/search/registry.ts"
+        },
+        {
+          "path": "kernel/src/search/stemmer.ts",
+          "pinned_git_blob_sha": "c17078129dd071ce703e92717b66661d3e99534d",
+          "latest_release_git_blob_sha": "c17078129dd071ce703e92717b66661d3e99534d",
+          "identical": true,
+          "pinned_source_url": "https://github.com/ranxianglei/billion-context/blob/9674cfafbc78c50245ae0d887483d3d6ce880c15/kernel/src/search/stemmer.ts",
+          "latest_release_source_url": "https://github.com/ranxianglei/billion-context/blob/v0.1.214/kernel/src/search/stemmer.ts"
+        },
+        {
+          "path": "kernel/src/search/tokenizer.ts",
+          "pinned_git_blob_sha": "34d770802cac1e1975f914eae01212f766ddf083",
+          "latest_release_git_blob_sha": "34d770802cac1e1975f914eae01212f766ddf083",
+          "identical": true,
+          "pinned_source_url": "https://github.com/ranxianglei/billion-context/blob/9674cfafbc78c50245ae0d887483d3d6ce880c15/kernel/src/search/tokenizer.ts",
+          "latest_release_source_url": "https://github.com/ranxianglei/billion-context/blob/v0.1.214/kernel/src/search/tokenizer.ts"
+        },
+        {
+          "path": "kernel/src/search/types.ts",
+          "pinned_git_blob_sha": "d91a08a7f30e410d470569003a84ddd4c88ef359",
+          "latest_release_git_blob_sha": "d91a08a7f30e410d470569003a84ddd4c88ef359",
+          "identical": true,
+          "pinned_source_url": "https://github.com/ranxianglei/billion-context/blob/9674cfafbc78c50245ae0d887483d3d6ce880c15/kernel/src/search/types.ts",
+          "latest_release_source_url": "https://github.com/ranxianglei/billion-context/blob/v0.1.214/kernel/src/search/types.ts"
+        },
+        {
+          "path": "kernel/src/truncate.ts",
+          "pinned_git_blob_sha": "0121ffab173bf20540e76a569fd9447c8de1abcd",
+          "latest_release_git_blob_sha": "0121ffab173bf20540e76a569fd9447c8de1abcd",
+          "identical": true,
+          "pinned_source_url": "https://github.com/ranxianglei/billion-context/blob/9674cfafbc78c50245ae0d887483d3d6ce880c15/kernel/src/truncate.ts",
+          "latest_release_source_url": "https://github.com/ranxianglei/billion-context/blob/v0.1.214/kernel/src/truncate.ts"
+        },
+        {
+          "path": "kernel/src/types.ts",
+          "pinned_git_blob_sha": "7e7b4f4699901bf5f9d7b8cabc2ed864295c992a",
+          "latest_release_git_blob_sha": "7e7b4f4699901bf5f9d7b8cabc2ed864295c992a",
+          "identical": true,
+          "pinned_source_url": "https://github.com/ranxianglei/billion-context/blob/9674cfafbc78c50245ae0d887483d3d6ce880c15/kernel/src/types.ts",
+          "latest_release_source_url": "https://github.com/ranxianglei/billion-context/blob/v0.1.214/kernel/src/types.ts"
+        }
+      ],
+      "interpretation": "All 14 kernel/src files locked by the adapter are identical to the observed stable release by Git blob SHA. Package metadata and the full compression/proxy/host runtime differ; the benchmark identity remains the actual pinned commit.",
+      "executed_component_contract": {
+        "implementation": "Unmodified searchBlocks and shipped default hybrid BM25 plus fuzzy ranker; Node syntax erasure only.",
+        "supplied_input": "Full fixture text supplied as in-memory message documents with uniform message/assistant fields; project partitioning precedes search.",
+        "excludes": [
+          "model-driven compression",
+          "proxy interception",
+          "decompression behavior",
+          "client history capture",
+          "full-product context management",
+          "coding-LLM answers"
+        ],
+        "timing_boundary": "Native kernel timer and persistent Python-to-Node JSON round trip are separate; common whole-block pack is additional.",
+        "storage_caution": "An in-memory search component is not a full persistence system; its storage footprint is not comparable with Book's persistent SQLite archive.",
+        "license": "MIT text plus Additional Term: Attribution on Product Surfaces.",
+        "attribution_links": [
+          "https://github.com/ranxianglei/billion-context",
+          "https://github.com/ranxianglei/acp-kernel"
+        ]
+      },
+      "official_product_context": {
+        "readme_url": "https://github.com/ranxianglei/billion-context/blob/v0.1.214/README.md",
+        "capabilities_documented": [
+          "Long-running coding sessions with model-driven hierarchical compression.",
+          "Incremental reversible compression with decompression for original details.",
+          "Keyword search across compressed summaries and visible messages.",
+          "Multiple client launchers/plugins and prefix-cache preservation."
+        ],
+        "claim_limit": "The fixed search-kernel result cannot establish superiority to the complete compression product, its latest complete release, or its own published end-to-end benchmarks."
+      }
+    }
+  ],
+  "fair_comparison_requirements": [
+    "Use the same chronological supplied pages, known project scope, query, top-5 limit and 2400-character common whole-block pack; keep gold labels outside retriever inputs.",
+    "Preserve native hit order and complete body mapping. Do not grant Book a different excerpt window within the shared-pack comparison.",
+    "Keep Book native context results separate from the common component pack; their equal numerical scores on a dataset do not make the protocols identical.",
+    "Expose unknown mappings, source/budget validation failures and native read failures; do not silently drop them.",
+    "Report native function latency only where that boundary exists; separate adapter round trips, native body reads, common packing, startup, ingestion, storage, model download and CPU/RSS measures.",
+    "Report zero memory-LLM calls only for the evaluated component/default memory path, not zero cost of an entire coding agent.",
+    "Current-only README tables may omit Book's old releases, while fixed opponent revisions remain necessary for reproducibility."
+  ],
+  "audit_limits": [
+    "No benchmark measurement or new test run was performed by this source audit.",
+    "Exact Git blob equality is established only for the named 27 files, not all transitive runtime dependencies or complete products.",
+    "Latest refers to the official stable release observed at the audit time, not unreleased branch HEAD or future releases.",
+    "The ai-memory no-material-ranking-change conclusion is an inference from the examined official source diff and named identical helpers; performance equivalence was not tested.",
+    "Current fixture-level evidence does not establish real coding-LLM productivity, time to a correct patch, hidden-test success, months of production use, or conditional cross-project transfer."
+  ]
+}
