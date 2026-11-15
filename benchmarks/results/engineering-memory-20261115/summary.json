@@ -1,0 +1,468 @@
+{
+  "schema": "engineering-development-summary-v1",
+  "integrity_passed": true,
+  "evidence_level": "synthetic_development_only",
+  "order": [
+    "baseline",
+    "candidate",
+    "candidate",
+    "baseline"
+  ],
+  "runtime_sha256": {
+    "baseline": "4f84e9f8e7fa0ee7c9abe1910f2df5622d0414fb5f3b6e218544161f8a25dd81",
+    "candidate": "107d5d7654a201d074decaa1c0b0e2b80c8f4cd409cdb37f4fb7d490a34da8ef"
+  },
+  "dataset_sha256": "87e8ccad3510fb7e8a4c68c9fa3f284473abf8381ef6444ad179e3d4196b3ac3",
+  "targeted": {
+    "current": {
+      "baseline": {
+        "samples": 480,
+        "p50_ms": 1.5133605,
+        "p95_ms": 2.208118,
+        "p95_method": "nearest_rank",
+        "correction_visible_calls": 0,
+        "distinct_cases": 8
+      },
+      "candidate": {
+        "samples": 480,
+        "p50_ms": 0.796079,
+        "p95_ms": 1.174963,
+        "p95_method": "nearest_rank",
+        "correction_visible_calls": 480,
+        "distinct_cases": 8
+      }
+    },
+    "historical-control": {
+      "baseline": {
+        "samples": 480,
+        "p50_ms": 1.4667525000000001,
+        "p95_ms": 2.1511,
+        "p95_method": "nearest_rank",
+        "correction_visible_calls": 0,
+        "distinct_cases": 8
+      },
+      "candidate": {
+        "samples": 480,
+        "p50_ms": 1.4582375,
+        "p95_ms": 1.979623,
+        "p95_method": "nearest_rank",
+        "correction_visible_calls": 0,
+        "distinct_cases": 8
+      }
+    },
+    "ordinary-control": {
+      "baseline": {
+        "samples": 480,
+        "p50_ms": 1.378436,
+        "p95_ms": 1.971252,
+        "p95_method": "nearest_rank",
+        "correction_visible_calls": 0,
+        "distinct_cases": 8
+      },
+      "candidate": {
+        "samples": 480,
+        "p50_ms": 1.3506070000000001,
+        "p95_ms": 1.96297,
+        "p95_method": "nearest_rank",
+        "correction_visible_calls": 0,
+        "distinct_cases": 8
+      }
+    }
+  },
+  "workflow": {
+    "1200": {
+      "baseline": {
+        "backend": "book",
+        "budget_chars": 1200,
+        "cases": 80,
+        "answerable_cases": 72,
+        "evidence_recall": 0.6,
+        "complete_evidence_rate": 0.5833333333333334,
+        "fixed_consumer_cases": 48,
+        "fixed_consumer_all_checks_pass_rate": 0.4166666666666667,
+        "stale_only_cases": 0,
+        "missing_evidence_nonempty_cases": 8,
+        "budget_violations": 0,
+        "source_validation_failures": 0,
+        "mean_context_chars": 1196.7,
+        "retrieval_p50_ms": 1.9432205,
+        "retrieval_p95_ms": 3.80752265,
+        "retrieval_samples": 240,
+        "repeat_output_changes": 0,
+        "pooled_timing": {
+          "samples": 480,
+          "p50_ms": 1.8416085,
+          "p95_ms": 3.562572499999999,
+          "p95_method": "linear_interpolation"
+        }
+      },
+      "candidate": {
+        "backend": "book",
+        "budget_chars": 1200,
+        "cases": 80,
+        "answerable_cases": 72,
+        "evidence_recall": 0.9,
+        "complete_evidence_rate": 0.8888888888888888,
+        "fixed_consumer_cases": 48,
+        "fixed_consumer_all_checks_pass_rate": 0.9166666666666666,
+        "stale_only_cases": 0,
+        "missing_evidence_nonempty_cases": 8,
+        "budget_violations": 0,
+        "source_validation_failures": 0,
+        "mean_context_chars": 1196.025,
+        "retrieval_p50_ms": 1.705805,
+        "retrieval_p95_ms": 3.2660471999999996,
+        "retrieval_samples": 240,
+        "repeat_output_changes": 0,
+        "pooled_timing": {
+          "samples": 480,
+          "p50_ms": 1.8251135,
+          "p95_ms": 3.792747399999999,
+          "p95_method": "linear_interpolation"
+        }
+      },
+      "paired": {
+        "complete_evidence_wins": [
+          "m3:attention-batch:replacement",
+          "m3:attention-online:replacement",
+          "m3:ranking-batch:replacement",
+          "m3:ranking-online:replacement",
+          "m3:routing-batch:replacement",
+          "m3:routing-online:replacement",
+          "m3:training-batch:replacement",
+          "m3:training-online:replacement",
+          "m4:ranking-batch:constraints",
+          "m4:ranking-online:constraints",
+          "m4:routing-batch:constraints",
+          "m4:routing-online:constraints",
+          "m4:training-batch:constraints",
+          "m4:training-online:constraints",
+          "m6:attention-batch:long-gap",
+          "m6:attention-online:long-gap",
+          "m6:ranking-batch:long-gap",
+          "m6:ranking-online:long-gap",
+          "m6:routing-batch:long-gap",
+          "m6:routing-online:long-gap",
+          "m6:training-batch:long-gap",
+          "m6:training-online:long-gap"
+        ],
+        "complete_evidence_losses": []
+      }
+    },
+    "2400": {
+      "baseline": {
+        "backend": "book",
+        "budget_chars": 2400,
+        "cases": 80,
+        "answerable_cases": 72,
+        "evidence_recall": 0.65,
+        "complete_evidence_rate": 0.6111111111111112,
+        "fixed_consumer_cases": 48,
+        "fixed_consumer_all_checks_pass_rate": 0.4166666666666667,
+        "stale_only_cases": 0,
+        "missing_evidence_nonempty_cases": 8,
+        "budget_violations": 0,
+        "source_validation_failures": 0,
+        "mean_context_chars": 1954.6375,
+        "retrieval_p50_ms": 1.1334594999999998,
+        "retrieval_p95_ms": 2.0923097999999993,
+        "retrieval_samples": 240,
+        "repeat_output_changes": 0,
+        "pooled_timing": {
+          "samples": 480,
+          "p50_ms": 1.0271625,
+          "p95_ms": 1.9859679499999994,
+          "p95_method": "linear_interpolation"
+        }
+      },
+      "candidate": {
+        "backend": "book",
+        "budget_chars": 2400,
+        "cases": 80,
+        "answerable_cases": 72,
+        "evidence_recall": 0.95,
+        "complete_evidence_rate": 0.9444444444444444,
+        "fixed_consumer_cases": 48,
+        "fixed_consumer_all_checks_pass_rate": 0.9166666666666666,
+        "stale_only_cases": 0,
+        "missing_evidence_nonempty_cases": 8,
+        "budget_violations": 0,
+        "source_validation_failures": 0,
+        "mean_context_chars": 1812,
+        "retrieval_p50_ms": 0.946841,
+        "retrieval_p95_ms": 1.8455432999999999,
+        "retrieval_samples": 240,
+        "repeat_output_changes": 0,
+        "pooled_timing": {
+          "samples": 480,
+          "p50_ms": 1.1171285000000002,
+          "p95_ms": 2.056307299999998,
+          "p95_method": "linear_interpolation"
+        }
+      },
+      "paired": {
+        "complete_evidence_wins": [
+          "m3:attention-batch:replacement",
+          "m3:attention-online:replacement",
+          "m3:ranking-batch:replacement",
+          "m3:ranking-online:replacement",
+          "m3:routing-batch:replacement",
+          "m3:routing-online:replacement",
+          "m3:training-batch:replacement",
+          "m3:training-online:replacement",
+          "m4:attention-batch:constraints",
+          "m4:attention-online:constraints",
+          "m4:ranking-batch:constraints",
+          "m4:ranking-online:constraints",
+          "m4:routing-batch:constraints",
+          "m4:routing-online:constraints",
+          "m4:training-batch:constraints",
+          "m4:training-online:constraints",
+          "m6:attention-batch:long-gap",
+          "m6:attention-online:long-gap",
+          "m6:ranking-batch:long-gap",
+          "m6:ranking-online:long-gap",
+          "m6:routing-batch:long-gap",
+          "m6:routing-online:long-gap",
+          "m6:training-batch:long-gap",
+          "m6:training-online:long-gap"
+        ],
+        "complete_evidence_losses": []
+      }
+    }
+  },
+  "components": {
+    "1200": {
+      "candidate_vs_billion": {
+        "complete_evidence_wins": [
+          "m6:attention-batch:historical",
+          "m6:attention-online:historical",
+          "m6:ranking-batch:historical",
+          "m6:ranking-online:historical",
+          "m6:routing-batch:historical",
+          "m6:routing-online:historical"
+        ],
+        "complete_evidence_losses": [
+          "m3:attention-batch:replacement",
+          "m3:attention-online:replacement",
+          "m3:ranking-batch:replacement",
+          "m3:ranking-online:replacement",
+          "m3:routing-batch:replacement",
+          "m3:routing-online:replacement",
+          "m3:training-batch:replacement",
+          "m3:training-online:replacement",
+          "m4:attention-batch:constraints",
+          "m4:attention-online:constraints",
+          "m4:ranking-batch:constraints",
+          "m4:ranking-online:constraints",
+          "m4:routing-batch:constraints",
+          "m4:routing-online:constraints",
+          "m4:training-batch:chinese",
+          "m4:training-batch:constraints",
+          "m4:training-online:chinese",
+          "m4:training-online:constraints",
+          "m6:attention-batch:long-gap",
+          "m6:attention-online:long-gap",
+          "m6:ranking-batch:long-gap",
+          "m6:ranking-online:long-gap",
+          "m6:routing-batch:long-gap",
+          "m6:routing-online:long-gap",
+          "m6:training-batch:long-gap",
+          "m6:training-online:long-gap"
+        ]
+      },
+      "quality": {
+        "baseline": [
+          {
+            "backend": "billion",
+            "budget_chars": 1200,
+            "cases": 80,
+            "answerable_cases": 72,
+            "evidence_recall": 0.9,
+            "complete_evidence_rate": 0.8888888888888888,
+            "fixed_consumer_cases": 48,
+            "fixed_consumer_all_checks_pass_rate": 0.8333333333333334,
+            "stale_only_cases": 0,
+            "missing_evidence_nonempty_cases": 8,
+            "budget_violations": 0,
+            "source_validation_failures": 0,
+            "mean_context_chars": 948.5,
+            "retrieval_p50_ms": 0.488371,
+            "retrieval_p95_ms": 2.4435979999999997,
+            "retrieval_samples": 240,
+            "repeat_output_changes": 0
+          },
+          {
+            "backend": "book",
+            "budget_chars": 1200,
+            "cases": 80,
+            "answerable_cases": 72,
+            "evidence_recall": 0.65,
+            "complete_evidence_rate": 0.6111111111111112,
+            "fixed_consumer_cases": 48,
+            "fixed_consumer_all_checks_pass_rate": 0.4166666666666667,
+            "stale_only_cases": 0,
+            "missing_evidence_nonempty_cases": 8,
+            "budget_violations": 0,
+            "source_validation_failures": 0,
+            "mean_context_chars": 1028.15,
+            "retrieval_p50_ms": 1.291447,
+            "retrieval_p95_ms": 2.739713199999998,
+            "retrieval_samples": 240,
+            "repeat_output_changes": 0
+          }
+        ],
+        "candidate": [
+          {
+            "backend": "billion",
+            "budget_chars": 1200,
+            "cases": 80,
+            "answerable_cases": 72,
+            "evidence_recall": 0.9,
+            "complete_evidence_rate": 0.8888888888888888,
+            "fixed_consumer_cases": 48,
+            "fixed_consumer_all_checks_pass_rate": 0.8333333333333334,
+            "stale_only_cases": 0,
+            "missing_evidence_nonempty_cases": 8,
+            "budget_violations": 0,
+            "source_validation_failures": 0,
+            "mean_context_chars": 948.5,
+            "retrieval_p50_ms": 0.47486,
+            "retrieval_p95_ms": 1.8749919499999996,
+            "retrieval_samples": 240,
+            "repeat_output_changes": 0
+          },
+          {
+            "backend": "book",
+            "budget_chars": 1200,
+            "cases": 80,
+            "answerable_cases": 72,
+            "evidence_recall": 0.65,
+            "complete_evidence_rate": 0.6111111111111112,
+            "fixed_consumer_cases": 48,
+            "fixed_consumer_all_checks_pass_rate": 0.4166666666666667,
+            "stale_only_cases": 14,
+            "missing_evidence_nonempty_cases": 8,
+            "budget_violations": 0,
+            "source_validation_failures": 0,
+            "mean_context_chars": 1079.7,
+            "retrieval_p50_ms": 1.163478,
+            "retrieval_p95_ms": 2.1955286999999992,
+            "retrieval_samples": 240,
+            "repeat_output_changes": 0
+          }
+        ]
+      }
+    },
+    "2400": {
+      "candidate_vs_billion": {
+        "complete_evidence_wins": [
+          "m6:attention-batch:historical",
+          "m6:attention-online:historical",
+          "m6:ranking-batch:historical",
+          "m6:ranking-online:historical",
+          "m6:routing-batch:historical",
+          "m6:routing-online:historical"
+        ],
+        "complete_evidence_losses": [
+          "m4:training-batch:chinese",
+          "m4:training-online:chinese"
+        ]
+      },
+      "quality": {
+        "baseline": [
+          {
+            "backend": "billion",
+            "budget_chars": 2400,
+            "cases": 80,
+            "answerable_cases": 72,
+            "evidence_recall": 0.9,
+            "complete_evidence_rate": 0.8888888888888888,
+            "fixed_consumer_cases": 48,
+            "fixed_consumer_all_checks_pass_rate": 0.8333333333333334,
+            "stale_only_cases": 0,
+            "missing_evidence_nonempty_cases": 8,
+            "budget_violations": 0,
+            "source_validation_failures": 0,
+            "mean_context_chars": 1955,
+            "retrieval_p50_ms": 0.488371,
+            "retrieval_p95_ms": 2.4435979999999997,
+            "retrieval_samples": 240,
+            "repeat_output_changes": 0
+          },
+          {
+            "backend": "book",
+            "budget_chars": 2400,
+            "cases": 80,
+            "answerable_cases": 72,
+            "evidence_recall": 0.65,
+            "complete_evidence_rate": 0.6111111111111112,
+            "fixed_consumer_cases": 48,
+            "fixed_consumer_all_checks_pass_rate": 0.4166666666666667,
+            "stale_only_cases": 0,
+            "missing_evidence_nonempty_cases": 8,
+            "budget_violations": 0,
+            "source_validation_failures": 0,
+            "mean_context_chars": 1954.6375,
+            "retrieval_p50_ms": 1.291447,
+            "retrieval_p95_ms": 2.739713199999998,
+            "retrieval_samples": 240,
+            "repeat_output_changes": 0
+          }
+        ],
+        "candidate": [
+          {
+            "backend": "billion",
+            "budget_chars": 2400,
+            "cases": 80,
+            "answerable_cases": 72,
+            "evidence_recall": 0.9,
+            "complete_evidence_rate": 0.8888888888888888,
+            "fixed_consumer_cases": 48,
+            "fixed_consumer_all_checks_pass_rate": 0.8333333333333334,
+            "stale_only_cases": 0,
+            "missing_evidence_nonempty_cases": 8,
+            "budget_violations": 0,
+            "source_validation_failures": 0,
+            "mean_context_chars": 1955,
+            "retrieval_p50_ms": 0.47486,
+            "retrieval_p95_ms": 1.8749919499999996,
+            "retrieval_samples": 240,
+            "repeat_output_changes": 0
+          },
+          {
+            "backend": "book",
+            "budget_chars": 2400,
+            "cases": 80,
+            "answerable_cases": 72,
+            "evidence_recall": 0.95,
+            "complete_evidence_rate": 0.9444444444444444,
+            "fixed_consumer_cases": 48,
+            "fixed_consumer_all_checks_pass_rate": 0.9166666666666666,
+            "stale_only_cases": 0,
+            "missing_evidence_nonempty_cases": 8,
+            "budget_violations": 0,
+            "source_validation_failures": 0,
+            "mean_context_chars": 1812,
+            "retrieval_p50_ms": 1.163478,
+            "retrieval_p95_ms": 2.1955286999999992,
+            "retrieval_samples": 240,
+            "repeat_output_changes": 0
+          }
+        ]
+      }
+    }
+  },
+  "call_counts": {
+    "targeted": 2880,
+    "workflow": 7680,
+    "external_components": 1920
+  },
+  "limitations": [
+    "Development fixtures informed changes; no independent holdout.",
+    "Fixed policy consumer, no LLM code generation or time-to-correct-patch measurement.",
+    "External common whole-block packing differs from native bounded excerpts.",
+    "Search interface timings cannot establish complete product speed ratios."
+  ],
+  "unchanged_control_cases": 16
+}

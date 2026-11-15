@@ -201,6 +201,7 @@ RSS 每 20 ms 采样工作进程及存活后代，包含评测器和语料内存
 | 了解何时检索、引用原文、处理缺失证据 | [AI 使用指南](docs/agent-guide.md) |
 | 开启精确 token 上限、Q2 语义或精简引用 | [Token 预算](docs/token-budget.md) · [语义检索](docs/semantic-retrieval.md) · [精简引用](docs/indexed-references.md) |
 | 在浏览器检查归档 | 运行 `memory-book serve`，打开 [127.0.0.1:8765](http://127.0.0.1:8765) |
+| 评估长期算法与代码工程记忆 | [工程实验协议](docs/engineering-memory-evaluation.md) · [开发结果与限制](docs/engineering-memory-results.md) |
 | 查看完整实验或参与开发 | [基准索引](benchmarks/README.md) · [验证记录](docs/validation.md) · [贡献指南](CONTRIBUTING.md) · [更新日志](CHANGELOG.md) |
 
 可选 Q2 运行时会主动退出 ONNX Runtime 遥测。归档是本地未加密数据；返回给 AI 客户端的证据会进入该客户端的模型上下文。网页阅读器用于检查归档，正常 MCP 和采集无需 HTTP 端口。[数据与配置位置](docs/deployment.md#data-and-configuration-paths)。

@@ -1,5 +1,17 @@
 # Retrieval experiments
 
+## Development: long-running engineering memory
+
+The [engineering protocol](../docs/engineering-memory-evaluation.md) makes
+time to a correct, tested code change the eventual application-level goal.
+The current [development results](../docs/engineering-memory-results.md)
+separately report chronological authored tasks, a fixed policy consumer,
+targeted same-session revisions, and an actual pinned external search component.
+These are synthetic development diagnostics, not a heldout real-user study or
+an LLM code-generation success rate. Raw responses, adverse results, source
+hashes and intermediate candidates are retained. Historical release results
+below keep their original versions and claims.
+
 ## Current: v0.3.4 startup accepted and fresh comparison complete
 
 Selected A source is [`df35007`](https://github.com/Afloat16/AI-Memory-Book/commit/df35007c29e4af61dd96146232fe4651cfc74391),

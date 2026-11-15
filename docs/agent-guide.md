@@ -124,6 +124,21 @@ evidence remains missing or contradictory, state that limit instead of inventing
 memory. Source updates can invalidate a page ID; recall again when a formerly
 returned page is reported missing or changed.
 
+The development current-query path also considers the original turn order
+within a session. Under a small character budget, it can prefer a later,
+complete matching turn after checking its text against the original source.
+This preference applies to explicit current/latest queries without historical
+qualifiers; ordinary and historical queries keep their relevance ordering.
+The reranking pool remains bounded, so a later correction can still be missed.
+Later mention of a topic does not establish an authoritative change of policy.
+Current queries can also prefer distinct, byte-identical source bodies over
+repeated copies within the same project and task. The archive retains every
+source; recognized event-count or timeline queries skip this deduplication
+preference. Pure token-only truncation is not covered by the later-turn
+excerpt rule when the whole page fits the character allowance.
+See the [engineering evaluation](engineering-memory-evaluation.md) and its
+[development results](engineering-memory-results.md).
+
 ### Optional coverage for multiple facts
 
 In v0.3.0, `recall_memory` accepts

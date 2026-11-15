@@ -201,6 +201,7 @@ The [deployment and architecture comparison](docs/comparison.md#popular-projects
 | Learn when to recall, use citations and resolve missing evidence | [Agent guide](docs/agent-guide.md) |
 | Enable exact token caps, Q2 semantics or indexed references | [Token budgets](docs/token-budget.md) · [Semantic retrieval](docs/semantic-retrieval.md) · [Indexed references](docs/indexed-references.md) |
 | Inspect the archive in a browser | Run `memory-book serve`, then open [127.0.0.1:8765](http://127.0.0.1:8765) |
+| Evaluate long-running engineering memory | [Engineering protocol](docs/engineering-memory-evaluation.md) · [Development results and limits](docs/engineering-memory-results.md) |
 | Review full measurements or contribute | [Benchmarks](benchmarks/README.md) · [Validation](docs/validation.md) · [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) |
 
 The optional Q2 runtime opts out of ONNX Runtime telemetry. The archive is local, unencrypted data. Evidence returned to an AI client enters that client's model context. The optional reader is for inspection; normal MCP and capture need no HTTP listener. [Data and configuration](docs/deployment.md#data-and-configuration-paths).

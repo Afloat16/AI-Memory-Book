@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased — engineering-memory development
+
+- Prefer a comparable later source turn for explicit current queries within
+  the same session, while retaining historical and ordinary query ordering.
+- When a page mixes old and new turns and exceeds the character allowance,
+  return a later complete matching turn only after verifying it against the
+  original source. Exact token packing stays within that preferred turn.
+- Prefer distinct complete source bodies within the existing current-query
+  candidate pool, retaining duplicate sources for fallback. Keep separate
+  project/task scopes and bypass this step for recognized event-count queries.
+- Add chronological engineering fixtures, executable fixed-policy checks,
+  targeted revision replays, and a common-page comparison using the actual
+  pinned billion-context search kernel. These are synthetic development
+  diagnostics, not evidence of LLM coding productivity or general superiority.
+- Preserve source coordinates, project boundaries, schema 3 and the default
+  no-model path. See the [protocol](docs/engineering-memory-evaluation.md) and
+  [results and limitations](docs/engineering-memory-results.md).
+
 ## 0.3.4 — 2026-11-14
 
 A release focused on startup performance and initialization correctness,
