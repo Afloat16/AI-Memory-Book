@@ -32,13 +32,14 @@ For example, invoke `recall_memory` with:
 {
   "query": "search cache expiry 45 seconds revision invalidation",
   "project": "atlas",
-  "budget_chars": 2000,
+  "budget_chars": 2400,
   "limit": 5
 }
 ```
 
 Use the project's actual ID; `atlas` is illustrative. `budget_chars` defaults to
-4,000 and `limit` to five pages. The budget covers the assembled `context`,
+2,400 in v0.4.0 and `limit` to five pages. This is the selected engineering
+profile; an explicit caller budget still overrides it. The budget covers the assembled `context`,
 including citation headings. It is a character count, not a model-token count
 or a cap on all protocol metadata. A smaller budget can omit evidence even when
 matching pages exist.
@@ -124,7 +125,7 @@ evidence remains missing or contradictory, state that limit instead of inventing
 memory. Source updates can invalidate a page ID; recall again when a formerly
 returned page is reported missing or changed.
 
-The development current-query path also considers the original turn order
+The v0.4.0 current-query path also considers the original turn order
 within a session. Under a small character budget, it can prefer a later,
 complete matching turn after checking its text against the original source.
 This preference applies to explicit current/latest queries without historical

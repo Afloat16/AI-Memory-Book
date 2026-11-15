@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "version": "0.4.0",
+  "status": "local_validation_passed_pending_remote_release_gates",
+  "authorization": "User requested the strongest measured default, README focused on that configuration, and a normal release.",
+  "selected_profile": {
+    "budget_chars": 2400,
+    "limit": 5,
+    "strategy": "book",
+    "coverage": false,
+    "semantic": false,
+    "budget_tokens": null
+  },
+  "release_runtime_sha256": "e042c6a574dcc40fbc338351a9aa3c1561da6f0d47ed023830fd858ed59ed590",
+  "runtime_file_manifest_sha256": "8a4d65aba52ec3113abe2bdf2d6f1160ef9a0224a53933bdf8483cf4d0bd0513",
+  "default_cases_verified": 80,
+  "default_equals_explicit_and_frozen": true,
+  "quality": {
+    "complete_evidence": {
+      "passed": 68,
+      "total": 72
+    },
+    "fixed_consumer": {
+      "passed": 44,
+      "total": 48
+    }
+  },
+  "selection_scope": "The stronger of the two measured engineering budgets, not a global optimum. All 80 cases are retained. This check compares full outputs, excluding only latency_ms.",
+  "accepted_tradeoff": "The original 2400-character native p95 increased 3.54%; nondefault budget losses and remaining pure-token limits remain in the detailed report.",
+  "remaining_release_gates": [
+    "Nine successful CI jobs on the exact final main commit.",
+    "Pinned release workflow: verified wheel/sdist, seven checksummed assets, normal release/Latest, actual public installer smoke."
+  ],
+  "historical_evidence_modified": false,
+  "local_validation": "local-validation.json"
+}

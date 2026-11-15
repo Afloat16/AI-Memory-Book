@@ -50,7 +50,7 @@ def parser() -> argparse.ArgumentParser:
     recall.add_argument("--project")
     recall.add_argument("--chapter")
     recall.add_argument("--session")
-    recall.add_argument("--budget", type=int, default=4000, help="Hard character limit on the assembled context, including citations")
+    recall.add_argument("--budget", type=int, default=2400, help="Hard character limit on the assembled context, including citations (default: 2400)")
     recall.add_argument("--budget-tokens", type=int, help="Optional exact token limit on the same context, including citations; requires the tokens extra")
     recall.add_argument("--tokenizer", choices=("cl100k_base", "o200k_base"), default="cl100k_base", help="Reference tokenizer for --budget-tokens")
     recall.add_argument("--limit", type=int, default=5)

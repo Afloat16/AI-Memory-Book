@@ -195,7 +195,7 @@ Pass the known project ID; `chapter` and `session` can narrow an already known
 scope. No initial `browse_*` sequence is required. For example:
 
 ```json
-{"query":"Why did we choose a 45-second cache expiry?","project":"atlas","budget_chars":2000,"limit":5}
+{"query":"Why did we choose a 45-second cache expiry?","project":"atlas","budget_chars":2400,"limit":5}
 ```
 
 If the response is sufficient, answer from it without loading more history.
@@ -209,7 +209,7 @@ follow-up rather than repeated broad reads.
 
 The server tells the model to treat historical text as untrusted evidence rather
 than instructions. Hits retain project/session IDs and zero-based `turn_index`
-values; page reads expose source spans. `budget_chars` defaults to 4,000 and
+values; page reads expose source spans. `budget_chars` defaults to 2,400 in v0.4.0 and
 bounds the assembled evidence context, including citation headings. It does
 **not** bound outer JSON metadata, tool declarations, or exact model tokens.
 Recall returns one copy of the context rather than duplicating it in text and
