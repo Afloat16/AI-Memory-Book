@@ -1,0 +1,79 @@
+{
+  "schema": "v050-hosted-first-attempt-v1",
+  "source_commit": "51f39c92caa1cfbcca7f1edaffbbe2ad03cfc3b0",
+  "run_id": 43745711896,
+  "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43745711896",
+  "jobs": [
+    {
+      "id": 132908419343,
+      "name": "container",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 132908419696,
+      "name": "installers (windows-latest)",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 132908419701,
+      "name": "reader-browser",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 132908419704,
+      "name": "core (3.12)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 132908419736,
+      "name": "core (3.10)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 132908419744,
+      "name": "installers (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 132908419814,
+      "name": "installers (macos-latest)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 132908419834,
+      "name": "mcp",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 132908419917,
+      "name": "core (3.13)",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "failed_case": "tests.test_import_preflight.ImportPreflightTests.test_invalid_batch_does_not_migrate_existing_archive",
+  "failure_phase": "TemporaryDirectory cleanup after the test assertions",
+  "error": "PermissionError [WinError 32]: book.db was still open",
+  "diagnosis": "sqlite3.Connection context management commits or rolls back but does not close the connection. Two fixture connections remained open; Windows refuses removal of the open database.",
+  "correction": "Wrap both fixture connections in contextlib.closing while retaining the connection's transaction context. Runtime, assertions, platform coverage and timeouts are unchanged.",
+  "local_followup": {
+    "command": "PYTHONPATH=src python -m unittest tests.test_import_preflight tests.test_export_book -v",
+    "tests": 23,
+    "passed": 22,
+    "skipped": 1,
+    "skip_reason": "Windows junction behavior",
+    "failures": 0,
+    "errors": 0,
+    "seconds": 0.689
+  },
+  "approved_runtime_sha256": "bd7c34dd7f795404a5d9b65502b2e67a1f4e7fc10e742cf0f30fadc57c444980",
+  "boundary": "The local follow-up does not substitute for a successful nine-job hosted run of the final release commit. The failed hosted run remains unchanged."
+}
