@@ -51,19 +51,20 @@ class RecallCoveringIndexTests(unittest.TestCase):
             with sqlite3.connect(path) as plain:
                 self.assertEqual(plain.execute("PRAGMA cache_size").fetchone()[0], original_default)
 
-    def test_existing_schema_three_archive_adds_only_a_derived_index(self):
+    def test_existing_current_schema_archive_adds_only_a_derived_index(self):
         with tempfile.TemporaryDirectory(dir=Path(__file__).parent) as directory:
             path = Path(directory) / "book.db"
             with MemoryBook(path) as book:
                 book.ingest(source("target", "one"))
                 book.recall("needle reliability", project="target")
+                before_schema = book.db.execute("PRAGMA user_version").fetchone()[0]
+                self.assertEqual(before_schema, SCHEMA_VERSION)
                 before = {name: [tuple(row) for row in book.db.execute(f"SELECT * FROM {name}")]
                           for name in ("meta", "projects", "chapters", "sessions", "turns",
                                        "sections", "pages", "recall_cache", "pages_fts", "pages_stem_fts")}
                 book.db.execute("DROP INDEX pages_recall_metadata")
             with MemoryBook(path) as book:
-                self.assertEqual(book.db.execute("PRAGMA user_version").fetchone()[0], SCHEMA_VERSION)
-                self.assertEqual(SCHEMA_VERSION, 3)
+                self.assertEqual(book.db.execute("PRAGMA user_version").fetchone()[0], before_schema)
                 self.assertEqual([row[2] for row in book.db.execute("PRAGMA index_info(pages_recall_metadata)")],
                                  ["rid", "id", "project_id", "chapter_id", "session_pk"])
                 after = {name: [tuple(row) for row in book.db.execute(f"SELECT * FROM {name}")]
@@ -112,7 +113,7 @@ class RecallCoveringIndexTests(unittest.TestCase):
                 with sqlite3.connect(legacy.path) as database:
                     database.execute("DROP INDEX pages_recall_metadata")
                 with MemoryBook(legacy.path) as book:
-                    self.assertEqual(book.db.execute("PRAGMA user_version").fetchone()[0], 3)
+                    self.assertEqual(book.db.execute("PRAGMA user_version").fetchone()[0], SCHEMA_VERSION)
                     self.assertEqual([row[2] for row in book.db.execute("PRAGMA index_info(pages_recall_metadata)")],
                                      ["rid", "id", "project_id", "chapter_id", "session_pk"])
                     self.assertEqual([tuple(row) for row in book.db.execute(

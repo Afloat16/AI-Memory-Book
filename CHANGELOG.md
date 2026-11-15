@@ -1,5 +1,25 @@
 # Changelog
 
+## Unreleased — engineering workflows
+
+- Recognize acronym, camel-case, snake-case and digit-bearing code identifiers
+  across naming styles. Canonical query facets also preserve current-decision
+  comparison when the spelling changes between turns. Source text and
+  segmentation stay unchanged.
+- Upgrade existing archives transactionally to schema 4 by rebuilding derived
+  lexical indexes. Preserve page addresses, source references and source hashes;
+  invalidate derived recall caches. Already-open older writers fail and roll
+  back instead of silently introducing incompatible lexical tokens. Upgrade
+  and restart every writer sharing the archive; optional semantic indexes need
+  explicit refresh after the revision change.
+- Keep authenticated current-turn evidence eligible during token-only
+  truncation, including selected pages outside the character allocation. A
+  complete page still returns unchanged when both budgets fit.
+- Add read-only `check-database` and non-overwriting online `backup`, including
+  committed WAL data, verification, bounded SQLite work and failure cleanup.
+- Add an executable canonical archive example and an
+  [algorithm/developer workflow guide](docs/engineering-workflows.md).
+
 ## 0.4.0 — 2026-11-15
 
 Release scope: current engineering evidence and a **2,400-character / five-page

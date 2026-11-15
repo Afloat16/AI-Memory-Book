@@ -38,6 +38,11 @@ def parser() -> argparse.ArgumentParser:
     sub.add_parser("init", help="Initialize the local database")
     sub.add_parser("projects", help="List project books")
     sub.add_parser("stats", help="Show database and index counts")
+    backup = sub.add_parser("backup", help="Create a verified SQLite snapshot without overwriting an existing file")
+    backup.add_argument("--output", required=True, help="New snapshot path; includes committed WAL data")
+    check = sub.add_parser("check-database", help="Check an existing archive read-only, without initialization or migration")
+    for maintenance in (backup, check):
+        maintenance.add_argument("--timeout", type=float, default=30.0, help="Maximum SQLite processing time in seconds (default: 30)")
     imp = sub.add_parser("import", help="Import canonical JSON or supported client text transcripts")
     imp.add_argument("files", nargs="+")
     imp.add_argument("--format", choices=FORMATS, default="auto")
@@ -211,6 +216,12 @@ def main(argv: list[str] | None = None) -> int:
         else:
             config = None
             args.db = str(database_override or default_database())
+        if args.command in {"backup", "check-database"}:
+            from .maintenance import backup_database, check_database
+            result = (backup_database(args.db, args.output, timeout=args.timeout) if args.command == "backup"
+                      else check_database(args.db, timeout=args.timeout))
+            _print(result)
+            return 0 if result["ok"] else 1
         if args.command == "clients":
             from .clients import discover_clients, profiles
             _print({"profiles": profiles(), "detected": discover_clients()})

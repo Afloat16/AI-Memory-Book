@@ -1,6 +1,6 @@
 # Exact context token budgets
 
-v0.3.0 exposes an optional exact token limit in Python, CLI,
+AI-Memory-Book exposes an optional exact token limit in Python, CLI,
 and MCP. It uses a named reference tokenizer and retains the existing character
 limit. Both limits include citations and separators in the returned `context`.
 The outer JSON, tool schema, other conversation messages and model output are
@@ -8,10 +8,10 @@ outside this context budget.
 
 ## Install and initialize
 
-From a checkout of the pinned release:
+From a checkout of the current source:
 
 ```bash
-git clone --branch v0.3.3 https://github.com/Afloat16/AI-Memory-Book.git
+git clone https://github.com/Afloat16/AI-Memory-Book.git
 cd AI-Memory-Book
 python -m venv .venv
 source .venv/bin/activate
@@ -87,6 +87,14 @@ include `budget_tokens`, `tokenizer`, `tokenizer_version` and `context_tokens`.
 `estimated_tokens` remains the older character-based estimate where that field
 is exposed. Omitting `budget_tokens` retains the existing character-only
 behavior and does not add the exact-token fields.
+
+For explicit current/latest queries, the current source authenticates a
+comparable latest turn before selecting fallback units, even when only the
+token limit forces truncation. Full pages are retained when both budgets fit.
+This keeps a larger token cap from accidentally reselecting an older matching
+turn in that fallback path; it is not a general claim that retrieval quality
+improves monotonically for every query or that the latest statement is correct.
+Historical-query behavior and original source references remain available.
 
 ## Assembly and preservation contract
 

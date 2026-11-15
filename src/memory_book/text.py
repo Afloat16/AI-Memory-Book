@@ -20,6 +20,8 @@ CJK_RUN = re.compile(rf"^[{CJK}]+$")
 CJK_CHARACTER = re.compile(rf"[{CJK}]")
 CAMEL_BOUNDARY = re.compile(r"([a-z])([A-Z])")
 IDENTIFIER_SEPARATOR = re.compile(r"[_./:-]+")
+IDENTIFIER_RUN = re.compile(r"[A-Za-z0-9_]+")
+IDENTIFIER_WORD_BOUNDARY = re.compile(r"_+|(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
 ZH_QUESTION = re.compile(r"为什么|请告诉我|请问|是什么|什么|怎么样|怎么|如何|多少|哪些|哪个|是否")
 STOP = frozenset("a an the is are was were be been to of in on at for from and or it this that these those with as by what which who when where why how do does did can could would should please tell me we our you your i my about now current latest final s t re ve ll d m".split())
 ZH_STOP = frozenset("什么 怎么 如何 为什么 哪个 哪些 是否 现在 当前 最后 最终 我们 这个 那个 一个 一下 请问 告诉 多少 了吗 的是 是什 么的 如何 何时 怎样".split())
@@ -63,13 +65,55 @@ def terms(text: str, *, query: bool = False) -> list[str]:
     return result
 
 
+def identifier_terms(text: str, *, query: bool = False) -> list[str]:
+    """Add code-spelling aliases without changing source or segmentation terms.
+
+    HTTPParser, HttpParser and http_parser share component words and a compact
+    spelling. Indexes keep every legacy token, including order and frequency,
+    so exact-spelling queries do not lose existing matches. Queries use the
+    canonical components: a legacy partial token such as ``xmlhttp`` must not
+    make XMLHttpRequest and xml_http_request incomparable current subjects.
+    Aliases never cross a qualified-name/path separator or a whitespace gap.
+    This is deterministic lexical normalization, not translation or stemming.
+    """
+    normalized = text if text.isascii() else unicodedata.normalize("NFKC", text)
+    if not IDENTIFIER_WORD_BOUNDARY.search(normalized):
+        return terms(normalized, query=query)
+    if query:
+        aliases = []
+
+        def canonical(match: re.Match[str]) -> str:
+            value = match.group()
+            parts = [part.casefold() for part in IDENTIFIER_WORD_BOUNDARY.split(value) if part]
+            if len(parts) < 2:
+                return value
+            joined = "".join(parts)
+            if joined not in STOP:
+                aliases.append(joined)
+            return " ".join(parts)
+
+        return terms(IDENTIFIER_RUN.sub(canonical, normalized), query=True) + aliases
+    result = terms(normalized)
+    for match in IDENTIFIER_RUN.finditer(normalized):
+        value = match.group()
+        parts = [part.casefold() for part in IDENTIFIER_WORD_BOUNDARY.split(value) if part]
+        if len(parts) < 2:
+            continue
+        existing = set(terms(value))
+        for alias in [*parts, "".join(parts)]:
+            if alias not in existing:
+                result.append(alias)
+                existing.add(alias)
+    return result
+
+
 def index_text(text: str) -> str:
-    return " ".join(terms(text))
+    return " ".join(identifier_terms(text))
 
 
 def query_terms(text: str) -> list[str]:
     # Bound SQL expression complexity and preserve repeated-word neutrality.
-    return list(dict.fromkeys(terms(text, query=True)))[:64]
+    return list(dict.fromkeys(identifier_terms(text, query=True)))[:64]
 
 
 def estimate_tokens(text: str) -> int:

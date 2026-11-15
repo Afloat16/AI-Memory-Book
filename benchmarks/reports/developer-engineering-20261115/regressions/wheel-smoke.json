@@ -1,0 +1,106 @@
+{
+  "status": "passed",
+  "scope": "isolated installed wheel, standard library only; not a published release",
+  "wheel_sha256": "f62fa27f330d2378ae8e092e586e3794da41d179e6b455c7cebe9f331815dfff",
+  "identity": {
+    "module": "/workspace/scratch/3c1f3115f539/evidence/wheel-smoke-env/lib/python3.12/site-packages/memory_book/__init__.py",
+    "mcp_available": false
+  },
+  "records": [
+    {
+      "arguments": [
+        "-m",
+        "pip",
+        "install",
+        "--no-index",
+        "--no-deps",
+        "/workspace/scratch/3c1f3115f539/evidence/wheelhouse/ai_memory_book-0.4.0-py3-none-any.whl"
+      ],
+      "returncode": 0,
+      "stdout": "Processing ./wheelhouse/ai_memory_book-0.4.0-py3-none-any.whl\nInstalling collected packages: ai-memory-book\nSuccessfully installed ai-memory-book-0.4.0\n",
+      "stderr": ""
+    },
+    {
+      "arguments": [
+        "-c",
+        "import importlib.util,json,memory_book;print(json.dumps({\"module\":memory_book.__file__,\"mcp_available\":importlib.util.find_spec(\"mcp\") is not None}))"
+      ],
+      "returncode": 0,
+      "stdout": "{\"module\": \"/workspace/scratch/3c1f3115f539/evidence/wheel-smoke-env/lib/python3.12/site-packages/memory_book/__init__.py\", \"mcp_available\": false}\n",
+      "stderr": ""
+    },
+    {
+      "arguments": [
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/evidence/wheel-archive-pgper9o_/memory.db",
+        "import",
+        "/workspace/scratch/3c1f3115f539/AI-Memory-Book/examples/engineering-workflow.json",
+        "--format",
+        "canonical"
+      ],
+      "returncode": 0,
+      "stdout": "[\n  {\n    \"project\": \"routing-demo\",\n    \"session_id\": \"negative-edges\",\n    \"chapter_id\": \"ch_26c09ab7975224e5dcda68b3\",\n    \"pages\": 1,\n    \"sections\": 1,\n    \"turns\": 2,\n    \"skipped\": false,\n    \"revision\": 1\n  },\n  {\n    \"project\": \"training-demo\",\n    \"session_id\": \"input-contract\",\n    \"chapter_id\": \"ch_2596331e51aaa05bcf40a286\",\n    \"pages\": 1,\n    \"sections\": 1,\n    \"turns\": 1,\n    \"skipped\": false,\n    \"revision\": 2\n  },\n  {\n    \"project\": \"gateway-demo\",\n    \"session_id\": \"parser-contract\",\n    \"chapter_id\": \"ch_398321a56f499dcd396ba941\",\n    \"pages\": 1,\n    \"sections\": 1,\n    \"turns\": 1,\n    \"skipped\": false,\n    \"revision\": 3\n  },\n  {\n    \"project\": \"inference-demo\",\n    \"session_id\": \"cache-configuration\",\n    \"chapter_id\": \"ch_94b980d275f7ffff9e4211b0\",\n    \"pages\": 1,\n    \"sections\": 1,\n    \"turns\": 2,\n    \"skipped\": false,\n    \"revision\": 4\n  },\n  {\n    \"project\": \"gateway-demo\",\n    \"session_id\": \"cache-configuration\",\n    \"chapter_id\": \"ch_71dc3ad55f189a81eeb8815c\",\n    \"pages\": 1,\n    \"sections\": 1,\n    \"turns\": 1,\n    \"skipped\": false,\n    \"revision\": 5\n  }\n]\n",
+      "stderr": ""
+    },
+    {
+      "arguments": [
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/evidence/wheel-archive-pgper9o_/memory.db",
+        "recall",
+        "http_parser",
+        "--project",
+        "gateway-demo",
+        "--json"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"query\": \"http_parser\",\n  \"results\": [\n    {\n      \"id\": \"p_75ce33f5993150264e20393a\",\n      \"title\": \"What does HTTPParser do when request lengths are ambiguous?\",\n      \"text\": \"USER: What does HTTPParser do when request lengths are ambiguous?\\n\\nASSISTANT: HTTPParser rejects conflicting Content-Length fields. The gateway returns status 400 and closes the connection. Tests must cover duplicate equal lengths, conflicting lengths, truncated bodies, and valid chunked requests according to the gateway's configured protocol policy.\",\n      \"source_refs\": [\n        {\n          \"created_at\": \"2026-11-03T09:00:00+00:00\",\n          \"end\": 352,\n          \"message_indices\": [\n            0,\n            1\n          ],\n          \"project\": \"gateway-demo\",\n          \"session_id\": \"parser-contract\",\n          \"start\": 0,\n          \"turn_end\": 352,\n          \"turn_index\": 0,\n          \"turn_start\": 0\n        }\n      ],\n      \"breadcrumb\": [\n        {\n          \"id\": \"gateway-demo\",\n          \"title\": \"Gateway service\",\n          \"kind\": \"project\"\n        },\n        {\n          \"id\": \"ch_398321a56f499dcd396ba941\",\n          \"title\": \"HTTP parsing behavior\",\n          \"kind\": \"chapter\"\n        },\n        {\n          \"id\": \"sec_952f9b790e0106a109eb7c43\",\n          \"title\": \"What does HTTPParser do when request lengths are ambiguous?\",\n          \"kind\": \"section\"\n        },\n        {\n          \"id\": \"p_75ce33f5993150264e20393a\",\n          \"title\": \"What does HTTPParser do when request lengths are ambiguous?\",\n          \"kind\": \"page\"\n        }\n      ],\n      \"score\": 12.673140419527058,\n      \"lexical_coverage\": 1.0,\n      \"created_at\": \"2026-11-03T09:00:00+00:00\",\n      \"truncated\": false,\n      \"page_chars\": 352,\n      \"excerpt_spans\": [\n        [\n          0,\n          352\n        ]\n      ]\n    }\n  ],\n  \"context\": \"[p_75ce33f5993150264e20393a] gateway-demo / parser-contract | 2026-11-03T09:00:00+00:00\\nUSER: What does HTTPParser do when request lengths are ambiguous?\\n\\nASSISTANT: HTTPParser rejects conflicting Content-Length fields. The gateway returns status 400 and closes the connection. Tests must cover duplicate equal lengths, conflicting lengths, truncated bodies, and valid chunked requests according to the gateway's configured protocol policy.\",\n  \"context_chars\": 440,\n  \"estimated_tokens\": 110,\n  \"candidate_count\": 1,\n  \"revision\": 5,\n  \"cache_hit\": false,\n  \"warnings\": [],\n  \"strategy\": \"book\",\n  \"budget_chars\": 2400,\n  \"truncated\": false,\n  \"latency_ms\": 8.46347\n}\n",
+      "stderr": ""
+    },
+    {
+      "arguments": [
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/evidence/wheel-archive-pgper9o_/memory.db",
+        "check-database"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"database\": \"/workspace/scratch/3c1f3115f539/evidence/wheel-archive-pgper9o_/memory.db\",\n  \"ok\": true,\n  \"application_id\": 1296191307,\n  \"schema_version\": 4,\n  \"revision\": 5,\n  \"runtime_state\": \"ready\",\n  \"projects\": 4,\n  \"chapters\": 5,\n  \"sessions\": 5,\n  \"turns\": 7,\n  \"sections\": 5,\n  \"pages\": 5,\n  \"database_bytes\": 176128,\n  \"integrity_check\": [\n    \"ok\"\n  ],\n  \"foreign_key_violations\": 0,\n  \"foreign_key_errors\": [],\n  \"warnings\": []\n}\n",
+      "stderr": ""
+    },
+    {
+      "arguments": [
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/evidence/wheel-archive-pgper9o_/memory.db",
+        "backup",
+        "--output",
+        "/workspace/scratch/3c1f3115f539/evidence/wheel-archive-pgper9o_/snapshot.db"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"source\": \"/workspace/scratch/3c1f3115f539/evidence/wheel-archive-pgper9o_/memory.db\",\n  \"output\": \"/workspace/scratch/3c1f3115f539/evidence/wheel-archive-pgper9o_/snapshot.db\",\n  \"ok\": true,\n  \"application_id\": 1296191307,\n  \"schema_version\": 4,\n  \"revision\": 5,\n  \"runtime_state\": \"ready\",\n  \"projects\": 4,\n  \"chapters\": 5,\n  \"sessions\": 5,\n  \"turns\": 7,\n  \"sections\": 5,\n  \"pages\": 5,\n  \"database_bytes\": 176128,\n  \"integrity_check\": [\n    \"ok\"\n  ],\n  \"foreign_key_violations\": 0,\n  \"foreign_key_errors\": [],\n  \"warnings\": []\n}\n",
+      "stderr": ""
+    },
+    {
+      "arguments": [
+        "-m",
+        "memory_book",
+        "--db",
+        "/workspace/scratch/3c1f3115f539/evidence/wheel-archive-pgper9o_/snapshot.db",
+        "recall",
+        "http_parser",
+        "--project",
+        "gateway-demo",
+        "--json"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"budget_chars\": 2400,\n  \"cache_hit\": true,\n  \"candidate_count\": 1,\n  \"context\": \"[p_75ce33f5993150264e20393a] gateway-demo / parser-contract | 2026-11-03T09:00:00+00:00\\nUSER: What does HTTPParser do when request lengths are ambiguous?\\n\\nASSISTANT: HTTPParser rejects conflicting Content-Length fields. The gateway returns status 400 and closes the connection. Tests must cover duplicate equal lengths, conflicting lengths, truncated bodies, and valid chunked requests according to the gateway's configured protocol policy.\",\n  \"context_chars\": 440,\n  \"estimated_tokens\": 110,\n  \"query\": \"http_parser\",\n  \"results\": [\n    {\n      \"breadcrumb\": [\n        {\n          \"id\": \"gateway-demo\",\n          \"kind\": \"project\",\n          \"title\": \"Gateway service\"\n        },\n        {\n          \"id\": \"ch_398321a56f499dcd396ba941\",\n          \"kind\": \"chapter\",\n          \"title\": \"HTTP parsing behavior\"\n        },\n        {\n          \"id\": \"sec_952f9b790e0106a109eb7c43\",\n          \"kind\": \"section\",\n          \"title\": \"What does HTTPParser do when request lengths are ambiguous?\"\n        },\n        {\n          \"id\": \"p_75ce33f5993150264e20393a\",\n          \"kind\": \"page\",\n          \"title\": \"What does HTTPParser do when request lengths are ambiguous?\"\n        }\n      ],\n      \"created_at\": \"2026-11-03T09:00:00+00:00\",\n      \"excerpt_spans\": [\n        [\n          0,\n          352\n        ]\n      ],\n      \"id\": \"p_75ce33f5993150264e20393a\",\n      \"lexical_coverage\": 1.0,\n      \"page_chars\": 352,\n      \"score\": 12.673140419527058,\n      \"source_refs\": [\n        {\n          \"created_at\": \"2026-11-03T09:00:00+00:00\",\n          \"end\": 352,\n          \"message_indices\": [\n            0,\n            1\n          ],\n          \"project\": \"gateway-demo\",\n          \"session_id\": \"parser-contract\",\n          \"start\": 0,\n          \"turn_end\": 352,\n          \"turn_index\": 0,\n          \"turn_start\": 0\n        }\n      ],\n      \"text\": \"USER: What does HTTPParser do when request lengths are ambiguous?\\n\\nASSISTANT: HTTPParser rejects conflicting Content-Length fields. The gateway returns status 400 and closes the connection. Tests must cover duplicate equal lengths, conflicting lengths, truncated bodies, and valid chunked requests according to the gateway's configured protocol policy.\",\n      \"title\": \"What does HTTPParser do when request lengths are ambiguous?\",\n      \"truncated\": false\n    }\n  ],\n  \"revision\": 5,\n  \"strategy\": \"book\",\n  \"truncated\": false,\n  \"warnings\": [],\n  \"latency_ms\": 2.185649\n}\n",
+      "stderr": ""
+    }
+  ]
+}

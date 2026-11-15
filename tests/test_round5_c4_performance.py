@@ -13,6 +13,7 @@ from unittest.mock import patch
 from scripts import round5_performance as original
 from scripts import round5_c4_performance as bench
 from tests import test_round5_performance as inherited
+from tests.round5_historical_fixture import historical_round5_inputs
 
 
 class C4AcceptanceTests(inherited.RoundFiveAcceptanceTests):
@@ -79,23 +80,25 @@ class C4AcceptanceTests(inherited.RoundFiveAcceptanceTests):
                      'tests/test_round5_candidate_c4.py', '.github/workflows/round5-c4-performance.yml',
                      bench.CONTINUATION_PATH, bench.C3_BINDING_PATH, bench.C3_SUMMARY_PATH):
             self.assertIn(name, bench.TOOLS)
-        prior = json.loads((original.ROOT / bench.C3_BINDING_PATH).read_bytes())
-        self.assertEqual(bench.sha((original.ROOT / bench.C3_BINDING_PATH).read_bytes()), bench.C3_BINDING_SHA256)
-        for name, expected in prior['evaluator_files'].items():
-            self.assertEqual(bench.sha((original.ROOT / name).read_bytes()), expected, name)
+        with historical_round5_inputs(bench) as root:
+            prior = json.loads((root / bench.C3_BINDING_PATH).read_bytes())
+            self.assertEqual(bench.sha((root / bench.C3_BINDING_PATH).read_bytes()), bench.C3_BINDING_SHA256)
+            for name, expected in prior['evaluator_files'].items():
+                self.assertEqual(bench.sha((root / name).read_bytes()), expected, name)
 
     def test_continuation_retains_complete_failed_c3_and_exact_preregistration(self):
-        raw = (bench.ROOT / bench.CONTINUATION_PATH).read_bytes()
-        with patch.object(bench, 'git', return_value=raw) as git:
-            value = bench.continuation_registration()
-            git.assert_called_once_with('show', bench.CONTINUATION_COMMIT + ':' + bench.CONTINUATION_PATH)
-        self.assertEqual(value['document']['rejected_c3']['commit'], bench.C3_SOURCE['commit'])
-        self.assertEqual(value['document']['formal_protocol']['thresholds_percent'],
-                         original.load_plan()['thresholds_percent'])
-        self.assertEqual(value['rejected_c3_summary_sha256'], bench.C3_SUMMARY_SHA256)
-        with patch.object(bench, 'git', return_value=raw + b' '):
-            with self.assertRaisesRegex(ValueError, 'preregistration bytes or commit'):
-                bench.continuation_registration()
+        with historical_round5_inputs(bench):
+            raw = (bench.ROOT / bench.CONTINUATION_PATH).read_bytes()
+            with patch.object(bench, 'git', return_value=raw) as git:
+                value = bench.continuation_registration()
+                git.assert_called_once_with('show', bench.CONTINUATION_COMMIT + ':' + bench.CONTINUATION_PATH)
+            self.assertEqual(value['document']['rejected_c3']['commit'], bench.C3_SOURCE['commit'])
+            self.assertEqual(value['document']['formal_protocol']['thresholds_percent'],
+                             original.load_plan()['thresholds_percent'])
+            self.assertEqual(value['rejected_c3_summary_sha256'], bench.C3_SUMMARY_SHA256)
+            with patch.object(bench, 'git', return_value=raw + b' '):
+                with self.assertRaisesRegex(ValueError, 'preregistration bytes or commit'):
+                    bench.continuation_registration()
 
     def test_changed_c3_runtime_cannot_be_replayed_under_c4_label(self):
         args = SimpleNamespace(bind=bench.ROOT/bench.C4_BINDING_PATH,

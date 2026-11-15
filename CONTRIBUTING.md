@@ -14,6 +14,13 @@ python -m benchmarks.run --split development --seed 11 --budget-chars 2000 8000
 
 The core remains standard-library only. MCP is optional. Do not commit private transcripts, databases, credentials, or user identifiers. Use small synthetic reproductions for bugs.
 
+For the current developer workflow and a small runnable archive, see
+[engineering workflows](docs/engineering-workflows.md). Schema changes must
+preserve source/page identity and cover interrupted migration, concurrent
+openers and incompatible old writers. The full source-provenance tests require
+a committed runtime tree. The [current validation report](docs/developer-engineering-validation.md)
+records the optional dependency versions used for the complete local test matrix.
+
 ## Retrieval changes
 
 Compare all three segmentation modes with the same tokenizer, ranking implementation, project scope, snippet packer, and character budget. Evidence must survive into the actual returned context and match its original source. Keep failures and no-answer cases in the report. Once a heldout seed informs tuning, label it development evidence and choose a new evaluation split.

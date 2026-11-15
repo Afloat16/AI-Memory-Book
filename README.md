@@ -6,21 +6,35 @@ Projects are books, tasks are chapters, and evidence is a page you can open. AI-
 
 [简体中文](README.zh-CN.md) · [Quick start](#quick-start) · [2400-character results](#2400-character-results) · [Open-source comparison](#open-source-comparison)
 
-**v0.4.0 · MIT · Python 3.10+ · Local SQLite / FTS5**
+**Current main · MIT · Python 3.10+ · Local SQLite / FTS5**
 
 ## Engineering advantages
 
 - **Recover decisions together with their reasons.** Locate evidence by project, task, session, and original turn, retaining page IDs and source references. Open the original page to check a boundary condition, error message, or failed approach during code review or a task handoff.
-- **Retrieve current corrections and historical reasoning.** Explicit current/latest queries use comparable turns within a session to surface later corrections and favor distinct source text over repeated copies. Historical questions retain historical query semantics; ranking does not determine which statement is authoritative.
+- **Find code identifiers across naming styles.** Queries such as `http_parser`, `JSONLReader` and `kv_cache` can match their acronym, camel-case and snake-case counterparts. The index adds lexical aliases while keeping original spelling, source offsets and project boundaries intact.
+- **Retrieve current corrections and historical reasoning.** Explicit current/latest queries use comparable turns within a session to surface later corrections, including when only a token cap forces truncation. Historical questions retain historical query semantics; ranking does not determine which statement is authoritative.
 - **Spend bounded context on engineering constraints.** Apply project scope before retrieval and context assembly. The default is 2400 characters and up to five results; read further only when evidence is missing. This supports recovering implementation conventions, data-split rules, and edge cases together.
 - **Continue across existing clients.** Supported clients such as Claude Code, Codex, and Gemini can share the same database. Switching tools does not require abandoning the archived project history. MCP configuration and native transcript capture have separate [support matrices](docs/integrations.md#supported-profiles).
 - **Keep the memory layer simple to operate.** Default ingestion and lexical retrieval make no model calls and need no embedding model, database server, or memory-service API key. Background capture skips unchanged files; stable session IDs and content hashes prevent duplicate ingestion. Changed sessions are replaced transactionally; existing client configuration files are backed up before changes.
+- **Maintain a recoverable archive.** Online SQLite backup includes committed WAL data and verifies a new snapshot before publication. Read-only checks expose integrity and runtime state without migrating the source. Derived-index upgrades preserve existing page addresses and reject incompatible older writers atomically.
 
 When resuming a long-running task, ask which constraints the current implementation must satisfy, follow the citations to check later corrections and failed attempts, and then continue editing. Recovering a convention, checking its source, and continuing implementation gives a task handoff an explicit evidence trail. [Source semantics and agent guidance](docs/agent-guide.md).
 
 ## Quick start
 
-You need **Python 3.10+ with SQLite FTS5**. The installer uses an isolated environment with MCP/client dependencies. No Git checkout or Node.js is required.
+You need **Python 3.10+ with SQLite FTS5**. Use the current source for the identifier, token-correction and maintenance improvements described on this page:
+
+~~~bash
+git clone https://github.com/Afloat16/AI-Memory-Book.git
+cd AI-Memory-Book
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[mcp,clients,tokens]"
+~~~
+
+On Windows, activate with `.venv\Scripts\Activate.ps1`. Exact token counting is optional. Before opening an existing archive, follow the [schema 4 source-upgrade procedure](docs/deployment.md#current-main-and-schema-4), including a snapshot and restarting all writers.
+
+**Published installer:** the commands below install the current published release, v0.4.0; the new main-branch capabilities above are awaiting a release. This installation uses an isolated environment with MCP/client dependencies and needs no Git checkout or Node.js.
 
 **macOS / Linux**
 
@@ -45,7 +59,21 @@ memory-book doctor
 
 Replace `claude-code` with your [client profile](docs/integrations.md#supported-profiles), or repeat `--client` to connect more clients. Keep the capture flags only for profiles with native capture support; omit both `--capture` and `--background` for other profiles. If the command is not on PATH, use the full launcher path printed by the installer, then restart your client.
 
-`--capture` opts in to existing and future supported text transcripts; `--background` installs and starts the user service. Omit both flags for MCP configuration alone. The host and model control tool invocation, so connecting MCP does not guarantee automatic recall. To upgrade, rerun the installer and your setup command. [Deployment guide](docs/deployment.md#upgrading).
+`--capture` opts in to existing and future supported text transcripts; `--background` installs and starts the user service. Omit both flags for MCP configuration alone. The host and model control tool invocation, so connecting MCP does not guarantee automatic recall. Upgrade through the same installation method, then refresh setup and restart clients. [Deployment guide](docs/deployment.md#current-main-and-schema-4).
+
+## Algorithm and engineering workflows
+
+The [runnable example](examples/engineering-workflow.json) contains five synthetic sessions across four projects: a negative-edge shortest-path correction, training-data split constraints, an HTTP parser contract, an inference configuration change, and a separate project's conflicting value. It exercises source lookup and project isolation without a model API.
+
+~~~bash
+memory-book --db ./demo-memory.db import examples/engineering-workflow.json --format canonical
+memory-book --db ./demo-memory.db recall "jsonl_reader input contract and split" --project training-demo
+memory-book --db ./demo-memory.db recall "current kv_cache block_size" --project inference-demo
+memory-book --db ./demo-memory.db backup --output ./backups/demo-snapshot.db
+memory-book --db ./backups/demo-snapshot.db check-database
+~~~
+
+Use the source checkout above and new database/output paths. The [developer workflow guide](docs/engineering-workflows.md) covers algorithm constraints, failed attempts, symbol lookup, Python integration, exact token limits, source verification and recovery. Recorded example settings are illustrative, not recommended production values.
 
 ## Default configuration
 
@@ -75,15 +103,15 @@ memory-book recall "current gradient accumulation steps" --project your-project-
 
 The workload contains **eight projects, four algorithm families, six chronological checkpoints, and 80 questions**. Only history available before each question is ingested. There are 72 answerable questions with 80 required evidence spans, 48 questions with executable policy checks, and eight missing-evidence questions. Algorithm families cover negative-edge shortest paths, Top-k ties, data splitting, and fully masked softmax.
 
-The current default entry point matches the complete non-timing responses from explicit 2400/5 calls and frozen outputs on all 80 questions. The numbers below come from that retained, reproducible development experiment; repeated calls add timing samples, not independent quality cases. [Default-equivalence verification](benchmarks/reports/v040-release-preparation/default-profile/report.json).
+The current source has been replayed on the unchanged 80-question workload. Its default entry point matches all complete non-timing responses from explicit 2400/5 calls and this replay's saved outputs. Repeated calls add timing samples, not independent quality cases. [Default-equivalence verification](benchmarks/reports/developer-engineering-20261115/default-profile/report.json).
 
 | Strategy | Evidence-span recall | Complete evidence | Policy checks passing | Mean characters |
 |---|---:|---:|---:|---:|
-| **AI-Memory-Book** | **76/80 · 95.00%** | **68/72 · 94.44%** | **44/48 · 91.67%** | **1812.0** |
-| Scoped flat FTS | 58/80 · 72.50% | 50/72 · 69.44% | 26/48 · 54.17% | 1803.7 |
+| **AI-Memory-Book** | **78/80 · 97.50%** | **70/72 · 97.22%** | **46/48 · 95.83%** | **1818.9** |
+| Scoped flat FTS | 60/80 · 75.00% | 52/72 · 72.22% | 28/48 · 58.33% | 1801.3 |
 | Recent history within budget | 64/80 · 80.00% | 56/72 · 77.78% | 32/48 · 66.67% | 2260.9 |
 
-Book covers **18 more complete-evidence cases** than flat FTS, a **25-percentage-point** difference. Against recent history it covers **12 more cases** while returning approximately **19.9% fewer characters** on average. Flat FTS is this repository's baseline using the same scope, index, and packer. Recent history uses resident text, shorter citation headings, and no top-five limit; it is a practical strategy comparison. [Native replay data](benchmarks/results/engineering-memory-20261115/final/2-candidate-workflow/report.json).
+Book covers **18 more complete-evidence cases** than flat FTS, a **25-percentage-point** difference. Against recent history it covers **14 more cases** while returning approximately **19.6% fewer characters** on average. Flat FTS is this repository's baseline using the same scope, index, and packer. Recent history uses resident text, shorter citation headings, and no top-five limit; it is a practical strategy comparison. [Native replay data](benchmarks/reports/developer-engineering-20261115/current-workflow/report.json).
 
 ### Where the engineering benefit appears
 
@@ -94,13 +122,13 @@ Complete-evidence case counts at 2400 characters, retaining all nine answerable 
 | Later decision correction | **8/8** | 2/8 | 8/8 |
 | Recovery after a long gap | **8/8** | 2/8 | 0/8 |
 | Recovering multiple constraints | **8/8** | 2/8 | 8/8 |
-| Looking up a historical decision | **6/8** | 6/8 | 0/8 |
+| Looking up a historical decision | **8/8** | 8/8 | 0/8 |
 | Chinese/English queries | 6/8 | 6/8 | **8/8** |
 | Initial decisions, code identifiers, failed attempts, source replacements combined | 32/32 | 32/32 | 32/32 |
 
-The gains concentrate on evidence pushed back by intervening messages, corrected decisions, and combinations of constraints. Bilingual queries still have gaps. Book has zero stale-only cases versus eight for flat FTS; this does not establish a zero hallucination rate.
+The gains concentrate on evidence pushed back by intervening messages, corrected decisions, and combinations of constraints. Two bilingual `split_policy` questions still miss current evidence and return only an older decision; Book has **two stale-only cases**, versus 14 for flat FTS. Original source references help inspect this failure, but do not establish factual correctness.
 
-Local retrieval and context assembly have **p50 / p95 of 1.117 / 2.056 ms**, pooling 480 calls across two experiment blocks. Result caching is disabled; SQLite and operating-system caches are not cleared. Ingestion and model generation are excluded. [Pooled timing summary](benchmarks/results/engineering-memory-20261115/summary.json).
+This local replay records retrieval and context assembly **p50 / p95 of 1.573 / 2.700 ms** over 240 calls at 2400 characters. Result caching is disabled; SQLite and operating-system caches are not cleared. Ingestion and model generation are excluded. These are diagnostic timings from one environment, not a controlled speedup or production latency guarantee. [Current validation and limits](docs/developer-engineering-validation.md).
 
 ### An executed open-source component comparison
 
@@ -108,17 +136,18 @@ The benchmark runs the actual [pinned billion-context search kernel](https://git
 
 | Metric | Book | billion-context kernel |
 |---|---:|---:|
-| Evidence-span recall | **76/80 · 95.00%** | 72/80 · 90.00% |
-| Complete evidence | **68/72 · 94.44%** | 64/72 · 88.89% |
-| Policy checks passing | **44/48 · 91.67%** | 40/48 · 83.33% |
-| Mean characters | **1812.0** | 1955.0 |
+| Evidence-span recall | **78/80 · 97.50%** | 72/80 · 90.00% |
+| Complete evidence | **70/72 · 97.22%** | 64/72 · 88.89% |
+| Policy checks passing | **46/48 · 95.83%** | 40/48 · 83.33% |
+| Mean characters | **1818.9** | 1955.0 |
+| Stale-only cases | 2 | **0** |
 | Budget violations / source-validation failures | 0 / 0 | 0 / 0 |
 
-Within this component comparison, Book has **5.56 percentage points** more complete evidence, **8.33 points** more passing policy checks, and **7.31% fewer characters** on average. Paired cases show **six gains and two losses**: the gains are historical-decision queries and the losses are bilingual queries. [Component data and timing boundaries](benchmarks/results/engineering-memory-20261115/final/2-candidate-components/report.json).
+Within this component comparison, Book has **8.33 percentage points** more complete evidence, **12.50 points** more passing policy checks, and **6.96% fewer characters** on average. Paired cases show **eight gains and two losses**: the gains are historical-decision queries and the losses are bilingual queries. [Component data and timing boundaries](benchmarks/reports/developer-engineering-20261115/current-components/report.json).
 
-This is a pinned-component result. Book retains hierarchy/FTS metadata, and the engines' timing interfaces differ; no whole-product speed ratio follows. At the smaller 1200-character whole-block budget, Book has 61.11% complete evidence versus 88.89% for the kernel. All budgets and failures remain in the [detailed report](docs/engineering-memory-results.md).
+This is a pinned-component result. Book retains hierarchy/FTS metadata, and the engines' timing interfaces differ; no whole-product speed ratio follows. At the smaller 1200-character whole-block budget, Book has 80.56% complete evidence versus 88.89% for the kernel. All budgets and failures remain in the [detailed report](docs/developer-engineering-validation.md).
 
-**Evidence limits:** these are synthetic cases used during development, without a coding LLM or an independent holdout. A fixed consumer extracts recorded configuration and executes handwritten algorithm variants; its pass rate is not generated-code accuracy. All eight missing-evidence questions still return related context, requiring further checking or an explicit statement that evidence is missing. Real task completion time, patch success, and total model cost have not been measured. [Evaluation protocol](docs/engineering-memory-evaluation.md) · [Raw records](benchmarks/results/engineering-memory-20261115/).
+**Evidence limits:** these are synthetic cases used during development, without a coding LLM or an independent holdout. A fixed consumer extracts recorded configuration and executes handwritten algorithm variants; its pass rate is not generated-code accuracy. All eight missing-evidence questions still return related context, requiring further checking or an explicit statement that evidence is missing. Real task completion time, patch success, and total model cost have not been measured. [Evaluation protocol](docs/engineering-memory-evaluation.md) · [Raw records](benchmarks/reports/developer-engineering-20261115/).
 
 ## Open-source comparison
 
@@ -135,7 +164,7 @@ Multiple clients, source lookup, and local operation are not unique to this proj
 
 ## Documentation and data boundaries
 
-[Integrations](docs/integrations.md) · [Deployment and Docker](docs/deployment.md) · [Agent guide](docs/agent-guide.md) · [Token budgets](docs/token-budget.md) · [Optional semantic retrieval](docs/semantic-retrieval.md) · [Contributing](CONTRIBUTING.md)
+[Developer workflows](docs/engineering-workflows.md) · [Integrations](docs/integrations.md) · [Deployment and Docker](docs/deployment.md) · [Agent guide](docs/agent-guide.md) · [Token budgets](docs/token-budget.md) · [Optional semantic retrieval](docs/semantic-retrieval.md) · [Contributing](CONTRIBUTING.md)
 
 Run `memory-book serve` and open [127.0.0.1:8765](http://127.0.0.1:8765) to inspect the archive. It is local, unencrypted data; recalled evidence enters the selected client's model context. Project filtering is not multi-user access control. Client-configuration backups are not automatic database backups. [Data locations and maintenance](docs/deployment.md#data-and-configuration-paths).
 
