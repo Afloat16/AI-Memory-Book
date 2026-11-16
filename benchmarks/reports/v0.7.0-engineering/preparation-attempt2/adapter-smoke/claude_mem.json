@@ -1,0 +1,162 @@
+{
+  "samples": [
+    {
+      "project": "scope-a",
+      "query": "memorytoken_alpha",
+      "status": "failed",
+      "error_type": "ValueError",
+      "error": "Native project scope violation",
+      "transport_trace_ids": [
+        "smoke:claude_mem:0"
+      ]
+    },
+    {
+      "project": "scope-ab",
+      "query": "memorytoken_alpha",
+      "native": {
+        "hit_ids": [
+          "p_c96193674a8817799471576f"
+        ],
+        "native_payload": [
+          {
+            "id": 3,
+            "memory_session_id": "supplied-page:p_c96193674a8817799471576f",
+            "project": "scope-ab",
+            "text": "USER: memorytoken_alpha source contract\n\nASSISTANT: memorytoken_alpha uses exact value BETA91.",
+            "type": "discovery",
+            "title": "memorytoken_alpha source contract",
+            "subtitle": null,
+            "facts": "[]",
+            "narrative": null,
+            "concepts": "[]",
+            "files_read": "[]",
+            "files_modified": "[]",
+            "prompt_number": null,
+            "created_at": "2026-01-01T00:00:00+00:00",
+            "created_at_epoch": 1767225600000,
+            "content_hash": null,
+            "generated_by_model": null,
+            "relevance_count": 0,
+            "merged_into_project": null,
+            "agent_type": null,
+            "agent_id": null,
+            "metadata": null,
+            "synced_at": null,
+            "origin_device_id": null,
+            "origin_local_id": null,
+            "sync_rev": "1",
+            "occurrence_count": 1,
+            "title_norm_key": null,
+            "reinforcement_dates": null,
+            "last_reinforced": null,
+            "discovery_tokens": 0
+          }
+        ],
+        "search_ms": 0.24345900000000142,
+        "native_cpu_user_us": 246,
+        "native_cpu_system_us": 0,
+        "bridge_ms": 0.5578149999792004
+      },
+      "hit_ids": [
+        "p_c96193674a8817799471576f"
+      ],
+      "status": "passed",
+      "transport_trace_ids": [
+        "smoke:claude_mem:1"
+      ]
+    },
+    {
+      "project": "Scope-a",
+      "query": "memorytoken_alpha",
+      "status": "failed",
+      "error_type": "ValueError",
+      "error": "Native project scope violation",
+      "transport_trace_ids": [
+        "smoke:claude_mem:2"
+      ]
+    },
+    {
+      "project": "absent-project",
+      "query": "memorytoken_alpha",
+      "native": {
+        "hit_ids": [],
+        "native_payload": [],
+        "search_ms": 0.6960669999999993,
+        "native_cpu_user_us": 700,
+        "native_cpu_system_us": 0,
+        "bridge_ms": 0.9773760000371112
+      },
+      "hit_ids": [],
+      "status": "passed",
+      "transport_trace_ids": [
+        "smoke:claude_mem:3"
+      ]
+    }
+  ],
+  "checks": {
+    "actual_upstream_calls": true,
+    "exact_case_prefix_project_filter": false,
+    "known_projects_have_original_evidence": false,
+    "missing_project_is_empty": true
+  },
+  "metadata": {
+    "repository": "thedotmack/claude-mem",
+    "commit": "c4a9f5725f420bf9c6e866cdd3b94bd36498af09",
+    "package_version": "15.18.1",
+    "license": "Apache-2.0",
+    "source_url": "https://github.com/thedotmack/claude-mem/blob/c4a9f5725f420bf9c6e866cdd3b94bd36498af09/src/services/sqlite/SessionSearch.ts",
+    "source_archive_sha256": "6945e75c7e8b789879903bd4a7d277092aa5733f2ecae3532c8d4927bfd5607c",
+    "runtime_archive_sha256": "79c0771fa8b92c33aae41e15a0e0d307ea99d0e2f00317c71c6c53237a78e25a",
+    "runtime_binary_sha256": "b29d78892abd5a9398e0700f0cb602f725089602ed1a5082d681c7257b2bf4d0",
+    "lock_sha256": "49267441d4a1292bdd6232abfd78a109fc97fcfcfcf740a51a84d767d6c3edae",
+    "source_sha256": "ac3815127ca3b81d172009f993e53111cfa2cc7c7f4cd1799159113bab1d1777",
+    "verified_source_files": 983,
+    "preparation_ms": 1147.0601600000236,
+    "process_startup_ms": 53.150755000046956,
+    "schema_initialization_ms": 30.755052,
+    "supplied_page_load_with_fts_ms": 0.6240099999999984,
+    "supplied_pages": 3,
+    "fts_integrity_check": true,
+    "sqlite_version": "3.51.2",
+    "logical_database_bytes": 724992,
+    "database_file_bytes": 4096,
+    "wal_file_bytes": 3683312,
+    "shm_file_bytes": 32768,
+    "rss_bytes": 80216064,
+    "linux_high_water_rss_bytes": 80502784,
+    "name": "claude-mem supplied-source SQLite FTS retrieval component",
+    "implementation": "unchanged pinned SessionStore schema and SessionSearch.searchObservations; direct Bun TypeScript imports",
+    "comparison_scope": "supplied-source retrieval component, not native observer or full product",
+    "latency_scope": "native function and persistent Python/Bun JSON bridge separately",
+    "representation": "original page title/text; empty semantic fields; harness bulk INSERT with native FTS triggers",
+    "native_payload_surface": "unmodified returned observation row array; not MCP or viewer presentation",
+    "payload_serialization": "canonical compact key-sorted JSON of returned rows; bridge envelope excluded",
+    "result_cache": "no adapter result cache; SQLite and process caches warm naturally",
+    "ready": {
+      "bun_version": "1.3.13",
+      "rss_bytes": 74354688,
+      "linux_high_water_rss_bytes": 74731520
+    },
+    "shutdown": {
+      "before_checkpoint": {
+        "logical_database_bytes": 724992,
+        "database_file_bytes": 4096,
+        "wal_file_bytes": 3683312,
+        "shm_file_bytes": 32768
+      },
+      "checkpoint_ms": 2.5075199999999995,
+      "after_checkpoint": {
+        "logical_database_bytes": 724992,
+        "database_file_bytes": 724992,
+        "wal_file_bytes": 0,
+        "shm_file_bytes": 32768
+      },
+      "rss_bytes": 81920000,
+      "linux_high_water_rss_bytes": 82173952
+    },
+    "source_sha256_after": "ac3815127ca3b81d172009f993e53111cfa2cc7c7f4cd1799159113bab1d1777",
+    "source_unchanged": true,
+    "native_process_exit_code": 0
+  },
+  "status": "failed"
+}
