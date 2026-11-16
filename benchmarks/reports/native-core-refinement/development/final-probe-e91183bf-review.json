@@ -1,0 +1,273 @@
+{
+  "schema_version": 1,
+  "purpose": "Untimed final native core refinement source, build, probe and protocol verification; no timing or release-speed claim",
+  "status": "completed",
+  "candidate_commit": "e91183bf6dd9e125d6549ec3fe5d9c81598cd131",
+  "baseline_commit": "56eccd8c3a6f1d5637664607936da2595ce50c62",
+  "evaluator_commit": "e91183bf6dd9e125d6549ec3fe5d9c81598cd131",
+  "runner_sha256": "67d0f0ec6b75b4d796395e75fab5e8fd41fb61918888ffa73f4bb9c5010e3d66",
+  "dependency_runner_sha256": "334b09c1e04271c0389544c2567525b8ce7ea5cc50eeed042acd0f9604b8a507",
+  "environment": {
+    "compiler": "gcc (Debian 14.2.0-19) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "pythonhashseed": "0",
+    "sanitizer_check": {
+      "environment": {
+        "CC": null,
+        "CCSHARED": null,
+        "CFLAGS": null,
+        "CPPFLAGS": null,
+        "CXX": null,
+        "LDFLAGS": null,
+        "LDSHARED": null
+      },
+      "sysconfig": {
+        "CC": "clang -pthread",
+        "CCSHARED": "-fPIC",
+        "CFLAGS": "-fno-strict-overflow -Wsign-compare -Wunreachable-code -DNDEBUG -g -O3 -Wall   -O3 -fstack-protector -fstack-clash-protection -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2  -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer  -fPIC  ",
+        "CPPFLAGS": "-I. -I./Include   -O3 -fstack-protector -fstack-clash-protection -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2  -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer  -fPIC  ",
+        "CXX": "clang++ -pthread",
+        "LDFLAGS": "-Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now -Wl,--build-id=sha1  -Wl,--exclude-libs,ALL",
+        "LDSHARED": "clang -pthread -shared -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now -Wl,--build-id=sha1  -Wl,--exclude-libs,ALL"
+      }
+    }
+  },
+  "tests": {
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-c",
+      "import json,sys,unittest\nsuite=unittest.defaultTestLoader.discover('tests',pattern='test_native_core_refinement_performance.py')\nresult=unittest.TextTestRunner(verbosity=2).run(suite)\nprint('RESULT_JSON='+json.dumps({'tests_run':result.testsRun,'skipped':len(result.skipped),\n'failures':len(result.failures),'errors':len(result.errors),'successful':result.wasSuccessful()}))\nsys.exit(0 if result.wasSuccessful() else 1)\n"
+    ],
+    "log_sha256": "9a8cefdf834bc8650f59333b171e59c95210ea16c28f849794cfd63c11e42900",
+    "result": {
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "successful": true,
+      "tests_run": 26
+    },
+    "returncode": 0
+  },
+  "ast": {
+    "all_equal": true,
+    "cores": {
+      "Ledger": "678708a65c9e64b2726a98ee0a6ccdcf94e98ecad70715d301f8c30cf780630c",
+      "archive_state": "6a2cb111f9bc19b2551435e55bc7d00e47aa566667af82f187f5e2a936933651",
+      "common_probe_suite": "4b7c4034b162546980050853fee558f330a70c3a362d1d6794ed6af9b8d5dac6",
+      "comparisons": "4b1689d7f839bcef1c388dbc2f152c39f9bdafd200997c9db3960ed1846717d3",
+      "dispatch_probe": "1317f6211f4aaddaa9287bf9c31e5dc1995fbf10f25efad2262710e91c99e48f",
+      "ingestion_comparisons": "8d7b0aee3e77c6853b1481544f45121b534754a664c6031fe264a77c2bb75da4",
+      "make_row": "eb4c0353cefa2f11adb798ab0d450d4553eeae9aee743d8a175722e6a1706648",
+      "mcp_calls": "f090c504db05b603f712b700383234d361d951f654d5cf1588c6575b14311881",
+      "query_order": "f3284f3a4c04350f3e7bcc9bdf0af9b40100326d4e695c4af3103d155f5ce6a8",
+      "schedule": "ad1bfcb4a31ba6acc205c6814924d5f843ba1acd157c70f44cf6a641b73b8510",
+      "stable": "bf8c553433d31a6ef9f9dfdca781359eebf4774020d5a382ab65aba6c86e0c14",
+      "summary": "15bd51e925ca1945dfbd0d3fa6138b2ba106cb33e156c6752c2276184cc20b77",
+      "validate_response": "d0f6277a814dc9decb97e2e601145d02dd908b02f3e1d6f47d68b1ae1b9c73fc",
+      "worker": "81f3aa9176a8cbcbe57368420fec7f92e7af99aecb67a6d6067198c7af7045b7"
+    },
+    "reference_file": "scripts/native_core_performance.py",
+    "reference_file_sha256": "813bac906d97161f332602578145f34fa887c93de15405c595ccb76e655aa68e"
+  },
+  "build": {
+    "build_inputs": {
+      "LICENSE": "1ac59ce409c390d94825071ca9805223edb907e993df58a2e8efdb3b4ae7bbac",
+      "README.md": "e94230f4d486e56bdbb6eb7af1a9df74a7518364162df8221a07951ff944eeaf",
+      "pyproject.toml": "abd1e40d2218fecda13c0617f708977ba5e2fd867eb39741d2d4c8b7711b1707",
+      "setup.py": "37dceaec5a013a4ed8edc1f1c11dd2c8ee9ff14d3095157c4706ddfbe39cf2f4"
+    },
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "setup.py",
+      "build_ext",
+      "--inplace",
+      "--build-temp",
+      "/workspace/scratch/e870b2feaa97/native-core-baseline-probe/final-probe-e91183bf/build-temp"
+    ],
+    "compiler": "gcc (Debian 14.2.0-19) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+    "extra_compile_args": [
+      "-O3"
+    ],
+    "log_sha256": "6ff972090d5a1d3b1803e25d14653c0dafbfe1c92748a41771405bc6a870e0fd",
+    "native_source_inputs": {
+      "src/memory_book/_native.c": "e0189243908da1035181911244301083877f44502064f8435ff3ce6363f88aad",
+      "src/memory_book/_native_excerpt.h": "973e1c0490b2287e117c9b67b2b27f39105996b27e11317085226e1da0d5dab2",
+      "src/memory_book/_native_lexical.h": "9e97f50d818cbdd8db61462e1f5d5b73ba82a871815d92a1403a64855d62913f",
+      "src/memory_book/_native_rank.h": "6f21ef972190dc65545e0b9109ab6b529881fbe1e8be3acb198441c95a1f320c",
+      "src/memory_book/_native_segmentation.h": "d641dfe91a1b02332ad625751a48bbbba8df87b79ef8eefbb69089ae2f21b43d",
+      "src/memory_book/_native_source.h": "ff0fba96f09dfe103887b564e68f987b3840431c2d569558f204e29ec1c1bc5e"
+    },
+    "returncode": 0,
+    "status": "completed"
+  },
+  "binary_checks": {
+    "baseline": {
+      "bytes": 128528,
+      "elf_sanitizer_scan_sha256": "236ab8e9585ce1bbeb1ad91dfac91364ab4fc3d8c3d0c963ed7f4edf0af0f2cc",
+      "path": "/workspace/scratch/e870b2feaa97/native-core-baseline-probe/capture-a0c73165/baseline/src/memory_book/_native.cpython-312-x86_64-linux-gnu.so",
+      "sanitizer_symbols_present": false,
+      "sha256": "351897e74066f69d592e072e368dd2945d65a0788b7165cabd5f3958e157c564"
+    },
+    "candidate": {
+      "bytes": 672560,
+      "elf_sanitizer_scan_sha256": "ccf42c197ff8c30cd9bedcac6f9c1bbb6db5b5b2858217d79a7a663c4ef53f8d",
+      "path": "/workspace/scratch/e870b2feaa97/native-core-baseline-probe/final-probe-e91183bf/candidate/src/memory_book/_native.cpython-312-x86_64-linux-gnu.so",
+      "sanitizer_symbols_present": false,
+      "sha256": "d177c26e45e52a21dd412c117f43d1c1064fbfe0a2d1a3bbf0e661071897d6cf"
+    }
+  },
+  "source_and_binary_unchanged": true,
+  "probe_outputs_equal": true,
+  "probe_counts": {
+    "baseline": {
+      "instrumentation_restored": true,
+      "native_helper_calls": {
+        "ascii_tokens": 1,
+        "evidence_units": 4,
+        "fold_excerpt_source": 4,
+        "identifier_aliases": 44,
+        "literal_positions": 3,
+        "terms_ascii": 34,
+        "unicode_tokens": 35
+      },
+      "native_helper_effective_calls": {
+        "ascii_tokens": 1,
+        "evidence_units": 4,
+        "fold_excerpt_source": 4,
+        "identifier_aliases": 44,
+        "literal_positions": 3,
+        "terms_ascii": 34,
+        "unicode_tokens": 35
+      },
+      "native_helper_fallback_calls": {
+        "ascii_tokens": 0,
+        "evidence_units": 0,
+        "fold_excerpt_source": 0,
+        "identifier_aliases": 0,
+        "literal_positions": 0,
+        "terms_ascii": 0,
+        "unicode_tokens": 0
+      },
+      "outputs_sha256": "9c30e47eb2e492cb5f6595f6f6d7d337bc2d932bdb1a821c4cdd0fd9b51399de"
+    },
+    "candidate": {
+      "instrumentation_restored": true,
+      "native_helper_calls": {
+        "ascii_tokens": 1,
+        "build_pages": 16,
+        "context_allocations": 2,
+        "evidence_units": 4,
+        "excerpt_window": 3,
+        "fold_excerpt_source": 4,
+        "identifier_aliases": 44,
+        "identifier_has_boundary": 63,
+        "literal_positions": 3,
+        "make_turns": 9,
+        "page_cuts": 13,
+        "projected_units": 1,
+        "rank_candidates": 1,
+        "refs_from_parsed": 1,
+        "segment_turns": 11,
+        "segmentation_ready": 36,
+        "select_novelty": 1,
+        "source_map_matches": 1,
+        "source_units": 1,
+        "strip_nonspacing_marks": 36,
+        "terms_ascii": 34,
+        "unicode_tokens": 35
+      },
+      "native_helper_effective_calls": {
+        "ascii_tokens": 1,
+        "build_pages": 16,
+        "context_allocations": 2,
+        "evidence_units": 4,
+        "excerpt_window": 3,
+        "fold_excerpt_source": 4,
+        "identifier_aliases": 44,
+        "identifier_has_boundary": 63,
+        "literal_positions": 3,
+        "make_turns": 9,
+        "page_cuts": 13,
+        "projected_units": 1,
+        "rank_candidates": 1,
+        "refs_from_parsed": 1,
+        "segment_turns": 11,
+        "segmentation_ready": 36,
+        "select_novelty": 1,
+        "source_map_matches": 1,
+        "source_units": 1,
+        "strip_nonspacing_marks": 36,
+        "terms_ascii": 34,
+        "unicode_tokens": 35
+      },
+      "native_helper_fallback_calls": {
+        "ascii_tokens": 0,
+        "build_pages": 0,
+        "context_allocations": 0,
+        "evidence_units": 0,
+        "excerpt_window": 0,
+        "fold_excerpt_source": 0,
+        "identifier_aliases": 0,
+        "identifier_has_boundary": 0,
+        "literal_positions": 0,
+        "make_turns": 0,
+        "page_cuts": 0,
+        "projected_units": 0,
+        "rank_candidates": 0,
+        "refs_from_parsed": 0,
+        "segment_turns": 0,
+        "segmentation_ready": 0,
+        "select_novelty": 0,
+        "source_map_matches": 0,
+        "source_units": 0,
+        "strip_nonspacing_marks": 0,
+        "terms_ascii": 0,
+        "unicode_tokens": 0
+      },
+      "outputs_sha256": "9c30e47eb2e492cb5f6595f6f6d7d337bc2d932bdb1a821c4cdd0fd9b51399de"
+    }
+  },
+  "capture_archive": {
+    "path": "benchmarks/reports/native-core-refinement/development/final-probe-e91183bf.tar.gz",
+    "bytes": 15834,
+    "sha256": "aaa42963bca6b78a7aa76f8427732663d58f0762e22a3aaae1b1a6d6c7f1d984",
+    "files": {
+      "capture.json": {
+        "bytes": 72220,
+        "sha256": "9164f8bdedf4158a3620c88554e9f315b8ff04f475cd56a054cb7a5a3b247086"
+      },
+      "protocol-tests.log": {
+        "bytes": 5286,
+        "sha256": "9a8cefdf834bc8650f59333b171e59c95210ea16c28f849794cfd63c11e42900"
+      },
+      "build.log": {
+        "bytes": 3144,
+        "sha256": "6ff972090d5a1d3b1803e25d14653c0dafbfe1c92748a41771405bc6a870e0fd"
+      },
+      "baseline-probe.log": {
+        "bytes": 1829,
+        "sha256": "795f1b49a14570ccb2726cdf7ec4e3d85def38fc036d0f3b8e98b24f21dada5d"
+      },
+      "candidate-probe.log": {
+        "bytes": 4359,
+        "sha256": "7a1c233eb2d6fe9c4e19edf18c1b132bd649d5cb2511e32ed2faa8d94f1d1fd2"
+      }
+    }
+  },
+  "capture_json_sha256": "9164f8bdedf4158a3620c88554e9f315b8ff04f475cd56a054cb7a5a3b247086",
+  "frozen_plan": {
+    "path": "benchmarks/experiments/native_core_refinement_formal_plan.json",
+    "sha256": "254214de917e52b5ae0631267a416eab81cfd4389a08b45f015a6e4c1dbd336d",
+    "expected_timed_calls": 113568,
+    "expected_paired_calls": 56784,
+    "validated_by_exact_e911_evaluator": true
+  },
+  "limits": [
+    "Local correctness capture only: compiler, Python and binary differ from the future isolated hosted build.",
+    "The existing approved baseline binary was reused without rebuilding; its source and binary bytes match the preserved original capture before and after probes.",
+    "The candidate was separately materialized and built from exact e911 source with GCC and -O3; sanitizer environment and ELF symbols were rejected.",
+    "No timed benchmark or ingestion diagnostic was executed. All old diagnostic binaries, raw data and protocol3 evidence remain intact."
+  ]
+}
