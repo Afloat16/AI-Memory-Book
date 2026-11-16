@@ -45,6 +45,16 @@ _NATIVE_CATEGORY = unicodedata.category
 _NATIVE_FINDITER = re.finditer
 _NATIVE_ESCAPE = re.escape
 _NATIVE_ISLICE = islice
+_NATIVE_LOG1P = math.log1p
+_NATIVE_FSUM = math.fsum
+_NATIVE_BISECT_LEFT = bisect_left
+_NATIVE_BISECT_RIGHT = bisect_right
+_NATIVE_COUNTER = Counter
+_NATIVE_COUNTER_METHOD_NAMES = ("__new__", "__init__", "update", "__missing__", "__getitem__",
+                                "__setitem__", "__delitem__", "__len__", "values")
+_NATIVE_COUNTER_METHODS = tuple(getattr(Counter, name, None) for name in _NATIVE_COUNTER_METHOD_NAMES)
+_NATIVE_C_EVIDENCE_UNITS = getattr(_NATIVE, "evidence_units", None)
+_NATIVE_C_LITERAL_POSITIONS = getattr(_NATIVE, "literal_positions", None)
 _NATIVE_ASCII_CERTIFIED = (
     type(CAMEL_BOUNDARY) is re.Pattern and CAMEL_BOUNDARY.pattern == r"([a-z])([A-Z])"
     and CAMEL_BOUNDARY.flags == re.UNICODE
@@ -89,10 +99,29 @@ _NATIVE_FOLD_CERTIFIED = (
     and getattr(unicodedata.category, "__module__", None) == "unicodedata"
     and getattr(unicodedata.category, "__name__", None) == "category"
 )
+_NATIVE_WINDOW_CERTIFIED = (
+    all(type(function) is type(len) and getattr(function, "__module__", None) == module
+        and getattr(function, "__name__", None) == name
+        for function, module, name in (
+            (math.log1p, "math", "log1p"), (math.fsum, "math", "fsum"),
+            (bisect_left, "_bisect", "bisect_left"), (bisect_right, "_bisect", "bisect_right"),
+            (_NATIVE_C_EVIDENCE_UNITS, "memory_book._native", "evidence_units"),
+            (_NATIVE_C_LITERAL_POSITIONS, "memory_book._native", "literal_positions")))
+    and type(Counter) is type and Counter.__module__ == "collections" and Counter.__name__ == "Counter"
+    and Counter.__mro__ == (Counter, dict, object)
+    and all(getattr(getattr(Counter, name, None), "__module__", None) == "collections"
+            and getattr(getattr(Counter, name, None), "__name__", None) == name
+            for name in ("__init__", "update", "__missing__"))
+    and all(getattr(Counter, name, None) is getattr(dict, name)
+            for name in ("__new__", "__getitem__", "__setitem__", "__delitem__", "__len__", "values"))
+)
 
 
 def _strip_nonspacing_marks(text: str) -> str:
     """Remove category Mn without changing the caller's normalization order."""
+    if (_NATIVE is not None and _NATIVE_FOLD_CERTIFIED and type(text) is str
+            and unicodedata.category is _NATIVE_CATEGORY):
+        return _NATIVE.strip_nonspacing_marks(text, unicodedata.category)
     removed = {ord(c): None for c in set(text) if unicodedata.category(c) == "Mn"}
     return text.translate(removed) if removed else text
 
@@ -167,7 +196,12 @@ def identifier_terms(text: str, *, query: bool = False) -> list[str]:
     This is deterministic lexical normalization, not translation or stemming.
     """
     normalized = text if text.isascii() else unicodedata.normalize("NFKC", text)
-    if not IDENTIFIER_WORD_BOUNDARY.search(normalized):
+    if (_NATIVE is not None and _NATIVE_IDENTIFIER_CERTIFIED and type(normalized) is str
+            and IDENTIFIER_WORD_BOUNDARY is _NATIVE_IDENTIFIER_WORD_BOUNDARY):
+        has_boundary = _NATIVE.identifier_has_boundary(normalized)
+    else:
+        has_boundary = IDENTIFIER_WORD_BOUNDARY.search(normalized)
+    if not has_boundary:
         return terms(normalized, query=query)
     if query:
         if _native_identifier_aliases_ready(text, normalized, query):
@@ -296,6 +330,22 @@ def _fold_excerpt_source(text: str) -> tuple[str, list[int]]:
     return "".join(folded), positions
 
 
+_NATIVE_EVIDENCE_UNITS = _evidence_units
+
+
+def _native_excerpt_window_ready() -> bool:
+    return (_NATIVE is not None and _NATIVE_WINDOW_CERTIFIED and _NATIVE_FINDITER_CERTIFIED
+            and _evidence_units is _NATIVE_EVIDENCE_UNITS
+            and _NATIVE.evidence_units is _NATIVE_C_EVIDENCE_UNITS
+            and _NATIVE.literal_positions is _NATIVE_C_LITERAL_POSITIONS
+            and re.finditer is _NATIVE_FINDITER
+            and math.log1p is _NATIVE_LOG1P and math.fsum is _NATIVE_FSUM
+            and bisect_left is _NATIVE_BISECT_LEFT and bisect_right is _NATIVE_BISECT_RIGHT
+            and Counter is _NATIVE_COUNTER
+            and all(getattr(Counter, name, None) is method
+                    for name, method in zip(_NATIVE_COUNTER_METHOD_NAMES, _NATIVE_COUNTER_METHODS)))
+
+
 def excerpt(text: str, query: str, max_chars: int, *, prepared_terms: list[str] | None = None) -> tuple[str, list[tuple[int, int]]]:
     """Return one bounded original-text window and exact character offsets.
 
@@ -333,6 +383,10 @@ def excerpt(text: str, query: str, max_chars: int, *, prepared_terms: list[str] 
         for term in q:
             for match in islice(re.finditer(re.escape(term), lower), 40):
                 positions.append((match.start() if source_positions is None else source_positions[match.start()], term))
+    if _native_excerpt_window_ready():
+        native_window = _NATIVE.excerpt_window(text, q, positions, width, _evidence_units, math.log1p, math.fsum)
+        if native_window is not NotImplemented:
+            return native_window
     positions.sort()
     starts = {0, max(0, len(text) - width)}
     for pos, _ in positions:
