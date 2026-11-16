@@ -166,6 +166,9 @@ def run(artifacts: Path, browser_executable: str | None = None) -> None:
                     )
                     page = context.new_page()
                     page.set_default_timeout(15_000)
+                    recall_requests = []
+                    page.on("request", lambda request: recall_requests.append(request.url)
+                            if urlsplit(request.url).path == "/api/recall" else None)
                     page.on("pageerror", lambda exc: report["page_errors"].append(str(exc)))
                     page.on("console", lambda message: report["console_errors"].append(message.text) if message.type == "error" else None)
                     page.on("requestfailed", lambda request: report["failed_requests"].append({"url": request.url, "failure": request.failure}))
@@ -178,6 +181,14 @@ def run(artifacts: Path, browser_executable: str | None = None) -> None:
                     try:
                         page.goto(server.reader_url, wait_until="networkidle")
                         expect(page.locator("#book-list .book-button")).to_have_count(4)
+                        expect(page.locator('#book-list .book-button[aria-pressed="true"]')).to_have_count(0)
+                        expect(page.locator("#search-scope")).to_have_text("先选择一本项目记忆")
+                        page.locator("#query").fill("45秒")
+                        page.locator("#search-button").click()
+                        expect(page.locator("#error-banner")).to_have_text("先选择一本项目记忆，或点击“全部记忆”进行跨项目查找。")
+                        expect(page.locator("#results .result-card")).to_have_count(0)
+                        assert recall_requests == [], "Fresh multi-book search silently requested global recall"
+                        checked("fresh multi-book reader requires a project or deliberate all-books selection before recall")
                         page.locator("#book-list .book-button").filter(has_text="星河笔记").click()
                         expect(page.locator("#page-title")).to_have_text("星河笔记")
                         expect(page.locator("#toc-list .chapter-button")).to_have_count(3)
@@ -338,6 +349,17 @@ def run(artifacts: Path, browser_executable: str | None = None) -> None:
                         expect(page.locator("#results")).to_contain_text("twin-alpha")
                         expect(page.locator("#results")).to_contain_text("twin-beta")
                         checked("explicit all-books search retains both project identities")
+
+                        requests_before_home = len(recall_requests)
+                        page.locator("#home-button").click()
+                        expect(page.locator('#book-list .book-button[aria-pressed="true"]')).to_have_count(0)
+                        expect(page.locator("#search-scope")).to_have_text("先选择一本项目记忆")
+                        page.locator("#query").fill("retry_limit")
+                        page.locator("#search-button").click()
+                        expect(page.locator("#error-banner")).to_have_text("先选择一本项目记忆，或点击“全部记忆”进行跨项目查找。")
+                        expect(page.locator("#results .result-card")).to_have_count(0)
+                        assert len(recall_requests) == requests_before_home, "Returning home retained cross-project permission"
+                        checked("returning home clears deliberate all-books scope and blocks unselected recall")
 
                         page.set_viewport_size({"width": 390, "height": 844})
                         page.locator("#book-list .book-button").filter(has_text="星河笔记").click()

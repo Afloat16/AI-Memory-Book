@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.7.0 — book navigation for similar engineering projects
+
+Release scope: select the exact project book, find questions through its
+directory and recover complete original turns without silently mixing similar
+projects. See [release notes](docs/releases/v0.7.0.md) and the
+[validation record](docs/v0.7.0-engineering-validation.md).
+
+- Require an exact project/chapter in multi-project recall, or an explicit
+  all-project opt-in. Resolve scope before cache lookup and reject blank scope.
+- Add metadata-only directory search, section-grouped results, breadcrumbs and
+  source addresses across Python, CLI, MCP, HTTP and the local reader.
+- Add optional exact-project guards to chapter, section and page reads; display
+  stable IDs for identically named books and retain them through navigation.
+- Add bounded complete original-turn reads with source coordinates, message
+  indices and a source hash that rejects replacement between continued chunks.
+- Keep nested directory reads within one SQLite snapshot, preserve caller-owned
+  transactions and advance recall cache version to 17 without a schema change.
+- Register an eight-backend comparison including actual ReMe file/BM25, the
+  unchanged engineering regression and a separate similar-project cohort.
+  Expand the primary-source feature review to eighteen external project families.
+- Pin installers to v0.7.0; keep heavy experimental dependencies outside the
+  normal package. Preserve source checkpoints, failed attempts and original
+  historical fixtures under the verified user's commit identity.
+
 ## 0.6.0 — current configuration evidence and broader comparisons
 
 Release scope: distinguish field declarations from later maintenance mentions,
