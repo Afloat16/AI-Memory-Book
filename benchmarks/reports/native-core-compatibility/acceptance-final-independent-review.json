@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "reviewed_at_utc": "2026-11-16 15:53:16 UTC",
+  "status": "passed-for-runtime-and-prepublication-acceptance",
+  "repository": "Afloat16/AI-Memory-Book",
+  "reviewer": "independent performance/source audit agent",
+  "reviewed_acceptance_blob": "e92f9782c369379df114f3aabcee1b1767194744",
+  "superseded_reviewed_blob": "03f8dfc2e09852c60184924ea051b27200d8af63",
+  "release_allowlist_blob": "443fef30bc2727ee744d75bce6e29f889d20b2be",
+  "ci_routing_blob": "38a31332117c20fc191b306e43b93b3d00ea4a55",
+  "scope": "Read-only acceptance, source-diff and retained evidence review. Runtime and prepublication delivery can be accepted; this is not evidence of final exact-commit CI success or public release completion.",
+  "runtime_sha256": "6ec51c906de94c97f90ec9be3dc50d066c9abedcff283c1e118ef6d6847eb3b7",
+  "candidate_commit": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+  "baseline_commit": "56eccd8c3a6f1d5637664607936da2595ce50c62",
+  "evaluator_commit": "cfdb3ca2c8ff2d71792e820923057d6613ea08b7",
+  "formal_evidence": {
+    "run_id": 43886529702,
+    "evidence_commit": "51e8d022c164ba714f68db562c9ae280a62c2312",
+    "independent_full_ram_audit_blob": "de254bfb04fe919835c74a768095ece9fa50229e",
+    "audit_receipt_blob": "e9455b0cfd8413ded2b73c3db70a6e8a645f275a",
+    "calls": 113568,
+    "pairs": 56784,
+    "equivalent": true
+  },
+  "mechanical_comparisons": {
+    "unchanged_reviewed_performance_fields": 34,
+    "performance_mismatches": [],
+    "prep_mismatches": [],
+    "accepted": true,
+    "publication_completed": false,
+    "ci_successes": 10,
+    "ci_cancelled": 1,
+    "cancelled_metadata_exact": true,
+    "scope_fixed": true,
+    "matrix_cell_count": 30,
+    "required_publication_gates": [
+      "All 11 general CI jobs on the exact final approved commit.",
+      "main and release/v0.9.0 identify that exact final commit.",
+      "Fresh full 30-wheel matrix and receipts from one final release run and attempt.",
+      "Verify all 67 assets, fallback/source installation, wheel RECORDs and loaded extension hashes.",
+      "Publish stable v0.9.0 and pass actual public default native installation with MCP/client dependencies."
+    ]
+  },
+  "performance_claim_review": [
+    "All 34 retained performance/identity/cost/limitation fields are exactly unchanged from the independently checked draft aadd10e4. They retain eight pooled query cells, 32 paired round cells, four ingestion cells and 16 ingestion pairs, 38 resource comparisons, storage snapshots, both prior attempts and all three negative p50/p95 observations.",
+    "Baseline is native v0.8.1, not Python fallback; original v0.8/v0.8.1 improvements are not added to these results.",
+    "The accepted fields bind exact final candidate 4390, 31 source/build inputs, runtime hash 6ec51 and frozen evaluator cfdb. No statistical-significance, all-input, all-platform-performance or universal-optimality claim is introduced.",
+    "Startup, memory and native-binary-size costs remain explicit. The complete artifact audit established equivalence only for recorded workloads."
+  ],
+  "prepublication_delivery": {
+    "run_id": 43897981051,
+    "run_attempt": 1,
+    "source_commit": "ba1bcef8d4fcf325a3403c2ff9c540312c491464",
+    "source_tree": "f28f9d6847e671dd484a705c1e465e93e927cc58",
+    "artifact_id": 14240632443,
+    "artifact_bytes": 9643315,
+    "artifact_sha256": "070ce0c4976f2768f7d72dd8b3ca991fd3844d8e3054c47238161dbf69d5cb43",
+    "asset_audit_blob": "d626273d938c49ed6ea5cfc958e7e876d85b9f3c",
+    "summary_blob": "d9b5a4f68fc7f76770aa93818334aac55e145ade",
+    "installation_validation_blob": "82608210bf4f30be7aaa142582bce7f8f27f61e0",
+    "native_platform_jobs": 5,
+    "independent_python_platform_cells": 30,
+    "total_test_instances": {
+      "tests_run": 4320,
+      "passed": 4245,
+      "skipped": 75
+    },
+    "distinct_native_test_methods": 144,
+    "assets": 67,
+    "summary_fields_exactly_match_acceptance": true,
+    "limitations": "This agent reviewed the colleague's full RAM asset/source/log audit and compared exact resulting records; it did not redownload or reexecute the completed preparation. Counts are executions across environments, not 4320 distinct methods. Three interrupted matrices are retained and none are mixed into the successful run."
+  },
+  "source_diff_review": {
+    "release_allowlist": "The only scripts/release.py change relative to reviewed 000da source is the 0.9.0 -> 6ec51 hash entry and its five explanatory comment lines. Existing 30 receipt, exact source/run/attempt, eleven CI, asset and publication gates are unchanged.",
+    "ci_routing": "Exact .github/workflows/ci.yml diff changes only installer runs-on from matrix.os to matrix.os == 'macos-latest' && 'macos-26' || matrix.os and adds one comment. Existing matrix names, eleven required jobs, action pins, steps, tests and 15-minute timeout are unchanged. No application/evaluator/compiler configuration changes occur."
+  },
+  "ci_evidence": {
+    "run_id": 43897980872,
+    "source_commit": "ba1bcef8d4fcf325a3403c2ff9c540312c491464",
+    "successful_jobs": 10,
+    "unallocated_cancelled_jobs": 1,
+    "satisfies_final_ci_gate": false,
+    "full_metadata_and_log_excerpt_receipt_blob": "b116b51b671d463f1e8547bbc444ff778c7b3d25",
+    "raw_run_blob": "0ac64ad1d683178fb601195798f384922efc7908",
+    "raw_jobs_blob": "0fb51a81c1cf1225c354796a02f3fd55c3fbee57",
+    "actual_1425_test_counts": [
+      {
+        "job": "mcp",
+        "skipped": 16
+      },
+      {
+        "job": "core (3.10)",
+        "skipped": 149
+      },
+      {
+        "job": "core (3.12)",
+        "skipped": 143
+      },
+      {
+        "job": "core (3.13)",
+        "skipped": 144
+      },
+      {
+        "job": "core (3.14)",
+        "skipped": 144
+      },
+      {
+        "job": "core (3.15)",
+        "skipped": 144
+      }
+    ],
+    "all_six_logs_contain_ten_passing_new_control_methods": true
+  },
+  "resolved_findings": [
+    {
+      "field": "grouped_build_controls.scope",
+      "old_blob": "03f8dfc2e09852c60184924ea051b27200d8af63",
+      "issue": "Stale text said actual platform preparation remained pending.",
+      "new_blob": "e92f9782c369379df114f3aabcee1b1767194744",
+      "resolution": "Text now distinguishes the ten mocked control tests from separately completed real 30-cell preparation."
+    }
+  ],
+  "blocking_findings": [],
+  "publication_completed": false,
+  "remaining_publication_gates": [
+    "All 11 general CI jobs on the exact final approved commit.",
+    "main and release/v0.9.0 identify that exact final commit.",
+    "Fresh full 30-wheel matrix and receipts from one final release run and attempt.",
+    "Verify all 67 assets, fallback/source installation, wheel RECORDs and loaded extension hashes.",
+    "Publish stable v0.9.0 and pass actual public default native installation with MCP/client dependencies."
+  ],
+  "applications_run": 0,
+  "tests_rerun": 0,
+  "performance_remeasurements": 0,
+  "workflow_mutations": 0,
+  "refs_changed": 0
+}

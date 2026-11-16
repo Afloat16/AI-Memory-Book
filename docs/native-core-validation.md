@@ -336,31 +336,56 @@ possible input equivalent.
 
 ## Native packaging and installation
 
-Native delivery remains pending. Three complete preparations ended
-incomplete when macOS ARM jobs were cancelled without receiving runners or
-executing test steps: [43885419074](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074)
-passed 28 cells, [43888785867](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43888785867)
-passed 27, and [43892250078](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43892250078)
-passed 28 after switching to the officially supported macOS 26 ARM image.
-All three [interrupted records](../benchmarks/reports/native-core-compatibility/)
-retain actual logs, artifact identities and cancelled/absent steps.
-Their successful subsets are never combined into a passing matrix.
+The complete [prepublication preparation run 43897981051](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43897981051)
+passed at source `ba1bcef8d4fcf325a3403c2ff9c540312c491464`, tree
+`f28f9d6847e671dd484a705c1e465e93e927cc58`, attempt 1. All 30
+CPython/platform combinations are present: Python 3.10, 3.11, 3.12, 3.13,
+3.14 and 3.15 on Linux x86-64/ARM64, macOS Intel/ARM64 and Windows AMD64.
+Five platform jobs each execute six separate interpreter setup/build/test
+cells. This organization changes scheduling and evidence capture, not the
+required combinations or the original release gates.
 
-The [grouped recovery plan](../benchmarks/reports/native-core-compatibility/grouped-packaging/recovery-plan.json)
-keeps **30 independent cells** but requests one runner per platform, with
-six explicit Python setup/build/install/test steps on each. Every cell uses
-its own interpreter output, work directories, logs and validation record.
-Only successful actual 144-test runs plus the original isolated smoke and
-receipt validation can expose a wheel/receipt. Earlier failed attempts
-remain immutable. Ten mocked control tests and two source reviews pass;
-the real grouped matrix is still required.
+Every cell's actual test log reports 144 tests and an OK result, with two or
+three explicit skips. The two optional-tokenizer skips are retained; where
+that interpreter does not provide `_xxsubinterpreters`, the exact shared-GIL
+subinterpreter test is also skipped with that exact reason. The independent
+auditor rejects unknown skipped tests or changed reasons. The
+[per-cell evidence and complete audit](../benchmarks/reports/native-core-compatibility/packaging-43897981051/)
+preserve each interpreter's actual result rather than inferring it from the
+platform job's success.
 
-The original 30-cell source/ABI/RECORD/run/attempt receipt validator and
-67-asset preparation remain unchanged, as do the 11-job final CI,
-publication and actual public-install gates. The application runtime,
-compiler configuration and installers are unchanged. This is a packaging
-scheduling recovery, without another performance experiment.
-v0.8.1 remains the published release at this checkpoint.
+Artifact `14240632443` is 9,643,315 bytes, SHA256
+`070ce0c4976f2768f7d72dd8b3ca991fd3844d8e3054c47238161dbf69d5cb43`.
+Its 68 files contain 67 release assets and one preparation-validation record:
+30 native wheels, 30 source/build receipts, one portable fallback wheel,
+one source distribution, three installers, the release manifest and
+`SHA256SUMS`. All 65 manifest entries and 66 checksum lines were checked.
+The independent audit also verifies the ten platform wheel/evidence ZIPs,
+their API digests, wheel RECORDs, extension hashes, source inputs, compiler
+and test logs, and common source/run/attempt identities. There are no mixed
+receipts from earlier attempts.
+
+Preparation installed fallback wheel and source distribution in separate
+clean environments, then exercised the default installer with both the
+native and fallback wheel plus MCP/client dependencies. It observed
+`0.9.0 native` and `0.9.0 python` respectively. Runtime and reader bytes
+match the frozen source; large research data are excluded from packages.
+
+Three incomplete attempts remain recorded separately:
+[43885419074](../benchmarks/reports/native-core-compatibility/packaging-43885419074/interrupted-matrix.json),
+[43888785867](../benchmarks/reports/native-core-compatibility/packaging-43888785867/interrupted-matrix.json)
+and [43892250078](../benchmarks/reports/native-core-compatibility/packaging-43892250078/interrupted-matrix.json).
+Their cancelled macOS ARM jobs had no assigned runner or executed test
+steps. Successful subsets were never combined into a complete matrix.
+The later macOS ARM image selection and five-job organization are documented
+in the [development history](native-core-development.md).
+
+This preparation is evidence for the unchanged runtime, not a claim that
+its intermediate commit was published. Final publication requires all eleven
+CI jobs at the exact approved main commit, a fresh complete native matrix,
+verified assets and actual installation from the public release URLs.
+README/package metadata changes after preparation are rebuilt at that final
+commit. No performance observation was repeated for these packaging changes.
 
 Use the pinned v0.9.0 installer from the [deployment guide](deployment.md).
 It creates an isolated environment, selects a wheel from that environment's

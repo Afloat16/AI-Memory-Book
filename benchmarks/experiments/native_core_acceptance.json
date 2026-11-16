@@ -2,10 +2,10 @@
   "schema_version": 1,
   "version": "0.9.0",
   "decision_date_utc": "2026-11-16",
-  "status": "performance-reviewed-native-delivery-pending",
-  "accepted": false,
+  "status": "accepted-runtime-and-prepublication-delivery",
+  "accepted": true,
   "publication_completed_at_this_checkpoint": false,
-  "decision": "The exact final native runtime provides lower pooled p50 and p95 in all eight registered query cells and lower total time in all four ingestion cells, with full recorded output/index/source equivalence. Default-budget p95 improves in 15/16 paired rounds and all ingestion pairs improve. Explicitly retain and accept the smaller regressing rounds, startup/RSS and binary-size costs. Runtime adoption remains conditional on the complete same-source native delivery preparation; final publication additionally requires exact-final-commit CI, a fresh release matrix and real public installation.",
+  "decision": "The exact final native runtime provides lower pooled p50 and p95 in all eight registered query cells and lower total time in all four ingestion cells, with full recorded output/index/source equivalence. Default-budget p95 improves in 15/16 paired rounds and all ingestion pairs improve. Explicitly retain and accept the smaller regressing rounds, startup/RSS and binary-size costs. The complete same-source 30-cell native delivery preparation and independent asset/source/log audit passed, including native/fallback default installation and source installation. Accept this exact runtime for release; actual publication still requires exact-final-commit CI, matching main/release identity, a fresh complete native matrix and verified public installation.",
   "scope": "Execution implementation only: add 15 native entries across lexical, complete excerpt windows, ranking/selection, context/reference handling, source projection and segmentation/pages, retaining seven existing entries. No change to SQL/schema/algorithm, identities, source positions, ranking decisions, scopes, budgets or cache behavior. The original Python text join remains after its C replacement measured slower.",
   "baseline_commit": "56eccd8c3a6f1d5637664607936da2595ce50c62",
   "candidate_commit": "4390d013986ab9c96b49cc6964f075f3866f21ee",
@@ -2813,9 +2813,531 @@
       "core_314_315_tests_each": 1415,
       "core_314_315_skipped_each": 144,
       "final_commit_ci_still_required": true
+    },
+    "native_matrix": {
+      "source_commit": "ba1bcef8d4fcf325a3403c2ff9c540312c491464",
+      "run_id": 43897981051,
+      "run_attempt": 1,
+      "platform_jobs": 5,
+      "independent_python_platform_cells": 30,
+      "distinct_test_methods": 144,
+      "total_test_instances": {
+        "tests_run": 4320,
+        "passed": 4245,
+        "skipped": 75
+      },
+      "actual_skip_counts_by_python": {
+        "3.10": 2,
+        "3.11": 2,
+        "3.12": 2,
+        "3.13": 3,
+        "3.14": 3,
+        "3.15": 3
+      },
+      "skip_scope": "Observed uniformly across the five platforms in this preparation, not assumed by version or reused as final-publication results.",
+      "allowed_skips": {
+        "required": [
+          "test_token_caps_keep_complete_payload_counts_and_source_spans: Install .[tokens]",
+          "test_both_token_encoders_keep_exact_budgets_and_source_refs: Install .[tokens]"
+        ],
+        "optional": "test_available_shared_gil_subinterpreters_keep_main_module_working: _xxsubinterpreters is not available in this Python build",
+        "other_skips_permitted": false
+      }
     }
   },
-  "native_delivery_preparation": null,
+  "native_delivery_preparation": {
+    "schema_version": 1,
+    "status": "passed",
+    "prepared_only": true,
+    "published": false,
+    "audited_at_utc": "2026-11-16 15:47:52 UTC",
+    "repository": "Afloat16/AI-Memory-Book",
+    "source_commit": "ba1bcef8d4fcf325a3403c2ff9c540312c491464",
+    "source_tree": "f28f9d6847e671dd484a705c1e465e93e927cc58",
+    "runtime_sha256": "6ec51c906de94c97f90ec9be3dc50d066c9abedcff283c1e118ef6d6847eb3b7",
+    "run_id": 43897981051,
+    "run_attempt": 1,
+    "workflow_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43897981051",
+    "artifact": {
+      "created_at": "2026-11-16T15:44:07Z",
+      "digest": "sha256:070ce0c4976f2768f7d72dd8b3ca991fd3844d8e3054c47238161dbf69d5cb43",
+      "expires_at": "2026-12-16T15:44:04Z",
+      "id": 14240632443,
+      "name": "native-packaging-43897981051-1",
+      "size_in_bytes": 9643315
+    },
+    "archive": {
+      "asset_count": 67,
+      "bytes": 9643315,
+      "checksummed_file_count": 66,
+      "file_count": 68,
+      "manifest_payload_count": 65,
+      "sha256": "070ce0c4976f2768f7d72dd8b3ca991fd3844d8e3054c47238161dbf69d5cb43"
+    },
+    "source": {
+      "runtime_files": 27,
+      "build_inputs": 31,
+      "including_installers_git_sources": 34
+    },
+    "execution": {
+      "platform_jobs": 5,
+      "actual_successful_setup_steps": 30,
+      "actual_successful_build_install_test_steps": 30,
+      "cell_evidence_files": 246,
+      "native_wheel_receipt_files": 60,
+      "total_test_instances": {
+        "tests_run": 4320,
+        "passed": 4245,
+        "skipped": 75
+      }
+    },
+    "cell_results": [
+      {
+        "target": "linux_x86_64",
+        "python_version": "3.10",
+        "job_id": 133406704924,
+        "step_id": "cell310",
+        "tests_run": 144,
+        "passed": 142,
+        "skipped": 2,
+        "validation_sha256": "2fd7b7c9700f2797b72e710302884f7da0a45e49d415e0f0e976c9e8710e5600",
+        "test_log_sha256": "a102085b16412d738e2da5cad3a52ac0220b68a3d0d99e57c6d4372ff4cbf5e6"
+      },
+      {
+        "target": "linux_x86_64",
+        "python_version": "3.11",
+        "job_id": 133406704924,
+        "step_id": "cell311",
+        "tests_run": 144,
+        "passed": 142,
+        "skipped": 2,
+        "validation_sha256": "18b2107aefcfdd06daee3809b29699af179cb7295b9982d19f61fb7b1c42556b",
+        "test_log_sha256": "9b64011166df1f7ebeb42f09849f070fc115c4bba11f0370d98d108943f90680"
+      },
+      {
+        "target": "linux_x86_64",
+        "python_version": "3.12",
+        "job_id": 133406704924,
+        "step_id": "cell312",
+        "tests_run": 144,
+        "passed": 142,
+        "skipped": 2,
+        "validation_sha256": "d9aeb2967e9d3c1f29d08a25d2a8e30fa6f6a5f5d039e81e7d12a069bc72a2c0",
+        "test_log_sha256": "b4adbcb02d38bb0f421dccd60a326a09c5e265e91a4327fb92709e9ec4d998f2"
+      },
+      {
+        "target": "linux_x86_64",
+        "python_version": "3.13",
+        "job_id": 133406704924,
+        "step_id": "cell313",
+        "tests_run": 144,
+        "passed": 141,
+        "skipped": 3,
+        "validation_sha256": "22dc8432a3362d0258755d39226ba70139ec38a0f40878a0da45e5a78f8ddd10",
+        "test_log_sha256": "4a6cac363e9eaafc59c3864271225d5159da0529314796becdfc204120a9c2f4"
+      },
+      {
+        "target": "linux_x86_64",
+        "python_version": "3.14",
+        "job_id": 133406704924,
+        "step_id": "cell314",
+        "tests_run": 144,
+        "passed": 141,
+        "skipped": 3,
+        "validation_sha256": "81174030b26279c339766ce304e3ddf53d9ba1e948f07e7d5024f1f7d4aa33f0",
+        "test_log_sha256": "bb47244636050ad7b11b39883b56e3ab9dec07352b71b03e24f6c568878865a6"
+      },
+      {
+        "target": "linux_x86_64",
+        "python_version": "3.15",
+        "job_id": 133406704924,
+        "step_id": "cell315",
+        "tests_run": 144,
+        "passed": 141,
+        "skipped": 3,
+        "validation_sha256": "eb17ef82afe470bc78fb998abce11ccadf90cc791cf44f54fdc75b50c21bb103",
+        "test_log_sha256": "f89d3ace7c961a9fa37bae85e12e9987b78445d09aabca0a3debde282391fa20"
+      },
+      {
+        "target": "linux_aarch64",
+        "python_version": "3.10",
+        "job_id": 133406705182,
+        "step_id": "cell310",
+        "tests_run": 144,
+        "passed": 142,
+        "skipped": 2,
+        "validation_sha256": "000305fb78c1cf4ae0e201816ea4ffe7d79762149721e441acb39ca8c81c9c89",
+        "test_log_sha256": "15fccd399da653483e97d68df6fc126bc0d036fefb06af62fffea00424100cc2"
+      },
+      {
+        "target": "linux_aarch64",
+        "python_version": "3.11",
+        "job_id": 133406705182,
+        "step_id": "cell311",
+        "tests_run": 144,
+        "passed": 142,
+        "skipped": 2,
+        "validation_sha256": "aa124b6e5cd81836661a8fb85cbf2af95b8300bc710a6e0c6a0282baba441dd4",
+        "test_log_sha256": "c78cae0306d55eceedf0ea118563987ca6eaa9f1e4dd83ec162911b39cffeb56"
+      },
+      {
+        "target": "linux_aarch64",
+        "python_version": "3.12",
+        "job_id": 133406705182,
+        "step_id": "cell312",
+        "tests_run": 144,
+        "passed": 142,
+        "skipped": 2,
+        "validation_sha256": "803dc8dc6f5579d66b0fd4c044630c2cd06b64563e0304d5988e4d471fd17cdb",
+        "test_log_sha256": "5939f277473d661d3e0e71b48402e0221837a654d80149fdd4673f1d5b29fcb9"
+      },
+      {
+        "target": "linux_aarch64",
+        "python_version": "3.13",
+        "job_id": 133406705182,
+        "step_id": "cell313",
+        "tests_run": 144,
+        "passed": 141,
+        "skipped": 3,
+        "validation_sha256": "046cb359195021fecdd496fe905dc43bc61e7f681624e24d0527d6b9b7b8a0f2",
+        "test_log_sha256": "d3cb39d1c4216e01bf902435c92f62433427d9d4f69dbd0384410ab8a2cb6569"
+      },
+      {
+        "target": "linux_aarch64",
+        "python_version": "3.14",
+        "job_id": 133406705182,
+        "step_id": "cell314",
+        "tests_run": 144,
+        "passed": 141,
+        "skipped": 3,
+        "validation_sha256": "ff29d0dfb22b6f8d999e2016a6b750893a6871060c9d1aa13cde69f9c779d91e",
+        "test_log_sha256": "d18660015258493731bd9fa5fad9267d3a77f72edf9f23254b36ae06f5461886"
+      },
+      {
+        "target": "linux_aarch64",
+        "python_version": "3.15",
+        "job_id": 133406705182,
+        "step_id": "cell315",
+        "tests_run": 144,
+        "passed": 141,
+        "skipped": 3,
+        "validation_sha256": "ea033cd0e929f7df37b78cd0cd2687f8400213cc585bca2bde4a67625000b178",
+        "test_log_sha256": "05c2e9c5f0c43a2f3793988872c07ac65b435c1fe6740582ce381c677c70c604"
+      },
+      {
+        "target": "macos_x86_64",
+        "python_version": "3.10",
+        "job_id": 133406705009,
+        "step_id": "cell310",
+        "tests_run": 144,
+        "passed": 142,
+        "skipped": 2,
+        "validation_sha256": "81198dd0d9db47497e2f75d0a5fca745f79d607083354abc0a8c9938ffc4a088",
+        "test_log_sha256": "f14570de6101857d92e6ad0cd25081f18e7e7710660174a1a4dac927e07ddda6"
+      },
+      {
+        "target": "macos_x86_64",
+        "python_version": "3.11",
+        "job_id": 133406705009,
+        "step_id": "cell311",
+        "tests_run": 144,
+        "passed": 142,
+        "skipped": 2,
+        "validation_sha256": "ac740c51cdbaf84a23ea73e93f519f2d2c3e3ce65729148105a7868a4b339c91",
+        "test_log_sha256": "c982f493d443be1c56d00427230010d6e1508ab75cbabe8ceebd49ef172d0249"
+      },
+      {
+        "target": "macos_x86_64",
+        "python_version": "3.12",
+        "job_id": 133406705009,
+        "step_id": "cell312",
+        "tests_run": 144,
+        "passed": 142,
+        "skipped": 2,
+        "validation_sha256": "d1222b68acb8b72493ecbc67635d1e26e221c4032780645e72e0f934dbcab59c",
+        "test_log_sha256": "07f0a2d5af540d5929d8027137ede31b362d5214a4afbc879b493914a3055df8"
+      },
+      {
+        "target": "macos_x86_64",
+        "python_version": "3.13",
+        "job_id": 133406705009,
+        "step_id": "cell313",
+        "tests_run": 144,
+        "passed": 141,
+        "skipped": 3,
+        "validation_sha256": "61377af9c35bf434c4a66b062c914458ce54a25b701863f8753d790d76f077a8",
+        "test_log_sha256": "94dde60c643643484cf6f97bf1de07cb6858cf34bc92a59ce35c0fb8e42f2e5e"
+      },
+      {
+        "target": "macos_x86_64",
+        "python_version": "3.14",
+        "job_id": 133406705009,
+        "step_id": "cell314",
+        "tests_run": 144,
+        "passed": 141,
+        "skipped": 3,
+        "validation_sha256": "31afb17758d5f3db8a0c4fbd9a2395c402347b2aa552ecadfc80b00a31e3bf06",
+        "test_log_sha256": "d33e095b9ba61f7d89ca49acf17e15d1b769d9bba3b071102e2fa969775b97a3"
+      },
+      {
+        "target": "macos_x86_64",
+        "python_version": "3.15",
+        "job_id": 133406705009,
+        "step_id": "cell315",
+        "tests_run": 144,
+        "passed": 141,
+        "skipped": 3,
+        "validation_sha256": "ecf11878971b546e8837fbc93008d890664677d8e6a61ba3f772179e75aa320f",
+        "test_log_sha256": "32adacde0a4cf821e4607a643402ec9dfc1962e572bfba5c92a7465e07763631"
+      },
+      {
+        "target": "macos_arm64",
+        "python_version": "3.10",
+        "job_id": 133406704746,
+        "step_id": "cell310",
+        "tests_run": 144,
+        "passed": 142,
+        "skipped": 2,
+        "validation_sha256": "1955e3c01efadd48e637d324c7b6e8c10898fad6ef383bf6eb37aa5554dc3c32",
+        "test_log_sha256": "cfc9064a70cf992739fdb7061d2a06e528c62487b209ecd52b1c2c124200865b"
+      },
+      {
+        "target": "macos_arm64",
+        "python_version": "3.11",
+        "job_id": 133406704746,
+        "step_id": "cell311",
+        "tests_run": 144,
+        "passed": 142,
+        "skipped": 2,
+        "validation_sha256": "79d9222577b8adccdb93ee894d2787f6848bcf603f65af21e617d35bff5d8c9f",
+        "test_log_sha256": "e9f2c863d3bf427512475bca0c7901cb0d0fb858ba45fde7cb71e36fd9d130d9"
+      },
+      {
+        "target": "macos_arm64",
+        "python_version": "3.12",
+        "job_id": 133406704746,
+        "step_id": "cell312",
+        "tests_run": 144,
+        "passed": 142,
+        "skipped": 2,
+        "validation_sha256": "a111c54c0859eba14d442e92f58e9e0ac8841e95a5fadaff5c303e3121cae7b8",
+        "test_log_sha256": "0cf4c637b1900741e21adc609a7e72ad4c3c38bfd59b3ae6ee8b62c23b640577"
+      },
+      {
+        "target": "macos_arm64",
+        "python_version": "3.13",
+        "job_id": 133406704746,
+        "step_id": "cell313",
+        "tests_run": 144,
+        "passed": 141,
+        "skipped": 3,
+        "validation_sha256": "05d3184f227e4bbb6595eb289c06e2e19e27d555bcad903dd8d8414c45b036e8",
+        "test_log_sha256": "57781e35eee7072da6cf3f72fb0e705f06bd4024461f998f347183b079dc7ceb"
+      },
+      {
+        "target": "macos_arm64",
+        "python_version": "3.14",
+        "job_id": 133406704746,
+        "step_id": "cell314",
+        "tests_run": 144,
+        "passed": 141,
+        "skipped": 3,
+        "validation_sha256": "bb6ed9dd8f09f19864c8d8f080eeeb8a5eb32b41a32d3f0aa279f91aa1eced3b",
+        "test_log_sha256": "d014a475436ce7fbff0009e5ec4d0edcdd91a5faac4c8600d703c75a82b54b6b"
+      },
+      {
+        "target": "macos_arm64",
+        "python_version": "3.15",
+        "job_id": 133406704746,
+        "step_id": "cell315",
+        "tests_run": 144,
+        "passed": 141,
+        "skipped": 3,
+        "validation_sha256": "38755414d0de82fe8875ad02b13da36601930838eb0646d157b6a0d46e3f8810",
+        "test_log_sha256": "abfba51c57c5637595ccec96a3873e8502cbfbd0d8d049809dfba3eb28765fb7"
+      },
+      {
+        "target": "windows_amd64",
+        "python_version": "3.10",
+        "job_id": 133406704804,
+        "step_id": "cell310",
+        "tests_run": 144,
+        "passed": 142,
+        "skipped": 2,
+        "validation_sha256": "d2c67beca7d9ef58d7a345fa40993bd20407ae10942c5d378e6463d7fb0637d3",
+        "test_log_sha256": "9256bbc8623ad043b6760e603b27b8e9987a38f175d92fc424cf9afdfe786328"
+      },
+      {
+        "target": "windows_amd64",
+        "python_version": "3.11",
+        "job_id": 133406704804,
+        "step_id": "cell311",
+        "tests_run": 144,
+        "passed": 142,
+        "skipped": 2,
+        "validation_sha256": "2eb1df627e0ac6396dc5fb6775d980e859166266ceba210721794ad42c5f4930",
+        "test_log_sha256": "4aeeb31bef2e0eed6c93fd8d2eeab85f9309b9e76351eddf7aede710783087f2"
+      },
+      {
+        "target": "windows_amd64",
+        "python_version": "3.12",
+        "job_id": 133406704804,
+        "step_id": "cell312",
+        "tests_run": 144,
+        "passed": 142,
+        "skipped": 2,
+        "validation_sha256": "6c7799956bbb4064b7f37f38c8f2e28c4f131489eb738ed76bf744ee82be1793",
+        "test_log_sha256": "ff9d9f8802dbc4e46eabe299e83a983e9a66055b692c5244535ba4efa50e06ce"
+      },
+      {
+        "target": "windows_amd64",
+        "python_version": "3.13",
+        "job_id": 133406704804,
+        "step_id": "cell313",
+        "tests_run": 144,
+        "passed": 141,
+        "skipped": 3,
+        "validation_sha256": "ba27410b9d096e273c076dea3b33da5b9532a8c0eb9fa6539064ae2b5e28a800",
+        "test_log_sha256": "b9b09d2f7af4f3844a8677328677c1ba73625235d611d239f155390108e41353"
+      },
+      {
+        "target": "windows_amd64",
+        "python_version": "3.14",
+        "job_id": 133406704804,
+        "step_id": "cell314",
+        "tests_run": 144,
+        "passed": 141,
+        "skipped": 3,
+        "validation_sha256": "ba878acca6b3a50858a0da9d78f4aa44109b80f3865bb209b4e82d4c010506ad",
+        "test_log_sha256": "c545b759bf63e0e6a4e81d849a94275d1a47c28ab38d6432702afb81bd4679de"
+      },
+      {
+        "target": "windows_amd64",
+        "python_version": "3.15",
+        "job_id": 133406704804,
+        "step_id": "cell315",
+        "tests_run": 144,
+        "passed": 141,
+        "skipped": 3,
+        "validation_sha256": "7fc4c21be72f21f3fb9683fefa1a376a734f03b02425f77c0c908c15a3abc2ed",
+        "test_log_sha256": "d6a5722f61bc43ac946a2db4200038a526e2c9fc455883f5ce0176f570b5b366"
+      }
+    ],
+    "allowed_skips": {
+      "required": [
+        "test_token_caps_keep_complete_payload_counts_and_source_spans: Install .[tokens]",
+        "test_both_token_encoders_keep_exact_budgets_and_source_refs: Install .[tokens]"
+      ],
+      "optional": "test_available_shared_gil_subinterpreters_keep_main_module_working: _xxsubinterpreters is not available in this Python build",
+      "other_skips_permitted": false
+    },
+    "delivery": {
+      "asset_count": 67,
+      "manifest_records": 65,
+      "checksummed_files": 66,
+      "native_installer_backend": "native",
+      "fallback_installer_backend": "python",
+      "default_extras": [
+        "mcp",
+        "clients"
+      ],
+      "package_checks": {
+        "fallback_wheel_and_sdist_installed_in_separate_clean_environments": true,
+        "large_research_data_excluded": true,
+        "native_matrix_receipts_and_installed_native_smokes_validated": true,
+        "runtime_source_and_reader_bytes_match_source": true
+      }
+    },
+    "audit_source": {
+      "git_blob_sha1": "9e8bee3d784cabf8b0baaa849765c48d1160373f",
+      "sha256": "2362de78ee9ec18aa3a0281e43b439c81fbf10ba79a49e580ccfde58cfd21090"
+    },
+    "limitations": [
+      "This is a prepare-only delivery validation. Publication and exact-final-main CI require the separate release process.",
+      "Each environment ran the same 144 existing native tests; totals count executions across environments, not distinct test definitions.",
+      "The prior three interrupted runner attempts were retained and none of their wheel subsets was combined with this successful run."
+    ],
+    "evidence_directory": "benchmarks/reports/native-core-compatibility/packaging-43897981051",
+    "evidence_git_blobs": {
+      "artifact-audit.json": "d626273d938c49ed6ea5cfc958e7e876d85b9f3c",
+      "jobs-and-cell-tests.json": "fc9e5f0e4be88475d13e54856b631c66a3b990f8",
+      "native-packaging-validation.json": "82608210bf4f30be7aaa142582bce7f8f27f61e0",
+      "release-manifest.json": "3b00fc9b455d7499ef62c5132722e8ed8f92eb23",
+      "summary.json": "d9b5a4f68fc7f76770aa93818334aac55e145ade",
+      "README.md": "995850f1f90d8bc3a3d69b38a6dbf84c0b95bd90",
+      "raw-cell-evidence-retention.json": "ffb481d27acac9f2b132067589fa9a72c70b9254",
+      "raw-cell-evidence/linux_x86_64.zip": "bf05b4211659b06fa2ae318bd3b4f7df4f703166",
+      "raw-cell-evidence/linux_aarch64.zip": "9b2de3390a8b981fcf35aa58ad7ecd9f925b81c1",
+      "raw-cell-evidence/macos_x86_64.zip": "97a3bee184d25f4bf288d7c7e9be5271cc31fe99",
+      "raw-cell-evidence/macos_arm64.zip": "0c1a894cf3b188a9ab33c87660615c909bbc6162",
+      "raw-cell-evidence/windows_amd64.zip": "0118c6f7e1716401921e62f987b31e066a66f6c6"
+    },
+    "auditor_path": "scripts/audit_native_core_grouped_packaging.py",
+    "auditor_usage": "RAM execution body with caller-injected configuration JSON; the complete source/hash is embedded in artifact-audit.json.",
+    "raw_cell_evidence_retention": {
+      "schema_version": 1,
+      "status": "passed",
+      "retained_at_utc": "2026-11-16 15:51:25 UTC",
+      "run_id": 43897981051,
+      "run_attempt": 1,
+      "commit": "ba1bcef8d4fcf325a3403c2ff9c540312c491464",
+      "original_audit_blob": "d626273d938c49ed6ea5cfc958e7e876d85b9f3c",
+      "scope": "Post-audit preservation of five original cell-evidence ZIP byte streams. The original RAM audit process had exited and its download links had expired. The parent explicitly authorized re-reading only these same five immutable artifacts. Each reread was checked against the already-audited byte size/SHA256 and stored as an unchanged base64 Git blob. No archive/application/performance audit, application test, workflow or benchmark was rerun; no archive was written to disk; the prior audit timestamp and result are unchanged.",
+      "artifacts": [
+        {
+          "target": "windows_amd64",
+          "artifact_id": 14239433719,
+          "bytes": 71140,
+          "sha256": "dc7b45106ff8218a114041a51325c680f8991c2e543e8174131954ed4ad2abe8",
+          "git_blob_sha1": "0118c6f7e1716401921e62f987b31e066a66f6c6",
+          "filename": "raw-cell-evidence/windows_amd64.zip",
+          "original_audited_sha256": "dc7b45106ff8218a114041a51325c680f8991c2e543e8174131954ed4ad2abe8",
+          "original_audited_bytes": 71140
+        },
+        {
+          "target": "linux_x86_64",
+          "artifact_id": 14239588232,
+          "bytes": 74917,
+          "sha256": "14da0961af7ab78e5686f77e38258d6fa92af3262ea30ea554ff6dde6535dd88",
+          "git_blob_sha1": "bf05b4211659b06fa2ae318bd3b4f7df4f703166",
+          "filename": "raw-cell-evidence/linux_x86_64.zip",
+          "original_audited_sha256": "14da0961af7ab78e5686f77e38258d6fa92af3262ea30ea554ff6dde6535dd88",
+          "original_audited_bytes": 74917
+        },
+        {
+          "target": "linux_aarch64",
+          "artifact_id": 14241255128,
+          "bytes": 74971,
+          "sha256": "de20eeae48dace28df64f92d5e06e4ffca3b2edacd7da10cc6ef4643143776ba",
+          "git_blob_sha1": "9b2de3390a8b981fcf35aa58ad7ecd9f925b81c1",
+          "filename": "raw-cell-evidence/linux_aarch64.zip",
+          "original_audited_sha256": "de20eeae48dace28df64f92d5e06e4ffca3b2edacd7da10cc6ef4643143776ba",
+          "original_audited_bytes": 74971
+        },
+        {
+          "target": "macos_arm64",
+          "artifact_id": 14240131542,
+          "bytes": 71240,
+          "sha256": "5c5f78e01fd0de670e23bc51d9742439a629ce641ed21d2d45770c9f3877efa2",
+          "git_blob_sha1": "0c1a894cf3b188a9ab33c87660615c909bbc6162",
+          "filename": "raw-cell-evidence/macos_arm64.zip",
+          "original_audited_sha256": "5c5f78e01fd0de670e23bc51d9742439a629ce641ed21d2d45770c9f3877efa2",
+          "original_audited_bytes": 71240
+        },
+        {
+          "target": "macos_x86_64",
+          "artifact_id": 14239972826,
+          "bytes": 72452,
+          "sha256": "ca1ad6d0e8212e3e7b4fb47c40bc1d5edd3e396a0767c126f1756274d8883126",
+          "git_blob_sha1": "97a3bee184d25f4bf288d7c7e9be5271cc31fe99",
+          "filename": "raw-cell-evidence/macos_x86_64.zip",
+          "original_audited_sha256": "ca1ad6d0e8212e3e7b4fb47c40bc1d5edd3e396a0767c126f1756274d8883126",
+          "original_audited_bytes": 72452
+        }
+      ],
+      "total_bytes": 364720
+    }
+  },
   "interrupted_delivery_attempts": [
     {
       "run_id": 43885419074,
@@ -2844,7 +3366,6 @@
   ],
   "build_metadata_boundary": "All measured runtime, native headers, pyproject.toml and setup.py bytes remain frozen. README and release-control documentation change after preparation; final publication rebuilds every wheel and receipt at the exact final main commit. Preparation receipts cannot be reused for publication.",
   "remaining_publication_gates": [
-    "Complete and independently audit the same-runtime 30-wheel preparation and native/fallback/source installations.",
     "All 11 general CI jobs on the exact final approved commit.",
     "main and release/v0.9.0 identify that exact final commit.",
     "Fresh full 30-wheel matrix and receipts from one final release run and attempt.",
@@ -2858,6 +3379,41 @@
     "plan": "benchmarks/reports/native-core-compatibility/grouped-packaging/recovery-plan.json",
     "local_control_tests": 10,
     "passed": 10,
-    "scope": "Mocked control contracts and syntax/YAML/source review only; actual platform preparation remains pending."
+    "scope": "These ten checks cover mocked control contracts and syntax/YAML/source review only. The completed real 30-cell platform preparation is separately evidenced in native_delivery_preparation."
+  },
+  "ci_runner_recovery": {
+    "source_commit": "ba1bcef8d4fcf325a3403c2ff9c540312c491464",
+    "run_id": 43897980872,
+    "run_attempt": 1,
+    "successful_jobs": 10,
+    "unallocated_cancelled_job": {
+      "id": 133406609935,
+      "run_id": 43897980872,
+      "workflow_name": "Tests",
+      "head_branch": "optimization/native-core-v0.9.0",
+      "run_url": "https://api.github.com/repos/Afloat16/AI-Memory-Book/actions/runs/43897980872",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVqYml88AAAAfD6dSDw",
+      "head_sha": "ba1bcef8d4fcf325a3403c2ff9c540312c491464",
+      "url": "https://api.github.com/repos/Afloat16/AI-Memory-Book/actions/jobs/133406609935",
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43897980872/job/133406609935",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "created_at": "2026-11-16T15:35:28Z",
+      "started_at": "2026-11-16T15:35:28Z",
+      "completed_at": "2026-11-16T15:50:31Z",
+      "name": "installers (macos-latest)",
+      "steps": [],
+      "check_run_url": "https://api.github.com/repos/Afloat16/AI-Memory-Book/check-runs/133406609935",
+      "labels": [
+        "macos-latest"
+      ],
+      "runner_id": 0,
+      "runner_name": "",
+      "runner_group_id": 0,
+      "runner_group_name": ""
+    },
+    "scope": "Pin only the existing macos-latest installer matrix entry to macos-26. Matrix values/names, installation and archive tests, timeout and all eleven required CI jobs remain unchanged. This incomplete run cannot satisfy final exact-commit CI.",
+    "final_ci_blob": "38a31332117c20fc191b306e43b93b3d00ea4a55"
   }
 }

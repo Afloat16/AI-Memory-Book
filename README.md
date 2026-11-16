@@ -6,7 +6,7 @@ Projects are books, tasks are chapters, related turns form sections, and origina
 
 [简体中文](README.zh-CN.md) · [Method](#method-overview) · [Quick start](#quick-start) · [Native acceleration](#language-only-acceleration) · [2400-character results](#2400-character-results) · [Open-source comparison](#open-source-comparison)
 
-**v0.8.1 · MIT · Python 3.10+ · Local SQLite / FTS5**
+**v0.9.0 · MIT · Python 3.10+ · Local SQLite / FTS5**
 
 ## Method overview
 
@@ -36,19 +36,19 @@ When resuming a long-running task, ask which constraints the current implementat
 
 ## Quick start
 
-You need **Python 3.10+ with SQLite FTS5**. The v0.8.1 package accelerates measured text loops with a C extension while retaining the existing retrieval behavior, project-bound MCP connections and archive interfaces. The installer creates an isolated environment with MCP/client dependencies and needs no Git checkout or Node.js. For an existing archive, follow the [upgrade procedure](docs/deployment.md#upgrading). An archive already on schema 4 needs no new schema migration in v0.8.1; the schema-4 migration procedure applies only to earlier schemas.
+You need **Python 3.10+ with SQLite FTS5**. The v0.9.0 package accelerates measured text, selection, source-mapping and segmentation paths with a C extension while retaining the existing retrieval behavior, project-bound MCP connections and archive interfaces. The installer creates an isolated environment with MCP/client dependencies and needs no Git checkout or Node.js. For an existing archive, follow the [upgrade procedure](docs/deployment.md#upgrading). An archive already on schema 4 needs no new schema migration in v0.9.0; the schema-4 migration procedure applies only to earlier schemas.
 
 **macOS / Linux**
 
 ~~~bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.8.1/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.9.0/scripts/install.sh
 bash install-memory-book.sh
 ~~~
 
 **Windows PowerShell**
 
 ~~~powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.8.1/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.9.0/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ~~~
 
@@ -75,7 +75,7 @@ memory-book --db ./demo-memory.db backup --output ./backups/demo-snapshot.db
 memory-book --db ./backups/demo-snapshot.db check-database
 ~~~
 
-Get the example from the [v0.8.1 source](https://github.com/Afloat16/AI-Memory-Book/tree/v0.8.1), run it from the repository directory, and use new database/output paths. The [developer workflow guide](docs/engineering-workflows.md) covers algorithm constraints, failed attempts, symbol lookup, Python integration, exact token limits, source verification and recovery. Recorded example settings are illustrative, not recommended production values.
+Get the example from the [v0.9.0 source](https://github.com/Afloat16/AI-Memory-Book/tree/v0.9.0), run it from the repository directory, and use new database/output paths. The [developer workflow guide](docs/engineering-workflows.md) covers algorithm constraints, failed attempts, symbol lookup, Python integration, exact token limits, source verification and recovery. Recorded example settings are illustrative, not recommended production values.
 
 ## Default configuration
 
@@ -137,88 +137,91 @@ The corrected final runtime also replays the unchanged **80 native engineering q
 
 ## Language-only acceleration
 
-The v0.8.1 runtime uses seven optional CPython C helpers: five introduced in
-v0.8.0, plus equivalent identifier-alias and literal excerpt-matching loops.
-Python keeps the public interfaces, normalization and retrieval decisions;
-SQLite keeps the same schema, SQL and FTS5 index. The Python reference remains
-available. Source coordinates, page IDs, ranking, project scope, budgets and
-cache rules retain the existing behavior.
+v0.9.0 expands the optional CPython C backend from **seven to 22 entry points**.
+The added implementation covers lexical loops, complete excerpt-window scoring
+and rendering, candidate ordering and novelty selection, context allocation,
+source-reference projection, and turn/section/page construction. Python keeps
+the public interfaces, client integration and a complete reference fallback;
+SQLite retains the same schema, SQL and FTS5 indexes.
 
-### Additional gain over native v0.8.0
+Source coordinates use the existing Unicode code-point semantics. Page IDs,
+ranking decisions, project scope, segmentation boundaries, character/token
+budgets and cache policy retain their behavior. Supported dynamic helper
+overrides and unusual argument types continue through equivalent guarded
+dispatch. The Python text-joining function remains in use because its measured
+public call path was faster than the attempted C replacement. A repository's
+language percentages do not measure how much execution time its native paths handle.
 
-The new frozen experiment compares **two native versions** on the same host,
-using four balanced rounds and three passes per worker. All **113,568 timed
-calls / 56,784 paired results** match in the complete-output, archive and
-source-coordinate checks. The default 2400-character results are:
+### Additional measured gain over native v0.8.1
 
-| Dataset | Surface | v0.8.0 p95 | v0.8.1 p95 | Additional p95 latency reduction |
+The final frozen experiment compares **two native versions** in four balanced
+AB/BA/BA/AB rounds, with three passes per worker. All **113,568 timed calls /
+56,784 paired results** pass the recorded output, archive, index and
+source-coordinate comparisons; only the direct response's diagnostic
+`latency_ms` field is excluded from output equality. An independent audit
+verifies the original records and reproduces the frozen summary without new timed calls.
+
+| Dataset | Surface, 2400 characters | v0.8.1 p50 → v0.9.0 p50 | v0.8.1 p95 → v0.9.0 p95 | p95 reduction |
 |---|---|---:|---:|---:|
-| synthetic61 | Direct `MemoryBook.recall` | 8.774 ms | 8.506 ms | **3.06%** |
-| synthetic61 | Real SDK stdio MCP | 10.463 ms | 10.200 ms | **2.51%** |
-| public1015 | Direct `MemoryBook.recall` | 3.651 ms | 3.472 ms | **4.90%** |
-| public1015 | Real SDK stdio MCP | 5.222 ms | 5.016 ms | **3.95%** |
+| synthetic61 | Direct recall | 4.465 → 4.288 ms | 12.231 → 12.008 ms | **1.82%** |
+| synthetic61 | Real SDK stdio MCP | 6.221 → 6.053 ms | 14.158 → 13.783 ms | **2.64%** |
+| public1015 | Direct recall | 3.842 → 3.606 ms | 4.950 → 4.663 ms | **5.79%** |
+| public1015 | Real SDK stdio MCP | 5.592 → 5.383 ms | 6.714 → 6.479 ms | **3.51%** |
 
-All four default-budget cells improve in every paired round. Fresh synthetic
-import improves **9.58%**; public import is essentially unchanged. The separate
-1024-token results are mixed: synthetic p95 improves only 0.47%/0.61%; public
-direct recall is flat and public MCP p95 **regresses 0.33%** (about 0.015 ms).
-API import adds about 0.21–0.33 ms, default MCP initialization adds about
-1.42–1.62 ms, and memory is approximately unchanged. All costs and individual
-rounds are retained in the [incremental validation report](docs/native-incremental-validation.md).
+All four primary pooled cells improve; **15 of their 16 paired p95 rounds**
+improve. Synthetic direct recall's second round is **0.89% slower** at p95.
+At the separately tested 1024-token cap, pooled p95 falls **8.03% / 8.23%**
+for synthetic direct/MCP and **4.80% / 1.12%** for public direct/MCP.
+Public token-budget MCP's first round is slower at p50/p95 by **0.78% / 3.18%**.
+These regressions remain in the report.
 
-This is an Intel Xeon/CPython 3.12 hosted experiment. The older experiment below
-used a different AMD host, so absolute milliseconds and percentages from the
-two runs must not be added or treated as one continuous before/after test.
-Neither experiment includes model generation or proves faster execution on
-every platform. Both use existing regression datasets without a new quality claim.
+Across the four complete paired ingestion batches, fresh ingestion takes
+**9.28% / 10.39%** less time and unchanged reingestion **2.97% / 3.94%** less
+time for synthetic/public data; all 16 individual batch pairs improve.
+The first broad candidate's 19–21% reingestion slowdown was rejected and
+retained in the development history.
 
-### Original Python-to-native result in v0.8.0
+There are costs: API import adds **2.04–2.20 ms**, ending worker RSS increases
+about **0.02–0.23 MiB**, and public default-budget MCP initialization adds
+**7.35 ms**. Other MCP startup observations are mixed. The measured extension
+grows by **519,480 bytes**; this is the host binary size, not a wheel download
+size. Checkpointed database sizes remain identical.
+[All eight query cells (two cohorts × four configurations), every round, resources and audit](docs/native-core-validation.md).
 
-The original frozen experiment compares the Python reference with the C backend on the
-same hosted runner, using four balanced A/B rounds and three passes per worker.
-All **113,568 calls / 56,784 pairs** pass the recorded full-output, archive and
-source-coordinate checks. The retained raw records independently reproduce the
-original summary exactly. These are existing regression datasets, with no new
-retrieval-quality or model-answer claim.
+This is one Ubuntu 24.04 / AMD EPYC 7763 / CPython 3.12.16 hosted experiment.
+There are no query-result cache hits; SQLite/OS caches are not cleared.
+Model generation is excluded. Existing regression datasets do not establish
+new retrieval quality or performance at every archive size or on every platform.
+Results from the [v0.8.0 Python-to-native experiment](docs/native-language-validation.md),
+[v0.8.1 incremental experiment](docs/native-incremental-validation.md), and
+earlier v0.9.0 candidates used separate hosts/runtimes and are not added together.
 
-| Dataset | Surface, 2400-character budget | Python p50 → C p50 | Python p95 → C p95 | p95 latency reduction |
-|---|---|---:|---:|---:|
-| synthetic61 | Direct `MemoryBook.recall` | 2.775 → 2.416 ms | 7.455 → 6.751 ms | **9.44%** |
-| synthetic61 | Real SDK stdio MCP | 3.835 → 3.518 ms | 8.682 → 7.974 ms | **8.15%** |
-| public1015 | Direct `MemoryBook.recall` | 2.239 → 2.177 ms | 2.886 → 2.826 ms | **2.07%** |
-| public1015 | Real SDK stdio MCP | 3.316 → 3.248 ms | 4.009 → 3.934 ms | **1.85%** |
+### Installation and backend selection
 
-Every primary cell improves in all four paired rounds. At the separately tested
-1024-token cap, p95 reductions are **15.60% / 13.53%** for synthetic direct/MCP
-and **3.82% / 2.85%** for public direct/MCP. Fresh-ingestion worker medians fall
-by **15.28% / 15.96%** and unchanged-reingestion medians by **21.98% / 31.69%**
-for synthetic/public data. These resource medians use only four workers per
-implementation and cohort. API import adds about **0.57–0.77 ms**, MCP startup
-has no consistent benefit, and memory use is essentially unchanged or slightly
-higher. Checkpointed database sizes are identical.
+Native packaging was independently checked for **30 combinations**: CPython
+3.10–3.15 on Linux x86-64/ARM64, macOS Intel/ARM64 and Windows AMD64.
+[Preparation run 43897981051](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43897981051)
+passed all six interpreter cells on each of five platform jobs, verified the
+complete 67-asset set, and exercised both default native and Python-fallback
+installations with MCP/client dependencies. Each cell ran the 144-test native
+suite, with two or three explicitly identified optional-environment skips.
+[Packaging evidence](benchmarks/reports/native-core-compatibility/packaging-43897981051/)
+retains the per-cell results and independent audit. Publication rebuilds the
+matrix at the exact final commit; these preparation receipts are not reused.
 
-Timing excludes model generation. There are no query-result cache hits;
-SQLite/OS caches are not cleared. This measures one Ubuntu/CPython 3.12 host,
-not every platform or archive size. The public-data benefit is small. The older
-v0.6.0 engineering comparison below remains a separate frozen experiment.
-[Complete matrix, resource costs and reproducible audit](docs/native-language-validation.md).
-
-The [v0.8.1 preparation run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43850729647)
-passes the complete 30-cell native packaging matrix: CPython 3.10–3.15 on Linux
-x86-64/AArch64, macOS Intel/Apple Silicon and Windows x64. Publication repeats
-this matrix at the exact approved commit. A compatible release installer selects and verifies a native wheel;
-other environments use the compiler-free Python fallback. To check an installed
-backend, use the **Python interpreter printed by the installer**:
+Use the **Python interpreter printed by the installer** to check the version
+and actual backend:
 
 ~~~bash
-python -c "from memory_book._text_backend import BACKEND_NAME; print(BACKEND_NAME)"
+python -I -c "import memory_book; from memory_book._text_backend import BACKEND_NAME; print(memory_book.__version__, BACKEND_NAME)"
 ~~~
 
-`native` confirms the extension loaded. `MEMORY_BOOK_TEXT_BACKEND=python` selects
-the reference; `native` requires the extension and fails if unavailable; `auto`
-is the default. Source builds use `MEMORY_BOOK_BUILD_NATIVE=1` to require a C
-compiler or `0` for the portable fallback. These selectors do not change the
-retrieval rules. [Build and delivery details](docs/native-language-validation.md#installation-and-backend-selection).
+A compatible native installation prints `0.9.0 native`.
+`MEMORY_BOOK_TEXT_BACKEND=python` selects the reference; `native` requires the
+extension and fails if unavailable; `auto` is the default. Source builds use
+`MEMORY_BOOK_BUILD_NATIVE=1` to require a compiler or `0` for the portable
+fallback. These selectors preserve retrieval rules.
+[Build and deployment details](docs/deployment.md#native-backend-and-source-builds).
 
 ## 2400-character results
 
@@ -357,4 +360,4 @@ Multiple clients, directory/progressive reading, project scopes, source lookup, 
 
 Run `memory-book serve` and open [127.0.0.1:8765](http://127.0.0.1:8765) to inspect the archive. It is local, unencrypted data; recalled evidence enters the selected client's model context. Project filtering is not multi-user access control. Client-configuration backups are not automatic database backups. [Data locations and maintenance](docs/deployment.md#data-and-configuration-paths).
 
-Independently implemented under the [MIT License](LICENSE). [Current release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.8.1) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml).
+Independently implemented under the [MIT License](LICENSE). [Current release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.9.0) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml).

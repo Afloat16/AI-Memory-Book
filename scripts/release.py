@@ -67,6 +67,12 @@ APPROVED_RUNTIME_SHA256 = {
     # Decision and remaining publication gates:
     # benchmarks/experiments/native_incremental_acceptance.json.
     "0.8.1": "8fabb49f3bf30513cc765d58b2b6192706d76571643f3cf18136d0dc6b292cf0",
+    # Broader equivalent native runtime: 56,784 pairs, all eight pooled query
+    # cells improve, individual regressions and resource costs retained.
+    # Complete 30-cell source-bound preparation and independent audit passed.
+    # Decision and remaining exact-commit publication gates:
+    # benchmarks/experiments/native_core_acceptance.json.
+    "0.9.0": "6ec51c906de94c97f90ec9be3dc50d066c9abedcff283c1e118ef6d6847eb3b7",
 }
 # Publication channels are explicit: older prereleases remain prereleases when
 # an interrupted run reconciles them. A new version needs a reviewed entry.
