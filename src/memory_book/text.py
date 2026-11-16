@@ -52,7 +52,7 @@ _NATIVE_BISECT_LEFT = bisect_left
 _NATIVE_BISECT_RIGHT = bisect_right
 _NATIVE_COUNTER = Counter
 _NATIVE_COUNTER_METHOD_NAMES = ("__new__", "__init__", "update", "__missing__", "__getitem__",
-                                "__setitem__", "__delitem__", "__len__", "values")
+                                "__setitem__", "__delitem__", "__len__", "values", "__contains__", "__getattribute__")
 _NATIVE_COUNTER_METHODS = tuple(getattr(Counter, name, None) for name in _NATIVE_COUNTER_METHOD_NAMES)
 _NATIVE_C_EVIDENCE_UNITS = getattr(_NATIVE, "evidence_units", None)
 _NATIVE_C_LITERAL_POSITIONS = getattr(_NATIVE, "literal_positions", None)
@@ -123,7 +123,7 @@ _NATIVE_WINDOW_CERTIFIED = (
             for name, method in ((name, getattr(Counter, name, None))
                                  for name in ("__init__", "update", "__missing__", "__delitem__")))
     and all(getattr(Counter, name, None) is getattr(dict, name)
-            for name in ("__new__", "__getitem__", "__setitem__", "__len__", "values"))
+            for name in ("__new__", "__getitem__", "__setitem__", "__len__", "values", "__contains__", "__getattribute__"))
 )
 
 
