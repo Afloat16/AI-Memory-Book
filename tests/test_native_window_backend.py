@@ -356,17 +356,20 @@ calls = []
 @functools.wraps(ordinary)
 def wrapped(*args, **kwargs):
     calls.append(name)
-    return ordinary(*args, **kwargs)
+    result = ordinary(*args, **kwargs)
+    return result + 10 if name == "__missing__" else result
 setattr(collections.Counter, name, wrapped)
 from memory_book import text
 assert not text._NATIVE_WINDOW_CERTIFIED
-value = "alpha beta. " * 20 + "\ntarget 317ms.\n" + "tail " * 20
+value = "alpha alpha chosen. " + "unrelated filler text. " * 5 + "beta late."
 calls.clear()
-actual = text.excerpt(value, "", 40, prepared_terms=["target", "alpha"])
+actual = text.excerpt(value, "", 30, prepared_terms=["alpha", "beta"])
 first = list(calls)
 calls.clear()
 text._NATIVE = None
-expected = text.excerpt(value, "", 40, prepared_terms=["target", "alpha"])
+expected = text.excerpt(value, "", 30, prepared_terms=["alpha", "beta"])
+if name == "__missing__":
+    assert expected[1] == [(117, 145)]
 print(json.dumps([actual, expected, first, calls]))
 '''
         environment = dict(os.environ, MEMORY_BOOK_TEXT_BACKEND="native", PYTHONDONTWRITEBYTECODE="1",

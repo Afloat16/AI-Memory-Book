@@ -1,0 +1,42 @@
+{
+  "purpose": "Regression reproduction before Counter origin certificate fix; no performance claim",
+  "python_source_commit": "5ebb695d9635134d9bad3ccf643dc3720c10236c",
+  "native_binary_build_commit": "85a73593dc2798b2ef9ec2455ee628358aaef543",
+  "native_excerpt_header_sha256": "973e1c0490b2287e117c9b67b2b27f39105996b27e11317085226e1da0d5dab2",
+  "native_binary_sha256": "70808b02e88bbafd97dc69b2f6808e8fd1cf10da1f9effddb9550f8161152e46",
+  "setup": "Before importing memory_book.text, replace collections.Counter.__missing__ with @functools.wraps(original) wrapper returning original(self, key) + 10 and recording calls. Compare public excerpt with _NATIVE=None versus the default native module.",
+  "max_chars": 30,
+  "prepared_terms": [
+    "alpha",
+    "beta"
+  ],
+  "observed": {
+    "certificate": true,
+    "text": "alpha alpha chosen. unrelated filler text. unrelated filler text. unrelated filler text. unrelated filler text. unrelated filler text. beta late.",
+    "reference": [
+      "…ated filler text. beta late.",
+      [
+        [
+          117,
+          145
+        ]
+      ]
+    ],
+    "native": [
+      "alpha alpha chosen. unrelate…",
+      [
+        [
+          0,
+          28
+        ]
+      ]
+    ],
+    "reference_calls": [
+      "alpha",
+      "beta"
+    ],
+    "native_calls": []
+  },
+  "diagnosis": "Mutable __module__/__name__ metadata caused a pre-import Python wrapper to be certified as the original Counter implementation. Native window execution bypassed the overridden Counter behavior.",
+  "proposed_fix": "Require the actual FunctionType, code.co_name, code.co_filename == collections.__file__, and function.__globals__ is collections.__dict__, plus runtime identity. Retain Python behavior for uncertified methods."
+}
