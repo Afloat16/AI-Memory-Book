@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "kind": "grouped-native-delivery-recovery",
+  "recorded_at_utc": "2026-11-16T15:32:00Z",
+  "reason": "Three full per-version-job preparations ended incomplete because macOS ARM jobs were cancelled without runner allocation or test steps. Successful subsets must not be combined.",
+  "previous_attempts": [
+    {
+      "run_id": 43885419074,
+      "source_commit": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "successful_cells": 28,
+      "cancelled_unallocated_cells": [
+        "macos_arm64/3.14",
+        "macos_arm64/3.15"
+      ]
+    },
+    {
+      "run_id": 43888785867,
+      "source_commit": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "successful_cells": 27,
+      "cancelled_unallocated_cells": [
+        "macos_arm64/3.10",
+        "macos_arm64/3.13",
+        "macos_arm64/3.14"
+      ]
+    },
+    {
+      "run_id": 43892250078,
+      "source_commit": "000da2e108a71de546d96f5a94232d04814212f5",
+      "successful_cells": 28,
+      "cancelled_unallocated_cells": [
+        "macos_arm64/3.12",
+        "macos_arm64/3.13"
+      ]
+    }
+  ],
+  "design": {
+    "platform_jobs": 5,
+    "python_versions": [
+      "3.10",
+      "3.11",
+      "3.12",
+      "3.13",
+      "3.14",
+      "3.15"
+    ],
+    "targets": [
+      "linux_x86_64",
+      "linux_aarch64",
+      "macos_x86_64",
+      "macos_arm64",
+      "windows_amd64"
+    ],
+    "independent_cells": 30,
+    "job_timeout_minutes": 60,
+    "setup": "Six explicit setup-python steps, each followed by a named build/install/test step using that setup step's absolute interpreter output.",
+    "evidence": "Every cell has isolated work directories, actual command/build/test logs and a validation record; native receipts are exposed only after successful installed native tests, isolated native smoke and the original receipt validation. Logs never enter the release assets.",
+    "failure": "Later cells can retain their own diagnostic results after a failure, but the job remains failed; downstream prepare/release requires all platform jobs success and the exact original 30-receipt set."
+  },
+  "unchanged": [
+    "Runtime 4390d013 and SHA256 6ec51c906de94c97f90ec9be3dc50d066c9abedcff283c1e118ef6d6847eb3b7",
+    "pyproject.toml, setup.py and installer sources",
+    "scripts/native_release.py 30-cell source/ABI/RECORD/run/attempt receipt gate",
+    "scripts/release.py 11-job exact-commit CI and 67-asset publication gate",
+    "Workflow preflight, aggregate preparation, publication and actual public-install steps",
+    "All existing 144 native suite tests for each of 30 cells",
+    "Frozen protocol5 and all previous measurement data"
+  ],
+  "implementation_blobs": {
+    "scripts/build_native_release_cell.py": "a3e4792ab93c06b63288e4832b7a684e383e7ef9",
+    ".github/workflows/release.yml": "6ee82db4c25799f29c7e5ca0de6cf3008ee41736",
+    "tests/test_native_release_cell.py": "de9bac6edc66772bd57c5b7bf349d0aac267d6cd"
+  },
+  "local_control_tests": {
+    "tests": 10,
+    "passed": 10,
+    "skipped": 0,
+    "python": "3.12.14",
+    "scope": "Syntax and mocked control contracts only. These are not actual native platform builds or release approval.",
+    "validation_receipt_blob": "91c4a7b7ff1824bc57f0e287d38702de5fa6a383"
+  },
+  "inspection": {
+    "root_review": "No blocking issue found; preflight/publication/aggregate preparation/public-install workflow segments mechanically equal to 000da.",
+    "independent_native_review": "Passed source review of a3e4792 helper and 6ee82 workflow; exact 30-receipt/60-file gate, source/run/attempt binding, native smoke and all downstream gates retained."
+  },
+  "publication_approved": false,
+  "performance_remeasurement": false
+}

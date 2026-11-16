@@ -70,14 +70,13 @@ jobs:
           PYTHONDONTWRITEBYTECODE: '1'
         run: python -m unittest tests.test_native_release tests.test_installer_release -v
   native-wheel:
+    name: native-wheel (${{ matrix.target }})
     needs: preflight
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 18
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        python: ['3.10', '3.11', '3.12', '3.13', '3.14', '3.15']
-        target: [linux_x86_64, linux_aarch64, macos_x86_64, macos_arm64, windows_amd64]
         include:
           - target: linux_x86_64
             os: ubuntu-24.04
@@ -97,8 +96,6 @@ jobs:
     env:
       MEMORY_BOOK_BUILD_NATIVE: '1'
       PYTHONDONTWRITEBYTECODE: '1'
-      NATIVE_BUILD_LOG: .artifacts/native-build.log
-      WHEEL_TARGET: ${{ matrix.target }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
@@ -109,83 +106,123 @@ jobs:
             !/benchmarks/reports/
             !/benchmarks/results/
             !/docs/assets/
-      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+      - name: Set up CPython 3.10
+        id: py310
+        if: ${{ !cancelled() }}
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
         with:
-          python-version: ${{ matrix.python }}
+          python-version: '3.10'
           architecture: ${{ matrix.architecture }}
-      - name: Install fixed native-wheel build tools
-        run: python -m pip install 'setuptools==80.9.0' 'wheel==0.45.1' 'build==1.3.0'
-      - name: Install Linux ABI auditor
-        if: runner.os == 'Linux'
-        run: python -m pip install 'auditwheel==6.4.2' 'patchelf==0.17.2.4'
-      - name: Force a native build, audit the wheel and test the installed binary
+      - name: Build install and verify CPython 3.10
+        id: cell310
+        if: ${{ !cancelled() && steps.py310.outcome == 'success' }}
         shell: bash
-        run: |
-          python - <<'PY'
-          import os, pathlib, shutil, subprocess, sys, sysconfig, tempfile, zipfile
-          root = pathlib.Path.cwd()
-          raw, final = root / '.artifacts/native-raw', root / '.artifacts/native-wheels'
-          raw.mkdir(parents=True)
-          final.mkdir()
-          if sys.platform == 'darwin':
-              # Framework Pythons may default to universal2 even on a native
-              # runner. Build the declared architecture and give it the matching
-              # wheel platform; verify the actual Mach-O slice before receipt.
-              architecture = 'arm64' if os.environ['WHEEL_TARGET'] == 'macos_arm64' else 'x86_64'
-              minimum = (11, 0) if architecture == 'arm64' else (10, 9)
-              configured = tuple(int(part) for part in sysconfig.get_config_var('MACOSX_DEPLOYMENT_TARGET').split('.')[:2])
-              deployment = '.'.join(map(str, max(minimum, configured)))
-              os.environ.update(ARCHFLAGS='-arch ' + architecture, MACOSX_DEPLOYMENT_TARGET=deployment,
-                                _PYTHON_HOST_PLATFORM='macosx-' + deployment + '-' + architecture)
-          command = [sys.executable, '-m', 'pip', 'wheel', '--verbose', '--no-deps', '--no-build-isolation', '--wheel-dir', str(raw), '.']
-          built = subprocess.run(command, text=True, encoding='utf-8', errors='replace', capture_output=True)
-          log = built.stdout + built.stderr
-          pathlib.Path(os.environ['NATIVE_BUILD_LOG']).write_text(log, encoding='utf-8')
-          print(log)
-          built.check_returncode()
-          wheels = list(raw.glob('*.whl'))
-          assert len(wheels) == 1 and 'none-any' not in wheels[0].name
-          if sys.platform == 'linux':
-              architecture = 'aarch64' if os.environ['WHEEL_TARGET'] == 'linux_aarch64' else 'x86_64'
-              subprocess.run([sys.executable, '-m', 'auditwheel', 'repair', '--only-plat', '--plat', 'manylinux_2_17_' + architecture,
-                              '--wheel-dir', str(final), str(wheels[0])], check=True)
-          else:
-              shutil.copy2(wheels[0], final / wheels[0].name)
-          wheels = list(final.glob('*.whl'))
-          assert len(wheels) == 1
-          wheel = wheels[0]
-          if sys.platform == 'darwin':
-              with zipfile.ZipFile(wheel) as archive, tempfile.TemporaryDirectory(prefix='native-macho-') as location:
-                  binaries = [name for name in archive.namelist() if name.startswith('memory_book/_native.') and name.endswith('.so')]
-                  assert len(binaries) == 1
-                  binary = pathlib.Path(location) / pathlib.Path(binaries[0]).name
-                  binary.write_bytes(archive.read(binaries[0]))
-                  slices = subprocess.check_output(['lipo', '-archs', str(binary)], text=True).split()
-                  assert slices == [architecture], (slices, architecture)
-          subprocess.run([sys.executable, '-m', 'pip', 'install', '--no-deps', '--force-reinstall', str(wheel)], check=True)
-          subprocess.run([sys.executable, '-I', '-c', "from memory_book._text_backend import BACKEND_NAME; assert BACKEND_NAME == 'native'"], check=True)
-          subprocess.run([sys.executable, '-m', 'unittest', 'tests.test_native_backend',
-                          'tests.test_native_identifier_backend', 'tests.test_native_excerpt_backend',
-                          'tests.test_native_lexical_backend', 'tests.test_native_window_backend',
-                          'tests.test_native_ranking_backend', 'tests.test_native_source_backend',
-                          'tests.test_native_segmentation_backend', '-v'], check=True)
-          subprocess.run([sys.executable, 'scripts/native_release.py', 'receipt', '--wheel', str(wheel),
-                          '--output', str(wheel) + '.receipt.json', '--target', os.environ['WHEEL_TARGET']], check=True)
-          PY
-      - name: Retain the tested wheel and build receipt
+        env:
+          NATIVE_CELL_PYTHON: ${{ steps.py310.outputs.python-path }}
+          NATIVE_CELL_RESOLVED_VERSION: ${{ steps.py310.outputs.python-version }}
+          NATIVE_CELL_STEP: cell310
+          WHEEL_TARGET: ${{ matrix.target }}
+        run: '"$NATIVE_CELL_PYTHON" scripts/build_native_release_cell.py --expected-python 3.10 --target "$WHEEL_TARGET"'
+      - name: Set up CPython 3.11
+        id: py311
+        if: ${{ !cancelled() }}
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.11'
+          architecture: ${{ matrix.architecture }}
+      - name: Build install and verify CPython 3.11
+        id: cell311
+        if: ${{ !cancelled() && steps.py311.outcome == 'success' }}
+        shell: bash
+        env:
+          NATIVE_CELL_PYTHON: ${{ steps.py311.outputs.python-path }}
+          NATIVE_CELL_RESOLVED_VERSION: ${{ steps.py311.outputs.python-version }}
+          NATIVE_CELL_STEP: cell311
+          WHEEL_TARGET: ${{ matrix.target }}
+        run: '"$NATIVE_CELL_PYTHON" scripts/build_native_release_cell.py --expected-python 3.11 --target "$WHEEL_TARGET"'
+      - name: Set up CPython 3.12
+        id: py312
+        if: ${{ !cancelled() }}
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+          architecture: ${{ matrix.architecture }}
+      - name: Build install and verify CPython 3.12
+        id: cell312
+        if: ${{ !cancelled() && steps.py312.outcome == 'success' }}
+        shell: bash
+        env:
+          NATIVE_CELL_PYTHON: ${{ steps.py312.outputs.python-path }}
+          NATIVE_CELL_RESOLVED_VERSION: ${{ steps.py312.outputs.python-version }}
+          NATIVE_CELL_STEP: cell312
+          WHEEL_TARGET: ${{ matrix.target }}
+        run: '"$NATIVE_CELL_PYTHON" scripts/build_native_release_cell.py --expected-python 3.12 --target "$WHEEL_TARGET"'
+      - name: Set up CPython 3.13
+        id: py313
+        if: ${{ !cancelled() }}
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.13'
+          architecture: ${{ matrix.architecture }}
+      - name: Build install and verify CPython 3.13
+        id: cell313
+        if: ${{ !cancelled() && steps.py313.outcome == 'success' }}
+        shell: bash
+        env:
+          NATIVE_CELL_PYTHON: ${{ steps.py313.outputs.python-path }}
+          NATIVE_CELL_RESOLVED_VERSION: ${{ steps.py313.outputs.python-version }}
+          NATIVE_CELL_STEP: cell313
+          WHEEL_TARGET: ${{ matrix.target }}
+        run: '"$NATIVE_CELL_PYTHON" scripts/build_native_release_cell.py --expected-python 3.13 --target "$WHEEL_TARGET"'
+      - name: Set up CPython 3.14
+        id: py314
+        if: ${{ !cancelled() }}
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.14'
+          architecture: ${{ matrix.architecture }}
+      - name: Build install and verify CPython 3.14
+        id: cell314
+        if: ${{ !cancelled() && steps.py314.outcome == 'success' }}
+        shell: bash
+        env:
+          NATIVE_CELL_PYTHON: ${{ steps.py314.outputs.python-path }}
+          NATIVE_CELL_RESOLVED_VERSION: ${{ steps.py314.outputs.python-version }}
+          NATIVE_CELL_STEP: cell314
+          WHEEL_TARGET: ${{ matrix.target }}
+        run: '"$NATIVE_CELL_PYTHON" scripts/build_native_release_cell.py --expected-python 3.14 --target "$WHEEL_TARGET"'
+      - name: Set up CPython 3.15
+        id: py315
+        if: ${{ !cancelled() }}
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.15'
+          architecture: ${{ matrix.architecture }}
+      - name: Build install and verify CPython 3.15
+        id: cell315
+        if: ${{ !cancelled() && steps.py315.outcome == 'success' }}
+        shell: bash
+        env:
+          NATIVE_CELL_PYTHON: ${{ steps.py315.outputs.python-path }}
+          NATIVE_CELL_RESOLVED_VERSION: ${{ steps.py315.outputs.python-version }}
+          NATIVE_CELL_STEP: cell315
+          WHEEL_TARGET: ${{ matrix.target }}
+        run: '"$NATIVE_CELL_PYTHON" scripts/build_native_release_cell.py --expected-python 3.15 --target "$WHEEL_TARGET"'
+      - name: Retain each successfully tested wheel and receipt
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: native-wheel-${{ matrix.target }}-${{ matrix.python }}
+          name: native-wheel-${{ matrix.target }}
           path: .artifacts/native-wheels/
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 30
-      - name: Preserve native compiler output even when validation fails
+      - name: Preserve all six native cell logs and validation records
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: native-build-log-${{ matrix.target }}-${{ matrix.python }}
-          path: .artifacts/native-build.log
+          name: native-cell-evidence-${{ matrix.target }}
+          path: .artifacts/native-cell-evidence/${{ matrix.target }}/
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 30
