@@ -197,7 +197,8 @@ text._NATIVE = None
 expected = text._strip_nonspacing_marks("a\u0315\u0300缓存")
 print(json.dumps([actual, expected, first, calls]))
 '''
-        environment = dict(os.environ, MEMORY_BOOK_TEXT_BACKEND="native", PYTHONDONTWRITEBYTECODE="1")
+        environment = dict(os.environ, MEMORY_BOOK_TEXT_BACKEND="native", PYTHONDONTWRITEBYTECODE="1",
+                           PYTHONPATH=str(Path(lexical.__file__).resolve().parents[1]))
         process = subprocess.run([sys.executable, "-c", script], cwd=ROOT, env=environment,
                                  capture_output=True, text=True, timeout=30)
         self.assertEqual(process.returncode, 0, process.stderr)

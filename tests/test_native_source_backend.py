@@ -265,10 +265,15 @@ assert not t._NATIVE_SOURCE_CERTIFIED
 assert calls and result
 print(json.dumps({"certified": t._NATIVE_SOURCE_CERTIFIED, "calls": len(calls)}))
 '''
-        env = {**os.environ, "PYTHONPATH": str(ROOT / "src"),
+        # CI imports the installed wheel; a checkout may have no in-place .so.
+        # Keep the subprocess on the same package root as this test process.
+        runtime_root = str(Path(budget.__file__).resolve().parents[1])
+        env = {**os.environ, "PYTHONPATH": runtime_root,
                "PYTHONDONTWRITEBYTECODE": "1", "MEMORY_BOOK_TEXT_BACKEND": "native"}
         completed = subprocess.run([sys.executable, "-c", program], env=env,
-                                   text=True, capture_output=True, check=True)
+                                   text=True, capture_output=True)
+        self.assertEqual(completed.returncode, 0,
+                         f"runtime_root={runtime_root}\nstdout:\n{completed.stdout}\nstderr:\n{completed.stderr}")
         self.assertFalse(json.loads(completed.stdout)["certified"])
 
 

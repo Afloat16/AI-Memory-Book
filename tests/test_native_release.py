@@ -28,6 +28,7 @@ IDENTITY = {"version": "0.8.0", "tag": "v0.8.0", "commit": "a" * 40,
 SOURCES = {"memory_book/__init__.py": b'__version__ = "0.8.0"\n',
            "memory_book/text.py": b"VALUE = 'source fixture'\n",
            "memory_book/_native.c": b"/* committed native source fixture */\n",
+           "memory_book/_native_core.h": b"/* committed native header fixture */\n",
            "memory_book/static/index.html": b"<!doctype html><title>Memory Book</title>\n"}
 TARGET_PLATFORMS = {
     "linux_x86_64": "manylinux_2_17_x86_64.manylinux2014_x86_64",
@@ -156,6 +157,7 @@ class NativeReleaseTests(unittest.TestCase):
         self.assertEqual((len(records), len(files)), (30, 60))
         self.assertEqual(provenance, {"run_id": "12345", "run_attempt": 2})
         self.assertIn("src/memory_book/_native.c", self.inputs)
+        self.assertIn("src/memory_book/_native_core.h", self.inputs)
         self.assertTrue({"setup.py", "pyproject.toml"} <= self.inputs.keys())
 
     def test_wrong_commit_build_hash_run_attempt_or_smoke_is_rejected(self):
@@ -184,6 +186,7 @@ class NativeReleaseTests(unittest.TestCase):
         for member, data, update_record in (
                 ("memory_book/text.py", b"tampered Python source", True),
                 ("memory_book/_native.c", b"tampered C source", True),
+                ("memory_book/_native_core.h", b"tampered C header", True),
                 (baseline["wheel"]["native_member"], b"changed binary", False),
                 ("memory_book/../../outside.py", b"unsafe path", True),
                 ("memory_book/_native.second.so", b"extra binary", True)):
@@ -255,10 +258,24 @@ class NativeReleaseTests(unittest.TestCase):
         native.inspect_wheel(wheel, IDENTITY, SOURCES)
         native.inspect_sdist(sdist, IDENTITY, SOURCES, self.inputs)
         for extra in ({"setup.py": b"uncommitted build logic"}, {"benchmarks/private.json": b"{}"},
+                      {"src/memory_book/_native_core.h": b"changed header"},
                       {"src/memory_book/_native.leaked.so": b"generated binary"}):
             write_sdist(sdist, self.inputs, extra=extra)
             with self.subTest(extra=list(extra)), self.assertRaises(ValueError):
                 native.inspect_sdist(sdist, IDENTITY, SOURCES, self.inputs)
+
+    def test_missing_native_header_is_rejected_in_native_fallback_and_source_packages(self):
+        missing = {name: data for name, data in SOURCES.items()
+                   if name != "memory_book/_native_core.h"}
+        for target in ("linux_x86_64", None):
+            wheel = wheel_fixture(self.root, target=target, sources=missing)
+            with self.subTest(target=target), self.assertRaisesRegex(ValueError, "source"):
+                native.inspect_wheel(wheel, IDENTITY, SOURCES, target=target)
+        sdist = self.root / "ai_memory_book-0.8.0.tar.gz"
+        write_sdist(sdist, {name: data for name, data in self.inputs.items()
+                           if name != "src/memory_book/_native_core.h"})
+        with self.assertRaisesRegex(ValueError, "source"):
+            native.inspect_sdist(sdist, IDENTITY, SOURCES, self.inputs)
 
     def test_preparation_builds_only_the_fallback_and_keeps_supplied_native_bytes(self):
         wheel = wheel_fixture(self.supplied)

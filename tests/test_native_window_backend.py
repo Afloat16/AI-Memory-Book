@@ -337,13 +337,49 @@ text._NATIVE = None
 expected = text.excerpt(value, "", 40, prepared_terms=["target"])
 print(json.dumps([actual, expected]))
 '''
-        environment = dict(os.environ, MEMORY_BOOK_TEXT_BACKEND="native", PYTHONDONTWRITEBYTECODE="1")
+        environment = dict(os.environ, MEMORY_BOOK_TEXT_BACKEND="native", PYTHONDONTWRITEBYTECODE="1",
+                           PYTHONPATH=str(Path(lexical.__file__).resolve().parents[1]))
         for dependency in ("bisect_left", "Counter", "log1p", "fsum"):
             process = subprocess.run([sys.executable, "-c", script, dependency], cwd=ROOT,
                                      env=environment, capture_output=True, text=True, timeout=30)
             self.assertEqual(process.returncode, 0, process.stderr)
             actual, expected = json.loads(process.stdout)
             self.assertEqual(actual, expected)
+
+
+    def test_counter_wrappers_before_import_do_not_bypass_custom_behavior(self):
+        script = r'''
+import collections, functools, json, sys
+name = sys.argv[1]
+ordinary = getattr(collections.Counter, name)
+calls = []
+@functools.wraps(ordinary)
+def wrapped(*args, **kwargs):
+    calls.append(name)
+    return ordinary(*args, **kwargs)
+setattr(collections.Counter, name, wrapped)
+from memory_book import text
+assert not text._NATIVE_WINDOW_CERTIFIED
+value = "alpha beta. " * 20 + "\ntarget 317ms.\n" + "tail " * 20
+calls.clear()
+actual = text.excerpt(value, "", 40, prepared_terms=["target", "alpha"])
+first = list(calls)
+calls.clear()
+text._NATIVE = None
+expected = text.excerpt(value, "", 40, prepared_terms=["target", "alpha"])
+print(json.dumps([actual, expected, first, calls]))
+'''
+        environment = dict(os.environ, MEMORY_BOOK_TEXT_BACKEND="native", PYTHONDONTWRITEBYTECODE="1",
+                           PYTHONPATH=str(Path(lexical.__file__).resolve().parents[1]))
+        for dependency in ("__init__", "update", "__missing__", "__delitem__"):
+            process = subprocess.run([sys.executable, "-c", script, dependency], cwd=ROOT,
+                                     env=environment, capture_output=True, text=True, timeout=30)
+            self.assertEqual(process.returncode, 0, process.stderr)
+            actual, expected, first, second = json.loads(process.stdout)
+            self.assertEqual(actual, expected)
+            self.assertEqual(first, second)
+            self.assertTrue(first)
+
 
 
 if __name__ == "__main__":
