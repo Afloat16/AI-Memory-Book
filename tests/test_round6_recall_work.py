@@ -82,6 +82,152 @@ class AtomicInitializationTests(unittest.TestCase):
             self.assertEqual(results[0], results[1])
             self.assertEqual(results[0][:2], (0, 0))
 
+    def test_wal_busy_from_competing_writer_recovers_after_lock_release(self):
+        connect = sqlite3.connect
+        with tempfile.TemporaryDirectory() as directory:
+            for legacy_error in (False, True):
+                path = Path(directory) / f"wal-recovery-{legacy_error}.db"
+                locker = connect(path, isolation_level=None)
+                attempts, observed = [], []
+
+                class ContendedConnection(sqlite3.Connection):
+                    def execute(connection, sql, *args, **kwargs):
+                        if sql == "PRAGMA journal_mode=WAL":
+                            attempts.append(sql)
+                            if len(attempts) == 1:
+                                # A competing SQLite handle owns a real RESERVED
+                                # lock. This mode-change conflict can return BUSY
+                                # immediately despite the existing 10s timeout.
+                                locker.execute("BEGIN IMMEDIATE")
+                            try:
+                                return super().execute(sql, *args, **kwargs)
+                            except sqlite3.OperationalError as exc:
+                                observed.append(exc)
+                                locker.rollback()
+                                if legacy_error:
+                                    # Python 3.10 does not expose sqlite_errorcode.
+                                    raise sqlite3.OperationalError(str(exc)) from exc
+                                raise
+                        return super().execute(sql, *args, **kwargs)
+
+                def opened(*args, **kwargs):
+                    return connect(*args, **kwargs, factory=ContendedConnection)
+
+                try:
+                    with self.subTest(legacy_error=legacy_error), \
+                            patch.object(store.sqlite3, "connect", side_effect=opened):
+                        with MemoryBook(path) as book:
+                            self.assertEqual(book.db.execute("PRAGMA journal_mode").fetchone()[0], "wal")
+                            self.assertEqual(book.db.execute("PRAGMA busy_timeout").fetchone()[0], 10000)
+                            self.assertEqual(book.revision, 0)
+                            self.assertEqual(book.stats()["pages"], 0)
+                            self.assertFalse(book.db.in_transaction)
+                        self.assertEqual(len(attempts), 2)
+                        self.assertEqual(len(observed), 1)
+                        self.assertEqual(str(observed[0]), "database is locked")
+                finally:
+                    locker.close()
+
+    def test_wal_retry_uses_one_deadline_and_closes_on_permanent_contention(self):
+        connect = sqlite3.connect
+        cases = (("initial-wait-exhausted", [100.0, 110.0], 1, 0),
+                 ("yield-exhausted", [100.0, 109.999, 110.0], 1, 1),
+                 ("retry-exhausted", [100.0, 109.0, 109.01, 110.0], 2, 1))
+        with tempfile.TemporaryDirectory() as directory:
+            for name, ticks, expected_attempts, expected_sleeps in cases:
+                path = Path(directory) / f"{name}.db"
+                locker = connect(path, isolation_level=None)
+                connections, timeouts, observed = [], [], []
+
+                class LockedConnection(sqlite3.Connection):
+                    def execute(connection, sql, *args, **kwargs):
+                        if sql == "PRAGMA journal_mode=WAL":
+                            if not timeouts:
+                                locker.execute("BEGIN IMMEDIATE")
+                            timeouts.append(super().execute("PRAGMA busy_timeout").fetchone()[0])
+                            try:
+                                return super().execute(sql, *args, **kwargs)
+                            except sqlite3.OperationalError as exc:
+                                observed.append(exc)
+                                raise
+                        return super().execute(sql, *args, **kwargs)
+
+                def opened(*args, **kwargs):
+                    connection = connect(*args, **kwargs, factory=LockedConnection)
+                    connections.append(connection)
+                    return connection
+
+                try:
+                    with self.subTest(stage=name), patch.object(store.sqlite3, "connect", side_effect=opened), \
+                            patch.object(store.time, "monotonic", side_effect=ticks), \
+                            patch.object(store.time, "sleep") as sleep:
+                        with self.assertRaisesRegex(sqlite3.OperationalError, "database is locked") as raised:
+                            MemoryBook(path)
+                        self.assertIs(raised.exception, observed[-1])
+                        self.assertEqual(len(timeouts), expected_attempts)
+                        self.assertEqual(timeouts[0], 10000)
+                        self.assertEqual(sleep.call_count, expected_sleeps)
+                        if expected_sleeps:
+                            self.assertGreater(sleep.call_args.args[0], 0)
+                            self.assertLessEqual(sleep.call_args.args[0], 0.01)
+                        if expected_attempts == 2:
+                            self.assertGreater(timeouts[1], 0)
+                            self.assertLessEqual(timeouts[1], 1000)
+                    with self.assertRaises(sqlite3.ProgrammingError):
+                        connections[0].execute("SELECT 1")
+                    locker.rollback()
+                    self.assertEqual(locker.execute("PRAGMA journal_mode").fetchone()[0], "delete")
+                finally:
+                    locker.close()
+
+    def test_wal_nonbusy_errors_are_not_retried_and_close_the_connection(self):
+        connect = sqlite3.connect
+        with tempfile.TemporaryDirectory() as directory:
+            for kind in ("native-sql-error", "legacy-locked-error", "coded-locked-error"):
+                attempts, connections = [], []
+
+                class FailingConnection(sqlite3.Connection):
+                    def execute(connection, sql, *args, **kwargs):
+                        if sql == "PRAGMA journal_mode=WAL":
+                            attempts.append(sql)
+                            if kind == "native-sql-error":
+                                return super().execute("SELECT absent_wal_initialization_function()")
+                            exc = sqlite3.OperationalError("database table is locked" if kind == "legacy-locked-error"
+                                                           else "database is locked")
+                            if kind == "coded-locked-error":
+                                exc.sqlite_errorcode = 6  # SQLITE_LOCKED, not SQLITE_BUSY (5).
+                            raise exc
+                        return super().execute(sql, *args, **kwargs)
+
+                def opened(*args, **kwargs):
+                    connection = connect(*args, **kwargs, factory=FailingConnection)
+                    connections.append(connection)
+                    return connection
+
+                with self.subTest(kind=kind), patch.object(store.sqlite3, "connect", side_effect=opened), \
+                        patch.object(store.time, "sleep", side_effect=AssertionError("non-BUSY error retried")):
+                    with self.assertRaises(sqlite3.OperationalError):
+                        MemoryBook(Path(directory) / f"{kind}.db")
+                self.assertEqual(len(attempts), 1)
+                with self.assertRaises(sqlite3.ProgrammingError):
+                    connections[0].execute("SELECT 1")
+
+    def test_uncontended_wal_keeps_one_attempt_and_no_extra_timeout_statements(self):
+        connect = sqlite3.connect
+        statements = []
+
+        def traced(*args, **kwargs):
+            connection = connect(*args, **kwargs)
+            connection.set_trace_callback(statements.append)
+            return connection
+
+        with tempfile.TemporaryDirectory() as directory, patch.object(store.sqlite3, "connect", side_effect=traced):
+            with MemoryBook(Path(directory) / "uncontended.db") as book:
+                self.assertEqual([sql for sql in statements if sql.startswith("PRAGMA busy_timeout")
+                                  or sql.startswith("PRAGMA journal_mode")],
+                                 ["PRAGMA busy_timeout=10000", "PRAGMA journal_mode=WAL"])
+                self.assertEqual(book.db.execute("PRAGMA journal_mode").fetchone()[0], "wal")
+
     def test_foreign_writer_between_initial_read_and_lock_is_not_overwritten(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "other.db"

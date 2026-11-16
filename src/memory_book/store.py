@@ -797,11 +797,49 @@ class MemoryBook:
             # leaves source rows, addresses, revision and schema compatibility
             # unchanged; SQLite also maintains it for older/external writers.
             self.db.execute(RECALL_METADATA_INDEX_SQL)
-            self.db.execute("PRAGMA journal_mode=WAL")
+            self._enable_wal()
             self.db.execute("PRAGMA synchronous=NORMAL")
         except BaseException:
             self.db.close()
             raise
+
+    def _enable_wal(self) -> None:
+        """Bound mode-change contention by the existing ten-second lock budget.
+
+        A journal-mode lock upgrade can report SQLITE_BUSY without invoking
+        SQLite's busy handler. Retry only that condition, outside a transaction;
+        the schema migration has already committed. This deadline includes the
+        first SQLite wait and every later wait in this WAL setup stage.
+        """
+        deadline = time.monotonic() + 10.0
+        retried = False
+        while True:
+            try:
+                # Consume the one-row PRAGMA result so its statement releases
+                # locks before another initializer or the synchronous setting.
+                # :memory: legitimately retains the "memory" journal mode.
+                self.db.execute("PRAGMA journal_mode=WAL").fetchone()
+            except sqlite3.OperationalError as exc:
+                code = getattr(exc, "sqlite_errorcode", None)
+                # Python 3.10 lacks the error-code attribute and constants.
+                busy = (code & 0xFF) == 5 if code is not None else str(exc) == "database is locked"
+                if not busy:
+                    raise
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise
+                time.sleep(min(0.01, remaining))
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise
+                self.db.execute(f"PRAGMA busy_timeout={int(remaining * 1000)}").fetchone()
+                retried = True
+            else:
+                if retried:
+                    self.db.execute("PRAGMA busy_timeout=10000").fetchone()
+                # Failed initialization is closed by __init__; do not issue
+                # cleanup SQL that could mask its original SQLite exception.
+                return
 
     def __enter__(self) -> MemoryBook:
         return self
