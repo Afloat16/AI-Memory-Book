@@ -15,6 +15,7 @@ from pathlib import Path
 
 from . import __version__
 from .paths import default_config, default_database
+from .scope import validate_project
 
 
 def absolute_workspace(value: str | None) -> str | None:
@@ -79,9 +80,16 @@ def setup_clients(names: list[str], *, config_path: str | Path | None = None,
                   background: bool = False, dry_run: bool = False,
                   replace_existing: bool = False, home: Path | None = None,
                   platform: str | None = None, environ: dict | None = None,
-                  capture_supported_only: bool = False) -> dict:
+                  capture_supported_only: bool = False,
+                  mcp_project: str | None = None, clear_mcp_project: bool = False) -> dict:
     from .clients import CLIENT_CAPTURE, apply_plan, plan_client
     from .sync import save_config
+    if not isinstance(clear_mcp_project, bool):
+        raise ValueError("clear_mcp_project must be a boolean")
+    if mcp_project is not None:
+        validate_project(mcp_project)
+        if clear_mcp_project:
+            raise ValueError("--mcp-project and --clear-mcp-project cannot be combined")
     if not names:
         raise ValueError("Choose a client with --client <name>; use 'memory-book clients' to list supported profiles")
     names = list(dict.fromkeys(names))
@@ -104,7 +112,8 @@ def setup_clients(names: list[str], *, config_path: str | Path | None = None,
     plans = [plan_client(name, config.database, sys.executable,
                          argument_prefix=("-m", "memory_book"), config_path=client_config_path,
                          writable=writable, replace=replace_existing, home=home,
-                         platform=platform, environ=environ) for name in names]
+                         platform=platform, environ=environ, project=mcp_project,
+                         clear_project=clear_mcp_project) for name in names]
     plans = list({plan.profile: plan for plan in plans}.values())
     protected_paths = {path.resolve() for path in (config_file, config.database, config.state_path, config.log_path) if path is not None}
     protected_paths.update(Path(str(config.database) + suffix).resolve() for suffix in ("-wal", "-shm", "-journal"))

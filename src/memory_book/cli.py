@@ -82,6 +82,8 @@ def parser() -> argparse.ArgumentParser:
     read.add_argument("page_id")
     read.add_argument("--offset", type=int, default=0)
     read.add_argument("--limit", type=int, default=12000)
+    for command in (chapter, section, read):
+        command.add_argument("--project", help="Require the returned ID to belong to this exact project")
     source = sub.add_parser("source", help="Read the normalized source session")
     source.add_argument("project")
     source.add_argument("session_id")
@@ -106,6 +108,7 @@ def parser() -> argparse.ArgumentParser:
     web.add_argument("--container-bind", action="store_true", help="Allow 0.0.0.0 inside a container; publish its port on host loopback only")
     mcp = sub.add_parser("mcp", help="Start the optional official-SDK MCP stdio server")
     mcp.add_argument("--allow-write", action="store_true", help="Also expose remember_session to the connected agent")
+    mcp.add_argument("--project", help="Bind this MCP connection to one exact project; other projects are unavailable")
     mcp.add_argument("--semantic-model-dir", help="Operator-selected local model directory for explicit semantic recall; build its index separately")
     mcp.add_argument("--source-format", choices=("objects", "indexed"), default="objects",
                      help="Recall reference format; indexed explicitly enables a lossless session table")
@@ -118,6 +121,8 @@ def parser() -> argparse.ArgumentParser:
     setup.add_argument("--source", help="Override one client's watched transcript directory")
     setup.add_argument("--workspace", help="Only collect transcripts whose recorded cwd matches this workspace")
     setup.add_argument("--project", help="Bind the selected capture source to one explicit project")
+    setup.add_argument("--mcp-project", help="Bind the configured MCP connection to one project; separate from capture --project")
+    setup.add_argument("--clear-mcp-project", action="store_true", help="Explicitly remove a saved MCP project binding; otherwise setup preserves it")
     setup.add_argument("--background", action="store_true", help="Install and start the current-user background service")
     setup.add_argument("--allow-write", action="store_true", help="Also expose the MCP remember_session tool")
     setup.add_argument("--replace", action="store_true", help="Replace an unmanaged MCP entry with the same name; a backup is made")
@@ -289,6 +294,8 @@ def main(argv: list[str] | None = None) -> int:
             result = setup_clients(names, config_path=args.config, client_config_path=args.client_config,
                                  database=database_override, writable=args.allow_write, capture=args.capture,
                                  source_path=args.source, workspace=args.workspace, project=args.project,
+                                 mcp_project=args.mcp_project,
+                                 clear_mcp_project=args.clear_mcp_project,
                                  background=args.background, dry_run=args.dry_run,
                                  replace_existing=args.replace, capture_supported_only=args.all)
             _print(result)
@@ -355,7 +362,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "mcp":
             from .mcp_server import serve
             serve(args.db, allow_write=args.allow_write, semantic_model_dir=args.semantic_model_dir,
-                  source_format=args.source_format)
+                  source_format=args.source_format, project=args.project)
             return 0
         if args.command == "serve":
             from .web import serve
@@ -406,11 +413,11 @@ def main(argv: list[str] | None = None) -> int:
             elif args.command == "toc":
                 _print(book.toc(args.project, offset=args.offset, limit=args.limit))
             elif args.command == "chapter":
-                _print(book.chapter(args.chapter_id, offset=args.offset, limit=args.limit))
+                _print(book.chapter(args.chapter_id, offset=args.offset, limit=args.limit, project=args.project))
             elif args.command == "section":
-                _print(book.section(args.section_id, offset=args.offset, limit=args.limit))
+                _print(book.section(args.section_id, offset=args.offset, limit=args.limit, project=args.project))
             elif args.command == "read":
-                _print(book.read(args.page_id, offset=args.offset, limit=args.limit))
+                _print(book.read(args.page_id, offset=args.offset, limit=args.limit, project=args.project))
             elif args.command == "source":
                 _print(book.get_session(args.project, args.session_id))
             elif args.command == "link":
