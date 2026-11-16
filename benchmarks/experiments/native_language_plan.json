@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "status": "development-plan-not-a-result",
+  "baseline_commit": "b1434ca8b218d096d5506aaea02631ca31306d21",
+  "purpose": "Improve execution speed by translating existing text-processing loops into native code while preserving every observable retrieval decision and source coordinate.",
+  "allowed_changes": [
+    "Equivalent native implementations of existing pure text-processing functions",
+    "Backend selection, build, distribution and validation required to execute those implementations"
+  ],
+  "frozen_semantics": [
+    "Database schema, SQL, candidate limits, ranking, tie order and scope policy",
+    "Normalization order, Unicode code-point coordinates and exact source spans",
+    "Segmentation, stable identifiers, context budgets, result caches and public payloads",
+    "MIT license"
+  ],
+  "implementation_candidate": "CPython C extension with the existing Python implementation retained as an explicit reference and portability fallback",
+  "implementation_rationale": "Direct CPython Unicode access avoids converting existing strings to a second representation. Language choice is not itself a measured performance claim.",
+  "development": {
+    "profile_current_baseline": true,
+    "microbenchmarks_are_diagnostics_only": true,
+    "preserve_rejected_measurements": true
+  },
+  "formal_requirements": {
+    "freeze_candidate_source_evaluator_build_and_dataset_before_execution": true,
+    "independent_fresh_workers": true,
+    "pair_order": [["baseline", "candidate"], ["candidate", "baseline"], ["candidate", "baseline"], ["baseline", "candidate"]],
+    "primary": ["native-char2400", "mcp-char2400"],
+    "secondary": ["native-token1024", "mcp-token1024"],
+    "repetitions_per_worker": 3,
+    "result_cache": "disabled; cache clearing outside the timed region",
+    "timing_boundary": "Native recall call or actual official-SDK stdio MCP tool roundtrip; no generation model",
+    "quality_scope": "Existing synthetic61 and public1015 datasets are performance and equivalence regressions, not independent evidence of retrieval superiority.",
+    "equality": "All complete per-query outputs, source spans and indexed/source contents must agree; exclude only latency_ms from semantic payload comparisons.",
+    "identity": ["source commit", "all runtime Python and native source hashes", "evaluator and plan hashes", "compiled extension SHA-256", "compiler and flags", "Python, SQLite, Unicode and dependency versions", "platform and CPU", "dataset and query-order hashes"],
+    "resources": ["fresh and unchanged ingestion", "startup", "process RSS and high-water mark", "CPU time", "database/WAL/SHM bytes"],
+    "publication": "Keep every completed round and failed gate. Publish measured effects per surface and cohort, including regressions; never infer end-to-end speed from microbenchmarks or operation counts.",
+    "acceptance": "Exact semantic equality and all release gates are mandatory. Native acceleration must demonstrate a repeatable improvement on the primary paired measurements without a material unexplained regression before becoming the default. Unsupported build targets keep the unchanged Python implementation."
+  }
+}
