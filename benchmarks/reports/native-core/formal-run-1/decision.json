@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "status": "refinement-required-before-adoption",
+  "accepted": false,
+  "baseline": "56eccd8c3a6f1d5637664607936da2595ce50c62",
+  "candidate": "0be1f09502aff1d4ddc0a9e644be7a62be6a944f",
+  "evaluator": "346e5ede35851fd6283bc8be8a34bf4243dc34dd",
+  "workflow_run": 43871304560,
+  "attempt": 1,
+  "evidence_commit": "4e1e6177e9af188a582b2f2e28aafe6290dfae36",
+  "frozen_hosted_audit": {
+    "attempted_calls": 113568,
+    "paired_calls": 56784,
+    "complete_output_and_archive_equivalence": true,
+    "differences": []
+  },
+  "findings": {
+    "all_eight_pooled_query_cells_improved": true,
+    "regressing_query_rounds": [
+      {
+        "cohort": "synthetic61",
+        "configuration": "mcp-char2400",
+        "round": 3,
+        "p95_improvement_percent": -1.923130120177774
+      },
+      {
+        "cohort": "synthetic61",
+        "configuration": "mcp-token1024",
+        "round": 3,
+        "p95_improvement_percent": -0.948891852212741
+      }
+    ],
+    "ingestion": [
+      {
+        "cohort": "synthetic61",
+        "metric": "fresh_ingestion_ms",
+        "total_improvement_percent": 6.936122003817857,
+        "round_improvements": [
+          7.471191126040189,
+          7.010171765430917,
+          6.427438592509538,
+          6.843895852831383
+        ]
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "unchanged_reingestion_ms",
+        "total_improvement_percent": -19.414913107188546,
+        "round_improvements": [
+          -16.593035783210674,
+          -28.077024716838174,
+          -17.16054900186186,
+          -15.815540916066894
+        ]
+      },
+      {
+        "cohort": "public1015",
+        "metric": "fresh_ingestion_ms",
+        "total_improvement_percent": 4.335971485173173,
+        "round_improvements": [
+          5.047486613519448,
+          -2.1852890151539794,
+          7.396897954889948,
+          7.0231714676607275
+        ]
+      },
+      {
+        "cohort": "public1015",
+        "metric": "unchanged_reingestion_ms",
+        "total_improvement_percent": -21.409512448851387,
+        "round_improvements": [
+          -19.971204736051895,
+          -18.88622470767405,
+          -27.106902368193374,
+          -19.65358129152277
+        ]
+      }
+    ]
+  },
+  "reason": "Both unchanged-reingestion cohorts regressed in all four paired rounds; four-batch totals increased 19.4149% and 21.4095%. The user's performance-first objective warrants further language-level refinement before adoption.",
+  "next": "Profile the unchanged-ingestion CPU path; preserve guards and business semantics while reducing new Python dispatch/guard overhead. Freeze a new candidate and separately named complete experiment. Do not edit or replace this first experiment, its frozen evaluator, or its raw records.",
+  "independent_artifact_audit": "pending; the hosted frozen auditor already reproduced the complete equivalent summary",
+  "packaging_attempt": {
+    "run_id": 43871307087,
+    "source_commit": "0be1f09502aff1d4ddc0a9e644be7a62be6a944f",
+    "native_wheel_successes": 29,
+    "cancelled_target": "CPython 3.12 macOS arm64",
+    "preparation_completed": false,
+    "release_published": false
+  }
+}
