@@ -1,0 +1,2671 @@
+{
+  "schema_version": 1,
+  "kind": "independent-summary-and-resource-extraction",
+  "source": {
+    "evidence_commit": "4e1e6177e9af188a582b2f2e28aafe6290dfae36",
+    "evidence_branch": "evidence/native-core-43871304560-1",
+    "run_id": 43871304560,
+    "evaluator_commit": "346e5ede35851fd6283bc8be8a34bf4243dc34dd",
+    "sources": {
+      "baseline": {
+        "commit": "56eccd8c3a6f1d5637664607936da2595ce50c62",
+        "backend": "native",
+        "source_files_sha256": "be5c3f4c626edb25e3201298fd6ec460f9b335ac07c446357c1ff0d115216784",
+        "native_binaries": {
+          "src/memory_book/_native.cpython-312-x86_64-linux-gnu.so": "535d42ed80207d02a59eda62be53c1d840f845d8db37e5ef8610d360bdb749d1"
+        }
+      },
+      "candidate": {
+        "commit": "0be1f09502aff1d4ddc0a9e644be7a62be6a944f",
+        "backend": "native",
+        "source_files_sha256": "9fa3c73bc239bc69c6c630d3baf8fdc7bf1a6e3d8f3da0a9068d8aef3f0085be",
+        "native_binaries": {
+          "src/memory_book/_native.cpython-312-x86_64-linux-gnu.so": "b21fc5690405269c672ac1063fd1fa4a9ae39941325f7c7de4d2a78a0ccee746"
+        }
+      }
+    },
+    "summary_file": {
+      "git_blob": "ab9c97c18ac509581217813e5d6e19fddd6e7f3b",
+      "bytes": 49506,
+      "sha256": "1a2eda68076ac32a74bd6ee9c5b6c4884efa245ed28eb084734d65d16ed3c533"
+    },
+    "run_file": {
+      "git_blob": "540c490a625d04d0d637a0da4b8ec8e52e4ac2a2",
+      "bytes": 67225,
+      "sha256": "d7c326f2daadbc26c45b08434f67e208e7b6255b0dd613347ebf6726e1ae0500"
+    },
+    "byte_hash_verification": "Fetched bytes independently matched both evidence-manifest SHA256 and byte lengths."
+  },
+  "measurement": {
+    "host": {
+      "affinity": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "boot_id": "096cff08-8b11-4eb8-b50e-cdb995797b87",
+      "cpu_count": 4,
+      "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+      "executable": "/opt/hostedtoolcache/Python/3.12.16/x64/bin/python",
+      "hostname": "runnervm8axu0",
+      "machine": "x86_64",
+      "packages": {
+        "mcp": "1.30.0",
+        "pydantic": "2.14.3",
+        "setuptools": "80.9.0",
+        "tiktoken": "0.12.0"
+      },
+      "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+      "python": "3.12.16 (main, Oct 26 2026, 02:50:49) [GCC 13.3.0]",
+      "python_build": {
+        "CC": "gcc",
+        "CFLAGS": "-fno-strict-overflow -Wsign-compare -DNDEBUG -g -O3 -Wall",
+        "LDSHARED": "gcc -shared -Wl,--rpath=/opt/hostedtoolcache/Python/3.12.16/x64/lib -Wl,--rpath=/opt/hostedtoolcache/Python/3.12.16/x64/lib",
+        "SOABI": "cpython-312-x86_64-linux-gnu"
+      },
+      "sqlite": "3.45.1",
+      "unicode": "15.0.0"
+    },
+    "counts": {
+      "calls": 113568,
+      "paired": 56784
+    },
+    "complete_output_and_archive_equivalence": true,
+    "differences": []
+  },
+  "method": {
+    "timed_calls_repeated": 0,
+    "query_statistics": "Exact frozen summary values retained, percentages independently recomputed; raw row/ledger replay is the separate artifact audit.",
+    "resource_statistics": "Medians of exactly four workers per side/cohort; all individual values retained. Delta is candidate minus baseline; positive reduction means faster/smaller.",
+    "ingestion_statistics": "Primary percentage compares the sum of all four paired batch wall times, not the ratio of medians; medians and every round are separately retained.",
+    "cpu": "Only process snapshot metrics are derived here; MCP per-call calling-process CPU belongs to the client and is not reported as server CPU.",
+    "scope": "One hosted AMD EPYC/CPython 3.12.16 experiment, existing regression cohorts, no generated answers or new quality claims."
+  },
+  "disposition": {
+    "candidate_accepted_for_release": false,
+    "reason": "Unchanged reingestion regresses in every paired round in both cohorts; the implementation remains under refinement despite pooled query improvements.",
+    "first_attempt_retained": true,
+    "future_refinement": "Any follow-up must be a separate registered experiment; this source summary and protocol3 remain immutable."
+  },
+  "query_cells": [
+    {
+      "baseline": {
+        "max_ms": 17.028229,
+        "mean_ms": 5.809460235615079,
+        "min_ms": 0.353663,
+        "p50_ms": 4.511772499999999,
+        "p95_ms": 12.400186000000001,
+        "samples": 2016
+      },
+      "candidate": {
+        "max_ms": 13.788087,
+        "mean_ms": 5.5900615,
+        "min_ms": 0.347182,
+        "p50_ms": 4.356649,
+        "p95_ms": 12.0527185,
+        "samples": 2016
+      },
+      "cohort": "synthetic61",
+      "configuration": "native-char2400",
+      "p50_improvement_percent": 3.438194190863997,
+      "p95_improvement_percent": 2.8021152263361437,
+      "rounds": [
+        {
+          "baseline": {
+            "max_ms": 17.028229,
+            "mean_ms": 5.758592113095238,
+            "min_ms": 0.353663,
+            "p50_ms": 4.4033495,
+            "p95_ms": 12.2142816,
+            "samples": 504
+          },
+          "candidate": {
+            "max_ms": 13.664713,
+            "mean_ms": 5.537391749999999,
+            "min_ms": 0.35655,
+            "p50_ms": 4.334712,
+            "p95_ms": 11.9747033,
+            "samples": 504
+          },
+          "p95_improvement_percent": 1.9614604267843339,
+          "round": 0,
+          "p50_improvement_percent": 1.5587565783728996
+        },
+        {
+          "baseline": {
+            "max_ms": 13.510431,
+            "mean_ms": 5.775382428571429,
+            "min_ms": 0.354994,
+            "p50_ms": 4.488913999999999,
+            "p95_ms": 12.350462849999998,
+            "samples": 504
+          },
+          "candidate": {
+            "max_ms": 12.576899,
+            "mean_ms": 5.442734869047619,
+            "min_ms": 0.347182,
+            "p50_ms": 4.1651705,
+            "p95_ms": 11.79037,
+            "samples": 504
+          },
+          "p95_improvement_percent": 4.53499481600399,
+          "round": 1,
+          "p50_improvement_percent": 7.212067328534233
+        },
+        {
+          "baseline": {
+            "max_ms": 14.133336,
+            "mean_ms": 5.885065640873016,
+            "min_ms": 0.361905,
+            "p50_ms": 4.593834,
+            "p95_ms": 12.5431194,
+            "samples": 504
+          },
+          "candidate": {
+            "max_ms": 13.220306,
+            "mean_ms": 5.697123091269841,
+            "min_ms": 0.37251,
+            "p50_ms": 4.429835000000001,
+            "p95_ms": 12.35617085,
+            "samples": 504
+          },
+          "p95_improvement_percent": 1.4904470254823554,
+          "round": 2,
+          "p50_improvement_percent": 3.569980978851206
+        },
+        {
+          "baseline": {
+            "max_ms": 13.311224,
+            "mean_ms": 5.818800759920635,
+            "min_ms": 0.361624,
+            "p50_ms": 4.5500475,
+            "p95_ms": 12.372238249999999,
+            "samples": 504
+          },
+          "candidate": {
+            "max_ms": 13.788087,
+            "mean_ms": 5.6829962896825394,
+            "min_ms": 0.380773,
+            "p50_ms": 4.421231000000001,
+            "p95_ms": 12.204780399999999,
+            "samples": 504
+          },
+          "p95_improvement_percent": 1.3534968096819533,
+          "round": 3,
+          "p50_improvement_percent": 2.8311023126681434
+        }
+      ],
+      "p95_improving_rounds": 4,
+      "p50_improving_rounds": 4
+    },
+    {
+      "baseline": {
+        "max_ms": 23.060815,
+        "mean_ms": 7.680662088293651,
+        "min_ms": 1.577418,
+        "p50_ms": 6.359307,
+        "p95_ms": 14.44836775,
+        "samples": 2016
+      },
+      "candidate": {
+        "max_ms": 23.790491,
+        "mean_ms": 7.592789367559524,
+        "min_ms": 1.669299,
+        "p50_ms": 6.3249635,
+        "p95_ms": 14.2781485,
+        "samples": 2016
+      },
+      "cohort": "synthetic61",
+      "configuration": "mcp-char2400",
+      "p50_improvement_percent": 0.5400509835427059,
+      "p95_improvement_percent": 1.178120968024221,
+      "rounds": [
+        {
+          "baseline": {
+            "max_ms": 15.838878,
+            "mean_ms": 7.64707059920635,
+            "min_ms": 1.656661,
+            "p50_ms": 6.3557445,
+            "p95_ms": 14.402639899999999,
+            "samples": 504
+          },
+          "candidate": {
+            "max_ms": 15.74823,
+            "mean_ms": 7.516727859126984,
+            "min_ms": 1.76271,
+            "p50_ms": 6.245221,
+            "p95_ms": 14.198154,
+            "samples": 504
+          },
+          "p95_improvement_percent": 1.4197806889554854,
+          "round": 0,
+          "p50_improvement_percent": 1.7389544214686414
+        },
+        {
+          "baseline": {
+            "max_ms": 16.366314,
+            "mean_ms": 7.6418995277777775,
+            "min_ms": 1.646286,
+            "p50_ms": 6.3218485,
+            "p95_ms": 14.412352349999999,
+            "samples": 504
+          },
+          "candidate": {
+            "max_ms": 17.677675,
+            "mean_ms": 7.419337091269841,
+            "min_ms": 1.669299,
+            "p50_ms": 6.166752499999999,
+            "p95_ms": 14.0409466,
+            "samples": 504
+          },
+          "p95_improvement_percent": 2.5769960446463736,
+          "round": 1,
+          "p50_improvement_percent": 2.4533330718064517
+        },
+        {
+          "baseline": {
+            "max_ms": 16.542229,
+            "mean_ms": 7.799647202380952,
+            "min_ms": 1.638914,
+            "p50_ms": 6.507628,
+            "p95_ms": 14.740241599999996,
+            "samples": 504
+          },
+          "candidate": {
+            "max_ms": 16.398021,
+            "mean_ms": 7.561533190476191,
+            "min_ms": 1.716851,
+            "p50_ms": 6.282019,
+            "p95_ms": 14.237698949999999,
+            "samples": 504
+          },
+          "p95_improvement_percent": 3.409324376338563,
+          "round": 2,
+          "p50_improvement_percent": 3.466839223139373
+        },
+        {
+          "baseline": {
+            "max_ms": 23.060815,
+            "mean_ms": 7.634031023809524,
+            "min_ms": 1.577418,
+            "p50_ms": 6.232501,
+            "p95_ms": 14.474473,
+            "samples": 504
+          },
+          "candidate": {
+            "max_ms": 23.790491,
+            "mean_ms": 7.873559329365079,
+            "min_ms": 1.872097,
+            "p50_ms": 6.5270019999999995,
+            "p95_ms": 14.75283595,
+            "samples": 504
+          },
+          "p95_improvement_percent": -1.923130120177774,
+          "round": 3,
+          "p50_improvement_percent": -4.725245932571842
+        }
+      ],
+      "p95_improving_rounds": 3,
+      "p50_improving_rounds": 3
+    },
+    {
+      "baseline": {
+        "max_ms": 20.784141,
+        "mean_ms": 5.7576688958333335,
+        "min_ms": 0.34469,
+        "p50_ms": 4.92444,
+        "p95_ms": 13.268266,
+        "samples": 2016
+      },
+      "candidate": {
+        "max_ms": 17.120938,
+        "mean_ms": 5.473753592261905,
+        "min_ms": 0.339131,
+        "p50_ms": 4.699415500000001,
+        "p95_ms": 12.22622675,
+        "samples": 2016
+      },
+      "cohort": "synthetic61",
+      "configuration": "native-token1024",
+      "p50_improvement_percent": 4.569544963488214,
+      "p95_improvement_percent": 7.853620435405806,
+      "rounds": [
+        {
+          "baseline": {
+            "max_ms": 15.159705,
+            "mean_ms": 5.606562601190476,
+            "min_ms": 0.34469,
+            "p50_ms": 4.831342,
+            "p95_ms": 12.838560799999998,
+            "samples": 504
+          },
+          "candidate": {
+            "max_ms": 14.739641,
+            "mean_ms": 5.448192920634921,
+            "min_ms": 0.339131,
+            "p50_ms": 4.6606055,
+            "p95_ms": 12.214571949999998,
+            "samples": 504
+          },
+          "p95_improvement_percent": 4.86027102040908,
+          "round": 0,
+          "p50_improvement_percent": 3.5339352916850086
+        },
+        {
+          "baseline": {
+            "max_ms": 16.398573,
+            "mean_ms": 5.684501396825397,
+            "min_ms": 0.38598,
+            "p50_ms": 4.892999,
+            "p95_ms": 13.113351199999999,
+            "samples": 504
+          },
+          "candidate": {
+            "max_ms": 15.329135,
+            "mean_ms": 5.30242975,
+            "min_ms": 0.386862,
+            "p50_ms": 4.663164999999999,
+            "p95_ms": 11.882377399999998,
+            "samples": 504
+          },
+          "p95_improvement_percent": 9.387179380965572,
+          "round": 1,
+          "p50_improvement_percent": 4.697201041733312
+        },
+        {
+          "baseline": {
+            "max_ms": 20.784141,
+            "mean_ms": 5.941429482142857,
+            "min_ms": 0.429747,
+            "p50_ms": 5.060677,
+            "p95_ms": 13.6399233,
+            "samples": 504
+          },
+          "candidate": {
+            "max_ms": 17.120938,
+            "mean_ms": 5.581201486111111,
+            "min_ms": 0.403768,
+            "p50_ms": 4.725826,
+            "p95_ms": 12.401465199999999,
+            "samples": 504
+          },
+          "p95_improvement_percent": 9.079655895132499,
+          "round": 2,
+          "p50_improvement_percent": 6.616723414673576
+        },
+        {
+          "baseline": {
+            "max_ms": 16.454067,
+            "mean_ms": 5.798182103174604,
+            "min_ms": 0.372501,
+            "p50_ms": 4.9610994999999996,
+            "p95_ms": 13.3849095,
+            "samples": 504
+          },
+          "candidate": {
+            "max_ms": 15.721298,
+            "mean_ms": 5.5631902123015875,
+            "min_ms": 0.361504,
+            "p50_ms": 4.753921999999999,
+            "p95_ms": 12.549442599999999,
+            "samples": 504
+          },
+          "p95_improvement_percent": 6.241856921034838,
+          "round": 3,
+          "p50_improvement_percent": 4.176040008873039
+        }
+      ],
+      "p95_improving_rounds": 4,
+      "p50_improving_rounds": 4
+    },
+    {
+      "baseline": {
+        "max_ms": 170.507887,
+        "mean_ms": 8.024296462301587,
+        "min_ms": 1.747302,
+        "p50_ms": 6.846435,
+        "p95_ms": 15.378793250000001,
+        "samples": 2016
+      },
+      "candidate": {
+        "max_ms": 173.826514,
+        "mean_ms": 7.86464513343254,
+        "min_ms": 1.703332,
+        "p50_ms": 6.7059940000000005,
+        "p95_ms": 14.753811500000001,
+        "samples": 2016
+      },
+      "cohort": "synthetic61",
+      "configuration": "mcp-token1024",
+      "p50_improvement_percent": 2.051301151621232,
+      "p95_improvement_percent": 4.063919319547393,
+      "rounds": [
+        {
+          "baseline": {
+            "max_ms": 162.564119,
+            "mean_ms": 7.861764924603174,
+            "min_ms": 1.747302,
+            "p50_ms": 6.726507,
+            "p95_ms": 15.0684951,
+            "samples": 504
+          },
+          "candidate": {
+            "max_ms": 164.614383,
+            "mean_ms": 7.675977055555555,
+            "min_ms": 1.73385,
+            "p50_ms": 6.591556000000001,
+            "p95_ms": 14.3615717,
+            "samples": 504
+          },
+          "p95_improvement_percent": 4.691400138557955,
+          "round": 0,
+          "p50_improvement_percent": 2.0062567391961217
+        },
+        {
+          "baseline": {
+            "max_ms": 161.391731,
+            "mean_ms": 7.947907547619047,
+            "min_ms": 1.772616,
+            "p50_ms": 6.7743285,
+            "p95_ms": 15.2027224,
+            "samples": 504
+          },
+          "candidate": {
+            "max_ms": 164.132765,
+            "mean_ms": 7.54386028968254,
+            "min_ms": 1.709761,
+            "p50_ms": 6.519080000000001,
+            "p95_ms": 14.076739399999997,
+            "samples": 504
+          },
+          "p95_improvement_percent": 7.406456359421543,
+          "round": 1,
+          "p50_improvement_percent": 3.767878986086959
+        },
+        {
+          "baseline": {
+            "max_ms": 168.725472,
+            "mean_ms": 8.190052164682541,
+            "min_ms": 1.753788,
+            "p50_ms": 6.96153,
+            "p95_ms": 15.642511149999999,
+            "samples": 504
+          },
+          "candidate": {
+            "max_ms": 169.535464,
+            "mean_ms": 8.00893491468254,
+            "min_ms": 1.703332,
+            "p50_ms": 6.8146245,
+            "p95_ms": 14.847820650000001,
+            "samples": 504
+          },
+          "p95_improvement_percent": 5.080325609996439,
+          "round": 2,
+          "p50_improvement_percent": 2.1102473163227
+        },
+        {
+          "baseline": {
+            "max_ms": 170.507887,
+            "mean_ms": 8.097461212301587,
+            "min_ms": 1.843313,
+            "p50_ms": 6.9533225000000005,
+            "p95_ms": 15.482201649999999,
+            "samples": 504
+          },
+          "candidate": {
+            "max_ms": 173.826514,
+            "mean_ms": 8.229808273809525,
+            "min_ms": 1.858676,
+            "p50_ms": 7.041379,
+            "p95_ms": 15.629110999999996,
+            "samples": 504
+          },
+          "p95_improvement_percent": -0.948891852212741,
+          "round": 3,
+          "p50_improvement_percent": -1.2663945904997087
+        }
+      ],
+      "p95_improving_rounds": 3,
+      "p50_improving_rounds": 3
+    },
+    {
+      "baseline": {
+        "max_ms": 8.905992,
+        "mean_ms": 3.8492554058292283,
+        "min_ms": 0.896059,
+        "p50_ms": 3.836488,
+        "p95_ms": 4.958021349999999,
+        "samples": 12180
+      },
+      "candidate": {
+        "max_ms": 6.590792,
+        "mean_ms": 3.627614491954023,
+        "min_ms": 0.785622,
+        "p50_ms": 3.611142,
+        "p95_ms": 4.68313795,
+        "samples": 12180
+      },
+      "cohort": "public1015",
+      "configuration": "native-char2400",
+      "p50_improvement_percent": 5.873757457341188,
+      "p95_improvement_percent": 5.544215738401359,
+      "rounds": [
+        {
+          "baseline": {
+            "max_ms": 8.905992,
+            "mean_ms": 3.80499410410509,
+            "min_ms": 0.896059,
+            "p50_ms": 3.792424,
+            "p95_ms": 4.8918512,
+            "samples": 3045
+          },
+          "candidate": {
+            "max_ms": 6.410102,
+            "mean_ms": 3.5973490443349756,
+            "min_ms": 0.785622,
+            "p50_ms": 3.586145,
+            "p95_ms": 4.6358458,
+            "samples": 3045
+          },
+          "p95_improvement_percent": 5.233303089840502,
+          "round": 0,
+          "p50_improvement_percent": 5.439238861477513
+        },
+        {
+          "baseline": {
+            "max_ms": 6.591295,
+            "mean_ms": 3.8170882558292285,
+            "min_ms": 0.932852,
+            "p50_ms": 3.807873,
+            "p95_ms": 4.9256162,
+            "samples": 3045
+          },
+          "candidate": {
+            "max_ms": 6.245789,
+            "mean_ms": 3.6265988998357965,
+            "min_ms": 0.865131,
+            "p50_ms": 3.61858,
+            "p95_ms": 4.6898416,
+            "samples": 3045
+          },
+          "p95_improvement_percent": 4.786702626160766,
+          "round": 1,
+          "p50_improvement_percent": 4.971095412058113
+        },
+        {
+          "baseline": {
+            "max_ms": 7.562705,
+            "mean_ms": 3.849533591133005,
+            "min_ms": 0.934155,
+            "p50_ms": 3.830901,
+            "p95_ms": 4.944462399999998,
+            "samples": 3045
+          },
+          "candidate": {
+            "max_ms": 6.590792,
+            "mean_ms": 3.6266968899835796,
+            "min_ms": 0.813263,
+            "p50_ms": 3.611282,
+            "p95_ms": 4.6836138,
+            "samples": 3045
+          },
+          "p95_improvement_percent": 5.275570504894489,
+          "round": 2,
+          "p50_improvement_percent": 5.732828908917242
+        },
+        {
+          "baseline": {
+            "max_ms": 7.12645,
+            "mean_ms": 3.9254056722495894,
+            "min_ms": 0.961446,
+            "p50_ms": 3.905896,
+            "p95_ms": 5.067567,
+            "samples": 3045
+          },
+          "candidate": {
+            "max_ms": 6.447229,
+            "mean_ms": 3.6598131336617405,
+            "min_ms": 0.805612,
+            "p50_ms": 3.640066,
+            "p95_ms": 4.7260538,
+            "samples": 3045
+          },
+          "p95_improvement_percent": 6.73919456812313,
+          "round": 3,
+          "p50_improvement_percent": 6.805864774689341
+        }
+      ],
+      "p95_improving_rounds": 4,
+      "p50_improving_rounds": 4
+    },
+    {
+      "baseline": {
+        "max_ms": 15.97665,
+        "mean_ms": 5.775204221018063,
+        "min_ms": 2.483029,
+        "p50_ms": 5.751028,
+        "p95_ms": 6.972062349999998,
+        "samples": 12180
+      },
+      "candidate": {
+        "max_ms": 42.286939,
+        "mean_ms": 5.482068418883415,
+        "min_ms": 2.294212,
+        "p50_ms": 5.4517904999999995,
+        "p95_ms": 6.61130405,
+        "samples": 12180
+      },
+      "cohort": "public1015",
+      "configuration": "mcp-char2400",
+      "p50_improvement_percent": 5.203200193078528,
+      "p95_improvement_percent": 5.174341276509065,
+      "rounds": [
+        {
+          "baseline": {
+            "max_ms": 15.97665,
+            "mean_ms": 5.610575293924466,
+            "min_ms": 2.483029,
+            "p50_ms": 5.590351,
+            "p95_ms": 6.7590008,
+            "samples": 3045
+          },
+          "candidate": {
+            "max_ms": 42.286939,
+            "mean_ms": 5.369687041050903,
+            "min_ms": 2.294212,
+            "p50_ms": 5.340073,
+            "p95_ms": 6.444989,
+            "samples": 3045
+          },
+          "p95_improvement_percent": 4.645831673817824,
+          "round": 0,
+          "p50_improvement_percent": 4.476963968809821
+        },
+        {
+          "baseline": {
+            "max_ms": 14.30351,
+            "mean_ms": 5.993730062068966,
+            "min_ms": 2.705392,
+            "p50_ms": 5.978453,
+            "p95_ms": 7.204661999999998,
+            "samples": 3045
+          },
+          "candidate": {
+            "max_ms": 14.523725,
+            "mean_ms": 5.399245524137931,
+            "min_ms": 2.295262,
+            "p50_ms": 5.377889,
+            "p95_ms": 6.4954008,
+            "samples": 3045
+          },
+          "p95_improvement_percent": 9.844475701982947,
+          "round": 1,
+          "p50_improvement_percent": 10.04547497488063
+        },
+        {
+          "baseline": {
+            "max_ms": 13.418158,
+            "mean_ms": 5.588026178981937,
+            "min_ms": 2.48355,
+            "p50_ms": 5.57219,
+            "p95_ms": 6.744663999999999,
+            "samples": 3045
+          },
+          "candidate": {
+            "max_ms": 13.580475,
+            "mean_ms": 5.47573921182266,
+            "min_ms": 2.456705,
+            "p50_ms": 5.466662,
+            "p95_ms": 6.579714,
+            "samples": 3045
+          },
+          "p95_improvement_percent": 2.4456370250615755,
+          "round": 2,
+          "p50_improvement_percent": 1.8938334837828474
+        },
+        {
+          "baseline": {
+            "max_ms": 12.789152,
+            "mean_ms": 5.908485349096879,
+            "min_ms": 2.568775,
+            "p50_ms": 5.893353,
+            "p95_ms": 7.1106484,
+            "samples": 3045
+          },
+          "candidate": {
+            "max_ms": 12.952002,
+            "mean_ms": 5.683601898522168,
+            "min_ms": 2.528193,
+            "p50_ms": 5.642258,
+            "p95_ms": 6.8380172,
+            "samples": 3045
+          },
+          "p95_improvement_percent": 3.8341257317687005,
+          "round": 3,
+          "p50_improvement_percent": 4.260647546481611
+        }
+      ],
+      "p95_improving_rounds": 4,
+      "p50_improving_rounds": 4
+    },
+    {
+      "baseline": {
+        "max_ms": 36.222614,
+        "mean_ms": 3.362573887684729,
+        "min_ms": 1.060706,
+        "p50_ms": 3.346749,
+        "p95_ms": 4.01939595,
+        "samples": 12180
+      },
+      "candidate": {
+        "max_ms": 36.210955,
+        "mean_ms": 3.1901958222495894,
+        "min_ms": 0.95057,
+        "p50_ms": 3.175611,
+        "p95_ms": 3.8229545999999996,
+        "samples": 12180
+      },
+      "cohort": "public1015",
+      "configuration": "native-token1024",
+      "p50_improvement_percent": 5.113559457252393,
+      "p95_improvement_percent": 4.887335123079883,
+      "rounds": [
+        {
+          "baseline": {
+            "max_ms": 31.443281,
+            "mean_ms": 3.3136628328407225,
+            "min_ms": 1.060706,
+            "p50_ms": 3.298302,
+            "p95_ms": 3.9522602,
+            "samples": 3045
+          },
+          "candidate": {
+            "max_ms": 31.978417,
+            "mean_ms": 3.160645250246305,
+            "min_ms": 0.955978,
+            "p50_ms": 3.150359,
+            "p95_ms": 3.7690157999999987,
+            "samples": 3045
+          },
+          "p95_improvement_percent": 4.636445748182306,
+          "round": 0,
+          "p50_improvement_percent": 4.485429169311972
+        },
+        {
+          "baseline": {
+            "max_ms": 36.222614,
+            "mean_ms": 3.4087615993431855,
+            "min_ms": 1.085112,
+            "p50_ms": 3.395988,
+            "p95_ms": 4.081414199999999,
+            "samples": 3045
+          },
+          "candidate": {
+            "max_ms": 30.269295,
+            "mean_ms": 3.1805430118226603,
+            "min_ms": 0.961927,
+            "p50_ms": 3.167063,
+            "p95_ms": 3.804375,
+            "samples": 3045
+          },
+          "p95_improvement_percent": 6.787823691111761,
+          "round": 1,
+          "p50_improvement_percent": 6.741042665639563
+        },
+        {
+          "baseline": {
+            "max_ms": 30.203446,
+            "mean_ms": 3.335869030870279,
+            "min_ms": 1.069268,
+            "p50_ms": 3.322743,
+            "p95_ms": 3.9710048,
+            "samples": 3045
+          },
+          "candidate": {
+            "max_ms": 36.210955,
+            "mean_ms": 3.193747845648604,
+            "min_ms": 0.95057,
+            "p50_ms": 3.174535,
+            "p95_ms": 3.831575,
+            "samples": 3045
+          },
+          "p95_improvement_percent": 3.511196964556673,
+          "round": 2,
+          "p50_improvement_percent": 4.460411172335621
+        },
+        {
+          "baseline": {
+            "max_ms": 29.93326,
+            "mean_ms": 3.392002087684729,
+            "min_ms": 1.074096,
+            "p50_ms": 3.365474,
+            "p95_ms": 4.0718942,
+            "samples": 3045
+          },
+          "candidate": {
+            "max_ms": 28.013655,
+            "mean_ms": 3.225847181280788,
+            "min_ms": 0.967436,
+            "p50_ms": 3.20945,
+            "p95_ms": 3.8631797999999997,
+            "samples": 3045
+          },
+          "p95_improvement_percent": 5.125732392555782,
+          "round": 3,
+          "p50_improvement_percent": 4.636018581632184
+        }
+      ],
+      "p95_improving_rounds": 4,
+      "p50_improving_rounds": 4
+    },
+    {
+      "baseline": {
+        "max_ms": 174.493815,
+        "mean_ms": 5.453296188587848,
+        "min_ms": 2.683326,
+        "p50_ms": 5.372746,
+        "p95_ms": 6.304226949999999,
+        "samples": 12180
+      },
+      "candidate": {
+        "max_ms": 171.435792,
+        "mean_ms": 5.168866996798029,
+        "min_ms": 2.475266,
+        "p50_ms": 5.0950865,
+        "p95_ms": 5.9252866,
+        "samples": 12180
+      },
+      "cohort": "public1015",
+      "configuration": "mcp-token1024",
+      "p50_improvement_percent": 5.167925303001486,
+      "p95_improvement_percent": 6.010893215067393,
+      "rounds": [
+        {
+          "baseline": {
+            "max_ms": 159.365283,
+            "mean_ms": 5.190034355665025,
+            "min_ms": 2.683326,
+            "p50_ms": 5.12693,
+            "p95_ms": 5.8306222,
+            "samples": 3045
+          },
+          "candidate": {
+            "max_ms": 165.711603,
+            "mean_ms": 5.086247528407225,
+            "min_ms": 2.475266,
+            "p50_ms": 5.014719,
+            "p95_ms": 5.7759678,
+            "samples": 3045
+          },
+          "p95_improvement_percent": 0.9373682280426232,
+          "round": 0,
+          "p50_improvement_percent": 2.1886587099882227
+        },
+        {
+          "baseline": {
+            "max_ms": 169.884452,
+            "mean_ms": 5.646868352380952,
+            "min_ms": 2.867023,
+            "p50_ms": 5.559993,
+            "p95_ms": 6.5178064,
+            "samples": 3045
+          },
+          "candidate": {
+            "max_ms": 166.15467,
+            "mean_ms": 5.228810353694581,
+            "min_ms": 2.686096,
+            "p50_ms": 5.133692,
+            "p95_ms": 6.021688,
+            "samples": 3045
+          },
+          "p95_improvement_percent": 7.611738820594605,
+          "round": 1,
+          "p50_improvement_percent": 7.667293825729649
+        },
+        {
+          "baseline": {
+            "max_ms": 165.413186,
+            "mean_ms": 5.2957062555008205,
+            "min_ms": 2.702575,
+            "p50_ms": 5.229785,
+            "p95_ms": 5.999558199999999,
+            "samples": 3045
+          },
+          "candidate": {
+            "max_ms": 171.435792,
+            "mean_ms": 5.030026101477833,
+            "min_ms": 2.523135,
+            "p50_ms": 4.951999,
+            "p95_ms": 5.701847,
+            "samples": 3045
+          },
+          "p95_improvement_percent": 4.962218718038258,
+          "round": 2,
+          "p50_improvement_percent": 5.311614148573984
+        },
+        {
+          "baseline": {
+            "max_ms": 174.493815,
+            "mean_ms": 5.680575790804598,
+            "min_ms": 2.926413,
+            "p50_ms": 5.606334,
+            "p95_ms": 6.461376199999998,
+            "samples": 3045
+          },
+          "candidate": {
+            "max_ms": 170.157553,
+            "mean_ms": 5.33038400361248,
+            "min_ms": 2.619531,
+            "p50_ms": 5.268818,
+            "p95_ms": 6.016356399999999,
+            "samples": 3045
+          },
+          "p95_improvement_percent": 6.887384145810904,
+          "round": 3,
+          "p50_improvement_percent": 6.020262082137828
+        }
+      ],
+      "p95_improving_rounds": 4,
+      "p50_improving_rounds": 4
+    }
+  ],
+  "ingestion_cells": [
+    {
+      "baseline_median_ms": 735.501563,
+      "baseline_ms": [
+        730.763463,
+        731.279742,
+        741.007484,
+        739.723384
+      ],
+      "baseline_total_ms": 2942.774073,
+      "candidate_median_ms": 684.5566309999999,
+      "candidate_ms": [
+        676.166728,
+        680.015776,
+        693.379683,
+        689.097486
+      ],
+      "candidate_total_ms": 2738.659673,
+      "cohort": "synthetic61",
+      "metric": "fresh_ingestion_ms",
+      "paired_batches": 4,
+      "rounds": [
+        {
+          "baseline": 730.763463,
+          "candidate": 676.166728,
+          "improvement_percent": 7.471191126040189,
+          "round": 0
+        },
+        {
+          "baseline": 731.279742,
+          "candidate": 680.015776,
+          "improvement_percent": 7.010171765430917,
+          "round": 1
+        },
+        {
+          "baseline": 741.007484,
+          "candidate": 693.379683,
+          "improvement_percent": 6.427438592509538,
+          "round": 2
+        },
+        {
+          "baseline": 739.723384,
+          "candidate": 689.097486,
+          "improvement_percent": 6.843895852831383,
+          "round": 3
+        }
+      ],
+      "sessions_per_batch": 112,
+      "total_improvement_percent": 6.936122003817857,
+      "median_improvement_percent": 6.92655659251129,
+      "improving_rounds": 4
+    },
+    {
+      "baseline_median_ms": 78.627923,
+      "baseline_ms": [
+        77.93152,
+        78.656258,
+        79.182828,
+        78.599588
+      ],
+      "baseline_total_ms": 314.37019399999997,
+      "candidate_median_ms": 91.90078700000001,
+      "candidate_ms": [
+        90.862725,
+        100.740595,
+        92.771036,
+        91.030538
+      ],
+      "candidate_total_ms": 375.404894,
+      "cohort": "synthetic61",
+      "metric": "unchanged_reingestion_ms",
+      "paired_batches": 4,
+      "rounds": [
+        {
+          "baseline": 77.93152,
+          "candidate": 90.862725,
+          "improvement_percent": -16.593035783210674,
+          "round": 0
+        },
+        {
+          "baseline": 78.656258,
+          "candidate": 100.740595,
+          "improvement_percent": -28.077024716838174,
+          "round": 1
+        },
+        {
+          "baseline": 79.182828,
+          "candidate": 92.771036,
+          "improvement_percent": -17.16054900186186,
+          "round": 2
+        },
+        {
+          "baseline": 78.599588,
+          "candidate": 91.030538,
+          "improvement_percent": -15.815540916066894,
+          "round": 3
+        }
+      ],
+      "sessions_per_batch": 112,
+      "total_improvement_percent": -19.414913107188546,
+      "median_improvement_percent": -16.880598512057876,
+      "improving_rounds": 0
+    },
+    {
+      "baseline_median_ms": 737.530777,
+      "baseline_ms": [
+        730.972003,
+        734.121523,
+        740.940031,
+        744.022444
+      ],
+      "baseline_total_ms": 2950.056001,
+      "candidate_median_ms": 692.9223804999999,
+      "candidate_ms": [
+        694.076289,
+        750.1642,
+        686.133453,
+        691.768472
+      ],
+      "candidate_total_ms": 2822.142414,
+      "cohort": "public1015",
+      "metric": "fresh_ingestion_ms",
+      "paired_batches": 4,
+      "rounds": [
+        {
+          "baseline": 730.972003,
+          "candidate": 694.076289,
+          "improvement_percent": 5.047486613519448,
+          "round": 0
+        },
+        {
+          "baseline": 734.121523,
+          "candidate": 750.1642,
+          "improvement_percent": -2.1852890151539794,
+          "round": 1
+        },
+        {
+          "baseline": 740.940031,
+          "candidate": 686.133453,
+          "improvement_percent": 7.396897954889948,
+          "round": 2
+        },
+        {
+          "baseline": 744.022444,
+          "candidate": 691.768472,
+          "improvement_percent": 7.0231714676607275,
+          "round": 3
+        }
+      ],
+      "sessions_per_batch": 216,
+      "total_improvement_percent": 4.335971485173173,
+      "median_improvement_percent": 6.04834372898313,
+      "improving_rounds": 3
+    },
+    {
+      "baseline_median_ms": 130.826168,
+      "baseline_ms": [
+        130.648568,
+        131.003768,
+        131.20888,
+        130.457908
+      ],
+      "baseline_total_ms": 523.319124,
+      "candidate_median_ms": 156.41911,
+      "candidate_ms": [
+        156.740661,
+        155.745434,
+        166.775543,
+        156.097559
+      ],
+      "candidate_total_ms": 635.359197,
+      "cohort": "public1015",
+      "metric": "unchanged_reingestion_ms",
+      "paired_batches": 4,
+      "rounds": [
+        {
+          "baseline": 130.648568,
+          "candidate": 156.740661,
+          "improvement_percent": -19.971204736051895,
+          "round": 0
+        },
+        {
+          "baseline": 131.003768,
+          "candidate": 155.745434,
+          "improvement_percent": -18.88622470767405,
+          "round": 1
+        },
+        {
+          "baseline": 131.20888,
+          "candidate": 166.775543,
+          "improvement_percent": -27.106902368193374,
+          "round": 2
+        },
+        {
+          "baseline": 130.457908,
+          "candidate": 156.097559,
+          "improvement_percent": -19.65358129152277,
+          "round": 3
+        }
+      ],
+      "sessions_per_batch": 216,
+      "total_improvement_percent": -21.409512448851387,
+      "median_improvement_percent": -19.562555711331385,
+      "improving_rounds": 0
+    }
+  ],
+  "resource_cells": [
+    {
+      "cohort": "synthetic61",
+      "metric": "runtime_import_ms",
+      "unit": "ms",
+      "boundary": "Import MemoryBook after evaluator/bootstrap imports; not full process or CLI startup.",
+      "baseline": [
+        47.624441,
+        46.406766,
+        46.319315,
+        46.567361
+      ],
+      "candidate": [
+        47.897277,
+        47.458513,
+        48.742501,
+        50.416895
+      ],
+      "baseline_median": 46.4870635,
+      "candidate_median": 48.319889,
+      "delta": 1.8328255000000055,
+      "reduction_percent": -3.9426570792108873
+    },
+    {
+      "cohort": "synthetic61",
+      "metric": "new_database_ms",
+      "unit": "ms",
+      "boundary": "Fresh database opening and schema initialization.",
+      "baseline": [
+        3.788345,
+        3.541156,
+        3.759875,
+        3.815534
+      ],
+      "candidate": [
+        3.652001,
+        3.671318,
+        3.606572,
+        3.416578
+      ],
+      "baseline_median": 3.7741100000000003,
+      "candidate_median": 3.6292865,
+      "delta": -0.14482350000000022,
+      "reduction_percent": 3.8372887912647036
+    },
+    {
+      "cohort": "synthetic61",
+      "metric": "existing_database_open_ms",
+      "unit": "ms",
+      "boundary": "Open the completed, checkpointed existing database.",
+      "baseline": [
+        0.706985,
+        0.71811,
+        0.712762,
+        0.728415
+      ],
+      "candidate": [
+        0.715567,
+        0.715046,
+        0.698331,
+        0.7179
+      ],
+      "baseline_median": 0.715436,
+      "candidate_median": 0.7153065,
+      "delta": -0.0001295000000000046,
+      "reduction_percent": 0.01810085039053444
+    },
+    {
+      "cohort": "synthetic61",
+      "metric": "worker_rss_after_ingestion",
+      "unit": "MiB",
+      "boundary": "Worker live RSS after fresh ingestion; common probes and evaluator remain resident.",
+      "baseline": [
+        43.6484375,
+        43.5234375,
+        43.484375,
+        43.56640625
+      ],
+      "candidate": [
+        43.5625,
+        43.63671875,
+        43.63671875,
+        43.56640625
+      ],
+      "baseline_median": 43.544921875,
+      "candidate_median": 43.6015625,
+      "delta": 0.056640625,
+      "reduction_percent": -0.13007400762503618
+    },
+    {
+      "cohort": "synthetic61",
+      "metric": "worker_hwm_after_ingestion",
+      "unit": "MiB",
+      "boundary": "Worker process lifetime RSS high-water mark after fresh ingestion.",
+      "baseline": [
+        44.8046875,
+        44.67578125,
+        44.50390625,
+        44.72265625
+      ],
+      "candidate": [
+        44.953125,
+        45.03125,
+        44.8984375,
+        44.95703125
+      ],
+      "baseline_median": 44.69921875,
+      "candidate_median": 44.955078125,
+      "delta": 0.255859375,
+      "reduction_percent": -0.5724023420431656
+    },
+    {
+      "cohort": "synthetic61",
+      "metric": "worker_rss_after_calls",
+      "unit": "MiB",
+      "boundary": "Worker live RSS after all configurations, including validation and evaluator allocations.",
+      "baseline": [
+        130.1640625,
+        129.05859375,
+        127.8515625,
+        129.18359375
+      ],
+      "candidate": [
+        129.3125,
+        127.8671875,
+        129.34765625,
+        129.04296875
+      ],
+      "baseline_median": 129.12109375,
+      "candidate_median": 129.177734375,
+      "delta": 0.056640625,
+      "reduction_percent": -0.043866283466953426
+    },
+    {
+      "cohort": "synthetic61",
+      "metric": "worker_hwm_after_calls",
+      "unit": "MiB",
+      "boundary": "Worker process lifetime RSS high-water mark after all configurations.",
+      "baseline": [
+        133.5,
+        133.49609375,
+        131.9765625,
+        135.11328125
+      ],
+      "candidate": [
+        133.83203125,
+        136.0625,
+        134.9921875,
+        135.93359375
+      ],
+      "baseline_median": 133.498046875,
+      "candidate_median": 135.462890625,
+      "delta": 1.96484375,
+      "reduction_percent": -1.471814604029209
+    },
+    {
+      "cohort": "synthetic61",
+      "metric": "worker_cpu_after_ingestion",
+      "unit": "s",
+      "boundary": "Cumulative worker user+system CPU since process start; includes probes/bootstrap/ingestion.",
+      "baseline": [
+        1.08,
+        1.0899999999999999,
+        1.09,
+        1.09
+      ],
+      "candidate": [
+        1.1600000000000001,
+        1.1500000000000001,
+        1.19,
+        1.1800000000000002
+      ],
+      "baseline_median": 1.0899999999999999,
+      "candidate_median": 1.1700000000000002,
+      "delta": 0.0800000000000003,
+      "reduction_percent": -7.339449541284426
+    },
+    {
+      "cohort": "synthetic61",
+      "metric": "worker_cpu_after_calls",
+      "unit": "s",
+      "boundary": "Cumulative worker user+system CPU since process start; includes evaluation/validation, not isolated query CPU.",
+      "baseline": [
+        10.110000000000001,
+        10.170000000000002,
+        10.59,
+        10.4
+      ],
+      "candidate": [
+        10.08,
+        9.88,
+        10.37,
+        10.49
+      ],
+      "baseline_median": 10.285,
+      "candidate_median": 10.225,
+      "delta": -0.0600000000000005,
+      "reduction_percent": 0.5833738454059323
+    },
+    {
+      "cohort": "synthetic61",
+      "metric": "mcp-char2400_startup_to_initialize_ms",
+      "unit": "ms",
+      "boundary": "Subprocess launch through official SDK initialize; four independent server launches per side/cohort.",
+      "baseline": [
+        638.789684,
+        640.673332,
+        656.496827,
+        646.377415
+      ],
+      "candidate": [
+        634.390396,
+        636.082232,
+        654.543361,
+        659.150897
+      ],
+      "baseline_median": 643.5253735,
+      "candidate_median": 645.3127965,
+      "delta": 1.7874229999999898,
+      "reduction_percent": -0.277754859964352
+    },
+    {
+      "cohort": "synthetic61",
+      "metric": "mcp-char2400_server_rss_before_calls",
+      "unit": "MiB",
+      "boundary": "MCP server live RSS after initialization/list_tools, before timed calls.",
+      "baseline": [
+        57.31640625,
+        57.16015625,
+        57.0859375,
+        57.2265625
+      ],
+      "candidate": [
+        57.296875,
+        57.19921875,
+        57.1171875,
+        57.28515625
+      ],
+      "baseline_median": 57.193359375,
+      "candidate_median": 57.2421875,
+      "delta": 0.048828125,
+      "reduction_percent": -0.08537376634907279
+    },
+    {
+      "cohort": "synthetic61",
+      "metric": "mcp-char2400_server_rss_after_calls",
+      "unit": "MiB",
+      "boundary": "MCP server live RSS after all three query passes.",
+      "baseline": [
+        60.56640625,
+        60.55859375,
+        60.33984375,
+        60.546875
+      ],
+      "candidate": [
+        60.484375,
+        60.70703125,
+        60.546875,
+        60.51953125
+      ],
+      "baseline_median": 60.552734375,
+      "candidate_median": 60.533203125,
+      "delta": -0.01953125,
+      "reduction_percent": 0.0322549430700203
+    },
+    {
+      "cohort": "synthetic61",
+      "metric": "mcp-char2400_server_hwm_after_calls",
+      "unit": "MiB",
+      "boundary": "MCP server process lifetime RSS high-water mark after the three passes.",
+      "baseline": [
+        60.56640625,
+        60.55859375,
+        60.33984375,
+        60.546875
+      ],
+      "candidate": [
+        60.484375,
+        60.70703125,
+        60.546875,
+        60.51953125
+      ],
+      "baseline_median": 60.552734375,
+      "candidate_median": 60.533203125,
+      "delta": -0.01953125,
+      "reduction_percent": 0.0322549430700203
+    },
+    {
+      "cohort": "synthetic61",
+      "metric": "mcp-char2400_server_cpu_during_calls",
+      "unit": "s",
+      "boundary": "MCP server user+system CPU snapshot difference across three query passes; procfs tick granularity; excludes client CPU.",
+      "baseline": [
+        3.71,
+        3.71,
+        3.769999999999999,
+        3.7
+      ],
+      "candidate": [
+        3.6099999999999994,
+        3.59,
+        3.6399999999999997,
+        3.77
+      ],
+      "baseline_median": 3.71,
+      "candidate_median": 3.6249999999999996,
+      "delta": -0.08500000000000041,
+      "reduction_percent": 2.2911051212938127
+    },
+    {
+      "cohort": "synthetic61",
+      "metric": "mcp-token1024_startup_to_initialize_ms",
+      "unit": "ms",
+      "boundary": "Subprocess launch through official SDK initialize; four independent server launches per side/cohort.",
+      "baseline": [
+        625.535839,
+        624.574058,
+        641.384051,
+        650.485218
+      ],
+      "candidate": [
+        634.514145,
+        629.660246,
+        650.542053,
+        643.775846
+      ],
+      "baseline_median": 633.4599450000001,
+      "candidate_median": 639.1449955,
+      "delta": 5.6850504999999885,
+      "reduction_percent": -0.8974601385411951
+    },
+    {
+      "cohort": "synthetic61",
+      "metric": "mcp-token1024_server_rss_before_calls",
+      "unit": "MiB",
+      "boundary": "MCP server live RSS after initialization/list_tools, before timed calls.",
+      "baseline": [
+        56.77734375,
+        57.10546875,
+        57.15234375,
+        57.125
+      ],
+      "candidate": [
+        57.1640625,
+        57.26953125,
+        57.375,
+        57.3046875
+      ],
+      "baseline_median": 57.115234375,
+      "candidate_median": 57.287109375,
+      "delta": 0.171875,
+      "reduction_percent": -0.3009267175050345
+    },
+    {
+      "cohort": "synthetic61",
+      "metric": "mcp-token1024_server_rss_after_calls",
+      "unit": "MiB",
+      "boundary": "MCP server live RSS after all three query passes.",
+      "baseline": [
+        104.52734375,
+        104.57421875,
+        104.515625,
+        104.56640625
+      ],
+      "candidate": [
+        103.625,
+        103.58984375,
+        103.66015625,
+        103.58203125
+      ],
+      "baseline_median": 104.546875,
+      "candidate_median": 103.607421875,
+      "delta": -0.939453125,
+      "reduction_percent": 0.8985951277835857
+    },
+    {
+      "cohort": "synthetic61",
+      "metric": "mcp-token1024_server_hwm_after_calls",
+      "unit": "MiB",
+      "boundary": "MCP server process lifetime RSS high-water mark after the three passes.",
+      "baseline": [
+        104.52734375,
+        104.57421875,
+        104.515625,
+        104.56640625
+      ],
+      "candidate": [
+        103.625,
+        103.58984375,
+        103.66015625,
+        103.58203125
+      ],
+      "baseline_median": 104.546875,
+      "candidate_median": 103.607421875,
+      "delta": -0.939453125,
+      "reduction_percent": 0.8985951277835857
+    },
+    {
+      "cohort": "synthetic61",
+      "metric": "mcp-token1024_server_cpu_during_calls",
+      "unit": "s",
+      "boundary": "MCP server user+system CPU snapshot difference across three query passes; procfs tick granularity; excludes client CPU.",
+      "baseline": [
+        3.8299999999999996,
+        3.8499999999999996,
+        3.9299999999999997,
+        3.9
+      ],
+      "candidate": [
+        3.7200000000000006,
+        3.6500000000000004,
+        3.8600000000000008,
+        3.939999999999999
+      ],
+      "baseline_median": 3.875,
+      "candidate_median": 3.790000000000001,
+      "delta": -0.08499999999999908,
+      "reduction_percent": 2.1935483870967554
+    },
+    {
+      "cohort": "public1015",
+      "metric": "runtime_import_ms",
+      "unit": "ms",
+      "boundary": "Import MemoryBook after evaluator/bootstrap imports; not full process or CLI startup.",
+      "baseline": [
+        47.51577,
+        46.105313,
+        46.029462,
+        48.929224
+      ],
+      "candidate": [
+        47.54561,
+        48.24081,
+        49.853417,
+        49.242419
+      ],
+      "baseline_median": 46.8105415,
+      "candidate_median": 48.7416145,
+      "delta": 1.9310729999999978,
+      "reduction_percent": -4.125295153870412
+    },
+    {
+      "cohort": "public1015",
+      "metric": "new_database_ms",
+      "unit": "ms",
+      "boundary": "Fresh database opening and schema initialization.",
+      "baseline": [
+        3.693637,
+        3.884898,
+        3.600605,
+        3.824924
+      ],
+      "candidate": [
+        3.608548,
+        3.600102,
+        3.59093,
+        3.58279
+      ],
+      "baseline_median": 3.7592805,
+      "candidate_median": 3.595516,
+      "delta": -0.1637645000000001,
+      "reduction_percent": 4.356272430322772
+    },
+    {
+      "cohort": "public1015",
+      "metric": "existing_database_open_ms",
+      "unit": "ms",
+      "boundary": "Open the completed, checkpointed existing database.",
+      "baseline": [
+        0.704801,
+        0.735896,
+        0.716507,
+        0.753614
+      ],
+      "candidate": [
+        0.682398,
+        0.721775,
+        0.700143,
+        0.716134
+      ],
+      "baseline_median": 0.7262014999999999,
+      "candidate_median": 0.7081385,
+      "delta": -0.01806299999999994,
+      "reduction_percent": 2.4873261759993492
+    },
+    {
+      "cohort": "public1015",
+      "metric": "worker_rss_after_ingestion",
+      "unit": "MiB",
+      "boundary": "Worker live RSS after fresh ingestion; common probes and evaluator remain resident.",
+      "baseline": [
+        46.0390625,
+        46.15234375,
+        46.02734375,
+        46.046875
+      ],
+      "candidate": [
+        46.36328125,
+        46.41796875,
+        46.4375,
+        46.28515625
+      ],
+      "baseline_median": 46.04296875,
+      "candidate_median": 46.390625,
+      "delta": 0.34765625,
+      "reduction_percent": -0.7550691439721646
+    },
+    {
+      "cohort": "public1015",
+      "metric": "worker_hwm_after_ingestion",
+      "unit": "MiB",
+      "boundary": "Worker process lifetime RSS high-water mark after fresh ingestion.",
+      "baseline": [
+        54.734375,
+        54.7890625,
+        54.5234375,
+        54.7421875
+      ],
+      "candidate": [
+        54.984375,
+        55.04296875,
+        55.125,
+        54.9765625
+      ],
+      "baseline_median": 54.73828125,
+      "candidate_median": 55.013671875,
+      "delta": 0.275390625,
+      "reduction_percent": -0.5031042603296898
+    },
+    {
+      "cohort": "public1015",
+      "metric": "worker_rss_after_calls",
+      "unit": "MiB",
+      "boundary": "Worker live RSS after all configurations, including validation and evaluator allocations.",
+      "baseline": [
+        139.4296875,
+        139.50390625,
+        139.3671875,
+        139.55859375
+      ],
+      "candidate": [
+        139.60546875,
+        139.61328125,
+        139.69140625,
+        139.5
+      ],
+      "baseline_median": 139.466796875,
+      "candidate_median": 139.609375,
+      "delta": 0.142578125,
+      "reduction_percent": -0.10223087372387418
+    },
+    {
+      "cohort": "public1015",
+      "metric": "worker_hwm_after_calls",
+      "unit": "MiB",
+      "boundary": "Worker process lifetime RSS high-water mark after all configurations.",
+      "baseline": [
+        149.9921875,
+        150.171875,
+        149.72265625,
+        150.078125
+      ],
+      "candidate": [
+        150.12109375,
+        150.19921875,
+        149.90234375,
+        149.88671875
+      ],
+      "baseline_median": 150.03515625,
+      "candidate_median": 150.01171875,
+      "delta": -0.0234375,
+      "reduction_percent": 0.015621338748728064
+    },
+    {
+      "cohort": "public1015",
+      "metric": "worker_cpu_after_ingestion",
+      "unit": "s",
+      "boundary": "Cumulative worker user+system CPU since process start; includes probes/bootstrap/ingestion.",
+      "baseline": [
+        1.13,
+        1.1199999999999999,
+        1.1199999999999999,
+        1.15
+      ],
+      "candidate": [
+        1.2,
+        1.21,
+        1.23,
+        1.24
+      ],
+      "baseline_median": 1.125,
+      "candidate_median": 1.22,
+      "delta": 0.09499999999999997,
+      "reduction_percent": -8.444444444444432
+    },
+    {
+      "cohort": "public1015",
+      "metric": "worker_cpu_after_calls",
+      "unit": "s",
+      "boundary": "Cumulative worker user+system CPU since process start; includes evaluation/validation, not isolated query CPU.",
+      "baseline": [
+        38.27,
+        40.01,
+        38.66,
+        40.48
+      ],
+      "candidate": [
+        37.36,
+        37.870000000000005,
+        37.72,
+        38.71
+      ],
+      "baseline_median": 39.334999999999994,
+      "candidate_median": 37.795,
+      "delta": -1.539999999999992,
+      "reduction_percent": 3.9150883437142348
+    },
+    {
+      "cohort": "public1015",
+      "metric": "mcp-char2400_startup_to_initialize_ms",
+      "unit": "ms",
+      "boundary": "Subprocess launch through official SDK initialize; four independent server launches per side/cohort.",
+      "baseline": [
+        634.053792,
+        650.90638,
+        656.328479,
+        656.890288
+      ],
+      "candidate": [
+        639.179401,
+        637.693322,
+        648.978217,
+        661.072598
+      ],
+      "baseline_median": 653.6174295000001,
+      "candidate_median": 644.078809,
+      "delta": -9.538620500000093,
+      "reduction_percent": 1.4593583447272684
+    },
+    {
+      "cohort": "public1015",
+      "metric": "mcp-char2400_server_rss_before_calls",
+      "unit": "MiB",
+      "boundary": "MCP server live RSS after initialization/list_tools, before timed calls.",
+      "baseline": [
+        57.296875,
+        57.07421875,
+        57.30859375,
+        57.25390625
+      ],
+      "candidate": [
+        57.42578125,
+        56.953125,
+        57.15234375,
+        57.2421875
+      ],
+      "baseline_median": 57.275390625,
+      "candidate_median": 57.197265625,
+      "delta": -0.078125,
+      "reduction_percent": 0.13640238704177854
+    },
+    {
+      "cohort": "public1015",
+      "metric": "mcp-char2400_server_rss_after_calls",
+      "unit": "MiB",
+      "boundary": "MCP server live RSS after all three query passes.",
+      "baseline": [
+        60.546875,
+        60.5,
+        60.5703125,
+        60.59375
+      ],
+      "candidate": [
+        60.71875,
+        60.73046875,
+        60.61328125,
+        60.73046875
+      ],
+      "baseline_median": 60.55859375,
+      "candidate_median": 60.724609375,
+      "delta": 0.166015625,
+      "reduction_percent": -0.2741404889376353
+    },
+    {
+      "cohort": "public1015",
+      "metric": "mcp-char2400_server_hwm_after_calls",
+      "unit": "MiB",
+      "boundary": "MCP server process lifetime RSS high-water mark after the three passes.",
+      "baseline": [
+        61.15234375,
+        61.00390625,
+        61.01953125,
+        61.171875
+      ],
+      "candidate": [
+        61.4296875,
+        61.36328125,
+        61.11328125,
+        61.26171875
+      ],
+      "baseline_median": 61.0859375,
+      "candidate_median": 61.3125,
+      "delta": 0.2265625,
+      "reduction_percent": -0.370891418339947
+    },
+    {
+      "cohort": "public1015",
+      "metric": "mcp-char2400_server_cpu_during_calls",
+      "unit": "s",
+      "boundary": "MCP server user+system CPU snapshot difference across three query passes; procfs tick granularity; excludes client CPU.",
+      "baseline": [
+        16.26,
+        17.24,
+        16.23,
+        16.97
+      ],
+      "candidate": [
+        15.540000000000001,
+        15.6,
+        15.780000000000001,
+        16.37
+      ],
+      "baseline_median": 16.615000000000002,
+      "candidate_median": 15.690000000000001,
+      "delta": -0.9250000000000007,
+      "reduction_percent": 5.5672585013542
+    },
+    {
+      "cohort": "public1015",
+      "metric": "mcp-token1024_startup_to_initialize_ms",
+      "unit": "ms",
+      "boundary": "Subprocess launch through official SDK initialize; four independent server launches per side/cohort.",
+      "baseline": [
+        627.648266,
+        652.161505,
+        627.905308,
+        655.049115
+      ],
+      "candidate": [
+        634.920642,
+        655.485074,
+        638.074783,
+        645.076143
+      ],
+      "baseline_median": 640.0334065,
+      "candidate_median": 641.575463,
+      "delta": 1.542056500000058,
+      "reduction_percent": -0.24093375194784716
+    },
+    {
+      "cohort": "public1015",
+      "metric": "mcp-token1024_server_rss_before_calls",
+      "unit": "MiB",
+      "boundary": "MCP server live RSS after initialization/list_tools, before timed calls.",
+      "baseline": [
+        57.2265625,
+        57.25,
+        57.13671875,
+        57.11328125
+      ],
+      "candidate": [
+        57.2109375,
+        57.20703125,
+        57.47265625,
+        57.09765625
+      ],
+      "baseline_median": 57.181640625,
+      "candidate_median": 57.208984375,
+      "delta": 0.02734375,
+      "reduction_percent": -0.04781910714894977
+    },
+    {
+      "cohort": "public1015",
+      "metric": "mcp-token1024_server_rss_after_calls",
+      "unit": "MiB",
+      "boundary": "MCP server live RSS after all three query passes.",
+      "baseline": [
+        104.61328125,
+        103.515625,
+        104.66796875,
+        104.6953125
+      ],
+      "candidate": [
+        104.6484375,
+        104.88671875,
+        103.87109375,
+        103.734375
+      ],
+      "baseline_median": 104.640625,
+      "candidate_median": 104.259765625,
+      "delta": -0.380859375,
+      "reduction_percent": 0.3639689413170055
+    },
+    {
+      "cohort": "public1015",
+      "metric": "mcp-token1024_server_hwm_after_calls",
+      "unit": "MiB",
+      "boundary": "MCP server process lifetime RSS high-water mark after the three passes.",
+      "baseline": [
+        105.17578125,
+        103.97265625,
+        105.0390625,
+        104.89453125
+      ],
+      "candidate": [
+        104.9765625,
+        105.13671875,
+        104.1171875,
+        103.90625
+      ],
+      "baseline_median": 104.966796875,
+      "candidate_median": 104.546875,
+      "delta": -0.419921875,
+      "reduction_percent": 0.40005209980834566
+    },
+    {
+      "cohort": "public1015",
+      "metric": "mcp-token1024_server_cpu_during_calls",
+      "unit": "s",
+      "boundary": "MCP server user+system CPU snapshot difference across three query passes; procfs tick granularity; excludes client CPU.",
+      "baseline": [
+        14.99,
+        16.15,
+        15.28,
+        16.200000000000003
+      ],
+      "candidate": [
+        14.63,
+        15,
+        14.57,
+        15.259999999999998
+      ],
+      "baseline_median": 15.715,
+      "candidate_median": 14.815000000000001,
+      "delta": -0.8999999999999986,
+      "reduction_percent": 5.7270124085268765
+    }
+  ],
+  "storage_by_worker": [
+    {
+      "cohort": "synthetic61",
+      "key": "r0-synthetic61-baseline",
+      "label": "baseline",
+      "round": 0,
+      "after_ingestion": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 6493152,
+          "db": 19308544
+        },
+        "logical_db_bytes": 20185088
+      },
+      "after_checkpoint": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 20201472
+        },
+        "logical_db_bytes": 20201472
+      },
+      "mcp_live": {
+        "mcp-char2400": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 6493152,
+            "db": 20201472
+          },
+          "logical_db_bytes": 20201472
+        },
+        "mcp-token1024": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 6493152,
+            "db": 20201472
+          },
+          "logical_db_bytes": 20201472
+        }
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "key": "r0-synthetic61-candidate",
+      "label": "candidate",
+      "round": 0,
+      "after_ingestion": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 6493152,
+          "db": 19308544
+        },
+        "logical_db_bytes": 20185088
+      },
+      "after_checkpoint": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 20201472
+        },
+        "logical_db_bytes": 20201472
+      },
+      "mcp_live": {
+        "mcp-char2400": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 6493152,
+            "db": 20201472
+          },
+          "logical_db_bytes": 20201472
+        },
+        "mcp-token1024": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 6493152,
+            "db": 20201472
+          },
+          "logical_db_bytes": 20201472
+        }
+      }
+    },
+    {
+      "cohort": "public1015",
+      "key": "r0-public1015-baseline",
+      "label": "baseline",
+      "round": 0,
+      "after_ingestion": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 4647392,
+          "db": 13025280
+        },
+        "logical_db_bytes": 13025280
+      },
+      "after_checkpoint": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 13025280
+        },
+        "logical_db_bytes": 13025280
+      },
+      "mcp_live": {
+        "mcp-char2400": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 4647392,
+            "db": 13025280
+          },
+          "logical_db_bytes": 13025280
+        },
+        "mcp-token1024": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 4647392,
+            "db": 13025280
+          },
+          "logical_db_bytes": 13025280
+        }
+      }
+    },
+    {
+      "cohort": "public1015",
+      "key": "r0-public1015-candidate",
+      "label": "candidate",
+      "round": 0,
+      "after_ingestion": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 4647392,
+          "db": 13025280
+        },
+        "logical_db_bytes": 13025280
+      },
+      "after_checkpoint": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 13025280
+        },
+        "logical_db_bytes": 13025280
+      },
+      "mcp_live": {
+        "mcp-char2400": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 4647392,
+            "db": 13025280
+          },
+          "logical_db_bytes": 13025280
+        },
+        "mcp-token1024": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 4647392,
+            "db": 13025280
+          },
+          "logical_db_bytes": 13025280
+        }
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "key": "r1-synthetic61-candidate",
+      "label": "candidate",
+      "round": 1,
+      "after_ingestion": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 6493152,
+          "db": 19308544
+        },
+        "logical_db_bytes": 20185088
+      },
+      "after_checkpoint": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 20201472
+        },
+        "logical_db_bytes": 20201472
+      },
+      "mcp_live": {
+        "mcp-char2400": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 6493152,
+            "db": 20201472
+          },
+          "logical_db_bytes": 20201472
+        },
+        "mcp-token1024": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 6493152,
+            "db": 20201472
+          },
+          "logical_db_bytes": 20201472
+        }
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "key": "r1-synthetic61-baseline",
+      "label": "baseline",
+      "round": 1,
+      "after_ingestion": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 6493152,
+          "db": 19308544
+        },
+        "logical_db_bytes": 20185088
+      },
+      "after_checkpoint": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 20201472
+        },
+        "logical_db_bytes": 20201472
+      },
+      "mcp_live": {
+        "mcp-char2400": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 6493152,
+            "db": 20201472
+          },
+          "logical_db_bytes": 20201472
+        },
+        "mcp-token1024": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 6493152,
+            "db": 20201472
+          },
+          "logical_db_bytes": 20201472
+        }
+      }
+    },
+    {
+      "cohort": "public1015",
+      "key": "r1-public1015-candidate",
+      "label": "candidate",
+      "round": 1,
+      "after_ingestion": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 4647392,
+          "db": 13025280
+        },
+        "logical_db_bytes": 13025280
+      },
+      "after_checkpoint": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 13025280
+        },
+        "logical_db_bytes": 13025280
+      },
+      "mcp_live": {
+        "mcp-char2400": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 4647392,
+            "db": 13025280
+          },
+          "logical_db_bytes": 13025280
+        },
+        "mcp-token1024": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 4647392,
+            "db": 13025280
+          },
+          "logical_db_bytes": 13025280
+        }
+      }
+    },
+    {
+      "cohort": "public1015",
+      "key": "r1-public1015-baseline",
+      "label": "baseline",
+      "round": 1,
+      "after_ingestion": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 4647392,
+          "db": 13025280
+        },
+        "logical_db_bytes": 13025280
+      },
+      "after_checkpoint": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 13025280
+        },
+        "logical_db_bytes": 13025280
+      },
+      "mcp_live": {
+        "mcp-char2400": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 4647392,
+            "db": 13025280
+          },
+          "logical_db_bytes": 13025280
+        },
+        "mcp-token1024": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 4647392,
+            "db": 13025280
+          },
+          "logical_db_bytes": 13025280
+        }
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "key": "r2-synthetic61-candidate",
+      "label": "candidate",
+      "round": 2,
+      "after_ingestion": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 6493152,
+          "db": 19308544
+        },
+        "logical_db_bytes": 20185088
+      },
+      "after_checkpoint": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 20201472
+        },
+        "logical_db_bytes": 20201472
+      },
+      "mcp_live": {
+        "mcp-char2400": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 6493152,
+            "db": 20201472
+          },
+          "logical_db_bytes": 20201472
+        },
+        "mcp-token1024": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 6493152,
+            "db": 20201472
+          },
+          "logical_db_bytes": 20201472
+        }
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "key": "r2-synthetic61-baseline",
+      "label": "baseline",
+      "round": 2,
+      "after_ingestion": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 6493152,
+          "db": 19308544
+        },
+        "logical_db_bytes": 20185088
+      },
+      "after_checkpoint": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 20201472
+        },
+        "logical_db_bytes": 20201472
+      },
+      "mcp_live": {
+        "mcp-char2400": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 6493152,
+            "db": 20201472
+          },
+          "logical_db_bytes": 20201472
+        },
+        "mcp-token1024": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 6493152,
+            "db": 20201472
+          },
+          "logical_db_bytes": 20201472
+        }
+      }
+    },
+    {
+      "cohort": "public1015",
+      "key": "r2-public1015-candidate",
+      "label": "candidate",
+      "round": 2,
+      "after_ingestion": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 4647392,
+          "db": 13025280
+        },
+        "logical_db_bytes": 13025280
+      },
+      "after_checkpoint": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 13025280
+        },
+        "logical_db_bytes": 13025280
+      },
+      "mcp_live": {
+        "mcp-char2400": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 4647392,
+            "db": 13025280
+          },
+          "logical_db_bytes": 13025280
+        },
+        "mcp-token1024": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 4647392,
+            "db": 13025280
+          },
+          "logical_db_bytes": 13025280
+        }
+      }
+    },
+    {
+      "cohort": "public1015",
+      "key": "r2-public1015-baseline",
+      "label": "baseline",
+      "round": 2,
+      "after_ingestion": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 4647392,
+          "db": 13025280
+        },
+        "logical_db_bytes": 13025280
+      },
+      "after_checkpoint": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 13025280
+        },
+        "logical_db_bytes": 13025280
+      },
+      "mcp_live": {
+        "mcp-char2400": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 4647392,
+            "db": 13025280
+          },
+          "logical_db_bytes": 13025280
+        },
+        "mcp-token1024": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 4647392,
+            "db": 13025280
+          },
+          "logical_db_bytes": 13025280
+        }
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "key": "r3-synthetic61-baseline",
+      "label": "baseline",
+      "round": 3,
+      "after_ingestion": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 6493152,
+          "db": 19308544
+        },
+        "logical_db_bytes": 20185088
+      },
+      "after_checkpoint": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 20201472
+        },
+        "logical_db_bytes": 20201472
+      },
+      "mcp_live": {
+        "mcp-char2400": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 6493152,
+            "db": 20201472
+          },
+          "logical_db_bytes": 20201472
+        },
+        "mcp-token1024": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 6493152,
+            "db": 20201472
+          },
+          "logical_db_bytes": 20201472
+        }
+      }
+    },
+    {
+      "cohort": "synthetic61",
+      "key": "r3-synthetic61-candidate",
+      "label": "candidate",
+      "round": 3,
+      "after_ingestion": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 6493152,
+          "db": 19308544
+        },
+        "logical_db_bytes": 20185088
+      },
+      "after_checkpoint": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 20201472
+        },
+        "logical_db_bytes": 20201472
+      },
+      "mcp_live": {
+        "mcp-char2400": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 6493152,
+            "db": 20201472
+          },
+          "logical_db_bytes": 20201472
+        },
+        "mcp-token1024": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 6493152,
+            "db": 20201472
+          },
+          "logical_db_bytes": 20201472
+        }
+      }
+    },
+    {
+      "cohort": "public1015",
+      "key": "r3-public1015-baseline",
+      "label": "baseline",
+      "round": 3,
+      "after_ingestion": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 4647392,
+          "db": 13025280
+        },
+        "logical_db_bytes": 13025280
+      },
+      "after_checkpoint": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 13025280
+        },
+        "logical_db_bytes": 13025280
+      },
+      "mcp_live": {
+        "mcp-char2400": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 4647392,
+            "db": 13025280
+          },
+          "logical_db_bytes": 13025280
+        },
+        "mcp-token1024": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 4647392,
+            "db": 13025280
+          },
+          "logical_db_bytes": 13025280
+        }
+      }
+    },
+    {
+      "cohort": "public1015",
+      "key": "r3-public1015-candidate",
+      "label": "candidate",
+      "round": 3,
+      "after_ingestion": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 4647392,
+          "db": 13025280
+        },
+        "logical_db_bytes": 13025280
+      },
+      "after_checkpoint": {
+        "file_bytes": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 13025280
+        },
+        "logical_db_bytes": 13025280
+      },
+      "mcp_live": {
+        "mcp-char2400": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 4647392,
+            "db": 13025280
+          },
+          "logical_db_bytes": 13025280
+        },
+        "mcp-token1024": {
+          "file_bytes": {
+            "-shm": 32768,
+            "-wal": 4647392,
+            "db": 13025280
+          },
+          "logical_db_bytes": 13025280
+        }
+      }
+    }
+  ],
+  "native_binary_size": {
+    "baseline": {
+      "path": ".artifacts/native-core-formal/baseline/src/memory_book/_native.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 126632,
+      "sha256": "535d42ed80207d02a59eda62be53c1d840f845d8db37e5ef8610d360bdb749d1"
+    },
+    "candidate": {
+      "path": ".artifacts/native-core-formal/candidate/src/memory_book/_native.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 619464,
+      "sha256": "b21fc5690405269c672ac1063fd1fa4a9ae39941325f7c7de4d2a78a0ccee746"
+    }
+  }
+}
