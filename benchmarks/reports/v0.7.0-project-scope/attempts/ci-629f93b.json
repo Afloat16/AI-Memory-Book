@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "source_commit": "629f93b83677f8c86a1dbc0c756bf934e4013d64",
+  "workflow_run": 43806841638,
+  "run_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43806841638",
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "id": 133099451538,
+      "name": "mcp",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43806841638/job/133099451538"
+    },
+    {
+      "id": 133099451792,
+      "name": "core (3.13)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43806841638/job/133099451792"
+    },
+    {
+      "id": 133099451807,
+      "name": "installers (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43806841638/job/133099451807"
+    },
+    {
+      "id": 133099451824,
+      "name": "core (3.12)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43806841638/job/133099451824"
+    },
+    {
+      "id": 133099451839,
+      "name": "installers (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43806841638/job/133099451839"
+    },
+    {
+      "id": 133099451852,
+      "name": "container",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43806841638/job/133099451852"
+    },
+    {
+      "id": 133099451879,
+      "name": "installers (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43806841638/job/133099451879"
+    },
+    {
+      "id": 133099451884,
+      "name": "reader-browser",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43806841638/job/133099451884"
+    },
+    {
+      "id": 133099451942,
+      "name": "core (3.10)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43806841638/job/133099451942"
+    }
+  ],
+  "failure": {
+    "job": "mcp",
+    "test": "test_concurrent_initializers_recheck_under_the_write_lock",
+    "location": "memory_book/store.py: PRAGMA journal_mode=WAL in __init__",
+    "exception": "sqlite3.OperationalError: database is locked",
+    "suite_tests": 1139,
+    "errors": 1,
+    "skipped": 16
+  },
+  "notes": [
+    "Both previously failing expected-schema/call-shape tests passed in this run.",
+    "The eight successful jobs are not treated as a complete release gate.",
+    "Investigate and fix the concurrent WAL initialization error; retain this failed run and rerun validation on the final source."
+  ]
+}

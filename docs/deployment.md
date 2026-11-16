@@ -374,6 +374,8 @@ unnecessary when the daemon already provides that reader.
 controls, verified database backup, and read-only archive checks. The release
 installer and a checkout of the release tag provide the same runtime features;
 a development checkout is no longer required for these capabilities.
+This migration procedure applies to earlier schemas. An archive already on
+schema 4 needs no new schema migration for v0.7.0.
 
 Before moving an existing archive to schema 4:
 
@@ -401,7 +403,7 @@ Before moving an existing archive to schema 4:
 Do not mix writer generations after migration. An older connection that was
 already open cannot produce the new identifier index: its next revision update
 is explicitly rejected, and the complete write transaction rolls back. An older
-binary cannot reopen a schema-4 archive. For rollback, use the preserved
+binary without schema-4 support cannot reopen a schema-4 archive. For rollback, use the preserved
 pre-migration snapshot with its matching runtime at a separate working path;
 there is no automatic downgrade of the migrated file.
 
@@ -518,9 +520,10 @@ v0.7.0 keeps schema 4, existing source IDs and the v0.6.0 recall/cache behavior.
 An archive already on schema 4 needs no new schema migration for this release.
 
 To upgrade to **v0.7.0**, first follow the [schema 4 procedure](#schema-4-upgrade)
-when your working archive uses an earlier schema. Stop older writers, install
-the new runtime without opening the archive, and create a verified snapshot with
-the new `backup` command before normal commands migrate the working database.
+when your working archive uses an earlier schema. For that migration, stop older
+writers, install the new runtime without opening the archive, and create a
+verified snapshot with the new launcher's existing `backup` command before
+normal commands migrate the working database.
 
 Download and run the v0.7.0 installer shown above, using the same `--prefix`,
 `--bin-dir`, or `MEMORY_BOOK_HOME` overrides if you originally selected them.

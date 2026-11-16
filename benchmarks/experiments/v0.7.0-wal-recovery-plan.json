@@ -1,0 +1,33 @@
+{
+  "schema": "v0.7.0-wal-recovery-plan-v1",
+  "purpose": "Resolve the actual concurrent WAL-initialization failure before releasing v0.7.0; do not reinterpret an unsuccessful CI run as a pass.",
+  "observed_source_commit": "629f93b83677f8c86a1dbc0c756bf934e4013d64",
+  "observed_ci_run": 43806841638,
+  "observed_job": 133099451538,
+  "observed_failure": {
+    "test": "test_concurrent_initializers_recheck_under_the_write_lock",
+    "statement": "PRAGMA journal_mode=WAL",
+    "exception": "sqlite3.OperationalError: database is locked",
+    "successful_jobs": 8,
+    "failed_jobs": 1
+  },
+  "implementation_constraints": [
+    "Only retry a transient SQLITE_BUSY from the WAL-mode transition; preserve other initialization errors and existing close-on-error behavior.",
+    "Use a single bounded elapsed-time budget covering the first attempt and later waits; no unbounded retry or process-local-only locking.",
+    "Keep the successful normal path to one WAL statement and no added SQL round trips.",
+    "Retain Python 3.10 support and the existing schema, source IDs, ranking, budgets and cache version."
+  ],
+  "required_validation": [
+    "A real SQLite lock-contention regression that fails on the prior source and succeeds after the correction.",
+    "Bounded exhaustion, non-busy error propagation and connection cleanup checks; retain the original concurrent-initializer test.",
+    "Publish the corrected runtime as a new Afloat16 commit before recording its final-source replay.",
+    "Run the unchanged scope diagnostic against the corrected runtime in a new output directory; require all existing scope contracts and 35 legacy response/error pairs to remain passing.",
+    "Run the unchanged 80-question native engineering workload at 1200 and 2400 characters, once per setting, and independently compare all 160 Book and 640 total non-timing responses with the unchanged v0.6.0 baseline.",
+    "Recompute source-bound native scores and evidence using the same fixed auditor rules, with explicit corrected commit/tree identity; keep the original cf51473 replay intact.",
+    "Require a passing final local suite with explicit skips and all nine hosted CI jobs on the final publication source.",
+    "Register the corrected runtime hash only with its completed evidence, then rebuild and verify the final release assets and public installer."
+  ],
+  "evidence_policy": "Retain every observed failed run and raw output. Do not tune workloads, alter score definitions or add a performance claim. Identity parameters may identify the new frozen source but cannot be inferred from the report being audited.",
+  "reference": "https://www.sqlite.org/c3ref/busy_handler.html",
+  "reference_scope": "SQLite documents that the busy handler is not guaranteed to run under contention; the particular failure and proposed correction are based on this repository's actual CI trace and regression."
+}
