@@ -1,0 +1,22 @@
+{
+  "run_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43788227677",
+  "source_commit": "40518d44f6857424f1267ab2beda0a51e1632e7f",
+  "stage": "adapter smoke before quality replay",
+  "completed_quality_cases": 0,
+  "outcome": "failed",
+  "passed_backends": [
+    "book",
+    "billion",
+    "claude_mem",
+    "basic_memory",
+    "langgraph",
+    "mem0"
+  ],
+  "failed_backend": "chroma",
+  "failure": "Chroma collection.configuration contains a live ONNX embedding object and cannot be JSON serialized.",
+  "resolution_commit": "59f3b20a719c5b573ba373990553ef787a4e4843",
+  "resolution": "Read the pinned upstream public collection.configuration_json property. Keep metric, model, index and query settings unchanged. Add strict serialization regression tests.",
+  "runtime_changed": false,
+  "score_or_query_protocol_changed": false,
+  "retained_artifact_directory": "benchmarks/reports/v0.6.0-engineering/attempts/43788227677-1"
+}

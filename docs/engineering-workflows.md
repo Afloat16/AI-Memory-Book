@@ -6,13 +6,13 @@ the cited original text, then run the project's own tests against the recovered
 contract. The archive supplies evidence; it does not execute experiments or
 decide whether a recorded conclusion is correct.
 
-The **v0.5.0 release** includes identifier normalization, current-turn handling
+The **v0.6.0 release** includes identifier normalization, current-turn handling
 for token budgets, explicit temporal modes, `backup`, and `check-database`.
 Use the [release installer](deployment.md#install-v050), or install a checkout
 for the runnable examples and optional exact token budgets:
 
 ```bash
-git clone --branch v0.5.0 https://github.com/Afloat16/AI-Memory-Book.git
+git clone --branch v0.6.0 https://github.com/Afloat16/AI-Memory-Book.git
 cd AI-Memory-Book
 python -m venv .venv
 source .venv/bin/activate
@@ -104,6 +104,23 @@ timeline requests preserve occurrences. The candidate pool remains bounded;
 neither `current` nor `relevance` constructs an as-of-date state or proves that a
 later statement is authoritative. Inspect the source and use narrow project,
 chapter or session filters when needed.
+
+Current ordering distinguishes an explicit field declaration from a later
+maintenance mention. Within the same task and remaining query facets,
+`retryLimit=3` and `retry_limit=5` can form a comparable revision group;
+clear prose such as `retry limit is now 7` can join that group. Field word
+boundaries and qualified names stay distinct: `a_bc` is not `ab_c`, and
+`worker.limit` is not `worker_limit`.
+
+Only pages authenticated as complete original turns can supply this declaration
+hint. Recognized code blocks, quoted logs, inline code, conditional examples, questions and
+partial continuation pages do not become newer declarations. Other evidence
+remains eligible in its existing relevance slots. The scan is bounded to 64
+query-relevant fields and 64,000 characters per candidate; oversized or ambiguous
+input retains the existing ordering path. Detailed recall responses include
+`temporal.declaration_ordering` diagnostics when this classification applies.
+This is a conservative syntax rule, not verification that a stated value is
+correct or approved by the team.
 
 For your own experiments, record the dataset or revision, seed, split, metric,
 units, configuration, result and reason for accepting or rejecting an approach.

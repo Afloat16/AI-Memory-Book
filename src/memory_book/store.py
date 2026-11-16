@@ -8,6 +8,7 @@ import math
 import re
 import sqlite3
 import time
+from bisect import bisect_right
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
@@ -15,12 +16,13 @@ from types import FunctionType
 from typing import Any
 
 from .segmentation import make_turns, segment
-from .text import estimate_tokens, excerpt, headline, identifier_terms as terms, index_text, query_terms
+from .text import (IDENTIFIER_WORD_BOUNDARY, estimate_tokens, excerpt, headline,
+                   identifier_terms as terms, index_text, query_terms, terms as lexical_terms)
 
 SCHEMA_VERSION = 4
 INDEX_VERSION = 3
 LEXICAL_INDEX_VERSION = 1
-RECALL_VERSION = 15
+RECALL_VERSION = 16
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -442,14 +444,230 @@ def _distinct_current_pages(pool: list[dict], contents: dict[int, str]) -> tuple
             [item for index, item in enumerate(ordered) if index in deferred])
 
 
+_FIELD_BINDING = re.compile(
+    r"(?<![\w.])(?P<name>[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)\s*"
+    r"(?<![<>=!:])=(?!=|>)\s*[+-]?(?:\w|['\"`])")
+_FIELD_REFERENCE = re.compile(
+    r"(?<![\w.])(?P<name>[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)\s*(?:==|!=|<=|>=|=)")
+_NONDECLARATIVE = re.compile(
+    r"\b(?:example|examples|sample|hypothetical|suppose|if|unless|could|would|might|"
+    r"not|never|assert|return|print|def|class|lambda|import)\b|"
+    r"e\.g\.|例如|示例|假设|如果|伪代码|不要|不能", re.IGNORECASE)
+_PROSE_VALUE = (r"(?:[+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?\b|"
+                r"(?:true|false|null|none)\b|\"[^\"\n]+\"|'[^'\n]+'|`[^`\n]+`)")
+_PROSE_BINDING = re.compile(
+    r"(?<![\w._-])(?P<subject>[A-Za-z_][A-Za-z0-9_.-]*(?:[ \t]+[A-Za-z_][A-Za-z0-9_.-]*){0,7})(?:"
+    r"\s+(?:(?:is|are)\s+(?:now\s+)?|(?:is|are)\s+(?:now\s+)?set\s+to\s+|"
+    r"(?:has|have)\s+been\s+set\s+to\s+|(?:was\s+)?(?:changed|set)\s+to\s+)"
+    r"|\s*(?:现在)?(?:设置为|设为|改为|调整为))" + _PROSE_VALUE, re.IGNORECASE)
+# Resource limits, not quality thresholds: oversized/ambiguous input keeps the
+# existing candidate path rather than analyzing a chosen prefix as complete.
+_MAX_DECLARATION_FIELDS = 64
+_MAX_DECLARATION_CHARS = 64_000
+
+
+def _declaration_clauses(content: str, raw_refs: str) -> list[tuple[str, int]]:
+    """Parse an authenticated single-turn page outside code and examples.
+
+    The caller checks equality with the original turn: coordinates alone cannot
+    distinguish a complete turn from its first continuation page. This remains
+    a syntactic hint, never certification that an archived statement is true.
+    """
+    if len(content) > _MAX_DECLARATION_CHARS:
+        return []
+    try:
+        refs = json.loads(raw_refs)
+    except (TypeError, ValueError):
+        return []
+    if (not isinstance(refs, list) or len(refs) != 1 or not isinstance(refs[0], dict)
+            or any(type(refs[0].get(key)) is not int for key in ("start", "end", "turn_start", "turn_end"))
+            or (refs[0]["start"], refs[0]["end"], refs[0]["turn_start"], refs[0]["turn_end"])
+            != (0, len(content), 0, len(content))):
+        return []
+    clauses = []
+    fence = None
+    offset = 0
+    for full_line in content.splitlines(keepends=True):
+        raw = full_line.rstrip("\r\n")
+        line_offset = offset
+        offset += len(full_line)
+        if fence is not None:
+            if re.fullmatch(r" {0,3}" + re.escape(fence[0]) + "{" + str(fence[1]) + r",}\s*", raw):
+                fence = None
+            continue
+        role = re.match(r"^(?:USER|ASSISTANT|SYSTEM|DEVELOPER|TOOL):\s?", raw)
+        line = raw[role.end():] if role else raw
+        line_offset += role.end() if role else 0
+        opening = re.match(r"^ {0,3}(`{3,}|~{3,})", line)
+        if opening:
+            fence = (opening[1][0], len(opening[1]))
+            continue
+        if line.startswith(("    ", "\t")) or line.lstrip().startswith((">", "#", "//")):
+            continue
+        if re.search(r"[?？]", line):
+            continue
+        cursor = 0
+        boundaries = [match.span() for match in re.finditer(r"[。！？]|(?<=[.!?])(?:\s+|$)", line)]
+        for start, end in [*boundaries, (len(line), len(line))]:
+            clause = line[cursor:start]
+            if clause and not re.search(r"[?？]", clause) and not _NONDECLARATIVE.search(clause):
+                clauses.append((clause, line_offset + cursor))
+            cursor = end
+    return clauses
+
+
+def _field_identity(name: str) -> tuple[tuple[str, ...], ...]:
+    # Keep both real word boundaries and qualified-name segments. Query stop
+    # words do not apply to identifiers: a_bc != bc; user.id != user_id.
+    return tuple(tuple(lexical_terms(IDENTIFIER_WORD_BOUNDARY.sub(" ", segment)))
+                 for segment in name.split("."))
+
+
+def _quoted_spans(line: str) -> list[tuple[int, int]]:
+    """One pass handles quotations and backtick runs without rescanning prefixes."""
+    spans, opening = [], None
+    for token in re.finditer(r"`+|['\"]", line):
+        position = token.start()
+        before = position - 1
+        while before >= 0 and line[before] == "\\":
+            before -= 1
+        if (position - before - 1) % 2:
+            continue
+        mark = token.group()
+        if opening is None:
+            if (mark == "'" and position > 0 and token.end() < len(line)
+                    and line[position - 1].isalnum() and line[token.end()].isalnum()):
+                continue  # An apostrophe inside an ordinary word.
+            opening = (mark, position)
+        elif mark == opening[0]:
+            spans.append((opening[1], token.end()))
+            opening = None
+    if opening is not None:
+        spans.append((opening[1], len(line)))
+    return spans
+
+
+def _complete_declaration_pages(db: sqlite3.Connection, contents: dict[int, str],
+                                references: dict[int, str]) -> set[int]:
+    pairs = []
+    for rid, body in contents.items():
+        if len(body) > _MAX_DECLARATION_CHARS:
+            continue
+        try:
+            refs = json.loads(references[rid])
+        except (KeyError, TypeError, ValueError):
+            continue
+        if not isinstance(refs, list) or len(refs) != 1 or not isinstance(refs[0], dict):
+            continue
+        ref = refs[0]
+        if (any(type(ref.get(key)) is not int for key in ("start", "end", "turn_start", "turn_end", "turn_index"))
+                or ref["turn_index"] < 0
+                or (ref["start"], ref["end"], ref["turn_start"], ref["turn_end"])
+                != (0, len(body), 0, len(body))):
+            continue
+        pairs.append((rid, ref["turn_index"]))
+    certified = set()
+    for offset in range(0, len(pairs), 64):
+        batch = pairs[offset:offset + 64]
+        rows = db.execute(
+            "SELECT p.rid FROM pages p JOIN turns t ON t.session_pk=p.session_pk "
+            "WHERE t.content=p.content AND (" +
+            " OR ".join("(p.rid=? AND t.ordinal=?)" for _ in batch) + ")",
+            [value for pair in batch for value in pair])
+        certified.update(row["rid"] for row in rows)
+    return certified
+
+
+def _declaration_groups(db: sqlite3.Connection, pool: list[dict], matched: dict[int, set[str]],
+                        contents: dict[int, str], references: dict[int, str]) -> tuple[dict, dict]:
+    """Compare the same declared field without promoting mere later mentions.
+
+    Values never enter the key or score. Field names come only from candidate
+    text, and must match the query. Clear prose updates to those fields are
+    included, so a change from ``retry_limit=3`` to ``retry limit is now 7``
+    remains comparable. Other query facets still separate environments/tasks.
+    Unclassified prose/code stays in the candidate pool and in relevance slots.
+    """
+    query = set().union(*matched.values())
+    fields, declared = {}, {}
+    # Code/examples/comparisons may identify a field's spelling, but never
+    # establish its current value. This also recognizes older prose followed
+    # by a code example without treating the example as the latest revision.
+    for body in contents.values():
+        if len(body) > _MAX_DECLARATION_CHARS:
+            continue
+        for binding in _FIELD_REFERENCE.finditer(body):
+            name = binding["name"]
+            aliases = set(query_terms(name))
+            if not aliases.intersection(query):
+                continue
+            identity = _field_identity(name)
+            if not all(identity):
+                continue
+            if identity not in fields and len(fields) == _MAX_DECLARATION_FIELDS:
+                return {}, {"basis": "existing recency groups retained: field analysis exceeded 64 fields"}
+            fields.setdefault(identity, set()).update(aliases)
+    if not fields:
+        oversized = sum(len(body) > _MAX_DECLARATION_CHARS for body in contents.values())
+        return {}, ({"oversized_candidates": oversized,
+                     "basis": "existing recency groups retained: pages over 64000 characters were not analyzed"}
+                    if oversized else {})
+    complete = _complete_declaration_pages(db, contents, references)
+    clauses = {rid: _declaration_clauses(body, references[rid])
+               for rid, body in contents.items() if rid in complete and matched.get(rid)}
+    for rid, lines in clauses.items():
+        # Parse quotes once in the original whole turn. Splitting first would
+        # lose quotation state across a sentence or newline inside a quote.
+        quoted = _quoted_spans(contents[rid])
+        starts = [span[0] for span in quoted]
+
+        def quoted_at(position):
+            index = bisect_right(starts, position) - 1
+            return index >= 0 and position < quoted[index][1]
+
+        for line, origin in lines:
+            for binding in _FIELD_BINDING.finditer(line):
+                identity = _field_identity(binding["name"])
+                if identity in fields and not quoted_at(origin + binding.start()):
+                    declared.setdefault(rid, set()).add(identity)
+            for binding in _PROSE_BINDING.finditer(line):
+                if quoted_at(origin + binding.start()):
+                    continue
+                parts = _field_identity(binding["subject"])
+                # One scan per clause and bounded dictionary lookups; do not
+                # scan every field's regex over every source clause. Longest
+                # subject suffix wins, without crossing a qualified-name dot.
+                for start in range(len(parts[0])):
+                    identity = (parts[0][start:], *parts[1:])
+                    if identity in fields:
+                        declared.setdefault(rid, set()).add(identity)
+                        break
+    groups = {}
+    for position, item in enumerate(pool):
+        rid = item["rid"]
+        if not matched[rid]:
+            continue
+        subjects = frozenset(declared.get(rid, ()))
+        aliases = set().union(*(fields[subject] for subject in subjects)) if subjects else set()
+        key = (item["chapter_id"], subjects, frozenset(matched[rid] - aliases))
+        groups.setdefault(key, []).append(position)
+    return groups, {"declaration_candidates": len(declared),
+                    "unclassified_candidates": sum(bool(matched[item["rid"]]) and item["rid"] not in declared
+                                                   for item in pool),
+                    "oversized_candidates": sum(len(body) > _MAX_DECLARATION_CHARS for body in contents.values()),
+                    "basis": "same field and remaining query facets; syntax is not authority"}
+
+
 def _prefer_current_pool(db: sqlite3.Connection, pool: list[dict],
                          matched: dict[int, set[str]], *,
-                         distinct: bool) -> tuple[list[dict], list[dict]]:
+                         distinct: bool, declarations: bool = True,
+                         diagnostics: dict | None = None) -> tuple[list[dict], list[dict]]:
     """Order comparable revisions after any candidate route has been fused.
 
-    Recency stays within one task and an identical nonempty exact-term set.
-    Pure semantic similarity cannot establish that two pages revise one fact.
-    All source reads stay inside recall's existing SQLite read snapshot.
+    Recency stays within one task: declarations of the same field also require
+    equal remaining query facets; unclassified pages keep exact-term groups.
+    Pure semantic similarity cannot establish a factual revision. All source
+    reads stay inside recall's existing SQLite read snapshot.
     """
     groups = {}
     for i, item in enumerate(pool):
@@ -468,19 +686,37 @@ def _prefer_current_pool(db: sqlite3.Connection, pool: list[dict],
                 repeated.update(ids)
     turn_positions = {}
     distinct = distinct and len(pool) > 1
-    contents = {}
-    wanted_sources = repeated | ({item["rid"] for item in pool} if distinct else set())
+    contents, references = {}, {}
+    declarations = declarations and len(pool) > 1
+    wanted_sources = repeated | ({item["rid"] for item in pool} if distinct or declarations else set())
     if wanted_sources:
         ids = sorted(wanted_sources)
         for row in db.execute(
                 "SELECT rid,content,source_refs FROM pages WHERE rid IN (" +
                 ",".join("?" for _ in ids) + ")", ids):
-            if distinct:
-                contents[row["rid"]] = row["content"]
-            if row["rid"] in repeated:
-                turn = _latest_matching_turn(row["content"], row["source_refs"], matched[row["rid"]])
-                if turn is not None:
-                    turn_positions[row["rid"]] = turn
+            contents[row["rid"]] = row["content"]
+            references[row["rid"]] = row["source_refs"]
+    if declarations:
+        refined, diagnostic = _declaration_groups(db, pool, matched, contents, references)
+        if diagnostic and diagnostics is not None:
+            diagnostics["declaration_ordering"] = diagnostic
+        if refined:
+            groups = refined
+            # A prose spelling and an identifier alias may now share a field;
+            # include any newly comparable same-session source positions.
+            repeated = set()
+            for positions in groups.values():
+                sessions = {}
+                for i in positions:
+                    item = pool[i]
+                    sessions.setdefault((item["project_id"], item["session_id"]), []).append(item["rid"])
+                for ids in sessions.values():
+                    if len(ids) > 1:
+                        repeated.update(ids)
+    for rid in repeated:
+        turn = _latest_matching_turn(contents[rid], references[rid], matched[rid])
+        if turn is not None:
+            turn_positions[rid] = turn
     for positions in groups.values():
         scores = [pool[i]["score"] for i in positions]
         revisions = sorted((pool[i] for i in positions), key=lambda item: item["created_at"], reverse=True)
@@ -1336,7 +1572,8 @@ class MemoryBook:
                         current_matches = matched
                         pool, deferred = _prefer_current_pool(
                             self.db, pool, matched,
-                            distinct=limit > 1 and not temporal_intent["preserve_occurrences"])
+                            distinct=limit > 1 and not temporal_intent["preserve_occurrences"],
+                            declarations=not temporal_intent["preserve_occurrences"], diagnostics=temporal_intent)
                     chosen, pending = [pool[0]], pool[1:]
                     covered = set(matched[pool[0]["rid"]])
                     while (pending or deferred) and len(chosen) < limit:
@@ -1404,7 +1641,8 @@ class MemoryBook:
                         current_matches = matched
                         pool, deferred = _prefer_current_pool(
                             self.db, pool, matched,
-                            distinct=limit > 1 and not temporal_intent["preserve_occurrences"])
+                            distinct=limit > 1 and not temporal_intent["preserve_occurrences"],
+                            declarations=not temporal_intent["preserve_occurrences"], diagnostics=temporal_intent)
                         candidates = pool + deferred + candidates[pool_count:]
                 if candidates:
                     selected_ids = [item["id"] for item in candidates[:limit]]

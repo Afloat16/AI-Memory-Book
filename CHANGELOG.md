@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.6.0 — current configuration evidence and broader comparisons
+
+Release scope: distinguish field declarations from later maintenance mentions,
+retain exact source provenance and make cross-project evaluation reproducible.
+See [release notes](docs/releases/v0.6.0.md) and the
+[validation record](docs/v0.6.0-engineering-validation.md).
+
+- Group comparable field declarations within the same task and remaining query
+  facets. Preserve naming aliases and clear prose revisions while retaining
+  word and namespace boundaries; field values do not affect the grouping key.
+- Authenticate complete turns against stored original text before using a
+  declaration hint. Exclude recognized quoted logs, code and partial turns;
+  retain quote state across sentences and lines. Preserve unclassified evidence,
+  relevance/history queries and event occurrences.
+- Bound declaration analysis, expose detailed classification/fallback diagnostics
+  and advance the recall cache version to 16. Keep schema 4 and source addresses.
+- Add a fixed seven-backend supplied-page comparison: Book and six external
+  open-source implementations, with both 1200/2400 budgets, real local embeddings,
+  locked distributions/model bytes and unchanged scoring. Preserve failures and
+  explicitly distinguish component configurations from full products.
+- Expand the official-source engineering comparison to fourteen external project
+  families. Keep unmeasured systems out of numerical rankings.
+- Pin installers and the approved runtime to v0.6.0; comparison dependencies stay
+  outside the normal package. Validate source changes with the regression suite
+  and exact-commit cross-platform release gates.
+
 ## 0.5.0 — explicit recall intent and dependable archive workflows
 
 Release scope: make the current engineering capabilities installable together,
