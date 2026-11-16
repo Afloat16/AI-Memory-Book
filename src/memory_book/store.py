@@ -9,6 +9,7 @@ import re
 import sqlite3
 import time
 from bisect import bisect_right
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
@@ -22,7 +23,7 @@ from .text import (IDENTIFIER_WORD_BOUNDARY, estimate_tokens, excerpt, headline,
 SCHEMA_VERSION = 4
 INDEX_VERSION = 3
 LEXICAL_INDEX_VERSION = 1
-RECALL_VERSION = 16
+RECALL_VERSION = 17
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -820,6 +821,25 @@ class MemoryBook:
                 if self._token_count_memo is not None:
                     self._token_count_memo.clear()
 
+    @contextmanager
+    def _read_snapshot(self):
+        """Keep a navigation response coherent, including nested directory reads.
+
+        An exporter can already own the transaction. In that case this helper
+        neither commits nor rolls back its caller's snapshot.
+        """
+        owned = not self.db.in_transaction
+        if owned:
+            self.db.execute("BEGIN")
+        try:
+            yield
+            if owned:
+                self.db.execute("COMMIT")
+        except BaseException:
+            if owned:
+                self.db.execute("ROLLBACK")
+            raise
+
     def _token_memo_snapshot(self) -> dict[str, int]:
         """Read-only private diagnostics; never allocate or warm the memo."""
         if self._token_count_memo is not None:
@@ -1111,44 +1131,114 @@ class MemoryBook:
         return [dict(row) for row in rows]
 
     def toc(self, project: str, *, offset: int = 0, limit: int = 50) -> dict:
+        project = _string(project, "project", maximum=200)
         _integer(offset, "offset", 0, 10_000_000)
         _integer(limit, "limit", 1, 100)
-        row = self.db.execute("SELECT * FROM projects WHERE id=?", (project,)).fetchone()
-        if row is None:
-            raise KeyError(f"project not found: {project}")
-        total = self.db.execute("SELECT COUNT(*) FROM chapters WHERE project_id=?", (project,)).fetchone()[0]
-        chapters = self.db.execute("""SELECT c.*,
-          (SELECT COUNT(*) FROM sessions WHERE chapter_id=c.id) sessions,
-          (SELECT COUNT(*) FROM sections WHERE chapter_id=c.id) sections,
-          (SELECT COUNT(*) FROM pages WHERE chapter_id=c.id) pages
-          FROM chapters c WHERE project_id=? ORDER BY title,id LIMIT ? OFFSET ?""", (project, limit, offset)).fetchall()
-        return {"project": dict(row), "chapters": [dict(c) for c in chapters], "total": total, "next_offset": offset + limit if offset + limit < total else None, "revision": self.revision}
+        with self._read_snapshot():
+            row = self.db.execute("SELECT * FROM projects WHERE id=?", (project,)).fetchone()
+            if row is None:
+                raise KeyError(f"project not found: {project}")
+            total = self.db.execute("SELECT COUNT(*) FROM chapters WHERE project_id=?", (project,)).fetchone()[0]
+            chapters = self.db.execute("""SELECT c.*,
+              (SELECT COUNT(*) FROM sessions WHERE chapter_id=c.id) sessions,
+              (SELECT COUNT(*) FROM sections WHERE chapter_id=c.id) sections,
+              (SELECT COUNT(*) FROM pages WHERE chapter_id=c.id) pages
+              FROM chapters c WHERE project_id=? ORDER BY title,id LIMIT ? OFFSET ?""", (project, limit, offset)).fetchall()
+            return {"project": dict(row), "chapters": [dict(c) for c in chapters], "total": total, "next_offset": offset + limit if offset + limit < total else None, "revision": self.revision}
 
-    def chapter(self, chapter_id: str, *, offset: int = 0, limit: int = 50, page_limit: int = 20) -> dict:
+    def search_directory(self, query: str, project: str, *, offset: int = 0, limit: int = 20) -> dict:
+        """Locate question sections within one exact book, without page bodies.
+
+        Search only the existing title, question and task/session directory
+        fields. Group continuation pages into one section entry before the
+        result limit; callers can then browse that section or read its source.
+        This is a lexical directory index, not a completeness or truth claim.
+        """
+        query = _string(query, "query", maximum=8000)
+        project = _string(project, "project", maximum=200)
+        _integer(offset, "offset", 0, 10_000_000)
+        _integer(limit, "limit", 1, 100)
+        qt = query_terms(query)
+        with self._read_snapshot():
+            book = self.db.execute("SELECT * FROM projects WHERE id=?", (project,)).fetchone()
+            if book is None:
+                raise KeyError(f"project not found: {project}")
+            groups, total = [], 0
+            if qt:
+                expression = '{title question directory} : (' + " OR ".join(
+                    '"' + term.replace('"', '""') + '"' for term in qt) + ')'
+                total = self.db.execute("""SELECT COUNT(DISTINCT p.section_id)
+                  FROM pages_fts JOIN pages p ON p.rid=pages_fts.rowid
+                  WHERE pages_fts MATCH ? AND p.project_id=?""", (expression, project)).fetchone()[0]
+                groups = self.db.execute("""SELECT p.section_id,MIN(pages_fts.rank) rank,
+                  MIN(p.id) matched_page_id
+                  FROM pages_fts JOIN pages p ON p.rid=pages_fts.rowid
+                  WHERE pages_fts MATCH ? AND p.project_id=?
+                  GROUP BY p.section_id ORDER BY rank,p.section_id LIMIT ? OFFSET ?""",
+                  (expression, project, limit, offset)).fetchall()
+            entries = []
+            for group in groups:
+                row = self.db.execute("""SELECT p.id,p.title,p.project_id,p.chapter_id,
+                  p.section_id,p.source_refs,pr.name project_name,c.title chapter_title,
+                  sec.title section_title,sec.summary,s.external_id session_id,
+                  (SELECT COUNT(*) FROM pages WHERE section_id=sec.id) page_count
+                  FROM pages p JOIN projects pr ON pr.id=p.project_id
+                  JOIN chapters c ON c.id=p.chapter_id
+                  JOIN sections sec ON sec.id=p.section_id
+                  JOIN sessions s ON s.id=p.session_pk
+                  WHERE p.id=? AND p.project_id=?""", (group["matched_page_id"], project)).fetchone()
+                refs = sorted({ref["turn_index"] for ref in json.loads(row["source_refs"])})
+                entries.append({"section_id": row["section_id"], "chapter_id": row["chapter_id"],
+                    "session_id": row["session_id"], "title": row["section_title"],
+                    "summary": headline(row["summary"], 400), "page_count": row["page_count"],
+                    "matched_page_id": row["id"], "breadcrumb": self._breadcrumb(row),
+                    "source_refs": [{"project": project, "session_id": row["session_id"],
+                                     "turn_index": index} for index in refs]})
+            return {"project": dict(book), "query": query, "entries": entries, "total": total,
+                "next_offset": offset + limit if offset + limit < total else None,
+                "revision": self.revision, "match_fields": ["title", "question", "directory"]}
+
+    def chapter(self, chapter_id: str, *, project: str | None = None, offset: int = 0, limit: int = 50, page_limit: int = 20) -> dict:
+        chapter_id = _string(chapter_id, "chapter_id")
+        if project is not None:
+            project = _string(project, "project", maximum=200)
         _integer(offset, "offset", 0, 10_000_000)
         _integer(limit, "limit", 1, 100)
         _integer(page_limit, "page_limit", 1, 100)
-        row = self.db.execute("SELECT * FROM chapters WHERE id=?", (chapter_id,)).fetchone()
-        if row is None:
-            raise KeyError(f"chapter not found: {chapter_id}")
-        total = self.db.execute("SELECT COUNT(*) FROM sections WHERE chapter_id=?", (chapter_id,)).fetchone()[0]
-        rows = self.db.execute("SELECT sec.*,s.external_id session_id,s.title session_title,s.created_at FROM sections sec JOIN sessions s ON s.id=sec.session_pk WHERE sec.chapter_id=? ORDER BY s.created_at,s.id,sec.ordinal LIMIT ? OFFSET ?", (chapter_id, limit, offset)).fetchall()
-        sections = []
-        for sec in rows:
-            preview = self.section(sec["id"], limit=page_limit)
-            sections.append({**dict(sec), "pages": preview["pages"], "pages_total": preview["total"], "pages_next_offset": preview["next_offset"]})
-        return {**dict(row), "sections": sections, "total": total, "next_offset": offset + limit if offset + limit < total else None}
+        with self._read_snapshot():
+            where, params = "id=?", [chapter_id]
+            if project is not None:
+                where += " AND project_id=?"
+                params.append(project)
+            row = self.db.execute("SELECT * FROM chapters WHERE " + where, params).fetchone()
+            if row is None:
+                raise KeyError(f"chapter not found in the selected project: {chapter_id}")
+            total = self.db.execute("SELECT COUNT(*) FROM sections WHERE chapter_id=?", (chapter_id,)).fetchone()[0]
+            rows = self.db.execute("SELECT sec.*,s.external_id session_id,s.title session_title,s.created_at FROM sections sec JOIN sessions s ON s.id=sec.session_pk WHERE sec.chapter_id=? ORDER BY s.created_at,s.id,sec.ordinal LIMIT ? OFFSET ?", (chapter_id, limit, offset)).fetchall()
+            sections = []
+            for sec in rows:
+                preview = self.section(sec["id"], project=row["project_id"], limit=page_limit)
+                sections.append({**dict(sec), "pages": preview["pages"], "pages_total": preview["total"], "pages_next_offset": preview["next_offset"]})
+            return {**dict(row), "sections": sections, "total": total, "next_offset": offset + limit if offset + limit < total else None}
 
-    def section(self, section_id: str, *, offset: int = 0, limit: int = 50) -> dict:
+    def section(self, section_id: str, *, project: str | None = None, offset: int = 0, limit: int = 50) -> dict:
         """Bound the page directory even for a single very long response."""
+        section_id = _string(section_id, "section_id")
+        if project is not None:
+            project = _string(project, "project", maximum=200)
         _integer(offset, "offset", 0, 10_000_000)
         _integer(limit, "limit", 1, 100)
-        row = self.db.execute("SELECT sec.*,s.external_id session_id,s.title session_title FROM sections sec JOIN sessions s ON s.id=sec.session_pk WHERE sec.id=?", (section_id,)).fetchone()
-        if row is None:
-            raise KeyError(f"section not found: {section_id}")
-        total = self.db.execute("SELECT COUNT(*) FROM pages WHERE section_id=?", (section_id,)).fetchone()[0]
-        pages = self.db.execute("SELECT id,title,length(content) chars,source_refs FROM pages WHERE section_id=? ORDER BY ordinal LIMIT ? OFFSET ?", (section_id, limit, offset)).fetchall()
-        return {**dict(row), "pages": [{"id": p["id"], "title": p["title"], "chars": p["chars"], "turn_indices": sorted({r["turn_index"] for r in json.loads(p["source_refs"])})} for p in pages], "total": total, "next_offset": offset + limit if offset + limit < total else None}
+        with self._read_snapshot():
+            where, params = "sec.id=?", [section_id]
+            if project is not None:
+                where += " AND s.project_id=?"
+                params.append(project)
+            row = self.db.execute("SELECT sec.*,s.project_id,s.external_id session_id,s.title session_title FROM sections sec JOIN sessions s ON s.id=sec.session_pk WHERE " + where, params).fetchone()
+            if row is None:
+                raise KeyError(f"section not found in the selected project: {section_id}")
+            total = self.db.execute("SELECT COUNT(*) FROM pages WHERE section_id=?", (section_id,)).fetchone()[0]
+            pages = self.db.execute("SELECT id,title,length(content) chars,source_refs FROM pages WHERE section_id=? ORDER BY ordinal LIMIT ? OFFSET ?", (section_id, limit, offset)).fetchall()
+            return {**dict(row), "pages": [{"id": p["id"], "title": p["title"], "chars": p["chars"], "turn_indices": sorted({r["turn_index"] for r in json.loads(p["source_refs"])})} for p in pages], "total": total, "next_offset": offset + limit if offset + limit < total else None}
 
     def _breadcrumb(self, row: sqlite3.Row | dict) -> list[dict]:
         return [{"id": row["project_id"], "title": row["project_name"], "kind": "project"}, {"id": row["chapter_id"], "title": row["chapter_title"], "kind": "chapter"}, {"id": row["section_id"], "title": row["section_title"], "kind": "section"}, {"id": row["id"], "title": row["title"], "kind": "page"}]
@@ -1163,16 +1253,63 @@ class MemoryBook:
                     result.append({**ref, "start": start, "end": end, "turn_start": ref["turn_start"] + start - ref["start"], "turn_end": ref["turn_start"] + end - ref["start"]})
         return result
 
-    def read(self, page_id: str, *, offset: int = 0, limit: int = 12_000) -> dict:
+    def read(self, page_id: str, *, project: str | None = None, offset: int = 0, limit: int = 12_000) -> dict:
+        page_id = _string(page_id, "page_id")
+        if project is not None:
+            project = _string(project, "project", maximum=200)
         _integer(offset, "offset", 0, MAX_SESSION_CHARS * 2)
         _integer(limit, "limit", 1, 100_000)
-        row = self.db.execute("""SELECT p.*,pr.name project_name,c.title chapter_title,sec.title section_title,s.external_id session_id,s.created_at
+        where, params = "p.id=?", [page_id]
+        if project is not None:
+            where += " AND p.project_id=?"
+            params.append(project)
+        row = self.db.execute("""SELECT p.*,pr.name project_name,c.title chapter_title,sec.title section_title,s.external_id session_id,s.created_at,s.content_hash
           FROM pages p JOIN projects pr ON pr.id=p.project_id JOIN chapters c ON c.id=p.chapter_id
-          JOIN sections sec ON sec.id=p.section_id JOIN sessions s ON s.id=p.session_pk WHERE p.id=?""", (page_id,)).fetchone()
+          JOIN sections sec ON sec.id=p.section_id JOIN sessions s ON s.id=p.session_pk WHERE """ + where, params).fetchone()
         if row is None:
-            raise KeyError(f"page not found or changed: {page_id}")
+            raise KeyError(f"page not found, changed, or outside the selected project: {page_id}")
         total, end = len(row["content"]), min(offset + limit, len(row["content"]))
-        return {"id": row["id"], "title": row["title"], "content": row["content"][offset:end], "offset": offset, "total_chars": total, "next_offset": end if end < total else None, "source_refs": self._refs(row, [(offset, end)]), "breadcrumb": self._breadcrumb(row), "created_at": row["created_at"]}
+        return {"id": row["id"], "title": row["title"], "content": row["content"][offset:end], "offset": offset, "total_chars": total, "next_offset": end if end < total else None, "source_refs": self._refs(row, [(offset, end)]), "breadcrumb": self._breadcrumb(row), "created_at": row["created_at"], "source_hash": row["content_hash"]}
+
+    def read_turn(self, project: str, session_id: str, turn_index: int, *, offset: int = 0,
+                  limit: int = 12_000, source_hash: str | None = None) -> dict:
+        """Read one normalized original turn independently of page splitting.
+
+        Carry the returned source_hash into the next request to reject a
+        replaced session instead of joining chunks from different versions.
+        Character offsets address the normalized turn, including role labels;
+        message_indices identify the original normalized source messages.
+        """
+        project = _string(project, "project", maximum=200)
+        session_id = _string(session_id, "session_id", maximum=256)
+        _integer(turn_index, "turn_index", 0, 100_000)
+        _integer(offset, "offset", 0, MAX_SESSION_CHARS * 2)
+        _integer(limit, "limit", 1, 100_000)
+        if source_hash is not None and (not isinstance(source_hash, str)
+                or re.fullmatch(r"[0-9a-f]{64}", source_hash) is None):
+            raise ValueError("source_hash must be a lowercase SHA-256 digest")
+        with self._read_snapshot():
+            row = self.db.execute("""SELECT s.created_at,s.content_hash,
+              substr(t.question,1,240) question,t.message_indices,
+              length(t.content) total_chars,substr(t.content,?,?) content
+              FROM turns t JOIN sessions s ON s.id=t.session_pk
+              WHERE s.project_id=? AND s.external_id=? AND t.ordinal=?""",
+              (offset + 1, limit, project, session_id, turn_index)).fetchone()
+            if row is None:
+                raise KeyError(f"source turn not found: {project}/{session_id}/{turn_index}")
+            if source_hash is not None and source_hash != row["content_hash"]:
+                raise ValueError("Source changed; restart the turn read at offset 0 with its new source_hash")
+            content, total = row["content"], row["total_chars"]
+            end = min(offset + len(content), total)
+            indices = json.loads(row["message_indices"])
+            ref = {"project": project, "session_id": session_id, "turn_index": turn_index,
+                   "start": 0, "end": len(content), "turn_start": min(offset, total),
+                   "turn_end": end, "message_indices": indices, "created_at": row["created_at"]}
+            return {"project": project, "session_id": session_id, "turn_index": turn_index,
+                "question": row["question"], "content": content, "offset": offset,
+                "total_chars": total, "next_offset": end if end < total else None,
+                "message_indices": indices, "created_at": row["created_at"], "source_ref": ref,
+                "revision": self.revision, "source_hash": row["content_hash"]}
 
     def get_session(self, project: str, session_id: str) -> dict:
         row = self.db.execute("SELECT raw_json FROM sessions WHERE project_id=? AND external_id=?", (project, session_id)).fetchone()
@@ -1322,7 +1459,27 @@ class MemoryBook:
                     session_title=directory[6], created_at=directory[7])
         return {identity: row for identity, row in rows.items() if identity in retained}
 
-    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 2400, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False, temporal: str = "auto") -> dict:
+    def _recall_project(self, project: str | None, chapter: str | None,
+                        all_projects: bool) -> str | None:
+        """Resolve a book from identity, never from a query or display name.
+
+        Called inside recall's read snapshot and before its cache lookup.
+        A missing exact chapter still constrains the SQL to no matching pages.
+        External session IDs alone are deliberately not project identities.
+        """
+        if project is not None or all_projects:
+            return project
+        if chapter is not None:
+            row = self.db.execute("SELECT project_id FROM chapters WHERE id=?", (chapter,)).fetchone()
+            return row[0] if row is not None else None
+        projects = self.db.execute("SELECT id FROM projects ORDER BY id LIMIT 2").fetchall()
+        if len(projects) > 1:
+            raise ValueError("Multiple project books are available. Choose an exact project ID "
+                             "from projects/browse_projects, or set all_projects=True for an "
+                             "intentional cross-project search")
+        return projects[0][0] if projects else None
+
+    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 2400, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False, temporal: str = "auto", all_projects: bool = False) -> dict:
         """Recall source evidence with optional current-state ordering.
 
         temporal=auto conservatively infers current versus relevance ordering;
@@ -1330,8 +1487,15 @@ class MemoryBook:
         disables this preference. Neither mode resolves an authoritative state
         or filters to an as-of date. Flat evaluation uses relevance ordering.
         The returned temporal diagnostic explains the effective choice.
+        With multiple project books, select an exact project or chapter ID.
+        A deliberate unscoped search requires all_projects=True. An archive
+        containing one book can resolve that book without guessing from text.
         """
         started = time.perf_counter_ns()
+        if not isinstance(all_projects, bool):
+            raise ValueError("all_projects must be a boolean")
+        if all_projects and project is not None:
+            raise ValueError("project and all_projects=True are mutually exclusive")
         query = _string(query, "query", maximum=8000, required=False)
         temporal_intent = _resolve_temporal_intent(query, temporal, strategy)
         _integer(budget_chars, "budget_chars", 0, 100_000)
@@ -1367,8 +1531,9 @@ class MemoryBook:
         # A read snapshot ties candidates, sources, and the cache revision together.
         self.db.execute("BEGIN")
         try:
+            project = self._recall_project(project, chapter, all_projects)
             revision = self.revision
-            cache_options = [INDEX_VERSION, RECALL_VERSION, query, project, chapter, session, budget_chars, limit, strategy, coverage, temporal]
+            cache_options = [INDEX_VERSION, RECALL_VERSION, query, project, chapter, session, budget_chars, limit, strategy, coverage, temporal, all_projects]
             if semantic_model is not None:
                 from .semantic import FUSION_VERSION, SEMANTIC_VERSION, check_index, fuse_candidates, rank_pages
                 check_index(self.db, revision, semantic_model)
@@ -1826,6 +1991,8 @@ class MemoryBook:
             blocks.append(block)
         context = "\n\n".join(blocks)
         warnings = []
+        if all_projects:
+            warnings.append("Cross-project recall was explicitly enabled; verify each source's project ID.")
         if project is None and len({r["breadcrumb"][0]["id"] for r in results}) > 1:
             warnings.append("Results span projects; supply project to disambiguate.")
         if results and (current_query or temporal_intent.get("current_cues")):
