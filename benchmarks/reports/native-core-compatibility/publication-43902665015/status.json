@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "status": "publication-in-progress",
-  "recorded_at_utc": "2026-11-16 16:01:19 UTC",
+  "recorded_at_utc": "2026-11-16 16:12:34 UTC",
   "repository": "Afloat16/AI-Memory-Book",
   "version": "0.9.0",
   "source_commit": "238c8058f723a203eaca99f94d924ab77de4c0b3",
@@ -28,10 +28,54 @@
       {
         "id": 133423140081,
         "name": "preflight",
+        "status": "completed",
+        "conclusion": "success",
+        "runner_name": "GitHub Actions 1000010270",
+        "successful_python_cells": 0
+      },
+      {
+        "id": 133423939893,
+        "name": "native-wheel (macos_x86_64)",
+        "status": "completed",
+        "conclusion": "success",
+        "runner_name": "GitHub Actions 1000010273",
+        "successful_python_cells": 6
+      },
+      {
+        "id": 133423939922,
+        "name": "native-wheel (linux_aarch64)",
+        "status": "completed",
+        "conclusion": "success",
+        "runner_name": "GitHub Actions 1000010274",
+        "successful_python_cells": 6
+      },
+      {
+        "id": 133423939999,
+        "name": "native-wheel (windows_amd64)",
+        "status": "completed",
+        "conclusion": "success",
+        "runner_name": "GitHub Actions 1000010272",
+        "successful_python_cells": 6
+      },
+      {
+        "id": 133423940002,
+        "name": "native-wheel (macos_arm64)",
         "status": "in_progress",
-        "conclusion": null
+        "conclusion": null,
+        "runner_name": "GitHub Actions 1000010298",
+        "successful_python_cells": 0
+      },
+      {
+        "id": 133423940261,
+        "name": "native-wheel (linux_x86_64)",
+        "status": "completed",
+        "conclusion": "success",
+        "runner_name": "GitHub Actions 1000010276",
+        "successful_python_cells": 6
       }
-    ]
+    ],
+    "completed_native_cells": 24,
+    "macos_arm64_runner_assigned": true
   },
   "remaining": [
     "Fresh final-commit 30-cell native builds from one run and attempt.",
@@ -41,5 +85,23 @@
   ],
   "boundaries": "No performance measurement was repeated after frozen candidate 4390d013. This proof branch is outside main/tag so publishing it does not change the release commit. Update this record after observing publication, never infer completion from preparatory success.",
   "auditor": "scripts/audit_native_core_publication.py",
-  "auditor_usage": "RAM execution body with caller-injected configuration, not a standalone argparse CLI."
+  "auditor_usage": "RAM execution body with caller-injected configuration, not a standalone argparse CLI.",
+  "additional_same_commit_ci": [
+    {
+      "run_id": 43902626218,
+      "successful_jobs": 11,
+      "required_jobs": 11
+    },
+    {
+      "run_id": 43902664791,
+      "successful_jobs": 11,
+      "required_jobs": 11
+    }
+  ],
+  "infrastructure_observation": {
+    "record": "infrastructure-status-20261116T1609Z.json",
+    "actions_status": "degraded_performance",
+    "official_update_utc": "2026-11-16 15:33:14 UTC",
+    "scope": "Official incident is contemporaneous context, not proof of the specific macOS queue cause. The original queued native job received a runner at 16:11:46 UTC without a retry or source change."
+  }
 }
