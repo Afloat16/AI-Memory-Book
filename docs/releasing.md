@@ -1,9 +1,9 @@
 # Publishing a verified release
 
 The release workflow publishes an exact commit using an explicitly registered
-release channel. **v0.4.0 is registered as a normal GitHub release**
-(`prerelease=false`) and is marked Latest when first published. v0.3.3 and
-v0.3.4 also use the normal channel. v0.3.0 through v0.3.2 retain their original
+release channel. **v0.7.0 is registered as a normal GitHub release**
+(`prerelease=false`) and is marked Latest when first published. v0.3.3 through
+v0.6.0 also use the normal channel. v0.3.0 through v0.3.2 retain their original
 prerelease channels. Unknown versions are rejected until their policy and
 accepted runtime hash are registered. This workflow does not publish to PyPI or
 enable GitHub's immutable-release repository setting.
@@ -19,6 +19,11 @@ existing **Tests** workflow to complete all nine jobs successfully on that exact
 commit. These include three core Python versions, MCP, the browser, three
 platform installers and the container. Evidence acceptance precedes this
 packaging gate and is scoped to the version's committed release notes.
+v0.7.0 accepts the project assertions and bound-connection behavior documented in
+[its validation record](v0.7.0-project-scope-validation.md), with an unchanged
+native engineering replay. It adds no external-component measurement or speed
+claim. Retained initial failures and corrected test expectations do not waive
+the exact-source CI, packaging or public-installer gates.
 v0.4.0 selects the 2,400-character engineering profile: default calls must match
 the explicit selected configuration, retain the saved development quality, and
 pass source, scope and budget checks. Its reported local p95 cost and other

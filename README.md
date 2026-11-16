@@ -1,15 +1,16 @@
 # AI-Memory-Book
 
-**Give coding agents engineering memory they can verify and continue from.**
+**Find the right engineering evidence through a project book, without mixing similar projects.**
 
 Projects are books, tasks are chapters, and evidence is a page you can open. AI-Memory-Book preserves normalized original text conversations, so an agent can recover constraints, parameter corrections, and failed attempts after a session or client switch, cite the source, and continue the work.
 
 [简体中文](README.zh-CN.md) · [Quick start](#quick-start) · [2400-character results](#2400-character-results) · [Open-source comparison](#open-source-comparison)
 
-**v0.6.0 · MIT · Python 3.10+ · Local SQLite / FTS5**
+**v0.7.0 · MIT · Python 3.10+ · Local SQLite / FTS5**
 
 ## Engineering advantages
 
+- **Keep follow-up reads in the selected project.** Bind an MCP connection to one exact project ID. Omitted tool scopes inherit the binding, and copied chapter/section/page IDs from another project cannot silently switch books. Ordinary client setup preserves the binding.
 - **Recover decisions together with their reasons.** Locate evidence by project, task, session, and original turn, retaining page IDs and source references. Open the original page to check a boundary condition, error message, or failed approach during code review or a task handoff.
 - **Find code identifiers across naming styles.** Queries such as `http_parser`, `JSONLReader` and `kv_cache` can match their acronym, camel-case and snake-case counterparts. The index adds lexical aliases while keeping original spelling, source offsets and project boundaries intact.
 - **Control current evidence and historical review explicitly.** Python, CLI, MCP and HTTP share `temporal=auto/current/relevance`. Automatic inference distinguishes original source evidence from an original historical decision; callers can also choose current-evidence ordering directly. Comparable later turns remain eligible under both character and token truncation. Check the source when judging authority.
@@ -25,19 +26,19 @@ When resuming a long-running task, ask which constraints the current implementat
 
 ## Quick start
 
-You need **Python 3.10+ with SQLite FTS5**. The v0.6.0 package includes the identifier retrieval, temporal controls, archive maintenance, and import/export improvements described here. The installer creates an isolated environment with MCP/client dependencies and needs no Git checkout or Node.js. For an existing archive, follow the [schema 4 upgrade procedure](docs/deployment.md#schema-4-upgrade), including a snapshot and restarting every writer.
+You need **Python 3.10+ with SQLite FTS5**. The v0.7.0 package adds bound-project MCP connections and project assertions on directory/source reads, alongside identifier retrieval, temporal controls and archive maintenance. The installer creates an isolated environment with MCP/client dependencies and needs no Git checkout or Node.js. For an existing archive, follow the [schema 4 upgrade procedure](docs/deployment.md#schema-4-upgrade), including a snapshot and restarting every writer.
 
 **macOS / Linux**
 
 ~~~bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.6.0/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.7.0/scripts/install.sh
 bash install-memory-book.sh
 ~~~
 
 **Windows PowerShell**
 
 ~~~powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.6.0/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.7.0/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ~~~
 
@@ -64,7 +65,7 @@ memory-book --db ./demo-memory.db backup --output ./backups/demo-snapshot.db
 memory-book --db ./backups/demo-snapshot.db check-database
 ~~~
 
-Get the example from the [v0.6.0 source](https://github.com/Afloat16/AI-Memory-Book/tree/v0.6.0), run it from the repository directory, and use new database/output paths. The [developer workflow guide](docs/engineering-workflows.md) covers algorithm constraints, failed attempts, symbol lookup, Python integration, exact token limits, source verification and recovery. Recorded example settings are illustrative, not recommended production values.
+Get the example from the [v0.7.0 source](https://github.com/Afloat16/AI-Memory-Book/tree/v0.7.0), run it from the repository directory, and use new database/output paths. The [developer workflow guide](docs/engineering-workflows.md) covers algorithm constraints, failed attempts, symbol lookup, Python integration, exact token limits, source verification and recovery. Recorded example settings are illustrative, not recommended production values.
 
 ## Default configuration
 
@@ -89,7 +90,44 @@ memory-book projects
 memory-book recall "current gradient accumulation steps" --project your-project-id --budget 2400 --limit 5
 ~~~
 
+## One project per MCP connection
+
+Use the exact stored project ID to keep similar services, training runs or algorithm implementations separate. A book's display name is not its identity; different books may use the same task title, session ID or symbol names.
+
+| Book structure | Engineering use | Read only what is needed |
+|---|---|---|
+| Project book | Select the actual engineering project | `browse_projects` / `browse_book` |
+| Task chapter | Group known sessions for one task | `browse_chapter` |
+| Question section | Locate a related group of source pages | `browse_section` |
+| Evidence page | Verify the original turn and its coordinates | `read_page` |
+
+You can recall directly within the project, or follow its directory when you need to inspect a task. Directory traversal is optional; the project constraint continues into exact chapter, section and page reads.
+
+~~~bash
+memory-book projects
+# Replace service-alpha with an exact ID returned above.
+memory-book setup --client codex --mcp-project service-alpha
+# Or launch one explicitly bound stdio connection:
+memory-book mcp --project service-alpha
+~~~
+
+On a bound MCP connection, omitted project arguments inherit the binding, including `browse_book`. A conflicting explicit project is rejected before opening the database. Foreign chapter/section/page IDs are unavailable even if copied from an earlier project. `remember_session`, when enabled, still requires the same explicit `payload.project`; it does not silently relabel messages.
+
+Ordinary setup preserves an existing managed binding. Change it with `--mcp-project OTHER_ID`; explicitly remove it with `--clear-mcp-project`. `setup --project` controls **capture mapping** and still requires `--capture`; `--mcp-project` controls the **MCP connection**. Binding a client profile affects that configured connection, and does not automatically switch with the terminal's current directory. [Project scope and configuration](docs/agent-guide.md#bound-project-connections).
+
+Python `chapter`, `section` and `read` accept `project=...`; their CLI equivalents accept `--project`, and HTTP follow-up reads accept a `project` query parameter. The reader carries the selected book into these requests and cancels stale reader responses when switching books. Unbound calls can still browse the whole archive. This is protection against scope mistakes, not user authentication or an access-control boundary for another server or direct database access.
+
+### Executed v0.7.0 scope checks
+
+A separate authored diagnostic uses **four similar projects and twelve source sessions**, with identical display names, task IDs and session IDs but conflicting settings. The candidate completes **186 core API calls with zero contract failures**, including **36 foreign-ID rejections**, **12 unknown-project rejections**, paginated source reconstruction, interleaved warm caches, source replacement and project deletion. Four directory checks verify source coverage against the original sessions. **35/35 existing-API responses/errors match v0.6.0** after the documented removal of timing/cache and directory wall-clock metadata; evidence text, IDs, coordinates and source dates remain in the comparison.
+
+The v0.6.0 diagnostic records **37 passed calls and 77 unsupported assertions**, not 77 failed isolation checks. The new supported directory traversal performs additional reads, so the versions' total call counts differ. These are development contract checks, not answer accuracy, a holdout, a speed benchmark, or a claim of perfect isolation. [Raw calls and comparison](benchmarks/reports/v0.7.0-project-scope/candidate/) · [Validation and reproduction](docs/v0.7.0-project-scope-validation.md).
+
+The unchanged native engineering replay also ran against both versions: **80 questions at 1200 and 2400 characters, once per setting**. All **160/160 Book responses** and **640/640 responses across the four repository strategies** match after excluding only top-level latency/cache diagnostics. An independent auditor passes **16,863 checks**. This is regression evidence, with no new speed claim or external-component run. [Raw replay and audit](benchmarks/reports/v0.7.0-project-scope/native-replay-audit.json).
+
 ## 2400-character results
+
+The external comparison below retains the **frozen v0.6.0 experiment**. The v0.7.0 scope diagnostic above is a separate measurement; no newly reviewed project receives a numerical score.
 
 ### Six real open-source implementations, one fixed workload
 
@@ -170,13 +208,13 @@ The native 2400-character replay records retrieval/context assembly **p50 / p95 
 
 ### Reproduction and evidence limits
 
-An independent audit recomputed the scores and complete packed responses, passing **116,693 checks with zero failures**. All **320 Book/billion response pairs** match between the original two-component evaluator and the expanded harness, across both budgets. Default calls also match explicit 2400/5 calls and all 80 saved current-runtime outputs. [Audit](benchmarks/reports/v0.6.0-engineering/audit.json) · [Default equivalence](benchmarks/reports/v0.6.0-engineering/hosted/default-profile/report.json) · [Successful run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43788979015).
+An independent audit recomputed the scores and complete packed responses, passing **116,693 checks with zero failures**. All **320 Book/billion response pairs** match between the original two-component evaluator and the expanded harness, across both budgets. Default calls also match explicit 2400/5 calls and all 80 saved v0.6.0-runtime outputs. [Audit](benchmarks/reports/v0.6.0-engineering/audit.json) · [Default equivalence](benchmarks/reports/v0.6.0-engineering/hosted/default-profile/report.json) · [Successful run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43788979015).
 
 These are **synthetic development cases**, without an independent holdout or coding LLM. The fixed consumer extracts recorded policies and executes handwritten variants; its pass rate is not generated-code accuracy. **All seven backends return related context for all eight missing-evidence questions** at both budgets, so this is not an abstention benchmark or 80/80 answer correctness. Real task completion time, patch success and total model cost remain unmeasured. The [validation record](docs/v0.6.0-engineering-validation.md) retains every failure, test boundary, source identity and the pre-quality Chroma integration failure. Heavy comparison dependencies are separate from the normal Book installation.
 
 ## Open-source comparison
 
-This review covers **14 external project families**, using official sources checked on 2026-11-16. Numerical results apply only to the explicitly configured components in the experiment; unmeasured complete products have no inferred score. [Pinned sources, tested modes, deployment requirements and license notes](docs/open-source-memory-comparison.md).
+This review covers **19 external project families**, using official sources checked on 2026-11-16. Numerical results apply only to the explicitly configured components in the experiment; unmeasured complete products have no inferred score. [Pinned sources, tested modes, deployment requirements and license notes](docs/open-source-memory-comparison.md).
 
 | Project | Main approach | When Book fits |
 |---|---|---|
@@ -194,8 +232,13 @@ This review covers **14 external project families**, using official sources chec
 | [LongMemory](https://github.com/CaviraOSS/LongMemory) | Project memory, provenance and temporal APIs with configurable embedding providers | A no-model default, stable page addresses and directly replayable engineering retrieval evidence |
 | [Basic Memory](https://github.com/basicmachines-co/basic-memory) | Markdown knowledge, linked observations and project-scoped text/semantic search | Keeping source conversations as the primary archive without first authoring or rewriting knowledge notes |
 | [Chroma](https://github.com/chroma-core/chroma) | Document/vector collections, local persistence and metadata filtering | Conversation capture, task navigation, source coordinates and context assembly without a default embedding dependency |
+| [OpenViking](https://github.com/volcengine/OpenViking) | A context filesystem with directory abstracts, overviews and scoped vector retrieval | Original conversation pages and source coordinates through a default model-free lexical path; directory navigation is also supported by OpenViking |
+| [Serena](https://github.com/oraios/serena) | Coding tools with project Markdown memories, topic directories and explicit references | Preserving full conversation evidence alongside project/task navigation; Serena also supports progressive memory reads |
+| [EverOS / EverMemOS](https://github.com/EverMind-AI/EverOS) | Markdown sources, extracted memories, SQLite/LanceDB indexes and app/project partitions | A focused conversation archive without a default extraction model; project partitioning is also documented upstream |
+| [SimpleMem](https://github.com/aiming-lab/SimpleMem) | Model-extracted atomic facts and semantic/keyword/metadata retrieval | Read original engineering turns and their coordinates without first reducing them to extracted facts |
+| [Supermemory](https://github.com/supermemoryai/supermemory) | Extracted memories/profiles and hybrid search, with project/container tags and local/hosted options | A lightweight original-conversation archive with explicit project assertions and no default embedding dependency |
 
-Multiple clients, source lookup, and local operation occur in several projects. Book brings **original evidence, project scope, bounded context, and low additional inference requirements** together in a lightweight memory layer for long-running development, incident review, and continuity across clients. Graph reasoning, editable agent state, authored Markdown knowledge and vector-store infrastructure address other needs; this table does not establish a universal winner. Mem0/OpenMemory and Letta/Letta Code each count as one family; Chroma and LangGraph are identified as infrastructure.
+Multiple clients, directory/progressive reading, project scopes, source lookup, and local operation occur in several projects. Book brings **original evidence, project scope, bounded context, and low additional inference requirements** together in a lightweight memory layer for long-running development, incident review, and continuity across clients. Graph reasoning, editable agent state, authored Markdown knowledge and vector-store infrastructure address other needs; this table does not establish a universal winner. Mem0/OpenMemory and Letta/Letta Code each count as one family; Chroma and LangGraph are identified as infrastructure.
 
 ## Documentation and data boundaries
 
@@ -203,4 +246,4 @@ Multiple clients, source lookup, and local operation occur in several projects. 
 
 Run `memory-book serve` and open [127.0.0.1:8765](http://127.0.0.1:8765) to inspect the archive. It is local, unencrypted data; recalled evidence enters the selected client's model context. Project filtering is not multi-user access control. Client-configuration backups are not automatic database backups. [Data locations and maintenance](docs/deployment.md#data-and-configuration-paths).
 
-Independently implemented under the [MIT License](LICENSE). [Current release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.6.0) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml).
+Independently implemented under the [MIT License](LICENSE). [Current release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.7.0) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml).

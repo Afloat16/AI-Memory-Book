@@ -1,0 +1,41 @@
+{
+  "status": "blocked_before_browser_checks",
+  "checks_executed": 0,
+  "source_commit_at_collection": "e1fb65e7898153206e3928d3a181b74eeb38e18a",
+  "test_file_sha256": "8b4afd4d66dade69ee9e240cf07ef1537f3ef20807ca84658d2b303603739a93",
+  "browser_executable": "/usr/bin/chromium",
+  "attempts": [
+    {
+      "attempt": 1,
+      "exit_code": 1,
+      "failure_stage": "browser launch",
+      "reason": "ENOENT while creating Playwright artifacts in missing /tmp"
+    },
+    {
+      "attempt": 2,
+      "exit_code": 1,
+      "failure_stage": "browser launch",
+      "change": "TMPDIR set to workspace temporary directory",
+      "reason": "Chromium socket() Operation not permitted; SIGABRT"
+    }
+  ],
+  "files": {
+    "attempt-1.log": {
+      "sha256": "b6b8e9d2f707ebf425a5c5ef59658d946a182e3d5a8aff7cd0b7d8abc0a4883b",
+      "bytes": 1683
+    },
+    "attempt-1-report.json": {
+      "sha256": "3d9b3fa3ee17898b40cd2dffa6e5ffc2ad80b6ccf9c1f19236856a23189214d9",
+      "bytes": 435
+    },
+    "attempt-2.log": {
+      "sha256": "200f83ef2ebcb867016822892a646bacdfdff2778db96a737df9a9d2a80a9e49",
+      "bytes": 6227
+    },
+    "attempt-2-report.json": {
+      "sha256": "af3ed880b2a3e981bdf6edfcc95ae074060b0085c958cecfb8df01eb353fe904",
+      "bytes": 4998
+    }
+  },
+  "next_required_gate": "Run unchanged browser_smoke.py in the hosted CI browser job; no local UI pass is claimed."
+}
