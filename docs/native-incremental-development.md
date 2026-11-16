@@ -105,3 +105,32 @@ are now synchronized; historical release fixtures remain unchanged. All 42
 targeted installer/release tests pass. This distribution-only follow-up does
 not alter the measured runtime or frozen evaluator. No v0.8.1 runtime approval
 hash has been registered while the formal performance result is pending.
+
+## Completed formal verification
+
+Run 43850332046 completed all 16 workers and every registered call on its first
+attempt. The same workflow saved immutable evidence commit
+`ed30ded94e00c81f381f57a6bd957bdf3322b20b` before uploading its additional
+artifact copy. There are 113,568 calls, 56,784 exact-output pairs and zero
+recorded invariant/archive differences. The independent
+[artifact audit](../benchmarks/reports/native-incremental/formal-run-1/independent-audit.json)
+checks all 226 ZIP files, frozen source objects, both binaries, the exact Git
+tree and all 227,136 attempt events. It exactly reproduces the frozen summary
+and independently recalculates every pooled and per-round percentile.
+
+Default-budget p95 reductions are 3.061%/2.514% on synthetic61 and
+4.902%/3.946% on public1015 for direct/MCP respectively, with every primary
+paired round improving. Token-budget results are mixed: public MCP p95
+regresses 0.334%, with three of four rounds regressing. Fresh synthetic
+ingestion improves 9.583%, public ingestion is effectively flat, startup is
+slightly slower and memory is approximately unchanged. The complete
+[validation record](native-incremental-validation.md) retains every result and
+the earlier unfavorable local diagnostic.
+
+Distribution repair `7d20667ac585506d10238dd32412c53a0cf4786a` passes all nine
+CI jobs in run 43850669866. Preparation run 43850729647 passes all 30 native
+wheel cells, each running the 53 native tests with one optional-tokenizer skip,
+then aggregates 67 assets and verifies both native and Python fallback
+installers with default MCP/client extras. The preparation run does not publish
+a release or change the frozen runtime. Final acceptance/publication still
+requires its own approved runtime record and exact-main release gates.

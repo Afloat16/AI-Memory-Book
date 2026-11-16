@@ -30,6 +30,7 @@ from pathlib import Path, PurePosixPath
 import random
 import stat
 import statistics
+import struct
 import subprocess
 import sys
 import types
@@ -44,11 +45,16 @@ BASELINE = "6a8a9c6d603a812c75def258b11eb563ed590c9b"
 BRANCH = "validation/native-incremental-formal-1"
 EVIDENCE = ".artifacts/native-incremental-preservation/evidence/"
 CHECKPOINT = ".artifacts/native-incremental-preservation/checkpoint.json"
+PRESERVATION_INDEX = ".artifacts/native-incremental-preservation/evidence.index"
 REPORT = "benchmarks/reports/native-incremental/formal-run-1/"
 BUILD = ".artifacts/native-incremental-formal/"
 PLAN = "benchmarks/experiments/native_incremental_formal_plan.json"
 EVALUATOR = "scripts/native_incremental_performance.py"
 COUNTS = {"synthetic61": 168, "public1015": 1015}
+COHORT_HASHES = {
+    "synthetic61": "117cd11814cfa5ffba3c2a6f984b0fbdf05767ee99034c0da56c610cf0069b26",
+    "public1015": "8910da0c1472312fed23b8c7af66d206c872ad41a855f584859f2b446855a857",
+}
 CONFIGS = {
     "native-char2400": {"surface": "native", "budget_chars": 2400, "budget_tokens": None},
     "mcp-char2400": {"surface": "official-sdk-mcp-stdio", "budget_chars": 2400, "budget_tokens": None},
@@ -231,6 +237,45 @@ def evidence_tree(files):
     return tree(root).hex()
 
 
+def publication_index(archive):
+    """Check the retained temporary Git index; it is outside the evidence tree."""
+    raw = archive.raw(PRESERVATION_INDEX)
+    require(len(raw) >= 32 and raw[:4] == b"DIRC" and hashlib.sha1(raw[:-20]).digest() == raw[-20:],
+            "Preservation Git index header/checksum differs")
+    version, count = struct.unpack(">II", raw[4:12])
+    require(version in (2, 3, 4), "Unknown preservation Git index version")
+    expected = {name[len(EVIDENCE):]: value["git_blob"] for name, value in archive.files.items() if name.startswith(EVIDENCE)}
+    require(count == len(expected), "Preservation index entry count differs from the evidence tree")
+    checked = False
+    if version in (2, 3):
+        entries, cursor = {}, 12
+        for _ in range(count):
+            beginning = cursor
+            require(cursor + 62 <= len(raw) - 20, "Truncated preservation index entry")
+            mode = struct.unpack(">I", raw[cursor + 24:cursor + 28])[0]
+            blob = raw[cursor + 40:cursor + 60]
+            flags = struct.unpack(">H", raw[cursor + 60:cursor + 62])[0]
+            require(mode == 0o100644 and flags & 0x3000 == 0, "Unexpected evidence index mode/stage")
+            cursor += 62
+            if flags & 0x4000:
+                require(version == 3, "Extended flags require Git index version 3")
+                cursor += 2
+            ending = raw.find(b"\0", cursor, len(raw) - 20)
+            require(ending >= cursor, "Missing evidence index path terminator")
+            name = raw[cursor:ending].decode("utf-8")
+            safe_name(name)
+            require(name not in entries and (flags & 0xfff) == min(len(raw[cursor:ending]), 0xfff),
+                    "Duplicate or incorrectly sized evidence index path")
+            entries[name] = blob
+            cursor = beginning + ((ending - beginning + 1 + 7) // 8) * 8
+            require(raw[ending:cursor] == b"\0" * (cursor - ending), "Nonzero evidence index padding")
+        require(entries == expected, "Preservation Git index paths/blob identities differ from the artifact")
+        checked = True
+    return {"path": PRESERVATION_INDEX, "bytes": len(raw), "sha256": sha(raw), "version": version,
+            "entries": count, "checksum_verified": True, "all_paths_and_blob_ids_verified": checked,
+            "scope": "Temporary publication index retained by Actions; not a member of the evidence Git tree."}
+
+
 def verify_snapshot(archive, metadata, args):
     manifest = archive.read(EVIDENCE + "evidence-manifest.json")
     checkpoint = archive.read(CHECKPOINT)
@@ -255,7 +300,7 @@ def verify_snapshot(archive, metadata, args):
     require({name[len(EVIDENCE):] for name in archive.files if name.startswith(EVIDENCE)} == set(inventory) | extras,
             "Uninventoried or missing evidence files")
     originals = manifest["original_files"]
-    require({name for name in archive.files if not name.startswith(EVIDENCE)} == set(originals) | {CHECKPOINT},
+    require({name for name in archive.files if not name.startswith(EVIDENCE)} == set(originals) | {CHECKPOINT, PRESERVATION_INDEX},
             "Unexpected/missing duplicate artifact members")
     for name in originals:
         archive.identical(EVIDENCE + name, name)
@@ -263,6 +308,7 @@ def verify_snapshot(archive, metadata, args):
             and str(checkpoint["source_run_attempt"]) == "1" and checkpoint["branch"] == branch,
             "Git preservation did not complete for this attempt")
     tree = evidence_tree(archive.files)
+    index = publication_index(archive)
     require(hex_value(checkpoint["commit"], 40) and checkpoint["tree"] == tree,
             "Preserved Git evidence tree differs from artifact bytes")
     if "evidence" in metadata:
@@ -333,7 +379,8 @@ def verify_snapshot(archive, metadata, args):
             "Preservation audit metadata differs")
     require(json.loads(archive.raw(EVIDENCE + "audit.stdout.log")) == summary, "Preserved auditor stdout differs from summary")
     return run, summary, build, probes, {"branch": branch, "commit": checkpoint["commit"], "tree": tree,
-        "manifest_files": len(inventory), "duplicate_files": len(originals), "committed_files_verified": committed_files}
+        "manifest_files": len(inventory), "duplicate_files": len(originals), "committed_files_verified": committed_files,
+        "publication_index": index}
 
 
 class Member:
@@ -427,7 +474,7 @@ def independent_rows(archive, run, original, probes):
     schedule = [{"key": f"r{number}-{cohort}-{label}", "round": number, "cohort": cohort, "label": label}
                 for number, labels in enumerate(ORDERS) for cohort in COUNTS for label in labels]
     require(run["schedule"] == schedule, "Independent worker schedule differs")
-    timings, cpus, canonical, archives, resources, round_cells = {}, {}, {}, {}, {}, {}
+    timings, cpus, canonical, protocols, archives, resources, round_cells = {}, {}, {}, {}, {}, {}, {}
     rows_count = pair_count = event_count = invariant_failures = difference_count = 0
     differences = []
 
@@ -440,6 +487,8 @@ def independent_rows(archive, run, original, probes):
     for cohort, count in COUNTS.items():
         ids = run["query_ids"][cohort]
         require(len(ids) == len(set(ids)) == count, "Independent query identity count differs")
+        require(run["cohorts"][cohort]["sha256"] == COHORT_HASHES[cohort]
+                and run["cohorts"][cohort]["queries"] == count, "Independent registered cohort fingerprint differs")
         for round_index in range(4):
             paired = {label: archive.read(EVIDENCE + REPORT + f"r{round_index}-{cohort}-{label}.json.gz")
                       for label in ("baseline", "candidate")}
@@ -464,6 +513,10 @@ def independent_rows(archive, run, original, probes):
                     for index, cell in enumerate(worker["configurations"]):
                         config = cell["id"]
                         require({name: cell[name] for name in CONFIGS[config]} == CONFIGS[config], "Independent budget/surface differs")
+                        if CONFIGS[config]["surface"] == "official-sdk-mcp-stdio":
+                            protocol = {name: cell["resources"][name] for name in ("tool_schema_sha256", "instructions_sha256")}
+                            if protocol != protocols.setdefault((cohort, config), protocol):
+                                difference(key + ":" + config, "MCP tool schema or instructions differ")
                         expected_order = order(ids, round_index, index)
                         require([{name: row[name] for name in ("query_id", "repetition")} for row in cell["rows"]] == expected_order
                                 and cell["query_order_sha256"] == digest(expected_order)
