@@ -2826,6 +2826,15 @@
       "record": "benchmarks/reports/native-core-compatibility/packaging-43885419074/interrupted-matrix.json",
       "replacement_run_id": 43888785867,
       "same_attempt_receipts_required": true
+    },
+    {
+      "run_id": 43888785867,
+      "source_commit": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "passed_wheels_at_snapshot": 27,
+      "complete_matrix": false,
+      "reason": "Another macOS ARM job cancelled without runner/steps; two further ARM jobs still queued at the snapshot.",
+      "replacement": "Fresh full matrix using explicit macos-26 ARM image; runtime and all validation gates unchanged.",
+      "record": "benchmarks/reports/native-core-compatibility/development/native-core-macos26-recovery-plan.json"
     }
   ],
   "build_metadata_boundary": "All measured runtime, native headers, pyproject.toml and setup.py bytes remain frozen. README and release-control documentation change after preparation; final publication rebuilds every wheel and receipt at the exact final main commit. Preparation receipts cannot be reused for publication.",
@@ -2838,5 +2847,6 @@
     "Publish stable v0.9.0 and pass actual public default native installation with MCP/client dependencies."
   ],
   "limits": "One Ubuntu 24.04 / AMD EPYC7763 / CPython3.12.16 hosted experiment. Existing regression cohorts, no new quality or holdout claim, no model generation. No result-cache hits; Python/SQLite/OS caches not cleared. Earlier experiments used different runtimes/hosts and are not added. Offline audit verifies retained hashes/ledgers/statistics without re-executing the application or reconstructing payload text from digests. No all-input proof, universal optimality or every-platform performance guarantee.",
-  "reports_checkpoint": "c2edd92037eb7347230a908bd8c45a838d6e2810"
+  "reports_checkpoint": "c2edd92037eb7347230a908bd8c45a838d6e2810",
+  "runner_image_recovery": "Only release.yml macos_arm64 os changes from macos-15 to supported macos-26. No application or evaluator change; no mixing receipts from earlier attempts."
 }

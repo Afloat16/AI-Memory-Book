@@ -336,24 +336,27 @@ possible input equivalent.
 
 ## Native packaging and installation
 
-Native delivery is still pending at this checkpoint; v0.8.1 remains the
-published release. The exact-source [preparation run 43885419074](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074)
-passed 28 native wheels, but two macOS ARM jobs were cancelled without a
-runner or executed steps. Its [complete interrupted record](../benchmarks/reports/native-core-compatibility/packaging-43885419074/interrupted-matrix.json)
-is retained; it did not satisfy the 30-cell gate.
+Native delivery remains pending. Two complete attempts using the frozen
+4390 runtime did not satisfy the one-run/one-attempt 30-cell gate:
+[43885419074](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074)
+finished with 28 wheels passed and two unallocated macOS ARM jobs cancelled;
+[43888785867](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43888785867)
+then also encountered an unallocated cancelled macOS ARM job. Their successful
+packages are not mixed into a passing matrix.
 
-The same-source [full replacement run 43888785867](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43888785867)
-must independently finish all 30 cells and its aggregate package/install
-checks in one run/attempt. Successful receipts from earlier attempts are not
-mixed into it. The workflow remains unchanged: although an officially
-supported macOS 26 ARM recovery path was checked, runner allocation resumed
-on macOS 15 and the active complete matrix is being retained.
-[Investigation](../benchmarks/reports/native-core-compatibility/development/native-core-macos-runner-investigation.json).
+The [runner investigation](../benchmarks/reports/native-core-compatibility/development/native-core-macos-runner-investigation.json)
+first retained the second run when allocations resumed. After the additional
+cancellation, the [recovery plan](../benchmarks/reports/native-core-compatibility/development/native-core-macos26-recovery-plan.json)
+changes only the ARM hosted image label from macOS 15 to the officially
+supported, explicit macOS 26 ARM image. All 30 cells, native architecture,
+deployment-target rules, installed tests and exact receipt gates remain.
+A fresh complete preparation must pass on that workflow. This does not change
+the application runtime or add a performance experiment.
 
-Publication additionally requires the final approved runtime/commit, all
-11 exact-commit CI jobs, a fresh complete 30-wheel release matrix, verified
-assets and installation through the actual public URL. No prepared package
-is described as published.
+Publication still requires the final approved runtime/commit, all eleven
+exact-commit CI jobs, a fresh full release matrix, verified assets and an
+actual public default installation. v0.8.1 remains the published release at
+this checkpoint.
 
 Use the pinned v0.9.0 installer from the [deployment guide](deployment.md).
 It creates an isolated environment, selects a wheel from that environment's

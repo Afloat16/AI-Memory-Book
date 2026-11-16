@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "kind": "native-core-compatibility-acceptance-draft-independent-review",
+  "reviewed_at_utc": "2026-11-16 15:00:32 UTC",
+  "reviewed_blob": "aadd10e4ac1242f4005258e6c9f55a348a57d030",
+  "reports_checkpoint": "c2edd92037eb7347230a908bd8c45a838d6e2810",
+  "conclusion": "No blocking identity, numerical, gating or claim issue found in this draft. This is a review of a pending decision document, not approval of native delivery or publication.",
+  "reviewed_draft_state": {
+    "status": "performance-reviewed-native-delivery-pending",
+    "accepted": false,
+    "native_delivery_preparation": null,
+    "publication_completed_at_this_checkpoint": false
+  },
+  "source_identity": {
+    "candidate_commit": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+    "evaluator_commit": "cfdb3ca2c8ff2d71792e820923057d6613ea08b7",
+    "baseline_commit": "56eccd8c3a6f1d5637664607936da2595ce50c62",
+    "runtime_sha256": "6ec51c906de94c97f90ec9be3dc50d066c9abedcff283c1e118ef6d6847eb3b7",
+    "runtime_files_read_from_git": 27,
+    "runtime_hash_input_files": 26,
+    "algorithm": "Independently reproduced scripts/release.py:source_identity using sorted exact 4390 Git bytes and relative filename NUL separators, without executing the application.",
+    "full_candidate_source_files": 31,
+    "full_source_files_sha256": "36a9f4af482a61d2482e181f19570e7a925d186be8457f88227de1193f382ea5",
+    "frozen_evaluator_files": 14
+  },
+  "data_verification": {
+    "issues": [],
+    "checked": [
+      "draft flags",
+      "commit and full source manifests",
+      "evidence/auditor/host/boundaries",
+      "8 pooled and 32 paired query cells",
+      "positive-cell and round counts",
+      "4 ingestion cells and 16 pairs",
+      "38 resource cells with four raw values per side and medians",
+      "16 worker storage snapshots"
+    ],
+    "primaryCells": 4,
+    "primaryRounds": 15,
+    "allCells": 8,
+    "allRounds": 30,
+    "ingestPositive": 16,
+    "application_executions": 0,
+    "remeasured_calls": 0
+  },
+  "adverse_and_storage": {
+    "negative_observations": 3,
+    "checkpoint_storage_pairs_equal": 8,
+    "cost_details": [
+      {
+        "cohort": "synthetic61",
+        "metric": "new_database_ms",
+        "delta": 0.10214450000000053,
+        "unit": "ms"
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "existing_database_open_ms",
+        "delta": 0.011830999999999925,
+        "unit": "ms"
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "worker_rss_after_calls",
+        "delta": 0.232421875,
+        "unit": "MiB"
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "worker_hwm_after_calls",
+        "delta": 0.140625,
+        "unit": "MiB"
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "mcp-char2400_startup_to_initialize_ms",
+        "delta": -4.262416499999972,
+        "unit": "ms"
+      },
+      {
+        "cohort": "synthetic61",
+        "metric": "mcp-token1024_startup_to_initialize_ms",
+        "delta": -14.932120999999938,
+        "unit": "ms"
+      },
+      {
+        "cohort": "public1015",
+        "metric": "new_database_ms",
+        "delta": 0.0544980000000006,
+        "unit": "ms"
+      },
+      {
+        "cohort": "public1015",
+        "metric": "existing_database_open_ms",
+        "delta": 0.01399550000000005,
+        "unit": "ms"
+      },
+      {
+        "cohort": "public1015",
+        "metric": "worker_rss_after_calls",
+        "delta": 0.017578125,
+        "unit": "MiB"
+      },
+      {
+        "cohort": "public1015",
+        "metric": "worker_hwm_after_calls",
+        "delta": 0.021484375,
+        "unit": "MiB"
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp-char2400_startup_to_initialize_ms",
+        "delta": 7.351899000000003,
+        "unit": "ms"
+      },
+      {
+        "cohort": "public1015",
+        "metric": "mcp-token1024_startup_to_initialize_ms",
+        "delta": 0.7539400000000569,
+        "unit": "ms"
+      }
+    ]
+  },
+  "gating_review": [
+    "accepted=false, native_delivery_preparation=null and publication_completed_at_this_checkpoint=false correctly represent a pending decision.",
+    "The complete fresh 30-wheel preparation and native/fallback/source installation gate remains pending; this review does not fill or approve it.",
+    "General CI run 43885311822 was independently read through the jobs API: all 11 jobs completed successfully at candidate 4390d013. The draft still requires all 11 jobs at the exact final publication commit.",
+    "The build boundary correctly keeps runtime/header/pyproject/setup bytes frozen while allowing README/release-control documentation updates. Final publication must rebuild wheels and receipts at the exact final main commit; preparation receipts are not reused.",
+    "The remaining gates explicitly retain same-attempt fresh release assets, all 67 assets and receipts, wheel RECORD/extension hashes, fallback/source installation and actual public default-native installation with dependencies."
+  ],
+  "claims_review": [
+    "All eight pooled p50/p95 and all four aggregate ingestion comparisons match frozen5 data; all 32 query rounds and 16 ingestion pairs remain present.",
+    "Three negative query observations, startup/import/database-open/MCP-startup/RSS costs, measured-host binary growth, CPU boundaries and storage snapshots are accurately retained.",
+    "Prior protocol3 performance rejection and protocol4 compatibility rejection remain separate, with exact source/evaluator/evidence identities and no addition of their percentages to final claims.",
+    "The draft makes no statistical-significance, holdout-quality, universal-optimality, all-input-proof or every-platform performance claim; one-host limitations and cache/timing boundaries remain explicit."
+  ],
+  "interrupted_delivery_final_api_check": {
+    "run_id": 43885419074,
+    "source_commit": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+    "successful_native_jobs": 28,
+    "unstarted_cancelled_jobs": [
+      {
+        "id": 133362276145,
+        "name": "native-wheel (3.14, macos_arm64)",
+        "conclusion": "cancelled",
+        "runner_name": "",
+        "steps": 0
+      },
+      {
+        "id": 133362276389,
+        "name": "native-wheel (3.15, macos_arm64)",
+        "conclusion": "cancelled",
+        "runner_name": "",
+        "steps": 0
+      }
+    ],
+    "prepare_only_skipped": true,
+    "note": "The historical interrupted-matrix.json snapshot is retained unchanged. This later API observation confirms both previously unstarted macOS ARM cells ended cancelled with no runner or steps."
+  },
+  "necessary_changes": [],
+  "limits": [
+    "No application, benchmark, installer or wheel execution was performed by this review.",
+    "Native/sanitizer detailed test-count fields rely on their existing retained receipts; this review independently confirmed the exact-source CI job outcomes and did not rerun those tests.",
+    "Pending preparation and later publication gates still require their own completed evidence."
+  ],
+  "application_executions": 0,
+  "remeasured_calls": 0,
+  "refs_modified": false
+}
