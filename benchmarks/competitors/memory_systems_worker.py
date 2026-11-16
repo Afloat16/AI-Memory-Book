@@ -37,6 +37,16 @@ def serializable(value):
     return value
 
 
+def collection_configuration_json(collection):
+    """Retain Chroma's public JSON configuration, not its live EF objects."""
+    configuration = collection.configuration_json
+    if not isinstance(configuration, dict):
+        raise TypeError("Chroma configuration_json must be a JSON object")
+    # Fail rather than stringify or omit an unsupported native configuration.
+    json.dumps(configuration, allow_nan=False)
+    return configuration
+
+
 def block_python_network():
     """Tripwire after public artifact preparation; never fabricate a response."""
     attempts = []
@@ -162,7 +172,7 @@ class ChromaMemory:
         self.metadata = {"mode": "local vector retrieval infrastructure",
                          "search_api": "Collection.query(query_texts, where, n_results)",
                          "model": model, "indexed_fields": ["original page body"],
-                         "collection_configuration": serializable(self.collection.configuration),
+                         "collection_configuration": collection_configuration_json(self.collection),
                          "default_metric_retained": True, "persistent": True}
 
     def search(self, query, project, limit):

@@ -15,6 +15,7 @@ from benchmarks.competitors.memory_systems import (
     BACKENDS, PythonComponent, sanitized_environment, stable_native,
     validate_documents, validate_response,
 )
+from benchmarks.competitors.memory_systems_worker import collection_configuration_json
 
 
 def document(identity="p1", project="alpha", text="Original memorytoken source."):
@@ -31,6 +32,32 @@ def native(doc):
 
 
 class MemorySystemsContracts(unittest.TestCase):
+    def test_chroma_native_json_preserves_metric_and_embedding_configuration(self):
+        class Collection:
+            configuration_json = {
+                "hnsw": {"space": "l2", "ef_search": 100},
+                "embedding_function": {"name": "onnx_mini_lm_l6_v2", "config": {
+                    "preferred_providers": ["CPUExecutionProvider"]}},
+            }
+
+            @property
+            def configuration(self):
+                raise AssertionError("The live embedding object must not be serialized")
+
+        collection = Collection()
+        actual = collection_configuration_json(collection)
+        self.assertEqual(json.loads(json.dumps(actual)), collection.configuration_json)
+        self.assertEqual(actual["hnsw"]["space"], "l2")
+        self.assertEqual(actual["embedding_function"]["config"]["preferred_providers"],
+                         ["CPUExecutionProvider"])
+
+    def test_chroma_unsupported_configuration_fails_without_stringifying_objects(self):
+        class Collection:
+            configuration_json = {"embedding_function": object()}
+
+        with self.assertRaises(TypeError):
+            collection_configuration_json(Collection())
+
     def test_original_identity_scope_and_body_are_all_authenticated(self):
         doc = document()
         lookup = validate_documents([doc, document("p2", "other")])
