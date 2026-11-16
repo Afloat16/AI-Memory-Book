@@ -38,3 +38,43 @@ Formal measurement will build both the v0.8.0 baseline and the frozen candidate
 as native extensions in the same hosted environment. It will preserve all
 attempts and include actual SDK MCP roundtrips. Existing Python/native
 measurements cannot be represented as gains from this new candidate.
+
+## Candidate implementation checkpoint
+
+Two additional helpers now translate the identifier alias loop and literal
+excerpt occurrence loop. The existing ASCII scanner is shared internally to
+preserve the legacy per-identifier deduplication rule. Query rewrites retain the
+same component order and compact aliases. Literal matches remain nonoverlapping,
+term-major and capped at 40 per term before the original Python sorting and
+window scoring. Empty-term terminal matches retain the original mapped-index
+error. No cross-call cache is introduced.
+
+Review corrected an owned-reference lifetime in literal matching, and moved the
+index-mode dependency guard after whole-string tokenization so a customized
+normalizer's mutations remain observable. Public helper overrides, unusual
+container types and string subclasses continue through the Python body.
+
+The [independent test receipt](../benchmarks/reports/native-incremental/development/independent-tests.json)
+records 28 passing new tests, including 39,216 exhaustive short-ASCII input/mode
+pairs, seeded Unicode cases, source mappings, original error behavior and
+pre-/post-import helper replacements. The existing native/core/identifier suites
+also pass locally with the optional-tokenizer case explicitly skipped. The
+[compiler log](../benchmarks/reports/native-incremental/development/candidate-build.log)
+retains the forced GCC build; the local runtime's default clang was unavailable.
+These local checks do not replace the complete platform wheel matrix.
+
+The four planned balanced local diagnostic rounds are retained in
+[raw compressed JSON](../benchmarks/reports/native-incremental/development/local-native-paired.json.gz)
+with their [runner](../benchmarks/reports/native-incremental/development/paired_native_diagnostic.py).
+All 4,032 recall outputs and the eight archive/index digests agree between the
+released native baseline and the candidate, and source hashes remain unchanged.
+The shared host showed substantial timing variation: pooled candidate p95 was
+20.233 ms versus 19.340 ms for the baseline (a 4.62% regression), while fresh
+ingestion medians were 784.081 versus 1,609.946 ms. This diagnostic uses in-memory
+SQLite, no MCP and no exact-token cap. Neither number is a release speed claim;
+both are retained rather than selecting the favorable measurement.
+
+The new protocol-2 hosted evaluator will compare native builds on both sides,
+verify all five baseline and seven candidate helpers before timing, and save
+every raw attempt plus frozen sources and auditor directly to a Git evidence
+branch. Runtime acceptance remains pending that complete experiment.
