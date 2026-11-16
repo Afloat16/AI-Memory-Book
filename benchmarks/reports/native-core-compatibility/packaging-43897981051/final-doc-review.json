@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-11-16T15:57:08.991Z",
+  "repository": "Afloat16/AI-Memory-Book",
+  "review": "final-native-core-documentation-review",
+  "status": "passed_with_two_wording_corrections_applied",
+  "reviewer": "v09_measurement",
+  "reviewed_checkpoint": "a2989b8681396db53115a73737cfc9ce69c9e4dc",
+  "scope": "Six final main documents, preparation evidence README, source and evidence links, numeric claims, output-equivalence qualification, known skips, and preparation-versus-publication status. No new application runs, performance measurements, tests, or ref changes.",
+  "main_documents": [
+    {
+      "path": "README.md",
+      "blob_sha": "86f5d66130dda66589b39d0abad4b138614a826a",
+      "status": "passed"
+    },
+    {
+      "path": "README.zh-CN.md",
+      "blob_sha": "5d1e3efa0abd8e582af8f7d2520400c5f0330f28",
+      "status": "passed"
+    },
+    {
+      "path": "docs/deployment.md",
+      "blob_sha": "3ead8aed0c6cc810789e5558a699c7ab7770303c",
+      "status": "passed"
+    },
+    {
+      "path": "docs/native-core-validation.md",
+      "blob_sha": "f54ea469b426b8dff69d544546fdb73c8bd46e29",
+      "status": "passed"
+    },
+    {
+      "path": "docs/native-core-development.md",
+      "blob_sha": "933ba3cedd3195bbf04576d9c3c4b262b6f6b6ce",
+      "status": "passed"
+    },
+    {
+      "path": "docs/releases/v0.9.0.md",
+      "blob_sha": "ce5e7492827c2ff32d381d21d95962ca16a59de5",
+      "status": "passed"
+    }
+  ],
+  "corrected_preparation_readme": {
+    "path": "benchmarks/reports/native-core-compatibility/packaging-43897981051/README.md",
+    "prior_blob_sha": "995850f1f90d8bc3a3d69b38a6dbf84c0b95bd90",
+    "corrected_blob_sha": "71b24b835984df4ba1b61356aefb9c774bfd0286",
+    "exact_replacements": [
+      {
+        "before": "Every cell completed the same 144 existing native test methods successfully.",
+        "after": "Every cell completed the same 144-test native suite with an OK result; the table separates passed and skipped cases."
+      },
+      {
+        "before": "4,320 test executions",
+        "after": "4,320 test-case results"
+      }
+    ],
+    "reason": "Explicitly distinguish a successful 144-test suite from passed and skipped cases, and avoid describing skipped cases as executed tests.",
+    "numeric_data_changed": false,
+    "other_content_changed": false
+  },
+  "numeric_review": {
+    "formal_run_id": 43886529702,
+    "protocol": "native-core-compatibility-performance-5",
+    "candidate_commit": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+    "evaluator_commit": "cfdb3ca2c8ff2d71792e820923057d6613ea08b7",
+    "evidence_commit": "51e8d022c164ba714f68db562c9ae280a62c2312",
+    "metrics_extract_blob": "e5872cbd77b8411d874dfd63bbaf1e1dadb90fd4",
+    "checked_table_fields": 404,
+    "mismatches": 0,
+    "query_cells": 8,
+    "query_round_rows": 32,
+    "ingestion_cells": 4,
+    "ingestion_paired_batches": 16,
+    "resource_cells": 38,
+    "negative_query_observations_retained": 3,
+    "startup_rss_and_binary_costs_retained": true,
+    "direct_response_latency_ms_exclusion_disclosed": true,
+    "no_cross_experiment_addition_or_universal_performance_claim": true
+  },
+  "preparation_review": {
+    "run_id": 43897981051,
+    "attempt": 1,
+    "source_commit": "ba1bcef8d4fcf325a3403c2ff9c540312c491464",
+    "proof_summary_blob": "d9b5a4f68fc7f76770aa93818334aac55e145ade",
+    "actual_platform_jobs": 5,
+    "actual_unique_python_platform_cells": 30,
+    "suite_cases_per_cell": 144,
+    "repeated_test_case_results": 4320,
+    "passed": 4245,
+    "skipped": 75,
+    "known_skip_policy": "Two existing optional-token tests with exact reason Install .[tokens]; the only permitted third skip is the existing shared-GIL subinterpreter testcase with exact reason _xxsubinterpreters is not available in this Python build. No other skipped testcase or reason accepted.",
+    "release_assets": 67,
+    "combined_archive_members": 68,
+    "manifest_payload_records": 65,
+    "checksum_records": 66,
+    "artifact_id": 14240632443,
+    "artifact_size_bytes": 9643315,
+    "artifact_sha256": "070ce0c4976f2768f7d72dd8b3ca991fd3844d8e3054c47238161dbf69d5cb43",
+    "preparation_only": true,
+    "publication_proven_by_this_review": false,
+    "raw_log_retention_receipt_blob": "ffb481d27acac9f2b132067589fa9a72c70b9254",
+    "preserved_raw_log_zips": 5,
+    "preserved_raw_log_bytes": 364720
+  },
+  "links_and_state": {
+    "relevant_relative_links_normalized": 52,
+    "root_escaping_relative_links": 0,
+    "interrupted_attempt_records_read": [
+      43885419074,
+      43888785867,
+      43892250078
+    ],
+    "interrupted_jobs_have_no_runner_name_or_steps": true,
+    "skip_correction_record_blob": "bc9cdab734e78457e590f48f8fde10e3d00eea53",
+    "final_ci_workflow_blob": "38a31332117c20fc191b306e43b93b3d00ea4a55",
+    "existing_macos_matrix_entry_resolves_to": "macos-26",
+    "final_publication_gates_remain": [
+      "All 11 CI jobs on the exact final commit",
+      "Fresh complete native-wheel matrix from one run and attempt",
+      "Verified release assets",
+      "Actual public-installer check"
+    ]
+  },
+  "remaining_documentation_blockers": [],
+  "acceptance_and_publication_authority": "Root retains final commit, acceptance, CI, main merge, release and public-install verification responsibility."
+}

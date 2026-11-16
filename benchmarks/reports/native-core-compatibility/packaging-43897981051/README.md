@@ -11,7 +11,7 @@ Five platform jobs each executed six separate setup/build/install/test steps. Th
 
 ## Actual installed tests
 
-Every cell completed the same 144 existing native test methods successfully. Counts below come from that cell's original test log, not from a fixed assumption about its Python version.
+Every cell completed the same 144-test native suite with an OK result; the table separates passed and skipped cases. Counts below come from that cell's original test log, not from a fixed assumption about its Python version.
 
 | Platform | 3.10 | 3.11 | 3.12 | 3.13 | 3.14 | 3.15 |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -21,7 +21,7 @@ Every cell completed the same 144 existing native test methods successfully. Cou
 | macos_arm64 | 142 passed / 2 skipped | 142 passed / 2 skipped | 142 passed / 2 skipped | 141 passed / 3 skipped | 141 passed / 3 skipped | 141 passed / 3 skipped |
 | windows_amd64 | 142 passed / 2 skipped | 142 passed / 2 skipped | 142 passed / 2 skipped | 141 passed / 3 skipped | 141 passed / 3 skipped | 141 passed / 3 skipped |
 
-Across the 30 environments: **4,320 test executions, 4,245 passed, 75 skipped**. These totals count repeated execution of the same tests across platforms. The two mandatory skips are the existing optional-token tests with the exact `Install .[tokens]` reason. The only permitted third skip is the existing shared-GIL subinterpreter testcase with the exact `_xxsubinterpreters is not available in this Python build` reason. No other skipped testcase or reason is accepted by the independent audit.
+Across the 30 environments: **4,320 test-case results, 4,245 passed, 75 skipped**. These totals count repeated execution of the same tests across platforms. The two mandatory skips are the existing optional-token tests with the exact `Install .[tokens]` reason. The only permitted third skip is the existing shared-GIL subinterpreter testcase with the exact `_xxsubinterpreters is not available in this Python build` reason. No other skipped testcase or reason is accepted by the independent audit.
 
 ## Asset and installer checks
 
