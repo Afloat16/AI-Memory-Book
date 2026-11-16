@@ -18,7 +18,7 @@ import subprocess
 import sys
 import unicodedata
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from memory_book import MemoryBook
 from memory_book import store
@@ -46,6 +46,24 @@ def reference_fold(text):
         pieces.append(piece)
         positions.extend([index] * len(piece))
     return "".join(pieces), positions
+
+
+_CJK_RANGES = r"\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff"
+_UNICODE_RUNS = re.compile(rf"[{_CJK_RANGES}]+|[^\W_{_CJK_RANGES}]+(?:[_./:-][^\W_{_CJK_RANGES}]+)*")
+_ONLY_CJK = re.compile(rf"^[{_CJK_RANGES}]+$")
+
+
+def reference_unicode_tokens(text, query, stop, zh_stop):
+    result = []
+    for match in _UNICODE_RUNS.finditer(text):
+        value = match.group()
+        if _ONLY_CJK.fullmatch(value):
+            parts = [value] if len(value) == 1 else [value[i:i + 2] for i in range(len(value) - 1)]
+            result.extend(part for part in parts if not query or part not in zh_stop)
+        else:
+            result.extend(part for part in re.split(r"[_./:-]+", value)
+                          if part and (not query or part not in stop))
+    return result
 
 
 def reference_units(text, width):
@@ -94,6 +112,30 @@ class NativeLoopEquivalenceTests(unittest.TestCase):
                 self.assertEqual(NATIVE.ascii_tokens(value, query, lexical.STOP),
                                  reference_ascii(value, query, lexical.STOP, camel=False))
 
+    def test_unicode_token_character_classes_match_regex_for_every_codepoint(self):
+        # Small independent blocks cover all Unicode values, including lone
+        # surrogates and the unassigned values inside the fixed CJK ranges.
+        for start in range(0, 0x110000, 4096):
+            value = " ".join(chr(codepoint) for codepoint in range(start, start + 4096))
+            for query in (False, True):
+                self.assertEqual(NATIVE.unicode_tokens(value, query, lexical.STOP, lexical.ZH_STOP),
+                                 reference_unicode_tokens(value, query, lexical.STOP, lexical.ZH_STOP),
+                                 (hex(start), query))
+
+    def test_unicode_tokens_keep_cjk_bigram_boundaries_and_identifier_piece_order(self):
+        cases = ["", "普通 words 当前缓存有效期 foo_bar/path.ext:a-b::c", "当前__缓存/如何.失效",
+                 "HTTPParser Straße café İ x\u0301y ١٢٣ ²Ⅸ ﻻ", "a\u302eb\ufe0fc\U0001d165d",
+                 "A中🙂B \ud800word\udfff \U00020000\U00020001汉字",
+                 "\u33ff\u3400\u4dbf\u4dc0\u4dff\u4e00\u9fff\ua000\uf8ff\uf900\ufaff\ufb00"]
+        rng = random.Random(46912)
+        alphabet = "AaBz019_./:- \t\n缓存当前如何失效中文éßİ\u302e\u0301١²Ⅸﻻ🙂\U00020000\x00"
+        cases.extend("".join(rng.choices(alphabet, k=200)) for _ in range(100))
+        for value in cases:
+            for query in (False, True):
+                self.assertEqual(NATIVE.unicode_tokens(value, query, lexical.STOP, lexical.ZH_STOP),
+                                 reference_unicode_tokens(value, query, lexical.STOP, lexical.ZH_STOP),
+                                 (repr(value), query))
+
     def test_stop_membership_keeps_order_and_propagates_the_original_exception(self):
         class Stop:
             def __init__(self):
@@ -137,11 +179,13 @@ class NativeLoopEquivalenceTests(unittest.TestCase):
             normalizations.append((form, value))
             return unicodedata.normalize(form, value)
 
-        for _ in range(2):
-            folded, positions = NATIVE.fold_excerpt_source("éßé", normalize, unicodedata.category)
-            self.assertEqual((folded, positions), ("esse", [0, 1, 1, 2]))
-            positions.clear()
-        self.assertEqual(normalizations, [("NFKD", "é"), ("NFKD", "ß")] * 2)
+        for value in ("éßé", "AéAß A"):
+            normalizations.clear()
+            for _ in range(2):
+                folded, positions = NATIVE.fold_excerpt_source(value, normalize, unicodedata.category)
+                self.assertEqual((folded, positions), reference_fold(value))
+                positions.clear()
+            self.assertEqual(normalizations, [("NFKD", character) for character in dict.fromkeys(value)] * 2)
         for callback in ("normalize", "category"):
             error = RuntimeError(callback + " failure")
 
@@ -182,6 +226,11 @@ class NativeLoopEquivalenceTests(unittest.TestCase):
                 NATIVE.fold_excerpt_source(value, unicodedata.normalize, unicodedata.category)
             with self.assertRaises(TypeError):
                 NATIVE.evidence_units(value, 20)
+            with self.assertRaises(TypeError):
+                NATIVE.unicode_tokens(value, False, lexical.STOP, lexical.ZH_STOP)
+        for query in (0, 1, None, object()):
+            with self.assertRaises(TypeError):
+                NATIVE.unicode_tokens("缓存", query, lexical.STOP, lexical.ZH_STOP)
 
 
 @unittest.skipUnless(NATIVE is not None, "Native extension is not installed")
@@ -197,6 +246,56 @@ class NativeDispatchCompatibilityTests(unittest.TestCase):
         self.assertEqual(values[0], values[1])
         return values[0]
 
+    def test_guarded_plain_inputs_really_dispatch_to_each_native_helper(self):
+        observed = Mock(wraps=NATIVE)
+        with patch.object(lexical, "_NATIVE", observed):
+            self.assertEqual(lexical.terms("cacheKey"), ["cache", "key"])
+            self.assertEqual(lexical.terms("café"), ["cafe"])
+            self.assertEqual(lexical.terms("当前缓存", query=True), ["前缓", "缓存"])
+            self.assertEqual(lexical._fold_excerpt_source("Straße"),
+                             ("strasse", [0, 1, 2, 3, 4, 4, 5]))
+            self.assertEqual(lexical._evidence_units("One. Two!", 5), [(0, 4), (5, 9)])
+        observed.terms_ascii.assert_called_once()
+        observed.ascii_tokens.assert_called_once()
+        observed.unicode_tokens.assert_called_once()
+        observed.fold_excerpt_source.assert_called_once()
+        observed.evidence_units.assert_called_once()
+
+    def test_dependencies_patched_before_first_import_are_not_certified_as_ordinary(self):
+        script = r'''
+import json, re, sys, unicodedata
+if sys.argv[1] == "finditer":
+    re.finditer = lambda *args, **kwargs: iter(())
+elif sys.argv[1] == "normalize":
+    class Normalized:
+        def casefold(self):
+            return ["x", "y"]
+    unicodedata.normalize = lambda form, value: Normalized()
+else:
+    ordinary_compile = re.compile
+    class CustomRuns:
+        def findall(self, value):
+            return ["custom", "tokens"]
+    def compile(pattern, flags=0):
+        return CustomRuns() if pattern == r"[a-z0-9]+" else ordinary_compile(pattern, flags)
+    re.compile = compile
+from memory_book import text
+operation = {"finditer": lambda: text._evidence_units("abc", 10),
+             "compile": lambda: text.terms("abc"),
+             "normalize": lambda: text._fold_excerpt_source("ab")}[sys.argv[1]]
+native = operation()
+text._NATIVE = None
+print(json.dumps([native, operation()]))
+'''
+        environment = dict(os.environ, MEMORY_BOOK_TEXT_BACKEND="native")
+        for dependency in ("finditer", "compile", "normalize"):
+            with self.subTest(dependency=dependency):
+                result = subprocess.run([sys.executable, "-c", script, dependency], cwd=ROOT,
+                                        env=environment, text=True, capture_output=True, timeout=30)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                accelerated, reference = json.loads(result.stdout)
+                self.assertEqual(accelerated, reference)
+
     def test_custom_patterns_and_stop_filter_keep_original_behavior(self):
         class Camel:
             def sub(self, replacement, value):
@@ -210,6 +309,26 @@ class NativeDispatchCompatibilityTests(unittest.TestCase):
                                   ("STOP", frozenset({"cache"}))):
             with self.subTest(dependency=name), patch.object(lexical, name, replacement):
                 self.compare_paths(lambda: lexical.terms("Current cache cacheKey", query=True))
+
+    def test_custom_unicode_patterns_and_stop_sets_keep_original_behavior(self):
+        class Runs:
+            def finditer(self, value):
+                return iter(())
+
+        class Cjk:
+            def fullmatch(self, value):
+                return None
+
+        class Separator:
+            def split(self, value):
+                return ["custom"]
+
+        dependencies = (("RUNS", Runs()), ("CJK_RUN", Cjk()),
+                        ("IDENTIFIER_SEPARATOR", Separator()),
+                        ("ZH_STOP", frozenset({"缓存"})), ("STOP", frozenset({"cafe"})))
+        for name, replacement in dependencies:
+            with self.subTest(dependency=name), patch.object(lexical, name, replacement):
+                self.compare_paths(lambda: lexical.terms("cafe 当前缓存", query=True))
 
     def test_str_subclass_and_nonboolean_query_keep_python_method_and_error_behavior(self):
         class Text(str):

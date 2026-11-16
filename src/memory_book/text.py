@@ -34,9 +34,42 @@ ZH_STOP = frozenset("什么 怎么 如何 为什么 哪个 哪些 是否 现在 
 _NATIVE_CAMEL_BOUNDARY = CAMEL_BOUNDARY
 _NATIVE_ASCII_RUNS = ASCII_RUNS
 _NATIVE_STOP = STOP
+_NATIVE_ZH_STOP = ZH_STOP
+_NATIVE_RUNS = RUNS
+_NATIVE_CJK_RUN = CJK_RUN
+_NATIVE_IDENTIFIER_SEPARATOR = IDENTIFIER_SEPARATOR
 _NATIVE_NORMALIZE = unicodedata.normalize
 _NATIVE_CATEGORY = unicodedata.category
 _NATIVE_FINDITER = re.finditer
+_NATIVE_ASCII_CERTIFIED = (
+    type(CAMEL_BOUNDARY) is re.Pattern and CAMEL_BOUNDARY.pattern == r"([a-z])([A-Z])"
+    and CAMEL_BOUNDARY.flags == re.UNICODE
+    and type(ASCII_RUNS) is re.Pattern and ASCII_RUNS.pattern == r"[a-z0-9]+"
+    and ASCII_RUNS.flags == re.UNICODE
+)
+_NATIVE_FINDITER_CERTIFIED = (
+    getattr(re.finditer, "__module__", None) == "re"
+    and getattr(re.finditer, "__name__", None) == "finditer"
+    and getattr(re.finditer, "__globals__", None) is re.__dict__
+    and getattr(getattr(re.finditer, "__code__", None), "co_name", None) == "finditer"
+)
+_NATIVE_UNICODE_REGEX_CERTIFIED = (
+    type(RUNS) is re.Pattern
+    and RUNS.pattern == rf"[{CJK}]+|[^\W_{CJK}]+(?:[_./:-][^\W_{CJK}]+)*"
+    and RUNS.flags == re.UNICODE
+    and type(CJK_RUN) is re.Pattern and CJK_RUN.pattern == rf"^[{CJK}]+$"
+    and CJK_RUN.flags == re.UNICODE
+    and type(IDENTIFIER_SEPARATOR) is re.Pattern and IDENTIFIER_SEPARATOR.pattern == r"[_./:-]+"
+    and IDENTIFIER_SEPARATOR.flags == re.UNICODE
+)
+_NATIVE_FOLD_CERTIFIED = (
+    type(unicodedata.normalize) is type(len)
+    and getattr(unicodedata.normalize, "__module__", None) == "unicodedata"
+    and getattr(unicodedata.normalize, "__name__", None) == "normalize"
+    and type(unicodedata.category) is type(len)
+    and getattr(unicodedata.category, "__module__", None) == "unicodedata"
+    and getattr(unicodedata.category, "__name__", None) == "category"
+)
 
 
 def _strip_nonspacing_marks(text: str) -> str:
@@ -47,7 +80,7 @@ def _strip_nonspacing_marks(text: str) -> str:
 
 def terms(text: str, *, query: bool = False) -> list[str]:
     """NFKC text -> English words/identifier pieces and Chinese bigrams."""
-    if (_NATIVE is not None and type(text) is str and type(query) is bool
+    if (_NATIVE is not None and _NATIVE_ASCII_CERTIFIED and type(text) is str and type(query) is bool
             and text.isascii() and CAMEL_BOUNDARY is _NATIVE_CAMEL_BOUNDARY
             and ASCII_RUNS is _NATIVE_ASCII_RUNS and STOP is _NATIVE_STOP):
         return _NATIVE.terms_ascii(text, query, STOP)
@@ -61,7 +94,7 @@ def terms(text: str, *, query: bool = False) -> list[str]:
     if text.isascii():
         # After case folding, the Unicode/identifier rule reduces exactly to
         # lowercase ASCII alphanumeric runs; its separators never add tokens.
-        if (_NATIVE is not None and type(text) is str and type(query) is bool
+        if (_NATIVE is not None and _NATIVE_ASCII_CERTIFIED and type(text) is str and type(query) is bool
                 and ASCII_RUNS is _NATIVE_ASCII_RUNS and STOP is _NATIVE_STOP):
             return _NATIVE.ascii_tokens(text, query, STOP)
         parts = ASCII_RUNS.findall(text)
@@ -70,6 +103,12 @@ def terms(text: str, *, query: bool = False) -> list[str]:
         # Remove complete Chinese question phrases before bigramming; otherwise
         # 为什么 leaves the meaningless fragment 为什 as a retrieval feature.
         text = ZH_QUESTION.sub(" ", text)
+    if (_NATIVE is not None and _NATIVE_UNICODE_REGEX_CERTIFIED
+            and type(text) is str and type(query) is bool
+            and RUNS is _NATIVE_RUNS and CJK_RUN is _NATIVE_CJK_RUN
+            and IDENTIFIER_SEPARATOR is _NATIVE_IDENTIFIER_SEPARATOR
+            and STOP is _NATIVE_STOP and ZH_STOP is _NATIVE_ZH_STOP):
+        return _NATIVE.unicode_tokens(text, query, STOP, ZH_STOP)
     result: list[str] = []
     for match in RUNS.finditer(text):
         value = match.group()
@@ -165,7 +204,7 @@ def _evidence_units(text: str, width: int) -> list[tuple[int, int]]:
     A short speaker-labelled line can contain a qualification in a different
     sentence, so keep the whole line when it fits the available window.
     """
-    if (_NATIVE is not None and type(text) is str and type(width) is int
+    if (_NATIVE is not None and _NATIVE_FINDITER_CERTIFIED and type(text) is str and type(width) is int
             and -sys.maxsize - 1 <= width <= sys.maxsize
             and re.finditer is _NATIVE_FINDITER):
         return _NATIVE.evidence_units(text, width)
@@ -194,7 +233,7 @@ def _fold_excerpt_source(text: str) -> tuple[str, list[int]]:
     This is intentionally the historical source-map transform, not whole-text
     NFKD. The local cache retains no text between excerpts or recall calls.
     """
-    if (_NATIVE is not None and type(text) is str
+    if (_NATIVE is not None and _NATIVE_FOLD_CERTIFIED and type(text) is str
             and unicodedata.normalize is _NATIVE_NORMALIZE
             and unicodedata.category is _NATIVE_CATEGORY):
         return _NATIVE.fold_excerpt_source(text, unicodedata.normalize, unicodedata.category)
