@@ -1,38 +1,43 @@
 {
   "schema_version": 1,
-  "recorded_utc": "2026-11-16 14:36:03 UTC",
+  "recorded_at_utc": "2026-11-16T14:49:48Z",
+  "stage": "final-measurement-audited-native-delivery-pending",
+  "baseline_commit": "56eccd8c3a6f1d5637664607936da2595ce50c62",
   "candidate_commit": "4390d013986ab9c96b49cc6964f075f3866f21ee",
   "runtime_sha256": "6ec51c906de94c97f90ec9be3dc50d066c9abedcff283c1e118ef6d6847eb3b7",
   "evaluator_commit": "cfdb3ca2c8ff2d71792e820923057d6613ea08b7",
-  "formal_run_id": 43886529702,
-  "formal_attempt": 1,
-  "formal_branch": "validation/native-core-compatibility-formal-1",
-  "formal_status": "running; no result or release acceptance yet",
-  "native_helpers": 22,
-  "baseline_helpers": 7,
-  "ready_probe_effective_calls": 36,
-  "probe_fallback_calls": 0,
-  "correctness": {
-    "ci_run": 43885311822,
-    "required_jobs": 11,
-    "all_jobs_successful": true,
-    "native_suite": {
-      "tests": 144,
-      "passed": 142,
-      "optional_skips": 2
-    },
-    "asan_ubsan": "same suites passed"
+  "formal_run": {
+    "id": 43886529702,
+    "attempt": 1,
+    "conclusion": "success",
+    "evidence_commit": "51e8d022c164ba714f68db562c9ae280a62c2312",
+    "attempted_calls": 113568,
+    "paired_calls": 56784,
+    "independent_audit": "passed",
+    "remeasured_calls": 0
   },
-  "preparation": {
-    "run_id": 43885419074,
-    "branch": "validation/native-language-wheels-v0.9.0-core-4390d013",
-    "verified_native_cells": 28,
-    "total_native_cells": 30,
-    "pending": "macOS ARM CPython 3.14 and 3.15 queued in latest observed snapshot; asset preparation not yet complete"
+  "query_results": {
+    "primaryPositiveCells": 4,
+    "primaryPositiveRounds": 15,
+    "allPositiveP95Cells": 8,
+    "allPositiveP95Rounds": 30,
+    "ingestionPositiveRounds": 16
   },
-  "prior_evidence": {
-    "formal3": "4e1e6177e9af188a582b2f2e28aafe6290dfae36",
-    "formal4": "1b1f71606140b2eade960fb4618b9a5723469b7e"
+  "native_delivery": {
+    "incomplete_run": 43885419074,
+    "incomplete_reason": "28 wheels passed; macOS ARM jobs lacked runner allocation, one observed cancelled and another queued at retained snapshot. No full-matrix pass claimed.",
+    "replacement_run": 43888785867,
+    "replacement_attempt": 1,
+    "replacement_source": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+    "replacement_status": "in-progress",
+    "same_attempt_receipts_required": true
   },
-  "next": "Finish complete protocol 5 audit and platform preparation; decide from all timings and costs; update validation/README/release notes; only then approve the exact runtime and publish after exact-main CI and fresh final packaging."
+  "runtime_approved_for_publication": false,
+  "publication_completed": false,
+  "next_steps": [
+    "Finish the fresh complete native preparation matrix and independently audit its assets/installations.",
+    "Finalize README, deployment, validation, release notes and explicit acceptance with retained regressions/costs.",
+    "Require final exact-commit 11-job CI, unchanged main, fresh release matrix, verified 67 assets and actual public default native installation."
+  ],
+  "frozen_files": "Do not modify protocol3/4/5 or immutable validation/evidence refs."
 }
