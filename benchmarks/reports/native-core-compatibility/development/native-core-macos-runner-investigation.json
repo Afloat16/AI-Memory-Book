@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-11-16 14:57:19 UTC",
+  "purpose": "Read-only investigation of an officially supported native ARM macOS runner alternative while retaining complete 30-cell and same-attempt packaging gates.",
+  "current_workflow": {
+    "commit": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+    "path": ".github/workflows/release.yml",
+    "git_blob_sha1": "7db42ccf3bd634bd93afbcffaf68c1342966781d",
+    "target": "macos_arm64",
+    "runs_on": "macos-15",
+    "python_architecture": "arm64"
+  },
+  "official_sources": [
+    {
+      "url": "https://docs.github.com/en/actions/reference/runners/github-hosted-runners",
+      "web_reference": "turn5view1",
+      "finding": "The standard runner table identifies macos-15, macos-26 and macos-latest as native arm64/M1 runners. It notes longer startup delays for macOS during high demand."
+    },
+    {
+      "repository": "actions/runner-images",
+      "path": "README.md",
+      "ref": "main",
+      "git_blob_sha1": "cbb0ec6433933cd83d6c749bffbb24a2513388be",
+      "url": "https://github.com/actions/runner-images/blob/main/README.md",
+      "finding": "The current table maps macos-latest and macos-26 to macOS 26 Arm64; macos-15 maps to macOS 15 Arm64."
+    },
+    {
+      "repository": "actions/runner-images",
+      "path": "images/macos/macos-26-arm64-Readme.md",
+      "ref": "main",
+      "git_blob_sha1": "df5d3950c08c80e3a8a6caa99084261dbd6a50d2",
+      "url": "https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md",
+      "finding": "The official native Arm64 image inventory includes Clang and Xcode command line tools."
+    },
+    {
+      "repository": "actions/setup-python",
+      "path": "README.md",
+      "ref": "main",
+      "git_blob_sha1": "c05a2e2b6ea8552395023ad3858537e3eb52e065",
+      "url": "https://github.com/actions/setup-python/blob/main/README.md",
+      "finding": "The action supports an explicit arm64 interpreter architecture input."
+    },
+    {
+      "url": "https://www.githubstatus.com/api/v2/summary.json",
+      "web_reference": "turn5view0",
+      "page_updated_at": "2026-11-16T14:19:23.175Z",
+      "observed_actions_status": "operational",
+      "observed_active_incidents": [
+        "Incident with Pull Requests"
+      ],
+      "finding": "This retrieved snapshot does not establish an Actions-wide or macos-15-specific outage."
+    }
+  ],
+  "possible_change": {
+    "path": ".github/workflows/release.yml",
+    "scope": "Only the macos_arm64 matrix include row",
+    "from": "os: macos-15",
+    "to": "os: macos-26",
+    "rationale": "An explicit supported native ARM image is more stable to audit than the rolling latest label.",
+    "preserve": [
+      "architecture: arm64",
+      "Native Mach-O slice check",
+      "All 30 CPython/target cells",
+      "One coherent run and attempt",
+      "Optimization flags and deployment-target calculation",
+      "Actual installed-native tests and receipt source identity",
+      "Runtime SHA256 6ec51c906de94c97f90ec9be3dc50d066c9abedcff283c1e118ef6d6847eb3b7"
+    ],
+    "limit": "Different image selection is not proof of spare underlying macOS capacity; actual build and installed tests remain required."
+  },
+  "latest_observation": {
+    "observed_utc": "2026-11-16T14:56:14Z",
+    "run_id": 43888785867,
+    "attempt": 1,
+    "successful_native_cells": 25,
+    "macos_arm64_python_312": "success",
+    "macos_arm64_python_315": {
+      "job_id": 133374187454,
+      "status": "in_progress",
+      "runner_name": "GitHub Actions 1000010049"
+    },
+    "remaining_queued_macos_arm64": 4
+  },
+  "disposition": "Continue the currently progressing full run. Keep explicit macos-26 as a reviewed fallback only if another concrete infrastructure failure warrants it.",
+  "actions_taken": "Read-only documentation/status/job review. No workflow mutation, ref update or new run was initiated."
+}
