@@ -82,9 +82,10 @@ def run(with_extras: bool) -> None:
 
         source = work / "source"
         source.mkdir()
-        for name in ("pyproject.toml", "README.md", "LICENSE"):
+        for name in ("pyproject.toml", "setup.py", "README.md", "LICENSE"):
             shutil.copy2(ROOT / name, source / name)
-        shutil.copytree(ROOT / "src" / "memory_book", source / "src" / "memory_book", ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+        shutil.copytree(ROOT / "src" / "memory_book", source / "src" / "memory_book",
+                        ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "*.so", "*.pyd", "*.dylib"))
         wheels = work / "wheels"
         wheels.mkdir()
         command([sys.executable, "-m", "pip", "wheel", "--no-deps", "--no-build-isolation", "--wheel-dir", str(wheels), str(source)], environment)
@@ -98,6 +99,9 @@ def run(with_extras: bool) -> None:
         assert Path(first["launcher"]).parent == bin_dir
         assert Path(first["python"]).is_absolute()
         assert_launcher(first, environment)
+        backend = command([first["python"], "-I", "-c",
+                           "from memory_book._text_backend import BACKEND_NAME; print(BACKEND_NAME)"], environment)
+        assert backend.stdout.strip() == "native", backend.stdout
         print("PASS: isolated install and absolute launcher with spaces and Unicode paths", flush=True)
 
         old_launcher = Path(first["launcher"]).read_bytes()
