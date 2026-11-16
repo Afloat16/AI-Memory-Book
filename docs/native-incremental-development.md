@@ -78,3 +78,30 @@ The new protocol-2 hosted evaluator will compare native builds on both sides,
 verify all five baseline and seven candidate helpers before timing, and save
 every raw attempt plus frozen sources and auditor directly to a Git evidence
 branch. Runtime acceptance remains pending that complete experiment.
+
+## Hosted freeze and distribution follow-up
+
+The runtime candidate is committed as
+`d2f13a3f44742d53c6f47e1d2cd7732e44a5524e`. Evaluator commit
+`3f3c50cbbbf9dfaf023e7aa4f7fce796fa5df099` freezes protocol 2 and the
+[formal plan](../benchmarks/experiments/native_incremental_formal_plan.json)
+(SHA-256 `e5afadba80806dc57b615b37ca719d4c26395ee5d5a207679783e21fd9840f0f`).
+Both untimed public-wrapper probes produce SHA-256
+`ebe4761b17ec0b2f34154558416815713d4a831c10e7b51401f6d1168c9151b8`, with
+the exact registered native-helper counts and all instrumentation restored.
+All 16 evaluator/preservation tests pass, including the real SDK transport
+fixture and the corrupt-run preservation regression found by independent review.
+
+[Hosted run 43850332046](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43850332046)
+is the first attempt of the complete registered matrix: 113,568 planned calls,
+56,784 pairs. These remain planned counts until the final audit confirms them.
+The original protocol-1 files and their evidence are unchanged.
+
+General CI at the candidate commit
+[43849957981](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43849957981)
+found one release-default assertion still tied to v0.8.0 after the package was
+prepared as v0.8.1. The installer entry points and current-version assertions
+are now synchronized; historical release fixtures remain unchanged. All 42
+targeted installer/release tests pass. This distribution-only follow-up does
+not alter the measured runtime or frozen evaluator. No v0.8.1 runtime approval
+hash has been registered while the formal performance result is pending.
