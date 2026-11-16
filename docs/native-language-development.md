@@ -122,3 +122,10 @@ historical-package backend probe. Independent review identified and fixed a
 packaging incompatibility with auditwheel's explicit zero-byte ZIP directory
 entries. Source bytes, wheel RECORD entries, ABI tags and installed binary
 hashes continue to be verified.
+
+The general core CI installs no optional MCP dependency. Its tiny real-protocol
+fixture now skips explicitly when that SDK is absent; the MCP CI job continues
+to execute it. The formal experiment remains pinned to its original evaluator
+commit `b0d3e6157394bda44d5abb468d75dff6472a1692`, where the SDK was installed and
+all 11 evaluator checks passed before timing. This later CI-only availability
+guard does not modify that running checkout, its source hashes or its samples.
