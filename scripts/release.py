@@ -70,8 +70,10 @@ RELEASE_PRERELEASE = {
     "v0.5.0": False,
     "v0.6.0": False,
     "v0.7.0": False,
+    "v0.8.0": False,
 }
 INSTALLERS = ("install.py", "install.sh", "install.ps1")
+NATIVE_RELEASE_TAGS = {"v0.8.0"}
 READ_DELAYS = (1, 2, 4)
 
 
@@ -235,7 +237,7 @@ def finish_release(identity, release, output, *, reconciled=False):
             stream.write(f"tag={tag}\nversion={identity['version']}\ncommit={head}\n")
     print(json.dumps({"published": release["html_url"], "tag": tag, "commit": head,
                       "prerelease": prerelease,
-                      "assets": 7, "reconciled_read_only": reconciled}))
+                      "assets": len(release["assets"]), "reconciled_read_only": reconciled}))
 
 
 def successful_ci(runs, head):
@@ -281,7 +283,7 @@ def source_identity(root):
     require(files and "memory_book/static/index.html" in files, "Missing runtime or reader asset")
     hasher = hashlib.sha256()
     for name, data in sorted(files.items()):
-        if name.endswith(".py"):
+        if name.endswith((".py", ".c", ".h", ".rs")):
             hasher.update(name.removeprefix("memory_book/").encode() + b"\0" + data + b"\0")
     if version in APPROVED_RUNTIME_SHA256:
         require(hasher.hexdigest() == APPROVED_RUNTIME_SHA256[version],
@@ -333,7 +335,10 @@ def canonicalize_and_check(path, identity, sources):
             require(len({e.name for e in entries}) == len(entries), "Duplicate source archive member")
         require(all(n.startswith(prefix) for n in members), "Unexpected source archive root")
         relative = {n.removeprefix(prefix): data for n, data in members.items()}
-        require(all(n in {"README.md", "LICENSE", "PKG-INFO", "pyproject.toml", "setup.cfg"}
+        allowed = {"README.md", "LICENSE", "PKG-INFO", "pyproject.toml", "setup.cfg"}
+        if "memory_book/_native.c" in sources:
+            allowed.add("setup.py")
+        require(all(n in allowed
                     or n.startswith("src/memory_book/") or n.startswith("src/ai_memory_book.egg-info/")
                     for n in relative), "Unexpected source archive content")
         actual = {n.removeprefix("src/"): data for n, data in relative.items() if n.startswith("src/memory_book/")}
@@ -383,6 +388,12 @@ with MemoryBook(":memory:") as book:
 
 def prepare(root, output):
     identity, sources = source_identity(root)
+    if identity["tag"] in NATIVE_RELEASE_TAGS:
+        if str(ROOT) not in sys.path:
+            sys.path.insert(0, str(ROOT))
+        from scripts import native_release
+        require(os.environ.get("NATIVE_WHEEL_DIR"), "Verified native wheel directory is required")
+        return native_release.prepare(root, output, identity, sources, Path(os.environ["NATIVE_WHEEL_DIR"]).resolve())
     require(not output.exists(), "Choose a fresh asset directory; never overwrite a previous local build")
     require({name: importlib.metadata.version(name) for name in BUILD_TOOLS} == BUILD_TOOLS, "Build tool versions differ")
     output.mkdir(parents=True)
@@ -431,7 +442,8 @@ def verify_remote_assets(release, output, *, complete):
     require(len({a["name"] for a in assets}) == len(assets), "Duplicate remote release asset")
     require({a["name"] for a in assets} <= expected.keys(), "Unexpected asset already exists; never overwrite")
     if complete:
-        require({a["name"] for a in assets} == expected.keys() and len(assets) == 7, "Release asset set is incomplete")
+        count = len(expected) if release["tag_name"] in NATIVE_RELEASE_TAGS else 7
+        require({a["name"] for a in assets} == expected.keys() and len(assets) == count, "Release asset set is incomplete")
     with tempfile.TemporaryDirectory(prefix="release-verify-", dir=output.parent) as directory:
         for asset in assets:
             target = expected[asset["name"]]

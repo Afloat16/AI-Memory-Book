@@ -98,3 +98,27 @@ The [candidate diagnostic](../benchmarks/reports/native-language/development/can
 and [its runner](../benchmarks/reports/native-language/development/candidate-profile-runner.py)
 retain the variable local environment result. They are separate from the frozen
 hosted execution, and are not used to infer an end-to-end speedup.
+
+## Distribution checkpoint
+
+The installer now resolves a schema-2 release manifest with the newly created
+environment's own pip compatibility tags, verifies the selected wheel SHA-256,
+and checks the installed default backend and extension SHA before activation.
+Historical release URLs still use their original route. The source and local
+wheel paths report the implementation that actually loaded. Existing launcher
+and installation records remain in place when preparation fails.
+
+The new release preparation path requires receipts for CPython 3.10–3.15 on
+Linux x86-64/AArch64, macOS Intel/Apple Silicon and Windows x64: 30 planned native
+wheels, alongside the compiler-free Python fallback and source archive. These
+platform builds have not yet been executed at this checkpoint. The container
+build compiles the extension in a separate stage and verifies native loading in
+the final image. Legacy release manifests and assets remain unchanged.
+
+Forty-two local installer/release contract tests passed. Most release cases use
+explicit metadata fixtures and must not be reported as platform build results.
+The suite includes a real isolated wheel-selection subprocess and a real
+historical-package backend probe. Independent review identified and fixed a
+packaging incompatibility with auditwheel's explicit zero-byte ZIP directory
+entries. Source bytes, wheel RECORD entries, ABI tags and installed binary
+hashes continue to be verified.
