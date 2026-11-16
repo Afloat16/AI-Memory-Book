@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "status": "development-plan-not-a-result",
+  "baseline_commit": "6a8a9c6d603a812c75def258b11eb563ed590c9b",
+  "baseline_release": "v0.8.0",
+  "baseline_backend": "native",
+  "candidate_backend": "native",
+  "purpose": "Further reduce execution time through equivalent native text loops, measuring only the incremental gain over the already released native v0.8.0.",
+  "candidate_scope": ["identifier_terms alias construction", "literal excerpt occurrence collection if differential tests and diagnostics support it"],
+  "frozen_semantics": [
+    "Database schema, SQL, candidate limits, ranking, tie order and project isolation",
+    "Normalization order, Unicode code-point indexing, source spans and public payloads",
+    "Identifier token order, frequency, query aliasing and dynamic helper behavior",
+    "Segmentation, stable IDs, budgets, cross-call caches and MIT license"
+  ],
+  "development": {
+    "profile_current_native_baseline": true,
+    "microbenchmarks_are_diagnostics_only": true,
+    "retain_python_reference_and_portable_fallback": true,
+    "preserve_rejected_candidates_and_measurements": true,
+    "save_git_checkpoints": true
+  },
+  "formal_requirements": {
+    "freeze_sources_evaluator_build_datasets_and_helper_inventories_before_timing": true,
+    "build_and_verify_native_extension_for_both_sides": true,
+    "independent_sequential_fresh_workers": true,
+    "pair_order": [["baseline", "candidate"], ["candidate", "baseline"], ["candidate", "baseline"], ["baseline", "candidate"]],
+    "cohorts": ["synthetic61", "public1015"],
+    "primary": ["native-char2400", "mcp-char2400"],
+    "secondary": ["native-token1024", "mcp-token1024"],
+    "repetitions_per_worker": 3,
+    "result_cache": "disabled; clearing outside timed regions",
+    "timing_boundary": "Direct recall or actual official-SDK stdio MCP roundtrip, excluding model generation",
+    "identity": ["source/evaluator/plan SHA-256", "both compiled binaries and build logs", "compiler and flags", "Python/SQLite/Unicode/dependency versions", "machine and dataset identity", "query order and full attempt ledgers"],
+    "equality": "Complete indexed/source contents and per-query payloads including exact source coordinates; exclude only the predeclared nondeterministic timestamp and latency fields",
+    "resources": ["fresh and unchanged ingestion", "startup", "process RSS and peak RSS", "CPU time", "database/WAL/SHM bytes"],
+    "evidence": "Keep every started attempt and completed round; save raw reports, frozen auditor and compiled binaries to a dedicated Git evidence ref automatically",
+    "acceptance": "Exact differential and end-to-end equality, repeatable primary improvement without a material unexplained regression, exact-commit CI and verified native-wheel delivery are required for default adoption",
+    "reporting": "Report incremental results against v0.8.0 separately from earlier Python-to-native gains; retain regressions and resource costs"
+  }
+}
