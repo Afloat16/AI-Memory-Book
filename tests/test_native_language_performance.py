@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import copy
 import gzip
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -187,7 +188,8 @@ class EvidenceAuditTests(unittest.TestCase):
 
 
 class ActualProtocolSmoke(unittest.TestCase):
-    @unittest.skipUnless(sys.platform == "linux", "Registered procfs protocol is Linux-specific")
+    @unittest.skipUnless(sys.platform == "linux" and importlib.util.find_spec("mcp") is not None,
+                         "The real protocol fixture requires Linux and the optional MCP SDK")
     def test_small_fixture_real_sdk_roundtrip_and_source_checks(self):
         code = textwrap.dedent('''
             import asyncio, json, os, pathlib, tempfile
