@@ -6,7 +6,7 @@
 
 [English](README.md) · [方法概述](#方法概述) · [快速开始](#快速开始) · [2400 字符实测](#2400-字符实测) · [开源方案对比](#开源方案对比)
 
-**v0.7.0 · MIT · Python 3.10+ · 本地 SQLite / FTS5**
+**v0.8.0 · MIT · Python 3.10+ · 本地 SQLite / FTS5**
 
 ## 方法概述
 
@@ -36,19 +36,19 @@
 
 ## 快速开始
 
-需要 **Python 3.10+ 与 SQLite FTS5**。v0.7.0 新增固定项目的 MCP 连接与目录/原文后续读取的项目校验，并保留标识符检索、时间意图控制和归档维护能力。安装器使用隔离环境，包含 MCP/客户端依赖，无需克隆仓库或安装 Node.js。已有归档请按[升级步骤](docs/deployment.md#upgrading)更新；已经使用 schema 4 的归档在 v0.7.0 中无需新的模式迁移，schema 4 迁移步骤只适用于更早的归档模式。
+需要 **Python 3.10+ 与 SQLite FTS5**。v0.8.0 通过 C 扩展加速经测量确认的文本循环，并保留现有检索行为、固定项目的 MCP 连接与归档接口。安装器使用隔离环境，包含 MCP/客户端依赖，无需克隆仓库或安装 Node.js。已有归档请按[升级步骤](docs/deployment.md#upgrading)更新；已经使用 schema 4 的归档在 v0.8.0 中无需新的模式迁移，schema 4 迁移步骤只适用于更早的归档模式。
 
 **macOS / Linux**
 
 ~~~bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.7.0/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.8.0/scripts/install.sh
 bash install-memory-book.sh
 ~~~
 
 **Windows PowerShell**
 
 ~~~powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.7.0/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.8.0/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ~~~
 
@@ -75,7 +75,7 @@ memory-book --db ./demo-memory.db backup --output ./backups/demo-snapshot.db
 memory-book --db ./backups/demo-snapshot.db check-database
 ~~~
 
-从 [v0.7.0 源码](https://github.com/Afloat16/AI-Memory-Book/tree/v0.7.0)取得示例后，在仓库目录执行，并选择新的数据库和快照路径。[开发工作流指南](docs/engineering-workflows.md)讲解算法约束、失败尝试、标识符检索、Python 接入、精确 token 预算、来源核对及恢复操作。示例中的参数用于演示，不代表生产配置建议。
+从 [v0.8.0 源码](https://github.com/Afloat16/AI-Memory-Book/tree/v0.8.0)取得示例后，在仓库目录执行，并选择新的数据库和快照路径。[开发工作流指南](docs/engineering-workflows.md)讲解算法约束、失败尝试、标识符检索、Python 接入、精确 token 预算、来源核对及恢复操作。示例中的参数用于演示，不代表生产配置建议。
 
 ## 默认配置
 
@@ -137,7 +137,7 @@ v0.6.0 在同一诊断中记录为 **37 次通过、77 次不支持新断言**�
 
 ## 仅更换执行语言的加速
 
-v0.8.0 候选版将五个经剖析确认的文本处理循环替换为可选的 CPython C 扩展。公开接口和检索决策继续由 Python 承担，SQLite 的模式、SQL 与 FTS5 索引保持原样，并保留 Python 参考实现。原文坐标、页面 ID、排序、项目范围、预算和缓存规则延续 v0.7.0 的行为。
+v0.8.0 将五个经剖析确认的文本处理循环替换为可选的 CPython C 扩展。公开接口和检索决策继续由 Python 承担，SQLite 的模式、SQL 与 FTS5 索引保持原样，并保留 Python 参考实现。原文坐标、页面 ID、排序、项目范围、预算和缓存规则延续 v0.7.0 的行为。
 
 冻结实验在同一托管运行器上交替执行四轮 A/B，每个工作进程重复三遍。**113,568 次调用、56,784 对结果**全部通过执行时记录的完整输出、归档和来源坐标检查；从原始记录独立复核后，完整重现了原报告。这两套数据用于性能与兼容性回归，没有新增召回质量或模型回答结论。
 
@@ -152,7 +152,7 @@ v0.8.0 候选版将五个经剖析确认的文本处理循环替换为可选的 
 
 计时不含模型生成；查询结果缓存没有命中，SQLite/操作系统缓存未清空。结果来自一台 Ubuntu/CPython 3.12 主机，不能外推到所有平台和数据规模。公开集的收益较小。下方 v0.6.0 工程组件对比继续保留其原始实验边界。[完整配置、资源代价与可复核证据](docs/native-language-validation.md)。
 
-原生安装包正在执行与发布相同的 30 项平台矩阵：CPython 3.10–3.15，以及 Linux x86-64/AArch64、macOS Intel/Apple Silicon、Windows x64。兼容平台的发布安装器会选择并校验原生 wheel；其他环境使用无需编译器的 Python 回退包。请使用**安装器输出的 Python 解释器**检查实际后端：
+原生安装包已通过与发布相同的全部 30 项平台矩阵：CPython 3.10–3.15，以及 Linux x86-64/AArch64、macOS Intel/Apple Silicon、Windows x64。兼容平台的发布安装器会选择并校验原生 wheel；其他环境使用无需编译器的 Python 回退包。请使用**安装器输出的 Python 解释器**检查实际后端：
 
 ~~~bash
 python -c "from memory_book._text_backend import BACKEND_NAME; print(BACKEND_NAME)"
@@ -297,4 +297,4 @@ Book 比平铺 FTS **多找全 20 题**，比最近历史**多找全 16 题**，
 
 运行 `memory-book serve` 可在 [127.0.0.1:8765](http://127.0.0.1:8765) 检查归档。归档是本地未加密数据，召回证据会进入所用客户端的模型上下文；项目过滤不是多用户权限控制。客户端配置备份不等于数据库自动备份，详见[数据位置与维护](docs/deployment.md#data-and-configuration-paths)。
 
-项目独立实现，采用 [MIT 许可证](LICENSE)。[当前发布版](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.7.0) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml)。
+项目独立实现，采用 [MIT 许可证](LICENSE)。[当前发布版](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.8.0) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml)。

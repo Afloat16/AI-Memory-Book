@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.8.0 — equivalent native text execution (candidate)
+## 0.8.0 — equivalent native text execution
 
 Translate measured text-processing loops into an optional CPython C extension,
 preserving the existing public API, retrieval policy and archive format. See the
@@ -18,8 +18,9 @@ preserving the existing public API, retrieval policy and archive format. See the
   pairs. Default-budget p95 reductions are 9.44%/8.15% on synthetic direct/MCP
   and 2.07%/1.85% on public direct/MCP. Record all token-budget cells, startup
   regressions and essentially unchanged/slightly higher memory alongside gains.
-- Select release wheels using the installed interpreter's compatibility tags;
-  verify source, wheel, extension and receipt hashes. Preserve a compiler-free
+- Select release wheels using the installed interpreter's compatibility tags
+  and verify wheel/loaded-extension hashes. The release pipeline also verifies
+  source bytes and build receipts. Preserve a compiler-free
   Python fallback and source distribution. Exercise the actual platform matrix
   before publication.
 - Recover the interrupted formal artifact without rerunning timed work;
