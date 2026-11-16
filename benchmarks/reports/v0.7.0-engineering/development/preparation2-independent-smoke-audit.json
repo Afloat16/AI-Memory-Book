@@ -1,0 +1,98 @@
+{
+  "scope": "Independent audit of retained tiny real native preparation only; no quality retrieval",
+  "result": {
+    "smoke_status": "failed",
+    "registered_limitations": [
+      {
+        "kind": "native_ascii_nocase_project_scope_incompatible_with_exact_case_ids",
+        "commit": "c4a9f5725f420bf9c6e866cdd3b94bd36498af09",
+        "trace_id": "smoke:claude_mem:0",
+        "requested_project": "scope-a",
+        "foreign_original_records": [
+          {
+            "hit_id": "p_b5dc5c131f7836d3bcbc5fd1",
+            "project": "Scope-a"
+          }
+        ],
+        "response_sha256": "688ee99b40e6c855fb89329ad57136185f64bd804e1474f87de03d470f15a2fb",
+        "quality_success": false
+      },
+      {
+        "kind": "native_ascii_nocase_project_scope_incompatible_with_exact_case_ids",
+        "commit": "c4a9f5725f420bf9c6e866cdd3b94bd36498af09",
+        "trace_id": "smoke:claude_mem:2",
+        "requested_project": "Scope-a",
+        "foreign_original_records": [
+          {
+            "hit_id": "p_46bcb9fdb2f66aa366facc26",
+            "project": "scope-a"
+          }
+        ],
+        "response_sha256": "52e85727d7fcc6243660faa87610f7ad086e1afd449658a4778e54fa4c5aedbe",
+        "quality_success": false
+      }
+    ],
+    "passed_backends": [
+      "book",
+      "billion",
+      "basic_memory",
+      "chroma",
+      "langgraph",
+      "mem0",
+      "reme"
+    ],
+    "evaluator": {
+      "files": {
+        "benchmarks/engineering_components.py": "48b2f7752f80622296b9ace09d4941ae5396296d06cf00f39afe8ea0764be5e7",
+        "benchmarks/engineering_workflow.py": "3d1c53ef016a7143c86cf1326f2bf5b5cf7260863e91225d9a7e09a9773cdc6e",
+        "benchmarks/competitors/billion.py": "659d8296742b84a32d8094dc9756f48675582551e15bb411ff73842fa7ba9f14",
+        "benchmarks/competitors/billion_bridge.mjs": "8279eac093e3e51c5dfdcc9dc8dd2730f36c4653b78175a127e85b0ec62f6c93",
+        "benchmarks/competitors/compile_billion.mjs": "64cfba78b1c8bea6cf606aedb3e76c27c0ccefecb1a7f26a14c9a72029619b91",
+        "benchmarks/competitors/download.py": "2bb2bc414826223f515d7b89e3a001e6586ab8813c5f6eaa2eaa7580d4376365",
+        "benchmarks/competitors/billion-round2-lock.json": "0f56614fb56f3f269f6e40eb28646a8939fdf4e6dddcc93187465d31311dfd69",
+        "benchmarks/memory_systems.py": "cbfa1f23ac556dd3daf04c8509c374affca86bf0d8968b4a13db454b9af548cd",
+        "benchmarks/competitors/claude_mem.py": "40e23f39527e2c7e9232668de2a9536d537132c886d47018bef5c8023c2edbdc",
+        "benchmarks/competitors/claude_mem_bridge.ts": "51ce601093267d610644fcbc75241b4a75061f611c937888964e14588e0f660c",
+        "benchmarks/competitors/claude-mem-round2-lock.json": "49267441d4a1292bdd6232abfd78a109fc97fcfcfcf740a51a84d767d6c3edae",
+        "benchmarks/competitors/memory_systems.py": "9e99942bfe9be7f5b0fa8e4fc6a022831eb6cb0dfdcc2cde793cc8dca048a31d",
+        "benchmarks/competitors/memory_systems_worker.py": "8234df7cf8cf3649b701c816be196d237958f5974cdc8d19beb5e0192dae4305",
+        "benchmarks/competitors/memory-systems-lock.json": "3eb7b0c83eb7fe487e9d4b243c605d4a9b7df258c84ecc93d9ad072a3c941d1f",
+        "benchmarks/competitors/memory-systems-plan.md": "ef6756032c6b11b1a48cb340ea05850858f6fc66f92141c9c17fc4d9e2d9aa89",
+        "benchmarks/competitors/memory-systems-requirements.in": "faccb4d2f566618f1eea188eb06c82860d420ffdd77e9e8c7f8c5a3183098772",
+        "benchmarks/competitors/memory-systems-requirements.txt": "611d1cfa7a8c7794d222beff186140ae6803b81f9192247f7dd1174ebc920cd1",
+        "benchmarks/project_navigation.py": "55102a087cbd54fb3ad5ea72d181d835a0f161061834b97cb061238f4f154ca6",
+        "benchmarks/project_navigation_data.py": "5ea7308232366b3bb387c5afcb02a19225c7f90369d83d0f1724d929f0f3cb9b",
+        "benchmarks/project_navigation_contracts.py": "01828537f3454e14c02369a66cbd51290b2d6c5771aa49d42f76b5eabbd5e9ac",
+        "benchmarks/project_navigation-plan.md": "5e88c018bbdc9fd6b887cad14542025985c1d325dff6b1487a1094a2a350ff3b",
+        "benchmarks/competitors/reme.py": "ca8b6dca3fa7f75b630d906e061fe261e3dbedc3f8bf2defd7c38a9e928436ee",
+        "benchmarks/competitors/reme_worker.py": "35dbcd12a44799f1317054a000bef299c108186473b39145d93a409d854f6d3e",
+        "benchmarks/competitors/reme-lock.json": "7a5871d8c3cd8bd15326d0c21572b37b717321d58e3d109706bcb98a964b0167",
+        "benchmarks/competitors/reme-requirements.in": "f288a194bfbee6f8fc3a2f820da734744894d9aa7278971a7dfe0c20db1b3309",
+        "benchmarks/competitors/reme-requirements.txt": "16f7d03a579a0e78a2cc9453695f12bdd48341f841c5cee51e893e7d6c618276",
+        ".github/workflows/project-navigation-comparison.yml": "d32d75d0089018ccb6b3784f90d09f2a32c12916a403d872db440239a34b3785"
+      },
+      "sha256": "c4061bde98964bd4fcddeccff80aa16f18fd6a2318714667f2fc4be82f0af59c"
+    }
+  },
+  "checks": 455,
+  "failures": [],
+  "input_files": {
+    "/workspace/scratch/3c1f3115f539/AI-Memory-Book/benchmarks/reports/v0.7.0-engineering/preparation-attempt2/adapter-smoke/report.json": {
+      "sha256": "4cb39033b0d5fa9929ac836cdb349cafe3ea41ad0496c594e180dec26dbe2c2c",
+      "bytes": 732467
+    },
+    "/workspace/scratch/3c1f3115f539/AI-Memory-Book/benchmarks/reports/v0.7.0-engineering/preparation-attempt2/smoke-eligibility.json": {
+      "sha256": "2908d909a257bfa4fb9cfffd8ebb69f0673cedf576675cfb35323cd3d319e32e",
+      "bytes": 1880
+    },
+    "/workspace/scratch/3c1f3115f539/AI-Memory-Book/benchmarks/reports/v0.7.0-engineering/preparation-attempt2/adapter-smoke/documents.json": {
+      "sha256": "9efa7ab7be6c184a3e01aff231e969d22aab4a36132120056f22c6559b53724f",
+      "bytes": 1876
+    },
+    "/workspace/scratch/3c1f3115f539/AI-Memory-Book/benchmarks/reports/v0.7.0-engineering/preparation-attempt2/adapter-smoke/transport.jsonl.gz": {
+      "sha256": "40adba412aafe23df0e708be6bcb59d462a06fb8956ed8587cd770e83dbbb7ae",
+      "bytes": 1064
+    }
+  },
+  "script_sha256": "2f4f06cae69f33932b5e4c03e48ea887690f665f2ad3bc1905e397b116011d11"
+}

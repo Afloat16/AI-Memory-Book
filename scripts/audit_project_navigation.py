@@ -129,6 +129,7 @@ def registered_scope_response(audit, observation, documents, metadata, query, pr
         doc = documents[identity]
         for field in ("title", "text", "project"):
             audit.equal(row[field], doc[field], "scope_failure_unmodified_original_source", context + "/" + identity + "/" + field)
+        audit.equal(row.get("memory_session_id"), "supplied-page:" + identity, "scope_failure_native_page_identity", context + "/" + identity)
         audit.equal(row["project"].translate(lower), project.translate(lower), "only_registered_ascii_case_mismatch", context)
         if row["project"] != project:
             foreign.append({"hit_id": identity, "project": row["project"]})
@@ -371,6 +372,95 @@ def audit_extended_track(audit, folder, proto, label, cohort):
             "quality_matrix_complete": failure is None,
             "missing_by_category": missing_by_category,
             "missing_evidence": old.missing_evidence_summary(rows, proto[1], BACKENDS)}
+
+
+def audit_smoke(audit, evidence):
+    """Recheck the tiny real API evidence independently of the producer gate."""
+    folder = evidence / "adapter-smoke"
+    report, gate = audit.json(folder / "report.json"), audit.json(evidence / "smoke-eligibility.json")
+    projects = ("scope-a", "scope-ab", "Scope-a", "absent-project")
+    fixtures = {project: {"project": project, "session_id": "same-session", "task_id": "contract",
+        "created_at": "2026-01-01T00:00:00Z", "messages": [
+            {"role": "user", "content": "memorytoken_alpha source contract"},
+            {"role": "assistant", "content": f"memorytoken_alpha uses exact value {value}."}]}
+        for project, value in (("scope-a", "ALPHA17"), ("scope-ab", "BETA91"), ("Scope-a", "GAMMA42"))}
+    raw_docs = audit.json(folder / "documents.json")
+    docs = {doc["id"]: doc for doc in raw_docs}
+    audit.equal(len(docs), 3, "smoke_three_distinct_source_ids", "smoke")
+    audit.equal(len(raw_docs), 3, "smoke_no_duplicate_sources", "smoke")
+    audit.equal(sorted(doc["project"] for doc in raw_docs), sorted(fixtures), "smoke_exact_original_projects", "smoke")
+    for doc in raw_docs:
+        source = fixtures[doc["project"]]
+        verify_navigation_document(audit, doc, source, engineering.original_turn(source), "smoke/document/" + doc["id"])
+    traces_raw = audit.jsonl(folder / "transport.jsonl")
+    expected_ids = {(f"smoke:claude_mem:{index}",) for index in range(4)}
+    traces = audit.unique(traces_raw, ("trace_id",), expected_ids, "smoke/transport")
+    for index, project in enumerate(projects):
+        trace = traces.get((f"smoke:claude_mem:{index}",), {})
+        for key, wanted in {"backend": "claude_mem", "checkpoint": "smoke", "case_id": "smoke:" + project,
+                            "project": project, "repetition": 0, "status": "returned",
+                            "request": {"op": "search", "query": "memorytoken_alpha", "project": project, "limit": 5}}.items():
+            audit.equal(trace.get(key), wanted, "smoke_original_transport_request", project + "/" + key)
+        audit.equal(trace.get("response_sha256"), engineering.sha(trace.get("response")), "smoke_original_transport_hash", project)
+    audit.equal(sorted(report.get("backends", {})), sorted(BACKENDS), "smoke_all_eight_registered_backends", "smoke")
+    limitations, failed_projects = [], []
+    for backend in BACKENDS:
+        item = report.get("backends", {}).get(backend, {})
+        samples = item.get("samples", [])
+        audit.equal([sample.get("project") for sample in samples], list(projects), "smoke_four_fixed_project_requests", backend)
+        for index, sample in enumerate(samples):
+            context = f"smoke/{backend}/{sample['project']}"
+            project = projects[index]
+            audit.equal(sample.get("query"), "memorytoken_alpha", "smoke_fixed_query", context)
+            trace = traces.get((f"smoke:claude_mem:{index}",), {}) if backend == "claude_mem" else None
+            if trace is not None:
+                audit.equal(sample.get("transport_trace_ids"), [trace.get("trace_id")], "smoke_original_transport_binding", context)
+            if sample.get("status") == "passed":
+                ids, native = sample["hit_ids"], sample["native"]
+                audit.check((not ids) if project == "absent-project" else bool(ids), "smoke_expected_source_presence", context)
+                if backend == "reme":
+                    verify_reme_native(audit, native, ids, docs, project, context)
+                else:
+                    old.verify_native_payload(audit, backend, native, ids, docs, project, context)
+                if trace is not None:
+                    audit.equal({key: value for key, value in native.items() if key != "bridge_ms"}, trace.get("response"),
+                                "smoke_success_equals_original_transport", context)
+            else:
+                audit.equal(backend, "claude_mem", "only_registered_smoke_backend_mismatch", context)
+                audit.check(project in ("scope-a", "Scope-a"), "only_case_colliding_smoke_requests_mismatch", context)
+                audit.equal(sample.get("status"), "failed", "smoke_scope_mismatch_remains_failed", context)
+                audit.equal(sample.get("error_type"), "ValueError", "smoke_registered_exception_type", context)
+                audit.equal(sample.get("error"), "Native project scope violation", "smoke_registered_exception_message", context)
+                proof = registered_scope_response(audit, trace, docs, item.get("metadata", {}),
+                                                  "memorytoken_alpha", project, context)
+                if proof is not None:
+                    limitations.append(proof)
+                    failed_projects.append(project)
+        audit.equal(item.get("status"), "failed" if any(sample.get("status") != "passed" for sample in samples) else "passed",
+                    "backend_smoke_status_preserves_failed_calls", backend)
+    failures = report.get("failures", [])
+    audit.equal([failure.get("project") for failure in failures], failed_projects, "smoke_all_and_only_registered_failures", "smoke")
+    for failure, proof in zip(failures, limitations):
+        for key, wanted in {"backend": "claude_mem", "stage": "smoke", "query": "memorytoken_alpha",
+                            "error_type": "ValueError", "message": "Native project scope violation",
+                            "transport_trace_ids": [proof["trace_id"]], "scope_diagnosis": proof}.items():
+            audit.equal(failure.get(key), wanted, "smoke_failure_independently_authenticated", key)
+        audit.check(failure.get("error", "").rstrip().endswith("ValueError: Native project scope violation"),
+                    "smoke_original_exception_retained", "smoke")
+    expected_status = "failed" if limitations else "passed"
+    audit.equal(report.get("status"), expected_status, "smoke_failure_never_declared_passed", "smoke")
+    for key, wanted in {"schema": "project-navigation-execution-eligibility-v1",
+                        "status": "eligible_with_registered_scope_mismatch" if limitations else "eligible",
+                        "eligible_for_execution": True, "smoke_status": expected_status,
+                        "all_smokes_passed": not limitations, "registered_limitations": limitations,
+                        "blocking_reasons": [], "retained_failure_count": len(limitations)}.items():
+        audit.equal(gate.get(key), wanted, "smoke_execution_eligibility_independently_recomputes", key)
+    for name in ("report.json", "documents.json", "transport.jsonl"):
+        audit.equal(gate.get("input_sha256", {}).get(name), hashlib.sha256(audit.payload(folder / name)).hexdigest(),
+                    "smoke_gate_bound_to_original_evidence", name)
+    return {"smoke_status": expected_status, "registered_limitations": limitations,
+            "passed_backends": [backend for backend in BACKENDS if report["backends"][backend]["status"] == "passed"],
+            "evaluator": report.get("evaluator", {})}
 
 
 def strings(value):
@@ -759,6 +849,11 @@ def compare_packed(audit, left, right, cases, backends, context):
             "mismatches": mismatches, "comparison": "All packed response fields, no exclusions"}
 
 
+def verify_previous_release(audit, report, context):
+    audit.equal(report.get("runtime", {}).get("sha256"), V060_RUNTIME_SHA,
+                "previous_reference_is_published_v060_runtime", context)
+
+
 def run(evidence, output, *, previous=DEFAULT_PREVIOUS):
     evidence, output, previous = Path(evidence).resolve(), Path(output).resolve(), Path(previous).resolve()
     if output.exists():
@@ -784,6 +879,9 @@ def run(evidence, output, *, previous=DEFAULT_PREVIOUS):
                             "neighbor_fact_absent_from_requested_project", case["id"])
         result["cohort_denominators"] = {"engineering": expected_counts(engineering_proto[1]),
                                          "same-topic": expected_counts(same_proto[1])}
+        smoke = audit.capture("independent_smoke_audit", "adapter-smoke", lambda: audit_smoke(audit, evidence))
+        if smoke is not None:
+            result["smoke"] = smoke
         tracks = {}
         specs = (("native", evidence / "native", old.NATIVE_BACKENDS, False),
                  ("components", evidence / "components", ("book", "billion"), True),
@@ -796,6 +894,8 @@ def run(evidence, output, *, previous=DEFAULT_PREVIOUS):
                                   old.audit_track(audit, f, engineering_proto, b, l, c))
             if track is not None:
                 tracks[label] = track
+                if label.startswith("previous_"):
+                    verify_previous_release(audit, track["report"], label)
         for label, cohort, proto in (("project_engineering", "engineering", engineering_proto),
                                      ("project_same_topic", "same-topic", same_proto)):
             track = audit.capture("extended_track_audit", label, lambda l=label, c=cohort, p=proto:
@@ -807,7 +907,10 @@ def run(evidence, output, *, previous=DEFAULT_PREVIOUS):
                                         "native_pairs_audited": len(track["native"]) if track["native"] is not None else None,
                                         "summary": track["summary"], "by_category": track["by_category"],
                                         "native_timing": track["native_timing"], "missing_evidence": track["missing_evidence"],
-                                        "missing_by_category": track.get("missing_by_category")}
+                                        "missing_by_category": track.get("missing_by_category"),
+                                        "completed_backends": track.get("completed_backends"),
+                                        "quality_matrix_complete": track.get("quality_matrix_complete", True),
+                                        "registered_limitations": track.get("registered_limitations", [])}
         contracts = audit.capture("navigation_contract_audit", "navigation-contracts",
                                   lambda: audit_contracts(audit, evidence / "navigation-contracts", same_proto))
         if contracts is not None:
@@ -839,13 +942,19 @@ def run(evidence, output, *, previous=DEFAULT_PREVIOUS):
         for label, proto in (("project_engineering", engineering_proto), ("project_same_topic", same_proto)):
             if label in tracks:
                 result["current_book_vs_competitors"][label] = [old.paired(tracks[label]["rows"], tracks[label]["rows"], proto[1],
-                    budget, backend, "book", "current shared whole-block components") for backend in BACKENDS if backend != "book" for budget in BUDGETS]
+                    budget, backend, "book", "current shared whole-block components")
+                    for backend in tracks[label]["completed_backends"] if backend != "book" for budget in BUDGETS]
         host, frozen = audit.json(evidence / "host.json"), audit.json(evidence / "freeze.json")
         audit.equal(host.get("preparation_only"), False, "full_quality_run_not_preparation_only", "host")
         for key, wanted in {"schema": "project-navigation-freeze-v1", "approved": True,
                             "engineering_dataset_sha256": ENGINEERING_SHA, "same_topic_dataset_sha256": SAME_TOPIC_SHA,
-                            "backends": list(BACKENDS), "repeats": 3, "budgets_chars": list(BUDGETS)}.items():
+                            "backends": list(BACKENDS), "repeats": 3, "budgets_chars": list(BUDGETS),
+                            "audit_sha256": old.file_sha(__file__), "audit_helper_sha256": old.file_sha(old.__file__),
+                            "reader_asset_sha256": old.file_sha(ROOT / "src/memory_book/static/index.html")}.items():
             audit.equal(frozen.get(key), wanted, "approved_freeze_binding", key)
+        if smoke is not None:
+            audit.equal(smoke.get("evaluator", {}).get("sha256"), frozen.get("evaluator_sha256"),
+                        "full_run_smoke_uses_frozen_protocol", "smoke")
         for label in ("project_engineering", "project_same_topic"):
             if label in tracks:
                 for field in ("runtime", "evaluator"):
@@ -855,6 +964,8 @@ def run(evidence, output, *, previous=DEFAULT_PREVIOUS):
     except Exception:
         audit.check(False, "audit_execution", "run", error=traceback.format_exc())
     audit.finalize_inputs()
+    audit.equal(old.file_sha(__file__), result["script_sha256"], "auditor_unchanged_during_audit", "audit")
+    audit.equal(old.file_sha(old.__file__), result["audit_helper_sha256"], "audit_helper_unchanged_during_audit", "audit")
     result.update(status="passed" if not audit.failures else "failed", failures=audit.failures,
                   checks={"total": sum(audit.counts.values()), "failed": sum(audit.failed_counts.values()),
                           "by_name": {key: {"total": count, "failed": audit.failed_counts[key]} for key, count in sorted(audit.counts.items())}},

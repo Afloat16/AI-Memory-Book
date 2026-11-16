@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import copy
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -36,7 +37,126 @@ def scope_row(name, response=None, *, chapter="ch-scope-a"):
             "calls": [call]}
 
 
+def scope_failure_records(folder):
+    """Handwritten transport protocol fixture; no competitor is executed."""
+    docs = {item["id"]: item for item in (document("p-a", "scope-a", "original A"),
+                                          document("p-b", "scope-ab", "original B"),
+                                          document("p-c", "Scope-a", "original C"))}
+    cases = {identity: {"id": identity, "checkpoint": 1, "project": project, "query": "fixture-query"}
+             for identity, project in (("first", "scope-ab"), ("failed", "scope-a"), ("later", "scope-ab"))}
+    proto = ([{"checkpoint": 1}], cases, {}, {})
+    metadata = {"repository": "thedotmack/claude-mem", "commit": audit.CLAUDE_PIN,
+                "package_version": "15.18.1", "fts_integrity_check": True,
+                "lock_sha256": audit.old.file_sha(audit.ROOT / "benchmarks/competitors/claude-mem-round2-lock.json")}
+    traces = []
+    for ordinal, (identity, repeat, hits) in enumerate((
+            ("first", 0, ["p-b"]), ("first", 1, ["p-b"]), ("first", 2, ["p-b"]), ("failed", 0, ["p-a", "p-c"]))):
+        case = cases[identity]
+        response = {"hit_ids": hits, "search_ms": 1.0, "native_payload": [
+            {**{key: docs[hit][key] for key in ("text", "title", "project")}, "memory_session_id": "supplied-page:" + hit}
+            for hit in hits]}
+        traces.append({"backend": "claude_mem", "checkpoint": 1, "case_id": identity,
+                       "project": case["project"], "repetition": repeat, "trace_id": f"1:claude_mem:{ordinal}",
+                       "status": "returned", "request": {"op": "search", "query": case["query"], "project": case["project"], "limit": 5},
+                       "response": response, "response_sha256": audit.engineering.sha(response)})
+    proof = {"kind": audit.SCOPE_LIMITATION, "commit": audit.CLAUDE_PIN, "trace_id": traces[-1]["trace_id"],
+             "requested_project": "scope-a", "foreign_original_records": [{"hit_id": "p-c", "project": "Scope-a"}],
+             "response_sha256": traces[-1]["response_sha256"], "quality_success": False}
+    failure = {"backend": "claude_mem", "checkpoint": 1, "case_id": "failed", "project": "scope-a",
+               "query": "fixture-query", "repetition": 0, "stage": "query", "error_type": "ValueError",
+               "message": "Native project scope violation", "error": "ValueError: Native project scope violation\n",
+               "transport_trace_ids": [traces[-1]["trace_id"]], "scope_diagnosis": proof}
+    folder.mkdir()
+    (folder / "checkpoint-1.json").write_text(json.dumps({"backends": {"claude_mem": metadata}}))
+    (folder / "transport.jsonl").write_text("".join(json.dumps(row) + "\n" for row in traces))
+    return proto, {1: docs}, {"failures": [failure]}, traces
+
+
 class ProjectNavigationAuditContracts(unittest.TestCase):
+    def test_native_scope_failure_authenticates_exact_prefix_without_creating_zero_scores(self):
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp) / "fixture"
+            proto, docs, report, traces = scope_failure_records(folder)
+            tracker = audit.old.Audit()
+            counts, observed, limitations, failure = audit.audit_transport_and_failure(
+                tracker, folder, proto, docs, report, "fixture", "same-topic")
+            self.assertEqual(tracker.failures, [])
+            self.assertEqual(len(counts), 23)
+            self.assertEqual(counts[("first", "claude_mem")], 3)
+            self.assertEqual(counts[("failed", "claude_mem")], 0)
+            self.assertNotIn(("later", "claude_mem"), counts)
+            self.assertEqual(len([(key, budget) for key, count in counts.items() if count == 3 for budget in audit.BUDGETS]), 44)
+            self.assertEqual(limitations, [report["failures"][0]["scope_diagnosis"]])
+            self.assertEqual(failure, report["failures"][0])
+            samples = []
+            for trace in traces[:3]:
+                native = {**trace["response"], "bridge_ms": 2.0}
+                samples.append({"repetition": trace["repetition"], "hit_ids": native["hit_ids"], "native": native,
+                    "native_sha256": audit.engineering.sha(audit.old.stable_native(native)),
+                    "adapter_call_ms": 3.0, "native_search_ms": 1.0, "native_bridge_ms": 2.0,
+                    "transport_trace_ids": [trace["trace_id"]]})
+            rows = [{"case_id": identity, "backend": "claude_mem", "checkpoint": 1,
+                     "project": proto[1][identity]["project"], "query": "fixture-query", "samples": own}
+                    for identity, own in (("first", samples), ("failed", []))]
+            (folder / "native.jsonl").write_text("".join(json.dumps(row) + "\n" for row in rows))
+            audit.audit_extended_native(tracker, folder, proto[1], docs, "fixture",
+                                        {key: value for key, value in counts.items() if key[1] == "claude_mem"}, observed)
+            self.assertEqual(tracker.failures, [])
+            rows[1]["samples"] = [copy.deepcopy(samples[0])]
+            (folder / "native.jsonl").write_text("".join(json.dumps(row) + "\n" for row in rows))
+            changed = audit.old.Audit()
+            audit.audit_extended_native(changed, folder, proto[1], docs, "fixture",
+                                        {key: value for key, value in counts.items() if key[1] == "claude_mem"}, observed)
+            self.assertGreater(changed.failed_counts["exact_completed_native_repetitions"], 0)
+
+    def test_unexplained_missing_transport_prefix_scope_and_other_errors_cannot_excuse_partial_matrix(self):
+        for corruption in ("missing_transport", "prefix_scope", "changed_body", "changed_pin", "wrong_error", "wrong_cohort"):
+            with self.subTest(corruption=corruption), tempfile.TemporaryDirectory() as temp:
+                folder = Path(temp) / "fixture"
+                proto, docs, report, traces = scope_failure_records(folder)
+                cohort = "same-topic"
+                if corruption == "missing_transport":
+                    traces.pop(0)
+                elif corruption == "prefix_scope":
+                    traces[-1]["response"]["hit_ids"][-1] = "p-b"
+                    traces[-1]["response"]["native_payload"][-1] = traces[0]["response"]["native_payload"][0]
+                    traces[-1]["response_sha256"] = audit.engineering.sha(traces[-1]["response"])
+                elif corruption == "changed_body":
+                    traces[-1]["response"]["native_payload"][-1]["text"] += " changed"
+                    traces[-1]["response_sha256"] = audit.engineering.sha(traces[-1]["response"])
+                elif corruption == "changed_pin":
+                    checkpoint = json.loads((folder / "checkpoint-1.json").read_text())
+                    checkpoint["backends"]["claude_mem"]["commit"] = "unregistered"
+                    (folder / "checkpoint-1.json").write_text(json.dumps(checkpoint))
+                elif corruption == "wrong_error":
+                    report["failures"][0]["error_type"] = "RuntimeError"
+                else:
+                    cohort = "engineering"
+                (folder / "transport.jsonl").write_text("".join(json.dumps(row) + "\n" for row in traces))
+                tracker = audit.old.Audit()
+                audit.audit_transport_and_failure(tracker, folder, proto, docs, report, "fixture", cohort)
+                self.assertTrue(tracker.failures)
+
+    def test_previous_reference_requires_the_published_runtime_identity(self):
+        tracker = audit.old.Audit()
+        audit.verify_previous_release(tracker, {"runtime": {"sha256": audit.V060_RUNTIME_SHA}}, "previous")
+        self.assertEqual(tracker.failures, [])
+        audit.verify_previous_release(tracker, {"runtime": {"sha256": "current runtime"}}, "wrong-reference")
+        self.assertEqual(tracker.failed_counts["previous_reference_is_published_v060_runtime"], 1)
+
+    def test_wrong_book_case_cannot_reuse_another_legitimate_guard_request(self):
+        project, neighbor = audit.data.PROJECT_IDS[:2]
+        addresses = {neighbor: {"chapter_id": "ch-valid", "section_id": "sec-valid", "page_id": "p-valid"}}
+        row = {"request": {"project": project, "foreign_project": neighbor, "address_kind": "chapter"},
+               "calls": [{"method": "chapter", "args": ["ch-valid"], "kwargs": {"project": neighbor, "limit": 1}, "status": "ok"},
+                         {"method": "chapter", "args": ["ch-valid"], "kwargs": {"project": project, "limit": 1},
+                          "status": "error", "error_type": "KeyError"}]}
+        tracker = audit.old.Audit()
+        audit.audit_wrong_book(tracker, row, f"wrong-book:{project}:chapter", addresses, "valid")
+        self.assertEqual(tracker.failures, [])
+        audit.audit_wrong_book(tracker, row, f"wrong-book:{project}:section", addresses, "reused")
+        self.assertEqual(tracker.failed_counts["guard_canonical_case_request"], 1)
+
     def test_native_reme_hash_and_lf_coordinates_have_a_fixed_reference(self):
         value = audit.reme_identity(document())
         self.assertEqual(value["native_path"],
@@ -163,6 +283,33 @@ class ProjectNavigationAuditContracts(unittest.TestCase):
             audit.audit_call_traffic(tracker, row, "tiny")
             audit.audit_roundtrip(tracker, row, source["project"], docs, originals, "tiny")
             self.assertEqual(tracker.failures, [])
+            for field in ("chapter_id", "section_id"):
+                changed = copy.deepcopy(row)
+                changed["resolved_address"][field] = "never-returned"
+                tracker = audit.old.Audit()
+                audit.audit_roundtrip(tracker, changed, source["project"], docs, originals, "changed-address")
+                self.assertGreater(tracker.failed_counts["resolved_address_matches_navigated_directory"], 0)
+            for method, field, value, failed_check in (
+                    ("read_turn", "total_chars", 99999, "native_read_original_total_chars"),
+                    ("read_turn", "next_offset", None, "native_read_contiguous_next_offset"),
+                    ("read_turn", "message_indices", [1], "turn_original_message_indices")):
+                changed = copy.deepcopy(row)
+                next(call for call in changed["calls"] if call["method"] == method)["response"][field] = value
+                tracker = audit.old.Audit()
+                audit.audit_roundtrip(tracker, changed, source["project"], docs, originals, "changed-source-window")
+                self.assertGreater(tracker.failed_counts[failed_check], 0)
+            changed = copy.deepcopy(row)
+            next(call for call in changed["calls"] if call["method"] == "read")["response"]["source_refs"][0]["session_id"] = "another-source"
+            tracker = audit.old.Audit()
+            audit.audit_roundtrip(tracker, changed, source["project"], docs, originals, "changed-page-reference")
+            self.assertGreater(tracker.failed_counts["page_read_original_source_reference"], 0)
+            doc = next(iter(docs.values()))
+            tracker = audit.old.Audit()
+            audit.verify_navigation_document(tracker, doc, source, originals[source_id], "valid-document")
+            self.assertEqual(tracker.failures, [])
+            altered = {**doc, "title": "producer invented this title"}
+            audit.verify_navigation_document(tracker, altered, source, originals[source_id], "changed-document")
+            self.assertEqual(tracker.failed_counts["navigation_canonical_question_title"], 1)
 
     def test_independent_scope_audit_accepts_real_two_source_fixture(self):
         from benchmarks import project_navigation_contracts as contracts
@@ -177,6 +324,11 @@ class ProjectNavigationAuditContracts(unittest.TestCase):
             self.assertEqual(row["status"], "passed", row.get("error"))
             audit.verify_scope_call(tracker, row, row["case_id"][len("scope:"):], chapter, originals, row["case_id"])
         self.assertEqual(tracker.failures, [])
+        changed = copy.deepcopy(next(row for row in rows if row["case_id"] == "scope:explicit-project"))
+        changed["calls"][0]["response"]["context"] += "\nUNREFERENCED: scopecontracttoken exact value BETA91."
+        tracker = audit.old.Audit()
+        audit.verify_scope_call(tracker, changed, "explicit-project", chapter, originals, "foreign-fragment")
+        self.assertEqual(tracker.failed_counts["scope_context_entirely_cited_originals"], 1)
 
 
 if __name__ == "__main__":

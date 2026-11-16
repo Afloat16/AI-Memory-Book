@@ -80,7 +80,7 @@ jobs:
         if: ${{ !endsWith(github.ref_name, '-prepare') && steps.eligibility.outcome == 'success' }}
         run: |
           python - <<'PY'
-          import json, shutil
+          import hashlib, json, shutil
           from pathlib import Path
           import memory_book
           from benchmarks import engineering_workflow as engineering
@@ -93,7 +93,10 @@ jobs:
                       'evaluator_sha256': comparison.source_identity()['sha256'],
                       'engineering_dataset_sha256': engineering.sha(engineering.workload()),
                       'same_topic_dataset_sha256': engineering.sha(same_topic.workload()),
-                      'backends': list(comparison.BACKENDS), 'repeats': 3, 'budgets_chars': [1200, 2400]}
+                      'backends': list(comparison.BACKENDS), 'repeats': 3, 'budgets_chars': [1200, 2400],
+                      'audit_sha256': hashlib.sha256(Path('scripts/audit_project_navigation.py').read_bytes()).hexdigest(),
+                      'audit_helper_sha256': hashlib.sha256(Path('scripts/audit_memory_systems.py').read_bytes()).hexdigest(),
+                      'reader_asset_sha256': hashlib.sha256(Path('src/memory_book/static/index.html').read_bytes()).hexdigest()}
           for key, value in expected.items():
               if engineering.sha(frozen.get(key)) != engineering.sha(value):
                   raise ValueError('Unapproved or changed frozen quality input: ' + key)
