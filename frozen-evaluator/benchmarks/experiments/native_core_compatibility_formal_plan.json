@@ -1,0 +1,203 @@
+{
+  "schema_version": 5,
+  "protocol": "native-core-compatibility-performance-5",
+  "sources": {
+    "baseline": {
+      "commit": "56eccd8c3a6f1d5637664607936da2595ce50c62",
+      "backend": "native"
+    },
+    "candidate": {
+      "commit": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "backend": "native"
+    }
+  },
+  "native_helper_calls": {
+    "baseline": {
+      "ascii_tokens": 1,
+      "evidence_units": 4,
+      "fold_excerpt_source": 4,
+      "identifier_aliases": 44,
+      "literal_positions": 3,
+      "terms_ascii": 34,
+      "unicode_tokens": 35
+    },
+    "candidate": {
+      "ascii_tokens": 1,
+      "build_pages": 16,
+      "context_allocations": 2,
+      "evidence_units": 4,
+      "excerpt_window": 3,
+      "fold_excerpt_source": 4,
+      "identifier_aliases": 44,
+      "identifier_has_boundary": 63,
+      "literal_positions": 3,
+      "make_turns": 9,
+      "page_cuts": 13,
+      "projected_units": 1,
+      "rank_candidates": 1,
+      "refs_from_parsed": 1,
+      "segment_turns": 11,
+      "segmentation_ready": 36,
+      "select_novelty": 1,
+      "source_map_matches": 1,
+      "source_units": 1,
+      "strip_nonspacing_marks": 36,
+      "terms_ascii": 34,
+      "unicode_tokens": 35
+    }
+  },
+  "engine_order": [
+    [
+      "baseline",
+      "candidate"
+    ],
+    [
+      "candidate",
+      "baseline"
+    ],
+    [
+      "candidate",
+      "baseline"
+    ],
+    [
+      "baseline",
+      "candidate"
+    ]
+  ],
+  "cohorts": [
+    "synthetic61",
+    "public1015"
+  ],
+  "configurations": [
+    "native-char2400",
+    "mcp-char2400",
+    "native-token1024",
+    "mcp-token1024"
+  ],
+  "query_seed": 110061,
+  "limit": 5,
+  "repetitions_per_worker": 3,
+  "excluded_native_response_fields": [
+    "latency_ms"
+  ],
+  "result_cache": "disabled-native-cleared-before-each-mcp-call",
+  "primary": [
+    "native-char2400",
+    "mcp-char2400"
+  ],
+  "secondary": [
+    "native-token1024",
+    "mcp-token1024"
+  ],
+  "expected_timed_calls": 113568,
+  "expected_paired_calls": 56784,
+  "scope": "Independent native core compatibility revision against released native v0.8.1. Both prior full experiments remain immutable: protocol3 was rejected for unchanged-reingestion cost, while protocol4's e911 runtime failed exact unpack-exception compatibility in newer CPython wheels. This new experiment does not replace or selectively rerun either prior result.",
+  "timing": "Sequential fresh workers on one hosted Ubuntu 24.04 VM. Direct MemoryBook.recall and real official-SDK stdio MCP are distinct surfaces; both sides force the native text backend. No generation model.",
+  "execution": "One first-attempt hosted execution on validation/native-core-compatibility-formal-1. Preserve every started attempt, completed worker, regression and failure. No selective reruns or replacement of timed data.",
+  "resources": "Record startup, all four paired fresh/unchanged ingestion batches per cohort with complete ordered raw returns, process memory/CPU and storage. Python and operating-system caches are not cleared.",
+  "preservation": "The same hosted job preserves raw attempts, both binary/build identities and the frozen offline auditor directly in an evidence Git branch, even if preparation or measurement fails. Artifact upload is an additional copy.",
+  "decision": "Exact full-output/source/index equality is mandatory. Evaluate repeatability across all four paired rounds and both primary surfaces, retain all secondary cells and costs, and require native delivery gates before adoption. Do not infer whole-product speed from helper diagnostics.",
+  "build_policy": {
+    "definition": "source-commit-bound-per-label",
+    "compiler_and_flags": "identical",
+    "native_compilation": "one-native-extension-all-c-h-inputs"
+  },
+  "resource_comparisons": [
+    "fresh_ingestion_ms",
+    "unchanged_reingestion_ms"
+  ],
+  "probe": "One identical isolated non-corpus public-wrapper suite is executed uninstrumented and once per singly wrapped helper before measured database creation. It may warm process imports/regex/SQLite-library state, but no measured database, result cache or tokenizer vocabulary. Every instrumented output must equal the ordinary output; both sources' ordinary outputs must match.",
+  "freeze_status": "Frozen before the first hosted compatibility execution. Exact candidate 4390d013986ab9c96b49cc6964f075f3866f21ee and released baseline 56eccd8c3a6f1d5637664607936da2595ce50c62 were independently probed with their actual native binaries: all 7/22 helpers return effective native results, zero NotImplemented fallbacks, and identical ordinary/instrumented outputs. Exact total/effective/fallback counts and both immutable prior experiments are retained.",
+  "native_helper_effective_calls": {
+    "baseline": {
+      "ascii_tokens": 1,
+      "evidence_units": 4,
+      "fold_excerpt_source": 4,
+      "identifier_aliases": 44,
+      "literal_positions": 3,
+      "terms_ascii": 34,
+      "unicode_tokens": 35
+    },
+    "candidate": {
+      "ascii_tokens": 1,
+      "build_pages": 16,
+      "context_allocations": 2,
+      "evidence_units": 4,
+      "excerpt_window": 3,
+      "fold_excerpt_source": 4,
+      "identifier_aliases": 44,
+      "identifier_has_boundary": 63,
+      "literal_positions": 3,
+      "make_turns": 9,
+      "page_cuts": 13,
+      "projected_units": 1,
+      "rank_candidates": 1,
+      "refs_from_parsed": 1,
+      "segment_turns": 11,
+      "segmentation_ready": 36,
+      "select_novelty": 1,
+      "source_map_matches": 1,
+      "source_units": 1,
+      "strip_nonspacing_marks": 36,
+      "terms_ascii": 34,
+      "unicode_tokens": 35
+    }
+  },
+  "native_helper_fallback_calls": {
+    "baseline": {
+      "ascii_tokens": 0,
+      "evidence_units": 0,
+      "fold_excerpt_source": 0,
+      "identifier_aliases": 0,
+      "literal_positions": 0,
+      "terms_ascii": 0,
+      "unicode_tokens": 0
+    },
+    "candidate": {
+      "ascii_tokens": 0,
+      "build_pages": 0,
+      "context_allocations": 0,
+      "evidence_units": 0,
+      "excerpt_window": 0,
+      "fold_excerpt_source": 0,
+      "identifier_aliases": 0,
+      "identifier_has_boundary": 0,
+      "literal_positions": 0,
+      "make_turns": 0,
+      "page_cuts": 0,
+      "projected_units": 0,
+      "rank_candidates": 0,
+      "refs_from_parsed": 0,
+      "segment_turns": 0,
+      "segmentation_ready": 0,
+      "select_novelty": 0,
+      "source_map_matches": 0,
+      "source_units": 0,
+      "strip_nonspacing_marks": 0,
+      "terms_ascii": 0,
+      "unicode_tokens": 0
+    }
+  },
+  "prior_attempt": {
+    "run_id": 43883672930,
+    "evaluator_commit": "0267f6cce5189e42ce9432e228366372e121cf38",
+    "candidate_commit": "e91183bf6dd9e125d6549ec3fe5d9c81598cd131",
+    "evidence_commit": "1b1f71606140b2eade960fb4618b9a5723469b7e",
+    "disposition": "Not accepted for release: the CPython 3.14/3.15 wheel matrix exposed exact unpack-exception compatibility differences. Preserve all original protocol4 performance evidence; a repaired runtime must use a separate complete experiment."
+  },
+  "execution_path_selection": {
+    "removed_native_entry": "joined_turns",
+    "kept_reference": "The exact released Python segmentation._joined body; native build_pages retains its current-global lookup and callback position.",
+    "retained_native_entry": "segmentation_ready",
+    "reason": "The retained same-harness three-shape microdiagnostic found the production _joined wrapper slower than Python after its native boundary and guard costs. Remove this unreleased native execution path instead of preserving a language-migration count.",
+    "evidence_limit": "This choice does not claim an end-to-end gain. The complete independent hosted matrix will test the final 22-helper candidate against released native v0.8.1; all 23-helper drafts and prior diagnostic results remain retained."
+  },
+  "original_core_attempt": {
+    "run_id": 43871304560,
+    "evaluator_commit": "346e5ede35851fd6283bc8be8a34bf4243dc34dd",
+    "candidate_commit": "0be1f09502aff1d4ddc0a9e644be7a62be6a944f",
+    "evidence_commit": "4e1e6177e9af188a582b2f2e28aafe6290dfae36",
+    "disposition": "Not accepted for release: unchanged reingestion regressed in all four rounds in both cohorts. All first-attempt results and costs remain retained."
+  },
+  "compatibility_revision": "Preserve ordinary runtime logic and the full performance matrix while matching the exact CPython 3.14/3.15 unpack-exception strings exposed by the native wheel delivery gate. The verified compatibility runtime is frozen to 4390d013986ab9c96b49cc6964f075f3866f21ee; its full independent timing matrix is required before acceptance."
+}
