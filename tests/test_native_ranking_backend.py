@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import copy
+from decimal import Decimal
 import importlib
 import importlib.util
 import math
@@ -132,6 +133,67 @@ class NativeRankingKernelTests(unittest.TestCase):
         self.assertEqual(results[0], results[1])
         self.assertEqual(calls[0], calls[1])
 
+    def test_callback_title_subclasses_keep_addition_methods_and_lookup_order(self):
+        outcomes = []
+        for implementation in (reference_rank, NATIVE.rank_candidates):
+            rows = [{"id": "a", "rank": -.5, "chapter_title": "first", "session_title": "old"},
+                    {"id": "b", "rank": -.5, "chapter_title": "second", "session_title": "old"}]
+            calls = []
+            class Prefix(str):
+                def __add__(self, other):
+                    calls.append(("add", str(self), other))
+                    rows[1]["session_title"] = "cache"
+                    return str(self) + other
+            def callback(text):
+                calls.append(("tokens", text))
+                rows[1]["chapter_title"] = Prefix("changed")
+                return frozenset(text.split())
+            result = implementation(rows, {"cache"}, callback, True, None, None)
+            outcomes.append((result, calls))
+        self.assertEqual(outcomes[0], outcomes[1])
+        self.assertIn(("tokens", "changed cache"), outcomes[0][1])
+
+    def test_callback_numeric_replacements_preserve_python_operator_errors(self):
+        for mode in ("base", "rank", "exact", "stem"):
+            observed = []
+            for implementation in (reference_rank, NATIVE.rank_candidates):
+                rows = [{"id": "a", "rank": -1.0, "chapter_title": "cache", "session_title": "x"}]
+                base = {"a": 1.0} if mode == "base" else None
+                fusion = ({"a": .5}, 1.0, {"a": .25}, 1.0, {"a": 1}, {"a": 1}) if mode in ("exact", "stem") else None
+                def callback(text):
+                    if mode == "base":
+                        base["a"] = Decimal("2")
+                    elif mode == "rank":
+                        rows[0]["rank"] = Decimal("-2")
+                    else:
+                        fusion[0 if mode == "exact" else 2]["a"] = Decimal("2")
+                    return {"cache"}
+                try:
+                    implementation(rows, {"cache"}, callback, True, base, fusion)
+                except Exception as error:
+                    observed.append((type(error), str(error), "score" in rows[0]))
+                else:
+                    self.fail("Decimal arithmetic should retain Python's TypeError")
+            self.assertEqual(observed[0], observed[1], mode)
+
+    def test_numeric_callback_changes_identity_before_second_fusion_lookup(self):
+        results = []
+        for implementation in (reference_rank, NATIVE.rank_candidates):
+            rows = [{"id": "a", "rank": -1.0, "chapter_title": "cache", "session_title": "x"}]
+            fusion = ({"a": .5, "b": .8}, 1.0, {"a": .25, "b": .75}, 1.0,
+                      {"a": 1, "b": 2}, {"a": 1, "b": 2})
+            class Shifted:
+                def __rmul__(self, factor):
+                    rows[0]["id"] = "b"
+                    return factor * .5
+            def callback(text):
+                fusion[0]["a"] = Shifted()
+                return {"cache"}
+            results.append(implementation(rows, {"cache"}, callback, True, None, fusion))
+        self.assertEqual(results[0], results[1])
+        self.assertEqual(results[1][0]["id"], "b")
+        self.assertEqual(results[1][0]["score"].hex(), (1.75 * 1.15).hex())
+
     def test_unsupported_rank_inputs_decline_without_callbacks_or_partial_scores(self):
         ordinary = [{"id": "a", "rank": -1.0, "chapter_title": "cache", "session_title": "one"},
                     {"id": "b", "rank": -2.0, "chapter_title": "cache", "session_title": "two"}]
@@ -173,6 +235,7 @@ class NativeRankingKernelTests(unittest.TestCase):
         self.assertIs(NATIVE.select_novelty(pool, deferred, {1: {"a"}, 2: set(), 3: {"b"}}, 2, 5), NotImplemented)
         self.assertEqual(deferred, original)
         self.assertIs(NATIVE.select_novelty(pool, deferred, {1: {"a"}}, 0, 5), NotImplemented)
+        self.assertIs(NATIVE.select_novelty(pool, [], {1: {"a"}}, 2**53 + 1, 5), NotImplemented)
 
     def test_context_allocations_match_all_tiny_boundaries_and_unicode_lengths(self):
         rng = random.Random(3341)
@@ -250,7 +313,13 @@ class NativeStoreEquivalenceTests(unittest.TestCase):
                     f"quartz pressure = {i + 10}. The cache stores cached values. 中🙂\n" +
                     "Background source evidence. " * (i % 6)}]})
 
-    def recall(self, backend, query, **options):
+    def recall(self, backend, query, *, warmup=True, **options):
+        # SQLite's first FTS access emits private initialization queries. Prime
+        # the same request on each side before comparing complete SQL traces;
+        # no trace statement is filtered or normalized.
+        if warmup:
+            with patch.object(store, "_NATIVE", backend):
+                self.book.recall(query, use_cache=False, **options)
         self.book._directory_tokens.cache_clear()
         self.book._token_count_memo = None
         statements = []
@@ -298,6 +367,34 @@ class NativeStoreEquivalenceTests(unittest.TestCase):
             finally:
                 self.book._directory_tokens = ordinary
                 self.book.db.row_factory, self.book.db.text_factory = original_rows, original_text
+
+    def test_directory_replacement_inside_a_token_callback_remains_visible(self):
+        ordinary = self.book._directory_tokens
+        real_terms = store.terms
+        results, recorded = [], []
+        try:
+            for backend in (None, NATIVE):
+                self.book._directory_tokens = ordinary
+                ordinary.cache_clear()
+                with patch.object(store, "_NATIVE", backend):
+                    self.book.recall("quartz pressure", limit=50, use_cache=False)
+                ordinary.cache_clear()
+                calls = []
+                def replacement(directory):
+                    calls.append(("replacement", directory))
+                    return frozenset(real_terms(directory, query=True))
+                def changed_terms(text, *, query=False):
+                    calls.append(("terms", text))
+                    self.book._directory_tokens = replacement
+                    return real_terms(text, query=query)
+                with patch.object(store, "terms", changed_terms):
+                    results.append(self.recall(backend, "quartz pressure", limit=50, warmup=False))
+                recorded.append(calls)
+            self.assertEqual(results[0], results[1])
+            self.assertEqual(recorded[0], recorded[1])
+            self.assertTrue(any(kind == "replacement" for kind, _ in recorded[0]))
+        finally:
+            self.book._directory_tokens = ordinary
 
     @unittest.skipUnless(importlib.util.find_spec("tiktoken"), "Install .[tokens]")
     def test_both_token_encoders_keep_exact_budgets_and_source_refs(self):

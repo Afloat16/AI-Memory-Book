@@ -104,16 +104,20 @@ _NATIVE_WINDOW_CERTIFIED = (
         and getattr(function, "__name__", None) == name
         for function, module, name in (
             (math.log1p, "math", "log1p"), (math.fsum, "math", "fsum"),
-            (bisect_left, "_bisect", "bisect_left"), (bisect_right, "_bisect", "bisect_right"),
-            (_NATIVE_C_EVIDENCE_UNITS, "memory_book._native", "evidence_units"),
-            (_NATIVE_C_LITERAL_POSITIONS, "memory_book._native", "literal_positions")))
+            (bisect_left, "_bisect", "bisect_left"), (bisect_right, "_bisect", "bisect_right")))
+    and all(type(function) is type(len)
+            and getattr(function, "__module__", None) in {"_native", "memory_book._native"}
+            and getattr(function, "__name__", None) == name
+            and getattr(function, "__self__", None) is _NATIVE
+            for function, name in ((_NATIVE_C_EVIDENCE_UNITS, "evidence_units"),
+                                   (_NATIVE_C_LITERAL_POSITIONS, "literal_positions")))
     and type(Counter) is type and Counter.__module__ == "collections" and Counter.__name__ == "Counter"
     and Counter.__mro__ == (Counter, dict, object)
     and all(getattr(getattr(Counter, name, None), "__module__", None) == "collections"
             and getattr(getattr(Counter, name, None), "__name__", None) == name
-            for name in ("__init__", "update", "__missing__"))
+            for name in ("__init__", "update", "__missing__", "__delitem__"))
     and all(getattr(Counter, name, None) is getattr(dict, name)
-            for name in ("__new__", "__getitem__", "__setitem__", "__delitem__", "__len__", "values"))
+            for name in ("__new__", "__getitem__", "__setitem__", "__len__", "values"))
 )
 
 

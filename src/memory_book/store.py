@@ -1600,7 +1600,10 @@ class MemoryBook:
                             and _RecallCandidates.values is dict.values))):
                     fusion = ((exact_scores, exact_scale, stem_scores, stem_scale, exact_ranks, stem_ranks)
                               if fuse_routes else None)
-                    ranked = _NATIVE.rank_candidates(list(rows.values()), qset, self._directory_tokens,
+                    # Preserve a replacement made by a directory-token callback:
+                    # the original loop looks this attribute up for each new directory.
+                    lookup_directory = lambda directory: self._directory_tokens(directory)
+                    ranked = _NATIVE.rank_candidates(list(rows.values()), qset, lookup_directory,
                         strategy == "book", base_relevance if bounded is not None else None, fusion)
                 if ranked is not NotImplemented:
                     candidates.extend(ranked)

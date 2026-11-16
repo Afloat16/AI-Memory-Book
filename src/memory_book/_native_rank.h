@@ -74,6 +74,128 @@ rank_required(PyObject *mapping, const char *key)
     return value;
 }
 
+
+static PyObject *
+rank_owned_required(PyObject *mapping, const char *key)
+{
+    PyObject *value = rank_required(mapping, key);
+    Py_XINCREF(value);
+    return value;
+}
+
+static PyObject *
+rank_get_default(PyObject *mapping, PyObject *identity, PyObject *fallback)
+{
+    PyObject *value = PyDict_GetItemWithError(mapping, identity);
+    if (value == NULL) {
+        if (PyErr_Occurred()) return NULL;
+        value = fallback;
+    }
+    Py_INCREF(value);
+    return value;
+}
+
+/* Re-read each operand at the same point as the Python expression. A directory
+ * callback may replace numbers with objects whose arithmetic has observable
+ * methods or errors. Exact floats keep the C path; other values retain Python
+ * numeric dispatch without replaying the callback or earlier arithmetic. */
+static PyObject *
+rank_score_relevance(PyObject *row, PyObject *base, PyObject *fusion)
+{
+    PyObject *identity = NULL, *value = NULL, *product = NULL;
+    PyObject *exact_part = NULL, *stem_part = NULL, *zero = NULL, *two = NULL;
+    PyObject *result = NULL;
+    if (base != Py_None) {
+        identity = rank_owned_required(row, "id");
+        if (identity == NULL) goto done;
+        result = PyObject_GetItem(base, identity);
+        goto done;
+    }
+    if (fusion == Py_None) {
+        value = rank_owned_required(row, "rank");
+        if (value != NULL) result = PyNumber_Negative(value);
+        goto done;
+    }
+    zero = PyFloat_FromDouble(0.0);
+    two = PyLong_FromLong(2);
+    if (zero == NULL || two == NULL) goto done;
+    identity = rank_owned_required(row, "id");
+    if (identity == NULL) goto done;
+    value = rank_get_default(PyTuple_GET_ITEM(fusion, 0), identity, zero);
+    Py_CLEAR(identity);
+    if (value == NULL) goto done;
+    if (PyFloat_CheckExact(value)) {
+        volatile double multiplied = 2.0 * PyFloat_AS_DOUBLE(value);
+        volatile double divided = multiplied / PyFloat_AS_DOUBLE(PyTuple_GET_ITEM(fusion, 1));
+        exact_part = PyFloat_FromDouble(divided);
+        Py_CLEAR(value);
+    } else {
+        product = PyNumber_Multiply(two, value);
+        Py_CLEAR(value);
+        if (product == NULL) goto done;
+        exact_part = PyNumber_TrueDivide(product, PyTuple_GET_ITEM(fusion, 1));
+        Py_CLEAR(product);
+    }
+    if (exact_part == NULL) goto done;
+    identity = rank_owned_required(row, "id");
+    if (identity == NULL) goto done;
+    value = rank_get_default(PyTuple_GET_ITEM(fusion, 2), identity, zero);
+    Py_CLEAR(identity);
+    if (value == NULL) goto done;
+    if (PyFloat_CheckExact(value)) {
+        volatile double divided = PyFloat_AS_DOUBLE(value) / PyFloat_AS_DOUBLE(PyTuple_GET_ITEM(fusion, 3));
+        stem_part = PyFloat_FromDouble(divided);
+    } else {
+        stem_part = PyNumber_TrueDivide(value, PyTuple_GET_ITEM(fusion, 3));
+    }
+    Py_CLEAR(value);
+    if (stem_part == NULL) goto done;
+    if (PyFloat_CheckExact(exact_part) && PyFloat_CheckExact(stem_part)) {
+        result = PyFloat_FromDouble(PyFloat_AS_DOUBLE(exact_part) + PyFloat_AS_DOUBLE(stem_part));
+    } else {
+        result = PyNumber_Add(exact_part, stem_part);
+    }
+done:
+    Py_XDECREF(identity); Py_XDECREF(value); Py_XDECREF(product);
+    Py_XDECREF(exact_part); Py_XDECREF(stem_part); Py_XDECREF(zero); Py_XDECREF(two);
+    return result;
+}
+
+static PyObject *
+rank_sort_key(PyObject *row, Py_ssize_t index, PyObject *fusion, PyObject *missing)
+{
+    PyObject *score = NULL, *negative = NULL, *identity = NULL;
+    PyObject *a = NULL, *b = NULL, *ordinal = NULL, *result = NULL;
+    score = rank_owned_required(row, "score");
+    if (score == NULL) goto done;
+    negative = PyNumber_Negative(score);
+    Py_CLEAR(score);
+    if (negative == NULL) goto done;
+    if (fusion != Py_None) {
+        identity = rank_owned_required(row, "id");
+        if (identity == NULL) goto done;
+        a = rank_get_default(PyTuple_GET_ITEM(fusion, 4), identity, missing);
+        Py_CLEAR(identity);
+        if (a == NULL) goto done;
+        identity = rank_owned_required(row, "id");
+        if (identity == NULL) goto done;
+        b = rank_get_default(PyTuple_GET_ITEM(fusion, 5), identity, missing);
+        Py_CLEAR(identity);
+        if (b == NULL) goto done;
+    }
+    identity = rank_owned_required(row, "id");
+    if (identity == NULL) goto done;
+    ordinal = PyLong_FromSsize_t(index);
+    if (ordinal == NULL) goto done;
+    result = fusion != Py_None
+        ? PyTuple_Pack(6, negative, a, b, identity, ordinal, row)
+        : PyTuple_Pack(4, negative, identity, ordinal, row);
+done:
+    Py_XDECREF(score); Py_XDECREF(negative); Py_XDECREF(identity);
+    Py_XDECREF(a); Py_XDECREF(b); Py_XDECREF(ordinal);
+    return result;
+}
+
 static PyObject *
 native_rank_candidates(PyObject *self, PyObject *args)
 {
@@ -83,7 +205,8 @@ native_rank_candidates(PyObject *self, PyObject *args)
     PyObject *row, *identity, *value, *directory = NULL, *space = NULL;
     PyObject *tokens = NULL, *intersection = NULL, *overlap_value = NULL;
     PyObject *score_value = NULL, *key = NULL, *missing_rank = NULL;
-    PyObject *temporary = NULL;
+    PyObject *temporary = NULL, *chapter = NULL, *session = NULL;
+    PyObject *relevance_object = NULL, *factor_object = NULL;
     Py_ssize_t i, count;
     double exact_scale = 1.0, stem_scale = 1.0;
     int fused, is_book, valid;
@@ -138,17 +261,21 @@ native_rank_candidates(PyObject *self, PyObject *args)
     missing_rank = PyLong_FromLong(97);
     if (work == NULL || overlaps == NULL || keys == NULL || space == NULL || missing_rank == NULL) goto error;
     for (i = 0; i < count; i++) {
-        double title_overlap = 0.0, relevance, score;
-        volatile double multiplied, exact_part, stem_part, bonus, factor;
+        double title_overlap = 0.0, score;
+        volatile double bonus, factor;
         row = PyList_GET_ITEM(work, i);
         if (is_book) {
-            PyObject *chapter = rank_required(row, "chapter_title");
-            PyObject *session = rank_required(row, "session_title");
-            if (chapter == NULL || session == NULL) goto error;
-            temporary = PyUnicode_Concat(chapter, space);
+            chapter = rank_owned_required(row, "chapter_title");
+            if (chapter == NULL) goto error;
+            temporary = PyUnicode_CheckExact(chapter)
+                ? PyUnicode_Concat(chapter, space) : PyNumber_Add(chapter, space);
+            Py_CLEAR(chapter);
             if (temporary == NULL) goto error;
-            directory = PyUnicode_Concat(temporary, session);
-            Py_CLEAR(temporary);
+            session = rank_owned_required(row, "session_title");
+            if (session == NULL) goto error;
+            directory = PyUnicode_CheckExact(temporary) && PyUnicode_CheckExact(session)
+                ? PyUnicode_Concat(temporary, session) : PyNumber_Add(temporary, session);
+            Py_CLEAR(temporary); Py_CLEAR(session);
             if (directory == NULL) goto error;
             overlap_value = PyDict_GetItemWithError(overlaps, directory);
             Py_XINCREF(overlap_value);
@@ -177,64 +304,27 @@ native_rank_candidates(PyObject *self, PyObject *args)
             Py_CLEAR(overlap_value);
             Py_CLEAR(directory);
         }
-        identity = rank_required(row, "id");
-        if (identity == NULL) goto error;
-        if (base != Py_None) {
-            value = PyDict_GetItemWithError(base, identity);
-            if (value == NULL) {
-                if (!PyErr_Occurred()) PyErr_SetObject(PyExc_KeyError, identity);
-                goto error;
-            }
-            relevance = PyFloat_AsDouble(value);
-            if (relevance == -1.0 && PyErr_Occurred()) goto error;
-        } else if (fused) {
-            value = PyDict_GetItemWithError(exact, identity);
-            if (value == NULL && PyErr_Occurred()) goto error;
-            multiplied = 2.0 * (value == NULL ? 0.0 : PyFloat_AsDouble(value));
-            if (PyErr_Occurred()) goto error;
-            exact_part = multiplied / exact_scale;
-            value = PyDict_GetItemWithError(stem, identity);
-            if (value == NULL && PyErr_Occurred()) goto error;
-            stem_part = (value == NULL ? 0.0 : PyFloat_AsDouble(value)) / stem_scale;
-            if (PyErr_Occurred()) goto error;
-            relevance = exact_part + stem_part;
-        } else {
-            value = rank_required(row, "rank");
-            if (value == NULL) goto error;
-            relevance = -PyFloat_AsDouble(value);
-            if (PyErr_Occurred()) goto error;
-        }
+        relevance_object = rank_score_relevance(row, base, fusion);
+        if (relevance_object == NULL) goto error;
         bonus = 0.15 * title_overlap;
         factor = is_book ? 1.0 + bonus : 1.0;
-        score = relevance * factor;
-        score_value = PyFloat_FromDouble(score);
+        if (PyFloat_CheckExact(relevance_object)) {
+            score = PyFloat_AS_DOUBLE(relevance_object) * factor;
+            score_value = PyFloat_FromDouble(score);
+        } else {
+            factor_object = is_book ? PyFloat_FromDouble(factor) : PyLong_FromLong(1);
+            if (factor_object == NULL) goto error;
+            score_value = PyNumber_Multiply(relevance_object, factor_object);
+            Py_CLEAR(factor_object);
+        }
+        Py_CLEAR(relevance_object);
         if (score_value == NULL || PyDict_SetItemString(row, "score", score_value) < 0) goto error;
         Py_CLEAR(score_value);
     }
     /* Build keys after every callback, just as list.sort(key=...) does. */
     for (i = 0; i < count; i++) {
-        PyObject *negative, *ordinal;
         row = PyList_GET_ITEM(work, i);
-        identity = rank_required(row, "id");
-        value = rank_required(row, "score");
-        if (identity == NULL || value == NULL) goto error;
-        negative = PyNumber_Negative(value);
-        if (negative == NULL) goto error;
-        ordinal = PyLong_FromSsize_t(i);
-        if (ordinal == NULL) { Py_DECREF(negative); goto error; }
-        if (fused) {
-            PyObject *a = PyDict_GetItemWithError(exact_ranks, identity);
-            PyObject *b;
-            if (a == NULL && PyErr_Occurred()) { Py_DECREF(negative); Py_DECREF(ordinal); goto error; }
-            b = PyDict_GetItemWithError(stem_ranks, identity);
-            if (b == NULL && PyErr_Occurred()) { Py_DECREF(negative); Py_DECREF(ordinal); goto error; }
-            key = PyTuple_Pack(6, negative, a == NULL ? missing_rank : a,
-                               b == NULL ? missing_rank : b, identity, ordinal, row);
-        } else {
-            key = PyTuple_Pack(4, negative, identity, ordinal, row);
-        }
-        Py_DECREF(negative);
-        Py_DECREF(ordinal);
+        key = rank_sort_key(row, i, fusion, missing_rank);
         if (key == NULL || PyList_Append(keys, key) < 0) goto error;
         Py_CLEAR(key);
     }
@@ -256,6 +346,8 @@ done:
     Py_XDECREF(space); Py_XDECREF(missing_rank); Py_XDECREF(directory);
     Py_XDECREF(tokens); Py_XDECREF(intersection); Py_XDECREF(overlap_value);
     Py_XDECREF(score_value); Py_XDECREF(temporary); Py_XDECREF(key);
+    Py_XDECREF(chapter); Py_XDECREF(session);
+    Py_XDECREF(relevance_object); Py_XDECREF(factor_object);
     return result;
 }
 
@@ -294,7 +386,7 @@ native_select_novelty(PyObject *self, PyObject *args)
             || !PyDict_CheckExact(matched) || PyList_GET_SIZE(pool) == 0) Py_RETURN_NOTIMPLEMENTED;
     valid = rank_ssize(query_value, &query_count);
     if (valid < 0) return NULL;
-    if (!valid || query_count <= 0) Py_RETURN_NOTIMPLEMENTED;
+    if (!valid || query_count <= 0 || query_count > 9007199254740992LL) Py_RETURN_NOTIMPLEMENTED;
     valid = rank_ssize(limit_value, &limit);
     if (valid < 0) return NULL;
     if (!valid) Py_RETURN_NOTIMPLEMENTED;

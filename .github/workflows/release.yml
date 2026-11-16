@@ -165,7 +165,10 @@ jobs:
           subprocess.run([sys.executable, '-m', 'pip', 'install', '--no-deps', '--force-reinstall', str(wheel)], check=True)
           subprocess.run([sys.executable, '-I', '-c', "from memory_book._text_backend import BACKEND_NAME; assert BACKEND_NAME == 'native'"], check=True)
           subprocess.run([sys.executable, '-m', 'unittest', 'tests.test_native_backend',
-                          'tests.test_native_identifier_backend', 'tests.test_native_excerpt_backend', '-v'], check=True)
+                          'tests.test_native_identifier_backend', 'tests.test_native_excerpt_backend',
+                          'tests.test_native_lexical_backend', 'tests.test_native_window_backend',
+                          'tests.test_native_ranking_backend', 'tests.test_native_source_backend',
+                          'tests.test_native_segmentation_backend', '-v'], check=True)
           subprocess.run([sys.executable, 'scripts/native_release.py', 'receipt', '--wheel', str(wheel),
                           '--output', str(wheel) + '.receipt.json', '--target', os.environ['WHEEL_TARGET']], check=True)
           PY
