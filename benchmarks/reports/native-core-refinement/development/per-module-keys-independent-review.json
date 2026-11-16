@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "kind": "native-core-per-module-constant-key-independent-review",
+  "reference_commit": "cff1d9a3c183bf3c84183476f0485926f55abe56",
+  "reviewed_blobs": {
+    "src/memory_book/_native_segmentation.h": "7160fc7194f0c790f5200deb6b8642fe964d389e",
+    "src/memory_book/_native.c": "32c34a7031a748b12193838cb3b7a8bd73c30993"
+  },
+  "conclusion": "No blocking source-level ownership, cleanup, lookup-order or module-state issue identified in the reviewed delta. Lifecycle/build verification is separately owned by the implementation agent and root.",
+  "checked": [
+    "All27 enum entries match their immutable Unicode spellings, including separators; no static PyObject pointer, class state, helper result or input is cached.",
+    "Positive module-state size and Py_mod_exec use independent module instances; state memory is obtained from self and is not manually freed.",
+    "Initialization keeps owned partial references, sets ready only after all keys succeed, and can safely revisit already initialized entries.",
+    "Traversal visits every possibly partial key reference; clear resets ready before unconditionally clearing every key, is idempotent, and free invokes clear with the module pointer.",
+    "Every replaced attribute, global, mapping and dictionary lookup still occurs at its original point; only the immutable name object is reused.",
+    "joined_turns inserts the same six keys in the same order with PyDict_SetItem, so output dictionaries own key/value references independently of module state.",
+    "Custom-metaclass dictionary lookup still performs the actual __dict__ lookup followed by its get method call; no cached result replaces those calls.",
+    "The central method inventory stays at23, with no changes to query/scoring/segmentation decisions or Python public wrappers in this delta."
+  ],
+  "lifecycle_validation_requested": [
+    "Create and execute independent module instances with ExtensionFileLoader, call their helpers, release them and run GC.",
+    "Keep a joined-turn return dictionary alive after its originating module is released and check that all keys/values remain valid.",
+    "Where supported by the interpreter configuration, import/call/destroy modules in distinct subinterpreters and confirm main-interpreter behavior remains valid."
+  ],
+  "limits": [
+    "Read-only source/diff review; no performance samples were produced or filtered.",
+    "This receipt does not relabel another agent's tests as independent execution.",
+    "No claim is made about additional GIL configurations, arbitrary C-memory manipulation or every private-global introspection behavior."
+  ]
+}
