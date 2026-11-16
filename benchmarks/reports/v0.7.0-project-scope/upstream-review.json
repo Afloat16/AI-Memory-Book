@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "checked_date": "2026-11-16",
+  "timezone": "Asia/Shanghai",
+  "evidence_kind": "official_source_feature_review",
+  "runtime_experiments_added": 0,
+  "external_project_family_count_before": 14,
+  "external_project_family_count_after": 19,
+  "new_project_families": [
+    "volcengine/OpenViking",
+    "oraios/serena",
+    "EverMind-AI/EverOS",
+    "aiming-lab/SimpleMem",
+    "supermemoryai/supermemory"
+  ],
+  "supplementary_sdk": "langchain-ai/langmem",
+  "method": "Resolve each official repository's main ref once, then read the listed files at that immutable commit through the GitHub connector. Preserve repository commit and content blob identities; record only documented mechanisms and their limits. This manifest contains no measured competitor result.",
+  "existing_experiment_note": "The v0.6.0 supplied-page experiment, six external components, scores, failure records, protocol and dependency locks were not changed by this feature review.",
+  "projects": [
+    {
+      "repository": "volcengine/OpenViking",
+      "sha": "5f53cbf01128d76575c8b2ffce69bfcd3eb96045",
+      "date": "2026-11-16T02:50:43Z",
+      "url": "https://github.com/volcengine/OpenViking/commit/5f53cbf01128d76575c8b2ffce69bfcd3eb96045",
+      "name": "OpenViking",
+      "license_observation": "AGPLv3 in the pinned repository LICENSE; distinct commercial deployment offerings are described separately.",
+      "verified_features": [
+        "Virtual filesystem with directory-level L0/L1 sidecars and full L2 source content.",
+        "Target URI, level, permissions and metadata constrain global vector recall; the current retrieval document explicitly excludes recursive directory traversal.",
+        "Account/user namespaces and optional shared-resource ACLs are documented."
+      ],
+      "limits": [
+        "No runtime retrieval, isolation, quality, latency or resource benchmark executed in this review.",
+        "Availability of L0/L1 depends on processing state; model requirements differ for summaries, vector retrieval and optional intent analysis."
+      ],
+      "runtime_tested": false,
+      "sources": [
+        {
+          "path": "README.md",
+          "git_blob_sha1": "bfc447860187e4d699fb8c5d6dfabdf1e94161ed",
+          "url": "https://github.com/volcengine/OpenViking/blob/5f53cbf01128d76575c8b2ffce69bfcd3eb96045/README.md"
+        },
+        {
+          "path": "docs/en/concepts/04-viking-uri.md",
+          "git_blob_sha1": "6cb67ea8c68e1501d9972b5b1b83a3e1b5d69b81",
+          "url": "https://github.com/volcengine/OpenViking/blob/5f53cbf01128d76575c8b2ffce69bfcd3eb96045/docs/en/concepts/04-viking-uri.md"
+        },
+        {
+          "path": "docs/en/concepts/03-context-layers.md",
+          "git_blob_sha1": "2048e723ca8ffad16bf65c1f0680851e623b102e",
+          "url": "https://github.com/volcengine/OpenViking/blob/5f53cbf01128d76575c8b2ffce69bfcd3eb96045/docs/en/concepts/03-context-layers.md"
+        },
+        {
+          "path": "docs/en/concepts/07-retrieval.md",
+          "git_blob_sha1": "ddd4422714288f9734278026087ba762d79a899b",
+          "url": "https://github.com/volcengine/OpenViking/blob/5f53cbf01128d76575c8b2ffce69bfcd3eb96045/docs/en/concepts/07-retrieval.md"
+        },
+        {
+          "path": "LICENSE",
+          "git_blob_sha1": "27268c8e4ad8c300f7665fe6b20875c580d05f4b",
+          "url": "https://github.com/volcengine/OpenViking/blob/5f53cbf01128d76575c8b2ffce69bfcd3eb96045/LICENSE"
+        }
+      ]
+    },
+    {
+      "repository": "oraios/serena",
+      "sha": "0cef825f802d5323f8cb4bda3a5af52bf704770f",
+      "date": "2026-11-15T16:01:19Z",
+      "url": "https://github.com/oraios/serena/commit/0cef825f802d5323f8cb4bda3a5af52bf704770f",
+      "name": "Serena",
+      "license_observation": "Serena application GPL-3.0-or-later; SolidLSP MIT, as distinguished by the pinned LICENSE.",
+      "verified_features": [
+        "Project Markdown memories live in .serena/memories; global memories are deliberately shared.",
+        "Agents first see memory names; topic directories and mem: references guide detailed reads.",
+        "Memory renames update eligible references; a CLI integrity check reports unresolved references."
+      ],
+      "limits": [
+        "No runtime isolation or retrieval measurement executed.",
+        "Project and global memory are composable; the documented scopes do not by themselves show the behavior of a particular client deployment."
+      ],
+      "runtime_tested": false,
+      "sources": [
+        {
+          "path": "docs/02-usage/045_memories.md",
+          "git_blob_sha1": "5c6b3129aea7b756f33be607853f8b68b239181f",
+          "url": "https://github.com/oraios/serena/blob/0cef825f802d5323f8cb4bda3a5af52bf704770f/docs/02-usage/045_memories.md"
+        },
+        {
+          "path": "LICENSE",
+          "git_blob_sha1": "c738366dedbd850de1fc01a0d4d2777b23370e84",
+          "url": "https://github.com/oraios/serena/blob/0cef825f802d5323f8cb4bda3a5af52bf704770f/LICENSE"
+        }
+      ]
+    },
+    {
+      "repository": "EverMind-AI/EverOS",
+      "sha": "489ac7e921a81cf82cc9273674a0fa2429b861eb",
+      "date": "2026-11-13T08:29:22Z",
+      "url": "https://github.com/EverMind-AI/EverOS/commit/489ac7e921a81cf82cc9273674a0fa2429b861eb",
+      "name": "EverOS (formerly EverMemOS)",
+      "license_observation": "Apache-2.0 in the pinned repository LICENSE.",
+      "verified_features": [
+        "Readable Markdown is canonical storage with SQLite and LanceDB indexes.",
+        "Memory paths are partitioned by app_id/project_id before user-visible directories; user, agent and session fields also support retrieval.",
+        "The normal live ingestion quickstart configures an extraction model; optional providers enable additional retrieval and processing capabilities."
+      ],
+      "limits": [
+        "No runtime comparison executed; historical EverMemOS scores and architecture are not assigned to the current implementation.",
+        "The no-key standalone demo is an educational path, distinct from the live ingestion service."
+      ],
+      "runtime_tested": false,
+      "sources": [
+        {
+          "path": "README.md",
+          "git_blob_sha1": "d3755d8837a1584a77e73a4d53e6af9d92aefe5c",
+          "url": "https://github.com/EverMind-AI/EverOS/blob/489ac7e921a81cf82cc9273674a0fa2429b861eb/README.md"
+        },
+        {
+          "path": "docs/how-memory-works.md",
+          "git_blob_sha1": "ab79383f97f96c9f6248e0374a839d7fc08ea98d",
+          "url": "https://github.com/EverMind-AI/EverOS/blob/489ac7e921a81cf82cc9273674a0fa2429b861eb/docs/how-memory-works.md"
+        },
+        {
+          "path": "LICENSE",
+          "git_blob_sha1": "8e2912af61dcb4d0fca14ab38e2c43a5a6e873d5",
+          "url": "https://github.com/EverMind-AI/EverOS/blob/489ac7e921a81cf82cc9273674a0fa2429b861eb/LICENSE"
+        }
+      ]
+    },
+    {
+      "repository": "aiming-lab/SimpleMem",
+      "sha": "db80b6a7c591e0ea730a058e9f5fc4eb06572299",
+      "date": "2026-07-24T07:40:38Z",
+      "url": "https://github.com/aiming-lab/SimpleMem/commit/db80b6a7c591e0ea730a058e9f5fc4eb06572299",
+      "name": "SimpleMem",
+      "license_observation": "MIT in the pinned repository LICENSE.",
+      "verified_features": [
+        "Text MCP documents model extraction into atomic facts, hybrid retrieval and LanceDB.",
+        "The MCP service documents per-user tables and bearer-token authentication.",
+        "Python research paths include capabilities not yet exposed by the text MCP service."
+      ],
+      "limits": [
+        "No runtime comparison executed.",
+        "Per-user separation is not independent evidence of separate project boundaries for one user.",
+        "Python, multimodal/evolution and text MCP capabilities must be compared using their exact entry points."
+      ],
+      "runtime_tested": false,
+      "sources": [
+        {
+          "path": "README.md",
+          "git_blob_sha1": "7fbd7d8ea0acb4735b8e994af1915e696852f181",
+          "url": "https://github.com/aiming-lab/SimpleMem/blob/db80b6a7c591e0ea730a058e9f5fc4eb06572299/README.md"
+        },
+        {
+          "path": "MCP/README.md",
+          "git_blob_sha1": "d18500421ed262a375a547909b0cd84502baa1bf",
+          "url": "https://github.com/aiming-lab/SimpleMem/blob/db80b6a7c591e0ea730a058e9f5fc4eb06572299/MCP/README.md"
+        },
+        {
+          "path": "LICENSE",
+          "git_blob_sha1": "b41befc15ad0d1ee09ce2165f35ce576cba7b102",
+          "url": "https://github.com/aiming-lab/SimpleMem/blob/db80b6a7c591e0ea730a058e9f5fc4eb06572299/LICENSE"
+        }
+      ]
+    },
+    {
+      "repository": "supermemoryai/supermemory",
+      "sha": "fb105722a4a86b0e4010c09851c83fb93655b121",
+      "date": "2026-11-16T01:35:34Z",
+      "url": "https://github.com/supermemoryai/supermemory/commit/fb105722a4a86b0e4010c09851c83fb93655b121",
+      "name": "Supermemory",
+      "license_observation": "MIT in the pinned repository LICENSE; this observation does not license separately hosted services.",
+      "verified_features": [
+        "Projects/container tags scope memory and profile queries.",
+        "The official README documents hosted and local runtimes with extraction, profiles, documents and hybrid retrieval.",
+        "Offline text memory is documented with Ollama and local embeddings after setup; URL ingestion uses a hosted reader."
+      ],
+      "limits": [
+        "No runtime retrieval, isolation, performance or completeness measurement executed.",
+        "The source review does not establish parity between every local and hosted feature."
+      ],
+      "runtime_tested": false,
+      "sources": [
+        {
+          "path": "README.md",
+          "git_blob_sha1": "8c719544597ee0bc4efff8bc58c3fda9549b1c46",
+          "url": "https://github.com/supermemoryai/supermemory/blob/fb105722a4a86b0e4010c09851c83fb93655b121/README.md"
+        },
+        {
+          "path": "LICENSE",
+          "git_blob_sha1": "7b20e33c1b3d277e200ff1872a109c6d9304bacc",
+          "url": "https://github.com/supermemoryai/supermemory/blob/fb105722a4a86b0e4010c09851c83fb93655b121/LICENSE"
+        }
+      ]
+    },
+    {
+      "repository": "langchain-ai/langmem",
+      "sha": "8620b986af5b0c7593e6b7fbece2998690d22d15",
+      "date": "2026-11-03T15:25:33Z",
+      "url": "https://github.com/langchain-ai/langmem/commit/8620b986af5b0c7593e6b7fbece2998690d22d15",
+      "name": "LangMem (supplement to LangGraph ecosystem)",
+      "license_observation": "MIT in the pinned repository LICENSE.",
+      "verified_features": [
+        "Model-based extraction and management tools integrate with namespaced LangGraph stores.",
+        "The README distinguishes process-local InMemoryStore from persistent database-backed storage."
+      ],
+      "limits": [
+        "No LangMem pipeline was executed by the existing LangGraph store experiment.",
+        "Not counted as an additional project family or independently measured backend."
+      ],
+      "runtime_tested": false,
+      "sources": [
+        {
+          "path": "README.md",
+          "git_blob_sha1": "0d45304375594d1101282711102f1b44cdb52715",
+          "url": "https://github.com/langchain-ai/langmem/blob/8620b986af5b0c7593e6b7fbece2998690d22d15/README.md"
+        },
+        {
+          "path": "LICENSE",
+          "git_blob_sha1": "c38f6f284dc464af69e9f618bc0304d299d0bdf0",
+          "url": "https://github.com/langchain-ai/langmem/blob/8620b986af5b0c7593e6b7fbece2998690d22d15/LICENSE"
+        }
+      ]
+    }
+  ]
+}

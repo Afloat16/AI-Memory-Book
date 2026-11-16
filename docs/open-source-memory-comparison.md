@@ -1,7 +1,7 @@
 # Open-source memory systems: scope, configuration and evidence
 
 Official sources were checked on **2026-11-16 (Asia/Shanghai)**. This comparison
-covers **14 external project families**, including two retrieval/store building
+covers **19 external project families**, including two retrieval/store building
 blocks. It separates the executed supplied-page experiment from documentation
 about complete products. A component score is not a score for its parent
 product's default end-to-end workflow.
@@ -37,6 +37,11 @@ review. Tested package versions and source locks are specified separately in
 the protocol; a current main-branch README does not establish the identity of
 an older or newer installed release.
 
+The five additions in this revision are OpenViking, Serena, EverOS, SimpleMem
+and Supermemory. Their pinned document/blob identities and the claims checked
+are recorded in the [upstream review manifest](../benchmarks/reports/v0.7.0-project-scope/upstream-review.json).
+They have **not** been run on this workload and receive no numerical result.
+
 | Project family | Memory representation and retrieval | Local/model requirements | Source and scope relevant to engineering |
 |---|---|---|---|
 | [billion-context](https://github.com/ranxianglei/billion-context/tree/9674cfafbc78c50245ae0d887483d3d6ce880c15) | Proxy/client context management, reversible compression and searchable blocks | Full workflow can involve model-directed compression; the pinned search kernel runs locally | Stored block references and project filtering; the experiment covers the kernel, not proxy routing or decompression |
@@ -53,6 +58,11 @@ an older or newer installed release.
 | [LongMemory, formerly Cavira OpenMemory][longmemory] | Project memory, immutable provenance and temporal facts | TypeScript engine with memory/SQLite backends; configurable real embedding providers and a documented synthetic fallback | Rich scope/provenance and strict/historical modes are documented; their correctness was not independently measured here |
 | [Basic Memory][basic] | Markdown notes, observations and links, indexed for text/semantic retrieval | Local SQLite or server storage; the tested 1.0.0 release enables a semantic path by default | Original notes, permalinks, matched chunks and project scope; explicit FTS component results do not represent its default full pipeline |
 | [Chroma][chroma] | Documents, IDs, metadata and vectors | Local client/persistence or server; default text embedding downloads a local MiniLM model | ID-based document reads, metadata filtering and collection/tenant/database boundaries; it does not supply an application-specific conversation policy |
+| [OpenViking][openviking] | `viking://` context filesystem; directory abstracts/overviews (L0/L1), original content (L2), and vector retrieval constrained by target directories | Self-hosted service with configurable model providers, including local Ollama; summaries, embeddings and optional intent analysis have their own model requirements | Resource subtrees, account/user namespaces and optional resource ACLs; current retrieval performs scoped global vector search rather than recursively walking the directory tree |
+| [Serena][serena] | Coding toolkit with human-editable Markdown memories, topic directories and explicit `mem:` references; memory names precede detailed reads | Project memory files need no vector database; an attached coding agent performs the reading/writing and may use an LLM | `.serena/memories/` per project plus deliberately shared global memories; rename/reference checking and Git versioning are documented |
+| [EverOS, formerly EverMemOS][everos] | Canonical Markdown conversations/files/agent traces with SQLite and LanceDB indexes; separate user and agent memory surfaces | Local runtime; the normal ingestion quickstart requires an extraction model; vector, reranking and multimodal paths add configured providers | On-disk `app_id/project_id` partitioning and user/agent/session search fields; source files can be inspected and versioned; the no-key educational demo is not the live ingestion pipeline |
+| [SimpleMem][simplemem] | Model-extracted atomic facts with semantic, keyword and metadata retrieval; separate research/Python and MCP paths | Python/Docker self-hosting is documented; the text MCP path uses LLM/embedding services and LanceDB | MCP documents per-user tables and token authentication; this alone does not demonstrate separate projects for one user; Python multimodal/evolution features are not all exposed by MCP |
+| [Supermemory][supermemory] | Extracted memories, profiles, document ingestion and hybrid retrieval, with coding-agent plugins | Hosted API or local runtime; offline text use is documented with Ollama and local embeddings after the initial model download; URL ingestion uses a hosted reader | Project/container tags scope memory and profile queries; documentation of these selectors is not a measured cross-project isolation result |
 
 Local operation, source lookup and support for multiple clients occur in several
 projects. Book's engineering value is its combination of normalized original
@@ -61,6 +71,30 @@ context, identifier-aware lexical lookup and archive maintenance, with no
 default extraction or embedding model. A team needing graph reasoning, editable
 agent state, authored Markdown knowledge or a vector-store API may prefer a
 different architecture.
+
+Directory-oriented navigation and progressive reading are also documented by
+[OpenViking][openviking-layers], [Serena][serena], and
+[claude-mem][claude]; Markdown and project scope are also available in Basic
+Memory and EverOS. These are relevant alternatives, not absent capabilities.
+Book's intended fit is an engineer returning to the original evidence for a
+specific project/task with a bounded context budget. The table does not prove
+that its isolation, completeness or speed exceeds every listed product.
+
+[LangMem][langmem] is reviewed as a companion SDK in the LangGraph ecosystem,
+not counted as another independently tested backend or project family. It
+adds model-driven extraction and management tools over namespaced storage;
+the LangGraph `InMemoryStore` experiment above does not execute that policy.
+
+### Reading the project-scope column
+
+A project directory, namespace, graph group, metadata filter and authenticated
+tenant boundary are different mechanisms. Their names alone do not establish
+equivalent isolation. In a comparison for several similar repositories, each
+adapter must pass the intended project scope on both writes and reads, and the
+same workload must include conflicting facts in other projects. An isolated
+successful lookup does not measure behavior when scope is missing, invalid or
+ambiguous. The newly reviewed projects have not undergone those runtime checks
+here; their listed mechanisms are official-source descriptions only.
 
 ## What has and has not been tested
 
@@ -73,6 +107,8 @@ different architecture.
 | Chroma | Pinned local vector collection and project metadata filter | A complete memory application or all products built on Chroma |
 | LangGraph | Pinned indexed `InMemoryStore` with the same real embedding model | Durable-store behavior, checkpoint recovery and an agent's extraction policy |
 | Letta / Graphiti / MemOS / Memori / Cognee / memvid / LongMemory | Official-source feature review only | Numerical quality, speed, resource use and production correctness in this workload |
+| OpenViking / Serena / EverOS / SimpleMem / Supermemory | Pinned official-source feature review only | All retrieval, completeness, cross-project isolation, latency and resource results in this workload |
+| LangMem companion SDK | Pinned README/API-example review only; grouped with the LangGraph ecosystem | Model-driven memory extraction, management and end-to-end agent behavior |
 | Official MCP memory | Official API/source review | Generic ranked natural-language retrieval; an empty literal-string search is not a semantic-search failure score |
 
 All seven registered backends completed the [retained matrix](../benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/report.json).
@@ -98,9 +134,17 @@ datasets, prompts, budgets or managed services are not copied into these tables.
 - Letta, MemGPT and Letta Code are not counted as three competing systems.
   Graphiti refers to the open-source graph library, not the entire hosted Zep
   service. Chroma and LangGraph are identified as building blocks throughout.
+- EverMemOS's official repository now resolves to EverOS. This review uses the
+  current EverOS Markdown/SQLite/LanceDB design, not its historical server
+  architecture or scores. SimpleMem's Python research paths and text MCP server
+  are also distinguished rather than assigned each other's capabilities.
 - The fixed Basic Memory release declares AGPL-3.0-or-later. LangGraph is MIT.
-  Most other reviewed cores declare Apache-2.0, but the exact repository
-  license and any component/asset exclusions must be checked for reuse.
+  In the new snapshots, [OpenViking][openviking-license] supplies AGPLv3;
+  [Serena's licensing overview][serena-license] assigns GPL-3.0-or-later to its
+  application and MIT to SolidLSP. [SimpleMem][simplemem-license],
+  [Supermemory][supermemory-license] and [LangMem][langmem-license] supply MIT;
+  [EverOS][everos-license] supplies Apache-2.0. These repository observations
+  do not extend a license to separately hosted services or excluded components.
 - [MCP's repository license][mcp-license] describes a MIT-to-Apache-2.0 code
   transition and separately licensed documentation; its memory README retains
   an MIT label. [Memori's LICENSE][memori-license] and README declare
@@ -121,6 +165,12 @@ datasets, prompts, budgets or managed services are not copied into these tables.
 - [LangGraph store reference](https://docs.langchain.com/oss/python/langgraph/stores)
 - [Chroma embedding functions](https://docs.trychroma.com/docs/embeddings/embedding-functions)
 - [LongMemory embedding configuration](https://github.com/CaviraOSS/LongMemory/blob/aec98ced33a7586a2fcd198a04bc38b5590750c4/docs/embeddings.md)
+- [OpenViking URI scopes][openviking-uri], [context layers][openviking-layers] and [retrieval behavior][openviking-retrieval]
+- [Serena memory scopes, topic navigation and reference maintenance][serena]
+- [EverOS on-disk partitioning and memory lifecycle][everos-memory]
+- [SimpleMem text MCP server and per-user tables][simplemem-mcp]
+- [Supermemory local runtime and container tags][supermemory]
+- [LangMem memory tools and storage contract][langmem]
 
 [mem0]: https://github.com/mem0ai/mem0/blob/f1791daa86d469249c9b002f62644d58a1eb96a0/README.md
 [openmemory]: https://github.com/mem0ai/openmemory/blob/2df78cc48e5f688a771fee5b39899325accc2450/README.md
@@ -139,3 +189,20 @@ datasets, prompts, budgets or managed services are not copied into these tables.
 [longmemory]: https://github.com/CaviraOSS/LongMemory/blob/aec98ced33a7586a2fcd198a04bc38b5590750c4/README.md
 [basic]: https://github.com/basicmachines-co/basic-memory/blob/8a9e3ea2346c628876abc39b0d804dafb8e4b64c/README.md
 [chroma]: https://github.com/chroma-core/chroma/blob/1a3ac2c7c623adbd03ed2508dc27b98cdf26016d/README.md
+[openviking]: https://github.com/volcengine/OpenViking/blob/5f53cbf01128d76575c8b2ffce69bfcd3eb96045/README.md
+[openviking-uri]: https://github.com/volcengine/OpenViking/blob/5f53cbf01128d76575c8b2ffce69bfcd3eb96045/docs/en/concepts/04-viking-uri.md
+[openviking-layers]: https://github.com/volcengine/OpenViking/blob/5f53cbf01128d76575c8b2ffce69bfcd3eb96045/docs/en/concepts/03-context-layers.md
+[openviking-retrieval]: https://github.com/volcengine/OpenViking/blob/5f53cbf01128d76575c8b2ffce69bfcd3eb96045/docs/en/concepts/07-retrieval.md
+[openviking-license]: https://github.com/volcengine/OpenViking/blob/5f53cbf01128d76575c8b2ffce69bfcd3eb96045/LICENSE
+[serena]: https://github.com/oraios/serena/blob/0cef825f802d5323f8cb4bda3a5af52bf704770f/docs/02-usage/045_memories.md
+[serena-license]: https://github.com/oraios/serena/blob/0cef825f802d5323f8cb4bda3a5af52bf704770f/LICENSE
+[everos]: https://github.com/EverMind-AI/EverOS/blob/489ac7e921a81cf82cc9273674a0fa2429b861eb/README.md
+[everos-memory]: https://github.com/EverMind-AI/EverOS/blob/489ac7e921a81cf82cc9273674a0fa2429b861eb/docs/how-memory-works.md
+[everos-license]: https://github.com/EverMind-AI/EverOS/blob/489ac7e921a81cf82cc9273674a0fa2429b861eb/LICENSE
+[simplemem]: https://github.com/aiming-lab/SimpleMem/blob/db80b6a7c591e0ea730a058e9f5fc4eb06572299/README.md
+[simplemem-mcp]: https://github.com/aiming-lab/SimpleMem/blob/db80b6a7c591e0ea730a058e9f5fc4eb06572299/MCP/README.md
+[simplemem-license]: https://github.com/aiming-lab/SimpleMem/blob/db80b6a7c591e0ea730a058e9f5fc4eb06572299/LICENSE
+[supermemory]: https://github.com/supermemoryai/supermemory/blob/fb105722a4a86b0e4010c09851c83fb93655b121/README.md
+[supermemory-license]: https://github.com/supermemoryai/supermemory/blob/fb105722a4a86b0e4010c09851c83fb93655b121/LICENSE
+[langmem]: https://github.com/langchain-ai/langmem/blob/8620b986af5b0c7593e6b7fbece2998690d22d15/README.md
+[langmem-license]: https://github.com/langchain-ai/langmem/blob/8620b986af5b0c7593e6b7fbece2998690d22d15/LICENSE
