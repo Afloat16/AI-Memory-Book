@@ -30,7 +30,6 @@
       "fold_excerpt_source": 0,
       "identifier_aliases": 0,
       "identifier_has_boundary": 0,
-      "joined_turns": 0,
       "literal_positions": 0,
       "make_turns": 0,
       "page_cuts": 0,
@@ -128,7 +127,6 @@
       "fold_excerpt_source": 0,
       "identifier_aliases": 0,
       "identifier_has_boundary": 0,
-      "joined_turns": 0,
       "literal_positions": 0,
       "make_turns": 0,
       "page_cuts": 0,
@@ -164,7 +162,6 @@
       "fold_excerpt_source": 0,
       "identifier_aliases": 0,
       "identifier_has_boundary": 0,
-      "joined_turns": 0,
       "literal_positions": 0,
       "make_turns": 0,
       "page_cuts": 0,
@@ -187,5 +184,12 @@
     "candidate_commit": "0be1f09502aff1d4ddc0a9e644be7a62be6a944f",
     "evidence_commit": "4e1e6177e9af188a582b2f2e28aafe6290dfae36",
     "disposition": "Not accepted for release: unchanged reingestion regressed in all four rounds in both cohorts. All first-attempt results and costs remain retained."
+  },
+  "execution_path_selection": {
+    "removed_native_entry": "joined_turns",
+    "kept_reference": "The exact released Python segmentation._joined body; native build_pages retains its current-global lookup and callback position.",
+    "retained_native_entry": "segmentation_ready",
+    "reason": "The retained same-harness three-shape microdiagnostic found the production _joined wrapper slower than Python after its native boundary and guard costs. Remove this unreleased native execution path instead of preserving a language-migration count.",
+    "evidence_limit": "This choice does not claim an end-to-end gain. The complete independent hosted matrix will test the final 22-helper candidate against released native v0.8.1; all 23-helper drafts and prior diagnostic results remain retained."
   }
 }

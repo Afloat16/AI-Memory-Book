@@ -131,7 +131,8 @@ class PlanAndSourceTests(unittest.TestCase):
         self.assertEqual(value["prior_attempt"]["run_id"], 43871304560)
         self.assertEqual(value["prior_attempt"], perf.PRIOR_ATTEMPT)
         self.assertIn("segmentation_ready", perf.PROBE_HELPERS["candidate"])
-        self.assertEqual(len(perf.PROBE_HELPERS["candidate"]), 23)
+        self.assertEqual(len(perf.PROBE_HELPERS["candidate"]), 22)
+        self.assertNotIn("joined_turns", perf.PROBE_HELPERS["candidate"])
         for changed in (None, {}, {**value["prior_attempt"], "evidence_commit": "0" * 40}):
             value = plan()
             value["prior_attempt"] = changed
