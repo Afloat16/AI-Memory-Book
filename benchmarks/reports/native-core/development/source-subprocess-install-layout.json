@@ -1,0 +1,34 @@
+{
+  "purpose": "Validate subprocess package-root isolation; no performance claim",
+  "commit": "5ebb695d9635134d9bad3ccf643dc3720c10236c",
+  "test_blob": "e715a213358ab99ffc2e6662d81c5a3b662aac3a",
+  "test_sha256": "ad7def6fb8ac37ac11e3814d6708b2cfc8c055e16755b8f1788a8bc44749f344",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "build_command": [
+    "gcc",
+    "-shared",
+    "-fPIC",
+    "-O3",
+    "-Wall",
+    "-I/opt/codex/runtimes/codex-primary-runtime/dependencies/python/include/python3.12",
+    "src/memory_book/_native.c",
+    "-o",
+    "/workspace/scratch/e870b2feaa97/native-source-check/src/memory_book/_native.cpython-312-x86_64-linux-gnu.so",
+    "-lm"
+  ],
+  "binary_sha256": "148cfcb67f0a29cf300b452a6f39458f304dcc129ad0ca464d7c474d46afd8b0",
+  "cases": [
+    {
+      "layout": "in-place-source",
+      "returncode": 0,
+      "stdout": "{\"package\": \"/workspace/scratch/e870b2feaa97/native-source-check/src/memory_book/token_budget.py\", \"run\": 1, \"failures\": 0, \"errors\": 0, \"skipped\": 0, \"log\": \"test_preimport_wrapped_regex_function_is_not_certified (source_install_check.NativeSourceUnitsTests.test_preimport_wrapped_regex_function_is_not_certified) ... ok\\n\\n----------------------------------------------------------------------\\nRan 1 test in 0.080s\\n\\nOK\\n\"}\n",
+      "stderr": ""
+    },
+    {
+      "layout": "separate-installed-package",
+      "returncode": 0,
+      "stdout": "{\"package\": \"/workspace/scratch/e870b2feaa97/native-source-check/.artifacts/source-install-layout/installed/memory_book/token_budget.py\", \"run\": 1, \"failures\": 0, \"errors\": 0, \"skipped\": 0, \"log\": \"test_preimport_wrapped_regex_function_is_not_certified (source_install_check.NativeSourceUnitsTests.test_preimport_wrapped_regex_function_is_not_certified) ... ok\\n\\n----------------------------------------------------------------------\\nRan 1 test in 0.069s\\n\\nOK\\n\"}\n",
+      "stderr": ""
+    }
+  ]
+}

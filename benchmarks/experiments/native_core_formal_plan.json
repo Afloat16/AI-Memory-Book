@@ -1,0 +1,111 @@
+{
+  "schema_version": 3,
+  "protocol": "native-core-performance-3",
+  "sources": {
+    "baseline": {
+      "commit": "56eccd8c3a6f1d5637664607936da2595ce50c62",
+      "backend": "native"
+    },
+    "candidate": {
+      "commit": "UNFROZEN",
+      "backend": "native"
+    }
+  },
+  "native_helper_calls": {
+    "baseline": {
+      "terms_ascii": 0,
+      "ascii_tokens": 0,
+      "unicode_tokens": 0,
+      "fold_excerpt_source": 0,
+      "evidence_units": 0,
+      "identifier_aliases": 0,
+      "literal_positions": 0
+    },
+    "candidate": {
+      "terms_ascii": 0,
+      "ascii_tokens": 0,
+      "unicode_tokens": 0,
+      "fold_excerpt_source": 0,
+      "evidence_units": 0,
+      "identifier_aliases": 0,
+      "literal_positions": 0,
+      "strip_nonspacing_marks": 0,
+      "identifier_has_boundary": 0,
+      "excerpt_window": 0,
+      "rank_candidates": 0,
+      "select_novelty": 0,
+      "context_allocations": 0,
+      "refs_from_parsed": 0,
+      "source_units": 0,
+      "projected_units": 0,
+      "source_map_matches": 0,
+      "make_turns": 0,
+      "joined_turns": 0,
+      "page_cuts": 0,
+      "build_pages": 0,
+      "segment_turns": 0
+    }
+  },
+  "engine_order": [
+    [
+      "baseline",
+      "candidate"
+    ],
+    [
+      "candidate",
+      "baseline"
+    ],
+    [
+      "candidate",
+      "baseline"
+    ],
+    [
+      "baseline",
+      "candidate"
+    ]
+  ],
+  "cohorts": [
+    "synthetic61",
+    "public1015"
+  ],
+  "configurations": [
+    "native-char2400",
+    "mcp-char2400",
+    "native-token1024",
+    "mcp-token1024"
+  ],
+  "query_seed": 110061,
+  "limit": 5,
+  "repetitions_per_worker": 3,
+  "excluded_native_response_fields": [
+    "latency_ms"
+  ],
+  "result_cache": "disabled-native-cleared-before-each-mcp-call",
+  "primary": [
+    "native-char2400",
+    "mcp-char2400"
+  ],
+  "secondary": [
+    "native-token1024",
+    "mcp-token1024"
+  ],
+  "expected_timed_calls": 113568,
+  "expected_paired_calls": 56784,
+  "scope": "Broader native function-family comparison against released native v0.8.1. The same two regression datasets do not supply a new retrieval-quality or large-archive claim.",
+  "timing": "Sequential fresh workers on one hosted Ubuntu 24.04 VM. Direct MemoryBook.recall and real official-SDK stdio MCP are distinct surfaces; both sides force the native text backend. No generation model.",
+  "execution": "One first-attempt hosted execution on validation/native-core-formal-1. Preserve every started attempt, completed worker, regression and failure. No selective reruns or replacement of timed data.",
+  "resources": "Record startup, all four paired fresh/unchanged ingestion batches per cohort with complete ordered raw returns, process memory/CPU and storage. Python and operating-system caches are not cleared.",
+  "preservation": "The same hosted job preserves raw attempts, both binary/build identities and the frozen offline auditor directly in an evidence Git branch, even if preparation or measurement fails. Artifact upload is an additional copy.",
+  "decision": "Exact full-output/source/index equality is mandatory. Evaluate repeatability across all four paired rounds and both primary surfaces, retain all secondary cells and costs, and require native delivery gates before adoption. Do not infer whole-product speed from helper diagnostics.",
+  "build_policy": {
+    "definition": "source-commit-bound-per-label",
+    "compiler_and_flags": "identical",
+    "native_compilation": "one-native-extension-all-c-h-inputs"
+  },
+  "resource_comparisons": [
+    "fresh_ingestion_ms",
+    "unchanged_reingestion_ms"
+  ],
+  "probe": "One identical isolated non-corpus public-wrapper suite is executed uninstrumented and once per singly wrapped helper before measured database creation. It may warm process imports/regex/SQLite-library state, but no measured database, result cache or tokenizer vocabulary. Every instrumented output must equal the ordinary output; both sources' ordinary outputs must match.",
+  "freeze_status": "DRAFT: candidate source SHA and every exact positive helper call count must be frozen before any formal run."
+}
