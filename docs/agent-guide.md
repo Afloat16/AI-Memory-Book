@@ -144,8 +144,14 @@ copies within the same project and task. The archive retains every source;
 recognized event-count or timeline queries skip this deduplication preference.
 No temporal mode constructs a guaranteed historical state from a date. Use
 `details=true` for mode diagnostics, and inspect conflicting evidence directly.
+For current queries, complete original-turn declarations of the same field can
+be grouped separately from later maintenance mentions. Field aliases preserve
+word and namespace boundaries; quoted logs, inline/fenced code and partial turns
+do not establish a declaration. Detailed `temporal.declaration_ordering`
+diagnostics explain the bounded syntax classification. It does not certify
+which source is authoritative.
 See the [engineering workflow guide](engineering-workflows.md#choose-how-current-evidence-is-ranked)
-and [v0.5.0 validation](v0.5.0-engineering-validation.md).
+and [current validation](v0.6.0-engineering-validation.md).
 
 ### Optional coverage for multiple facts
 

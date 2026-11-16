@@ -1,0 +1,137 @@
+name: Compare pinned memory systems for v0.6.0
+
+on:
+  push:
+    branches: ['validation/memory-systems-v060*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: memory-systems-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  compare:
+    if: github.repository == 'Afloat16/AI-Memory-Book'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONHASHSEED: '0'
+      PYTHONPATH: src
+      ORT_DISABLE_TELEMETRY: '1'
+      ANONYMIZED_TELEMETRY: 'False'
+      MEM0_TELEMETRY: 'False'
+      OMP_NUM_THREADS: '1'
+      TOKENIZERS_PARALLELISM: 'false'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '24.22.1'
+      - name: Record source and runner identity
+        run: |
+          python - <<'PY'
+          import json, os, pathlib, platform, sqlite3, subprocess, sys
+          out = pathlib.Path('.artifacts/v060-evidence')
+          out.mkdir(parents=True, exist_ok=False)
+          record = {'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+                    'run_id': os.environ['GITHUB_RUN_ID'], 'run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+                    'python': sys.version, 'platform': platform.platform(), 'sqlite': sqlite3.sqlite_version,
+                    'node': subprocess.check_output(['node', '--version'], text=True).strip(),
+                    'cpus': os.cpu_count(), 'scope': 'Public synthetic inputs; no model provider credentials or private conversations.'}
+          (out / 'host.json').write_text(json.dumps(record, indent=2) + '\n')
+          PY
+      - name: Install pinned comparison dependencies
+        run: |
+          python -m pip install --disable-pip-version-check --no-cache-dir --require-hashes -r benchmarks/competitors/memory-systems-requirements.txt
+          python -m pip install --disable-pip-version-check --no-cache-dir --no-deps -e .
+          python -m pip check
+          python -m pip freeze --all > .artifacts/v060-evidence/environment.txt
+      - name: Check adapter protocol and verified public assets
+        run: |
+          python -m unittest tests.test_memory_systems -v
+          python -m benchmarks.memory_systems --prepare --cache .artifacts/v060-foreign
+          python -m benchmarks.memory_systems --self-test --output .artifacts/v060-evidence/adapter-smoke --cache .artifacts/v060-foreign
+      - name: Replay the unchanged native engineering workload
+        run: python -m benchmarks.engineering_workflow --output .artifacts/v060-evidence/native --repeats 3 --budget-chars 1200 2400
+      - name: Replay the unchanged two-component protocol
+        run: python -m benchmarks.engineering_components --output .artifacts/v060-evidence/components --cache .artifacts/v060-foreign/billion --repeats 3 --budget-chars 1200 2400
+      - name: Run the preregistered multi-project component matrix
+        run: python -m benchmarks.memory_systems --output .artifacts/v060-evidence/memory-systems --cache .artifacts/v060-foreign --repeats 3 --budget-chars 1200 2400
+      - name: Verify defaults against this runtime's explicit replay
+        run: |
+          python - <<'PY'
+          import gzip, json
+          from pathlib import Path
+          from scripts import verify_engineering_defaults as verifier
+          reference = Path('.artifacts/v060-evidence/native').resolve()
+          raw = reference / 'raw.jsonl'
+          (reference / 'raw.jsonl.gz').write_bytes(gzip.compress(raw.read_bytes(), mtime=0))
+          verifier.FROZEN = reference
+          output = Path('.artifacts/v060-evidence/default-profile')
+          verifier.verify(output)
+          (output / 'reference.json').write_text(json.dumps({
+              'reference': '../native', 'temporal_default': 'auto',
+              'scope': 'Same-runtime default versus explicit 2400/5 output equality. The verifier historical/frozen field names refer to this run, not an older release.'
+          }, indent=2) + '\n')
+          PY
+      - name: Preserve lossless public evidence and manifest
+        if: always()
+        run: |
+          python - <<'PY'
+          import gzip, hashlib, json, shutil
+          from pathlib import Path
+          root = Path('.artifacts/v060-evidence')
+          root.mkdir(parents=True, exist_ok=True)
+          cache = Path('.artifacts/v060-foreign')
+          preparation = cache / 'preparation.json'
+          if preparation.is_file():
+              shutil.copyfile(preparation, root / 'preparation.json')
+          for state in sorted(cache.glob('prepare-*')):
+              for filename in ('stderr.log', 'stdout.json', 'preparation.json'):
+                  source = state / filename
+                  if source.is_file():
+                      destination = root / 'preparation-attempts' / state.name / filename
+                      destination.parent.mkdir(parents=True, exist_ok=True)
+                      shutil.copyfile(source, destination)
+          entries = []
+          for path in sorted(root.rglob('*')):
+              if not path.is_file():
+                  continue
+              if path.suffix not in {'.json', '.jsonl', '.gz', '.md', '.txt', '.log'}:
+                  raise ValueError('Unexpected non-evidence file: ' + str(path))
+              if path.suffix in {'.jsonl', '.log'}:
+                  raw = path.read_bytes()
+                  target = path.with_name(path.name + '.gz')
+                  encoded = gzip.compress(raw, mtime=0)
+                  if target.exists() and gzip.decompress(target.read_bytes()) != raw:
+                      raise ValueError('Different existing compressed evidence: ' + str(target))
+                  if not target.exists():
+                      target.write_bytes(encoded)
+                  assert gzip.decompress(target.read_bytes()) == raw
+                  entries.append({'original': path.relative_to(root).as_posix(),
+                                  'stored': target.relative_to(root).as_posix(),
+                                  'original_sha256': hashlib.sha256(raw).hexdigest(),
+                                  'original_bytes': len(raw)})
+                  path.unlink()
+          files = {p.relative_to(root).as_posix(): {'sha256': hashlib.sha256(p.read_bytes()).hexdigest(), 'bytes': p.stat().st_size}
+                   for p in sorted(root.rglob('*')) if p.is_file() and p.name != 'artifact-manifest.json'}
+          (root / 'artifact-manifest.json').write_text(json.dumps({'files': files, 'lossless_compression': entries}, indent=2) + '\n')
+          PY
+      - name: Upload evidence without creating a source commit
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v060-memory-systems-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .artifacts/v060-evidence/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30

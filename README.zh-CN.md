@@ -149,7 +149,7 @@ Book 比平铺 FTS 多找全 **20 题**，完整证据率高 **27.78 个百分�
 
 ## 开源方案对比
 
-下表依据各项目官方文档核对工程定位；除上述固定内核外，本轮未进行它们的同场景性能实测。
+下表依据 2026-11-16 核对的官方来源，覆盖 **14 个外部项目家族**。实验分数只对应明确配置的组件，未实测的完整产品不推断分数。[固定来源、测试模式、部署依赖及许可证说明](docs/open-source-memory-comparison.md)。
 
 | 方案 | 主要工作方式 | Book 的适用优势 |
 |---|---|---|
@@ -157,8 +157,18 @@ Book 比平铺 FTS 多找全 **20 题**，完整证据率高 **27.78 个百分�
 | [claude-mem](https://github.com/thedotmack/claude-mem) | hooks 采集，observer 生成 observations/摘要，本地 HTTP worker、SQLite，可选 Chroma | 默认采集和词法查询不增加摘要模型调用；stdio MCP 与采集无需 HTTP 监听 |
 | [Mem0](https://docs.mem0.ai/open-source/python-quickstart) | 面向应用的用户/agent 记忆，默认模型抽取事实并使用 embedding，可配置本地存储 | 工程会话直接形成原文证据，不必配置额外的事实抽取与嵌入模型 |
 | [Letta Code](https://github.com/letta-ai/letta-code) | 有状态 agent，自主管理记忆、技能及 Git 支持的 MemFS，可本地或云端运行 | 给现有编程客户端增加共享证据层，保留已有工具与工作流程 |
+| [Graphiti](https://github.com/getzep/graphiti) | 保留原始 episode 的时序知识图谱，抽取实体与关系 | 直接查询项目会话及精确来源坐标，无需默认配置图数据库和抽取模型 |
+| [MemOS](https://github.com/MemTensor/MemOS) | MemCube、服务端与本地记忆路径；本地插件也支持 SQLite/FTS5 | 以项目、任务和原始会话为中心，用一个本地 SQLite 文件维护归档 |
+| [Memori](https://github.com/MemoriLabs/Memori) | 采集会话与 trace，增强为事实和关系，支持云端或自有数据库 | 无需额外增强流水线即可保留原文，并按上下文预算检索 |
+| [Cognee](https://github.com/topoteretes/cognee) | 文档和代码的分块、图谱及向量记忆；本地 GLiNER 路径可不使用 LLM API key | 默认词法检索无需嵌入模型，直接回到原始会话轮次核对 |
+| [memvid](https://github.com/memvid/memvid) | 可携带的 `.mv2` 内容帧、词法检索与可选向量搜索 | 现有客户端采集、项目/任务层级和带来源的交接工作流 |
+| [官方 MCP memory](https://github.com/modelcontextprotocol/servers/tree/main/src/memory) | JSONL 图谱中显式管理实体、观察和关系，提供字面子串查询 | 摄取完整会话，提供排序检索、来源引用和有预算的上下文组装 |
+| [LangGraph Store](https://docs.langchain.com/oss/python/langgraph/stores) | 应用定义 namespace/key/value，语义索引需显式配置，与线程 checkpoint 分离 | 为已有客户端提供可直接使用的采集、归档和检索；LangGraph 面向应用基础设施 |
+| [LongMemory](https://github.com/CaviraOSS/LongMemory) | 项目记忆、来源和时序 API，可配置不同 embedding provider | 默认不调用模型、稳定页面地址，以及可直接复跑的工程检索证据 |
+| [Basic Memory](https://github.com/basicmachines-co/basic-memory) | Markdown 知识、关联观察和项目范围内的文本/语义查询 | 直接保存会话原文，无需先编写或改写知识笔记 |
+| [Chroma](https://github.com/chroma-core/chroma) | 文档和向量集合、本地持久化及元数据过滤 | 已有会话采集、任务导航、原文坐标和上下文组装，默认无需嵌入依赖 |
 
-多客户端、来源查询和本地运行并非本项目独有。Book 的选择理由是将**原文证据、项目范围、预算控制和低附加推理依赖**集中到轻量记忆层，适合长期开发、故障复盘与跨客户端任务接续。
+多个项目都支持多客户端、来源查询和本地运行。Book 的选择理由是将**原文证据、项目范围、预算控制和低附加推理依赖**集中到轻量记忆层，适合长期开发、故障复盘与跨客户端任务接续。图关系推理、可编辑 agent 状态、人工维护的 Markdown 知识和向量数据库适用于其他需求；此表不代表通用优胜结论。Mem0/OpenMemory、Letta/Letta Code 分别只计一个家族，Chroma 与 LangGraph 明确按基础设施比较。
 
 ## 文档与数据边界
 

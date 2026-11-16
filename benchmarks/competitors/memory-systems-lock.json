@@ -1,0 +1,59 @@
+{
+  "schema": "memory-systems-public-components-v1",
+  "registered_before_quality_run": "2026-11-16",
+  "python": "3.12",
+  "platform": "Linux x86_64",
+  "requirements": "benchmarks/competitors/memory-systems-requirements.txt",
+  "packages": {
+    "basic-memory": {
+      "version": "1.0.0",
+      "repository": "basicmachines-co/basic-memory",
+      "commit": "c9bd187b83baba549d5cd16bacc180f8023d51c8",
+      "source_url": "https://github.com/basicmachines-co/basic-memory/tree/c9bd187b83baba549d5cd16bacc180f8023d51c8",
+      "wheel_sha256": "a2d2c1589616c9599aec9edd6597d508028c5af88632312fc0990dcaccf02867",
+      "license": "AGPL-3.0-or-later"
+    },
+    "chromadb": {
+      "version": "1.5.9",
+      "repository": "chroma-core/chroma",
+      "source_url": "https://github.com/chroma-core/chroma/tree/1.5.9",
+      "wheel_sha256": "cc09b3df76e5a5cb386aed2715a2eea152e3949f9e1ba93c7119505377749929",
+      "wheel_platform": "cp39-abi3-manylinux_2_17_x86_64",
+      "license": "Apache-2.0"
+    },
+    "langgraph-checkpoint": {
+      "version": "4.3.2",
+      "repository": "langchain-ai/langgraph",
+      "source_url": "https://pypi.org/project/langgraph-checkpoint/4.3.2/",
+      "wheel_sha256": "60e02eb2c2eefc4c22fb1549f1c90b85ce9617377604596c5f34fbd6af0bd6e9",
+      "license": "MIT"
+    },
+    "mem0ai": {
+      "version": "2.2.1",
+      "repository": "mem0ai/mem0",
+      "source_url": "https://pypi.org/project/mem0ai/2.2.1/",
+      "wheel_sha256": "fe91bb91ac8926231993a4aa58df00a60c6c74c709e6a338fe399500776eef4d",
+      "license": "Apache-2.0"
+    },
+    "onnxruntime": {"version": "1.32.0"},
+    "tokenizers": {"version": "0.23.3"},
+    "langchain": {"version": "0.3.30"},
+    "langchain-core": {"version": "0.3.85"},
+    "ollama": {"version": "0.6.3"}
+  },
+  "model": {
+    "name": "all-MiniLM-L6-v2",
+    "dimensions": 384,
+    "implementation": "chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2.ONNXMiniLM_L6_V2",
+    "archive_url": "https://chroma-onnx-models.s3.amazonaws.com/all-MiniLM-L6-v2/onnx.tar.gz",
+    "archive_sha256": "913d7300ceae3b2dbc2c50d1de4baacab4be7b9380491c27fab7418616a16ec3",
+    "source_url": "https://github.com/chroma-core/chroma/blob/1.5.9/chromadb/utils/embedding_functions/onnx_mini_lm_l6_v2.py",
+    "providers": ["CPUExecutionProvider"],
+    "shared_by": ["chroma", "langgraph", "mem0"],
+    "scope": "Real official local model; shared embedding means correlated ranking evidence. Native 256-token model truncation is retained."
+  },
+  "existing_locks": {
+    "billion": "benchmarks/competitors/billion-round2-lock.json",
+    "claude_mem": "benchmarks/competitors/claude-mem-round2-lock.json"
+  }
+}
