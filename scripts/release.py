@@ -54,6 +54,9 @@ APPROVED_RUNTIME_SHA256 = {
     # Authenticated same-field declaration ordering; no archive/schema changes.
     # Fixed synthetic/component evidence: docs/v0.6.0-engineering-validation.md.
     "0.6.0": "397afa98fb77c3550c53e21332862e0a4b3242c26b5ef0c87966970ab8a0f44c",
+    # Exact book scope, directory lookup and source-consistent turn navigation.
+    # Full runtime/reader validation: docs/v0.7.0-engineering-validation.md.
+    "0.7.0": "afdddcbf11e433faaf268ad2ea6d64b3546726380d8201a176980d51907541f9",
 }
 # Publication channels are explicit: older prereleases remain prereleases when
 # an interrupted run reconciles them. A new version needs a reviewed entry.

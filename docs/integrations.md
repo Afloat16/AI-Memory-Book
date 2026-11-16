@@ -182,13 +182,21 @@ See the [official SDK v1 documentation](https://py.sdk.modelcontextprotocol.io/v
 
 | Tool | Behavior |
 |---|---|
-| `recall_memory` | Search evidence directly, with optional project, chapter, and session filters |
+| `recall_memory` | Retrieve evidence in a selected project or chapter; explicit `all_projects` enables cross-project search |
 | `browse_projects` | List the project bookshelf |
 | `browse_book` | Page through a project's chapters |
-| `browse_chapter` | Page through sections and bounded page previews |
-| `browse_section` | Continue through a long section's page directory |
-| `read_page` | Read an exact page with character pagination and provenance |
+| `search_directory` | Search one project's titles, questions and task/session directory fields without loading page bodies |
+| `browse_chapter` | Page through sections and bounded page previews; optional `project` checks book membership |
+| `browse_section` | Continue through a section's page directory; optional `project` checks book membership |
+| `read_page` | Read an exact page with pagination and provenance; optional `project` checks book membership |
+| `read_source_turn` | Read the normalized original turn with pagination; `source_hash` pins the source version |
 | `remember_session` | Only with `--allow-write`: add or atomically replace a canonical session |
+
+The eight read tools are available by default. In a multi-project archive,
+`recall_memory` requires an exact `project` or a known `chapter` ID; a session
+ID alone cannot select a book. A sole project can resolve automatically.
+Intentional cross-project recall uses `"all_projects": true`, mutually exclusive
+with an explicit project. A miss does not broaden a supplied project scope.
 
 For a question that needs earlier work, start with one `recall_memory` call.
 Pass the known project ID; `chapter` and `session` can narrow an already known
@@ -199,8 +207,11 @@ scope. No initial `browse_*` sequence is required. For example:
 ```
 
 If the response is sufficient, answer from it without loading more history.
-Use `read_page` with a returned page ID only for a missing detail, truncated
-passage, or source check. Use the browse tools when navigation itself is needed,
+Use `read_page` with a returned page ID and the selected `project` for a missing
+detail, truncated passage, or source check. To recover a complete original turn,
+follow its source reference with `read_source_turn`; carry the page's
+`source_hash` into the first read and each continuation. Use the browse tools
+when navigation itself is needed,
 such as identifying an unknown project or locating a neighboring section. An
 empty result is not proof that an earlier conversation never happened; the
 lexical index can miss differently worded evidence. The
@@ -300,10 +311,13 @@ or the original file's bytes. Code and commands in stored messages remain text.
 
 ## Check the connection
 
+List the books, then replace `PROJECT_ID` below with the intended exact ID:
+
 ```bash
 memory-book doctor
 memory-book stats
-memory-book recall "a phrase from an imported session" --json
+memory-book projects
+memory-book recall "a phrase from an imported session" --project PROJECT_ID --json
 ```
 
 If local recall works but the host cannot find the tool, refresh its MCP server,

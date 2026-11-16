@@ -69,10 +69,15 @@ jobs:
           python -m benchmarks.project_navigation --prepare --cache .artifacts/v070-foreign --reme-python .artifacts/v070-reme-env/bin/python
       - name: Run actual adapter API smokes before quality
         id: smoke
+        continue-on-error: true
         run: python -m benchmarks.project_navigation --self-test --output .artifacts/v070-evidence/adapter-smoke --cache .artifacts/v070-foreign --reme-python .artifacts/v070-reme-env/bin/python
+      - name: Gate execution on retained smoke evidence
+        id: eligibility
+        if: ${{ !cancelled() && (steps.smoke.outcome == 'success' || steps.smoke.outcome == 'failure') }}
+        run: python -m benchmarks.project_navigation --check-smoke .artifacts/v070-evidence/adapter-smoke --output .artifacts/v070-evidence/smoke-eligibility.json --cache .artifacts/v070-foreign
       - name: Require the approved frozen runtime and protocol before quality
         id: freeze
-        if: ${{ !endsWith(github.ref_name, '-prepare') }}
+        if: ${{ !endsWith(github.ref_name, '-prepare') && steps.eligibility.outcome == 'success' }}
         run: |
           python - <<'PY'
           import json, shutil
@@ -95,25 +100,26 @@ jobs:
           shutil.copyfile(path, '.artifacts/v070-evidence/freeze.json')
           PY
       - name: Replay unchanged native engineering workload
-        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.smoke.outcome == 'success' && steps.freeze.outcome == 'success' }}
+        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.eligibility.outcome == 'success' && steps.freeze.outcome == 'success' }}
         run: python -m benchmarks.engineering_workflow --output .artifacts/v070-evidence/native --repeats 3 --budget-chars 1200 2400
       - name: Replay unchanged two-component engineering protocol
-        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.smoke.outcome == 'success' && steps.freeze.outcome == 'success' }}
+        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.eligibility.outcome == 'success' && steps.freeze.outcome == 'success' }}
         run: python -m benchmarks.engineering_components --output .artifacts/v070-evidence/components --cache .artifacts/v070-foreign/billion --repeats 3 --budget-chars 1200 2400
       - name: Replay unchanged seven-component engineering driver
-        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.smoke.outcome == 'success' && steps.freeze.outcome == 'success' }}
+        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.eligibility.outcome == 'success' && steps.freeze.outcome == 'success' }}
         run: python -m benchmarks.memory_systems --output .artifacts/v070-evidence/memory-systems --cache .artifacts/v070-foreign --repeats 3 --budget-chars 1200 2400
       - name: Run all eight components on the engineering regression cohort
-        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.smoke.outcome == 'success' && steps.freeze.outcome == 'success' }}
+        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.eligibility.outcome == 'success' && steps.freeze.outcome == 'success' }}
         run: python -m benchmarks.project_navigation --cohort engineering --output .artifacts/v070-evidence/project-engineering --cache .artifacts/v070-foreign --reme-python .artifacts/v070-reme-env/bin/python --repeats 3 --budget-chars 1200 2400
       - name: Run all eight components on the same-topic scope cohort
-        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.smoke.outcome == 'success' && steps.freeze.outcome == 'success' }}
+        continue-on-error: true
+        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.eligibility.outcome == 'success' && steps.freeze.outcome == 'success' }}
         run: python -m benchmarks.project_navigation --cohort same-topic --output .artifacts/v070-evidence/project-same-topic --cache .artifacts/v070-foreign --reme-python .artifacts/v070-reme-env/bin/python --repeats 3 --budget-chars 1200 2400
       - name: Record native Book navigation and scope contracts
-        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.smoke.outcome == 'success' && steps.freeze.outcome == 'success' }}
+        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.eligibility.outcome == 'success' && steps.freeze.outcome == 'success' }}
         run: python -m benchmarks.project_navigation --contracts --output .artifacts/v070-evidence/navigation-contracts --cache .artifacts/v070-foreign
       - name: Verify current defaults against explicit 2400 and five results
-        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.smoke.outcome == 'success' && steps.freeze.outcome == 'success' }}
+        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.eligibility.outcome == 'success' && steps.freeze.outcome == 'success' }}
         run: |
           python - <<'PY'
           import gzip, json
@@ -130,7 +136,7 @@ jobs:
           }, indent=2) + '\n')
           PY
       - name: Independently audit all retained comparison records
-        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.smoke.outcome == 'success' && steps.freeze.outcome == 'success' }}
+        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.eligibility.outcome == 'success' && steps.freeze.outcome == 'success' }}
         run: python scripts/audit_project_navigation.py --evidence .artifacts/v070-evidence --output .artifacts/v070-evidence/audit.json --previous benchmarks/reports/v0.6.0-engineering/hosted
       - name: Preserve all evidence, failures and lossless manifest
         if: always()

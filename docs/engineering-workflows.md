@@ -6,13 +6,13 @@ the cited original text, then run the project's own tests against the recovered
 contract. The archive supplies evidence; it does not execute experiments or
 decide whether a recorded conclusion is correct.
 
-The **v0.6.0 release** includes identifier normalization, current-turn handling
-for token budgets, explicit temporal modes, `backup`, and `check-database`.
-Use the [release installer](deployment.md#install-v050), or install a checkout
+The **v0.7.0 runtime** includes explicit project scope, directory lookup,
+guarded chapter/section/page reads, and direct original-turn pagination.
+Use the [release installer](deployment.md#install-v070), or install a checkout
 for the runnable examples and optional exact token budgets:
 
 ```bash
-git clone --branch v0.6.0 https://github.com/Afloat16/AI-Memory-Book.git
+git clone --branch v0.7.0 https://github.com/Afloat16/AI-Memory-Book.git
 cd AI-Memory-Book
 python -m venv .venv
 source .venv/bin/activate
@@ -60,6 +60,46 @@ an invalid date, field length or message fails the batch before any session is
 replaced. The error identifies its input file and session position. Successful
 writes still use one transaction per session: an I/O failure can leave earlier
 sessions committed, so repair the failure and retry the same input.
+
+## Browse one project book
+
+Use `projects` to discover exact project IDs. A display name is a label and can
+be shared by several books; `route-kernel`, `route_kernel` and `Route-Kernel`
+remain different project identities. Code-identifier matching does not turn
+those IDs into aliases.
+
+```bash
+memory-book --db ./demo-memory.db toc inference-demo
+memory-book --db ./demo-memory.db index "KVCache" --project inference-demo
+```
+
+`toc` returns chapter IDs. `index` searches existing titles, questions and
+task/session directory fields, grouping continuation pages into section entries
+before pagination. Its `entries` contain `chapter_id`, `section_id`,
+`matched_page_id`, breadcrumbs and source references. It does not search body
+text or return complete page bodies. Follow `next_offset` for more entries.
+
+Carry the selected project into each subsequent read, using returned IDs:
+
+```bash
+memory-book --db ./demo-memory.db chapter CHAPTER_ID --project inference-demo
+memory-book --db ./demo-memory.db section SECTION_ID --project inference-demo
+memory-book --db ./demo-memory.db read PAGE_ID --project inference-demo
+```
+
+The optional `project` argument is an expected-project check: an ID from another
+book is rejected rather than opened. Python uses the same `project=` argument
+on `chapter`, `section` and `read`. MCP equivalents are `browse_chapter`,
+`browse_section` and `read_page`; `browse_book` and `search_directory` require a
+project. The visual reader carries these guards and displays the exact project
+ID alongside its name.
+
+In a multi-project archive, ordinary recall requires a project or known chapter
+ID; a session ID alone is insufficient because session IDs may repeat across
+books. Deliberate cross-project queries use CLI `--all-projects` or Python/MCP
+`all_projects=True`, mutually exclusive with `project`. An archive containing
+one book can resolve it automatically. These are engineering scope checks,
+not authentication or multi-user authorization.
 
 ## Query symbols, decisions and failures
 
@@ -139,12 +179,28 @@ memory-book --db ./demo-memory.db recall "http_parser" --project gateway-demo --
 memory-book --db ./demo-memory.db source gateway-demo parser-contract
 ```
 
-Pass an actual returned page ID to `memory-book --db ./demo-memory.db read PAGE_ID`.
+Pass an actual returned page ID to
+`memory-book --db ./demo-memory.db read PAGE_ID --project gateway-demo`.
 `read` returns source references for the requested window; follow `next_offset`
 when the page exceeds that window. `source` returns the normalized source
 session. It preserves supported text, not every vendor's original multimodal
-payload. Page addresses remain stable during this index migration; replacing
-source content can create different page addresses.
+payload. Replacing source content can create different page addresses.
+
+To read a complete turn without following page boundaries, use the exact
+project/session/turn reference. Turn indices are zero-based:
+
+```bash
+memory-book --db ./demo-memory.db turn gateway-demo parser-contract 0
+```
+
+The response contains `content`, `message_indices`, `source_ref`, `source_hash`
+and `next_offset`. When `next_offset` is not null, continue with
+`--offset NEXT_OFFSET --source-hash RETURNED_SOURCE_HASH` until it is null.
+The page's `source_hash` can pin the first turn read too. A changed hash is an
+error requiring a fresh read, so text from replaced source versions is not
+silently concatenated. This returns a normalized original turn, including role
+labels; it does not generate a summary. MCP exposes `read_source_turn` with the
+same project/session/turn, pagination and source-hash arguments.
 
 The Python interface exposes the same evidence without a shell wrapper:
 
@@ -155,10 +211,19 @@ with MemoryBook("demo-memory.db") as book:
     result = book.recall("http_parser", project="gateway-demo")
     print(result["context"])
     for hit in result["results"]:
-        page = book.read(hit["id"])
+        page = book.read(hit["id"], project="gateway-demo")
         for ref in hit["source_refs"]:
-            source = book.get_session(ref["project"], ref["session_id"])
-            print(page["id"], ref, source["session_id"])
+            parts, offset = [], 0
+            while True:
+                source = book.read_turn(
+                    "gateway-demo", ref["session_id"], ref["turn_index"],
+                    offset=offset, source_hash=page["source_hash"],
+                )
+                parts.append(source["content"])
+                if source["next_offset"] is None:
+                    break
+                offset = source["next_offset"]
+            print(page["id"], ref, "".join(parts))
 ```
 
 An empty response can mean no lexical match or insufficient space for a complete

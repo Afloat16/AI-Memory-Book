@@ -113,11 +113,12 @@ Choose the smallest follow-up that resolves the missing information:
 | Query terms missed the likely wording | Make a focused retry using known identifiers or source terminology |
 | Sources disagree about the current decision | Compare their statements and dates; report unresolved conflict |
 
-For an exact read, the placeholder below must be replaced by a real returned ID:
+For an exact read, use a real returned page ID and the selected project's exact ID:
 
 ```json
 {
   "page_id": "<id returned by recall_memory>",
+  "project": "<selected exact project ID>",
   "offset": 0,
   "limit": 2000
 }
@@ -190,7 +191,7 @@ keeps the successful cases and the losses together.
 
 ## Writing memory
 
-The normal MCP connection has six read tools. `remember_session` exists only
+The normal MCP connection has eight read tools. `remember_session` exists only
 when the operator explicitly enables `--allow-write`. Use it within an
 authorized recording workflow; do not assume that a retrieval request also
 requires a memory rewrite.

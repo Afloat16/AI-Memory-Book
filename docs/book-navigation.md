@@ -28,8 +28,9 @@ values are errors, including through HTTP.
 
 An unknown explicit project returns no evidence. A miss never triggers a
 fallback to another book. If the task really calls for cross-project research,
-enable `all_projects=True` in Python/MCP, `--all-projects` in the CLI, or
-`all_projects=true` in HTTP. It cannot accompany an explicit project. The result
+enable `all_projects=True` in Python, `"all_projects": true` in MCP JSON,
+`--all-projects` in the CLI, or `all_projects=true` in HTTP. It cannot accompany
+an explicit project. The result
 warns that this broader search was requested even if the limit leaves one hit.
 
 This changes earlier unscoped multi-project calls. Update those callers to

@@ -87,6 +87,55 @@ Keep all native setup/embedding, query, process roundtrip and common-pack
 measurement boundaries visible. Repetitions reuse native feature caches while
 Book's result cache is disabled.
 
+### Pre-quality amendment: native claude-mem project spelling semantics
+
+The retained first preparation attempt, published before any v0.7 quality run
+at `benchmarks/reports/v0.7.0-engineering/preparation-attempt1`, executed all
+eight native adapters. ReMe and the other six modes passed; the fixed
+claude-mem component raised `Native project scope violation` for the separate
+tiny fixture. That attempt did not retain the offending native row, and its
+exception alone is insufficient to approve continuation.
+
+At the unchanged pin `c4a9f5725f420bf9c6e866cdd3b94bd36498af09`,
+[`SessionSearch.buildFilterClause`](https://github.com/thedotmack/claude-mem/blob/c4a9f5725f420bf9c6e866cdd3b94bd36498af09/src/services/sqlite/SessionSearch.ts)
+uses the official
+[`projectScopeSql`](https://github.com/thedotmack/claude-mem/blob/c4a9f5725f420bf9c6e866cdd3b94bd36498af09/src/services/sqlite/project-read-keys.ts),
+which explicitly applies `COLLATE NOCASE` to project reads. This intended
+native spelling convention is incompatible with this experiment's exact,
+case-sensitive project-ID contract. It is not evidence that the full product
+lacks project isolation or an access-control vulnerability.
+
+This amendment was authorized in the project task after that preparation
+failure and pinned-source review, before any quality result was available.
+It changes only evidence retention and execution continuation. No source,
+query, scope, ranking, top-five parameter, frozen adapter, workload or scorer
+is changed. A transparent observer of the claude adapter's `_request` records
+the complete native response before the unchanged validator rejects it. The
+original return object is preserved. A top-level snapshot and list append
+add a small observation cost to the outer bridge/call timing; JSON encoding
+and disk writes occur after the measured call, and native worker timing is
+unchanged. All four original tiny project requests are attempted and retained.
+
+The smoke status remains **failed**. A separate execution-eligibility record
+may permit continuation only when all other native smokes passed and the
+retained original response authenticates the exact fixed source pin, original
+title/text/project, request/query/top-five arguments, and foreign project IDs
+that differ only by SQLite's ASCII case comparison. The only eligible error
+is the unchanged validator's `ValueError: Native project scope violation`.
+Missing raw evidence, a prefix collision, changed source, another scope
+mismatch, setup/cleanup error or different failure blocks continuation. The
+second preparation run must obtain this evidence before quality is allowed.
+
+Both full cohorts still attempt all eight registered modes. If the same
+incompatibility occurs in the same-topic cohort, retain the original failure
+and any earlier valid records, stop that backend at its first failed query,
+and continue other modes. The failed backend receives no complete-cohort
+quality score, zero score or paired quality comparison. Diagnostic partial
+records remain inspectable. Its engineering-regression scores are eligible
+only if that separate cohort completes every case with source integrity.
+The independent final audit rechecks the raw failure and exact partial
+coverage; it must reject unregistered or unexplained missing records.
+
 ## Additional ReMe component, subject to actual API smoke
 
 The seventh external implementation is ReMe at a source/wheel identity pinned

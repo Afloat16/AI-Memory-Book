@@ -1,6 +1,8 @@
 """Protocol/source contracts; no registered-cohort retrieval or optional deps."""
 from __future__ import annotations
 
+import copy
+import io
 import json
 from pathlib import Path
 import tempfile
@@ -25,7 +27,172 @@ def tiny_workload():
     return [{"checkpoint": 1, "sessions": [source], "cases": [case]}]
 
 
+def claude_scope_metadata():
+    return {"repository": "thedotmack/claude-mem", "commit": comparison.CLAUDE_SCOPE_PIN,
+            "package_version": "15.18.1", "fts_integrity_check": True,
+            "lock_sha256": comparison.sha_file(comparison.ROOT / "benchmarks/competitors/claude-mem-round2-lock.json")}
+
+
+def smoke_gate_fixture(folder):
+    """Protocol-only records; these are never published as upstream execution."""
+    docs = [{"id": f"fixture-{index}", "project": project, "title": "Fixture question",
+             "text": "Fixture original body " + project}
+            for index, project in enumerate(comparison.SMOKE_PROJECTS[:3])]
+    report = {"status": "failed", "backends": {}, "failures": []}
+    traces = []
+    for backend in comparison.BACKENDS:
+        item = {"metadata": claude_scope_metadata() if backend == "claude_mem" else {},
+                "status": "failed" if backend == "claude_mem" else "passed", "samples": []}
+        report["backends"][backend] = item
+        for index, project in enumerate(comparison.SMOKE_PROJECTS):
+            own = [doc for doc in docs if doc["project"] == project]
+            sample = {"project": project, "query": "memorytoken_alpha", "status": "passed",
+                      "hit_ids": [doc["id"] for doc in own]}
+            if backend == "claude_mem":
+                own = [doc for doc in docs if doc["project"].lower() == project.lower()]
+                native = {"hit_ids": [doc["id"] for doc in own], "native_payload": [
+                    {key: doc[key] for key in ("title", "project", "text")} for doc in own], "search_ms": 1.0}
+                trace_id = f"smoke:claude_mem:{index}"
+                trace = {"backend": backend, "checkpoint": "smoke", "case_id": "smoke:" + project,
+                         "project": project, "repetition": 0, "trace_id": trace_id, "status": "returned",
+                         "request": {"op": "search", "query": "memorytoken_alpha", "project": project, "limit": 5},
+                         "response": native, "response_sha256": engineering.sha(native)}
+                traces.append(trace)
+                sample["transport_trace_ids"] = [trace_id]
+                if project in {"scope-a", "Scope-a"}:
+                    sample.pop("hit_ids")
+                    sample.update(status="failed", error_type="ValueError", error="Native project scope violation")
+                    report["failures"].append({"backend": backend, "stage": "smoke", "project": project,
+                        "query": "memorytoken_alpha", "error_type": "ValueError", "message": "Native project scope violation",
+                        "error": "ValueError: Native project scope violation", "transport_trace_ids": [trace_id]})
+                else:
+                    sample["native"] = {**native, "bridge_ms": 2.0}
+            item["samples"].append(sample)
+    folder.mkdir()
+    (folder / "documents.json").write_text(json.dumps(docs))
+    (folder / "report.json").write_text(json.dumps(report))
+    (folder / "transport.jsonl").write_text("".join(json.dumps(row) + "\n" for row in traces))
+    return docs, report, traces
+
+
 class ProjectNavigationBenchmarkContracts(unittest.TestCase):
+    def test_transport_observer_returns_the_original_object_and_flushes_after_call(self):
+        response = {"hit_ids": ["p1"], "native_payload": [{"text": "original"}], "search_ms": 1.0}
+
+        class Adapter:
+            def _request(self, request):
+                self.received = request
+                return response
+
+        adapter, stream = Adapter(), io.StringIO()
+        observer = comparison.TransportObserver(adapter, "smoke", stream)
+        observer.begin("fixture", "scope-a", 0)
+        request = {"op": "search", "query": "unchanged", "project": "scope-a", "limit": 5}
+        actual = adapter._request(request)
+        self.assertIs(actual, response)
+        self.assertIs(adapter.received, request)
+        self.assertEqual(stream.getvalue(), "")
+        actual["bridge_ms"] = 2.0
+        retained = observer.flush()
+        self.assertNotIn("bridge_ms", retained[0]["response"])
+        self.assertEqual(json.loads(stream.getvalue())["response"], retained[0]["response"])
+        self.assertIs(actual["native_payload"], response["native_payload"])
+
+    def test_known_nocase_failure_is_eligible_only_for_execution_and_stays_failed(self):
+        with tempfile.TemporaryDirectory() as temp:
+            folder, output = Path(temp) / "smoke", Path(temp) / "gate.json"
+            smoke_gate_fixture(folder)
+            result = comparison.check_smoke(folder, output)
+            self.assertEqual(result["status"], "eligible_with_registered_scope_mismatch")
+            self.assertTrue(result["eligible_for_execution"])
+            self.assertEqual(result["smoke_status"], "failed")
+            self.assertFalse(result["all_smokes_passed"])
+            self.assertEqual(len(result["registered_limitations"]), 2)
+            self.assertTrue(all(item["quality_success"] is False for item in result["registered_limitations"]))
+            with self.assertRaises(FileExistsError):
+                comparison.check_smoke(folder, output)
+
+    def test_missing_raw_changed_source_prefix_collision_or_other_error_blocks_execution(self):
+        for corruption in ("missing_raw", "changed_source", "prefix_collision", "changed_pin", "other_error", "hidden_failure"):
+            with self.subTest(corruption=corruption), tempfile.TemporaryDirectory() as temp:
+                folder, output = Path(temp) / "smoke", Path(temp) / "gate.json"
+                docs, report, traces = smoke_gate_fixture(folder)
+                if corruption == "missing_raw":
+                    traces = []
+                elif corruption == "changed_source":
+                    traces[0]["response"]["native_payload"][-1]["text"] += " altered"
+                    traces[0]["response_sha256"] = engineering.sha(traces[0]["response"])
+                elif corruption == "prefix_collision":
+                    traces[0]["response"]["hit_ids"][-1] = docs[1]["id"]
+                    traces[0]["response"]["native_payload"][-1] = {key: docs[1][key] for key in ("title", "project", "text")}
+                    traces[0]["response_sha256"] = engineering.sha(traces[0]["response"])
+                elif corruption == "changed_pin":
+                    report["backends"]["claude_mem"]["metadata"]["commit"] = "different source"
+                elif corruption == "other_error":
+                    report["failures"].append({"backend": "reme", "stage": "close", "error": "close failed"})
+                else:
+                    report["failures"] = []
+                    report["status"] = "passed"
+                (folder / "report.json").write_text(json.dumps(report))
+                (folder / "transport.jsonl").write_text("".join(json.dumps(row) + "\n" for row in traces))
+                result = comparison.check_smoke(folder, output)
+                self.assertEqual(result["status"], "blocked")
+                self.assertFalse(result["eligible_for_execution"])
+
+    def test_actual_unchanged_validator_failure_keeps_transport_and_attempts_four_tiny_queries(self):
+        from benchmarks.competitors.claude_mem import validate_native_rows
+
+        class IncorrectScopeFixture:
+            """Deliberately wrong test transport, not a replacement ranker."""
+            metadata = claude_scope_metadata()
+
+            def __init__(self, docs):
+                self.docs = {doc["id"]: doc for doc in docs}
+
+            def _request(self, request):
+                own = [doc for doc in self.docs.values() if doc["project"].lower() == request["project"].lower()]
+                return {"hit_ids": [doc["id"] for doc in own], "native_payload": [
+                    {key: doc[key] for key in ("title", "project", "text")} for doc in own], "search_ms": 1.0}
+
+            def search(self, query, project, limit):
+                response = self._request({"op": "search", "query": query, "project": project, "limit": limit})
+                response["bridge_ms"] = 2.0
+                validate_native_rows(response, self.docs, project, limit)
+                return response
+
+            def close(self):
+                pass
+
+        with tempfile.TemporaryDirectory() as temp:
+            output, cache = Path(temp) / "smoke", Path(temp) / "cache"
+            with patch.object(comparison, "make_adapter", side_effect=lambda backend, book, docs, *args: IncorrectScopeFixture(docs)):
+                report = comparison.self_test(output, cache, backends=("claude_mem",))
+            self.assertEqual(report["status"], "failed")
+            self.assertEqual(len(report["failures"]), 2)
+            item = report["backends"]["claude_mem"]
+            self.assertEqual([sample["status"] for sample in item["samples"]], ["failed", "passed", "failed", "passed"])
+            traces = [json.loads(line) for line in (output / "transport.jsonl").read_text().splitlines()]
+            self.assertEqual(len(traces), 4)
+            self.assertNotIn("bridge_ms", traces[0]["response"])
+            self.assertEqual(report["failures"][0]["scope_diagnosis"]["foreign_original_records"][0]["project"], "Scope-a")
+        steps = tiny_workload()
+        foreign = copy.deepcopy(steps[0]["sessions"][0])
+        foreign["project"] = "Alpha"
+        foreign["messages"][1]["content"] = "memorytoken has a conflicting independent value BETA91."
+        steps[0]["sessions"].append(foreign)
+        with tempfile.TemporaryDirectory() as temp:
+            output, cache = Path(temp) / "run", Path(temp) / "cache"
+            with patch.object(comparison, "cohort_workload", return_value=steps), \
+                 patch.object(comparison, "make_adapter", side_effect=lambda backend, book, docs, *args:
+                              book if backend == "book" else IncorrectScopeFixture(docs)):
+                report = comparison.run(output, cache, backends=("book", "claude_mem"))
+            self.assertEqual(report["status"], "completed_with_backend_failures")
+            self.assertEqual(report["backend_status"]["book"]["status"], "completed")
+            self.assertEqual(report["backend_status"]["claude_mem"]["packed_rows"], 0)
+            self.assertEqual({row["backend"] for row in report["summary"]}, {"book"})
+            self.assertEqual(report["failures"][0]["scope_diagnosis"]["requested_project"], "alpha")
+            self.assertEqual(len((output / "transport.jsonl").read_text().splitlines()), 1)
+
     def test_registered_dataset_hash_counts_and_exact_project_collisions(self):
         self.assertEqual(engineering.sha(data.workload()),
                          "589be00eb493fd05fc12dd59050e113a074cd0c2833c059848de50d0ffdfd74b")

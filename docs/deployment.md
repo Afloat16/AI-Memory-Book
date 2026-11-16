@@ -10,11 +10,13 @@ creates an isolated environment with the `mcp` and `clients` extras. It does not
 require Node.js, an embedding server, a database server, or a memory-service API
 key. Your AI client's own model and account requirements remain separate.
 
-## Install v0.6.0
+<a id="install-v060"></a>
+
+## Install v0.7.0
 
 Download the pinned installer, run it, and connect your AI
-client. The installer uses the small **v0.6.0 wheel** from the
-[GitHub release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.6.0),
+client. The installer uses the small **v0.7.0 wheel** from the
+[GitHub release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.7.0),
 so you do not need Git or a source checkout. The wheel excludes the repository's
 historical benchmark reports. MCP and client configuration dependencies are
 included in the installation; capture and the browser reader remain optional.
@@ -22,19 +24,19 @@ included in the installation; capture and the browser reader remain optional.
 ### macOS / Linux
 
 ```bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.6.0/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.7.0/scripts/install.sh
 bash install-memory-book.sh
 ```
 
 ### Windows PowerShell
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.6.0/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.7.0/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ```
 
 The shared Python installer also works on macOS/Linux. A PowerShell wrapper is
-available at [the v0.6.0 `scripts/install.ps1`](https://github.com/Afloat16/AI-Memory-Book/blob/v0.6.0/scripts/install.ps1). Neither wrapper
+available at [the v0.7.0 `scripts/install.ps1`](https://github.com/Afloat16/AI-Memory-Book/blob/v0.7.0/scripts/install.ps1). Neither wrapper
 changes your shell profile or PowerShell execution policy. Use Python 3.10 or
 newer; some Linux distributions package `venv` separately.
 
@@ -44,13 +46,13 @@ live under the data directory's `install` subdirectory. The usual POSIX launcher
 is `~/.local/bin/memory-book`; Windows uses the data directory's `bin` directory.
 Custom `--prefix`, `--bin-dir`, or `MEMORY_BOOK_HOME` can change these locations.
 
-The downloaded helper defaults to `--version v0.6.0`. It also accepts an older
+The downloaded helper defaults to `--version v0.7.0`. It also accepts an older
 release tag, a full commit SHA, or `--source /absolute/path/to/checkout-or-wheel`.
 `--without-extras` installs only
 the core and therefore omits MCP/client integration. Installation stages a new
 environment before switching its managed launcher; previous environments and
 memory data are retained. An unrelated existing launcher is not overwritten.
-The v0.3.0 through v0.3.4, v0.4.0, v0.5.0, and v0.6.0 routes use their pinned release wheels;
+The v0.3.0 through v0.3.4, v0.4.0, v0.5.0, v0.6.0 and v0.7.0 routes use their pinned release wheels;
 other release tags and commit SHAs keep the source-archive installation path.
 
 Once installed:
@@ -61,7 +63,7 @@ memory-book setup --client claude-code
 memory-book doctor
 ```
 
-The version should be `0.6.0`. Replace `claude-code` with your client profile,
+The version should be `0.7.0`. Replace `claude-code` with your client profile,
 such as `codex`; add `--dry-run` to setup if you want to preview configuration
 changes. Restart the selected client so it loads the new MCP connection. The
 server sends concise operating instructions at initialization; it does not preload your
@@ -77,23 +79,28 @@ itself enable transcript capture.
 Already installed? Follow [Upgrading](#upgrading) to keep your existing database
 and reconnect clients to the new environment.
 
-### Recall defaults in v0.6.0
+### Recall defaults in v0.7.0
 
-An omitted recall budget now means **2,400 characters**, including citation
+An omitted recall budget means **2,400 characters**, including citation
 headings, with up to **five results**. The default remains the local lexical
 `book` strategy: semantic retrieval and coverage expansion are opt in, and no
 exact token cap is imposed unless requested. MCP keeps compact source
 references by default; `details=true` exposes full source coordinates. Python,
 CLI and HTTP responses retain their detailed source fields.
 
-The 2,400-character setting was selected from the 1,200/2,400-character
-engineering development comparison. Those results do not establish an optimal
-budget for every project. Supply `budget_chars` explicitly when a task needs a
+The default is a bounded starting point, not an optimal budget for every
+project. Supply `budget_chars` explicitly when a task needs a
 different allowance; for example, Python/MCP `budget_chars=4000` or CLI
 `memory-book recall "query" --project project-id --budget 4000` uses that explicit
 character allowance. Limits on the context text do not cap all
-protocol metadata or model tokens. See the [release scope](releases/v0.6.0.md)
-and [token budgets](token-budget.md).
+protocol metadata or model tokens. See [token budgets](token-budget.md).
+
+Multi-project archives require an exact `project` or known chapter ID for
+ordinary recall. Deliberate cross-project queries use `all_projects=true`
+(CLI `--all-projects`), mutually exclusive with a project. Directory search
+requires a project; chapter/section/page reads accept an expected-project
+guard. Keep that scope when following IDs, and keep `source_hash` when paging
+through a complete original turn. See the [book-navigation workflow](engineering-workflows.md#browse-one-project-book).
 
 ## Alternative installation methods
 
@@ -102,13 +109,13 @@ and [token budgets](token-budget.md).
 Use a persistent tool environment and the same pinned release wheel:
 
 ```bash
-uv tool install "ai-memory-book[mcp,clients] @ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.6.0/ai_memory_book-0.6.0-py3-none-any.whl"
+uv tool install "ai-memory-book[mcp,clients] @ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.7.0/ai_memory_book-0.7.0-py3-none-any.whl"
 ```
 
 Or:
 
 ```bash
-pipx install "ai-memory-book[mcp,clients] @ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.6.0/ai_memory_book-0.6.0-py3-none-any.whl"
+pipx install "ai-memory-book[mcp,clients] @ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.7.0/ai_memory_book-0.7.0-py3-none-any.whl"
 ```
 
 These wheel URLs do not require Git. The persistent tool workflows are described
@@ -127,7 +134,7 @@ indexes; this is not an offline installation promise.
 ### Source checkout
 
 ```bash
-git clone --branch v0.6.0 https://github.com/Afloat16/AI-Memory-Book.git
+git clone --branch v0.7.0 https://github.com/Afloat16/AI-Memory-Book.git
 cd AI-Memory-Book
 python -m venv .venv
 source .venv/bin/activate
@@ -343,7 +350,7 @@ unnecessary when the daemon already provides that reader.
 
 ## Schema 4 upgrade
 
-**v0.6.0 includes schema 4**, identifier-aware lexical retrieval, temporal recall
+**v0.7.0 uses schema 4**, identifier-aware lexical retrieval, temporal recall
 controls, verified database backup, and read-only archive checks. The release
 installer and a checkout of the release tag provide the same runtime features;
 a development checkout is no longer required for these capabilities.
@@ -351,13 +358,13 @@ a development checkout is no longer required for these capabilities.
 Before moving an existing archive to schema 4:
 
 1. Stop background capture and close all old MCP servers and other writers.
-   Install or prepare the v0.6.0 environment without opening the archive
+   Install or prepare the v0.7.0 environment without opening the archive
    through ordinary commands.
-2. Use the **v0.6.0** launcher to run `backup --output NEW_PATH` against
+2. Use the **v0.7.0** launcher to run `backup --output NEW_PATH` against
    the existing database. This maintenance path reads the old schema without
    migrating it. `check-database` reports `migration_required` while preserving
    the snapshot and source. Keep that pre-migration snapshot.
-3. Open the working archive with a normal v0.6.0 command, such as
+3. Open the working archive with a normal v0.7.0 command, such as
    `memory-book stats`. The schema-3-to-4 migration transactionally rebuilds the
    derived exact and stem FTS indexes. Original normalized source text, page IDs
    and source content hashes remain intact. The source-hashing `INDEX_VERSION`
@@ -367,7 +374,7 @@ Before moving an existing archive to schema 4:
    check and must be explicitly rebuilt; default lexical recall is ready after
    migration without an embedding model.
 4. Update **every writer's** environment and client/service configuration to the
-   v0.6.0 launcher, preserving the database, background configuration
+   v0.7.0 launcher, preserving the database, background configuration
    and intended capture/write settings. Reinstall the user service with the new
    launcher where needed, then restart all clients and capture workers.
 
@@ -380,7 +387,7 @@ there is no automatic downgrade of the migrated file.
 
 ## Back up and check the archive
 
-These commands are included in [v0.6.0](#install-v060).
+These commands are included in [v0.7.0](#install-v070).
 
 Create a verified database snapshot with:
 
@@ -487,15 +494,15 @@ particular point in history.
 
 ## Upgrading
 
-To upgrade to **v0.6.0**, first follow the [schema 4 procedure](#schema-4-upgrade)
+To upgrade to **v0.7.0**, first follow the [schema 4 procedure](#schema-4-upgrade)
 when your working archive uses an earlier schema. Stop older writers, install
 the new runtime without opening the archive, and create a verified snapshot with
 the new `backup` command before normal commands migrate the working database.
 
-Download and run the v0.6.0 installer shown above, using the same `--prefix`,
+Download and run the v0.7.0 installer shown above, using the same `--prefix`,
 `--bin-dir`, or `MEMORY_BOOK_HOME` overrides if you originally selected them.
 Download the new helper rather than reusing one that defaults to another release.
-For uv, pipx, or a source checkout, use the corresponding pinned v0.6.0 URL or tag.
+For uv, pipx, or a source checkout, use the corresponding pinned v0.7.0 URL or tag.
 Update every client and background worker to the new launcher, then restart them.
 
 The default remains **2,400 characters and five results**. `temporal=auto` infers
@@ -515,7 +522,7 @@ inheritance behavior.
 and normalized source JSON before publication. A failed export removes its own
 staging files, allowing a retry to the same absent or empty target; existing
 nonempty targets and the current working directory itself are rejected; choose
-a new child directory for a handoff. See the [v0.6.0 release notes](releases/v0.6.0.md)
+a new child directory for a handoff. See the [engineering workflow](engineering-workflows.md)
 for validation evidence and the exact scope of the changes.
 
 Each MemoryBook connection uses a **4096 KiB SQLite pager cache target**.
@@ -579,7 +586,7 @@ memory-book setup --client claude-code --client codex
 memory-book doctor
 ```
 
-Confirm that the new launcher prints `0.6.0`. If you already use background
+Confirm that the new launcher prints `0.7.0`. If you already use background
 capture, update its service to the new environment:
 
 ```bash

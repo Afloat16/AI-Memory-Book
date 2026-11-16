@@ -1,206 +1,191 @@
 # AI-Memory-Book
 
-**Give coding agents engineering memory they can verify and continue from.**
+**Browse engineering memory as project books, then verify the original turn.**
 
-Projects are books, tasks are chapters, and evidence is a page you can open. AI-Memory-Book preserves normalized original text conversations, so an agent can recover constraints, parameter corrections, and failed attempts after a session or client switch, cite the source, and continue the work.
+An exact project ID identifies a book. Tasks form chapters; sections and pages lead back to the original conversation. AI-Memory-Book preserves normalized source text so a coding agent can recover a decision, its constraints and its failed alternatives, even after switching sessions or clients.
 
-[简体中文](README.zh-CN.md) · [Quick start](#quick-start) · [2400-character results](#2400-character-results) · [Open-source comparison](#open-source-comparison)
+[简体中文](README.zh-CN.md) · [Quick start](#quick-start) · [Read a project book](#read-a-project-book) · [2400-character evaluation](#2400-character-evaluation) · [18 project families](#open-source-comparison)
 
-**v0.6.0 · MIT · Python 3.10+ · Local SQLite / FTS5**
+**v0.7.0 · MIT · Python 3.10+ · Local SQLite / FTS5 · Default context: 2400 characters**
 
-## Engineering advantages
+## Keep similar projects in separate books
 
-- **Recover decisions together with their reasons.** Locate evidence by project, task, session, and original turn, retaining page IDs and source references. Open the original page to check a boundary condition, error message, or failed approach during code review or a task handoff.
-- **Find code identifiers across naming styles.** Queries such as `http_parser`, `JSONLReader` and `kv_cache` can match their acronym, camel-case and snake-case counterparts. The index adds lexical aliases while keeping original spelling, source offsets and project boundaries intact.
-- **Control current evidence and historical review explicitly.** Python, CLI, MCP and HTTP share `temporal=auto/current/relevance`. Automatic inference distinguishes original source evidence from an original historical decision; callers can also choose current-evidence ordering directly. Comparable later turns remain eligible under both character and token truncation. Check the source when judging authority.
-- **Keep configuration revisions separate from maintenance mentions.** Current queries group comparable field declarations within the same task and query constraints. `retryLimit=3`, `retry_limit=5` and clear prose updates can be linked while recognized quoted logs/code examples and incomplete turns do not supply that declaration hint. Detailed results explain the classification; the original evidence remains available for review.
-- **Spend bounded context on engineering constraints.** Apply project scope before retrieval and context assembly. The default is 2400 characters and up to five results; read further only when evidence is missing. This supports recovering implementation conventions, data-split rules, and edge cases together.
-- **Continue across existing clients.** Supported clients such as Claude Code, Codex, and Gemini can share the same database. Switching tools does not require abandoning the archived project history. MCP configuration and native transcript capture have separate [support matrices](docs/integrations.md#supported-profiles).
-- **Keep the memory layer simple to operate.** Default ingestion and lexical retrieval make no model calls and need no embedding model, database server, or memory-service API key. Background capture skips unchanged files; stable session IDs and content hashes prevent duplicate ingestion. Changed sessions are replaced transactionally; existing client configuration files are backed up before changes.
-- **Maintain a recoverable archive.** Online SQLite backup includes committed WAL data and verifies a new snapshot before publication. Read-only checks expose integrity and runtime state without migrating the source. Derived-index upgrades preserve existing page addresses and reject incompatible older writers atomically.
+- **Choose by identity.** Display names can repeat. `route-kernel`, `route_kernel` and `Route-Kernel` are distinct project IDs; code-identifier aliases do not merge project identities. The reader shows the ID beside the display name.
+- **Resolve scope before recalling.** In a multi-project archive, select an exact project or a known chapter ID. An omitted scope is refused; intentional cross-project recall uses `--all-projects` or `all_projects=true`. A single-book archive can resolve its only book automatically.
+- **Carry the selected project into navigation.** Chapter, section and page reads accept a `project` guard and reject an ID belonging to another book. The reader carries that guard; API callers should pass it when following returned IDs.
+- **Follow evidence to a complete original turn.** A page is a reading unit, not necessarily a complete answer. Direct turn reads support pagination independently of page splitting. Carry `source_hash` across reads so a replaced session causes a clear error instead of joining different source versions.
 
-**Import and hand off archives reliably.** CLI import validates every session before opening the database, so an invalid later input cannot first overwrite earlier records. `export-book` reads Markdown and JSON from one database snapshot and stages the complete output before publication. Failed exports can be cleaned up and retried; existing nonempty destinations stay protected.
+These checks prevent accidental mixing under the supplied project scope. They are not authentication or multi-user access control. [Navigation and source API details](docs/engineering-workflows.md#browse-one-project-book).
 
-When resuming a long-running task, ask which constraints the current implementation must satisfy, follow the citations to check later corrections and failed attempts, and then continue editing. Recovering a convention, checking its source, and continuing implementation gives a task handoff an explicit evidence trail. [Source semantics and agent guidance](docs/agent-guide.md).
+Try the [similar-project example](examples/similar-projects.json) from a source checkout after installation. Two books are both named **Routing Kernel** and reuse session `design-review`, task names and code symbols, but their contracts differ:
+
+~~~bash
+memory-book --db ./similar-projects.db import examples/similar-projects.json --format canonical
+memory-book --db ./similar-projects.db projects
+memory-book --db ./similar-projects.db index "routing policy" --project routing-prod
+memory-book --db ./similar-projects.db recall "edge_policy relaxation_limit" --project routing-prod
+memory-book --db ./similar-projects.db recall "edge_policy relaxation_limit" --project routing-eval
+~~~
+
+The synthetic `routing-prod` book records `edge_policy=bellman_ford` and `routing.relaxation_limit=128`; `routing-eval` records `edge_policy=reject_negative` and `routing.relaxation_limit=32`. Use the exact project IDs to keep those opposite policies separate. [Follow the directory through to complete original turns](docs/book-navigation.md).
 
 ## Quick start
 
-You need **Python 3.10+ with SQLite FTS5**. The v0.6.0 package includes the identifier retrieval, temporal controls, archive maintenance, and import/export improvements described here. The installer creates an isolated environment with MCP/client dependencies and needs no Git checkout or Node.js. For an existing archive, follow the [schema 4 upgrade procedure](docs/deployment.md#schema-4-upgrade), including a snapshot and restarting every writer.
+You need **Python 3.10+ with SQLite FTS5**. The installer creates an isolated environment with MCP/client dependencies. Default capture and lexical retrieval need no embedding model, database server or memory-service API key.
 
 **macOS / Linux**
 
 ~~~bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.6.0/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.7.0/scripts/install.sh
 bash install-memory-book.sh
 ~~~
 
 **Windows PowerShell**
 
 ~~~powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.6.0/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.7.0/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ~~~
 
-**Connect and check**
+**Connect a coding client**
 
 ~~~bash
 memory-book setup --client claude-code --capture --background
 memory-book doctor
 ~~~
 
-Replace `claude-code` with your [client profile](docs/integrations.md#supported-profiles), or repeat `--client` to connect more clients. Keep the capture flags only for profiles with native capture support; omit both `--capture` and `--background` for other profiles. If the command is not on PATH, use the full launcher path printed by the installer, then restart your client.
+Choose a supported [client profile](docs/integrations.md#supported-profiles), such as Claude Code, Codex or Gemini; repeat `--client` for multiple clients. `--capture` opts in to supported existing and future text transcripts, and `--background` starts the user capture service. Omit both for MCP configuration alone or a profile without native capture support. Restart the client after setup.
 
-`--capture` opts in to existing and future supported text transcripts; `--background` installs and starts the user service. Omit both flags for MCP configuration alone. The host and model control tool invocation, so connecting MCP does not guarantee automatic recall. Upgrade through the same installation method, then refresh setup and restart clients. [Deployment guide](docs/deployment.md#schema-4-upgrade).
+MCP tool invocation remains the host/model's choice. Use the full launcher path printed by the installer if the command is not on PATH. Existing archives and managed installations are covered by the [deployment and upgrade guide](docs/deployment.md).
 
-## Algorithm and engineering workflows
+## Read a project book
 
-The [runnable example](examples/engineering-workflow.json) contains five synthetic sessions across four projects: a negative-edge shortest-path correction, training-data split constraints, an HTTP parser contract, an inference configuration change, and a separate project's conflicting value. It exercises source lookup and project isolation without a model API.
+The [runnable example](examples/engineering-workflow.json) contains five synthetic sessions in four projects. Run from a source checkout with a new demo database:
 
 ~~~bash
 memory-book --db ./demo-memory.db import examples/engineering-workflow.json --format canonical
-memory-book --db ./demo-memory.db recall "jsonl_reader input contract and split" --project training-demo
-memory-book --db ./demo-memory.db recall "kv_cache block_size source evidence" --project inference-demo --temporal current
-memory-book --db ./demo-memory.db backup --output ./backups/demo-snapshot.db
-memory-book --db ./backups/demo-snapshot.db check-database
+memory-book --db ./demo-memory.db projects
+memory-book --db ./demo-memory.db toc inference-demo
+memory-book --db ./demo-memory.db index "KVCache" --project inference-demo
 ~~~
 
-Get the example from the [v0.6.0 source](https://github.com/Afloat16/AI-Memory-Book/tree/v0.6.0), run it from the repository directory, and use new database/output paths. The [developer workflow guide](docs/engineering-workflows.md) covers algorithm constraints, failed attempts, symbol lookup, Python integration, exact token limits, source verification and recovery. Recorded example settings are illustrative, not recommended production values.
+`toc` lists chapters. `index` searches titles, questions and task/session directory fields, returning section addresses and breadcrumbs without loading complete page bodies. Shared `task_id` values group a project's related sessions into a chapter; without a task ID, each session has its own chapter.
 
-## Default configuration
+Use IDs actually returned by the directory:
 
-The defaults are **native lexical retrieval, 2400 characters, and up to five results**, with no additional token cap. The character allowance includes citation headings and separators inside `context`; it does not cap the complete JSON response or model tokens.
+~~~bash
+memory-book --db ./demo-memory.db chapter CHAPTER_ID --project inference-demo
+memory-book --db ./demo-memory.db section SECTION_ID --project inference-demo
+memory-book --db ./demo-memory.db read PAGE_ID --project inference-demo
+~~~
 
-Example call to the MCP tool `recall_memory`:
+Follow the page's source reference to its original turn. In this example, turn index `1` is the second question-and-answer turn:
+
+~~~bash
+memory-book --db ./demo-memory.db turn inference-demo cache-configuration 1
+~~~
+
+A turn contains normalized original messages, including role labels. If `next_offset` is non-null, continue with `--offset NEXT_OFFSET --source-hash RETURNED_SOURCE_HASH` until it is null. When following a page, its `source_hash` can also pin the first turn read. [Complete source-reading examples](docs/engineering-workflows.md#read-the-evidence-before-applying-it).
+
+| Action | MCP tool |
+|---|---|
+| Select a project book | `browse_projects` |
+| Browse or search its directory | `browse_book`, `search_directory` |
+| Open a chapter or section | `browse_chapter`, `browse_section` with the selected `project` |
+| Read a page | `read_page` with the selected `project` |
+| Read the original turn | `read_source_turn` with `project`, `session_id`, `turn_index` |
+
+For a visual reader, run `memory-book --db ./demo-memory.db serve` and open **http://127.0.0.1:8765**. Select a book, use its directory, and open **Full original turn** from a page. The reader is optional; agents can use MCP directly.
+
+## Engineering work this supports
+
+**Recover the implementation contract.** The example records why a negative-edge routing task requires Bellman–Ford instead of the failed visited-once prototype, which `JSONLReader` fields are mandatory, and which split/normalization rules prevent training-data leakage. Preserve the reasons and constraints alongside the selected method.
+
+**Find symbols without rewriting source.** Lexical aliases connect forms such as `HTTPParser`, `httpParser` and `http_parser`, while returned evidence keeps its original spelling and coordinates. This is naming normalization, not semantic synonym inference.
+
+**Separate a correction from another project's value.** In the example, `inference-demo` records a current `KVCache block_size` of 32 and explains why 128 was superseded; a gateway test double separately records 256. Ask within the intended project, then open the source before applying the value:
+
+~~~bash
+memory-book --db ./demo-memory.db recall "current KVCache block_size and reason" --project inference-demo --json
+~~~
+
+**Maintain an archive that can be handed off.** Unchanged sessions are skipped; changed sessions are replaced transactionally. `backup` creates a verified SQLite snapshot, `check-database` inspects it read-only, and `export-book` produces navigable Markdown plus normalized source JSON from one snapshot. [Capture support](docs/integrations.md) · [Backup and handoff](docs/engineering-workflows.md#maintain-and-move-the-archive).
+
+## Default recall
+
+Recall can go directly to evidence; directory traversal is optional. Defaults are **lexical retrieval, 2400 characters and up to five results**. The character budget covers the assembled `context`, including citations and separators; it does not cap all JSON metadata or model tokens.
+
+An MCP `recall_memory` call:
 
 ~~~json
 {
-  "query": "current gradient accumulation steps",
-  "project": "your-project-id",
+  "query": "current KVCache block_size and reason",
+  "project": "inference-demo",
   "budget_chars": 2400,
   "limit": 5,
   "temporal": "current"
 }
 ~~~
 
-Use an actual project ID. Read the returned page ID when more evidence is needed. The CLI supports the same configuration:
+`temporal=auto/current/relevance` controls conservative time-intent ordering. Current mode prefers comparable later evidence; it is not an authoritative state resolver or an as-of-date database. Historical evidence remains available. An exact token cap is optional through `budget_tokens` and the `tokens` extra; semantic retrieval and coverage expansion are separate opt-ins. [Recall semantics](docs/agent-guide.md) · [Token budgets](docs/token-budget.md).
 
-~~~bash
-memory-book projects
-memory-book recall "current gradient accumulation steps" --project your-project-id --budget 2400 --limit 5
-~~~
+## 2400-character evaluation
 
-## 2400-character results
+**v0.7.0 formal execution is pending. This README does not yet report v0.7.0 quality, latency or navigation pass rates.** The [registered protocol](benchmarks/project_navigation-plan.md) separates shared ranked retrieval from native book-navigation contracts. Source reviews and adapter preparation are not scored results.
 
-### Six real open-source implementations, one fixed workload
+The first hosted preparation run passed ReMe's real native API smoke. claude-mem's supplied-observation component intentionally uses case-insensitive project scope; this is incompatible with this experiment's exact-case contract for `scope-a` versus `Scope-a` and triggered `Native project scope violation`. Preparation stopped before formal quality execution. This remains a contract incompatibility, not a zero quality score or a claim that claude-mem lacks project filtering. [Retained preparation report](benchmarks/reports/v0.7.0-engineering/preparation-attempt1/adapter-smoke/report.json).
 
-The frozen **v0.6.0 runtime** was evaluated on **eight projects, four algorithm families, six chronological checkpoints and 80 questions**. There are **72 answerable questions, 80 required evidence spans, 48 fixed-policy cases and eight missing-evidence questions**. Families cover negative-edge shortest paths, Top-k ties, data splitting and fully masked softmax. Only previously visible history is ingested. Three repeats measure timing and stability; they do not create additional quality cases.
+The target matrix is **Book plus seven external implementations**, using actual pinned upstream code:
 
-The comparison runs actual pinned upstream code for **billion-context, claude-mem, Basic Memory, Mem0, Chroma and LangGraph Store**. Every backend receives the same complete original pages, unchanged questions, project filter and top-five limit. The same whole-block packer applies the 2400-character budget, including citations; oversized blocks are skipped. Book retains its native hierarchy/index metadata. [Fixed protocol and package/model locks](benchmarks/competitors/memory-systems-plan.md).
+| External target | Registered component mode | v0.7.0 status |
+|---|---|---|
+| billion-context | Native supplied-page search kernel | Formal run pending |
+| claude-mem | Supplied raw observations, native SQLite/FTS search | Case-insensitive scope incompatible with the exact-case contract |
+| Basic Memory | Explicit native text/FTS component | Formal run pending |
+| Mem0 | `infer=False`, real local MiniLM and native vector-store search | Formal run pending |
+| Chroma | Real local MiniLM document collection | Formal run pending |
+| LangGraph Store | Explicitly indexed Store with the same real MiniLM | Formal run pending |
+| ReMe | Official plain-text file chunker, local BM25 and native exact-path filter | Native API smoke passed; formal run pending |
 
-External components are rebuilt from the visible source-page snapshot at each checkpoint. The source-replacement category measures retrieval from that updated snapshot; it does not validate every product's native incremental update/delete workflow. The seven-backend matrix contains 560 query/backend pairs, 1680 actual native calls across three repeats, and 1120 packed outputs across the two budgets. Both budgets reuse the same native candidates.
+Two distinct cohorts are registered: an **80-question engineering regression cohort** and an **80-question same-topic project cohort**. The latter uses eight books with the same display name and colliding session names/symbols, including case, underscore, hyphen and suffix differences in exact project IDs. It includes facts that exist only in a neighboring project, so missing local evidence is distinguishable from evidence absent everywhere.
 
-**Read the tested modes with the scores.** Basic Memory uses explicit FTS, claude-mem searches supplied raw observations without its observer, and Mem0 uses `infer=False` without fact extraction. Chroma and LangGraph are retrieval/store infrastructure. Mem0, Chroma and LangGraph share the same real local MiniLM model and its native 256-token truncation. These are configured component results; default full-product workflows are outside this experiment.
+The common ranked track supplies identical visible original pages, unchanged questions, exact project scope and a native top-five limit. One whole-block packer applies **1200 and 2400 characters**, including citations. Native Book excerpts remain a separate track. The planned audit reports complete evidence, required spans, fixed-policy outcomes, stale-only cases, source/scope failures, budget violations and both kinds of missing evidence.
 
-| Measured component / mode | Evidence spans | Complete evidence | Policy passes | Stale-only | Mean chars |
-|---|---:|---:|---:|---:|---:|
-| **AI-Memory-Book** | 80/80 | 72/72 · 100.00% | 48/48 | 0 | 1799.2 |
-| billion-context · pinned kernel | 72/80 | 64/72 · 88.89% | 40/48 | 0 | 1955.0 |
-| claude-mem 15.18.1 · raw-observation FTS | 72/80 | 64/72 · 88.89% | 40/48 | 0 | 1488.5 |
-| Basic Memory 1.0.0 · explicit FTS | 72/80 | 64/72 · 88.89% | 40/48 | 0 | 1333.1 |
-| Mem0 2.2.1 · `infer=False` + MiniLM | 55/80 | 47/72 · 65.28% | 25/48 | 4 | 1963.0 |
-| Chroma 1.5.9 · MiniLM collection | 55/80 | 47/72 · 65.28% | 25/48 | 4 | 1963.0 |
-| LangGraph checkpoint 4.3.2 · indexed Store | 55/80 | 47/72 · 65.28% | 25/48 | 4 | 1963.0 |
+Native navigation separately checks directory lookup, chapter/section/page traversal, full-turn reconstruction, wrong-book address rejection and explicit scope selection. These contracts measure Book's interfaces; a wrapper's project selection is not counted as a competing product's native capability.
 
-At 2400 characters, Book recovers **eight more complete-evidence cases** than each tested lexical component, a **11.11-percentage-point** difference, and passes **eight more fixed-policy cases**, a **16.67-point** difference. Against each of the three shared-MiniLM configurations, it recovers **25 more complete cases**. Their identical quality counts are correlated evidence of the shared model, not three independent demonstrations of model superiority. [Complete component report](benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/report.json).
-
-The context tradeoff is visible: Book uses **7.97% fewer characters than billion**, but returns more text than claude-mem FTS and Basic Memory FTS while recovering the additional evidence. It does not have the shortest context among all engines. Every backend has **zero source-validation failures, zero budget violations and stable repeated output** in both budgets. [Raw outputs and source mappings](benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/).
-
-“Stale-only” counts cases containing a marked obsolete span without required evidence. It does not count every kind of wrong answer: billion's historical-decision misses, for example, still have zero stale-only cases. Complete-evidence coverage and the category table must be read alongside that count.
-
-Source validation authenticates each adapter's mapping back to the common original pages. It does not imply that every upstream product natively exposes Book's exact citation coordinates.
-
-### Which engineering scenarios explain the difference?
-
-Complete-evidence counts under the same 2400-character whole-block protocol:
-
-| Scenario (8 cases each) | Book | billion | claude-mem FTS | Basic Memory FTS | Three MiniLM modes¹ |
-|---|---:|---:|---:|---:|---:|
-| Later decision correction | 8/8 | 8/8 | 8/8 | 8/8 | 0/8 |
-| Recovery after a long gap | 8/8 | 8/8 | 8/8 | 8/8 | 0/8 |
-| Multiple constraints | 8/8 | 8/8 | 8/8 | 8/8 | 6/8 |
-| Historical decision | 8/8 | 0/8 | 8/8 | 8/8 | 1/8 |
-| Chinese/English queries | 8/8 | 8/8 | 0/8 | 0/8 | 8/8 |
-| Initial decisions | 8/8 | 8/8 | 8/8 | 8/8 | 8/8 |
-| Code identifier lookup | 8/8 | 8/8 | 8/8 | 8/8 | 8/8 |
-| Failed attempts | 8/8 | 8/8 | 8/8 | 8/8 | 8/8 |
-| Replaced source sessions | 8/8 | 8/8 | 8/8 | 8/8 | 8/8 |
-
-¹ Chroma, indexed LangGraph Store and raw-memory Mem0 have the same counts in every category here; each remains separately recorded in the main table and raw data. Book's gains over billion are historical-decision queries; its gains over claude-mem/Basic Memory FTS are the bilingual queries. The MiniLM configurations lose most evidence on later corrections, long-gap recovery and historical lookup. These patterns describe this authored dataset, not each product's general language or reasoning capability. [Category and paired-case audit](benchmarks/reports/v0.6.0-engineering/audit.json).
-
-### The 1200-character boundary remains visible
-
-The same pages, queries, candidate limit and whole-block packer give:
-
-| Measured component / mode | Evidence spans | Complete evidence | Policy passes | Stale-only | Mean chars |
-|---|---:|---:|---:|---:|---:|
-| **AI-Memory-Book** | 76/80 | 68/72 · 94.44% | 44/48 | 4 | 1048.1 |
-| billion-context · pinned kernel | 72/80 | 64/72 · 88.89% | 40/48 | 0 | 948.5 |
-| claude-mem 15.18.1 · raw-observation FTS | 72/80 | 64/72 · 88.89% | 40/48 | 0 | 848.0 |
-| Basic Memory 1.0.0 · explicit FTS | 72/80 | 64/72 · 88.89% | 40/48 | 0 | 948.5 |
-| Mem0 2.2.1 · `infer=False` + MiniLM | 55/80 | 47/72 · 65.28% | 25/48 | 4 | 1036.7 |
-| Chroma 1.5.9 · MiniLM collection | 55/80 | 47/72 · 65.28% | 25/48 | 4 | 1036.7 |
-| LangGraph checkpoint 4.3.2 · indexed Store | 55/80 | 47/72 · 65.28% | 25/48 | 4 | 1036.7 |
-
-Book has **68/72 complete cases and 44/48 policy passes**, but still returns only stale evidence in **four training-decision cases**: two replacement decisions and two long-gap queries. Each tested lexical competitor wins those four cases and loses eight others to Book. Its higher aggregate coverage does not mean it wins every question or has fewer stale results at this budget. Those failures remain in the [validation record](docs/v0.6.0-engineering-validation.md).
-
-### Native retrieval versus practical strategies
-
-This separate track uses Book's native excerpt packing and the existing in-repository strategies at 2400 characters. Flat FTS and recent history are baselines, not additional open-source products.
-
-| Strategy | Evidence spans | Complete evidence | Policy passes | Mean chars |
-|---|---:|---:|---:|---:|
-| **AI-Memory-Book** | 80/80 | 72/72 | 48/48 | 1799.2 |
-| Scoped flat FTS | 60/80 | 52/72 | 28/48 | 1801.3 |
-| Recent history within budget | 64/80 | 56/72 | 32/48 | 2260.9 |
-| No memory | 0/80 | 0/72 | 0/48 | 0.0 |
-
-Book finds complete evidence in **20 more cases than flat FTS** and **16 more than recent history**, with about **20.4% fewer context characters** than recent history. Flat FTS shares the scope/index/native packer; recent history uses resident text, shorter citation headings and no top-five limit. Native Book at 1200 characters has **76/80 spans, 68/72 complete cases, 48/48 policy passes and zero stale-only cases**. These excerpt results must not be substituted into the common-block competitor table. [Native report](benchmarks/reports/v0.6.0-engineering/hosted/native/report.json).
-
-The native 2400-character replay records retrieval/context assembly **p50 / p95 of 1.560 / 4.846 ms** over 240 calls. Result caching is disabled; SQLite/OS caches are not cleared. This excludes ingestion and model generation. Foreign-process calls and embedding-backed searches have different timing boundaries, so no whole-product speed ratio is claimed.
-
-### Reproduction and evidence limits
-
-An independent audit recomputed the scores and complete packed responses, passing **116,693 checks with zero failures**. All **320 Book/billion response pairs** match between the original two-component evaluator and the expanded harness, across both budgets. Default calls also match explicit 2400/5 calls and all 80 saved current-runtime outputs. [Audit](benchmarks/reports/v0.6.0-engineering/audit.json) · [Default equivalence](benchmarks/reports/v0.6.0-engineering/hosted/default-profile/report.json) · [Successful run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43788979015).
-
-These are **synthetic development cases**, without an independent holdout or coding LLM. The fixed consumer extracts recorded policies and executes handwritten variants; its pass rate is not generated-code accuracy. **All seven backends return related context for all eight missing-evidence questions** at both budgets, so this is not an abstention benchmark or 80/80 answer correctness. Real task completion time, patch success and total model cost remain unmeasured. The [validation record](docs/v0.6.0-engineering-validation.md) retains every failure, test boundary, source identity and the pre-quality Chroma integration failure. Heavy comparison dependencies are separate from the normal Book installation.
+**Interpretation limits:** these are authored development cases, without an independent holdout or a coding LLM. Fixed-policy tests are not generated-code accuracy. Chroma, LangGraph and Mem0 share one embedding model, so their results are correlated. Supplied-page FTS/raw-memory modes omit the products' extraction or synthesis pipelines; rebuilding checkpoint indexes does not test every native update/delete workflow. Source mapping validates the common originals, not identical citation features. Failed or unavailable backends must remain visible.
 
 ## Open-source comparison
 
-This review covers **14 external project families**, using official sources checked on 2026-11-16. Numerical results apply only to the explicitly configured components in the experiment; unmeasured complete products have no inferred score. [Pinned sources, tested modes, deployment requirements and license notes](docs/open-source-memory-comparison.md).
+Official sources checked on **2026-11-16** cover **18 external project families**. The table describes architecture and native capabilities; it does not rank unmeasured products. [Pinned sources, exact modes and license notes](docs/open-source-memory-comparison.md) · [Navigation-focused research](docs/v0.7.0-open-source-research.md).
 
-| Project | Main approach | When Book fits |
-|---|---|---|
-| [billion-context](https://github.com/ranxianglei/billion-context) | Model proxy and client plugins with model-directed reversible compression, decompression, and context search | An independent original-evidence archive queried by project through MCP, without changing model API routing |
-| [claude-mem](https://github.com/thedotmack/claude-mem) | Hooks capture activity; an observer generates observations/summaries; local HTTP worker, SQLite, optional Chroma | Default capture and lexical queries add no summarization model calls; stdio MCP and capture need no HTTP listener |
-| [Mem0](https://docs.mem0.ai/open-source/python-quickstart) | User/agent memory for applications; default model-based fact extraction and embeddings, with configurable local storage | Engineering conversations become original evidence without configuring additional extraction or embedding models |
-| [Letta Code](https://github.com/letta-ai/letta-code) | Stateful agents managing memory, skills, and Git-backed MemFS, with local or cloud operation | A shared evidence layer for existing coding clients while retaining their tools and workflows |
-| [Graphiti](https://github.com/getzep/graphiti) | Temporal knowledge graphs with retained original episodes, entity extraction and relationship retrieval | Project conversations and exact source coordinates without operating a graph backend or default extraction models |
-| [MemOS](https://github.com/MemTensor/MemOS) | MemCubes and service/local memory paths; a local plugin also supports SQLite/FTS5 | A focused conversation archive with project/task navigation and a single local SQLite database |
-| [Memori](https://github.com/MemoriLabs/Memori) | Captured conversations and traces enriched into facts and relationships, with cloud or own-database options | Original evidence and bounded retrieval without a separate enrichment pipeline |
-| [Cognee](https://github.com/topoteretes/cognee) | Document/code memory using chunks, graphs and vectors; a local GLiNER path can avoid an LLM API key | Default lexical conversation retrieval with no embedding model and direct original-turn lookup |
-| [memvid](https://github.com/memvid/memvid) | Portable `.mv2` content frames, lexical search and optional vector retrieval | Client transcript capture, project/task organization and source-linked handoff workflows |
-| [Official MCP memory](https://github.com/modelcontextprotocol/servers/tree/main/src/memory) | Explicit entities, observations and relationships in a JSONL graph, including literal substring search | Ingesting complete conversations and assembling ranked, source-cited context within a budget |
-| [LangGraph store](https://docs.langchain.com/oss/python/langgraph/stores) | Application-defined namespace/key/value stores; semantic indexes are explicit and separate from thread checkpoints | A ready-to-use archive, capture and retrieval layer for existing clients; LangGraph supplies lower-level application infrastructure |
-| [LongMemory](https://github.com/CaviraOSS/LongMemory) | Project memory, provenance and temporal APIs with configurable embedding providers | A no-model default, stable page addresses and directly replayable engineering retrieval evidence |
-| [Basic Memory](https://github.com/basicmachines-co/basic-memory) | Markdown knowledge, linked observations and project-scoped text/semantic search | Keeping source conversations as the primary archive without first authoring or rewriting knowledge notes |
-| [Chroma](https://github.com/chroma-core/chroma) | Document/vector collections, local persistence and metadata filtering | Conversation capture, task navigation, source coordinates and context assembly without a default embedding dependency |
+| Project family | Native approach and engineering scope |
+|---|---|
+| [billion-context](https://github.com/ranxianglei/billion-context) | Proxy/client context management, reversible compression and searchable blocks with project filtering |
+| [claude-mem](https://github.com/thedotmack/claude-mem) | Activity capture, model-generated observations/summaries and progressive SQLite/optional-vector retrieval |
+| [Mem0 / OpenMemory](https://github.com/mem0ai/mem0) | Application memory and session tools; fact extraction or explicit raw-memory ingestion, with user/agent/run and metadata scope |
+| [Letta / Letta Code](https://github.com/letta-ai/letta-code) | Stateful agents, editable memory and Git-backed MemFS, with file/message search and agent-specific or shared state |
+| [Graphiti](https://github.com/getzep/graphiti) | Temporal knowledge graphs retaining episodes, entities and relationships; `group_id` scopes graph data |
+| [MemOS](https://github.com/MemTensor/MemOS) | MemCubes and service/local memory paths; a local plugin also supports SQLite/FTS5 |
+| [Memori](https://github.com/MemoriLabs/Memori) | Captured conversations and traces, with model enrichment and entity/process/session attribution |
+| [Cognee](https://github.com/topoteretes/cognee) | Documents/code transformed into chunks, graphs and vectors; dataset scope and document provenance |
+| [memvid](https://github.com/memvid/memvid) | Portable immutable content frames, native lexical search and optional vector retrieval in `.mv2` files |
+| [Official MCP memory](https://github.com/modelcontextprotocol/servers/tree/main/src/memory) | JSONL entities/observations/relations with exact reads and literal substring lookup; separate instances can separate graphs |
+| [LangGraph Store](https://github.com/langchain-ai/langgraph) | Namespace/key/value storage and optional semantic indexing, distinct from thread checkpoints; retrieval infrastructure |
+| [LongMemory](https://github.com/CaviraOSS/LongMemory) | Project memory, provenance and temporal APIs with configurable embedding providers |
+| [Basic Memory](https://github.com/basicmachines-co/basic-memory) | Markdown knowledge, directory tools, explicit project routing and ambiguous-path guards; text and semantic retrieval |
+| [Chroma](https://github.com/chroma-core/chroma) | Document/vector collections with metadata filters and collection/tenant/database boundaries; retrieval infrastructure |
+| [ReMe](https://github.com/agentscope-ai/ReMe) | Local files and wikilinks, source line ranges and native BM25; embeddings are off by default, with exact-path/metadata filtering |
+| [OpenViking](https://github.com/volcengine/OpenViking) | Hierarchical context filesystem, directory abstracts/overviews and full-source reads; account/user isolation and optional resource ACLs |
+| [Hindsight](https://github.com/vectorize-io/hindsight) | Memory banks, evidence-backed observations and generated pages in a searchable/exportable folder tree |
+| [MCP Memory Service](https://github.com/doobidoo/mcp-memory-service) | Local semantic/BM25 memory, capture, document ingestion and graph exploration, with tag/store scope |
 
-Multiple clients, source lookup, and local operation occur in several projects. Book brings **original evidence, project scope, bounded context, and low additional inference requirements** together in a lightweight memory layer for long-running development, incident review, and continuity across clients. Graph reasoning, editable agent state, authored Markdown knowledge and vector-store infrastructure address other needs; this table does not establish a universal winner. Mem0/OpenMemory and Letta/Letta Code each count as one family; Chroma and LangGraph are identified as infrastructure.
+Directories, source lookup, project filters and local operation already exist in several of these projects. Book fits work that needs **original conversations as the primary archive, explicit project-book navigation, source-version checks, and bounded evidence retrieval with no model in the default path**. Graph reasoning, generated knowledge pages, editable agent state and vector-store infrastructure serve other needs. Mem0/OpenMemory and Letta/Letta Code each count as one family; licenses differ by project and sometimes by component.
 
-## Documentation and data boundaries
+## Practical limits and further reading
 
-[Developer workflows](docs/engineering-workflows.md) · [Integrations](docs/integrations.md) · [Deployment and Docker](docs/deployment.md) · [Agent guide](docs/agent-guide.md) · [Token budgets](docs/token-budget.md) · [Optional semantic retrieval](docs/semantic-retrieval.md) · [Contributing](CONTRIBUTING.md)
+Only imported supported text can be recovered; normalization does not retain every vendor's multimodal payload. A short result can omit a necessary constraint, and a related result is not proof of a correct answer. Open the original turn and run the project's own tests. Keep source version hashes during paginated reads; replacing a session may also change its page addresses.
 
-Run `memory-book serve` and open [127.0.0.1:8765](http://127.0.0.1:8765) to inspect the archive. It is local, unencrypted data; recalled evidence enters the selected client's model context. Project filtering is not multi-user access control. Client-configuration backups are not automatic database backups. [Data locations and maintenance](docs/deployment.md#data-and-configuration-paths).
+[Engineering workflows](docs/engineering-workflows.md) · [Agent guide](docs/agent-guide.md) · [Deployment](docs/deployment.md) · [Client integrations](docs/integrations.md) · [Evaluation protocol](benchmarks/project_navigation-plan.md)
 
-Independently implemented under the [MIT License](LICENSE). [Current release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.6.0) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml).
+Independently implemented under the [MIT License](LICENSE). [Release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.7.0) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml).

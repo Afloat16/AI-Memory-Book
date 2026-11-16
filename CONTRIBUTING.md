@@ -18,8 +18,10 @@ For the current developer workflow and a small runnable archive, see
 [engineering workflows](docs/engineering-workflows.md). Schema changes must
 preserve source/page identity and cover interrupted migration, concurrent
 openers and incompatible old writers. The full source-provenance tests require
-a committed runtime tree. The [current validation report](docs/developer-engineering-validation.md)
-records the optional dependency versions used for the complete local test matrix.
+a committed runtime tree. The [retained validation snapshot](docs/developer-engineering-validation.md)
+records optional dependency versions for its historical local test matrix.
+Current release work is tracked separately in the
+[v0.7.0 validation record](docs/v0.7.0-engineering-validation.md).
 
 ## Retrieval changes
 
