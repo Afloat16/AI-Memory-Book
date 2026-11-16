@@ -15,6 +15,7 @@ from unittest.mock import patch
 _ROOT = Path(__file__).resolve().parents[1]
 _ARCHIVED_ROOT = _ROOT / "tests/fixtures/round5_frozen_inputs"
 _ARCHIVED_FILES = {
+    "tests/test_round5_candidate_c4.py",
     "tests/test_round5_covering_index.py",
     *(f"tests/test_round5_c{number}_performance.py" for number in range(4, 8)),
 }

@@ -12,6 +12,7 @@ appear in the applicable earlier bindings.
 
 | Original path under `tests/` | Original SHA-256 |
 | --- | --- |
+| `test_round5_candidate_c4.py` | `f16d4de95d0f9c284963e22b7fe29383a154dd478a4acef271220a6aa1862ee7` |
 | `test_round5_covering_index.py` | `490fec5ec90c0798a73d35929089b81d20b57f0d1062c2ed5593749bb61dbc3f` |
 | `test_round5_c4_performance.py` | `d79de421df8ea7c49809a093c382e26c0f6e50e03568b6d8ca2b2a19dea780ef` |
 | `test_round5_c5_performance.py` | `4a23597dc8de9942eefe4531b4ac5cd83bb5bb2a49c2f0128c15355e430bdb43` |
@@ -30,3 +31,12 @@ The production registration and audit functions still read and verify their
 actual checkout. They receive no fixture fallback, altered expected hashes, or
 relaxed acceptance rules. Dedicated negative tests corrupt the temporary input
 tree and confirm that those unchanged production functions reject the changes.
+
+## Additional saved input for v0.7.0
+
+`test_round5_candidate_c4.py.txt` preserves the exact registered C6 evaluator
+input, recovered from local source checkpoint
+`5bbe2b163ff1e6847d79c3aac0ddfe0054f7aa9a` and checked against the unchanged
+historical binding before saving. Its live counterpart now explicitly declares
+intentional cross-project test calls for the v0.7 API. The saved historical file
+remains data and is never executed; no registered hash or acceptance gate changes.

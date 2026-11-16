@@ -1,0 +1,26 @@
+# ReMe source is supplied by reme.py --prepare at the exact commit in reme-lock.json.
+# This independent environment uses upstream pyproject.toml base + [as] dependencies.
+# No reme-ai PyPI release is substituted for the pinned source checkout.
+# Regenerate with uv pip compile --python-version 3.12 --python-platform x86_64-manylinux_2_31
+#   --generate-hashes --no-emit-index-url reme-requirements.in -o reme-requirements.txt
+aiofiles>=24.1.0
+croniter>=6.0.0
+fastapi>=0.162.0
+fastmcp>=3.4.4,<5
+httpx[socks]>=0.28.1
+loguru>=0.7.3
+mcp>=1.28.1,<3
+mistletoe>=1.6.0
+numpy>=2.4.6; python_version < '3.12'
+numpy>=2.5.4; python_version >= '3.12'
+openai>=2.24.0
+psutil>=7.2.2
+pydantic>=2.13.4
+python-frontmatter>=1.3.0
+pyyaml>=6.0.3
+rich>=14.3.3
+uvicorn>=0.54.0
+watchfiles>=1.3.0
+zstandard>=0.25.0
+agentscope[model-ollama]==2.0.11
+

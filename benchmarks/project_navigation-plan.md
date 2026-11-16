@@ -164,6 +164,14 @@ artifact root `.artifacts/v070-evidence`. Install the existing 206-dependency
 lock unchanged, install ReMe in a separate environment, verify public assets,
 then run tiny API smokes. Use fresh state under the cache for every run.
 
+A branch ending in `-prepare` executes only installation, protocol unit
+contracts, verified asset preparation and tiny adapter smokes. It explicitly
+skips every quality cohort, navigation-cohort contract, default-profile replay
+and final comparison audit. A full run additionally requires the published,
+approved `project-navigation-freeze.json` to match the current runtime,
+evaluator, both dataset hashes, all eight backends, three repetitions and both
+character caps. The freeze file is not part of its own evaluator hash.
+
 Replay the three unchanged legacy runners on the current frozen runtime.
 Run the new driver on both the original engineering cohort and the new
 same-topic cohort, with the same registered backends. Also retain Book directory

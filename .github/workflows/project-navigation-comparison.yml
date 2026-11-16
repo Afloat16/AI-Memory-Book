@@ -1,0 +1,185 @@
+name: Compare pinned project navigation for v0.7.0
+
+on:
+  push:
+    branches: ['validation/project-navigation-v070*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: project-navigation-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  compare:
+    if: github.repository == 'Afloat16/AI-Memory-Book'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONHASHSEED: '0'
+      PYTHONPATH: src
+      ORT_DISABLE_TELEMETRY: '1'
+      ANONYMIZED_TELEMETRY: 'False'
+      MEM0_TELEMETRY: 'False'
+      OMP_NUM_THREADS: '1'
+      TOKENIZERS_PARALLELISM: 'false'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '24.22.1'
+      - name: Record frozen source and runner identity
+        run: |
+          python - <<'PY'
+          import json, os, pathlib, platform, sqlite3, subprocess, sys
+          out = pathlib.Path('.artifacts/v070-evidence')
+          out.mkdir(parents=True, exist_ok=False)
+          record = {'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+                    'run_id': os.environ['GITHUB_RUN_ID'], 'run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+                    'preparation_only': os.environ['GITHUB_REF_NAME'].endswith('-prepare'),
+                    'python': sys.version, 'platform': platform.platform(), 'sqlite': sqlite3.sqlite_version,
+                    'node': subprocess.check_output(['node', '--version'], text=True).strip(),
+                    'cpus': os.cpu_count(),
+                    'scope': 'Public authored fixtures; no private archives or provider credentials.'}
+          (out / 'host.json').write_text(json.dumps(record, indent=2) + '\n')
+          PY
+      - name: Install unchanged comparison dependency lock
+        run: |
+          python -m pip install --disable-pip-version-check --no-cache-dir --require-hashes -r benchmarks/competitors/memory-systems-requirements.txt
+          python -m pip install --disable-pip-version-check --no-cache-dir --no-deps -e .
+          python -m pip check
+          python -m pip freeze --all > .artifacts/v070-evidence/environment.txt
+      - name: Install ReMe in its separate locked environment
+        run: |
+          python -m venv .artifacts/v070-reme-env
+          .artifacts/v070-reme-env/bin/python -m pip install --disable-pip-version-check --no-cache-dir --require-hashes --only-binary=:all: -r benchmarks/competitors/reme-requirements.txt
+          .artifacts/v070-reme-env/bin/python -m pip check
+          .artifacts/v070-reme-env/bin/python -m pip freeze --all > .artifacts/v070-evidence/reme-environment.txt
+      - name: Verify protocol contracts and public assets
+        run: |
+          python -m unittest tests.test_memory_systems tests.test_project_navigation_benchmark tests.test_reme_component -v
+          python -m benchmarks.project_navigation --prepare --cache .artifacts/v070-foreign --reme-python .artifacts/v070-reme-env/bin/python
+      - name: Run actual adapter API smokes before quality
+        id: smoke
+        run: python -m benchmarks.project_navigation --self-test --output .artifacts/v070-evidence/adapter-smoke --cache .artifacts/v070-foreign --reme-python .artifacts/v070-reme-env/bin/python
+      - name: Require the approved frozen runtime and protocol before quality
+        id: freeze
+        if: ${{ !endsWith(github.ref_name, '-prepare') }}
+        run: |
+          python - <<'PY'
+          import json, shutil
+          from pathlib import Path
+          import memory_book
+          from benchmarks import engineering_workflow as engineering
+          from benchmarks import project_navigation as comparison
+          from benchmarks import project_navigation_data as same_topic
+          path = Path('benchmarks/project-navigation-freeze.json')
+          frozen = json.loads(path.read_text())
+          expected = {'schema': 'project-navigation-freeze-v1', 'approved': True,
+                      'runtime_sha256': engineering.runtime_identity(memory_book)['sha256'],
+                      'evaluator_sha256': comparison.source_identity()['sha256'],
+                      'engineering_dataset_sha256': engineering.sha(engineering.workload()),
+                      'same_topic_dataset_sha256': engineering.sha(same_topic.workload()),
+                      'backends': list(comparison.BACKENDS), 'repeats': 3, 'budgets_chars': [1200, 2400]}
+          for key, value in expected.items():
+              if engineering.sha(frozen.get(key)) != engineering.sha(value):
+                  raise ValueError('Unapproved or changed frozen quality input: ' + key)
+          shutil.copyfile(path, '.artifacts/v070-evidence/freeze.json')
+          PY
+      - name: Replay unchanged native engineering workload
+        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.smoke.outcome == 'success' && steps.freeze.outcome == 'success' }}
+        run: python -m benchmarks.engineering_workflow --output .artifacts/v070-evidence/native --repeats 3 --budget-chars 1200 2400
+      - name: Replay unchanged two-component engineering protocol
+        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.smoke.outcome == 'success' && steps.freeze.outcome == 'success' }}
+        run: python -m benchmarks.engineering_components --output .artifacts/v070-evidence/components --cache .artifacts/v070-foreign/billion --repeats 3 --budget-chars 1200 2400
+      - name: Replay unchanged seven-component engineering driver
+        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.smoke.outcome == 'success' && steps.freeze.outcome == 'success' }}
+        run: python -m benchmarks.memory_systems --output .artifacts/v070-evidence/memory-systems --cache .artifacts/v070-foreign --repeats 3 --budget-chars 1200 2400
+      - name: Run all eight components on the engineering regression cohort
+        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.smoke.outcome == 'success' && steps.freeze.outcome == 'success' }}
+        run: python -m benchmarks.project_navigation --cohort engineering --output .artifacts/v070-evidence/project-engineering --cache .artifacts/v070-foreign --reme-python .artifacts/v070-reme-env/bin/python --repeats 3 --budget-chars 1200 2400
+      - name: Run all eight components on the same-topic scope cohort
+        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.smoke.outcome == 'success' && steps.freeze.outcome == 'success' }}
+        run: python -m benchmarks.project_navigation --cohort same-topic --output .artifacts/v070-evidence/project-same-topic --cache .artifacts/v070-foreign --reme-python .artifacts/v070-reme-env/bin/python --repeats 3 --budget-chars 1200 2400
+      - name: Record native Book navigation and scope contracts
+        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.smoke.outcome == 'success' && steps.freeze.outcome == 'success' }}
+        run: python -m benchmarks.project_navigation --contracts --output .artifacts/v070-evidence/navigation-contracts --cache .artifacts/v070-foreign
+      - name: Verify current defaults against explicit 2400 and five results
+        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.smoke.outcome == 'success' && steps.freeze.outcome == 'success' }}
+        run: |
+          python - <<'PY'
+          import gzip, json
+          from pathlib import Path
+          from scripts import verify_engineering_defaults as verifier
+          reference = Path('.artifacts/v070-evidence/native').resolve()
+          raw = reference / 'raw.jsonl'
+          (reference / 'raw.jsonl.gz').write_bytes(gzip.compress(raw.read_bytes(), mtime=0))
+          verifier.FROZEN = reference
+          output = Path('.artifacts/v070-evidence/default-profile')
+          verifier.verify(output)
+          (output / 'reference.json').write_text(json.dumps({
+              'reference': '../native', 'scope': 'Same-runtime default versus explicit 2400/5 equality. Historical verifier field names refer to this current replay, not a previous release.'
+          }, indent=2) + '\n')
+          PY
+      - name: Independently audit all retained comparison records
+        if: ${{ !cancelled() && !endsWith(github.ref_name, '-prepare') && steps.smoke.outcome == 'success' && steps.freeze.outcome == 'success' }}
+        run: python scripts/audit_project_navigation.py --evidence .artifacts/v070-evidence --output .artifacts/v070-evidence/audit.json --previous benchmarks/reports/v0.6.0-engineering/hosted
+      - name: Preserve all evidence, failures and lossless manifest
+        if: always()
+        run: |
+          python - <<'PY'
+          import gzip, hashlib, json, shutil
+          from pathlib import Path
+          root = Path('.artifacts/v070-evidence')
+          root.mkdir(parents=True, exist_ok=True)
+          cache = Path('.artifacts/v070-foreign')
+          for name in ('preparation.json', 'project-preparation.json'):
+              path = cache / name
+              if path.is_file():
+                  shutil.copyfile(path, root / name)
+          for directory in (cache, cache / 'reme'):
+              for path in sorted(directory.rglob('*')) if directory.exists() else []:
+                  if not path.is_file():
+                      continue
+                  if ('prepare-' in str(path.relative_to(directory)) or path.name == 'preparation.json') and path.suffix in {'.json', '.txt', '.log'}:
+                      destination = root / 'preparation-attempts' / path.relative_to(cache)
+                      destination.parent.mkdir(parents=True, exist_ok=True)
+                      shutil.copyfile(path, destination)
+          entries = []
+          for path in sorted(root.rglob('*')):
+              if not path.is_file():
+                  continue
+              if path.suffix not in {'.json', '.jsonl', '.gz', '.md', '.txt', '.log'}:
+                  raise ValueError('Unexpected non-evidence file: ' + str(path))
+              if path.suffix in {'.jsonl', '.log'}:
+                  raw = path.read_bytes()
+                  target = path.with_name(path.name + '.gz')
+                  if target.exists() and gzip.decompress(target.read_bytes()) != raw:
+                      raise ValueError('Different retained compressed evidence: ' + str(target))
+                  if not target.exists():
+                      target.write_bytes(gzip.compress(raw, mtime=0))
+                  assert gzip.decompress(target.read_bytes()) == raw
+                  entries.append({'original': path.relative_to(root).as_posix(), 'stored': target.relative_to(root).as_posix(),
+                                  'original_sha256': hashlib.sha256(raw).hexdigest(), 'original_bytes': len(raw)})
+                  path.unlink()
+          files = {path.relative_to(root).as_posix(): {'sha256': hashlib.sha256(path.read_bytes()).hexdigest(), 'bytes': path.stat().st_size}
+                   for path in sorted(root.rglob('*')) if path.is_file() and path.name != 'artifact-manifest.json'}
+          (root / 'artifact-manifest.json').write_text(json.dumps({'files': files, 'lossless_compression': entries}, indent=2) + '\n')
+          PY
+      - name: Upload immutable evidence without source commits
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v070-project-navigation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .artifacts/v070-evidence/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
