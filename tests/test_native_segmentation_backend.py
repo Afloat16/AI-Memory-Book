@@ -490,18 +490,51 @@ class NativeSegmentationReadinessTests(unittest.TestCase):
             self.assertTrue(observations[0][1])
 
     def test_unusual_metadata_preserves_unpack_and_missing_key_errors(self):
-        for value in (None, (), ((),), ((), (), ()), (("Turn",), None)):
+        for value in (None, (), ((),), ((), (), ()), (("Turn",), None),
+                      [], [()], [(), (), ()], list(range(8)),
+                      {}, {0: None}, dict.fromkeys(range(3)), dict.fromkeys(range(8))):
             dependencies = dict(segmentation._NATIVE_SEGMENTATION_DEPENDENCIES, make_turns=value)
             with self.subTest(dependencies=value), patch.object(segmentation, "_NATIVE_SEGMENTATION_DEPENDENCIES", dependencies):
                 self.assertEqual(outcome(lambda: _REFERENCE_READY("make_turns")),
                                  outcome(lambda: self.call_native("make_turns")))
-        for value in (None, (), (TURN,), tuple(range(6))):
+        for value in (None, (), (TURN,), tuple(range(6)),
+                      [], [TURN], list(range(6)), list(range(9)),
+                      {}, {0: TURN}, dict.fromkeys(range(6)), dict.fromkeys(range(9))):
             states = dict(segmentation._NATIVE_SEGMENTATION_CLASS_STATES, Turn=value)
             with self.subTest(state=value), patch.object(segmentation, "_NATIVE_SEGMENTATION_CLASS_STATES", states):
                 self.assertEqual(outcome(lambda: _REFERENCE_READY("make_turns")),
                                  outcome(lambda: self.call_native("make_turns")))
         self.assertEqual(outcome(lambda: _REFERENCE_READY("unknown")),
                          outcome(lambda: self.call_native("unknown")))
+
+    def test_container_subclasses_keep_bounded_unpack_errors_without_length_callback(self):
+        def unexpected_length(self):
+            raise AssertionError("unpacking a container subclass must not call __len__")
+
+        class TupleSubclass(tuple):
+            __len__ = unexpected_length
+
+        class ListSubclass(list):
+            __len__ = unexpected_length
+
+        class DictSubclass(dict):
+            __len__ = unexpected_length
+
+        for expected, table_name, key in (
+            (2, "_NATIVE_SEGMENTATION_DEPENDENCIES", "make_turns"),
+            (5, "_NATIVE_SEGMENTATION_CLASS_STATES", "Turn"),
+        ):
+            values = (TupleSubclass(range(expected + 4)),
+                      ListSubclass(range(expected + 4)),
+                      DictSubclass.fromkeys(range(expected + 4)))
+            for value in values:
+                table = dict(getattr(segmentation, table_name), **{key: value})
+                with self.subTest(count=expected, container=type(value).__name__), patch.object(segmentation, table_name, table):
+                    reference = outcome(lambda: _REFERENCE_READY("make_turns"))
+                    actual = outcome(lambda: self.call_native("make_turns"))
+                self.assertEqual(reference, actual)
+                self.assertEqual(actual, ("error", ValueError,
+                                         ("too many values to unpack (expected %d)" % expected,)))
 
     def test_custom_unpack_iterator_is_not_consumed_past_first_extra_value(self):
         observations = []
