@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "kind": "native-core-independent-auditor-ingestion-schema-amendment",
+  "initial_registered_auditor": {
+    "blob": "5a8f79068f19d168db232b874bc2282b2af8e170",
+    "sha256": "7c5002a92fedfa3be12f6c142b99424b585960af841844bcebb41c7762d76d65",
+    "commit": "346e5ede35851fd6283bc8be8a34bf4243dc34dd"
+  },
+  "amended_auditor": {
+    "path": "scripts/native_core_audit_artifact.py",
+    "blob": "0fd4993a53751c36023bf9ab25a4afb8dc354f71",
+    "sha256": "5e4328b837552be2610a5843573a589f4596b0d02b6c8993ac3efd9a96316ceb",
+    "bytes": 55896,
+    "saved_at": "2026-11-16 13:28:05 UTC"
+  },
+  "timing_disclosure": "This stricter schema/ordered-identity implementation was completed after formal run 43871304560 finished and aggregate performance results were communicated. The initial independent auditor remains preserved. No frozen evaluator, runtime, raw record, timing statistic, acceptance threshold or performance measurement was changed.",
+  "reason": "Read-only review found the old shallow dict-list and hash checks could accept consistently altered empty ingestion returns. The amendment binds each retained return to its registered input and real unchanged global-revision semantics.",
+  "checks": [
+    "Exact eight ingest return fields with exact integer/string/bool types.",
+    "Fresh and unchanged results have the registered unique project/session identity at every position.",
+    "Fresh global database revision increments 1..N with skipped=False; unchanged replay retains revision=N with skipped=True.",
+    "Project/session/chapter/page/section/turn structure agrees between fresh and unchanged returns.",
+    "Fresh session/page/section/turn totals equal archived source-table row counts.",
+    "Explicit independent run source identity and query/cache/budget policy binding."
+  ],
+  "validation": {
+    "auditor_sha256": "5e4328b837552be2610a5843573a589f4596b0d02b6c8993ac3efd9a96316ceb",
+    "bytes": 55896,
+    "counts_match_expected_source_tables": true,
+    "golden_three_session_global_revision_passed": true,
+    "rejected_cases": [
+      "empty_fresh",
+      "empty_replay",
+      "wrong_response_order",
+      "wrong_identity",
+      "missing_field",
+      "extra_field",
+      "boolean_counter",
+      "negative_counter",
+      "integer_skip",
+      "fresh_skipped",
+      "fresh_revision_not_global",
+      "unchanged_revision_not_final",
+      "unchanged_structure",
+      "duplicate_input"
+    ],
+    "remeasured_calls": 0,
+    "runtime_executions": 0,
+    "syntax": "valid"
+  },
+  "scope": "Offline evidence integrity assertions only; not new performance evidence and not a universal contract for ingestion queues with updates/duplicate identities."
+}

@@ -340,6 +340,10 @@ def verify_snapshot(archive, metadata, args):
     require(run["plan"]["sources"] == {"baseline": {"commit": args.baseline_commit, "backend": "native"},
                                           "candidate": {"commit": args.candidate_commit, "backend": "native"}},
             "Measured sources differ from the requested native pair")
+    require(set(run["sources"]) == set(PROBE_HELPERS)
+            and all({key: source[key] for key in ("commit", "backend")} == run["plan"]["sources"][label]
+                    for label, source in run["sources"].items()),
+            "Runtime source manifests differ from the registered native pair")
     plan = archive.raw(EVIDENCE + "frozen-evaluator/" + PLAN)
     require(sha(plan) == run["plan_sha256"] and json.loads(plan) == run["plan"], "Frozen plan differs")
     require(set(manifest["frozen_evaluator_files"]) == {"frozen-evaluator/" + name for name in run["evaluator"]},
@@ -521,11 +525,56 @@ def order(identities, round_index, configuration_index):
     return result
 
 
+def verify_ingestion_results(fresh, replayed, expected_order):
+    """Validate this registered unique-session corpus against real ingest API semantics.
+
+    Each fresh MemoryBook starts at global revision zero. Every first insertion
+    advances that global value once; all later unchanged calls retain the final
+    batch revision. Revision is not a per-session counter.
+    """
+    fields = {"project", "session_id", "chapter_id", "pages", "sections", "turns", "skipped", "revision"}
+    counters = ("pages", "sections", "turns", "revision")
+    stable_fields = ("project", "session_id", "chapter_id", "pages", "sections", "turns")
+    require(type(expected_order) is list and expected_order
+            and all(type(identity) is dict and set(identity) == {"project", "session_id"}
+                    and all(type(identity[name]) is str and identity[name] for name in ("project", "session_id"))
+                    for identity in expected_order),
+            "Independent registered ingestion identity schema differs")
+    identities = [(item["project"], item["session_id"]) for item in expected_order]
+    require(len(set(identities)) == len(identities),
+            "This fresh-ingestion contract requires the registered unique session identities")
+    count = len(identities)
+    require(type(fresh) is list and type(replayed) is list and len(fresh) == len(replayed) == count,
+            "Independent complete ingestion batch lengths differ")
+    for number, (identity, inserted, unchanged) in enumerate(zip(identities, fresh, replayed), 1):
+        for row in (inserted, unchanged):
+            require(type(row) is dict and set(row) == fields
+                    and all(type(row[name]) is str and row[name] for name in ("project", "session_id", "chapter_id"))
+                    and all(type(row[name]) is int and row[name] >= 0 for name in counters)
+                    and type(row["skipped"]) is bool,
+                    "Independent ingestion return schema/types differ")
+            require((row["project"], row["session_id"]) == identity,
+                    "Independent ingestion response does not match its ordered input")
+        require(inserted["skipped"] is False and inserted["revision"] == number,
+                "Independent fresh-ingestion skip/global revision semantics differ")
+        require(unchanged["skipped"] is True and unchanged["revision"] == count,
+                "Independent unchanged-ingestion skip/global revision semantics differ")
+        require(all(inserted[name] == unchanged[name] for name in stable_fields),
+                "Independent unchanged-ingestion structure differs from its fresh response")
+    return {"sessions": count, **{name: sum(row[name] for row in fresh)
+                                  for name in ("pages", "sections", "turns")}}
+
+
 def independent_rows(archive, run, original, probes):
     plan = run["plan"]
     require(plan["cohorts"] == list(COUNTS) and plan["configurations"] == list(CONFIGS)
             and plan["engine_order"] == ORDERS and plan["repetitions_per_worker"] == 3
-            and plan["expected_timed_calls"] == 113568 and plan["expected_paired_calls"] == 56784,
+            and plan["expected_timed_calls"] == 113568 and plan["expected_paired_calls"] == 56784
+            and plan["query_seed"] == 110061 and plan["limit"] == 5
+            and plan["excluded_native_response_fields"] == ["latency_ms"]
+            and plan["result_cache"] == "disabled-native-cleared-before-each-mcp-call"
+            and plan["primary"] == ["native-char2400", "mcp-char2400"]
+            and plan["secondary"] == ["native-token1024", "mcp-token1024"],
             "Independent expected experiment matrix differs")
     schedule = [{"key": f"r{number}-{cohort}-{label}", "round": number, "cohort": cohort, "label": label}
                 for number, labels in enumerate(ORDERS) for cohort in COUNTS for label in labels]
@@ -561,6 +610,11 @@ def independent_rows(archive, run, original, probes):
                         and worker["backend"] == probes[label] and worker["dataset"] == run["cohorts"][cohort],
                         "Independent worker identity/status differs: " + key)
                 expected_ingestion = run["ingestion_order"][cohort]
+                ingestion_totals = verify_ingestion_results(worker["ingestion_results"],
+                    worker["unchanged_reingestion_results"], expected_ingestion)
+                require(all(worker["archive_before"][table]["rows"] == count
+                            for table, count in ingestion_totals.items()),
+                        "Independent ingestion totals differ from the archived source tables")
                 require(worker["ingestion_stage"] == "completed"
                         and len(expected_ingestion) == run["cohorts"][cohort]["sessions"]
                         and worker["ingestion_order_sha256"] == digest(expected_ingestion),

@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-11-16 13:30:51 UTC",
+  "scope": "Development correctness check of the new live segmentation_ready guard, not a performance result or release acceptance.",
+  "baseline_commit": "0be1f09502aff1d4ddc0a9e644be7a62be6a944f",
+  "candidate_sources": {
+    "src/memory_book/_native_segmentation.h": "fa1a57b24339130eef13a7ba54b03e78e5ac9eed",
+    "src/memory_book/segmentation.py": "f1ee1178a0811d8b280c9181ff933a8c65da7de8",
+    "tests/test_native_segmentation_backend.py": "26664018885d7c6af41ac053bfbc16543ac3f97e"
+  },
+  "integration": "The exact baseline runtime was materialized with the two candidate source files. The isolated _native.c adds one registration named segmentation_ready pointing to native_segmentation_ready; its complete hash is included below.",
+  "sources": {
+    "memory_book/__init__.py": {
+      "bytes": 568,
+      "git_blob_sha1": "316fbff8da36cf9630c6394d6aac0d38644162ba",
+      "sha256": "48ee96bddfd3ae4eb226e96d6c57bd9b04bcda744649f78eab695a404bda7b7a"
+    },
+    "memory_book/__main__.py": {
+      "bytes": 48,
+      "git_blob_sha1": "eb53e2f31b2f703ad32ef64b8a41faa3e7d18e08",
+      "sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d"
+    },
+    "memory_book/_native.c": {
+      "bytes": 31581,
+      "git_blob_sha1": "c9966ad3f39571ef313641d5233c7c9143824143",
+      "sha256": "621c2e541ebed5f4ca5203b3bacf2095e8d8e74c43d7d9f6931222e2b824167b"
+    },
+    "memory_book/_native_excerpt.h": {
+      "bytes": 18651,
+      "git_blob_sha1": "e7f7ec06fd9320e910a5afab88a2240d8f6539a9",
+      "sha256": "973e1c0490b2287e117c9b67b2b27f39105996b27e11317085226e1da0d5dab2"
+    },
+    "memory_book/_native_lexical.h": {
+      "bytes": 3743,
+      "git_blob_sha1": "f231297938827a44d4934adcf0589e262059dc1d",
+      "sha256": "9e97f50d818cbdd8db61462e1f5d5b73ba82a871815d92a1403a64855d62913f"
+    },
+    "memory_book/_native_rank.h": {
+      "bytes": 27545,
+      "git_blob_sha1": "f5afb6598f51c1eaeee0c70a6d04e78d1073a022",
+      "sha256": "6f21ef972190dc65545e0b9109ab6b529881fbe1e8be3acb198441c95a1f320c"
+    },
+    "memory_book/_native_segmentation.h": {
+      "bytes": 47614,
+      "git_blob_sha1": "fa1a57b24339130eef13a7ba54b03e78e5ac9eed",
+      "sha256": "0cadf992e0eb4999e3a4df07b38eca4f6d11aa5572b43192ece1694dd37b2507"
+    },
+    "memory_book/_native_source.h": {
+      "bytes": 22659,
+      "git_blob_sha1": "51c43aeed61b4d16276a5605c7b757023a172be8",
+      "sha256": "ff0fba96f09dfe103887b564e68f987b3840431c2d569558f204e29ec1c1bc5e"
+    },
+    "memory_book/_text_backend.py": {
+      "bytes": 1044,
+      "git_blob_sha1": "e95aabde1f42a7549f4a6de50f0a2a5ac9336986",
+      "sha256": "b8268cbc11d49be34fa83e1c8d7a46b481f2caf159ab7f4425f8198e76063b45"
+    },
+    "memory_book/cli.py": {
+      "bytes": 28853,
+      "git_blob_sha1": "4065e6db027cf9d754d27c99ced2f8d061965814",
+      "sha256": "9654e684c39fbd6506f81079fa413c2370103d41ed38b9b25b544cf56efd6f74"
+    },
+    "memory_book/clients.py": {
+      "bytes": 31578,
+      "git_blob_sha1": "b35830281c5518aa751740f397c8b823a5b6f830",
+      "sha256": "b1329fb564acc79a14e2d281bae0687224d63323ac129aa602899a4d0f0b576c"
+    },
+    "memory_book/formats.py": {
+      "bytes": 173,
+      "git_blob_sha1": "7734ed5ab0055cd11dc27425dc7be7cd95e4acdf",
+      "sha256": "9b03524f6ae77aa1f0b73b4b74266da506421919135a6975ea692cac30eb48d1"
+    },
+    "memory_book/importers.py": {
+      "bytes": 24469,
+      "git_blob_sha1": "9b31c25205a8c78770895f160d5ba2fd59884e1a",
+      "sha256": "655b39b6d1ab82d53a9f7635170b94225b9b7da81cd68dc4acfe2d43a304685c"
+    },
+    "memory_book/integration.py": {
+      "bytes": 14572,
+      "git_blob_sha1": "5b217674619fe83835d9f4b7258c3d5617021c1e",
+      "sha256": "2baa0fbdd807fb78f1eff3156b579adf9a95a808dc3fc029398948f3abeed946"
+    },
+    "memory_book/maintenance.py": {
+      "bytes": 14121,
+      "git_blob_sha1": "5662eb3559c5ae92c0a15b212234f9d4409e55bf",
+      "sha256": "a9fb2d53b2afc7fcf8347750118b6f581dbdd80dbb270f1808daa14af73ba7ba"
+    },
+    "memory_book/mcp_server.py": {
+      "bytes": 23943,
+      "git_blob_sha1": "14c38e0dd6e2f22461bec8f2b3ec416147c29357",
+      "sha256": "0b5f3848fe1a80b1f07e083665d773d4ba5c04e7191938f766ebbb0fd2434da8"
+    },
+    "memory_book/paths.py": {
+      "bytes": 1326,
+      "git_blob_sha1": "7b6a5e7151ffac31d08a10e1257dc78d72d0143f",
+      "sha256": "d7865c48e2c09eca14c00b20efd306f591d3876fa5c19ba39c2716eb09be7137"
+    },
+    "memory_book/scope.py": {
+      "bytes": 742,
+      "git_blob_sha1": "76a8318cb3d24a4a56f4921205c3bc3b1df956ca",
+      "sha256": "58eeaf7257b65275550507582ee25a62aaf19734bceb6f6cc253cf4febb60f2c"
+    },
+    "memory_book/segmentation.py": {
+      "bytes": 9224,
+      "git_blob_sha1": "f1ee1178a0811d8b280c9181ff933a8c65da7de8",
+      "sha256": "8d09426428912bfd0f5a227972e68a8f3b18873478c608d30876e161143f9ac4"
+    },
+    "memory_book/semantic.py": {
+      "bytes": 15730,
+      "git_blob_sha1": "1d4482b2bec1007a65aa0c67388818664b1aa384",
+      "sha256": "41df86bced1b613deea2f1b1361eba9f32c3786f5185a06253fbfd32270ac91e"
+    },
+    "memory_book/service.py": {
+      "bytes": 12334,
+      "git_blob_sha1": "acf3c489660b712925c889a88199b927d147e8bb",
+      "sha256": "55bd05f45cafc5dcd6c1fc5ceceade85f005a85a850b908c7bb155cff5a3584f"
+    },
+    "memory_book/store.py": {
+      "bytes": 116700,
+      "git_blob_sha1": "934f8442066ea47868ecce05ef27104882eaa966",
+      "sha256": "25da51852fd727053ba963276e9b752238e721ce8a9e3ddf23d831208240a357"
+    },
+    "memory_book/sync.py": {
+      "bytes": 37120,
+      "git_blob_sha1": "8c80ed034a66547df649aafb50de35995dd2dffd",
+      "sha256": "89b2ac4b30b9b14ac564c3d328a51fbba97b2efc8a8dd1997892fc4142501291"
+    },
+    "memory_book/text.py": {
+      "bytes": 23099,
+      "git_blob_sha1": "477bfab1744df766d7033de79a0d40e93a5df7f6",
+      "sha256": "b27b2a4992d1530736b502f00d80b6c442ccaca534b16c1eb6a750e31436b6c7"
+    },
+    "memory_book/token_budget.py": {
+      "bytes": 33194,
+      "git_blob_sha1": "e4b31a933d308ba7891fef81e8811570ee61d67a",
+      "sha256": "910de5a73eecbf3b6ebde521c2a274f3d31ba251a90f12a46abd3e0f3d2dbfce"
+    },
+    "memory_book/web.py": {
+      "bytes": 13700,
+      "git_blob_sha1": "917d2e828655ecc0f8df058192788f89f1bd18c4",
+      "sha256": "6d6c828b76737d49f396dcbe919646baab2ebc6e49b4a82113393c7f0112e383"
+    },
+    "tests/test_native_segmentation_backend.py": {
+      "bytes": 32240,
+      "git_blob_sha1": "26664018885d7c6af41ac053bfbc16543ac3f97e",
+      "sha256": "62e86102b4b05b9f1d5feef8270dc83289150afb60d3aefcb9b4f39da3575d37"
+    }
+  },
+  "binary": {
+    "bytes": 150968,
+    "path": "memory_book/_native.cpython-312-x86_64-linux-gnu.so",
+    "sha256": "706d376b63303eeb89b9d65d1e31ed8ee5e01cc02f0c884994d2885c73250fba"
+  },
+  "environment": {
+    "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+    "extension_suffix": ".cpython-312-x86_64-linux-gnu.so",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "python_include": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/include/python3.12"
+  },
+  "build": {
+    "command": [
+      "gcc",
+      "-shared",
+      "-fPIC",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-fwrapv",
+      "-I/opt/codex/runtimes/codex-primary-runtime/dependencies/python/include/python3.12",
+      "/workspace/scratch/e870b2feaa97/native-segmentation-probe/memory_book/_native.c",
+      "-o",
+      "/workspace/scratch/e870b2feaa97/native-segmentation-probe/memory_book/_native.cpython-312-x86_64-linux-gnu.so"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "warning_count": 0
+  },
+  "validation": {
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_native_segmentation_backend.py"
+    ],
+    "environment": {
+      "PYTHONPATH": "/workspace/scratch/e870b2feaa97/native-segmentation-probe",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "tests_run": 22,
+    "tests_passed": 22,
+    "skipped": 0,
+    "elapsed_seconds": 0.252,
+    "stdout": "",
+    "stderr": "......................\n----------------------------------------------------------------------\nRan 22 tests in 0.252s\n\nOK\n"
+  },
+  "previous_attempt": {
+    "test_blob": "394b54f8303cbdbbe9631885e4ad05ccf4aa5b42",
+    "exit_code": 1,
+    "errors": 8,
+    "reason": "The new tests patched inherited __new__ on the real dataclasses; CPython retained a changed tp_new slot after restoration and later original segmentation tests could no longer instantiate Turn. Guard comparisons had passed. Tests now use disposable classes and temporary guard state. Runtime source is unchanged between attempts."
+  },
+  "coverage": [
+    "frozen 0be1f095 Python readiness oracle",
+    "actual public dispatch into the 23rd native helper",
+    "per-entry helper/class dependency scopes",
+    "immediate identity/field changes and restoration without a cache",
+    "descriptor read order, mutation and exception propagation",
+    "short-circuit before invalid later state",
+    "nonexact dict metadata returns NotImplemented before callbacks and executes retained Python fallback",
+    "original 14 segmentation output/source-coordinate/Unicode/callback tests"
+  ],
+  "limitations": [
+    "Linux x86_64 CPython 3.12 only; the parent performs integrated validation.",
+    "No timing claim is derived from the test runtime.",
+    "The receipt metadata extraction used a no-test module and returned unittest exit 5; that operation only read file hashes and is not the validation command above."
+  ],
+  "runner": {
+    "bytes": 1829,
+    "controller_source": "import hashlib,json,os,pathlib,subprocess,sys,sysconfig,termios\nconfiguration=termios.tcgetattr(sys.stdin.fileno())\nconfiguration[3]&=~(termios.ECHO|termios.ICANON)\nconfiguration[6][termios.VMIN]=1\nconfiguration[6][termios.VTIME]=0\ntermios.tcsetattr(sys.stdin.fileno(),termios.TCSANOW,configuration)\nroot=pathlib.Path(\"/workspace/scratch/e870b2feaa97/native-segmentation-probe\")\nroot.mkdir(parents=True,exist_ok=True)\nprint(\"INPUT_READY\",flush=True)\nfor line in sys.stdin:\n    task=json.loads(line)\n    for name,content in task.get(\"files\",{}).items():\n        path=root/name\n        path.parent.mkdir(parents=True,exist_ok=True)\n        path.write_text(content,encoding=\"utf-8\")\n    if task.get(\"compile\"):\n        source=root/\"memory_book/_native.c\"\n        output=root/\"memory_book\"/(\"_native\"+sysconfig.get_config_var(\"EXT_SUFFIX\"))\n        command=[\"gcc\",\"-shared\",\"-fPIC\",\"-O3\",\"-Wall\",\"-Wextra\",\"-fwrapv\",\n                 \"-I\"+sysconfig.get_paths()[\"include\"],str(source),\"-o\",str(output)]\n        result=subprocess.run(command,cwd=root,text=True,capture_output=True)\n        print(\"BUILD_EXIT\",result.returncode,flush=True)\n        if result.stdout:print(result.stdout,flush=True)\n        if result.stderr:print(result.stderr,flush=True)\n        if result.returncode:print(\"TASK_DONE\",flush=True);continue\n    if task.get(\"tests\"):\n        environment=dict(os.environ,PYTHONPATH=str(root),PYTHONDONTWRITEBYTECODE=\"1\")\n        command=[sys.executable,\"-m\",\"unittest\",\"discover\",\"-s\",\"tests\",\"-p\",task[\"tests\"]]\n        result=subprocess.run(command,cwd=root,env=environment,text=True,capture_output=True,timeout=150)\n        print(\"TEST_EXIT\",result.returncode,flush=True)\n        if result.stdout:print(result.stdout,flush=True)\n        if result.stderr:print(result.stderr,flush=True)\n    print(\"TASK_DONE\",flush=True)\n",
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/workspace/scratch/e870b2feaa97/native-segmentation-probe"
+    },
+    "sha256": "e4d22ef7700ecdd19cb705cbcffdfe9d173c055f04b5d45b5f054a2f41a4eb88",
+    "test_command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_native_segmentation_backend.py"
+    ]
+  },
+  "metadata_extraction_source": "import hashlib, json, pathlib, platform, subprocess, sys, sysconfig\nroot = pathlib.Path(__file__).resolve().parents[1]\npaths = sorted(path for path in (root / \"memory_book\").iterdir() if path.suffix in {\".py\", \".c\", \".h\"})\npaths.append(root / \"tests/test_native_segmentation_backend.py\")\nrecords = {}\nfor path in paths:\n    raw = path.read_bytes()\n    records[str(path.relative_to(root))] = {\n        \"bytes\": len(raw), \"sha256\": hashlib.sha256(raw).hexdigest(),\n        \"git_blob_sha1\": hashlib.sha1(b\"blob \" + str(len(raw)).encode() + b\"\\0\" + raw).hexdigest(),\n    }\nbinary = root / \"memory_book\" / (\"_native\" + sysconfig.get_config_var(\"EXT_SUFFIX\"))\nraw = binary.read_bytes()\nreport = {\n    \"sources\": records,\n    \"binary\": {\"path\": str(binary.relative_to(root)), \"bytes\": len(raw), \"sha256\": hashlib.sha256(raw).hexdigest()},\n    \"environment\": {\"python\": sys.version, \"executable\": sys.executable, \"platform\": platform.platform(),\n                    \"machine\": platform.machine(), \"compiler\": subprocess.run([\"gcc\", \"--version\"], capture_output=True, text=True, check=True).stdout.splitlines()[0],\n                    \"python_include\": sysconfig.get_paths()[\"include\"], \"extension_suffix\": sysconfig.get_config_var(\"EXT_SUFFIX\")},\n}\nprint(\"GUARD_METADATA_JSON=\" + json.dumps(report, sort_keys=True))\n"
+}
