@@ -333,7 +333,7 @@ class ReleaseTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 release.release_by_id(101, "v0.3.0", "a" * 40, draft=False)
 
-    def test_exact_commit_push_ci_and_all_nine_successful_jobs_required(self):
+    def test_exact_commit_push_ci_and_all_expected_successful_jobs_required(self):
         head = "a" * 40
         run = {"id": 7, "head_sha": head, "event": "push", "status": "completed",
                "conclusion": "success", "head_repository": {"full_name": release.REPOSITORY}}
@@ -347,7 +347,9 @@ class ReleaseTests(unittest.TestCase):
         jobs = [{"name": name, "status": "completed", "conclusion": "success", "run_id": 7, "head_sha": head}
                 for name in sorted(release.EXPECTED_JOBS)]
         release.verify_jobs(jobs, 7, head)
-        for altered in (jobs[:-1], [*jobs, jobs[0]], [{**jobs[0], "conclusion": "skipped"}, *jobs[1:]],
+        for altered in (jobs[:-1], [*jobs, jobs[0]],
+                        [j for j in jobs if j["name"] not in {"core (3.14)", "core (3.15)"}],
+                        [{**jobs[0], "conclusion": "skipped"}, *jobs[1:]],
                         [{**jobs[0], "head_sha": "b" * 40}, *jobs[1:]]):
             with self.assertRaises(ValueError):
                 release.verify_jobs(altered, 7, head)

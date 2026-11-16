@@ -1003,6 +1003,27 @@ segmentation_guard_get(PyObject *dictionary, PyObject *key)
     return Py_NewRef(value);
 }
 
+/* CPython 3.14+ reports the full size only for exact built-in containers.
+ * Generic iterators and subclasses retain the bounded UNPACK_SEQUENCE error. */
+static void
+segmentation_guard_too_many(PyObject *value, Py_ssize_t count)
+{
+#if PY_VERSION_HEX >= 0x030E0000
+    Py_ssize_t length = -1;
+    if (PyTuple_CheckExact(value)) length = PyTuple_GET_SIZE(value);
+    else if (PyList_CheckExact(value)) length = PyList_GET_SIZE(value);
+    else if (PyDict_CheckExact(value)) length = PyDict_Size(value);
+    if (length > count) {
+        PyErr_Format(PyExc_ValueError,
+                     "too many values to unpack (expected %zd, got %zd)", count, length);
+        return;
+    }
+#else
+    (void)value;
+#endif
+    PyErr_Format(PyExc_ValueError, "too many values to unpack (expected %zd)", count);
+}
+
 /* UNPACK_SEQUENCE consumes at most count + 1 items from a custom iterator.
  * PySequence_Fast would consume an entire generator and change its effects. */
 static int
@@ -1018,7 +1039,7 @@ segmentation_guard_unpack(PyObject *value, PyObject **items, Py_ssize_t count)
             return -1;
         }
         if (length > count) {
-            PyErr_Format(PyExc_ValueError, "too many values to unpack (expected %zd)", count);
+            segmentation_guard_too_many(value, count);
             return -1;
         }
         for (index = 0; index < count; index++) {
@@ -1050,7 +1071,7 @@ segmentation_guard_unpack(PyObject *value, PyObject **items, Py_ssize_t count)
     extra = PyIter_Next(iterator);
     if (extra != NULL) {
         Py_DECREF(extra);
-        PyErr_Format(PyExc_ValueError, "too many values to unpack (expected %zd)", count);
+        segmentation_guard_too_many(value, count);
         goto failed;
     }
     if (PyErr_Occurred()) goto failed;

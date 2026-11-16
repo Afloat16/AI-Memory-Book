@@ -1,7 +1,7 @@
 """Build audited small packages, then publish one exact-commit versioned release.
 
 Publication requires the dedicated push ref, the exact current main commit and
-an already successful nine-job CI run. --prepare-only builds/checks local assets
+an already successful complete CI run. --prepare-only builds/checks local assets
 without reading GitHub credentials or creating a tag, draft or release.
 """
 from __future__ import annotations
@@ -28,7 +28,8 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY = "Afloat16/AI-Memory-Book"
 BUILD_TOOLS = {"build": "1.3.0", "setuptools": "80.9.0", "wheel": "0.45.1"}
-EXPECTED_JOBS = {"core (3.10)", "core (3.12)", "core (3.13)", "mcp", "reader-browser",
+EXPECTED_JOBS = {"core (3.10)", "core (3.12)", "core (3.13)", "core (3.14)", "core (3.15)",
+                 "mcp", "reader-browser",
                  "installers (ubuntu-latest)", "installers (macos-latest)",
                  "installers (windows-latest)", "container"}
 MAX_ARCHIVE_BYTES = 10 * 1024 * 1024
@@ -261,8 +262,8 @@ def successful_ci(runs, head):
 
 
 def verify_jobs(jobs, run_id, head):
-    require(len(jobs) == 9 and {j["name"] for j in jobs} == EXPECTED_JOBS,
-            "CI must contain exactly the nine expected jobs")
+    require(len(jobs) == len(EXPECTED_JOBS) and {j["name"] for j in jobs} == EXPECTED_JOBS,
+            "CI must contain exactly the expected jobs")
     require(all(j["status"] == "completed" and j["conclusion"] == "success"
                 and j["run_id"] == run_id and j["head_sha"] == head for j in jobs),
             "Every expected job must succeed for this exact commit")

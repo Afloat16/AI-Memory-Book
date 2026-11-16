@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "kind": "native-core-compatibility-unpack-message-independent-review",
+  "reviewed_at_utc": "2026-11-16 14:23:12 UTC",
+  "baseline_commit": "e91183bf6dd9e125d6549ec3fe5d9c81598cd131",
+  "reviewed_file_blobs": {
+    "src/memory_book/_native_segmentation.h": "c76e1fd517e2fa051a8b7baa1196bb4351aefa32",
+    "tests/test_native_segmentation_backend.py": "b6eff75bf46791ef8275316d0d1d401aba84a2d8"
+  },
+  "primary_source_blobs": {
+    "python/cpython:Python/ceval.c:3.14": "8d2d127bfacea0cdf8944ce1c2e8e30c40945421",
+    "python/cpython:Python/ceval.c:3.15": "c9c8d1f1a7d11634d316eeaee904696a6953a996"
+  },
+  "conclusion": "No blocking issue identified in the narrow source change. The error-message distinction matches the inspected CPython 3.14 and 3.15 evaluation sources; exact multi-version execution remains a delivery gate.",
+  "checks": {
+    "header_only_adds_error_helper_and_replaces_two_error_calls": true,
+    "conditional_version_threshold": "PY_VERSION_HEX >= 0x030E0000",
+    "exact_container_kinds": [
+      "tuple",
+      "list",
+      "dict"
+    ],
+    "generic_iterator_consumption_unchanged": true,
+    "extra_reference_decrement_before_size_read_preserved": true,
+    "cleanup_and_native_inventory_unchanged": true
+  },
+  "observations": [
+    "On CPython 3.14 and later, only exact built-in tuple/list/dict containers report the full length when it exceeds the expected unpack count.",
+    "On earlier CPython versions and for container subclasses or generic iterators, the previous bounded error message remains; the patch does not invoke a custom __len__.",
+    "The existing exact tuple/list fast path and generic count-plus-one iterator consumption remain unchanged.",
+    "Strict exception class and args differential assertions are retained and expanded to exact lists/dicts and subclasses with a raising __len__.",
+    "This review does not amend or remeasure the frozen protocol4 result."
+  ],
+  "limits": [
+    "Source-level comparison and mechanical delta verification only; this review did not execute the application or a performance measurement.",
+    "The implementation owner and hosted wheel jobs must validate the actual CPython 3.14/3.15 binaries."
+  ],
+  "remeasured_calls": 0
+}
