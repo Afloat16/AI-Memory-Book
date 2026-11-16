@@ -1,0 +1,479 @@
+{
+  "schema": "shared-minilm-record-audit-v1",
+  "created_at": "2026-11-16T05:50:19.293221+00:00",
+  "status": "passed",
+  "scope": "Reanalysis of saved v0.6.0 records; no external retrieval rerun or new quality experiment",
+  "evidence_directory": "benchmarks/reports/v0.6.0-engineering/hosted/memory-systems",
+  "auditor_files": {
+    "scripts/audit_shared_minilm.py": "e50077c29f82640321beb1a9db125d062b9e0411465cef27aed2c7e32e390efa",
+    "scripts/audit_memory_systems.py": "33a0f2f8f4b210d244dd47e7582a479cce5d2f8255d496d33fe6c07013790218"
+  },
+  "unchanged_execution_files": {
+    "benchmarks/engineering_components.py": "48b2f7752f80622296b9ace09d4941ae5396296d06cf00f39afe8ea0764be5e7",
+    "benchmarks/engineering_workflow.py": "3d1c53ef016a7143c86cf1326f2bf5b5cf7260863e91225d9a7e09a9773cdc6e",
+    "benchmarks/memory_systems.py": "cbfa1f23ac556dd3daf04c8509c374affca86bf0d8968b4a13db454b9af548cd",
+    "benchmarks/competitors/memory_systems.py": "9e99942bfe9be7f5b0fa8e4fc6a022831eb6cb0dfdcc2cde793cc8dca048a31d",
+    "benchmarks/competitors/memory_systems_worker.py": "8234df7cf8cf3649b701c816be196d237958f5974cdc8d19beb5e0192dae4305",
+    "benchmarks/competitors/memory-systems-lock.json": "3eb7b0c83eb7fe487e9d4b243c605d4a9b7df258c84ecc93d9ad072a3c941d1f"
+  },
+  "inputs": {
+    "benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/binding.json": {
+      "sha256": "5b60c4b7083126f9fcace7b541022db2aeddd7204abf6aa5385f1075d39d30d3",
+      "bytes": 7885
+    },
+    "benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/dataset.json": {
+      "sha256": "160bad8fe452ddc3de3538f9c416f5a69b657107d14c3dedb2da8ac4f13c2de2",
+      "bytes": 161344
+    },
+    "benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/documents-1.json": {
+      "sha256": "d382fde96ec88902308a84b09e7bf27be9fc89d33a450ffbeb2c30be729682fe",
+      "bytes": 20395
+    },
+    "benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/documents-2.json": {
+      "sha256": "ac13a5c68b5a332dff00b25ed124316616a4076fe1af4b525997e60e837122f7",
+      "bytes": 46217
+    },
+    "benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/documents-3.json": {
+      "sha256": "ea6041394a5d0f0949e301d35134f320ae42af80ce93743c2edbb003e81d7e65",
+      "bytes": 67220
+    },
+    "benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/documents-4.json": {
+      "sha256": "21f86f38dd29e45aa2d477a43bc0a619033e9ea1696b1f17b3450b73af9131a6",
+      "bytes": 87478
+    },
+    "benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/documents-5.json": {
+      "sha256": "5493a934504dae7ebe47661c62ea86a616af6bbd673688a6035eac9268c4d0a3",
+      "bytes": 102170
+    },
+    "benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/documents-6.json": {
+      "sha256": "ebbdcaecbb1805058e1bfc12c0e75599328b0f8e28fccc4f069bda26e651a56c",
+      "bytes": 122946
+    },
+    "benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/native.jsonl.gz": {
+      "sha256": "ddced608c71e06039079093ce16d8b4e60369932c040a0c1ec17309f37f336fe",
+      "bytes": 403869
+    },
+    "benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/raw.jsonl.gz": {
+      "sha256": "c64be9c67df916a1a1a2629263e72c9c290d41ee3cacac77f16266256c479f82",
+      "bytes": 148805
+    },
+    "benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/report.json": {
+      "sha256": "e2d381025085a032790f89d3ab2b9122cfd1ed6405dc04aafafd58f671a1c370",
+      "bytes": 4181916
+    }
+  },
+  "revalidated_matrix": {
+    "backends": [
+      "book",
+      "billion",
+      "claude_mem",
+      "basic_memory",
+      "chroma",
+      "langgraph",
+      "mem0"
+    ],
+    "cases": 80,
+    "native_query_backend_records": 560,
+    "native_call_samples": 1680,
+    "packed_outputs": 1120
+  },
+  "checks": {
+    "total": 64900,
+    "by_kind": {
+      "adapter_original_record": 4488,
+      "adapter_record_count": 960,
+      "all_and_only_visible_sources": 6,
+      "backend_completed": 7,
+      "backend_packed_count": 7,
+      "basic_memory_native_ids": 240,
+      "canonical_dataset_hash": 1,
+      "categories_recompute_exactly": 1,
+      "character_budget": 1120,
+      "chroma_native_ids": 240,
+      "chroma_native_projects": 240,
+      "chroma_original_bodies": 240,
+      "claimed_integrity_passed": 1,
+      "claimed_repetition_stability": 1120,
+      "claude_native_mapping": 960,
+      "complete_canonical_dataset": 1,
+      "complete_exact_matrix": 2,
+      "complete_nontiming_native_stability": 560,
+      "complete_source_coordinates": 528,
+      "document_bundle_is_list": 6,
+      "document_project": 528,
+      "evaluator_final_identity": 1,
+      "evaluator_manifest_hash": 1,
+      "evaluator_unchanged": 1,
+      "exact_document_count": 6,
+      "exact_row_count": 2,
+      "frozen_execution_source_unchanged": 6,
+      "input_stable_after_audit": 11,
+      "jsonl_object": 1680,
+      "langgraph_namespace": 1152,
+      "langgraph_native_ids": 240,
+      "langgraph_original_field": 5760,
+      "mem0_native_page_ids": 240,
+      "mem0_native_user_id": 1152,
+      "mem0_unique_native_ids": 240,
+      "native_case_metadata": 1680,
+      "native_digest_recomputes": 1680,
+      "native_ids_match_payload": 1680,
+      "native_original_body": 5448,
+      "native_original_project": 3144,
+      "native_original_title": 960,
+      "native_payload_count": 240,
+      "native_project_mapping": 1680,
+      "native_repetition_order": 560,
+      "native_timing_recomputes_exactly": 1,
+      "native_top_five_distinct": 1680,
+      "one_complete_original_turn": 528,
+      "original_document_timestamp": 528,
+      "original_document_title": 528,
+      "original_message_indices": 528,
+      "original_reference_timestamp": 528,
+      "original_visible_page_body": 528,
+      "packed_case_metadata": 4480,
+      "packed_has_native_record": 1120,
+      "packed_native_binding": 1120,
+      "packed_native_timing_binding": 1120,
+      "report_completed": 1,
+      "reported_budgets": 1,
+      "reported_case_count": 1,
+      "reported_native_pair_count": 1,
+      "reported_repetitions": 1,
+      "reported_top_five": 1,
+      "result_cache_disabled": 1,
+      "row_identity_types": 1680,
+      "runner_has_no_suppressed_failures": 1,
+      "runtime_final_identity": 1,
+      "runtime_manifest_hash": 1,
+      "runtime_unchanged": 1,
+      "score_recomputes_exactly": 1120,
+      "seven_registered_backends": 1,
+      "source_validation": 1120,
+      "summary_recomputes_exactly": 1,
+      "three_candidates_stable": 560,
+      "three_native_repetitions": 560,
+      "three_packed_timing_samples": 1120,
+      "unchanged_common_packer_identity": 1,
+      "unchanged_scorer_identity": 1,
+      "unique_document_id": 528,
+      "unique_document_source": 528,
+      "valid_native_timing": 5040,
+      "whole_packed_response_rebuilds": 1120
+    }
+  },
+  "failures": [],
+  "summary": [
+    {
+      "backend": "chroma",
+      "budget_chars": 1200,
+      "cases": 80,
+      "answerable_cases": 72,
+      "evidence_recall": 0.6875,
+      "complete_evidence_rate": 0.6527777777777778,
+      "fixed_consumer_cases": 48,
+      "fixed_consumer_all_checks_pass_rate": 0.5208333333333334,
+      "stale_only_cases": 4,
+      "missing_evidence_nonempty_cases": 8,
+      "budget_violations": 0,
+      "source_validation_failures": 0,
+      "mean_context_chars": 1036.7125,
+      "retrieval_p50_ms": 58.1614425,
+      "retrieval_p95_ms": 70.79978175000001,
+      "retrieval_samples": 240,
+      "repeat_output_changes": 0
+    },
+    {
+      "backend": "langgraph",
+      "budget_chars": 1200,
+      "cases": 80,
+      "answerable_cases": 72,
+      "evidence_recall": 0.6875,
+      "complete_evidence_rate": 0.6527777777777778,
+      "fixed_consumer_cases": 48,
+      "fixed_consumer_all_checks_pass_rate": 0.5208333333333334,
+      "stale_only_cases": 4,
+      "missing_evidence_nonempty_cases": 8,
+      "budget_violations": 0,
+      "source_validation_failures": 0,
+      "mean_context_chars": 1036.7125,
+      "retrieval_p50_ms": 62.5994965,
+      "retrieval_p95_ms": 71.67377954999999,
+      "retrieval_samples": 240,
+      "repeat_output_changes": 0
+    },
+    {
+      "backend": "mem0",
+      "budget_chars": 1200,
+      "cases": 80,
+      "answerable_cases": 72,
+      "evidence_recall": 0.6875,
+      "complete_evidence_rate": 0.6527777777777778,
+      "fixed_consumer_cases": 48,
+      "fixed_consumer_all_checks_pass_rate": 0.5208333333333334,
+      "stale_only_cases": 4,
+      "missing_evidence_nonempty_cases": 8,
+      "budget_violations": 0,
+      "source_validation_failures": 0,
+      "mean_context_chars": 1036.7125,
+      "retrieval_p50_ms": 57.186485,
+      "retrieval_p95_ms": 72.21781625,
+      "retrieval_samples": 240,
+      "repeat_output_changes": 0
+    },
+    {
+      "backend": "chroma",
+      "budget_chars": 2400,
+      "cases": 80,
+      "answerable_cases": 72,
+      "evidence_recall": 0.6875,
+      "complete_evidence_rate": 0.6527777777777778,
+      "fixed_consumer_cases": 48,
+      "fixed_consumer_all_checks_pass_rate": 0.5208333333333334,
+      "stale_only_cases": 4,
+      "missing_evidence_nonempty_cases": 8,
+      "budget_violations": 0,
+      "source_validation_failures": 0,
+      "mean_context_chars": 1963.05,
+      "retrieval_p50_ms": 58.1614425,
+      "retrieval_p95_ms": 70.79978175000001,
+      "retrieval_samples": 240,
+      "repeat_output_changes": 0
+    },
+    {
+      "backend": "langgraph",
+      "budget_chars": 2400,
+      "cases": 80,
+      "answerable_cases": 72,
+      "evidence_recall": 0.6875,
+      "complete_evidence_rate": 0.6527777777777778,
+      "fixed_consumer_cases": 48,
+      "fixed_consumer_all_checks_pass_rate": 0.5208333333333334,
+      "stale_only_cases": 4,
+      "missing_evidence_nonempty_cases": 8,
+      "budget_violations": 0,
+      "source_validation_failures": 0,
+      "mean_context_chars": 1963.05,
+      "retrieval_p50_ms": 62.5994965,
+      "retrieval_p95_ms": 71.67377954999999,
+      "retrieval_samples": 240,
+      "repeat_output_changes": 0
+    },
+    {
+      "backend": "mem0",
+      "budget_chars": 2400,
+      "cases": 80,
+      "answerable_cases": 72,
+      "evidence_recall": 0.6875,
+      "complete_evidence_rate": 0.6527777777777778,
+      "fixed_consumer_cases": 48,
+      "fixed_consumer_all_checks_pass_rate": 0.5208333333333334,
+      "stale_only_cases": 4,
+      "missing_evidence_nonempty_cases": 8,
+      "budget_violations": 0,
+      "source_validation_failures": 0,
+      "mean_context_chars": 1963.05,
+      "retrieval_p50_ms": 57.186485,
+      "retrieval_p95_ms": 72.21781625,
+      "retrieval_samples": 240,
+      "repeat_output_changes": 0
+    }
+  ],
+  "pairs": [
+    {
+      "left": "chroma",
+      "right": "langgraph",
+      "cases": 80,
+      "native": {
+        "same_ordered_candidate_ids": 33,
+        "same_candidate_id_set": 39,
+        "same_ordered_native_bodies": 80,
+        "same_framed_lengths_by_rank": 80,
+        "same_complete_native_payload": 0
+      },
+      "differing_rank_positions": 128,
+      "differing_positions_with_identical_body": 128,
+      "differing_source_session_ids": [
+        "maintenance-1-0",
+        "maintenance-1-1",
+        "maintenance-2-0",
+        "maintenance-2-1",
+        "maintenance-3-0",
+        "maintenance-3-1",
+        "maintenance-4-0",
+        "maintenance-4-1",
+        "maintenance-5-0",
+        "maintenance-6-0"
+      ],
+      "budgets": [
+        {
+          "budget_chars": 1200,
+          "same_complete_response": 33,
+          "same_context": 59,
+          "same_ordered_bodies": 80,
+          "same_full_score": 80,
+          "same_context_chars": 80
+        },
+        {
+          "budget_chars": 2400,
+          "same_complete_response": 33,
+          "same_context": 33,
+          "same_ordered_bodies": 80,
+          "same_full_score": 80,
+          "same_context_chars": 80
+        }
+      ]
+    },
+    {
+      "left": "chroma",
+      "right": "mem0",
+      "cases": 80,
+      "native": {
+        "same_ordered_candidate_ids": 39,
+        "same_candidate_id_set": 39,
+        "same_ordered_native_bodies": 80,
+        "same_framed_lengths_by_rank": 80,
+        "same_complete_native_payload": 0
+      },
+      "differing_rank_positions": 102,
+      "differing_positions_with_identical_body": 102,
+      "differing_source_session_ids": [
+        "maintenance-1-0",
+        "maintenance-1-1",
+        "maintenance-2-0",
+        "maintenance-2-1",
+        "maintenance-3-0",
+        "maintenance-3-1",
+        "maintenance-4-0",
+        "maintenance-4-1",
+        "maintenance-5-0",
+        "maintenance-6-0"
+      ],
+      "budgets": [
+        {
+          "budget_chars": 1200,
+          "same_complete_response": 39,
+          "same_context": 65,
+          "same_ordered_bodies": 80,
+          "same_full_score": 80,
+          "same_context_chars": 80
+        },
+        {
+          "budget_chars": 2400,
+          "same_complete_response": 39,
+          "same_context": 39,
+          "same_ordered_bodies": 80,
+          "same_full_score": 80,
+          "same_context_chars": 80
+        }
+      ]
+    },
+    {
+      "left": "langgraph",
+      "right": "mem0",
+      "cases": 80,
+      "native": {
+        "same_ordered_candidate_ids": 67,
+        "same_candidate_id_set": 72,
+        "same_ordered_native_bodies": 80,
+        "same_framed_lengths_by_rank": 80,
+        "same_complete_native_payload": 0
+      },
+      "differing_rank_positions": 35,
+      "differing_positions_with_identical_body": 35,
+      "differing_source_session_ids": [
+        "maintenance-1-0",
+        "maintenance-1-1",
+        "maintenance-2-0",
+        "maintenance-2-1",
+        "maintenance-3-0",
+        "maintenance-3-1",
+        "maintenance-4-0",
+        "maintenance-5-0"
+      ],
+      "budgets": [
+        {
+          "budget_chars": 1200,
+          "same_complete_response": 67,
+          "same_context": 72,
+          "same_ordered_bodies": 80,
+          "same_full_score": 80,
+          "same_context_chars": 80
+        },
+        {
+          "budget_chars": 2400,
+          "same_complete_response": 67,
+          "same_context": 67,
+          "same_ordered_bodies": 80,
+          "same_full_score": 80,
+          "same_context_chars": 80
+        }
+      ]
+    }
+  ],
+  "document_repetition_by_checkpoint": [
+    {
+      "checkpoint": 1,
+      "pages": 24,
+      "unique_body_strings_across_projects": 16,
+      "maintenance_pages": 16,
+      "unique_maintenance_body_strings_across_projects": 8,
+      "maximum_identical_maintenance_bodies_within_one_project": 1
+    },
+    {
+      "checkpoint": 2,
+      "pages": 56,
+      "unique_body_strings_across_projects": 28,
+      "maintenance_pages": 32,
+      "unique_maintenance_body_strings_across_projects": 8,
+      "maximum_identical_maintenance_bodies_within_one_project": 2
+    },
+    {
+      "checkpoint": 3,
+      "pages": 80,
+      "unique_body_strings_across_projects": 36,
+      "maintenance_pages": 48,
+      "unique_maintenance_body_strings_across_projects": 8,
+      "maximum_identical_maintenance_bodies_within_one_project": 3
+    },
+    {
+      "checkpoint": 4,
+      "pages": 104,
+      "unique_body_strings_across_projects": 40,
+      "maintenance_pages": 64,
+      "unique_maintenance_body_strings_across_projects": 8,
+      "maximum_identical_maintenance_bodies_within_one_project": 4
+    },
+    {
+      "checkpoint": 5,
+      "pages": 120,
+      "unique_body_strings_across_projects": 40,
+      "maintenance_pages": 80,
+      "unique_maintenance_body_strings_across_projects": 8,
+      "maximum_identical_maintenance_bodies_within_one_project": 5
+    },
+    {
+      "checkpoint": 6,
+      "pages": 144,
+      "unique_body_strings_across_projects": 44,
+      "maintenance_pages": 96,
+      "unique_maintenance_body_strings_across_projects": 8,
+      "maximum_identical_maintenance_bodies_within_one_project": 6
+    }
+  ],
+  "per_case_trace": {
+    "path": "benchmarks/reports/v0.6.0-engineering/reanalysis/shared-minilm-audit.cases.jsonl.gz",
+    "records": 240,
+    "sha256": "737a893a6b30fe23f434b3cde379f63a24121f23cafa312bb2f9361cb0014a0d",
+    "uncompressed_sha256": "dbe232302ee6a1762b8c7c2fe52e4ab1859fa0bce4ba2c31c72789f1290b1203"
+  },
+  "interpretation_limits": [
+    "Pair comparisons use the first native repetition; all three repetitions were validated for stability.",
+    "Whole-response equality includes omitted_for_budget, whereas context equality compares only delivered text.",
+    "Equal page bodies do not imply identical source identities, timestamps, native scores or latency.",
+    "Repeated authored maintenance bodies reduce this workload's ability to distinguish the three configurations.",
+    "The native vectors and Mem0's internal collection metric were not archived; neither is reconstructed here.",
+    "This is a repository-maintained audit, not third-party certification or held-out product evaluation."
+  ]
+}
