@@ -23,6 +23,8 @@ def plan():
     value = perf.read(perf.ROOT / "benchmarks/experiments/native_core_formal_plan.json")
     value["sources"]["candidate"]["commit"] = "a" * 40
     value["native_helper_calls"] = {label: dict.fromkeys(names, 1) for label, names in perf.PROBE_HELPERS.items()}
+    value["native_helper_effective_calls"] = copy.deepcopy(value["native_helper_calls"])
+    value["native_helper_fallback_calls"] = {label: dict.fromkeys(names, 0) for label, names in perf.PROBE_HELPERS.items()}
     calls = 2 * 4 * 3 * len(perf.CONFIGS) * sum(item["queries"] for item in perf.COHORTS.values())
     value.update(expected_timed_calls=calls, expected_paired_calls=calls // 2)
     return value
@@ -61,6 +63,7 @@ def fixture(directory):
             "resources": {"fresh_ingestion_ms": 2.0, "unchanged_reingestion_ms": 1.0},
             "backend": {"requested": "native", "actual": "native", "binary_sha256": next(iter(source["native_binaries"].values())),
                 "available_functions": sorted(helpers), "dispatch_probe": {"native_helper_calls": helpers,
+                "native_helper_effective_calls": dict(helpers), "native_helper_fallback_calls": dict.fromkeys(helpers, 0),
                 "outputs_sha256": "0" * 64, "instrumentation_restored": True,
                 "uninstrumented_outputs_sha256": "0" * 64, "per_helper_outputs_sha256": dict.fromkeys(helpers, "0" * 64)},
                 "wrapper_bindings": dict.fromkeys(("text",) if item["label"] == "baseline"
@@ -171,6 +174,27 @@ class PlanAndSourceTests(unittest.TestCase):
             self.assertEqual(result["per_helper_outputs_sha256"], dict.fromkeys(helpers, result["outputs_sha256"]))
             self.assertTrue(result["instrumentation_restored"])
 
+    def test_all_notimplemented_helpers_cannot_hide_behind_python_fallback(self):
+        for helpers in perf.PROBE_HELPERS.values():
+            native = SimpleNamespace(**{name: (lambda *args: NotImplemented) for name in helpers})
+            text = SimpleNamespace(_NATIVE=native)
+            originals = vars(native).copy()
+            def suite():
+                for name in helpers:
+                    getattr(native, name)()
+                return ["same complete Python fallback output"]
+            with patch.object(perf, "common_probe_suite", side_effect=suite):
+                with self.assertRaisesRegex(ValueError, "only NotImplemented"):
+                    perf.dispatch_probe(text, native, dict.fromkeys(helpers, 1))
+            self.assertTrue(all(getattr(native, name) is value for name, value in originals.items()))
+
+    def test_plan_requires_exact_positive_effective_and_complete_fallback_counts(self):
+        for field, number in (("native_helper_effective_calls", 0), ("native_helper_fallback_calls", 1)):
+            changed = plan()
+            changed[field]["candidate"]["rank_candidates"] = number
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                perf.validate_plan(changed)
+
     def test_query_timing_invariant_and_ledger_cores_remain_frozen(self):
         old_tree = ast.parse((perf.ROOT / "scripts/native_incremental_performance.py").read_text())
         new_tree = ast.parse((perf.ROOT / "scripts/native_core_performance.py").read_text())
@@ -246,12 +270,14 @@ class EvidenceAuditTests(unittest.TestCase):
 
     def test_both_sides_reject_wrong_binary_fallback_and_helper_inventory(self):
         for original in self.reports[:2]:
-            for change in ("binary", "fallback", "probe", "inventory", "restoration"):
+            for change in ("binary", "fallback", "probe", "inventory", "restoration", "effective", "declined"):
                 report = copy.deepcopy(original)
                 if change == "binary": report["backend"]["binary_sha256"] = "9" * 64
                 elif change == "fallback": report["backend"]["actual"] = "python"
                 elif change == "probe": report["backend"]["dispatch_probe"]["native_helper_calls"]["terms_ascii"] = 0
                 elif change == "inventory": report["backend"]["available_functions"].pop()
+                elif change == "effective": report["backend"]["dispatch_probe"]["native_helper_effective_calls"]["terms_ascii"] = 0
+                elif change == "declined": report["backend"]["dispatch_probe"]["native_helper_fallback_calls"]["terms_ascii"] = 1
                 else: report["backend"]["dispatch_probe"]["instrumentation_restored"] = False
                 with self.subTest(label=original["label"], change=change), self.assertRaises(ValueError):
                     perf.verify_worker(report, self.bound_run, self.directory)

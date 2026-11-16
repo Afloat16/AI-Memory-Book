@@ -1,4 +1,4 @@
-"""Frozen incremental native-vs-native performance comparison after v0.8.1.
+"""Frozen broader native core comparison against native v0.8.1.
 
 Old synthetic61/public1015 inputs are performance and compatibility regressions,
 not new retrieval-quality evidence. Only committed plans, evaluator files and
@@ -149,11 +149,17 @@ def validate_plan(plan):
     require(plan.get("build_policy") == BUILD_POLICY, "Native source/build policy differs")
     require(plan.get("resource_comparisons") == list(RESOURCE_COMPARISONS), "Retain both ingestion batch comparisons")
     probes = plan.get("native_helper_calls", {})
-    require(set(probes) == set(PROBE_HELPERS), "Freeze both native helper inventories")
+    effective = plan.get("native_helper_effective_calls", {})
+    fallback = plan.get("native_helper_fallback_calls", {})
+    require(set(probes) == set(effective) == set(fallback) == set(PROBE_HELPERS),
+            "Freeze both native helper inventories and effective/fallback counts")
     for label, helpers in PROBE_HELPERS.items():
-        require(set(probes[label]) == set(helpers)
-                and all(type(count) is int and count > 0 for count in probes[label].values()),
-                "Every native helper needs a positive pre-timing dispatch count: " + label)
+        require(set(probes[label]) == set(effective[label]) == set(fallback[label]) == set(helpers)
+                and all(type(count) is int and count > 0 for count in probes[label].values())
+                and all(type(count) is int and count > 0 for count in effective[label].values())
+                and all(type(count) is int and count >= 0 for count in fallback[label].values())
+                and all(probes[label][name] == effective[label][name] + fallback[label][name] for name in helpers),
+                "Every native helper needs frozen positive effective calls and complete fallback accounting: " + label)
     calls = 2 * 4 * 3 * len(CONFIGS) * sum(COHORTS[name]["queries"] for name in COHORTS)
     require(plan.get("expected_timed_calls") == calls and plan.get("expected_paired_calls") == calls // 2,
             "Declared matrix counts differ from all registered attempts")
@@ -478,7 +484,7 @@ def common_probe_suite():
             "allocations": allocations, "clipped": clipped, "ingestions": ingestions, "recall": recall}
 
 
-def dispatch_probe(text, native, expected_hits):
+def dispatch_probe(text, native, expected_hits, expected_effective=None, expected_fallback=None):
     """Wrap one helper at a time, outside every ingestion/query timer.
 
     Cross-helper identity guards remain effective. Every instrumented suite must
@@ -493,35 +499,48 @@ def dispatch_probe(text, native, expected_hits):
             "Native helper inventory differs from either registered source")
     if expected_hits is not None:
         require(inventory == set(expected_hits), "Native helper inventory differs from the frozen probe")
+    if expected_hits is not None:
+        expected_effective = expected_hits if expected_effective is None else expected_effective
+        expected_fallback = dict.fromkeys(expected_hits, 0) if expected_fallback is None else expected_fallback
+        require(set(expected_effective) == set(expected_fallback) == inventory,
+                "Native effective/fallback inventory differs from the frozen probe")
     originals = {name: getattr(native, name) for name in available}
     reference = digest(common_probe_suite())
-    hits, output_hashes = {}, {}
+    hits, effective, fallback, output_hashes = {}, {}, {}, {}
     for name in available:
-        count = 0
+        count = declined = 0
         function = originals[name]
         def invoke(*args, **kwargs):
-            nonlocal count
+            nonlocal count, declined
             count += 1
-            return function(*args, **kwargs)
+            result = function(*args, **kwargs)
+            if result is NotImplemented:
+                declined += 1
+            return result
         setattr(native, name, invoke)
         try:
             output_hashes[name] = digest(common_probe_suite())
         finally:
             setattr(native, name, function)
-        hits[name] = count
+        hits[name], fallback[name], effective[name] = count, declined, count - declined
         require(count > 0 and (expected_hits is None or count == expected_hits[name]),
                 "Native helper dispatch counts differ from the frozen probe: " + name)
+        require(effective[name] > 0, "Native helper returned only NotImplemented for ordinary probe inputs: " + name)
+        if expected_hits is not None:
+            require(effective[name] == expected_effective[name] and fallback[name] == expected_fallback[name],
+                    "Native helper effective/fallback counts differ from the frozen probe: " + name)
         require(output_hashes[name] == reference, "Instrumentation changed public-wrapper outputs: " + name)
     require(getattr(text, "_NATIVE", None) is original_binding
             and all(getattr(native, name) is function for name, function in originals.items()),
             "Probe instrumentation was not restored")
-    return {"native_helper_calls": hits, "outputs_sha256": reference,
+    return {"native_helper_calls": hits, "native_helper_effective_calls": effective,
+            "native_helper_fallback_calls": fallback, "outputs_sha256": reference,
             "per_helper_outputs_sha256": output_hashes, "uninstrumented_outputs_sha256": reference,
             "instrumentation_restored": True,
             "scope": "Identical isolated non-corpus wrapper suite; one native method wrapped at a time; all probes removed before measured database creation."}
 
 
-def active_backend(source, expected_hits):
+def active_backend(source, expected_hits, expected_effective=None, expected_fallback=None):
     import memory_book
     from memory_book import text, _text_backend
     require(Path(memory_book.__file__).resolve().parent == Path(source).resolve() / "memory_book", "Wrong runtime imported")
@@ -532,14 +551,14 @@ def active_backend(source, expected_hits):
     bindings = {name: getattr(module, "_NATIVE") is _text_backend.NATIVE
                 for name, module in modules.items() if hasattr(module, "_NATIVE")}
     require(bindings.get("text") is True and all(bindings.values()), "Runtime wrappers target different native modules")
-    if "rank_candidates" in expected_hits:
+    if hasattr(_text_backend.NATIVE, "rank_candidates"):
         require(set(bindings) == set(modules), "Candidate native wrapper family is missing")
     native = Path(_text_backend.NATIVE.__file__).resolve()
     require(native.parent == Path(source).resolve() / "memory_book", "Loaded native binary outside bound runtime")
     return {"requested": "native", "actual": "native", "binary_sha256": sha(native.read_bytes()),
             "available_functions": sorted(name for name in dir(_text_backend.NATIVE) if not name.startswith("_")),
             "wrapper_bindings": bindings,
-            "dispatch_probe": dispatch_probe(text, _text_backend.NATIVE, expected_hits)}
+            "dispatch_probe": dispatch_probe(text, _text_backend.NATIVE, expected_hits, expected_effective, expected_fallback)}
 
 
 async def mcp_calls(data, config_id, order, db, work, source, backend, sources, pages, counter, ledger):
@@ -615,7 +634,9 @@ def worker(directory, key):
     started = time.perf_counter_ns()
     from memory_book import MemoryBook
     import_ms = (time.perf_counter_ns() - started) / 1e6
-    backend = active_backend(source, run["plan"]["native_helper_calls"][item["label"]])
+    backend = active_backend(source, run["plan"]["native_helper_calls"][item["label"]],
+        run["plan"]["native_helper_effective_calls"][item["label"]],
+        run["plan"]["native_helper_fallback_calls"][item["label"]])
     data = dataset(item["cohort"], run["locomo_path"])
     report = {**item, "status": "running", "run_sha256": digest(run), "started_at": now(),
               "backend": backend, "source_manifest_sha256": digest(manifest), "runtime_import_ms": import_ms,
@@ -751,6 +772,9 @@ def verify_worker(report, run, directory):
     expected_hits = run["plan"]["native_helper_calls"][item["label"]]
     require(report["backend"]["available_functions"] == sorted(expected_hits), "Worker native helper inventory differs")
     require(probe["native_helper_calls"] == expected_hits and probe["instrumentation_restored"] is True, "Native dispatch identity probe differs")
+    require(probe.get("native_helper_effective_calls") == run["plan"]["native_helper_effective_calls"][item["label"]]
+            and probe.get("native_helper_fallback_calls") == run["plan"]["native_helper_fallback_calls"][item["label"]],
+            "Native effective/fallback dispatch identity differs")
     require(probe.get("uninstrumented_outputs_sha256") == probe["outputs_sha256"]
             and probe.get("per_helper_outputs_sha256") == dict.fromkeys(expected_hits, probe["outputs_sha256"]),
             "Instrumented and ordinary public-wrapper outputs differ")
@@ -997,7 +1021,9 @@ def main(argv=None):
         specification = validate_plan(read(args.plan))
         sys.path.insert(0, str(args.source.resolve()))
         os.environ["MEMORY_BOOK_TEXT_BACKEND"] = "native"
-        print(dump(active_backend(args.source, specification["native_helper_calls"][args.probe_label])))
+        print(dump(active_backend(args.source, specification["native_helper_calls"][args.probe_label],
+            specification["native_helper_effective_calls"][args.probe_label],
+            specification["native_helper_fallback_calls"][args.probe_label])))
     elif args.audit:
         result = audit(args.audit.resolve())
         print(dump(result))

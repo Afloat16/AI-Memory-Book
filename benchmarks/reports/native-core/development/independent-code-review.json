@@ -1,0 +1,46 @@
+{
+  "schema": "native-core-code-review-v1",
+  "reviewed": {
+    "excerpt_commit": "85a73593dc2798b2ef9ec2455ee628358aaef543",
+    "excerpt_sha256": "973e1c0490b2287e117c9b67b2b27f39105996b27e11317085226e1da0d5dab2",
+    "segmentation_draft_blob": "7f8708e28605ef8d6ad3b75c290c641af5021505",
+    "segmentation_final_guard_blob": "3b26eb99078921f23bf936f267e21c23bad1fa8e",
+    "segmentation_final_guard_commit": "0be1f09502aff1d4ddc0a9e644be7a62be6a944f",
+    "counter": "text.py at a0c73165; latest Counter fix reported as 477bf"
+  },
+  "checks": [
+    "Excerpt code-point offsets, 64-bit masks/2560-hit bound, integer overflow bound, Python true division, Counter insertion/deletion order, original math functions, ties and rendering.",
+    "Segmentation related-before-capacity order, size+2, double-newline cuts extending past nominal cap, key-before-headline callback, message coordinates and nested list identity.",
+    "Owned references across allocations and iterator-based mutable traversal."
+  ],
+  "fixed_findings": [
+    {
+      "id": "counter-preimport",
+      "evidence_blob": "e3cb7cce939879a8fbcb06d3f67976809a502b55",
+      "issue": "Copied wrapper metadata certified altered Counter.__missing__; Python [117,145] vs native [0,28].",
+      "fix": "Real function type/globals/code name/file and captured identities."
+    },
+    {
+      "id": "counter-indirect-methods",
+      "issue": "__contains__ and __getattribute__ were not guarded.",
+      "fix": "Inherited dict identities and runtime capture now include both."
+    },
+    {
+      "id": "segmentation-suffix",
+      "issue": "Non-ASCII PyUnicode_FromFormat literal raised ValueError for normal multipage suffix.",
+      "fix": "ASCII format with %c and code point 0x00b7."
+    },
+    {
+      "id": "segmentation-dictionary",
+      "issue": "A non-string collision key could run equality during preflight and invalidate borrowed fields.",
+      "fix": "Exact string-key dictionary certificate before any named lookup; reviewed fixed blob3b26eb."
+    }
+  ],
+  "limits": [
+    "Targeted review, not proof for all possible Python inputs.",
+    "No performance claim; exact-commit tests, sanitizers and formal measurement remain acceptance gates.",
+    "An arbitrary custom evidence callback supplied directly to the new private excerpt helper may observe its earlier q snapshot. Existing public dispatch only supplies certified original dependencies; this unsupported private-helper extension is not a blocker.",
+    "Private code forgery, interpreter introspection and nondeterministic GC/thread mutation timing are not claimed identical."
+  ],
+  "conclusion": "Listed fixes address the concrete findings. No further blocking issue identified in ordinary guarded excerpt and segmentation execution."
+}
