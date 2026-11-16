@@ -194,6 +194,12 @@ _NATIVE_SEGMENTATION_DEPENDENCIES = {
 def _native_segmentation_ready(name: str) -> bool:
     if _NATIVE is None or not _NATIVE_SEGMENTATION_CERTIFIED:
         return False
+    result = _NATIVE.segmentation_ready(
+        name, _NATIVE_SEGMENTATION_GLOBALS, _NATIVE_SEGMENTATION_DEFAULTS,
+        _NATIVE_SEGMENTATION_CLASS_STATES, _NATIVE_SEGMENTATION_DEPENDENCIES,
+    )
+    if result is not NotImplemented:
+        return result
     classes, functions = _NATIVE_SEGMENTATION_DEPENDENCIES[name]
     for function in functions:
         if _NATIVE_SEGMENTATION_GLOBALS.get(function) is not _NATIVE_SEGMENTATION_DEFAULTS[function]:
