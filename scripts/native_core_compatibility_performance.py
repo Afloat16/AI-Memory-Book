@@ -41,7 +41,7 @@ PRIOR_ATTEMPT = {
     "run_id": 43883672930,
     "evaluator_commit": "0267f6cce5189e42ce9432e228366372e121cf38",
     "candidate_commit": "e91183bf6dd9e125d6549ec3fe5d9c81598cd131",
-    "evidence_commit": "UNFROZEN",
+    "evidence_commit": "1b1f71606140b2eade960fb4618b9a5723469b7e",
     "disposition": "Not accepted for release: the CPython 3.14/3.15 wheel matrix exposed exact unpack-exception compatibility differences. Preserve all original protocol4 performance evidence; a repaired runtime must use a separate complete experiment."
 }
 ORIGINAL_CORE_ATTEMPT = {

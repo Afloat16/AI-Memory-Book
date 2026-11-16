@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "purpose": "Untimed compatibility candidate source/build/protocol/probe correctness capture; no performance claim",
+  "status": "completed",
+  "candidate_commit": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+  "baseline_commit": "56eccd8c3a6f1d5637664607936da2595ce50c62",
+  "evaluator_commit": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+  "runner_sha256": "b5c6735ab858d901e483c9610cb9a66a6395c9a571d7fe5977ae1c963d946688",
+  "dependency_runner_sha256": "334b09c1e04271c0389544c2567525b8ce7ea5cc50eeed042acd0f9604b8a507",
+  "environment": {
+    "compiler": "gcc (Debian 14.2.0-19) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "pythonhashseed": "0",
+    "sanitizer_check": {
+      "environment": {
+        "CC": null,
+        "CCSHARED": null,
+        "CFLAGS": null,
+        "CPPFLAGS": null,
+        "CXX": null,
+        "LDFLAGS": null,
+        "LDSHARED": null
+      },
+      "sysconfig": {
+        "CC": "clang -pthread",
+        "CCSHARED": "-fPIC",
+        "CFLAGS": "-fno-strict-overflow -Wsign-compare -Wunreachable-code -DNDEBUG -g -O3 -Wall   -O3 -fstack-protector -fstack-clash-protection -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2  -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer  -fPIC  ",
+        "CPPFLAGS": "-I. -I./Include   -O3 -fstack-protector -fstack-clash-protection -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2  -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer  -fPIC  ",
+        "CXX": "clang++ -pthread",
+        "LDFLAGS": "-Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now -Wl,--build-id=sha1  -Wl,--exclude-libs,ALL",
+        "LDSHARED": "clang -pthread -shared -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now -Wl,--build-id=sha1  -Wl,--exclude-libs,ALL"
+      }
+    }
+  },
+  "tests": {
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-c",
+      "import json,sys,unittest\nsuite=unittest.defaultTestLoader.discover('tests',pattern='test_native_core_compatibility_performance.py')\nresult=unittest.TextTestRunner(verbosity=2).run(suite)\nprint('RESULT_JSON='+json.dumps({'tests_run':result.testsRun,'skipped':len(result.skipped),\n'failures':len(result.failures),'errors':len(result.errors),'successful':result.wasSuccessful()}))\nsys.exit(0 if result.wasSuccessful() else 1)\n"
+    ],
+    "log_sha256": "7d006c6b115deb7f58256ec80dff98ad6980d2c6ec10b511ede442aecc32f936",
+    "result": {
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "successful": true,
+      "tests_run": 26
+    },
+    "returncode": 0
+  },
+  "ast": {
+    "all_equal": true,
+    "cores": {
+      "Ledger": "678708a65c9e64b2726a98ee0a6ccdcf94e98ecad70715d301f8c30cf780630c",
+      "archive_state": "6a2cb111f9bc19b2551435e55bc7d00e47aa566667af82f187f5e2a936933651",
+      "common_probe_suite": "4b7c4034b162546980050853fee558f330a70c3a362d1d6794ed6af9b8d5dac6",
+      "comparisons": "4b1689d7f839bcef1c388dbc2f152c39f9bdafd200997c9db3960ed1846717d3",
+      "dispatch_probe": "1317f6211f4aaddaa9287bf9c31e5dc1995fbf10f25efad2262710e91c99e48f",
+      "ingestion_comparisons": "8d7b0aee3e77c6853b1481544f45121b534754a664c6031fe264a77c2bb75da4",
+      "make_row": "eb4c0353cefa2f11adb798ab0d450d4553eeae9aee743d8a175722e6a1706648",
+      "mcp_calls": "f090c504db05b603f712b700383234d361d951f654d5cf1588c6575b14311881",
+      "query_order": "f3284f3a4c04350f3e7bcc9bdf0af9b40100326d4e695c4af3103d155f5ce6a8",
+      "schedule": "ad1bfcb4a31ba6acc205c6814924d5f843ba1acd157c70f44cf6a641b73b8510",
+      "stable": "bf8c553433d31a6ef9f9dfdca781359eebf4774020d5a382ab65aba6c86e0c14",
+      "summary": "15bd51e925ca1945dfbd0d3fa6138b2ba106cb33e156c6752c2276184cc20b77",
+      "validate_response": "d0f6277a814dc9decb97e2e601145d02dd908b02f3e1d6f47d68b1ae1b9c73fc",
+      "worker": "81f3aa9176a8cbcbe57368420fec7f92e7af99aecb67a6d6067198c7af7045b7"
+    },
+    "reference_file": "scripts/native_core_refinement_performance.py",
+    "reference_file_sha256": "a2b3f66ea680b9600df91845e1243d225a997b9a7477c464e0d8cf856340e647"
+  },
+  "build": {
+    "build_inputs": {
+      "LICENSE": "1ac59ce409c390d94825071ca9805223edb907e993df58a2e8efdb3b4ae7bbac",
+      "README.md": "e94230f4d486e56bdbb6eb7af1a9df74a7518364162df8221a07951ff944eeaf",
+      "pyproject.toml": "abd1e40d2218fecda13c0617f708977ba5e2fd867eb39741d2d4c8b7711b1707",
+      "setup.py": "37dceaec5a013a4ed8edc1f1c11dd2c8ee9ff14d3095157c4706ddfbe39cf2f4"
+    },
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "setup.py",
+      "build_ext",
+      "--inplace",
+      "--build-temp",
+      "/workspace/scratch/e870b2feaa97/native-core-baseline-probe/compatibility-probe-4390d013/build-temp"
+    ],
+    "compiler": "gcc (Debian 14.2.0-19) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+    "extra_compile_args": [
+      "-O3"
+    ],
+    "log_sha256": "bd2a0772b0ff42246796b5178f5b38fdd1e82a966f435186a4700fdeaef1d052",
+    "native_source_inputs": {
+      "src/memory_book/_native.c": "e0189243908da1035181911244301083877f44502064f8435ff3ce6363f88aad",
+      "src/memory_book/_native_excerpt.h": "973e1c0490b2287e117c9b67b2b27f39105996b27e11317085226e1da0d5dab2",
+      "src/memory_book/_native_lexical.h": "9e97f50d818cbdd8db61462e1f5d5b73ba82a871815d92a1403a64855d62913f",
+      "src/memory_book/_native_rank.h": "6f21ef972190dc65545e0b9109ab6b529881fbe1e8be3acb198441c95a1f320c",
+      "src/memory_book/_native_segmentation.h": "c0360b03583067e53509b822c34ec544d4dd4c218e9d1a2638df7a1803c503e6",
+      "src/memory_book/_native_source.h": "ff0fba96f09dfe103887b564e68f987b3840431c2d569558f204e29ec1c1bc5e"
+    },
+    "returncode": 0,
+    "status": "completed"
+  },
+  "binary_checks": {
+    "baseline": {
+      "bytes": 128528,
+      "elf_sanitizer_scan_sha256": "236ab8e9585ce1bbeb1ad91dfac91364ab4fc3d8c3d0c963ed7f4edf0af0f2cc",
+      "path": "/workspace/scratch/e870b2feaa97/native-core-baseline-probe/capture-a0c73165/baseline/src/memory_book/_native.cpython-312-x86_64-linux-gnu.so",
+      "sanitizer_symbols_present": false,
+      "sha256": "351897e74066f69d592e072e368dd2945d65a0788b7165cabd5f3958e157c564"
+    },
+    "candidate": {
+      "bytes": 673312,
+      "elf_sanitizer_scan_sha256": "ccf42c197ff8c30cd9bedcac6f9c1bbb6db5b5b2858217d79a7a663c4ef53f8d",
+      "path": "/workspace/scratch/e870b2feaa97/native-core-baseline-probe/compatibility-probe-4390d013/candidate/src/memory_book/_native.cpython-312-x86_64-linux-gnu.so",
+      "sanitizer_symbols_present": false,
+      "sha256": "3636484ecfa08325ba6a39a7dd3abd8f1c7dcebc8557d6eea3652d51fcc0843e"
+    }
+  },
+  "source_and_binary_unchanged": true,
+  "probe_outputs_equal": true,
+  "probe_counts": {
+    "baseline": {
+      "instrumentation_restored": true,
+      "native_helper_calls": {
+        "ascii_tokens": 1,
+        "evidence_units": 4,
+        "fold_excerpt_source": 4,
+        "identifier_aliases": 44,
+        "literal_positions": 3,
+        "terms_ascii": 34,
+        "unicode_tokens": 35
+      },
+      "native_helper_effective_calls": {
+        "ascii_tokens": 1,
+        "evidence_units": 4,
+        "fold_excerpt_source": 4,
+        "identifier_aliases": 44,
+        "literal_positions": 3,
+        "terms_ascii": 34,
+        "unicode_tokens": 35
+      },
+      "native_helper_fallback_calls": {
+        "ascii_tokens": 0,
+        "evidence_units": 0,
+        "fold_excerpt_source": 0,
+        "identifier_aliases": 0,
+        "literal_positions": 0,
+        "terms_ascii": 0,
+        "unicode_tokens": 0
+      },
+      "outputs_sha256": "9c30e47eb2e492cb5f6595f6f6d7d337bc2d932bdb1a821c4cdd0fd9b51399de"
+    },
+    "candidate": {
+      "instrumentation_restored": true,
+      "native_helper_calls": {
+        "ascii_tokens": 1,
+        "build_pages": 16,
+        "context_allocations": 2,
+        "evidence_units": 4,
+        "excerpt_window": 3,
+        "fold_excerpt_source": 4,
+        "identifier_aliases": 44,
+        "identifier_has_boundary": 63,
+        "literal_positions": 3,
+        "make_turns": 9,
+        "page_cuts": 13,
+        "projected_units": 1,
+        "rank_candidates": 1,
+        "refs_from_parsed": 1,
+        "segment_turns": 11,
+        "segmentation_ready": 36,
+        "select_novelty": 1,
+        "source_map_matches": 1,
+        "source_units": 1,
+        "strip_nonspacing_marks": 36,
+        "terms_ascii": 34,
+        "unicode_tokens": 35
+      },
+      "native_helper_effective_calls": {
+        "ascii_tokens": 1,
+        "build_pages": 16,
+        "context_allocations": 2,
+        "evidence_units": 4,
+        "excerpt_window": 3,
+        "fold_excerpt_source": 4,
+        "identifier_aliases": 44,
+        "identifier_has_boundary": 63,
+        "literal_positions": 3,
+        "make_turns": 9,
+        "page_cuts": 13,
+        "projected_units": 1,
+        "rank_candidates": 1,
+        "refs_from_parsed": 1,
+        "segment_turns": 11,
+        "segmentation_ready": 36,
+        "select_novelty": 1,
+        "source_map_matches": 1,
+        "source_units": 1,
+        "strip_nonspacing_marks": 36,
+        "terms_ascii": 34,
+        "unicode_tokens": 35
+      },
+      "native_helper_fallback_calls": {
+        "ascii_tokens": 0,
+        "build_pages": 0,
+        "context_allocations": 0,
+        "evidence_units": 0,
+        "excerpt_window": 0,
+        "fold_excerpt_source": 0,
+        "identifier_aliases": 0,
+        "identifier_has_boundary": 0,
+        "literal_positions": 0,
+        "make_turns": 0,
+        "page_cuts": 0,
+        "projected_units": 0,
+        "rank_candidates": 0,
+        "refs_from_parsed": 0,
+        "segment_turns": 0,
+        "segmentation_ready": 0,
+        "select_novelty": 0,
+        "source_map_matches": 0,
+        "source_units": 0,
+        "strip_nonspacing_marks": 0,
+        "terms_ascii": 0,
+        "unicode_tokens": 0
+      },
+      "outputs_sha256": "9c30e47eb2e492cb5f6595f6f6d7d337bc2d932bdb1a821c4cdd0fd9b51399de"
+    }
+  },
+  "capture_archive": {
+    "path": "benchmarks/reports/native-core-compatibility/development/probe-4390d013.tar.gz",
+    "bytes": 15900,
+    "sha256": "cafaadb18c299d3924023989c50aa6dd2368157c2360ac911c06d7d5eb96e686",
+    "files": {
+      "capture.json": {
+        "bytes": 72389,
+        "sha256": "288a597a4c0c34a8403ea6468c4a3a94cc0e95984f4b59d149c8861988f758bc"
+      },
+      "protocol-tests.log": {
+        "bytes": 5364,
+        "sha256": "7d006c6b115deb7f58256ec80dff98ad6980d2c6ec10b511ede442aecc32f936"
+      },
+      "build.log": {
+        "bytes": 3160,
+        "sha256": "bd2a0772b0ff42246796b5178f5b38fdd1e82a966f435186a4700fdeaef1d052"
+      },
+      "baseline-probe.log": {
+        "bytes": 1829,
+        "sha256": "795f1b49a14570ccb2726cdf7ec4e3d85def38fc036d0f3b8e98b24f21dada5d"
+      },
+      "candidate-probe.log": {
+        "bytes": 4359,
+        "sha256": "42b4342af83481240484bfc4336b8e025b4fe38424386f58538033e534f8cfec"
+      }
+    }
+  },
+  "capture_json_sha256": "288a597a4c0c34a8403ea6468c4a3a94cc0e95984f4b59d149c8861988f758bc",
+  "frozen_plan_validation": {
+    "status": "validated",
+    "evaluator_source_blob": "b5338f4ec50447724105186909a464a7d0207032",
+    "evaluator_source_sha256": "4a0b38df0f4e762855eb1cf1d687d0d8866772b65c289ad1574e05476b042516",
+    "plan_sha256": "a721f8a68378bf41a663367a99f1f2b24dc644e204be04aae98615e49d6863e0",
+    "candidate": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+    "calls": 113568,
+    "pairs": 56784
+  },
+  "limits": [
+    "Local correctness capture only; no timed benchmark or ingestion diagnosis was run.",
+    "The approved released baseline binary is reused and fully source/hash bound. Candidate is freshly materialized from exact 4390d013 and built with normal GCC -O3, without sanitizer flags/symbols.",
+    "Full .so byte equality across differently located builds is not asserted; both actual binaries are retained by exact before/after hashes.",
+    "The capture used exact 4390d013 committed evaluator files. The final evaluator differs only by binding the completed protocol4 evidence identity; its exact b5338f4 source separately validated the frozen plan.",
+    "Formal4 e911 performance values are preserved separately and are not attributed to this compatibility runtime."
+  ],
+  "release_runtime_identity": {
+    "metadata": {
+      "version": "0.9.0",
+      "tag": "v0.9.0",
+      "commit": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "tree": "fb387d12ec4ffb5cbb5963559ef9c5c5024a1024",
+      "epoch": 1794839035,
+      "runtime_sha256": "6ec51c906de94c97f90ec9be3dc50d066c9abedcff283c1e118ef6d6847eb3b7"
+    },
+    "runtime_files": {
+      "memory_book/__init__.py": "48ee96bddfd3ae4eb226e96d6c57bd9b04bcda744649f78eab695a404bda7b7a",
+      "memory_book/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+      "memory_book/_native.c": "e0189243908da1035181911244301083877f44502064f8435ff3ce6363f88aad",
+      "memory_book/_native_excerpt.h": "973e1c0490b2287e117c9b67b2b27f39105996b27e11317085226e1da0d5dab2",
+      "memory_book/_native_lexical.h": "9e97f50d818cbdd8db61462e1f5d5b73ba82a871815d92a1403a64855d62913f",
+      "memory_book/_native_rank.h": "6f21ef972190dc65545e0b9109ab6b529881fbe1e8be3acb198441c95a1f320c",
+      "memory_book/_native_segmentation.h": "c0360b03583067e53509b822c34ec544d4dd4c218e9d1a2638df7a1803c503e6",
+      "memory_book/_native_source.h": "ff0fba96f09dfe103887b564e68f987b3840431c2d569558f204e29ec1c1bc5e",
+      "memory_book/_text_backend.py": "b8268cbc11d49be34fa83e1c8d7a46b481f2caf159ab7f4425f8198e76063b45",
+      "memory_book/cli.py": "9654e684c39fbd6506f81079fa413c2370103d41ed38b9b25b544cf56efd6f74",
+      "memory_book/clients.py": "b1329fb564acc79a14e2d281bae0687224d63323ac129aa602899a4d0f0b576c",
+      "memory_book/formats.py": "9b03524f6ae77aa1f0b73b4b74266da506421919135a6975ea692cac30eb48d1",
+      "memory_book/importers.py": "655b39b6d1ab82d53a9f7635170b94225b9b7da81cd68dc4acfe2d43a304685c",
+      "memory_book/integration.py": "2baa0fbdd807fb78f1eff3156b579adf9a95a808dc3fc029398948f3abeed946",
+      "memory_book/maintenance.py": "a9fb2d53b2afc7fcf8347750118b6f581dbdd80dbb270f1808daa14af73ba7ba",
+      "memory_book/mcp_server.py": "0b5f3848fe1a80b1f07e083665d773d4ba5c04e7191938f766ebbb0fd2434da8",
+      "memory_book/paths.py": "d7865c48e2c09eca14c00b20efd306f591d3876fa5c19ba39c2716eb09be7137",
+      "memory_book/scope.py": "58eeaf7257b65275550507582ee25a62aaf19734bceb6f6cc253cf4febb60f2c",
+      "memory_book/segmentation.py": "4eb0eb70fc3a0751a511811fcf54a147e78a427d93a719cda060cc01c0aa6f8b",
+      "memory_book/semantic.py": "41df86bced1b613deea2f1b1361eba9f32c3786f5185a06253fbfd32270ac91e",
+      "memory_book/service.py": "55bd05f45cafc5dcd6c1fc5ceceade85f005a85a850b908c7bb155cff5a3584f",
+      "memory_book/static/index.html": "4d8b699a28d9d4868754da598a483a6b6cf1174840adfa5d218580e475900a45",
+      "memory_book/store.py": "25da51852fd727053ba963276e9b752238e721ce8a9e3ddf23d831208240a357",
+      "memory_book/sync.py": "89b2ac4b30b9b14ac564c3d328a51fbba97b2efc8a8dd1997892fc4142501291",
+      "memory_book/text.py": "b27b2a4992d1530736b502f00d80b6c442ccaca534b16c1eb6a750e31436b6c7",
+      "memory_book/token_budget.py": "910de5a73eecbf3b6ebde521c2a274f3d31ba251a90f12a46abd3e0f3d2dbfce",
+      "memory_book/web.py": "6d6c828b76737d49f396dcbe919646baab2ebc6e49b4a82113393c7f0112e383"
+    },
+    "verification": "Independently recomputed scripts.release.source_identity on the exact clean 4390d013 checkout; all returned source bytes checked by release.py against Git."
+  }
+}

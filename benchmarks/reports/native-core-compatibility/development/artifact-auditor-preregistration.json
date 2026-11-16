@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "kind": "native-core-compatibility-independent-artifact-auditor-preregistration",
+  "prepared_at_utc": "2026-11-16 14:28:56 UTC",
+  "script": {
+    "path": "scripts/native_core_compatibility_audit_artifact.py",
+    "git_blob": "a0b8703c3f6a461875dd9985cebf388d7ff41ff5",
+    "sha256": "2987085e2f430337cbb8e60156f6d305f95a6fdc6e7b6ab71c6c1760130482b1",
+    "bytes": 57758
+  },
+  "reference_auditor": {
+    "path": "scripts/native_core_refinement_audit_artifact.py",
+    "commit": "0267f6cce5189e42ce9432e228366372e121cf38",
+    "git_blob": "1d497b260931f0c20d37d8e639d475864b8b64c0",
+    "sha256": "1c2a4f1f0ad1313c09c49ae4f799e154331940a871e9da1d1f2190b78fd2b50a",
+    "completed_audit_run": 43883672930,
+    "independent_report_blob": "be798aa3dbe02517b0680853724022ed9c67da49"
+  },
+  "registration_scope": "Prepared before the first protocol5 hosted performance execution. Future candidate and evaluator commits are read from the independently frozen plan and bound to exact CLI/API/Git identities; this auditor does not preselect performance outcomes.",
+  "protocol": "native-core-compatibility-performance-5",
+  "baseline_commit": "56eccd8c3a6f1d5637664607936da2595ce50c62",
+  "native_helpers": {
+    "baseline": 7,
+    "candidate": 22,
+    "retains": "segmentation_ready",
+    "excludes": "joined_turns"
+  },
+  "prior_attempt": {
+    "run_id": 43883672930,
+    "evaluator_commit": "0267f6cce5189e42ce9432e228366372e121cf38",
+    "candidate_commit": "e91183bf6dd9e125d6549ec3fe5d9c81598cd131",
+    "evidence_commit": "1b1f71606140b2eade960fb4618b9a5723469b7e",
+    "disposition": "Not accepted for release: the CPython 3.14/3.15 wheel matrix exposed exact unpack-exception compatibility differences. Preserve all original protocol4 performance evidence; a repaired runtime must use a separate complete experiment."
+  },
+  "original_core_attempt": {
+    "run_id": 43871304560,
+    "evaluator_commit": "346e5ede35851fd6283bc8be8a34bf4243dc34dd",
+    "candidate_commit": "0be1f09502aff1d4ddc0a9e644be7a62be6a944f",
+    "evidence_commit": "4e1e6177e9af188a582b2f2e28aafe6290dfae36",
+    "disposition": "Not accepted for release: unchanged reingestion regressed in all four rounds in both cohorts. All first-attempt results and costs remain retained."
+  },
+  "changes": [
+    "New independent script and namespace for protocol5/schema5; old protocol3 and protocol4 auditors, plans and evidence are unchanged.",
+    "Bind both exact prior experiment provenance objects, including the completed protocol4 evidence commit.",
+    "Retain all API/ZIP-byte/manifests/duplicates/publication-index/Git-source/native-binary/build/probe and effective-return checks.",
+    "Retain complete source/output/MCP equivalence, ordered eight-field ingestion/global-revision/archive checks, all call ledgers, independent quantiles/rounds/ingestion/resources and unfavorable outcomes."
+  ],
+  "verification": {
+    "syntax": "passed",
+    "bytes": 57758,
+    "sha256": "2987085e2f430337cbb8e60156f6d305f95a6fdc6e7b6ab71c6c1760130482b1",
+    "unchanged_algorithms": [
+      "Archive",
+      "Member",
+      "FrozenModules",
+      "download",
+      "evidence_tree",
+      "publication_index",
+      "committed_sha",
+      "percentile",
+      "latency",
+      "stats",
+      "order",
+      "verify_ingestion_results",
+      "independent_rows",
+      "independent_ingestion_comparisons",
+      "resource_summary",
+      "save_exact"
+    ],
+    "identity_negative_cases_rejected": [
+      "schema_version",
+      "protocol",
+      "missing prior_attempt",
+      "prior_attempt.run_id",
+      "prior_attempt.evaluator_commit",
+      "prior_attempt.candidate_commit",
+      "prior_attempt.evidence_commit",
+      "prior_attempt.disposition",
+      "missing original_core_attempt",
+      "original_core_attempt.run_id",
+      "original_core_attempt.evaluator_commit",
+      "original_core_attempt.candidate_commit",
+      "original_core_attempt.evidence_commit",
+      "original_core_attempt.disposition"
+    ],
+    "api_negative_cases_rejected": [
+      "artifact.name",
+      "run.head_branch",
+      "run.path",
+      "run.run_attempt",
+      "artifact.digest",
+      "run.head_sha"
+    ],
+    "helpers": {
+      "baseline": 7,
+      "candidate": 22
+    },
+    "prior_attempt": {
+      "run_id": 43883672930,
+      "evaluator_commit": "0267f6cce5189e42ce9432e228366372e121cf38",
+      "candidate_commit": "e91183bf6dd9e125d6549ec3fe5d9c81598cd131",
+      "evidence_commit": "1b1f71606140b2eade960fb4618b9a5723469b7e",
+      "disposition": "Not accepted for release: the CPython 3.14/3.15 wheel matrix exposed exact unpack-exception compatibility differences. Preserve all original protocol4 performance evidence; a repaired runtime must use a separate complete experiment."
+    },
+    "original_core_attempt": {
+      "run_id": 43871304560,
+      "evaluator_commit": "346e5ede35851fd6283bc8be8a34bf4243dc34dd",
+      "candidate_commit": "0be1f09502aff1d4ddc0a9e644be7a62be6a944f",
+      "evidence_commit": "4e1e6177e9af188a582b2f2e28aafe6290dfae36",
+      "disposition": "Not accepted for release: unchanged reingestion regressed in all four rounds in both cohorts. All first-attempt results and costs remain retained."
+    },
+    "application_executions": 0,
+    "remeasured_calls": 0
+  },
+  "statistical_algorithms_changed": false,
+  "old_frozen_files_modified": false,
+  "performance_runs_started_by_this_agent": 0,
+  "application_executions": 0,
+  "remeasured_calls": 0
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "accepted_for_release": false,
+  "performance_run": 43883672930,
+  "evaluator_commit": "0267f6cce5189e42ce9432e228366372e121cf38",
+  "candidate_commit": "e91183bf6dd9e125d6549ec3fe5d9c81598cd131",
+  "independent_audit": "passed",
+  "reason": "The subsequent CPython 3.14/3.15 wheel tests exposed exact unpack-error message differences for built-in containers. A repaired runtime is required before release; all performance results remain evidence for e911 only.",
+  "performance_observation": "All eight pooled p50/p95 query cells and all four aggregate ingestion metrics improved. Both unchanged-ingestion cohorts improved in every round. The public direct-character second round and two public fresh-ingestion rounds regressed; every raw observation and resource cost remains retained.",
+  "next_experiment": "A separate frozen protocol 5 will compare the exact repaired source with released v0.8.1 using the full unchanged matrix. Protocol 4 source, evaluation and evidence remain immutable."
+}
