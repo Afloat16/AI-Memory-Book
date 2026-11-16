@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-11-16T13:40:13Z",
+  "branch": "optimization/native-core-v0.9.0",
+  "released_baseline": "56eccd8c3a6f1d5637664607936da2595ce50c62",
+  "current_runtime_commit": "cff1d9a3c183bf3c84183476f0485926f55abe56",
+  "current_runtime_sha256": "b2ae4769be7e36b677ff26cee91a917bc58a5465ea0d8dee540b3dc9e534b59a",
+  "release_accepted": false,
+  "first_formal": {
+    "run_id": 43871304560,
+    "independent_audit": "passed",
+    "disposition": "Retained; rejected for adoption because unchanged reingestion regressed in both cohorts in all four rounds."
+  },
+  "current_refinement": {
+    "helpers": 23,
+    "local_native_tests": {
+      "run": 140,
+      "passed": 138,
+      "skipped": 2
+    },
+    "sanitizers": "ASAN and UBSAN passed; 138 passed and two optional tiktoken skips",
+    "ci_run_id": 43876906098,
+    "ci_jobs": 9,
+    "ci_conclusion": "success",
+    "public_wrapper_probe": {
+      "effective_helpers": 23,
+      "notimplemented": 0,
+      "outputs_sha256": "9c30e47eb2e492cb5f6595f6f6d7d337bc2d932bdb1a821c4cdd0fd9b51399de"
+    },
+    "performance": "Same-host four-round two-cohort development diagnostic still shows unchanged ingestion regressions; detailed raw receipt is being preserved. No formal protocol 4 run has started and its candidate remains UNFROZEN.",
+    "next": "Profile remaining segmentation costs and reduce language-level allocation/call overhead while keeping every business rule, callback order, dynamic check and Python fallback."
+  },
+  "formal_protocol4": "New independent files only; original protocol 3 and its first-attempt evidence remain immutable."
+}
