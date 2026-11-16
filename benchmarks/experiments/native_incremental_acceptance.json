@@ -1,0 +1,672 @@
+{
+  "schema_version": 1,
+  "version": "0.8.1",
+  "decision_date_utc": "2026-11-16",
+  "status": "accepted-runtime-and-prepublication-delivery",
+  "accepted": true,
+  "publication_completed_at_this_checkpoint": false,
+  "decision": "Adopt the frozen native candidate for repeatable improvements in both default-budget surfaces across both cohorts, with complete recorded output equivalence. Retain and explicitly accept the measured secondary-token and startup costs. Final publication remains gated on this exact approved commit, its CI, a fresh native matrix, and a public-install check.",
+  "scope": "Execution-language substitutions only: identifier aliases and literal excerpt occurrence collection. Schema, SQL, ranking, scope, identities, segmentation, budgets, floating-point excerpt scoring and cache policy remain unchanged. No claim of universal optimality, all-input proof, all-configuration speedup or cross-platform performance is made.",
+  "baseline_commit": "6a8a9c6d603a812c75def258b11eb563ed590c9b",
+  "candidate_commit": "d2f13a3f44742d53c6f47e1d2cd7732e44a5524e",
+  "evaluator_commit": "3f3c50cbbbf9dfaf023e7aa4f7fce796fa5df099",
+  "formal_plan_sha256": "e5afadba80806dc57b615b37ca719d4c26395ee5d5a207679783e21fd9840f0f",
+  "runtime_sha256": "8fabb49f3bf30513cc765d58b2b6192706d76571643f3cf18136d0dc6b292cf0",
+  "frozen_candidate_source_files_sha256": "798812c4e5b4710dbfb605ebb40f0d7282f5c0052dc3be36505da55de55ec52c",
+  "candidate_source_files": {
+    "pyproject.toml": "28a186417fdbe2ba2e31a8ff074704ca60def32120c540da114789a8df76414a",
+    "setup.py": "4b47163fc6429fe5a97e774cecc053b043c2c8c8d0d2be21b3a94e0c293d8d38",
+    "src/memory_book/__init__.py": "5381558a6d8760b1370279d57e828cf01cf787939d27b4a96db986a6ad788afc",
+    "src/memory_book/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+    "src/memory_book/_native.c": "815afe0527b6286b3a25885c9626e990b31af9187e1dae5c65fe7e75fd2e0cf9",
+    "src/memory_book/_text_backend.py": "b8268cbc11d49be34fa83e1c8d7a46b481f2caf159ab7f4425f8198e76063b45",
+    "src/memory_book/cli.py": "9654e684c39fbd6506f81079fa413c2370103d41ed38b9b25b544cf56efd6f74",
+    "src/memory_book/clients.py": "b1329fb564acc79a14e2d281bae0687224d63323ac129aa602899a4d0f0b576c",
+    "src/memory_book/formats.py": "9b03524f6ae77aa1f0b73b4b74266da506421919135a6975ea692cac30eb48d1",
+    "src/memory_book/importers.py": "655b39b6d1ab82d53a9f7635170b94225b9b7da81cd68dc4acfe2d43a304685c",
+    "src/memory_book/integration.py": "2baa0fbdd807fb78f1eff3156b579adf9a95a808dc3fc029398948f3abeed946",
+    "src/memory_book/maintenance.py": "a9fb2d53b2afc7fcf8347750118b6f581dbdd80dbb270f1808daa14af73ba7ba",
+    "src/memory_book/mcp_server.py": "0b5f3848fe1a80b1f07e083665d773d4ba5c04e7191938f766ebbb0fd2434da8",
+    "src/memory_book/paths.py": "d7865c48e2c09eca14c00b20efd306f591d3876fa5c19ba39c2716eb09be7137",
+    "src/memory_book/scope.py": "58eeaf7257b65275550507582ee25a62aaf19734bceb6f6cc253cf4febb60f2c",
+    "src/memory_book/segmentation.py": "773cb62777bb11a66f1d2318bd75601f9ac38ea0fb6e7a534c1d8844a1a16e75",
+    "src/memory_book/semantic.py": "41df86bced1b613deea2f1b1361eba9f32c3786f5185a06253fbfd32270ac91e",
+    "src/memory_book/service.py": "55bd05f45cafc5dcd6c1fc5ceceade85f005a85a850b908c7bb155cff5a3584f",
+    "src/memory_book/static/index.html": "4d8b699a28d9d4868754da598a483a6b6cf1174840adfa5d218580e475900a45",
+    "src/memory_book/store.py": "7a16807f8c8c2987054603b3031b2b9832aef5698d021014c2dcd0567f8f028c",
+    "src/memory_book/sync.py": "89b2ac4b30b9b14ac564c3d328a51fbba97b2efc8a8dd1997892fc4142501291",
+    "src/memory_book/text.py": "38e916b6d1b65ef98e3ac4522725c6fc8749941750a7da1b5314da1060ab7b68",
+    "src/memory_book/token_budget.py": "0af09aaae1219e978f688c3aa4bb6c180c0b435bdb4a3113e5c3758b19b290ed",
+    "src/memory_book/web.py": "6d6c828b76737d49f396dcbe919646baab2ebc6e49b4a82113393c7f0112e383"
+  },
+  "candidate_source_files_verified_unchanged": 24,
+  "frozen_evaluator_files_verified_unchanged": 11,
+  "formal_run": {
+    "id": "43850332046",
+    "attempt": 1,
+    "evaluator_commit": "3f3c50cbbbf9dfaf023e7aa4f7fce796fa5df099",
+    "conclusion": "success",
+    "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43850332046"
+  },
+  "evidence": {
+    "branch": "evidence/native-incremental-43850332046-1",
+    "commit": "ed30ded94e00c81f381f57a6bd957bdf3322b20b",
+    "tree": "88be708bd5b0fa6a11a2b46bf3e114b8ab998fbd",
+    "manifest_files": 139,
+    "duplicate_files": 80,
+    "committed_files_verified": 59,
+    "publication_index": {
+      "path": ".artifacts/native-incremental-preservation/evidence.index",
+      "bytes": 20170,
+      "sha256": "026795ffcd23ebc89652ff8e0b3af1ac517ceab6c47b6c75ce03d75ed3556ff0",
+      "version": 2,
+      "entries": 144,
+      "checksum_verified": true,
+      "all_paths_and_blob_ids_verified": true,
+      "scope": "Temporary publication index retained by Actions; not a member of the evidence Git tree."
+    }
+  },
+  "artifact": {
+    "artifact_id": 14217956098,
+    "artifact_name": "native-incremental-43850332046-1",
+    "artifact_bytes": 77031297,
+    "artifact_sha256": "96fb2f972baccd009be23db35329b5ce28d2d13fcd8068e31242581ac0371602"
+  },
+  "equivalence": {
+    "attempted_calls": 113568,
+    "paired_calls": 56784,
+    "ledger_events": 227136,
+    "difference_count": 0,
+    "invariant_failures": 0,
+    "complete_output_digest_and_archive_equivalence": true
+  },
+  "primary_positive_p95_cells": 4,
+  "primary_positive_paired_rounds": 16,
+  "latency_units": "milliseconds; positive improvement means 100*(1-candidate/baseline); all retained observations contribute to pooled percentiles",
+  "latency_cells": [
+    {
+      "cohort": "synthetic61",
+      "configuration": "native-char2400",
+      "baseline": {
+        "samples": 2016,
+        "mean_ms": 4.1223669846230155,
+        "p50_ms": 3.1494155,
+        "p95_ms": 8.7744865,
+        "min_ms": 0.248713,
+        "max_ms": 12.866261
+      },
+      "candidate": {
+        "samples": 2016,
+        "mean_ms": 4.002795494047619,
+        "p50_ms": 3.074462,
+        "p95_ms": 8.50587325,
+        "min_ms": 0.250587,
+        "max_ms": 12.883518
+      },
+      "p50_improvement_percent": 2.3799177974452634,
+      "p95_improvement_percent": 3.061298800790213,
+      "p95_regressing_rounds": [],
+      "round_p95_improvement_percent": [
+        3.310021848293432,
+        3.3918658092623732,
+        2.806375531404781,
+        2.5336461318419268
+      ]
+    },
+    {
+      "cohort": "synthetic61",
+      "configuration": "mcp-char2400",
+      "baseline": {
+        "samples": 2016,
+        "mean_ms": 5.638178077380952,
+        "p50_ms": 4.69144,
+        "p95_ms": 10.46317125,
+        "min_ms": 1.217113,
+        "max_ms": 15.966539
+      },
+      "candidate": {
+        "samples": 2016,
+        "mean_ms": 5.534467947420635,
+        "p50_ms": 4.609757,
+        "p95_ms": 10.200099,
+        "min_ms": 1.188192,
+        "max_ms": 15.868492
+      },
+      "p50_improvement_percent": 1.7411072080214196,
+      "p95_improvement_percent": 2.5142687978083167,
+      "p95_regressing_rounds": [],
+      "round_p95_improvement_percent": [
+        2.6605129163992713,
+        2.662505145745786,
+        2.5707396801264215,
+        2.4174198042456907
+      ]
+    },
+    {
+      "cohort": "synthetic61",
+      "configuration": "native-token1024",
+      "baseline": {
+        "samples": 2016,
+        "mean_ms": 4.014985320436508,
+        "p50_ms": 3.5688060000000004,
+        "p95_ms": 9.109044,
+        "min_ms": 0.21997,
+        "max_ms": 12.026103
+      },
+      "candidate": {
+        "samples": 2016,
+        "mean_ms": 3.9429085818452383,
+        "p50_ms": 3.435666,
+        "p95_ms": 9.06587275,
+        "min_ms": 0.247359,
+        "max_ms": 12.015073
+      },
+      "p50_improvement_percent": 3.7306594978824936,
+      "p95_improvement_percent": 0.47393831888395965,
+      "p95_regressing_rounds": [
+        2
+      ],
+      "round_p95_improvement_percent": [
+        0.5362943388718677,
+        1.0877604955825793,
+        -0.03983013283617165,
+        1.0744801432880369
+      ]
+    },
+    {
+      "cohort": "synthetic61",
+      "configuration": "mcp-token1024",
+      "baseline": {
+        "samples": 2016,
+        "mean_ms": 5.7625782207341265,
+        "p50_ms": 5.061657,
+        "p95_ms": 10.7477295,
+        "min_ms": 1.187974,
+        "max_ms": 109.071628
+      },
+      "candidate": {
+        "samples": 2016,
+        "mean_ms": 5.657746133928572,
+        "p50_ms": 4.906454999999999,
+        "p95_ms": 10.6821955,
+        "min_ms": 1.236628,
+        "max_ms": 109.907516
+      },
+      "p50_improvement_percent": 3.0662291024461164,
+      "p95_improvement_percent": 0.6097473889717819,
+      "p95_regressing_rounds": [
+        2,
+        3
+      ],
+      "round_p95_improvement_percent": [
+        1.4386859469579405,
+        1.3601463582593065,
+        -0.37437169088305744,
+        -0.022576874993895935
+      ]
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "native-char2400",
+      "baseline": {
+        "samples": 12180,
+        "mean_ms": 2.8029530815270935,
+        "p50_ms": 2.7969895,
+        "p95_ms": 3.6512757999999996,
+        "min_ms": 0.646006,
+        "max_ms": 10.632093
+      },
+      "candidate": {
+        "samples": 12180,
+        "mean_ms": 2.6804161297208537,
+        "p50_ms": 2.670238,
+        "p95_ms": 3.4722997,
+        "min_ms": 0.647201,
+        "max_ms": 8.504445
+      },
+      "p50_improvement_percent": 4.53171168500991,
+      "p95_improvement_percent": 4.901741468009602,
+      "p95_regressing_rounds": [],
+      "round_p95_improvement_percent": [
+        4.728123481523728,
+        5.308495134127877,
+        4.081917071307717,
+        5.2057749062109915
+      ]
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "mcp-char2400",
+      "baseline": {
+        "samples": 12180,
+        "mean_ms": 4.306636456075534,
+        "p50_ms": 4.3024915,
+        "p95_ms": 5.2223763,
+        "min_ms": 1.800068,
+        "max_ms": 11.369842
+      },
+      "candidate": {
+        "samples": 12180,
+        "mean_ms": 4.171548108784894,
+        "p50_ms": 4.1667915,
+        "p95_ms": 5.01632445,
+        "min_ms": 1.785689,
+        "max_ms": 11.443927
+      },
+      "p50_improvement_percent": 3.1539864750459112,
+      "p95_improvement_percent": 3.9455573126739196,
+      "p95_regressing_rounds": [],
+      "round_p95_improvement_percent": [
+        2.8276887130218253,
+        3.652383384733726,
+        4.576572001830659,
+        4.805051054378806
+      ]
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "native-token1024",
+      "baseline": {
+        "samples": 12180,
+        "mean_ms": 2.314119391871921,
+        "p50_ms": 2.3003,
+        "p95_ms": 2.7707387999999997,
+        "min_ms": 0.750126,
+        "max_ms": 23.762238
+      },
+      "candidate": {
+        "samples": 12180,
+        "mean_ms": 2.3163260858784893,
+        "p50_ms": 2.303676,
+        "p95_ms": 2.7701781499999996,
+        "min_ms": 0.76081,
+        "max_ms": 23.662518
+      },
+      "p50_improvement_percent": -0.14676346563491371,
+      "p95_improvement_percent": 0.020234675314767525,
+      "p95_regressing_rounds": [
+        0,
+        2,
+        3
+      ],
+      "round_p95_improvement_percent": [
+        -0.3235726105946579,
+        0.48925878484916696,
+        -0.316748249832588,
+        -0.14517428669205135
+      ]
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "mcp-token1024",
+      "baseline": {
+        "samples": 12180,
+        "mean_ms": 3.854121384236453,
+        "p50_ms": 3.815117,
+        "p95_ms": 4.37170835,
+        "min_ms": 1.915396,
+        "max_ms": 107.745119
+      },
+      "candidate": {
+        "samples": 12180,
+        "mean_ms": 3.863995548850575,
+        "p50_ms": 3.8268445,
+        "p95_ms": 4.3863049,
+        "min_ms": 1.895897,
+        "max_ms": 107.296102
+      },
+      "p50_improvement_percent": -0.3073955530066286,
+      "p95_improvement_percent": -0.3338866372456062,
+      "p95_regressing_rounds": [
+        0,
+        1,
+        3
+      ],
+      "round_p95_improvement_percent": [
+        -0.354779281022255,
+        -0.18412642653324873,
+        0.027175196119311185,
+        -0.7126889466961828
+      ]
+    }
+  ],
+  "resource_medians": [
+    {
+      "cohort": "synthetic61",
+      "workers_per_side": 4,
+      "baseline": {
+        "runtime_import_ms": 29.364994,
+        "new_database_ms": 2.543491,
+        "fresh_ingestion_ms": 531.674758,
+        "unchanged_reingestion_ms": 55.623888,
+        "existing_database_open_ms": 0.537764,
+        "after_calls_rss_bytes": 135761920.0,
+        "after_calls_hwm_bytes": 140603392.0,
+        "mcp": {
+          "mcp-char2400": {
+            "startup_to_initialize_ms": 426.5267025,
+            "server_rss_after_calls_bytes": 63475712.0
+          },
+          "mcp-token1024": {
+            "startup_to_initialize_ms": 420.1397645,
+            "server_rss_after_calls_bytes": 109467648.0
+          }
+        },
+        "storage_after_checkpoint": [
+          {
+            "file_bytes": {
+              "-shm": 32768,
+              "-wal": 0,
+              "db": 20201472
+            },
+            "logical_db_bytes": 20201472
+          },
+          {
+            "file_bytes": {
+              "-shm": 32768,
+              "-wal": 0,
+              "db": 20201472
+            },
+            "logical_db_bytes": 20201472
+          },
+          {
+            "file_bytes": {
+              "-shm": 32768,
+              "-wal": 0,
+              "db": 20201472
+            },
+            "logical_db_bytes": 20201472
+          },
+          {
+            "file_bytes": {
+              "-shm": 32768,
+              "-wal": 0,
+              "db": 20201472
+            },
+            "logical_db_bytes": 20201472
+          }
+        ]
+      },
+      "candidate": {
+        "runtime_import_ms": 29.577222499999998,
+        "new_database_ms": 2.699995,
+        "fresh_ingestion_ms": 480.7243315,
+        "unchanged_reingestion_ms": 55.014641999999995,
+        "existing_database_open_ms": 0.5291115,
+        "after_calls_rss_bytes": 135802880.0,
+        "after_calls_hwm_bytes": 139309056.0,
+        "mcp": {
+          "mcp-char2400": {
+            "startup_to_initialize_ms": 428.1432985,
+            "server_rss_after_calls_bytes": 63373312.0
+          },
+          "mcp-token1024": {
+            "startup_to_initialize_ms": 420.28200849999996,
+            "server_rss_after_calls_bytes": 109572096.0
+          }
+        },
+        "storage_after_checkpoint": [
+          {
+            "file_bytes": {
+              "-shm": 32768,
+              "-wal": 0,
+              "db": 20201472
+            },
+            "logical_db_bytes": 20201472
+          },
+          {
+            "file_bytes": {
+              "-shm": 32768,
+              "-wal": 0,
+              "db": 20201472
+            },
+            "logical_db_bytes": 20201472
+          },
+          {
+            "file_bytes": {
+              "-shm": 32768,
+              "-wal": 0,
+              "db": 20201472
+            },
+            "logical_db_bytes": 20201472
+          },
+          {
+            "file_bytes": {
+              "-shm": 32768,
+              "-wal": 0,
+              "db": 20201472
+            },
+            "logical_db_bytes": 20201472
+          }
+        ]
+      }
+    },
+    {
+      "cohort": "public1015",
+      "workers_per_side": 4,
+      "baseline": {
+        "runtime_import_ms": 29.345896000000003,
+        "new_database_ms": 2.4413455,
+        "fresh_ingestion_ms": 488.3613095,
+        "unchanged_reingestion_ms": 92.3229635,
+        "existing_database_open_ms": 0.567747,
+        "after_calls_rss_bytes": 145643520.0,
+        "after_calls_hwm_bytes": 156479488.0,
+        "mcp": {
+          "mcp-char2400": {
+            "startup_to_initialize_ms": 427.343111,
+            "server_rss_after_calls_bytes": 63711232.0
+          },
+          "mcp-token1024": {
+            "startup_to_initialize_ms": 421.325181,
+            "server_rss_after_calls_bytes": 109684736.0
+          }
+        },
+        "storage_after_checkpoint": [
+          {
+            "file_bytes": {
+              "-shm": 32768,
+              "-wal": 0,
+              "db": 13025280
+            },
+            "logical_db_bytes": 13025280
+          },
+          {
+            "file_bytes": {
+              "-shm": 32768,
+              "-wal": 0,
+              "db": 13025280
+            },
+            "logical_db_bytes": 13025280
+          },
+          {
+            "file_bytes": {
+              "-shm": 32768,
+              "-wal": 0,
+              "db": 13025280
+            },
+            "logical_db_bytes": 13025280
+          },
+          {
+            "file_bytes": {
+              "-shm": 32768,
+              "-wal": 0,
+              "db": 13025280
+            },
+            "logical_db_bytes": 13025280
+          }
+        ]
+      },
+      "candidate": {
+        "runtime_import_ms": 29.6757655,
+        "new_database_ms": 2.715959,
+        "fresh_ingestion_ms": 488.4572625,
+        "unchanged_reingestion_ms": 92.52961099999999,
+        "existing_database_open_ms": 0.5925605,
+        "after_calls_rss_bytes": 145537024.0,
+        "after_calls_hwm_bytes": 156344320.0,
+        "mcp": {
+          "mcp-char2400": {
+            "startup_to_initialize_ms": 428.76648,
+            "server_rss_after_calls_bytes": 63336448.0
+          },
+          "mcp-token1024": {
+            "startup_to_initialize_ms": 420.0668875,
+            "server_rss_after_calls_bytes": 109764608.0
+          }
+        },
+        "storage_after_checkpoint": [
+          {
+            "file_bytes": {
+              "-shm": 32768,
+              "-wal": 0,
+              "db": 13025280
+            },
+            "logical_db_bytes": 13025280
+          },
+          {
+            "file_bytes": {
+              "-shm": 32768,
+              "-wal": 0,
+              "db": 13025280
+            },
+            "logical_db_bytes": 13025280
+          },
+          {
+            "file_bytes": {
+              "-shm": 32768,
+              "-wal": 0,
+              "db": 13025280
+            },
+            "logical_db_bytes": 13025280
+          },
+          {
+            "file_bytes": {
+              "-shm": 32768,
+              "-wal": 0,
+              "db": 13025280
+            },
+            "logical_db_bytes": 13025280
+          }
+        ]
+      }
+    }
+  ],
+  "accepted_costs": [
+    "Public 1024-token direct p50 regresses 0.147% while p95 improves only 0.020%; no consistent benefit is claimed.",
+    "Public 1024-token MCP p50 regresses 0.307% and p95 regresses 0.334%, about 0.012 ms and 0.015 ms. Three of four paired p95 rounds regress; the largest regression is 0.713%. This is an accepted measured secondary cost, not declared noise or statistically insignificant.",
+    "Synthetic 1024-token pooled p95 improves 0.474% direct and 0.610% MCP, but some paired rounds regress.",
+    "API import is about 0.21-0.33 ms slower and default MCP initialization about 1.42-1.62 ms slower. New-database initialization medians increase about 0.16-0.27 ms; existing-database opening is mixed.",
+    "Public fresh ingestion regresses 0.020% and unchanged reingestion 0.224%; synthetic fresh ingestion improves 9.583% and unchanged reingestion 1.095%. These are four-worker resource medians, not per-query latency percentiles.",
+    "Worker and server memory remain approximately unchanged; no memory-saving claim. Checkpointed database sizes are identical."
+  ],
+  "unfavorable_development_evidence": {
+    "path": "benchmarks/reports/native-incremental/development/local-native-paired.json.gz",
+    "pooled_p95_regression_percent": 4.618552721268454,
+    "use": "Retained shared-host in-memory-SQLite diagnostic; predeclared development-only, no MCP or exact tokenizer. It is not substituted for or pooled into the fixed hosted experiment."
+  },
+  "native_delivery_preparation": {
+    "run_id": 43850729647,
+    "run_attempt": 1,
+    "source_commit": "7d20667ac585506d10238dd32412c53a0cf4786a",
+    "artifact": {
+      "bytes": 5873812,
+      "files": 68,
+      "id": 14219480378,
+      "name": "native-packaging-43850729647-1",
+      "sha256": "c82adfc890b8221f184ac8877ee41398862a9b9396a2bce6542cb2ef55fc650e"
+    },
+    "runtime_sha256": "8fabb49f3bf30513cc765d58b2b6192706d76571643f3cf18136d0dc6b292cf0",
+    "native_wheel_count": 30,
+    "asset_count": 67,
+    "native_tests": {
+      "identifier_dispatch_passed": 30,
+      "jobs_verified": 30,
+      "literal_dispatch_passed": 30,
+      "optional_tokenizer_skips_per_job": 1,
+      "tests_per_job": 53
+    },
+    "checks": {
+      "actual_native_job_logs_match_wheel_receipts": true,
+      "all_assets_match_manifest_and_sha256sums": true,
+      "all_source_and_build_bytes_match_git": true,
+      "all_wheel_runtime_bytes_and_sdist_match_git": true,
+      "artifact_size_and_sha256_match_api": true,
+      "native_and_fallback_default_extras_installation_passed": true,
+      "native_receipts_match_exact_commit_tree_run_and_attempt": true,
+      "runtime_digest_recomputed": true,
+      "wheel_records_metadata_and_native_binary_hashes_verified": true
+    },
+    "installations": [
+      {
+        "backend": "native",
+        "default_extras": [
+          "mcp",
+          "clients"
+        ],
+        "filename": "ai_memory_book-0.8.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl"
+      },
+      {
+        "backend": "python",
+        "default_extras": [
+          "mcp",
+          "clients"
+        ],
+        "filename": "ai_memory_book-0.8.1-py3-none-any.whl"
+      }
+    ],
+    "published": false,
+    "boundary": "All measured runtime/build files still match the frozen candidate. Release README metadata changes after this preparation, so final publication must rebuild all 30 wheels and receipts at the exact approved main commit; this preparation cannot supply final publication receipts."
+  },
+  "prior_general_ci": {
+    "run_id": 43850669866,
+    "commit": "7d20667ac585506d10238dd32412c53a0cf4786a",
+    "successful_jobs": 9
+  },
+  "remaining_publication_gates": [
+    "All nine general CI jobs on the final approved commit",
+    "main and release/v0.8.1 reference that exact commit",
+    "Fresh full 30-wheel matrix and receipts for the final release run",
+    "Full asset verification and native/fallback installer checks",
+    "Stable public release plus installation and native-backend verification through its public URL"
+  ],
+  "evidence_files": {
+    "benchmarks/reports/native-incremental/formal-run-1/api-metadata.json": {
+      "bytes": 15538,
+      "sha256": "aa35bd117784b013fdda44e4a3667cdbafb7ba4b08c558b61d9751389537ae97"
+    },
+    "benchmarks/reports/native-incremental/formal-run-1/build-manifest.json": {
+      "bytes": 2872,
+      "sha256": "6b258a35bc01ea7b512453f1b9b142bff7f35a9c4df47c164ee12c275fe87387"
+    },
+    "benchmarks/reports/native-incremental/formal-run-1/independent-audit.json": {
+      "bytes": 99136,
+      "sha256": "8c2ecfabdb8ee6a58a3fd787782b49053197188485eb960c0f4c77783e64222a"
+    },
+    "benchmarks/reports/native-incremental/formal-run-1/run.json": {
+      "bytes": 41722,
+      "sha256": "fc337c21866f3b7f99fd3c23772c2f0a1ff42aeb963e26b1c90c4e8fe47eae62"
+    },
+    "benchmarks/reports/native-incremental/formal-run-1/summary.json": {
+      "bytes": 46319,
+      "sha256": "4980a5274017d7e78e063422894986689aa8fcea5f6953c37229444aa905552b"
+    },
+    "benchmarks/reports/native-incremental/packaging-43850729647/audit.json": {
+      "bytes": 29059,
+      "sha256": "a72909b5661d0088250567d7ba5e87303782da625176e4c9d5490e3171963a8d"
+    },
+    "benchmarks/reports/native-incremental/packaging-43850729647/job-matrix.json": {
+      "bytes": 38088,
+      "sha256": "d0cdebf337cbbadd282b7779039dbc286da22835874c52e15e74d3fbeab04880"
+    },
+    "benchmarks/reports/native-incremental/packaging-43850729647/release-manifest.json": {
+      "bytes": 40674,
+      "sha256": "c1a20dc62c88b1da29a087a3b60431b50030b427d1811b0dacef8fba9169f9c1"
+    },
+    "benchmarks/reports/native-incremental/packaging-43850729647/validation.json": {
+      "bytes": 1066,
+      "sha256": "31242a9d3c4deb70bf9cbf58195635ad9dc2ed111bd1a5ca13fc7c28dcaa3b42"
+    }
+  },
+  "limits": "The hosted evaluator hashed outputs and checked source/scope/budget invariants at execution. This offline audit verifies retained bytes, Git identities, complete ledgers, output-digest equality and independently calculated timings/resources. It does not execute either runtime or recover original payload text from hashes. MCP per-call CPU belongs to the client; server CPU is a separate live-process delta. Negative latency improvements are regressions. The formal experiment used one Intel Xeon/CPython 3.12 host. The older Python-to-native experiment used a different AMD host; neither absolute timings nor percentage reductions are combined across experiments."
+}
