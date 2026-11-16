@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "kind": "native-core-refinement-joined-path-selection-review",
+  "reviewed_commit": "e91183bf6dd9e125d6549ec3fe5d9c81598cd131",
+  "reviewed_file_blobs": {
+    "src/memory_book/_native_segmentation.h": "53e50a1df75a7cf963112d3b2a64a62c5f6cebde",
+    "src/memory_book/_native.c": "ec081f1dfe89f38a8ea5585cc1024197614f8b49",
+    "src/memory_book/segmentation.py": "64f0fd8780f9112731d14585472e54ae740199d0",
+    "tests/test_native_segmentation_backend.py": "a7b6d12d3061bd0f207d344da352a2f3ccd4492b"
+  },
+  "reference_baseline": "56eccd8c3a6f1d5637664607936da2595ce50c62",
+  "conclusion": "No blocking source-level compatibility or lifetime issue identified in this narrow removal. The released Python _joined is restored; retained native pages construction still observes the live helper identity and invokes it dynamically.",
+  "checks": {
+    "header_only_removes_native_joined": true,
+    "central_only_removes_method_registration": true,
+    "build_pages_still_checks_joined_identity": true,
+    "joined_default_reference_retained": true,
+    "joined_native_ready_scope_removed": true,
+    "released_python_joined_ast_restored": true,
+    "remeasured_calls": 0
+  },
+  "details": [
+    "The entire C header delta is deletion of the79-line native_joined_turns definition; build_pages and all live-lookup/ownership/module-state code are byte-identical to the reviewed27-key implementation.",
+    "The central C delta is only deletion of the joined_turns method registration; the per-module lifecycle implementation and remaining22 entries are unchanged.",
+    "The restored Python _joined function has exactly the released v0.8.1 AST, including source offsets and copied message_indices lists, with no native-readiness wrapper cost.",
+    "_NATIVE_SEGMENTATION_DEFAULTS retains the current original _joined function, and build_pages still lists it as a required identity dependency.",
+    "Native build_pages still reads _joined from the live globals immediately before calling it; no saved result or function bypass was introduced.",
+    "Tests preserve the collision-key fallback case by checking build_pages preflight and public _joined/_pages behavior, and retain module/result/subinterpreter lifecycle coverage."
+  ],
+  "limits": [
+    "Read-only source/AST review and inventory checks, without application performance timing.",
+    "The implementation owner/root remain responsible for the exact e911 build, differential tests, sanitizer run and actual positive effective native probe before formal freeze.",
+    "This is not a new performance claim; the selection was made before the refinement formal run and all earlier unfavorable measurements remain preserved."
+  ],
+  "remeasured_calls": 0
+}

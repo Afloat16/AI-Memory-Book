@@ -1,0 +1,266 @@
+{
+  "binary": {
+    "bytes": 1528648,
+    "git_blob_sha1": "902cb8bdbbd691742a6b0260130b905ead373b26",
+    "path": "src/memory_book/_native.cpython-312-x86_64-linux-gnu.so",
+    "sha256": "cc9802942aab4bc3559b46653bc3890dfd325809053d6af865fdd9fea46e5ae3"
+  },
+  "build": {
+    "command": [
+      "gcc",
+      "-shared",
+      "-fPIC",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fwrapv",
+      "-fno-omit-frame-pointer",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-I/opt/codex/runtimes/codex-primary-runtime/dependencies/python/include/python3.12",
+      "/workspace/scratch/e870b2feaa97/native-segmentation-probe/sanitizer_final22/src/memory_book/_native.c",
+      "-o",
+      "/workspace/scratch/e870b2feaa97/native-segmentation-probe/sanitizer_final22/src/memory_book/_native.cpython-312-x86_64-linux-gnu.so"
+    ],
+    "exit_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  "commit": "e91183bf6dd9e125d6549ec3fe5d9c81598cd131",
+  "environment": {
+    "asan_library": "/usr/lib/gcc/x86_64-linux-gnu/14/libasan.so",
+    "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "runtime_variables": {
+      "ASAN_OPTIONS": "detect_leaks=0:abort_on_error=1:strict_string_checks=1",
+      "LD_PRELOAD": "/usr/lib/gcc/x86_64-linux-gnu/14/libasan.so",
+      "MEMORY_BOOK_TEXT_BACKEND": "native",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONMALLOC": "malloc",
+      "PYTHONPATH": "/workspace/scratch/e870b2feaa97/native-segmentation-probe/sanitizer_final22/src",
+      "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1"
+    }
+  },
+  "limitations": [
+    "CPython and system SQLite are not themselves sanitizer builds.",
+    "Leak detection is disabled for the embedding CPython process; native memory access and undefined-behavior checks are enabled.",
+    "This is correctness instrumentation, not a performance measurement."
+  ],
+  "repository": "Afloat16/AI-Memory-Book",
+  "runner": {
+    "bytes": 4849,
+    "git_blob_sha1": "557354a4df54e4639c95d963a341cf10ec1193de",
+    "path": "native_selected_sanitizer_job.py",
+    "sha256": "562978d87a79d3683ddd00bb423bcd9e61d17b59b34bb4063669da87a5ef4463",
+    "source": "\"\"\"One ASAN+UBSAN validation of the exact frozen native-core source.\"\"\"\nimport hashlib,json,os,pathlib,platform,re,subprocess,sys,sysconfig,unittest\n\nclass SelectedNativeCoreSanitizerJob(unittest.TestCase):\n    def test_selected_native_core(self):\n        root=pathlib.Path(__file__).resolve().parents[1]/\"sanitizer_final22\"\n        expected=json.loads((root/\"inventory.json\").read_text())\n        manifest={}\n        def digest(data):\n            return {\"bytes\":len(data),\"sha256\":hashlib.sha256(data).hexdigest(),\n                    \"git_blob_sha1\":hashlib.sha1(b\"blob \"+str(len(data)).encode()+b\"\\0\"+data).hexdigest()}\n        for name,sha in expected[\"files\"].items():\n            value=digest((root/name).read_bytes())\n            self.assertEqual(value[\"git_blob_sha1\"],sha,name)\n            manifest[name]=value\n        compiler=subprocess.check_output([\"gcc\",\"--version\"],text=True).splitlines()[0]\n        native=root/\"src/memory_book\"\n        binary=native/(\"_native\"+sysconfig.get_config_var(\"EXT_SUFFIX\"))\n        build_command=[\"gcc\",\"-shared\",\"-fPIC\",\"-O1\",\"-g\",\"-Wall\",\"-Wextra\",\"-fwrapv\",\n                       \"-fno-omit-frame-pointer\",\"-fsanitize=address,undefined\",\"-fno-sanitize-recover=all\",\n                       \"-I\"+sysconfig.get_paths()[\"include\"],str(native/\"_native.c\"),\"-o\",str(binary)]\n        build=subprocess.run(build_command,cwd=root,text=True,capture_output=True,timeout=120)\n        print(\"SANITIZER_BUILD_EXIT\",build.returncode,flush=True)\n        if build.stderr:print(build.stderr,flush=True)\n        self.assertEqual(build.returncode,0,build.stderr)\n        asan=subprocess.check_output([\"gcc\",\"-print-file-name=libasan.so\"],text=True).strip()\n        environment=dict(os.environ,PYTHONPATH=str(root/\"src\"),PYTHONDONTWRITEBYTECODE=\"1\",\n                         PYTHONMALLOC=\"malloc\",MEMORY_BOOK_TEXT_BACKEND=\"native\",LD_PRELOAD=asan,\n                         ASAN_OPTIONS=\"detect_leaks=0:abort_on_error=1:strict_string_checks=1\",\n                         UBSAN_OPTIONS=\"print_stacktrace=1:halt_on_error=1\")\n        command=[sys.executable,\"-m\",\"unittest\",\"discover\",\"-s\",\"tests\",\"-p\",\"test_native*backend.py\"]\n        run=subprocess.run(command,cwd=root,env=environment,text=True,capture_output=True,timeout=240)\n        print(\"SANITIZER_TEST_EXIT\",run.returncode,flush=True)\n        print(run.stdout,flush=True)\n        print(run.stderr,flush=True)\n        count=re.search(r\"Ran (\\d+) tests in ([\\d.]+)s\",run.stderr)\n        for name,before in manifest.items():\n            self.assertEqual(digest((root/name).read_bytes()),before,\"source changed during validation: \"+name)\n        report={\"schema\":\"native-core-sanitizer-v1\",\"repository\":\"Afloat16/AI-Memory-Book\",\n                \"commit\":expected[\"commit\"],\"source_files\":manifest,\"source_files_unchanged\":True,\n                \"environment\":{\"python\":sys.version,\"platform\":platform.platform(),\"machine\":platform.machine(),\n                               \"compiler\":compiler,\"asan_library\":asan,\n                               \"runtime_variables\":{key:environment[key] for key in\n                                                    (\"PYTHONPATH\",\"PYTHONDONTWRITEBYTECODE\",\"PYTHONMALLOC\",\n                                                     \"MEMORY_BOOK_TEXT_BACKEND\",\"LD_PRELOAD\",\"ASAN_OPTIONS\",\"UBSAN_OPTIONS\")}},\n                \"build\":{\"command\":build_command,\"exit_code\":build.returncode,\n                         \"stdout\":build.stdout,\"stderr\":build.stderr},\n                \"tests\":{\"command\":command,\"exit_code\":run.returncode,\"stdout\":run.stdout,\"stderr\":run.stderr,\n                         \"methods\":int(count.group(1)) if count else None,\n                         \"reported_elapsed_seconds\":float(count.group(2)) if count else None,\n                         \"suites\":sorted(path.name for path in (root/\"tests\").glob(\"test_native*backend.py\"))},\n                \"binary\":{\"path\":str(binary.relative_to(root)),**digest(binary.read_bytes())},\n                \"runner\":{\"path\":pathlib.Path(__file__).name,**digest(pathlib.Path(__file__).read_bytes()),\n                          \"source\":pathlib.Path(__file__).read_text()},\n                \"limitations\":[\"CPython and system SQLite are not themselves sanitizer builds.\",\n                               \"Leak detection is disabled for the embedding CPython process; native memory access and undefined-behavior checks are enabled.\",\n                               \"This is correctness instrumentation, not a performance measurement.\"]}\n        (root/\"sanitizer-receipt.json\").write_text(json.dumps(report,sort_keys=True,indent=2)+\"\\n\")\n        print(\"SANITIZER_RECEIPT_JSON=\"+json.dumps(report,sort_keys=True),flush=True)\n        self.assertEqual(run.returncode,0,run.stderr)\n        self.assertNotIn(\"ERROR: AddressSanitizer\",run.stderr)\n        self.assertNotIn(\"runtime error:\",run.stderr)\n\n"
+  },
+  "schema": "native-core-sanitizer-v1",
+  "source_files": {
+    "src/memory_book/__init__.py": {
+      "bytes": 568,
+      "git_blob_sha1": "316fbff8da36cf9630c6394d6aac0d38644162ba",
+      "sha256": "48ee96bddfd3ae4eb226e96d6c57bd9b04bcda744649f78eab695a404bda7b7a"
+    },
+    "src/memory_book/__main__.py": {
+      "bytes": 48,
+      "git_blob_sha1": "eb53e2f31b2f703ad32ef64b8a41faa3e7d18e08",
+      "sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d"
+    },
+    "src/memory_book/_native.c": {
+      "bytes": 31700,
+      "git_blob_sha1": "ec081f1dfe89f38a8ea5585cc1024197614f8b49",
+      "sha256": "e0189243908da1035181911244301083877f44502064f8435ff3ce6363f88aad"
+    },
+    "src/memory_book/_native_excerpt.h": {
+      "bytes": 18651,
+      "git_blob_sha1": "e7f7ec06fd9320e910a5afab88a2240d8f6539a9",
+      "sha256": "973e1c0490b2287e117c9b67b2b27f39105996b27e11317085226e1da0d5dab2"
+    },
+    "src/memory_book/_native_lexical.h": {
+      "bytes": 3743,
+      "git_blob_sha1": "f231297938827a44d4934adcf0589e262059dc1d",
+      "sha256": "9e97f50d818cbdd8db61462e1f5d5b73ba82a871815d92a1403a64855d62913f"
+    },
+    "src/memory_book/_native_rank.h": {
+      "bytes": 27545,
+      "git_blob_sha1": "f5afb6598f51c1eaeee0c70a6d04e78d1073a022",
+      "sha256": "6f21ef972190dc65545e0b9109ab6b529881fbe1e8be3acb198441c95a1f320c"
+    },
+    "src/memory_book/_native_segmentation.h": {
+      "bytes": 48517,
+      "git_blob_sha1": "53e50a1df75a7cf963112d3b2a64a62c5f6cebde",
+      "sha256": "d641dfe91a1b02332ad625751a48bbbba8df87b79ef8eefbb69089ae2f21b43d"
+    },
+    "src/memory_book/_native_source.h": {
+      "bytes": 22659,
+      "git_blob_sha1": "51c43aeed61b4d16276a5605c7b757023a172be8",
+      "sha256": "ff0fba96f09dfe103887b564e68f987b3840431c2d569558f204e29ec1c1bc5e"
+    },
+    "src/memory_book/_text_backend.py": {
+      "bytes": 1044,
+      "git_blob_sha1": "e95aabde1f42a7549f4a6de50f0a2a5ac9336986",
+      "sha256": "b8268cbc11d49be34fa83e1c8d7a46b481f2caf159ab7f4425f8198e76063b45"
+    },
+    "src/memory_book/cli.py": {
+      "bytes": 28853,
+      "git_blob_sha1": "4065e6db027cf9d754d27c99ced2f8d061965814",
+      "sha256": "9654e684c39fbd6506f81079fa413c2370103d41ed38b9b25b544cf56efd6f74"
+    },
+    "src/memory_book/clients.py": {
+      "bytes": 31578,
+      "git_blob_sha1": "b35830281c5518aa751740f397c8b823a5b6f830",
+      "sha256": "b1329fb564acc79a14e2d281bae0687224d63323ac129aa602899a4d0f0b576c"
+    },
+    "src/memory_book/formats.py": {
+      "bytes": 173,
+      "git_blob_sha1": "7734ed5ab0055cd11dc27425dc7be7cd95e4acdf",
+      "sha256": "9b03524f6ae77aa1f0b73b4b74266da506421919135a6975ea692cac30eb48d1"
+    },
+    "src/memory_book/importers.py": {
+      "bytes": 24469,
+      "git_blob_sha1": "9b31c25205a8c78770895f160d5ba2fd59884e1a",
+      "sha256": "655b39b6d1ab82d53a9f7635170b94225b9b7da81cd68dc4acfe2d43a304685c"
+    },
+    "src/memory_book/integration.py": {
+      "bytes": 14572,
+      "git_blob_sha1": "5b217674619fe83835d9f4b7258c3d5617021c1e",
+      "sha256": "2baa0fbdd807fb78f1eff3156b579adf9a95a808dc3fc029398948f3abeed946"
+    },
+    "src/memory_book/maintenance.py": {
+      "bytes": 14121,
+      "git_blob_sha1": "5662eb3559c5ae92c0a15b212234f9d4409e55bf",
+      "sha256": "a9fb2d53b2afc7fcf8347750118b6f581dbdd80dbb270f1808daa14af73ba7ba"
+    },
+    "src/memory_book/mcp_server.py": {
+      "bytes": 23943,
+      "git_blob_sha1": "14c38e0dd6e2f22461bec8f2b3ec416147c29357",
+      "sha256": "0b5f3848fe1a80b1f07e083665d773d4ba5c04e7191938f766ebbb0fd2434da8"
+    },
+    "src/memory_book/paths.py": {
+      "bytes": 1326,
+      "git_blob_sha1": "7b6a5e7151ffac31d08a10e1257dc78d72d0143f",
+      "sha256": "d7865c48e2c09eca14c00b20efd306f591d3876fa5c19ba39c2716eb09be7137"
+    },
+    "src/memory_book/scope.py": {
+      "bytes": 742,
+      "git_blob_sha1": "76a8318cb3d24a4a56f4921205c3bc3b1df956ca",
+      "sha256": "58eeaf7257b65275550507582ee25a62aaf19734bceb6f6cc253cf4febb60f2c"
+    },
+    "src/memory_book/segmentation.py": {
+      "bytes": 8994,
+      "git_blob_sha1": "64f0fd8780f9112731d14585472e54ae740199d0",
+      "sha256": "4eb0eb70fc3a0751a511811fcf54a147e78a427d93a719cda060cc01c0aa6f8b"
+    },
+    "src/memory_book/semantic.py": {
+      "bytes": 15730,
+      "git_blob_sha1": "1d4482b2bec1007a65aa0c67388818664b1aa384",
+      "sha256": "41df86bced1b613deea2f1b1361eba9f32c3786f5185a06253fbfd32270ac91e"
+    },
+    "src/memory_book/service.py": {
+      "bytes": 12334,
+      "git_blob_sha1": "acf3c489660b712925c889a88199b927d147e8bb",
+      "sha256": "55bd05f45cafc5dcd6c1fc5ceceade85f005a85a850b908c7bb155cff5a3584f"
+    },
+    "src/memory_book/static/index.html": {
+      "bytes": 60670,
+      "git_blob_sha1": "fc32bf7891c372b9d0abbaa7fcd275cfbd93af94",
+      "sha256": "4d8b699a28d9d4868754da598a483a6b6cf1174840adfa5d218580e475900a45"
+    },
+    "src/memory_book/store.py": {
+      "bytes": 116700,
+      "git_blob_sha1": "934f8442066ea47868ecce05ef27104882eaa966",
+      "sha256": "25da51852fd727053ba963276e9b752238e721ce8a9e3ddf23d831208240a357"
+    },
+    "src/memory_book/sync.py": {
+      "bytes": 37120,
+      "git_blob_sha1": "8c80ed034a66547df649aafb50de35995dd2dffd",
+      "sha256": "89b2ac4b30b9b14ac564c3d328a51fbba97b2efc8a8dd1997892fc4142501291"
+    },
+    "src/memory_book/text.py": {
+      "bytes": 23099,
+      "git_blob_sha1": "477bfab1744df766d7033de79a0d40e93a5df7f6",
+      "sha256": "b27b2a4992d1530736b502f00d80b6c442ccaca534b16c1eb6a750e31436b6c7"
+    },
+    "src/memory_book/token_budget.py": {
+      "bytes": 33194,
+      "git_blob_sha1": "e4b31a933d308ba7891fef81e8811570ee61d67a",
+      "sha256": "910de5a73eecbf3b6ebde521c2a274f3d31ba251a90f12a46abd3e0f3d2dbfce"
+    },
+    "src/memory_book/web.py": {
+      "bytes": 13700,
+      "git_blob_sha1": "917d2e828655ecc0f8df058192788f89f1bd18c4",
+      "sha256": "6d6c828b76737d49f396dcbe919646baab2ebc6e49b4a82113393c7f0112e383"
+    },
+    "tests/test_native_backend.py": {
+      "bytes": 28154,
+      "git_blob_sha1": "5c8789ed0b7f4f526b5a111bc93f27434e12e302",
+      "sha256": "97a9fefcbc6be0f97826ad58b0353688f5865ff4fe8a1f60613a49d61f50a519"
+    },
+    "tests/test_native_excerpt_backend.py": {
+      "bytes": 10293,
+      "git_blob_sha1": "ffaf8b16e82501883f7a6a2fb9d2d9265a6278cc",
+      "sha256": "3871d94a1863e216dc08f1a8dd0633a2977379a27e4ff92c9b762b4f1f6fbe16"
+    },
+    "tests/test_native_identifier_backend.py": {
+      "bytes": 20400,
+      "git_blob_sha1": "4f31e89a8f53c03ed4f3001cc442b1e2e53671c4",
+      "sha256": "ca6d555578b79cbcd3c554b0c674d77bb56e2d561c2211482352587748de3369"
+    },
+    "tests/test_native_lexical_backend.py": {
+      "bytes": 9561,
+      "git_blob_sha1": "96d6a30d479e4d4f0a4724875075a3e80b78483e",
+      "sha256": "399f11b6984a1a700ea701dbec1c092c614fd40e22d3b377098317944aa34b4b"
+    },
+    "tests/test_native_ranking_backend.py": {
+      "bytes": 22128,
+      "git_blob_sha1": "1336e84b7d8708f5ae1e25fce3e6905355c06cde",
+      "sha256": "3d951c1e14f3bcceb510c48d22216a9845ae13c8a8352f7851517091d388be2a"
+    },
+    "tests/test_native_segmentation_backend.py": {
+      "bytes": 37949,
+      "git_blob_sha1": "a7b6d12d3061bd0f207d344da352a2f3ccd4492b",
+      "sha256": "0bf2fbf66ecd2f760db7dc4806f2ef5cd9d2bd85efd7153871bd488735077f1d"
+    },
+    "tests/test_native_source_backend.py": {
+      "bytes": 22389,
+      "git_blob_sha1": "e715a213358ab99ffc2e6662d81c5a3b662aac3a",
+      "sha256": "ad7def6fb8ac37ac11e3814d6708b2cfc8c055e16755b8f1788a8bc44749f344"
+    },
+    "tests/test_native_window_backend.py": {
+      "bytes": 18611,
+      "git_blob_sha1": "5d5c7cef4f635c7edb069ebdd067e0eb32e60afe",
+      "sha256": "9bc5a2b1ec3f455d6d03ad4183614e5ebe1a117c0c578602eaa3f0b28bc5a14f"
+    }
+  },
+  "source_files_unchanged": true,
+  "tests": {
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_native*backend.py"
+    ],
+    "exit_code": 0,
+    "methods": 143,
+    "reported_elapsed_seconds": 28.509,
+    "stderr": "........................s...................................................s..................................................................\n----------------------------------------------------------------------\nRan 143 tests in 28.509s\n\nOK (skipped=2)\n",
+    "stdout": "",
+    "suites": [
+      "test_native_backend.py",
+      "test_native_excerpt_backend.py",
+      "test_native_identifier_backend.py",
+      "test_native_lexical_backend.py",
+      "test_native_ranking_backend.py",
+      "test_native_segmentation_backend.py",
+      "test_native_source_backend.py",
+      "test_native_window_backend.py"
+    ]
+  }
+}
