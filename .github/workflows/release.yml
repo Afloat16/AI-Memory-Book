@@ -122,11 +122,21 @@ jobs:
         shell: bash
         run: |
           python - <<'PY'
-          import os, pathlib, shutil, subprocess, sys
+          import os, pathlib, shutil, subprocess, sys, sysconfig, tempfile, zipfile
           root = pathlib.Path.cwd()
           raw, final = root / '.artifacts/native-raw', root / '.artifacts/native-wheels'
           raw.mkdir(parents=True)
           final.mkdir()
+          if sys.platform == 'darwin':
+              # Framework Pythons may default to universal2 even on a native
+              # runner. Build the declared architecture and give it the matching
+              # wheel platform; verify the actual Mach-O slice before receipt.
+              architecture = 'arm64' if os.environ['WHEEL_TARGET'] == 'macos_arm64' else 'x86_64'
+              minimum = (11, 0) if architecture == 'arm64' else (10, 9)
+              configured = tuple(int(part) for part in sysconfig.get_config_var('MACOSX_DEPLOYMENT_TARGET').split('.')[:2])
+              deployment = '.'.join(map(str, max(minimum, configured)))
+              os.environ.update(ARCHFLAGS='-arch ' + architecture, MACOSX_DEPLOYMENT_TARGET=deployment,
+                                _PYTHON_HOST_PLATFORM='macosx-' + deployment + '-' + architecture)
           command = [sys.executable, '-m', 'pip', 'wheel', '--verbose', '--no-deps', '--no-build-isolation', '--wheel-dir', str(raw), '.']
           built = subprocess.run(command, text=True, encoding='utf-8', errors='replace', capture_output=True)
           log = built.stdout + built.stderr
@@ -144,6 +154,14 @@ jobs:
           wheels = list(final.glob('*.whl'))
           assert len(wheels) == 1
           wheel = wheels[0]
+          if sys.platform == 'darwin':
+              with zipfile.ZipFile(wheel) as archive, tempfile.TemporaryDirectory(prefix='native-macho-') as location:
+                  binaries = [name for name in archive.namelist() if name.startswith('memory_book/_native.') and name.endswith('.so')]
+                  assert len(binaries) == 1
+                  binary = pathlib.Path(location) / pathlib.Path(binaries[0]).name
+                  binary.write_bytes(archive.read(binaries[0]))
+                  slices = subprocess.check_output(['lipo', '-archs', str(binary)], text=True).split()
+                  assert slices == [architecture], (slices, architecture)
           subprocess.run([sys.executable, '-m', 'pip', 'install', '--no-deps', '--force-reinstall', str(wheel)], check=True)
           subprocess.run([sys.executable, '-I', '-c', "from memory_book._text_backend import BACKEND_NAME; assert BACKEND_NAME == 'native'"], check=True)
           subprocess.run([sys.executable, '-m', 'unittest', 'tests.test_native_backend', '-v'], check=True)
@@ -157,6 +175,15 @@ jobs:
           path: .artifacts/native-wheels/
           include-hidden-files: true
           if-no-files-found: error
+          retention-days: 30
+      - name: Preserve native compiler output even when validation fails
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-build-log-${{ matrix.target }}-${{ matrix.python }}
+          path: .artifacts/native-build.log
+          include-hidden-files: true
+          if-no-files-found: warn
           retention-days: 30
   release:
     needs: [preflight, native-wheel]
