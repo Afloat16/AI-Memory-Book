@@ -82,7 +82,7 @@ BASELINE_HELPERS = ("terms_ascii", "ascii_tokens", "unicode_tokens", "fold_excer
 CANDIDATE_HELPERS = (*BASELINE_HELPERS, "strip_nonspacing_marks", "identifier_has_boundary",
     "excerpt_window", "rank_candidates", "select_novelty", "context_allocations",
     "refs_from_parsed", "source_units", "projected_units", "source_map_matches",
-    "make_turns", "joined_turns", "page_cuts", "build_pages", "segment_turns", "segmentation_ready")
+    "make_turns", "page_cuts", "build_pages", "segment_turns", "segmentation_ready")
 PROBE_HELPERS = {"baseline": BASELINE_HELPERS, "candidate": CANDIDATE_HELPERS}
 BUILD_POLICY = {"definition": "source-commit-bound-per-label", "compiler_and_flags": "identical",
                 "native_compilation": "one-native-extension-all-c-h-inputs"}

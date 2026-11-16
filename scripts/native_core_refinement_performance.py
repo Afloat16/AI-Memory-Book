@@ -72,10 +72,12 @@ INVARIANT_KEYS = {"scope", "source_spans", "page_projection", "context_reconstru
                   "character_budget", "result_limit", "token_budget", "token_metadata"}
 NATIVE_HELPERS = ("terms_ascii", "ascii_tokens", "unicode_tokens", "fold_excerpt_source", "evidence_units",
                   "identifier_aliases", "literal_positions")
+# The unreleased joined_turns dispatch was slower through the measured public wrapper.
+# Keep the frozen Python _joined body and build_pages' current-global callback.
 CANDIDATE_HELPERS = (*NATIVE_HELPERS, "strip_nonspacing_marks", "identifier_has_boundary", "excerpt_window",
     "rank_candidates", "select_novelty", "context_allocations", "refs_from_parsed",
     "source_units", "projected_units", "source_map_matches",
-    "make_turns", "joined_turns", "page_cuts", "build_pages", "segment_turns", "segmentation_ready")
+    "make_turns", "page_cuts", "build_pages", "segment_turns", "segmentation_ready")
 BUILD_POLICY = {"definition": "source-commit-bound-per-label", "compiler_and_flags": "identical",
                 "native_compilation": "one-native-extension-all-c-h-inputs"}
 RESOURCE_COMPARISONS = ("fresh_ingestion_ms", "unchanged_reingestion_ms")

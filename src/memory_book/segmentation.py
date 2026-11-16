@@ -62,10 +62,6 @@ def make_turns(messages: list[dict]) -> list[Turn]:
 
 
 def _joined(turns: list[Turn]) -> tuple[str, list[dict]]:
-    if _native_segmentation_ready("joined_turns"):
-        result = _NATIVE.joined_turns(turns, _NATIVE_SEGMENTATION_GLOBALS)
-        if result is not NotImplemented:
-            return result
     parts, refs, pos = [], [], 0
     for turn in turns:
         if parts:
@@ -185,7 +181,6 @@ _NATIVE_SEGMENTATION_CERTIFIED = (
 )
 _NATIVE_SEGMENTATION_DEPENDENCIES = {
     "make_turns": (("Turn",), ()),
-    "joined_turns": (("Turn",), ()),
     "build_pages": (("Turn", "Page"), ("_joined", "_cuts", "headline")),
     "segment_turns": (("Turn", "Section"), ("_pages", "headline", "similarity", "is_followup")),
 }

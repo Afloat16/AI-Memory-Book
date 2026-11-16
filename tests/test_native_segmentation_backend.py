@@ -175,12 +175,11 @@ class NativeSegmentationTests(unittest.TestCase):
         pages = segmentation._pages(turns, None)
         self.assertEqual(pages[0].question, "second question | second question")
 
-    def test_all_five_public_entrypoints_really_dispatch(self):
+    def test_four_native_entrypoints_dispatch_and_joined_keeps_reference(self):
         messages = [{"role": "user", "content": "question"}, {"role": "assistant", "content": "answer " * 20}]
         turns = segmentation.make_turns(messages)
         operations = [
             ("make_turns", lambda: segmentation.make_turns(messages)),
-            ("joined_turns", lambda: segmentation._joined(turns)),
             ("page_cuts", lambda: segmentation._cuts("body " * 30, 20)),
             ("build_pages", lambda: segmentation._pages(turns, 20)),
             ("segment_turns", lambda: segmentation.segment(turns, "adaptive", 40, 0, .12)),
@@ -189,6 +188,10 @@ class NativeSegmentationTests(unittest.TestCase):
             with patch.object(NATIVE, name, wraps=getattr(NATIVE, name)) as observed:
                 operation()
                 observed.assert_called_once()
+        self.assertFalse(hasattr(NATIVE, "joined_turns"))
+        with patch.object(segmentation, "_native_segmentation_ready",
+                          side_effect=AssertionError("joined must not pay a native readiness check")):
+            self.assertEqual(segmentation._joined(turns), reference_namespace()["_joined"](turns))
 
 
 @unittest.skipUnless(NATIVE is not None, "Native extension is not installed")
@@ -264,7 +267,7 @@ class NativeSegmentationFallbackTests(unittest.TestCase):
 
         namespace.update(headline=forbidden, similarity=forbidden, is_followup=forbidden)
         self.assertIs(NATIVE.make_turns([{"role": "user", "content": None}], namespace), NotImplemented)
-        self.assertIs(NATIVE.joined_turns([object()], namespace), NotImplemented)
+        self.assertIs(NATIVE.build_pages([object()], 8, namespace), NotImplemented)
         for cap in (0, -1, True, 1.5, 10 ** 100):
             self.assertIs(NATIVE.page_cuts("abc", cap), NotImplemented)
         turn = TURN(0, "q", "body", (0,))
@@ -297,18 +300,20 @@ class NativeSegmentationFallbackTests(unittest.TestCase):
             return turn, events
 
         turn, events = specimen()
-        self.assertIs(NATIVE.joined_turns([turn], reference_namespace()), NotImplemented)
+        self.assertIs(NATIVE.build_pages([turn], 8, reference_namespace()), NotImplemented)
         self.assertEqual(events, [])
-        observations = []
-        for backend in (None, NATIVE):
-            turn, events = specimen()
-            with patch.object(segmentation, "_NATIVE", backend):
-                actual = outcome(lambda: segmentation._joined([turn]))
-            observations.append((actual, events))
-        self.assertEqual(observations[0], observations[1])
-        self.assertEqual(observations[0][0][0], "error")
-        self.assertEqual(observations[0][0][1], AttributeError)
-        self.assertEqual(observations[0][1], ["content"])
+        for operation_name in ("_joined", "_pages"):
+            observations = []
+            for backend in (None, NATIVE):
+                turn, events = specimen()
+                with patch.object(segmentation, "_NATIVE", backend):
+                    actual = outcome(lambda: segmentation._joined([turn]) if operation_name == "_joined"
+                                     else segmentation._pages([turn], 8))
+                observations.append((actual, events))
+            self.assertEqual(observations[0], observations[1])
+            self.assertEqual(observations[0][0][0], "error")
+            self.assertEqual(observations[0][0][1], AttributeError)
+            self.assertEqual(observations[0][1], ["content"])
 
     def test_helper_wrapped_before_import_is_not_certified(self):
         script = r'''
@@ -453,7 +458,7 @@ class NativeSegmentationReadinessTests(unittest.TestCase):
                      patch.object(cls, "__init__", Descriptor("init", captured[2])), \
                      patch.object(cls, "__getattribute__", Descriptor("getattribute", captured[3])):
                     events.clear()
-                    actual = outcome(lambda: operation("joined_turns"))
+                    actual = outcome(lambda: operation("make_turns"))
                     observations.append((actual, list(events)))
             self.assertEqual(observations[0], observations[1], behavior)
             expected_events = ["new", "init"] if behavior == "raise" else ["new", "init", "getattribute"]
@@ -486,15 +491,15 @@ class NativeSegmentationReadinessTests(unittest.TestCase):
 
     def test_unusual_metadata_preserves_unpack_and_missing_key_errors(self):
         for value in (None, (), ((),), ((), (), ()), (("Turn",), None)):
-            dependencies = dict(segmentation._NATIVE_SEGMENTATION_DEPENDENCIES, joined_turns=value)
+            dependencies = dict(segmentation._NATIVE_SEGMENTATION_DEPENDENCIES, make_turns=value)
             with self.subTest(dependencies=value), patch.object(segmentation, "_NATIVE_SEGMENTATION_DEPENDENCIES", dependencies):
-                self.assertEqual(outcome(lambda: _REFERENCE_READY("joined_turns")),
-                                 outcome(lambda: self.call_native("joined_turns")))
+                self.assertEqual(outcome(lambda: _REFERENCE_READY("make_turns")),
+                                 outcome(lambda: self.call_native("make_turns")))
         for value in (None, (), (TURN,), tuple(range(6))):
             states = dict(segmentation._NATIVE_SEGMENTATION_CLASS_STATES, Turn=value)
             with self.subTest(state=value), patch.object(segmentation, "_NATIVE_SEGMENTATION_CLASS_STATES", states):
-                self.assertEqual(outcome(lambda: _REFERENCE_READY("joined_turns")),
-                                 outcome(lambda: self.call_native("joined_turns")))
+                self.assertEqual(outcome(lambda: _REFERENCE_READY("make_turns")),
+                                 outcome(lambda: self.call_native("make_turns")))
         self.assertEqual(outcome(lambda: _REFERENCE_READY("unknown")),
                          outcome(lambda: self.call_native("unknown")))
 
@@ -508,9 +513,9 @@ class NativeSegmentationReadinessTests(unittest.TestCase):
                     events.append(value)
                     yield value
 
-            dependencies = dict(segmentation._NATIVE_SEGMENTATION_DEPENDENCIES, joined_turns=values())
+            dependencies = dict(segmentation._NATIVE_SEGMENTATION_DEPENDENCIES, make_turns=values())
             with patch.object(segmentation, "_NATIVE_SEGMENTATION_DEPENDENCIES", dependencies):
-                actual = outcome(lambda: operation("joined_turns"))
+                actual = outcome(lambda: operation("make_turns"))
             observations.append((actual, events))
         self.assertEqual(observations[0], observations[1])
         self.assertEqual(len(observations[0][1]), 3)
@@ -534,26 +539,26 @@ class NativeSegmentationModuleStateTests(unittest.TestCase):
         messages = [{"role": "user", "content": "source question"},
                     {"role": "assistant", "content": "answer " * 20}]
         turns = namespace["make_turns"](messages)
-        expected = namespace["_joined"](turns)
+        expected_pages = namespace["_pages"](turns, 30)
+        expected_sections = namespace["segment"](turns, "adaptive", 30, 0, .12)
         first = self.clone_native_module("first")
         second = self.clone_native_module("second")
         self.assertIsNot(first, second)
         first_reference, second_reference = weakref.ref(first), weakref.ref(second)
         for unused in range(3):
             self.assertEqual(first.make_turns(messages, namespace), turns)
-            self.assertEqual(second.joined_turns(turns, namespace), expected)
-            self.assertEqual(first.build_pages(turns, 30, namespace), namespace["_pages"](turns, 30))
-            self.assertEqual(second.segment_turns(turns, "adaptive", 30, 0, .12, namespace),
-                             namespace["segment"](turns, "adaptive", 30, 0, .12))
-        held_function = first.joined_turns
+            self.assertEqual(second.build_pages(turns, 30, namespace), expected_pages)
+            self.assertEqual(first.build_pages(turns, 30, namespace), expected_pages)
+            self.assertEqual(second.segment_turns(turns, "adaptive", 30, 0, .12, namespace), expected_sections)
+        held_function = first.make_turns
         del first
         gc.collect()
         self.assertIsNotNone(first_reference())
-        self.assertEqual(held_function(turns, namespace), expected)
+        self.assertEqual(held_function(messages, namespace), turns)
         del held_function
         gc.collect()
         self.assertIsNone(first_reference())
-        self.assertEqual(second.joined_turns(turns, namespace), expected)
+        self.assertEqual(second.segment_turns(turns, "adaptive", 30, 0, .12, namespace), expected_sections)
         del second
         gc.collect()
         self.assertIsNone(second_reference())
@@ -565,15 +570,17 @@ class NativeSegmentationModuleStateTests(unittest.TestCase):
         turns = [TURN(7, "q", "original 中🙂", (2, 3))]
         module = self.clone_native_module("retained_result")
         reference = weakref.ref(module)
-        actual = module.joined_turns(turns, namespace)
+        actual = module.build_pages(turns, 8, namespace)
         del module
         gc.collect()
         self.assertIsNone(reference())
-        self.assertEqual(actual, namespace["_joined"](turns))
-        self.assertEqual(list(actual[1][0]),
+        self.assertEqual(actual, namespace["_pages"](turns, 8))
+        retained_ref = actual[0].refs[0]
+        self.assertEqual(list(retained_ref),
                          ["turn_index", "start", "end", "turn_start", "turn_end", "message_indices"])
-        self.assertEqual(actual[1][0]["message_indices"], [2, 3])
-        self.assertEqual(actual[0][actual[1][0]["start"]:actual[1][0]["end"]], turns[0].content)
+        self.assertEqual(retained_ref["message_indices"], [2, 3])
+        self.assertEqual(actual[0].content[retained_ref["start"]:retained_ref["end"]],
+                         turns[0].content[retained_ref["turn_start"]:retained_ref["turn_end"]])
 
     def test_available_shared_gil_subinterpreters_keep_main_module_working(self):
         script = r'''
@@ -587,7 +594,7 @@ else:
     payload = """
 from memory_book import segmentation as module
 turns = module.make_turns([{"role": "user", "content": "q"}, {"role": "assistant", "content": "answer " * 10}])
-assert module._native_segmentation_ready("joined_turns")
+assert module._native_segmentation_ready("make_turns")
 joined, refs = module._joined(turns)
 assert joined[refs[0]["start"]:refs[0]["end"]] == turns[0].content
 assert module.segment(turns, "adaptive", 30, 0, .12)
