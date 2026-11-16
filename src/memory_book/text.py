@@ -38,9 +38,13 @@ _NATIVE_ZH_STOP = ZH_STOP
 _NATIVE_RUNS = RUNS
 _NATIVE_CJK_RUN = CJK_RUN
 _NATIVE_IDENTIFIER_SEPARATOR = IDENTIFIER_SEPARATOR
+_NATIVE_IDENTIFIER_RUN = IDENTIFIER_RUN
+_NATIVE_IDENTIFIER_WORD_BOUNDARY = IDENTIFIER_WORD_BOUNDARY
 _NATIVE_NORMALIZE = unicodedata.normalize
 _NATIVE_CATEGORY = unicodedata.category
 _NATIVE_FINDITER = re.finditer
+_NATIVE_ESCAPE = re.escape
+_NATIVE_ISLICE = islice
 _NATIVE_ASCII_CERTIFIED = (
     type(CAMEL_BOUNDARY) is re.Pattern and CAMEL_BOUNDARY.pattern == r"([a-z])([A-Z])"
     and CAMEL_BOUNDARY.flags == re.UNICODE
@@ -52,6 +56,21 @@ _NATIVE_FINDITER_CERTIFIED = (
     and getattr(re.finditer, "__name__", None) == "finditer"
     and getattr(re.finditer, "__globals__", None) is re.__dict__
     and getattr(getattr(re.finditer, "__code__", None), "co_name", None) == "finditer"
+)
+_NATIVE_LITERAL_CERTIFIED = (
+    _NATIVE_FINDITER_CERTIFIED
+    and getattr(re.escape, "__module__", None) == "re"
+    and getattr(re.escape, "__name__", None) == "escape"
+    and getattr(re.escape, "__globals__", None) is re.__dict__
+    and getattr(getattr(re.escape, "__code__", None), "co_name", None) == "escape"
+    and type(islice) is type and islice.__module__ == "itertools" and islice.__name__ == "islice"
+)
+_NATIVE_IDENTIFIER_CERTIFIED = (
+    type(IDENTIFIER_RUN) is re.Pattern and IDENTIFIER_RUN.pattern == r"[A-Za-z0-9_]+"
+    and IDENTIFIER_RUN.flags == re.UNICODE
+    and type(IDENTIFIER_WORD_BOUNDARY) is re.Pattern
+    and IDENTIFIER_WORD_BOUNDARY.pattern == r"_+|(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])"
+    and IDENTIFIER_WORD_BOUNDARY.flags == re.UNICODE
 )
 _NATIVE_UNICODE_REGEX_CERTIFIED = (
     type(RUNS) is re.Pattern
@@ -123,6 +142,19 @@ def terms(text: str, *, query: bool = False) -> list[str]:
     return result
 
 
+_NATIVE_TERMS = terms
+
+
+def _native_identifier_aliases_ready(text: str, normalized: str, query: bool) -> bool:
+    return (_NATIVE is not None and _NATIVE_IDENTIFIER_CERTIFIED and _NATIVE_ASCII_CERTIFIED
+            and type(text) is str and type(normalized) is str and type(query) is bool
+            and IDENTIFIER_RUN is _NATIVE_IDENTIFIER_RUN
+            and IDENTIFIER_WORD_BOUNDARY is _NATIVE_IDENTIFIER_WORD_BOUNDARY
+            and CAMEL_BOUNDARY is _NATIVE_CAMEL_BOUNDARY
+            and ASCII_RUNS is _NATIVE_ASCII_RUNS and STOP is _NATIVE_STOP
+            and terms is _NATIVE_TERMS)
+
+
 def identifier_terms(text: str, *, query: bool = False) -> list[str]:
     """Add code-spelling aliases without changing source or segmentation terms.
 
@@ -138,6 +170,9 @@ def identifier_terms(text: str, *, query: bool = False) -> list[str]:
     if not IDENTIFIER_WORD_BOUNDARY.search(normalized):
         return terms(normalized, query=query)
     if query:
+        if _native_identifier_aliases_ready(text, normalized, query):
+            prepared, aliases = _NATIVE.identifier_aliases(normalized, True, STOP)
+            return terms(prepared, query=True) + aliases
         aliases = []
 
         def canonical(match: re.Match[str]) -> str:
@@ -152,6 +187,12 @@ def identifier_terms(text: str, *, query: bool = False) -> list[str]:
 
         return terms(IDENTIFIER_RUN.sub(canonical, normalized), query=True) + aliases
     result = terms(normalized)
+    # Whole-text terms() may call customized Unicode helpers.  Check the
+    # per-identifier dependencies afterwards so any mutations remain visible.
+    if _native_identifier_aliases_ready(text, normalized, query):
+        _, aliases = _NATIVE.identifier_aliases(normalized, False, STOP)
+        result.extend(aliases)
+        return result
     for match in IDENTIFIER_RUN.finditer(normalized):
         value = match.group()
         parts = [part.casefold() for part in IDENTIFIER_WORD_BOUNDARY.split(value) if part]
@@ -282,9 +323,16 @@ def excerpt(text: str, query: str, max_chars: int, *, prepared_terms: list[str] 
     if not identity_offsets:
         lower, source_positions = _fold_excerpt_source(text)
     positions: list[tuple[int, str]] = []
-    for term in q:
-        for match in islice(re.finditer(re.escape(term), lower), 40):
-            positions.append((match.start() if source_positions is None else source_positions[match.start()], term))
+    if (_NATIVE is not None and _NATIVE_LITERAL_CERTIFIED
+            and type(lower) is str and type(q) is list and all(type(term) is str for term in q)
+            and (source_positions is None or type(source_positions) is list)
+            and re.finditer is _NATIVE_FINDITER and re.escape is _NATIVE_ESCAPE
+            and islice is _NATIVE_ISLICE):
+        positions = _NATIVE.literal_positions(lower, q, source_positions)
+    else:
+        for term in q:
+            for match in islice(re.finditer(re.escape(term), lower), 40):
+                positions.append((match.start() if source_positions is None else source_positions[match.start()], term))
     positions.sort()
     starts = {0, max(0, len(text) - width)}
     for pos, _ in positions:

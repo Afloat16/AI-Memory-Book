@@ -79,28 +79,12 @@ append_ascii_token(PyObject *result, const unsigned char *data,
 }
 
 static PyObject *
-ascii_terms_impl(PyObject *args, int original_input)
+ascii_terms_text(PyObject *text, int filter, PyObject *stop, int original_input)
 {
-    PyObject *text, *query, *stop, *result;
+    PyObject *result;
     const unsigned char *data;
     Py_ssize_t length, index, start = -1;
-    int filter;
 
-    if (!PyArg_ParseTuple(args, "OOO", &text, &query, &stop)) {
-        return NULL;
-    }
-    if (require_exact_unicode(text) < 0) {
-        return NULL;
-    }
-    if (!PyUnicode_IS_ASCII(text)) {
-        PyErr_SetString(PyExc_ValueError, "text must contain only ASCII code points");
-        return NULL;
-    }
-    if (!PyBool_Check(query)) {
-        PyErr_SetString(PyExc_TypeError, "query must be an exact bool");
-        return NULL;
-    }
-    filter = query == Py_True;
     result = PyList_New(0);
     if (result == NULL) {
         return NULL;
@@ -139,6 +123,28 @@ error:
 }
 
 static PyObject *
+ascii_terms_impl(PyObject *args, int original_input)
+{
+    PyObject *text, *query, *stop;
+
+    if (!PyArg_ParseTuple(args, "OOO", &text, &query, &stop)) {
+        return NULL;
+    }
+    if (require_exact_unicode(text) < 0) {
+        return NULL;
+    }
+    if (!PyUnicode_IS_ASCII(text)) {
+        PyErr_SetString(PyExc_ValueError, "text must contain only ASCII code points");
+        return NULL;
+    }
+    if (!PyBool_Check(query)) {
+        PyErr_SetString(PyExc_TypeError, "query must be an exact bool");
+        return NULL;
+    }
+    return ascii_terms_text(text, query == Py_True, stop, original_input);
+}
+
+static PyObject *
 native_terms_ascii(PyObject *self, PyObject *args)
 {
     (void)self;
@@ -150,6 +156,232 @@ native_ascii_tokens(PyObject *self, PyObject *args)
 {
     (void)self;
     return ascii_terms_impl(args, 0);
+}
+
+static int
+is_ascii_identifier(Py_UCS4 character)
+{
+    return character < 128 && (ascii_lower((unsigned char)character)
+        || ascii_upper((unsigned char)character)
+        || ascii_digit((unsigned char)character) || character == '_');
+}
+
+/* IDENTIFIER_WORD_BOUNDARY splits only ASCII runs.  Keep its acronym,
+ * lowercase/digit-to-uppercase and underscore alternatives in their original
+ * order; the returned parts are casefolded exactly once, after splitting.
+ */
+static PyObject *
+identifier_parts(PyObject *value)
+{
+    PyObject *parts = PyList_New(0);
+    const unsigned char *data = PyUnicode_1BYTE_DATA(value);
+    Py_ssize_t length = PyUnicode_GET_LENGTH(value), index = 0, start = 0;
+
+    if (parts == NULL) {
+        return NULL;
+    }
+    while (index < length) {
+        int boundary;
+        if ((index & 65535) == 0 && PyErr_CheckSignals() < 0) {
+            goto error;
+        }
+        if (data[index] == '_') {
+            if (start < index
+                    && append_ascii_token(parts, data, start, index, 1, 0, Py_None) < 0) {
+                goto error;
+            }
+            do {
+                index++;
+                if ((index & 65535) == 0 && PyErr_CheckSignals() < 0) {
+                    goto error;
+                }
+            } while (index < length && data[index] == '_');
+            start = index;
+            continue;
+        }
+        boundary = index > start && ascii_upper(data[index])
+            && (ascii_lower(data[index - 1]) || ascii_digit(data[index - 1])
+                || (ascii_upper(data[index - 1]) && index + 1 < length
+                    && ascii_lower(data[index + 1])));
+        if (boundary) {
+            if (append_ascii_token(parts, data, start, index, 1, 0, Py_None) < 0) {
+                goto error;
+            }
+            start = index;
+        }
+        index++;
+    }
+    if (start < length
+            && append_ascii_token(parts, data, start, length, 1, 0, Py_None) < 0) {
+        goto error;
+    }
+    return parts;
+
+error:
+    Py_DECREF(parts);
+    return NULL;
+}
+
+/* The Python wrapper still performs whole-text normalization and terms().
+ * This translates only its identifier callback/alias loops.  Index aliases
+ * compare against the same legacy ASCII terms for each individual run; they
+ * never deduplicate across runs or reorder the original page tokens.
+ */
+static PyObject *
+native_identifier_aliases(PyObject *self, PyObject *args)
+{
+    PyObject *text, *query, *stop;
+    PyObject *pieces = NULL, *aliases = NULL, *value = NULL, *parts = NULL;
+    PyObject *joined = NULL, *legacy = NULL, *existing = NULL, *replacement = NULL;
+    PyObject *piece = NULL, *rewritten = NULL, *empty = NULL, *space = NULL, *result = NULL;
+    Py_ssize_t length, cursor = 0, last_end = 0;
+    int kind, filter;
+    void *data;
+
+    (void)self;
+    if (!PyArg_ParseTuple(args, "OOO:identifier_aliases", &text, &query, &stop)) {
+        return NULL;
+    }
+    if (require_exact_unicode(text) < 0) {
+        return NULL;
+    }
+    if (!PyBool_Check(query)) {
+        PyErr_SetString(PyExc_TypeError, "query must be an exact bool");
+        return NULL;
+    }
+    filter = query == Py_True;
+    length = PyUnicode_GET_LENGTH(text);
+    kind = PyUnicode_KIND(text);
+    data = PyUnicode_DATA(text);
+    aliases = PyList_New(0);
+    empty = PyUnicode_New(0, 0);
+    if (aliases == NULL || empty == NULL) {
+        goto done;
+    }
+    if (filter) {
+        pieces = PyList_New(0);
+        space = PyUnicode_FromString(" ");
+        if (pieces == NULL || space == NULL) {
+            goto done;
+        }
+    }
+    while (cursor < length) {
+        Py_ssize_t start, count, index;
+        int contains;
+        if ((cursor & 65535) == 0 && PyErr_CheckSignals() < 0) {
+            goto done;
+        }
+        if (!is_ascii_identifier(PyUnicode_READ(kind, data, cursor))) {
+            cursor++;
+            continue;
+        }
+        start = cursor;
+        do {
+            cursor++;
+            if ((cursor & 65535) == 0 && PyErr_CheckSignals() < 0) {
+                goto done;
+            }
+        } while (cursor < length && is_ascii_identifier(PyUnicode_READ(kind, data, cursor)));
+        value = PyUnicode_Substring(text, start, cursor);
+        if (value == NULL) {
+            goto done;
+        }
+        parts = identifier_parts(value);
+        if (parts == NULL) {
+            goto done;
+        }
+        count = PyList_GET_SIZE(parts);
+        if (count >= 2) {
+            joined = PyUnicode_Join(empty, parts);
+            if (joined == NULL) {
+                goto done;
+            }
+        }
+        if (filter) {
+            if (joined != NULL) {
+                contains = PySequence_Contains(stop, joined);
+                if (contains < 0 || (!contains && PyList_Append(aliases, joined) < 0)) {
+                    goto done;
+                }
+                replacement = PyUnicode_Join(space, parts);
+            }
+            else {
+                replacement = Py_NewRef(value);
+            }
+            if (replacement == NULL) {
+                goto done;
+            }
+            if (last_end < start) {
+                piece = PyUnicode_Substring(text, last_end, start);
+                if (piece == NULL || PyList_Append(pieces, piece) < 0) {
+                    goto done;
+                }
+                Py_CLEAR(piece);
+            }
+            if (PyList_Append(pieces, replacement) < 0) {
+                goto done;
+            }
+            last_end = cursor;
+            Py_CLEAR(replacement);
+        }
+        else if (joined != NULL) {
+            legacy = ascii_terms_text(value, 0, Py_None, 1);
+            if (legacy == NULL) {
+                goto done;
+            }
+            existing = PySet_New(legacy);
+            Py_CLEAR(legacy);
+            if (existing == NULL) {
+                goto done;
+            }
+            for (index = 0; index <= count; index++) {
+                PyObject *alias = index == count ? joined : PyList_GET_ITEM(parts, index);
+                contains = PySet_Contains(existing, alias);
+                if (contains < 0) {
+                    goto done;
+                }
+                if (!contains && (PyList_Append(aliases, alias) < 0
+                                  || PySet_Add(existing, alias) < 0)) {
+                    goto done;
+                }
+            }
+            Py_CLEAR(existing);
+        }
+        Py_CLEAR(value);
+        Py_CLEAR(parts);
+        Py_CLEAR(joined);
+    }
+    if (filter) {
+        if (last_end < length) {
+            piece = PyUnicode_Substring(text, last_end, length);
+            if (piece == NULL || PyList_Append(pieces, piece) < 0) {
+                goto done;
+            }
+            Py_CLEAR(piece);
+        }
+        rewritten = PyUnicode_Join(empty, pieces);
+    }
+    else {
+        rewritten = Py_NewRef(text);
+    }
+    if (rewritten != NULL) {
+        result = PyTuple_Pack(2, rewritten, aliases);
+    }
+
+done:
+    Py_XDECREF(pieces);
+    Py_XDECREF(aliases);
+    Py_XDECREF(value);
+    Py_XDECREF(parts);
+    Py_XDECREF(joined);
+    Py_XDECREF(legacy);
+    Py_XDECREF(existing);
+    Py_XDECREF(replacement);
+    Py_XDECREF(piece);
+    Py_XDECREF(rewritten);
+    Py_XDECREF(empty);
+    Py_XDECREF(space);
+    return result;
 }
 
 static int
@@ -477,6 +709,102 @@ done:
     return result;
 }
 
+/* re.finditer(re.escape(term), lower) is a literal, non-overlapping search.
+ * Keep the per-term forty-match cap and the caller's term order, including
+ * duplicates and empty strings.  Sorting and all excerpt scoring stay in
+ * Python.  PyUnicode_Find uses the same code-point coordinates as re; neither
+ * surrogate code points nor non-BMP characters pass through a byte encoding.
+ */
+static PyObject *
+native_literal_positions(PyObject *self, PyObject *args)
+{
+    PyObject *lower, *terms, *source_positions, *result = NULL;
+    PyObject *term = NULL, *position = NULL, *entry = NULL;
+    Py_ssize_t length, index;
+
+    (void)self;
+    if (!PyArg_ParseTuple(args, "OOO:literal_positions", &lower, &terms, &source_positions)) {
+        return NULL;
+    }
+    if (require_exact_unicode(lower) < 0) {
+        return NULL;
+    }
+    if (!PyList_CheckExact(terms)) {
+        PyErr_SetString(PyExc_TypeError, "terms must be an exact list");
+        return NULL;
+    }
+    if (source_positions != Py_None && !PyList_CheckExact(source_positions)) {
+        PyErr_SetString(PyExc_TypeError, "source_positions must be None or an exact list");
+        return NULL;
+    }
+    length = PyUnicode_GET_LENGTH(lower);
+    result = PyList_New(0);
+    if (result == NULL) {
+        return NULL;
+    }
+    for (index = 0; index < PyList_GET_SIZE(terms); index++) {
+        Py_ssize_t cursor = 0, term_length;
+        int count;
+        if (PyErr_CheckSignals() < 0) {
+            goto error;
+        }
+        if (index >= PyList_GET_SIZE(terms)) {
+            break;
+        }
+        /* A Python loop and its regex iterator retain the current term even
+         * if a GC/signal callback mutates the supplied terms list while result
+         * tuples are allocated.  Keep the same owned lifetime here.
+         */
+        term = Py_NewRef(PyList_GET_ITEM(terms, index));
+        if (require_exact_unicode(term) < 0) {
+            goto error;
+        }
+        term_length = PyUnicode_GET_LENGTH(term);
+        for (count = 0; count < 40; count++) {
+            Py_ssize_t found = PyUnicode_Find(lower, term, cursor, length, 1);
+            if (found == -2) {
+                goto error;
+            }
+            if (found < 0) {
+                break;
+            }
+            position = source_positions == Py_None
+                ? PyLong_FromSsize_t(found) : PySequence_GetItem(source_positions, found);
+            if (position == NULL) {
+                goto error;
+            }
+            entry = PyTuple_Pack(2, position, term);
+            Py_CLEAR(position);
+            if (entry == NULL || PyList_Append(result, entry) < 0) {
+                goto error;
+            }
+            Py_CLEAR(entry);
+            if (term_length == 0) {
+                /* The empty regex also matches the end position.  Stop there
+                 * before adding one, avoiding overflow at PY_SSIZE_T_MAX.
+                 */
+                if (found == length) {
+                    break;
+                }
+                cursor = found + 1;
+            }
+            else {
+                /* A successful find guarantees found + term_length <= length. */
+                cursor = found + term_length;
+            }
+        }
+        Py_CLEAR(term);
+    }
+    return result;
+
+error:
+    Py_XDECREF(term);
+    Py_XDECREF(position);
+    Py_XDECREF(entry);
+    Py_DECREF(result);
+    return NULL;
+}
+
 static int
 append_span(PyObject *result, Py_ssize_t start, Py_ssize_t end)
 {
@@ -575,6 +903,10 @@ static PyMethodDef native_methods[] = {
      "ascii_tokens(text, query, stop) -> [a-z0-9]+ runs from normalized ASCII."},
     {"unicode_tokens", native_unicode_tokens, METH_VARARGS,
      "unicode_tokens(text, query, stop, zh_stop) -> tokens from prepared Unicode text."},
+    {"identifier_aliases", native_identifier_aliases, METH_VARARGS,
+     "identifier_aliases(text, query, stop) -> (rewritten text, ordered identifier aliases)."},
+    {"literal_positions", native_literal_positions, METH_VARARGS,
+     "literal_positions(lower, terms, source_positions) -> literal match positions, capped per term."},
     {"fold_excerpt_source", native_fold_excerpt_source, METH_VARARGS,
      "fold_excerpt_source(text, normalize, category) -> (folded text, code-point positions)."},
     {"evidence_units", native_evidence_units, METH_VARARGS,
