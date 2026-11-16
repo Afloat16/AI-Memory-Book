@@ -61,6 +61,11 @@ APPROVED_RUNTIME_SHA256 = {
     # evidence and 30 real native-wheel builds. Retained costs and acceptance:
     # benchmarks/experiments/native_language_acceptance.json.
     "0.8.0": "5db5b75a54547927ca6347b0ed1d5abc7dec94f3f658d8e355f62f82ee1dd218",
+    # Incremental native-only runtime: 56,784 equivalent pairs, all 16 primary
+    # paired rounds improve, secondary costs retained, 30-wheel delivery passed.
+    # Decision and remaining publication gates:
+    # benchmarks/experiments/native_incremental_acceptance.json.
+    "0.8.1": "8fabb49f3bf30513cc765d58b2b6192706d76571643f3cf18136d0dc6b292cf0",
 }
 # Publication channels are explicit: older prereleases remain prereleases when
 # an interrupted run reconciles them. A new version needs a reviewed entry.

@@ -6,7 +6,7 @@ Projects are books, tasks are chapters, related turns form sections, and origina
 
 [简体中文](README.zh-CN.md) · [Method](#method-overview) · [Quick start](#quick-start) · [Native acceleration](#language-only-acceleration) · [2400-character results](#2400-character-results) · [Open-source comparison](#open-source-comparison)
 
-**v0.8.0 · MIT · Python 3.10+ · Local SQLite / FTS5**
+**v0.8.1 · MIT · Python 3.10+ · Local SQLite / FTS5**
 
 ## Method overview
 
@@ -36,19 +36,19 @@ When resuming a long-running task, ask which constraints the current implementat
 
 ## Quick start
 
-You need **Python 3.10+ with SQLite FTS5**. The v0.8.0 package accelerates measured text loops with a C extension while retaining the existing retrieval behavior, project-bound MCP connections and archive interfaces. The installer creates an isolated environment with MCP/client dependencies and needs no Git checkout or Node.js. For an existing archive, follow the [upgrade procedure](docs/deployment.md#upgrading). An archive already on schema 4 needs no new schema migration in v0.8.0; the schema-4 migration procedure applies only to earlier schemas.
+You need **Python 3.10+ with SQLite FTS5**. The v0.8.1 package accelerates measured text loops with a C extension while retaining the existing retrieval behavior, project-bound MCP connections and archive interfaces. The installer creates an isolated environment with MCP/client dependencies and needs no Git checkout or Node.js. For an existing archive, follow the [upgrade procedure](docs/deployment.md#upgrading). An archive already on schema 4 needs no new schema migration in v0.8.1; the schema-4 migration procedure applies only to earlier schemas.
 
 **macOS / Linux**
 
 ~~~bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.8.0/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.8.1/scripts/install.sh
 bash install-memory-book.sh
 ~~~
 
 **Windows PowerShell**
 
 ~~~powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.8.0/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.8.1/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ~~~
 
@@ -75,7 +75,7 @@ memory-book --db ./demo-memory.db backup --output ./backups/demo-snapshot.db
 memory-book --db ./backups/demo-snapshot.db check-database
 ~~~
 
-Get the example from the [v0.8.0 source](https://github.com/Afloat16/AI-Memory-Book/tree/v0.8.0), run it from the repository directory, and use new database/output paths. The [developer workflow guide](docs/engineering-workflows.md) covers algorithm constraints, failed attempts, symbol lookup, Python integration, exact token limits, source verification and recovery. Recorded example settings are illustrative, not recommended production values.
+Get the example from the [v0.8.1 source](https://github.com/Afloat16/AI-Memory-Book/tree/v0.8.1), run it from the repository directory, and use new database/output paths. The [developer workflow guide](docs/engineering-workflows.md) covers algorithm constraints, failed attempts, symbol lookup, Python integration, exact token limits, source verification and recovery. Recorded example settings are illustrative, not recommended production values.
 
 ## Default configuration
 
@@ -137,13 +137,44 @@ The corrected final runtime also replays the unchanged **80 native engineering q
 
 ## Language-only acceleration
 
-The v0.8.0 runtime replaces five measured text-processing loops with an optional
-CPython C extension. Python keeps the public interfaces and retrieval decisions;
+The v0.8.1 runtime uses seven optional CPython C helpers: five introduced in
+v0.8.0, plus equivalent identifier-alias and literal excerpt-matching loops.
+Python keeps the public interfaces, normalization and retrieval decisions;
 SQLite keeps the same schema, SQL and FTS5 index. The Python reference remains
 available. Source coordinates, page IDs, ranking, project scope, budgets and
-cache rules retain the v0.7.0 behavior.
+cache rules retain the existing behavior.
 
-The frozen experiment compares the Python reference with the C backend on the
+### Additional gain over native v0.8.0
+
+The new frozen experiment compares **two native versions** on the same host,
+using four balanced rounds and three passes per worker. All **113,568 timed
+calls / 56,784 paired results** match in the complete-output, archive and
+source-coordinate checks. The default 2400-character results are:
+
+| Dataset | Surface | v0.8.0 p95 | v0.8.1 p95 | Additional p95 latency reduction |
+|---|---|---:|---:|---:|
+| synthetic61 | Direct `MemoryBook.recall` | 8.774 ms | 8.506 ms | **3.06%** |
+| synthetic61 | Real SDK stdio MCP | 10.463 ms | 10.200 ms | **2.51%** |
+| public1015 | Direct `MemoryBook.recall` | 3.651 ms | 3.472 ms | **4.90%** |
+| public1015 | Real SDK stdio MCP | 5.222 ms | 5.016 ms | **3.95%** |
+
+All four default-budget cells improve in every paired round. Fresh synthetic
+import improves **9.58%**; public import is essentially unchanged. The separate
+1024-token results are mixed: synthetic p95 improves only 0.47%/0.61%; public
+direct recall is flat and public MCP p95 **regresses 0.33%** (about 0.015 ms).
+API import adds about 0.21–0.33 ms, default MCP initialization adds about
+1.42–1.62 ms, and memory is approximately unchanged. All costs and individual
+rounds are retained in the [incremental validation report](docs/native-incremental-validation.md).
+
+This is an Intel Xeon/CPython 3.12 hosted experiment. The older experiment below
+used a different AMD host, so absolute milliseconds and percentages from the
+two runs must not be added or treated as one continuous before/after test.
+Neither experiment includes model generation or proves faster execution on
+every platform. Both use existing regression datasets without a new quality claim.
+
+### Original Python-to-native result in v0.8.0
+
+The original frozen experiment compares the Python reference with the C backend on the
 same hosted runner, using four balanced A/B rounds and three passes per worker.
 All **113,568 calls / 56,784 pairs** pass the recorded full-output, archive and
 source-coordinate checks. The retained raw records independently reproduce the
@@ -172,9 +203,10 @@ not every platform or archive size. The public-data benefit is small. The older
 v0.6.0 engineering comparison below remains a separate frozen experiment.
 [Complete matrix, resource costs and reproducible audit](docs/native-language-validation.md).
 
-Native packaging has passed the complete 30-cell platform matrix used for
-release: CPython 3.10–3.15 on Linux x86-64/AArch64, macOS Intel/Apple Silicon and
-Windows x64. A compatible release installer selects and verifies a native wheel;
+The [v0.8.1 preparation run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43850729647)
+passes the complete 30-cell native packaging matrix: CPython 3.10–3.15 on Linux
+x86-64/AArch64, macOS Intel/Apple Silicon and Windows x64. Publication repeats
+this matrix at the exact approved commit. A compatible release installer selects and verifies a native wheel;
 other environments use the compiler-free Python fallback. To check an installed
 backend, use the **Python interpreter printed by the installer**:
 
@@ -325,4 +357,4 @@ Multiple clients, directory/progressive reading, project scopes, source lookup, 
 
 Run `memory-book serve` and open [127.0.0.1:8765](http://127.0.0.1:8765) to inspect the archive. It is local, unencrypted data; recalled evidence enters the selected client's model context. Project filtering is not multi-user access control. Client-configuration backups are not automatic database backups. [Data locations and maintenance](docs/deployment.md#data-and-configuration-paths).
 
-Independently implemented under the [MIT License](LICENSE). [Current release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.8.0) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml).
+Independently implemented under the [MIT License](LICENSE). [Current release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.8.1) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml).

@@ -7,9 +7,10 @@ Python baseline to describe the gain from new work. The original experiment and
 its preserved evidence remain immutable.
 
 The [development plan](../benchmarks/experiments/native_incremental_plan.json)
-freezes the implementation boundary and acceptance requirements. The intended
-next version is v0.8.1 only if new measurements justify adoption; this checkpoint
-is not a release decision or a formal performance result.
+freezes the implementation boundary and acceptance requirements. The sections
+below retain the successive development checkpoints. The completed experiment
+now supports the [v0.8.1 acceptance decision](../benchmarks/experiments/native_incremental_acceptance.json),
+including secondary costs; final publication has separate exact-commit gates.
 
 ## Baseline profile, 2026-11-16
 
@@ -134,3 +135,26 @@ then aggregates 67 assets and verifies both native and Python fallback
 installers with default MCP/client extras. The preparation run does not publish
 a release or change the frozen runtime. Final acceptance/publication still
 requires its own approved runtime record and exact-main release gates.
+
+## Acceptance and final publication gates
+
+The independent packaging audit passes: all 67 assets, 30 wheel records and
+receipts, exact source/build inputs, installed native tests and default-extra
+installer checks agree with preparation run 43850729647. Compact
+[audit evidence](../benchmarks/reports/native-incremental/packaging-43850729647/audit.json)
+is retained with the actual manifest, job matrix and installer record.
+
+The [acceptance record](../benchmarks/experiments/native_incremental_acceptance.json)
+adopts the frozen runtime hash
+`8fabb49f3bf30513cc765d58b2b6192706d76571643f3cf18136d0dc6b292cf0`.
+It records all eight latency cells, every paired p95 round, resource medians,
+the unfavorable local diagnostic and the small token/startup regressions.
+All 24 measured runtime/build files and 11 frozen evaluator files still match
+the formal run. The release approval registry now binds v0.8.1 to that hash.
+
+The publication workflow must still verify all nine CI jobs on the final
+approved commit, exact main/release refs, a fresh 30-wheel matrix with receipts,
+complete assets and an actual installation through the public release URL.
+The README has changed since preparation, so its packaging metadata and all
+final receipts must be rebuilt. This acceptance checkpoint does not describe
+those future checks as already completed.

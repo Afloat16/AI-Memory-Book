@@ -6,13 +6,15 @@ earlier Python-to-native experiment remains a separate
 [frozen result](native-language-validation.md); its percentages must not be
 presented as gains from this candidate.
 
-**Independent performance verification is complete; delivery acceptance is pending.** The
+**The frozen runtime and prepublication delivery are accepted.** The
 registered matrix completed as
 [43850332046, attempt 1](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43850332046).
 All 113,568 timed calls and 56,784 paired comparisons are present and equivalent.
 The complete observed results, including regressions and resource costs, appear
-below. The independent artifact audit passes; adoption still requires completion
-of the delivery gates.
+below. The independent artifact audit and complete 30-wheel preparation pass.
+The [acceptance decision](../benchmarks/experiments/native_incremental_acceptance.json)
+records the measured gains, accepted secondary costs and remaining exact-commit
+publication gates. This decision is not itself proof of a public release.
 
 ## Implementation contract
 
@@ -137,6 +139,8 @@ They are separate small-sample measurements, not per-query latency percentiles.
 | synthetic61 | Fresh ingestion | 531.675 ms | 480.724 ms | -50.950 ms |
 | synthetic61 | Unchanged reingestion | 55.624 ms | 55.015 ms | -0.609 ms |
 | synthetic61 | API import after evaluator bootstrap | 29.365 ms | 29.577 ms | +0.212 ms |
+| synthetic61 | New database initialization | 2.543 ms | 2.700 ms | +0.157 ms |
+| synthetic61 | Existing database open | 0.538 ms | 0.529 ms | -0.009 ms |
 | synthetic61 | MCP initialization, 2400 chars | 426.527 ms | 428.143 ms | +1.617 ms |
 | synthetic61 | MCP initialization, 1024 tokens | 420.140 ms | 420.282 ms | +0.142 ms |
 | synthetic61 | Worker RSS after calls | 129.473 MiB | 129.512 MiB | +0.039 MiB |
@@ -144,6 +148,8 @@ They are separate small-sample measurements, not per-query latency percentiles.
 | public1015 | Fresh ingestion | 488.361 ms | 488.457 ms | +0.096 ms |
 | public1015 | Unchanged reingestion | 92.323 ms | 92.530 ms | +0.207 ms |
 | public1015 | API import after evaluator bootstrap | 29.346 ms | 29.676 ms | +0.330 ms |
+| public1015 | New database initialization | 2.441 ms | 2.716 ms | +0.275 ms |
+| public1015 | Existing database open | 0.568 ms | 0.593 ms | +0.025 ms |
 | public1015 | MCP initialization, 2400 chars | 427.343 ms | 428.766 ms | +1.423 ms |
 | public1015 | MCP initialization, 1024 tokens | 421.325 ms | 420.067 ms | -1.258 ms |
 | public1015 | Worker RSS after calls | 138.896 MiB | 138.795 MiB | -0.102 MiB |
@@ -153,6 +159,9 @@ Fresh ingestion improves 9.583% on synthetic61; public ingestion is essentially
 unchanged (0.020% slower). Unchanged reingestion improves 1.095% on synthetic61
 and regresses 0.224% on public1015. API import adds about 0.21–0.33 ms. Default
 MCP initialization adds about 1.42–1.62 ms; token-server initialization is mixed.
+New database initialization adds about 0.16–0.27 ms (6.15%/11.25%); existing
+database opening improves about 0.009 ms on synthetic61 and regresses about
+0.025 ms on public1015. These remain four-worker resource medians.
 Memory is approximately unchanged, with no claimed memory-saving result.
 Checkpointed database sizes remain exactly 20,201,472 bytes for synthetic61
 and 13,025,280 bytes for public1015, with zero-byte checkpointed WAL files.
@@ -201,10 +210,28 @@ python frozen-evaluator/scripts/native_incremental_performance.py --audit benchm
 Compare that output with the preserved `summary.json`. The compact reports
 alone do not contain the required raw attempt ledgers.
 
-The intended release must pass the complete 30-cell native-wheel matrix:
-CPython 3.10–3.15 with the GIL, on Linux x86-64/AArch64, macOS Intel/Apple Silicon
-and Windows x64. Both new native suites run against each installed wheel.
-Receipt aggregation, fallback/source clean installs and native/fallback
-installer checks precede acceptance. Final publication separately requires the
-approved runtime hash, exact current main commit, all nine CI jobs, fresh
-publication receipts and an installation through the public release URL.
+The [preparation run 43850729647](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43850729647)
+passes the complete 30-cell native-wheel matrix: CPython 3.10–3.15 with the GIL,
+on Linux x86-64/AArch64, macOS Intel/Apple Silicon and Windows x64. Every installed
+wheel runs all 53 native tests, with one optional tokenizer skip; both new native
+dispatch tests pass on every cell. The run aggregates 67 assets and verifies
+fallback/source clean installs and native/fallback installers with default
+MCP/client extras. All nine general CI jobs pass at its source commit
+`7d20667ac585506d10238dd32412c53a0cf4786a` in run 43850669866.
+
+The independent [packaging audit](../benchmarks/reports/native-incremental/packaging-43850729647/audit.json)
+checks the actual 5,873,812-byte artifact, all asset and wheel-record hashes,
+receipts, runtime/build bytes and 30 installed-test job logs. Its SHA-256 is
+`c82adfc890b8221f184ac8877ee41398862a9b9396a2bce6542cb2ef55fc650e`.
+The [job matrix](../benchmarks/reports/native-incremental/packaging-43850729647/job-matrix.json),
+[manifest](../benchmarks/reports/native-incremental/packaging-43850729647/release-manifest.json)
+and [installation record](../benchmarks/reports/native-incremental/packaging-43850729647/validation.json)
+retain the source/run identities and evidence. This preparation did not publish.
+
+All 24 measured runtime/build files and 11 frozen evaluator files remain
+byte-identical to the formal run. README packaging metadata changes after the
+preparation, so final publication must build a fresh complete matrix and fresh
+receipts at the final approved commit. It separately requires the approved
+runtime hash, exact current main commit, all nine CI jobs and an installation
+through the public release URL. Preparation receipts cannot substitute for
+those final publication receipts.
