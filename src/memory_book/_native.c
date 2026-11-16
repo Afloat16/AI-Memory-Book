@@ -152,6 +152,131 @@ native_ascii_tokens(PyObject *self, PyObject *args)
     return ascii_terms_impl(args, 0);
 }
 
+static int
+is_legacy_cjk(Py_UCS4 character)
+{
+    return (character >= 0x3400 && character <= 0x4dbf)
+        || (character >= 0x4e00 && character <= 0x9fff)
+        || (character >= 0xf900 && character <= 0xfaff);
+}
+
+static int
+append_unicode_token(PyObject *result, PyObject *text,
+                     Py_ssize_t start, Py_ssize_t end,
+                     int query, PyObject *stop)
+{
+    PyObject *token = PyUnicode_Substring(text, start, end);
+    int contains, status;
+    if (token == NULL) {
+        return -1;
+    }
+    if (query) {
+        contains = PySequence_Contains(stop, token);
+        if (contains < 0) {
+            Py_DECREF(token);
+            return -1;
+        }
+        if (contains) {
+            Py_DECREF(token);
+            return 0;
+        }
+    }
+    status = PyList_Append(result, token);
+    Py_DECREF(token);
+    return status;
+}
+
+static PyObject *
+native_unicode_tokens(PyObject *self, PyObject *args)
+{
+    PyObject *text, *query, *stop, *zh_stop, *result;
+    Py_ssize_t length, cursor = 0;
+    int kind, filter;
+    void *data;
+
+    (void)self;
+    if (!PyArg_ParseTuple(args, "OOOO:unicode_tokens", &text, &query, &stop, &zh_stop)) {
+        return NULL;
+    }
+    if (require_exact_unicode(text) < 0) {
+        return NULL;
+    }
+    if (!PyBool_Check(query)) {
+        PyErr_SetString(PyExc_TypeError, "query must be an exact bool");
+        return NULL;
+    }
+    filter = query == Py_True;
+    length = PyUnicode_GET_LENGTH(text);
+    kind = PyUnicode_KIND(text);
+    data = PyUnicode_DATA(text);
+    result = PyList_New(0);
+    if (result == NULL) {
+        return NULL;
+    }
+    /* RUNS matches either a CJK run or Unicode alphanumeric runs connected by
+     * one of _./:-.  IDENTIFIER_SEPARATOR then splits every such connector.
+     * Consequently the exact emitted non-CJK pieces are contiguous Unicode
+     * alphanumeric runs.  Py_UNICODE_ISALNUM is the same Unicode predicate
+     * used by CPython re's \w (apart from underscore, already a separator).
+     * Supplementary CJK characters outside the three historical ranges are
+     * ordinary alphanumeric text; deliberately do not broaden these ranges.
+     */
+    while (cursor < length) {
+        Py_ssize_t start = cursor;
+        Py_UCS4 character = PyUnicode_READ(kind, data, cursor);
+        if ((cursor & 65535) == 0 && PyErr_CheckSignals() < 0) {
+            goto error;
+        }
+        if (is_legacy_cjk(character)) {
+            Py_ssize_t index;
+            do {
+                cursor++;
+                if ((cursor & 65535) == 0 && PyErr_CheckSignals() < 0) {
+                    goto error;
+                }
+            } while (cursor < length && is_legacy_cjk(PyUnicode_READ(kind, data, cursor)));
+            if (cursor - start == 1) {
+                if (append_unicode_token(result, text, start, cursor, filter, zh_stop) < 0) {
+                    goto error;
+                }
+            }
+            else {
+                for (index = start; index < cursor - 1; index++) {
+                    if ((index & 65535) == 0 && PyErr_CheckSignals() < 0) {
+                        goto error;
+                    }
+                    if (append_unicode_token(result, text, index, index + 2, filter, zh_stop) < 0) {
+                        goto error;
+                    }
+                }
+            }
+        }
+        else if (Py_UNICODE_ISALNUM(character)) {
+            do {
+                cursor++;
+                if ((cursor & 65535) == 0 && PyErr_CheckSignals() < 0) {
+                    goto error;
+                }
+                if (cursor == length) {
+                    break;
+                }
+                character = PyUnicode_READ(kind, data, cursor);
+            } while (Py_UNICODE_ISALNUM(character) && !is_legacy_cjk(character));
+            if (append_unicode_token(result, text, start, cursor, filter, stop) < 0) {
+                goto error;
+            }
+        }
+        else {
+            cursor++;
+        }
+    }
+    return result;
+
+error:
+    Py_DECREF(result);
+    return NULL;
+}
+
 /* Keep the historical per-character NFKD -> casefold -> category-Mn removal
  * order.  In particular, this is not whole-string NFKD and is not a filter on
  * Unicode combining classes.  The cache exists only for this one invocation.
@@ -238,6 +363,7 @@ native_fold_excerpt_source(PyObject *self, PyObject *args)
     PyObject *folds = NULL, *positions = NULL, *cache = NULL, *nfkd = NULL, *mn = NULL;
     PyObject *character = NULL, *piece = NULL, *position = NULL;
     PyObject *empty = NULL, *joined = NULL, *result = NULL;
+    PyObject *ascii_folds[128] = {NULL};
     Py_ssize_t length, index, size, copy;
     int kind;
     void *data;
@@ -265,23 +391,42 @@ native_fold_excerpt_source(PyObject *self, PyObject *args)
         goto done;
     }
     for (index = 0; index < length; index++) {
+        Py_UCS4 code_point = PyUnicode_READ(kind, data, index);
         if ((index & 4095) == 0 && PyErr_CheckSignals() < 0) {
             goto done;
         }
-        character = PyUnicode_FromOrdinal((int)PyUnicode_READ(kind, data, index));
-        if (character == NULL) {
-            goto done;
+        /* This is the same invocation-local character cache as the Python
+         * reference.  ASCII keys use an array instead of a hash lookup, but
+         * every first occurrence still calls the supplied Unicode functions.
+         */
+        if (code_point < 128) {
+            piece = ascii_folds[code_point];
         }
-        piece = PyDict_GetItemWithError(cache, character);
-        if (piece == NULL) {
-            if (PyErr_Occurred()) {
+        else {
+            character = PyUnicode_FromOrdinal((int)code_point);
+            if (character == NULL) {
                 goto done;
+            }
+            piece = PyDict_GetItemWithError(cache, character);
+            if (piece == NULL && PyErr_Occurred()) {
+                goto done;
+            }
+        }
+        if (piece == NULL) {
+            if (character == NULL) {
+                character = PyUnicode_FromOrdinal((int)code_point);
+                if (character == NULL) {
+                    goto done;
+                }
             }
             piece = fold_character(character, normalize, category, nfkd, mn);
             if (piece == NULL) {
                 goto done;
             }
-            if (PyDict_SetItem(cache, character, piece) < 0) {
+            if (code_point < 128) {
+                ascii_folds[code_point] = Py_NewRef(piece);
+            }
+            else if (PyDict_SetItem(cache, character, piece) < 0) {
                 goto done;
             }
         }
@@ -316,6 +461,9 @@ native_fold_excerpt_source(PyObject *self, PyObject *args)
     result = PyTuple_Pack(2, joined, positions);
 
 done:
+    for (index = 0; index < 128; index++) {
+        Py_XDECREF(ascii_folds[index]);
+    }
     Py_XDECREF(folds);
     Py_XDECREF(positions);
     Py_XDECREF(cache);
@@ -425,6 +573,8 @@ static PyMethodDef native_methods[] = {
      "terms_ascii(text, query, stop) -> exact legacy ASCII terms."},
     {"ascii_tokens", native_ascii_tokens, METH_VARARGS,
      "ascii_tokens(text, query, stop) -> [a-z0-9]+ runs from normalized ASCII."},
+    {"unicode_tokens", native_unicode_tokens, METH_VARARGS,
+     "unicode_tokens(text, query, stop, zh_stop) -> tokens from prepared Unicode text."},
     {"fold_excerpt_source", native_fold_excerpt_source, METH_VARARGS,
      "fold_excerpt_source(text, normalize, category) -> (folded text, code-point positions)."},
     {"evidence_units", native_evidence_units, METH_VARARGS,

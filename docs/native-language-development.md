@@ -49,3 +49,30 @@ establish end-to-end speed or cross-platform release readiness. The build first
 encountered an unavailable `clang` from the runtime configuration; an explicit
 `CC=gcc MEMORY_BOOK_BUILD_NATIVE=1` build succeeded. Forced builds will be used in
 native validation so an optional fallback cannot masquerade as acceleration.
+
+## Candidate freeze preparation
+
+The C path now also translates the prepared Unicode token loop. Its categories
+were checked against the Python regular-expression reference across all
+1,114,112 Unicode code points, including surrogate values and unassigned values
+inside the historical fixed CJK ranges. The fold cache uses a local ASCII array
+alongside the existing per-call character mapping; normalization calls retain
+their order, and nothing is shared between requests. The independent native
+contract suite now has 25 passing tests on the local CPython 3.12 environment.
+
+Review found two first-import customization cases where capturing an overridden
+regular-expression helper could incorrectly certify it for the C path. Explicit
+default-rule checks now select Python for those cases; a pre-import Unicode
+normalizer override is covered as well. The failed contract fixtures were fixed,
+not omitted. A first microbenchmark accidentally compared inappropriate
+reference paths. Its setup errors are retained in the
+[diagnostic record](../benchmarks/reports/native-language/development/native_microbench_diagnostic.json.gz),
+separately from the later
+[seven-round microbenchmark](../benchmarks/reports/native-language/development/native_microbench_v2_raw.json.gz).
+Neither record is a formal end-to-end result.
+
+Concurrent local diagnostics encountered transient disk exhaustion and large
+timing variation even in untouched SQLite calls. Formal performance measurement
+will use a separate hosted runner with sequential paired workers. The local
+measurements cannot support a README speedup claim. The runtime is prepared as
+the v0.8.0 candidate; acceptance and publication are still pending.
