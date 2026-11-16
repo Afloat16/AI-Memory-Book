@@ -930,4 +930,181 @@ done:
     return result;
 }
 
+/* Repeat the Python readiness checks in C; no result, class state or helper is
+ * cached.  The public wrapper retains its reference body for non-dict guard
+ * metadata and unusual names, before this routine has called user code. */
+static PyObject *
+segmentation_guard_get(PyObject *dictionary, PyObject *key)
+{
+    PyObject *value = PyDict_GetItemWithError(dictionary, key);
+    if (value == NULL) {
+        if (PyErr_Occurred()) return NULL;
+        value = Py_None;
+    }
+    return Py_NewRef(value);
+}
+
+/* UNPACK_SEQUENCE consumes at most count + 1 items from a custom iterator.
+ * PySequence_Fast would consume an entire generator and change its effects. */
+static int
+segmentation_guard_unpack(PyObject *value, PyObject **items, Py_ssize_t count)
+{
+    PyObject *iterator = NULL, *extra = NULL;
+    Py_ssize_t index, length;
+    if (PyTuple_CheckExact(value) || PyList_CheckExact(value)) {
+        length = PyTuple_CheckExact(value) ? PyTuple_GET_SIZE(value) : PyList_GET_SIZE(value);
+        if (length < count) {
+            PyErr_Format(PyExc_ValueError, "not enough values to unpack (expected %zd, got %zd)",
+                         count, length);
+            return -1;
+        }
+        if (length > count) {
+            PyErr_Format(PyExc_ValueError, "too many values to unpack (expected %zd)", count);
+            return -1;
+        }
+        for (index = 0; index < count; index++) {
+            items[index] = Py_NewRef(PyTuple_CheckExact(value)
+                                    ? PyTuple_GET_ITEM(value, index) : PyList_GET_ITEM(value, index));
+        }
+        return 0;
+    }
+    iterator = PyObject_GetIter(value);
+    if (iterator == NULL) {
+        if (PyErr_ExceptionMatches(PyExc_TypeError)
+                && Py_TYPE(value)->tp_iter == NULL && !PySequence_Check(value)) {
+            PyErr_Clear();
+            PyErr_Format(PyExc_TypeError, "cannot unpack non-iterable %.200s object",
+                         Py_TYPE(value)->tp_name);
+        }
+        return -1;
+    }
+    for (index = 0; index < count; index++) {
+        items[index] = PyIter_Next(iterator);
+        if (items[index] == NULL) {
+            if (!PyErr_Occurred()) {
+                PyErr_Format(PyExc_ValueError,
+                             "not enough values to unpack (expected %zd, got %zd)", count, index);
+            }
+            goto failed;
+        }
+    }
+    extra = PyIter_Next(iterator);
+    if (extra != NULL) {
+        Py_DECREF(extra);
+        PyErr_Format(PyExc_ValueError, "too many values to unpack (expected %zd)", count);
+        goto failed;
+    }
+    if (PyErr_Occurred()) goto failed;
+    Py_DECREF(iterator);
+    return 0;
+failed:
+    Py_DECREF(iterator);
+    for (index = 0; index < count; index++) Py_CLEAR(items[index]);
+    return -1;
+}
+
+static PyObject *
+native_segmentation_ready(PyObject *self, PyObject *args)
+{
+    PyObject *name, *globals, *defaults, *states, *dependencies;
+    PyObject *dependency = NULL, *classes = NULL, *functions = NULL, *iterator = NULL;
+    PyObject *item = NULL, *current = NULL, *expected = NULL, *state = NULL;
+    PyObject *cls = NULL, *new_method = NULL, *init = NULL, *getattribute = NULL, *fields = NULL;
+    PyObject *field_iterator = NULL, *pair = NULL, *field = NULL, *value = NULL, *dictionary = NULL;
+    PyObject *unpacked[5] = {NULL, NULL, NULL, NULL, NULL}, *result = NULL;
+    const char *method_names[3] = {"__new__", "__init__", "__getattribute__"};
+    Py_ssize_t index;
+    int different;
+    (void)self;
+    if (!PyArg_ParseTuple(args, "OOOOO:segmentation_ready",
+                          &name, &globals, &defaults, &states, &dependencies)) return NULL;
+    if (!PyUnicode_CheckExact(name) || !PyDict_CheckExact(globals)
+            || !PyDict_CheckExact(defaults) || !PyDict_CheckExact(states)
+            || !PyDict_CheckExact(dependencies)) {
+        Py_RETURN_NOTIMPLEMENTED;
+    }
+    dependency = PyObject_GetItem(dependencies, name);
+    if (dependency == NULL || segmentation_guard_unpack(dependency, unpacked, 2) < 0) goto done;
+    classes = unpacked[0]; unpacked[0] = NULL;
+    functions = unpacked[1]; unpacked[1] = NULL;
+    Py_CLEAR(dependency);
+    iterator = PyObject_GetIter(functions);
+    if (iterator == NULL) goto done;
+    while ((item = PyIter_Next(iterator)) != NULL) {
+        current = segmentation_guard_get(globals, item);
+        if (current == NULL) goto done;
+        expected = PyObject_GetItem(defaults, item);
+        if (expected == NULL) goto done;
+        different = current != expected;
+        Py_CLEAR(current); Py_CLEAR(expected); Py_CLEAR(item);
+        if (different) { result = Py_NewRef(Py_False); goto done; }
+    }
+    if (PyErr_Occurred()) goto done;
+    Py_CLEAR(iterator);
+    iterator = PyObject_GetIter(classes);
+    if (iterator == NULL) goto done;
+    while ((item = PyIter_Next(iterator)) != NULL) {
+        state = PyObject_GetItem(states, item);
+        if (state == NULL || segmentation_guard_unpack(state, unpacked, 5) < 0) goto done;
+        cls = unpacked[0]; unpacked[0] = NULL;
+        new_method = unpacked[1]; unpacked[1] = NULL;
+        init = unpacked[2]; unpacked[2] = NULL;
+        getattribute = unpacked[3]; unpacked[3] = NULL;
+        fields = unpacked[4]; unpacked[4] = NULL;
+        Py_CLEAR(state);
+        current = segmentation_guard_get(globals, item);
+        if (current == NULL) goto done;
+        different = current != cls;
+        Py_CLEAR(current);
+        if (different) { result = Py_NewRef(Py_False); goto done; }
+        for (index = 0; index < 3; index++) {
+            PyObject *method = index == 0 ? new_method : index == 1 ? init : getattribute;
+            current = PyObject_GetAttrString(cls, method_names[index]);
+            if (current == NULL) goto done;
+            different = current != method;
+            Py_CLEAR(current);
+            if (different) { result = Py_NewRef(Py_False); goto done; }
+        }
+        field_iterator = PyObject_GetIter(fields);
+        if (field_iterator == NULL) goto done;
+        while ((pair = PyIter_Next(field_iterator)) != NULL) {
+            if (segmentation_guard_unpack(pair, unpacked, 2) < 0) goto done;
+            field = unpacked[0]; unpacked[0] = NULL;
+            value = unpacked[1]; unpacked[1] = NULL;
+            Py_CLEAR(pair);
+            /* With the exact builtin metaclass, cls.__dict__.get is precisely
+             * this dictionary lookup.  It avoids a mappingproxy allocation per
+             * field while retaining descriptors as values, without invoking
+             * them.  Custom metaclasses follow the original attribute/call. */
+            if (Py_TYPE(cls) == &PyType_Type && ((PyTypeObject *)cls)->tp_dict != NULL
+                    && PyDict_CheckExact(((PyTypeObject *)cls)->tp_dict)) {
+                current = segmentation_guard_get(((PyTypeObject *)cls)->tp_dict, field);
+            }
+            else {
+                dictionary = PyObject_GetAttrString(cls, "__dict__");
+                if (dictionary == NULL) goto done;
+                current = PyObject_CallMethod(dictionary, "get", "(O)", field);
+                Py_CLEAR(dictionary);
+            }
+            if (current == NULL) goto done;
+            different = current != value;
+            Py_CLEAR(current); Py_CLEAR(field); Py_CLEAR(value);
+            if (different) { result = Py_NewRef(Py_False); goto done; }
+        }
+        if (PyErr_Occurred()) goto done;
+        Py_CLEAR(field_iterator);
+        Py_CLEAR(cls); Py_CLEAR(new_method); Py_CLEAR(init); Py_CLEAR(getattribute); Py_CLEAR(fields);
+        Py_CLEAR(item);
+    }
+    if (PyErr_Occurred()) goto done;
+    result = Py_NewRef(Py_True);
+done:
+    Py_XDECREF(dependency); Py_XDECREF(classes); Py_XDECREF(functions); Py_XDECREF(iterator);
+    Py_XDECREF(item); Py_XDECREF(current); Py_XDECREF(expected); Py_XDECREF(state);
+    Py_XDECREF(cls); Py_XDECREF(new_method); Py_XDECREF(init); Py_XDECREF(getattribute); Py_XDECREF(fields);
+    Py_XDECREF(field_iterator); Py_XDECREF(pair); Py_XDECREF(field); Py_XDECREF(value); Py_XDECREF(dictionary);
+    for (index = 0; index < 5; index++) Py_XDECREF(unpacked[index]);
+    return result;
+}
+
 #endif

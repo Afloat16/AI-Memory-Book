@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "purpose": "Hotspot diagnosis; cProfile timing is not formal speed evidence",
+  "baseline_commit": "56eccd8c3a6f1d5637664607936da2595ce50c62",
+  "candidate_commit": "a0c73165bc0bf9df496ab84d7c040f46da0cf086",
+  "candidate_limitation": "Uses already-built a0c73165 before 0be1f095's final exact-string-key safety scan. No rebuild and no source change.",
+  "sessions": 112,
+  "unchanged_batches": 10,
+  "ingest_calls_each": 1120,
+  "source_and_binary_unchanged": true,
+  "fresh_returns_equal": true,
+  "unchanged_returns_equal": true,
+  "profiles": {
+    "baseline": {
+      "bytes": 61448,
+      "sha256": "119cc1cfebf3836ca1ce74a5ca6d1165ef6d624c5212471492583111f3d28de8",
+      "source_files_sha256": "be5c3f4c626edb25e3201298fd6ec460f9b335ac07c446357c1ff0d115216784",
+      "native_binaries": {
+        "src/memory_book/_native.cpython-312-x86_64-linux-gnu.so": "351897e74066f69d592e072e368dd2945d65a0788b7165cabd5f3958e157c564"
+      },
+      "fresh_returns_sha256": "763ad08a99c5aa2e81f63dd675f4b495e3213edd8618fc4a00641a839fc12e73",
+      "unchanged_returns_sha256": "7cf10e0d8cae95ad4af15f7ec73dfb470dbc5686aaf49c6781d6fda6dfd6ad42",
+      "source_and_binary_unchanged": true,
+      "source_commit": "56eccd8c3a6f1d5637664607936da2595ce50c62"
+    },
+    "candidate-a0": {
+      "bytes": 55703,
+      "sha256": "204df99e7485c07db0675fc122551470bf15d6a675c65da5a43a3af284206abe",
+      "source_files_sha256": "bfcbbc876eff826a333dcb4608f6b21c1bef5041bd6b5848bcb6ed03cf7a767a",
+      "native_binaries": {
+        "src/memory_book/_native.cpython-312-x86_64-linux-gnu.so": "40c4303a8ff01918417a92abfd075dedabd6dbd080f1e8ab5bbbb3480f85433e"
+      },
+      "fresh_returns_sha256": "763ad08a99c5aa2e81f63dd675f4b495e3213edd8618fc4a00641a839fc12e73",
+      "unchanged_returns_sha256": "7cf10e0d8cae95ad4af15f7ec73dfb470dbc5686aaf49c6781d6fda6dfd6ad42",
+      "source_and_binary_unchanged": true,
+      "source_commit": "a0c73165bc0bf9df496ab84d7c040f46da0cf086"
+    }
+  },
+  "guard": {
+    "calls": 24960,
+    "self_s": 0.095045401,
+    "cumulative_s": 0.316150502,
+    "share_of_candidate_ingest_cumulative_percent": 11.993119622497268,
+    "class_field_genexpr": {
+      "calls": 186080,
+      "self_s": 0.095867423,
+      "cumulative_s": 0.141953459,
+      "included_in_guard_cumulative": true
+    },
+    "callers": [
+      {
+        "function": "_pages",
+        "calls": 11360,
+        "cumulative_s": 0.198329369,
+        "classes": [
+          "Turn",
+          "Page"
+        ]
+      },
+      {
+        "function": "_joined",
+        "calls": 11360,
+        "cumulative_s": 0.08011608,
+        "classes": [
+          "Turn"
+        ]
+      },
+      {
+        "function": "segment",
+        "calls": 1120,
+        "cumulative_s": 0.023038397,
+        "classes": [
+          "Turn",
+          "Section"
+        ]
+      },
+      {
+        "function": "make_turns",
+        "calls": 1120,
+        "cumulative_s": 0.014666656,
+        "classes": [
+          "Turn"
+        ]
+      }
+    ]
+  },
+  "interpretation": "Repeated Python compatibility guards and generator-based class-field scans are a measured hotspot. Preserve all dependency, dynamic-class and callback semantics when moving them into native code. This diagnostic does not prove that a guard rewrite fixes all of the formal unchanged-ingestion regression."
+}

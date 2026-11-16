@@ -903,6 +903,7 @@ error:
 #include "_native_segmentation.h"
 
 static PyMethodDef native_methods[] = {
+    {"segmentation_ready", native_segmentation_ready, METH_VARARGS, "Check live segmentation dependencies without Python loop overhead."},
     {"make_turns", native_make_turns, METH_VARARGS, "Build source-preserving conversation turns."},
     {"joined_turns", native_joined_turns, METH_VARARGS, "Join turns and retain original source references."},
     {"page_cuts", native_page_cuts, METH_VARARGS, "Find the existing paragraph and newline page boundaries."},
