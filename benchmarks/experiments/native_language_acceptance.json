@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "version": "0.8.0",
+  "status": "accepted-runtime-and-prepublication-delivery",
+  "date": "2026-11-16",
+  "requested_scope": "Execution-language substitution only, preserving existing logic and outputs; improve measured performance.",
+  "baseline_commit": "b1434ca8b218d096d5506aaea02631ca31306d21",
+  "frozen_runtime_commit": "22a29df0a920e526d3af594db92728d9b9c16d57",
+  "runtime_sha256": "5db5b75a54547927ca6347b0ed1d5abc7dec94f3f658d8e355f62f82ee1dd218",
+  "unchanged_contract": [
+    "retrieval policy and ranking",
+    "SQL and FTS5 index",
+    "schema 4 and page/source identity",
+    "Unicode code-point source coordinates",
+    "project scope",
+    "character and exact-token budgets",
+    "cache policy",
+    "CLI/MCP/HTTP/Python interfaces"
+  ],
+  "formal_evidence": {
+    "run_id": 43822446202,
+    "attempt": 1,
+    "artifact_id": 14205446971,
+    "artifact_sha256": "9c8a2b32458d08d2009011d915e4b6f8c21c49a27d0ddf684bbb8334b54ef0a3",
+    "raw_commit": "168068f2d377c08ffe656be5624e29ed5d5beccb",
+    "raw_branch": "evidence/native-language-formal-43822446202",
+    "preservation_run_id": 43827117358,
+    "original_members": 69,
+    "original_evaluator_files": 10,
+    "remeasured_calls": 0,
+    "attempted_calls": 113568,
+    "paired_calls": 56784,
+    "recorded_invariant_failures": 0,
+    "output_archive_differences": 0,
+    "original_summary_exactly_reproduced": true
+  },
+  "latency_cells": [
+    {
+      "cohort": "synthetic61",
+      "configuration": "native-char2400",
+      "p50_latency_reduction_percent": 12.965885156801304,
+      "p95_latency_reduction_percent": 9.438220673294106,
+      "paired_round_p95_reduction_percent": [
+        9.770544957236071,
+        8.573669518715544,
+        9.761980787348035,
+        9.421752311662601
+      ]
+    },
+    {
+      "cohort": "synthetic61",
+      "configuration": "mcp-char2400",
+      "p50_latency_reduction_percent": 8.25559540956865,
+      "p95_latency_reduction_percent": 8.150897247657296,
+      "paired_round_p95_reduction_percent": [
+        7.0742120908169115,
+        7.858052672780325,
+        8.762139096688948,
+        9.091157861583167
+      ]
+    },
+    {
+      "cohort": "synthetic61",
+      "configuration": "native-token1024",
+      "p50_latency_reduction_percent": 5.053215063566818,
+      "p95_latency_reduction_percent": 15.604841728276586,
+      "paired_round_p95_reduction_percent": [
+        15.795886668455939,
+        15.033994908521276,
+        15.740247096153547,
+        15.020098502885382
+      ]
+    },
+    {
+      "cohort": "synthetic61",
+      "configuration": "mcp-token1024",
+      "p50_latency_reduction_percent": 3.949419148864519,
+      "p95_latency_reduction_percent": 13.530236257781358,
+      "paired_round_p95_reduction_percent": [
+        13.704984436657664,
+        13.645813631885728,
+        13.866806430840095,
+        13.714308443464795
+      ]
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "native-char2400",
+      "p50_latency_reduction_percent": 2.7746808280647905,
+      "p95_latency_reduction_percent": 2.0727509058647398,
+      "paired_round_p95_reduction_percent": [
+        2.734025036361465,
+        1.9471826939654324,
+        2.050999992469338,
+        1.84277174394053
+      ]
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "mcp-char2400",
+      "p50_latency_reduction_percent": 2.066623377386978,
+      "p95_latency_reduction_percent": 1.8542294281605032,
+      "paired_round_p95_reduction_percent": [
+        0.8024278772695626,
+        2.2401352859003576,
+        3.782627288987117,
+        0.7140089660719218
+      ]
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "native-token1024",
+      "p50_latency_reduction_percent": 4.14096490792727,
+      "p95_latency_reduction_percent": 3.819578750419339,
+      "paired_round_p95_reduction_percent": [
+        3.683333564443203,
+        3.755739682556869,
+        3.9408958330194754,
+        3.4601794335887948
+      ]
+    },
+    {
+      "cohort": "public1015",
+      "configuration": "mcp-token1024",
+      "p50_latency_reduction_percent": 3.1711163586945035,
+      "p95_latency_reduction_percent": 2.8515763030926844,
+      "paired_round_p95_reduction_percent": [
+        2.6906771878960734,
+        3.494778779949881,
+        1.5495219072963695,
+        4.382109752294072
+      ]
+    }
+  ],
+  "accepted_costs": {
+    "api_import_additional_ms_range": [
+      0.5682185000000004,
+      0.7707344999999997
+    ],
+    "mcp_initialization": "No consistent improvement; char2400 medians are slightly slower.",
+    "memory": "Approximately unchanged or slightly higher; no memory-saving claim.",
+    "scope": "One host and two previously used regression datasets. No new retrieval-quality, generation-latency, all-platform or globally optimal-language claim."
+  },
+  "delivery_validation": {
+    "run_id": 43826807431,
+    "attempt": 1,
+    "source_commit": "ef9b4eaf970101dc0b225225ab6f1de220abc8ee",
+    "status": "passed",
+    "native_wheels": 30,
+    "assets": 67,
+    "python_versions": [
+      "3.10",
+      "3.11",
+      "3.12",
+      "3.13",
+      "3.14",
+      "3.15"
+    ],
+    "targets": [
+      "linux_x86_64",
+      "linux_aarch64",
+      "macos_x86_64",
+      "macos_arm64",
+      "windows_amd64"
+    ],
+    "native_and_python_installs": [
+      {
+        "backend": "native",
+        "default_extras": [
+          "mcp",
+          "clients"
+        ],
+        "filename": "ai_memory_book-0.8.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl"
+      },
+      {
+        "backend": "python",
+        "default_extras": [
+          "mcp",
+          "clients"
+        ],
+        "filename": "ai_memory_book-0.8.0-py3-none-any.whl"
+      }
+    ],
+    "package_checks": {
+      "fallback_wheel_and_sdist_installed_in_separate_clean_environments": true,
+      "large_research_data_excluded": true,
+      "native_matrix_receipts_and_installed_native_smokes_validated": true,
+      "runtime_source_and_reader_bytes_match_source": true
+    },
+    "artifact_id": 14207346636,
+    "published_by_this_validation": false,
+    "retained_failed_matrix_run": 43826370750
+  },
+  "decision": "Use the native extension by default on compatible installations, retain the Python reference/fallback, and preserve all measured costs and failed packaging attempts.",
+  "remaining_publication_gates": [
+    "Final source committed and exact main ref",
+    "All nine CI jobs on the final commit",
+    "All 30 wheel receipts rebuilt for that publication commit and run",
+    "Release asset hashes and final installation through the public URL"
+  ],
+  "measured_runtime_and_build_definitions_unchanged": true,
+  "unchanged_build_definition_files": [
+    "pyproject.toml",
+    "setup.py"
+  ],
+  "updated_packaging_documentation": [
+    "README.md"
+  ],
+  "platform_build_configuration_repairs": [
+    "LF checkout of packaged inputs",
+    "explicit macOS architecture/deployment target with Mach-O verification"
+  ],
+  "publication_input_policy": "Final packages are rebuilt from the final commit, including the updated README; preparation receipts from another commit are not reused."
+}

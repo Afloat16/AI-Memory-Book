@@ -166,3 +166,32 @@ artifacts. Remaining acceptance gates are that verified evidence ref, the real
 complete wheel matrix and installer preparation, final exact-commit CI and
 the release's existing main/approved-runtime/public-install checks. Main and
 the published release still remain v0.7.0 at this checkpoint.
+
+## Completed recovery and runtime acceptance
+
+Evidence-preservation run `43827117358` succeeded and created immutable commit
+`168068f2d377c08ffe656be5624e29ed5d5beccb` on the dedicated evidence branch.
+All 69 original member hashes were checked again against the independent audit;
+the preserved original evaluator reproduces the original summary exactly.
+The evidence tree additionally keeps ten frozen evaluator files and requires
+only Python's standard library for offline audit. It records zero remeasured
+calls. This closes the interrupted blob-upload task without losing or replacing
+the original timing data.
+
+The repaired platform run `43826807431` passed all 30 native wheels and its
+prepare-only job. The actual native/fallback installations include the default
+`mcp` and `clients` extras and report their expected backend; independent clean
+fallback-wheel and source-archive installs also passed. All 67 prepared asset
+checksums were independently verified. The initial 13 passing/17 failing build
+jobs and both failure causes remain in the compact packaging history. Runtime
+SHA-256 `5db5b75a54547927ca6347b0ed1d5abc7dec94f3f658d8e355f62f82ee1dd218`
+still matches the measured C candidate.
+
+The [acceptance decision](../benchmarks/experiments/native_language_acceptance.json)
+approves this runtime and delivery design, while retaining slower import and
+approximately unchanged/slightly higher memory. README, deployment and v0.8.0
+release notes explain the gains, costs and actual backend checks. The final
+publication uses the repository's unchanged exact-main, nine-job CI, tested
+wheel-receipt and public-install gates; pre-release wheels cannot be mixed into
+that new exact-commit build. To resume after this checkpoint, first inspect the
+v0.8.0 release/tag and release workflow state before retrying any publication.

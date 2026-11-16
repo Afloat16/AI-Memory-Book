@@ -1,6 +1,6 @@
 # Native text acceleration: frozen validation
 
-The v0.8.0 candidate replaces five measured text-processing loops with a
+The v0.8.0 runtime replaces five measured text-processing loops with a
 CPython C extension. In this frozen experiment, all **56,784 paired results**
 matched, and all **113,568 timed calls** passed the recorded source, scope and
 budget checks. At the default 2,400-character budget, pooled p95 latency fell
@@ -10,18 +10,34 @@ datasets, not a whole-product or cross-platform speed guarantee.
 
 ## Delivery status
 
-**Performance validation is complete; delivery acceptance is pending.** The
-first native wheel matrix, [43826370750](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43826370750),
-exposed macOS architecture-tag and Windows checkout-line-ending defects after
-native behavior tests passed. Commit `ef9b4eaf970101dc0b225225ab6f1de220abc8ee`
-preserves LF source bytes and explicitly builds/verifies the declared Mach-O
-architecture. The repaired full matrix,
-[43826807431](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43826807431),
-is pending at this checkpoint. Its configuration is not proof of successful
-wheels. The raw evidence destination below is being finalized.
-The current `main` branch and published release remain v0.7.0; this document does
-not announce a published v0.8.0 release. Update this paragraph only after checking
-the final source, complete CI, durable evidence and actual distribution results.
+**The measured runtime and native delivery path are accepted.** The repaired
+[platform run 43826807431](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43826807431)
+passed all 30 native wheels, complete receipt aggregation, 67 prepared assets,
+separate fallback-wheel/source clean installs and real native/fallback installer
+checks with the default MCP/client extras. The
+[preparation report](../benchmarks/reports/native-language/packaging-43826807431/validation.json)
+and [independent package audit](../benchmarks/reports/native-language/packaging-43826807431/audit.json)
+record exact source and asset identities. This was preparation at
+`ef9b4eaf970101dc0b225225ab6f1de220abc8ee`; final publication rebuilds and verifies
+its own exact commit.
+
+The initial [matrix 43826370750](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43826370750)
+is retained: 13 wheels passed and 17 failed after native behavior tests, due to
+macOS universal2/platform declarations and Windows CRLF source conversion.
+The repaired path preserves LF bytes and verifies the actual Mach-O architecture
+with `lipo`; no receipt or source check was relaxed. The
+[packaging history](../benchmarks/reports/native-language/packaging/43826807431-1.json)
+retains every job ID and failure class.
+
+Raw formal evidence is permanently saved at
+[`168068f2d377c08ffe656be5624e29ed5d5beccb`](https://github.com/Afloat16/AI-Memory-Book/tree/168068f2d377c08ffe656be5624e29ed5d5beccb).
+All 69 original member hashes match the independent audit. The
+[acceptance decision](../benchmarks/experiments/native_language_acceptance.json)
+binds the unchanged runtime hash and explicitly accepts the measured startup
+and memory costs. Publication still requires the exact main commit, all nine CI
+jobs, the complete release-build matrix and a public-URL installation check.
+See the [versioned release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.8.0)
+for its final commit, CI and publication workflow links.
 
 ## Contract and frozen sources
 
@@ -164,7 +180,7 @@ evidence. Equality on the tested corpus is not proof for every possible input.
 ## Durable evidence and reproduction
 
 The full raw destination is the
-[`evidence/native-language-formal-43822446202` branch](https://github.com/Afloat16/AI-Memory-Book/tree/evidence/native-language-formal-43822446202).
+[`evidence/native-language-formal-43822446202` at immutable commit `168068f2`](https://github.com/Afloat16/AI-Memory-Book/tree/168068f2d377c08ffe656be5624e29ed5d5beccb).
 Keep its original worker reports, attempt ledgers, start markers, logs and build
 evidence intact. Main keeps only the four compact JSON files linked above.
 
@@ -172,17 +188,17 @@ The original [Actions artifact](https://github.com/Afloat16/AI-Memory-Book/actio
 is `native-language-formal-43822446202-1`, ID **14205446971**: **69 ZIP members**,
 **38,192,300 bytes**, SHA-256
 `9c8a2b32458d08d2009011d915e4b6f8c21c49a27d0ddf684bbb8334b54ef0a3`.
-Its recorded expiration is **2026-12-16 07:22:12 UTC**; durable Git evidence must
-remain usable after that deadline. The independent audit lists all 69 member
+Its recorded expiration is **2026-12-16 07:22:12 UTC**; the immutable Git evidence
+remains available independently of that artifact deadline. The independent audit lists all 69 member
 hashes. The compiled measurement binary is bound to SHA-256
 `a7b4ca0126508b33f95ffe5fbf97159022509647531a5762eec5fa597ad4e7d6`.
 It is measurement evidence, not a portable installation artifact.
 
-To re-audit preserved raw files, use the frozen evaluator commit and its pinned
-dependencies, materialize the original report directory, then run:
+To re-audit preserved raw files, check out the immutable evidence commit, then run its
+retained standard-library evaluator from that evidence root:
 
 ```bash
-python scripts/native_language_performance.py --audit benchmarks/reports/native-language/formal-run-1
+python frozen-evaluator/scripts/native_language_performance.py --audit benchmarks/reports/native-language/formal-run-1
 ```
 
 That command audits existing evidence without collecting new timings. The four

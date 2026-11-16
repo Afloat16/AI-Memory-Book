@@ -57,6 +57,10 @@ APPROVED_RUNTIME_SHA256 = {
     # Bound MCP connections, asserted source reads and bounded WAL startup
     # recovery, with unchanged native recall responses. Evidence: docs/v0.7.0-project-scope-validation.md.
     "0.7.0": "bffeb61847e491273d5694b7a20893c68622b363367e89aabc580a2e0165e718",
+    # Frozen language-only runtime: 56,784 exact-output pairs, durable original
+    # evidence and 30 real native-wheel builds. Retained costs and acceptance:
+    # benchmarks/experiments/native_language_acceptance.json.
+    "0.8.0": "5db5b75a54547927ca6347b0ed1d5abc7dec94f3f658d8e355f62f82ee1dd218",
 }
 # Publication channels are explicit: older prereleases remain prereleases when
 # an interrupted run reconciles them. A new version needs a reviewed entry.
