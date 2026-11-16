@@ -1,0 +1,41 @@
+{
+  "scope": "read-only v2 preflight; no builds, native calls or timed batches executed",
+  "runner_sha256": "647aedc0104d728088caca584761cde8a320ae2acfd0a226199f92441f548fe4",
+  "baseline_capture_sha256": "499a8a8d2f710fd2827e7ba860cbabd43026faf8cb1fbc2bef7d87d24d4747ea",
+  "environment": {
+    "environment": {
+      "CC": null,
+      "CXX": null,
+      "CFLAGS": null,
+      "CPPFLAGS": null,
+      "LDFLAGS": null,
+      "LDSHARED": null,
+      "CCSHARED": null
+    },
+    "sysconfig": {
+      "CC": "clang -pthread",
+      "CXX": "clang++ -pthread",
+      "CFLAGS": "-fno-strict-overflow -Wsign-compare -Wunreachable-code -DNDEBUG -g -O3 -Wall   -O3 -fstack-protector -fstack-clash-protection -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2  -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer  -fPIC  ",
+      "CPPFLAGS": "-I. -I./Include   -O3 -fstack-protector -fstack-clash-protection -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2  -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer  -fPIC  ",
+      "LDFLAGS": "-Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now -Wl,--build-id=sha1  -Wl,--exclude-libs,ALL",
+      "LDSHARED": "clang -pthread -shared -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now -Wl,--build-id=sha1  -Wl,--exclude-libs,ALL",
+      "CCSHARED": "-fPIC"
+    }
+  },
+  "binaries": {
+    "baseline": {
+      "path": "/workspace/scratch/e870b2feaa97/native-core-baseline-probe/capture-a0c73165/baseline/src/memory_book/_native.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 128528,
+      "sha256": "351897e74066f69d592e072e368dd2945d65a0788b7165cabd5f3958e157c564",
+      "elf_sanitizer_scan_sha256": "236ab8e9585ce1bbeb1ad91dfac91364ab4fc3d8c3d0c963ed7f4edf0af0f2cc",
+      "sanitizer_symbols_present": false
+    },
+    "cff1": {
+      "path": "/workspace/scratch/e870b2feaa97/native-core-baseline-probe/refinement-diagnostic-cff1d9a3/candidate/src/memory_book/_native.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 693016,
+      "sha256": "ddd82ce300aec1dd76b96c85afd09007ab7a55433c842b2d1c940fecfb48c603",
+      "elf_sanitizer_scan_sha256": "7091288975f005c1f2741a0b18e9f9f5b8660c99e9df8571f420c0749cf2b1dd",
+      "sanitizer_symbols_present": false
+    }
+  }
+}
