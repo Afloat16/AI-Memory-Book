@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "protocol": "native-language-performance-2",
+  "sources": {
+    "baseline": {"commit": "6a8a9c6d603a812c75def258b11eb563ed590c9b", "backend": "native"},
+    "candidate": {"commit": "d2f13a3f44742d53c6f47e1d2cd7732e44a5524e", "backend": "native"}
+  },
+  "native_helper_calls": {
+    "baseline": {"terms_ascii": 6, "ascii_tokens": 1, "unicode_tokens": 1, "fold_excerpt_source": 2, "evidence_units": 2},
+    "candidate": {"terms_ascii": 3, "ascii_tokens": 1, "unicode_tokens": 1, "fold_excerpt_source": 2, "evidence_units": 2, "identifier_aliases": 2, "literal_positions": 1}
+  },
+  "engine_order": [["baseline", "candidate"], ["candidate", "baseline"], ["candidate", "baseline"], ["baseline", "candidate"]],
+  "cohorts": ["synthetic61", "public1015"],
+  "configurations": ["native-char2400", "mcp-char2400", "native-token1024", "mcp-token1024"],
+  "query_seed": 110061,
+  "limit": 5,
+  "repetitions_per_worker": 3,
+  "excluded_native_response_fields": ["latency_ms"],
+  "result_cache": "disabled-native-cleared-before-each-mcp-call",
+  "primary": ["native-char2400", "mcp-char2400"],
+  "secondary": ["native-token1024", "mcp-token1024"],
+  "expected_timed_calls": 113568,
+  "expected_paired_calls": 56784,
+  "scope": "Incremental native implementation comparison against the released native v0.8.0, on two existing regression datasets; no new retrieval-quality claim.",
+  "timing": "Sequential fresh workers on one hosted Ubuntu 24.04 VM. Direct MemoryBook.recall and real official-SDK stdio MCP are distinct surfaces; both sides force the native text backend. No generation model.",
+  "execution": "One first-attempt hosted execution on validation/native-incremental-formal-1. Preserve every started attempt, completed worker, regression and failure. No selective reruns or replacement of timed data.",
+  "resources": "Record startup, fresh/unchanged ingestion, process memory/CPU and storage. Python and operating-system caches are not cleared.",
+  "preservation": "The same hosted job preserves raw attempts, both binary/build identities and the frozen offline auditor directly in an evidence Git branch, even if preparation or measurement fails. Artifact upload is an additional copy.",
+  "decision": "Exact full-output/source/index equality is mandatory. Evaluate repeatability across all four paired rounds and both primary surfaces, retain all secondary cells and costs, and require native delivery gates before adoption. Do not infer whole-product speed from helper diagnostics."
+}
