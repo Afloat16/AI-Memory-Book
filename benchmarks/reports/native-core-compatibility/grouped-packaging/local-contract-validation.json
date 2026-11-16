@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "kind": "native-release-grouped-cell-local-contract-validation",
+  "completed_at_utc": "2026-11-16 15:32:34 UTC",
+  "base_commit": "000da2e108a71de546d96f5a94232d04814212f5",
+  "files": {
+    "scripts/build_native_release_cell.py": "a3e4792ab93c06b63288e4832b7a684e383e7ef9",
+    ".github/workflows/release.yml": "6ee82db4c25799f29c7e5ca0de6cf3008ee41736",
+    "tests/test_native_release_cell.py": "de9bac6edc66772bd57c5b7bf349d0aac267d6cd"
+  },
+  "unchanged_gate_files": {
+    "scripts/native_release.py": "26e2e9f5a83622a614c62bc030ec9e027e43f342",
+    "scripts/release.py": "501c759e2ab3b8ad352fef7f7481005deb29daa8"
+  },
+  "validation": {
+    "python": "3.12.14",
+    "python_ast": "passed",
+    "yaml_parser": "passed",
+    "platform_jobs": 5,
+    "named_setup_steps": 6,
+    "named_cell_steps": 6,
+    "explicit_setup_python_outputs": true,
+    "default_setup_environment_updates": true,
+    "no_continue_on_error": true,
+    "unit_tests_run": 10,
+    "unit_tests_passed": 10,
+    "unit_tests_skipped": 0,
+    "elapsed_seconds": 0.033
+  },
+  "unit_cases": [
+    "Actual 144-test/skip summary is parsed from captured output.",
+    "Missing summary leaves tests/skip counts unknown, not invented.",
+    "FAILED and ANSI/CRLF output do not become a successful summary.",
+    "A non-144 observed count remains non-144.",
+    "Failed subprocess output, real exit code and log digest are retained.",
+    "Process-launch errors retain error logs without fabricating an exit code.",
+    "Generated-cache cleanup refuses tracked inputs.",
+    "Only generated products are removed; earlier cell evidence and source text remain.",
+    "Wrong interpreter version fails before any build command or receipt.",
+    "A mocked failed installed test run preserves the real fixture result and never invokes or creates a native receipt."
+  ],
+  "environment_note": "The first local discovery attempt could not import native_release because the private sparse checkout lacked that file. Exact original native_release.py/release.py blob bytes were materialized without alteration; the ten contract tests then passed. No production build or application was executed.",
+  "boundaries": [
+    "The preflight, release, prepare-only and published-install workflow sections are byte-identical to 000da; only the native-wheel job is replaced.",
+    "The two existing release validators and their exact 30-receipt, 11-CI-job and 67-asset gates are unchanged.",
+    "The current running workflow was not cancelled, edited or restarted by this agent.",
+    "Hosted five-platform execution and the thirty independent wheel/test/receipt cells have not been run by this validation; they remain required."
+  ],
+  "application_executions": 0,
+  "real_wheel_builds": 0,
+  "real_wheel_installs": 0,
+  "performance_remeasurements": 0,
+  "refs_modified": false
+}

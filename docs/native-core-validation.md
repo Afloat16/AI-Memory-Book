@@ -336,27 +336,31 @@ possible input equivalent.
 
 ## Native packaging and installation
 
-Native delivery remains pending. Two complete attempts using the frozen
-4390 runtime did not satisfy the one-run/one-attempt 30-cell gate:
-[43885419074](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074)
-finished with 28 wheels passed and two unallocated macOS ARM jobs cancelled;
-[43888785867](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43888785867)
-then also encountered an unallocated cancelled macOS ARM job. Their successful
-packages are not mixed into a passing matrix.
+Native delivery remains pending. Three complete preparations ended
+incomplete when macOS ARM jobs were cancelled without receiving runners or
+executing test steps: [43885419074](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074)
+passed 28 cells, [43888785867](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43888785867)
+passed 27, and [43892250078](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43892250078)
+passed 28 after switching to the officially supported macOS 26 ARM image.
+All three [interrupted records](../benchmarks/reports/native-core-compatibility/)
+retain actual logs, artifact identities and cancelled/absent steps.
+Their successful subsets are never combined into a passing matrix.
 
-The [runner investigation](../benchmarks/reports/native-core-compatibility/development/native-core-macos-runner-investigation.json)
-first retained the second run when allocations resumed. After the additional
-cancellation, the [recovery plan](../benchmarks/reports/native-core-compatibility/development/native-core-macos26-recovery-plan.json)
-changes only the ARM hosted image label from macOS 15 to the officially
-supported, explicit macOS 26 ARM image. All 30 cells, native architecture,
-deployment-target rules, installed tests and exact receipt gates remain.
-A fresh complete preparation must pass on that workflow. This does not change
-the application runtime or add a performance experiment.
+The [grouped recovery plan](../benchmarks/reports/native-core-compatibility/grouped-packaging/recovery-plan.json)
+keeps **30 independent cells** but requests one runner per platform, with
+six explicit Python setup/build/install/test steps on each. Every cell uses
+its own interpreter output, work directories, logs and validation record.
+Only successful actual 144-test runs plus the original isolated smoke and
+receipt validation can expose a wheel/receipt. Earlier failed attempts
+remain immutable. Ten mocked control tests and two source reviews pass;
+the real grouped matrix is still required.
 
-Publication still requires the final approved runtime/commit, all eleven
-exact-commit CI jobs, a fresh full release matrix, verified assets and an
-actual public default installation. v0.8.1 remains the published release at
-this checkpoint.
+The original 30-cell source/ABI/RECORD/run/attempt receipt validator and
+67-asset preparation remain unchanged, as do the 11-job final CI,
+publication and actual public-install gates. The application runtime,
+compiler configuration and installers are unchanged. This is a packaging
+scheduling recovery, without another performance experiment.
+v0.8.1 remains the published release at this checkpoint.
 
 Use the pinned v0.9.0 installer from the [deployment guide](deployment.md).
 It creates an isolated environment, selects a wheel from that environment's
