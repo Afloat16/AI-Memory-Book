@@ -2,8 +2,9 @@
  *
  * The Python wrapper certifies the fixed regexes and callable identities.
  * Coordinates remain CPython Unicode code points.  The projection helpers
- * return NotImplemented before mutating the cache for unsupported/custom
- * objects; their original Python bodies retain those objects' behavior.
+ * reject ordinary unsupported/custom inputs before cache mutations. Defensive
+ * rechecks also retain memory safety if GC callbacks mutate containers during
+ * allocation; unsupported paths use the original Python bodies.
  */
 
 static Py_UCS4
@@ -352,48 +353,64 @@ source_candidate_bounds(PyObject *units, Py_ssize_t turn_start, Py_ssize_t turn_
 static int
 source_projection_ready(PyObject *row, PyObject *turns, PyObject *cache, PyObject *refs)
 {
-    PyObject *content, *session, *ref, *ordinal, *key, *original, *units;
+    PyObject *content = NULL, *session = NULL, *ref = NULL, *ordinal = NULL;
+    PyObject *key = NULL, *original = NULL, *units = NULL;
     Py_ssize_t index, turn, start, turn_start, turn_end, first, stop;
+    int ready = 0;
     if (!source_named_dict(row) || !source_keyed_dict(turns)
             || !source_keyed_dict(cache) || !PyList_CheckExact(refs)) {
         return 0;
     }
-    content = PyDict_GetItemString(row, "content");
-    session = PyDict_GetItemString(row, "session_pk");
+    content = Py_XNewRef(PyDict_GetItemString(row, "content"));
+    session = Py_XNewRef(PyDict_GetItemString(row, "session_pk"));
     if (content == NULL || session == NULL || !PyUnicode_CheckExact(content)
             || !PyUnicode_CheckExact(session)) {
-        return PyErr_Occurred() ? -1 : 0;
+        goto done;
     }
     for (index = 0; index < PyList_GET_SIZE(refs); index++) {
-        ref = PyList_GET_ITEM(refs, index);
+        ref = Py_NewRef(PyList_GET_ITEM(refs, index));
         if (!source_named_dict(ref)) {
-            return 0;
+            goto done;
         }
-        ordinal = PyDict_GetItemString(ref, "turn_index");
+        ordinal = Py_XNewRef(PyDict_GetItemString(ref, "turn_index"));
         if (!source_small_integer(ordinal, &turn)
                 || !source_small_integer(PyDict_GetItemString(ref, "start"), &start)
                 || !source_small_integer(PyDict_GetItemString(ref, "turn_start"), &turn_start)
                 || !source_small_integer(PyDict_GetItemString(ref, "turn_end"), &turn_end)) {
-            return PyErr_Occurred() ? -1 : 0;
+            goto done;
         }
         key = PyTuple_Pack(2, session, ordinal);
         if (key == NULL) {
-            return -1;
+            goto done;
         }
-        original = PyDict_GetItemWithError(turns, key);
-        units = PyDict_GetItemWithError(cache, key);
-        Py_DECREF(key);
-        if (PyErr_Occurred()) {
-            return -1;
-        }
-        if (original == NULL || !PyUnicode_CheckExact(original)) {
-            return 0;
+        original = Py_XNewRef(PyDict_GetItemWithError(turns, key));
+        units = Py_XNewRef(PyDict_GetItemWithError(cache, key));
+        if (PyErr_Occurred() || original == NULL || !PyUnicode_CheckExact(original)) {
+            goto done;
         }
         if (units != NULL && !source_candidate_bounds(units, turn_start, turn_end, &first, &stop)) {
-            return 0;
+            goto done;
         }
+        Py_CLEAR(ref);
+        Py_CLEAR(ordinal);
+        Py_CLEAR(key);
+        Py_CLEAR(original);
+        Py_CLEAR(units);
     }
-    return 1;
+    ready = 1;
+
+done:
+    if (PyErr_Occurred()) {
+        ready = -1;
+    }
+    Py_XDECREF(content);
+    Py_XDECREF(session);
+    Py_XDECREF(ref);
+    Py_XDECREF(ordinal);
+    Py_XDECREF(key);
+    Py_XDECREF(original);
+    Py_XDECREF(units);
+    return ready;
 }
 
 /* PyUnicode_Substring itself rejects negative indexes; Python slices clamp
@@ -422,8 +439,8 @@ native_projected_units(PyObject *self, PyObject *args)
 {
     PyObject *row, *turns, *cache, *refs, *content = NULL, *session = NULL;
     PyObject *spans = NULL, *key = NULL, *original = NULL, *units = NULL;
-    PyObject *left = NULL, *right = NULL, *result = NULL;
-    Py_ssize_t index, unit_index, start, end, turn_start, turn_end, origin, first, stop;
+    PyObject *ref = NULL, *ordinal = NULL, *left = NULL, *right = NULL, *result = NULL;
+    Py_ssize_t index, unit_index, start, end, turn, turn_start, turn_end, origin, first, stop;
     int ready;
     (void)self;
     if (!PyArg_ParseTuple(args, "OOOO:projected_units", &row, &turns, &cache, &refs)) {
@@ -436,36 +453,66 @@ native_projected_units(PyObject *self, PyObject *args)
     if (!ready) {
         Py_RETURN_NOTIMPLEMENTED;
     }
-    content = Py_NewRef(PyDict_GetItemString(row, "content"));
-    session = Py_NewRef(PyDict_GetItemString(row, "session_pk"));
+    content = Py_XNewRef(PyDict_GetItemString(row, "content"));
+    session = Py_XNewRef(PyDict_GetItemString(row, "session_pk"));
+    if (content == NULL || session == NULL || !PyUnicode_CheckExact(content)
+            || !PyUnicode_CheckExact(session)) {
+        goto unsupported;
+    }
+    if (require_exact_unicode(content) < 0) {
+        goto done;
+    }
     spans = PySet_New(NULL);
     if (spans == NULL) {
         goto done;
     }
     for (index = 0; index < PyList_GET_SIZE(refs); index++) {
-        PyObject *ref = PyList_GET_ITEM(refs, index);
-        source_small_integer(PyDict_GetItemString(ref, "start"), &origin);
-        source_small_integer(PyDict_GetItemString(ref, "turn_start"), &turn_start);
-        source_small_integer(PyDict_GetItemString(ref, "turn_end"), &turn_end);
-        key = PyTuple_Pack(2, session, PyDict_GetItemString(ref, "turn_index"));
+        /* Allocations can run GC callbacks. Retain owned values and recheck
+         * mutable containers rather than trusting a stale preflight pointer. */
+        ref = Py_NewRef(PyList_GET_ITEM(refs, index));
+        if (!source_named_dict(ref)) {
+            goto unsupported;
+        }
+        ordinal = Py_XNewRef(PyDict_GetItemString(ref, "turn_index"));
+        if (!source_small_integer(ordinal, &turn)
+                || !source_small_integer(PyDict_GetItemString(ref, "start"), &origin)
+                || !source_small_integer(PyDict_GetItemString(ref, "turn_start"), &turn_start)
+                || !source_small_integer(PyDict_GetItemString(ref, "turn_end"), &turn_end)) {
+            goto unsupported;
+        }
+        key = PyTuple_Pack(2, session, ordinal);
         if (key == NULL) {
             goto done;
         }
-        original = Py_NewRef(PyDict_GetItemWithError(turns, key));
+        original = Py_XNewRef(PyDict_GetItemWithError(turns, key));
         units = Py_XNewRef(PyDict_GetItemWithError(cache, key));
+        if (PyErr_Occurred()) {
+            goto done;
+        }
+        if (original == NULL || !PyUnicode_CheckExact(original)) {
+            goto unsupported;
+        }
+        if (require_exact_unicode(original) < 0) {
+            goto done;
+        }
         if (units == NULL) {
             units = source_units_text(original);
             if (units == NULL || PyDict_SetItem(cache, key, units) < 0) {
                 goto done;
             }
         }
-        /* Preflight checked existing units; generated units are exact pairs. */
-        source_bisect(units, turn_start, &first);
-        source_bisect(units, turn_end, &stop);
+        if (!PyList_CheckExact(units)
+                || !source_bisect(units, turn_start, &first)
+                || !source_bisect(units, turn_end, &stop)) {
+            goto unsupported;
+        }
         for (unit_index = first; unit_index < stop; unit_index++) {
             Py_ssize_t lo, hi;
             int equal;
-            source_unit_pair(PyList_GET_ITEM(units, unit_index), &start, &end);
+            if (unit_index >= PyList_GET_SIZE(units)
+                    || !source_unit_pair(PyList_GET_ITEM(units, unit_index), &start, &end)) {
+                goto unsupported;
+            }
             if (!(turn_start <= start && start < end && end <= turn_end)) {
                 continue;
             }
@@ -490,16 +537,26 @@ native_projected_units(PyObject *self, PyObject *args)
                 goto done;
             }
         }
+        Py_CLEAR(ref);
+        Py_CLEAR(ordinal);
         Py_CLEAR(key);
         Py_CLEAR(original);
         Py_CLEAR(units);
     }
     result = source_sorted_spans(spans);
+    goto done;
+
+unsupported:
+    if (!PyErr_Occurred()) {
+        result = Py_NewRef(Py_NotImplemented);
+    }
 
 done:
     Py_XDECREF(content);
     Py_XDECREF(session);
     Py_XDECREF(spans);
+    Py_XDECREF(ref);
+    Py_XDECREF(ordinal);
     Py_XDECREF(key);
     Py_XDECREF(original);
     Py_XDECREF(units);
@@ -511,8 +568,9 @@ done:
 static PyObject *
 native_source_map_matches(PyObject *self, PyObject *args)
 {
-    PyObject *row, *turns, *refs, *content, *session;
+    PyObject *row, *turns, *refs, *content = NULL, *session = NULL;
     PyObject *key = NULL, *original = NULL, *left = NULL, *right = NULL;
+    PyObject *ref = NULL, *ordinal = NULL, *result = NULL;
     Py_ssize_t index, turn, start, end, turn_start, turn_end;
     int equal;
     (void)self;
@@ -522,77 +580,89 @@ native_source_map_matches(PyObject *self, PyObject *args)
     if (!source_named_dict(row) || !source_keyed_dict(turns) || !PyList_CheckExact(refs)) {
         Py_RETURN_NOTIMPLEMENTED;
     }
-    content = PyDict_GetItemString(row, "content");
-    session = PyDict_GetItemString(row, "session_pk");
+    content = Py_XNewRef(PyDict_GetItemString(row, "content"));
+    session = Py_XNewRef(PyDict_GetItemString(row, "session_pk"));
     if (content == NULL || session == NULL || !PyUnicode_CheckExact(content)
             || !PyUnicode_CheckExact(session)) {
-        Py_RETURN_NOTIMPLEMENTED;
+        goto unsupported;
     }
-    /* Validate shapes before returning False: an unsupported later ref must
-     * not change the reference's earlier success/failure or exception order. */
+    if (require_exact_unicode(content) < 0) {
+        goto done;
+    }
     for (index = 0; index < PyList_GET_SIZE(refs); index++) {
-        PyObject *ref = PyList_GET_ITEM(refs, index);
-        if (!source_named_dict(ref)
-                || !source_small_integer(PyDict_GetItemString(ref, "turn_index"), &turn)
+        ref = Py_NewRef(PyList_GET_ITEM(refs, index));
+        if (!source_named_dict(ref)) {
+            goto unsupported;
+        }
+        ordinal = Py_XNewRef(PyDict_GetItemString(ref, "turn_index"));
+        if (!source_small_integer(ordinal, &turn)
                 || !source_small_integer(PyDict_GetItemString(ref, "start"), &start)
                 || !source_small_integer(PyDict_GetItemString(ref, "end"), &end)
                 || !source_small_integer(PyDict_GetItemString(ref, "turn_start"), &turn_start)
                 || !source_small_integer(PyDict_GetItemString(ref, "turn_end"), &turn_end)) {
-            Py_RETURN_NOTIMPLEMENTED;
+            goto unsupported;
         }
-    }
-    for (index = 0; index < PyList_GET_SIZE(refs); index++) {
-        PyObject *ref = PyList_GET_ITEM(refs, index);
-        source_small_integer(PyDict_GetItemString(ref, "start"), &start);
-        source_small_integer(PyDict_GetItemString(ref, "end"), &end);
-        source_small_integer(PyDict_GetItemString(ref, "turn_start"), &turn_start);
-        source_small_integer(PyDict_GetItemString(ref, "turn_end"), &turn_end);
-        key = PyTuple_Pack(2, session, PyDict_GetItemString(ref, "turn_index"));
+        key = PyTuple_Pack(2, session, ordinal);
         if (key == NULL) {
-            goto error;
+            goto done;
         }
         original = Py_XNewRef(PyDict_GetItemWithError(turns, key));
         Py_CLEAR(key);
-        if (original == NULL && PyErr_Occurred()) {
-            goto error;
+        if (PyErr_Occurred()) {
+            goto done;
         }
         if (original == NULL || original == Py_None) {
-            Py_XDECREF(original);
-            Py_RETURN_FALSE;
+            result = Py_NewRef(Py_False);
+            goto done;
         }
         if (!PyUnicode_CheckExact(original)) {
-            Py_DECREF(original);
-            Py_RETURN_NOTIMPLEMENTED;
+            goto unsupported;
+        }
+        if (require_exact_unicode(original) < 0) {
+            goto done;
         }
         if (!(0 <= start && start <= end && end <= PyUnicode_GET_LENGTH(content)
                 && 0 <= turn_start && turn_start <= turn_end
                 && turn_end <= PyUnicode_GET_LENGTH(original))
                 || end - start != turn_end - turn_start) {
-            Py_DECREF(original);
-            Py_RETURN_FALSE;
+            result = Py_NewRef(Py_False);
+            goto done;
         }
         left = PyUnicode_Substring(content, start, end);
         right = PyUnicode_Substring(original, turn_start, turn_end);
         if (left == NULL || right == NULL) {
-            goto error;
+            goto done;
         }
         equal = PyObject_RichCompareBool(left, right, Py_EQ);
         Py_CLEAR(left);
         Py_CLEAR(right);
         Py_CLEAR(original);
+        Py_CLEAR(ref);
+        Py_CLEAR(ordinal);
         if (equal < 0) {
-            goto error;
+            goto done;
         }
         if (!equal) {
-            Py_RETURN_FALSE;
+            result = Py_NewRef(Py_False);
+            goto done;
         }
     }
-    Py_RETURN_TRUE;
+    result = Py_NewRef(Py_True);
+    goto done;
 
-error:
+unsupported:
+    if (!PyErr_Occurred()) {
+        result = Py_NewRef(Py_NotImplemented);
+    }
+
+done:
+    Py_XDECREF(content);
+    Py_XDECREF(session);
+    Py_XDECREF(ref);
+    Py_XDECREF(ordinal);
     Py_XDECREF(key);
     Py_XDECREF(original);
     Py_XDECREF(left);
     Py_XDECREF(right);
-    return NULL;
+    return result;
 }

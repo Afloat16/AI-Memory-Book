@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$Source,
-    [string]$Version = 'v0.8.1',
+    [string]$Version = 'v0.9.0',
     [string]$Prefix,
     [string]$BinDir,
     [string]$Python,
@@ -9,7 +9,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$InstallerRef = 'v0.8.1'
+$InstallerRef = 'v0.9.0'
 $PythonExecutable = $null
 $PythonPrefixArguments = @()
 
