@@ -328,18 +328,27 @@ extension grows 519,480 bytes on this host. The final EPYC 7763 host differs
 from the preceding EPYC 9V45 and original EPYC 9V74 hosts; their absolute
 times and percentages remain separate evidence.
 
-The first exact-4390 packaging run, [43885419074](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074),
-passed 28 wheels but ended incomplete when two unallocated macOS ARM jobs
-were cancelled. Its [final record](../benchmarks/reports/native-core-compatibility/packaging-43885419074/interrupted-matrix.json)
-retains the actual logs and absence of runner/steps. A full same-source
-replacement, [43888785867](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43888785867),
-is in progress. No receipts are mixed across runs or attempts.
+Native delivery remains pending. Two complete attempts using the frozen
+4390 runtime did not satisfy the one-run/one-attempt 30-cell gate:
+[43885419074](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074)
+finished with 28 wheels passed and two unallocated macOS ARM jobs cancelled;
+[43888785867](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43888785867)
+then also encountered an unallocated cancelled macOS ARM job. Their successful
+packages are not mixed into a passing matrix.
 
-An [official runner investigation](../benchmarks/reports/native-core-compatibility/development/native-core-macos-runner-investigation.json)
-confirmed an available macOS 26 ARM label as a potential recovery route;
-macOS 15 allocations then resumed. The workflow has not changed, and the
-original full replacement is continuing. Performance review is complete,
-but native-delivery acceptance and publication remain pending.
+The [runner investigation](../benchmarks/reports/native-core-compatibility/development/native-core-macos-runner-investigation.json)
+first retained the second run when allocations resumed. After the additional
+cancellation, the [recovery plan](../benchmarks/reports/native-core-compatibility/development/native-core-macos26-recovery-plan.json)
+changes only the ARM hosted image label from macOS 15 to the officially
+supported, explicit macOS 26 ARM image. All 30 cells, native architecture,
+deployment-target rules, installed tests and exact receipt gates remain.
+A fresh complete preparation must pass on that workflow. This does not change
+the application runtime or add a performance experiment.
+
+Publication still requires the final approved runtime/commit, all eleven
+exact-commit CI jobs, a fresh full release matrix, verified assets and an
+actual public default installation. v0.8.1 remains the published release at
+this checkpoint.
 
 The final [acceptance record](../benchmarks/experiments/native_core_acceptance.json)
 binds runtime SHA256

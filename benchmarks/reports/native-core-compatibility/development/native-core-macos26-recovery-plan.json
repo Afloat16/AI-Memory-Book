@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-11-16T15:01:40Z",
+  "kind": "native-packaging-runner-image-recovery",
+  "decision": "Change only the macos_arm64 hosted image label from macos-15 to officially supported macos-26, and execute a fresh complete matrix in one run/attempt.",
+  "observed_attempts": [
+    {
+      "run_id": 43885419074,
+      "passed_native_wheels": 28,
+      "unallocated_cancelled_jobs": [
+        "3.14 macos_arm64",
+        "3.15 macos_arm64"
+      ],
+      "complete_matrix": false
+    },
+    {
+      "run_id": 43888785867,
+      "passed_native_wheels_at_snapshot": 27,
+      "unallocated_cancelled_jobs_at_snapshot": [
+        "3.14 macos_arm64"
+      ],
+      "still_queued_at_snapshot": [
+        "3.10 macos_arm64",
+        "3.13 macos_arm64"
+      ],
+      "complete_matrix": false
+    }
+  ],
+  "source_candidate": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+  "runtime_sha256": "6ec51c906de94c97f90ec9be3dc50d066c9abedcff283c1e118ef6d6847eb3b7",
+  "workflow_difference": {
+    "path": ".github/workflows/release.yml",
+    "before": "          - target: macos_arm64\n            os: macos-15\n            architecture: arm64",
+    "after": "          - target: macos_arm64\n            os: macos-26\n            architecture: arm64"
+  },
+  "unchanged_contracts": [
+    "All 30 CPython/platform cells",
+    "Native ARM64 architecture",
+    "Mach-O slice verification",
+    "Configured minimum deployment target and wheel tag agreement",
+    "Installed native backend and all 144 native tests",
+    "Exact source/commit/tree/run/attempt receipts",
+    "Full fallback/sdist/installer preparation",
+    "All 11 exact-commit final CI jobs",
+    "Actual public installation after publication"
+  ],
+  "official_sources": [
+    "https://docs.github.com/en/actions/reference/runners/github-hosted-runners",
+    "https://github.com/actions/runner-images/blob/main/README.md",
+    "https://www.githubstatus.com/api/v2/summary.json"
+  ],
+  "official_runner_images_readme_blob": "cbb0ec6433933cd83d6c749bffbb24a2513388be",
+  "interpretation": "Official runner documentation lists macos-26 as native ARM64. Observed API jobs were cancelled without runner assignment/steps. The GitHub status snapshot says Actions operational; no global or image-specific service outage is asserted, and alternate-image availability is not guaranteed.",
+  "timing": "No application or evaluator change and no additional performance measurement. The complete protocol5 evidence remains fixed.",
+  "publication_approved": false
+}
