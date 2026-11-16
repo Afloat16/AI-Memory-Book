@@ -270,6 +270,45 @@ class NativeSegmentationFallbackTests(unittest.TestCase):
         self.assertIs(NATIVE.build_pages([turn], 0, namespace), NotImplemented)
         self.assertIs(NATIVE.segment_turns([turn], [], 20, 0, .12, namespace), NotImplemented)
 
+    def test_colliding_instance_dict_key_does_not_run_during_native_preflight(self):
+        def specimen():
+            turn = TURN(0, "question", "body", (0,))
+            events = []
+            dictionary = turn.__dict__
+            content = dictionary.pop("content")
+
+            class Key:
+                armed = False
+
+                def __hash__(self):
+                    return hash("content")
+
+                def __eq__(self, other):
+                    if self.armed:
+                        events.append(other)
+                        dictionary.clear()
+                    return False
+
+            key = Key()
+            dictionary[key] = "foreign"
+            dictionary["content"] = content
+            key.armed = True
+            return turn, events
+
+        turn, events = specimen()
+        self.assertIs(NATIVE.joined_turns([turn], reference_namespace()), NotImplemented)
+        self.assertEqual(events, [])
+        observations = []
+        for backend in (None, NATIVE):
+            turn, events = specimen()
+            with patch.object(segmentation, "_NATIVE", backend):
+                actual = outcome(lambda: segmentation._joined([turn]))
+            observations.append((actual, events))
+        self.assertEqual(observations[0], observations[1])
+        self.assertEqual(observations[0][0][0], "error")
+        self.assertEqual(observations[0][0][1], AttributeError)
+        self.assertEqual(observations[0][1], ["content"])
+
     def test_helper_wrapped_before_import_is_not_certified(self):
         script = r'''
 import functools, importlib, json

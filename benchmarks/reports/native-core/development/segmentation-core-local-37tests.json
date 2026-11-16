@@ -1,0 +1,136 @@
+{
+  "base": {
+    "bytes": 29658,
+    "git_blob_sha1": "0d1961ab7c381c2daee3b9a54881758a1e96f271",
+    "path": "src/memory_book/_native.c",
+    "ref": "330bf178",
+    "repository": "Afloat16/AI-Memory-Book",
+    "sha256": "815afe0527b6286b3a25885c9626e990b31af9187e1dae5c65fe7e75fd2e0cf9"
+  },
+  "binary": {
+    "bytes": 98016,
+    "git_blob_sha1": "6f000f27f0a17a470cfc98d9323668ecdb88bdbf",
+    "path": "memory_book/_native.cpython-312-x86_64-linux-gnu.so",
+    "sha256": "3f6f4f4a1b9a37f5aefed18f4a5178b51c54d11bb0bd9952c8b9a56bd9f30421"
+  },
+  "build": {
+    "command": [
+      "gcc",
+      "-shared",
+      "-fPIC",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-fwrapv",
+      "-I/opt/codex/runtimes/codex-primary-runtime/dependencies/python/include/python3.12",
+      "/workspace/scratch/e870b2feaa97/native-segmentation-probe/memory_book/_native.c",
+      "-o",
+      "/workspace/scratch/e870b2feaa97/native-segmentation-probe/memory_book/_native.cpython-312-x86_64-linux-gnu.so"
+    ],
+    "exit_code": 0,
+    "stderr": "",
+    "stdout": "",
+    "warning_count": 0
+  },
+  "environment": {
+    "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]"
+  },
+  "limitations": [
+    "The isolated package initializer is empty; this isolates these public module wrappers from unrelated package startup.",
+    "This receipt records correctness and native dispatch, not a performance estimate or the full repository CI."
+  ],
+  "runner": {
+    "bytes": 1829,
+    "controller_source": "import hashlib,json,os,pathlib,subprocess,sys,sysconfig,termios\nconfiguration=termios.tcgetattr(sys.stdin.fileno())\nconfiguration[3]&=~(termios.ECHO|termios.ICANON)\nconfiguration[6][termios.VMIN]=1\nconfiguration[6][termios.VTIME]=0\ntermios.tcsetattr(sys.stdin.fileno(),termios.TCSANOW,configuration)\nroot=pathlib.Path(\"/workspace/scratch/e870b2feaa97/native-segmentation-probe\")\nroot.mkdir(parents=True,exist_ok=True)\nprint(\"INPUT_READY\",flush=True)\nfor line in sys.stdin:\n    task=json.loads(line)\n    for name,content in task.get(\"files\",{}).items():\n        path=root/name\n        path.parent.mkdir(parents=True,exist_ok=True)\n        path.write_text(content,encoding=\"utf-8\")\n    if task.get(\"compile\"):\n        source=root/\"memory_book/_native.c\"\n        output=root/\"memory_book\"/(\"_native\"+sysconfig.get_config_var(\"EXT_SUFFIX\"))\n        command=[\"gcc\",\"-shared\",\"-fPIC\",\"-O3\",\"-Wall\",\"-Wextra\",\"-fwrapv\",\n                 \"-I\"+sysconfig.get_paths()[\"include\"],str(source),\"-o\",str(output)]\n        result=subprocess.run(command,cwd=root,text=True,capture_output=True)\n        print(\"BUILD_EXIT\",result.returncode,flush=True)\n        if result.stdout:print(result.stdout,flush=True)\n        if result.stderr:print(result.stderr,flush=True)\n        if result.returncode:print(\"TASK_DONE\",flush=True);continue\n    if task.get(\"tests\"):\n        environment=dict(os.environ,PYTHONPATH=str(root),PYTHONDONTWRITEBYTECODE=\"1\")\n        command=[sys.executable,\"-m\",\"unittest\",\"discover\",\"-s\",\"tests\",\"-p\",task[\"tests\"]]\n        result=subprocess.run(command,cwd=root,env=environment,text=True,capture_output=True,timeout=150)\n        print(\"TEST_EXIT\",result.returncode,flush=True)\n        if result.stdout:print(result.stdout,flush=True)\n        if result.stderr:print(result.stderr,flush=True)\n    print(\"TASK_DONE\",flush=True)\n",
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/workspace/scratch/e870b2feaa97/native-segmentation-probe"
+    },
+    "sha256": "e4d22ef7700ecdd19cb705cbcffdfe9d173c055f04b5d45b5f054a2f41a4eb88",
+    "test_command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_native_*_backend.py"
+    ]
+  },
+  "schema": "native-core-local-differential-v1",
+  "scope": "Isolated original C extension plus lexical, complete excerpt-window and segmentation families; no MemoryBook/store end-to-end claim.",
+  "sources": {
+    "memory_book/__init__.py": {
+      "bytes": 0,
+      "git_blob_sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "memory_book/_native.c": {
+      "bytes": 30291,
+      "git_blob_sha1": "7196ee98efcc45e74576320481f7c499ba9ebe1a",
+      "sha256": "f0feea5bb0e75e5e09084fe39070943bd7351bc5d29e11da6fb8e8331559db03"
+    },
+    "memory_book/_native_excerpt.h": {
+      "bytes": 18651,
+      "git_blob_sha1": "e7f7ec06fd9320e910a5afab88a2240d8f6539a9",
+      "sha256": "973e1c0490b2287e117c9b67b2b27f39105996b27e11317085226e1da0d5dab2"
+    },
+    "memory_book/_native_lexical.h": {
+      "bytes": 3743,
+      "git_blob_sha1": "f231297938827a44d4934adcf0589e262059dc1d",
+      "sha256": "9e97f50d818cbdd8db61462e1f5d5b73ba82a871815d92a1403a64855d62913f"
+    },
+    "memory_book/_native_segmentation.h": {
+      "bytes": 38905,
+      "git_blob_sha1": "7f8708e28605ef8d6ad3b75c290c641af5021505",
+      "sha256": "f9745bad09dad33e4bdfe3e662e83ea2ecd7b04c69b8dd1e6bf1072acf892dc5"
+    },
+    "memory_book/_text_backend.py": {
+      "bytes": 1044,
+      "git_blob_sha1": "e95aabde1f42a7549f4a6de50f0a2a5ac9336986",
+      "sha256": "b8268cbc11d49be34fa83e1c8d7a46b481f2caf159ab7f4425f8198e76063b45"
+    },
+    "memory_book/segmentation.py": {
+      "bytes": 8965,
+      "git_blob_sha1": "58253a1eaa6b0e75067716b49479680ac136de64",
+      "sha256": "e08d214d3664fdafd2966b38e4350793a8651fc7a17c5f1f6fb39186465c39d2"
+    },
+    "memory_book/text.py": {
+      "bytes": 23099,
+      "git_blob_sha1": "477bfab1744df766d7033de79a0d40e93a5df7f6",
+      "sha256": "b27b2a4992d1530736b502f00d80b6c442ccaca534b16c1eb6a750e31436b6c7"
+    },
+    "tests/test_native_lexical_backend.py": {
+      "bytes": 9561,
+      "git_blob_sha1": "96d6a30d479e4d4f0a4724875075a3e80b78483e",
+      "sha256": "399f11b6984a1a700ea701dbec1c092c614fd40e22d3b377098317944aa34b4b"
+    },
+    "tests/test_native_segmentation_backend.py": {
+      "bytes": 19507,
+      "git_blob_sha1": "9c66e75a9f9fe60124f091bb16bdbefe906b5df1",
+      "sha256": "7e55093751e973301ad2c879fe87e19111b23eeb4bd579ff77119a1c121c9139"
+    },
+    "tests/test_native_window_backend.py": {
+      "bytes": 18611,
+      "git_blob_sha1": "5d5c7cef4f635c7edb069ebdd067e0eb32e60afe",
+      "sha256": "9bc5a2b1ec3f455d6d03ad4183614e5ebe1a117c0c578602eaa3f0b28bc5a14f"
+    }
+  },
+  "tests": {
+    "exit_code": 0,
+    "methods": 37,
+    "reported_elapsed_seconds": 1.2,
+    "stderr": ".....................................\n----------------------------------------------------------------------\nRan 37 tests in 1.200s\n\nOK\n",
+    "stdout": "",
+    "suites": [
+      "test_native_lexical_backend",
+      "test_native_segmentation_backend",
+      "test_native_window_backend"
+    ]
+  }
+}

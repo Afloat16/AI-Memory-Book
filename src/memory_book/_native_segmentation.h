@@ -105,7 +105,21 @@ segmentation_plain_turns(PyObject *turns, PyObject *globals)
         }
         dictionary = PyObject_GenericGetDict(turn, NULL);
         if (dictionary == NULL) {
-            PyErr_Clear();
+            if (PyErr_ExceptionMatches(PyExc_AttributeError)) {
+                PyErr_Clear();
+                ready = 0;
+            }
+            else {
+                ready = -1;
+            }
+            break;
+        }
+        /* An ordinary instance can still have a non-string key manually
+         * inserted into __dict__.  Refuse it before named lookups: a colliding
+         * key's equality callback could mutate the dict and invalidate earlier
+         * borrowed field values during this preflight. */
+        if (!segmentation_named_dict(dictionary)) {
+            Py_DECREF(dictionary);
             ready = 0;
             break;
         }
