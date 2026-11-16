@@ -52,7 +52,9 @@ def parser() -> argparse.ArgumentParser:
     imp.add_argument("--page-chars", type=int, default=900)
     recall = sub.add_parser("recall", help="Find evidence directly; no mandatory directory traversal")
     recall.add_argument("query")
-    recall.add_argument("--project")
+    recall_scope = recall.add_mutually_exclusive_group()
+    recall_scope.add_argument("--project")
+    recall_scope.add_argument("--all-projects", action="store_true", help="Explicitly search across project books; otherwise select a project in a multi-project archive")
     recall.add_argument("--chapter")
     recall.add_argument("--session")
     recall.add_argument("--budget", type=int, default=2400, help="Hard character limit on the assembled context, including citations (default: 2400)")
@@ -71,6 +73,11 @@ def parser() -> argparse.ArgumentParser:
     semantic_index.add_argument("--semantic-model-dir", required=True, help="Local pinned model directory; no implicit model download")
     toc = sub.add_parser("toc", help="Browse a project's chapter directory")
     toc.add_argument("project")
+    directory = sub.add_parser("index", help="Search a project's directory titles and questions without returning page bodies")
+    directory.add_argument("query")
+    directory.add_argument("--project", required=True)
+    directory.add_argument("--offset", type=int, default=0)
+    directory.add_argument("--limit", type=int, default=20)
     chapter = sub.add_parser("chapter", help="Browse a chapter's sessions, sections and page addresses")
     chapter.add_argument("chapter_id")
     section = sub.add_parser("section", help="Browse further pages of a long section")
@@ -78,13 +85,23 @@ def parser() -> argparse.ArgumentParser:
     for arg in (toc, chapter, section):
         arg.add_argument("--offset", type=int, default=0)
         arg.add_argument("--limit", type=int, default=50)
+    for arg in (chapter, section):
+        arg.add_argument("--project", help="Require this directory entry to belong to the selected project")
     read = sub.add_parser("read", help="Read an exact page, with original source spans")
     read.add_argument("page_id")
+    read.add_argument("--project", help="Require this page to belong to the selected project")
     read.add_argument("--offset", type=int, default=0)
     read.add_argument("--limit", type=int, default=12000)
     source = sub.add_parser("source", help="Read the normalized source session")
     source.add_argument("project")
     source.add_argument("session_id")
+    turn = sub.add_parser("turn", help="Read a complete original question-and-answer turn with bounded character pagination")
+    turn.add_argument("project")
+    turn.add_argument("session_id")
+    turn.add_argument("turn_index", type=int)
+    turn.add_argument("--offset", type=int, default=0)
+    turn.add_argument("--limit", type=int, default=12000)
+    turn.add_argument("--source-hash", help="Require the same source version when continuing a turn or following a page reference")
     link = sub.add_parser("link", help="Move one session into an explicit task chapter")
     link.add_argument("project")
     link.add_argument("session_id")
@@ -393,7 +410,7 @@ def main(argv: list[str] | None = None) -> int:
                 # still leave earlier sessions committed; replay is idempotent.
                 _print([book.ingest(session) for session in sessions])
             elif args.command == "recall":
-                result = book.recall(args.query, project=args.project, chapter=args.chapter, session=args.session, budget_chars=args.budget, limit=args.limit, strategy="flat" if args.flat else "book", use_cache=not args.no_cache, coverage=args.coverage, budget_tokens=args.budget_tokens, tokenizer=args.tokenizer, semantic=args.semantic, temporal=args.temporal)
+                result = book.recall(args.query, project=args.project, chapter=args.chapter, session=args.session, all_projects=args.all_projects, budget_chars=args.budget, limit=args.limit, strategy="flat" if args.flat else "book", use_cache=not args.no_cache, coverage=args.coverage, budget_tokens=args.budget_tokens, tokenizer=args.tokenizer, semantic=args.semantic, temporal=args.temporal)
                 if args.json:
                     _print(result)
                 else:
@@ -405,14 +422,18 @@ def main(argv: list[str] | None = None) -> int:
                         print(warning, file=sys.stderr)
             elif args.command == "toc":
                 _print(book.toc(args.project, offset=args.offset, limit=args.limit))
+            elif args.command == "index":
+                _print(book.search_directory(args.query, args.project, offset=args.offset, limit=args.limit))
             elif args.command == "chapter":
-                _print(book.chapter(args.chapter_id, offset=args.offset, limit=args.limit))
+                _print(book.chapter(args.chapter_id, project=args.project, offset=args.offset, limit=args.limit))
             elif args.command == "section":
-                _print(book.section(args.section_id, offset=args.offset, limit=args.limit))
+                _print(book.section(args.section_id, project=args.project, offset=args.offset, limit=args.limit))
             elif args.command == "read":
-                _print(book.read(args.page_id, offset=args.offset, limit=args.limit))
+                _print(book.read(args.page_id, project=args.project, offset=args.offset, limit=args.limit))
             elif args.command == "source":
                 _print(book.get_session(args.project, args.session_id))
+            elif args.command == "turn":
+                _print(book.read_turn(args.project, args.session_id, args.turn_index, offset=args.offset, limit=args.limit, source_hash=args.source_hash))
             elif args.command == "link":
                 _print(book.link_session(args.project, args.session_id, args.task, title=args.title))
             elif args.command == "export":

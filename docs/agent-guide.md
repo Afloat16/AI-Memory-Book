@@ -18,8 +18,9 @@ this guide in the host's own instruction mechanism if desired.
    already answers the question. Recall is useful for an earlier decision,
    unfinished task, prior constraint, or work from another session. Do not fetch
    memory merely because a new user message arrived.
-2. **Start with one scoped recall.** Use concrete terms from the task and the
-   current project ID when known. Set a bounded context budget.
+2. **Select the book, then locate evidence.** Carry the exact current project ID.
+   Use `search_directory` for a known question/task title, or one scoped recall
+   for terms in the body. Set a bounded context budget.
 3. **Read the returned evidence and references.** Preserve its project, session,
    turn, and page identity when using it to support an answer.
 4. **Stop when sufficient.** Read an exact page or browse a particular section
@@ -53,8 +54,16 @@ ID, not an invented task title or filesystem path.
 
 If the project is unknown and choosing it affects the answer, `browse_projects`
 can identify available namespaces. Do not repeat that discovery every turn.
-An omitted project allows cross-project search: check attribution before using
-the results and do not silently broaden a known project scope after a miss.
+With multiple books, an omitted project now requires a known chapter ID or
+raises a selection error. A sole book can be selected without guessing. Use
+`all_projects=true` only for intentional cross-project research; never broaden
+a known project scope after a miss. A session ID alone does not select a book.
+Pass the expected `project` to `browse_chapter`, `browse_section` and `read_page`
+to reject a valid address from the wrong book. Use `read_source_turn` for a
+complete original turn; carry the page's `source_hash` into every continuation
+to reject a replaced session. The [book-navigation guide](book-navigation.md)
+contains a runnable example with identically named projects and conflicting
+algorithm policies.
 Project filtering is a retrieval boundary, not per-user access control; this is
 a local memory service sharing one configured database.
 

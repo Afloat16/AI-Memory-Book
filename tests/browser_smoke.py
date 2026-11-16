@@ -17,8 +17,10 @@ import shutil
 import tempfile
 import threading
 from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 
 from memory_book import MemoryBook
+from memory_book.segmentation import make_turns
 from memory_book.web import make_server
 
 
@@ -273,6 +275,69 @@ def run(artifacts: Path, browser_executable: str | None = None) -> None:
                         page.keyboard.press("Escape")
                         expect(page.locator("#reader-overlay")).to_be_hidden()
                         checked("imported source stays inert text and Escape closes the reader")
+
+                        twin_source = {
+                            "project": "twin-alpha", "project_name": "Twin API",
+                            "session_id": "same-session", "task_id": "retry",
+                            "task_title": "QuartzModuleCatalog", "title": "Retry decisions",
+                            "messages": [
+                                {"role": "user", "content": "How should retry_limit behave?"},
+                                {"role": "assistant", "content": "retry_limit=3\n" +
+                                 "ORIGINAL_ALPHA: 完整原文与后续边界。\n" * 700 + "END OF ORIGINAL TURN"},
+                            ],
+                        }
+                        twin_other = {**twin_source, "project": "twin-beta", "messages": [
+                            twin_source["messages"][0],
+                            {"role": "assistant", "content": "retry_limit=9; ORIGINAL_BETA"},
+                        ]}
+                        with MemoryBook(db) as book:
+                            book.ingest(twin_source)
+                            book.ingest(twin_other)
+                        page.reload(wait_until="networkidle")
+                        twins = page.locator("#book-list .book-button").filter(has_text="Twin API")
+                        expect(twins).to_have_count(2)
+                        expect(twins.filter(has_text="twin-alpha").locator(".book-id")).to_have_text("twin-alpha")
+                        expect(twins.filter(has_text="twin-beta").locator(".book-id")).to_have_text("twin-beta")
+                        twins.filter(has_text="twin-alpha").click()
+                        expect(page.locator("#search-scope")).to_contain_text("twin-alpha")
+                        page.locator("#search-mode").select_option("directory")
+                        page.locator("#query").fill("QuartzModuleCatalog")
+                        with page.expect_request(lambda request: urlsplit(request.url).path == "/api/directory") as request:
+                            page.locator("#search-button").click()
+                        assert parse_qs(urlsplit(request.value.url).query)["project"] == ["twin-alpha"]
+                        expect(page.locator("#results-title")).to_have_text("目录中与这个问题有关的位置")
+                        expect(page.locator("#results .result-card")).to_have_count(1)
+                        expect(page.locator("#results")).not_to_contain_text("ORIGINAL_ALPHA")
+                        expect(page.locator("#results .breadcrumb")).to_contain_text("twin-alpha")
+                        checked("same-name project IDs remain visible and directory search returns scoped metadata")
+
+                        page.locator("#results .read-button").filter(has_text="阅读原文").click()
+                        expect(page.locator("#reader-source-turns button")).to_have_count(1)
+                        page.locator("#reader-source-turns button").click()
+                        expect(page.locator("#reader-more")).to_be_visible()
+                        with page.expect_request(lambda request: urlsplit(request.url).path == "/api/turn") as continuation:
+                            page.locator("#reader-more").click()
+                        params = parse_qs(urlsplit(continuation.value.url).query)
+                        assert params["project"] == ["twin-alpha"]
+                        assert params["session_id"] == ["same-session"]
+                        assert params["offset"] == ["12000"]
+                        assert len(params["source_hash"][0]) == 64
+                        expect(page.locator("#reader-more")).to_be_hidden()
+                        assert page.locator("#reader-text").text_content() == make_turns(twin_source["messages"])[0].content
+                        page.locator("#reader-close").click()
+                        checked("directory page opens complete original turn and pins subsequent reads to its source hash")
+
+                        page.locator("#search-mode").select_option("evidence")
+                        page.locator("#book-list .book-button").first.click()
+                        page.locator("#query").fill("retry_limit")
+                        with page.expect_request(lambda request: urlsplit(request.url).path == "/api/recall") as request:
+                            page.locator("#search-button").click()
+                        params = parse_qs(urlsplit(request.value.url).query)
+                        assert params["all_projects"] == ["true"] and "project" not in params
+                        expect(page.locator("#results .result-card")).to_have_count(2)
+                        expect(page.locator("#results")).to_contain_text("twin-alpha")
+                        expect(page.locator("#results")).to_contain_text("twin-beta")
+                        checked("explicit all-books search retains both project identities")
 
                         page.set_viewport_size({"width": 390, "height": 844})
                         page.locator("#book-list .book-button").filter(has_text="星河笔记").click()

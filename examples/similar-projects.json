@@ -1,0 +1,41 @@
+[
+  {
+    "project": "routing-prod",
+    "project_name": "Routing Kernel",
+    "session_id": "design-review",
+    "task_id": "routing-policy",
+    "task_title": "Routing policy",
+    "title": "Negative-edge handling",
+    "created_at": "2026-11-01T09:00:00Z",
+    "messages": [
+      {"role": "user", "content": "Which edge_policy and relaxation_limit must this routing implementation use?"},
+      {"role": "assistant", "content": "For this production project, edge_policy=bellman_ford and routing.relaxation_limit=128. Negative edges are supported; a negative cycle must raise ValueError. Preserve the unreachable-vertex contract when implementing the solver."}
+    ]
+  },
+  {
+    "project": "routing-eval",
+    "project_name": "Routing Kernel",
+    "session_id": "design-review",
+    "task_id": "routing-policy",
+    "task_title": "Routing policy",
+    "title": "Negative-edge handling",
+    "created_at": "2026-11-01T09:00:00Z",
+    "messages": [
+      {"role": "user", "content": "Which edge_policy and relaxation_limit must this routing implementation use?"},
+      {"role": "assistant", "content": "For this evaluation project, edge_policy=reject_negative and routing.relaxation_limit=32. Reject every negative edge before execution. This is an evaluation-only contract, even though its modules and session names match the production project."}
+    ]
+  },
+  {
+    "project": "routing-prod",
+    "project_name": "Routing Kernel",
+    "session_id": "failure-review",
+    "task_id": "routing-policy",
+    "task_title": "Routing policy",
+    "title": "Failed routing prototype",
+    "created_at": "2026-11-02T09:00:00Z",
+    "messages": [
+      {"role": "user", "content": "Which failed routing prototype must we avoid repeating?"},
+      {"role": "assistant", "content": "A visited-once Dijkstra prototype returned distance 2 instead of -1 for s->a=2, s->b=3, b->a=-4. Keep this counterexample with the production project's Bellman-Ford decision; do not import the neighboring evaluation project's reject-negative policy."}
+    ]
+  }
+]

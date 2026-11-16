@@ -130,7 +130,7 @@ class RecallCoveringIndexTests(unittest.TestCase):
             for query in ("needle reliability", "缓存保留", "missingword"):
                 for scope in ({"project": "target"}, {"project": "target", "chapter": chapter},
                               {"project": "target", "session": "0"}, {"project": "missing"},
-                              {"project": "outside", "chapter": chapter}, {}):
+                              {"project": "outside", "chapter": chapter}, {"all_projects": True}):
                     for budget in (2000, 100000):
                         with self.subTest(query=query, scope=scope, budget=budget):
                             self.assert_original_sql_response(book, query, budget_chars=budget, **scope)

@@ -121,7 +121,8 @@ class MorphologyRecallTests(unittest.TestCase):
         for i in range(110):
             self.add("other", f"foreign-{i}", "Conference conference conference.", question="Conference")
         target = self.add("travel", "visit", "Mira attended a conference in Tallinn.", task_id="trip")
-        for scope in ({"project": "travel"}, {"chapter": target["chapter_id"]}, {"session": "visit"}):
+        for scope in ({"project": "travel"}, {"chapter": target["chapter_id"]},
+                      {"session": "visit", "all_projects": True}):
             with self.subTest(scope=scope):
                 result = self.book.recall("conferences", limit=1, use_cache=False, **scope)
                 self.assertIn("Tallinn", result["context"])

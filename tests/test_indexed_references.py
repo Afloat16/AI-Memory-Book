@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import copy
+import contextlib
 from datetime import timedelta
 import importlib.metadata
 import json
@@ -86,7 +87,7 @@ class IndexedReferenceValueTests(unittest.TestCase):
 
 @unittest.skipUnless(HAS_MCP, "Install .[mcp] for official SDK compatibility tests")
 class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
-    async def test_schema_only_adds_approved_defaults_and_temporal_control(self):
+    async def test_schema_only_adds_approved_defaults_temporal_and_navigation(self):
         tools = []
         for format_name in ("objects", "indexed"):
             listed = await create_server(":memory:", source_format=format_name).list_tools()
@@ -100,8 +101,8 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
                 and importlib.metadata.version("pydantic") == FIXTURE["pydantic"]):
             # Preserve the historical fixture and its source bytes. v0.4.0
             # changed recall's omitted budget; v0.5.0 adds explicit temporal
-            # control and its documentation. Every other serialized field
-            # must remain equal, including between the two source formats.
+            # control. v0.7.0 adds safe project scope and source navigation.
+            # List each approved change while preserving the frozen fixture.
             expected = json.loads(FIXTURE["schema"])
             compact = lambda value: json.dumps(value, ensure_ascii=False, separators=(",", ":"))
             self.assertEqual(compact(expected), FIXTURE["schema"])
@@ -109,6 +110,14 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
             budget_schema = recall_schema["inputSchema"]["properties"]["budget_chars"]
             self.assertEqual(budget_schema["default"], 4000)
             budget_schema["default"] = 2400
+            properties = recall_schema["inputSchema"]["properties"]
+            scoped_properties = {}
+            for key, value in properties.items():
+                scoped_properties[key] = value
+                if key == "session":
+                    scoped_properties["all_projects"] = {
+                        "default": False, "title": "All Projects", "type": "boolean"}
+            recall_schema["inputSchema"]["properties"] = scoped_properties
             recall_schema["inputSchema"]["properties"]["temporal"] = {
                 "default": "auto", "enum": ["auto", "current", "relevance"],
                 "title": "Temporal", "type": "string"}
@@ -118,6 +127,44 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
                 "\n        keeps relevance ordering. This is not an as-of state resolver. Repeated"
                 "\n        event evidence is retained. details=true includes the resolution basis."
                 "\n        ")
+            recall_schema["description"] = recall_schema["description"].replace(
+                "\n\n        budget_chars", "\n\n        Select project in a multi-project archive, or use a known chapter ID."
+                "\n        all_projects=true explicitly searches across books and cannot accompany project."
+                "\n        budget_chars", 1)
+            descriptions = {
+                "browse_chapter": "List bounded section/page previews; project optionally checks this chapter's book.",
+                "browse_section": "List paginated continuation pages; project optionally checks this section's book.",
+                "read_page": "Read a cited page with character pagination; project optionally checks its book.",
+            }
+            for tool in expected["tools"]:
+                if tool["name"] in descriptions:
+                    tool["description"] = descriptions[tool["name"]]
+                    tool["inputSchema"]["properties"]["project"] = copy.deepcopy(properties["project"])
+            annotations = copy.deepcopy(recall_schema["annotations"])
+            expected["tools"].insert(3, {
+                "name": "search_directory",
+                "description": "Search one book's titles and questions; return ranked directory paths without page bodies.",
+                "inputSchema": {"properties": {
+                    "query": {"title": "Query", "type": "string"},
+                    "project": {"title": "Project", "type": "string"},
+                    "offset": {"default": 0, "title": "Offset", "type": "integer"},
+                    "limit": {"default": 20, "title": "Limit", "type": "integer"}},
+                    "required": ["query", "project"], "title": "search_directoryArguments", "type": "object"},
+                "annotations": annotations,
+            })
+            expected["tools"].append({
+                "name": "read_source_turn",
+                "description": "Read a complete original turn; pass source_hash to keep paginated reads on one source version.",
+                "inputSchema": {"properties": {
+                    "project": {"title": "Project", "type": "string"},
+                    "session_id": {"title": "Session Id", "type": "string"},
+                    "turn_index": {"title": "Turn Index", "type": "integer"},
+                    "offset": {"default": 0, "title": "Offset", "type": "integer"},
+                    "limit": {"default": 12000, "title": "Limit", "type": "integer"},
+                    "source_hash": {"anyOf": [{"type": "string"}, {"type": "null"}], "default": None, "title": "Source Hash"}},
+                    "required": ["project", "session_id", "turn_index"], "title": "read_source_turnArguments", "type": "object"},
+                "annotations": annotations,
+            })
             self.assertEqual(tools[0], compact(expected))
 
     async def test_real_cli_modes_preserve_defaults_and_full_provenance(self):
@@ -139,9 +186,8 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
                 async with stdio_client(params) as (reader, writer):
                     async with ClientSession(reader, writer, read_timeout_seconds=timedelta(seconds=20)) as client:
                         initialized = await client.initialize()
-                        # Only the approved temporal explanation changes the
-                        # historical instructions. The stored evidence and
-                        # evaluator fixture remain byte-for-byte unchanged.
+                        # Apply the approved temporal and navigation explanation
+                        # without changing the historical evaluator fixture.
                         old = "diagnostics. read_page also supplies full provenance. Empty results prove no\n"
                         self.assertEqual(FIXTURE["instructions"].count(old), 1)
                         expected = FIXTURE["instructions"].replace(old,
@@ -149,15 +195,23 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
                             "intent conservatively; current prefers comparable recent evidence; relevance\n"
                             "keeps relevance ordering. Neither resolves authority or an as-of state.\n"
                             "read_page also supplies full provenance. Empty results prove no\n", 1)
+                        anchor = "Discover unknown IDs with browse_projects; retain them, never invent them.\n"
+                        self.assertEqual(expected.count(anchor), 1)
+                        expected = expected.replace(anchor, anchor +
+                            "Multiple project books require a project or known chapter; all_projects=true\n"
+                            "explicitly enables a cross-project search. search_directory finds scoped titles\n"
+                            "and questions without page bodies. read_source_turn follows a source reference\n"
+                            "through the complete original turn. Pass project when following page/directory IDs\n"
+                            "to catch accidental cross-book navigation; these checks are not access control.\n", 1)
                         expected += INDEXED_REFERENCE_INSTRUCTIONS if selected == "indexed" else ""
                         self.assertEqual(initialized.instructions, expected)
                         listed = await client.list_tools()
                         schemas = listed.model_dump_json(exclude_none=True)
                         for details in (False, True):
-                            with sqlite3.connect(database) as connection:
+                            with contextlib.closing(sqlite3.connect(database)) as connection, connection:
                                 connection.execute("DELETE FROM recall_cache")
                             response = await client.call_tool("recall_memory", {"query": "calibration policy",
-                                "budget_chars": 4000, "limit": 5, "details": details})
+                                "budget_chars": 4000, "limit": 5, "details": details, "all_projects": True})
                             self.assertFalse(response.isError)
                             self.assertIsNone(response.structuredContent)
                             self.assertEqual(len(response.content), 1)

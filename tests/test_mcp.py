@@ -37,7 +37,7 @@ class MCPTests(unittest.IsolatedAsyncioTestCase):
         from memory_book.mcp_server import create_server
         readonly = await create_server(self.database).list_tools()
         names = {tool.name for tool in readonly}
-        self.assertEqual(names, {"recall_memory", "browse_projects", "browse_book", "browse_chapter", "browse_section", "read_page"})
+        self.assertEqual(names, {"recall_memory", "browse_projects", "browse_book", "search_directory", "browse_chapter", "browse_section", "read_page", "read_source_turn"})
         self.assertTrue(all(tool.annotations.readOnlyHint for tool in readonly))
         writable = await create_server(self.database, allow_write=True).list_tools()
         self.assertEqual({tool.name for tool in writable}, names | {"remember_session"})

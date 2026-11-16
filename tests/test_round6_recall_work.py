@@ -163,12 +163,12 @@ class CandidateMetadataCarryTests(unittest.TestCase):
     def test_fused_routes_current_order_and_all_scopes_preserve_complete_payloads(self):
         chapter = self.book.db.execute("SELECT id FROM chapters WHERE project_id='fixture' ORDER BY id").fetchone()[0]
         for query in ("quartz pressure", "cedar", "current quartz", "previous current quartz"):
-            for scope in ({}, {"project": "fixture"}, {"chapter": chapter},
-                          {"session": "0"}, {"project": "absent"}):
+            for scope in ({"all_projects": True}, {"project": "fixture"}, {"chapter": chapter},
+                          {"session": "0", "all_projects": True}, {"project": "absent"}):
                 with self.subTest(query=query, scope=scope):
                     self.both_paths(query, budget_chars=4000, **scope)
         for limit, chars in ((1, 100), (50, 100000), (5, 0)):
-            self.both_paths("quartz pressure", limit=limit, budget_chars=chars)
+            self.both_paths("quartz pressure", limit=limit, budget_chars=chars, all_projects=True)
 
     @unittest.skipUnless(importlib.util.find_spec("tiktoken"), "Install .[tokens]")
     def test_token_caps_and_encoders_preserve_source_spans_and_counts(self):

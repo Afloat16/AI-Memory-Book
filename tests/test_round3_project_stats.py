@@ -329,6 +329,18 @@ class Round3ProjectStatisticsTests(unittest.TestCase):
     def test_real_worker_on_three_artificial_queries_including_unscoped_and_empty_terms(self):
         from benchmarks.data import Dataset, Evidence, QueryCase
         import memory_book
+        class ExplicitGlobalFixtureBook(memory_book.MemoryBook):
+            """This old worker's artificial unscoped case means an intentional global query.
+
+            Keep the registered historical worker and query fixture unchanged;
+            adapt its old call surface explicitly in this unit-test fixture.
+            The production default still rejects ambiguous book selection.
+            """
+            def recall(self, query, project=None, **options):
+                if project is None:
+                    options["all_projects"] = True
+                return super().recall(query, project=project, **options)
+
         data = Dataset(seed=0, split="development", variant="artificial-worker-fixture")
         for project, sid, text in (("p", "a", "Alpha marker 71."), ("q", "b", "Beta marker 83.")):
             data.sessions.append({"project": project, "session_id": sid, "created_at": "2026-01-01T00:00:00Z",
@@ -347,6 +359,7 @@ class Round3ProjectStatisticsTests(unittest.TestCase):
                 args = SimpleNamespace(binding=binding, engine_src=source, mode=mode, cohort="artificial_fixture",
                     data_dir=directory, output=directory / (mode + ".json.gz"), ledger=directory / (mode + ".jsonl"))
                 with patch.object(runner, "registered", return_value=(runner.plan(), {})), \
+                        patch.object(memory_book, "MemoryBook", ExplicitGlobalFixtureBook), \
                         patch.object(runner, "verify_source", return_value={"fixture": True}), \
                         patch.object(runner, "dataset_for", return_value=data), \
                         patch.object(runner, "helper_hashes", return_value={"fake": "sha"}), \

@@ -59,13 +59,14 @@ class CandidateMetadataBoundTests(unittest.TestCase):
         chapter = self.book.db.execute("SELECT id FROM chapters WHERE project_id='fixture' ORDER BY id").fetchone()[0]
         with patch.object(self.book, "_bounded_candidate_metadata", side_effect=observe):
             for query in ("quartz", "quartz pressure", "cedar", "current quartz", "previous current quartz"):
-                for scope in ({}, {"project": "fixture"}, {"chapter": chapter}, {"session": "0"},
+                for scope in ({"all_projects": True}, {"project": "fixture"}, {"chapter": chapter},
+                              {"session": "0", "all_projects": True},
                               {"project": "fixture", "session": "0"}, {"project": "absent"}):
                     for limit in (1, 5):
                         with self.subTest(query=query, scope=scope, limit=limit):
                             self.assert_original(query, budget_chars=4000, limit=limit, **scope)
             for chars in (0, 100, 100000):
-                self.assert_original("quartz pressure", budget_chars=chars, limit=50)
+                self.assert_original("quartz pressure", budget_chars=chars, limit=50, all_projects=True)
         self.assertTrue(retained, "Fixture must execute real pruning")
         self.assertTrue(all(before > after for before, after in retained))
 
@@ -82,7 +83,7 @@ class CandidateMetadataBoundTests(unittest.TestCase):
                 ("previous current quartz", 1, 1), ("latest quartz", 2, 8)):
             with self.subTest(query=query, limit=limit):
                 with patch.object(self.book, "_bounded_candidate_metadata", return_value=None) as bound:
-                    self.book.recall(query, limit=limit, use_cache=False)
+                    self.book.recall(query, limit=limit, use_cache=False, all_projects=True)
                 bound.assert_called_once()
                 self.assertEqual(bound.call_args.args[2], expected)
 
@@ -198,8 +199,8 @@ class CandidateMetadataBoundTests(unittest.TestCase):
 
     def test_coverage_flat_and_semantic_paths_retain_original_candidate_population(self):
         with patch.object(self.book, "_bounded_candidate_metadata", side_effect=AssertionError("must not prune")) as bound:
-            self.book.recall("quartz pressure and cedar voltage", coverage=True, use_cache=False)
-            self.book.recall("quartz pressure", strategy="flat", use_cache=False)
+            self.book.recall("quartz pressure and cedar voltage", coverage=True, use_cache=False, all_projects=True)
+            self.book.recall("quartz pressure", strategy="flat", use_cache=False, all_projects=True)
             bound.assert_not_called()
         encoder = SimpleNamespace(fingerprint="fixture-only-no-model")
         with patch.object(self.book, "_semantic_encoder", return_value=encoder), \
@@ -207,7 +208,7 @@ class CandidateMetadataBoundTests(unittest.TestCase):
                 patch("memory_book.semantic.rank_pages", return_value=[]), \
                 patch("memory_book.semantic.fuse_candidates", side_effect=lambda lexical, _: lexical + [dict(lexical[-1])]), \
                 patch.object(self.book, "_bounded_candidate_metadata", side_effect=AssertionError("must not prune")) as bound:
-            result = self.book.recall("quartz pressure", semantic=True, use_cache=False)
+            result = self.book.recall("quartz pressure", semantic=True, use_cache=False, all_projects=True)
             bound.assert_not_called()
         self.assertEqual(result["candidate_count"], 81)
         self.assertTrue(result["truncated"])

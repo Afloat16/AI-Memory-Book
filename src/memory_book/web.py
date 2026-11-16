@@ -123,6 +123,12 @@ def make_server(db_path, host: str = "127.0.0.1", port: int = 8765, *, container
                 raise ValueError(f"{name} must be between {minimum} and {maximum}.")
             return value
 
+        def _boolean(self, params, name, default=False):
+            value = self._param(params, name, "true" if default else "false")
+            if value not in {"true", "false"}:
+                raise ValueError(f"{name} must be true or false.")
+            return value == "true"
+
         def _dispatch_get(self):
             path, params = self._query()
             if path == "/":
@@ -133,7 +139,7 @@ def make_server(db_path, host: str = "127.0.0.1", port: int = 8765, *, container
             if path == "/favicon.ico":
                 self._send(HTTPStatus.NO_CONTENT, b"", "image/x-icon")
                 return
-            routes = {"/api/projects", "/api/stats", "/api/toc", "/api/chapter", "/api/section", "/api/read", "/api/recall"}
+            routes = {"/api/projects", "/api/stats", "/api/toc", "/api/chapter", "/api/section", "/api/read", "/api/recall", "/api/directory", "/api/turn"}
             if path not in routes:
                 self._error(HTTPStatus.NOT_FOUND, "Unknown resource.")
                 return
@@ -148,12 +154,22 @@ def make_server(db_path, host: str = "127.0.0.1", port: int = 8765, *, container
                     if not project:
                         raise ValueError("A project is required.")
                     result = book.toc(project, offset=self._integer(params, "offset", 0, 0, 1000000), limit=self._integer(params, "limit", 50, 1, 100))
+                elif path == "/api/directory":
+                    project = self._param(params, "project")
+                    if project is None:
+                        raise ValueError("A project is required.")
+                    result = book.search_directory(
+                        self._param(params, "q", ""), project,
+                        offset=self._integer(params, "offset", 0, 0, 1000000),
+                        limit=self._integer(params, "limit", 20, 1, 100),
+                    )
                 elif path == "/api/chapter":
                     chapter_id = self._param(params, "id")
                     if not chapter_id:
                         raise ValueError("A chapter id is required.")
                     result = book.chapter(
                         chapter_id,
+                        project=self._param(params, "project"),
                         offset=self._integer(params, "offset", 0, 0, 1000000),
                         limit=self._integer(params, "limit", 50, 1, 100),
                         page_limit=self._integer(params, "page_limit", 20, 1, 100),
@@ -162,21 +178,34 @@ def make_server(db_path, host: str = "127.0.0.1", port: int = 8765, *, container
                     section_id = self._param(params, "id")
                     if not section_id:
                         raise ValueError("A section id is required.")
-                    result = book.section(section_id, offset=self._integer(params, "offset", 0, 0, 1000000), limit=self._integer(params, "limit", 50, 1, 100))
+                    result = book.section(section_id, project=self._param(params, "project"), offset=self._integer(params, "offset", 0, 0, 1000000), limit=self._integer(params, "limit", 50, 1, 100))
                 elif path == "/api/read":
                     page_id = self._param(params, "id")
                     if not page_id:
                         raise ValueError("A page id is required.")
-                    result = book.read(page_id, offset=self._integer(params, "offset", 0, 0, 100000000), limit=self._integer(params, "limit", 12000, 1, 24000))
+                    result = book.read(page_id, project=self._param(params, "project"), offset=self._integer(params, "offset", 0, 0, 100000000), limit=self._integer(params, "limit", 12000, 1, 24000))
+                elif path == "/api/turn":
+                    project = self._param(params, "project")
+                    session_id = self._param(params, "session_id")
+                    if project is None or session_id is None:
+                        raise ValueError("A project and session_id are required.")
+                    result = book.read_turn(
+                        project, session_id,
+                        self._integer(params, "turn_index", None, 0, 49999),
+                        offset=self._integer(params, "offset", 0, 0, 100000000),
+                        limit=self._integer(params, "limit", 12000, 1, 24000),
+                        source_hash=self._param(params, "source_hash"),
+                    )
                 else:
                     query = self._param(params, "q", "")
                     if not query.strip() or len(query) > 4000:
                         raise ValueError("Search text must contain 1 to 4000 characters.")
                     result = book.recall(
                         query,
-                        project=self._param(params, "project") or None,
-                        chapter=self._param(params, "chapter") or None,
-                        session=self._param(params, "session") or None,
+                        project=self._param(params, "project"),
+                        chapter=self._param(params, "chapter"),
+                        session=self._param(params, "session"),
+                        all_projects=self._boolean(params, "all_projects"),
                         budget_chars=self._integer(params, "budget_chars", 2400, 256, 24000),
                         limit=self._integer(params, "limit", 5, 1, 20),
                         temporal=self._param(params, "temporal", "auto"),
@@ -193,7 +222,7 @@ def make_server(db_path, host: str = "127.0.0.1", port: int = 8765, *, container
             except (ValueError, TypeError) as exc:
                 self._error(HTTPStatus.BAD_REQUEST, str(exc))
             except KeyError:
-                self._error(HTTPStatus.NOT_FOUND, "The requested book, chapter, or page does not exist.")
+                self._error(HTTPStatus.NOT_FOUND, "The requested book, directory, page, or source does not exist in this scope.")
             except Exception as exc:
                 print(f"MemoryBook reader error: {type(exc).__name__}", file=sys.stderr)
                 self._error(HTTPStatus.INTERNAL_SERVER_ERROR, "The reader could not complete this request.")

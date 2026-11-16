@@ -1,0 +1,17 @@
+{
+  "status": "blocked",
+  "stage": "chromium_launch",
+  "application_exercised": false,
+  "conclusion": "Environment launch failure; this run provides no evidence that reader behavior passed or failed.",
+  "browser_executable": "/usr/bin/chromium",
+  "python": "3.12.14",
+  "checks_completed": [],
+  "error": "Chromium process_singleton_posix.cc:297: socket() failed: Operation not permitted (1); process exited with SIGABRT before a page was opened.",
+  "initial_attempt": "Playwright initially could not create /tmp/playwright-artifacts-*; setting TMPDIR to a writable scratch directory resolved that prerequisite only.",
+  "command": "TMPDIR=/workspace/scratch/3c1f3115f539/browser-tmp PYTHONPATH=src /workspace/scratch/3c1f3115f539/.venv/bin/python tests/browser_smoke.py --browser-executable /usr/bin/chromium --artifacts-dir /workspace/scratch/3c1f3115f539/v070-reader-check",
+  "required_follow_up": "Run the unchanged reader-browser smoke suite in the hosted CI browser job.",
+  "source_script_syntax_check": {
+    "command": "node --check (inline reader script on stdin)",
+    "exit_code": 0
+  }
+}

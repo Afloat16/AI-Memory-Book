@@ -66,6 +66,7 @@ RELEASE_PRERELEASE = {
     "v0.4.0": False,
     "v0.5.0": False,
     "v0.6.0": False,
+    "v0.7.0": False,
 }
 INSTALLERS = ("install.py", "install.sh", "install.ps1")
 READ_DELAYS = (1, 2, 4)

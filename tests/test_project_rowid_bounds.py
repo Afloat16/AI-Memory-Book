@@ -37,7 +37,7 @@ class ProjectRowidBoundsTests(unittest.TestCase):
             for query in ("needle reliability", "缓存保留", "unmatchedword"):
                 for scope in ({"project": "target"}, {"project": "target", "chapter": chapter},
                               {"project": "target", "session": "0"}, {"project": "missing"},
-                              {"project": "outside", "chapter": chapter}, {}):
+                              {"project": "outside", "chapter": chapter}, {"all_projects": True}):
                     with self.subTest(query=query, scope=scope):
                         response = self.assert_original_response(book, query, budget_chars=2000, **scope)
                         if scope.get("project") == "target":

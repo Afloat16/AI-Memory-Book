@@ -31,6 +31,11 @@ INSTRUCTIONS = """Local background memory for AI agents: project books, task cha
 question sections, evidence pages. Recall once only when earlier work matters;
 skip self-contained requests. Use a known project ID and small budget_chars.
 Discover unknown IDs with browse_projects; retain them, never invent them.
+Multiple project books require a project or known chapter; all_projects=true
+explicitly enables a cross-project search. search_directory finds scoped titles
+and questions without page bodies. read_source_turn follows a source reference
+through the complete original turn. Pass project when following page/directory IDs
+to catch accidental cross-book navigation; these checks are not access control.
 Use context and source_refs to cite session_id/turn_index. Read selected page IDs
 only if needed; directory browsing is optional, not a per-question preflight.
 recall_memory defaults to compact references; details=true adds exact spans and
@@ -220,6 +225,7 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
         project: str | None = None,
         chapter: str | None = None,
         session: str | None = None,
+        all_projects: StrictBool = False,
         budget_chars: int = 2400,
         limit: int = 5,
         details: bool = False,
@@ -231,6 +237,8 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
     ) -> str:
         """Recall cited history. Compact by default; details adds exact spans and diagnostics.
 
+        Select project in a multi-project archive, or use a known chapter ID.
+        all_projects=true explicitly searches across books and cannot accompany project.
         budget_chars limits context including citations, not outer JSON metadata.
         budget_tokens optionally adds an exact tokenizer limit on that same
         context, including citations/separators; requires the tokens extra.
@@ -250,7 +258,7 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
         _range(limit, "limit", 1, 50)
         with acquire_book() as book:
             result = book.recall(
-                query, project=project, chapter=chapter, session=session,
+                query, project=project, chapter=chapter, session=session, all_projects=all_projects,
                 budget_chars=budget_chars, limit=limit, coverage=coverage,
                 budget_tokens=budget_tokens, tokenizer=tokenizer,
                 semantic=semantic, temporal=temporal,
@@ -272,28 +280,47 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
             return _json(book.toc(project, offset=offset, limit=limit))
 
     @server.tool(annotations=read_only)
-    def browse_chapter(chapter_id: str, offset: int = 0, limit: int = 50) -> Any:
-        """List a chapter's sections with bounded page previews; browse_section continues them."""
+    def search_directory(query: str, project: str, offset: int = 0, limit: int = 20) -> Any:
+        """Search one book's titles and questions; return ranked directory paths without page bodies."""
+        _range(offset, "offset", 0, 10000000)
+        _range(limit, "limit", 1, 100)
+        with acquire_book() as book:
+            return _json(book.search_directory(query, project, offset=offset, limit=limit))
+
+    @server.tool(annotations=read_only)
+    def browse_chapter(chapter_id: str, offset: int = 0, limit: int = 50, project: str | None = None) -> Any:
+        """List bounded section/page previews; project optionally checks this chapter's book."""
         _range(offset, "offset", 0, 1000000000)
         _range(limit, "limit", 1, 100)
         with acquire_book() as book:
-            return _json(book.chapter(chapter_id, offset=offset, limit=limit))
+            return _json(book.chapter(chapter_id, project=project, offset=offset, limit=limit))
 
     @server.tool(annotations=read_only)
-    def browse_section(section_id: str, offset: int = 0, limit: int = 50) -> Any:
-        """List a section's pages with pagination, including long-answer continuation pages."""
+    def browse_section(section_id: str, offset: int = 0, limit: int = 50, project: str | None = None) -> Any:
+        """List paginated continuation pages; project optionally checks this section's book."""
         _range(offset, "offset", 0, 1000000000)
         _range(limit, "limit", 1, 100)
         with acquire_book() as book:
-            return _json(book.section(section_id, offset=offset, limit=limit))
+            return _json(book.section(section_id, project=project, offset=offset, limit=limit))
 
     @server.tool(annotations=read_only)
-    def read_page(page_id: str, offset: int = 0, limit: int = 12000) -> Any:
-        """Read an exact evidence page with character pagination and source attribution."""
+    def read_page(page_id: str, offset: int = 0, limit: int = 12000, project: str | None = None) -> Any:
+        """Read a cited page with character pagination; project optionally checks its book."""
         _range(offset, "offset", 0, 1000000000)
         _range(limit, "limit", 1, 100000)
         with acquire_book() as book:
-            return _json(book.read(page_id, offset=offset, limit=limit))
+            return _json(book.read(page_id, project=project, offset=offset, limit=limit))
+
+    @server.tool(annotations=read_only)
+    def read_source_turn(project: str, session_id: str, turn_index: StrictInt,
+                         offset: int = 0, limit: int = 12000,
+                         source_hash: str | None = None) -> Any:
+        """Read a complete original turn; pass source_hash to keep paginated reads on one source version."""
+        _range(turn_index, "turn_index", 0, 49999)
+        _range(offset, "offset", 0, 1000000000)
+        _range(limit, "limit", 1, 100000)
+        with acquire_book() as book:
+            return _json(book.read_turn(project, session_id, turn_index, offset=offset, limit=limit, source_hash=source_hash))
 
     if allow_write:
         @server.tool(annotations=ToolAnnotations(

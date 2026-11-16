@@ -302,7 +302,8 @@ class CurrentDuplicateEvidenceTests(unittest.TestCase):
                 book.ingest(maintenance_session("decision", project="trainer-a", task="first",
                                                date="2026-01-01T00:00:00Z",
                                                content="Gradient accumulation steps are now 2."))
-                result = book.recall("current gradient accumulation steps", limit=2)
+                result = book.recall("current gradient accumulation steps", limit=2,
+                                     all_projects=across_projects)
                 self.assertEqual({ref["session_id"] for hit in result["results"]
                                   for ref in hit["source_refs"]}, {"a", "b"})
 

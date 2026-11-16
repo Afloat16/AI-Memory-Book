@@ -91,7 +91,7 @@ class ConjunctiveRecallTests(unittest.TestCase):
                                     for hit in result["results"] for ref in hit["source_refs"]))
                 self.assert_sources(result, 600)
         result = self.book.recall("rotor calibration offset and receiver tolerance",
-                                  session="rotor-0", limit=2, budget_chars=600,
+                                  session="rotor-0", all_projects=True, limit=2, budget_chars=600,
                                   use_cache=False, coverage=True)
         self.assertNotIn(secondary, result["context"])
         self.assertTrue(all(ref["session_id"] == "rotor-0"
