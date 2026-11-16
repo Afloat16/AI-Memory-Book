@@ -453,11 +453,11 @@
     ],
     "total_count": 56
   },
-  "disposition": "Incomplete delivery matrix: 28 native cells passed, one macOS ARM cell cancelled before runner assignment, and the other macOS ARM cell was still queued at this snapshot. Retain this run unchanged; use a separate complete identical-source run with one coherent attempt.",
+  "disposition": "Delivery matrix did not complete: 28 native cells passed; both macOS ARM CPython 3.14 and 3.15 cells were cancelled before runner assignment with no executed steps. Release, prepare-only and published-install were skipped. Retain the run unchanged and use a separate complete identical-source run with one coherent attempt.",
   "head_branch": "validation/native-language-wheels-v0.9.0-core-4390d013",
   "limits": [
     "This snapshot is not a successful 30-cell delivery gate or a complete 67-asset audit.",
-    "No compilation or test steps executed in the cancelled cell. The API does not establish a more specific cancellation cause.",
+    "No compilation or test steps executed in either cancelled cell. The API does not establish a more specific cancellation cause.",
     "All previously recorded timing samples remain unchanged; this recovery concerns packaging infrastructure only."
   ],
   "observed_successful_native_cells": [
@@ -855,7 +855,7 @@
     }
   ],
   "published": false,
-  "recorded_utc": "2026-11-16T14:44:01Z",
+  "recorded_utc": "2026-11-16 14:49:50 UTC",
   "recovery": {
     "branch": "validation/native-language-wheels-v0.9.0-core-4390d013-recovery-1",
     "policy": "All 30 cells build anew. Do not mix old artifacts or receipts with the new run.",
@@ -871,26 +871,340 @@
   "source_commit": "4390d013986ab9c96b49cc6964f075f3866f21ee",
   "unstarted_cells": [
     {
-      "completed_at": null,
-      "conclusion": null,
-      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362276145",
       "id": 133362276145,
       "name": "native-wheel (3.14, macos_arm64)",
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362276145",
+      "status": "completed",
+      "conclusion": "cancelled",
       "runner_name": "",
       "started_at": "2026-11-16T14:24:56Z",
-      "status": "queued",
+      "completed_at": "2026-11-16T14:44:36Z",
       "steps": []
     },
     {
-      "completed_at": "2026-11-16T14:43:27Z",
-      "conclusion": "cancelled",
-      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362276389",
       "id": 133362276389,
       "name": "native-wheel (3.15, macos_arm64)",
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362276389",
+      "status": "completed",
+      "conclusion": "cancelled",
       "runner_name": "",
       "started_at": "2026-11-16T14:24:56Z",
-      "status": "completed",
+      "completed_at": "2026-11-16T14:43:27Z",
       "steps": []
+    }
+  ],
+  "previous_snapshot_git_blob_sha1": "4ae8e002fd77a08c8cffb6a39f6955e6fefd2534",
+  "run_status": {
+    "status": "completed",
+    "conclusion": "failure",
+    "updated_at": "2026-11-16T14:44:37Z"
+  },
+  "final_jobs": [
+    {
+      "id": 133362124587,
+      "name": "preflight",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362124587"
+    },
+    {
+      "id": 133362275693,
+      "name": "native-wheel (3.10, linux_aarch64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362275693"
+    },
+    {
+      "id": 133362275703,
+      "name": "native-wheel (3.10, macos_x86_64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362275703"
+    },
+    {
+      "id": 133362275731,
+      "name": "native-wheel (3.11, macos_arm64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362275731"
+    },
+    {
+      "id": 133362275739,
+      "name": "native-wheel (3.11, linux_x86_64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362275739"
+    },
+    {
+      "id": 133362275826,
+      "name": "native-wheel (3.10, linux_x86_64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362275826"
+    },
+    {
+      "id": 133362275854,
+      "name": "native-wheel (3.10, macos_arm64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362275854"
+    },
+    {
+      "id": 133362275866,
+      "name": "native-wheel (3.10, windows_amd64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362275866"
+    },
+    {
+      "id": 133362275896,
+      "name": "native-wheel (3.11, windows_amd64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362275896"
+    },
+    {
+      "id": 133362275921,
+      "name": "native-wheel (3.12, linux_aarch64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362275921"
+    },
+    {
+      "id": 133362275929,
+      "name": "native-wheel (3.11, macos_x86_64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362275929"
+    },
+    {
+      "id": 133362275937,
+      "name": "native-wheel (3.12, macos_arm64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362275937"
+    },
+    {
+      "id": 133362275951,
+      "name": "native-wheel (3.12, linux_x86_64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362275951"
+    },
+    {
+      "id": 133362275960,
+      "name": "native-wheel (3.11, linux_aarch64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362275960"
+    },
+    {
+      "id": 133362275964,
+      "name": "native-wheel (3.13, windows_amd64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362275964"
+    },
+    {
+      "id": 133362275966,
+      "name": "native-wheel (3.13, linux_x86_64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362275966"
+    },
+    {
+      "id": 133362275974,
+      "name": "native-wheel (3.13, macos_arm64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362275974"
+    },
+    {
+      "id": 133362275992,
+      "name": "native-wheel (3.12, macos_x86_64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362275992"
+    },
+    {
+      "id": 133362276026,
+      "name": "native-wheel (3.13, macos_x86_64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362276026"
+    },
+    {
+      "id": 133362276031,
+      "name": "native-wheel (3.12, windows_amd64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362276031"
+    },
+    {
+      "id": 133362276067,
+      "name": "native-wheel (3.14, macos_x86_64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362276067"
+    },
+    {
+      "id": 133362276077,
+      "name": "native-wheel (3.14, linux_x86_64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362276077"
+    },
+    {
+      "id": 133362276145,
+      "name": "native-wheel (3.14, macos_arm64)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362276145"
+    },
+    {
+      "id": 133362276174,
+      "name": "native-wheel (3.15, linux_aarch64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362276174"
+    },
+    {
+      "id": 133362276206,
+      "name": "native-wheel (3.14, linux_aarch64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362276206"
+    },
+    {
+      "id": 133362276225,
+      "name": "native-wheel (3.13, linux_aarch64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362276225"
+    },
+    {
+      "id": 133362276233,
+      "name": "native-wheel (3.15, linux_x86_64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362276233"
+    },
+    {
+      "id": 133362276274,
+      "name": "native-wheel (3.15, macos_x86_64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362276274"
+    },
+    {
+      "id": 133362276337,
+      "name": "native-wheel (3.15, windows_amd64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362276337"
+    },
+    {
+      "id": 133362276358,
+      "name": "native-wheel (3.14, windows_amd64)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362276358"
+    },
+    {
+      "id": 133362276389,
+      "name": "native-wheel (3.15, macos_arm64)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133362276389"
+    },
+    {
+      "id": 133374557785,
+      "name": "release",
+      "status": "completed",
+      "conclusion": "skipped",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133374557785"
+    },
+    {
+      "id": 133374558718,
+      "name": "prepare-only",
+      "status": "completed",
+      "conclusion": "skipped",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133374558718"
+    },
+    {
+      "id": 133374559883,
+      "name": "published-install",
+      "status": "completed",
+      "conclusion": "skipped",
+      "head_sha": "4390d013986ab9c96b49cc6964f075f3866f21ee",
+      "run_attempt": 1,
+      "html_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074/job/133374559883"
     }
   ]
 }

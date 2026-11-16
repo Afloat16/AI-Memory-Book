@@ -14,9 +14,11 @@ refinement at `cff1d9a3c183bf3c84183476f0485926f55abe56` also retained a
 local reingestion regression. Further constant reuse and selection of the
 faster original Python joining path produced the final 22-entry scope. The
 cross-version-compatible candidate is now
-`4390d013986ab9c96b49cc6964f075f3866f21ee`; its exact-source formal
-experiment and delivery gates remain in progress. This document does not
-approve or announce a release.
+`4390d013986ab9c96b49cc6964f075f3866f21ee`. Its complete formal experiment
+and independent raw-data audit pass. The [final validation report](native-core-validation.md)
+and [acceptance record](../benchmarks/experiments/native_core_acceptance.json)
+record the final gains, retained costs and exact delivery/publication status.
+This document preserves the full development history, including rejected paths.
 
 The [development plan](../benchmarks/experiments/native_core_plan.json) defines
 the boundary. SQL, transactions, database schema, public interfaces, ranking
@@ -293,23 +295,57 @@ exact-source hosted experiment.
 
 ## Final formal experiment and delivery
 
-The new [protocol 5 plan](../benchmarks/experiments/native_core_compatibility_formal_plan.json)
-is frozen at `cfdb3ca2c8ff2d71792e820923057d6613ea08b7`.
-[Run 43886529702](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43886529702)
-compares exact 4390 with released native v0.8.1 using the complete unchanged
-113,568-call / 56,784-pair matrix. It explicitly binds both earlier
-experiments. The independent auditor was
+The [protocol 5 plan](../benchmarks/experiments/native_core_compatibility_formal_plan.json)
+was frozen at `cfdb3ca2c8ff2d71792e820923057d6613ea08b7` before the single
+first-attempt [run 43886529702](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43886529702).
+It compares exact 4390 with released native v0.8.1 in the full unchanged
+113,568-call / 56,784-pair matrix and binds both earlier experiments. The
+independent auditor was
 [registered before results](../benchmarks/reports/native-core-compatibility/development/artifact-auditor-preregistration.json)
-and independently reviewed. There are no selective reruns or replaced
-observations.
+and independently reviewed. There are no selective reruns or replaced samples.
 
-The final 30-wheel preparation
-[run 43885419074](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074)
-must complete all supported CPython/platform cells and the full asset and
-installation checks. Publication then needs a fresh build at the exact
-approved main commit and a real published-installer check. Earlier
-development, failed platform and preparation builds are retained with their
-own identities; they are not final-publication receipts.
+All recorded outputs, source positions, archives and indexes match, with only
+the direct diagnostic `latency_ms` excluded. The
+[independent audit](../benchmarks/reports/native-core-compatibility/formal-run-1/independent-audit.json)
+verifies the 77,821,913-byte artifact, 151 manifest files, 227,136 ledger events
+and the exact frozen summary without re-executing the application. The
+[immutable evidence commit](https://github.com/Afloat16/AI-Memory-Book/tree/51e8d022c164ba714f68db562c9ae280a62c2312)
+and reports checkpoint `c2edd920` preserve the results independently of the
+Actions artifact's retention period.
 
-At this checkpoint, final protocol 5 performance acceptance and the remaining
-delivery gates are pending. v0.8.1 remains the published baseline.
+All eight pooled query cells improve at p50/p95. Default 2400-character
+p95 reductions are 1.8233% / 2.6446% for synthetic direct/MCP and
+5.7909% / 3.5134% for public direct/MCP. Synthetic direct-character round
+two p95 regresses 0.8917%; public token-budget MCP round one p50/p95
+regress 0.7751% / 3.1778%. Those values remain in the
+[complete metrics extract](../benchmarks/reports/native-core-compatibility/formal-run-1/metrics-extract.md).
+
+All four paired batches improve for every ingestion cell. Four-batch total
+reductions are 9.2758% / 10.3855% for synthetic/public fresh ingestion and
+2.9652% / 3.9370% for unchanged reingestion. API import adds 2.043 / 2.197 ms,
+ending worker RSS adds 0.232 / 0.018 MiB, startup results are mixed and the
+extension grows 519,480 bytes on this host. The final EPYC 7763 host differs
+from the preceding EPYC 9V45 and original EPYC 9V74 hosts; their absolute
+times and percentages remain separate evidence.
+
+The first exact-4390 packaging run, [43885419074](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074),
+passed 28 wheels but ended incomplete when two unallocated macOS ARM jobs
+were cancelled. Its [final record](../benchmarks/reports/native-core-compatibility/packaging-43885419074/interrupted-matrix.json)
+retains the actual logs and absence of runner/steps. A full same-source
+replacement, [43888785867](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43888785867),
+is in progress. No receipts are mixed across runs or attempts.
+
+An [official runner investigation](../benchmarks/reports/native-core-compatibility/development/native-core-macos-runner-investigation.json)
+confirmed an available macOS 26 ARM label as a potential recovery route;
+macOS 15 allocations then resumed. The workflow has not changed, and the
+original full replacement is continuing. Performance review is complete,
+but native-delivery acceptance and publication remain pending.
+
+The final [acceptance record](../benchmarks/experiments/native_core_acceptance.json)
+binds runtime SHA256
+`6ec51c906de94c97f90ec9be3dc50d066c9abedcff283c1e118ef6d6847eb3b7`.
+Final publication requires the exact approved main commit, all eleven CI jobs,
+a fresh complete native-wheel matrix, verified release assets and a real
+public-installer check. Earlier development, interrupted preparation and
+failed compatibility runs retain their own identities; they are not
+final-publication receipts.
