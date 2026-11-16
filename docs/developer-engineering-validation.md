@@ -1,7 +1,7 @@
 # Developer engineering validation — retained source snapshot
 
 This retained report describes the source validated on 2026-11-15. For the
-current release, see [v0.5.0 engineering validation](v0.5.0-engineering-validation.md).
+current release, see [v0.6.0 engineering validation](v0.6.0-engineering-validation.md).
 
 This report covers that source's identifier retrieval, current-turn token
 packing, schema-4 migration and database maintenance. The runtime was compared

@@ -51,6 +51,9 @@ APPROVED_RUNTIME_SHA256 = {
     # Explicit temporal intent, schema-4 engineering retrieval, and reliable
     # archive import/export. Evidence: docs/v0.5.0-engineering-validation.md.
     "0.5.0": "bd7c34dd7f795404a5d9b65502b2e67a1f4e7fc10e742cf0f30fadc57c444980",
+    # Authenticated same-field declaration ordering; no archive/schema changes.
+    # Fixed synthetic/component evidence: docs/v0.6.0-engineering-validation.md.
+    "0.6.0": "397afa98fb77c3550c53e21332862e0a4b3242c26b5ef0c87966970ab8a0f44c",
 }
 # Publication channels are explicit: older prereleases remain prereleases when
 # an interrupted run reconciles them. A new version needs a reviewed entry.
@@ -62,6 +65,7 @@ RELEASE_PRERELEASE = {
     "v0.3.4": False,
     "v0.4.0": False,
     "v0.5.0": False,
+    "v0.6.0": False,
 }
 INSTALLERS = ("install.py", "install.sh", "install.ps1")
 READ_DELAYS = (1, 2, 4)
