@@ -16,6 +16,7 @@ from types import FunctionType
 from typing import Any
 
 from .segmentation import make_turns, segment
+from ._text_backend import NATIVE as _NATIVE
 from .text import (IDENTIFIER_WORD_BOUNDARY, estimate_tokens, excerpt, headline,
                    identifier_terms as terms, index_text, query_terms, terms as lexical_terms)
 
@@ -275,6 +276,10 @@ def _context_allocations(pages: list[dict], budget: int) -> list[tuple[dict, str
     pages first, then share the remaining space between the longer pages. The
     order of evidence is unchanged and no answer labels are consulted.
     """
+    if _NATIVE is not None:
+        native = _NATIVE.context_allocations(pages, budget)
+        if native is not NotImplemented:
+            return native
     selected: list[tuple[dict, str]] = []
     minimum, overhead = 0, 0
     for row in pages:
@@ -325,6 +330,10 @@ _ORDINARY_JSON_LOADS = _ordinary_json_loader()
 
 def _refs_from_parsed(refs: list[dict], spans: list[tuple[int, int]]) -> list[dict]:
     """Clip a single-span capture which the caller may consume only once."""
+    if _NATIVE is not None:
+        native = _NATIVE.refs_from_parsed(refs, spans)
+        if native is not NotImplemented:
+            return native
     result = []
     for lo, hi in spans:
         for ref in refs:
@@ -1581,33 +1590,48 @@ class MemoryBook:
                         else:
                             rows[row["id"]].update(dict(row))
                 qset = set(qt)
-                directory_overlaps = {}
-                for row in rows.values():
-                    item = row  # already a private dictionary; rows is not reused
-                    title_overlap = 0.0
-                    if strategy == "book":
-                        directory = item["chapter_title"] + " " + item["session_title"]
-                        if directory not in directory_overlaps:
-                            directory_overlaps[directory] = len(qset & self._directory_tokens(directory)) / len(qset)
-                        title_overlap = directory_overlaps[directory]
-                    if bounded is not None:
-                        relevance = base_relevance[item["id"]]
-                    elif fuse_routes:
-                        # Retain each route's
-                        # relative BM25 margins instead of only its ordinal rank.
-                        # Exact relevance retains the predeclared 2:1 preference.
-                        # An absent route contributes zero, never a fake score.
-                        relevance = (2 * exact_scores.get(item["id"], 0.0) / exact_scale +
-                                     stem_scores.get(item["id"], 0.0) / stem_scale)
-                    else:
-                        relevance = -item["rank"]
-                    item["score"] = relevance * (1 + 0.15 * title_overlap if strategy == "book" else 1)
-                    candidates.append(item)
-                if fuse_routes:
-                    candidates.sort(key=lambda item: (-item["score"], exact_ranks.get(item["id"], 97),
-                                                      stem_ranks.get(item["id"], 97), item["id"]))
+                ranked = NotImplemented
+                if (_NATIVE is not None and type(self) is MemoryBook
+                        and type(self.db) is sqlite3.Connection
+                        and self.db.row_factory is sqlite3.Row and self.db.text_factory is str
+                        and self._directory_tokens is self._ordinary_directory_cache
+                        and getattr(self._directory_tokens, "__wrapped__", None) is _ORDINARY_DIRECTORY_TOKENS
+                        and (type(rows) is dict or (type(rows) is _RecallCandidates
+                            and _RecallCandidates.values is dict.values))):
+                    fusion = ((exact_scores, exact_scale, stem_scores, stem_scale, exact_ranks, stem_ranks)
+                              if fuse_routes else None)
+                    ranked = _NATIVE.rank_candidates(list(rows.values()), qset, self._directory_tokens,
+                        strategy == "book", base_relevance if bounded is not None else None, fusion)
+                if ranked is not NotImplemented:
+                    candidates.extend(ranked)
                 else:
-                    candidates.sort(key=lambda item: (-item["score"], item["id"]))
+                    directory_overlaps = {}
+                    for row in rows.values():
+                        item = row  # already a private dictionary; rows is not reused
+                        title_overlap = 0.0
+                        if strategy == "book":
+                            directory = item["chapter_title"] + " " + item["session_title"]
+                            if directory not in directory_overlaps:
+                                directory_overlaps[directory] = len(qset & self._directory_tokens(directory)) / len(qset)
+                            title_overlap = directory_overlaps[directory]
+                        if bounded is not None:
+                            relevance = base_relevance[item["id"]]
+                        elif fuse_routes:
+                            # Retain each route's
+                            # relative BM25 margins instead of only its ordinal rank.
+                            # Exact relevance retains the predeclared 2:1 preference.
+                            # An absent route contributes zero, never a fake score.
+                            relevance = (2 * exact_scores.get(item["id"], 0.0) / exact_scale +
+                                         stem_scores.get(item["id"], 0.0) / stem_scale)
+                        else:
+                            relevance = -item["rank"]
+                        item["score"] = relevance * (1 + 0.15 * title_overlap if strategy == "book" else 1)
+                        candidates.append(item)
+                    if fuse_routes:
+                        candidates.sort(key=lambda item: (-item["score"], exact_ranks.get(item["id"], 97),
+                                                          stem_ranks.get(item["id"], 97), item["id"]))
+                    else:
+                        candidates.sort(key=lambda item: (-item["score"], item["id"]))
                 if strategy == "book" and candidates and (current_query or (len(qt) > 1 and limit > 1)):
                     # Rerank a bounded pool using the FTS body's existing
                     # tokens. Complementary query facets can otherwise be
@@ -1626,17 +1650,21 @@ class MemoryBook:
                             self.db, pool, matched,
                             distinct=limit > 1 and not temporal_intent["preserve_occurrences"],
                             declarations=not temporal_intent["preserve_occurrences"], diagnostics=temporal_intent)
-                    chosen, pending = [pool[0]], pool[1:]
-                    covered = set(matched[pool[0]["rid"]])
-                    while (pending or deferred) and len(chosen) < limit:
-                        if not pending:
-                            pending, deferred = deferred, []
-                        best = max(range(len(pending)), key=lambda i: pending[i]["score"] *
-                                   (1 + len(matched[pending[i]["rid"]] - covered) / len(qset)))
-                        item = pending.pop(best)
-                        chosen.append(item)
-                        covered.update(matched[item["rid"]])
-                    candidates = chosen + pending + deferred + candidates[pool_count:]
+                    selected = (_NATIVE.select_novelty(pool, deferred, matched, len(qset), limit)
+                                if _NATIVE is not None else NotImplemented)
+                    if selected is NotImplemented:
+                        chosen, pending = [pool[0]], pool[1:]
+                        covered = set(matched[pool[0]["rid"]])
+                        while (pending or deferred) and len(chosen) < limit:
+                            if not pending:
+                                pending, deferred = deferred, []
+                            best = max(range(len(pending)), key=lambda i: pending[i]["score"] *
+                                       (1 + len(matched[pending[i]["rid"]] - covered) / len(qset)))
+                            item = pending.pop(best)
+                            chosen.append(item)
+                            covered.update(matched[item["rid"]])
+                        selected = chosen + pending + deferred
+                    candidates = selected + candidates[pool_count:]
                 facets = (_query_facets(query) if coverage and strategy == "book" and limit > 1 and
                           not current_query and not temporal_intent.get("current_cues") and
                           not temporal_intent.get("historical_cues") else [])

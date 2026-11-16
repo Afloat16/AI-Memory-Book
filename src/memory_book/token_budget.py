@@ -14,6 +14,7 @@ from collections import OrderedDict
 from functools import lru_cache
 from typing import Any, Callable
 
+from ._text_backend import NATIVE as _NATIVE
 from .text import terms
 
 TOKENIZERS = ("cl100k_base", "o200k_base")
@@ -27,6 +28,45 @@ _ENCODING_ORIGINS: dict[str, tuple] = {}
 _ROLE = re.compile(r"^(?:USER|ASSISTANT|SYSTEM|DEVELOPER|TOOL):[ \t]*")
 _OPEN = re.compile(r"^[ \t]{0,3}(`{3,}|~{3,})(.*)$")
 _SENTENCE = re.compile(r"[。！？]|[.!?](?=\s|$)")
+
+# Unknown or replaced public dependencies keep the reference bodies below.
+# Inspect the callable's actual origin so a pre-import wrapper is not treated
+# as the original merely because it was the first callable we encountered.
+_NATIVE_SOURCE_ROLE = _ROLE
+_NATIVE_SOURCE_OPEN = _OPEN
+_NATIVE_SOURCE_SENTENCE = _SENTENCE
+_NATIVE_SOURCE_FULLMATCH = re.fullmatch
+_NATIVE_SOURCE_ESCAPE = re.escape
+_NATIVE_SOURCE_BISECT = bisect_left
+_NATIVE_SOURCE_CERTIFIED = (
+    type(_ROLE) is re.Pattern
+    and _ROLE.pattern == r"^(?:USER|ASSISTANT|SYSTEM|DEVELOPER|TOOL):[ \t]*"
+    and _ROLE.flags == re.UNICODE
+    and type(_OPEN) is re.Pattern
+    and _OPEN.pattern == r"^[ \t]{0,3}(`{3,}|~{3,})(.*)$"
+    and _OPEN.flags == re.UNICODE
+    and type(_SENTENCE) is re.Pattern
+    and _SENTENCE.pattern == r"[。！？]|[.!?](?=\s|$)"
+    and _SENTENCE.flags == re.UNICODE
+    and all(getattr(function, "__module__", None) == "re"
+            and getattr(function, "__name__", None) == name
+            and getattr(function, "__globals__", None) is re.__dict__
+            and getattr(getattr(function, "__code__", None), "co_name", None) == name
+            and getattr(getattr(function, "__code__", None), "co_filename", None) == re.__file__
+            for function, name in ((re.fullmatch, "fullmatch"), (re.escape, "escape")))
+)
+_NATIVE_SOURCE_BISECT_CERTIFIED = (
+    type(bisect_left) is type(len)
+    and getattr(bisect_left, "__module__", None) == "_bisect"
+    and getattr(bisect_left, "__name__", None) == "bisect_left"
+)
+
+
+def _native_source_units_ready() -> bool:
+    return (_NATIVE is not None and _NATIVE_SOURCE_CERTIFIED
+            and _ROLE is _NATIVE_SOURCE_ROLE and _OPEN is _NATIVE_SOURCE_OPEN
+            and _SENTENCE is _NATIVE_SOURCE_SENTENCE
+            and re.fullmatch is _NATIVE_SOURCE_FULLMATCH and re.escape is _NATIVE_SOURCE_ESCAPE)
 
 
 def _trusted_encoder_methods(tiktoken) -> tuple | None:
@@ -336,6 +376,8 @@ def source_units(text: str) -> list[tuple[int, int]]:
     Inside a fence, ``USER: ``` `` is ordinary code and cannot close the fence.
     Unclosed fenced blocks are not offered as supplemental units.
     """
+    if type(text) is str and _native_source_units_ready():
+        return _NATIVE.source_units(text)
     primary: list[tuple[int, int]] = []
     sentences: list[tuple[int, int]] = []
     offset = 0
@@ -381,6 +423,9 @@ def source_units(text: str) -> list[tuple[int, int]]:
     return sorted(spans)
 
 
+_ORDINARY_SOURCE_UNITS = source_units
+
+
 def projected_units(row: dict[str, Any], turns: dict[tuple[str, int], str],
                     unit_cache: dict[tuple[str, int], list[tuple[int, int]]]) -> list[tuple[int, int]]:
     """Project complete original-turn units through the page's source map."""
@@ -392,6 +437,11 @@ def projected_units(row: dict[str, Any], turns: dict[tuple[str, int], str],
 def _projected_units(row: dict[str, Any], turns: dict[tuple[str, int], str],
                      unit_cache: dict[tuple[str, int], list[tuple[int, int]]],
                      refs: list[dict]) -> list[tuple[int, int]]:
+    if (_native_source_units_ready() and source_units is _ORDINARY_SOURCE_UNITS
+            and _NATIVE_SOURCE_BISECT_CERTIFIED and bisect_left is _NATIVE_SOURCE_BISECT):
+        native = _NATIVE.projected_units(row, turns, unit_cache, refs)
+        if native is not NotImplemented:
+            return native
     spans: set[tuple[int, int]] = set()
     for ref in refs:
         key = (row["session_pk"], ref["turn_index"])
@@ -426,6 +476,10 @@ def _source_map_matches(row: dict[str, Any], turns: dict[tuple[str, int], str],
     Uncertified maps use the old unit-by-unit validation, including maps where
     a difference falls only in a partial sentence or an unfinished fence.
     """
+    if _NATIVE is not None:
+        native = _NATIVE.source_map_matches(row, turns, refs)
+        if native is not NotImplemented:
+            return native
     content = row["content"]
     for ref in refs:
         original = turns.get((row["session_pk"], ref["turn_index"]))
