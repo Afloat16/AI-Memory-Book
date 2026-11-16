@@ -3,6 +3,7 @@
 import os
 import sys
 import sysconfig
+from pathlib import Path
 
 from setuptools import Extension, setup
 
@@ -18,6 +19,7 @@ if mode != "0" and supported:
     extensions.append(Extension(
         "memory_book._native",
         sources=["src/memory_book/_native.c"],
+        depends=sorted(str(path) for path in Path("src/memory_book").glob("_native_*.h")),
         extra_compile_args=["/O2"] if os.name == "nt" else ["-O3"],
         optional=mode == "auto",
     ))

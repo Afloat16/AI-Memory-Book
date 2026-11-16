@@ -896,7 +896,22 @@ error:
     return NULL;
 }
 
+#include "_native_lexical.h"
+#include "_native_excerpt.h"
+#include "_native_rank.h"
+#include "_native_source.h"
+
 static PyMethodDef native_methods[] = {
+    {"strip_nonspacing_marks", native_strip_nonspacing_marks, METH_VARARGS, "Equivalent whole-string mark filtering."},
+    {"identifier_has_boundary", native_identifier_has_boundary, METH_VARARGS, "Equivalent fixed identifier boundary predicate."},
+    {"excerpt_window", native_excerpt_window, METH_VARARGS, "Complete equivalent source-window selection."},
+    {"rank_candidates", native_rank_candidates, METH_VARARGS, "Equivalent batch scoring and stable sorting."},
+    {"select_novelty", native_select_novelty, METH_VARARGS, "Equivalent bounded novelty selection."},
+    {"context_allocations", native_context_allocations, METH_VARARGS, "Equivalent cited character-budget allocation."},
+    {"refs_from_parsed", native_refs_from_parsed, METH_VARARGS, "Equivalent source-reference clipping."},
+    {"source_units", native_source_units, METH_VARARGS, "Equivalent original-turn source units."},
+    {"projected_units", native_projected_units, METH_VARARGS, "Equivalent source-unit projection."},
+    {"source_map_matches", native_source_map_matches, METH_VARARGS, "Equivalent source-map certificate."},
     {"terms_ascii", native_terms_ascii, METH_VARARGS,
      "terms_ascii(text, query, stop) -> exact legacy ASCII terms."},
     {"ascii_tokens", native_ascii_tokens, METH_VARARGS,
