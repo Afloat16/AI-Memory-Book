@@ -61,7 +61,7 @@ native_strip_nonspacing_marks(PyObject *self, PyObject *args)
     if (PyErr_Occurred()) {
         goto done;
     }
-    result = PyDict_Size(removed) ? PyUnicode_Translate(text, removed, NULL) : Py_NewRef(text);
+    result = PyDict_Size(removed) ? PyUnicode_Translate(text, removed, "ignore") : Py_NewRef(text);
 
 done:
     Py_XDECREF(characters);
