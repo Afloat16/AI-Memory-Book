@@ -1,12 +1,22 @@
 # AI-Memory-Book
 
-**Find the right engineering evidence through a project book, without mixing similar projects.**
+**Project-scoped engineering memory, organized like a book and grounded in original evidence.**
 
 Projects are books, tasks are chapters, related turns form sections, and original evidence is a page you can open. AI-Memory-Book preserves normalized original text conversations, so an agent can recover constraints, parameter corrections, and failed attempts after a session or client switch, cite the source, and continue the work.
 
-[简体中文](README.zh-CN.md) · [Quick start](#quick-start) · [2400-character results](#2400-character-results) · [Open-source comparison](#open-source-comparison)
+[简体中文](README.zh-CN.md) · [Method](#method-overview) · [Quick start](#quick-start) · [2400-character results](#2400-character-results) · [Open-source comparison](#open-source-comparison)
 
 **v0.7.0 · MIT · Python 3.10+ · Local SQLite / FTS5**
+
+## Method overview
+
+![AI-Memory-Book method: build a source-preserving project hierarchy and lexical index; retrieve pages within scope, order evidence and return budgeted citations; optionally browse the directory or read a page.](docs/assets/method-overview.svg)
+
+**Figure 1. Default archive and retrieval workflow.** Project-tagged conversations become task chapters, adjacent-turn sections and addressable evidence pages. Deterministic segmentation preserves message text and source coordinates; SQLite stores the hierarchy, source records and FTS5 indexes. Without a task ID, each session forms its own chapter.
+
+At query time, project, chapter or session constraints apply **before candidate truncation**. Retrieval searches page text directly, using directory-title signals and evidence ordering; current-state requests prefer comparable recent sources. Selected evidence becomes cited original-text excerpts within the context budget. Agents can browse the directory or use a returned page ID to read additional source text. Directory traversal is optional. Default ingestion and lexical retrieval make no model calls; local semantic candidates and exact tokenizer budgets are opt-in.
+
+Supply a project ID or bind the MCP connection to enforce its project scope; unbound requests without a project can search across books. Evidence ordering does not establish authoritative truth or guarantee complete recall. [Implementation](src/memory_book/store.py) · [Segmentation](src/memory_book/segmentation.py) · [Agent workflow and source semantics](docs/agent-guide.md).
 
 ## Engineering advantages
 
@@ -129,33 +139,49 @@ The corrected final runtime also replays the unchanged **80 native engineering q
 
 The external comparison below retains the **frozen v0.6.0 experiment**. The v0.7.0 scope diagnostic above is a separate measurement; no newly reviewed project receives a numerical score.
 
-### Six real open-source implementations, one fixed workload
+### Pinned component configurations on a development workload
+
+These are configured retrieval-component results on an **authored synthetic development workload**. Default full-product workflows and held-out coding results were not measured. Six external interfaces were executed; three share the MiniLM representation, and Mem0 also uses Chroma as its vector store.
 
 The frozen **v0.6.0 runtime** was evaluated on **eight projects, four algorithm families, six chronological checkpoints and 80 questions**. There are **72 answerable questions, 80 required evidence spans, 48 fixed-policy cases and eight missing-evidence questions**. Families cover negative-edge shortest paths, Top-k ties, data splitting and fully masked softmax. Only previously visible history is ingested. Three repeats measure timing and stability; they do not create additional quality cases.
 
-The comparison runs actual pinned upstream code for **billion-context, claude-mem, Basic Memory, Mem0, Chroma and LangGraph Store**. Every backend receives the same complete original pages, unchanged questions, project filter and top-five limit. The same whole-block packer applies the 2400-character budget, including citations; oversized blocks are skipped. Book retains its native hierarchy/index metadata. [Fixed protocol and package/model locks](benchmarks/competitors/memory-systems-plan.md).
+The comparison runs actual pinned upstream code for **billion-context, claude-mem, Basic Memory, Mem0, Chroma and LangGraph Store**. Every backend receives the same complete original pages, unchanged questions and project scope, and returns at most five candidates through its own API. Internal search procedures can differ. The same whole-block packer applies the 2400-character budget, including citations; oversized blocks are skipped. Book retains its native hierarchy/index metadata. [Fixed protocol and package/model locks](benchmarks/competitors/memory-systems-plan.md).
 
 External components are rebuilt from the visible source-page snapshot at each checkpoint. The source-replacement category measures retrieval from that updated snapshot; it does not validate every product's native incremental update/delete workflow. The seven-backend matrix contains 560 query/backend pairs, 1680 actual native calls across three repeats, and 1120 packed outputs across the two budgets. Both budgets reuse the same native candidates.
 
 **Read the tested modes with the scores.** Basic Memory uses explicit FTS, claude-mem searches supplied raw observations without its observer, and Mem0 uses `infer=False` without fact extraction. Chroma and LangGraph are retrieval/store infrastructure. Mem0, Chroma and LangGraph share the same real local MiniLM model and its native 256-token truncation. These are configured component results; default full-product workflows are outside this experiment.
 
-| Measured component / mode | Evidence spans | Complete evidence | Policy passes | Stale-only | Mean chars |
+| Measured component / mode | Evidence spans | Complete evidence | Fixed-policy passes | Stale-only | Mean packed chars |
 |---|---:|---:|---:|---:|---:|
 | **AI-Memory-Book** | 80/80 | 72/72 · 100.00% | 48/48 | 0 | 1799.2 |
 | billion-context · pinned kernel | 72/80 | 64/72 · 88.89% | 40/48 | 0 | 1955.0 |
 | claude-mem 15.18.1 · raw-observation FTS | 72/80 | 64/72 · 88.89% | 40/48 | 0 | 1488.5 |
 | Basic Memory 1.0.0 · explicit FTS | 72/80 | 64/72 · 88.89% | 40/48 | 0 | 1333.1 |
-| Mem0 2.2.1 · `infer=False` + MiniLM | 55/80 | 47/72 · 65.28% | 25/48 | 4 | 1963.0 |
-| Chroma 1.5.9 · MiniLM collection | 55/80 | 47/72 · 65.28% | 25/48 | 4 | 1963.0 |
-| LangGraph checkpoint 4.3.2 · indexed Store | 55/80 | 47/72 · 65.28% | 25/48 | 4 | 1963.0 |
+| Shared MiniLM configurations¹ | 55/80 | 47/72 · 65.28% | 25/48 | 4 | 1963.0 |
 
-At 2400 characters, Book recovers **eight more complete-evidence cases** than each tested lexical component, a **11.11-percentage-point** difference, and passes **eight more fixed-policy cases**, a **16.67-point** difference. Against each of the three shared-MiniLM configurations, it recovers **25 more complete cases**. Their identical quality counts are correlated evidence of the shared model, not three independent demonstrations of model superiority. [Complete component report](benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/report.json).
+¹ **Mem0 2.2.1** (`infer=False`, Chroma provider), **Chroma 1.5.9**, and indexed **LangGraph Store** (checkpoint 4.3.2 distribution). Each was executed separately and retains its own row in the [complete component report](benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/report.json). They are grouped here to make their dependence visible. Mean packed characters measures the shared packer, not each product's native context injection or token cost.
+
+At 2400 characters, Book recovers **eight more complete-evidence cases** than each tested lexical component, a **11.11-percentage-point** difference, and passes **eight more fixed-policy cases**, a **16.67-point** difference. It recovers **25 more complete cases** than the shared-MiniLM group on this workload. This is one correlated comparison, not three independent demonstrations of an advantage.
 
 The context tradeoff is visible: Book uses **7.97% fewer characters than billion**, but returns more text than claude-mem FTS and Basic Memory FTS while recovering the additional evidence. It does not have the shortest context among all engines. Every backend has **zero source-validation failures, zero budget violations and stable repeated output** in both budgets. [Raw outputs and source mappings](benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/).
 
 “Stale-only” counts cases containing a marked obsolete span without required evidence. It does not count every kind of wrong answer: billion's historical-decision misses, for example, still have zero stale-only cases. Complete-evidence coverage and the category table must be read alongside that count.
 
 Source validation authenticates each adapter's mapping back to the common original pages. It does not imply that every upstream product natively exposes Book's exact citation coordinates.
+
+### Why do the three MiniLM configurations have equal scores?
+
+Reanalysis of the frozen records distinguishes identical scores from identical outputs:
+
+| Configuration pair | Same ordered candidate IDs | Same cited context at 2400 chars | Same per-question score at 2400 chars |
+|---|---:|---:|---:|
+| Chroma / LangGraph | 33/80 | 33/80 | 80/80 |
+| Chroma / Mem0 | 39/80 | 39/80 | 80/80 |
+| LangGraph / Mem0 | 67/80 | 67/80 | 80/80 |
+
+All three return the **same ordered page-body strings for each question**. Every differing candidate ID points to a repeated maintenance body with an equally long citation header. The common packer therefore delivers the same body sequence and character count; rescoring confirms equal quality outcomes even when source references differ. This is not just a rounding coincidence.
+
+The final checkpoint contains **144 pages but only 44 distinct bodies**; **96 maintenance pages use eight distinct bodies**. These repeated synthetic notes limit this workload's ability to distinguish the three configurations. The saved-record audit revalidates all seven backends' 1120 packed outputs with **64,900 checks and zero failures**; it does not rerun retrieval or establish full-product equivalence. [Explanation, both budgets and reproduction](docs/shared-minilm-audit.md) · [Audit data](benchmarks/reports/v0.6.0-engineering/reanalysis/shared-minilm-audit.json).
 
 ### Which engineering scenarios explain the difference?
 
@@ -173,21 +199,21 @@ Complete-evidence counts under the same 2400-character whole-block protocol:
 | Failed attempts | 8/8 | 8/8 | 8/8 | 8/8 | 8/8 |
 | Replaced source sessions | 8/8 | 8/8 | 8/8 | 8/8 | 8/8 |
 
-¹ Chroma, indexed LangGraph Store and raw-memory Mem0 have the same counts in every category here; each remains separately recorded in the main table and raw data. Book's gains over billion are historical-decision queries; its gains over claude-mem/Basic Memory FTS are the bilingual queries. The MiniLM configurations lose most evidence on later corrections, long-gap recovery and historical lookup. These patterns describe this authored dataset, not each product's general language or reasoning capability. [Category and paired-case audit](benchmarks/reports/v0.6.0-engineering/audit.json).
+¹ The three configurations defined above have the same counts in every category; per-interface records remain in the complete report and raw data. Book's gains over billion are historical-decision queries; its gains over claude-mem/Basic Memory FTS are the bilingual queries. The MiniLM configurations lose most evidence on later corrections, long-gap recovery and historical lookup. These patterns describe this authored dataset, not each product's general language or reasoning capability. [Category and paired-case audit](benchmarks/reports/v0.6.0-engineering/audit.json).
 
 ### The 1200-character boundary remains visible
 
 The same pages, queries, candidate limit and whole-block packer give:
 
-| Measured component / mode | Evidence spans | Complete evidence | Policy passes | Stale-only | Mean chars |
+| Measured component / mode | Evidence spans | Complete evidence | Fixed-policy passes | Stale-only | Mean packed chars |
 |---|---:|---:|---:|---:|---:|
 | **AI-Memory-Book** | 76/80 | 68/72 · 94.44% | 44/48 | 4 | 1048.1 |
 | billion-context · pinned kernel | 72/80 | 64/72 · 88.89% | 40/48 | 0 | 948.5 |
 | claude-mem 15.18.1 · raw-observation FTS | 72/80 | 64/72 · 88.89% | 40/48 | 0 | 848.0 |
 | Basic Memory 1.0.0 · explicit FTS | 72/80 | 64/72 · 88.89% | 40/48 | 0 | 948.5 |
-| Mem0 2.2.1 · `infer=False` + MiniLM | 55/80 | 47/72 · 65.28% | 25/48 | 4 | 1036.7 |
-| Chroma 1.5.9 · MiniLM collection | 55/80 | 47/72 · 65.28% | 25/48 | 4 | 1036.7 |
-| LangGraph checkpoint 4.3.2 · indexed Store | 55/80 | 47/72 · 65.28% | 25/48 | 4 | 1036.7 |
+| Shared MiniLM configurations¹ | 55/80 | 47/72 · 65.28% | 25/48 | 4 | 1036.7 |
+
+¹ The same Mem0/Chroma/LangGraph group defined above; individual results remain in the complete report.
 
 Book has **68/72 complete cases and 44/48 policy passes**, but still returns only stale evidence in **four training-decision cases**: two replacement decisions and two long-gap queries. Each tested lexical competitor wins those four cases and loses eight others to Book. Its higher aggregate coverage does not mean it wins every question or has fewer stale results at this budget. Those failures remain in the [validation record](docs/v0.6.0-engineering-validation.md).
 
@@ -208,7 +234,7 @@ The **frozen v0.6.0 native replay** at 2400 characters records retrieval/context
 
 ### Reproduction and evidence limits
 
-An independent audit recomputed the scores and complete packed responses, passing **116,693 checks with zero failures**. All **320 Book/billion response pairs** match between the original two-component evaluator and the expanded harness, across both budgets. Default calls also match explicit 2400/5 calls and all 80 saved v0.6.0-runtime outputs. [Audit](benchmarks/reports/v0.6.0-engineering/audit.json) · [Default equivalence](benchmarks/reports/v0.6.0-engineering/hosted/default-profile/report.json) · [Successful run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43788979015).
+A separate repository-maintained audit recomputed the scores and complete packed responses, passing **116,693 checks with zero failures**. All **320 Book/billion response pairs** match between the original two-component evaluator and the expanded harness, across both budgets. Default calls also match explicit 2400/5 calls and all 80 saved v0.6.0-runtime outputs. [Audit](benchmarks/reports/v0.6.0-engineering/audit.json) · [Default equivalence](benchmarks/reports/v0.6.0-engineering/hosted/default-profile/report.json) · [Successful run](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43788979015).
 
 These are **synthetic development cases**, without an independent holdout or coding LLM. The fixed consumer extracts recorded policies and executes handwritten variants; its pass rate is not generated-code accuracy. **All seven backends return related context for all eight missing-evidence questions** at both budgets, so this is not an abstention benchmark or 80/80 answer correctness. Real task completion time, patch success and total model cost remain unmeasured. The [validation record](docs/v0.6.0-engineering-validation.md) retains every failure, test boundary, source identity and the pre-quality Chroma integration failure. Heavy comparison dependencies are separate from the normal Book installation.
 
