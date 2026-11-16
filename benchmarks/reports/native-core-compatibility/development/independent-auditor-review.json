@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "purpose": "Narrow independent review of the protocol 5 RAM auditor namespace and retained experiment identities.",
+  "reviewed_blob": "a0b8703c3f6a461875dd9985cebf388d7ff41ff5",
+  "predecessor_blob": "1d497b260931f0c20d37d8e639d475864b8b64c0",
+  "path": "scripts/native_core_compatibility_audit_artifact.py",
+  "conclusion": "No blocking issue found in the reviewed delta.",
+  "verified": {
+    "prior_attempt4": {
+      "run_id": 43883672930,
+      "evaluator_commit": "0267f6cce5189e42ce9432e228366372e121cf38",
+      "candidate_commit": "e91183bf6dd9e125d6549ec3fe5d9c81598cd131",
+      "evidence_commit": "1b1f71606140b2eade960fb4618b9a5723469b7e",
+      "disposition": "Not accepted for release: the CPython 3.14/3.15 wheel matrix exposed exact unpack-exception compatibility differences. Preserve all original protocol4 performance evidence; a repaired runtime must use a separate complete experiment."
+    },
+    "original_attempt3_identical_to_protocol4_prior": true,
+    "original_attempt3": {
+      "run_id": 43871304560,
+      "evaluator_commit": "346e5ede35851fd6283bc8be8a34bf4243dc34dd",
+      "candidate_commit": "0be1f09502aff1d4ddc0a9e644be7a62be6a944f",
+      "evidence_commit": "4e1e6177e9af188a582b2f2e28aafe6290dfae36",
+      "disposition": "Not accepted for release: unchanged reingestion regressed in all four rounds in both cohorts. All first-attempt results and costs remain retained."
+    },
+    "observed_evidence4_manifest": {
+      "git_blob_sha1": "d0dbee878b329ef38aec774626564010b78ee112",
+      "commit": "1b1f71606140b2eade960fb4618b9a5723469b7e",
+      "path": "evidence-manifest.json",
+      "protocol": "native-core-refinement-performance-4",
+      "source_run": {
+        "attempt": 1,
+        "commit": "0267f6cce5189e42ce9432e228366372e121cf38",
+        "id": "43883672930",
+        "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43883672930"
+      }
+    },
+    "namespace_fields": [
+      "protocol",
+      "validation branch",
+      "artifact name",
+      "workflow path",
+      "preservation prefix",
+      "report prefix",
+      "plan path",
+      "evaluator path",
+      "host preparation path",
+      "frozen module name",
+      "self-bound auditor path"
+    ],
+    "no_old_refinement_namespace_remaining": true,
+    "exact_prior_objects_checked_before_snapshot_replay": true,
+    "schema_number_checks": 5,
+    "raw_unchanged_top_level_functions": [
+      "require",
+      "sha",
+      "dump",
+      "digest",
+      "hex_value",
+      "safe_name",
+      "download",
+      "committed_sha",
+      "evidence_tree",
+      "publication_index",
+      "percentile",
+      "latency",
+      "stats",
+      "order",
+      "verify_ingestion_results",
+      "independent_rows",
+      "independent_ingestion_comparisons",
+      "resource_summary",
+      "save_exact"
+    ],
+    "non_namespace_function_changes": [
+      "verify_prior_attempt",
+      "main"
+    ],
+    "explanation": "After namespace/schema substitutions, only verify_prior_attempt gains the second immutable identity check and main includes original_core_attempt in the report. Statistical, ingestion, resource and ledger calculations remain byte-identical."
+  },
+  "scope": "Read-only source and immutable evidence-manifest comparison; no application execution, timing samples or frozen protocol modification."
+}
