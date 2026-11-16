@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "kind": "independent-native-core-protocol-review",
+  "reviewed_commit": "07e981d1ac99cb284a399aa46dd00111bb9c75da",
+  "inspected_files": [
+    "scripts/native_core_performance.py",
+    "scripts/native_core_host.py",
+    "scripts/native_core_preserve.py",
+    ".github/workflows/native-core-performance.yml",
+    "benchmarks/experiments/native_core_formal_plan.json",
+    "tests/test_native_core_performance.py"
+  ],
+  "frozen_runtime_candidate": "0be1f09502aff1d4ddc0a9e644be7a62be6a944f",
+  "timing_ast_comparison": {
+    "against": "scripts/native_incremental_performance.py at reviewed commit",
+    "identical": [
+      "mcp_calls",
+      "Ledger",
+      "validate_response",
+      "make_row",
+      "summary",
+      "archive_state",
+      "query_order",
+      "stable",
+      "schedule",
+      "worker direct-query for-attempt loop"
+    ],
+    "worker_changes": "Only fresh/unchanged ingestion batch loops and retained ordered raw responses/stage metadata; list append timing overhead is explicitly disclosed."
+  },
+  "confirmed_contracts": [
+    "Distinct native source commits with native backend forced, exact package/binary identity and source before/after hashes.",
+    "All C and H files and per-source build inputs bound to committed bytes; both builds use identical compiler/command/flags.",
+    "All 113568 timed calls and 56784 paired calls, both cohorts, four balanced engine rounds and all primary/secondary cells retained.",
+    "Every full canonical native payload, MCP text payload/envelope and protocol metadata compared across labels and repeated passes; only latency_ms removed.",
+    "Original archive/index/schema state and source/scope/character/token invariants checked; SQL and OS caches explicitly not cleared.",
+    "Complete ordered fresh/unchanged ingestion responses retained with four paired batch totals per cohort; negative timing results preserved.",
+    "Host preparation events, incomplete logs/ledgers and available sources/builds preserved; immutable Git tree plus artifact, with exact frozen-auditor summary replay and no remeasurement."
+  ],
+  "findings": [
+    {
+      "id": "native-success-proof",
+      "severity": "gate-required-before-freeze",
+      "state": "fixed-and-independently-verified",
+      "description": "dispatch_probe counts native calls but previously accepted every helper returning NotImplemented followed by a Python fallback.",
+      "reproduction": {
+        "implementation": "Real dispatch_probe AST from reviewed commit, fake module with all 22 registered helpers returning NotImplemented, suite modeling unchanged Python-wrapper fallback.",
+        "accepted": true,
+        "helpers": 22,
+        "all_counts_positive": true,
+        "ordinary_and_instrumented_hashes_equal": true,
+        "instrumentation_restored": true
+      },
+      "required_fix": "Record valid native returns using result is not NotImplemented, require at least one per helper, and bind/check this evidence in verify_worker and fixtures. Keep probes outside timers.",
+      "fixed_performance_blob": "adedeecc496bba29c58183812e49e510a4c5f3b6",
+      "fix_validation": {
+        "checks": [
+          {
+            "all_notimplemented_rejected": true,
+            "error": "Native helper returned only NotImplemented for ordinary probe inputs: ascii_tokens",
+            "false_result_has_zero_fallback": true,
+            "false_result_is_effective": true,
+            "label": "baseline",
+            "restored_after_rejection": true
+          },
+          {
+            "all_notimplemented_rejected": true,
+            "error": "Native helper returned only NotImplemented for ordinary probe inputs: ascii_tokens",
+            "false_result_has_zero_fallback": true,
+            "false_result_is_effective": true,
+            "label": "candidate",
+            "restored_after_rejection": true
+          }
+        ],
+        "probe_patch_blob": "adedeecc496bba29c58183812e49e510a4c5f3b6"
+      },
+      "offline_binding_review": "verify_worker requires exact frozen effective/fallback maps; validate_plan requires positive effective counts, nonnegative fallback counts and total=effective+fallback."
+    },
+    {
+      "id": "baseline-readme-version",
+      "severity": "documentation",
+      "state": "fixed-and-read-back",
+      "description": "Generated evidence README says v0.8.0 instead of registered v0.8.1 baseline.",
+      "fixed_preservation_blob": "35164132b33c870b047cf95cdbc38040f980ad4f"
+    }
+  ],
+  "limitations": [
+    "This is source/contract review and a synthetic gate counterexample, not a performance run or a guarantee for all possible harness/runtime states.",
+    "Current draft plan intentionally has UNFROZEN candidate/count placeholders; exact candidate and positive helper counts must be frozen before execution.",
+    "The non-corpus probe warms code/import/regex/SQLite-library state and executes once per helper; recorded import/startup/resource values retain their documented scopes."
+  ],
+  "review_conclusion": "No remaining blocking source-contract finding. Before formal execution, root/measurement owners must still validate the actual frozen baseline/candidate binaries against the newly registered effective/fallback counts and commit the final plan/evaluator bytes.",
+  "patch_test_blob": "f633223f4b764be052bd8b1cb9b213fc399e8bfe",
+  "patch_plan_blob": "d378923afd324f9bacd3b16ccee9cd98fa4e5159"
+}

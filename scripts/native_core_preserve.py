@@ -227,7 +227,7 @@ def main():
 
 This evidence-only branch preserves hosted run {run_id}, attempt 1, from source
 commit `{commit}`. Preservation state: **{audit['state']}**.
-It compares the already-native v0.8.0 baseline with the frozen native candidate.
+It compares the already-native v0.8.1 baseline with the frozen native candidate.
 Incomplete or differing runs remain evidence; they are not successful results.
 
 `evidence-manifest.json` inventories every retained input with exact byte counts
