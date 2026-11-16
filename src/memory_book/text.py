@@ -12,6 +12,7 @@ import sys
 import unicodedata
 from bisect import bisect_left, bisect_right
 from collections import Counter
+import collections as _collections
 from itertools import islice
 
 from ._text_backend import NATIVE as _NATIVE
@@ -113,9 +114,14 @@ _NATIVE_WINDOW_CERTIFIED = (
                                    (_NATIVE_C_LITERAL_POSITIONS, "literal_positions")))
     and type(Counter) is type and Counter.__module__ == "collections" and Counter.__name__ == "Counter"
     and Counter.__mro__ == (Counter, dict, object)
-    and all(getattr(getattr(Counter, name, None), "__module__", None) == "collections"
-            and getattr(getattr(Counter, name, None), "__name__", None) == name
-            for name in ("__init__", "update", "__missing__", "__delitem__"))
+    and all(type(method) is type(lambda: None)
+            and getattr(method, "__module__", None) == "collections"
+            and getattr(method, "__name__", None) == name
+            and getattr(method, "__globals__", None) is _collections.__dict__
+            and getattr(getattr(method, "__code__", None), "co_name", None) == name
+            and getattr(getattr(method, "__code__", None), "co_filename", None) == _collections.__file__
+            for name, method in ((name, getattr(Counter, name, None))
+                                 for name in ("__init__", "update", "__missing__", "__delitem__")))
     and all(getattr(Counter, name, None) is getattr(dict, name)
             for name in ("__new__", "__getitem__", "__setitem__", "__len__", "values"))
 )

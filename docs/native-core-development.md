@@ -42,3 +42,27 @@ cross-platform package matrix before an acceptance decision and public release.
 This initial checkpoint is a development plan, not a performance result or
 runtime approval. The current released main remains v0.8.1 until the wider
 candidate completes its own acceptance gates.
+
+## Development verification (ongoing)
+
+The first integrated 17-helper candidate compiled successfully. Its initial
+59-test differential run exposed Unicode translation deletion semantics,
+Counter method certification and a SQLite internal-cache trace comparison;
+these findings were fixed rather than removed from the checks. Checkpoint
+`5ebb695d9635134d9bad3ccf643dc3720c10236c` then passed 62 of 63 focused
+tests, with one token-extra test skipped locally. The full hosted core and MCP
+jobs each ran 1,312 tests and identified one test subprocess path error: it
+forced native imports from an unbuilt checkout instead of the actual installed
+package. The token-dependent ranking tests passed in the MCP job.
+
+Independent review also found that a pre-import `functools.wraps` modification
+of `Counter.__missing__` could change the Python excerpt but be incorrectly
+certified for native execution. Certification now checks actual code origin
+and globals, and the regression covers pre-import replacements. Unknown
+implementations retain the original Python path.
+
+The local workspace was replaced during development. Recovery used committed
+Git checkpoints and saved blobs; all post-recovery local measurements are
+correctness diagnostics, not speed comparisons against the earlier host.
+Segmentation integration, hosted performance acceptance and the complete
+native wheel matrix are still pending. Main remains the released v0.8.1.
