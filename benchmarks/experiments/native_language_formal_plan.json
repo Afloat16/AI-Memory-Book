@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "protocol": "native-language-performance-1",
+  "sources": {
+    "baseline": {"commit": "b1434ca8b218d096d5506aaea02631ca31306d21", "backend": "python"},
+    "candidate": {"commit": "22a29df0a920e526d3af594db92728d9b9c16d57", "backend": "native"}
+  },
+  "engine_order": [["baseline", "candidate"], ["candidate", "baseline"], ["candidate", "baseline"], ["baseline", "candidate"]],
+  "cohorts": ["synthetic61", "public1015"],
+  "configurations": ["native-char2400", "mcp-char2400", "native-token1024", "mcp-token1024"],
+  "query_seed": 110061,
+  "limit": 5,
+  "repetitions_per_worker": 3,
+  "excluded_native_response_fields": ["latency_ms"],
+  "result_cache": "disabled-native-cleared-before-each-mcp-call",
+  "primary": ["native-char2400", "mcp-char2400"],
+  "secondary": ["native-token1024", "mcp-token1024"],
+  "expected_timed_calls": 113568,
+  "expected_paired_calls": 56784,
+  "scope": "A language-only implementation comparison on two existing regression datasets, not a new retrieval-quality study.",
+  "timing": "Sequential fresh workers on one hosted Ubuntu 24.04 VM. No generation model. Native recall and real official-SDK stdio MCP are distinct measurement boundaries. Report each cohort and surface separately.",
+  "execution": "One first-attempt hosted execution on validation/native-language-formal-1. Preserve every started attempt, completed worker and failure. No selective reruns or replacement of timed data.",
+  "resources": "Record startup, ingestion, unchanged reingestion, process memory/CPU and storage alongside the paired recall measurements. Python and operating-system caches are not cleared.",
+  "decision": "Exact full-output/source/index equality and release gates are mandatory. Interpret repeatability across all four paired rounds, retain regressions, and do not infer whole-product speed from helper microbenchmarks."
+}

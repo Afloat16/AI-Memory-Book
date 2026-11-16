@@ -76,3 +76,25 @@ timing variation even in untouched SQLite calls. Formal performance measurement
 will use a separate hosted runner with sequential paired workers. The local
 measurements cannot support a README speedup claim. The runtime is prepared as
 the v0.8.0 candidate; acceptance and publication are still pending.
+
+## Frozen hosted protocol
+
+Runtime candidate `22a29df0a920e526d3af594db92728d9b9c16d57` is bound by the
+[formal plan](../benchmarks/experiments/native_language_formal_plan.json). The
+matrix contains 16 fresh workers, four balanced pairs per cohort, three passes
+per configuration, 113,568 timed calls and 56,784 baseline/candidate pairs.
+Those are planned counts until the execution report confirms completion.
+
+An independent review of the new evaluator found no blocking timing or equality
+issue. Eleven evaluator contract tests passed, including real SDK MCP traffic,
+full payload comparison, source offsets, incomplete attempts and tamper
+rejection. The managed local environment lacks the usual child-process procfs
+entry; the tiny protocol fixture explicitly marks its resource reading as
+unavailable. The hosted measurement retains the strict Linux resource checks.
+Both implementations execute the same fixed dispatch probe before ingestion or
+timed queries; the native probe must actually call all five C helpers.
+
+The [candidate diagnostic](../benchmarks/reports/native-language/development/candidate-profile.json.gz)
+and [its runner](../benchmarks/reports/native-language/development/candidate-profile-runner.py)
+retain the variable local environment result. They are separate from the frozen
+hosted execution, and are not used to infer an end-to-end speedup.
