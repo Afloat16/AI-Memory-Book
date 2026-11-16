@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-11-16 15:41:44 UTC",
+  "repository": "Afloat16/AI-Memory-Book",
+  "scope": "Retained read-only audit-prototype failure and correction. No application source, test selection, test skips, workflow gate, measured data or workflow attempt changed; no application tests were rerun.",
+  "run_id": 43897981051,
+  "run_attempt": 1,
+  "commit": "ba1bcef8d4fcf325a3403c2ff9c540312c491464",
+  "artifact_id": 14240131542,
+  "job_id": 133406704746,
+  "initial_audit": {
+    "purpose": "Confirm the new cell evidence raw command-log digests and matching actual job stdout on completed macOS ARM cells before the combined artifact exists.",
+    "script": "import io,json,hashlib,zipfile,re\nfrom urllib.request import urlopen\ncompile(configuration[\"auditor\"],\"<grouped-packaging-audit>\",\"exec\")\nwith urlopen(configuration[\"download_url\"],timeout=45) as response:\n    raw=response.read()\nassert len(raw)==configuration[\"artifact\"][\"size_in_bytes\"]\nassert \"sha256:\"+hashlib.sha256(raw).hexdigest()==configuration[\"artifact\"][\"digest\"]\nwith zipfile.ZipFile(io.BytesIO(raw)) as z:\n    files={name:z.read(name) for name in z.namelist() if not name.endswith(\"/\")}\nlog=re.sub(r\"(?m)^\\ufeff?\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d+)?Z \",\"\",configuration[\"job_log\"].replace(\"\\r\\n\",\"\\n\"))\nresult=[]\nfor minor in range(10,16):\n    prefix=f\"cp3{minor}/\"\n    report=json.loads(files[prefix+\"validation.json\"])\n    assert report[\"status\"]==\"passed\" and report[\"expected_python\"]==f\"3.{minor}\"\n    assert report[\"target\"]==\"macos_arm64\" and report[\"run_id\"]==\"43897981051\" and report[\"run_attempt\"]==\"1\"\n    assert report[\"source\"][\"commit\"]==\"ba1bcef8d4fcf325a3403c2ff9c540312c491464\"\n    for command in report[\"commands\"]:\n        value=files[prefix+command[\"log\"]]\n        assert command[\"returncode\"]==0\n        assert command[\"log_bytes\"]==len(value)\n        assert command[\"log_sha256\"]==hashlib.sha256(value).hexdigest()\n        plain=value.decode().replace(\"\\r\\n\",\"\\n\").strip(\"\\n\")\n        assert not plain or plain in log\n    tests=files[prefix+\"test.log\"].decode()\n    assert len(re.findall(r\"^Ran 144 tests in \",tests,re.M))==1\n    assert re.search(r\"^OK \\(skipped=2\\)$\",tests,re.M)\n    result.append({\"minor\":report[\"expected_python\"],\"status\":report[\"status\"],\"interpreter\":report[\"interpreter\"],\"tests\":report[\"tests\"],\"commands\":len(report[\"commands\"]),\"build_log\":report[\"build_log\"],\"validation_sha256\":hashlib.sha256(files[prefix+\"validation.json\"]).hexdigest()})\nprint(\"PRELIMINARY_JSON=\"+json.dumps({\"artifact_id\":configuration[\"artifact\"][\"id\"],\"artifact_sha256\":hashlib.sha256(raw).hexdigest(),\"files\":len(files),\"cells\":result,\"auditor_syntax\":\"passed\"}),flush=True)\n",
+    "stdout": "Traceback (most recent call last):\r\n  File \"<string>\", line 9, in <module>\r\n  File \"<ram-artifact-audit>\", line 27, in <module>\r\nAssertionError\r\n",
+    "incorrect_assumption": "The preliminary script required exactly two skips in every CPython 3.10-3.15 cell. The actual CPython 3.13 cell was the first to report three skips, so that preliminary check stopped after successfully validating the preceding cells.",
+    "failure_line": 27
+  },
+  "actual_evidence": {
+    "tests_per_cell": 144,
+    "macos_arm64_skip_counts": {
+      "3.10": 2,
+      "3.11": 2,
+      "3.12": 2,
+      "3.13": 3,
+      "3.14": 3,
+      "3.15": 3
+    },
+    "third_skip": "test_available_shared_gil_subinterpreters_keep_main_module_working (tests.test_native_segmentation_backend.NativeSegmentationModuleStateTests.test_available_shared_gil_subinterpreters_keep_main_module_working) ... skipped '_xxsubinterpreters is not available in this Python build'"
+  },
+  "correction": {
+    "auditor_git_blob": "9e8bee3d784cabf8b0baaa849765c48d1160373f",
+    "rule": "Recount each cell's exact raw unittest log and require the two specific frozen optional-token tests. A third skip is accepted only for the existing exact shared-GIL subinterpreter testcase with the unchanged '_xxsubinterpreters is not available in this Python build' reason. No other skipped testcase or reason is accepted.",
+    "runtime_or_test_changes": false,
+    "application_tests_rerun": false
+  }
+}

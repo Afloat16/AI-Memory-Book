@@ -328,31 +328,52 @@ extension grows 519,480 bytes on this host. The final EPYC 7763 host differs
 from the preceding EPYC 9V45 and original EPYC 9V74 hosts; their absolute
 times and percentages remain separate evidence.
 
-Native delivery remains pending. Three complete preparations ended
-incomplete when macOS ARM jobs were cancelled without receiving runners or
-executing test steps: [43885419074](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074)
-passed 28 cells, [43888785867](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43888785867)
-passed 27, and [43892250078](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43892250078)
-passed 28 after switching to the officially supported macOS 26 ARM image.
-All three [interrupted records](../benchmarks/reports/native-core-compatibility/)
-retain actual logs, artifact identities and cancelled/absent steps.
-Their successful subsets are never combined into a passing matrix.
+### Complete grouped preparation, with all 30 cells retained
 
-The [grouped recovery plan](../benchmarks/reports/native-core-compatibility/grouped-packaging/recovery-plan.json)
-keeps **30 independent cells** but requests one runner per platform, with
-six explicit Python setup/build/install/test steps on each. Every cell uses
-its own interpreter output, work directories, logs and validation record.
-Only successful actual 144-test runs plus the original isolated smoke and
-receipt validation can expose a wheel/receipt. Earlier failed attempts
-remain immutable. Ten mocked control tests and two source reviews pass;
-the real grouped matrix is still required.
+After the three incomplete 30-job attempts, packaging was organized as five
+platform jobs with six explicit Python-version cells per platform. Source
+`ba1bcef8d4fcf325a3403c2ff9c540312c491464` changes build control and evidence
+capture only: all runtime, package configuration, installers and existing
+release-gate bytes remain unchanged. The helper uses the selected setup
+interpreter's absolute path, separate build/test paths and receipts, and
+cleans untracked build caches between cells. Later cells can produce evidence
+after an earlier failure, but the platform job remains failed and publication
+still requires all 30 unique source-bound receipts from one run and attempt.
 
-The original 30-cell source/ABI/RECORD/run/attempt receipt validator and
-67-asset preparation remain unchanged, as do the 11-job final CI,
-publication and actual public-install gates. The application runtime,
-compiler configuration and installers are unchanged. This is a packaging
-scheduling recovery, without another performance experiment.
-v0.8.1 remains the published release at this checkpoint.
+[Run 43897981051](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43897981051), attempt 1,
+completed all 30 setup/build/install/test cells and the preparation job.
+Every cell's actual log records 144 tests and OK with two or three precisely
+identified optional-environment skips. Per-cell evidence keeps the actual
+skip names and reasons; the auditor permits only the existing optional-token
+skips and the exact `_xxsubinterpreters`-unavailable test when applicable.
+The initial review assumption that every Python 3.13 build exposed that
+optional module was corrected against the macOS ARM log, with the original
+reading failure and correction retained. No application test or benchmark
+was rerun to change its result.
+
+The complete artifact `14240632443` (9,643,315 bytes; SHA256
+`070ce0c4976f2768f7d72dd8b3ca991fd3844d8e3054c47238161dbf69d5cb43`)
+contains all 67 release assets plus validation. Independent RAM auditing
+checks all ten platform wheel/evidence ZIP digests, all 30 cell receipts and
+real logs, source identities, wheel RECORDs/extension hashes, 65 manifest
+entries and 66 checksums. Both default native and fallback installers with
+MCP/client dependencies, and clean fallback/source installation, pass.
+[Full preparation evidence](../benchmarks/reports/native-core-compatibility/packaging-43897981051/)
+is retained independently of expiring Actions artifacts.
+
+The separate general CI run `43897980872` at `ba1bcef8` completed ten
+jobs successfully, including all six Python-suite jobs with 1,425 tests each
+(the former 1,415 tests plus ten build-control tests). Its `macos-latest`
+installer job was cancelled without an assigned runner or test steps. The
+final CI configuration pins that existing macOS installer matrix entry to
+the already exercised `macos-26` image. The three operating-system entries,
+job names, test steps, timeouts and eleven-job publication gate are unchanged.
+This interrupted general CI is retained separately and cannot satisfy the
+exact-final-commit CI requirement.
+
+This preparation does not replace final publication checks. All packages
+and receipts are rebuilt after final documentation/release-control changes;
+the measured runtime remains exactly `4390d013`/`6ec51c90…b3b7`.
 
 The final [acceptance record](../benchmarks/experiments/native_core_acceptance.json)
 binds runtime SHA256
