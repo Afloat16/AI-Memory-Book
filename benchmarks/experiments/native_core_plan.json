@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "phase": "development",
+  "proposed_version": "0.9.0",
+  "baseline": {
+    "commit": "56eccd8c3a6f1d5637664607936da2595ce50c62",
+    "version": "0.8.1",
+    "backend": "native",
+    "native_helpers": 7
+  },
+  "user_goal": "Broaden the language rewrite substantially while preserving existing logic and outputs, with measured performance as the objective and frequent durable Git checkpoints.",
+  "scope": [
+    "Complete excerpt-window candidate generation, source-unit coverage, sliding counts, score comparison and rendering",
+    "Batch candidate scoring/sorting and novelty selection, character-budget allocation and reference clipping",
+    "Conversation turns, source-preserving joining, page cuts, page construction and section grouping",
+    "Token-budget source-unit extraction, source-map certification and projection"
+  ],
+  "implementation": {
+    "language": "C through the existing optional CPython extension",
+    "organization": "Separate _native_*.h implementation units included by one _native.c extension; explicit build dependencies and packaged source bytes",
+    "fallback": "Retain original Python bodies for differential verification, unsupported runtimes, customized helpers and unusual argument types",
+    "python_retained": "CLI, MCP and client adapters, service management, database/schema/transaction control, exact tokenizer/model runtimes and public interfaces"
+  },
+  "invariants": [
+    "No SQL, schema, retrieval-policy, ranking-weight, scope, identity, pagination, budget, cache-policy or tokenizer change",
+    "Preserve Unicode code-point offsets, source reconstruction, term order/frequency and exact stable payloads",
+    "Preserve float operation order, math.log1p/math.fsum behavior, stable tie ordering and Python integer semantics",
+    "Preserve supported dynamic overrides, callback order, reference identities, mutation behavior and original errors through guarded dispatch",
+    "No change to frozen v0.8.0/v0.8.1 evaluators, plans or evidence",
+    "Do not infer runtime performance from repository language percentages or helper-only microbenchmarks"
+  ],
+  "verification": {
+    "baseline_profile": "Read-only cProfile on frozen native v0.8.1 with an in-memory database and before/after source and binary hashes",
+    "differential": "Independent preserved Python oracle tests for every migrated family, including malformed/custom input fallback, Unicode, ties, callback order and actual native dispatch",
+    "integration": "Full existing Python/MCP/reader/installer/container CI plus complete output, archive and source-coordinate comparison",
+    "formal": "Freeze a separate protocol-3 evaluator and candidate before timing. Compare native v0.8.1 with the candidate using balanced sequential A/B rounds, both existing cohorts, direct recall and real SDK MCP, all character/token configurations, ingestion and resources.",
+    "preservation": "Retain all attempts and raw records in immutable Git evidence, including failed and unfavorable diagnostics; keep compact audited reports with the implementation",
+    "delivery": "Fresh exact-commit 30-wheel matrix, runtime/source/build provenance, Python fallback, default-extras installers and actual public-release installation"
+  },
+  "decision": "Adopt only after exact recorded behavior equivalence and repeatable end-to-end benefits justify the complete measured tradeoffs. Publish all secondary regressions and costs. More native source or a successful compilation alone is not acceptance.",
+  "runtime_approved": false,
+  "publication_authorized_by_this_file": false
+}
