@@ -161,7 +161,7 @@ do not establish a declaration. Detailed `temporal.declaration_ordering`
 diagnostics explain the bounded syntax classification. It does not certify
 which source is authoritative.
 See the [engineering workflow guide](engineering-workflows.md#choose-how-current-evidence-is-ranked)
-and [current validation](v0.6.0-engineering-validation.md).
+and [current validation](v0.7.0-engineering-validation.md).
 
 ### Optional coverage for multiple facts
 
