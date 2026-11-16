@@ -74,7 +74,8 @@ class MaintenanceTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256(self.source.read_bytes()).hexdigest(), main_digest)
         self.assertTrue(Path(str(self.source) + "-wal").is_file())
         self.assertFalse(any(Path(str(output) + suffix).exists() for suffix in ("-wal", "-shm", "-journal")))
-        with sqlite3.connect(output) as copy:
+        # A SQLite context ends the transaction; closing also releases the handle.
+        with contextlib.closing(sqlite3.connect(output)) as copy, copy:
             self.assertEqual(snapshot_rows(copy), before)
             self.assertEqual(copy.execute("PRAGMA journal_mode").fetchone()[0], "delete")
             self.assertEqual(copy.execute("PRAGMA application_id").fetchone()[0], APPLICATION_ID)
@@ -123,7 +124,7 @@ class MaintenanceTests(unittest.TestCase):
         self.assertFalse(failures, failures)
         self.assertTrue(result["ok"])
         self.assertIn(result["sessions"], (1, 2))
-        with sqlite3.connect(self.root / "concurrent.db") as copy:
+        with contextlib.closing(sqlite3.connect(self.root / "concurrent.db")) as copy, copy:
             self.assertEqual(copy.execute("PRAGMA foreign_key_check").fetchall(), [])
             for identifier, raw in copy.execute("SELECT id,raw_json FROM sessions"):
                 self.assertEqual(copy.execute("SELECT count(*) FROM turns WHERE session_pk=?", (identifier,)).fetchone()[0], 1)
@@ -147,7 +148,7 @@ class MaintenanceTests(unittest.TestCase):
                     source = self.root / f"schema-{version}-{marked}.db"
                     with MemoryBook(source) as book:
                         book.ingest(session())
-                    with sqlite3.connect(source) as db:
+                    with contextlib.closing(sqlite3.connect(source)) as db, db:
                         if version < 3:
                             db.execute("DROP TRIGGER IF EXISTS meta_revision_sync_stem")
                             db.execute("DROP TRIGGER IF EXISTS pages_delete_stem_fts")
@@ -167,7 +168,10 @@ class MaintenanceTests(unittest.TestCase):
                     self.assertEqual(check["runtime_state"], expected_state)
                     self.assertEqual(result["runtime_state"], expected_state)
                     self.assertEqual(source.read_bytes(), before)
-                    with sqlite3.connect(source) as original, sqlite3.connect(output) as copy:
+                    with (
+                        contextlib.closing(sqlite3.connect(source)) as original, original,
+                        contextlib.closing(sqlite3.connect(output)) as copy, copy,
+                    ):
                         self.assertEqual(original.execute("PRAGMA user_version").fetchone()[0], version)
                         self.assertEqual(copy.execute("PRAGMA user_version").fetchone()[0], version)
                         self.assertEqual(copy.execute("PRAGMA application_id").fetchone()[0], APPLICATION_ID if marked else 0)
@@ -205,7 +209,7 @@ class MaintenanceTests(unittest.TestCase):
                     self.assertTrue(any("Runtime repair required" in warning for warning in result["warnings"]))
                 self.assertEqual(source.read_bytes(), before)
                 self.assertEqual(check_database(output)["runtime_state"], "repair_required")
-                with sqlite3.connect(output) as copy:
+                with contextlib.closing(sqlite3.connect(output)) as copy, copy:
                     self.assertEqual(snapshot_rows(copy), before_rows)
 
     def test_source_and_journal_paths_are_never_destinations(self):
@@ -288,7 +292,7 @@ class MaintenanceTests(unittest.TestCase):
         junk = self.root / "junk.db"
         junk.write_bytes(b"not SQLite")
         foreign = self.root / "foreign.db"
-        with sqlite3.connect(foreign) as db:
+        with contextlib.closing(sqlite3.connect(foreign)) as db, db:
             db.execute("CREATE TABLE account(value TEXT)")
             db.execute("PRAGMA application_id=12345")
         empty_sqlite = self.root / "empty.db"
@@ -427,7 +431,7 @@ class MaintenanceCliTests(unittest.TestCase):
         self.assertEqual(json.loads(output)["source"], str(self.source))
 
     def test_check_failure_and_bad_source_have_distinct_nonzero_exits(self):
-        with sqlite3.connect(self.source) as db:
+        with contextlib.closing(sqlite3.connect(self.source)) as db, db:
             db.execute("UPDATE pages SET project_id='missing'")
         code, output, _ = self.run_cli("--db", str(self.source), "check-database")
         self.assertEqual(code, 1)
@@ -440,7 +444,7 @@ class MaintenanceCliTests(unittest.TestCase):
         self.assertFalse(missing.exists())
 
     def test_runtime_repair_diagnostics_do_not_change_structural_success_exit(self):
-        with sqlite3.connect(self.source) as db:
+        with contextlib.closing(sqlite3.connect(self.source)) as db, db:
             db.execute("DROP TRIGGER meta_revision_require_lexical")
         for command in (["check-database"], ["backup", "--output", str(self.root / "repairable-snapshot.db")]):
             code, output, error = self.run_cli("--db", str(self.source), *command)
