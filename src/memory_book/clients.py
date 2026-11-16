@@ -23,6 +23,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from .scope import validate_project
+
 
 SERVER_NAME = "memory-book"
 MANAGED_ENV = "AI_MEMORY_BOOK_MANAGED"
@@ -179,6 +181,7 @@ class ClientPlan:
             "changed": self.changed,
             "server_name": SERVER_NAME,
             "entry": copy.deepcopy(self.entry),
+            "mcp_project": _managed_scope(self.entry, _profile(self.profile))[1],
             "snippet": self.snippet,
             "notes": list(self.notes),
             "docs_url": self.docs_url,
@@ -433,31 +436,43 @@ def _snippet(p: _Profile, entry: dict[str, Any]) -> str:
     return json.dumps(wrapped, ensure_ascii=False, indent=2) + "\n"
 
 
-def _owned(entry: Any, p: _Profile) -> bool:
+def _managed_scope(entry: Any, p: _Profile) -> tuple[bool, str | None]:
+    """Recognize our launch shape and retain its optional exact project binding."""
     if not isinstance(entry, Mapping) or "url" in entry:
-        return False
+        return False, None
     environment = entry.get("environment" if p.name == "opencode" else "env")
     if not isinstance(environment, Mapping) or environment.get(MANAGED_ENV) != MANAGED_VALUE:
-        return False
+        return False, None
     if p.name == "opencode":
         command = entry.get("command")
         if entry.get("type") != "local" or not isinstance(command, Sequence) or isinstance(command, (str, bytes)) or not command:
-            return False
+            return False, None
         executable, args = command[0], list(command[1:])
     else:
         expected_type = "local" if p.name == "copilot-cli" else "stdio"
         if entry.get("type", expected_type) != expected_type:
-            return False
+            return False, None
         executable, args = entry.get("command"), entry.get("args")
         if not isinstance(args, Sequence) or isinstance(args, (str, bytes)):
-            return False
+            return False, None
         args = list(args)
     if not isinstance(executable, str) or not executable or not all(isinstance(arg, str) for arg in args):
-        return False
+        return False, None
     if args and args[-1] == "--allow-write":
         args.pop()
-    return (len(args) >= 3 and args[-3] == "--db" and args[-1] == "mcp"
-            and Path(args[-2]).is_absolute())
+    project = None
+    if args and args[-1].startswith("--project="):
+        try:
+            project = validate_project(args.pop()[len("--project="):])
+        except ValueError:
+            return False, None
+    owned = (len(args) >= 3 and args[-3] == "--db" and args[-1] == "mcp"
+             and Path(args[-2]).is_absolute())
+    return owned, project if owned else None
+
+
+def _owned(entry: Any, p: _Profile) -> bool:
+    return _managed_scope(entry, p)[0]
 
 
 def _merge_owned(existing: Any, desired: dict[str, Any], p: _Profile) -> Any:
@@ -486,13 +501,25 @@ def _dump(document: Any, p: _Profile, raw: bytes | None) -> bytes:
 def plan_client(profile: str, db_path: str | os.PathLike[str], executable: str | os.PathLike[str], *,
                 argument_prefix: Sequence[str] = (), config_path: str | os.PathLike[str] | None = None,
                 writable: bool = False, replace: bool = False, home: str | os.PathLike[str] | None = None,
-                platform: str | None = None, environ: Mapping[str, str] | None = None) -> ClientPlan:
+                platform: str | None = None, environ: Mapping[str, str] | None = None,
+                project: str | None = None, clear_project: bool = False) -> ClientPlan:
     """Plan one install/update without changing any files.
 
     ``executable`` must name an absolute executable path. This avoids depending
     on a GUI client's PATH and never constructs a shell command. The common
     invocation is ``sys.executable`` with ``argument_prefix=['-m','memory_book']``.
+    Omitted ``project`` retains a managed entry's existing binding; only
+    ``clear_project=True`` explicitly removes that binding.
     """
+    if not isinstance(clear_project, bool):
+        raise ConfigError("clear_project must be a boolean")
+    if project is not None:
+        try:
+            validate_project(project)
+        except ValueError as exc:
+            raise ConfigError(str(exc)) from None
+        if clear_project:
+            raise ConfigError("project and clear_project cannot be combined")
     p = _profile(profile)
     base, system, env = _settings(home, platform, environ)
     raw_executable = os.fspath(executable)
@@ -504,6 +531,9 @@ def plan_client(profile: str, db_path: str | os.PathLike[str], executable: str |
     if os.fspath(db_path) == ":memory:":
         raise ConfigError("MCP requires a persistent database file, not :memory:")
     args = [*argument_prefix, "--db", str(database), "mcp"]
+    if project is not None:
+        # Keep leading '-' and all literal punctuation inside one option value.
+        args.append("--project=" + project)
     if writable:
         args.append("--allow-write")
     entry = _entry(p, raw_executable, args)
@@ -517,10 +547,15 @@ def plan_client(profile: str, db_path: str | os.PathLike[str], executable: str |
     document = _parse(raw, p, snippet)
     container = _container(document, p, create=True)
     existing = container.get(SERVER_NAME)
+    owned, existing_project = _managed_scope(existing, p)
+    if owned and project is None and not clear_project and existing_project is not None:
+        args.insert(len(args) - (1 if writable else 0), "--project=" + existing_project)
+        entry = _entry(p, raw_executable, args)
+        snippet = _snippet(p, entry)
     if existing == entry:
         changed = False
     elif SERVER_NAME in container:
-        if _owned(existing, p):
+        if owned:
             merged = _merge_owned(existing, entry, p)
             changed = existing != merged
             if changed:

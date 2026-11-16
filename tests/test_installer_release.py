@@ -15,7 +15,7 @@ SPEC.loader.exec_module(INSTALLER)
 class InstallerReleaseTests(unittest.TestCase):
     def test_pinned_wheel_and_legacy_source_routes(self):
         repository = "https://github.com/Afloat16/AI-Memory-Book"
-        for version in ("v0.3.0", "0.3.0", "v0.3.1", "0.3.1", "v0.3.2", "0.3.2", "v0.3.3", "0.3.3", "v0.3.4", "0.3.4", "v0.4.0", "0.4.0", "v0.5.0", "0.5.0", "v0.6.0", "0.6.0"):
+        for version in ("v0.3.0", "0.3.0", "v0.3.1", "0.3.1", "v0.3.2", "0.3.2", "v0.3.3", "0.3.3", "v0.3.4", "0.3.4", "v0.4.0", "0.4.0", "v0.5.0", "0.5.0", "v0.6.0", "0.6.0", "v0.7.0", "0.7.0"):
             number = version.removeprefix("v")
             wheel = repository + f"/releases/download/v{number}/ai_memory_book-{number}-py3-none-any.whl"
             for extras in (True, False):
@@ -41,13 +41,13 @@ class InstallerReleaseTests(unittest.TestCase):
                 f"ai-memory-book @ {local_wheel.resolve().as_uri()}")
 
     def test_release_defaults_match_package_and_wrappers(self):
-        self.assertEqual(INSTALLER.DEFAULT_VERSION, "v0.6.0")
-        self.assertIn('version = "0.6.0"', (ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-        self.assertIn('__version__ = "0.6.0"', (ROOT / "src/memory_book/__init__.py").read_text(encoding="utf-8"))
-        self.assertIn('installer_ref="v0.6.0"', (ROOT / "scripts/install.sh").read_text(encoding="utf-8"))
+        self.assertEqual(INSTALLER.DEFAULT_VERSION, "v0.7.0")
+        self.assertIn('version = "0.7.0"', (ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+        self.assertIn('__version__ = "0.7.0"', (ROOT / "src/memory_book/__init__.py").read_text(encoding="utf-8"))
+        self.assertIn('installer_ref="v0.7.0"', (ROOT / "scripts/install.sh").read_text(encoding="utf-8"))
         powershell = (ROOT / "scripts/install.ps1").read_text(encoding="utf-8")
-        self.assertIn("[string]$Version = 'v0.6.0'", powershell)
-        self.assertIn("$InstallerRef = 'v0.6.0'", powershell)
+        self.assertIn("[string]$Version = 'v0.7.0'", powershell)
+        self.assertIn("$InstallerRef = 'v0.7.0'", powershell)
 
 
 if __name__ == "__main__":

@@ -154,6 +154,7 @@ def make_server(db_path, host: str = "127.0.0.1", port: int = 8765, *, container
                         raise ValueError("A chapter id is required.")
                     result = book.chapter(
                         chapter_id,
+                        project=self._param(params, "project"),
                         offset=self._integer(params, "offset", 0, 0, 1000000),
                         limit=self._integer(params, "limit", 50, 1, 100),
                         page_limit=self._integer(params, "page_limit", 20, 1, 100),
@@ -162,19 +163,19 @@ def make_server(db_path, host: str = "127.0.0.1", port: int = 8765, *, container
                     section_id = self._param(params, "id")
                     if not section_id:
                         raise ValueError("A section id is required.")
-                    result = book.section(section_id, offset=self._integer(params, "offset", 0, 0, 1000000), limit=self._integer(params, "limit", 50, 1, 100))
+                    result = book.section(section_id, project=self._param(params, "project"), offset=self._integer(params, "offset", 0, 0, 1000000), limit=self._integer(params, "limit", 50, 1, 100))
                 elif path == "/api/read":
                     page_id = self._param(params, "id")
                     if not page_id:
                         raise ValueError("A page id is required.")
-                    result = book.read(page_id, offset=self._integer(params, "offset", 0, 0, 100000000), limit=self._integer(params, "limit", 12000, 1, 24000))
+                    result = book.read(page_id, project=self._param(params, "project"), offset=self._integer(params, "offset", 0, 0, 100000000), limit=self._integer(params, "limit", 12000, 1, 24000))
                 else:
                     query = self._param(params, "q", "")
                     if not query.strip() or len(query) > 4000:
                         raise ValueError("Search text must contain 1 to 4000 characters.")
                     result = book.recall(
                         query,
-                        project=self._param(params, "project") or None,
+                        project=self._param(params, "project"),
                         chapter=self._param(params, "chapter") or None,
                         session=self._param(params, "session") or None,
                         budget_chars=self._integer(params, "budget_chars", 2400, 256, 24000),

@@ -14,6 +14,7 @@ from types import BuiltinFunctionType, FunctionType, MethodType
 from typing import TYPE_CHECKING, Any, Literal
 
 from .store import MemoryBook
+from .scope import validate_project
 
 try:
     from pydantic import StrictBool, StrictInt
@@ -151,10 +152,18 @@ class _BookResource:
 
 def create_server(db_path: str | Path, allow_write: bool = False, *,
                   semantic_model_dir: str | Path | None = None,
-                  source_format: str = "objects") -> FastMCP:
+                  source_format: str = "objects", project: str | None = None) -> FastMCP:
     """Create an MCP server; knowledge writes must be explicitly enabled."""
     if source_format not in ("objects", "indexed"):
         raise ValueError("source_format must be objects or indexed")
+    bound_project = validate_project(project) if project is not None else None
+
+    def requested_project(value: str | None) -> str | None:
+        if value is not None:
+            validate_project(value)
+        if bound_project is not None and value is not None and value != bound_project:
+            raise ValueError("This MCP connection is bound to a different project")
+        return bound_project if bound_project is not None else value
     try:
         from mcp.server.fastmcp import FastMCP
         from mcp.types import ToolAnnotations
@@ -209,6 +218,12 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
         "This connection is read-only; remember_session is not available.\n")
     if source_format == "indexed":
         instructions += INDEXED_REFERENCE_INSTRUCTIONS
+    if bound_project is not None:
+        instructions += ("This connection is bound to project " + _json(bound_project) + ". "
+                         "Omitted project arguments use this ID. Other projects and their "
+                         "chapter/section/page IDs are unavailable through this connection. "
+                         "remember_session, when enabled, still requires this explicit project. "
+                         "This prevents scope mistakes; it is not per-user authorization.\n")
     server = FastMCP("AI-Memory-Book", instructions=instructions, log_level="WARNING", lifespan=lifespan)
     read_only = ToolAnnotations(
         readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False
@@ -248,6 +263,7 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
         """
         _range(budget_chars, "budget_chars", 0, 100000)
         _range(limit, "limit", 1, 50)
+        project = requested_project(project)
         with acquire_book() as book:
             result = book.recall(
                 query, project=project, chapter=chapter, session=session,
@@ -261,39 +277,50 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
     def browse_projects() -> Any:
         """List available project books; this step is optional before recall."""
         with acquire_book() as book:
-            return _json(book.projects())
+            projects = book.projects()
+            return _json([item for item in projects if item["id"] == bound_project]
+                         if bound_project is not None else projects)
 
     @server.tool(annotations=read_only)
-    def browse_book(project: str, offset: int = 0, limit: int = 50) -> Any:
+    def browse_book(project: str | None = None, offset: int = 0, limit: int = 50) -> Any:
         """Read a paginated project table of contents without loading all pages."""
         _range(offset, "offset", 0, 1000000000)
         _range(limit, "limit", 1, 100)
+        project = requested_project(project)
+        if project is None:
+            raise ValueError("project is required when the MCP connection is not bound")
         with acquire_book() as book:
             return _json(book.toc(project, offset=offset, limit=limit))
 
     @server.tool(annotations=read_only)
-    def browse_chapter(chapter_id: str, offset: int = 0, limit: int = 50) -> Any:
+    def browse_chapter(chapter_id: str, offset: int = 0, limit: int = 50,
+                       project: str | None = None) -> Any:
         """List a chapter's sections with bounded page previews; browse_section continues them."""
         _range(offset, "offset", 0, 1000000000)
         _range(limit, "limit", 1, 100)
+        project = requested_project(project)
         with acquire_book() as book:
-            return _json(book.chapter(chapter_id, offset=offset, limit=limit))
+            return _json(book.chapter(chapter_id, offset=offset, limit=limit, project=project))
 
     @server.tool(annotations=read_only)
-    def browse_section(section_id: str, offset: int = 0, limit: int = 50) -> Any:
+    def browse_section(section_id: str, offset: int = 0, limit: int = 50,
+                       project: str | None = None) -> Any:
         """List a section's pages with pagination, including long-answer continuation pages."""
         _range(offset, "offset", 0, 1000000000)
         _range(limit, "limit", 1, 100)
+        project = requested_project(project)
         with acquire_book() as book:
-            return _json(book.section(section_id, offset=offset, limit=limit))
+            return _json(book.section(section_id, offset=offset, limit=limit, project=project))
 
     @server.tool(annotations=read_only)
-    def read_page(page_id: str, offset: int = 0, limit: int = 12000) -> Any:
+    def read_page(page_id: str, offset: int = 0, limit: int = 12000,
+                  project: str | None = None) -> Any:
         """Read an exact evidence page with character pagination and source attribution."""
         _range(offset, "offset", 0, 1000000000)
         _range(limit, "limit", 1, 100000)
+        project = requested_project(project)
         with acquire_book() as book:
-            return _json(book.read(page_id, offset=offset, limit=limit))
+            return _json(book.read(page_id, offset=offset, limit=limit, project=project))
 
     if allow_write:
         @server.tool(annotations=ToolAnnotations(
@@ -301,6 +328,8 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
         ))
         def remember_session(payload: dict[str, Any]) -> Any:
             """Store a canonical session; an existing project/session_id is replaced atomically."""
+            if bound_project is not None and payload.get("project") != bound_project:
+                raise ValueError("remember_session requires the connection's explicit project")
             with acquire_book() as book:
                 return _json(book.ingest(payload))
 
@@ -451,10 +480,10 @@ async def _run_standard_stdio(server, transport, binary):
 
 def serve(db_path: str | Path, allow_write: bool = False, *,
           semantic_model_dir: str | Path | None = None,
-          source_format: str = "objects") -> None:
+          source_format: str = "objects", project: str | None = None) -> None:
     """Run the SDK's stdio transport. No HTTP listener is created."""
     server = create_server(db_path, allow_write=allow_write, semantic_model_dir=semantic_model_dir,
-                           source_format=source_format)
+                           source_format=source_format, project=project)
     configuration = _standard_stdio_config(server)
     if configuration is None:
         server.run(transport="stdio")

@@ -122,7 +122,7 @@
       $('results').append(wrap);
     }
     async function refreshBooks() { state.projects=await api('/api/projects');if(state.project && !state.projects.some(p=>p.id===state.project))state.project=null;renderBooks();setStats(); }
-    async function selectProject(id) { state.project=id;state.chapter=null;state.currentChapters=[];state.searchSeq++;state.chapterSeq++;$('query').value='';error('');loading(false);renderBooks();setStats();const project=state.projects.find(p=>p.id===id);project?plain($('page-title'),project.name || project.id):ui($('page-title'),'让记忆有迹可循。');$('intro-label').textContent=project?'A BOOK OF YOUR WORK':'YOUR CONVERSATIONS, IN CHAPTERS';ui($('page-subtitle'),project?'这个项目的思考、决定与来龙去脉，都在这里。':'从一个问题，回到那一章、那一节，和当时的答案。');project?ui($('search-scope'),'在「{project}」中查找',{project:project.name || project.id}):ui($('search-scope'),'在所有项目中查找');welcome();await loadToc(false);if(!state.chapter && !$('query').value)welcome(); }
+    async function selectProject(id) { state.readSeq++;state.reader=null;state.readerProject=null;if(!$('reader-overlay').hidden)closeOverlay('reader-overlay');state.project=id;state.chapter=null;state.currentChapters=[];state.searchSeq++;state.chapterSeq++;$('query').value='';error('');loading(false);renderBooks();setStats();const project=state.projects.find(p=>p.id===id);project?plain($('page-title'),project.name || project.id):ui($('page-title'),'让记忆有迹可循。');$('intro-label').textContent=project?'A BOOK OF YOUR WORK':'YOUR CONVERSATIONS, IN CHAPTERS';ui($('page-subtitle'),project?'这个项目的思考、决定与来龙去脉，都在这里。':'从一个问题，回到那一章、那一节，和当时的答案。');project?ui($('search-scope'),'在「{project}」中查找',{project:project.name || project.id}):ui($('search-scope'),'在所有项目中查找');welcome();await loadToc(false);if(!state.chapter && !$('query').value)welcome(); }
     function chapterButton(chapter,index) { const button=el('button','chapter-button');button.type='button';button.dataset.chapter=chapter.id;button.append(el('span','chapter-number',String(index+1).padStart(2,'0')));const copy=el('span','chapter-copy');copy.append(el('span','',chapter.title),ue('small','','{sessions} 会话 · {pages} 页',{sessions:number(chapter.sessions),pages:number(chapter.pages)}));button.append(copy);button.addEventListener('click',()=>loadChapter(chapter.id,false));return button; }
     async function loadToc(append) {
       const seq=++state.tocSeq;const project=state.project;
@@ -157,7 +157,7 @@
       return first;
     }
     function renderSection(section) {
-      const owningChapter=state.chapter;
+      const owningChapter=state.chapter,owningProject=state.project;
       const block=el('section','section');const head=el('header','section-head');
       head.append(el('small','',section.session_title || section.session_id || '会话'),el('h3','',section.title));block.append(head);
       const pages=el('div','section-pages');appendPageRows(pages,section.pages);block.append(pages);
@@ -169,10 +169,10 @@
       ui(status,'已列出 {shown} / {total} 页',{shown:number(loaded),total:number(total)});
       more.hidden=next===null || next===undefined;footer.append(status,more);block.append(footer,inlineError);
       more.addEventListener('click',async()=>{
-        if(state.view!=='chapter' || state.chapter!==owningChapter)return;
+        if(state.view!=='chapter' || state.chapter!==owningChapter || state.project!==owningProject)return;
         const chapter=state.chapter;more.disabled=true;inlineError.hidden=true;
         try {
-          const data=await api(queryUrl('/api/section',{id:section.id,offset:next,limit:50}));
+          const data=await api(queryUrl('/api/section',{id:section.id,project:owningProject,offset:next,limit:50}));
           if(!block.isConnected || state.view!=='chapter' || chapter!==state.chapter)return;
           const first=appendPageRows(pages,data.pages);loaded+=data.pages.length;next=data.next_offset;
           ui(status,'已列出 {shown} / {total} 页',{shown:number(loaded),total:number(data.total)});
@@ -184,11 +184,12 @@
       return block;
     }
     async function loadChapter(id,append) {
+      const project=state.project;
       const seq=++state.chapterSeq;state.view='chapter';state.chapter=id;state.searchSeq++;error('');loading(true,'正在展开章节…');
       const restoreFocus=append && document.activeElement===$('section-more');
       $('section-more').hidden=true;
       try {
-        const data=await api(queryUrl('/api/chapter',{id,offset:append?state.sectionOffset:0,limit:20,page_limit:20}));
+        const data=await api(queryUrl('/api/chapter',{id,project,offset:append?state.sectionOffset:0,limit:20,page_limit:20}));
         if(seq!==state.chapterSeq)return;if(!append)$('results').replaceChildren();
         plain($('results-title'),data.title);ui($('results-meta'),'{sections} 个小节',{sections:number(data.total ?? data.sections.length)});
         document.querySelectorAll('[data-chapter]').forEach(node=>node.classList.toggle('active',node.dataset.chapter===id));
@@ -219,8 +220,8 @@
       if(state.lastFocus?.isConnected && !state.lastFocus.closest('[hidden]'))state.lastFocus.focus();
       else $('query').focus();
     }
-    async function openReader(id) {state.reader=id;state.readerOffset=0;state.readerLoaded=0;ui($('reader-title'),'正在打开记忆页…');$('reader-text').textContent='';$('reader-meta').textContent='';delete $('reader-meta').dataset.sourceRefs;$('reader-breadcrumb').replaceChildren();plain($('reader-position'),'');$('reader-error').hidden=true;$('reader-more').hidden=true;openOverlay('reader-overlay','reader-close');await readPart(false);}
-    async function readPart(append) {const seq=++state.readSeq;const id=state.reader;$('reader-more').disabled=true;try{const data=await api(queryUrl('/api/read',{id,offset:append?state.readerOffset:0,limit:12000}));if(seq!==state.readSeq || id!==state.reader)return;data.title?plain($('reader-title'),data.title):ui($('reader-title'),'记忆页');breadcrumb($('reader-breadcrumb'),data.breadcrumb);setSourceRefs($('reader-meta'),data.source_refs);if(append)$('reader-text').append(document.createTextNode(data.content));else $('reader-text').textContent=data.content;state.readerLoaded+=[...data.content].length;state.readerOffset=data.next_offset;$('reader-more').hidden=data.next_offset===null || data.next_offset===undefined;ui($('reader-position'),'已读 {shown} / {total} 字符',{shown:number(state.readerLoaded),total:number(data.total_chars)});}catch(e){$('reader-error').textContent=e.message;$('reader-error').hidden=false;}finally{$('reader-more').disabled=false;}}
+    async function openReader(id) {state.reader=id;state.readerProject=state.project;state.readerOffset=0;state.readerLoaded=0;ui($('reader-title'),'正在打开记忆页…');$('reader-text').textContent='';$('reader-meta').textContent='';delete $('reader-meta').dataset.sourceRefs;$('reader-breadcrumb').replaceChildren();plain($('reader-position'),'');$('reader-error').hidden=true;$('reader-more').hidden=true;openOverlay('reader-overlay','reader-close');await readPart(false);}
+    async function readPart(append) {const seq=++state.readSeq;const id=state.reader,project=state.readerProject;$('reader-more').disabled=true;try{const data=await api(queryUrl('/api/read',{id,project,offset:append?state.readerOffset:0,limit:12000}));if(seq!==state.readSeq || id!==state.reader || project!==state.readerProject || project!==state.project)return;data.title?plain($('reader-title'),data.title):ui($('reader-title'),'记忆页');breadcrumb($('reader-breadcrumb'),data.breadcrumb);setSourceRefs($('reader-meta'),data.source_refs);if(append)$('reader-text').append(document.createTextNode(data.content));else $('reader-text').textContent=data.content;state.readerLoaded+=[...data.content].length;state.readerOffset=data.next_offset;$('reader-more').hidden=data.next_offset===null || data.next_offset===undefined;ui($('reader-position'),'已读 {shown} / {total} 字符',{shown:number(state.readerLoaded),total:number(data.total_chars)});}catch(e){if(seq===state.readSeq && id===state.reader){$('reader-error').textContent=e.message;$('reader-error').hidden=false;}}finally{if(seq===state.readSeq && id===state.reader)$('reader-more').disabled=false;}}
     function openImport() {openOverlay('import-overlay','import-file');validateImport();}
     function validateImport() {state.parsedImport=null;$('import-submit').disabled=true;$('import-preview').hidden=true;$('import-error').hidden=true;const raw=$('import-json').value.trim();if(!raw)return;try{const payload=JSON.parse(raw);if(!payload || typeof payload!=='object' || Array.isArray(payload))throw new Error('请导入一份会话对象。');if(typeof payload.project!=='string' || !payload.project.trim() || typeof payload.session_id!=='string' || !payload.session_id.trim() || !Array.isArray(payload.messages))throw new Error('会话需要 project、session_id 和 messages 字段。');if(new TextEncoder().encode(raw).length>8*1024*1024)throw new Error('文件超过 8 MiB，请拆成多份会话。');state.parsedImport=payload;ui($('import-preview'),'项目：{project}\n会话：{session}\n消息：{messages} 条'+(payload.task_id?'\n任务章节：{task}':''),{project:payload.project,session:payload.title || payload.session_id,messages:number(payload.messages.length),task:payload.task_title || payload.task_id || ''});$('import-preview').hidden=false;$('import-submit').disabled=false;}catch(e){ui($('import-error'),e instanceof SyntaxError?'JSON 格式还不完整，请检查引号和逗号。':e.message);$('import-error').hidden=false;}}
     async function importSession() {if(!state.parsedImport)return;$('import-submit').disabled=true;ui($('import-submit'),'正在整理…');try{const payload=state.parsedImport;const result=await api('/api/import',{method:'POST',headers:{'Content-Type':'application/json','X-Memory-Book-Token':token},body:JSON.stringify(payload)});closeOverlay('import-overlay');await refreshBooks();const project=state.projects.find(p=>p.id===payload.project || p.name===payload.project);await selectProject(project?.id || state.projects.find(p=>p.id===result.project_id)?.id || null);toast(result.skipped?'这份会话已收录，内容没有变化。':'会话已收录，可以从目录开始阅读。');}catch(e){ui($('import-error'),e.message);$('import-error').hidden=false;}finally{$('import-submit').disabled=!state.parsedImport;ui($('import-submit'),'确认导入');}}

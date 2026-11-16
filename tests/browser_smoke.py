@@ -17,6 +17,7 @@ import shutil
 import tempfile
 import threading
 from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 
 from memory_book import MemoryBook
 from memory_book.web import make_server
@@ -121,6 +122,8 @@ def run(artifacts: Path, browser_executable: str | None = None) -> None:
         "console_errors": [],
         "unexpected_dialogs": [],
         "failed_requests": [],
+        "scope_requests": [],
+        "delayed_read_checks": [],
     }
     executable = browser_executable or shutil.which("google-chrome") or shutil.which("google-chrome-stable")
     report["browser_executable"] = executable or "Playwright-managed Chromium"
@@ -140,6 +143,13 @@ def run(artifacts: Path, browser_executable: str | None = None) -> None:
         assert widths["document"] <= widths["viewport"], f"Horizontal document overflow: {widths}"
         assert widths["body"] <= widths["viewport"], f"Horizontal body overflow: {widths}"
         checked(f"{name}: no horizontal overflow")
+
+    def assert_project_request(request, operation: str, expected_project: str) -> None:
+        parsed = urlsplit(request.url)
+        project = parse_qs(parsed.query, keep_blank_values=True).get("project")
+        assert parsed.path == f"/api/{operation}", request.url
+        assert project == [expected_project], f"Missing or wrong project assertion: {request.url}"
+        report["scope_requests"].append({"operation": operation, "project": project[0], "url": request.url})
 
     try:
         with tempfile.TemporaryDirectory(prefix="memory-book-browser-") as temporary:
@@ -181,7 +191,9 @@ def run(artifacts: Path, browser_executable: str | None = None) -> None:
                         expect(page.locator("#toc-list .chapter-button")).to_have_count(3)
                         checked("desktop project selection and table of contents")
 
-                        page.locator("#toc-list .chapter-button").filter(has_text="同步与重试").click()
+                        with page.expect_request(lambda request: urlsplit(request.url).path == "/api/chapter") as chapter_request:
+                            page.locator("#toc-list .chapter-button").filter(has_text="同步与重试").click()
+                        assert_project_request(chapter_request.value, "chapter", "star-notes")
                         expect(page.locator("#results-title")).to_have_text("同步与重试")
                         expect(page.locator("#results .section")).to_have_count(2)
                         expect(page.locator("#results .page-row").first).to_be_visible()
@@ -200,7 +212,9 @@ def run(artifacts: Path, browser_executable: str | None = None) -> None:
                         checked("Chinese 45秒 search returns scoped evidence")
 
                         source_button = page.locator("#results .read-button").first
-                        source_button.click()
+                        with page.expect_request(lambda request: urlsplit(request.url).path == "/api/read") as read_request:
+                            source_button.click()
+                        assert_project_request(read_request.value, "read", "star-notes")
                         expect(page.locator("#reader-overlay")).to_be_visible()
                         expect(page.locator("#reader-text")).to_contain_text("45秒")
                         expect(page.locator("#reader-error")).to_be_hidden()
@@ -306,6 +320,107 @@ def run(artifacts: Path, browser_executable: str | None = None) -> None:
                             checked("fresh English browser defaults to English and fits a 390px viewport")
                         finally:
                             english_context.close()
+
+                        # Add a separate fixture only after the original desktop,
+                        # mobile, import and language counts/screenshots are checked.
+                        # A single long source must continue beyond the chapter's
+                        # 20-page preview through the real section HTTP endpoint.
+                        with MemoryBook(db) as book:
+                            ingested = book.ingest({
+                                "project": "scope-pagination", "project_name": "Scope pagination",
+                                "session_id": "long-directory", "task_id": "page-continuation",
+                                "task_title": "Long source directory", "title": "Long source directory",
+                                "created_at": "2026-11-07T09:00:00+08:00",
+                                "messages": [{"role": "user", "content": "List the diagnostic source records."},
+                                             {"role": "assistant", "content": "\n\n".join(
+                                                 f"Scope record {i}: " + "preserve the original retry evidence. " * 12
+                                                 for i in range(60))}],
+                            })
+                            directory = book.chapter(ingested["chapter_id"], page_limit=100)
+                            assert len(directory["sections"]) == 1, "The pagination fixture must have one section"
+                            expected_pages = directory["sections"][0]["pages_total"]
+                            assert 20 < expected_pages <= 70, "The fixture must need exactly one continuation request"
+                        page.set_viewport_size({"width": 1440, "height": 1000})
+                        page.reload(wait_until="networkidle")
+                        page.locator("#book-list .book-button").filter(has_text="Scope pagination").click()
+                        expect(page.locator("#toc-list .chapter-button")).to_have_count(1)
+                        with page.expect_request(lambda request: urlsplit(request.url).path == "/api/chapter") as chapter_request:
+                            page.locator("#toc-list .chapter-button").click()
+                        assert_project_request(chapter_request.value, "chapter", "scope-pagination")
+                        expect(page.locator("#results .page-row")).to_have_count(20)
+                        more_pages = page.locator("#results .section-pagination button")
+                        expect(more_pages).to_be_visible()
+                        with page.expect_request(lambda request: urlsplit(request.url).path == "/api/section") as section_request:
+                            more_pages.click()
+                        assert_project_request(section_request.value, "section", "scope-pagination")
+                        expect(page.locator("#results .page-row")).to_have_count(expected_pages)
+                        expect(more_pages).to_be_hidden()
+                        checked("chapter, section continuation, and source reads carry the exact selected project")
+
+                        # Hold a real read request, close the reader and switch
+                        # projects before delivering the old response. Test both
+                        # a valid original page and response.json() rejecting a
+                        # malformed body. No timers or long sleeps order the race:
+                        # routing, response completion and rendering are the gates.
+                        for delayed_outcome in ("source-response", "json-error"):
+                            page.locator("#book-list .book-button").filter(has_text="星河笔记").click()
+                            expect(page.locator("#page-title")).to_have_text("星河笔记")
+                            page.locator("#query").fill("45秒")
+                            page.locator("#search-button").click()
+                            expect(page.locator("#results .result-card")).to_have_count(2)
+                            held = []
+                            page.evaluate("window.__scopeReadHeld = false")
+
+                            def hold_read(route) -> None:
+                                held.append(route)
+                                page.evaluate("window.__scopeReadHeld = true")
+
+                            pattern = "**/api/read?*"
+                            page.route(pattern, hold_read)
+                            try:
+                                with page.expect_request(lambda request: urlsplit(request.url).path == "/api/read") as stale_request:
+                                    page.locator("#results .read-button").first.click()
+                                page.wait_for_function("window.__scopeReadHeld === true")
+                                assert len(held) == 1, "Expected exactly one held source read"
+                                assert_project_request(stale_request.value, "read", "star-notes")
+                                expect(page.locator("#reader-overlay")).to_be_visible()
+                                expect(page.locator("#reader-text")).to_be_empty()
+                                page.locator("#reader-close").click()
+                                page.locator("#book-list .book-button").filter(has_text="周末花园").click()
+                                expect(page.locator("#page-title")).to_have_text("周末花园")
+                                expect(page.locator("#toc-list .chapter-button")).to_have_count(1)
+                                expect(page.locator("#reader-overlay")).to_be_hidden()
+                                with page.expect_response(lambda response: response.url == stale_request.value.url) as stale_response:
+                                    if delayed_outcome == "source-response":
+                                        actual_response = held[0].fetch()
+                                        assert actual_response.ok, "The delayed source fixture must exist"
+                                        held[0].fulfill(response=actual_response)
+                                    else:
+                                        held[0].fulfill(status=200, content_type="application/json", body="{")
+                                stale_response.value.finished()
+                                page.evaluate("() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))")
+                                expect(page.locator("#reader-overlay")).to_be_hidden()
+                                expect(page.locator("#reader-text")).to_be_empty()
+                                expect(page.locator("#reader-error")).to_be_hidden()
+                                expect(page.locator("#error-banner")).to_be_hidden()
+                                expect(page.locator("#page-title")).to_have_text("周末花园")
+                                report["delayed_read_checks"].append({"outcome": delayed_outcome,
+                                    "request_project": "star-notes", "selected_project_at_completion": "garden-notes",
+                                    "stale_content_visible": False, "stale_error_visible": False})
+                                checked(f"delayed {delayed_outcome} cannot repopulate the reader after a project switch")
+                            finally:
+                                page.unroute(pattern, hold_read)
+
+                        page.locator("#toc-list .chapter-button").click()
+                        expect(page.locator("#results .page-row")).to_have_count(1)
+                        with page.expect_request(lambda request: urlsplit(request.url).path == "/api/read") as new_read:
+                            page.locator("#results .page-row").click()
+                        assert_project_request(new_read.value, "read", "garden-notes")
+                        expect(page.locator("#reader-text")).to_contain_text("另一个项目的演示计时器是45秒")
+                        expect(page.locator("#reader-breadcrumb")).to_contain_text("周末花园")
+                        expect(page.locator("#reader-error")).to_be_hidden()
+                        page.locator("#reader-close").click()
+                        checked("newly selected project still opens its own source after delayed-response checks")
 
                         assert not report["page_errors"], f"JavaScript page errors: {report['page_errors']}"
                         assert not report["console_errors"], f"Browser console errors: {report['console_errors']}"
