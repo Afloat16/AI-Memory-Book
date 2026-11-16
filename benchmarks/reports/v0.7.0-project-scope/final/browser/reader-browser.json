@@ -1,0 +1,98 @@
+{
+  "status": "passed",
+  "python": "3.12.16",
+  "fixture": "synthetic conversations; no user data",
+  "checks": [
+    "desktop project selection and table of contents",
+    "desktop chapter opens both source sessions",
+    "Chinese 45秒 search returns scoped evidence",
+    "source reader opens, closes, and restores keyboard focus",
+    "desktop_layout: no horizontal overflow",
+    "english_desktop_layout: no horizontal overflow",
+    "English/Chinese toggle preserves source text and titles",
+    "canonical JSON previews without mutation, then imports on confirmation",
+    "imported source stays inert text and Escape closes the reader",
+    "mobile_layout: no horizontal overflow",
+    "390px mobile table of contents opens a chapter",
+    "fresh English browser defaults to English and fits a 390px viewport",
+    "chapter, section continuation, and source reads carry the exact selected project",
+    "delayed source-response cannot repopulate the reader after a project switch",
+    "delayed json-error cannot repopulate the reader after a project switch",
+    "newly selected project still opens its own source after delayed-response checks",
+    "no page errors, console errors, unexpected dialogs, or failed requests"
+  ],
+  "page_errors": [],
+  "console_errors": [],
+  "unexpected_dialogs": [],
+  "failed_requests": [],
+  "scope_requests": [
+    {
+      "operation": "chapter",
+      "project": "star-notes",
+      "url": "http://127.0.0.1:40003/api/chapter?id=ch_c2074ec29ce064a72150f913&project=star-notes&offset=0&limit=20&page_limit=20"
+    },
+    {
+      "operation": "read",
+      "project": "star-notes",
+      "url": "http://127.0.0.1:40003/api/read?id=p_65a86583b097a38b4de9b86c&project=star-notes&offset=0&limit=12000"
+    },
+    {
+      "operation": "chapter",
+      "project": "scope-pagination",
+      "url": "http://127.0.0.1:40003/api/chapter?id=ch_6a9b0a8c02cd06d63231a29f&project=scope-pagination&offset=0&limit=20&page_limit=20"
+    },
+    {
+      "operation": "section",
+      "project": "scope-pagination",
+      "url": "http://127.0.0.1:40003/api/section?id=sec_75b94337c0d5c8b822cb2221&project=scope-pagination&offset=20&limit=50"
+    },
+    {
+      "operation": "read",
+      "project": "star-notes",
+      "url": "http://127.0.0.1:40003/api/read?id=p_65a86583b097a38b4de9b86c&project=star-notes&offset=0&limit=12000"
+    },
+    {
+      "operation": "read",
+      "project": "star-notes",
+      "url": "http://127.0.0.1:40003/api/read?id=p_65a86583b097a38b4de9b86c&project=star-notes&offset=0&limit=12000"
+    },
+    {
+      "operation": "read",
+      "project": "garden-notes",
+      "url": "http://127.0.0.1:40003/api/read?id=p_3a2a2dcf943deb6e6dc82d0c&project=garden-notes&offset=0&limit=12000"
+    }
+  ],
+  "delayed_read_checks": [
+    {
+      "outcome": "source-response",
+      "request_project": "star-notes",
+      "selected_project_at_completion": "garden-notes",
+      "stale_content_visible": false,
+      "stale_error_visible": false
+    },
+    {
+      "outcome": "json-error",
+      "request_project": "star-notes",
+      "selected_project_at_completion": "garden-notes",
+      "stale_content_visible": false,
+      "stale_error_visible": false
+    }
+  ],
+  "browser_executable": "/usr/bin/google-chrome",
+  "browser_version": "157.0.8103.78",
+  "desktop_layout": {
+    "viewport": 1440,
+    "document": 1440,
+    "body": 1440
+  },
+  "english_desktop_layout": {
+    "viewport": 1440,
+    "document": 1440,
+    "body": 1440
+  },
+  "mobile_layout": {
+    "viewport": 390,
+    "document": 390,
+    "body": 390
+  }
+}

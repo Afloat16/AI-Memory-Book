@@ -21,10 +21,15 @@ pages in the same explicit scope when a client continues reading. See the
 - Carry the selected project through reader requests, including continuation
   pages; ignore delayed source results and errors after switching projects.
   An explicit empty HTTP recall scope now fails instead of broadening the query.
+- Recover transient `SQLITE_BUSY` while enabling WAL during concurrent startup,
+  within one ten-second WAL-stage budget including the first attempt. Preserve
+  other errors and close failed connections; the uncontended path adds no SQL
+  statements. A real lock-contention regression failed before and passes after
+  the correction; the initial failed CI and original replay remain preserved.
 - Retain source addresses, schema 4, recall ranking and cache behavior. A fixed
   four-project diagnostic records 186 passing candidate calls and 35/35 matching
   legacy responses. The frozen native 80-question replay matches all 160 Book
-  responses across two budgets; its independent audit passes 16,863 checks.
+  responses across two budgets; its independent audit passes 16,861 checks.
 - Expand the source/documentation comparison to 19 external project families.
   Keep the six-component numerical comparison explicitly frozen at v0.6.0;
   newly reviewed systems have no invented scores. Preserve failed attempts,

@@ -2,7 +2,7 @@
 
 **Find the right engineering evidence through a project book, without mixing similar projects.**
 
-Projects are books, tasks are chapters, and evidence is a page you can open. AI-Memory-Book preserves normalized original text conversations, so an agent can recover constraints, parameter corrections, and failed attempts after a session or client switch, cite the source, and continue the work.
+Projects are books, tasks are chapters, related turns form sections, and original evidence is a page you can open. AI-Memory-Book preserves normalized original text conversations, so an agent can recover constraints, parameter corrections, and failed attempts after a session or client switch, cite the source, and continue the work.
 
 [简体中文](README.zh-CN.md) · [Quick start](#quick-start) · [2400-character results](#2400-character-results) · [Open-source comparison](#open-source-comparison)
 
@@ -121,9 +121,9 @@ Python `chapter`, `section` and `read` accept `project=...`; their CLI equivalen
 
 A separate authored diagnostic uses **four similar projects and twelve source sessions**, with identical display names, task IDs and session IDs but conflicting settings. The candidate completes **186 core API calls with zero contract failures**, including **36 foreign-ID rejections**, **12 unknown-project rejections**, paginated source reconstruction, interleaved warm caches, source replacement and project deletion. Four directory checks verify source coverage against the original sessions. **35/35 existing-API responses/errors match v0.6.0** after the documented removal of timing/cache and directory wall-clock metadata; evidence text, IDs, coordinates and source dates remain in the comparison.
 
-The v0.6.0 diagnostic records **37 passed calls and 77 unsupported assertions**, not 77 failed isolation checks. The new supported directory traversal performs additional reads, so the versions' total call counts differ. These are development contract checks, not answer accuracy, a holdout, a speed benchmark, or a claim of perfect isolation. [Raw calls and comparison](benchmarks/reports/v0.7.0-project-scope/candidate/) · [Validation and reproduction](docs/v0.7.0-project-scope-validation.md).
+The v0.6.0 diagnostic records **37 passed calls and 77 unsupported assertions**, not 77 failed isolation checks. The new supported directory traversal performs additional reads, so the versions' total call counts differ. These are development contract checks, not answer accuracy, a holdout, a speed benchmark, or a claim of perfect isolation. [Raw calls and comparison](benchmarks/reports/v0.7.0-project-scope/final/scope-candidate/) · [Validation and reproduction](docs/v0.7.0-project-scope-validation.md).
 
-The unchanged native engineering replay also ran against both versions: **80 questions at 1200 and 2400 characters, once per setting**. All **160/160 Book responses** and **640/640 responses across the four repository strategies** match after excluding only top-level latency/cache diagnostics. An independent auditor passes **16,863 checks**. This is regression evidence, with no new speed claim or external-component run. [Raw replay and audit](benchmarks/reports/v0.7.0-project-scope/native-replay-audit.json).
+The corrected final runtime also replays the unchanged **80 native engineering questions at 1200 and 2400 characters, once per setting**, against the retained, previously executed v0.6.0 baseline. All **160/160 Book responses** and **640/640 responses across the four repository strategies** match after excluding only top-level latency/cache diagnostics. An independent auditor passes **16,861 checks**. This is regression evidence, with no new speed claim or external-component run. [Raw replay and audit](benchmarks/reports/v0.7.0-project-scope/final/native-replay-audit.json).
 
 ## 2400-character results
 
