@@ -1,0 +1,1003 @@
+{
+  "schema": "project-scope-independent-review-v1",
+  "created_at": "2026-11-16T04:49:45.263856+00:00",
+  "reviewer_role": "separate read-only source and saved-evidence reviewer; did not implement the runtime changes",
+  "review_status": "scoped_review_complete_release_gates_pending",
+  "release_accepted": false,
+  "source": {
+    "baseline_commit": "0572e65e198503f55ad4117619606b17a4c67540",
+    "candidate_published_commit": "cf51473e841a3a38df7c7c857cf51e0e14eb1861",
+    "candidate_execution_local_commit": "e1fb65e7898153206e3928d3a181b74eeb38e18a",
+    "git_trees": {
+      "published": "4ced86d8c83275962c8700cbe5827f2b90adab4e",
+      "local": "4ced86d8c83275962c8700cbe5827f2b90adab4e",
+      "baseline": "b35f067c2b0ef472acd03ba88d062e5629e9802a"
+    },
+    "published_and_local_complete_trees_equal": true,
+    "baseline_runtime_sha256": "adb63d45a0d18f15b757d4c1bcacd9f35763a20e2c8399de480b51d13b5b9be4",
+    "candidate_runtime_sha256": "0d1197a55249bef509151277f589c4c69357febd472b2adf1706adb32c43b4ac",
+    "runtime_digest_definition": "SHA-256 of UTF-8 canonical JSON mapping all relative *.py paths to their SHA-256, sorted keys, compact separators, ensure_ascii=False",
+    "candidate_python_files_verified_against_published_commit": {
+      "__init__.py": true,
+      "__main__.py": true,
+      "cli.py": true,
+      "clients.py": true,
+      "formats.py": true,
+      "importers.py": true,
+      "integration.py": true,
+      "maintenance.py": true,
+      "mcp_server.py": true,
+      "paths.py": true,
+      "scope.py": true,
+      "segmentation.py": true,
+      "semantic.py": true,
+      "service.py": true,
+      "store.py": true,
+      "sync.py": true,
+      "text.py": true,
+      "token_budget.py": true,
+      "web.py": true
+    },
+    "static_assets_excluded_from_runtime_manifest": true,
+    "reader_html_sha256": "4d8b699a28d9d4868754da598a483a6b6cf1174840adfa5d218580e475900a45"
+  },
+  "review_method": {
+    "source_paths": [
+      "src/memory_book/store.py",
+      "src/memory_book/scope.py",
+      "src/memory_book/mcp_server.py",
+      "src/memory_book/cli.py",
+      "src/memory_book/web.py",
+      "src/memory_book/static/index.html",
+      "src/memory_book/clients.py",
+      "src/memory_book/integration.py"
+    ],
+    "saved_scope_audit": "Parsed JSON/JSONL independently without importing the evaluator or MemoryBook; recalculated byte hashes, canonical dataset/response hashes, complete canonical response/error pairs, outcomes and category counts; checked imported Python file hashes against reports and published Git blobs.",
+    "native_review": "Read the separate native auditor report; independently decompressed and hashed its archives and re-compared all 640 complete non-timing response/score pairs. The native auditor, not this reviewer, recomputed every native quality field from its hash-bound policy truth table.",
+    "runtime_probes_retention": "Observed tool executions in the review conversation; no standalone probe transcript file was saved. They are not added to test or benchmark counts.",
+    "browser_review": "Read source wiring, both local launch-failure reports, the complete hosted reader-browser log, nine-job CI status record, original artifact ZIP and extracted report. Independently checked ZIP SHA-256, extracted report byte equality, 17 matching PASS/report checks, request scopes and delayed-response outcomes."
+  },
+  "scope_diagnostic": {
+    "evidence_level": "authored_development_contract_diagnostic",
+    "projects": 4,
+    "source_sessions": 12,
+    "project_ids": [
+      "similar/alpha",
+      "similar/alpha-copy",
+      "similar/beta",
+      "Similar/alpha"
+    ],
+    "evaluator_sha256": "403ccec39fd3cd0207a8f6251d24fa9cfc5185b259717489784b776795b06d64",
+    "dataset_canonical_sha256": "36df6ba9c12f9b46f480dffab44ba7b62d7a5ff916b6b9c2f1357a61cf73186d",
+    "recomputed_runs": {
+      "baseline": {
+        "calls": 114,
+        "outcomes": {
+          "passed": 37,
+          "unsupported": 77
+        },
+        "categories": {
+          "asserted_followup": {
+            "unsupported": 16
+          },
+          "conflicting_recall_filter": {
+            "passed": 4
+          },
+          "explicit_project_recall": {
+            "passed": 4
+          },
+          "foreign_id_assertion": {
+            "unsupported": 36
+          },
+          "global_read_control": {
+            "passed": 4
+          },
+          "interleaved_hot_cache": {
+            "passed": 4
+          },
+          "invalid_project_assertion": {
+            "unsupported": 9
+          },
+          "legacy_directory": {
+            "passed": 8
+          },
+          "paginated_directory": {
+            "unsupported": 4
+          },
+          "project_deletion": {
+            "passed": 6
+          },
+          "source_replacement": {
+            "passed": 6
+          },
+          "unbound_global_control": {
+            "passed": 1
+          },
+          "unknown_project_assertion": {
+            "unsupported": 12
+          }
+        },
+        "checks": {
+          "raw_sha256_matches": true,
+          "dataset_canonical_sha256_matches": true,
+          "outcomes_recomputed_from_raw": true,
+          "category_counts_recomputed_from_raw": true,
+          "case_ids_unique": true,
+          "row_count_matches": true,
+          "every_response_digest_recomputed": true,
+          "compatibility_report_reconstructed_from_raw": true,
+          "runtime_file_hashes_match_import_tree": true,
+          "runtime_manifest_digest_matches": true,
+          "unsupported_are_absent_project_api_type_errors": true,
+          "passed_rows_have_no_validation_errors": true,
+          "evaluator_digest_matches": true
+        }
+      },
+      "candidate": {
+        "calls": 186,
+        "outcomes": {
+          "passed": 186
+        },
+        "categories": {
+          "asserted_followup": {
+            "passed": 16
+          },
+          "complete_source_read": {
+            "passed": 20
+          },
+          "conflicting_recall_filter": {
+            "passed": 4
+          },
+          "directory_completeness": {
+            "passed": 4
+          },
+          "explicit_project_recall": {
+            "passed": 4
+          },
+          "foreign_id_assertion": {
+            "passed": 36
+          },
+          "global_read_control": {
+            "passed": 4
+          },
+          "interleaved_hot_cache": {
+            "passed": 4
+          },
+          "invalid_project_assertion": {
+            "passed": 9
+          },
+          "legacy_directory": {
+            "passed": 8
+          },
+          "paginated_directory": {
+            "passed": 32
+          },
+          "paginated_source_read": {
+            "passed": 20
+          },
+          "project_deletion": {
+            "passed": 6
+          },
+          "source_replacement": {
+            "passed": 6
+          },
+          "unbound_global_control": {
+            "passed": 1
+          },
+          "unknown_project_assertion": {
+            "passed": 12
+          }
+        },
+        "checks": {
+          "raw_sha256_matches": true,
+          "dataset_canonical_sha256_matches": true,
+          "outcomes_recomputed_from_raw": true,
+          "category_counts_recomputed_from_raw": true,
+          "case_ids_unique": true,
+          "row_count_matches": true,
+          "every_response_digest_recomputed": true,
+          "compatibility_report_reconstructed_from_raw": true,
+          "runtime_file_hashes_match_import_tree": true,
+          "runtime_manifest_digest_matches": true,
+          "unsupported_are_absent_project_api_type_errors": true,
+          "passed_rows_have_no_validation_errors": true,
+          "evaluator_digest_matches": true
+        }
+      }
+    },
+    "compatibility": {
+      "compared_cases": 35,
+      "equal_cases": 35,
+      "differences": [],
+      "case_ids": [
+        "0:conflicting-recall-chapter",
+        "0:legacy-chapter",
+        "0:legacy-read",
+        "0:legacy-section",
+        "0:recall-after-replacement",
+        "0:recall-cold",
+        "0:recall-hot-after-other-projects",
+        "0:survivor-recall",
+        "1:conflicting-recall-chapter",
+        "1:legacy-chapter",
+        "1:legacy-read",
+        "1:legacy-section",
+        "1:recall-after-replacement",
+        "1:recall-cold",
+        "1:recall-hot-after-other-projects",
+        "2:conflicting-recall-chapter",
+        "2:legacy-chapter",
+        "2:legacy-read",
+        "2:legacy-section",
+        "2:recall-after-replacement",
+        "2:recall-cold",
+        "2:recall-hot-after-other-projects",
+        "2:survivor-recall",
+        "3:conflicting-recall-chapter",
+        "3:legacy-chapter",
+        "3:legacy-read",
+        "3:legacy-section",
+        "3:recall-after-replacement",
+        "3:recall-cold",
+        "3:recall-hot-after-other-projects",
+        "3:survivor-recall",
+        "deleted-project-page",
+        "deleted-project-recall",
+        "old-page-after-replace",
+        "unbound-session-collision"
+      ],
+      "comparison_report_matches_raw_recomputation": true,
+      "canonicalization": {
+        "omitted_keys": [
+          "cache_hit",
+          "latency_ms",
+          "updated_at"
+        ],
+        "additional_omission": "project directory creation timestamps only; source created_at is retained"
+      },
+      "preserved": "All original text, IDs, source coordinates, ordering and source/session created_at values remain."
+    },
+    "unsupported_interpretation": "All 77 baseline unsupported observations are actual TypeError responses to an absent project keyword. They are neither failures nor successful project rejections.",
+    "different_call_totals": "The candidate can continue successful new scoped directory requests into pagination and full/sliced page reads. The baseline cannot traverse that new interface; 114 and 186 are not accuracy denominators."
+  },
+  "resolved_findings": [
+    {
+      "id": "scope-review-001",
+      "status": "fixed_and_independently_reproduced",
+      "issue": "Bound browse_book still declared project as a required tool argument.",
+      "before": "MCP SDK browse_book({}) failed tool input validation even on a bound connection.",
+      "after": "project defaults to None; bound omission inherits the exact project; unbound omission raises a clear ValueError.",
+      "regression_file": "tests/test_project_scope_interfaces.py"
+    },
+    {
+      "id": "scope-review-002",
+      "status": "fixed_and_independently_reproduced",
+      "issue": "HTTP recall converted an explicit empty project parameter to omitted scope with or None.",
+      "before": "GET /api/recall?...&project= returned global results.",
+      "after": "Explicit empty project is HTTP 400; omission still returns global results; nonempty unknown project yields no results.",
+      "compatibility_change": true,
+      "regression_file": "tests/test_project_scope_interfaces.py"
+    }
+  ],
+  "independent_probes": {
+    "bound_read_tools_conflicting_scope_rejected_before_database_open": [
+      "recall_memory",
+      "browse_book",
+      "browse_chapter",
+      "browse_section",
+      "read_page"
+    ],
+    "bound_remember_session_foreign_or_missing_project_rejected_before_database_open": true,
+    "bound_browse_book_omission_inherits_project": true,
+    "unbound_browse_book_omission_errors": true,
+    "http_explicit_empty_project_status": 400,
+    "http_omitted_project_global_behavior_retained": true,
+    "http_unknown_nonempty_project_returns_empty_results": true,
+    "client_profiles_verified": [
+      "claude-code",
+      "codex",
+      "cursor",
+      "gemini",
+      "opencode",
+      "copilot-cli"
+    ],
+    "literal_project_id_used": "-算法 \" alpha",
+    "real_cli_parser_roundtrip_preserved_project_and_allow_write": true,
+    "refresh_without_new_scope_changed_false": true,
+    "managed_removal_recognized": true,
+    "setup_created_database": false,
+    "remaining_reproducible_blocker_found_in_reviewed_scope": false
+  },
+  "native_regression": {
+    "status": "completed_saved_evidence_audited",
+    "audit_path": "benchmarks/reports/v0.7.0-project-scope/native-replay-audit.json",
+    "audit_internal_checks": 16863,
+    "audit_failure_count": 0,
+    "audit_check_count_is_not_a_test_or_question_count": true,
+    "evaluator_sha256": "3d1c53ef016a7143c86cf1326f2bf5b5cf7260863e91225d9a7e09a9773cdc6e",
+    "dataset_canonical_sha256": "87e8ccad3510fb7e8a4c68c9fa3f284473abf8381ef6444ad179e3d4196b3ac3",
+    "cases": 80,
+    "answerable_cases": 72,
+    "missing_evidence_cases": 8,
+    "budgets_chars": [
+      1200,
+      2400
+    ],
+    "repeats": 1,
+    "result_cache": false,
+    "book_responses_compared": 160,
+    "book_responses_equal": 160,
+    "all_repository_strategy_responses_compared": 640,
+    "all_repository_strategy_responses_equal": 640,
+    "independently_recompared_pairs_by_backend": {
+      "no_memory": 160,
+      "recent_history": 160,
+      "flat": 160,
+      "book": 160
+    },
+    "response_exclusions": [
+      "latency_ms",
+      "cache_hit"
+    ],
+    "exclusions_only_top_level": true,
+    "quality_or_source_fields_excluded": [],
+    "candidate_book_quality": [
+      {
+        "backend": "book",
+        "budget_chars": 1200,
+        "cases": 80,
+        "answerable_cases": 72,
+        "evidence_recall": 0.95,
+        "complete_evidence_rate": 0.9444444444444444,
+        "fixed_consumer_cases": 48,
+        "fixed_consumer_all_checks_pass_rate": 1.0,
+        "stale_only_cases": 0,
+        "missing_evidence_nonempty_cases": 8,
+        "budget_violations": 0,
+        "source_validation_failures": 0,
+        "mean_context_chars": 1195.925,
+        "retrieval_samples": 80,
+        "repeat_output_changes": 0,
+        "evidence_spans_recovered": 76,
+        "evidence_spans_required": 80,
+        "complete_evidence_cases": 68,
+        "fixed_policy_passes": 48,
+        "incomplete_evidence_case_ids": [
+          "m2:training-online:failure",
+          "m2:training-batch:failure",
+          "m4:attention-online:constraints",
+          "m4:attention-batch:constraints"
+        ]
+      },
+      {
+        "backend": "book",
+        "budget_chars": 2400,
+        "cases": 80,
+        "answerable_cases": 72,
+        "evidence_recall": 1.0,
+        "complete_evidence_rate": 1.0,
+        "fixed_consumer_cases": 48,
+        "fixed_consumer_all_checks_pass_rate": 1.0,
+        "stale_only_cases": 0,
+        "missing_evidence_nonempty_cases": 8,
+        "budget_violations": 0,
+        "source_validation_failures": 0,
+        "mean_context_chars": 1799.15,
+        "retrieval_samples": 80,
+        "repeat_output_changes": 0,
+        "evidence_spans_recovered": 80,
+        "evidence_spans_required": 80,
+        "complete_evidence_cases": 72,
+        "fixed_policy_passes": 48,
+        "incomplete_evidence_case_ids": []
+      }
+    ],
+    "archive_checks": [
+      {
+        "path": "native-baseline/dataset.json.gz",
+        "compressed_and_original_hashes_and_sizes_match": true
+      },
+      {
+        "path": "native-baseline/raw.jsonl.gz",
+        "compressed_and_original_hashes_and_sizes_match": true
+      },
+      {
+        "path": "native-baseline/report.json.gz",
+        "compressed_and_original_hashes_and_sizes_match": true
+      },
+      {
+        "path": "native-candidate/dataset.json.gz",
+        "compressed_and_original_hashes_and_sizes_match": true
+      },
+      {
+        "path": "native-candidate/raw.jsonl.gz",
+        "compressed_and_original_hashes_and_sizes_match": true
+      },
+      {
+        "path": "native-candidate/report.json.gz",
+        "compressed_and_original_hashes_and_sizes_match": true
+      },
+      {
+        "path": "native-replay-audit-initial-local-identity.json.gz",
+        "compressed_and_original_hashes_and_sizes_match": true
+      }
+    ],
+    "performance_claim": false,
+    "repeated_output_stability_claim": false,
+    "limitations": [
+      "The unchanged 80 questions are synthetic development regression cases; there is no new holdout or coding LLM.",
+      "This is native Book excerpt packing, separate from the historical six-external-component whole-block comparison.",
+      "Only one execution per query/budget/strategy was requested. Raw timing is retained, but concurrent work and uncontrolled caches preclude a performance claim or repeated-output stability claim.",
+      "The auditor independently recomputes every saved score field; fixed-consumer checks use the truth table of the exact hash-bound handwritten vectors, not generated-code accuracy.",
+      "Response comparison drops only top-level latency_ms and cache_hit; source spans, context, diagnostics, result order, revision and every quality field are retained. Runtime/version identities are outside responses and audited separately.",
+      "All eight missing-evidence questions return nonempty Book context at each budget; complete answerable-evidence coverage is not universal correctness or reliable abstention."
+    ],
+    "auditor_self_validation": {
+      "path": "benchmarks/reports/v0.7.0-project-scope/native-auditor-self-checks.json",
+      "status": "passed",
+      "checks": 33,
+      "failures": 0,
+      "is_additional_retrieval_quality_evidence": false
+    }
+  },
+  "focused_test_attempts": [
+    {
+      "group": "scope/setup/client/installer",
+      "tests_run": 68,
+      "result": "OK",
+      "source_identity_in_log": null,
+      "evidence": "local log receipt below; development run, not a final full-suite gate"
+    },
+    {
+      "group": "scope/MCP/lifecycle/HTTP",
+      "tests_run": 37,
+      "result": "OK",
+      "source_identity_in_log": null,
+      "evidence": "local log receipt below; no browser execution"
+    },
+    {
+      "group": "earlier client/setup run",
+      "tests_run": 53,
+      "result": "OK",
+      "skipped": 0,
+      "modules": [
+        "tests.test_project_scope_setup",
+        "tests.test_clients",
+        "tests.test_setup"
+      ],
+      "evidence": "execution-agent task report and tool output only; no standalone log saved",
+      "tomlkit_version": "0.13.3"
+    }
+  ],
+  "overlapping_counts_must_not_be_added": true,
+  "initial_full_suite": {
+    "status": "failed",
+    "tests_run": 1135,
+    "failures": 6,
+    "errors": 151,
+    "skipped": 13,
+    "missing_requests_traceback_occurrences": 130,
+    "traceback_occurrences_are_not_distinct_test_count": true,
+    "observed_or_diagnosed_causes": [
+      "Missing requests, including wrapped subprocess failures.",
+      "Historical frozen result files absent from the recovered sparse workspace.",
+      "Old C7 mock expected create_server without the new explicit project=None forwarding.",
+      "Two optimized-stdio guard assertions ran with MCP 1.29; the optimization guard requires 1.30.0."
+    ],
+    "environment_repairs_do_not_establish_pass": true,
+    "subsequent_complete_rerun_status": "pending_at_this_review_checkpoint"
+  },
+  "environment_install_attempt": {
+    "stage": "local_optional_dependency_install",
+    "command": ".venv/bin/python -m pip install -e '.[mcp,clients,tokens,semantic]' build==1.3.0 setuptools==80.9.0 wheel==0.45.1",
+    "exit_code": 1,
+    "error": "OSError: [Errno 28] No space left on device while installing hf_xet-1.8.0.dist-info",
+    "observed_free_space_mb": 65,
+    "incomplete_virtualenv_mb": 118,
+    "response": "Remove only this newly created incomplete virtual environment; reuse existing runtime packages through a fresh system-site-packages environment and install small required test/build extras. No experimental reports or Git objects removed.",
+    "limitation": "The full pip stdout was observed in tool output but was not separately captured to a log file."
+  },
+  "browser": {
+    "status": "blocked_before_browser_checks",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit_code": 1,
+        "failure_stage": "browser launch",
+        "reason": "ENOENT while creating Playwright artifacts in missing /tmp"
+      },
+      {
+        "attempt": 2,
+        "exit_code": 1,
+        "failure_stage": "browser launch",
+        "change": "TMPDIR set to workspace temporary directory",
+        "reason": "Chromium socket() Operation not permitted; SIGABRT"
+      }
+    ],
+    "ui_checks_executed": 0,
+    "empty_check_arrays_independently_verified": true,
+    "hosted": {
+      "status": "passed",
+      "source_commit": "cf51473e841a3a38df7c7c857cf51e0e14eb1861",
+      "workflow_run": 43805785516,
+      "job_id": 133096128006,
+      "job_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43805785516/job/133096128006",
+      "ui_checks_passed": 17,
+      "checks": [
+        "desktop project selection and table of contents",
+        "desktop chapter opens both source sessions",
+        "Chinese 45秒 search returns scoped evidence",
+        "source reader opens, closes, and restores keyboard focus",
+        "desktop_layout: no horizontal overflow",
+        "english_desktop_layout: no horizontal overflow",
+        "English/Chinese toggle preserves source text and titles",
+        "canonical JSON previews without mutation, then imports on confirmation",
+        "imported source stays inert text and Escape closes the reader",
+        "mobile_layout: no horizontal overflow",
+        "390px mobile table of contents opens a chapter",
+        "fresh English browser defaults to English and fits a 390px viewport",
+        "chapter, section continuation, and source reads carry the exact selected project",
+        "delayed source-response cannot repopulate the reader after a project switch",
+        "delayed json-error cannot repopulate the reader after a project switch",
+        "newly selected project still opens its own source after delayed-response checks",
+        "no page errors, console errors, unexpected dialogs, or failed requests"
+      ],
+      "report_path": "benchmarks/reports/v0.7.0-project-scope/hosted-browser/reader-browser.json",
+      "zip_path": "benchmarks/reports/v0.7.0-project-scope/hosted-browser/reader-browser-cf51473.zip",
+      "zip_sha256": "003863fe47bda887799fea8f63411710e832092d7f470a0509cc33f9ecc951a2",
+      "extracted_report_bytes_match_zip_member": true,
+      "report_checks_match_log_pass_lines": true,
+      "source_commit_found_in_job_log": true,
+      "empty_browser_error_lists_verified": true,
+      "delayed_response_checks": [
+        {
+          "outcome": "source-response",
+          "request_project": "star-notes",
+          "selected_project_at_completion": "garden-notes",
+          "stale_content_visible": false,
+          "stale_error_visible": false
+        },
+        {
+          "outcome": "json-error",
+          "request_project": "star-notes",
+          "selected_project_at_completion": "garden-notes",
+          "stale_content_visible": false,
+          "stale_error_visible": false
+        }
+      ]
+    }
+  },
+  "external_comparison": {
+    "external_project_families": 19,
+    "includes_store_or_retrieval_infrastructure_families": 2,
+    "new_source_review_families": [
+      "OpenViking",
+      "Serena",
+      "EverOS",
+      "SimpleMem",
+      "Supermemory"
+    ],
+    "supplementary_sdk_not_extra_family": "LangMem",
+    "external_runtime_experiments_added_this_iteration": 0,
+    "historical_external_components": 6,
+    "historical_component_runtime_version": "v0.6.0",
+    "historical_component_modes": [
+      "billion-context search kernel",
+      "claude-mem supplied-observation FTS",
+      "Basic Memory explicit FTS",
+      "Mem0 infer=False",
+      "Chroma MiniLM",
+      "LangGraph indexed InMemoryStore MiniLM"
+    ],
+    "historical_external_results_relabelled_as_v070": false,
+    "source_review_manifest": "benchmarks/reports/v0.7.0-project-scope/upstream-review.json"
+  },
+  "pending_gates": {
+    "corrected_environment_full_suite": {
+      "status": "pending",
+      "final_log": null
+    },
+    "hosted_ci": {
+      "status": "failed_initial_run_corrected_fixture_rerun_pending",
+      "initial_commit": "cf51473e841a3a38df7c7c857cf51e0e14eb1861",
+      "initial_run_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43805785516",
+      "final_commit": null,
+      "final_run_url": null,
+      "final_job_results": null
+    },
+    "packaging_and_release": {
+      "status": "pending",
+      "release_accepted": false
+    }
+  },
+  "evidence_files": [
+    {
+      "path": "benchmarks/project_scope_eval.py",
+      "bytes": 29013,
+      "sha256": "403ccec39fd3cd0207a8f6251d24fa9cfc5185b259717489784b776795b06d64"
+    },
+    {
+      "path": "benchmarks/engineering_workflow.py",
+      "bytes": 32533,
+      "sha256": "3d1c53ef016a7143c86cf1326f2bf5b5cf7260863e91225d9a7e09a9773cdc6e"
+    },
+    {
+      "path": "scripts/audit_project_scope_native_replay.py",
+      "bytes": 20500,
+      "sha256": "94710052ee35bd610ff8b3a6d17d16f1ec14191983660579e396cb252871e534"
+    },
+    {
+      "path": "src/memory_book/static/index.html",
+      "bytes": 60670,
+      "sha256": "4d8b699a28d9d4868754da598a483a6b6cf1174840adfa5d218580e475900a45"
+    },
+    {
+      "path": "tests/test_project_scope.py",
+      "bytes": 9452,
+      "sha256": "e3db43478da53ac6a6ef7d7c631a8ab827aa05cbdb970b5f37bd3a1c85db9433"
+    },
+    {
+      "path": "tests/test_project_scope_interfaces.py",
+      "bytes": 11245,
+      "sha256": "e000aef3ab0e6061267cab40e4532e35d27a2e24f733704faeb6978dda7d1bab"
+    },
+    {
+      "path": "tests/test_project_scope_setup.py",
+      "bytes": 13335,
+      "sha256": "4a6a5f820d1b5a001598aec4f2ebad98a141718bac0d56266470b209829fa22d"
+    },
+    {
+      "path": "tests/browser_smoke.py",
+      "bytes": 29551,
+      "sha256": "8b4afd4d66dade69ee9e240cf07ef1537f3ef20807ca84658d2b303603739a93"
+    },
+    {
+      "path": "docs/open-source-memory-comparison.md",
+      "bytes": 22088,
+      "sha256": "0a1ebb74997f3427d94da36e9c21cb5f72fd2ebad9ff59b9c877f97d427fece7"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/baseline/dataset.json",
+      "bytes": 16013,
+      "sha256": "9ac6ef24a15c780f75f803c6f2007c58a71e0467ec40dfc40002e14b6cb7c7b6"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/baseline/raw.jsonl",
+      "bytes": 106327,
+      "sha256": "84ac0a8675a11c10c8d9565b57700acdd0faa0955ab0f4f04d72be3910fb72b2"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/baseline/report.json",
+      "bytes": 12880,
+      "sha256": "9a9ac68fdf982e2fc61f99f4adff924fe61a305b2608c9db5cf7bbbb11838855"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/baseline-execution.log",
+      "bytes": 226,
+      "sha256": "8807a1da0a6c6053501b50abaffe14646a28fce542dc12e326faa16213aae859"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/candidate/dataset.json",
+      "bytes": 16013,
+      "sha256": "9ac6ef24a15c780f75f803c6f2007c58a71e0467ec40dfc40002e14b6cb7c7b6"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/candidate/raw.jsonl",
+      "bytes": 222052,
+      "sha256": "24e0a31b722a6de3870a9b30fb7aba085ae263d025a1e3dd072f2ef946829e5b"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/candidate/report.json",
+      "bytes": 13045,
+      "sha256": "6fc445282e5b69a96df3bd0b7b964a776536883c8af910c7d63b6573e0473e68"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/candidate/comparison.json",
+      "bytes": 776,
+      "sha256": "b40398c8f0a278da65aaf5fe5b5fb813455bc1d0553cbdb01667a66a9d19bb25"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/candidate-execution.log",
+      "bytes": 209,
+      "sha256": "0a6b1e40b13f44748c51d66b81eba8ca2c4a2d1ac97678bab0782d864511a745"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/native-replay-audit.json",
+      "bytes": 269815,
+      "sha256": "44405d8262a079c1a0fb3d17daa3d657d518b9d60785f397bdf71178ca4e9c65"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/compression-manifest.json",
+      "bytes": 3306,
+      "sha256": "198febaae9cba39a87489cd98676388a1f46289a3c60e2d93a38f8d7c3ac6839"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/upstream-review.json",
+      "bytes": 11519,
+      "sha256": "3ebd4ea9e109d3bcfc3191798b3d71d30f2eca986f4f4b8ef6ead7ea491347f5"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/attempts/environment.json",
+      "bytes": 733,
+      "sha256": "f54035e321b2fff078ba5cbf40285a63aa79056c34854c5aded6e5178b9519d0"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/browser-attempts/receipt.json",
+      "bytes": 1390,
+      "sha256": "341790e64c8a319d36d4979ecbfa621554642ac46c5bbb348ff5e3e7bfc88e3a"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/browser-attempts/attempt-1.log",
+      "bytes": 1683,
+      "sha256": "b6b8e9d2f707ebf425a5c5ef59658d946a182e3d5a8aff7cd0b7d8abc0a4883b"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/browser-attempts/attempt-1-report.json",
+      "bytes": 435,
+      "sha256": "3d9b3fa3ee17898b40cd2dffa6e5ffc2ad80b6ccf9c1f19236856a23189214d9"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/browser-attempts/attempt-2.log",
+      "bytes": 6227,
+      "sha256": "200f83ef2ebcb867016822892a646bacdfdff2778db96a737df9a9d2a80a9e49"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/browser-attempts/attempt-2-report.json",
+      "bytes": 4998,
+      "sha256": "af3ed880b2a3e981bdf6edfcc95ae074060b0085c958cecfb8df01eb353fe904"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/native-baseline/dataset.json.gz",
+      "bytes": 5996,
+      "sha256": "95e0a1fc1be3a5f26ec067d538476466aa97bc7aa40f084617e6aabbee5b12af"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/native-baseline/raw.jsonl.gz",
+      "bytes": 133455,
+      "sha256": "883f4cb054a22736c5bda420f9df6e0f0d22f47cf44abaf91c723605877be2a3"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/native-baseline/report.json.gz",
+      "bytes": 4342,
+      "sha256": "319118c00f79810d3658b3354cb9fc4d3aed735573132bb0a40049df89259a18"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/native-candidate/dataset.json.gz",
+      "bytes": 5996,
+      "sha256": "95e0a1fc1be3a5f26ec067d538476466aa97bc7aa40f084617e6aabbee5b12af"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/native-candidate/raw.jsonl.gz",
+      "bytes": 133770,
+      "sha256": "43adcbfd7d524080553e7918b08e6b6eac48eda2428c2c1b28977b003954a706"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/native-candidate/report.json.gz",
+      "bytes": 4406,
+      "sha256": "36efc34082a64a90dc26c9465f7a5ab24ab7dcf7f4d513cecb3dd0604e126ff4"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/native-replay-audit-initial-local-identity.json.gz",
+      "bytes": 24509,
+      "sha256": "6bc62402be3660f5fc7bac17b16cf67d7030bf222328f7924d52d1cb8188c060"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/attempts/ci-cf51473.json",
+      "bytes": 2770,
+      "sha256": "0961679300aa72e46ed5fdf7ddc15c57acf70dbd5f83be5250caf6e384813f5e"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/attempts/log-manifest.json",
+      "bytes": 2381,
+      "sha256": "ad107091afc57f54072c07ff62623d63909c1842856d8256dbbe8a1eb1bf302a"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/hosted-browser/reader-browser.json",
+      "bytes": 3565,
+      "sha256": "d1c4b02076fb7f8bcc140f31d5e03b752bff25158fc39a0d11cd38342fbb5be7"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/hosted-browser/reader-browser-cf51473.zip",
+      "bytes": 396492,
+      "sha256": "003863fe47bda887799fea8f63411710e832092d7f470a0509cc33f9ecc951a2"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/native-auditor-self-checks.json",
+      "bytes": 5737,
+      "sha256": "963f3513d01df7b99bdc758195978274170b2a50eab87e3b54f405c37b2bf762"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/attempts/ci-cf51473-job-133096127691.log.gz",
+      "bytes": 50505,
+      "sha256": "e20d3ca7931730887254c247f917087dd1f14c7d4b5567bf02f6ab8e75cf56a9"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/attempts/ci-cf51473-job-133096127719.log.gz",
+      "bytes": 50391,
+      "sha256": "5764d37cdcaea359ba4183a763fa9b51c86aef283b06a73c875cb0dae3eac54b"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/attempts/ci-cf51473-job-133096128006.log.gz",
+      "bytes": 10265,
+      "sha256": "8cbb71c8d3deb647e9fa35badc877d16b140fe63c56fadca78c68a9dbd1c1884"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/attempts/full-tests-initial.log.gz",
+      "bytes": 48981,
+      "sha256": "23031e9f353e692233b519aa55286280a05cffb9cb8051eac16be7890d3cc758"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/attempts/scope-interface-tests-initial.log.gz",
+      "bytes": 1707,
+      "sha256": "34c34b26098c83a38b8da9d9c355ef3c1869659a8e3d717f56ed5c2612384bef"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/attempts/scope-targeted-tests.log.gz",
+      "bytes": 2727,
+      "sha256": "25cff460dd76be89c598a0e93559793f1c58a38038a29991dc510391f223d861"
+    },
+    {
+      "path": "benchmarks/reports/v0.7.0-project-scope/attempts/dependency-recovery-smoke.log.gz",
+      "bytes": 1182,
+      "sha256": "4236ab93b1557f6d642bd443ed1302b93bb6a018f25253ee543feb5dab088818"
+    }
+  ],
+  "local_logs_at_collection": [
+    {
+      "path": ".artifacts/scope-targeted-tests.log",
+      "bytes": 12819,
+      "sha256": "40605805174441010f7919da570bc6e134521df2c08eadae0a9b9b99bb60d45a"
+    },
+    {
+      "path": ".artifacts/scope-interface-tests-initial.log",
+      "bytes": 8932,
+      "sha256": "d4f9ca2f9bdc0afe6b1cfebc3ac0393fd355c2a1fe395fed58dd6b611bc93e7c"
+    },
+    {
+      "path": ".artifacts/full-tests-initial.log",
+      "bytes": 596254,
+      "sha256": "a8273b868691a524dce1cd6fc5de0ecdbf71fe679a4d4af3ed4fb6541db7ff7b"
+    }
+  ],
+  "local_log_retention_note": "The three original local logs listed here are now preserved losslessly as attempts/*.log.gz; attempts/log-manifest.json records both original and compressed hashes. The failed run is retained separately from subsequent results.",
+  "limitations": [
+    "Scope is a caller-selected mistake guard, not authentication, a tenant ACL or a guarantee that the intended project was selected.",
+    "Unbound reads intentionally remain global. An MCP binding does not scope a separate HTTP server or direct database entry point.",
+    "The 186 contracts and 35 compatibility pairs are synthetic development evidence, not retrieval/answer accuracy, speed or a security guarantee.",
+    "Manual probes and overlapping test groups are not summed into a larger success total.",
+    "No local browser checks passed; both launch failures and the failed initial full suite remain visible. The later hosted browser job passed 17 checks, but the complete hosted CI run failed and cancelled jobs are not passes.",
+    "The candidate source is reviewed, but release acceptance is false while the listed gates are pending."
+  ],
+  "updated_at": "2026-11-16T04:51:32.274170+00:00",
+  "hosted_ci_initial_run": {
+    "schema": 1,
+    "source_commit": "cf51473e841a3a38df7c7c857cf51e0e14eb1861",
+    "workflow_run": 43805785516,
+    "run_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43805785516",
+    "conclusion": "failure",
+    "jobs": [
+      {
+        "id": 133096127493,
+        "name": "installers (macos-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43805785516/job/133096127493"
+      },
+      {
+        "id": 133096127691,
+        "name": "mcp",
+        "status": "completed",
+        "conclusion": "failure",
+        "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43805785516/job/133096127691"
+      },
+      {
+        "id": 133096127719,
+        "name": "core (3.13)",
+        "status": "completed",
+        "conclusion": "failure",
+        "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43805785516/job/133096127719"
+      },
+      {
+        "id": 133096127725,
+        "name": "installers (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43805785516/job/133096127725"
+      },
+      {
+        "id": 133096127743,
+        "name": "core (3.10)",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43805785516/job/133096127743"
+      },
+      {
+        "id": 133096127749,
+        "name": "container",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43805785516/job/133096127749"
+      },
+      {
+        "id": 133096127811,
+        "name": "installers (windows-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43805785516/job/133096127811"
+      },
+      {
+        "id": 133096127829,
+        "name": "core (3.12)",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43805785516/job/133096127829"
+      },
+      {
+        "id": 133096128006,
+        "name": "reader-browser",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43805785516/job/133096128006"
+      }
+    ],
+    "failure_causes": [
+      "MCP frozen schema expected projection omitted the new approved project parameters.",
+      "C7 factory call assertion omitted the forwarded project=None default."
+    ],
+    "runtime_changes_after_this_run": false,
+    "notes": [
+      "The successful browser job executed the new scope and delayed-response checks.",
+      "Cancelled matrix jobs are not successful checks.",
+      "This run is not a release CI gate."
+    ],
+    "job_conclusion_counts_independently_recomputed": {
+      "success": 5,
+      "failure": 2,
+      "cancelled": 2
+    },
+    "whole_run_passed": false
+  },
+  "completed_gates": {
+    "hosted_browser_on_frozen_runtime": {
+      "status": "passed",
+      "commit": "cf51473e841a3a38df7c7c857cf51e0e14eb1861",
+      "run_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43805785516",
+      "job_url": "https://github.com/Afloat16/AI-Memory-Book/actions/runs/43805785516/job/133096128006",
+      "ui_checks_passed": 17
+    }
+  },
+  "archived_logs": {
+    "manifest": "benchmarks/reports/v0.7.0-project-scope/attempts/log-manifest.json",
+    "all_7_log_archives_independently_verified": true,
+    "checks": [
+      {
+        "path": "benchmarks/reports/v0.7.0-project-scope/attempts/ci-cf51473-job-133096127691.log.gz",
+        "original_and_compressed_hashes_and_sizes_match": true
+      },
+      {
+        "path": "benchmarks/reports/v0.7.0-project-scope/attempts/ci-cf51473-job-133096127719.log.gz",
+        "original_and_compressed_hashes_and_sizes_match": true
+      },
+      {
+        "path": "benchmarks/reports/v0.7.0-project-scope/attempts/ci-cf51473-job-133096128006.log.gz",
+        "original_and_compressed_hashes_and_sizes_match": true
+      },
+      {
+        "path": "benchmarks/reports/v0.7.0-project-scope/attempts/full-tests-initial.log.gz",
+        "original_and_compressed_hashes_and_sizes_match": true
+      },
+      {
+        "path": "benchmarks/reports/v0.7.0-project-scope/attempts/scope-interface-tests-initial.log.gz",
+        "original_and_compressed_hashes_and_sizes_match": true
+      },
+      {
+        "path": "benchmarks/reports/v0.7.0-project-scope/attempts/scope-targeted-tests.log.gz",
+        "original_and_compressed_hashes_and_sizes_match": true
+      },
+      {
+        "path": "benchmarks/reports/v0.7.0-project-scope/attempts/dependency-recovery-smoke.log.gz",
+        "original_and_compressed_hashes_and_sizes_match": true
+      }
+    ]
+  }
+}

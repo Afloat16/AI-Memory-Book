@@ -6,6 +6,18 @@ organized as project books, task chapters, related-question sections, and cited
 evidence pages. This organization is an address system; it does not require a
 fixed sequence of directory reads before each question.
 
+| Book address | What it identifies | MCP navigation |
+|---|---|---|
+| Project / book | One explicit engineering namespace, even when another project has the same display name | `browse_projects`, then `browse_book(project=...)` |
+| Task / chapter | Related sessions assigned to the same task within that project | `browse_chapter(chapter_id=...)` |
+| Question group / section | Related turns within a source session | `browse_section(section_id=...)` |
+| Evidence / page | An addressable original-text segment with source references | `read_page(page_id=...)` |
+
+A question can lead directly to a cited page through `recall_memory`. Follow
+the directory when the task needs neighboring evidence or a structured review.
+Use returned IDs; a displayed title or a repository's directory name is not a
+substitute for an exact project, chapter, section or page ID.
+
 The server sends concise operating instructions during MCP initialization. Host
 behavior varies: tools may need approval, and the model still decides whether to
 invoke them. Setup does not edit global `AGENTS.md` files, install session-start
@@ -53,10 +65,70 @@ ID, not an invented task title or filesystem path.
 
 If the project is unknown and choosing it affects the answer, `browse_projects`
 can identify available namespaces. Do not repeat that discovery every turn.
-An omitted project allows cross-project search: check attribution before using
-the results and do not silently broaden a known project scope after a miss.
+On an **unbound** connection, an omitted project allows cross-project search:
+check attribution before using the results and do not silently broaden a known
+project scope after a miss. On a bound connection, the reads described below
+inherit its project when their optional argument is omitted.
 Project filtering is a retrieval boundary, not per-user access control; this is
 a local memory service sharing one configured database.
+
+## Bound project connections
+
+In v0.7.0, an operator can bind one MCP connection to an exact project ID. This
+helps when several similar projects reuse task names, session names, symbols or
+configuration fields. The server supplies its binding in the MCP initialization
+instructions; the agent cannot change it by passing a different tool argument.
+
+Configure a client using an ID returned by `memory-book projects`:
+
+```bash
+memory-book setup --client claude-code --mcp-project inference-demo --dry-run
+memory-book setup --client claude-code --mcp-project inference-demo
+```
+
+`inference-demo` is the project in the runnable example, not an automatically
+detected workspace. Restart or reconnect the host after applying configuration.
+A manually configured host can run the corresponding stdio server:
+
+```bash
+memory-book --db /absolute/path/memory.db mcp --project inference-demo
+```
+
+| Tool on a bound connection | Scope behavior |
+|---|---|
+| `browse_projects` | Lists only the bound project, or an empty list if it is not stored |
+| `recall_memory` | An omitted or `null` `project` uses the binding; a different explicit ID is rejected |
+| `browse_chapter`, `browse_section`, `read_page` | An omitted or `null` `project` uses the binding; the returned resource must belong to it |
+| `browse_book` | An omitted or `null` `project` uses the binding; a different explicit ID is rejected; an unbound connection still requires a project |
+| `remember_session`, when enabled | Requires an explicit matching `payload.project`; it does not infer a write destination |
+
+A page, chapter or section from another project is reported as unavailable
+within the asserted project. No miss broadens the search to another project.
+An absent project or absent evidence remains a miss; binding does not create or
+move an archive, infer the correct namespace, or guarantee that all required
+evidence exists.
+
+The binding belongs to the **configured connection**, not the current working
+directory. Changing repositories in a terminal or host does not change it.
+Use separate host-supported project configurations/connections for simultaneous
+projects, or explicitly configure the desired binding and reconnect. A usual
+`setup` refresh preserves a recognized managed entry's existing binding. To
+remove it deliberately:
+
+```bash
+memory-book setup --client claude-code --clear-mcp-project
+```
+
+Use the same `--client-config` when the original entry is in a custom file.
+`--mcp-project` and `--clear-mcp-project` cannot be combined. On a new unbound
+connection, the established whole-archive behavior remains available.
+
+Capture and recall use separate settings. `setup --project` selects the
+destination for an explicitly enabled capture source; `setup --mcp-project`
+limits the configured MCP connection. One does not set the other. Binding is a
+guard against scope mistakes, not authentication, a per-user ACL, or protection
+from a process that can open the database directly. See the
+[client configuration details](integrations.md#bind-a-client-to-one-project).
 
 ## Understand the response
 
@@ -109,6 +181,7 @@ For an exact read, the placeholder below must be replaced by a real returned ID:
 ```json
 {
   "page_id": "<id returned by recall_memory>",
+  "project": "atlas",
   "offset": 0,
   "limit": 2000
 }
@@ -118,6 +191,12 @@ For an exact read, the placeholder below must be replaced by a real returned ID:
 metadata. Browse tools return bounded directories; they do not require reading
 every child. Stop when the needed evidence has been established. Avoid repeating
 the same unsuccessful query or escalating straight to a full-history dump.
+Use the actual selected project instead of `atlas`, and carry it through
+`browse_chapter`, `browse_section` and subsequent pagination requests. On a
+bound connection these optional project arguments can be omitted because the
+operator's binding is applied on every call. On an unbound connection,
+supplying `project` makes a copied ID from another project fail instead of
+opening that project's evidence.
 
 Retrieval is lexical, so an empty result is not proof that the event never
 happened. The rank order is also not an authoritative decision timeline. If
@@ -194,6 +273,8 @@ rest of that conversation. Use a shared `task_id` only for sessions known to
 belong to the same task. Preserve source text and known timestamps; do not invent
 past statements or turn inferences into attributed quotations. Field details
 are in [canonical session fields](integrations.md#canonical-session-fields).
+On a bound connection, `payload.project` must explicitly equal the binding.
+`--allow-write` enables the tool but does not relax this requirement.
 
 Opt-in native capture and explicit import can populate the database while MCP
 remains read-only. Capture reads only configured sources and does not need

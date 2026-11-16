@@ -62,6 +62,80 @@ Ordinary use lets the client manage the process. After connection, a useful
 check is to ask the agent to recall a known earlier decision and cite the
 returned session and turn.
 
+## Bind a client to one project
+
+For similar engineering projects, v0.7.0 can fix the scope of a configured MCP
+connection. Discover the actual project ID, inspect the planned configuration,
+then apply it:
+
+```bash
+memory-book projects
+memory-book setup --client claude-code --mcp-project inference-demo --dry-run
+memory-book setup --client claude-code --mcp-project inference-demo
+```
+
+Replace the example ID with one in your archive. Setup adds
+`--project=inference-demo` to the generated `mcp` launch arguments and reports
+the selected `mcp_project` in its client plan. Restart or reconnect the host to
+use the changed launch command. The binding applies to that server entry in
+that client configuration; it does **not** follow the host's current working
+directory or infer a repository from a task title.
+
+The default configuration paths in the next section are user-wide. When the
+host supports a project configuration, select it explicitly for a project-local
+entry, for example:
+
+```bash
+memory-book setup --client claude-code --client-config /absolute/inference-project/.mcp.json --mcp-project inference-demo
+```
+
+Another project can use its own supported configuration and another explicit
+ID while sharing the archive. Host precedence and trust rules still determine
+which entry it starts. A manually configured host can launch:
+
+```bash
+/absolute/path/to/python -m memory_book --db /absolute/path/memory.db mcp --project inference-demo
+```
+
+On that connection, `recall_memory`, `browse_chapter`, `browse_section` and
+`read_page` inherit the binding when their optional `project` is absent or
+`null`. A different explicit project is rejected, and a foreign chapter,
+section or page ID cannot bypass the bound scope. `browse_projects` exposes
+only the selected project when it exists. `browse_book` also inherits the
+binding when `project` is omitted or `null`; on an unbound connection it still
+requires an explicit project. If writes are enabled, `remember_session` still
+requires an explicit matching `payload.project`.
+
+Refreshing a **recognized managed entry** without `--mcp-project` preserves
+its existing binding. To deliberately return it to the unbound mode:
+
+```bash
+memory-book setup --client claude-code --clear-mcp-project
+```
+
+Include the original `--client-config` when using a custom path.
+`--clear-mcp-project` and `--mcp-project` are mutually exclusive. A new entry
+without a binding retains the existing cross-project discovery/search behavior;
+unbound callers can still supply `project` on each follow-up read.
+
+### Capture mapping and MCP binding are separate
+
+| Setup option | Controls | Requires `--capture`? |
+|---|---|---|
+| `--project` | The project destination for the selected capture source | Yes |
+| `--workspace` | Which recorded workspace the capture source accepts, when supported by its adapter | Yes |
+| `--mcp-project` | The project visible through the configured MCP connection | No |
+| `--clear-mcp-project` | Explicit removal of an existing managed MCP binding | No |
+
+Binding does not rename stored projects, move sessions, start capture, or
+automatically change a capture source's destination. Capture can continue to
+populate a shared archive while one connection reads a single project.
+`--allow-write` controls whether the MCP write tool exists; it is separate
+from both capture and project binding. These scope checks prevent accidental
+project mixing; they are not authentication or a per-user ACL for database
+contents. The [agent guide](agent-guide.md#bound-project-connections) gives the
+per-tool contract and the book → chapter → section → page workflow.
+
 ## Supported profiles
 
 Paths below are defaults for the current user; `~` means the user's home on each
@@ -139,7 +213,8 @@ manual configuration.
 Setup invokes the current **absolute Python executable** with
 `-m memory_book --db /absolute/path/memory.db mcp`. This avoids dependence on a GUI
 application's PATH or working directory. `--allow-write` adds the optional write
-tool; read-only is the default.
+tool; read-only is the default. With `--mcp-project`, the generated command also
+contains the exact `--project=...` binding described above.
 
 ```bash
 memory-book setup --client codex --allow-write --dry-run
@@ -185,9 +260,9 @@ See the [official SDK v1 documentation](https://py.sdk.modelcontextprotocol.io/v
 | `recall_memory` | Search evidence directly, with optional project, chapter, and session filters |
 | `browse_projects` | List the project bookshelf |
 | `browse_book` | Page through a project's chapters |
-| `browse_chapter` | Page through sections and bounded page previews |
-| `browse_section` | Continue through a long section's page directory |
-| `read_page` | Read an exact page with character pagination and provenance |
+| `browse_chapter` | Page through sections and bounded page previews; optional exact `project` assertion |
+| `browse_section` | Continue through a long section's page directory; optional exact `project` assertion |
+| `read_page` | Read an exact page with character pagination, provenance and an optional `project` assertion |
 | `remember_session` | Only with `--allow-write`: add or atomically replace a canonical session |
 
 For a question that needs earlier work, start with one `recall_memory` call.
@@ -237,6 +312,17 @@ explicit import. Starting MCP alone does not collect host histories or guarantee
 automatic context injection on every question. Background file capture is
 separate from the MCP write permission and does not require a read-write MCP
 connection.
+
+The Python, CLI and HTTP interfaces also accept explicit project assertions on
+exact follow-up reads. Python uses `book.chapter(id, project=...)`,
+`book.section(id, project=...)` and `book.read(id, project=...)`; CLI uses
+`chapter`, `section` and `read` with `--project`. The HTTP `/api/chapter`,
+`/api/section` and `/api/read` endpoints accept a `project` query parameter.
+Use an actual resource ID and URL-encode the project value when constructing an
+HTTP request. An unrelated resource ID returns not found in that project.
+The optional HTTP reader remains an archive-wide inspection server; this release
+does not add a `serve --project` binding. Its UI sends the selected project's ID
+on follow-up requests. See [a scoped directory example](engineering-workflows.md#navigate-one-project-book).
 
 ## Import formats
 

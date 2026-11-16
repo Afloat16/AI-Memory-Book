@@ -100,7 +100,9 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
                 and importlib.metadata.version("pydantic") == FIXTURE["pydantic"]):
             # Preserve the historical fixture and its source bytes. v0.4.0
             # changed recall's omitted budget; v0.5.0 adds explicit temporal
-            # control and its documentation. Every other serialized field
+            # control and its documentation. v0.7.0 allows a bound connection
+            # to supply browse_book's project and adds explicit project
+            # assertions to follow-up navigation. Every other serialized field
             # must remain equal, including between the two source formats.
             expected = json.loads(FIXTURE["schema"])
             compact = lambda value: json.dumps(value, ensure_ascii=False, separators=(",", ":"))
@@ -118,6 +120,23 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
                 "\n        keeps relevance ordering. This is not an as-of state resolver. Repeated"
                 "\n        event evidence is retained. details=true includes the resolution basis."
                 "\n        ")
+            project_schema = {"anyOf": [{"type": "string"}, {"type": "null"}],
+                              "default": None, "title": "Project"}
+            book_schema = next(tool for tool in expected["tools"]
+                               if tool["name"] == "browse_book")["inputSchema"]
+            self.assertEqual(book_schema["properties"]["project"],
+                             {"title": "Project", "type": "string"})
+            self.assertEqual(book_schema["required"], ["project"])
+            book_schema["properties"]["project"] = copy.deepcopy(project_schema)
+            del book_schema["required"]
+            for name, identity in (("browse_chapter", "chapter_id"),
+                                   ("browse_section", "section_id"),
+                                   ("read_page", "page_id")):
+                navigation = next(tool for tool in expected["tools"]
+                                  if tool["name"] == name)["inputSchema"]
+                self.assertNotIn("project", navigation["properties"])
+                self.assertEqual(navigation["required"], [identity])
+                navigation["properties"]["project"] = copy.deepcopy(project_schema)
             self.assertEqual(tools[0], compact(expected))
 
     async def test_real_cli_modes_preserve_defaults_and_full_provenance(self):

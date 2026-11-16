@@ -136,7 +136,7 @@ class OutputSchedulingTests(unittest.IsolatedAsyncioTestCase):
             mcp_server.serve("sample.db", allow_write=True,
                              semantic_model_dir="models", source_format="indexed")
         factory.assert_called_once_with("sample.db", allow_write=True,
-                                        semantic_model_dir="models", source_format="indexed")
+                                        semantic_model_dir="models", source_format="indexed", project=None)
         self.assertEqual(server.calls, [{"transport": "stdio"}])
 
 

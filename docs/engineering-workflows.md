@@ -6,13 +6,14 @@ the cited original text, then run the project's own tests against the recovered
 contract. The archive supplies evidence; it does not execute experiments or
 decide whether a recorded conclusion is correct.
 
-The **v0.6.0 release** includes identifier normalization, current-turn handling
-for token budgets, explicit temporal modes, `backup`, and `check-database`.
-Use the [release installer](deployment.md#install-v050), or install a checkout
+**v0.7.0** adds project-bound MCP connections and explicit project assertions on
+chapter, section and page reads. It retains identifier normalization,
+current-turn handling for token budgets, temporal modes, `backup` and
+`check-database`. Use the [release installer](deployment.md), or install a checkout
 for the runnable examples and optional exact token budgets:
 
 ```bash
-git clone --branch v0.6.0 https://github.com/Afloat16/AI-Memory-Book.git
+git clone --branch v0.7.0 https://github.com/Afloat16/AI-Memory-Book.git
 cd AI-Memory-Book
 python -m venv .venv
 source .venv/bin/activate
@@ -60,6 +61,60 @@ an invalid date, field length or message fails the batch before any session is
 replaced. The error identifies its input file and session position. Successful
 writes still use one transaction per session: an I/O failure can leave earlier
 sessions committed, so repair the failure and retry the same input.
+
+## Navigate one project book
+
+When several projects use the same function, task or session names, select the
+exact project first. The project is the book, a shared task is its chapter,
+related questions form a section, and original evidence is read by page ID.
+Browse only the part needed for the current task:
+
+```bash
+memory-book --db ./demo-memory.db toc inference-demo
+memory-book --db ./demo-memory.db chapter CHAPTER_ID --project inference-demo --limit 1
+memory-book --db ./demo-memory.db section SECTION_ID --project inference-demo --limit 1
+memory-book --db ./demo-memory.db read PAGE_ID --project inference-demo --limit 2000
+```
+
+Replace every capitalized placeholder with an ID returned by the preceding
+call. Continue with `--offset` equal to `next_offset` when needed, keeping the
+same `--project`. A chapter/section/page from another project is unavailable
+within this asserted scope. A failed read does not retry in a broader project.
+This protects the follow-up step as well as the original scoped query.
+
+The same directory walk works directly in Python:
+
+```python
+from memory_book import MemoryBook
+
+project = "inference-demo"
+with MemoryBook("demo-memory.db") as book:
+    contents = book.toc(project, limit=1)
+    chapter = book.chapter(contents["chapters"][0]["id"], project=project, limit=1, page_limit=1)
+    section = book.section(chapter["sections"][0]["id"], project=project, limit=1)
+    page = book.read(section["pages"][0]["id"], project=project, limit=2000)
+    print(page["content"])
+    print(page["source_refs"])
+```
+
+This example assumes the demo archive has been imported. A normal application
+must handle an empty directory and follow pagination only when it needs more
+evidence. For a known question, a scoped `recall` can jump directly to useful
+pages instead of making this directory walk a mandatory preflight.
+
+For a coding client dedicated to this project, configure
+`memory-book setup --client claude-code --mcp-project inference-demo` and
+reconnect it. The connection applies the selected project when optional tool
+scopes are omitted. The binding stays with that configured connection when the
+terminal changes directories. Use separate host-supported project entries for
+simultaneous projects, or explicitly change the binding and reconnect.
+`memory-book setup --client claude-code --clear-mcp-project` deliberately removes
+the binding; an ordinary setup refresh preserves it. Capture destination
+`setup --project` is a different
+setting and requires `--capture`.
+See [bound connections](agent-guide.md#bound-project-connections) for the exact
+read/write rules and the unbound compatibility mode. Project scope is not
+authentication or per-user database access control.
 
 ## Query symbols, decisions and failures
 
@@ -139,7 +194,8 @@ memory-book --db ./demo-memory.db recall "http_parser" --project gateway-demo --
 memory-book --db ./demo-memory.db source gateway-demo parser-contract
 ```
 
-Pass an actual returned page ID to `memory-book --db ./demo-memory.db read PAGE_ID`.
+Pass an actual returned page ID to
+`memory-book --db ./demo-memory.db read PAGE_ID --project gateway-demo`.
 `read` returns source references for the requested window; follow `next_offset`
 when the page exceeds that window. `source` returns the normalized source
 session. It preserves supported text, not every vendor's original multimodal
@@ -155,7 +211,7 @@ with MemoryBook("demo-memory.db") as book:
     result = book.recall("http_parser", project="gateway-demo")
     print(result["context"])
     for hit in result["results"]:
-        page = book.read(hit["id"])
+        page = book.read(hit["id"], project="gateway-demo")
         for ref in hit["source_refs"]:
             source = book.get_session(ref["project"], ref["session_id"])
             print(page["id"], ref, source["session_id"])

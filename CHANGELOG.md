@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.7.0 — project-bound directory and source reads
+
+Release scope: keep an engineering project's book, chapters, sections and source
+pages in the same explicit scope when a client continues reading. See the
+[release notes](docs/releases/v0.7.0.md) and
+[validation record](docs/v0.7.0-project-scope-validation.md).
+
+- Add optional exact project assertions to Python, CLI, MCP and HTTP chapter,
+  section and page reads. A foreign or unknown project cannot use these asserted
+  reads to retrieve another project's source. Omitted assertions preserve the
+  existing archive-wide API behavior.
+- Bind a stdio MCP connection with `mcp --project`. Omitted tool scopes inherit
+  that binding; explicit conflicts fail before database access. Project listing
+  is filtered, and enabled writes still require the matching explicit project.
+- Add `setup --mcp-project` and `--clear-mcp-project`; preserve an existing
+  managed binding during ordinary client refresh. Capture's `--project` remains
+  separate. Binding belongs to the configured connection, not the current
+  working directory, and is not an authentication or database access boundary.
+- Carry the selected project through reader requests, including continuation
+  pages; ignore delayed source results and errors after switching projects.
+  An explicit empty HTTP recall scope now fails instead of broadening the query.
+- Retain source addresses, schema 4, recall ranking and cache behavior. A fixed
+  four-project diagnostic records 186 passing candidate calls and 35/35 matching
+  legacy responses. The frozen native 80-question replay matches all 160 Book
+  responses across two budgets; its independent audit passes 16,863 checks.
+- Expand the source/documentation comparison to 19 external project families.
+  Keep the six-component numerical comparison explicitly frozen at v0.6.0;
+  newly reviewed systems have no invented scores. Preserve failed attempts,
+  exact source identities and compressed raw evidence alongside successful runs.
+- Pin installers to v0.7.0 and retain historical release routes. Require the
+  same exact-commit nine-job CI, package and public-install gates for publication.
+
 ## 0.6.0 — current configuration evidence and broader comparisons
 
 Release scope: distinguish field declarations from later maintenance mentions,

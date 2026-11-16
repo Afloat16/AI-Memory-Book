@@ -1,15 +1,16 @@
 # AI-Memory-Book
 
-**给编程 AI 一份可核对、可延续的工程记忆。**
+**像查书一样定位工程问题的原始证据，让相似项目的记忆各有归属。**
 
 项目是书，任务是章，证据是页。AI-Memory-Book 保存规范化的原始文本会话，让 AI 在换会话、换客户端后，仍能找回工程约束、参数修正和失败尝试，引用来源后继续工作。
 
 [English](README.md) · [快速开始](#快速开始) · [2400 字符实测](#2400-字符实测) · [开源方案对比](#开源方案对比)
 
-**v0.6.0 · MIT · Python 3.10+ · 本地 SQLite / FTS5**
+**v0.7.0 · MIT · Python 3.10+ · 本地 SQLite / FTS5**
 
 ## 工程中的优势
 
+- **后续阅读仍留在选定工程。** 将 MCP 连接绑定到一个实际项目 ID；模型漏填范围时继续使用绑定值，误带另一工程的章节、小节或页 ID 时无法换书读取。常规客户端 setup 会保留已有绑定。
 - **把决策与理由一起找回来。** 按项目、任务、会话和原始轮次定位证据，保留页面 ID 与来源；需要核对边界条件、错误信息或某次失败原因时，可以继续读原页，便于代码评审和任务交接。
 - **跨命名方式找回代码约定。** `http_parser`、`JSONLReader`、`kv_cache` 等查询可以匹配对应的缩写、驼峰及下划线形式。词法索引补充别名，保留原始拼写、来源坐标与项目边界，便于恢复接口和算法实现约束。
 - **明确控制当前证据与历史回查。** `temporal=auto/current/relevance` 在 Python、CLI、MCP 和 HTTP 中一致。自动模式区分“请给原始证据”与“最初的决定”，调用方也可直接选择当前证据排序；同会话后续修正同时覆盖字符与 token 截断。排序仍需结合来源判断。
@@ -25,19 +26,19 @@
 
 ## 快速开始
 
-需要 **Python 3.10+ 与 SQLite FTS5**。v0.6.0 安装包包含本页介绍的标识符检索、时间意图控制、数据库维护和可靠导入导出能力。安装器使用隔离环境，包含 MCP/客户端依赖，无需克隆仓库或安装 Node.js。已有归档请先按 [schema 4 升级步骤](docs/deployment.md#schema-4-upgrade)保存快照，再统一升级并重启所有写入进程。
+需要 **Python 3.10+ 与 SQLite FTS5**。v0.7.0 新增固定项目的 MCP 连接与目录/原文后续读取的项目校验，并保留标识符检索、时间意图控制和归档维护能力。安装器使用隔离环境，包含 MCP/客户端依赖，无需克隆仓库或安装 Node.js。已有归档请先按 [schema 4 升级步骤](docs/deployment.md#schema-4-upgrade)保存快照，再统一升级并重启所有写入进程。
 
 **macOS / Linux**
 
 ~~~bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.6.0/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.7.0/scripts/install.sh
 bash install-memory-book.sh
 ~~~
 
 **Windows PowerShell**
 
 ~~~powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.6.0/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.7.0/scripts/install.py -OutFile install-memory-book.py
 py -3 .\install-memory-book.py
 ~~~
 
@@ -64,7 +65,7 @@ memory-book --db ./demo-memory.db backup --output ./backups/demo-snapshot.db
 memory-book --db ./backups/demo-snapshot.db check-database
 ~~~
 
-从 [v0.6.0 源码](https://github.com/Afloat16/AI-Memory-Book/tree/v0.6.0)取得示例后，在仓库目录执行，并选择新的数据库和快照路径。[开发工作流指南](docs/engineering-workflows.md)讲解算法约束、失败尝试、标识符检索、Python 接入、精确 token 预算、来源核对及恢复操作。示例中的参数用于演示，不代表生产配置建议。
+从 [v0.7.0 源码](https://github.com/Afloat16/AI-Memory-Book/tree/v0.7.0)取得示例后，在仓库目录执行，并选择新的数据库和快照路径。[开发工作流指南](docs/engineering-workflows.md)讲解算法约束、失败尝试、标识符检索、Python 接入、精确 token 预算、来源核对及恢复操作。示例中的参数用于演示，不代表生产配置建议。
 
 ## 默认配置
 
@@ -89,11 +90,48 @@ memory-book projects
 memory-book recall "当前梯度累积步数" --project your-project-id --budget 2400 --limit 5
 ~~~
 
+## 为一个 MCP 连接固定一本项目记忆
+
+相似服务、训练工程或算法实现，先用**实际项目 ID** 区分。书的显示名不等于身份；不同项目可以拥有同名任务、同名会话和相同代码符号。
+
+| 书籍结构 | 对应的工程用途 | 按需读取入口 |
+|---|---|---|
+| 项目书 | 选定实际工程 | `browse_projects` / `browse_book` |
+| 任务章 | 组织已知属于同一任务的多次会话 | `browse_chapter` |
+| 问题节 | 定位相关原文页面 | `browse_section` |
+| 证据页 | 核对原始轮次及来源坐标 | `read_page` |
+
+已知问题可以直接在项目内召回；需要查看任务脉络时再沿目录阅读。目录不是每次提问的必经步骤，但项目约束会延续到后续的章节、小节和原文页读取。
+
+~~~bash
+memory-book projects
+# 将 service-alpha 替换为上一步返回的真实项目 ID。
+memory-book setup --client codex --mcp-project service-alpha
+# 也可以直接启动一个固定项目的 stdio 连接：
+memory-book mcp --project service-alpha
+~~~
+
+在绑定连接中，省略项目参数会自动采用绑定值，`browse_book` 也一样；显式请求其他项目会在打开数据库前被拒绝。即使模型带来了另一工程的旧章节、小节或页 ID，也无法通过这个连接读取。启用 `remember_session` 后，写入仍必须明确提供相同的 `payload.project`，不会自动替消息改归属。
+
+普通 setup 会保留已经托管的绑定；用 `--mcp-project OTHER_ID` 换绑，用 `--clear-mcp-project` 明确解绑。`setup --project` 控制**采集归属**，仍需配合 `--capture`；`--mcp-project` 控制 **MCP 连接范围**。配置某个客户端 profile 后，该连接整体使用这个项目，不会随终端当前目录自动切换。[项目范围与配置说明](docs/agent-guide.md#bound-project-connections)。
+
+Python 的 `chapter`、`section`、`read` 支持 `project=...`；对应 CLI 支持 `--project`，HTTP 后续读取支持 `project` 查询参数。阅读器会把当前选中的书传入这些请求，切书时使旧原文响应失效。未绑定调用仍可访问整个归档。这是减少项目范围误用的机制，不是用户身份认证，也不会限制另一个服务或直接数据库访问。
+
+### v0.7.0 已执行的范围检查
+
+独立编写的诊断包含 **4 个相似项目、12 份源会话**：显示名、任务 ID、会话 ID 相同，配置值互相冲突。候选完成 **186 次核心 API 调用，合同检查失败为 0**，包括 **36 次跨项目 ID 拒绝**、**12 次不存在项目拒绝**、分页原文重建、交错热缓存、源替换和项目删除。4 个目录完整性检查直接与原始会话核对覆盖范围。按记录仅去掉计时、缓存状态和目录墙钟元数据后，**35/35 既有 API 完整响应或错误与 v0.6.0 一致**；原文、ID、坐标和证据时间继续参与比较。
+
+v0.6.0 在同一诊断中记录为 **37 次通过、77 次不支持新断言**，不能把“不支持”说成 77 次隔离失败。候选支持新的目录读取后会继续执行更多分页调用，两版调用总数因此不同。这些是开发阶段的接口合同检查，不是回答准确率、独立测试集、速度测量或绝对隔离保证。[原始调用与比较](benchmarks/reports/v0.7.0-project-scope/candidate/) · [完整验证及复跑方法](docs/v0.7.0-project-scope-validation.md)。
+
+未改动的原生工程题集也在两版实际回放：**80 题、1200/2400 字符两档，每项执行一次**。仅排除顶层耗时和缓存诊断后，**160/160 个 Book 响应**以及**四种仓库内策略的 640/640 个响应**全部相同，独立审计通过 **16,863 项检查**。这是召回回归证据，没有新增速度结论，也没有重跑外部组件。[原始回放与审计](benchmarks/reports/v0.7.0-project-scope/native-replay-audit.json)。
+
 ## 2400 字符实测
+
+下方外部组件表保留**冻结的 v0.6.0 实验**；上方 v0.7.0 范围诊断是另一项测量。新增资料比较的项目没有被填入数值成绩。
 
 ### 六个真实开源实现，同一批固定工程案例
 
-本轮以冻结的 **v0.6.0 运行时**执行 **8 个项目、4 类算法、6 个时间检查点、80 个问题**。其中有 **72 个可回答问题、80 段必需原文证据、48 个固定策略检查案例，以及 8 个缺证据问题**。算法涵盖负边权最短路、Top-k 同分规则、训练数据划分和全 mask softmax；每个检查点只摄取此前可见的历史。每题重复三次用于计时和稳定性检查，不扩充独立质量样本。
+这项实验以冻结的 **v0.6.0 运行时**执行 **8 个项目、4 类算法、6 个时间检查点、80 个问题**。其中有 **72 个可回答问题、80 段必需原文证据、48 个固定策略检查案例，以及 8 个缺证据问题**。算法涵盖负边权最短路、Top-k 同分规则、训练数据划分和全 mask softmax；每个检查点只摄取此前可见的历史。每题重复三次用于计时和稳定性检查，不扩充独立质量样本。
 
 实际运行的外部实现为 **billion-context、claude-mem、Basic Memory、Mem0、Chroma、LangGraph Store**，均固定上游版本。各实现得到相同完整原文页、未改写问题、项目范围及前五条候选，由同一个整块打包器控制在 2400 字符内，引用头也计入预算，超大整块会跳过。Book 保留自身层级和索引元数据。[固定协议、包版本与模型校验](benchmarks/competitors/memory-systems-plan.md)。
 
@@ -170,13 +208,13 @@ Book 比平铺 FTS **多找全 20 题**，比最近历史**多找全 16 题**，
 
 ### 可复跑与结论边界
 
-独立审计重算分数并重建完整上下文，**116,693 项检查全部通过**。原有双组件框架与扩展框架中，Book/billion、两预算、80 题的 **320 对完整响应全部一致**；默认调用也与显式 2400/5 及全部 80 条当前运行时保存输出一致。[审计结果](benchmarks/reports/v0.6.0-engineering/audit.json) · [默认一致性](benchmarks/reports/v0.6.0-engineering/hosted/default-profile/report.json) · [成功执行记录](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43788979015)。
+独立审计重算分数并重建完整上下文，**116,693 项检查全部通过**。原有双组件框架与扩展框架中，Book/billion、两预算、80 题的 **320 对完整响应全部一致**；默认调用也与显式 2400/5 及全部 80 条 v0.6.0 运行时保存输出一致。[审计结果](benchmarks/reports/v0.6.0-engineering/audit.json) · [默认一致性](benchmarks/reports/v0.6.0-engineering/hosted/default-profile/report.json) · [成功执行记录](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43788979015)。
 
 这批案例是**参与开发的合成数据**，没有独立测试集，也未调用编码 LLM。固定消费者提取记录中的策略并执行手写算法，不能当作代码生成准确率。**七个后端在两档预算下，对全部 8 个缺证据问题都返回了相关上下文**，因此不代表可靠拒答，也不能写成 80/80 问题回答正确。真实任务完成时间、补丁成功率及总模型成本尚未测量。[验证记录](docs/v0.6.0-engineering-validation.md)保留全部失败、测试范围、来源身份，以及正式质量实验前的 Chroma 接入错误。重型对比依赖与正常 Book 安装分离。
 
 ## 开源方案对比
 
-下表依据 2026-11-16 核对的官方来源，覆盖 **14 个外部项目家族**。实验分数只对应明确配置的组件，未实测的完整产品不推断分数。[固定来源、测试模式、部署依赖及许可证说明](docs/open-source-memory-comparison.md)。
+下表依据 2026-11-16 核对的官方来源，覆盖 **19 个外部项目家族**。实验分数只对应明确配置的组件，未实测的完整产品不推断分数。[固定来源、测试模式、部署依赖及许可证说明](docs/open-source-memory-comparison.md)。
 
 | 方案 | 主要工作方式 | Book 的适用优势 |
 |---|---|---|
@@ -194,8 +232,13 @@ Book 比平铺 FTS **多找全 20 题**，比最近历史**多找全 16 题**，
 | [LongMemory](https://github.com/CaviraOSS/LongMemory) | 项目记忆、来源和时序 API，可配置不同 embedding provider | 默认不调用模型、稳定页面地址，以及可直接复跑的工程检索证据 |
 | [Basic Memory](https://github.com/basicmachines-co/basic-memory) | Markdown 知识、关联观察和项目范围内的文本/语义查询 | 直接保存会话原文，无需先编写或改写知识笔记 |
 | [Chroma](https://github.com/chroma-core/chroma) | 文档和向量集合、本地持久化及元数据过滤 | 已有会话采集、任务导航、原文坐标和上下文组装，默认无需嵌入依赖 |
+| [OpenViking](https://github.com/volcengine/OpenViking) | 上下文文件系统、目录摘要/概览及目录范围内的向量检索 | 默认不依赖模型的词法路径，直接回到会话页和来源坐标；目录导航并非 Book 独有 |
+| [Serena](https://github.com/oraios/serena) | 编码工具、项目 Markdown 记忆、主题目录和显式引用 | 保存完整会话证据并按项目/任务导航；Serena 也支持按需逐步读取记忆 |
+| [EverOS / EverMemOS](https://github.com/EverMind-AI/EverOS) | Markdown 原始存储、抽取记忆、SQLite/LanceDB 索引及应用/项目分区 | 专注原始会话归档，默认不配置抽取模型；对方也有项目分区机制 |
+| [SimpleMem](https://github.com/aiming-lab/SimpleMem) | 模型抽取原子事实，结合语义、关键词和元数据检索 | 直接核对工程原始轮次及坐标，无需先压缩为抽取事实 |
+| [Supermemory](https://github.com/supermemoryai/supermemory) | 抽取记忆/用户画像、混合检索，含项目/container标签及本地/托管路径 | 轻量会话原文归档、显式项目校验，默认不引入嵌入依赖 |
 
-多个项目都支持多客户端、来源查询和本地运行。Book 的选择理由是将**原文证据、项目范围、预算控制和低附加推理依赖**集中到轻量记忆层，适合长期开发、故障复盘与跨客户端任务接续。图关系推理、可编辑 agent 状态、人工维护的 Markdown 知识和向量数据库适用于其他需求；此表不代表通用优胜结论。Mem0/OpenMemory、Letta/Letta Code 分别只计一个家族，Chroma 与 LangGraph 明确按基础设施比较。
+多个项目都支持目录/渐进读取、项目范围、多客户端、来源查询和本地运行。Book 的选择理由是将**原文证据、项目范围、预算控制和低附加推理依赖**集中到轻量记忆层，适合长期开发、故障复盘与跨客户端任务接续。图关系推理、可编辑 agent 状态、人工维护的 Markdown 知识和向量数据库适用于其他需求；此表不代表通用优胜结论。Mem0/OpenMemory、Letta/Letta Code 分别只计一个家族，Chroma 与 LangGraph 明确按基础设施比较。
 
 ## 文档与数据边界
 
@@ -203,4 +246,4 @@ Book 比平铺 FTS **多找全 20 题**，比最近历史**多找全 16 题**，
 
 运行 `memory-book serve` 可在 [127.0.0.1:8765](http://127.0.0.1:8765) 检查归档。归档是本地未加密数据，召回证据会进入所用客户端的模型上下文；项目过滤不是多用户权限控制。客户端配置备份不等于数据库自动备份，详见[数据位置与维护](docs/deployment.md#data-and-configuration-paths)。
 
-项目独立实现，采用 [MIT 许可证](LICENSE)。[当前发布版](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.6.0) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml)。
+项目独立实现，采用 [MIT 许可证](LICENSE)。[当前发布版](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.7.0) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml)。
