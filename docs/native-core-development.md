@@ -6,11 +6,14 @@ helpers released in v0.8.1. This round starts from native release
 active. Earlier Python-to-native and v0.8.0-to-v0.8.1 results remain separate,
 immutable experiments.
 
-At development checkpoint
-`0be1f09502aff1d4ddc0a9e644be7a62be6a944f`, all five new implementation
-families are integrated. The correctness checks below have passed. The proposed
-v0.9.0 still needs its own formal performance measurement, package validation
-and acceptance; this document does not approve or announce a release.
+All five new implementation families are integrated. The first frozen broad
+candidate, `0be1f09502aff1d4ddc0a9e644be7a62be6a944f`, completed its
+formal experiment and independent audit but was not accepted: unchanged
+reingestion became slower in all four rounds of both cohorts. The current
+refinement at `cff1d9a3c183bf3c84183476f0485926f55abe56` has passed
+correctness checks, but its local reingestion diagnostic also retains a
+regression. v0.9.0 remains a development candidate; this document does not
+approve or announce a release.
 
 The [development plan](../benchmarks/experiments/native_core_plan.json) defines
 the boundary. SQL, transactions, database schema, public interfaces, ranking
@@ -21,8 +24,10 @@ behavior.
 
 One optional CPython extension contains the following implementation units,
 included and registered by
-[`_native.c`](../src/memory_book/_native.c). The five headers add 15
-entry points to the seven already present in v0.8.1, for 22 in total.
+[`_native.c`](../src/memory_book/_native.c). The five headers initially added 15
+entry points to the seven already present in v0.8.1. A live segmentation
+readiness check was subsequently translated to C, making 23 entry points at
+`cff1d9a3`.
 
 | Implementation unit | New entry points | Responsibility |
 | --- | --- | --- |
@@ -30,7 +35,7 @@ entry points to the seven already present in v0.8.1, for 22 in total.
 | [`_native_excerpt.h`](../src/memory_book/_native_excerpt.h) | `excerpt_window` | Complete candidate-window construction, source-unit coverage, sliding counts, score comparison and original-text rendering. |
 | [`_native_rank.h`](../src/memory_book/_native_rank.h) | `rank_candidates`, `select_novelty`, `context_allocations`, `refs_from_parsed` | Batch scoring and stable ordering, the existing bounded novelty-selection loop, cited character-budget allocation and source-reference clipping. |
 | [`_native_source.h`](../src/memory_book/_native_source.h) | `source_units`, `projected_units`, `source_map_matches` | Original-turn evidence units, their projection onto pages and source-map validation used by exact-token packing. Tokenizer behavior and final budget checks remain unchanged. |
-| [`_native_segmentation.h`](../src/memory_book/_native_segmentation.h) | `make_turns`, `joined_turns`, `page_cuts`, `build_pages`, `segment_turns` | Conversation grouping, joined source references, paragraph/newline cuts, continuation pages and sections. |
+| [`_native_segmentation.h`](../src/memory_book/_native_segmentation.h) | `make_turns`, `joined_turns`, `page_cuts`, `build_pages`, `segment_turns`, `segmentation_ready` | Conversation grouping, joined source references, paragraph/newline cuts, continuation pages, sections and live dependency/class checks without a result cache. |
 
 The existing seven entry points remain `terms_ascii`, `ascii_tokens`,
 `unicode_tokens`, `identifier_aliases`, `literal_positions`,
@@ -122,21 +127,98 @@ disabled for the embedding CPython process. The two skips require the optional
 `tiktoken` dependency. These checks establish the recorded correctness and
 memory-access results, not a speed improvement.
 
+## First formal attempt: retained and not accepted
+
+[Run 43871304560](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43871304560)
+compares released native v0.8.1 with the 22-helper `0be1f095` candidate.
+All 113,568 timed calls / 56,784 paired results are equivalent under the
+complete-output, archive, index and source-coordinate checks. Four balanced
+AB/BA/BA/AB rounds and three passes per worker were preserved. The
+[independent artifact audit](../benchmarks/reports/native-core/formal-run-1/audit-receipt.json)
+verified the original ZIP, frozen source/build identities, raw ledgers and
+Git evidence publication, replayed the frozen summary exactly, and separately
+recomputed the statistics. No application queries were remeasured for that audit.
+
+All eight pooled query p50/p95 cells improved. The four default 2400-character
+p95 reductions were 2.8021% / 1.1781% for synthetic direct/MCP calls and
+5.5442% / 5.1743% for public direct/MCP calls. These pooled values do not mean
+every round improved: the fourth synthetic MCP round regressed for both
+character and token budgets.
+
+The acceptance blocker was unchanged reingestion. The four-batch totals were
+**19.4149% slower on synthetic61 and 21.4095% slower on public1015**, with
+all four individual rounds slower in each cohort. Fresh ingestion totals
+improved 6.9361% and 4.3360%, respectively, while one public fresh-ingestion
+round regressed. The complete eight-cell, four-ingestion and resource
+statistics remain in the [metrics extract](../benchmarks/reports/native-core/formal-run-1/metrics-extract.md),
+including startup, CPU, memory, binary size and every negative result.
+This candidate was not published.
+
+The first independent auditor was registered before the results. The stricter
+eight-field ingestion schema/identity check was added after the results and
+is explicitly identified as a
+[post-result audit amendment](../benchmarks/reports/native-core/development/artifact-auditor-schema-amendment.json).
+The frozen protocol 3 files, timing boundaries, source commits and raw results
+were not changed. Passing the audit verifies the evidence; it does not turn a
+performance regression into an accepted release.
+
+## Readiness refinement and current validation
+
+A paired diagnostic profile located repeated Python class-field generators
+inside the live segmentation check. `segmentation_ready` translates those
+checks to C while keeping their dependency scope, short-circuit order,
+ordinary descriptor reads and errors. It caches no readiness result, keeps
+strong references across callbacks and returns `NotImplemented` before
+observable callbacks for unsupported metadata shapes. The preserved Python
+guard remains the fallback.
+
+At exact checkpoint `cff1d9a3c183bf3c84183476f0485926f55abe56`:
+
+| Check | Observed result |
+| --- | --- |
+| Native differential suites | 140 tests: 138 passed; two optional tiktoken tests skipped locally. |
+| Sanitizers | The same eight suites passed under ASAN and UBSAN, with no compiler warning or sanitizer diagnostic; the two optional tiktoken skips remain explicit. |
+| Full hosted CI | [Run 43876906098](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43876906098): all nine jobs passed. Python 3.12 core discovered 1,385 tests with 142 skips; MCP discovered 1,385 with 16 skips. |
+| Public-wrapper dispatch | All 23 helpers produced effective native returns; no helper returned `NotImplemented` in the common fixture. The new readiness method executed 53 times. All singly instrumented outputs matched the uninstrumented outputs and released baseline fixture. |
+| New evaluator | Protocol 4's 26 tests passed with no skips in the SDK-equipped diagnostic environment, including a real stdio MCP fixture. Thirteen timing/ledger/probe AST contracts remain unchanged from frozen protocol 3. |
+
+The [local preflight](../benchmarks/reports/native-core/development/native-core-cff1d9a3-local-preflight.json),
+[CI receipt](../benchmarks/reports/native-core/development/native-core-cff1d9a3-ci.json),
+[sanitizer receipt](../benchmarks/reports/native-core/development/native-core-cff1d9a3-asan-ubsan.json)
+and [independent guard review](../benchmarks/reports/native-core/development/segmentation-readiness-independent-review.json)
+retain exact source, binary and validation identities.
+
+The subsequent local four-round diagnostic covers both cohorts and retains
+all 160 unchanged-ingestion batches, fresh ingestion, complete return values
+and before/after source and binary identities. It still shows unchanged
+reingestion regressions, including four slower public rounds. Timing noise is
+visible and these are development diagnostics, not hosted release results.
+Moving the guard alone is insufficient; the remaining segmentation
+allocation/call costs are being profiled before another formal experiment.
+
 ## Remaining acceptance work
 
-Formal paired measurements must compare the already-native v0.8.1 release with
-this wider native candidate under the new protocol. Output equivalence,
-source coordinates, index contents and public results remain gates alongside
-the timing and resource measurements. Diagnostic dispatch probes must be
-removed before timed calls.
+The independently named
+[protocol 4 plan](../benchmarks/experiments/native_core_refinement_formal_plan.json)
+remains **UNFROZEN**. Its candidate source and 23 helper total/effective/fallback
+counts must be frozen after the next measured refinement. It retains the
+first rejected attempt as prior evidence and uses the same complete matrix,
+with stronger offline ingestion schema checks. There has been no formal
+protocol 4 run and no selective replacement of protocol 3 results.
 
-The complete 30-wheel preparation matrix, installed-package checks and the
-final release build must also pass for their exact source commits. A fresh
-final build is required after acceptance; an earlier development or
-preparation build is not a publication receipt.
+After correctness and a useful measured direction are established, a new
+formal run must compare the released native v0.8.1 baseline with the exact
+refined runtime. Full output/source/index equality and all resource costs
+remain gates. Diagnostic probes are removed before timed calls.
 
-No v0.9.0 latency, throughput or resource improvement is claimed here. Correct
-results, a larger C implementation and successful CI do not establish that
-performance improved. Formal performance acceptance and public release remain
-pending; the prior v0.8.1 release and its frozen evidence remain the completed
-baseline.
+The original candidate's wheel preparation completed 29 native cells; its
+remaining macOS arm64 Python 3.12 job was cancelled after staying queued.
+The downstream artifact-preparation and installation jobs did not run, and
+that attempt is not a complete packaging receipt. The accepted refined
+candidate will require a fresh complete 30-wheel preparation matrix,
+installed-package checks and a fresh final release build. The exact approved
+runtime must then be published and tested through the real installer.
+
+The prior v0.8.1 release remains the completed baseline. No accepted v0.9.0
+latency, throughput or resource improvement is claimed while these gates
+remain open.
