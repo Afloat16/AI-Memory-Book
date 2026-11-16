@@ -516,5 +516,115 @@ class NativeSegmentationReadinessTests(unittest.TestCase):
         self.assertEqual(len(observations[0][1]), 3)
 
 
+
+@unittest.skipUnless(NATIVE is not None, "Native extension is not installed")
+class NativeSegmentationModuleStateTests(unittest.TestCase):
+    @staticmethod
+    def clone_native_module(label):
+        specification = importlib.util.spec_from_file_location(
+            "memory_book_state_" + label + "._native", NATIVE.__file__)
+        module = importlib.util.module_from_spec(specification)
+        specification.loader.exec_module(module)
+        return module
+
+    def test_two_module_instances_keep_independent_lifetimes(self):
+        import gc
+        import weakref
+        namespace = reference_namespace()
+        messages = [{"role": "user", "content": "source question"},
+                    {"role": "assistant", "content": "answer " * 20}]
+        turns = namespace["make_turns"](messages)
+        expected = namespace["_joined"](turns)
+        first = self.clone_native_module("first")
+        second = self.clone_native_module("second")
+        self.assertIsNot(first, second)
+        first_reference, second_reference = weakref.ref(first), weakref.ref(second)
+        for unused in range(3):
+            self.assertEqual(first.make_turns(messages, namespace), turns)
+            self.assertEqual(second.joined_turns(turns, namespace), expected)
+            self.assertEqual(first.build_pages(turns, 30, namespace), namespace["_pages"](turns, 30))
+            self.assertEqual(second.segment_turns(turns, "adaptive", 30, 0, .12, namespace),
+                             namespace["segment"](turns, "adaptive", 30, 0, .12))
+        held_function = first.joined_turns
+        del first
+        gc.collect()
+        self.assertIsNotNone(first_reference())
+        self.assertEqual(held_function(turns, namespace), expected)
+        del held_function
+        gc.collect()
+        self.assertIsNone(first_reference())
+        self.assertEqual(second.joined_turns(turns, namespace), expected)
+        del second
+        gc.collect()
+        self.assertIsNone(second_reference())
+
+    def test_returned_reference_dict_keeps_its_keys_after_module_collection(self):
+        import gc
+        import weakref
+        namespace = reference_namespace()
+        turns = [TURN(7, "q", "original 中🙂", (2, 3))]
+        module = self.clone_native_module("retained_result")
+        reference = weakref.ref(module)
+        actual = module.joined_turns(turns, namespace)
+        del module
+        gc.collect()
+        self.assertIsNone(reference())
+        self.assertEqual(actual, namespace["_joined"](turns))
+        self.assertEqual(list(actual[1][0]),
+                         ["turn_index", "start", "end", "turn_start", "turn_end", "message_indices"])
+        self.assertEqual(actual[1][0]["message_indices"], [2, 3])
+        self.assertEqual(actual[0][actual[1][0]["start"]:actual[1][0]["end"]], turns[0].content)
+
+    def test_available_shared_gil_subinterpreters_keep_main_module_working(self):
+        script = r'''
+import json
+try:
+    import _xxsubinterpreters as interpreters
+except ImportError:
+    print(json.dumps({"available": False}))
+else:
+    from memory_book import segmentation as main
+    payload = """
+from memory_book import segmentation as module
+turns = module.make_turns([{"role": "user", "content": "q"}, {"role": "assistant", "content": "answer " * 10}])
+assert module._native_segmentation_ready("joined_turns")
+joined, refs = module._joined(turns)
+assert joined[refs[0]["start"]:refs[0]["end"]] == turns[0].content
+assert module.segment(turns, "adaptive", 30, 0, .12)
+"""
+    def create_shared():
+        try:
+            return interpreters.create(isolated=False)
+        except TypeError:
+            return interpreters.create()
+    created = []
+    try:
+        first = create_shared()
+        created.append(first)
+        second = create_shared()
+        created.append(second)
+        interpreters.run_string(first, payload)
+        interpreters.run_string(second, payload)
+        interpreters.destroy(first)
+        created.remove(first)
+        interpreters.run_string(second, payload)
+        turns = main.make_turns([{"role": "user", "content": "main remains live"}])
+        assert main._joined(turns)[0] == "USER: main remains live"
+        print(json.dumps({"available": True, "interpreters": 2, "main_valid": True}))
+    finally:
+        for interpreter in reversed(created):
+            interpreters.destroy(interpreter)
+'''
+        environment = dict(os.environ, MEMORY_BOOK_TEXT_BACKEND="native", PYTHONDONTWRITEBYTECODE="1",
+                           PYTHONPATH=str(Path(segmentation.__file__).resolve().parents[1]))
+        process = subprocess.run([sys.executable, "-c", script], cwd=ROOT, env=environment,
+                                 capture_output=True, text=True, timeout=45)
+        self.assertEqual(process.returncode, 0, process.stderr)
+        result = json.loads(process.stdout)
+        if not result["available"]:
+            self.skipTest("_xxsubinterpreters is not available in this Python build")
+        self.assertEqual(result, {"available": True, "interpreters": 2, "main_valid": True})
+
+
 if __name__ == "__main__":
     unittest.main()
