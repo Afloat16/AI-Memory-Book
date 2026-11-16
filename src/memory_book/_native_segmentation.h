@@ -4,13 +4,139 @@
 #ifndef MEMORY_BOOK_NATIVE_SEGMENTATION_H
 #define MEMORY_BOOK_NATIVE_SEGMENTATION_H
 
-static PyObject *
-segmentation_global(PyObject *globals, const char *name)
+/* Only immutable bytecode-style names live in module state.  Every module
+ * instance owns its references; no result, class certificate or input is
+ * cached, and no PyObject pointer is stored in a process-global static. */
+enum SegmentationName {
+    SEG_NAME_ROLE,
+    SEG_NAME_CONTENT,
+    SEG_NAME_INDEX,
+    SEG_NAME_QUESTION,
+    SEG_NAME_MESSAGE_INDICES,
+    SEG_NAME_TURN_INDEX,
+    SEG_NAME_START,
+    SEG_NAME_END,
+    SEG_NAME_TURN_START,
+    SEG_NAME_TURN_END,
+    SEG_NAME_TURN,
+    SEG_NAME_PAGE,
+    SEG_NAME_SECTION,
+    SEG_NAME_HEADLINE,
+    SEG_NAME_SIMILARITY,
+    SEG_NAME_IS_FOLLOWUP,
+    SEG_NAME_JOINED,
+    SEG_NAME_CUTS,
+    SEG_NAME_PAGES,
+    SEG_NAME_NEW,
+    SEG_NAME_INIT,
+    SEG_NAME_GETATTRIBUTE,
+    SEG_NAME_DICT,
+    SEG_NAME_GET,
+    SEG_NAME_JOIN_SEPARATOR,
+    SEG_NAME_QUESTION_SEPARATOR,
+    SEG_NAME_SECTION_SEPARATOR,
+    SEG_NAME_COUNT
+};
+
+typedef struct {
+    PyObject *names[SEG_NAME_COUNT];
+    int ready;
+} SegmentationModuleState;
+
+static int
+segmentation_module_traverse(PyObject *module, visitproc visit, void *arg)
 {
-    PyObject *value = PyDict_GetItemString(globals, name);
+    SegmentationModuleState *state = PyModule_GetState(module);
+    Py_ssize_t index;
+    if (state == NULL) return 0;
+    for (index = 0; index < SEG_NAME_COUNT; index++) Py_VISIT(state->names[index]);
+    return 0;
+}
+
+static int
+segmentation_module_clear(PyObject *module)
+{
+    SegmentationModuleState *state = PyModule_GetState(module);
+    Py_ssize_t index;
+    if (state == NULL) return 0;
+    state->ready = 0;
+    for (index = 0; index < SEG_NAME_COUNT; index++) Py_CLEAR(state->names[index]);
+    return 0;
+}
+
+static void
+segmentation_module_free(void *module)
+{
+    (void)segmentation_module_clear((PyObject *)module);
+}
+
+static int
+segmentation_module_exec(PyObject *module)
+{
+    static const char *const spellings[SEG_NAME_COUNT] = {
+        "role",
+        "content",
+        "index",
+        "question",
+        "message_indices",
+        "turn_index",
+        "start",
+        "end",
+        "turn_start",
+        "turn_end",
+        "Turn",
+        "Page",
+        "Section",
+        "headline",
+        "similarity",
+        "is_followup",
+        "_joined",
+        "_cuts",
+        "_pages",
+        "__new__",
+        "__init__",
+        "__getattribute__",
+        "__dict__",
+        "get",
+        "\n\n",
+        " | ",
+        " \xc2\xb7 ",
+    };
+    SegmentationModuleState *state = PyModule_GetState(module);
+    Py_ssize_t index;
+    if (state == NULL) {
+        if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "native module state is unavailable");
+        return -1;
+    }
+    if (state->ready) return 0;
+    for (index = 0; index < SEG_NAME_COUNT; index++) {
+        if (state->names[index] == NULL) {
+            state->names[index] = PyUnicode_InternFromString(spellings[index]);
+            if (state->names[index] == NULL) return -1;
+        }
+    }
+    state->ready = 1;
+    return 0;
+}
+
+static SegmentationModuleState *
+segmentation_state(PyObject *module)
+{
+    SegmentationModuleState *state = PyModule_GetState(module);
+    if (state == NULL || !state->ready) {
+        if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "native module state is unavailable");
+        return NULL;
+    }
+    return state;
+}
+
+static PyObject *
+segmentation_global(PyObject *globals, PyObject *name)
+{
+    PyObject *value = PyDict_GetItem(globals, name);
     if (value == NULL) {
         if (!PyErr_Occurred()) {
-            PyErr_Format(PyExc_NameError, "name '%s' is not defined", name);
+            PyErr_Format(PyExc_NameError, "name '%U' is not defined", name);
         }
         return NULL;
     }
@@ -18,15 +144,9 @@ segmentation_global(PyObject *globals, const char *name)
 }
 
 static PyObject *
-segmentation_item(PyObject *mapping, const char *name)
+segmentation_item(PyObject *mapping, PyObject *name)
 {
-    PyObject *key = PyUnicode_FromString(name), *value;
-    if (key == NULL) {
-        return NULL;
-    }
-    value = PyObject_GetItem(mapping, key);
-    Py_DECREF(key);
-    return value;
+    return PyObject_GetItem(mapping, name);
 }
 
 static int
@@ -46,7 +166,7 @@ segmentation_named_dict(PyObject *value)
 }
 
 static int
-segmentation_plain_messages(PyObject *messages)
+segmentation_plain_messages(SegmentationModuleState *names, PyObject *messages)
 {
     PyObject *snapshot;
     Py_ssize_t index;
@@ -64,8 +184,8 @@ segmentation_plain_messages(PyObject *messages)
             ready = 0;
             break;
         }
-        role = PyDict_GetItemString(message, "role");
-        content = PyDict_GetItemString(message, "content");
+        role = PyDict_GetItem(message, names->names[SEG_NAME_ROLE]);
+        content = PyDict_GetItem(message, names->names[SEG_NAME_CONTENT]);
         if (role == NULL || content == NULL
                 || !PyUnicode_CheckExact(role) || !PyUnicode_CheckExact(content)) {
             ready = PyErr_Occurred() ? -1 : 0;
@@ -77,7 +197,7 @@ segmentation_plain_messages(PyObject *messages)
 }
 
 static int
-segmentation_plain_turns(PyObject *turns, PyObject *globals)
+segmentation_plain_turns(SegmentationModuleState *names, PyObject *turns, PyObject *globals)
 {
     PyObject *snapshot, *turn_class;
     Py_ssize_t index;
@@ -85,7 +205,7 @@ segmentation_plain_turns(PyObject *turns, PyObject *globals)
     if (!PyList_CheckExact(turns) || !PyDict_CheckExact(globals)) {
         return 0;
     }
-    turn_class = PyDict_GetItemString(globals, "Turn");
+    turn_class = PyDict_GetItem(globals, names->names[SEG_NAME_TURN]);
     if (turn_class == NULL || !PyType_Check(turn_class)) {
         return PyErr_Occurred() ? -1 : 0;
     }
@@ -123,10 +243,10 @@ segmentation_plain_turns(PyObject *turns, PyObject *globals)
             ready = 0;
             break;
         }
-        ordinal = PyDict_GetItemString(dictionary, "index");
-        question = PyDict_GetItemString(dictionary, "question");
-        content = PyDict_GetItemString(dictionary, "content");
-        indices = PyDict_GetItemString(dictionary, "message_indices");
+        ordinal = PyDict_GetItem(dictionary, names->names[SEG_NAME_INDEX]);
+        question = PyDict_GetItem(dictionary, names->names[SEG_NAME_QUESTION]);
+        content = PyDict_GetItem(dictionary, names->names[SEG_NAME_CONTENT]);
+        indices = PyDict_GetItem(dictionary, names->names[SEG_NAME_MESSAGE_INDICES]);
         if (ordinal == NULL || question == NULL || content == NULL || indices == NULL
                 || !PyLong_CheckExact(ordinal) || !PyUnicode_CheckExact(question)
                 || !PyUnicode_CheckExact(content) || !PyTuple_CheckExact(indices)) {
@@ -165,14 +285,14 @@ segmentation_cap(PyObject *cap, Py_ssize_t *number)
 }
 
 static PyObject *
-segmentation_headline(PyObject *globals, PyObject *turn, int limit)
+segmentation_headline(SegmentationModuleState *names, PyObject *globals, PyObject *turn, int limit)
 {
-    PyObject *function = segmentation_global(globals, "headline");
+    PyObject *function = segmentation_global(globals, names->names[SEG_NAME_HEADLINE]);
     PyObject *question = NULL, *bound = NULL, *result = NULL;
     if (function == NULL) {
         return NULL;
     }
-    question = PyObject_GetAttrString(turn, "question");
+    question = PyObject_GetAttr(turn, names->names[SEG_NAME_QUESTION]);
     if (question == NULL) {
         goto done;
     }
@@ -193,9 +313,9 @@ done:
 }
 
 static int
-segmentation_attr_length(PyObject *turn, const char *name, Py_ssize_t *length)
+segmentation_attr_length(PyObject *turn, PyObject *name, Py_ssize_t *length)
 {
-    PyObject *value = PyObject_GetAttrString(turn, name);
+    PyObject *value = PyObject_GetAttr(turn, name);
     if (value == NULL) {
         return -1;
     }
@@ -237,6 +357,7 @@ segmentation_unpack_pair(PyObject *value, PyObject **first, PyObject **second)
 static PyObject *
 native_make_turns(PyObject *self, PyObject *args)
 {
+    SegmentationModuleState *names;
     PyObject *messages, *globals;
     PyObject *groups = NULL, *pending = NULL, *turns = NULL, *iterator = NULL;
     PyObject *message = NULL, *role = NULL, *pair = NULL, *user = NULL, *allowed = NULL;
@@ -249,7 +370,9 @@ native_make_turns(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "OO:make_turns", &messages, &globals)) {
         return NULL;
     }
-    ready = segmentation_plain_messages(messages);
+    names = segmentation_state(self);
+    if (names == NULL) return NULL;
+    ready = segmentation_plain_messages(names, messages);
     if (ready < 0) {
         return NULL;
     }
@@ -260,7 +383,7 @@ native_make_turns(PyObject *self, PyObject *args)
     pending = PyList_New(0);
     turns = PyList_New(0);
     user = PyUnicode_FromString("user");
-    separator = PyUnicode_FromString("\n\n");
+    separator = Py_NewRef(names->names[SEG_NAME_JOIN_SEPARATOR]);
     note = PyUnicode_FromString("Conversation note");
     pair = Py_BuildValue("(sss)", "user", "assistant", "tool");
     if (pair != NULL) {
@@ -274,7 +397,7 @@ native_make_turns(PyObject *self, PyObject *args)
     }
     while ((message = PyIter_Next(iterator)) != NULL) {
         if ((number & 4095) == 0 && PyErr_CheckSignals() < 0) goto done;
-        role = segmentation_item(message, "role");
+        role = segmentation_item(message, names->names[SEG_NAME_ROLE]);
         if (role == NULL) {
             goto done;
         }
@@ -289,7 +412,7 @@ native_make_turns(PyObject *self, PyObject *args)
             for (index = 0; index < PyList_GET_SIZE(pending); index++) {
                 PyObject *old = Py_NewRef(PyList_GET_ITEM(pending, index));
                 PyObject *old_message = Py_NewRef(PyTuple_GET_ITEM(old, 1));
-                role = segmentation_item(old_message, "role");
+                role = segmentation_item(old_message, names->names[SEG_NAME_ROLE]);
                 Py_DECREF(old_message);
                 Py_DECREF(old);
                 if (role == NULL) {
@@ -322,7 +445,7 @@ native_make_turns(PyObject *self, PyObject *args)
             int keep = PyList_GET_SIZE(pending) != 0;
             if (!keep) {
                 PyObject *assistant = NULL, *tool = NULL;
-                role = segmentation_item(message, "role");
+                role = segmentation_item(message, names->names[SEG_NAME_ROLE]);
                 assistant = PyUnicode_FromString("assistant");
                 tool = PyUnicode_FromString("tool");
                 if (role == NULL || assistant == NULL || tool == NULL) {
@@ -376,7 +499,7 @@ native_make_turns(PyObject *self, PyObject *args)
         for (index = 0; index < PyList_GET_SIZE(group); index++) {
             pair = Py_NewRef(PyList_GET_ITEM(group, index));
             message = Py_NewRef(PyTuple_GET_ITEM(pair, 1));
-            role = segmentation_item(message, "role");
+            role = segmentation_item(message, names->names[SEG_NAME_ROLE]);
             if (role == NULL) {
                 goto done;
             }
@@ -386,7 +509,7 @@ native_make_turns(PyObject *self, PyObject *args)
                 goto done;
             }
             if (yes) {
-                PyObject *value = segmentation_item(message, "content");
+                PyObject *value = segmentation_item(message, names->names[SEG_NAME_CONTENT]);
                 if (value == NULL) {
                     goto done;
                 }
@@ -407,7 +530,7 @@ native_make_turns(PyObject *self, PyObject *args)
             PyObject *colon = NULL, *prefix = NULL, *line = NULL;
             pair = Py_NewRef(PyList_GET_ITEM(group, index));
             message = Py_NewRef(PyTuple_GET_ITEM(pair, 1));
-            role = segmentation_item(message, "role");
+            role = segmentation_item(message, names->names[SEG_NAME_ROLE]);
             if (role != NULL) {
                 upper = PyObject_CallMethod(role, "upper", NULL);
             }
@@ -415,7 +538,7 @@ native_make_turns(PyObject *self, PyObject *args)
                 role_text = PyObject_Format(upper, NULL);
             }
             if (role_text != NULL) {
-                content = segmentation_item(message, "content");
+                content = segmentation_item(message, names->names[SEG_NAME_CONTENT]);
             }
             if (content != NULL) {
                 content_text = PyObject_Format(content, NULL);
@@ -446,7 +569,7 @@ native_make_turns(PyObject *self, PyObject *args)
         }
         body = PyUnicode_Join(separator, parts);
         if (body == NULL) goto done;
-        constructor = segmentation_global(globals, "Turn");
+        constructor = segmentation_global(globals, names->names[SEG_NAME_TURN]);
         if (constructor == NULL) goto done;
         ordinal = PyLong_FromSsize_t(PyList_GET_SIZE(turns));
         indices = PyTuple_New(PyList_GET_SIZE(group));
@@ -483,6 +606,7 @@ done:
 static PyObject *
 native_joined_turns(PyObject *self, PyObject *args)
 {
+    SegmentationModuleState *names;
     PyObject *turns, *globals, *iterator = NULL, *turn = NULL;
     PyObject *parts = NULL, *refs = NULL, *position = NULL, *two = NULL, *zero = NULL;
     PyObject *content = NULL, *ordinal = NULL, *end = NULL, *length_object = NULL;
@@ -494,7 +618,9 @@ native_joined_turns(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "OO:joined_turns", &turns, &globals)) {
         return NULL;
     }
-    ready = segmentation_plain_turns(turns, globals);
+    names = segmentation_state(self);
+    if (names == NULL) return NULL;
+    ready = segmentation_plain_turns(names, turns, globals);
     if (ready < 0) return NULL;
     if (!ready) Py_RETURN_NOTIMPLEMENTED;
     parts = PyList_New(0); refs = PyList_New(0);
@@ -507,27 +633,32 @@ native_joined_turns(PyObject *self, PyObject *args)
             if (temporary == NULL) goto done;
             Py_SETREF(position, temporary); temporary = NULL;
         }
-        content = PyObject_GetAttrString(turn, "content");
+        content = PyObject_GetAttr(turn, names->names[SEG_NAME_CONTENT]);
         if (content == NULL || PyList_Append(parts, content) < 0) goto done;
         Py_CLEAR(content);
-        ordinal = PyObject_GetAttrString(turn, "index");
-        if (ordinal == NULL || segmentation_attr_length(turn, "content", &length) < 0) goto done;
+        ordinal = PyObject_GetAttr(turn, names->names[SEG_NAME_INDEX]);
+        if (ordinal == NULL || segmentation_attr_length(turn, names->names[SEG_NAME_CONTENT], &length) < 0) goto done;
         length_object = PyLong_FromSsize_t(length);
         if (length_object == NULL) goto done;
         end = PyNumber_Add(position, length_object);
         Py_CLEAR(length_object);
-        if (end == NULL || segmentation_attr_length(turn, "content", &length) < 0) goto done;
+        if (end == NULL || segmentation_attr_length(turn, names->names[SEG_NAME_CONTENT], &length) < 0) goto done;
         length_object = PyLong_FromSsize_t(length);
-        indices = PyObject_GetAttrString(turn, "message_indices");
+        indices = PyObject_GetAttr(turn, names->names[SEG_NAME_MESSAGE_INDICES]);
         if (length_object == NULL || indices == NULL) goto done;
         indices_list = PySequence_List(indices);
         if (indices_list == NULL) goto done;
-        ref = Py_BuildValue("{s:O,s:O,s:O,s:O,s:O,s:O}", "turn_index", ordinal, "start", position,
-                           "end", end, "turn_start", zero, "turn_end", length_object,
-                           "message_indices", indices_list);
-        if (ref == NULL || PyList_Append(refs, ref) < 0) goto done;
+        ref = PyDict_New();
+        if (ref == NULL
+                || PyDict_SetItem(ref, names->names[SEG_NAME_TURN_INDEX], ordinal) < 0
+                || PyDict_SetItem(ref, names->names[SEG_NAME_START], position) < 0
+                || PyDict_SetItem(ref, names->names[SEG_NAME_END], end) < 0
+                || PyDict_SetItem(ref, names->names[SEG_NAME_TURN_START], zero) < 0
+                || PyDict_SetItem(ref, names->names[SEG_NAME_TURN_END], length_object) < 0
+                || PyDict_SetItem(ref, names->names[SEG_NAME_MESSAGE_INDICES], indices_list) < 0
+                || PyList_Append(refs, ref) < 0) goto done;
         Py_CLEAR(length_object);
-        if (segmentation_attr_length(turn, "content", &length) < 0) goto done;
+        if (segmentation_attr_length(turn, names->names[SEG_NAME_CONTENT], &length) < 0) goto done;
         length_object = PyLong_FromSsize_t(length);
         if (length_object == NULL) goto done;
         temporary = PyNumber_Add(position, length_object);
@@ -537,7 +668,7 @@ native_joined_turns(PyObject *self, PyObject *args)
         Py_CLEAR(indices); Py_CLEAR(indices_list); Py_CLEAR(ref);
     }
     if (PyErr_Occurred()) goto done;
-    separator = PyUnicode_FromString("\n\n");
+    separator = Py_NewRef(names->names[SEG_NAME_JOIN_SEPARATOR]);
     if (separator == NULL) goto done;
     joined = PyUnicode_Join(separator, parts);
     if (joined != NULL) result = PyTuple_Pack(2, joined, refs);
@@ -592,6 +723,7 @@ error:
 static PyObject *
 native_build_pages(PyObject *self, PyObject *args)
 {
+    SegmentationModuleState *names;
     PyObject *group, *cap, *globals, *function = NULL, *joined = NULL, *text = NULL, *refs = NULL;
     PyObject *spans = NULL, *hints = NULL, *first_title = NULL, *pages = NULL;
     PyObject *iterator = NULL, *turn = NULL, *key = NULL, *hint = NULL, *first = NULL;
@@ -605,10 +737,12 @@ native_build_pages(PyObject *self, PyObject *args)
     int ready, comparison;
     (void)self;
     if (!PyArg_ParseTuple(args, "OOO:build_pages", &group, &cap, &globals)) return NULL;
-    ready = segmentation_plain_turns(group, globals);
+    names = segmentation_state(self);
+    if (names == NULL) return NULL;
+    ready = segmentation_plain_turns(names, group, globals);
     if (ready < 0) return NULL;
     if (!ready || (cap != Py_None && !segmentation_cap(cap, &cap_number))) Py_RETURN_NOTIMPLEMENTED;
-    function = segmentation_global(globals, "_joined");
+    function = segmentation_global(globals, names->names[SEG_NAME_JOINED]);
     if (function == NULL) goto done;
     joined = PyObject_CallOneArg(function, group);
     Py_CLEAR(function);
@@ -623,7 +757,7 @@ native_build_pages(PyObject *self, PyObject *args)
         Py_CLEAR(span);
     }
     else {
-        function = segmentation_global(globals, "_cuts");
+        function = segmentation_global(globals, names->names[SEG_NAME_CUTS]);
         if (function == NULL) goto done;
         spans = PyObject_CallFunctionObjArgs(function, text, cap, NULL);
         Py_CLEAR(function);
@@ -634,9 +768,9 @@ native_build_pages(PyObject *self, PyObject *args)
     if (hints == NULL || iterator == NULL) goto done;
     while ((turn = PyIter_Next(iterator)) != NULL) {
         /* A comprehension evaluates its key before the headline callback. */
-        key = PyObject_GetAttrString(turn, "index");
+        key = PyObject_GetAttr(turn, names->names[SEG_NAME_INDEX]);
         if (key == NULL) goto done;
-        hint = segmentation_headline(globals, turn, 240);
+        hint = segmentation_headline(names, globals, turn, 240);
         if (hint == NULL || PyDict_SetItem(hints, key, hint) < 0) goto done;
         Py_CLEAR(key); Py_CLEAR(hint); Py_CLEAR(turn);
     }
@@ -644,7 +778,7 @@ native_build_pages(PyObject *self, PyObject *args)
     Py_CLEAR(iterator);
     first = PySequence_GetItem(group, 0);
     if (first == NULL) goto done;
-    first_title = segmentation_headline(globals, first, 76);
+    first_title = segmentation_headline(names, globals, first, 76);
     Py_CLEAR(first);
     pages = PyList_New(0);
     span_iterator = PyObject_GetIter(spans);
@@ -655,12 +789,12 @@ native_build_pages(PyObject *self, PyObject *args)
         ref_iterator = PyObject_GetIter(refs);
         if (local_refs == NULL || ref_iterator == NULL) goto done;
         while ((ref = PyIter_Next(ref_iterator)) != NULL) {
-            ref_start = segmentation_item(ref, "start");
+            ref_start = segmentation_item(ref, names->names[SEG_NAME_START]);
             if (ref_start == NULL) goto done;
             comparison = PyObject_RichCompareBool(ref_start, start, Py_GT);
             if (comparison < 0) goto done;
             lo = Py_NewRef(comparison ? ref_start : start);
-            ref_end = segmentation_item(ref, "end");
+            ref_end = segmentation_item(ref, names->names[SEG_NAME_END]);
             if (ref_end == NULL) goto done;
             comparison = PyObject_RichCompareBool(ref_end, end, Py_LT);
             if (comparison < 0) goto done;
@@ -671,20 +805,20 @@ native_build_pages(PyObject *self, PyObject *args)
                 copy = PyDict_New();
                 if (copy == NULL || PyDict_Update(copy, ref) < 0) goto done;
                 value = PyNumber_Subtract(lo, start);
-                if (value == NULL || PyDict_SetItemString(copy, "start", value) < 0) goto done;
+                if (value == NULL || PyDict_SetItem(copy, names->names[SEG_NAME_START], value) < 0) goto done;
                 Py_CLEAR(value);
                 value = PyNumber_Subtract(hi, start);
-                if (value == NULL || PyDict_SetItemString(copy, "end", value) < 0) goto done;
+                if (value == NULL || PyDict_SetItem(copy, names->names[SEG_NAME_END], value) < 0) goto done;
                 Py_CLEAR(value); Py_CLEAR(ref_start);
-                ref_start = segmentation_item(ref, "start");
+                ref_start = segmentation_item(ref, names->names[SEG_NAME_START]);
                 if (ref_start == NULL) goto done;
                 value = PyNumber_Subtract(lo, ref_start);
-                if (value == NULL || PyDict_SetItemString(copy, "turn_start", value) < 0) goto done;
+                if (value == NULL || PyDict_SetItem(copy, names->names[SEG_NAME_TURN_START], value) < 0) goto done;
                 Py_CLEAR(value); Py_CLEAR(ref_start);
-                ref_start = segmentation_item(ref, "start");
+                ref_start = segmentation_item(ref, names->names[SEG_NAME_START]);
                 if (ref_start == NULL) goto done;
                 value = PyNumber_Subtract(hi, ref_start);
-                if (value == NULL || PyDict_SetItemString(copy, "turn_end", value) < 0) goto done;
+                if (value == NULL || PyDict_SetItem(copy, names->names[SEG_NAME_TURN_END], value) < 0) goto done;
                 Py_CLEAR(value);
                 if (PyList_Append(local_refs, copy) < 0) goto done;
                 Py_CLEAR(copy);
@@ -701,7 +835,7 @@ native_build_pages(PyObject *self, PyObject *args)
         ref_iterator = PyObject_GetIter(local_refs);
         if (suffix == NULL || local_turns == NULL || ref_iterator == NULL) goto done;
         while ((ref = PyIter_Next(ref_iterator)) != NULL) {
-            key = segmentation_item(ref, "turn_index");
+            key = segmentation_item(ref, names->names[SEG_NAME_TURN_INDEX]);
             if (key == NULL || PySet_Add(local_turns, key) < 0) goto done;
             Py_CLEAR(key); Py_CLEAR(ref);
         }
@@ -711,13 +845,13 @@ native_build_pages(PyObject *self, PyObject *args)
         iterator = PyObject_GetIter(group);
         if (question_parts == NULL || iterator == NULL) goto done;
         while ((turn = PyIter_Next(iterator)) != NULL) {
-            key = PyObject_GetAttrString(turn, "index");
+            key = PyObject_GetAttr(turn, names->names[SEG_NAME_INDEX]);
             if (key == NULL) goto done;
             comparison = PySet_Contains(local_turns, key);
             Py_CLEAR(key);
             if (comparison < 0) goto done;
             if (comparison) {
-                key = PyObject_GetAttrString(turn, "index");
+                key = PyObject_GetAttr(turn, names->names[SEG_NAME_INDEX]);
                 if (key == NULL) goto done;
                 hint = PyObject_GetItem(hints, key);
                 if (hint == NULL || PyList_Append(question_parts, hint) < 0) goto done;
@@ -727,14 +861,14 @@ native_build_pages(PyObject *self, PyObject *args)
         }
         if (PyErr_Occurred()) goto done;
         Py_CLEAR(iterator);
-        separator = PyUnicode_FromString(" | ");
+        separator = Py_NewRef(names->names[SEG_NAME_QUESTION_SEPARATOR]);
         if (separator == NULL) goto done;
         temporary = PyUnicode_Join(separator, question_parts);
         if (temporary == NULL) goto done;
         question = PyUnicode_Substring(temporary, 0, 1200);
         Py_CLEAR(temporary); Py_CLEAR(separator);
         if (question == NULL) goto done;
-        function = segmentation_global(globals, "Page");
+        function = segmentation_global(globals, names->names[SEG_NAME_PAGE]);
         if (function == NULL) goto done;
         title = PyNumber_Add(first_title, suffix);
         if (title == NULL) goto done;
@@ -765,6 +899,7 @@ done:
 static PyObject *
 native_segment_turns(PyObject *self, PyObject *args)
 {
+    SegmentationModuleState *names;
     PyObject *turns, *mode, *maximum, *minimum, *threshold, *globals;
     PyObject *groups = NULL, *current = NULL, *size = NULL, *two = NULL, *iterator = NULL;
     PyObject *turn = NULL, *function = NULL, *last = NULL, *left = NULL, *right = NULL;
@@ -777,7 +912,9 @@ native_segment_turns(PyObject *self, PyObject *args)
     (void)self;
     if (!PyArg_ParseTuple(args, "OOOOOO:segment_turns", &turns, &mode, &maximum,
                           &minimum, &threshold, &globals)) return NULL;
-    ready = segmentation_plain_turns(turns, globals);
+    names = segmentation_state(self);
+    if (names == NULL) return NULL;
+    ready = segmentation_plain_turns(names, turns, globals);
     if (ready < 0) return NULL;
     if (!ready || !PyUnicode_CheckExact(mode) || !PyList_GET_SIZE(turns)
             || !segmentation_cap(maximum, &maximum_number) || !PyLong_CheckExact(minimum)
@@ -810,11 +947,11 @@ native_segment_turns(PyObject *self, PyObject *args)
         while ((turn = PyIter_Next(iterator)) != NULL) {
             related = Py_NewRef(Py_True);
             if (PyList_GET_SIZE(current)) {
-                function = segmentation_global(globals, "similarity");
+                function = segmentation_global(globals, names->names[SEG_NAME_SIMILARITY]);
                 last = PySequence_GetItem(current, -1);
                 if (function == NULL || last == NULL) goto done;
-                left = PyObject_GetAttrString(last, "question");
-                right = PyObject_GetAttrString(turn, "question");
+                left = PyObject_GetAttr(last, names->names[SEG_NAME_QUESTION]);
+                right = PyObject_GetAttr(turn, names->names[SEG_NAME_QUESTION]);
                 if (left == NULL || right == NULL) goto done;
                 value = PyObject_CallFunctionObjArgs(function, left, right, NULL);
                 Py_CLEAR(function); Py_CLEAR(last); Py_CLEAR(left); Py_CLEAR(right);
@@ -826,9 +963,9 @@ native_segment_turns(PyObject *self, PyObject *args)
                 related_true = PyObject_IsTrue(related);
                 if (related_true < 0) goto done;
                 if (!related_true) {
-                    function = segmentation_global(globals, "is_followup");
+                    function = segmentation_global(globals, names->names[SEG_NAME_IS_FOLLOWUP]);
                     if (function == NULL) goto done;
-                    right = PyObject_GetAttrString(turn, "question");
+                    right = PyObject_GetAttr(turn, names->names[SEG_NAME_QUESTION]);
                     if (right == NULL) goto done;
                     temporary = PyObject_CallOneArg(function, right);
                     Py_CLEAR(function); Py_CLEAR(right);
@@ -836,7 +973,7 @@ native_segment_turns(PyObject *self, PyObject *args)
                     Py_SETREF(related, temporary); temporary = NULL;
                 }
             }
-            if (segmentation_attr_length(turn, "content", &length) < 0) goto done;
+            if (segmentation_attr_length(turn, names->names[SEG_NAME_CONTENT], &length) < 0) goto done;
             length_object = PyLong_FromSsize_t(length);
             if (length_object == NULL) goto done;
             candidate = PyNumber_Add(size, length_object);
@@ -867,7 +1004,7 @@ native_segment_turns(PyObject *self, PyObject *args)
                 current = PyList_New(0); size = PyLong_FromLong(0);
                 if (current == NULL || size == NULL) goto done;
             }
-            if (PyList_Append(current, turn) < 0 || segmentation_attr_length(turn, "content", &length) < 0) goto done;
+            if (PyList_Append(current, turn) < 0 || segmentation_attr_length(turn, names->names[SEG_NAME_CONTENT], &length) < 0) goto done;
             length_object = PyLong_FromSsize_t(length);
             if (length_object == NULL) goto done;
             candidate = PyNumber_Add(length_object, two);
@@ -883,22 +1020,22 @@ native_segment_turns(PyObject *self, PyObject *args)
         Py_CLEAR(iterator);
     }
     sections = PyList_New(0);
-    separator = PyUnicode_FromString(" \xc2\xb7 ");
+    separator = Py_NewRef(names->names[SEG_NAME_SECTION_SEPARATOR]);
     if (sections == NULL || separator == NULL) goto done;
     for (group_index = 0; group_index < PyList_GET_SIZE(groups); group_index++) {
         group = Py_NewRef(PyList_GET_ITEM(groups, group_index));
-        constructor = segmentation_global(globals, "Section");
+        constructor = segmentation_global(globals, names->names[SEG_NAME_SECTION]);
         if (constructor == NULL) goto done;
         last = PySequence_GetItem(group, 0);
         if (last == NULL) goto done;
-        title = segmentation_headline(globals, last, -1);
+        title = segmentation_headline(names, globals, last, -1);
         Py_CLEAR(last);
         if (title == NULL) goto done;
         summary_parts = PyList_New(0);
         group_iterator = PyObject_GetIter(group);
         if (summary_parts == NULL || group_iterator == NULL) goto done;
         while ((turn = PyIter_Next(group_iterator)) != NULL) {
-            value = segmentation_headline(globals, turn, 96);
+            value = segmentation_headline(names, globals, turn, 96);
             if (value == NULL || PyList_Append(summary_parts, value) < 0) goto done;
             Py_CLEAR(value); Py_CLEAR(turn);
         }
@@ -909,7 +1046,7 @@ native_segment_turns(PyObject *self, PyObject *args)
         summary = PyUnicode_Substring(temporary, 0, 360);
         Py_CLEAR(temporary);
         if (summary == NULL) goto done;
-        function = segmentation_global(globals, "_pages");
+        function = segmentation_global(globals, names->names[SEG_NAME_PAGES]);
         if (function == NULL) goto done;
         pages = PyObject_CallFunctionObjArgs(function, group, adaptive ? maximum : Py_None, NULL);
         Py_CLEAR(function);
@@ -1006,13 +1143,14 @@ failed:
 static PyObject *
 native_segmentation_ready(PyObject *self, PyObject *args)
 {
+    SegmentationModuleState *names;
     PyObject *name, *globals, *defaults, *states, *dependencies;
     PyObject *dependency = NULL, *classes = NULL, *functions = NULL, *iterator = NULL;
     PyObject *item = NULL, *current = NULL, *expected = NULL, *state = NULL;
     PyObject *cls = NULL, *new_method = NULL, *init = NULL, *getattribute = NULL, *fields = NULL;
     PyObject *field_iterator = NULL, *pair = NULL, *field = NULL, *value = NULL, *dictionary = NULL;
     PyObject *unpacked[5] = {NULL, NULL, NULL, NULL, NULL}, *result = NULL;
-    const char *method_names[3] = {"__new__", "__init__", "__getattribute__"};
+    const enum SegmentationName method_names[3] = {SEG_NAME_NEW, SEG_NAME_INIT, SEG_NAME_GETATTRIBUTE};
     Py_ssize_t index;
     int different;
     (void)self;
@@ -1023,6 +1161,8 @@ native_segmentation_ready(PyObject *self, PyObject *args)
             || !PyDict_CheckExact(dependencies)) {
         Py_RETURN_NOTIMPLEMENTED;
     }
+    names = segmentation_state(self);
+    if (names == NULL) return NULL;
     dependency = PyObject_GetItem(dependencies, name);
     if (dependency == NULL || segmentation_guard_unpack(dependency, unpacked, 2) < 0) goto done;
     classes = unpacked[0]; unpacked[0] = NULL;
@@ -1059,7 +1199,7 @@ native_segmentation_ready(PyObject *self, PyObject *args)
         if (different) { result = Py_NewRef(Py_False); goto done; }
         for (index = 0; index < 3; index++) {
             PyObject *method = index == 0 ? new_method : index == 1 ? init : getattribute;
-            current = PyObject_GetAttrString(cls, method_names[index]);
+            current = PyObject_GetAttr(cls, names->names[method_names[index]]);
             if (current == NULL) goto done;
             different = current != method;
             Py_CLEAR(current);
@@ -1081,9 +1221,9 @@ native_segmentation_ready(PyObject *self, PyObject *args)
                 current = segmentation_guard_get(((PyTypeObject *)cls)->tp_dict, field);
             }
             else {
-                dictionary = PyObject_GetAttrString(cls, "__dict__");
+                dictionary = PyObject_GetAttr(cls, names->names[SEG_NAME_DICT]);
                 if (dictionary == NULL) goto done;
-                current = PyObject_CallMethod(dictionary, "get", "(O)", field);
+                current = PyObject_CallMethodOneArg(dictionary, names->names[SEG_NAME_GET], field);
                 Py_CLEAR(dictionary);
             }
             if (current == NULL) goto done;
