@@ -1,0 +1,201 @@
+﻿2026-11-16T16:17:54.6843699Z Current runner version: '2.338.2'
+2026-11-16T16:17:54.6862937Z ##[group]Runner Image Provisioner
+2026-11-16T16:17:54.6863906Z Hosted Compute Agent
+2026-11-16T16:17:54.6864434Z Version: 20261103.629
+2026-11-16T16:17:54.6864883Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-16T16:17:54.6865451Z Build Date: 2026-11-03T17:26:59Z
+2026-11-16T16:17:54.6865948Z Worker ID: {6c8cd40d-8855-4e83-a0a6-a580980ec0e1}
+2026-11-16T16:17:54.6866475Z Region: us-east-1
+2026-11-16T16:17:54.6866886Z Cloud: AWS
+2026-11-16T16:17:54.6867267Z ##[endgroup]
+2026-11-16T16:17:54.6868264Z ##[group]Operating System
+2026-11-16T16:17:54.6868722Z Ubuntu
+2026-11-16T16:17:54.6869155Z 24.04.5
+2026-11-16T16:17:54.6869522Z LTS
+2026-11-16T16:17:54.6869900Z ##[endgroup]
+2026-11-16T16:17:54.6870283Z ##[group]Runner Image
+2026-11-16T16:17:54.6870751Z Image: ubuntu-24.04
+2026-11-16T16:17:54.6871170Z Version: 20261111.127.1
+2026-11-16T16:17:54.6872113Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261111.127/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-16T16:17:54.6873449Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261111.127
+2026-11-16T16:17:54.6874184Z ##[endgroup]
+2026-11-16T16:17:54.6874987Z ##[group]GITHUB_TOKEN Permissions
+2026-11-16T16:17:54.6877070Z Contents: read
+2026-11-16T16:17:54.6877484Z Metadata: read
+2026-11-16T16:17:54.6877907Z ##[endgroup]
+2026-11-16T16:17:54.6879469Z Secret source: Actions
+2026-11-16T16:17:54.6880148Z Cache mode: write
+2026-11-16T16:17:54.6880745Z Prepare workflow directory
+2026-11-16T16:17:54.7111430Z Prepare all required actions
+2026-11-16T16:17:54.7148168Z Getting action download info
+2026-11-16T16:17:54.8864274Z Download action repository 'actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c' (SHA:e797f83bcb11b83ae66e0230d6156d7c80228e7c)
+2026-11-16T16:17:56.9037092Z Complete job name: published-install
+2026-11-16T16:17:56.9647090Z ##[group]Run actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+2026-11-16T16:17:56.9648326Z with:
+2026-11-16T16:17:56.9648798Z   python-version: 3.12
+2026-11-16T16:17:56.9649246Z   check-latest: false
+2026-11-16T16:17:56.9652910Z   token: ***
+2026-11-16T16:17:56.9653686Z   update-environment: true
+2026-11-16T16:17:56.9654214Z   allow-prereleases: false
+2026-11-16T16:17:56.9654684Z   freethreaded: false
+2026-11-16T16:17:56.9655369Z ##[endgroup]
+2026-11-16T16:18:00.9696894Z ##[group]Installed versions
+2026-11-16T16:18:01.1771563Z (node:2038) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-16T16:18:01.1772312Z Successfully set up CPython (3.12.16)
+2026-11-16T16:18:01.1773348Z ##[endgroup]
+2026-11-16T16:18:01.1773876Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-16T16:18:01.2123861Z ##[group]Run python - <<'PY'
+2026-11-16T16:18:01.2124536Z [36;1mpython - <<'PY'[0m
+2026-11-16T16:18:01.2125235Z [36;1mimport hashlib, json, os, pathlib, re, subprocess, sys, tempfile[0m
+2026-11-16T16:18:01.2125843Z [36;1mfrom urllib.request import urlopen[0m
+2026-11-16T16:18:01.2126507Z [36;1mtag, version = os.environ['RELEASE_TAG'], os.environ['RELEASE_VERSION'][0m
+2026-11-16T16:18:01.2127228Z [36;1massert tag == 'v' + version and re.fullmatch(r'\d+\.\d+\.\d+', version)[0m
+2026-11-16T16:18:01.2128222Z [36;1mraw = 'https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/' + tag + '/scripts/install.py'[0m
+2026-11-16T16:18:01.2129225Z [36;1massets = 'https://github.com/Afloat16/AI-Memory-Book/releases/download/' + tag + '/'[0m
+2026-11-16T16:18:01.2130055Z [36;1mwith urlopen(assets + 'release-manifest.json', timeout=60) as response:[0m
+2026-11-16T16:18:01.2130693Z [36;1m    manifest = json.load(response)[0m
+2026-11-16T16:18:01.2131650Z [36;1massert manifest['tag'] == tag and manifest['commit'] == os.environ['RELEASE_COMMIT'][0m
+2026-11-16T16:18:01.2132701Z [36;1mwith tempfile.TemporaryDirectory(prefix='published-install-', dir=os.environ['RUNNER_TEMP']) as location:[0m
+2026-11-16T16:18:01.2133901Z [36;1m    work = pathlib.Path(location)[0m
+2026-11-16T16:18:01.2134708Z [36;1m    with urlopen(raw, timeout=60) as response:[0m
+2026-11-16T16:18:01.2135282Z [36;1m        helper = response.read()[0m
+2026-11-16T16:18:01.2135994Z [36;1m    assert hashlib.sha256(helper).hexdigest() == manifest['assets']['install.py']['sha256'][0m
+2026-11-16T16:18:01.2136724Z [36;1m    script = work / 'install-memory-book.py'[0m
+2026-11-16T16:18:01.2137309Z [36;1m    script.write_bytes(helper)[0m
+2026-11-16T16:18:01.2137824Z [36;1m    prefix, bin_dir = work / 'install', work / 'bin'[0m
+2026-11-16T16:18:01.2138651Z [36;1m    subprocess.run([sys.executable, str(script), '--prefix', str(prefix), '--bin-dir', str(bin_dir)], check=True)[0m
+2026-11-16T16:18:01.2139524Z [36;1m    record = json.loads((prefix / 'installation.json').read_text())[0m
+2026-11-16T16:18:01.2140263Z [36;1m    assert record['version'] == version and record['extras'] == ['mcp', 'clients'][0m
+2026-11-16T16:18:01.2140864Z [36;1m    selected = record['release_asset'][0m
+2026-11-16T16:18:01.2141330Z [36;1m    assert selected['filename'] in manifest['assets'][0m
+2026-11-16T16:18:01.2141974Z [36;1m    assert selected['sha256'] == manifest['assets'][selected['filename']]['sha256'][0m
+2026-11-16T16:18:01.2142775Z [36;1m    assert assets + selected['filename'] + '#sha256=' + selected['sha256'] in record['source'][0m
+2026-11-16T16:18:01.2143805Z [36;1m    assert record['native_backend'] == 'native' and selected['selection'] == 'native'[0m
+2026-11-16T16:18:01.2144683Z [36;1m    assert subprocess.check_output([record['launcher'], '--version'], text=True).strip() == version[0m
+2026-11-16T16:18:01.2145462Z [36;1m    subprocess.run([record['python'], '-I', '-c', 'import mcp, tomlkit'], check=True)[0m
+2026-11-16T16:18:01.2146508Z [36;1mprint('Verified public installer URL, release wheel, version and default MCP/client extras.')[0m
+2026-11-16T16:18:01.2147115Z [36;1mPY[0m
+2026-11-16T16:18:01.6235151Z shell: /usr/bin/bash -e {0}
+2026-11-16T16:18:01.6235874Z env:
+2026-11-16T16:18:01.6236179Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T16:18:01.6236645Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-16T16:18:01.6237029Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T16:18:01.6237369Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T16:18:01.6237783Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T16:18:01.6238133Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-16T16:18:01.6238443Z   RELEASE_TAG: v0.9.0
+2026-11-16T16:18:01.6238688Z   RELEASE_VERSION: 0.9.0
+2026-11-16T16:18:01.6238969Z   RELEASE_COMMIT: 238c8058f723a203eaca99f94d924ab77de4c0b3
+2026-11-16T16:18:01.6239519Z ##[endgroup]
+2026-11-16T16:18:08.1220189Z Collecting ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143 (from ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:08.2928649Z   Downloading https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (440 kB)
+2026-11-16T16:18:08.3697873Z Collecting mcp<2,>=1.28 (from ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:08.4082193Z   Downloading mcp-1.30.0-py3-none-any.whl.metadata (9.3 kB)
+2026-11-16T16:18:08.4334897Z Collecting tomlkit<1,>=0.13 (from ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:08.4416675Z   Downloading tomlkit-0.15.2-py3-none-any.whl.metadata (3.4 kB)
+2026-11-16T16:18:08.4639252Z Collecting anyio>=4.5 (from mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:08.4720529Z   Downloading anyio-4.16.0-py3-none-any.whl.metadata (4.7 kB)
+2026-11-16T16:18:08.4879125Z Collecting httpx-sse>=0.4 (from mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:08.4956237Z   Downloading httpx_sse-0.4.3-py3-none-any.whl.metadata (9.7 kB)
+2026-11-16T16:18:08.5204764Z Collecting httpx<1.0.0,>=0.27.1 (from mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:08.5284146Z   Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+2026-11-16T16:18:08.5545734Z Collecting jsonschema>=4.20.0 (from mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:08.5627531Z   Downloading jsonschema-4.26.0-py3-none-any.whl.metadata (7.6 kB)
+2026-11-16T16:18:08.5839018Z Collecting pydantic-settings>=2.5.2 (from mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:08.5916748Z   Downloading pydantic_settings-2.16.3-py3-none-any.whl.metadata (4.0 kB)
+2026-11-16T16:18:08.6946140Z Collecting pydantic<3.0.0,>=2.11.0 (from mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:08.7026061Z   Downloading pydantic-2.14.3-py3-none-any.whl.metadata (141 kB)
+2026-11-16T16:18:08.7399230Z Collecting pyjwt>=2.10.1 (from pyjwt[crypto]>=2.10.1->mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:08.7480622Z   Downloading pyjwt-2.15.1-py3-none-any.whl.metadata (3.5 kB)
+2026-11-16T16:18:08.7666493Z Collecting python-multipart>=0.0.9 (from mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:08.7744941Z   Downloading python_multipart-0.0.34-py3-none-any.whl.metadata (6.3 kB)
+2026-11-16T16:18:08.7962900Z Collecting sse-starlette>=1.6.1 (from mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:08.8047787Z   Downloading sse_starlette-3.7.0-py3-none-any.whl.metadata (15 kB)
+2026-11-16T16:18:08.8353867Z Collecting starlette>=0.27 (from mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:08.8436362Z   Downloading starlette-1.10.0-py3-none-any.whl.metadata (6.6 kB)
+2026-11-16T16:18:08.8640409Z Collecting typing-extensions>=4.9.0 (from mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:08.8729316Z   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+2026-11-16T16:18:08.8888548Z Collecting typing-inspection>=0.4.1 (from mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:08.8966825Z   Downloading typing_inspection-0.4.5-py3-none-any.whl.metadata (2.6 kB)
+2026-11-16T16:18:08.9233949Z Collecting uvicorn>=0.31.1 (from mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:08.9316266Z   Downloading uvicorn-0.54.0-py3-none-any.whl.metadata (6.6 kB)
+2026-11-16T16:18:08.9517874Z Collecting idna>=2.8 (from anyio>=4.5->mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:08.9596685Z   Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+2026-11-16T16:18:08.9835120Z Collecting certifi (from httpx<1.0.0,>=0.27.1->mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:08.9918284Z   Downloading certifi-2026.10.23-py3-none-any.whl.metadata (2.5 kB)
+2026-11-16T16:18:09.0123649Z Collecting httpcore==1.* (from httpx<1.0.0,>=0.27.1->mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:09.0202937Z   Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+2026-11-16T16:18:09.0378602Z Collecting h11>=0.16 (from httpcore==1.*->httpx<1.0.0,>=0.27.1->mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:09.0456153Z   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+2026-11-16T16:18:09.0641129Z Collecting attrs>=22.2.0 (from jsonschema>=4.20.0->mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:09.0716070Z   Downloading attrs-26.1.0-py3-none-any.whl.metadata (8.8 kB)
+2026-11-16T16:18:09.0882972Z Collecting jsonschema-specifications>=2023.03.6 (from jsonschema>=4.20.0->mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:09.0964999Z   Downloading jsonschema_specifications-2025.9.1-py3-none-any.whl.metadata (2.9 kB)
+2026-11-16T16:18:09.1208657Z Collecting referencing>=0.28.4 (from jsonschema>=4.20.0->mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:09.1290390Z   Downloading referencing-0.37.0-py3-none-any.whl.metadata (2.8 kB)
+2026-11-16T16:18:09.2819268Z Collecting rpds-py>=0.25.0 (from jsonschema>=4.20.0->mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:09.2905152Z   Downloading rpds_py-2026.9.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.1 kB)
+2026-11-16T16:18:09.3069249Z Collecting annotated-types>=0.6.0 (from pydantic<3.0.0,>=2.11.0->mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:09.3146070Z   Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+2026-11-16T16:18:09.7030465Z Collecting pydantic-core==2.50.4 (from pydantic<3.0.0,>=2.11.0->mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:09.7115019Z   Downloading pydantic_core-2.50.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (6.6 kB)
+2026-11-16T16:18:09.7444108Z Collecting python-dotenv>=1.2.2 (from pydantic-settings>=2.5.2->mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:09.7521991Z   Downloading python_dotenv-1.2.4-py3-none-any.whl.metadata (29 kB)
+2026-11-16T16:18:09.8922100Z Collecting cryptography>=3.4.0 (from pyjwt[crypto]>=2.10.1->mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:09.9005693Z   Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (4.4 kB)
+2026-11-16T16:18:09.9427346Z Collecting click>=7.0 (from uvicorn>=0.31.1->mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:09.9508928Z   Downloading click-8.5.1-py3-none-any.whl.metadata (2.6 kB)
+2026-11-16T16:18:10.0168278Z Collecting cffi>=2.0.0 (from cryptography>=3.4.0->pyjwt[crypto]>=2.10.1->mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:10.0251816Z   Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.5 kB)
+2026-11-16T16:18:10.0565836Z Collecting pycparser (from cffi>=2.0.0->cryptography>=3.4.0->pyjwt[crypto]>=2.10.1->mcp<2,>=1.28->ai-memory-book@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143->ai-memory-book[clients,mcp]@ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.9.0/ai_memory_book-0.9.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=cfa6b775ebc1d9f39b6c07960cc9e6cc667cfda0cdb966fc4503e08f290a5143)
+2026-11-16T16:18:10.0644883Z   Downloading pycparser-3.12-py3-none-any.whl.metadata (9.7 kB)
+2026-11-16T16:18:10.0765739Z Downloading mcp-1.30.0-py3-none-any.whl (234 kB)
+2026-11-16T16:18:10.0919969Z Downloading tomlkit-0.15.2-py3-none-any.whl (52 kB)
+2026-11-16T16:18:10.1020367Z Downloading anyio-4.16.0-py3-none-any.whl (134 kB)
+2026-11-16T16:18:10.1128828Z Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+2026-11-16T16:18:10.1223778Z Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+2026-11-16T16:18:10.1314643Z Downloading httpx_sse-0.4.3-py3-none-any.whl (9.0 kB)
+2026-11-16T16:18:10.1403498Z Downloading jsonschema-4.26.0-py3-none-any.whl (90 kB)
+2026-11-16T16:18:10.1496224Z Downloading pydantic-2.14.3-py3-none-any.whl (494 kB)
+2026-11-16T16:18:10.1672541Z Downloading pydantic_core-2.50.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (2.3 MB)
+2026-11-16T16:18:10.2281268Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 114.7 MB/s eta 0:00:00
+2026-11-16T16:18:10.2282002Z Downloading pydantic_settings-2.16.3-py3-none-any.whl (82 kB)
+2026-11-16T16:18:10.2282473Z Downloading pyjwt-2.15.1-py3-none-any.whl (33 kB)
+2026-11-16T16:18:10.2282861Z Downloading python_multipart-0.0.34-py3-none-any.whl (32 kB)
+2026-11-16T16:18:10.2283363Z Downloading sse_starlette-3.7.0-py3-none-any.whl (18 kB)
+2026-11-16T16:18:10.2325385Z Downloading starlette-1.10.0-py3-none-any.whl (80 kB)
+2026-11-16T16:18:10.2423394Z Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+2026-11-16T16:18:10.2513223Z Downloading typing_inspection-0.4.5-py3-none-any.whl (14 kB)
+2026-11-16T16:18:10.2602350Z Downloading uvicorn-0.54.0-py3-none-any.whl (87 kB)
+2026-11-16T16:18:10.2696285Z Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+2026-11-16T16:18:10.2785119Z Downloading attrs-26.1.0-py3-none-any.whl (67 kB)
+2026-11-16T16:18:10.2873952Z Downloading click-8.5.1-py3-none-any.whl (126 kB)
+2026-11-16T16:18:10.2976273Z Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl (4.8 MB)
+2026-11-16T16:18:10.3367203Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.8/4.8 MB 120.8 MB/s eta 0:00:00
+2026-11-16T16:18:10.3464316Z Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+2026-11-16T16:18:10.3563847Z Downloading idna-3.20-py3-none-any.whl (69 kB)
+2026-11-16T16:18:10.3657815Z Downloading jsonschema_specifications-2025.9.1-py3-none-any.whl (18 kB)
+2026-11-16T16:18:10.3748537Z Downloading python_dotenv-1.2.4-py3-none-any.whl (23 kB)
+2026-11-16T16:18:10.3836583Z Downloading referencing-0.37.0-py3-none-any.whl (26 kB)
+2026-11-16T16:18:10.3926638Z Downloading rpds_py-2026.9.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (371 kB)
+2026-11-16T16:18:10.4036141Z Downloading certifi-2026.10.23-py3-none-any.whl (135 kB)
+2026-11-16T16:18:10.4129321Z Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+2026-11-16T16:18:10.4243563Z Downloading pycparser-3.12-py3-none-any.whl (62 kB)
+2026-11-16T16:18:10.4799246Z Installing collected packages: typing-extensions, tomlkit, rpds-py, python-multipart, python-dotenv, pyjwt, pycparser, idna, httpx-sse, h11, click, certifi, attrs, annotated-types, ai-memory-book, uvicorn, typing-inspection, referencing, pydantic-core, httpcore, cffi, anyio, starlette, pydantic, jsonschema-specifications, httpx, cryptography, sse-starlette, pydantic-settings, jsonschema, mcp
+2026-11-16T16:18:11.7079820Z Successfully installed ai-memory-book-0.9.0 annotated-types-0.8.0 anyio-4.16.0 attrs-26.1.0 certifi-2026.10.23 cffi-2.1.1 click-8.5.1 cryptography-50.0.2 h11-0.16.0 httpcore-1.0.9 httpx-0.28.1 httpx-sse-0.4.3 idna-3.20 jsonschema-4.26.0 jsonschema-specifications-2025.9.1 mcp-1.30.0 pycparser-3.12 pydantic-2.14.3 pydantic-core-2.50.4 pydantic-settings-2.16.3 pyjwt-2.15.1 python-dotenv-1.2.4 python-multipart-0.0.34 referencing-0.37.0 rpds-py-2026.9.1 sse-starlette-3.7.0 starlette-1.10.0 tomlkit-0.15.2 typing-extensions-4.16.0 typing-inspection-0.4.5 uvicorn-0.54.0
+2026-11-16T16:18:12.9710532Z 
+2026-11-16T16:18:12.9711388Z Installed AI-Memory-Book 0.9.0
+2026-11-16T16:18:12.9712527Z Launcher: /home/runner/work/_temp/published-install-jbqtq76f/bin/memory-book
+2026-11-16T16:18:12.9713946Z Python:   /home/runner/work/_temp/published-install-jbqtq76f/install/envs/env-s8oj2j1n/bin/python
+2026-11-16T16:18:12.9714932Z Default text backend: native
+2026-11-16T16:18:12.9715257Z 
+2026-11-16T16:18:12.9715840Z Next: /home/runner/work/_temp/published-install-jbqtq76f/bin/memory-book setup --client claude-code
+2026-11-16T16:18:12.9717343Z Background capture: /home/runner/work/_temp/published-install-jbqtq76f/bin/memory-book setup --client claude-code --capture --background
+2026-11-16T16:18:12.9717930Z 
+2026-11-16T16:18:12.9718253Z Add /home/runner/work/_temp/published-install-jbqtq76f/bin to PATH to use the short memory-book command.
+2026-11-16T16:18:12.9719241Z Installation record: /home/runner/work/_temp/published-install-jbqtq76f/install/installation.json
+2026-11-16T16:18:13.4120575Z Verified public installer URL, release wheel, version and default MCP/client extras.
+2026-11-16T16:18:13.4305312Z Post job cleanup.
+2026-11-16T16:18:13.5277483Z (node:2102) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-16T16:18:13.5278223Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-16T16:18:13.5399164Z Cleaning up orphan processes

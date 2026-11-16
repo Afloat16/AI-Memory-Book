@@ -1,0 +1,135 @@
+# v0.9.0 — broader native execution
+
+The remaining Python work around segmentation, source projection, excerpt
+construction and candidate handling still contributes to ingestion and recall
+cost. This release expands the optional C backend from **seven to 22 entry
+points**, preserving the existing algorithms and public behavior.
+
+## Changes and compatibility
+
+- Move complete excerpt-window selection/scoring/rendering, candidate ordering
+  and novelty selection, context allocation, parsed/source-reference handling,
+  and turn/section/page construction into the C extension.
+- Add equivalent lexical loops and a native segmentation compatibility guard.
+  Reuse 27 immutable names/separators in per-module state while performing
+  dynamic dependency checks on every ordinary call.
+- Preserve supported helper overrides, unusual argument types, original
+  exceptions, iterator consumption, floating-point evaluation order and exact
+  Unicode code-point coordinates. Match CPython 3.14/3.15's changed unpack
+  error messages without weakening earlier assertions.
+- Keep the original Python text-joining function: the attempted C replacement
+  made its public call path slower. Keep the Python reference and portable
+  fallback for the complete implementation.
+- Retain schema 4, SQL/FTS indexes, ranking decisions, project scope, page/source
+  IDs, segmentation boundaries, budgets, transactions and cache behavior.
+  An existing schema-4 archive needs no migration.
+
+## Performance against native v0.8.1
+
+The final frozen hosted experiment uses four balanced AB/BA/BA/AB rounds,
+three passes per worker, two cohorts and both direct recall and real SDK stdio
+MCP. All **113,568 calls / 56,784 pairs** pass complete recorded output,
+archive/index, source-coordinate, scope and budget checks. Only the direct
+response's diagnostic `latency_ms` field is excluded from output equality.
+
+| Dataset | Surface, 2400 characters | v0.8.1 p95 | v0.9.0 p95 | Elapsed-time reduction |
+|---|---|---:|---:|---:|
+| synthetic61 | Direct recall | 12.231 ms | 12.008 ms | **1.82%** |
+| synthetic61 | Real SDK stdio MCP | 14.158 ms | 13.783 ms | **2.64%** |
+| public1015 | Direct recall | 4.950 ms | 4.663 ms | **5.79%** |
+| public1015 | Real SDK stdio MCP | 6.714 ms | 6.479 ms | **3.51%** |
+
+All eight pooled query cells (two cohorts × four configurations) improve at both p50 and p95.
+The separate 1024-token p95 reductions are **8.03% / 8.23%** for synthetic
+direct/MCP and **4.80% / 1.12%** for public direct/MCP. Default-budget p95
+improves in 15/16 paired rounds; all-query p95 improves in 30/32.
+
+There are retained regressions: synthetic direct-character p95 is **0.89%
+slower in round 2**; public token-budget MCP is **0.78% / 3.18% slower at
+p50/p95 in round 1**. No observation is removed or replaced.
+
+Across all four paired batches, fresh ingestion takes **9.28% / 10.39%**
+less time and unchanged reingestion **2.97% / 3.94%** less time for
+synthetic/public data. All 16 batch pairs improve.
+
+API import adds **2.04–2.20 ms**, ending worker RSS increases approximately
+**0.02–0.23 MiB**, and public character-budget MCP initialization adds
+**7.35 ms**; other startup observations are mixed. The measured host extension
+grows by **519,480 bytes**, with identical checkpointed database sizes.
+The [full report](../native-core-validation.md) retains all eight query cells,
+32 rounds, all ingestion batches, 38 resource cells and original snapshots.
+
+This is one Ubuntu 24.04 / AMD EPYC 7763 / CPython 3.12.16 experiment.
+No model generation or result-cache hits are included; SQLite/OS caches
+are not cleared. These existing regression cohorts establish measured
+compatibility/performance, not new retrieval quality, universal optimality
+or every-platform gains. Earlier different-host results are not added.
+
+## Validation and retained history
+
+- [Final formal run 43886529702](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43886529702)
+  compares released `56eccd8c` with candidate `4390d013`, using frozen
+  evaluator/auditor `cfdb3ca2`.
+- [Immutable Git evidence `51e8d022`](https://github.com/Afloat16/AI-Memory-Book/tree/51e8d022c164ba714f68db562c9ae280a62c2312)
+  retains original reports, ledgers and source/build files. Independent
+  auditing verifies 151 manifest files, 227,136 ledger events, all pairs and
+  the exact summary without application execution or remeasurement.
+- The final native suite has 144 tests, with 142 passing and two explicit
+  optional-tokenizer skips on the Python 3.12 exact-source/sanitizer runs.
+  ASAN/UBSAN reports no diagnostics. Module-state lifecycle and supported
+  shared-GIL subinterpreters are covered.
+- All 26 frozen evaluator/preservation tests pass. General CI permanently
+  requires **11 jobs**, including Python 3.14/3.15 alongside 3.10/3.12/3.13.
+  The final-runtime MCP CI runs 1,415 tests with 16 reported skips.
+- The first broad candidate was rejected for 19–21% unchanged-reingestion
+  regression. A later candidate's favorable performance did not override
+  its CPython 3.14/3.15 packaging compatibility failure. Both complete earlier
+  experiments and the slower attempted C join remain in the
+  [development history](../native-core-development.md).
+- The [explicit acceptance](../../benchmarks/experiments/native_core_acceptance.json)
+  binds the exact runtime hash and retains all costs and final publication gates.
+
+## Packaging and upgrade
+
+The independent [prepublication preparation](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43897981051)
+passes all **30 combinations** of CPython 3.10–3.15 and Linux x86-64/ARM64,
+macOS Intel/ARM64 and Windows AMD64. Five platform jobs each execute six
+separate setup/build/install/test cells; each cell's actual log records the
+144-test native suite with two or three explicit optional-environment skips.
+The complete **67 assets**, all source/build receipts, wheel RECORDs,
+extension hashes, manifest and checksums were audited. Clean fallback/source
+installation and both default native/fallback installers with MCP/client
+dependencies passed. [Saved evidence](../../benchmarks/reports/native-core-compatibility/packaging-43897981051/)
+retains the actual per-cell logs and results.
+
+Publication requires fresh exact-final-commit CI and a fresh full native
+matrix; preparation receipts are not reused. Three earlier incomplete
+macOS ARM queue/cancellation attempts remain documented separately.
+
+Use the pinned v0.9.0 installer in the [deployment guide](../deployment.md).
+It selects a compatible native wheel in an isolated environment and verifies
+the wheel and loaded extension hashes. Other environments retain the
+compiler-free Python fallback; free-threaded CPython uses that fallback.
+
+Check the interpreter printed by the installer:
+
+~~~bash
+python -I -c "import memory_book; from memory_book._text_backend import BACKEND_NAME; print(memory_book.__version__, BACKEND_NAME)"
+~~~
+
+A compatible native installation prints `0.9.0 native`.
+`MEMORY_BOOK_TEXT_BACKEND=python` selects the reference; `native` requires
+the extension; `auto` selects the available backend. Source builds use
+`MEMORY_BOOK_BUILD_NATIVE=1` to require compilation, or `0` for the fallback.
+
+Keep existing archive/configuration paths, update client and background-service
+launchers, and restart those processes. Earlier schemas follow the existing
+backup/schema-4 migration procedure. Defaults remain 2400 characters and five
+results, with optional exact token limits. The MIT license is unchanged.
+
+
+Source commit: `238c8058f723a203eaca99f94d924ab77de4c0b3`.
+
+CI: https://github.com/Afloat16/AI-Memory-Book/actions/runs/43902664791
+
+Release workflow: https://github.com/Afloat16/AI-Memory-Book/actions/runs/43902665015
