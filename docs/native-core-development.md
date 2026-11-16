@@ -9,10 +9,13 @@ immutable experiments.
 All five new implementation families are integrated. The first frozen broad
 candidate, `0be1f09502aff1d4ddc0a9e644be7a62be6a944f`, completed its
 formal experiment and independent audit but was not accepted: unchanged
-reingestion became slower in all four rounds of both cohorts. The current
-refinement at `cff1d9a3c183bf3c84183476f0485926f55abe56` has passed
-correctness checks, but its local reingestion diagnostic also retains a
-regression. v0.9.0 remains a development candidate; this document does not
+reingestion became slower in all four rounds of both cohorts. The guard-only
+refinement at `cff1d9a3c183bf3c84183476f0485926f55abe56` also retained a
+local reingestion regression. Further constant reuse and selection of the
+faster original Python joining path produced the final 22-entry scope. The
+cross-version-compatible candidate is now
+`4390d013986ab9c96b49cc6964f075f3866f21ee`; its exact-source formal
+experiment and delivery gates remain in progress. This document does not
 approve or announce a release.
 
 The [development plan](../benchmarks/experiments/native_core_plan.json) defines
@@ -27,7 +30,9 @@ included and registered by
 [`_native.c`](../src/memory_book/_native.c). The five headers initially added 15
 entry points to the seven already present in v0.8.1. A live segmentation
 readiness check was subsequently translated to C, making 23 entry points at
-`cff1d9a3`.
+`cff1d9a3`. The final scope removes the unhelpful, unreleased
+`joined_turns` entry and retains `segmentation_ready`, for 22 entries: seven
+from the released baseline and fifteen new entries.
 
 | Implementation unit | New entry points | Responsibility |
 | --- | --- | --- |
@@ -35,7 +40,7 @@ readiness check was subsequently translated to C, making 23 entry points at
 | [`_native_excerpt.h`](../src/memory_book/_native_excerpt.h) | `excerpt_window` | Complete candidate-window construction, source-unit coverage, sliding counts, score comparison and original-text rendering. |
 | [`_native_rank.h`](../src/memory_book/_native_rank.h) | `rank_candidates`, `select_novelty`, `context_allocations`, `refs_from_parsed` | Batch scoring and stable ordering, the existing bounded novelty-selection loop, cited character-budget allocation and source-reference clipping. |
 | [`_native_source.h`](../src/memory_book/_native_source.h) | `source_units`, `projected_units`, `source_map_matches` | Original-turn evidence units, their projection onto pages and source-map validation used by exact-token packing. Tokenizer behavior and final budget checks remain unchanged. |
-| [`_native_segmentation.h`](../src/memory_book/_native_segmentation.h) | `make_turns`, `joined_turns`, `page_cuts`, `build_pages`, `segment_turns`, `segmentation_ready` | Conversation grouping, joined source references, paragraph/newline cuts, continuation pages, sections and live dependency/class checks without a result cache. |
+| [`_native_segmentation.h`](../src/memory_book/_native_segmentation.h) | `make_turns`, `page_cuts`, `build_pages`, `segment_turns`, `segmentation_ready` | Conversation grouping, paragraph/newline cuts, continuation pages, sections and live dependency/class checks without a result cache. Joining remains the original Python implementation. |
 
 The existing seven entry points remain `terms_ascii`, `ascii_tokens`,
 `unicode_tokens`, `identifier_aliases`, `literal_positions`,
@@ -196,29 +201,115 @@ visible and these are development diagnostics, not hosted release results.
 Moving the guard alone is insufficient; the remaining segmentation
 allocation/call costs are being profiled before another formal experiment.
 
-## Remaining acceptance work
+## Constant reuse and measured path selection
 
-The independently named
-[protocol 4 plan](../benchmarks/experiments/native_core_refinement_formal_plan.json)
-remains **UNFROZEN**. Its candidate source and 23 helper total/effective/fallback
-counts must be frozen after the next measured refinement. It retains the
-first rejected attempt as prior evidence and uses the same complete matrix,
-with stronger offline ingestion schema checks. There has been no formal
-protocol 4 run and no selective replacement of protocol 3 results.
+The readiness-only refinement exposed another execution cost: repeated C API
+construction of attribute names and dictionary keys. The implementation now
+keeps 27 immutable names/separators in each extension module's own state.
+Multiphase initialization, traversal, clearing and freeing manage those
+references. Actual attributes, dictionaries, globals, class states and
+helper identities are still read live at the original positions; no business
+result or readiness decision is cached.
 
-After correctness and a useful measured direction are established, a new
-formal run must compare the released native v0.8.1 baseline with the exact
-refined runtime. Full output/source/index equality and all resource costs
-remain gates. Diagnostic probes are removed before timed calls.
+The complete fixed-shape diagnostic showed that the public C joining wrapper
+remained slower than the original Python `_joined` in all three tested
+shapes, even after name reuse. The selected candidate removes that unreleased
+C entry and its wrapper. An independent review verifies that `_joined`'s
+AST equals released v0.8.1. The C page builder's body is unchanged: it still
+checks the current `_joined` identity and calls the current global function
+at the original point. This is the
+[recorded path selection](../benchmarks/reports/native-core-refinement/development/joined-path-selection.json)
+and [independent review](../benchmarks/reports/native-core-refinement/development/joined-selection-independent-review.json).
 
-The original candidate's wheel preparation completed 29 native cells; its
-remaining macOS arm64 Python 3.12 job was cancelled after staying queued.
-The downstream artifact-preparation and installation jobs did not run, and
-that attempt is not a complete packaging receipt. The accepted refined
-candidate will require a fresh complete 30-wheel preparation matrix,
-installed-package checks and a fresh final release build. The exact approved
-runtime must then be published and tested through the real installer.
+### Complete refinement experiment
 
-The prior v0.8.1 release remains the completed baseline. No accepted v0.9.0
-latency, throughput or resource improvement is claimed while these gates
-remain open.
+[Run 43883672930](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43883672930),
+frozen at evaluator `0267f6cce5189e42ce9432e228366372e121cf38`,
+compared exact candidate `e91183bf` with released v0.8.1. All 113,568 calls /
+56,784 pairs are equivalent, and an
+[independent raw-artifact audit](../benchmarks/reports/native-core-refinement/formal-run-1/audit-receipt.json)
+reproduces the recorded statistics and frozen summary.
+
+All eight pooled query p50/p95 cells improved. The default character-budget
+p95 reductions were 3.5916% / 4.2348% for synthetic direct/MCP and
+7.9025% / 8.5187% for public direct/MCP. Unchanged reingestion totals improved
+3.3207% and 4.9371%, with all four rounds improving in each cohort. Fresh
+ingestion totals improved 5.3559% and 1.9868%.
+
+These pooled values retain uneven rounds: public direct-character p95
+regressed 1.2009% in round two and improved 36.7286% in round three;
+public fresh ingestion regressed 4.4361% and 1.7030% in rounds one and four.
+The [full metrics extract](../benchmarks/reports/native-core-refinement/formal-run-1/metrics-extract.md)
+retains all eight cells, all individual rounds and every startup, CPU, memory,
+binary and storage cost. This experiment used an AMD EPYC 9V45 host, distinct
+from the first broad experiment's EPYC 9V74; their absolute times and
+percentages are not a continuous before/after series.
+
+### Cross-version compatibility finding
+
+The e911 wheel matrix then found a strict exception difference on CPython
+3.14 and 3.15. Their exact tuple/list/dict unpack failures report the actual
+container size; the new C readiness guard still emitted the older wording.
+This candidate was therefore
+[not accepted for release](../benchmarks/reports/native-core-refinement/formal-run-1/decision.json),
+even though its measured query and ingestion results improved.
+
+Candidate `4390d013986ab9c96b49cc6964f075f3866f21ee` matches those
+version-specific messages. Other iterators and subclasses retain the same
+bounded `N + 1` consumption and original error behavior. Only error
+formatting changes; normal source grouping, callbacks, guards, ranking,
+coordinates, budgets, SQL and caches remain unchanged. The
+[official-source review](../benchmarks/reports/native-core-compatibility/development/unpack-message-independent-review.json)
+and [implementation receipt](../benchmarks/reports/native-core-compatibility/development/native-core-unpack-compatibility-fix.json)
+record the CPython sources and added strict differential cases.
+
+Core CI now includes Python 3.14 and 3.15 as well as 3.10, 3.12 and 3.13.
+Publication requires exactly the full eleven-job set, including every
+installer, MCP, browser and container job; the old nine-job-only set is
+insufficient.
+
+## Final candidate verification
+
+The selected runtime is exactly `4390d013`, with release runtime SHA256
+`6ec51c906de94c97f90ec9be3dc50d066c9abedcff283c1e118ef6d6847eb3b7`.
+
+| Gate | Observed evidence |
+| --- | --- |
+| Exact-source CI | [Run 43885311822](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885311822), all eleven jobs successful. Python 3.14 and 3.15 each discovered 1,415 tests with 144 optional skips; MCP discovered 1,415 with 16 skips. |
+| Ordinary native suites | 144 tests: 142 passed, two optional tiktoken tests skipped locally; no compiler warning. |
+| ASAN/UBSAN | The same 144 tests passed with the same two optional skips, no sanitizer diagnostic, and unchanged source/test bytes. All three module-lifecycle tests actually ran, including shared-GIL subinterpreters. |
+| Effective dispatch | The released baseline's seven helpers and the candidate's 22 helpers all produced effective native results in the identical common fixture. No helper returned `NotImplemented`; readiness executed 36 times. Ordinary and singly wrapped outputs all match. |
+| Protocol validation | 26 tests passed without skips, including a real stdio MCP fixture; 14 timing/statistics/probe AST contracts equal the preceding frozen evaluator. |
+
+The [CI receipt](../benchmarks/reports/native-core-compatibility/development/native-core-4390d013-ci.json),
+[ordinary native receipt](../benchmarks/reports/native-core-compatibility/development/native-core-4390d013-144tests.json),
+[sanitizer receipt](../benchmarks/reports/native-core-compatibility/development/native-core-4390d013-asan-ubsan.json)
+and [complete probe archive review](../benchmarks/reports/native-core-compatibility/development/probe-4390d013-review.json)
+retain the exact identities and qualifications. One local optimized-build
+configuration produced identical Python 3.12 binaries across the version-gated
+error fix; separate builds containing path/debug information have different
+complete binary hashes. Neither observation substitutes for the final
+exact-source hosted experiment.
+
+## Final formal experiment and delivery
+
+The new [protocol 5 plan](../benchmarks/experiments/native_core_compatibility_formal_plan.json)
+is frozen at `cfdb3ca2c8ff2d71792e820923057d6613ea08b7`.
+[Run 43886529702](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43886529702)
+compares exact 4390 with released native v0.8.1 using the complete unchanged
+113,568-call / 56,784-pair matrix. It explicitly binds both earlier
+experiments. The independent auditor was
+[registered before results](../benchmarks/reports/native-core-compatibility/development/artifact-auditor-preregistration.json)
+and independently reviewed. There are no selective reruns or replaced
+observations.
+
+The final 30-wheel preparation
+[run 43885419074](https://github.com/Afloat16/AI-Memory-Book/actions/runs/43885419074)
+must complete all supported CPython/platform cells and the full asset and
+installation checks. Publication then needs a fresh build at the exact
+approved main commit and a real published-installer check. Earlier
+development, failed platform and preparation builds are retained with their
+own identities; they are not final-publication receipts.
+
+At this checkpoint, final protocol 5 performance acceptance and the remaining
+delivery gates are pending. v0.8.1 remains the published baseline.
