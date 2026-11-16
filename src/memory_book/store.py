@@ -1124,26 +1124,35 @@ class MemoryBook:
           FROM chapters c WHERE project_id=? ORDER BY title,id LIMIT ? OFFSET ?""", (project, limit, offset)).fetchall()
         return {"project": dict(row), "chapters": [dict(c) for c in chapters], "total": total, "next_offset": offset + limit if offset + limit < total else None, "revision": self.revision}
 
-    def chapter(self, chapter_id: str, *, offset: int = 0, limit: int = 50, page_limit: int = 20) -> dict:
+    def chapter(self, chapter_id: str, *, project: str | None = None, offset: int = 0, limit: int = 50, page_limit: int = 20) -> dict:
+        """Read a task directory, optionally requiring its exact project ID."""
         _integer(offset, "offset", 0, 10_000_000)
         _integer(limit, "limit", 1, 100)
         _integer(page_limit, "page_limit", 1, 100)
-        row = self.db.execute("SELECT * FROM chapters WHERE id=?", (chapter_id,)).fetchone()
+        if project is not None:
+            _string(project, "project")
+        scope = " AND project_id=?" if project is not None else ""
+        parameters = (chapter_id, project) if project is not None else (chapter_id,)
+        row = self.db.execute("SELECT * FROM chapters WHERE id=?" + scope, parameters).fetchone()
         if row is None:
             raise KeyError(f"chapter not found: {chapter_id}")
         total = self.db.execute("SELECT COUNT(*) FROM sections WHERE chapter_id=?", (chapter_id,)).fetchone()[0]
         rows = self.db.execute("SELECT sec.*,s.external_id session_id,s.title session_title,s.created_at FROM sections sec JOIN sessions s ON s.id=sec.session_pk WHERE sec.chapter_id=? ORDER BY s.created_at,s.id,sec.ordinal LIMIT ? OFFSET ?", (chapter_id, limit, offset)).fetchall()
         sections = []
         for sec in rows:
-            preview = self.section(sec["id"], limit=page_limit)
+            preview = self.section(sec["id"], project=project, limit=page_limit)
             sections.append({**dict(sec), "pages": preview["pages"], "pages_total": preview["total"], "pages_next_offset": preview["next_offset"]})
         return {**dict(row), "sections": sections, "total": total, "next_offset": offset + limit if offset + limit < total else None}
 
-    def section(self, section_id: str, *, offset: int = 0, limit: int = 50) -> dict:
-        """Bound the page directory even for a single very long response."""
+    def section(self, section_id: str, *, project: str | None = None, offset: int = 0, limit: int = 50) -> dict:
+        """Bound the page directory, optionally requiring its exact project ID."""
         _integer(offset, "offset", 0, 10_000_000)
         _integer(limit, "limit", 1, 100)
-        row = self.db.execute("SELECT sec.*,s.external_id session_id,s.title session_title FROM sections sec JOIN sessions s ON s.id=sec.session_pk WHERE sec.id=?", (section_id,)).fetchone()
+        if project is not None:
+            _string(project, "project")
+        scope = " AND s.project_id=?" if project is not None else ""
+        parameters = (section_id, project) if project is not None else (section_id,)
+        row = self.db.execute("SELECT sec.*,s.external_id session_id,s.title session_title FROM sections sec JOIN sessions s ON s.id=sec.session_pk WHERE sec.id=?" + scope, parameters).fetchone()
         if row is None:
             raise KeyError(f"section not found: {section_id}")
         total = self.db.execute("SELECT COUNT(*) FROM pages WHERE section_id=?", (section_id,)).fetchone()[0]
@@ -1163,12 +1172,17 @@ class MemoryBook:
                     result.append({**ref, "start": start, "end": end, "turn_start": ref["turn_start"] + start - ref["start"], "turn_end": ref["turn_start"] + end - ref["start"]})
         return result
 
-    def read(self, page_id: str, *, offset: int = 0, limit: int = 12_000) -> dict:
+    def read(self, page_id: str, *, project: str | None = None, offset: int = 0, limit: int = 12_000) -> dict:
+        """Read original evidence, optionally requiring its exact project ID."""
         _integer(offset, "offset", 0, MAX_SESSION_CHARS * 2)
         _integer(limit, "limit", 1, 100_000)
+        if project is not None:
+            _string(project, "project")
+        scope = " AND p.project_id=?" if project is not None else ""
+        parameters = (page_id, project) if project is not None else (page_id,)
         row = self.db.execute("""SELECT p.*,pr.name project_name,c.title chapter_title,sec.title section_title,s.external_id session_id,s.created_at
           FROM pages p JOIN projects pr ON pr.id=p.project_id JOIN chapters c ON c.id=p.chapter_id
-          JOIN sections sec ON sec.id=p.section_id JOIN sessions s ON s.id=p.session_pk WHERE p.id=?""", (page_id,)).fetchone()
+          JOIN sections sec ON sec.id=p.section_id JOIN sessions s ON s.id=p.session_pk WHERE p.id=?""" + scope, parameters).fetchone()
         if row is None:
             raise KeyError(f"page not found or changed: {page_id}")
         total, end = len(row["content"]), min(offset + limit, len(row["content"]))
