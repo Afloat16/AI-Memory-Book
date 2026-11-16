@@ -357,7 +357,7 @@ calls = []
 def wrapped(*args, **kwargs):
     calls.append(name)
     result = ordinary(*args, **kwargs)
-    return result + 10 if name == "__missing__" else result
+    return (result + 10 if name == "__missing__" else False if name == "__contains__" else result)
 setattr(collections.Counter, name, wrapped)
 from memory_book import text
 assert not text._NATIVE_WINDOW_CERTIFIED
@@ -374,7 +374,7 @@ print(json.dumps([actual, expected, first, calls]))
 '''
         environment = dict(os.environ, MEMORY_BOOK_TEXT_BACKEND="native", PYTHONDONTWRITEBYTECODE="1",
                            PYTHONPATH=str(Path(lexical.__file__).resolve().parents[1]))
-        for dependency in ("__init__", "update", "__missing__", "__delitem__"):
+        for dependency in ("__init__", "update", "__missing__", "__delitem__", "__contains__", "__getattribute__"):
             process = subprocess.run([sys.executable, "-c", script, dependency], cwd=ROOT,
                                      env=environment, capture_output=True, text=True, timeout=30)
             self.assertEqual(process.returncode, 0, process.stderr)
@@ -382,6 +382,26 @@ print(json.dumps([actual, expected, first, calls]))
             self.assertEqual(actual, expected)
             self.assertEqual(first, second)
             self.assertTrue(first)
+
+
+
+    def test_counter_contains_and_attribute_overrides_remain_observable(self):
+        value = "alpha alpha chosen. " + "unrelated filler text. " * 5 + "beta late."
+        ordinary_attribute = Counter.__getattribute__
+
+        def attribute(instance, name):
+            if name == "values":
+                raise RuntimeError("custom Counter values")
+            return ordinary_attribute(instance, name)
+
+        for name, replacement in (("__contains__", lambda instance, key: False),
+                                  ("__getattribute__", attribute)):
+            with patch.object(Counter, name, replacement), \
+                    patch.object(NATIVE, "excerpt_window", side_effect=AssertionError("must fall back")):
+                result = self.compare_paths(lambda: lexical.excerpt(
+                    value, "", 30, prepared_terms=["alpha", "beta"]))
+                if name == "__getattribute__":
+                    self.assertEqual(result, ("error", RuntimeError, ("custom Counter values",)))
 
 
 
