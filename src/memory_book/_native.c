@@ -936,20 +936,25 @@ static PyMethodDef native_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
+static PyModuleDef_Slot native_slots[] = {
+    {Py_mod_exec, segmentation_module_exec},
+    {0, NULL}
+};
+
 static struct PyModuleDef native_module = {
     PyModuleDef_HEAD_INIT,
     "_native",
     "Optional, source-equivalent native lexical loops for AI-Memory-Book.",
-    0,
+    sizeof(SegmentationModuleState),
     native_methods,
-    NULL,
-    NULL,
-    NULL,
-    NULL
+    native_slots,
+    segmentation_module_traverse,
+    segmentation_module_clear,
+    segmentation_module_free
 };
 
 PyMODINIT_FUNC
 PyInit__native(void)
 {
-    return PyModule_Create(&native_module);
+    return PyModuleDef_Init(&native_module);
 }
