@@ -1,0 +1,48 @@
+name: Preserve frozen native language evidence
+
+on:
+  push:
+    branches: ['validation/native-language-evidence-1']
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: native-language-evidence-43822446202
+  cancel-in-progress: false
+
+jobs:
+  preserve:
+    if: github.repository == 'Afloat16/AI-Memory-Book'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/preserve_native_language_evidence.py
+            /.github/workflows/native-language-evidence.yml
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+      - name: Preserve and audit the exact original artifact without remeasurement
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python -u scripts/preserve_native_language_evidence.py
+      - name: Retain the preservation checkpoint and audit
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-language-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .artifacts/native-language-evidence/checkpoint.json
+            .artifacts/native-language-evidence/evidence/evidence-manifest.json
+            .artifacts/native-language-evidence/evidence/audit.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 90

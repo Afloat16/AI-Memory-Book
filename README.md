@@ -135,6 +135,59 @@ The v0.6.0 diagnostic records **37 passed calls and 77 unsupported assertions**,
 
 The corrected final runtime also replays the unchanged **80 native engineering questions at 1200 and 2400 characters, once per setting**, against the retained, previously executed v0.6.0 baseline. All **160/160 Book responses** and **640/640 responses across the four repository strategies** match after excluding only top-level latency/cache diagnostics. An independent auditor passes **16,861 checks**. This is regression evidence, with no new speed claim or external-component run. [Raw replay and audit](benchmarks/reports/v0.7.0-project-scope/final/native-replay-audit.json).
 
+## Language-only acceleration
+
+The v0.8.0 candidate replaces five measured text-processing loops with an optional
+CPython C extension. Python keeps the public interfaces and retrieval decisions;
+SQLite keeps the same schema, SQL and FTS5 index. The Python reference remains
+available. Source coordinates, page IDs, ranking, project scope, budgets and
+cache rules retain the v0.7.0 behavior.
+
+The frozen experiment compares the Python reference with the C backend on the
+same hosted runner, using four balanced A/B rounds and three passes per worker.
+All **113,568 calls / 56,784 pairs** pass the recorded full-output, archive and
+source-coordinate checks. The retained raw records independently reproduce the
+original summary exactly. These are existing regression datasets, with no new
+retrieval-quality or model-answer claim.
+
+| Dataset | Surface, 2400-character budget | Python p50 → C p50 | Python p95 → C p95 | p95 latency reduction |
+|---|---|---:|---:|---:|
+| synthetic61 | Direct `MemoryBook.recall` | 2.775 → 2.416 ms | 7.455 → 6.751 ms | **9.44%** |
+| synthetic61 | Real SDK stdio MCP | 3.835 → 3.518 ms | 8.682 → 7.974 ms | **8.15%** |
+| public1015 | Direct `MemoryBook.recall` | 2.239 → 2.177 ms | 2.886 → 2.826 ms | **2.07%** |
+| public1015 | Real SDK stdio MCP | 3.316 → 3.248 ms | 4.009 → 3.934 ms | **1.85%** |
+
+Every primary cell improves in all four paired rounds. At the separately tested
+1024-token cap, p95 reductions are **15.60% / 13.53%** for synthetic direct/MCP
+and **3.82% / 2.85%** for public direct/MCP. Fresh-ingestion worker medians fall
+by **15.28% / 15.96%** and unchanged-reingestion medians by **21.98% / 31.69%**
+for synthetic/public data. These resource medians use only four workers per
+implementation and cohort. API import adds about **0.57–0.77 ms**, MCP startup
+has no consistent benefit, and memory use is essentially unchanged or slightly
+higher. Checkpointed database sizes are identical.
+
+Timing excludes model generation. There are no query-result cache hits;
+SQLite/OS caches are not cleared. This measures one Ubuntu/CPython 3.12 host,
+not every platform or archive size. The public-data benefit is small. The older
+v0.6.0 engineering comparison below remains a separate frozen experiment.
+[Complete matrix, resource costs and reproducible audit](docs/native-language-validation.md).
+
+Native packaging is undergoing the same 30-cell platform matrix used for
+release: CPython 3.10–3.15 on Linux x86-64/AArch64, macOS Intel/Apple Silicon and
+Windows x64. A compatible release installer selects and verifies a native wheel;
+other environments use the compiler-free Python fallback. To check an installed
+backend, use the **Python interpreter printed by the installer**:
+
+~~~bash
+python -c "from memory_book._text_backend import BACKEND_NAME; print(BACKEND_NAME)"
+~~~
+
+`native` confirms the extension loaded. `MEMORY_BOOK_TEXT_BACKEND=python` selects
+the reference; `native` requires the extension and fails if unavailable; `auto`
+is the default. Source builds use `MEMORY_BOOK_BUILD_NATIVE=1` to require a C
+compiler or `0` for the portable fallback. These selectors do not change the
+retrieval rules. [Build and delivery details](docs/native-language-validation.md#installation-and-backend-selection).
+
 ## 2400-character results
 
 The external comparison below retains the **frozen v0.6.0 experiment**. The v0.7.0 scope diagnostic above is a separate measurement; no newly reviewed project receives a numerical score.
