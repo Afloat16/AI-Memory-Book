@@ -11,6 +11,7 @@ import random
 import subprocess
 import sys
 import unittest
+from types import FunctionType
 from unittest.mock import patch
 
 from memory_book import segmentation as segmentation
@@ -334,6 +335,185 @@ print(json.dumps([actual, expected]))
         self.assertEqual(process.returncode, 0, process.stderr)
         actual, expected = json.loads(process.stdout)
         self.assertEqual(actual, expected)
+
+# This is the unchanged readiness body frozen at 0be1f095; execute its code
+# against the live module namespace so patched classes/tables are observed.
+_READY_REFERENCE_SOURCE = "def _native_segmentation_ready(name: str) -> bool:\n    if _NATIVE is None or not _NATIVE_SEGMENTATION_CERTIFIED:\n        return False\n    classes, functions = _NATIVE_SEGMENTATION_DEPENDENCIES[name]\n    for function in functions:\n        if _NATIVE_SEGMENTATION_GLOBALS.get(function) is not _NATIVE_SEGMENTATION_DEFAULTS[function]:\n            return False\n    for name in classes:\n        cls, new, init, getattribute, fields = _NATIVE_SEGMENTATION_CLASS_STATES[name]\n        if (_NATIVE_SEGMENTATION_GLOBALS.get(name) is not cls\n                or cls.__new__ is not new or cls.__init__ is not init or cls.__getattribute__ is not getattribute\n                or any(cls.__dict__.get(field) is not value for field, value in fields)):\n            return False\n    return True\n"
+_ready_namespace = {}
+exec(_READY_REFERENCE_SOURCE, _ready_namespace)
+_REFERENCE_READY = FunctionType(_ready_namespace["_native_segmentation_ready"].__code__, segmentation.__dict__)
+
+
+@unittest.skipUnless(NATIVE is not None, "Native extension is not installed")
+class NativeSegmentationReadinessTests(unittest.TestCase):
+    def call_native(self, name):
+        return NATIVE.segmentation_ready(
+            name, segmentation._NATIVE_SEGMENTATION_GLOBALS,
+            segmentation._NATIVE_SEGMENTATION_DEFAULTS,
+            segmentation._NATIVE_SEGMENTATION_CLASS_STATES,
+            segmentation._NATIVE_SEGMENTATION_DEPENDENCIES,
+        )
+
+    def test_public_guard_really_calls_native_and_matches_frozen_guard(self):
+        names = tuple(segmentation._NATIVE_SEGMENTATION_DEPENDENCIES)
+        with patch.object(NATIVE, "segmentation_ready", wraps=NATIVE.segmentation_ready) as observed:
+            for name in names:
+                self.assertIs(_REFERENCE_READY(name), True)
+                self.assertIs(segmentation._native_segmentation_ready(name), True)
+        self.assertEqual(observed.call_count, len(names))
+        for name in names:
+            self.assertIs(self.call_native(name), _REFERENCE_READY(name))
+
+    def test_each_dependency_scope_and_each_class_field_is_checked_afresh(self):
+        names = tuple(segmentation._NATIVE_SEGMENTATION_DEPENDENCIES)
+        for dependency in ("Turn", "Page", "Section", "headline", "similarity", "is_followup",
+                           "_joined", "_cuts", "_pages"):
+            with self.subTest(dependency=dependency), patch.object(segmentation, dependency, object()):
+                for name in names:
+                    classes, functions = segmentation._NATIVE_SEGMENTATION_DEPENDENCIES[name]
+                    expected = dependency not in classes + functions
+                    self.assertIs(_REFERENCE_READY(name), expected)
+                    self.assertIs(self.call_native(name), expected)
+            for name in names:
+                self.assertIs(self.call_native(name), True)
+        for class_name, fields in segmentation._NATIVE_SEGMENTATION_FIELDS.items():
+            cls = getattr(segmentation, class_name)
+            for field in fields:
+                with self.subTest(class_name=class_name, field=field), patch.object(cls, field, object(), create=True):
+                    for name in names:
+                        expected = class_name not in segmentation._NATIVE_SEGMENTATION_DEPENDENCIES[name][0]
+                        self.assertIs(_REFERENCE_READY(name), expected)
+                        self.assertIs(self.call_native(name), expected)
+                for name in names:
+                    self.assertIs(self.call_native(name), True)
+
+    def fresh_guard_class(self, class_name):
+        # Changing an inherited __new__ can leave CPython's tp_new slot changed
+        # after delattr.  Exercise the guard on a disposable class, never the
+        # production Turn/Page/Section used by subsequent compatibility tests.
+        cls = type("Guard" + class_name, (), {})
+        fields = segmentation._NATIVE_SEGMENTATION_FIELDS[class_name]
+        state = (cls, cls.__new__, cls.__init__, cls.__getattribute__,
+                 tuple((field, cls.__dict__.get(field)) for field in fields))
+        states = dict(segmentation._NATIVE_SEGMENTATION_CLASS_STATES)
+        states[class_name] = state
+        return cls, state, states
+
+    def test_class_methods_keep_scoped_identity_checks(self):
+        names = tuple(segmentation._NATIVE_SEGMENTATION_DEPENDENCIES)
+        for class_name in ("Turn", "Page", "Section"):
+            for method in ("__new__", "__init__", "__getattribute__"):
+                cls, _, states = self.fresh_guard_class(class_name)
+
+                def replacement(*args, **kwargs):
+                    raise AssertionError("identity checks must not invoke replacement")
+
+                with patch.object(segmentation, class_name, cls), \
+                     patch.object(segmentation, "_NATIVE_SEGMENTATION_CLASS_STATES", states):
+                    with self.subTest(class_name=class_name, method=method), patch.object(cls, method, replacement):
+                        for name in names:
+                            expected = class_name not in segmentation._NATIVE_SEGMENTATION_DEPENDENCIES[name][0]
+                            self.assertIs(_REFERENCE_READY(name), expected)
+                            self.assertIs(self.call_native(name), expected)
+                    for name in names:
+                        self.assertIs(self.call_native(name), True)
+
+    def test_function_failure_short_circuits_before_invalid_class_state(self):
+        states = dict(segmentation._NATIVE_SEGMENTATION_CLASS_STATES, Turn=None)
+        with patch.object(segmentation, "_NATIVE_SEGMENTATION_CLASS_STATES", states):
+            with patch.object(segmentation, "headline", object()):
+                self.assertIs(_REFERENCE_READY("build_pages"), False)
+                self.assertIs(self.call_native("build_pages"), False)
+            self.assertEqual(outcome(lambda: _REFERENCE_READY("build_pages")),
+                             outcome(lambda: self.call_native("build_pages")))
+
+    def test_class_descriptors_keep_read_order_mutations_and_errors(self):
+        for behavior in ("same", "field-change", "raise"):
+            observations = []
+            for operation in (_REFERENCE_READY, self.call_native):
+                cls, captured, states = self.fresh_guard_class("Turn")
+                events = []
+
+                class Descriptor:
+                    def __init__(self, label, value):
+                        self.label, self.value = label, value
+
+                    def __get__(self, instance, owner):
+                        events.append(self.label)
+                        if behavior == "field-change" and self.label == "new":
+                            owner.content = "changed during descriptor"
+                        if behavior == "raise" and self.label == "init":
+                            raise RuntimeError("init certificate lookup")
+                        return self.value
+
+                with patch.object(segmentation, "Turn", cls), \
+                     patch.object(segmentation, "_NATIVE_SEGMENTATION_CLASS_STATES", states), \
+                     patch.object(cls, "content", None, create=True), \
+                     patch.object(cls, "__new__", Descriptor("new", captured[1])), \
+                     patch.object(cls, "__init__", Descriptor("init", captured[2])), \
+                     patch.object(cls, "__getattribute__", Descriptor("getattribute", captured[3])):
+                    events.clear()
+                    actual = outcome(lambda: operation("joined_turns"))
+                    observations.append((actual, list(events)))
+            self.assertEqual(observations[0], observations[1], behavior)
+            expected_events = ["new", "init"] if behavior == "raise" else ["new", "init", "getattribute"]
+            self.assertEqual(observations[0][1], expected_events)
+
+    def test_nonexact_guard_tables_fall_back_before_observable_access(self):
+        for table_name in ("_NATIVE_SEGMENTATION_GLOBALS", "_NATIVE_SEGMENTATION_DEFAULTS",
+                           "_NATIVE_SEGMENTATION_CLASS_STATES", "_NATIVE_SEGMENTATION_DEPENDENCIES"):
+            observations = []
+            ordinary = getattr(segmentation, table_name)
+            for operation in (_REFERENCE_READY, segmentation._native_segmentation_ready):
+                events = []
+
+                class Table(dict):
+                    def get(self, key, default=None):
+                        events.append(("get", key))
+                        return super().get(key, default)
+
+                    def __getitem__(self, key):
+                        events.append(("getitem", key))
+                        return super().__getitem__(key)
+
+                with patch.object(segmentation, table_name, Table(ordinary)):
+                    self.assertIs(self.call_native("build_pages"), NotImplemented)
+                    self.assertEqual(events, [])
+                    actual = outcome(lambda: operation("build_pages"))
+                    observations.append((actual, list(events)))
+            self.assertEqual(observations[0], observations[1], table_name)
+            self.assertTrue(observations[0][1])
+
+    def test_unusual_metadata_preserves_unpack_and_missing_key_errors(self):
+        for value in (None, (), ((),), ((), (), ()), (("Turn",), None)):
+            dependencies = dict(segmentation._NATIVE_SEGMENTATION_DEPENDENCIES, joined_turns=value)
+            with self.subTest(dependencies=value), patch.object(segmentation, "_NATIVE_SEGMENTATION_DEPENDENCIES", dependencies):
+                self.assertEqual(outcome(lambda: _REFERENCE_READY("joined_turns")),
+                                 outcome(lambda: self.call_native("joined_turns")))
+        for value in (None, (), (TURN,), tuple(range(6))):
+            states = dict(segmentation._NATIVE_SEGMENTATION_CLASS_STATES, Turn=value)
+            with self.subTest(state=value), patch.object(segmentation, "_NATIVE_SEGMENTATION_CLASS_STATES", states):
+                self.assertEqual(outcome(lambda: _REFERENCE_READY("joined_turns")),
+                                 outcome(lambda: self.call_native("joined_turns")))
+        self.assertEqual(outcome(lambda: _REFERENCE_READY("unknown")),
+                         outcome(lambda: self.call_native("unknown")))
+
+    def test_custom_unpack_iterator_is_not_consumed_past_first_extra_value(self):
+        observations = []
+        for operation in (_REFERENCE_READY, self.call_native):
+            events = []
+
+            def values():
+                for value in ((), (), "extra", "never"):
+                    events.append(value)
+                    yield value
+
+            dependencies = dict(segmentation._NATIVE_SEGMENTATION_DEPENDENCIES, joined_turns=values())
+            with patch.object(segmentation, "_NATIVE_SEGMENTATION_DEPENDENCIES", dependencies):
+                actual = outcome(lambda: operation("joined_turns"))
+            observations.append((actual, events))
+        self.assertEqual(observations[0], observations[1])
+        self.assertEqual(len(observations[0][1]), 3)
 
 
 if __name__ == "__main__":
