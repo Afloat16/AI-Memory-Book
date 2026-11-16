@@ -54,9 +54,9 @@ APPROVED_RUNTIME_SHA256 = {
     # Authenticated same-field declaration ordering; no archive/schema changes.
     # Fixed synthetic/component evidence: docs/v0.6.0-engineering-validation.md.
     "0.6.0": "397afa98fb77c3550c53e21332862e0a4b3242c26b5ef0c87966970ab8a0f44c",
-    # Bound MCP connections and asserted directory/source reads, with unchanged
-    # native recall responses. Evidence: docs/v0.7.0-project-scope-validation.md.
-    "0.7.0": "4c73660bebe1e884aac689bd07b71671868fb58336d31d25841623607451239a",
+    # Bound MCP connections, asserted source reads and bounded WAL startup
+    # recovery, with unchanged native recall responses. Evidence: docs/v0.7.0-project-scope-validation.md.
+    "0.7.0": "bffeb61847e491273d5694b7a20893c68622b363367e89aabc580a2e0165e718",
 }
 # Publication channels are explicit: older prereleases remain prereleases when
 # an interrupted run reconciles them. A new version needs a reviewed entry.
