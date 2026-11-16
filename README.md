@@ -26,7 +26,7 @@ When resuming a long-running task, ask which constraints the current implementat
 
 ## Quick start
 
-You need **Python 3.10+ with SQLite FTS5**. The v0.7.0 package adds bound-project MCP connections and project assertions on directory/source reads, alongside identifier retrieval, temporal controls and archive maintenance. The installer creates an isolated environment with MCP/client dependencies and needs no Git checkout or Node.js. For an existing archive, follow the [schema 4 upgrade procedure](docs/deployment.md#schema-4-upgrade), including a snapshot and restarting every writer.
+You need **Python 3.10+ with SQLite FTS5**. The v0.7.0 package adds bound-project MCP connections and project assertions on directory/source reads, alongside identifier retrieval, temporal controls and archive maintenance. The installer creates an isolated environment with MCP/client dependencies and needs no Git checkout or Node.js. For an existing archive, follow the [upgrade procedure](docs/deployment.md#upgrading). An archive already on schema 4 needs no new schema migration in v0.7.0; the schema-4 migration procedure applies only to earlier schemas.
 
 **macOS / Linux**
 
@@ -51,7 +51,7 @@ memory-book doctor
 
 Replace `claude-code` with your [client profile](docs/integrations.md#supported-profiles), or repeat `--client` to connect more clients. Keep the capture flags only for profiles with native capture support; omit both `--capture` and `--background` for other profiles. If the command is not on PATH, use the full launcher path printed by the installer, then restart your client.
 
-`--capture` opts in to existing and future supported text transcripts; `--background` installs and starts the user service. Omit both flags for MCP configuration alone. The host and model control tool invocation, so connecting MCP does not guarantee automatic recall. Upgrade through the same installation method, then refresh setup and restart clients. [Deployment guide](docs/deployment.md#schema-4-upgrade).
+`--capture` opts in to existing and future supported text transcripts; `--background` installs and starts the user service. Omit both flags for MCP configuration alone. The host and model control tool invocation, so connecting MCP does not guarantee automatic recall. Upgrade through the same installation method, then refresh setup and restart clients. [Deployment guide](docs/deployment.md#upgrading).
 
 ## Algorithm and engineering workflows
 
@@ -115,7 +115,7 @@ On a bound MCP connection, omitted project arguments inherit the binding, includ
 
 Ordinary setup preserves an existing managed binding. Change it with `--mcp-project OTHER_ID`; explicitly remove it with `--clear-mcp-project`. `setup --project` controls **capture mapping** and still requires `--capture`; `--mcp-project` controls the **MCP connection**. Binding a client profile affects that configured connection, and does not automatically switch with the terminal's current directory. [Project scope and configuration](docs/agent-guide.md#bound-project-connections).
 
-Python `chapter`, `section` and `read` accept `project=...`; their CLI equivalents accept `--project`, and HTTP follow-up reads accept a `project` query parameter. The reader carries the selected book into these requests and cancels stale reader responses when switching books. Unbound calls can still browse the whole archive. This is protection against scope mistakes, not user authentication or an access-control boundary for another server or direct database access.
+Python `chapter`, `section` and `read` accept `project=...`; their CLI equivalents accept `--project`, and HTTP follow-up reads accept a `project` query parameter. The reader carries the selected book into these requests and ignores stale reader responses when switching books. Unbound calls can still browse the whole archive. This is protection against scope mistakes, not user authentication or an access-control boundary for another server or direct database access.
 
 ### Executed v0.7.0 scope checks
 
@@ -193,7 +193,7 @@ Book has **68/72 complete cases and 44/48 policy passes**, but still returns onl
 
 ### Native retrieval versus practical strategies
 
-This separate track uses Book's native excerpt packing and the existing in-repository strategies at 2400 characters. Flat FTS and recent history are baselines, not additional open-source products.
+This separate track retains the **frozen v0.6.0 native excerpt experiment**, comparing Book and the existing in-repository strategies at 2400 characters. Flat FTS and recent history are baselines, not additional open-source products.
 
 | Strategy | Evidence spans | Complete evidence | Policy passes | Mean chars |
 |---|---:|---:|---:|---:|
@@ -204,7 +204,7 @@ This separate track uses Book's native excerpt packing and the existing in-repos
 
 Book finds complete evidence in **20 more cases than flat FTS** and **16 more than recent history**, with about **20.4% fewer context characters** than recent history. Flat FTS shares the scope/index/native packer; recent history uses resident text, shorter citation headings and no top-five limit. Native Book at 1200 characters has **76/80 spans, 68/72 complete cases, 48/48 policy passes and zero stale-only cases**. These excerpt results must not be substituted into the common-block competitor table. [Native report](benchmarks/reports/v0.6.0-engineering/hosted/native/report.json).
 
-The native 2400-character replay records retrieval/context assembly **p50 / p95 of 1.560 / 4.846 ms** over 240 calls. Result caching is disabled; SQLite/OS caches are not cleared. This excludes ingestion and model generation. Foreign-process calls and embedding-backed searches have different timing boundaries, so no whole-product speed ratio is claimed.
+The **frozen v0.6.0 native replay** at 2400 characters records retrieval/context assembly **p50 / p95 of 1.560 / 4.846 ms** over 240 calls. Result caching is disabled; SQLite/OS caches are not cleared. This excludes ingestion and model generation. Foreign-process calls and embedding-backed searches have different timing boundaries, so no whole-product speed ratio is claimed. The single-execution v0.7.0 regression above adds no timing claim.
 
 ### Reproduction and evidence limits
 
