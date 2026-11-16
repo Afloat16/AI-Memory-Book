@@ -1,0 +1,45 @@
+{
+  "observed_ci_commit": "629f93b83677f8c86a1dbc0c756bf934e4013d64",
+  "observed_ci_run": 43806841638,
+  "old_store_sha256": "ba3e2559a95cfe38034b38a7492ed41da2567d9eaadd87ad804c1a633d7e3c0d",
+  "corrected_store_sha256": "7a16807f8c8c2987054603b3031b2b9832aef5698d021014c2dcd0567f8f028c",
+  "regression_file": "tests/test_round6_recall_work.py",
+  "regression_file_sha256": "0e0b45e3a522d809c958f12dde1af8f0c7211d5c6aee075516a85d8f86ab5c09",
+  "before": {
+    "test_methods": 1,
+    "error_subcases": 2,
+    "status": "failed",
+    "fixture": "A competing real SQLite connection holds BEGIN IMMEDIATE while the opening connection requests WAL; native and Python-3.10-style errors both fail before correction."
+  },
+  "after": {
+    "test_methods": 8,
+    "status": "passed",
+    "new_methods": 4,
+    "existing_methods_retained": 4,
+    "checks": [
+      "recover after a real competing writer releases its lock",
+      "restore default busy timeout after successful recovery",
+      "single deadline includes first wait, scheduler yield and later attempts",
+      "propagate non-BUSY errors and exhausted BUSY without masking them",
+      "close each failed initialization connection",
+      "uncontended WAL path uses one WAL SQL statement and no extra timeout statement"
+    ]
+  },
+  "logs": [
+    {
+      "file": "wal-before-regression.log.gz",
+      "bytes": 550,
+      "sha256": "04696a6b4b72fb996f2f7af823a43754dbb1f76c5ec2724871b4bd7c44c97351",
+      "original_bytes": 3105,
+      "original_sha256": "d7c7b672fabf48758ef055383524beb85b8d32cd7964cbf1fa8e2c3fe0eea24d"
+    },
+    {
+      "file": "wal-after-regression.log.gz",
+      "bytes": 412,
+      "sha256": "23f81a1e370f9a772e2581dc40be00fd57694a71cc0651506d3d1fae10f4ae86",
+      "original_bytes": 1662,
+      "original_sha256": "711eb8789c06f69b482b703c832fde71f66b3a960e4e003e0296381b65264012"
+    }
+  ],
+  "scope": "Deterministic regression evidence for the observed startup failure; not retrieval accuracy, a throughput benchmark or a guarantee that all lock contention can be recovered."
+}

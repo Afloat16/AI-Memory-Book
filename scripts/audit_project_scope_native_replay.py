@@ -255,13 +255,52 @@ def verify_run(audit, folder, commit, repo):
             "files": {name: {"sha256": digest(raw), "bytes": len(raw)} for name, raw in raw_bytes.items()}}
 
 
-def run(root, repo):
-    audit = Audit()
-    published_tree = subprocess.check_output(["git", "rev-parse", CANDIDATE_COMMIT + "^{tree}"],
+def git_object_id(value):
+    if not isinstance(value, str) or re.fullmatch(r"[0-9a-fA-F]{40}", value) is None:
+        raise ValueError("source identities must be full 40-character hexadecimal Git object IDs")
+    return value.lower()
+
+
+def candidate_identity(repo, *, candidate_commit=None, candidate_tree=None, execution_local_commit=None):
+    supplied = (candidate_commit, candidate_tree, execution_local_commit)
+    explicit = any(value is not None for value in supplied)
+    if explicit and not all(value is not None for value in supplied):
+        raise ValueError("candidate_commit, candidate_tree and execution_local_commit must be provided together")
+    candidate_commit, candidate_tree, execution_local_commit = map(
+        git_object_id, supplied if explicit else (CANDIDATE_COMMIT, EXECUTION_TREE, EXECUTION_LOCAL_COMMIT))
+    published_tree = subprocess.check_output(["git", "rev-parse", "--verify", candidate_commit + "^{tree}"],
                                              cwd=repo, text=True).strip()
-    audit.equal(published_tree, EXECUTION_TREE, "candidate", "published_tree_matches_recorded_execution_tree")
+    if explicit:
+        # Overrides are caller-supplied registrations, never identities learned
+        # from the reports being checked. Require both actual commit objects
+        # and their complete trees before reading any saved results.
+        for label, commit in (("candidate", candidate_commit), ("execution", execution_local_commit)):
+            actual = subprocess.check_output(["git", "rev-parse", "--verify", commit + "^{commit}"],
+                                             cwd=repo, text=True).strip()
+            if actual != commit:
+                raise ValueError(f"{label} identity must name the exact commit object")
+            tree = (published_tree if commit == candidate_commit else subprocess.check_output(
+                ["git", "rev-parse", "--verify", commit + "^{tree}"], cwd=repo, text=True).strip())
+            if tree != candidate_tree:
+                raise ValueError(f"{label} Git tree differs from the explicitly registered candidate tree")
+    return {"execution_local_commit": execution_local_commit,
+            "recorded_execution_tree": candidate_tree, "published_commit": candidate_commit,
+            "published_tree": published_tree, "same_tree": published_tree == candidate_tree,
+            "reproduction": (
+                "The explicitly registered published and execution commits are read from Git and must have the supplied tree; reports cannot supply source identities."
+                if explicit else
+                "Only published commits are read by this auditor; the local execution commit is retained as provenance and need not exist in a fresh checkout.")}
+
+
+def run(root, repo, *, candidate_commit=None, candidate_tree=None, execution_local_commit=None):
+    provenance = candidate_identity(repo, candidate_commit=candidate_commit, candidate_tree=candidate_tree,
+                                    execution_local_commit=execution_local_commit)
+    candidate_commit = provenance["published_commit"]
+    audit = Audit()
+    audit.equal(provenance["published_tree"], provenance["recorded_execution_tree"],
+                "candidate", "published_tree_matches_recorded_execution_tree")
     runs = {"baseline": verify_run(audit, root / "native-baseline", BASELINE_COMMIT, repo),
-            "candidate": verify_run(audit, root / "native-candidate", CANDIDATE_COMMIT, repo)}
+            "candidate": verify_run(audit, root / "native-candidate", candidate_commit, repo)}
     baseline, candidate = runs["baseline"], runs["candidate"]
     audit.equal(baseline["dataset"], candidate["dataset"], "paired", "identical_workload")
     audit.equal(baseline["files"]["dataset.json"], candidate["files"]["dataset.json"], "paired", "identical_workload_bytes")
@@ -293,11 +332,8 @@ def run(root, repo):
         "schema": "project-scope-native-replay-audit-v1", "created_at": datetime.now(timezone.utc).isoformat(),
         "status": "passed" if not audit.failures else "failed", "checks": audit.checks,
         "failure_count": len(audit.failures), "failures": audit.failures,
-        "source_commits": {"baseline": BASELINE_COMMIT, "candidate": CANDIDATE_COMMIT},
-        "candidate_source_provenance": {"execution_local_commit": EXECUTION_LOCAL_COMMIT,
-            "recorded_execution_tree": EXECUTION_TREE, "published_commit": CANDIDATE_COMMIT,
-            "published_tree": published_tree, "same_tree": published_tree == EXECUTION_TREE,
-            "reproduction": "Only published commits are read by this auditor; the local execution commit is retained as provenance and need not exist in a fresh checkout."},
+        "source_commits": {"baseline": BASELINE_COMMIT, "candidate": candidate_commit},
+        "candidate_source_provenance": provenance,
         "evaluator_sha256": EVALUATOR_SHA256, "dataset_sha256": baseline["report"]["dataset_sha256"],
         "runtime_sha256": {name: value["report"]["runtime"]["sha256"] for name, value in runs.items()},
         "raw_files": {name: value["files"] for name, value in runs.items()},
@@ -325,8 +361,18 @@ def main():
     parser.add_argument("--root", type=Path, default=Path("benchmarks/reports/v0.7.0-project-scope"))
     parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--candidate-commit", type=git_object_id,
+                        help="Explicit candidate commit; requires both other identity options")
+    parser.add_argument("--candidate-tree", type=git_object_id,
+                        help="Explicit full candidate Git tree; checked against both commits")
+    parser.add_argument("--execution-local-commit", type=git_object_id,
+                        help="Explicit execution commit; must exist locally and share the candidate tree")
     args = parser.parse_args()
-    result = run(args.root, args.repo)
+    if any(value is not None for value in (args.candidate_commit, args.candidate_tree, args.execution_local_commit)):
+        if not all(value is not None for value in (args.candidate_commit, args.candidate_tree, args.execution_local_commit)):
+            parser.error("--candidate-commit, --candidate-tree and --execution-local-commit must be provided together")
+    result = run(args.root, args.repo, candidate_commit=args.candidate_commit, candidate_tree=args.candidate_tree,
+                 execution_local_commit=args.execution_local_commit)
     output = args.output or args.root / "native-replay-audit.json"
     with output.open("x", encoding="utf-8") as target:
         json.dump(result, target, ensure_ascii=False, indent=2)
