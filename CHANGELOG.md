@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.8.0 — equivalent native text execution (candidate)
+
+Translate measured text-processing loops into an optional CPython C extension,
+preserving the existing public API, retrieval policy and archive format. See the
+[full validation record](docs/native-language-validation.md).
+
+- Add native ASCII terms, ASCII token preparation, Unicode tokenization,
+  per-character excerpt folding/source mapping and evidence-unit boundaries.
+  Retain Python fallbacks for customized helpers and unsupported argument types.
+- Preserve Unicode code-point offsets, per-character normalization order,
+  stable source/page identity, project scope, ranking, budgets, cache behavior
+  and schema 4. No retrieval algorithm or SQLite query is changed.
+- Keep explicit `auto`, `native` and `python` backend selection; forced-native
+  loading fails clearly when the extension is unavailable.
+- Retain a frozen four-round A/B experiment: 113,568 calls and 56,784 matching
+  pairs. Default-budget p95 reductions are 9.44%/8.15% on synthetic direct/MCP
+  and 2.07%/1.85% on public direct/MCP. Record all token-budget cells, startup
+  regressions and essentially unchanged/slightly higher memory alongside gains.
+- Select release wheels using the installed interpreter's compatibility tags;
+  verify source, wheel, extension and receipt hashes. Preserve a compiler-free
+  Python fallback and source distribution. Exercise the actual platform matrix
+  before publication.
+- Recover the interrupted formal artifact without rerunning timed work;
+  preserve the complete attempt ledger and exact recorded summaries separately
+  from subsequent packaging repairs and validation runs.
+
 ## 0.7.0 — project-bound directory and source reads
 
 Release scope: keep an engineering project's book, chapters, sections and source

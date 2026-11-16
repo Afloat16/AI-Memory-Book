@@ -129,3 +129,40 @@ to execute it. The formal experiment remains pinned to its original evaluator
 commit `b0d3e6157394bda44d5abb468d75dff6472a1692`, where the SDK was installed and
 all 11 evaluator checks passed before timing. This later CI-only availability
 guard does not modify that running checkout, its source hashes or its samples.
+
+## Recovery checkpoint, 2026-11-16
+
+The interrupted conversation left source at `4a05f16a4732d906e0e33ba361657439797542a1`
+on `optimization/native-language-v0.8.0`. No reachable raw-evidence branch had
+been created. The successful original run `43822446202`, attempt 1, retained
+artifact `14205446971` (38,192,300 bytes). Its complete SHA-256 was independently
+verified, and the frozen evaluator reproduced its original summary exactly:
+113,568 timed calls, 56,784 pairs, no output/archive or recorded invariant
+differences. The [validation record](native-language-validation.md) and four
+compact JSON reports now contain all primary/secondary results and resource
+costs. No timed worker was rerun.
+
+The container-only failure in CI `43823460858` came from the missing `!setup.py`
+entry in `.dockerignore`. Repair `c094bdb6344aff48b82b6ed9e430d65f9f00aa7b`
+passes all nine CI jobs in run `43826226943`. The subsequent packaging-workflow
+checkpoint `d44704de3e72685a17551b9421d154db314468f2` also passes all nine jobs
+in `43826369780`. Local forced-native verification executes 75 passing tests
+with one explicit optional-tokenizer skip; 28 release/installer tests pass.
+All 24 measured runtime/build source-file hashes still match the frozen
+candidate. There has been no runtime change during recovery.
+
+The first actual 30-cell wheel matrix `43826370750` found platform packaging
+defects after native tests succeeded: Windows checkout converted source to CRLF,
+and macOS framework Python selected universal2 instead of the declared target.
+Repair `ef9b4eaf970101dc0b225225ab6f1de220abc8ee` applies source LF attributes,
+builds the actual macOS architecture and verifies it with `lipo`. Raw compiler
+logs are retained separately from accepted wheel artifacts. A fresh exact-commit
+matrix is running as `43826807431`; earlier receipts cannot be mixed into it.
+
+The dedicated evidence workflow will preserve all 69 original artifact members,
+the measured binary and ten hash-verified evaluator files on
+`evidence/native-language-formal-43822446202`, independently of expiring Actions
+artifacts. Remaining acceptance gates are that verified evidence ref, the real
+complete wheel matrix and installer preparation, final exact-commit CI and
+the release's existing main/approved-runtime/public-install checks. Main and
+the published release still remain v0.7.0 at this checkpoint.
