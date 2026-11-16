@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "decision": "Remove the unreleased joined_turns C entry and its public-wrapper dispatch; retain the exact original Python _joined body and the C build_pages dynamic call and dependency check.",
+  "basis": "The complete existing cf1245 fixed-shape microdiagnostic shows the production wrapper slower in all three tested shapes. Direct-C improvement for only one shape does not offset the live guard and call boundary. No new timing was run for this decision.",
+  "source_commit": "cf1245b6a6f9e33de75357b7bb5f9a9a47fad2a4",
+  "micro_receipt": "segmentation-cf1245b6-constant-diagnostic-summary.json",
+  "observed_public_cpu_ratios": [
+    6.44355177688511,
+    1.3751618418191363,
+    1.5633972483628755
+  ],
+  "scope": "Retain the other native families, per-module immutable constants, Python fallback and all business behavior. Final candidate inventory becomes 22 (released seven plus fifteen new entries, including segmentation_ready and excluding joined_turns).",
+  "status": "Implementation in progress; protocol 4 remains UNFROZEN. The old protocol 3 and all development evidence remain immutable.",
+  "final_acceptance": "Use one complete isolated-hosted matrix after correctness/probe/source freeze. Local development timing is not release-performance evidence."
+}
