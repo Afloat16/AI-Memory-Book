@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "version": "0.10.0",
+  "created_at_utc": "2026-11-17",
+  "status": "implementation-and-validation-planned",
+  "baseline": {
+    "commit": "238c8058f723a203eaca99f94d924ab77de4c0b3",
+    "tag": "v0.9.0",
+    "tree": "0a608bf9b28679e4f718a34d5546696346427179"
+  },
+  "objective": "A practical cross-project optimization round: eliminate measured excess work and reproducible reliability/release defects while preserving normal retrieval outputs and archive compatibility.",
+  "invariants": [
+    "No changes to lexical ranking, segmentation, source/page IDs, Unicode coordinate units, project scope, budgets, archive schema or native22-entry algorithms.",
+    "Existing successful import formats retain text, IDs and ordering; fixes intentionally accept valid Unicode JSONL previously rejected and enforce the existing documented byte bound.",
+    "No performance result, historical benchmark/auditor or failure record is rewritten.",
+    "All changes are checkpointed on an optimization branch; main/release promotion waits for exact-commit CI and required delivery validation."
+  ],
+  "selected": [
+    {
+      "area": "semantic-ranking",
+      "owner": "v10_runtime_review",
+      "problem": "fetchall retains all vector blobs before4096-row numeric batching",
+      "change": "Fetch4096 rows per batch; preserveSQL/order/NumPy arithmetic/ties/full validation; guarantee cursor cleanup."
+    },
+    {
+      "area": "semantic-initialization",
+      "owner": "v10_runtime_review",
+      "problem": "Model artifacts read and hashed twice at initialization",
+      "change": "Validate one retained byte snapshot and pass those exact bytes to runtimes; leave public verification streaming and telemetry/import order unchanged."
+    },
+    {
+      "area": "directory",
+      "owner": "root",
+      "problem": "chapter does3+3N statements through repeated section lookups",
+      "change": "Remove redundant work with equivalent bounded previews, preserve custom section overrides and exact output; no all-chapter page materialization or schema change."
+    },
+    {
+      "area": "windows-capture-status",
+      "owner": "v10_reliability_review",
+      "problem": "os.kill(pid,0) is not a read-only Windows probe",
+      "change": "Use query-only process handle/wait onWindows, retainPOSIX semantics, prove activechild survives repeatedstatus calls."
+    },
+    {
+      "area": "unicode-jsonl",
+      "owner": "v10_reliability_review",
+      "problem": "str.splitlines breaks valid U+0085/U+2028/U+2029 inside JSON strings",
+      "change": "Split onlyCR/LF record separators in import and partial-tail recovery without alteringmessage text."
+    },
+    {
+      "area": "import-byte-bound",
+      "owner": "v10_reliability_review",
+      "problem": "Initialstat check followedbyunboundedread can exceed64MiB",
+      "change": "Read at mostlimit+1 actualbytes and preserveBOM/UTF8/error contracts."
+    },
+    {
+      "area": "release-recovery",
+      "owner": "v10_delivery_review",
+      "problem": "Immutable native artifactnames collide acrossworkflow attempts; broad aggregationpattern",
+      "change": "Include run_id/run_attempt in uploadnames and bothdownloadpatterns; preserveall30sameattempt checks."
+    },
+    {
+      "area": "native-test-gate",
+      "owner": "v10_delivery_review",
+      "problem": "Current144testOK gate permits unexpected skips/expectedfailures",
+      "change": "Require one exactcount/summary, matchingcase outcomes and onlyspecific optional skipnames/reasons beforeissuingreceipt."
+    },
+    {
+      "area": "release-runbook",
+      "owner": "v10_delivery_review",
+      "problem": "Operative runbook has stale9job/7asset/retryinstructions",
+      "change": "Document actual11CI/30native/67asset contract and correct phase-specific recovery."
+    }
+  ],
+  "investigated_not_selected": [
+    "Broad HTTP connection pooling: measured small absolute startup saving does not yet justify thread/shutdown/database-replacement risks.",
+    "Token-prefix/ranking guard removal: no similarly strong safe target.",
+    "Unrelated service/client/maintenance rewrites without a reproducible issue.",
+    "Optional log-sink resilience is a separate failure-reporting design, not part of initial patch."
+  ],
+  "validation": [
+    "Meaningful regression reproductions for each corrected behavior, including realWindows child process status andUnicodeJSONL tail recovery.",
+    "Exact semantic ranking comparison against frozen baseline forboundaries/ties/scopes/corruption/snapshotcases; mockruntimeverifiedbytes tests.",
+    "Deterministic operationcounts, sourcebound outputdigests, andpaired resource/latency measurements onfixedsynthetic semantic/directoryfixtures, withtiming separatefromtracemalloc.",
+    "Recordalltiming observations; developmentprofilefigures arediagnosticuntil finalcandidate/script/plan arefrozen.",
+    "Full exact-commit11job CI with new relevant Windows/NumPy coverage; then fresh30-cell native matrix,package/source/hash and realpublicinstaller checks."
+  ],
+  "remaining": [
+    "Complete independent implementation reviews and measurements.",
+    "Freeze finalcandidateandverificationprotocol beforeclaiming end-to-endgains.",
+    "Update version/docs/explicitacceptance onlywith observedresults.",
+    "Finish finalGitcheckpoint, CI and publication."
+  ]
+}
