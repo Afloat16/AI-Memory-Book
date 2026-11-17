@@ -90,8 +90,8 @@ class InstallerIsolationTests(unittest.TestCase):
         original_run = subprocess.run
         def command(argv, **kwargs):
             if "-m" in argv and argv[argv.index("-m") + 1] == "pip":
-                probe = original_run([argv[0], "-I", "-c", "import sysconfig; print(sysconfig.get_path('purelib'))"],
-                                     capture_output=True, text=True, check=True)
+                probe = original_run([argv[0], "-I", "-X", "utf8", "-c", "import sysconfig; print(sysconfig.get_path('purelib'))"],
+                                     capture_output=True, text=True, encoding="utf-8", check=True)
                 fixture_package(Path(probe.stdout.strip()), extras=extras)
                 return subprocess.CompletedProcess(argv, 0)
             return original_run(argv, **kwargs)
@@ -114,10 +114,10 @@ class InstallerIsolationTests(unittest.TestCase):
                     "installed": True, "argv": ["one argument", "记忆"], "utf8": 1,
                     "data_home": self.clean["MEMORY_BOOK_HOME"], "backend": "python",
                     "pip_index": self.clean["PIP_INDEX_URL"]})
-        # The old interpreter command is a negative control using only our own
+        # The unisolated interpreter is a negative control using only our own
         # shadow package. A silently ignored fixture would make this fail.
-        control = subprocess.run([installed["python"], "-m", "memory_book", "--version"],
-                                 cwd=self.unrelated, env=self.clean, capture_output=True, text=True)
+        control = subprocess.run([installed["python"], "-X", "utf8", "-m", "memory_book", "--version"],
+                                 cwd=self.unrelated, env=self.clean, capture_output=True, text=True, encoding="utf-8")
         self.assertNotEqual(control.returncode, 0)
         self.assertIn("caller shadow: memory_book", control.stderr)
 

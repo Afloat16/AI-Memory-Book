@@ -31,6 +31,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE_REF = "238c8058f723a203eaca99f94d924ab77de4c0b3"
 SOURCE_PATH = "src/memory_book/semantic.py"
+EVENTS = None
 
 
 def canonical(value):
@@ -39,6 +40,14 @@ def canonical(value):
 
 def digest(value):
     return hashlib.sha256(canonical(value).encode()).hexdigest()
+
+
+def event(kind, **details):
+    """Persist observations outside every timer, including an incomplete run."""
+    if EVENTS is not None:
+        EVENTS.write(canonical({"event": kind, **details}) + "\n")
+        EVENTS.flush()
+        os.fsync(EVENTS.fileno())
 
 
 def git(*args):
@@ -125,6 +134,20 @@ def summary(observations, field):
             "median_candidate_over_baseline": statistics.median(ratios)}
 
 
+def measure(operation):
+    started = time.perf_counter_ns()
+    cpu_started = time.process_time_ns()
+    try:
+        result = operation()
+    except BaseException as error:
+        cpu_elapsed = time.process_time_ns() - cpu_started
+        elapsed = time.perf_counter_ns() - started
+        return None, {"elapsed_ns": elapsed, "process_cpu_ns": cpu_elapsed}, error
+    cpu_elapsed = time.process_time_ns() - cpu_started
+    elapsed = time.perf_counter_ns() - started
+    return result, {"elapsed_ns": elapsed, "process_cpu_ns": cpu_elapsed}, None
+
+
 def ranking_case(np, engines, windows, args):
     db, model, metadata = fixture(np, engines["baseline"].DIMENSIONS, windows)
     observations = []
@@ -133,45 +156,86 @@ def ranking_case(np, engines, windows, args):
         calls = {arm: (lambda engine=engine: engine.rank_pages(db, model, "fixture", "", []))
                  for arm, engine in engines.items()}
         expected = calls["baseline"]()
-        if calls["candidate"]() != expected:
+        batches = []
+        closed = []
+        class BoundedCursor:
+            def __init__(self, cursor):
+                self.cursor = cursor
+            def fetchall(self):
+                raise AssertionError("Candidate materialized every vector row")
+            def fetchmany(self, size):
+                if not 0 < size <= 4096:
+                    raise AssertionError("Candidate exceeded the frozen vector batch bound")
+                rows = self.cursor.fetchmany(size)
+                batches.append(len(rows))
+                return rows
+            def close(self):
+                self.cursor.close()
+                closed.append(True)
+        class BoundedConnection:
+            def execute(self, *arguments):
+                return BoundedCursor(db.execute(*arguments))
+        audited = engines["candidate"].rank_pages(BoundedConnection(), model, "fixture", "", [])
+        if audited != expected or closed != [True]:
             raise AssertionError("Untimed candidate ranking differs from the frozen baseline")
         result_hash = digest(expected)
+        event("ranking-validated", fixture=metadata, output_sha256=result_hash,
+              batch_rows=batches, cursor_closed=True)
         for _ in range(args.warmups):
             for call in calls.values():
                 if call() != expected:
                     raise AssertionError("Warmup ranking changed")
         for pair, order in ordered_pairs(args.pairs):
             for position, arm in enumerate(order):
+                event("ranking-latency-started", windows=windows, pair=pair, position=position, arm=arm)
                 gc.collect()
-                started = time.perf_counter_ns()
-                cpu_started = time.process_time_ns()
-                result = calls[arm]()
-                cpu_elapsed = time.process_time_ns() - cpu_started
-                elapsed = time.perf_counter_ns() - started
-                if result != expected:
-                    raise AssertionError("Timed ranking differs; validation runs outside the timer")
-                observations.append({"pair": pair, "position": position, "arm": arm, "elapsed_ns": elapsed,
-                                     "process_cpu_ns": cpu_elapsed,
-                                     "output_sha256": result_hash})
+                result, measurements, error = measure(calls[arm])
+                observation = {"pair": pair, "position": position, "arm": arm, **measurements,
+                               "exact_equal": error is None and result == expected}
+                if error is None:
+                    observation["output_sha256"] = digest(result)
+                    if not observation["exact_equal"]:
+                        error = AssertionError("Timed ranking differs; validation runs outside the timer")
+                if error is not None:
+                    observation["error"] = {"type": type(error).__name__, "message": str(error)}
+                observations.append(observation)
+                event("ranking-latency", windows=windows, observation=observation)
+                if error is not None:
+                    raise error
                 del result
         # Allocation measurements never contribute to the latency summary.
         for pair, order in ordered_pairs(args.memory_pairs):
             for position, arm in enumerate(order):
+                event("ranking-allocations-started", windows=windows, pair=pair, position=position, arm=arm)
                 gc.collect()
                 tracemalloc.start()
+                error = None
+                result = None
                 try:
                     result = calls[arm]()
-                    retained, peak = tracemalloc.get_traced_memory()
+                except BaseException as caught:
+                    error = caught
                 finally:
+                    retained, peak = tracemalloc.get_traced_memory()
                     tracemalloc.stop()
-                if result != expected:
-                    raise AssertionError("Allocation ranking differs from the baseline")
-                allocations.append({"pair": pair, "position": position, "arm": arm,
-                                    "peak_python_bytes": peak, "retained_python_bytes": retained,
-                                    "output_sha256": result_hash})
+                observation = {"pair": pair, "position": position, "arm": arm,
+                               "peak_python_bytes": peak, "retained_python_bytes": retained,
+                               "exact_equal": error is None and result == expected}
+                if error is None:
+                    observation["output_sha256"] = digest(result)
+                    if not observation["exact_equal"]:
+                        error = AssertionError("Allocation ranking differs from the baseline")
+                if error is not None:
+                    observation["error"] = {"type": type(error).__name__, "message": str(error)}
+                allocations.append(observation)
+                event("ranking-allocations", windows=windows, observation=observation)
+                if error is not None:
+                    raise error
                 del result
         return {"fixture": metadata, "validation": {"exact_equal": True, "output_sha256": result_hash,
-                                                      "returned_pages": len(expected)},
+                                                      "returned_pages": len(expected), "batch_rows": batches,
+                                                      "maximum_vector_batch_rows": max(batches, default=0),
+                                                      "cursor_closed": closed == [True]},
                 "latency": {"observations": observations, **summary(observations, "elapsed_ns"),
                             "process_cpu": summary(observations, "process_cpu_ns")},
                 "allocations": {"observations": allocations, **summary(allocations, "peak_python_bytes")}}
@@ -276,6 +340,7 @@ def artifact_case(engines, args):
                 expected_bytes = total_bytes * (2 if arm == "baseline" else 1)
                 if counts["read_bytes"] != expected_bytes or counts["artifact_hash_bytes"] != expected_bytes:
                     raise AssertionError(f"Unexpected verified artifact work for {arm}: {counts}")
+                event("artifacts-validated", arm=arm, validation=validations[arm])
                 captured.clear()
                 del model
             for _ in range(args.warmups):
@@ -286,16 +351,22 @@ def artifact_case(engines, args):
                     del model
             for pair, order in ordered_pairs(args.artifact_pairs):
                 for position, arm in enumerate(order):
+                    event("artifact-latency-started", pair=pair, position=position, arm=arm)
                     gc.collect()
-                    started = time.perf_counter_ns()
-                    cpu_started = time.process_time_ns()
-                    model = calls[arm]()
-                    cpu_elapsed = time.process_time_ns() - cpu_started
-                    elapsed = time.perf_counter_ns() - started
-                    validate(model)
-                    observations.append({"pair": pair, "position": position, "arm": arm,
-                                         "elapsed_ns": elapsed, "process_cpu_ns": cpu_elapsed,
-                                         "model_fingerprint": model.fingerprint})
+                    model, measurements, error = measure(calls[arm])
+                    observation = {"pair": pair, "position": position, "arm": arm, **measurements}
+                    if error is None:
+                        try:
+                            validate(model)
+                            observation.update(model_fingerprint=model.fingerprint, exact_equal=True)
+                        except BaseException as caught:
+                            error = caught
+                    if error is not None:
+                        observation.update(exact_equal=False, error={"type": type(error).__name__, "message": str(error)})
+                    observations.append(observation)
+                    event("artifact-latency", observation=observation)
+                    if error is not None:
+                        raise error
                     captured.clear()
                     del model
         return {"fixture": {"files": files, "total_artifact_bytes": total_bytes,
@@ -307,8 +378,10 @@ def artifact_case(engines, args):
 
 
 def main(argv=None):
+    global EVENTS
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--events", type=Path, help="New append-only JSONL ledger; flushed after each observation")
     parser.add_argument("--windows", type=int, nargs="+", default=[4096, 32768])
     parser.add_argument("--pairs", type=int, default=8)
     parser.add_argument("--memory-pairs", type=int, default=2)
@@ -321,10 +394,12 @@ def main(argv=None):
         parser.error("Sizes and pair counts must be positive; tokenizer bytes >= 2 and warmups >= 0")
     if any(n % 2 for n in (args.pairs, args.memory_pairs, args.artifact_pairs)):
         parser.error("Use even pair counts so each arm runs first equally often")
+    if args.output.exists() or (args.events and (args.events.exists() or args.events.resolve() == args.output.resolve())):
+        parser.error("Choose fresh, distinct report and event paths; never overwrite earlier evidence")
     import numpy as np
     engines, provenance = modules()
     plan = ROOT / "benchmarks/semantic-runtime-plan.json"
-    report = {"protocol": "semantic-runtime-development-v2", "evidence_label": "development",
+    report = {"protocol": "semantic-runtime-development-v3", "evidence_label": "development",
               "scope": "Component memory and verified artifact I/O; no retrieval-quality or end-to-end claim",
               "recorded_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
               "baseline_ref": BASELINE_REF, "sources": provenance,
@@ -333,11 +408,25 @@ def main(argv=None):
               "environment": {"python": platform.python_version(), "executable": sys.executable,
                               "numpy": np.__version__, "sqlite": sqlite3.sqlite_version,
                               "platform": platform.platform(), "cpu_count": os.cpu_count()},
-              "arguments": {key: str(value) if isinstance(value, Path) else value for key, value in vars(args).items()},
-              "ranking": [ranking_case(np, engines, count, args) for count in args.windows],
-              "artifact_initialization": artifact_case(engines, args)}
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+              "arguments": {key: str(value) if isinstance(value, Path) else value for key, value in vars(args).items()}}
+    if args.events:
+        args.events.parent.mkdir(parents=True, exist_ok=True)
+        EVENTS = args.events.open("x", encoding="utf-8")
+    try:
+        event("started", run=report)
+        report["ranking"] = [ranking_case(np, engines, count, args) for count in args.windows]
+        report["artifact_initialization"] = artifact_case(engines, args)
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        with args.output.open("x", encoding="utf-8") as output:
+            output.write(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
+        event("completed", report_sha256=hashlib.sha256(args.output.read_bytes()).hexdigest())
+    except BaseException as error:
+        event("failed", error={"type": type(error).__name__, "message": str(error)})
+        raise
+    finally:
+        if EVENTS is not None:
+            EVENTS.close()
+            EVENTS = None
     print(canonical({"report": str(args.output), "ranking": [
         {"windows": case["fixture"]["windows"], "latency_ratio": case["latency"]["median_candidate_over_baseline"],
          "process_cpu_ratio": case["latency"]["process_cpu"]["median_candidate_over_baseline"],
