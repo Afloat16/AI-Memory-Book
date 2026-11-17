@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "provenance": {
+    "coverage": {
+      "scope": "Authored engineering fixture; 80 questions, 72 answerable; 2400-character common-block budget. Current published-wheel Book replay passed; pinned external component runs retained.",
+      "external_report": "benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/report.json",
+      "current_evidence": "docs/current-results.md",
+      "current_verification": "benchmarks/reports/readme-current/verification.json",
+      "current_source_commit": "164f48c42e88bd096bf58827d8b2ba77a9048ae3",
+      "verification_sha256": "fcb9c47c10f0100ae6159365f252b2c1cb58edfb84b17e127e57c0469c85dc2c"
+    },
+    "runtime": {
+      "source": "benchmarks/experiments/comprehensive_v010_acceptance.json",
+      "semantic_evidence_commit": "780a99faa71da50eb0bf6e290fddc765e2b49b43",
+      "directory_evidence_commit": "248e74ee4aabd7f53835e5aead67aa8e8f63abbb",
+      "scope": "Shipped semantic/directory implementations; four alternating paired rounds; component-only warm synthetic measurements."
+    },
+    "native": {
+      "source": "benchmarks/experiments/native_core_acceptance.json",
+      "evidence_commit": "51e8d022c164ba714f68db562c9ae280a62c2312",
+      "scope": "Preserved source-bound native-core measurement. The current release retains the same native C/header bytes; this is not a fresh timing of the complete current release."
+    }
+  },
+  "coverage": {
+    "answerable": 72,
+    "rows": [
+      {
+        "id": "book",
+        "complete": 72
+      },
+      {
+        "id": "billion",
+        "complete": 64
+      },
+      {
+        "id": "claude",
+        "complete": 64
+      },
+      {
+        "id": "basic",
+        "complete": 64
+      },
+      {
+        "id": "minilm",
+        "complete": 47
+      }
+    ]
+  },
+  "runtime": {
+    "allocation": {
+      "baseline": 85.005064,
+      "current": 28.637125,
+      "unit": "MB",
+      "reduction_percent": 66.3112717614094
+    },
+    "artifact_bytes": {
+      "baseline": 255.070776,
+      "current": 127.535388,
+      "unit": "MB",
+      "reduction_percent": 50.0
+    },
+    "artifact_init": {
+      "baseline": 200.899164,
+      "current": 117.1865195,
+      "unit": "ms",
+      "reduction_percent": 41.50024771652912
+    },
+    "directory": {
+      "baseline": 9.004408,
+      "current": 8.417977,
+      "unit": "ms",
+      "reduction_percent": 6.4629073783008195
+    }
+  },
+  "native": {
+    "rows": [
+      {
+        "cohort": "synthetic61",
+        "surface": "direct",
+        "baseline_ms": 12.230868749999999,
+        "current_ms": 12.00786475,
+        "reduction_percent": 1.8232883089355334
+      },
+      {
+        "cohort": "synthetic61",
+        "surface": "mcp",
+        "baseline_ms": 14.15771,
+        "current_ms": 13.78328925,
+        "reduction_percent": 2.644642036035494
+      },
+      {
+        "cohort": "public1015",
+        "surface": "direct",
+        "baseline_ms": 4.9499828,
+        "current_ms": 4.663335899999999,
+        "reduction_percent": 5.7908665864455315
+      },
+      {
+        "cohort": "public1015",
+        "surface": "mcp",
+        "baseline_ms": 6.71445955,
+        "current_ms": 6.478551649999999,
+        "reduction_percent": 3.513430950671237
+      }
+    ]
+  }
+}
