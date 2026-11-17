@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "review_kind": "independent_preflight_evidence_review",
+  "repository": "Afloat16/AI-Memory-Book",
+  "evidence_commit": "e45ed136ea01647afec5c62783f57ac3bf55aa30",
+  "source_commit": "40a8ce42b4131b511dcacd446d175b878b74a6f8",
+  "workflow_run_id": "44057893040",
+  "inspected_reports": [
+    "benchmarks/reports/language-selection/44057893040/analysis.json",
+    "benchmarks/reports/language-selection/44057893040/manifest.json"
+  ],
+  "formal": false,
+  "result": "no_blocker_identified_for_formal_start",
+  "issues": [],
+  "performance_conclusion": null,
+  "independent_identity_check": {
+    "probes": 33,
+    "workers": 30,
+    "mcp_start_and_end_receipts": 120,
+    "total": 183,
+    "mismatches": [],
+    "fields_checked": [
+      "source path",
+      "actual and requested backend",
+      "baseline native binary SHA256",
+      "applicable candidate plugin SHA256",
+      "runtime replacement method set",
+      "metadata adapter readiness",
+      "Node executable SHA256 and math readiness"
+    ],
+    "candidate_plugin_hashes_match_manifest_file_entries": true
+  },
+  "cohort_order": [
+    "synthetic61",
+    "public1015",
+    "unicode_stress"
+  ],
+  "dispatch": {
+    "current": {
+      "native_calls_present": [
+        true,
+        true,
+        true
+      ]
+    },
+    "rust_same": {
+      "six_replaced_helpers_have_actual_calls_matching_baseline_where_baseline_calls_are_positive": true
+    },
+    "metadata": {
+      "c_metadata": {
+        "native_calls": [
+          120,
+          1009,
+          96
+        ],
+        "completed": [
+          120,
+          1009,
+          96
+        ],
+        "fallback": [
+          0,
+          0,
+          0
+        ],
+        "adapter_ready": [
+          true,
+          true,
+          true
+        ],
+        "plugin_sha256": "d961a79fdc4fe635243a3cbd9b6465b09ff85a7fed224db523f4f024b787cb33"
+      },
+      "rust_metadata": {
+        "native_calls": [
+          120,
+          1009,
+          96
+        ],
+        "completed": [
+          120,
+          1009,
+          96
+        ],
+        "fallback": [
+          0,
+          0,
+          0
+        ],
+        "adapter_ready": [
+          true,
+          true,
+          true
+        ],
+        "plugin_sha256": "4bae3f65929fbb17d6703e2016d4e50b9495da239a3781b55b24e9b3a7dcfe7d"
+      }
+    },
+    "owned_window": {
+      "c_window": {
+        "calls": [
+          553,
+          4109,
+          448
+        ],
+        "completed": [
+          553,
+          4109,
+          448
+        ],
+        "fallback": [
+          0,
+          0,
+          0
+        ]
+      },
+      "rust_window": {
+        "calls": [
+          553,
+          4109,
+          448
+        ],
+        "completed": [
+          553,
+          4109,
+          448
+        ],
+        "fallback": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "table": {
+      "c_table": {
+        "fold_excerpt_source_calls": [
+          234,
+          10,
+          448
+        ],
+        "plugin_sha256": "ee8879bfcddfd1ce25ee1bfd678e15da5a7adef1bf82c9906ce342e6b0779c58"
+      },
+      "rust_table": {
+        "fold_excerpt_source_calls": [
+          234,
+          10,
+          448
+        ],
+        "plugin_sha256": "672d77a2a1ff184ac48e9f9dc23a6345df7c1d1c2d367a31d7266a2d51ba25f6"
+      }
+    },
+    "node_window": {
+      "excerpt_window_operations": [
+        553,
+        4109,
+        448
+      ],
+      "native_fallback": [
+        {},
+        {},
+        {}
+      ]
+    },
+    "node_small": {
+      "terms_ascii_operations": [
+        5591,
+        19166,
+        512
+      ],
+      "ascii_tokens_operations": [
+        0,
+        8,
+        64
+      ],
+      "context_allocations_operations": [
+        164,
+        1015,
+        96
+      ],
+      "native_fallback": [
+        {},
+        {},
+        {}
+      ],
+      "zero_synthetic_ascii_tokens_also_zero_in_baseline": true
+    },
+    "python_reference": {
+      "probes": 3,
+      "actual_backend": [
+        "python",
+        "python",
+        "python"
+      ],
+      "used_as_timed_baseline": false
+    }
+  },
+  "analyzer_reported_audit_cross_check": {
+    "passed": true,
+    "errors": [],
+    "workers_loaded": 30,
+    "expected_workers": 30,
+    "calls": 51160,
+    "paired_candidate_calls": 46044,
+    "ledger_events": 102320,
+    "comparison_mismatches": 0,
+    "frozen_files_checked": 209,
+    "manifest_before_after_equal": true
+  },
+  "review_boundaries": [
+    "This review read the committed analysis and manifest reports and independently compared their identity and dispatch entries.",
+    "It did not reload the original raw worker, probe, query or ledger files. Aggregate call, pairing, ledger and equality results above are analyzer-reported results cross-checked in the report, not a second raw-data recomputation.",
+    "It did not reread the original runner filesystem or independently rehash its 209 frozen files; that verification count is reported by the original analyzer.",
+    "This preflight confirms experiment integration and evidence consistency only. It does not establish performance gains, adoption eligibility, or superiority of a complete language rewrite."
+  ]
+}
