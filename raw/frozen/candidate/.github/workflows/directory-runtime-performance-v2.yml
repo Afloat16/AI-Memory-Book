@@ -1,0 +1,88 @@
+name: Frozen directory runtime performance v2
+
+on:
+  push:
+    branches: ['validation/comprehensive-v010-directory-formal-2']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: comprehensive-v010-directory-formal-2
+  cancel-in-progress: false
+
+jobs:
+  measurement:
+    if: github.repository == 'Afloat16/AI-Memory-Book' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONHASHSEED: '0'
+      PYTHONPATH: src
+      MEMORY_BOOK_TEXT_BACKEND: python
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        id: checkout
+        with:
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/benchmarks/reports/
+            !/benchmarks/results/
+            !/docs/assets/
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        id: python
+        with:
+          python-version: '3.12'
+          architecture: x64
+      - name: Freeze directory candidate 2, unchanged fixture and prospective gates
+        id: freeze
+        shell: bash
+        run: |
+          mkdir -p .artifacts/comprehensive-directory-v2/logs
+          python -u scripts/directory_runtime_v2_preserve.py freeze 2>&1 | tee .artifacts/comprehensive-directory-v2/logs/freeze.log
+      - name: Keep the same pinned evaluator environment as formal 1
+        id: install
+        shell: bash
+        run: |
+          printf '%s\n' 'numpy==2.5.5 --hash=sha256:704d819265e5d1064d932968e9ee85fff2103ccc78c05b878c06943ba27b8507' > .artifacts/comprehensive-directory-v2/numpy-requirement.txt
+          python -m pip install --disable-pip-version-check --force-reinstall --no-deps --only-binary=:all: --require-hashes --report .artifacts/comprehensive-directory-v2/numpy-install.json -r .artifacts/comprehensive-directory-v2/numpy-requirement.txt 2>&1 | tee .artifacts/comprehensive-directory-v2/logs/install.log
+          python -m pip list --format=json > .artifacts/comprehensive-directory-v2/packages.json
+      - name: Validate acceptance, preservation and exact directory behavior
+        id: validate
+        shell: bash
+        run: python -m unittest tests.test_directory_runtime_v2_preserve tests.test_directory_batches -v 2>&1 | tee .artifacts/comprehensive-directory-v2/logs/validate.log
+      - name: Measure every original directory configuration once
+        id: measure
+        shell: bash
+        run: |
+          python -u scripts/directory_runtime_v2_preserve.py check 2>&1 | tee .artifacts/comprehensive-directory-v2/logs/source-check.log
+          python -u scripts/benchmark_directory_runtime_v2.py --baseline-commit 238c8058f723a203eaca99f94d924ab77de4c0b3 --rounds 4 --iterations 20 --output .artifacts/comprehensive-directory-v2/reports/directory-runtime.json 2>&1 | tee .artifacts/comprehensive-directory-v2/logs/measure.log
+      - name: Preserve every result before enforcing prospective acceptance
+        id: preserve
+        if: ${{ always() && steps.checkout.outcome == 'success' }}
+        shell: bash
+        env:
+          DIRECTORY_V2_CHECKOUT_OUTCOME: ${{ steps.checkout.outcome }}
+          DIRECTORY_V2_PYTHON_OUTCOME: ${{ steps.python.outcome }}
+          DIRECTORY_V2_FREEZE_OUTCOME: ${{ steps.freeze.outcome }}
+          DIRECTORY_V2_INSTALL_OUTCOME: ${{ steps.install.outcome }}
+          DIRECTORY_V2_VALIDATE_OUTCOME: ${{ steps.validate.outcome }}
+          DIRECTORY_V2_MEASURE_OUTCOME: ${{ steps.measure.outcome }}
+        run: python -u scripts/directory_runtime_v2_preserve.py preserve
+      - name: Retain the immutable artifact copy even if acceptance fails
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: comprehensive-v010-directory-v2-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .artifacts/comprehensive-directory-v2/
+            .artifacts/comprehensive-directory-v2-preservation/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 90
