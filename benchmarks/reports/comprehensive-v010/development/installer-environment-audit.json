@@ -1,0 +1,166 @@
+{
+  "scope": "Owned synthetic package/venv; package install stubbed; unchanged install.py generated actual managed launcher; no network or product source executed",
+  "baseline_ref": "238c8058f723a203eaca99f94d924ab77de4c0b3",
+  "v0.9.0_commit": "238c8058f723a203eaca99f94d924ab77de4c0b3",
+  "installer_sha256": "aab28c311d82680647d1fbb2e7a46613fc2ae2686b48d14a7670b8556fcb7a86",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "observations": [
+    {
+      "case": "normal",
+      "arm": "production-launcher",
+      "returncode": 0,
+      "stdout": "{\"marker\": \"installed-owned-fixture\", \"argv\": [\"hello space\", \"\\u8bb0\\u5fc6\"], \"data_home\": \"/workspace/scratch/e870b2feaa97/runtime-audit/installer-shadow-audit-fv38rwuv/owned-data-home\", \"backend\": \"python\"}",
+      "stderr_tail": ""
+    },
+    {
+      "case": "normal",
+      "arm": "temporary-I-launcher",
+      "returncode": 0,
+      "stdout": "{\"marker\": \"installed-owned-fixture\", \"argv\": [\"hello space\", \"\\u8bb0\\u5fc6\"], \"data_home\": \"/workspace/scratch/e870b2feaa97/runtime-audit/installer-shadow-audit-fv38rwuv/owned-data-home\", \"backend\": \"python\"}",
+      "stderr_tail": ""
+    },
+    {
+      "case": "normal",
+      "arm": "production-version-probe",
+      "returncode": 0,
+      "stdout": "0.9.0",
+      "stderr_tail": ""
+    },
+    {
+      "case": "normal",
+      "arm": "isolated-version-probe",
+      "returncode": 0,
+      "stdout": "0.9.0",
+      "stderr_tail": ""
+    },
+    {
+      "case": "cwd-shadow",
+      "arm": "production-launcher",
+      "returncode": 0,
+      "stdout": "{\"marker\": \"cwd-owned-shadow\", \"argv\": [\"hello space\", \"\\u8bb0\\u5fc6\"], \"data_home\": \"/workspace/scratch/e870b2feaa97/runtime-audit/installer-shadow-audit-fv38rwuv/owned-data-home\", \"backend\": \"python\"}",
+      "stderr_tail": ""
+    },
+    {
+      "case": "cwd-shadow",
+      "arm": "temporary-I-launcher",
+      "returncode": 0,
+      "stdout": "{\"marker\": \"installed-owned-fixture\", \"argv\": [\"hello space\", \"\\u8bb0\\u5fc6\"], \"data_home\": \"/workspace/scratch/e870b2feaa97/runtime-audit/installer-shadow-audit-fv38rwuv/owned-data-home\", \"backend\": \"python\"}",
+      "stderr_tail": ""
+    },
+    {
+      "case": "cwd-shadow",
+      "arm": "production-version-probe",
+      "returncode": 0,
+      "stdout": "0.9.0",
+      "stderr_tail": ""
+    },
+    {
+      "case": "cwd-shadow",
+      "arm": "isolated-version-probe",
+      "returncode": 0,
+      "stdout": "0.9.0",
+      "stderr_tail": ""
+    },
+    {
+      "case": "pythonpath-shadow",
+      "arm": "production-launcher",
+      "returncode": 0,
+      "stdout": "{\"marker\": \"pythonpath-owned-shadow\", \"argv\": [\"hello space\", \"\\u8bb0\\u5fc6\"], \"data_home\": \"/workspace/scratch/e870b2feaa97/runtime-audit/installer-shadow-audit-fv38rwuv/owned-data-home\", \"backend\": \"python\"}",
+      "stderr_tail": ""
+    },
+    {
+      "case": "pythonpath-shadow",
+      "arm": "temporary-I-launcher",
+      "returncode": 0,
+      "stdout": "{\"marker\": \"installed-owned-fixture\", \"argv\": [\"hello space\", \"\\u8bb0\\u5fc6\"], \"data_home\": \"/workspace/scratch/e870b2feaa97/runtime-audit/installer-shadow-audit-fv38rwuv/owned-data-home\", \"backend\": \"python\"}",
+      "stderr_tail": ""
+    },
+    {
+      "case": "pythonpath-shadow",
+      "arm": "production-version-probe",
+      "returncode": 0,
+      "stdout": "0.9.0",
+      "stderr_tail": ""
+    },
+    {
+      "case": "pythonpath-shadow",
+      "arm": "isolated-version-probe",
+      "returncode": 0,
+      "stdout": "0.9.0",
+      "stderr_tail": ""
+    },
+    {
+      "case": "pythonhome-invalid",
+      "arm": "production-launcher",
+      "returncode": 1,
+      "stdout": "",
+      "stderr_tail": "ModuleNotFoundError: No module named 'encodings'\n\nCurrent thread 0x00007fc030cf9740 (most recent call first):\n  <no Python frame>"
+    },
+    {
+      "case": "pythonhome-invalid",
+      "arm": "temporary-I-launcher",
+      "returncode": 0,
+      "stdout": "{\"marker\": \"installed-owned-fixture\", \"argv\": [\"hello space\", \"\\u8bb0\\u5fc6\"], \"data_home\": \"/workspace/scratch/e870b2feaa97/runtime-audit/installer-shadow-audit-fv38rwuv/owned-data-home\", \"backend\": \"python\"}",
+      "stderr_tail": ""
+    },
+    {
+      "case": "pythonhome-invalid",
+      "arm": "production-version-probe",
+      "returncode": 1,
+      "stdout": "",
+      "stderr_tail": "ModuleNotFoundError: No module named 'encodings'\n\nCurrent thread 0x00007f551d61a740 (most recent call first):\n  <no Python frame>"
+    },
+    {
+      "case": "pythonhome-invalid",
+      "arm": "isolated-version-probe",
+      "returncode": 0,
+      "stdout": "0.9.0",
+      "stderr_tail": ""
+    },
+    {
+      "case": "extras-only-on-pythonpath",
+      "arm": "production-extras-probe",
+      "returncode": 0,
+      "stdout": "owned-shadow-extra-mcp\nowned-shadow-extra-tomlkit",
+      "stderr_tail": ""
+    },
+    {
+      "case": "extras-only-on-pythonpath",
+      "arm": "isolated-extras-probe",
+      "returncode": 1,
+      "stdout": "",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nModuleNotFoundError: No module named 'mcp'"
+    }
+  ],
+  "launcher_template": "#!/bin/sh\n# AI-Memory-Book managed launcher\nexec '<owned-venv-python>' -m memory_book \"$@\"\n",
+  "source_subprocess_commands": [
+    [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "-m",
+      "venv",
+      "/workspace/scratch/e870b2feaa97/runtime-audit/installer-shadow-audit-fv38rwuv/Install Space 记忆/envs/env-xbjkaaxj"
+    ],
+    [
+      "<owned-venv-python>",
+      "-m",
+      "pip",
+      "--disable-pip-version-check",
+      "install",
+      "--no-input",
+      "--upgrade",
+      "ai-memory-book @ file:///workspace/scratch/e870b2feaa97/runtime-audit/installer-shadow-audit-fv38rwuv/ai_memory_book-0.9.0-py3-none-any.whl"
+    ],
+    [
+      "<owned-venv-python>",
+      "-m",
+      "memory_book",
+      "--version"
+    ],
+    [
+      "<owned-venv-python>",
+      "-I",
+      "-c",
+      "\nimport hashlib, importlib.machinery, importlib.util, json\nfrom pathlib import Path\nimport memory_book\n\nresult = {\"backend\": \"python\", \"requested\": \"auto\", \"extension\": None, \"extension_sha256\": None}\nif importlib.util.find_spec(\"memory_book._text_backend\") is not None:\n    from memory_book import _text_backend\n    result[\"backend\"] = _text_backend.BACKEND_NAME\n    if result[\"backend\"] == \"native\":\n        module = _text_backend.NATIVE\n        path = Path(module.__file__).resolve()\n        if path.parent != Path(memory_book.__file__).resolve().parent or not isinstance(module.__loader__, importlib.machinery.ExtensionFileLoader):\n            raise RuntimeError(\"Native backend was not loaded from this installed package\")\n        for name in (\"terms_ascii\", \"ascii_tokens\", \"unicode_tokens\", \"fold_excerpt_source\", \"evidence_units\"):\n            if not callable(getattr(module, name, None)):\n                raise RuntimeError(\"Installed native backend lacks \" + name)\n        result.update(extension=str(path), extension_sha256=hashlib.sha256(path.read_bytes()).hexdigest())\n    elif result[\"backend\"] != \"python\" or _text_backend.NATIVE is not None:\n        raise RuntimeError(\"Installed text backend reports an inconsistent state\")\nprint(json.dumps(result))\n"
+    ]
+  ]
+}
