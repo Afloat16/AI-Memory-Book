@@ -35,6 +35,17 @@ SUITES = (
     "tests.test_native_segmentation_backend",
 )
 EXPECTED_TESTS = 144
+# These optional dependencies are not installed by the release cell. Required
+# native tests must never disappear behind a broad extension-availability skip.
+ALLOWED_SKIPS = (
+    ("test_token_caps_keep_complete_payload_counts_and_source_spans",
+     "tests.test_native_backend.NativeMemoryBookEquivalenceTests", "Install .[tokens]"),
+    ("test_both_token_encoders_keep_exact_budgets_and_source_refs",
+     "tests.test_native_ranking_backend.NativeStoreEquivalenceTests", "Install .[tokens]"),
+    ("test_available_shared_gil_subinterpreters_keep_main_module_working",
+     "tests.test_native_segmentation_backend.NativeSegmentationModuleStateTests",
+     "_xxsubinterpreters is not available in this Python build"),
+)
 
 
 def require(value, message):
@@ -69,11 +80,38 @@ def test_summary(output):
         skipped = int(match.group(1)) if match else 0
     return {
         "tests_run": int(counts[-1]) if counts else None,
+        "test_summary_count": len(counts),
+        "outcome_summary_count": len(endings),
         "skipped": skipped,
         "summary": ending,
         "successful_summary": bool(ending and ending.startswith("OK")),
         "skipped_test_lines": [line for line in plain.splitlines() if "... skipped " in line],
+        "failure_lines": [line for line in plain.splitlines()
+                          if re.match(r"^(?:ERROR|FAIL|UNEXPECTED SUCCESS): ", line)
+                          or "ERROR: AddressSanitizer" in line],
     }
+
+
+def validate_test_result(summary, returncode):
+    """Require one complete run with only explicitly allowed optional skips."""
+    require(returncode == 0 and summary["successful_summary"]
+            and summary["tests_run"] == EXPECTED_TESTS,
+            f"The installed native test run must complete all {EXPECTED_TESTS} tests successfully")
+    require(summary["test_summary_count"] == summary["outcome_summary_count"] == 1,
+            "Expected exactly one installed native test run and outcome")
+    require(re.fullmatch(r"OK(?: \(skipped=[0-9]+\))?", summary["summary"]) is not None
+            and not summary["failure_lines"],
+            "Native tests must not contain failures, expected failures or unexpected successes")
+    require(len(summary["skipped_test_lines"]) == summary["skipped"],
+            "Native skipped-test lines and summary count differ")
+    observed = set()
+    for line in summary["skipped_test_lines"]:
+        matches = [index for index, (method, cls, reason) in enumerate(ALLOWED_SKIPS)
+                   if line in (f"{method} ({cls}) ... skipped {reason!r}",
+                               f"{method} ({cls}.{method}) ... skipped {reason!r}")]
+        require(len(matches) == 1 and matches[0] not in observed,
+                "Unexpected or duplicate skipped native testcase: " + line)
+        observed.add(matches[0])
 
 
 def clean_generated(root):
@@ -232,9 +270,7 @@ def main(argv=None):
                            "suites": list(SUITES), "log": "test.log",
                            "log_sha256": digest(evidence / "test.log")}
         save_report(report_path, report)
-        require(result.returncode == 0 and report["tests"]["successful_summary"]
-                and report["tests"]["tests_run"] == EXPECTED_TESTS,
-                "The installed native test run must actually complete all 144 tests successfully")
+        validate_test_result(report["tests"], result.returncode)
         receipt = wheel.with_name(wheel.name + ".receipt.json")
         # The existing receipt command performs its isolated native/source smoke
         # before writing a receipt. Do not change its validator or schema.

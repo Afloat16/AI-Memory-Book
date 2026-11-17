@@ -45,6 +45,14 @@ def _json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
+def _model_identity() -> dict:
+    return {"repository": MODEL_REPOSITORY, "revision": MODEL_REVISION,
+            "files": list(MODEL_FILES), "dimensions": DIMENSIONS,
+            "max_sequence_tokens": MAX_TOKENS, "overlap_tokens": OVERLAP_TOKENS,
+            "pooling": "attention-mask mean pooling followed by L2 normalization",
+            "semantic_version": SEMANTIC_VERSION}
+
+
 def verify_model_files(directory: str | Path) -> dict:
     """Verify exact local artifacts without network calls or optional imports."""
     root = Path(directory).expanduser().resolve()
@@ -59,11 +67,25 @@ def verify_model_files(directory: str | Path) -> dict:
                 digest.update(block)
         if digest.hexdigest() != entry["sha256"]:
             raise ValueError(f"Semantic model SHA-256 mismatch: {entry['path']}")
-    return {"repository": MODEL_REPOSITORY, "revision": MODEL_REVISION,
-            "files": list(MODEL_FILES), "dimensions": DIMENSIONS,
-            "max_sequence_tokens": MAX_TOKENS, "overlap_tokens": OVERLAP_TOKENS,
-            "pooling": "attention-mask mean pooling followed by L2 normalization",
-            "semantic_version": SEMANTIC_VERSION}
+    return _model_identity()
+
+
+def _verified_model_snapshot(directory: str | Path) -> tuple[dict, dict[str, bytes]]:
+    """Read and verify the exact bytes the optional runtimes will consume."""
+    root = Path(directory).expanduser().resolve()
+    blobs = {}
+    for entry in MODEL_FILES:
+        path = root / entry["path"]
+        if not path.is_file() or path.stat().st_size != entry["bytes"]:
+            raise ValueError(f"Missing or incorrect semantic model artifact: {entry['path']}; "
+                             "prepare the pinned model before enabling semantic recall")
+        blob = path.read_bytes()
+        if len(blob) != entry["bytes"]:
+            raise ValueError("Semantic model artifacts changed during initialization")
+        if hashlib.sha256(blob).hexdigest() != entry["sha256"]:
+            raise ValueError(f"Semantic model SHA-256 mismatch: {entry['path']}")
+        blobs[entry["path"]] = blob
+    return _model_identity(), blobs
 
 
 class SemanticModel:
@@ -76,7 +98,9 @@ class SemanticModel:
 
     def __init__(self, directory: str | Path):
         started = time.perf_counter_ns()
-        identity = verify_model_files(directory)
+        # Verify once before importing optional runtimes, then consume these
+        # retained bytes. Later path replacements cannot change the model.
+        identity, blobs = _verified_model_snapshot(directory)
         # Recent ORT builds can create a telemetry uploader during import.
         # Set the process-lifetime opt-out before that initialization; the API
         # alone cannot prevent an earlier initialization event.
@@ -94,15 +118,6 @@ class SemanticModel:
         self.np = np
         self.identity = identity
         self.fingerprint = hashlib.sha256(_json(identity).encode()).hexdigest()
-        root = Path(directory).expanduser().resolve()
-        # Load the exact verified byte snapshot. A file replacement between
-        # hashing and session construction must not change the identified model.
-        blobs = {}
-        for entry in MODEL_FILES:
-            blob = (root / entry["path"]).read_bytes()
-            if len(blob) != entry["bytes"] or hashlib.sha256(blob).hexdigest() != entry["sha256"]:
-                raise ValueError("Semantic model artifacts changed during initialization")
-            blobs[entry["path"]] = blob
         self.tokenizer = Tokenizer.from_str(blobs["tokenizer.json"].decode("utf-8"))
         self.tokenizer.no_padding()
         self.tokenizer.enable_truncation(max_length=MAX_TOKENS, stride=OVERLAP_TOKENS)
@@ -254,31 +269,36 @@ def rank_pages(db: sqlite3.Connection, model: SemanticModel, query: str,
         c.title chapter_title,s.external_id session_id,s.title session_title,s.created_at,
         v.ordinal,v.vector FROM semantic_vectors v JOIN pages p ON p.id=v.page_id
         JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk
-        WHERE 1=1""" + where + " ORDER BY p.id,v.ordinal", params).fetchall()
-    if not rows:
-        return []
-    query_vectors = model.encode_query(query)
-    if not len(query_vectors):
-        return []
-    np = model.np
-    best: dict[str, dict] = {}
-    # Bound temporary matrix memory even when a scope contains a large archive.
-    for start in range(0, len(rows), 4096):
-        chunk = rows[start:start + 4096]
-        if any(len(row["vector"]) != DIMENSIONS * 4 for row in chunk):
-            raise SemanticIndexError("Semantic index vector dimensions are invalid; rebuild it")
-        matrix = np.frombuffer(b"".join(row["vector"] for row in chunk), dtype="<f4").reshape(-1, DIMENSIONS)
-        if not np.isfinite(matrix).all():
-            raise SemanticIndexError("Semantic index contains non-finite values; rebuild it")
-        # einsum avoids launching a separate BLAS thread pool for tiny queries.
-        similarities = np.einsum("ij,kj->ik", matrix, query_vectors, optimize=False).max(axis=1)
-        for row, similarity in zip(chunk, similarities):
-            score = float(similarity)
-            if row["id"] not in best or score > best[row["id"]]["semantic_similarity"]:
-                item = {key: row[key] for key in row.keys() if key not in {"vector", "ordinal"}}
-                item["semantic_similarity"] = score
-                best[row["id"]] = item
-    return sorted(best.values(), key=lambda row: (-row["semantic_similarity"], row["id"]))[:CANDIDATE_LIMIT]
+        WHERE 1=1""" + where + " ORDER BY p.id,v.ordinal", params)
+    try:
+        chunk = rows.fetchmany(4096)
+        if not chunk:
+            return []
+        query_vectors = model.encode_query(query)
+        if not len(query_vectors):
+            return []
+        np = model.np
+        best: dict[str, dict] = {}
+        # Bound vector rows as well as the matrix. Keep the original batch
+        # boundaries and arithmetic inside the caller's retrieval snapshot.
+        while chunk:
+            if any(len(row["vector"]) != DIMENSIONS * 4 for row in chunk):
+                raise SemanticIndexError("Semantic index vector dimensions are invalid; rebuild it")
+            matrix = np.frombuffer(b"".join(row["vector"] for row in chunk), dtype="<f4").reshape(-1, DIMENSIONS)
+            if not np.isfinite(matrix).all():
+                raise SemanticIndexError("Semantic index contains non-finite values; rebuild it")
+            # einsum avoids launching a separate BLAS thread pool for tiny queries.
+            similarities = np.einsum("ij,kj->ik", matrix, query_vectors, optimize=False).max(axis=1)
+            for row, similarity in zip(chunk, similarities):
+                score = float(similarity)
+                if row["id"] not in best or score > best[row["id"]]["semantic_similarity"]:
+                    item = {key: row[key] for key in row.keys() if key not in {"vector", "ordinal"}}
+                    item["semantic_similarity"] = score
+                    best[row["id"]] = item
+            chunk = rows.fetchmany(4096)
+        return sorted(best.values(), key=lambda row: (-row["semantic_similarity"], row["id"]))[:CANDIDATE_LIMIT]
+    finally:
+        rows.close()
 
 
 def fuse_candidates(lexical: list[dict], semantic: list[dict]) -> list[dict]:

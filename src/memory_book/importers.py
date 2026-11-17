@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -441,8 +442,13 @@ def load_sessions(
     path = Path(path)
     if path.stat().st_size > MAX_IMPORT_BYTES:
         raise ValueError("Transcript exceeds the 64 MiB per-file import limit")
+    # Transcripts can grow or be replaced after stat(); bound the actual read.
+    with path.open("rb") as handle:
+        data = handle.read(MAX_IMPORT_BYTES + 1)
+    if len(data) > MAX_IMPORT_BYTES:
+        raise ValueError("Transcript exceeds the 64 MiB per-file import limit")
     try:
-        text = path.read_text(encoding="utf-8-sig")
+        text = data.decode("utf-8-sig")
     except UnicodeDecodeError:
         raise ValueError("Transcript must be UTF-8 JSON or JSONL") from None
     return parse_sessions(text, source_path=path, format=format, project=project, task_id=task_id)
@@ -457,7 +463,8 @@ def _parse_document(text: str) -> Any:
         data = json.loads(text)
     except json.JSONDecodeError:
         data = []
-        for line_number, line in enumerate(text.splitlines(), start=1):
+        # Unicode separators are valid inside JSON strings, not record endings.
+        for line_number, line in enumerate(re.split(r"\r\n?|\n", text), start=1):
             if not line.strip():
                 continue
             try:
