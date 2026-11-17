@@ -1,0 +1,23 @@
+{"check":"rust-same","stage":"correctness"}
+{"check":"c-table","stage":"correctness"}
+{"check":"rust-table","stage":"correctness"}
+{"check":"rust-window","stage":"correctness"}
+{"check":"rust-adapter","stage":"correctness"}
+{"check":"c-window","stage":"correctness"}
+{"check":"c-adapter","stage":"correctness"}
+{"check":"c-owned-guards","stage":"correctness"}
+{"check":"rust-owned-guards","stage":"correctness"}
+{"check":"node","stage":"correctness"}
+{"check":"node-guards","stage":"correctness"}
+Traceback (most recent call last):
+  File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/benchmarks/experiments/language_selection/host.py", line 429, in <module>
+    main()
+  File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/benchmarks/experiments/language_selection/host.py", line 425, in main
+    measure(output, manifest, env, args.phase)
+  File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/benchmarks/experiments/language_selection/host.py", line 291, in measure
+    checks(output, manifest, env)
+  File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/benchmarks/experiments/language_selection/host.py", line 279, in checks
+    execute([sys.executable, *command], output / 'logs' / ('check-' + name + '.log'), env)
+  File "/home/runner/work/AI-Memory-Book/AI-Memory-Book/benchmarks/experiments/language_selection/host.py", line 55, in execute
+    raise RuntimeError(f'Command failed ({code}); retained {destination}')
+RuntimeError: Command failed (1); retained /home/runner/work/AI-Memory-Book/AI-Memory-Book/.artifacts/language-selection/run/logs/check-node-guards.log
