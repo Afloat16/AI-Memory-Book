@@ -2,14 +2,27 @@
 
 ## Current continuation point
 
-The ten-arm preflight is running in
-[run 44057893040](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44057893040),
-job `133951846014`, from frozen candidate/evaluator commit
-`40a8ce42b4131b511dcacd446d175b878b74a6f8`. All 69 experimental source files
-in the hosted lab match that commit. Independent pre-launch review found no
-blocking integration, timing-probe, scheduling or adoption-gate issue.
-The report and figure utilities are being prepared separately; they do not
-change the frozen candidates or evaluator. See [SCOPE.zh.md](SCOPE.zh.md)
+The formal six-round run is active:
+[run 44061948774](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44061948774),
+job `133965795078`, started 2026-11-17 10:07:57 UTC (18:07:57 Asia/Shanghai).
+Its branch is `validation/language-selection-formal-1`, frozen at
+`40a8ce42b4131b511dcacd446d175b878b74a6f8`. Do not move that branch or tune
+candidates from intermediate numbers. Report-only commits on the research
+branch do not change this run's source or evaluator.
+
+The ten-arm preflight passed in
+[run 44057893040](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44057893040):
+30/30 workers, 51,160 calls, 46,044 paired complete outputs, 102,320 ledger events,
+209 frozen file byte checks, zero mismatches and zero audit errors. All raw
+evidence is saved at `e45ed136ea01647afec5c62783f57ac3bf55aa30`, branch
+`validation/language-selection-results-44057893040`. It remains nonformal.
+Both metadata candidates actually completed 120 / 1,009 / 96 calls across
+synthetic / public / Unicode cohorts, with zero entry fallback.
+
+Before report-only additions, all 69 experimental files in the hosted lab
+matched the frozen source. Independent pre-launch review found no blocking
+integration, timing-probe, scheduling or adoption-gate issue. The Chinese report
+and figure utilities are prepared separately. See [SCOPE.zh.md](SCOPE.zh.md)
 for the interpretation boundary, including the unmeasured full-service rewrite.
 
 The original eight-arm preflight completed successfully in
@@ -18,16 +31,16 @@ Its evidence commit is `cab30fdcd583deff1c39e2d3ce2f1de5daef3039`: 24 workers,
 40,928 calls, 35,812 paired complete outputs, and zero audit errors. It is
 explicitly nonformal and cannot establish adoption or a language speed ranking.
 
-The next prospective matrix adds `rust_metadata` and `c_metadata` for the full
+The ten-arm matrix adds `rust_metadata` and `c_metadata` for the full
 bounded candidate metadata method. The eight earlier candidates remain in the
 comparison. Both new kernels and their shared correctness checks are complete:
 13 existing regressions, 128 direct cases, 11 SQL callback cases, 13 pre-install
 guards, and the synthetic/public corpora pass for both. The integrated worker
 also passes all 96 Unicode stress queries for each new candidate, with 96 native
-completions and zero fallback. Do not start the formal branch until the ten-arm
-candidate set passes the hosted preflight.
+completions and zero fallback. The full ten-arm candidate set has now passed the
+hosted preflight and entered formal measurement.
 
-The planned ten-arm formal schedule has 186 workers and 626,100 timed calls,
+The frozen ten-arm formal schedule has 186 workers and 626,100 timed calls,
 including A/A controls. Main remains untouched.
 
 The production baseline remains `234891619d7bed88ddf3fae37e7f3e1b14a808b6`.
@@ -91,14 +104,19 @@ whole-workload matrix and cannot trigger the production adoption gate.
 
 ## Continuation
 
-1. Read `plan.json`, the candidate READMEs, and the workflow.
-2. Commit and review the complete recovered evaluator and candidates.
-3. Push a new `validation/language-selection-preflight-*` branch to execute
-   the preflight protocol. It has one round and never yields adoption claims.
-4. Review all correctness, actual-dispatch, whole-output, and preservation
-   evidence before starting `validation/language-selection-formal-1`.
-5. Keep all failed attempts and raw ledgers. Never update production on an
-   incomplete matrix or a result explained by A/A noise.
+1. Read the active formal run above, `plan.json`, and `SCOPE.zh.md`.
+2. If it is still active, let the registered run finish. Do not restart it or
+   modify its frozen branch from partial timings.
+3. Read the resulting `analysis.json` on
+   `validation/language-selection-results-44061948774`. Check `audit.passed`,
+   `audit.errors`, all expected workers, dispatch and hashes. A green workflow
+   step alone is insufficient because partial evidence is deliberately saved.
+4. Independently review paired statistics, A/A noise, key regressions and
+   resources; preserve every failed attempt and unfavorable scenario.
+5. Use `render_report.py` and `plot_report.py` on the real formal analysis to
+   produce the Chinese research report, full tables and two main figures.
+6. Save findings and the next continuation point under the user's Git identity.
+   Never update production from an incomplete matrix or unresolved A/A noise.
 
 All evidence branches use Afloat's verified commit identity. Shell diagnostics,
 when present, remain separate from the ten whole-workload variants.
