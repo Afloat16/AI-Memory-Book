@@ -29,6 +29,13 @@ the public README, main, release tags, retrieval rules, or database schema.
   `59afff7f8d5d40d8e7cc10a352e7a020fefb7bef`.
 - The next preflight includes the complete eight-arm matrix, Bash diagnostics,
   and a TypeScript type-erasure/runtime identity check. No candidate is adopted.
+- [Preflight 2](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44053025545)
+  passed the Rust, C-table, Rust-table, C/Rust owned-window, and full Node kernel
+  checks. A Node guard report then attempted to read an older local report
+  schema. The guard now explicitly requires this run's `checks/node.json`,
+  checks its source, binary, and runtime identities, and rejects stale input.
+  No timing worker ran. Evidence is retained at
+  `767b591d4c3e80ec84ff9d9f85fb7374f71f7990`.
 
 ## Registered comparison
 

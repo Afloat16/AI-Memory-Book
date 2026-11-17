@@ -269,6 +269,7 @@ def checks(output, manifest, env):
             '--output', output / 'checks/rust-owned-guards.json']),
         ('node', [HERE / 'javascript/verify.py', '--source', source, '--output', output / 'checks/node.json']),
         ('node-guards', [HERE / 'javascript/check_window_guards.py', '--source', source,
+                         '--kernel-report', output / 'checks/node.json',
                          '--output', output / 'checks/node-guards.json']),
         ('shell', [HERE / 'shell/check.py', '--source', source,
             '--inputs', HERE / 'javascript/captured-inputs.json', '--output', output / 'checks/shell.json']),
