@@ -115,19 +115,26 @@ class DirectoryBatchTests(unittest.TestCase):
         self.assertEqual((empty["sections"], empty["total"], empty["next_offset"]), ([], 0, None))
         self.assertFalse(any("FROM pages" in sql for sql in statements))
 
-    def test_twenty_sections_use_five_selects_and_indexed_bounded_previews(self):
-        chapter = self.populate()
-        expected, old_sql = self.traced(lambda: baseline_chapter(self.book, chapter, page_limit=3))
-        actual, sql = self.traced(lambda: self.book.chapter(chapter, page_limit=3))
-        self.assertEqual(actual, expected)
-        self.assertEqual(len(actual["sections"]), 20)
-        self.assertEqual(sum(statement.startswith("SELECT") for statement in old_sql), 63)
-        self.assertEqual(sum(statement.startswith("SELECT") for statement in sql), 5)
-        self.assertEqual([statement for statement in sql if not statement.startswith("SELECT")], ["BEGIN", "ROLLBACK"])
-        preview_sql = next(statement for statement in sql if "UNION ALL" in statement)
-        plan = [row[3] for row in self.book.db.execute("EXPLAIN QUERY PLAN " + preview_sql)]
-        self.assertEqual(sum("SEARCH pages USING INDEX pages_section" in detail for detail in plan), 20)
-        self.assertFalse(any(detail.startswith("SCAN pages") for detail in plan), plan)
+    def test_selected_sections_share_counts_and_keep_original_indexed_preview_queries(self):
+        chapter = self.populate(100)
+        for selected in (1, 20, 100):
+            with self.subTest(sections=selected):
+                options = {"limit": selected, "page_limit": 3}
+                expected, old_sql = self.traced(lambda: baseline_chapter(self.book, chapter, **options))
+                actual, sql = self.traced(lambda: self.book.chapter(chapter, **options))
+                self.assertEqual(actual, expected)
+                self.assertEqual(len(actual["sections"]), selected)
+                self.assertEqual(sum(statement.startswith("SELECT") for statement in old_sql), 3 + 3 * selected)
+                self.assertEqual(sum(statement.startswith("SELECT") for statement in sql), 4 + selected)
+                self.assertEqual([statement for statement in sql if not statement.startswith("SELECT")], ["BEGIN", "ROLLBACK"])
+                prefix = "SELECT id,title,length(content) chars,source_refs FROM pages WHERE section_id="
+                previews = [statement for statement in sql if statement.startswith(prefix)]
+                self.assertEqual(previews, [statement for statement in old_sql if statement.startswith(prefix)])
+                self.assertEqual(len(previews), selected)
+                for preview_sql in previews:
+                    plan = [row[3] for row in self.book.db.execute("EXPLAIN QUERY PLAN " + preview_sql)]
+                    self.assertEqual(sum("SEARCH pages USING INDEX pages_section" in detail for detail in plan), 1)
+                    self.assertFalse(any(detail.startswith("SCAN pages") or "USE TEMP B-TREE" in detail for detail in plan), plan)
 
     def test_maximum_directory_materializes_only_selected_limited_previews(self):
         chapter = self.populate(101, long=False)
@@ -146,9 +153,23 @@ class DirectoryBatchTests(unittest.TestCase):
         expected = baseline_chapter(self.book, chapter, limit=100, page_limit=100)
         evaluated = []
         self.book.db.create_function("length", 1, lambda value: evaluated.append(value) or len(value))
-        actual = self.book.chapter(chapter, limit=100, page_limit=100)
+        decoded = []
+        decode = json.loads
+
+        def decode_preview(raw):
+            # Reading another section before converting this one would retain
+            # more than one section's raw previews at the conversion boundary.
+            self.assertLessEqual(len(evaluated) - len(decoded), 100)
+            result = decode(raw)
+            decoded.append(True)
+            return result
+
+        with patch("memory_book.store.json.loads", side_effect=decode_preview):
+            actual, statements = self.traced(lambda: self.book.chapter(chapter, limit=100, page_limit=100))
         self.assertEqual(actual, expected)
         self.assertEqual(len(evaluated), 10_000)
+        self.assertEqual(len(decoded), 10_000)
+        self.assertEqual(sum(statement.startswith("SELECT") for statement in statements), 104)
         self.assertEqual(actual["next_offset"], 100)
         self.assertTrue(all(len(section["pages"]) == 100 and section["pages_total"] == 101
                             and section["pages_next_offset"] == 100 for section in actual["sections"]))

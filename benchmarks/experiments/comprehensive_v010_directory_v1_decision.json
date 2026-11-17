@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "decision": "reject-directory-v1",
+  "publication_approved": false,
+  "baseline_commit": "238c8058f723a203eaca99f94d924ab77de4c0b3",
+  "candidate_commit": "3c9b271a6d9757af09a435b80198dd02b94c1146",
+  "run_id": 44006165023,
+  "run_attempt": 1,
+  "evidence_commit": "780a99faa71da50eb0bf6e290fddc765e2b49b43",
+  "all_contracts_and_saved_result_audit_passed": true,
+  "remeasured_calls": 0,
+  "reason": "Fewer SELECTs did not yield general lower latency. Seven of nine directory configurations regress in all four paired rounds; normal 20-page previews regress 22.79% and 27.76%. Do not release the compound UNION ALL preview path as a speed optimization.",
+  "directory": [
+    {
+      "sections": 1,
+      "page_limit": 1,
+      "median_wall_ns": {
+        "baseline": 77120,
+        "candidate": 80566
+      },
+      "median_paired_candidate_over_baseline": 1.0522610072189789,
+      "all_paired_wall_ratios": [
+        1.0438643526934597,
+        1.0495466726364098,
+        1.080177042519228,
+        1.0549753418015477
+      ],
+      "median_paired_cpu_ratio": 1.0535049217865247
+    },
+    {
+      "sections": 1,
+      "page_limit": 20,
+      "median_wall_ns": {
+        "baseline": 142886.5,
+        "candidate": 164929.5
+      },
+      "median_paired_candidate_over_baseline": 1.1509816462813234,
+      "all_paired_wall_ratios": [
+        1.157713759292718,
+        1.2277327166672418,
+        1.1348935450582749,
+        1.1442495332699285
+      ],
+      "median_paired_cpu_ratio": 1.1519875917990656
+    },
+    {
+      "sections": 1,
+      "page_limit": 100,
+      "median_wall_ns": {
+        "baseline": 407351,
+        "candidate": 490118
+      },
+      "median_paired_candidate_over_baseline": 1.201115573466912,
+      "all_paired_wall_ratios": [
+        1.2028229220494084,
+        1.209740280406092,
+        1.1992644790968625,
+        1.1994082248844151
+      ],
+      "median_paired_cpu_ratio": 1.2024294567328337
+    },
+    {
+      "sections": 20,
+      "page_limit": 1,
+      "median_wall_ns": {
+        "baseline": 529886,
+        "candidate": 482588
+      },
+      "median_paired_candidate_over_baseline": 0.9053187317127277,
+      "all_paired_wall_ratios": [
+        0.9250886801718728,
+        0.9038526379301166,
+        0.905061942363145,
+        0.9055755210623104
+      ],
+      "median_paired_cpu_ratio": 0.9049597004491995
+    },
+    {
+      "sections": 20,
+      "page_limit": 20,
+      "median_wall_ns": {
+        "baseline": 1879894.5,
+        "candidate": 2316570
+      },
+      "median_paired_candidate_over_baseline": 1.227933967984608,
+      "all_paired_wall_ratios": [
+        1.2265754849166477,
+        1.2292924510525682,
+        1.2480277949836702,
+        1.222731633684941
+      ],
+      "median_paired_cpu_ratio": 1.2280526370989344
+    },
+    {
+      "sections": 20,
+      "page_limit": 100,
+      "median_wall_ns": {
+        "baseline": 7354740,
+        "candidate": 9772309.5
+      },
+      "median_paired_candidate_over_baseline": 1.3308256218828154,
+      "all_paired_wall_ratios": [
+        1.3332695052852712,
+        1.3308166435099396,
+        1.3308346002556914,
+        1.3266241913931043
+      ],
+      "median_paired_cpu_ratio": 1.330998545381942
+    },
+    {
+      "sections": 100,
+      "page_limit": 1,
+      "median_wall_ns": {
+        "baseline": 2428551,
+        "candidate": 2128959
+      },
+      "median_paired_candidate_over_baseline": 0.8752265224696805,
+      "all_paired_wall_ratios": [
+        0.8645460586491119,
+        0.875708352108766,
+        0.877445434694543,
+        0.874744692830595
+      ],
+      "median_paired_cpu_ratio": 0.8749310366109377
+    },
+    {
+      "sections": 100,
+      "page_limit": 20,
+      "median_wall_ns": {
+        "baseline": 9004118,
+        "candidate": 11499951
+      },
+      "median_paired_candidate_over_baseline": 1.277575275748672,
+      "all_paired_wall_ratios": [
+        1.2755347150975131,
+        1.2777287994670676,
+        1.2774217520302762,
+        1.2821461863855164
+      ],
+      "median_paired_cpu_ratio": 1.2773892623236516
+    },
+    {
+      "sections": 100,
+      "page_limit": 100,
+      "median_wall_ns": {
+        "baseline": 38035372,
+        "candidate": 51970558
+      },
+      "median_paired_candidate_over_baseline": 1.3681971827465644,
+      "all_paired_wall_ratios": [
+        1.3620337213468636,
+        1.3745268093481642,
+        1.3743606441462652,
+        1.3590224228952388
+      ],
+      "median_paired_cpu_ratio": 1.3681695596770012
+    }
+  ],
+  "separate_semantic_evidence": {
+    "status": "retained-unchanged-for-final-resource-review",
+    "source_sha256": "76aaaf40144146c5b3e6c542c1a3dedcad1a19f78d654da613dc085586bec6fd",
+    "ranking": [
+      {
+        "windows": 4096,
+        "median_paired_wall_ratio": 1.0141356064551452,
+        "tracked_peak_bytes": {
+          "baseline": 16579344,
+          "candidate": 16546632
+        },
+        "tracked_peak_ratio": 0.9980269424411484
+      },
+      {
+        "windows": 32768,
+        "median_paired_wall_ratio": 0.9362437382310995,
+        "tracked_peak_bytes": {
+          "baseline": 85005064,
+          "candidate": 28637125
+        },
+        "tracked_peak_ratio": 0.3368872823859059
+      }
+    ],
+    "mocked_artifact_wall_ratio": 0.5849975228347088,
+    "artifact_read_and_hash_bytes": {
+      "baseline": 255070776,
+      "candidate": 127535388
+    },
+    "limits": "Semantic results remain a separate component experiment. The 4096-window wall slowdown remains visible. Tracked allocations are not total RSS; fake runtimes exclude actual model loading and inference."
+  },
+  "next_candidate": {
+    "change": "Keep batch metadata/counts; fetch each section's preview using the original indexed LIMIT/OFFSET query. Remove compound merging and retention of all raw preview rows.",
+    "expected_selects": "4 + selected_sections",
+    "fresh_protocol": "A separately named prospective directory-only experiment retains the same baseline, nine configurations, four balanced rounds and twenty calls per arm/round. Existing formal-1 runtime/evaluator/plan/results are immutable; no semantic remeasurement."
+  }
+}
+

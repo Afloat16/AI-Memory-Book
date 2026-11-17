@@ -53,12 +53,82 @@ runtimes exclude actual ONNX loading, tokenizer parsing, inference and answer
 generation. This establishes less verification work without predicting
 full-model startup time.
 
-## Hosted comparison and delivery
+## First frozen hosted comparison
 
-The dedicated hosted protocol, complete raw results, independent review and
-exact-commit release verification are recorded before publication. Current
-implementation checkpoints are development candidates until those gates pass.
-No local timing result is presented as a universal or end-to-end speedup.
+[Run 44006165023](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44006165023)
+completed on attempt 1 from candidate `3c9b271a6d9757af09a435b80198dd02b94c1146`.
+Its parentless [evidence commit 780a99fa](https://github.com/Afloat16/AI-Memory-Book/tree/780a99faa71da50eb0bf6e290fddc765e2b49b43)
+retains 239 raw files, including 220 frozen runtime/evaluator inputs. The
+standard-library auditor reproduces all summaries and verifies the complete
+ledgers without remeasurement. The independent review also checks each raw
+file hash and the frozen bytes against their original commits.
+
+The runner used Ubuntu 24.04, CPython 3.12.16, NumPy 2.5.5 and SQLite 3.45.1.
+Both arms use the same component dependencies and the Python text backend.
+The native code is unchanged and outside this component comparison. Four
+alternating AB/BA rounds retain every observation; allocation trials are
+separate from latency trials. These are warm synthetic component measurements,
+with no new model-inference, full-recall, MCP or retrieval-quality claim.
+
+### Semantic resource and latency results
+
+| Component | Baseline median | Candidate median | Median paired wall-time change |
+|---|---:|---:|---:|
+| Ranking, 4,096 vector windows | 19.330 ms | 19.659 ms | **+1.41%** |
+| Ranking, 32,768 vector windows | 188.620 ms | 176.934 ms | **−6.38%** |
+| Verified artifact initialization with mock runtimes | 200.899 ms | 117.187 ms | **−41.50%** |
+
+Positive changes mean more elapsed time. The small-window case is slower in
+all four paired observations, by about 0.329 ms between pooled medians; this
+regression is retained. The large-window case improves in every pair. Paired
+percentage changes are medians of the four candidate/baseline ratios, so they
+need not equal the percentage change between the two pooled medians.
+
+Tracked peak allocations for 32,768 windows fall from **85,005,064 to
+28,637,125 bytes (−66.31%)**; the 4,096-window case falls from 16,579,344 to
+16,546,632 bytes (−0.20%). Both allocation pairs produce the same values.
+The cursor audit confirms 4,096-row batches and explicit closure. Per-page
+winning-result metadata still grows with the number of matched pages.
+
+Artifact reads and hashes each fall from **255,070,776 to 127,535,388 bytes**.
+Identity and the exact bytes supplied to the mocked runtimes remain equal.
+Actual tokenizer parsing, ONNX model loading and inference are excluded.
+[Raw semantic report](https://github.com/Afloat16/AI-Memory-Book/blob/780a99faa71da50eb0bf6e290fddc765e2b49b43/raw/reports/semantic-runtime.json).
+
+### Directory candidate 1: rejected
+
+The first directory implementation reduced SELECT counts to five through a
+compound preview query, but **seven of nine configurations became slower in
+all four paired rounds**. It is not accepted for release as an optimization.
+
+| Sections | Preview pages per section | Median paired wall-time change |
+|---:|---:|---:|
+| 1 | 1 | +5.23% |
+| 1 | 20 | +15.10% |
+| 1 | 100 | +20.11% |
+| 20 | 1 | −9.47% |
+| 20 | 20 | +22.79% |
+| 20 | 100 | +33.08% |
+| 100 | 1 | −12.48% |
+| 100 | 20 | +27.76% |
+| 100 | 100 | +36.82% |
+
+CPU results agree with the direction of each wall-time result. All 1,440 calls
+pass exact output and bounded-materialization checks; correctness does not
+turn the regressions into a speedup. The
+[rejection decision](../benchmarks/experiments/comprehensive_v010_directory_v1_decision.json)
+and [raw directory report](https://github.com/Afloat16/AI-Memory-Book/blob/780a99faa71da50eb0bf6e290fddc765e2b49b43/raw/reports/directory-runtime.json)
+remain unchanged. A separately frozen directory-only comparison evaluates the
+replacement that keeps batch counts and uses the original indexed per-section
+LIMIT/OFFSET query. The semantic source and its first-run evidence are retained.
+
+## Delivery status
+
+The first complete candidate passed all 11 CI jobs in
+[run 44006128221](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44006128221).
+Its Windows job passed the real native executable and PowerShell installer
+smoke plus all 53 capture/import/export/isolation tests. Final source still
+requires fresh exact-commit CI and the full release matrix before publication.
 
 ## Release verification changes
 
