@@ -5,7 +5,20 @@ Product fixtures, examples, screenshots, and capture measurements are synthetic;
 the published experiments also evaluate LoCoMo and HotpotQA text corpora. No private
 user conversation history was used in development or published.
 
-## Current: v0.3.4 startup accepted and fresh comparison complete
+## Current validation index
+
+- [v0.10.0 comprehensive optimization](comprehensive-v010-validation.md):
+  bounded semantic and directory reads, one-pass model verification, capture
+  reliability and release delivery. Component measurements and limits are
+  separate from earlier recall experiments.
+- [v0.9.0 native core validation](native-core-validation.md): the most recent
+  complete native recall/MCP performance experiment.
+- [v0.7.0 project scope validation](v0.7.0-project-scope-validation.md).
+- [Release procedure and required gates](releasing.md).
+
+The records below are historical evidence and retain their original verdicts.
+
+## Historical v0.3.4 startup and fresh comparison
 
 The [prospective startup plan](../benchmarks/experiments/round6-startup-plan.json)
 and [frozen binding](../benchmarks/experiments/round6-startup-binding.json)

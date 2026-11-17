@@ -6,7 +6,7 @@ Projects are books, tasks are chapters, related turns form sections, and origina
 
 [简体中文](README.zh-CN.md) · [Method](#method-overview) · [Quick start](#quick-start) · [Native acceleration](#language-only-acceleration) · [2400-character results](#2400-character-results) · [Open-source comparison](#open-source-comparison)
 
-**v0.9.0 · MIT · Python 3.10+ · Local SQLite / FTS5**
+**v0.10.0 · MIT · Python 3.10+ · Local SQLite / FTS5**
 
 ## Method overview
 
@@ -36,20 +36,20 @@ When resuming a long-running task, ask which constraints the current implementat
 
 ## Quick start
 
-You need **Python 3.10+ with SQLite FTS5**. The v0.9.0 package accelerates measured text, selection, source-mapping and segmentation paths with a C extension while retaining the existing retrieval behavior, project-bound MCP connections and archive interfaces. The installer creates an isolated environment with MCP/client dependencies and needs no Git checkout or Node.js. For an existing archive, follow the [upgrade procedure](docs/deployment.md#upgrading). An archive already on schema 4 needs no new schema migration in v0.9.0; the schema-4 migration procedure applies only to earlier schemas.
+You need **Python 3.10+ with SQLite FTS5**. The v0.10.0 package accelerates measured text, selection, source-mapping and segmentation paths with a C extension while retaining the existing retrieval behavior, project-bound MCP connections and archive interfaces. The installer creates an isolated environment with MCP/client dependencies and needs no Git checkout or Node.js. For an existing archive, follow the [upgrade procedure](docs/deployment.md#upgrading). An archive already on schema 4 needs no new schema migration in v0.10.0; the schema-4 migration procedure applies only to earlier schemas.
 
 **macOS / Linux**
 
 ~~~bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.9.0/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.10.0/scripts/install.sh
 bash install-memory-book.sh
 ~~~
 
 **Windows PowerShell**
 
 ~~~powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.9.0/scripts/install.py -OutFile install-memory-book.py
-py -3 .\install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.10.0/scripts/install.py -OutFile install-memory-book.py
+py -3 -I -X utf8 .\install-memory-book.py
 ~~~
 
 **Connect and check**
@@ -75,7 +75,7 @@ memory-book --db ./demo-memory.db backup --output ./backups/demo-snapshot.db
 memory-book --db ./backups/demo-snapshot.db check-database
 ~~~
 
-Get the example from the [v0.9.0 source](https://github.com/Afloat16/AI-Memory-Book/tree/v0.9.0), run it from the repository directory, and use new database/output paths. The [developer workflow guide](docs/engineering-workflows.md) covers algorithm constraints, failed attempts, symbol lookup, Python integration, exact token limits, source verification and recovery. Recorded example settings are illustrative, not recommended production values.
+Get the example from the [v0.10.0 source](https://github.com/Afloat16/AI-Memory-Book/tree/v0.10.0), run it from the repository directory, and use new database/output paths. The [developer workflow guide](docs/engineering-workflows.md) covers algorithm constraints, failed attempts, symbol lookup, Python integration, exact token limits, source verification and recovery. Recorded example settings are illustrative, not recommended production values.
 
 ## Default configuration
 
@@ -135,6 +135,21 @@ The v0.6.0 diagnostic records **37 passed calls and 77 unsupported assertions**,
 
 The corrected final runtime also replays the unchanged **80 native engineering questions at 1200 and 2400 characters, once per setting**, against the retained, previously executed v0.6.0 baseline. All **160/160 Book responses** and **640/640 responses across the four repository strategies** match after excluding only top-level latency/cache diagnostics. An independent auditor passes **16,861 checks**. This is regression evidence, with no new speed claim or external-component run. [Raw replay and audit](benchmarks/reports/v0.7.0-project-scope/final/native-replay-audit.json).
 
+## v0.10.0 runtime and reliability improvements
+
+The current release bounds semantic vector reads, verifies each model artifact
+once, and batches chapter previews. It also fixes Unicode JSONL capture,
+Windows worker-status and file-snapshot checks, growing-file import limits,
+and managed installation isolation. Native release artifacts are separated by
+workflow attempt, with stricter checks on the actual native test outcomes.
+
+Schema 4, page/source IDs, project scope, retrieval ranking and budgets retain
+their behavior. The 22-entry C backend remains available with the complete
+Python reference. Existing schema-4 archives need no migration. Component
+measurements, regressions and delivery evidence are kept in the
+[v0.10.0 validation report](docs/comprehensive-v010-validation.md).
+The earlier native recall/MCP experiment below remains a separate result.
+
 ## Language-only acceleration
 
 v0.9.0 expands the optional CPython C backend from **seven to 22 entry points**.
@@ -142,7 +157,8 @@ The added implementation covers lexical loops, complete excerpt-window scoring
 and rendering, candidate ordering and novelty selection, context allocation,
 source-reference projection, and turn/section/page construction. Python keeps
 the public interfaces, client integration and a complete reference fallback;
-SQLite retains the same schema, SQL and FTS5 indexes.
+The v0.9.0 language-only comparison keeps SQLite schema, SQL and FTS5 indexes
+fixed. The v0.10.0 chapter-directory batching is documented separately above.
 
 Source coordinates use the existing Unicode code-point semantics. Page IDs,
 ranking decisions, project scope, segmentation boundaries, character/token
@@ -216,7 +232,7 @@ and actual backend:
 python -I -c "import memory_book; from memory_book._text_backend import BACKEND_NAME; print(memory_book.__version__, BACKEND_NAME)"
 ~~~
 
-A compatible native installation prints `0.9.0 native`.
+A compatible native installation prints `0.10.0 native`.
 `MEMORY_BOOK_TEXT_BACKEND=python` selects the reference; `native` requires the
 extension and fails if unavailable; `auto` is the default. Source builds use
 `MEMORY_BOOK_BUILD_NATIVE=1` to require a compiler or `0` for the portable
@@ -360,4 +376,4 @@ Multiple clients, directory/progressive reading, project scopes, source lookup, 
 
 Run `memory-book serve` and open [127.0.0.1:8765](http://127.0.0.1:8765) to inspect the archive. It is local, unencrypted data; recalled evidence enters the selected client's model context. Project filtering is not multi-user access control. Client-configuration backups are not automatic database backups. [Data locations and maintenance](docs/deployment.md#data-and-configuration-paths).
 
-Independently implemented under the [MIT License](LICENSE). [Current release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.9.0) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml).
+Independently implemented under the [MIT License](LICENSE). [Current release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.10.0) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml).

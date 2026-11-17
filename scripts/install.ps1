@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$Source,
-    [string]$Version = 'v0.9.0',
+    [string]$Version = 'v0.10.0',
     [string]$Prefix,
     [string]$BinDir,
     [string]$Python,
@@ -9,7 +9,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$InstallerRef = 'v0.9.0'
+$InstallerRef = 'v0.10.0'
 $PythonExecutable = $null
 $PythonPrefixArguments = @()
 
@@ -25,7 +25,7 @@ if ($Python) {
 foreach ($Candidate in $Candidates) {
     try {
         $Resolved = Get-Command $Candidate.Executable -CommandType Application -ErrorAction Stop
-        $ProbeArguments = @($Candidate.Arguments) + @('-c', 'import sys; raise SystemExit(sys.version_info < (3, 10))')
+        $ProbeArguments = @($Candidate.Arguments) + @('-I', '-X', 'utf8', '-c', 'import sys; raise SystemExit(sys.version_info < (3, 10))')
         & $Resolved.Source @ProbeArguments 2>$null
         if ($LASTEXITCODE -eq 0) {
             $PythonExecutable = $Resolved.Source
@@ -54,11 +54,11 @@ try {
         $Helper = Join-Path $TemporaryDirectory 'install.py'
         $Url = "https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/$InstallerRef/scripts/install.py"
         $Download = 'from pathlib import Path; from urllib.request import urlopen; import sys; r=urlopen(sys.argv[2],timeout=30); Path(sys.argv[1]).write_bytes(r.read()); r.close()'
-        $DownloadArguments = $PythonPrefixArguments + @('-c', $Download, $Helper, $Url)
+        $DownloadArguments = $PythonPrefixArguments + @('-I', '-X', 'utf8', '-c', $Download, $Helper, $Url)
         & $PythonExecutable @DownloadArguments
         if ($LASTEXITCODE -ne 0) { throw 'Could not download the official installer helper.' }
     }
-    $InstallArguments = $PythonPrefixArguments + @($Helper, '--version', $Version)
+    $InstallArguments = $PythonPrefixArguments + @('-I', '-X', 'utf8', $Helper, '--version', $Version)
     if ($Source) { $InstallArguments += @('--source', $Source) }
     if ($Prefix) { $InstallArguments += @('--prefix', $Prefix) }
     if ($BinDir) { $InstallArguments += @('--bin-dir', $BinDir) }

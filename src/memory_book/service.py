@@ -67,7 +67,10 @@ def render_service(config_path: Path | str, *, executable: str | None = None,
     target = sys.platform if platform is None else platform
     config = Path(config_path).expanduser().absolute()
     python = _clean(executable or sys.executable)
-    args = [python, "-m", "memory_book", "daemon", "--config", _clean(config)]
+    # Isolated managed commands must retain their import boundary and UTF-8
+    # output. -I ignores PYTHONUNBUFFERED, so preserve logging with explicit -u.
+    flags = ["-I", "-X", "utf8", "-u"] if sys.flags.isolated else []
+    args = [python, *flags, "-m", "memory_book", "daemon", "--config", _clean(config)]
     path = service_path(platform=target, home=home, environ=environ)
     folder = config.parent
     if target.startswith("linux"):

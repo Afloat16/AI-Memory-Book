@@ -1,7 +1,7 @@
 """AI-Memory-Book's zero-network, standard-library memory engine."""
 
 __all__ = ["MemoryBook"]
-__version__ = "0.9.0"
+__version__ = "0.10.0"
 
 
 def __getattr__(name):

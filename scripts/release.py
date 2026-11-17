@@ -89,9 +89,10 @@ RELEASE_PRERELEASE = {
     "v0.8.0": False,
     "v0.8.1": False,
     "v0.9.0": False,
+    "v0.10.0": False,
 }
 INSTALLERS = ("install.py", "install.sh", "install.ps1")
-NATIVE_RELEASE_TAGS = {"v0.8.0", "v0.8.1", "v0.9.0"}
+NATIVE_RELEASE_TAGS = {"v0.8.0", "v0.8.1", "v0.9.0", "v0.10.0"}
 READ_DELAYS = (1, 2, 4)
 
 

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "baseline_commit": "238c8058f723a203eaca99f94d924ab77de4c0b3",
+  "parent_plan": "benchmarks/experiments/comprehensive_v010_plan.json",
+  "stage": "before hosted candidate measurement and release acceptance",
+  "additional_reproduced_work": [
+    {
+      "area": "managed installer isolation",
+      "evidence": "benchmarks/reports/comprehensive-v010/development/installer-environment-audit.json",
+      "finding": "Owned synthetic packages in the working directory or PYTHONPATH shadowed the managed Unix launcher and version probe; ambient extras could falsely satisfy the extras check; invalid PYTHONHOME prevented startup.",
+      "change": "Use isolated interpreter mode and explicit UTF-8 for installer children, bootstrap helpers, installed probes and managed launchers. Propagate isolation into newly generated MCP/service commands while retaining nonisolated source workflows and explicit unbuffered service output. Generate the Windows executable with the existing pip-vendored distlib interpreter_args facility and retain the existing atomic activation and ownership checks.",
+      "validation": "Actual installed package smoke tests under poisoned Python environment and working directory on all three CI operating systems; preserve application and pip configuration variables, arguments and Unicode paths; verify failed staging preserves the previous launcher."
+    },
+    {
+      "area": "Windows capture file metadata",
+      "evidence": "benchmarks/reports/comprehensive-v010/development/windows-ci-44003125307.log",
+      "finding": "The first real Windows CI passes read-only process probing but fails all three completed-tail update assertions. Windows path-stat and descriptor-stat ctime semantics can differ after file modification, causing unchanged-content snapshots to be deferred.",
+      "change": "Compare ctime within the same stat API before and after reading, while retaining cross-API file identity, size and mtime checks and rejecting files changed during reading.",
+      "validation": "Reproduce differing path/descriptor metadata in a deterministic regression and retain the original real Windows complete-tail output and counter assertions."
+    }
+  ],
+  "unchanged_limits": [
+    "No rewrite of previous benchmark results, frozen evaluators or failures.",
+    "No retrieval algorithm, index schema, source coordinate, project scope or budget change.",
+    "All component latency observations remain visible, including regressions; allocation and I/O reductions are not end-to-end performance claims."
+  ]
+}
