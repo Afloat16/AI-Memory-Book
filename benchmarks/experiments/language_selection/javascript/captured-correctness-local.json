@@ -1,0 +1,64 @@
+{
+  "input_sha256": "5e365466ef05781b909292c86ab197bc1d867d06fdc06d7892461ff22d42e710",
+  "iterations": 64,
+  "kind": "helper-and-bridge-not-end-to-end",
+  "native_binaries": {
+    "current-c": {
+      "path": "/workspace/scratch/e870b2feaa97/language-runtime/current/src/memory_book/_native.cpython-312-x86_64-linux-gnu.so",
+      "sha256": "5cdd9b5f9e85a21840f53aa9c1d16204dae903d58d9fdb5cbd0401ded84a5c2a"
+    }
+  },
+  "node_identity": {
+    "node": "v24.22.1",
+    "pid": 5,
+    "versions": {
+      "acorn": "8.18.0",
+      "ada": "4.0.0",
+      "amaro": "1.1.11",
+      "ares": "1.34.9",
+      "brotli": "1.2.0",
+      "cldr": "48.0",
+      "icu": "78.3",
+      "llhttp": "9.4.3",
+      "merve": "1.2.2",
+      "modules": "137",
+      "napi": "10",
+      "nbytes": "0.1.4",
+      "ncrypto": "0.0.1",
+      "nghttp2": "1.70.0",
+      "nghttp3": "",
+      "ngtcp2": "",
+      "node": "24.22.1",
+      "openssl": "3.5.9",
+      "simdjson": "4.6.11",
+      "simdutf": "6.4.0",
+      "sqlite": "3.53.4",
+      "tz": "2026e",
+      "undici": "7.30.1",
+      "unicode": "17.0",
+      "uv": "1.52.1",
+      "uvwasi": "0.0.23",
+      "v8": "13.6.233.17-node.58",
+      "zlib": "1.3.2.1-motley-285e94b",
+      "zstd": "1.5.7"
+    }
+  },
+  "notes": [
+    "current-c includes the Python-to-C call; node-kernel excludes JSON/IPC and Python object reconstruction",
+    "node-bridge includes JSON/IPC/object reconstruction; no hidden worker cache",
+    "Node fold is the shared immutable table candidate, not the callback-preserving direct translation",
+    "Native backend lacking a helper is recorded as omitted, never silently routed to C",
+    "Window-only includes an input-list reset because the C function mutates positions; coarse selection recreates hits naturally"
+  ],
+  "omissions": [],
+  "records": [],
+  "rounds": 6,
+  "schema_version": 1,
+  "status": "correctness-only-passed",
+  "unicode_identity": {
+    "fold_sha256": "a79027887c87c3172a233fdf8852944c952d58091f354bedd894d21476d64ca8",
+    "fold_unicode_version": "15.0.0",
+    "properties_unicode_version": "15.0.0"
+  },
+  "warmup_per_case": 16
+}
