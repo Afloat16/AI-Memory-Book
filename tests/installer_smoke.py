@@ -52,7 +52,7 @@ def manifest(prefix: Path) -> dict:
 def assert_launcher(record: dict, environment: dict[str, str], *, cwd: Path | None = None) -> None:
     result = command([record["launcher"], "--version"], environment, cwd=cwd)
     assert result.stdout.strip() == record["version"], result.stdout
-    result = command([record["python"], "-I", "-c", "import sys; print(sys.prefix)"], environment, cwd=cwd)
+    result = command([record["python"], "-I", "-X", "utf8", "-c", "import sys; print(sys.prefix)"], environment, cwd=cwd)
     assert Path(result.stdout.strip()).resolve() == Path(record["environment"]).resolve()
 
 
@@ -120,7 +120,7 @@ def run(with_extras: bool) -> None:
                 ("combined", poisoned, unrelated)):
             assert_launcher(first, caller_environment, cwd=caller_directory)
             print(f"PASS: installed launcher ignores unrelated {label} while using its managed environment", flush=True)
-        backend = command([first["python"], "-I", "-c",
+        backend = command([first["python"], "-I", "-X", "utf8", "-c",
                            "from memory_book._text_backend import BACKEND_NAME; print(BACKEND_NAME)"], environment)
         assert backend.stdout.strip() == "native", backend.stdout
         print("PASS: isolated install and absolute launcher with spaces and Unicode paths", flush=True)
@@ -163,7 +163,7 @@ def run(with_extras: bool) -> None:
             command(install_command(wheel, extras_prefix, extras_bin, extras=True), extras_environment, cwd=unrelated)
             record = manifest(extras_prefix)
             assert record["extras"] == ["mcp", "clients"]
-            command([record["python"], "-I", "-c", "import mcp, tomlkit"], extras_environment, cwd=unrelated)
+            command([record["python"], "-I", "-X", "utf8", "-c", "import mcp, tomlkit"], extras_environment, cwd=unrelated)
             assert_launcher(record, extras_environment, cwd=unrelated)
             print("PASS: the default MCP and client configuration extras import inside the installed environment", flush=True)
 

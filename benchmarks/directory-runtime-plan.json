@@ -1,0 +1,46 @@
+{
+  "protocol": "directory-runtime-v1",
+  "baseline_commit": "238c8058f723a203eaca99f94d924ab77de4c0b3",
+  "baseline_source": "src/memory_book/store.py",
+  "baseline_loading": "Execute the exact baseline chapter and section method AST plus its _integer and _string validators; no algorithm substitutions.",
+  "candidate_identity": "Record Git HEAD, source status, store.py SHA-256, harness SHA-256, protocol SHA-256, and workflow run identity.",
+  "runner": "PYTHONPATH=src python scripts/benchmark_directory_runtime.py --baseline-commit 238c8058f723a203eaca99f94d924ab77de4c0b3 --rounds 4 --iterations 20 --output .artifacts/comprehensive-runtime/reports/directory-runtime.json",
+  "fixture": {
+    "target_sections": 100,
+    "unrelated_sections": 3,
+    "source": "Deterministic single-turn Unicode conversations ingested with adaptive segmentation and max_page_chars=128; 130 evidence paragraphs per session, one section per session.",
+    "required_pages_per_target_section": "More than 100; record actual minimum and maximum.",
+    "timestamps": "Explicit source timestamps; incidental creation/update timestamps fixed before freezing.",
+    "storage": "One temporary on-disk WAL archive; exact row digest and table counts recorded.",
+    "timed_connections": "Both arms share one query-only connection to the frozen archive. A separate query-only connection performs instrumentation."
+  },
+  "configurations": {
+    "section_limits": [1, 20, 100],
+    "page_limits": [1, 20, 100],
+    "combination": "All nine pairs; exact project scope and first directory page."
+  },
+  "contract_audits": {
+    "equality": "Exact dictionary/list payload and emitted JSON insertion order, before timing and after every timed call.",
+    "selects": "Untimed SQLite trace records every statement and SELECT count.",
+    "materialization": "Untimed length(content) instrumentation must equal returned previews; each arm reports all counts and output SHA-256.",
+    "transaction_cleanup": "No open transaction may remain after a call; measurement connections must report zero writes.",
+    "tests": "tests.test_directory_batches covers golden equality, max bounds, indexes, scope, custom section overrides, caller transactions, failure cleanup, and concurrent WAL delete/reingest."
+  },
+  "timing": {
+    "warmups_per_arm_per_configuration": 2,
+    "rounds": 4,
+    "order": ["baseline,candidate", "candidate,baseline", "baseline,candidate", "candidate,baseline"],
+    "calls_per_arm_per_round": 20,
+    "primary": "time.perf_counter_ns wall latency per call",
+    "secondary": "time.process_time_ns process CPU per call; scheduler diagnostic, never a substitute for wall latency",
+    "excluded": "Fixture creation, tracing, materialization instrumentation, equality checks, output hashing, report writes, and explicit result disposal.",
+    "cache_state": "Warm after audit and warmups; no claim about cold startup or cold operating-system page cache."
+  },
+  "reporting": {
+    "raw_observations": "Append, flush and fsync one JSONL event after every timed call; record errors and output equality as well as timings.",
+    "checkpoints": "Atomically save partial JSON after audits, each completed arm/round, and on failure. Existing report/event outputs are not overwritten by a new run.",
+    "summary": "Per-arm medians, all four paired candidate/baseline median ratios, and their median, separately for wall and process CPU.",
+    "failure": "Preserve completed and partial observations, write a failed status and exception, and return nonzero; never substitute a successful report.",
+    "interpretation": "Component-only evidence on the frozen fixture; no recall-quality or end-to-end speedup claim."
+  }
+}

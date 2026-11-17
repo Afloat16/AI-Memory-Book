@@ -1,10 +1,11 @@
 {
-  "protocol": "semantic-runtime-development-v2",
+  "protocol": "semantic-runtime-development-v3",
   "evidence_label": "development",
   "baseline_commit": "238c8058f723a203eaca99f94d924ab77de4c0b3",
   "baseline_source": "src/memory_book/semantic.py",
   "candidate_identity": "Exact source SHA-256, Git HEAD and source status recorded in each report",
   "runner": "python scripts/benchmark_semantic_runtime.py --output semantic-runtime-development.json",
+  "hosted_parameters": "The separate frozen benchmarks/comprehensive-runtime-plan.json specifies the hosted 4 latency / 2 allocation / 4 artifact pairs; the counts below are this development CLI's defaults.",
   "ranking": {
     "windows": [4096, 32768],
     "dimensions": 384,
@@ -15,8 +16,8 @@
     "warmups_per_arm": 2,
     "untraced_latency_pairs": 8,
     "allocation_pairs": 2,
-    "allocation_metric": "tracemalloc Python allocation peak, not process RSS or SQLite/native allocation",
-    "validation": "Untimed exact dictionary/list/float equality against the frozen baseline before trials and after every timed call",
+    "allocation_metric": "tracemalloc-tracked peak allocations (including NumPy registered buffers); not total RSS or untracked SQLite/native allocations",
+    "validation": "Untimed exact dictionary/list/float equality against the frozen baseline before trials and after every timed call; a separate untimed cursor audit forbids fetchall and enforces fetchmany <= 4096 with explicit cursor closure",
     "ordering": "Alternating baseline/candidate and candidate/baseline, equal first-position counts"
   },
   "artifact_initialization": {
@@ -34,7 +35,7 @@
     }
   },
   "reporting": {
-    "retain": "Every observation, order position, fixture hash, source hash, environment and arguments",
+    "retain": "Every observation, order position, fixture hash, source hash, environment and arguments; optional --events writes an exclusively created JSONL ledger with flush/fsync after each observation and a failure marker, outside timers",
     "summary": "Per-arm medians, every paired candidate/baseline ratio and their median; wall time and process CPU reported separately",
     "process_cpu": "Secondary diagnostic for scheduler interference; never substituted for user-visible wall latency",
     "timing_separation": "No tracing, equality validation, result hashing or garbage collection inside latency timers",
