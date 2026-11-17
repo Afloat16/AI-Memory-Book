@@ -1,0 +1,377 @@
+{
+  "protocol": "semantic-runtime-development-v2",
+  "evidence_label": "development",
+  "scope": "Component memory and verified artifact I/O; no retrieval-quality or end-to-end claim",
+  "recorded_at_utc": "2026-11-17T02:23:25Z",
+  "baseline_ref": "238c8058f723a203eaca99f94d924ab77de4c0b3",
+  "sources": {
+    "baseline": {
+      "source_sha256": "41df86bced1b613deea2f1b1361eba9f32c3786f5185a06253fbfd32270ac91e",
+      "commit": "238c8058f723a203eaca99f94d924ab77de4c0b3",
+      "blob": "1d4482b2bec1007a65aa0c67388818664b1aa384"
+    },
+    "candidate": {
+      "source_sha256": "76aaaf40144146c5b3e6c542c1a3dedcad1a19f78d654da613dc085586bec6fd",
+      "head": "f968f79d380f7d15d78600fee4827465af265636",
+      "source_status": "M src/memory_book/semantic.py"
+    }
+  },
+  "script_sha256": "60204ec7085d413e7198960bbc10b5610376978e5ec83a600f6dfbb0866847fe",
+  "plan_sha256": "d4644410e4029a5c368b6b2847cd2d518b1352f7379d994ed6f7b67a45c1bd4e",
+  "environment": {
+    "python": "3.12.14",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+    "numpy": "2.3.5",
+    "sqlite": "3.53.1",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "cpu_count": 9
+  },
+  "arguments": {
+    "output": "../runtime-audit/semantic-runtime-v2-smoke.json",
+    "windows": [
+      1,
+      4097
+    ],
+    "pairs": 2,
+    "memory_pairs": 2,
+    "artifact_pairs": 2,
+    "warmups": 0,
+    "model_bytes": 1048576,
+    "tokenizer_bytes": 65536
+  },
+  "ranking": [
+    {
+      "fixture": {
+        "windows": 1,
+        "pages": 1,
+        "dimensions": 384,
+        "windows_per_page": 4,
+        "query_windows": 2,
+        "vector_payload_bytes": 1536,
+        "fixture_sha256": "c16c712898751ac1cb06a99bcb89f12f598aa476168d50929a7a64559dc5e1ce",
+        "query_vectors_sha256": "93875f4e20743df09fe999999b5686946503e2fb06e90cdc335150fce50cf165",
+        "sqlite_storage": "in-memory",
+        "scope": "all fixture pages"
+      },
+      "validation": {
+        "exact_equal": true,
+        "output_sha256": "9c1efc8dfbc1a11f8ebe5c8bdbf14a25bf44329116f96b56c04fabae7014db1f",
+        "returned_pages": 1
+      },
+      "latency": {
+        "observations": [
+          {
+            "pair": 0,
+            "position": 0,
+            "arm": "baseline",
+            "elapsed_ns": 7196618,
+            "process_cpu_ns": 136072,
+            "output_sha256": "9c1efc8dfbc1a11f8ebe5c8bdbf14a25bf44329116f96b56c04fabae7014db1f"
+          },
+          {
+            "pair": 0,
+            "position": 1,
+            "arm": "candidate",
+            "elapsed_ns": 127588,
+            "process_cpu_ns": 123352,
+            "output_sha256": "9c1efc8dfbc1a11f8ebe5c8bdbf14a25bf44329116f96b56c04fabae7014db1f"
+          },
+          {
+            "pair": 1,
+            "position": 0,
+            "arm": "candidate",
+            "elapsed_ns": 8454115,
+            "process_cpu_ns": 149081,
+            "output_sha256": "9c1efc8dfbc1a11f8ebe5c8bdbf14a25bf44329116f96b56c04fabae7014db1f"
+          },
+          {
+            "pair": 1,
+            "position": 1,
+            "arm": "baseline",
+            "elapsed_ns": 138274,
+            "process_cpu_ns": 134499,
+            "output_sha256": "9c1efc8dfbc1a11f8ebe5c8bdbf14a25bf44329116f96b56c04fabae7014db1f"
+          }
+        ],
+        "median_elapsed_ns": {
+          "baseline": 3667446.0,
+          "candidate": 4290851.5
+        },
+        "candidate_over_baseline_pair_ratios": [
+          0.017728883205972584,
+          61.14030837322996
+        ],
+        "median_candidate_over_baseline": 30.57901862821797,
+        "process_cpu": {
+          "median_process_cpu_ns": {
+            "baseline": 135285.5,
+            "candidate": 136216.5
+          },
+          "candidate_over_baseline_pair_ratios": [
+            0.9065200776059733,
+            1.1084171629528845
+          ],
+          "median_candidate_over_baseline": 1.007468620279429
+        }
+      },
+      "allocations": {
+        "observations": [
+          {
+            "pair": 0,
+            "position": 0,
+            "arm": "baseline",
+            "peak_python_bytes": 5983,
+            "retained_python_bytes": 3213,
+            "output_sha256": "9c1efc8dfbc1a11f8ebe5c8bdbf14a25bf44329116f96b56c04fabae7014db1f"
+          },
+          {
+            "pair": 0,
+            "position": 1,
+            "arm": "candidate",
+            "peak_python_bytes": 5999,
+            "retained_python_bytes": 3157,
+            "output_sha256": "9c1efc8dfbc1a11f8ebe5c8bdbf14a25bf44329116f96b56c04fabae7014db1f"
+          },
+          {
+            "pair": 1,
+            "position": 0,
+            "arm": "candidate",
+            "peak_python_bytes": 5999,
+            "retained_python_bytes": 3157,
+            "output_sha256": "9c1efc8dfbc1a11f8ebe5c8bdbf14a25bf44329116f96b56c04fabae7014db1f"
+          },
+          {
+            "pair": 1,
+            "position": 1,
+            "arm": "baseline",
+            "peak_python_bytes": 6175,
+            "retained_python_bytes": 3405,
+            "output_sha256": "9c1efc8dfbc1a11f8ebe5c8bdbf14a25bf44329116f96b56c04fabae7014db1f"
+          }
+        ],
+        "median_peak_python_bytes": {
+          "baseline": 6079.0,
+          "candidate": 5999.0
+        },
+        "candidate_over_baseline_pair_ratios": [
+          1.0026742436904563,
+          0.971497975708502
+        ],
+        "median_candidate_over_baseline": 0.9870861096994792
+      }
+    },
+    {
+      "fixture": {
+        "windows": 4097,
+        "pages": 1025,
+        "dimensions": 384,
+        "windows_per_page": 4,
+        "query_windows": 2,
+        "vector_payload_bytes": 6292992,
+        "fixture_sha256": "66034822cb332beb3697ca28d77f33a550ed4dcd8b539462c7a298cece38220c",
+        "query_vectors_sha256": "93875f4e20743df09fe999999b5686946503e2fb06e90cdc335150fce50cf165",
+        "sqlite_storage": "in-memory",
+        "scope": "all fixture pages"
+      },
+      "validation": {
+        "exact_equal": true,
+        "output_sha256": "36215732a52a0e877f45e90b81fa073a325067acb1601f47c70b71d02bc056c8",
+        "returned_pages": 96
+      },
+      "latency": {
+        "observations": [
+          {
+            "pair": 0,
+            "position": 0,
+            "arm": "baseline",
+            "elapsed_ns": 38663031,
+            "process_cpu_ns": 22818191,
+            "output_sha256": "36215732a52a0e877f45e90b81fa073a325067acb1601f47c70b71d02bc056c8"
+          },
+          {
+            "pair": 0,
+            "position": 1,
+            "arm": "candidate",
+            "elapsed_ns": 24032103,
+            "process_cpu_ns": 24023795,
+            "output_sha256": "36215732a52a0e877f45e90b81fa073a325067acb1601f47c70b71d02bc056c8"
+          },
+          {
+            "pair": 1,
+            "position": 0,
+            "arm": "candidate",
+            "elapsed_ns": 24272658,
+            "process_cpu_ns": 24036864,
+            "output_sha256": "36215732a52a0e877f45e90b81fa073a325067acb1601f47c70b71d02bc056c8"
+          },
+          {
+            "pair": 1,
+            "position": 1,
+            "arm": "baseline",
+            "elapsed_ns": 31476557,
+            "process_cpu_ns": 23591865,
+            "output_sha256": "36215732a52a0e877f45e90b81fa073a325067acb1601f47c70b71d02bc056c8"
+          }
+        ],
+        "median_elapsed_ns": {
+          "baseline": 35069794.0,
+          "candidate": 24152380.5
+        },
+        "candidate_over_baseline_pair_ratios": [
+          0.6215783496125795,
+          0.7711344668351116
+        ],
+        "median_candidate_over_baseline": 0.6963564082238456,
+        "process_cpu": {
+          "median_process_cpu_ns": {
+            "baseline": 23205028.0,
+            "candidate": 24030329.5
+          },
+          "candidate_over_baseline_pair_ratios": [
+            1.0528352137993762,
+            1.0188623917608888
+          ],
+          "median_candidate_over_baseline": 1.0358488027801325
+        }
+      },
+      "allocations": {
+        "observations": [
+          {
+            "pair": 0,
+            "position": 0,
+            "arm": "baseline",
+            "peak_python_bytes": 16582192,
+            "retained_python_bytes": 370815,
+            "output_sha256": "36215732a52a0e877f45e90b81fa073a325067acb1601f47c70b71d02bc056c8"
+          },
+          {
+            "pair": 0,
+            "position": 1,
+            "arm": "candidate",
+            "peak_python_bytes": 16547361,
+            "retained_python_bytes": 370759,
+            "output_sha256": "36215732a52a0e877f45e90b81fa073a325067acb1601f47c70b71d02bc056c8"
+          },
+          {
+            "pair": 1,
+            "position": 0,
+            "arm": "candidate",
+            "peak_python_bytes": 16547361,
+            "retained_python_bytes": 370759,
+            "output_sha256": "36215732a52a0e877f45e90b81fa073a325067acb1601f47c70b71d02bc056c8"
+          },
+          {
+            "pair": 1,
+            "position": 1,
+            "arm": "baseline",
+            "peak_python_bytes": 16582192,
+            "retained_python_bytes": 370815,
+            "output_sha256": "36215732a52a0e877f45e90b81fa073a325067acb1601f47c70b71d02bc056c8"
+          }
+        ],
+        "median_peak_python_bytes": {
+          "baseline": 16582192.0,
+          "candidate": 16547361.0
+        },
+        "candidate_over_baseline_pair_ratios": [
+          0.9978994936254507,
+          0.9978994936254507
+        ],
+        "median_candidate_over_baseline": 0.9978994936254507
+      }
+    }
+  ],
+  "artifact_initialization": {
+    "fixture": {
+      "files": [
+        {
+          "path": "fixture.onnx",
+          "bytes": 1048576,
+          "sha256": "a00d1a356de13b72a2b0ac1338e5cd6f2fd0c02dcb37bcfd06160c85a69c33bb"
+        },
+        {
+          "path": "tokenizer.json",
+          "bytes": 65536,
+          "sha256": "e9cccf4845be06865844a6f461f8339049abbab9b3628d08ae834611272e9bf2"
+        }
+      ],
+      "total_artifact_bytes": 1114112,
+      "runtimes": "fake; no ONNX loading, inference, or tokenizer parsing",
+      "cache_state": "warm filesystem cache after validation and warmups"
+    },
+    "validation": {
+      "baseline": {
+        "read_bytes": 2228224,
+        "hash_bytes": 2228749,
+        "artifact_hash_bytes": 2228224,
+        "identity_equal": true,
+        "fingerprint_equal": true,
+        "bytes_equal": true
+      },
+      "candidate": {
+        "read_bytes": 1114112,
+        "hash_bytes": 1114637,
+        "artifact_hash_bytes": 1114112,
+        "identity_equal": true,
+        "fingerprint_equal": true,
+        "bytes_equal": true
+      }
+    },
+    "latency": {
+      "observations": [
+        {
+          "pair": 0,
+          "position": 0,
+          "arm": "baseline",
+          "elapsed_ns": 2597356,
+          "process_cpu_ns": 2096243,
+          "model_fingerprint": "ea538a9e8a4d722b45d51aa2bf5211c9dc1e3954e603464eed7cd384556f4fc5"
+        },
+        {
+          "pair": 0,
+          "position": 1,
+          "arm": "candidate",
+          "elapsed_ns": 1339027,
+          "process_cpu_ns": 1108211,
+          "model_fingerprint": "ea538a9e8a4d722b45d51aa2bf5211c9dc1e3954e603464eed7cd384556f4fc5"
+        },
+        {
+          "pair": 1,
+          "position": 0,
+          "arm": "candidate",
+          "elapsed_ns": 1137840,
+          "process_cpu_ns": 1132747,
+          "model_fingerprint": "ea538a9e8a4d722b45d51aa2bf5211c9dc1e3954e603464eed7cd384556f4fc5"
+        },
+        {
+          "pair": 1,
+          "position": 1,
+          "arm": "baseline",
+          "elapsed_ns": 2139850,
+          "process_cpu_ns": 2098697,
+          "model_fingerprint": "ea538a9e8a4d722b45d51aa2bf5211c9dc1e3954e603464eed7cd384556f4fc5"
+        }
+      ],
+      "median_elapsed_ns": {
+        "baseline": 2368603.0,
+        "candidate": 1238433.5
+      },
+      "candidate_over_baseline_pair_ratios": [
+        0.5155346436915078,
+        0.5317382059490151
+      ],
+      "median_candidate_over_baseline": 0.5236364248202614,
+      "process_cpu": {
+        "median_process_cpu_ns": {
+          "baseline": 2097470.0,
+          "candidate": 1120479.0
+        },
+        "candidate_over_baseline_pair_ratios": [
+          0.5286653312616906,
+          0.53973822805293
+        ],
+        "median_candidate_over_baseline": 0.5342017796573103
+      }
+    }
+  }
+}

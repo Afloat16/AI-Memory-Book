@@ -1,0 +1,93 @@
+{
+  "scope": "Diagnostic only: wall versus process CPU during shared-workspace activity",
+  "sources": {
+    "baseline": {
+      "source_sha256": "41df86bced1b613deea2f1b1361eba9f32c3786f5185a06253fbfd32270ac91e",
+      "commit": "238c8058f723a203eaca99f94d924ab77de4c0b3",
+      "blob": "1d4482b2bec1007a65aa0c67388818664b1aa384"
+    },
+    "candidate": {
+      "source_sha256": "76aaaf40144146c5b3e6c542c1a3dedcad1a19f78d654da613dc085586bec6fd",
+      "head": "f968f79d380f7d15d78600fee4827465af265636",
+      "source_status": "M src/memory_book/semantic.py"
+    }
+  },
+  "fixture": {
+    "windows": 32768,
+    "pages": 8192,
+    "dimensions": 384,
+    "windows_per_page": 4,
+    "query_windows": 2,
+    "vector_payload_bytes": 50331648,
+    "fixture_sha256": "aa5c4dc30577717b1c42f74d9d98e9c7439f63f1d27dd37b6565e869b94b80e7",
+    "query_vectors_sha256": "93875f4e20743df09fe999999b5686946503e2fb06e90cdc335150fce50cf165",
+    "sqlite_storage": "in-memory",
+    "scope": "all fixture pages"
+  },
+  "observations": [
+    {
+      "pair": 0,
+      "position": 0,
+      "arm": "baseline",
+      "wall_ns": 652809649,
+      "cpu_ns": 319956482,
+      "output_sha256": "36215732a52a0e877f45e90b81fa073a325067acb1601f47c70b71d02bc056c8"
+    },
+    {
+      "pair": 0,
+      "position": 1,
+      "arm": "candidate",
+      "wall_ns": 238644319,
+      "cpu_ns": 200623477,
+      "output_sha256": "36215732a52a0e877f45e90b81fa073a325067acb1601f47c70b71d02bc056c8"
+    },
+    {
+      "pair": 1,
+      "position": 0,
+      "arm": "candidate",
+      "wall_ns": 218834339,
+      "cpu_ns": 214957794,
+      "output_sha256": "36215732a52a0e877f45e90b81fa073a325067acb1601f47c70b71d02bc056c8"
+    },
+    {
+      "pair": 1,
+      "position": 1,
+      "arm": "baseline",
+      "wall_ns": 240943660,
+      "cpu_ns": 236982841,
+      "output_sha256": "36215732a52a0e877f45e90b81fa073a325067acb1601f47c70b71d02bc056c8"
+    },
+    {
+      "pair": 2,
+      "position": 0,
+      "arm": "baseline",
+      "wall_ns": 489214503,
+      "cpu_ns": 230355786,
+      "output_sha256": "36215732a52a0e877f45e90b81fa073a325067acb1601f47c70b71d02bc056c8"
+    },
+    {
+      "pair": 2,
+      "position": 1,
+      "arm": "candidate",
+      "wall_ns": 864907882,
+      "cpu_ns": 356590504,
+      "output_sha256": "36215732a52a0e877f45e90b81fa073a325067acb1601f47c70b71d02bc056c8"
+    },
+    {
+      "pair": 3,
+      "position": 0,
+      "arm": "candidate",
+      "wall_ns": 463260329,
+      "cpu_ns": 236447558,
+      "output_sha256": "36215732a52a0e877f45e90b81fa073a325067acb1601f47c70b71d02bc056c8"
+    },
+    {
+      "pair": 3,
+      "position": 1,
+      "arm": "baseline",
+      "wall_ns": 512456050,
+      "cpu_ns": 272280387,
+      "output_sha256": "36215732a52a0e877f45e90b81fa073a325067acb1601f47c70b71d02bc056c8"
+    }
+  ]
+}
