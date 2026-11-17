@@ -109,8 +109,11 @@ def setup_clients(names: list[str], *, config_path: str | Path | None = None,
     if config_file in {config.database, config.state_path, config.log_path}:
         raise ValueError("The background config must be separate from database, state, and log files")
     # Resolve every plan and source before applying any client configuration.
+    # Managed launchers run isolated; carry that import boundary into commands
+    # the client will start later. Source-based development keeps its prefix.
+    python_prefix = ("-I", "-X", "utf8", "-m", "memory_book") if sys.flags.isolated else ("-m", "memory_book")
     plans = [plan_client(name, config.database, sys.executable,
-                         argument_prefix=("-m", "memory_book"), config_path=client_config_path,
+                         argument_prefix=python_prefix, config_path=client_config_path,
                          writable=writable, replace=replace_existing, home=home,
                          platform=platform, environ=environ, project=mcp_project,
                          clear_project=clear_mcp_project) for name in names]

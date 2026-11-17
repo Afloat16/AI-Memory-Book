@@ -27,7 +27,7 @@ from urllib.request import urlopen
 
 
 # Pin the packaged release; development checkouts are installed with --source.
-DEFAULT_VERSION = "v0.9.0"
+DEFAULT_VERSION = "v0.10.0"
 WHEEL_RELEASES = {"v0.3.0", "v0.3.1", "v0.3.2", "v0.3.3", "v0.3.4", "v0.4.0", "v0.5.0", "v0.6.0", "v0.7.0"}
 REPOSITORY = "https://github.com/Afloat16/AI-Memory-Book"
 MANIFEST_LIMIT = 2 * 1024 * 1024
@@ -98,6 +98,33 @@ if importlib.util.find_spec("memory_book._text_backend") is not None:
         raise RuntimeError("Installed text backend reports an inconsistent state")
 print(json.dumps(result))
 '''
+
+
+WINDOWS_LAUNCHER = r'''
+import importlib.metadata, sys
+from pip._vendor.distlib.scripts import ScriptMaker
+
+entries = [entry for entry in importlib.metadata.distribution("ai-memory-book").entry_points
+           if entry.group == "console_scripts" and entry.name == "memory-book"]
+if len(entries) != 1:
+    raise RuntimeError("The installed package must declare one memory-book console entry point")
+maker = ScriptMaker(None, sys.argv[1])
+maker.variants = {""}
+maker.clobber = True
+maker.make("memory-book = " + entries[0].value, options={"interpreter_args": ["-I", "-X", "utf8"]})
+'''
+
+
+def launcher_content(python: Path) -> bytes:
+    """Bind the managed command to its installed environment on every platform."""
+    if os.name == "nt":
+        # Use pip's existing launcher generator and its interpreter-argument
+        # API, including its quoting for paths with spaces. Generate only in
+        # the new environment; activation retains the existing rollback path.
+        subprocess.run([str(python), "-I", "-X", "utf8", "-c", WINDOWS_LAUNCHER, str(python.parent)], check=True)
+        return (python.parent / "memory-book.exe").read_bytes()
+    return ("#!/bin/sh\n# AI-Memory-Book managed launcher\nexec " + shlex.quote(str(python))
+            + ' -I -X utf8 -m memory_book "$@"\n').encode("utf-8")
 
 
 def manifest_release_tag(version: str) -> str | None:
@@ -180,7 +207,7 @@ def release_package_spec(python: Path, version: str, extras: bool) -> tuple[str,
     value = validate_release_manifest(json.loads(raw, object_pairs_hook=unique_json_object), tag)
     selection_input = {key: value[key] for key in ("version", "python_fallback_wheel", "native_wheels")}
     try:
-        output = subprocess.run([str(python), "-I", "-c", WHEEL_SELECTOR], input=json.dumps(selection_input),
+        output = subprocess.run([str(python), "-I", "-X", "utf8", "-c", WHEEL_SELECTOR], input=json.dumps(selection_input),
                                 text=True, encoding="utf-8", capture_output=True, check=True)
     except subprocess.CalledProcessError as error:
         detail = (error.stderr or "").strip()[-1500:]
@@ -206,7 +233,7 @@ def release_package_spec(python: Path, version: str, extras: bool) -> tuple[str,
 def installed_backend(python: Path) -> dict:
     """Inspect the installed default backend, independent of caller overrides."""
     environment = {**os.environ, "MEMORY_BOOK_TEXT_BACKEND": "auto"}
-    output = subprocess.check_output([str(python), "-I", "-c", BACKEND_PROBE],
+    output = subprocess.check_output([str(python), "-I", "-X", "utf8", "-c", BACKEND_PROBE],
                                      env=environment, text=True, encoding="utf-8")
     result = json.loads(output)
     if (type(result) is not dict or result.get("backend") not in {"native", "python"}
@@ -355,15 +382,21 @@ def install(arguments: argparse.Namespace) -> dict:
         activated = False
         staged_launcher = staged_manifest = rollback_launcher = None
         try:
-            subprocess.run([sys.executable, "-m", "venv", str(environment)], check=True)
+            subprocess.run([sys.executable, "-I", "-X", "utf8", "-m", "venv", str(environment)], check=True)
             python = environment / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
             release_asset = None
             if use_manifest:
                 spec, release_asset = release_package_spec(python, arguments.version, not arguments.without_extras)
-            subprocess.run([str(python), "-m", "pip", "--disable-pip-version-check", "install", "--no-input", "--upgrade", spec], check=True)
-            installed_version = subprocess.check_output([str(python), "-m", "memory_book", "--version"], text=True, encoding="utf-8").strip()
+            # pip can spawn build-backend interpreters without our -I flag.
+            # Keep its caller-configured indexes/proxies and application values,
+            # but do not pass Python import routing into those nested processes.
+            build_environment = {key: value for key, value in os.environ.items()
+                                 if key not in {"PYTHONHOME", "PYTHONPATH"}}
+            subprocess.run([str(python), "-I", "-X", "utf8", "-m", "pip", "--disable-pip-version-check", "install", "--no-input", "--upgrade", spec],
+                           env=build_environment, check=True)
+            installed_version = subprocess.check_output([str(python), "-I", "-X", "utf8", "-m", "memory_book", "--version"], text=True, encoding="utf-8").strip()
             if not arguments.without_extras:
-                subprocess.run([str(python), "-c", "import mcp, tomlkit"], check=True)
+                subprocess.run([str(python), "-I", "-X", "utf8", "-c", "import mcp, tomlkit"], check=True)
             if arguments.source is None and not re.fullmatch(r"[0-9a-fA-F]{40}", arguments.version):
                 if installed_version != arguments.version.removeprefix("v"):
                     raise RuntimeError(f"The release reports {installed_version}, but {arguments.version} was requested.")
@@ -376,12 +409,7 @@ def install(arguments: argparse.Namespace) -> dict:
                     raise RuntimeError("The installed native extension differs from the release manifest.")
 
             bin_dir.mkdir(parents=True, exist_ok=True)
-            if os.name == "nt":
-                # pip's native launcher embeds the absolute environment Python.
-                # Copying it avoids shell quoting and execution-policy problems.
-                content = (environment / "Scripts" / "memory-book.exe").read_bytes()
-            else:
-                content = ("#!/bin/sh\n# AI-Memory-Book managed launcher\nexec " + shlex.quote(str(python)) + ' -m memory_book "$@"\n').encode("utf-8")
+            content = launcher_content(python)
             staged_launcher = stage_file(launcher, content, executable=True)
             result = {
                 "schema": 1,

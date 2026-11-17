@@ -49,7 +49,7 @@ class DirectoryBatchTests(unittest.TestCase):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         self.path = Path(temporary.name) / "book.db"
-        self.book = MemoryBook(self.path, segmentation="session", max_page_chars=128, min_page_chars=0)
+        self.book = MemoryBook(self.path, segmentation="adaptive", max_page_chars=128, min_page_chars=0)
         self.addCleanup(self.book.close)
 
     def populate(self, count=20, *, project="alpha", long=True):
@@ -82,6 +82,25 @@ class DirectoryBatchTests(unittest.TestCase):
                 with self.subTest(project=project, offset=offset, limit=limit, page_limit=page_limit):
                     self.assert_golden(chapter, project=project, offset=offset, limit=limit, page_limit=page_limit)
         self.assertFalse(self.book.db.in_transaction)
+
+    def test_session_and_turn_modes_keep_their_unsplit_page_contracts(self):
+        for mode in ("session", "turn"):
+            with self.subTest(mode=mode), MemoryBook(":memory:", segmentation=mode,
+                                                    max_page_chars=128, min_page_chars=0) as book:
+                for index in range(3):
+                    source = payload(index)
+                    source["messages"] += [{"role": "user", "content": "A second independent question?"},
+                                           {"role": "assistant", "content": "Another original answer. " * 20}]
+                    chapter = book.ingest(source)["chapter_id"]
+                for offset, limit in ((0, 100), (1, 1), (6, 1)):
+                    options = {"project": "alpha", "offset": offset, "limit": limit, "page_limit": 1}
+                    expected = baseline_chapter(book, chapter, **options)
+                    actual = book.chapter(chapter, **options)
+                    self.assertEqual(actual, expected)
+                    self.assertEqual(json.dumps(actual, ensure_ascii=False), json.dumps(expected, ensure_ascii=False))
+                    self.assertEqual(actual["total"], 3 if mode == "session" else 6)
+                    self.assertTrue(all(section["pages_total"] == 1 and section["pages_next_offset"] is None
+                                        for section in actual["sections"]))
 
     def test_empty_sections_empty_chapter_and_duplicate_page_ordinals_match(self):
         chapter = self.populate(3)
@@ -254,14 +273,15 @@ class DirectoryBatchTests(unittest.TestCase):
                 self.book.chapter(chapter)
             self.assertFalse(self.book.db.in_transaction)
         finally:
-            self.book.db.set_authorizer(None)
+            # Passing None to disable the authorizer is supported only in 3.11+.
+            self.book.db.set_authorizer(lambda *_: sqlite3.SQLITE_OK)
         self.assert_golden(chapter)
 
     def test_wal_delete_and_reingest_cannot_mix_directory_generations(self):
         chapter = self.populate(4)
         before = baseline_chapter(self.book, chapter)
         failures, triggered = [], []
-        with MemoryBook(self.path, segmentation="session", max_page_chars=128, min_page_chars=0) as writer:
+        with MemoryBook(self.path, segmentation="adaptive", max_page_chars=128, min_page_chars=0) as writer:
             def concurrent_update(statement):
                 if not triggered and "FROM pages WHERE section_id" in statement:
                     triggered.append(True)

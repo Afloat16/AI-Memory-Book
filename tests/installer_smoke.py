@@ -22,8 +22,9 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def command(arguments: list[str], environment: dict[str, str], *, succeeds: bool = True) -> subprocess.CompletedProcess:
-    result = subprocess.run(arguments, env=environment, text=True, encoding="utf-8", errors="replace", capture_output=True, timeout=180)
+def command(arguments: list[str], environment: dict[str, str], *, succeeds: bool = True,
+            cwd: Path | None = None) -> subprocess.CompletedProcess:
+    result = subprocess.run(arguments, env=environment, cwd=cwd, text=True, encoding="utf-8", errors="replace", capture_output=True, timeout=180)
     if (result.returncode == 0) != succeeds:
         raise AssertionError(f"Unexpected exit {result.returncode}: {arguments}\n{result.stdout[-5000:]}\n{result.stderr[-5000:]}")
     return result
@@ -48,10 +49,10 @@ def manifest(prefix: Path) -> dict:
     return json.loads((prefix / "installation.json").read_text(encoding="utf-8"))
 
 
-def assert_launcher(record: dict, environment: dict[str, str]) -> None:
-    result = command([record["launcher"], "--version"], environment)
+def assert_launcher(record: dict, environment: dict[str, str], *, cwd: Path | None = None) -> None:
+    result = command([record["launcher"], "--version"], environment, cwd=cwd)
     assert result.stdout.strip() == record["version"], result.stdout
-    result = command([record["python"], "-c", "import sys; print(sys.prefix)"], environment)
+    result = command([record["python"], "-I", "-c", "import sys; print(sys.prefix)"], environment, cwd=cwd)
     assert Path(result.stdout.strip()).resolve() == Path(record["environment"]).resolve()
 
 
@@ -70,7 +71,8 @@ def run(with_extras: bool) -> None:
             "TEMP": str(work / "tmp"),
             "TMP": str(work / "tmp"),
         })
-        # Do not let the test runner's source tree leak into the isolated CLI.
+        # Build the local wheel under a controlled environment, then explicitly
+        # poison caller paths for the real installer and installed launcher.
         environment.pop("PYTHONPATH", None)
         environment.pop("PYTHONHOME", None)
         (work / "tmp").mkdir()
@@ -91,14 +93,33 @@ def run(with_extras: bool) -> None:
         command([sys.executable, "-m", "pip", "wheel", "--no-deps", "--no-build-isolation", "--wheel-dir", str(wheels), str(source)], environment)
         wheel = next(wheels.glob("ai_memory_book-*.whl"))
 
+        unrelated = work / "Unrelated Project 误导"
+        unrelated.mkdir()
+        for name in ("memory_book", "pip", "venv"):
+            package = unrelated / name
+            package.mkdir()
+            (package / "__init__.py").write_text(
+                f'raise RuntimeError("unrelated caller package: {name}")\n', encoding="utf-8")
+        for name in ("mcp", "tomlkit"):
+            (unrelated / f"{name}.py").write_text(
+                f'raise RuntimeError("unrelated caller extra: {name}")\n', encoding="utf-8")
+        poisoned = {**environment, "PYTHONPATH": str(unrelated),
+                    "PYTHONHOME": str(work / "Not a Python installation")}
         prefix, bin_dir = work / "Install Space 记忆", work / "Command Bin 记忆"
         arguments = install_command(wheel, prefix, bin_dir)
-        command(arguments, environment)
+        command(arguments, poisoned, cwd=unrelated)
         first = manifest(prefix)
         assert first["extras"] == []
         assert Path(first["launcher"]).parent == bin_dir
         assert Path(first["python"]).is_absolute()
         assert_launcher(first, environment)
+        for label, caller_environment, caller_directory in (
+                ("cwd", environment, unrelated),
+                ("PYTHONPATH", {**environment, "PYTHONPATH": str(unrelated)}, work),
+                ("PYTHONHOME", {**environment, "PYTHONHOME": poisoned["PYTHONHOME"]}, work),
+                ("combined", poisoned, unrelated)):
+            assert_launcher(first, caller_environment, cwd=caller_directory)
+            print(f"PASS: installed launcher ignores unrelated {label} while using its managed environment", flush=True)
         backend = command([first["python"], "-I", "-c",
                            "from memory_book._text_backend import BACKEND_NAME; print(BACKEND_NAME)"], environment)
         assert backend.stdout.strip() == "native", backend.stdout
@@ -108,14 +129,14 @@ def run(with_extras: bool) -> None:
         old_record = (prefix / "installation.json").read_bytes()
         broken_wheel = work / "ai_memory_book-0.0.0-py3-none-any.whl"
         broken_wheel.write_bytes(b"an intentionally invalid wheel")
-        command(install_command(broken_wheel, prefix, bin_dir), environment, succeeds=False)
+        command(install_command(broken_wheel, prefix, bin_dir), poisoned, succeeds=False, cwd=unrelated)
         assert Path(first["launcher"]).read_bytes() == old_launcher
         assert (prefix / "installation.json").read_bytes() == old_record
         assert sorted((prefix / "envs").iterdir()) == [Path(first["environment"])]
         assert_launcher(first, environment)
         print("PASS: failed package installation preserves the working launcher and cleans its staging environment", flush=True)
 
-        command(arguments, environment)
+        command(arguments, poisoned, cwd=unrelated)
         second = manifest(prefix)
         assert second["environment"] != first["environment"]
         assert second["previous_environment"] == first["environment"]
@@ -137,11 +158,13 @@ def run(with_extras: bool) -> None:
             network_environment = environment.copy()
             network_environment.pop("PIP_NO_INDEX", None)
             extras_prefix, extras_bin = work / "extras-install", work / "extras-bin"
-            command(install_command(wheel, extras_prefix, extras_bin, extras=True), network_environment)
+            extras_environment = {**network_environment, "PYTHONPATH": str(unrelated),
+                                  "PYTHONHOME": poisoned["PYTHONHOME"]}
+            command(install_command(wheel, extras_prefix, extras_bin, extras=True), extras_environment, cwd=unrelated)
             record = manifest(extras_prefix)
             assert record["extras"] == ["mcp", "clients"]
-            command([record["python"], "-c", "import mcp, tomlkit"], network_environment)
-            assert_launcher(record, network_environment)
+            command([record["python"], "-I", "-c", "import mcp, tomlkit"], extras_environment, cwd=unrelated)
+            assert_launcher(record, extras_environment, cwd=unrelated)
             print("PASS: the default MCP and client configuration extras import inside the installed environment", flush=True)
 
         assert hashlib.sha256(sentinel.read_bytes()).hexdigest() == sentinel_hash

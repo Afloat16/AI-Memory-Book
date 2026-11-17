@@ -57,13 +57,13 @@ class InstallerReleaseTests(unittest.TestCase):
                 f"ai-memory-book @ {local_wheel.resolve().as_uri()}")
 
     def test_release_defaults_match_package_and_wrappers(self):
-        self.assertEqual(INSTALLER.DEFAULT_VERSION, "v0.9.0")
-        self.assertIn('version = "0.9.0"', (ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-        self.assertIn('__version__ = "0.9.0"', (ROOT / "src/memory_book/__init__.py").read_text(encoding="utf-8"))
-        self.assertIn('installer_ref="v0.9.0"', (ROOT / "scripts/install.sh").read_text(encoding="utf-8"))
+        self.assertEqual(INSTALLER.DEFAULT_VERSION, "v0.10.0")
+        self.assertIn('version = "0.10.0"', (ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+        self.assertIn('__version__ = "0.10.0"', (ROOT / "src/memory_book/__init__.py").read_text(encoding="utf-8"))
+        self.assertIn('installer_ref="v0.10.0"', (ROOT / "scripts/install.sh").read_text(encoding="utf-8"))
         powershell = (ROOT / "scripts/install.ps1").read_text(encoding="utf-8")
-        self.assertIn("[string]$Version = 'v0.9.0'", powershell)
-        self.assertIn("$InstallerRef = 'v0.9.0'", powershell)
+        self.assertIn("[string]$Version = 'v0.10.0'", powershell)
+        self.assertIn("$InstallerRef = 'v0.10.0'", powershell)
 
     def test_native_era_never_uses_an_unverified_archive_route(self):
         for tag in ("v0.8.0", "0.8.0", "v0.8.1", "v1.0.0"):
@@ -132,8 +132,8 @@ class NativeManifestTests(unittest.TestCase):
         self.assertEqual(record["native_sha256"], chosen["native_sha256"])
         self.assertEqual(record["manifest_sha256"], hashlib.sha256(raw).hexdigest())
         fetch.assert_called_once_with(base + "release-manifest.json", timeout=30)
-        self.assertEqual(select.call_args.args[0][:3], [str(python), "-I", "-c"])
-        self.assertIn("pip._vendor.packaging.tags", select.call_args.args[0][3])
+        self.assertEqual(select.call_args.args[0][:5], [str(python), "-I", "-X", "utf8", "-c"])
+        self.assertIn("pip._vendor.packaging.tags", select.call_args.args[0][5])
         self.assertEqual(json.loads(select.call_args.kwargs["input"])["native_wheels"], value["native_wheels"])
 
     def test_no_matching_wheel_has_a_hash_pinned_python_fallback(self):
@@ -247,7 +247,7 @@ class BackendReceiptTests(unittest.TestCase):
             with self.subTest(native=native), patch.dict(os.environ, {"MEMORY_BOOK_TEXT_BACKEND": "python"}), \
                     patch.object(INSTALLER.subprocess, "check_output", return_value=json.dumps(expected)) as probe:
                 self.assertEqual(INSTALLER.installed_backend(Path("isolated-python")), expected)
-            self.assertEqual(probe.call_args.args[0][:3], ["isolated-python", "-I", "-c"])
+            self.assertEqual(probe.call_args.args[0][:5], ["isolated-python", "-I", "-X", "utf8", "-c"])
             self.assertEqual(probe.call_args.kwargs["env"]["MEMORY_BOOK_TEXT_BACKEND"], "auto")
 
     def test_probe_rejects_unverified_native_or_contradictory_python(self):

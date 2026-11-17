@@ -160,7 +160,7 @@ jobs:
       - name: Verify archive import, export and capture status on each operating system
         env:
           PYTHONPATH: src
-        run: python -m unittest tests.test_import_preflight tests.test_export_book tests.test_capture_reliability -v
+        run: python -m unittest tests.test_import_preflight tests.test_export_book tests.test_capture_reliability tests.test_installer_isolation tests.test_generated_process_isolation -v
   container:
     runs-on: ubuntu-latest
     timeout-minutes: 15
