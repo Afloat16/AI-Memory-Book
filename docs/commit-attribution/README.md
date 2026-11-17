@@ -5,8 +5,14 @@ were their own work submitted by automation with the wrong Git identity.
 The verified account is **Afloat16**, whose existing accepted commit identity is
 `Afloat <ShuffleMonkey@163.com>`.
 
-**Status: preparation and review only. No existing main, release tag, or evidence
-branch is authorized to move automatically.**
+**Status: applied to `main` after explicit owner approval on 2026-11-17 at
+14:54 Asia/Shanghai.** The lease-checked update replaced `b6fa111a` with
+`23489161`; the file tree is unchanged. The immediate before/after comparison
+of all 319 branch tips and 16 tags found only `main` changed. The exact new main
+passed all 11 CI jobs. [Application receipt](application.json).
+
+Preparation reports below retain their original pre-application status. This
+receipt records the later application, without modifying the frozen reports.
 
 ## Audited source
 
@@ -30,9 +36,9 @@ proposed preview is deliberately limited to source-main ancestry. An unrelated
 `Codex <codex@openai.com>` identity found off main is outside the requested bot
 mapping and remains unchanged.
 
-## Concrete main-only proposal
+## Applied main-only correction
 
-| Item | Proposed result |
+| Item | Result |
 |---|---|
 | Matching bot author / committer | Replace both with the owner's verified identity |
 | Existing human author / committer | Preserve exactly |
@@ -82,19 +88,23 @@ including 1,944 object SHA checks. `independent-preview-audit.tar.gz` preserves
 that verifier, both original/candidate object batches and per-object results;
 its separate manifest records their hashes.
 
-## Approval boundary
+## Application and preservation
 
-The remaining action would be an explicitly approved, lease-checked replacement
-of **only `refs/heads/main`**, from the audited source to the verified preview
-head. This is a non-fast-forward history change. Existing clones and branches
-would need to synchronize with the corrected main; they should not merge the
-old history back into it.
+The owner separately approved replacing **only `refs/heads/main`**, from the
+fixed source to the independently verified candidate. GitHub accepted the
+non-fast-forward update with an exact old-SHA lease. No preparation script or
+workflow performed that main replacement.
 
-No preparation script or workflow performs that replacement. Release tags,
-published assets, original experiment references and other branches stay at
-their original identities unless separately reviewed. GitHub may recalculate
-profile contributions after main changes; a count of new SHA identities is
-not a promise of that many additional contribution events.
+All 16 release tags and all other 318 then-existing branch tips remained
+unchanged at application. The current release still points to its original
+source `164f48c42e88bd096bf58827d8b2ba77a9048ae3` and retains its 67 assets. This
+review branch subsequently advances only to save the application receipt.
+
+Existing clones and development branches should synchronize with the corrected
+main without merging the old history back into it. Original release tags,
+evidence branches, package source bindings and commit URLs remain available.
+GitHub may recalculate profile contributions; new SHA identities do not by
+themselves establish an additional contribution count.
 
 Future automation should follow the repository's
 [commit attribution convention](../../CONTRIBUTING.md#automated-commit-attribution).
