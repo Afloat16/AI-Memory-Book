@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "status": "prospective-development-plan-not-a-performance-result",
+  "baseline_commit": "234891619d7bed88ddf3fae37e7f3e1b14a808b6",
+  "baseline_tree": "bb28f814e9676b22faf020e90193047cf5684ea5",
+  "objective": "Find the best evidenced execution architecture for the existing workload, prioritizing performance without considering implementation effort as a reason to reject a candidate.",
+  "authorization_boundary": "Experimental files and isolated builds only. Do not change product sources, packaging, release tags, main, or public README until a repeatable material benefit and complete-output equivalence are established.",
+  "candidates": [
+    "Current Python plus 22 C entry points (decision baseline)",
+    "Current pure Python backend (reference and diagnostic, not the decision baseline)",
+    "Rust replacing equivalent CPython-native loops at the same interface",
+    "Rust operating on a larger self-contained computation stage, evaluated separately from same-interface translation",
+    "JavaScript computation in Node, measured both inside Node and with actual Python integration costs",
+    "TypeScript as the JavaScript type/build layer, not a separate execution engine",
+    "Shell for orchestration; any claimed compute benefit must identify the actual external engine"
+  ],
+  "immutable_behavior": [
+    "Full public outputs except latency diagnostic fields",
+    "Database schema, SQL, candidate limits, ranking, stable order and scope isolation",
+    "Python Unicode code points including lone surrogates at supported helper interfaces",
+    "Normalization, exact source coordinates, page and session identifiers",
+    "Character and token budgets, cache state and result materialization",
+    "Dynamic overrides and fallback conditions for supported inputs"
+  ],
+  "measurement_layers": [
+    "Current complete-workload profile and actual call coverage",
+    "Equivalent pure computation kernels, with observable output consumption",
+    "Public-wrapper and conversion/IPC-inclusive cost",
+    "Fresh and unchanged ingestion, direct recall, SDK stdio MCP, startup and RSS"
+  ],
+  "formal_gate_draft": {
+    "correctness": "Zero complete-output, index, source-coordinate or invariant mismatches in all registered cases; any failure blocks adoption.",
+    "benefit": "At least 5 percent end-to-end improvement in a predeclared representative target, positive paired round-level confidence interval, and improvement in at least 5 of 6 balanced rounds.",
+    "regressions": "Retain every scenario and attempt. More than 3 percent repeatable regression in a key workload requires an explicit tradeoff decision; no silent cherry-picking.",
+    "timing": "Separate development/profiling from a frozen formal run. Serialize timed workers and use balanced orders. Resample rounds, not correlated individual calls.",
+    "limits": "A same-interface prototype cannot establish the best possible implementation of an entire language or a full-runtime rewrite. Conclusions must name the tested architecture and workloads."
+  },
+  "persistence": "Keep commits on the isolated validation/language-selection-20261117 branch with the user's existing Git identity; retain rejected prototypes and unfavorable measurements."
+}
