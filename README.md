@@ -67,7 +67,7 @@ MCP configuration and native capture have separate support matrices. Tool invoca
 
 ![Complete required evidence on the fixed 2,400-character engineering workload: Book 72 of 72 answerable cases; each tested lexical component 64 of 72; the shared MiniLM configurations 47 of 72.](docs/readme-assets/evidence-coverage.svg)
 
-**Fixed workload:** 8 projects · 4 algorithm families · 6 chronological checkpoints · 80 questions, including 72 answerable cases and 8 missing-evidence queries. The current published native package reproduces **800 scored responses**, with no output, source or budget mismatch. [Current replay and exact comparison rules](docs/current-results.md).
+**Fixed workload:** 8 projects · 4 algorithm families · 6 chronological checkpoints · 80 questions, including 72 answerable cases and 8 missing-evidence queries. The current published native package reproduces **800 scored responses**: only native timing/cache diagnostics are excluded; evidence, ordering, sources and budgets match. [Current replay and exact comparison rules](docs/current-results.md).
 
 ### Compared with practical retrieval strategies
 
@@ -227,7 +227,7 @@ Unbound requests may search across books. A binding follows the configured conne
 | Published installer | Real public-URL install verifies version, native backend and default MCP/client dependencies |
 | Archive compatibility | **Schema 4**; source/page IDs, Unicode coordinates, ranking and budgets retained |
 
-[Release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.10.0) · [Successful release workflow](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44009581198) · [Publication proof](https://github.com/Afloat16/AI-Memory-Book/tree/validation/comprehensive-v0.10.0-publication-proof/benchmarks/reports/comprehensive-v010/publication-proof)
+[Release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.10.0) · [Successful release workflow](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44009581198) · [Publication proof](https://github.com/Afloat16/AI-Memory-Book/blob/2f57e03299ddc350c773fe3bc2fc528e1b13dbd8/benchmarks/reports/comprehensive-v010/publication-proof/README.md)
 
 Use the Python interpreter printed by the installer in place of `python` to inspect the installed backend:
 
