@@ -386,9 +386,9 @@ def _complete_text(data: bytes, path: Path, format: str) -> tuple[str, bool]:
     try:
         text = data.decode("utf-8-sig")
     except UnicodeDecodeError:
-        if not stream or data.endswith(b"\n"):
+        if not stream or data.endswith((b"\n", b"\r")):
             raise ValueError("invalid_utf8") from None
-        boundary = data.rfind(b"\n")
+        boundary = max(data.rfind(b"\n"), data.rfind(b"\r"))
         if boundary < 0:
             raise _Deferred("partial_record") from None
         try:
@@ -403,13 +403,16 @@ def _complete_text(data: bytes, path: Path, format: str) -> tuple[str, bool]:
         return text, partial
     except json.JSONDecodeError:
         pass
-    lines = text.splitlines(keepends=True)
-    if lines and not text.endswith(("\n", "\r")) and lines[-1].strip():
-        try:
-            json.loads(lines[-1])
-        except json.JSONDecodeError:
-            text = "".join(lines[:-1])
-            partial = True
+    if not text.endswith(("\n", "\r")):
+        # Only CR/LF end JSONL records; Unicode separators may be message text.
+        boundary = max(text.rfind("\n"), text.rfind("\r")) + 1
+        tail = text[boundary:]
+        if tail.strip():
+            try:
+                json.loads(tail)
+            except json.JSONDecodeError:
+                text = text[:boundary]
+                partial = True
     if not text.strip():
         raise _Deferred("partial_record")
     return text, partial
@@ -699,6 +702,63 @@ def sync_once(config: SyncConfig, force: bool = False) -> dict[str, Any]:
         return _cycle(config, state, force=force)
 
 
+def _windows_process_running(pid: int) -> bool:
+    """Inspect a process without the terminating semantics of Windows os.kill."""
+    import ctypes
+    from ctypes import wintypes
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    open_process = kernel32.OpenProcess
+    open_process.argtypes = (wintypes.DWORD, wintypes.BOOL, wintypes.DWORD)
+    open_process.restype = wintypes.HANDLE
+    wait = kernel32.WaitForSingleObject
+    wait.argtypes = (wintypes.HANDLE, wintypes.DWORD)
+    wait.restype = wintypes.DWORD
+    close = kernel32.CloseHandle
+    close.argtypes = (wintypes.HANDLE,)
+    close.restype = wintypes.BOOL
+
+    # SYNCHRONIZE alone permits waiting, with no process-control permissions.
+    handle = open_process(0x00100000, False, pid)
+    if not handle:
+        error = ctypes.get_last_error()
+        if error == 5:  # ERROR_ACCESS_DENIED still identifies an existing process.
+            return True
+        if error == 87:  # ERROR_INVALID_PARAMETER: no such process.
+            return False
+        raise ctypes.WinError(error)
+    try:
+        result = wait(handle, 0)
+        if result == 0x00000102:  # WAIT_TIMEOUT: the process has not exited.
+            return True
+        if result == 0x00000000:  # WAIT_OBJECT_0: any exit code, including 259.
+            return False
+        raise ctypes.WinError(ctypes.get_last_error())
+    finally:
+        close(handle)
+
+
+def _process_running(value: Any) -> bool:
+    if isinstance(value, bool) or not isinstance(value, (int, str)):
+        return False
+    try:
+        pid = int(value)
+    except ValueError:
+        return False
+    if pid <= 0:
+        return False
+    if os.name == "nt":
+        # DWORD conversion must not wrap a corrupt manifest PID to another PID.
+        return pid <= 0xFFFFFFFF and _windows_process_running(pid)
+    try:
+        os.kill(pid, 0)
+    except PermissionError:
+        return True
+    except (ProcessLookupError, OverflowError):
+        return False
+    return True
+
+
 def sync_status(config: SyncConfig) -> dict[str, Any]:
     """Read only the manifest, never scan client sources as a status side effect."""
     state = _load_state(config.state_path)
@@ -709,8 +769,10 @@ def sync_status(config: SyncConfig) -> dict[str, Any]:
     worker = dict(state.get("worker", {}))
     if worker.get("running"):
         try:
-            os.kill(int(worker.get("pid", 0)), 0)
-        except (OSError, TypeError, ValueError):
+            running = _process_running(worker.get("pid", 0))
+        except OSError:
+            running = False
+        if not running:
             worker["running"] = False
             worker["stale_state"] = True
     return {"configured_sources": len(config.sources), "tracked_files": len(state["files"]),

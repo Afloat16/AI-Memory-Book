@@ -65,10 +65,10 @@ jobs:
           print(json.dumps({'prepared_only': True, 'source': identity,
                             'source_files_sha256': native_release.file_hashes(inputs)}))
           PY
-      - name: Verify package and installer contracts
+      - name: Verify package, native cell, workflow and installer contracts
         env:
           PYTHONDONTWRITEBYTECODE: '1'
-        run: python -m unittest tests.test_native_release tests.test_installer_release -v
+        run: python -m unittest tests.test_native_release tests.test_native_release_cell tests.test_native_release_workflow tests.test_installer_release -v
   native-wheel:
     name: native-wheel (${{ matrix.target }})
     needs: preflight
@@ -212,7 +212,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: native-wheel-${{ matrix.target }}
+          name: native-wheel-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.target }}
           path: .artifacts/native-wheels/
           include-hidden-files: true
           if-no-files-found: error
@@ -221,7 +221,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: native-cell-evidence-${{ matrix.target }}
+          name: native-cell-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.target }}
           path: .artifacts/native-cell-evidence/${{ matrix.target }}/
           include-hidden-files: true
           if-no-files-found: warn
@@ -257,7 +257,7 @@ jobs:
       - name: Collect the exact-commit native wheels
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
-          pattern: native-wheel-*
+          pattern: native-wheel-${{ github.run_id }}-${{ github.run_attempt }}-*
           path: .artifacts/native-wheels
           merge-multiple: true
       - name: Verify existing CI, build, check and publish
@@ -307,7 +307,7 @@ jobs:
       - name: Collect the exact-commit native wheels
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
-          pattern: native-wheel-*
+          pattern: native-wheel-${{ github.run_id }}-${{ github.run_attempt }}-*
           path: .artifacts/native-wheels
           merge-multiple: true
       - name: Verify the complete matrix and prepare fallback assets

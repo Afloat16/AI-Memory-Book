@@ -1,0 +1,44 @@
+{
+  "protocol": "semantic-runtime-development-v2",
+  "evidence_label": "development",
+  "baseline_commit": "238c8058f723a203eaca99f94d924ab77de4c0b3",
+  "baseline_source": "src/memory_book/semantic.py",
+  "candidate_identity": "Exact source SHA-256, Git HEAD and source status recorded in each report",
+  "runner": "python scripts/benchmark_semantic_runtime.py --output semantic-runtime-development.json",
+  "ranking": {
+    "windows": [4096, 32768],
+    "dimensions": 384,
+    "windows_per_page": 4,
+    "query_windows": 2,
+    "fixture": "64 deterministic normalized float32 patterns; exact fixture/query hashes recorded",
+    "database": "In-memory SQLite, all fixture pages in scope, schema and row order unchanged between arms",
+    "warmups_per_arm": 2,
+    "untraced_latency_pairs": 8,
+    "allocation_pairs": 2,
+    "allocation_metric": "tracemalloc Python allocation peak, not process RSS or SQLite/native allocation",
+    "validation": "Untimed exact dictionary/list/float equality against the frozen baseline before trials and after every timed call",
+    "ordering": "Alternating baseline/candidate and candidate/baseline, equal first-position counts"
+  },
+  "artifact_initialization": {
+    "model_bytes": 118453870,
+    "tokenizer_bytes": 9081518,
+    "artifacts": "Deterministic local synthetic bytes, SHA-256 pinned in the report; never downloaded",
+    "runtimes": "Mock ONNX and tokenizer runtimes; excludes actual model loading, parsing and inference",
+    "warmups_per_arm": 2,
+    "untraced_latency_pairs": 8,
+    "cache_state": "Warm filesystem cache after validation and warmups",
+    "validation": "Exact identity, fingerprint and runtime-consumed bytes; separate untimed read/hash byte instrumentation",
+    "expected_verified_read_and_hash_bytes": {
+      "baseline": 255070776,
+      "candidate": 127535388
+    }
+  },
+  "reporting": {
+    "retain": "Every observation, order position, fixture hash, source hash, environment and arguments",
+    "summary": "Per-arm medians, every paired candidate/baseline ratio and their median; wall time and process CPU reported separately",
+    "process_cpu": "Secondary diagnostic for scheduler interference; never substituted for user-visible wall latency",
+    "timing_separation": "No tracing, equality validation, result hashing or garbage collection inside latency timers",
+    "interpretation": "Development component evidence only; no formal guarantee, semantic-quality claim or end-to-end speedup",
+    "historical_experiments": "Does not reuse or retune any previous formal recall workload"
+  }
+}
