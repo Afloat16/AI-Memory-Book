@@ -1,0 +1,130 @@
+{
+  "protocol": "directory-runtime-v2",
+  "baseline_commit": "238c8058f723a203eaca99f94d924ab77de4c0b3",
+  "baseline_source": "src/memory_book/store.py",
+  "baseline_loading": "Execute the exact baseline chapter and section method AST plus its _integer and _string validators; no algorithm substitutions.",
+  "candidate_identity": "Record Git HEAD, source status, store.py SHA-256, harness SHA-256, protocol SHA-256, and workflow run identity.",
+  "runner": "PYTHONPATH=src python -u scripts/benchmark_directory_runtime_v2.py --baseline-commit 238c8058f723a203eaca99f94d924ab77de4c0b3 --rounds 4 --iterations 20 --output .artifacts/comprehensive-directory-v2/reports/directory-runtime.json",
+  "fixture": {
+    "target_sections": 100,
+    "unrelated_sections": 3,
+    "source": "Deterministic single-turn Unicode conversations ingested with adaptive segmentation and max_page_chars=128; 130 evidence paragraphs per session, one section per session.",
+    "required_pages_per_target_section": "More than 100; record actual minimum and maximum.",
+    "timestamps": "Explicit source timestamps; incidental creation/update timestamps fixed before freezing.",
+    "storage": "One temporary on-disk WAL archive; exact row digest and table counts recorded.",
+    "timed_connections": "Both arms share one query-only connection to the frozen archive. A separate query-only connection performs instrumentation.",
+    "sha256": "d7a00bd8d393c9d6153c1cd5094eba0812eaceb7c47db986e361e853c2b944e4"
+  },
+  "configurations": {
+    "section_limits": [
+      1,
+      20,
+      100
+    ],
+    "page_limits": [
+      1,
+      20,
+      100
+    ],
+    "combination": "All nine pairs; exact project scope and first directory page."
+  },
+  "contract_audits": {
+    "equality": "Exact dictionary/list payload and emitted JSON insertion order, before timing and after every timed call.",
+    "selects": "Exact baseline 3+3*N SELECTs and candidate 4+N SELECTs: 6/63/303 versus 5/24/104 for N=1/20/100; statement trace counts must agree.",
+    "materialization": "Untimed length(content) instrumentation must equal returned previews; each arm reports all counts and output SHA-256.",
+    "transaction_cleanup": "No open transaction may remain after a call; measurement connections must report zero writes.",
+    "tests": "tests.test_directory_batches covers golden equality, max bounds, indexes, scope, custom section overrides, caller transactions, failure cleanup, and concurrent WAL delete/reingest."
+  },
+  "timing": {
+    "warmups_per_arm_per_configuration": 2,
+    "rounds": 4,
+    "order": [
+      "baseline,candidate",
+      "candidate,baseline",
+      "baseline,candidate",
+      "candidate,baseline"
+    ],
+    "calls_per_arm_per_round": 20,
+    "primary": "time.perf_counter_ns wall latency per call",
+    "secondary": "time.process_time_ns process CPU per call; scheduler diagnostic, never a substitute for wall latency",
+    "excluded": "Fixture creation, tracing, materialization instrumentation, equality checks, output hashing, report writes, and explicit result disposal.",
+    "cache_state": "Warm after audit and warmups; no claim about cold startup or cold operating-system page cache."
+  },
+  "reporting": {
+    "raw_observations": "Append, flush and fsync one JSONL event after every timed call; record errors and output equality as well as timings.",
+    "checkpoints": "Atomically save partial JSON after audits, each completed arm/round, and on failure. Existing report/event outputs are not overwritten by a new run.",
+    "summary": "Per-arm medians, all four paired candidate/baseline median ratios, and their median, separately for wall and process CPU.",
+    "failure": "Preserve completed and partial observations, write a failed status and exception, and return nonzero; never substitute a successful report.",
+    "interpretation": "Component-only evidence on the frozen fixture; no recall-quality or end-to-end speedup claim."
+  },
+  "candidate_source_sha256": "355687bb28eff83160b42120d7a22be1273c6405fa77e8549266f92dfe0e8b87",
+  "unchanged_semantic_source_sha256": "76aaaf40144146c5b3e6c542c1a3dedcad1a19f78d654da613dc085586bec6fd",
+  "candidate_change": "Grouped counts with direct indexed per-section LIMIT previews; remove UNION/outer sorting and dispose each section raw row list after conversion.",
+  "prior_candidate": {
+    "source_commit": "3c9b271a6d9757af09a435b80198dd02b94c1146",
+    "run_id": "44006165023",
+    "run_attempt": 1,
+    "evidence_commit": "780a99faa71da50eb0bf6e290fddc765e2b49b43",
+    "report": "raw/reports/directory-runtime.json",
+    "decision": "Rejected as a general directory latency optimization: the five-SELECT candidate regressed in seven of nine configurations, each in all four paired rounds. Its frozen files and every original observation remain unchanged.",
+    "median_paired_wall_ratios": {
+      "1x1": 1.0522610072189789,
+      "1x20": 1.1509816462813234,
+      "1x100": 1.201115573466912,
+      "20x1": 0.9053187317127277,
+      "20x20": 1.227933967984608,
+      "20x100": 1.3308256218828154,
+      "100x1": 0.8752265224696805,
+      "100x20": 1.277575275748672,
+      "100x100": 1.3681971827465644
+    }
+  },
+  "evaluator_derivation": {
+    "source_commit": "3c9b271a6d9757af09a435b80198dd02b94c1146",
+    "original_harness": "scripts/benchmark_directory_runtime.py",
+    "original_sha256": "06bbe8d1aa50c9c14d6b753d3045c9b16987f15b0754c5e4818dfed5e84ccc5a",
+    "changes": "Only the PLAN path and report protocol identifier change; same fixture, nine configurations, warmups, 4 balanced rounds, 20 calls, clocks, audits and raw-event behavior."
+  },
+  "hosted": {
+    "repository": "Afloat16/AI-Memory-Book",
+    "trigger_branch": "validation/comprehensive-v010-directory-formal-2",
+    "run_policy": "One fresh push, attempt 1 only; no selected successful subset, rerun, or substituted earlier report.",
+    "runner": "ubuntu-24.04",
+    "python": "3.12 x64; exact patch/image recorded",
+    "numpy": "2.5.5",
+    "numpy_wheel_sha256": "704d819265e5d1064d932968e9ee85fff2103ccc78c05b878c06943ba27b8507",
+    "numpy_scope": "Same pinned environment as formal 1; directory timing does not call NumPy.",
+    "backend": "python for both arms",
+    "python_hash_seed": "0",
+    "thread_environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    },
+    "preflight": [
+      "tests.test_directory_runtime_v2_preserve",
+      "tests.test_directory_batches"
+    ],
+    "evidence_branch": "validation/evidence-comprehensive-v010-directory-v2-<run_id>-1",
+    "preservation": "Create-only parentless Git tree plus immutable artifact; preserve all original raw reports, 1487 events, logs and partial failures before acceptance. Exact source/evaluator/protocol bytes and hashes frozen before tests or timing."
+  },
+  "prospective_acceptance": {
+    "all_configurations_max_median_paired_wall_ratio": 1.05,
+    "strict_improvement_required": [
+      {
+        "sections": 20,
+        "page_limit": 20,
+        "median_paired_wall_ratio_less_than": 1.0
+      },
+      {
+        "sections": 100,
+        "page_limit": 20,
+        "median_paired_wall_ratio_less_than": 1.0
+      }
+    ],
+    "equality_and_bounds": "Every configuration and timed call must remain exactly equal; SELECT counts, preview materialization and unchanged fixture are mandatory.",
+    "failure": "Preserve every result and fail acceptance if any criterion fails; revisit or revert the directory optimization. Do not waive a failure using process CPU results.",
+    "reporting": "Retain and report all regressing pairs and configurations even below the 5% ceiling; show absolute baseline/candidate latency for the tiny directory cases.",
+    "scope": "No semantic rerun: semantic.py must remain byte-identical to the accepted formal-1 component source. No universal or end-to-end speedup claim."
+  }
+}
