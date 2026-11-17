@@ -24,7 +24,7 @@ sys.path.insert(0, str(HERE))
 import experiment as exp
 
 VARIANTS = ['current', 'rust_same', 'c_table', 'rust_table', 'rust_window',
-            'c_window', 'node_window', 'node_small']
+            'c_window', 'node_window', 'node_small', 'rust_metadata', 'c_metadata']
 COHORTS = ['synthetic61', 'public1015', 'unicode_stress']
 CONFIGS = list(exp.CONFIGS)
 LOCOMO_URL = 'https://raw.githubusercontent.com/snap-research/locomo/3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376/data/locomo10.json'
@@ -130,6 +130,9 @@ def preparation(output, env, phase):
         execute(cmd, builds / (label + '-table.log'), env)
     execute([sys.executable, HERE / 'c_owned/build.py', '--native-source', source / '_native.c',
              '--output', builds / 'c-owned'], builds / 'c-owned.log', env)
+    for kind in ('rust', 'c'):
+        execute([sys.executable, HERE / (kind + '_metadata/build.py'), '--python-source', source.parent,
+            '--output', builds / (kind + '-metadata')], builds / (kind + '-metadata.log'), env)
     locomo = output / 'locomo10.json'
     raw = urlopen(LOCOMO_URL, timeout=60).read()
     assert hashlib.sha256(raw).hexdigest() == LOCOMO_SHA and len(raw) == 2805274
@@ -163,10 +166,16 @@ def preparation(output, env, phase):
         c_owned_sha256=exp.file_hash(c_owned), expected_runtime_registered_methods=['excerpt_window'])
     manifest['variants']['node_window']['expected_runtime_registered_methods'] = ['excerpt_window']
     manifest['variants']['node_small']['expected_runtime_registered_methods'] = ['terms_ascii', 'ascii_tokens', 'context_allocations']
+    for kind in ('rust', 'c'):
+        module_name = '_language_' + kind + '_metadata'
+        path = builds / (kind + '-metadata') / (module_name + ext)
+        manifest['variants'][kind + '_metadata'].update(metadata_plugin=str(path),
+            metadata_module=module_name, metadata_plugin_sha256=exp.file_hash(path))
     tracked = git('ls-files', 'src/memory_book', 'benchmarks/experiments/language_selection',
                   'benchmarks/locomo_split.json', 'scripts/native_language_performance.py',
                   'tests/test_native_backend.py', 'tests/test_native_excerpt_backend.py',
                   'tests/test_native_window_backend.py',
+                  'tests/test_round5_candidate_c4.py',
                   '.github/workflows/language-selection-performance.yml').decode().splitlines()
     tracked = sorted(set(tracked) | {str(p.relative_to(ROOT)) for p in (ROOT / 'benchmarks').glob('*.py')})
     bound = {}
@@ -179,11 +188,11 @@ def preparation(output, env, phase):
             if path.is_file() and '__pycache__' not in path.parts:
                 bound[str(path)] = exp.file_hash(path)
     for spec in manifest['variants'].values():
-        for key in ('plugin', 'rust_owned', 'c_owned'):
+        for key in ('plugin', 'rust_owned', 'c_owned', 'metadata_plugin'):
             if spec.get(key):
                 bound[spec[key]] = exp.file_hash(spec[key])
     for path in builds.rglob('*'):
-        if path.is_file() and path.suffix in ('.so', '.a'):
+        if path.is_file() and path.suffix in ('.so', '.a') and 'target' not in path.relative_to(builds).parts:
             bound[str(path)] = exp.file_hash(path)
     bound[str(locomo)] = LOCOMO_SHA
     bound[str(Path(shutil.which('node')).resolve())] = manifest['host']['node_executable_sha256']
@@ -274,6 +283,11 @@ def checks(output, manifest, env):
         ('shell', [HERE / 'shell/check.py', '--source', source,
             '--inputs', HERE / 'javascript/captured-inputs.json', '--output', output / 'checks/shell.json']),
     ]
+    for kind in ('rust', 'c'):
+        spec = manifest['variants'][kind + '_metadata']
+        items.append((kind + '-metadata', [HERE / 'rust_metadata/check.py', '--python-source', source,
+            '--binary', spec['metadata_plugin'], '--module', spec['metadata_module'],
+            '--output', output / 'checks' / (kind + '-metadata.json')]))
     (output / 'checks').mkdir()
     for name, command in items:
         print(exp.dump({'stage': 'correctness', 'check': name}), flush=True)
@@ -292,6 +306,7 @@ def measure(output, manifest, env, phase):
         checks(output, manifest, env)
         for variant in [*VARIANTS, 'python_reference']:
             for name in COHORTS:
+                print(exp.dump({'stage': 'corpus-equivalence-and-dispatch', 'variant': variant, 'cohort': name}), flush=True)
                 target = output / 'probes' / (variant + '-' + name + '.json')
                 target.parent.mkdir(exist_ok=True)
                 execute([sys.executable, HERE / 'experiment.py', 'probe', '--manifest', output / 'manifest.json',
@@ -303,6 +318,9 @@ def measure(output, manifest, env, phase):
                     assert all(probe[key] == baseline[key] for key in ('responses_sha256', 'ingestion_sha256', 'archive'))
                 if variant in ('rust_window', 'c_window'):
                     assert probe['owned_window_dispatch']['completed'] > 0, 'Owned stage never ran'
+                if variant in ('rust_metadata', 'c_metadata'):
+                    assert probe['metadata_dispatch']['completed'] > 0, 'Metadata stage never ran'
+                    assert probe['metadata_native_calls'].get('bounded_metadata', 0) > 0
                 if variant == 'node_window':
                     assert probe['actual_node_operations'].get('excerpt_window', 0) > 0
                 if variant == 'node_small':
@@ -382,7 +400,7 @@ def preserve(output):
     count = 0
     for path, relative in files:
         if (not path.is_file() or relative.startswith(('current/', 'rust-same/'))
-                or any(part in ('cargo-target', '__pycache__') for part in Path(relative).parts)
+                or any(part in ('cargo-target', 'target', '__pycache__') for part in Path(relative).parts)
                 or path.suffix in ('.so', '.a', '.o') or path.name == 'locomo10.json'):
             continue
         destination = f'benchmarks/reports/language-selection/{run_id}/' + relative

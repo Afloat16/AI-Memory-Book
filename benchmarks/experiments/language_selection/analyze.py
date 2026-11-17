@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Independent, fail-closed audit and paired-round analysis for the language lab.
 
+Isolated ten-arm candidate adding the bounded-metadata Rust/C control.
 Restored from the agreed protocol after the transient execution environment was
 lost. This source requires its own CI self-test; earlier local predecessor tests
 do not certify these reconstructed bytes. No production code is modified.
@@ -23,7 +24,8 @@ import tempfile
 
 BASELINE = "234891619d7bed88ddf3fae37e7f3e1b14a808b6"
 MAIN_VARIANTS = ("current", "rust_same", "c_table", "rust_table",
-                 "rust_window", "c_window", "node_window", "node_small")
+                 "rust_window", "c_window", "node_window", "node_small",
+                 "rust_metadata", "c_metadata")
 COHORTS = ("synthetic61", "public1015", "unicode_stress")
 CONFIGS = ("direct-char2400", "mcp-char2400", "direct-token1024", "mcp-token1024")
 INVARIANTS = {"scope", "source_spans", "page_projection", "context_reconstruction",
@@ -42,6 +44,8 @@ CLASSES = {
     "rust_table": "Rust shared-table strategy; compare directly with c_table",
     "rust_window": "Rust owns a complete excerpt-selection stage",
     "c_window": "C owns the identical excerpt-selection stage",
+    "rust_metadata": "Rust owns bounded candidate metadata processing after SQLite retrieval",
+    "c_metadata": "C owns the identical bounded candidate metadata stage",
     "node_window": "Persistent Node owned-stage bridge; not a complete Node application",
     "node_small": "Persistent Node small-helper bridge; not a complete Node application",
     "python_reference": "Correctness reference only; excluded from performance ranking",
@@ -233,6 +237,14 @@ def check_identity(identity, variant, manifest, audit, where):
         expected = spec.get(prefix + "_owned_sha256")
         audit.require(sha(expected) and identity.get(prefix + "_owned_binary_sha256") == expected,
                       "identity.owned_binary", where)
+    if variant in ("rust_metadata", "c_metadata"):
+        expected = spec.get("metadata_plugin_sha256")
+        audit.require(sha(expected) and identity.get("metadata_binary_sha256") == expected,
+                      "identity.metadata_binary", where)
+        audit.require(identity.get("metadata_adapter_ready") is True,
+                      "identity.metadata_not_ready", where)
+        audit.require(expected_methods == [] and actual_methods == [],
+                      "identity.metadata_changed_native_methods", where)
     if variant.startswith("node_"):
         audit.require(identity.get("node_math_verified") is True, "identity.node_math", where)
         audit.require(integer(identity.get("node_pid"), 1), "identity.node_pid", where)
@@ -529,10 +541,15 @@ def check_plan(run, audit):
                   all(isinstance(k, str) and sha(v) for k, v in frozen.items()), "manifest.file_hashes")
     audit.require(run.get("file_sha256_after") == frozen, "manifest.inputs_changed_after")
     for variant, spec in manifest.get("variants", {}).items():
-        for name in ("native_binary_sha256", "plugin_binary_sha256", "rust_owned_sha256", "c_owned_sha256"):
+        for name in ("native_binary_sha256", "plugin_binary_sha256", "rust_owned_sha256", "c_owned_sha256", "metadata_plugin_sha256"):
             if name in spec:
                 audit.require(sha(spec[name]) and spec[name] in frozen.values(),
                               "manifest.binary_not_frozen", [variant, name])
+    for variant in ("rust_metadata", "c_metadata"):
+        spec = manifest.get("variants", {}).get(variant, {})
+        if "metadata_plugin" in spec:
+            audit.require(frozen.get(spec["metadata_plugin"]) == spec.get("metadata_plugin_sha256"),
+                          "manifest.metadata_path_not_frozen", variant)
     node_hash = manifest.get("host", {}).get("node_executable_sha256")
     audit.require(sha(node_hash) and node_hash in frozen.values(), "manifest.node_not_frozen")
     source_hash = file_hash(Path(__file__))
@@ -710,7 +727,7 @@ def audit_probes(root, run, audit):
             audit.require(sha(value.get(field)), "probe.output_hash", [pair, field])
         check_archive(value.get("archive"), audit, "probe." + str(pair))
         record = {"variant": variant, "cohort": cohort, "identity": value.get("identity")}
-        for field in ("native_calls", "bridge_calls", "actual_node_operations", "bridge_native_fallback"):
+        for field in ("native_calls", "bridge_calls", "actual_node_operations", "bridge_native_fallback", "metadata_native_calls"):
             counts = value.get(field, {})
             audit.require(isinstance(counts, dict) and all(isinstance(k, str) and integer(v)
                                                           for k, v in counts.items()),
@@ -723,6 +740,16 @@ def audit_probes(root, run, audit):
                           and owned.get("calls") == owned.get("completed", 0) + owned.get("fallback", 0)
                           and owned.get("completed", 0) > 0, "probe.owned_not_executed", pair)
         record["owned_window_dispatch"] = owned
+        metadata = value.get("metadata_dispatch", {})
+        if variant in ("rust_metadata", "c_metadata"):
+            audit.require(isinstance(metadata, dict) and set(metadata) >= {"calls", "completed", "fallback"}
+                          and all(integer(metadata.get(k)) for k in ("calls", "completed", "fallback"))
+                          and metadata.get("calls") == metadata.get("completed", 0) + metadata.get("fallback", 0)
+                          and metadata.get("completed", 0) > 0,
+                          "probe.metadata_not_executed", pair)
+            audit.require(integer(value.get("metadata_native_calls", {}).get("bounded_metadata"), 1),
+                          "probe.metadata_native_not_executed", pair)
+        record["metadata_dispatch"] = metadata
         records.append(record)
     audit.require(expected == set(indexed), "probe.missing_matrix", sorted(expected - set(indexed)))
     for pair, value in indexed.items():
@@ -981,7 +1008,7 @@ def analyze(run_path, verify_local_files=False):
         if variant != "current":
             comparisons.extend(attempt("statistics.exception." + variant,
                                        lambda variant=variant: all_comparisons(indexed, plan, variant), []))
-    for variant, baseline in (("rust_table", "c_table"), ("rust_window", "c_window")):
+    for variant, baseline in (("rust_table", "c_table"), ("rust_window", "c_window"), ("rust_metadata", "c_metadata")):
         controls.extend(attempt("statistics.control_exception." + variant,
                                 lambda variant=variant, baseline=baseline:
                                 all_comparisons(indexed, plan, variant, baseline), []))
@@ -1098,6 +1125,8 @@ def fixture_identity(variant, manifest):
     if variant in ("rust_window", "c_window"):
         prefix = "rust" if variant == "rust_window" else "c"
         result[prefix + "_owned_binary_sha256"] = spec[prefix + "_owned_sha256"]
+    if variant in ("rust_metadata", "c_metadata"):
+        result.update(metadata_binary_sha256=spec["metadata_plugin_sha256"], metadata_adapter_ready=True)
     if variant.startswith("node_"):
         result.update(node_math_verified=True, node_pid=171117,
                       node_executable_sha256=manifest["host"]["node_executable_sha256"])
@@ -1157,7 +1186,7 @@ def fixture_write_worker(root, run, item, report):
 
 
 def create_fixture(root):
-    """A complete eight-arm, three-cohort, six-round matrix plus three A/A rounds."""
+    """A complete ten-arm, three-cohort, six-round matrix plus three A/A rounds."""
     root = Path(root)
     manifest = {"schema_version": 1, "status": "formal", "baseline_commit": BASELINE,
                 "experiment_commit": "a" * 40, "host": {}, "file_sha256": {}, "variants": {}}
@@ -1166,7 +1195,8 @@ def create_fixture(root):
     native_methods += ["other_" + str(i) for i in range(14)]
     manifest["native_methods"] = native_methods
     frozen = {}
-    for name in ("base.so", "rust-same.so", "c-table.so", "rust-table.so", "rust-owned.so", "c-owned.so", "node"):
+    for name in ("base.so", "rust-same.so", "c-table.so", "rust-table.so", "rust-owned.so", "c-owned.so",
+                 "rust-metadata.so", "c-metadata.so", "node"):
         path = root / "inputs" / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(name.encode())
@@ -1188,6 +1218,10 @@ def create_fixture(root):
             prefix = "rust" if variant == "rust_window" else "c"
             spec[prefix + "_owned_sha256"] = frozen[str(root / "inputs" / (prefix + "-owned.so"))]
             spec["expected_runtime_registered_methods"] = ["excerpt_window"]
+        if variant in ("rust_metadata", "c_metadata"):
+            prefix = "rust" if variant == "rust_metadata" else "c"
+            plugin_path = str(root / "inputs" / (prefix + "-metadata.so"))
+            spec.update(metadata_plugin=plugin_path, metadata_plugin_sha256=frozen[plugin_path])
         if variant == "node_window":
             spec["expected_runtime_registered_methods"] = ["excerpt_window"]
         if variant == "node_small":
@@ -1218,7 +1252,7 @@ def create_fixture(root):
            "artifacts": {}, "probes": [], "file_sha256_after": dict(frozen)}
     factors = {"current": 1.0, "aa_current": 1.0, "rust_same": .99, "c_table": .94,
                "rust_table": .90, "rust_window": .92, "c_window": .93,
-               "node_window": 1.12, "node_small": 1.30}
+               "node_window": 1.12, "node_small": 1.30, "rust_metadata": .89, "c_metadata": .90}
     for item in run["schedule"]:
         variant, cohort, r = item["variant"], item["cohort"], item["round"]
         factor = factors[variant]
@@ -1259,6 +1293,7 @@ def create_fixture(root):
                      "native_calls": {name: 1 for name in native_methods} if variant != "python_reference" else {},
                      "bridge_calls": {}, "actual_node_operations": {}, "bridge_native_fallback": {},
                      "owned_window_dispatch": {"calls": 0, "completed": 0, "fallback": 0},
+                     "metadata_dispatch": {"calls": 0, "completed": 0, "fallback": 0}, "metadata_native_calls": {},
                      "ingestion_sha256": digest([cohort, "ingestion"]), "responses_sha256": digest([cohort, "responses"]),
                      "archive": fixture_archive(cohort), "instrumentation_removed": True,
                      "frozen_inputs_unchanged": True}
@@ -1268,6 +1303,9 @@ def create_fixture(root):
                 probe["actual_node_operations"] = {name: 1 for name in names}
             if variant in ("rust_window", "c_window"):
                 probe["owned_window_dispatch"] = {"calls": 2, "completed": 1, "fallback": 1}
+            if variant in ("rust_metadata", "c_metadata"):
+                probe["metadata_dispatch"] = {"calls": 2, "completed": 1, "fallback": 1}
+                probe["metadata_native_calls"] = {"bounded_metadata": 1}
             if variant == "rust_same":
                 probe["linked_methods"] = [{"name": name, "replaced": int(name in replaced), "flags": 1,
                                            "original_address": 10000 + index,
@@ -1298,17 +1336,18 @@ def self_test():
         path = root / "run.json"
         result = analyze(path, verify_local_files=True)
         assert result["audit"]["passed"], result["audit"]["errors"]
-        assert result["audit"]["expected_workers"] == 150
-        assert result["audit"]["completed_workers_loaded"] == 150
-        assert result["audit"]["attempted_calls_in_completed_reports"] == 2328
-        assert result["audit"]["ledger_events_in_completed_reports"] == 4656
+        assert result["audit"]["expected_workers"] == 186
+        assert [i for i, item in enumerate(run["schedule"]) if item["phase"] == "aa"] == [0, 1, 62, 63, 124, 125]
+        assert result["audit"]["completed_workers_loaded"] == 186
+        assert result["audit"]["attempted_calls_in_completed_reports"] == 2904
+        assert result["audit"]["ledger_events_in_completed_reports"] == 5808
         decisions = {x["variant"]: x for x in result["adoption"]}
         assert decisions["rust_table"]["ordinary_production_gate"]
         assert not decisions["node_window"]["ordinary_production_gate"]
         assert decisions["node_window"]["blocking_key_regressions"]
-        assert len(result["control_comparisons"]) == 66
-        assert len(result["dispatch_probes"]) == 27
-        checks.append("complete eight-arm 150-worker fixture, actual dispatch, identity, archive, controls and resource retention")
+        assert len(result["control_comparisons"]) == 99
+        assert len(result["dispatch_probes"]) == 33
+        checks.append("complete ten-arm 186-worker fixture, spaced A/A, actual dispatch, identity, archive, controls and resource retention")
 
         def rejected(expected):
             value = analyze(path)
@@ -1365,9 +1404,9 @@ def self_test():
         report_path.unlink()
         save_json(path, run)
         missing = rejected("report.missing")
-        assert missing["audit"]["completed_workers_loaded"] == 149
+        assert missing["audit"]["completed_workers_loaded"] == 185
         report_path.write_bytes(original_report)
-        checks.append("missing worker rejects adoption but preserves the other 149 workers")
+        checks.append("missing worker rejects adoption but preserves the other 185 workers")
 
         modified = loads(gzip.decompress(original_report))
         modified["status"] = "failed"
@@ -1447,6 +1486,48 @@ def self_test():
         probe_path.write_bytes(probe_bytes)
         probe_entry["sha256"] = probe_sha
         checks.append("Rust link replacement alone is insufficient without real helper execution")
+
+        metadata_item = next(x for x in run["schedule"] if x["variant"] == "rust_metadata"
+                             and x["cohort"] == "public1015" and x["round"] == 1)
+        metadata_report_path = root / (metadata_item["key"] + ".json.gz")
+        metadata_ledger_path = root / (metadata_item["key"] + ".json.gz.events.jsonl.gz")
+        metadata_report_bytes = metadata_report_path.read_bytes()
+        metadata_ledger_bytes = metadata_ledger_path.read_bytes()
+        metadata_artifact = copy.deepcopy(run["artifacts"][metadata_item["key"]])
+        for field, bad_value, error_code in (
+            ("metadata_binary_sha256", digest("wrong metadata binary"), "identity.metadata_binary"),
+            ("metadata_adapter_ready", False, "identity.metadata_not_ready"),
+        ):
+            modified = loads(gzip.decompress(metadata_report_bytes))
+            modified["identity"][field] = bad_value
+            fixture_write_worker(root, run, metadata_item, modified)
+            save_json(path, run)
+            rejected(error_code)
+            metadata_report_path.write_bytes(metadata_report_bytes)
+            metadata_ledger_path.write_bytes(metadata_ledger_bytes)
+            run["artifacts"][metadata_item["key"]] = copy.deepcopy(metadata_artifact)
+        checks.append("metadata binary identity and adapter readiness are mandatory")
+
+        metadata_probe_entry = next(x for x in run["probes"] if x["variant"] == "c_metadata"
+                                    and x["cohort"] == "public1015")
+        metadata_probe_path = root / metadata_probe_entry["path"]
+        metadata_probe_bytes = metadata_probe_path.read_bytes()
+        metadata_probe_sha = metadata_probe_entry["sha256"]
+        for failure in ("native", "completion"):
+            modified_probe = loads(metadata_probe_bytes)
+            if failure == "native":
+                modified_probe["metadata_native_calls"]["bounded_metadata"] = 0
+                error_code = "probe.metadata_native_not_executed"
+            else:
+                modified_probe["metadata_dispatch"] = {"calls": 2, "completed": 0, "fallback": 2}
+                error_code = "probe.metadata_not_executed"
+            save_json(metadata_probe_path, modified_probe)
+            metadata_probe_entry["sha256"] = file_hash(metadata_probe_path)
+            save_json(path, run)
+            rejected(error_code)
+            metadata_probe_path.write_bytes(metadata_probe_bytes)
+            metadata_probe_entry["sha256"] = metadata_probe_sha
+        checks.append("metadata requires both real native invocation and completed owned-stage work")
 
         # Whole-round A/A controls: ingestion-only drift cannot silently remove
         # unrelated query evidence, but it invalidates that ingestion benefit.
@@ -1529,12 +1610,12 @@ def self_test():
         value = analyze(path)
         assert value["audit"]["passed"], value["audit"]["errors"]
         assert value["status"] == "preflight-completed-not-adoptable"
-        assert value["audit"]["completed_workers_loaded"] == 24
+        assert value["audit"]["completed_workers_loaded"] == 30
         assert not any(x["ordinary_production_gate"] or x["stress_only_gate"] for x in value["adoption"])
-        checks.append("full nonformal 24-worker preflight fixture audits successfully without adoption")
+        checks.append("full nonformal 30-worker preflight fixture audits successfully without adoption")
     return {"status": "passed", "kind": "analyzer-self-test-not-performance", "checks": checks,
             "analysis_source_sha256": file_hash(Path(__file__)),
-            "fixture_workers": 150, "fixture_calls": 2328}
+            "fixture_workers": 186, "fixture_calls": 2904}
 
 
 def main():

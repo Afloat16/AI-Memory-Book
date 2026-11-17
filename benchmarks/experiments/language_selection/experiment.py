@@ -145,12 +145,29 @@ def activate(manifest, variant):
     from memory_book import MemoryBook, text
     import memory_book
     from memory_book import _text_backend
+    metadata_ready = None
+    if spec.get('metadata_plugin'):
+        from memory_book import store as memory_store
+        sys.path.insert(0, str(HERE / 'rust_metadata'))
+        adapter_spec = importlib.util.spec_from_file_location('language_metadata_adapter', HERE / 'rust_metadata/adapter.py')
+        metadata_adapter = importlib.util.module_from_spec(adapter_spec)
+        adapter_spec.loader.exec_module(metadata_adapter)
+        module_spec = importlib.util.spec_from_file_location(spec['metadata_module'], spec['metadata_plugin'])
+        metadata_native = importlib.util.module_from_spec(module_spec)
+        module_spec.loader.exec_module(metadata_native)
+        metadata_ready = metadata_adapter.install(memory_store, metadata_native)
+        assert metadata_ready is True, 'Metadata adapter failed to authenticate the frozen implementation'
+        globals()['_language_metadata_module'] = metadata_native
     assert Path(memory_book.__file__).resolve().parent == Path(spec['source']).resolve() / 'memory_book'
     assert _text_backend.BACKEND_NAME == ('python' if variant == 'python_reference' else 'native')
     identity = {'variant': variant, 'requested': _text_backend.REQUESTED_BACKEND,
                 'actual': _text_backend.BACKEND_NAME, 'source': spec['source'],
                 'runtime_registered_methods': changed,
                 'excerpt_window_ready': text._native_excerpt_window_ready()}
+    if spec.get('metadata_plugin'):
+        identity['metadata_binary_sha256'] = file_hash(spec['metadata_plugin'])
+        identity['metadata_adapter_ready'] = metadata_ready
+        assert identity['metadata_binary_sha256'] == spec['metadata_plugin_sha256']
     if extension is not None:
         identity['native_binary_sha256'] = file_hash(extension.__file__)
         if spec.get('native_binary_sha256'):
@@ -418,6 +435,10 @@ def probe(args):
     methods = {id(getattr(extension, name)): name for name in manifest['native_methods']} if extension else {}
     original_methods = ({id(value): name for name, value in vars(bridge.native).items()}
                         if bridge is not None else {})
+    metadata_dispatch, metadata_calls = Counter(), Counter()
+    metadata_native = globals().get('_language_metadata_module')
+    metadata_methods = ({id(metadata_native.bounded_metadata): 'bounded_metadata'}
+                        if metadata_native is not None else {})
     def trace(frame, event, arg):
         if event == 'c_call' and id(arg) in methods:
             hits[methods[id(arg)]] += 1
@@ -434,6 +455,15 @@ def probe(args):
                 owned['completed'] += 1
             else:
                 owned['fallback'] += 1
+        if event == 'c_call' and id(arg) in metadata_methods:
+            metadata_calls[metadata_methods[id(arg)]] += 1
+        if (event == 'return' and frame.f_code.co_filename == str(HERE / 'rust_metadata/adapter.py')
+                and frame.f_code.co_name == 'bounded_metadata_wrapper'):
+            metadata_dispatch['calls'] += 1
+            if 'result' in frame.f_locals and frame.f_locals['result'] is not NotImplemented:
+                metadata_dispatch['completed'] += 1
+            else:
+                metadata_dispatch['fallback'] += 1
     with tempfile.TemporaryDirectory(prefix='language-probe-') as temporary:
         with MemoryBook(Path(temporary) / 'memory.db', cache_size=0) as book:
             sys.setprofile(trace)
@@ -450,6 +480,8 @@ def probe(args):
                 'bridge_calls': dict(python_hits), 'ingestion_sha256': digest(ingested),
                 'actual_node_operations': dict(actual_node), 'bridge_native_fallback': dict(fallback),
                 'owned_window_dispatch': {name: owned[name] for name in ('calls', 'completed', 'fallback')},
+                'metadata_dispatch': {name: metadata_dispatch[name] for name in ('calls', 'completed', 'fallback')},
+                'metadata_native_calls': dict(metadata_calls),
                 'responses_sha256': digest(responses), 'archive': reference.archive_state(book.db),
                 'instrumentation_removed': sys.getprofile() is None}
     if bridge is not None:

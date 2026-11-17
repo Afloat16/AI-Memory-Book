@@ -1,5 +1,22 @@
 # Language suitability experiment — preflight checkpoint
 
+## Current continuation point
+
+The original eight-arm preflight completed successfully in
+[run 44054083791](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44054083791).
+Its evidence commit is `cab30fdcd583deff1c39e2d3ce2f1de5daef3039`: 24 workers,
+40,928 calls, 35,812 paired complete outputs, and zero audit errors. It is
+explicitly nonformal and cannot establish adoption or a language speed ranking.
+
+The next prospective matrix adds `rust_metadata` and `c_metadata` for the full
+bounded candidate metadata method. The eight earlier candidates remain in the
+comparison. This checkpoint stages the integration and analyzer; the new kernels
+and their shared correctness checks are still being completed. Do not start the
+formal branch until the ten-arm candidate set passes complete validation.
+
+The planned ten-arm formal schedule has 186 workers and 626,100 timed calls,
+including A/A controls. Main remains untouched.
+
 The production baseline remains `234891619d7bed88ddf3fae37e7f3e1b14a808b6`.
 This branch adds isolated experiments. It does not modify product sources,
 the public README, main, release tags, retrieval rules, or database schema.
