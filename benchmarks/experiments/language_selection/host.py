@@ -158,6 +158,8 @@ def preparation(output, env, phase):
     manifest['variants']['node_small']['expected_runtime_registered_methods'] = ['terms_ascii', 'ascii_tokens', 'context_allocations']
     tracked = git('ls-files', 'src/memory_book', 'benchmarks/experiments/language_selection',
                   'benchmarks/locomo_split.json', 'scripts/native_language_performance.py',
+                  'tests/test_native_backend.py', 'tests/test_native_excerpt_backend.py',
+                  'tests/test_native_window_backend.py',
                   '.github/workflows/language-selection-performance.yml').decode().splitlines()
     tracked = sorted(set(tracked) | {str(p.relative_to(ROOT)) for p in (ROOT / 'benchmarks').glob('*.py')})
     bound = {}
@@ -173,6 +175,9 @@ def preparation(output, env, phase):
         for key in ('plugin', 'rust_owned', 'c_owned'):
             if spec.get(key):
                 bound[spec[key]] = exp.file_hash(spec[key])
+    for path in builds.rglob('*'):
+        if path.is_file() and path.suffix in ('.so', '.a'):
+            bound[str(path)] = exp.file_hash(path)
     bound[str(locomo)] = LOCOMO_SHA
     bound[str(Path(shutil.which('node')).resolve())] = manifest['host']['node_executable_sha256']
     manifest['file_sha256'] = bound
@@ -305,6 +310,7 @@ def measure(output, manifest, env, phase):
                 run['artifacts'][key] = {'report_sha256': exp.file_hash(report) if report.exists() else None,
                     'ledger_sha256': exp.file_hash(ledger) if ledger.exists() else None}
                 exp.save(output / 'run.json', run)
+        supplementary_diagnostics(output, manifest, env, phase)
         exp.verify_manifest(manifest)
         run['file_sha256_after'] = {path: exp.file_hash(path) for path in manifest['file_sha256']}
         run['status'] = 'completed'
@@ -314,6 +320,27 @@ def measure(output, manifest, env, phase):
         raise
     finally:
         exp.save(output / 'run.json', run)
+
+
+def supplementary_diagnostics(output, manifest, env, phase):
+    """Separate helper evidence; these measurements cannot trigger adoption."""
+    source = Path(manifest['variants']['current']['source'])
+    destination = output / 'diagnostics'
+    destination.mkdir()
+    trials = [('rust-same', 'rust-loop=' + str(output / 'builds/rust-same') + '=_language_rust'),
+              ('c-table', 'c-table=' + str(output / 'builds/c-table') + '=_language_c_table'),
+              ('rust-table', 'rust-table=' + str(output / 'builds/rust-table') + '=_language_c_table')]
+    for name, backend in trials:
+        print(exp.dump({'stage': 'helper-diagnostics', 'comparison': name}), flush=True)
+        execute([sys.executable, HERE / 'javascript/kernel_bench.py', '--source', source,
+            '--inputs', HERE / 'javascript/captured-inputs.json', '--native-backend', backend,
+            '--rounds', '6' if phase == 'formal' else '1',
+            '--iterations', '64' if phase == 'formal' else '8',
+            '--warmup', '256' if phase == 'formal' else '16',
+            '--output', destination / (name + '.json')],
+            output / 'logs' / ('diagnostic-' + name + '.log'), env)
+    exp.save(destination / 'files.json', {str(p.relative_to(destination)): exp.file_hash(p)
+        for p in sorted(destination.iterdir()) if p.is_file()})
 
 
 def preserve(output):
