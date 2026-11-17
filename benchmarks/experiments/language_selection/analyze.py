@@ -502,6 +502,12 @@ def check_plan(run, audit):
         audit.require(False, "plan.scenario_schema", str(error))
     aa = plan.get("aa", {})
     audit.require(integer(aa.get("rounds")), "plan.aa_rounds")
+    placement = aa.get("placement", {})
+    before_rounds = placement.get("before_main_rounds") if isinstance(placement, dict) else None
+    audit.require(before_rounds == ([0, 2, 4] if formal else []),
+                  "plan.aa_placement", before_rounds)
+    audit.require(isinstance(before_rounds, list) and len(before_rounds) == aa.get("rounds"),
+                  "plan.aa_placement_count")
     if formal:
         audit.require(aa.get("rounds") == 3, "plan.formal_aa_rounds")
     if aa.get("rounds", 0):
@@ -577,6 +583,23 @@ def check_schedule(run, audit):
     audit.require(expected <= observed, "schedule.missing_workers", sorted(expected - observed))
     audit.require(len([x for x in observed if x[0] != "reference"]) == len(expected),
                   "schedule.matrix_size")
+    # The declaration binds where the controls occur, not merely their set.
+    # Two A/A workers precede all main workers of rounds 0, 2 and 4.
+    placement = aa.get("placement", {}).get("before_main_rounds", [])
+    expected_phase_order = []
+    for main_round in range(plan["rounds"]):
+        if main_round in placement:
+            aa_round = placement.index(main_round)
+            expected_phase_order.extend([("aa", aa_round)] * len(aa.get("variants", [])))
+        expected_phase_order.extend([("main", main_round)] *
+                                    (len(plan["variants"]) * len(plan["cohorts"])))
+    actual_phase_order = [(x["phase"], x["round"]) for x in usable if x["phase"] != "reference"]
+    audit.require(actual_phase_order == expected_phase_order,
+                  "schedule.aa_placement_or_round_order")
+    for aa_round in range(aa.get("rounds", 0)):
+        actual = [x["variant"] for x in usable if x["phase"] == "aa" and x["round"] == aa_round]
+        wanted = ["current", "aa_current"] if aa_round % 2 == 0 else ["aa_current", "current"]
+        audit.require(actual == wanted, "schedule.aa_pair_order", aa_round)
     if run.get("formal"):
         for cohort in plan["cohorts"]:
             for variant in plan["variants"]:
@@ -709,6 +732,16 @@ def audit_probes(root, run, audit):
             continue
         for field in ("ingestion_sha256", "responses_sha256", "archive"):
             audit.require(value.get(field) == reference.get(field), "probe.full_output_mismatch", [pair, field])
+        if variant == "rust_same":
+            for method in ("terms_ascii", "ascii_tokens", "unicode_tokens", "literal_positions",
+                           "fold_excerpt_source", "evidence_units"):
+                if reference.get("native_calls", {}).get(method, 0) > 0:
+                    audit.require(value.get("native_calls", {}).get(method, 0) > 0,
+                                  "probe.rust_not_executed", [pair, method])
+        if variant in ("c_table", "rust_table"):
+            if reference.get("native_calls", {}).get("fold_excerpt_source", 0) > 0:
+                audit.require(value.get("native_calls", {}).get("fold_excerpt_source", 0) > 0,
+                              "probe.table_not_executed", pair)
         if variant.startswith("node_"):
             targeted = ["excerpt_window"] if variant == "node_window" else (
                 ["terms_ascii", "ascii_tokens", "context_allocations"])
@@ -917,15 +950,17 @@ def analyze(run_path, verify_local_files=False):
     def attempt(code, function, fallback=None):
         try:
             return function()
-        except (KeyError, TypeError, ValueError, IndexError, OSError, OverflowError) as error:
+        except (KeyError, TypeError, ValueError, IndexError, AttributeError, OSError, OverflowError) as error:
             audit.require(False, code, {"type": type(error).__name__, "message": str(error)})
             return fallback
 
     attempt("run.plan_validation_exception", lambda: check_plan(run, audit))
     schedule = attempt("run.schedule_validation_exception", lambda: check_schedule(run, audit), [])
-    manifest, plan = run.get("manifest", {}), run.get("plan", {})
+    manifest = run.get("manifest") if isinstance(run.get("manifest"), dict) else {}
+    plan = run.get("plan") if isinstance(run.get("plan"), dict) else {}
+    frozen = manifest.get("file_sha256") if isinstance(manifest.get("file_sha256"), dict) else {}
     if verify_local_files:
-        for path, expected in manifest.get("file_sha256", {}).items():
+        for path, expected in frozen.items():
             try:
                 actual = file_hash(path)
                 checked_files += 1
@@ -941,7 +976,8 @@ def analyze(run_path, verify_local_files=False):
     if result:
         indexed, paired_calls, mismatches = result
     probes = attempt("probe.validation_exception", lambda: audit_probes(root, run, audit), [])
-    for variant in plan.get("variants", []):
+    variants = plan.get("variants") if isinstance(plan.get("variants"), list) else []
+    for variant in variants:
         if variant != "current":
             comparisons.extend(attempt("statistics.exception." + variant,
                                        lambda variant=variant: all_comparisons(indexed, plan, variant), []))
@@ -949,10 +985,12 @@ def analyze(run_path, verify_local_files=False):
         controls.extend(attempt("statistics.control_exception." + variant,
                                 lambda variant=variant, baseline=baseline:
                                 all_comparisons(indexed, plan, variant, baseline), []))
-    if plan.get("aa", {}).get("rounds", 0):
+    aa = plan.get("aa") if isinstance(plan.get("aa"), dict) else {}
+    aa_rounds = aa.get("rounds", 0) if integer(aa.get("rounds", 0)) else 0
+    if aa_rounds:
         aa_records = attempt("statistics.aa_exception",
                              lambda: all_comparisons(indexed, plan, "aa_current", phase="aa"), [])
-    noise = aa_noise(aa_records, plan.get("aa", {}).get("rounds", 0))
+    noise = aa_noise(aa_records, aa_rounds)
     decisions = attempt("adoption.validation_exception",
                         lambda: adoption_decisions(comparisons, plan, audit, run.get("formal") is True, noise), [])
     valid = not audit.errors
@@ -1082,12 +1120,14 @@ def fixture_config_resources(variant, config, manifest):
 
 def fixture_schedule(plan):
     result = []
-    for r in range(plan["aa"]["rounds"]):
-        order = ("current", "aa_current") if r % 2 == 0 else ("aa_current", "current")
-        for variant in order:
-            result.append({"key": f"aa-r{r}-public1015-{variant}", "phase": "aa", "variant": variant,
-                           "cohort": "public1015", "round": r, "repeats": 1, "configs": list(CONFIGS[:2])})
+    placement = plan["aa"]["placement"]["before_main_rounds"]
     for r in range(plan["rounds"]):
+        if r in placement:
+            aa_round = placement.index(r)
+            aa_order = ("current", "aa_current") if aa_round % 2 == 0 else ("aa_current", "current")
+            for variant in aa_order:
+                result.append({"key": f"aa-r{aa_round}-public1015-{variant}", "phase": "aa", "variant": variant,
+                               "cohort": "public1015", "round": aa_round, "repeats": 1, "configs": list(CONFIGS[:2])})
         shift = (r // 2) * 2
         order = list(MAIN_VARIANTS[shift:] + MAIN_VARIANTS[:shift])
         if r % 2:
@@ -1157,7 +1197,7 @@ def create_fixture(root):
             "configs": list(CONFIGS), "primary_targets": [], "stress_targets": [], "key_scenarios": [],
             "benefit_percent": 5.0, "regression_percent": 3.0, "minimum_improving_rounds": 5,
             "bootstrap_resamples": 10000,
-            "aa": {"rounds": 3, "repeats": 1, "cohort": "public1015",
+            "aa": {"rounds": 3, "repeats": 1, "cohort": "public1015", "placement": {"before_main_rounds": [0, 2, 4]},
                    "configs": list(CONFIGS[:2]), "variants": ["current", "aa_current"]}}
     for cohort in COHORTS:
         ids = [cohort + "-q0", cohort + "-q1"]
@@ -1368,6 +1408,46 @@ def self_test():
             fixture_write_worker(root, run, drift_item, before)
         checks.append("token baseline drift is checked across rounds even when A/A char was first")
 
+        modified = loads(gzip.decompress(original_report))
+        modified["configurations"]["direct-char2400"] = None
+        save_json(report_path, modified)
+        run["artifacts"][item["key"]]["report_sha256"] = file_hash(report_path)
+        save_json(path, run)
+        malformed = rejected("report.validation_exception")
+        assert malformed["status"] == "partial-or-invalid-unadoptable"
+        report_path.write_bytes(original_report)
+        ledger_path.write_bytes(original_ledger)
+        run["artifacts"][item["key"]] = copy.deepcopy(original_metadata)
+        checks.append("malformed nested cell returns an unadoptable partial report rather than crashing")
+
+        probe_entry = next(x for x in run["probes"] if x["variant"] == "c_table"
+                           and x["cohort"] == "synthetic61")
+        probe_path = root / probe_entry["path"]
+        probe_bytes, probe_sha = probe_path.read_bytes(), probe_entry["sha256"]
+        modified_probe = loads(probe_bytes)
+        modified_probe["native_calls"]["fold_excerpt_source"] = 0
+        save_json(probe_path, modified_probe)
+        probe_entry["sha256"] = file_hash(probe_path)
+        save_json(path, run)
+        rejected("probe.table_not_executed")
+        probe_path.write_bytes(probe_bytes)
+        probe_entry["sha256"] = probe_sha
+        checks.append("a loaded table candidate with zero actual fold calls cannot pass")
+
+        probe_entry = next(x for x in run["probes"] if x["variant"] == "rust_same"
+                           and x["cohort"] == "public1015")
+        probe_path = root / probe_entry["path"]
+        probe_bytes, probe_sha = probe_path.read_bytes(), probe_entry["sha256"]
+        modified_probe = loads(probe_bytes)
+        modified_probe["native_calls"]["terms_ascii"] = 0
+        save_json(probe_path, modified_probe)
+        probe_entry["sha256"] = file_hash(probe_path)
+        save_json(path, run)
+        rejected("probe.rust_not_executed")
+        probe_path.write_bytes(probe_bytes)
+        probe_entry["sha256"] = probe_sha
+        checks.append("Rust link replacement alone is insufficient without real helper execution")
+
         # Whole-round A/A controls: ingestion-only drift cannot silently remove
         # unrelated query evidence, but it invalidates that ingestion benefit.
         aa_backups = []
@@ -1433,6 +1513,7 @@ def self_test():
         preflight["manifest_sha256"] = digest(preflight["manifest"])
         preflight["plan"]["rounds"] = preflight["plan"]["repeats"] = 1
         preflight["plan"]["aa"]["rounds"] = 0
+        preflight["plan"]["aa"]["placement"] = {"before_main_rounds": []}
         old_items = {(x["variant"], x["cohort"], x["round"]): x for x in run["schedule"] if x["phase"] == "main"}
         preflight["schedule"] = fixture_schedule(preflight["plan"])
         preflight["artifacts"] = {}
@@ -1486,4 +1567,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

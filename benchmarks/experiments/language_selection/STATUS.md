@@ -1,4 +1,4 @@
-# Language suitability experiment — recovery checkpoint
+# Language suitability experiment — preflight checkpoint
 
 The production baseline remains `234891619d7bed88ddf3fae37e7f3e1b14a808b6`.
 This branch adds isolated experiments. It does not modify product sources,
@@ -18,6 +18,17 @@ the public README, main, release tags, retrieval rules, or database schema.
   match previously recorded hashes exactly; reconstructed host/evaluator files
   require fresh runner validation. Local predecessor checks are not proof that
   every recovered byte has already run.
+- The local executor subsequently recovered. The restored analyzer passed its
+  synthetic complete-matrix tests and deliberate rejection cases; these are
+  evaluator tests, not product performance measurements.
+- [Preflight 1](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44052140234)
+  stopped before correctness replay or performance timing because Cargo's table
+  build and the shared table shim had the same output directory/log name.
+  The Cargo directory is now `rust-core-table`. The failed attempt remains on
+  `validation/language-selection-results-44052140234`, commit
+  `59afff7f8d5d40d8e7cc10a352e7a020fefb7bef`.
+- The next preflight includes the complete eight-arm matrix, Bash diagnostics,
+  and a TypeScript type-erasure/runtime identity check. No candidate is adopted.
 
 ## Registered comparison
 
@@ -28,6 +39,8 @@ the public README, main, release tags, retrieval rules, or database schema.
 | Unicode processing organization | C-table and Rust-table using the same frozen mapping |
 | Complete window computation | C-owned and Rust-owned with the same compatibility adapter |
 | JavaScript | Warm kernel measurements and actual persistent Python/Node integration |
+| TypeScript | Types-only facade, checking the identities of the executed JavaScript functions |
+| Shell | Equivalent ASCII kernels in Bash; RPC, amortized batch cost, and cold start reported separately |
 | Reference | Existing pure Python backend for output equivalence |
 
 The formal whole-workload matrix uses six balanced rounds, two passes per
@@ -35,6 +48,8 @@ configuration, synthetic61, public1015, and a separately labeled Unicode stress
 cohort. It includes direct and official-SDK MCP recall at character and token
 budgets, fresh/unchanged/changed ingestion, process resources, startup, and A/A
 controls. Ordinary and stress-only adoption decisions are separate.
+A/A pairs precede main rounds 0, 2, and 4. Helper diagnostics run after the
+whole-workload matrix and cannot trigger the production adoption gate.
 
 ## Continuation
 

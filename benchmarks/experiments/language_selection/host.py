@@ -10,10 +10,12 @@ from pathlib import Path
 import platform
 import shutil
 import signal
+import sqlite3
 import subprocess
 import sys
 import sysconfig
 import traceback
+import unicodedata
 from urllib.request import urlopen
 
 HERE = Path(__file__).resolve().parent
@@ -69,6 +71,10 @@ def host_identity():
         'cargo': subprocess.check_output(['cargo', '--version'], text=True).strip(),
         'node': subprocess.check_output(['node', '--version'], text=True).strip(),
         'node_executable_sha256': exp.file_hash(shutil.which('node')),
+        'bash': subprocess.check_output(['bash', '--version'], text=True).splitlines()[0],
+        'bash_executable_sha256': exp.file_hash(shutil.which('bash')),
+        'sqlite': sqlite3.sqlite_version, 'unicode_database': unicodedata.unidata_version,
+        'runner_image': {key: os.environ.get(key) for key in ('ImageOS', 'ImageVersion')},
         'workflow_run_id': os.environ.get('GITHUB_RUN_ID'),
         'workflow_run_attempt': os.environ.get('GITHUB_RUN_ATTEMPT')}
 
@@ -102,11 +108,12 @@ def preparation(output, env, phase):
     exp.save(builds / 'current.json', {'command': command, 'binary_sha256': exp.file_hash(binary)})
     rust_outputs = {}
     for label, features in [('same', ''), ('table', 'table'), ('owned', 'owned-window')]:
-        target = builds / ('rust-' + label)
+        build_name = 'rust-core-table' if label == 'table' else 'rust-' + label
+        target = builds / build_name
         cmd = [sys.executable, HERE / 'rust/build.py', '--package-source', source, '--output-dir', target]
         if features:
             cmd += ['--features', features]
-        execute(cmd, builds / ('rust-' + label + '.log'), env)
+        execute(cmd, builds / (build_name + '.log'), env)
         rust_outputs[label] = target
         if label == 'table':
             archive = Path(env['CARGO_TARGET_DIR']) / 'release/liblanguage_rust.a'
@@ -180,6 +187,7 @@ def preparation(output, env, phase):
             bound[str(path)] = exp.file_hash(path)
     bound[str(locomo)] = LOCOMO_SHA
     bound[str(Path(shutil.which('node')).resolve())] = manifest['host']['node_executable_sha256']
+    bound[str(Path(shutil.which('bash')).resolve())] = manifest['host']['bash_executable_sha256']
     manifest['file_sha256'] = bound
     exp.save(output / 'manifest.json', manifest)
     return manifest
@@ -191,7 +199,8 @@ def make_plan(manifest, phase):
         'key_scenarios': [], 'benefit_percent': 5.0, 'regression_percent': 3.0,
         'minimum_improving_rounds': 5, 'bootstrap_resamples': 10000,
         'aa': {'rounds': 3 if phase == 'formal' else 0, 'repeats': 1,
-               'cohort': 'public1015', 'configs': CONFIGS[:2], 'variants': ['current', 'aa_current']},
+               'cohort': 'public1015', 'configs': CONFIGS[:2], 'variants': ['current', 'aa_current'],
+               'placement': {'before_main_rounds': [0, 2, 4] if phase == 'formal' else []}},
         'scope': 'Tested implementations at stated boundaries, not all possible programs in a language.',
         'cache_policy': 'Direct result cache disabled; MCP result cache cleared before every call. Other existing caches and OS/SQLite caches retained.',
         'adoption': 'No production changes in this experiment. Stress-only wins do not justify general migration.'}
@@ -215,12 +224,14 @@ def make_plan(manifest, phase):
 
 def make_schedule(plan):
     values = []
-    for round_number in range(plan['aa']['rounds']):
-        variants = ['current', 'aa_current'] if round_number % 2 == 0 else ['aa_current', 'current']
-        for variant in variants:
-            values.append({'key': f'aa-r{round_number}-public1015-{variant}', 'phase': 'aa',
-                'variant': variant, 'cohort': 'public1015', 'round': round_number, 'repeats': 1, 'configs': CONFIGS[:2]})
     for round_number in range(plan['rounds']):
+        aa_round = round_number // 2
+        if round_number % 2 == 0 and aa_round < plan['aa']['rounds']:
+            aa_variants = ['current', 'aa_current'] if aa_round % 2 == 0 else ['aa_current', 'current']
+            for variant in aa_variants:
+                values.append({'key': f'aa-r{aa_round}-public1015-{variant}', 'phase': 'aa',
+                    'variant': variant, 'cohort': 'public1015', 'round': aa_round,
+                    'repeats': 1, 'configs': CONFIGS[:2]})
         shift = (round_number // 2) * 2
         variants = VARIANTS[shift:] + VARIANTS[:shift]
         if round_number % 2:
@@ -259,11 +270,15 @@ def checks(output, manifest, env):
         ('node', [HERE / 'javascript/verify.py', '--source', source, '--output', output / 'checks/node.json']),
         ('node-guards', [HERE / 'javascript/check_window_guards.py', '--source', source,
                          '--output', output / 'checks/node-guards.json']),
+        ('shell', [HERE / 'shell/check.py', '--source', source,
+            '--inputs', HERE / 'javascript/captured-inputs.json', '--output', output / 'checks/shell.json']),
     ]
     (output / 'checks').mkdir()
     for name, command in items:
         print(exp.dump({'stage': 'correctness', 'check': name}), flush=True)
         execute([sys.executable, *command], output / 'logs' / ('check-' + name + '.log'), env)
+    execute(['node', HERE / 'javascript/typecheck-runtime.mts', '--output',
+        output / 'checks/typescript-runtime.json'], output / 'logs/check-typescript-runtime.log', env)
 
 
 def measure(output, manifest, env, phase):
@@ -339,6 +354,11 @@ def supplementary_diagnostics(output, manifest, env, phase):
             '--warmup', '256' if phase == 'formal' else '16',
             '--output', destination / (name + '.json')],
             output / 'logs' / ('diagnostic-' + name + '.log'), env)
+    execute([sys.executable, HERE / 'shell/bench.py', '--source', source,
+        '--inputs', HERE / 'javascript/captured-inputs.json', '--output', destination / 'shell.json',
+        '--measure', '--rounds', '6' if phase == 'formal' else '1',
+        '--iterations', '3' if phase == 'formal' else '1', '--warmup', '1' if phase == 'formal' else '0',
+        '--cold-starts', '3' if phase == 'formal' else '1'], output / 'logs/diagnostic-shell.log', env)
     exp.save(destination / 'files.json', {str(p.relative_to(destination)): exp.file_hash(p)
         for p in sorted(destination.iterdir()) if p.is_file()})
 
