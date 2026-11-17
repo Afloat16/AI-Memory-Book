@@ -138,7 +138,7 @@ The corrected final runtime also replays the unchanged **80 native engineering q
 ## v0.10.0 runtime and reliability improvements
 
 The current release bounds semantic vector reads, verifies each model artifact
-once, and batches chapter previews. It also fixes Unicode JSONL capture,
+once, and shares chapter metadata and page counts across bounded previews. It also fixes Unicode JSONL capture,
 Windows worker-status and file-snapshot checks, growing-file import limits,
 and managed installation isolation. Native release artifacts are separated by
 workflow attempt, with stricter checks on the actual native test outcomes.
@@ -148,6 +148,17 @@ their behavior. The 22-entry C backend remains available with the complete
 Python reference. Existing schema-4 archives need no migration. Component
 measurements, regressions and delivery evidence are kept in the
 [v0.10.0 validation report](docs/comprehensive-v010-validation.md).
+The frozen semantic comparison measured **6.38% lower paired latency** and
+**66.31% less tracked peak allocation** at 32,768 vector windows. At 4,096
+windows, paired latency increased **1.41%** (pooled medians 19.330 → 19.659 ms).
+Model-artifact reads and hashes each fell by half; initialization with mocked
+runtimes was **41.50% faster**. These are synthetic component results, not
+whole-process memory, actual model loading, full recall or MCP measurements.
+The separately frozen directory comparison measured **5.31% / 6.46% lower
+paired latency** for 20 / 100 sections with 20 preview pages each. All six
+multi-section configurations improved in every pair. Two single-section
+configurations were **1.07% / 0.42% slower**, about 2 / 4 microseconds between
+pooled medians. All 1,440 timed directory calls retained exact outputs.
 The earlier native recall/MCP experiment below remains a separate result.
 
 ## Language-only acceleration
