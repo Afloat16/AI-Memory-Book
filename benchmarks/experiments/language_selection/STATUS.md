@@ -2,6 +2,16 @@
 
 ## Current continuation point
 
+The ten-arm preflight is running in
+[run 44057893040](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44057893040),
+job `133951846014`, from frozen candidate/evaluator commit
+`40a8ce42b4131b511dcacd446d175b878b74a6f8`. All 69 experimental source files
+in the hosted lab match that commit. Independent pre-launch review found no
+blocking integration, timing-probe, scheduling or adoption-gate issue.
+The report and figure utilities are being prepared separately; they do not
+change the frozen candidates or evaluator. See [SCOPE.zh.md](SCOPE.zh.md)
+for the interpretation boundary, including the unmeasured full-service rewrite.
+
 The original eight-arm preflight completed successfully in
 [run 44054083791](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44054083791).
 Its evidence commit is `cab30fdcd583deff1c39e2d3ce2f1de5daef3039`: 24 workers,
@@ -47,7 +57,7 @@ the public README, main, release tags, retrieval rules, or database schema.
   The Cargo directory is now `rust-core-table`. The failed attempt remains on
   `validation/language-selection-results-44052140234`, commit
   `59afff7f8d5d40d8e7cc10a352e7a020fefb7bef`.
-- The next preflight includes the complete eight-arm matrix, Bash diagnostics,
+- Preflight 3 included the complete eight-arm matrix, Bash diagnostics,
   and a TypeScript type-erasure/runtime identity check. No candidate is adopted.
 - [Preflight 2](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44053025545)
   passed the Rust, C-table, Rust-table, C/Rust owned-window, and full Node kernel
@@ -91,4 +101,4 @@ whole-workload matrix and cannot trigger the production adoption gate.
    incomplete matrix or a result explained by A/A noise.
 
 All evidence branches use Afloat's verified commit identity. Shell diagnostics,
-when present, remain separate from the eight whole-workload variants.
+when present, remain separate from the ten whole-workload variants.
