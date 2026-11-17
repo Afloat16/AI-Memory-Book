@@ -61,6 +61,52 @@ def save(path, value):
     temporary.replace(path)
 
 
+def file_hash(path):
+    value = hashlib.sha256()
+    with Path(path).open('rb') as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+            value.update(chunk)
+    return value.hexdigest()
+
+
+def resource_usage(pid='self'):
+    status = Path(f'/proc/{pid}/status').read_text()
+    fields = Path(f'/proc/{pid}/stat').read_text().rsplit(')', 1)[1].split()
+    sizes = {line.split(':', 1)[0]: int(line.split()[1]) * 1024
+             for line in status.splitlines() if line.startswith(('VmRSS:', 'VmHWM:'))}
+    ticks = os.sysconf('SC_CLK_TCK')
+    return {'rss_bytes': sizes['VmRSS'], 'hwm_bytes': sizes['VmHWM'],
+            'user_cpu_s': int(fields[11]) / ticks, 'system_cpu_s': int(fields[12]) / ticks}
+
+
+class Ledger:
+    def __init__(self, path):
+        self.file = Path(path).open('xb')
+        self.stream = gzip.GzipFile(filename='', mode='wb', fileobj=self.file, mtime=0)
+
+    def event(self, event, config, case, repetition, row=None):
+        value = {'event': event, 'configuration': config, 'query_id': case.id,
+                 'repetition': repetition, 'row': row}
+        self.stream.write((dump(value) + '\n').encode())
+        self.stream.flush()
+        self.file.flush()
+
+    def close(self):
+        self.stream.close()
+        self.file.flush()
+        os.fsync(self.file.fileno())
+        self.file.close()
+
+
+def verify_manifest(manifest):
+    for path, expected in manifest.get('file_sha256', {}).items():
+        if file_hash(path) != expected:
+            raise AssertionError('Frozen source/input/binary changed: ' + path)
+    if manifest.get('status') == 'formal':
+        assert manifest.get('file_sha256'), 'Formal inputs must be bound'
+        assert os.environ.get('PYTHONHASHSEED') == '0', 'Freeze hash seed before process startup'
+
+
 def activate(manifest, variant):
     spec = manifest['variants'][variant]
     sys.path[:0] = [spec['source'], str(ROOT)]
@@ -76,6 +122,15 @@ def activate(manifest, variant):
             plugin = importlib.util.module_from_spec(module_spec)
             module_spec.loader.exec_module(plugin)
             plugin.install_into(_native)
+        if variant in ('rust_window', 'c_window'):
+            from memory_book import text as lexical
+            sys.path.insert(0, str(HERE / 'rust'))
+            from window_adapter import install
+            module_name = '_language_rust' if variant == 'rust_window' else '_language_c_owned'
+            module_spec = importlib.util.spec_from_file_location(module_name, spec.get('rust_owned') or spec['c_owned'])
+            native_owned = importlib.util.module_from_spec(module_spec)
+            module_spec.loader.exec_module(native_owned)
+            install(_native, lexical, native_owned)
         if variant.startswith('node_'):
             sys.path.insert(0, str(HERE / 'javascript'))
             from client import NodeClient
@@ -88,23 +143,38 @@ def activate(manifest, variant):
     else:
         changed = []
     from memory_book import MemoryBook, text
+    import memory_book
     from memory_book import _text_backend
+    assert Path(memory_book.__file__).resolve().parent == Path(spec['source']).resolve() / 'memory_book'
+    assert _text_backend.BACKEND_NAME == ('python' if variant == 'python_reference' else 'native')
     identity = {'variant': variant, 'requested': _text_backend.REQUESTED_BACKEND,
                 'actual': _text_backend.BACKEND_NAME, 'source': spec['source'],
                 'runtime_registered_methods': changed,
                 'excerpt_window_ready': text._native_excerpt_window_ready()}
     if extension is not None:
-        identity['native_binary_sha256'] = hashlib.sha256(Path(extension.__file__).read_bytes()).hexdigest()
+        identity['native_binary_sha256'] = file_hash(extension.__file__)
+        if spec.get('native_binary_sha256'):
+            assert identity['native_binary_sha256'] == spec['native_binary_sha256']
     if plugin is not None:
         identity['plugin'] = plugin.describe()
-        identity['plugin_binary_sha256'] = hashlib.sha256(Path(spec['plugin']).read_bytes()).hexdigest()
+        assert identity['plugin']['table_enabled'] is True
+        identity['plugin_binary_sha256'] = file_hash(spec['plugin'])
+        if spec.get('plugin_binary_sha256'):
+            assert identity['plugin_binary_sha256'] == spec['plugin_binary_sha256']
+    for kind in ('rust_owned', 'c_owned'):
+        if spec.get(kind):
+            identity[kind + '_binary_sha256'] = file_hash(spec[kind])
+            if spec.get(kind + '_sha256'):
+                assert identity[kind + '_binary_sha256'] == spec[kind + '_sha256']
     if bridge is not None:
         identity['node_math_verified'] = bridge.math_verified
         identity['node_pid'] = bridge.process.pid
+        identity['node_executable_sha256'] = file_hash(bridge.node)
+    if 'expected_runtime_registered_methods' in spec:
+        assert sorted(changed) == sorted(spec['expected_runtime_registered_methods'])
     if variant != 'python_reference' and not identity['excerpt_window_ready']:
         raise AssertionError('An unrelated native excerpt guard fell back')
     return MemoryBook, extension, bridge, identity
-
 
 def dependencies():
     sys.path.insert(0, str(ROOT))
@@ -153,7 +223,7 @@ def descendants_usage(reference, bridge):
     return reference.usage(bridge.process.pid) if bridge is not None else None
 
 
-async def mcp_measure(args, manifest, data, config_id, attempts, db, work, sources, pages, counter, reference, output):
+async def mcp_measure(args, manifest, data, config_id, attempts, db, work, sources, pages, counter, reference, ledger):
     from mcp import ClientSession, StdioServerParameters
     from mcp.client.stdio import stdio_client
     from memory_book.mcp_server import _json, recall_payload
@@ -172,8 +242,17 @@ async def mcp_measure(args, manifest, data, config_id, attempts, db, work, sourc
                 schema = await client.list_tools()
                 resources.update(tool_schema_sha256=digest(schema.model_dump(exclude_none=True)),
                     instructions_sha256=digest(initialized.instructions or ''))
-                pid = reference.server_pid(db)
-                resources['server_before'] = reference.usage(pid)
+                receipt_path = Path(str(db) + '.server-start.json')
+                assert receipt_path.exists(), 'Missing server activation receipt'
+                receipt = read(receipt_path)
+                assert receipt['identity']['variant'] == args.variant
+                assert receipt['identity']['actual'] == ('python' if args.variant == 'python_reference' else 'native')
+                resources['activation_receipt'] = receipt
+                pid = receipt['pid']
+                resources['server_before'] = resource_usage(pid)
+                node_pid = receipt['identity'].get('node_pid')
+                if node_pid:
+                    resources['node_before'] = resource_usage(node_pid)
                 for case, repetition in attempts:
                     cache.execute('DELETE FROM recall_cache')
                     cache.commit()
@@ -181,34 +260,40 @@ async def mcp_measure(args, manifest, data, config_id, attempts, db, work, sourc
                                  'budget_chars': config['budget_chars']}
                     if config['budget_tokens'] is not None:
                         arguments.update(budget_tokens=1024, tokenizer='cl100k_base')
+                    ledger.event('started', config_id, case, repetition)
+                    cpu = time.process_time_ns()
                     start = time.perf_counter_ns()
                     response = await client.call_tool('recall_memory', arguments)
                     elapsed = (time.perf_counter_ns() - start) / 1e6
+                    cpu_ms = (time.process_time_ns() - cpu) / 1e6
                     if response.isError:
                         raise AssertionError('MCP returned an error')
                     payload = '\n'.join(part.text for part in response.content)
                     cached = cache.execute('SELECT payload FROM recall_cache').fetchall()
                     assert len(cached) == 1
                     native = json.loads(cached[0][0])
+                    assert 'latency_ms' not in native
                     assert payload == _json(recall_payload(native))
                     row = reference.make_row(case, native, config, sources, pages, counter,
-                        elapsed, 0.0, payload, response.model_dump_json(exclude_none=True), repetition=repetition)
+                        elapsed, cpu_ms, payload, response.model_dump_json(exclude_none=True), repetition=repetition)
+                    ledger.event('completed', config_id, case, repetition, row)
                     assert not any(row['invariants'].values()), row['invariants']
                     rows.append(row)
-                resources['server_after'] = reference.usage(pid)
-                # The child reports its own Node process separately; parent RSS
-                # is never presented as the memory cost of a two-process bridge.
+                resources['server_after'] = resource_usage(pid)
+                if node_pid:
+                    resources['node_after'] = resource_usage(node_pid)
         cache.execute('DELETE FROM recall_cache')
         cache.commit()
     child_receipt = Path(str(db) + '.server.json')
     if child_receipt.exists():
         resources['server_receipt'] = read(child_receipt)
         child_receipt.unlink()
+    Path(str(db) + '.server-start.json').unlink()
     return rows, resources
-
 
 def worker(args):
     manifest = read(args.manifest)
+    verify_manifest(manifest)
     activation_start = time.perf_counter_ns()
     MemoryBook, extension, bridge, identity = activate(manifest, args.variant)
     activation_ms = (time.perf_counter_ns() - activation_start) / 1e6
@@ -220,6 +305,7 @@ def worker(args):
         'dataset': data.description(), 'identity': identity, 'manifest_sha256': digest(manifest),
         'configurations': {}, 'resources': {'experimental_activation_ms': activation_ms}, 'error': None}
     save(output, report)
+    ledger = Ledger(str(output) + '.events.jsonl.gz')
     try:
         with tempfile.TemporaryDirectory(prefix='language-worker-', dir=output.parent) as temporary:
             work = Path(temporary)
@@ -250,7 +336,7 @@ def worker(args):
                     attempts = order(data.queries, args.round, index, args.repeats)
                     if config['surface'] == 'mcp':
                         rows, resource = asyncio.run(mcp_measure(args, manifest, data, config_id, attempts,
-                            db, work, sources, pages, counter, reference, output))
+                            db, work, sources, pages, counter, reference, ledger))
                     else:
                         rows = []
                         for case, repetition in attempts:
@@ -258,32 +344,42 @@ def worker(args):
                                 'budget_chars': config['budget_chars'], 'use_cache': False}
                             if config['budget_tokens'] is not None:
                                 options.update(budget_tokens=1024, tokenizer='cl100k_base')
+                            ledger.event('started', config_id, case, repetition)
+                            cpu = time.process_time_ns()
                             start = time.perf_counter_ns()
                             value = book.recall(case.query, **options)
                             elapsed = (time.perf_counter_ns() - start) / 1e6
+                            cpu_ms = (time.process_time_ns() - cpu) / 1e6
                             value.pop('latency_ms')
                             row = reference.make_row(case, value, config, sources, pages, counter,
-                                elapsed, 0.0, reference.dump(value), repetition=repetition)
+                                elapsed, cpu_ms, reference.dump(value), repetition=repetition)
+                            ledger.event('completed', config_id, case, repetition, row)
                             assert not any(row['invariants'].values()), row['invariants']
                             rows.append(row)
-                        resource = {'parent': reference.usage(), 'node': descendants_usage(reference, bridge)}
+                        resource = {'parent': resource_usage(),
+                                    'node': resource_usage(bridge.process.pid) if bridge is not None else None}
                     report['configurations'][config_id] = {'rows': rows,
                         'latency': reference.summary([row['wall_ms'] for row in rows]), 'resources': resource}
                     save(output, report)
                 report['archive_after'] = reference.archive_state(book.db)
                 assert report['archive_before'] == report['archive_after']
-                # Changed-ingestion timing is after the query matrix so every
-                # timed query sees the same frozen original corpus.
                 changed = []
                 for session in data.sessions[:min(12, len(data.sessions))]:
-                    changed.append(dict(session, title=session.get('title', '') + ' updated'))
+                    messages = [dict(message) for message in session['messages']]
+                    messages[-1]['content'] += '\nConfirmed source revision: preserve Unicode café 中文🙂.'
+                    changed.append(dict(session, messages=messages))
+                before_revision = book.revision
                 started = time.perf_counter_ns()
                 updated = [book.ingest(session) for session in changed]
                 report['resources']['changed_ingestion_ms'] = (time.perf_counter_ns() - started) / 1e6
                 report['changed_ingestion_sha256'] = digest(updated)
+                assert all(not value['skipped'] for value in updated)
+                assert book.revision == before_revision + len(changed)
                 report['archive_changed'] = reference.archive_state(book.db)
-                report['resources']['parent_after'] = reference.usage()
-                report['resources']['node_after'] = descendants_usage(reference, bridge)
+                report['resources']['parent_after'] = resource_usage()
+                report['resources']['node_after'] = resource_usage(bridge.process.pid) if bridge is not None else None
+            verify_manifest(manifest)
+            report['frozen_inputs_unchanged'] = True
             report['status'] = 'completed'
     except BaseException as error:
         report.update(status='failed', error={'type': type(error).__name__, 'message': str(error),
@@ -292,44 +388,57 @@ def worker(args):
     finally:
         if bridge is not None:
             bridge.close()
+        ledger.close()
         save(output, report)
         print(dump({'worker': output.name, 'status': report['status']}), flush=True)
-
 
 def serve(args):
     manifest = read(args.manifest)
     _, extension, bridge, identity = activate(manifest, args.variant)
-    reference, _ = dependencies()
     from memory_book.cli import main
+    save(str(args.db) + '.server-start.json', {'pid': os.getpid(), 'parent_pid': os.getppid(),
+        'identity': identity, 'parent': resource_usage(),
+        'node': resource_usage(bridge.process.pid) if bridge is not None else None})
     sys.argv = ['memory-book', '--db', args.db, 'mcp']
     try:
         main()
     finally:
-        save(str(args.db) + '.server.json', {'identity': identity, 'parent': reference.usage(),
-                                           'node': descendants_usage(reference, bridge)})
+        save(str(args.db) + '.server.json', {'identity': identity, 'parent': resource_usage(),
+            'node': resource_usage(bridge.process.pid) if bridge is not None else None})
         if bridge is not None:
             bridge.close()
 
-
 def probe(args):
     manifest = read(args.manifest)
+    verify_manifest(manifest)
     MemoryBook, extension, bridge, identity = activate(manifest, args.variant)
     reference, original_turn_texts = dependencies()
     data = cohort(args.cohort, manifest['locomo'])
-    hits, python_hits = Counter(), Counter()
+    hits, python_hits, actual_node, fallback, owned = Counter(), Counter(), Counter(), Counter(), Counter()
     methods = {id(getattr(extension, name)): name for name in manifest['native_methods']} if extension else {}
+    original_methods = ({id(value): name for name, value in vars(bridge.native).items()}
+                        if bridge is not None else {})
     def trace(frame, event, arg):
         if event == 'c_call' and id(arg) in methods:
             hits[methods[id(arg)]] += 1
+        if event == 'c_call' and id(arg) in original_methods and id(arg) not in methods:
+            fallback[original_methods[id(arg)]] += 1
         elif event == 'call' and frame.f_code.co_filename == str(HERE / 'javascript/client.py'):
             python_hits[frame.f_code.co_name] += 1
-        elif event == 'c_return':
-            pass
+            if frame.f_code.co_name == 'invoke':
+                actual_node[frame.f_locals['name']] += 1
+        if (event == 'return' and frame.f_code.co_filename == str(HERE / 'rust/window_adapter.py')
+                and frame.f_code.co_name == 'excerpt_window'):
+            owned['calls'] += 1
+            if 'value' in frame.f_locals and frame.f_locals['value'] is not NotImplemented:
+                owned['completed'] += 1
+            else:
+                owned['fallback'] += 1
     with tempfile.TemporaryDirectory(prefix='language-probe-') as temporary:
         with MemoryBook(Path(temporary) / 'memory.db', cache_size=0) as book:
             sys.setprofile(trace)
             try:
-                ingested = [book.ingest(s) for s in data.sessions]
+                ingested = [book.ingest(session) for session in data.sessions]
                 responses = []
                 for q in data.queries:
                     value = book.recall(q.query, project=q.project, budget_chars=2400, limit=5, use_cache=False)
@@ -339,13 +448,27 @@ def probe(args):
                 sys.setprofile(None)
             result = {'identity': identity, 'dataset': data.description(), 'native_calls': dict(hits),
                 'bridge_calls': dict(python_hits), 'ingestion_sha256': digest(ingested),
+                'actual_node_operations': dict(actual_node), 'bridge_native_fallback': dict(fallback),
+                'owned_window_dispatch': {name: owned[name] for name in ('calls', 'completed', 'fallback')},
                 'responses_sha256': digest(responses), 'archive': reference.archive_state(book.db),
                 'instrumentation_removed': sys.getprofile() is None}
     if bridge is not None:
         bridge.close()
+    if args.variant == 'rust_same':
+        import ctypes
+        library = ctypes.PyDLL(extension.__file__)
+        library.language_rust_manifest.restype = ctypes.py_object
+        linked_methods = library.language_rust_manifest()
+        expected = {'terms_ascii', 'ascii_tokens', 'unicode_tokens', 'literal_positions',
+                    'fold_excerpt_source', 'evidence_units'}
+        assert len(linked_methods) == 22
+        assert {item['name'] for item in linked_methods if item['replaced']} == expected
+        assert all(item['flags'] == 1 for item in linked_methods)
+        result['linked_methods'] = linked_methods
+    verify_manifest(manifest)
+    result['frozen_inputs_unchanged'] = True
     save(args.output, result)
     print(dump({'probe': args.variant, 'cohort': args.cohort, 'outputs': result['responses_sha256']}), flush=True)
-
 
 def main():
     parser = argparse.ArgumentParser()

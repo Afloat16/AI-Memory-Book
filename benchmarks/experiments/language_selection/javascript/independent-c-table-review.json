@@ -1,0 +1,60 @@
+{
+  "status": "reviewed-no-blocking-source-finding",
+  "kind": "independent-read-only-source-review",
+  "reviewed_ref": "f4212e9",
+  "reviewer_role": "javascript-language-experiment-author-reviewing-independent-c-table-control",
+  "restoration": "New review record reconstructed from the prior read-only review, then re-read against pinned remote source. Not asserted byte-identical to the lost original report. No dynamic checks were rerun during remote recovery.",
+  "source_hashes": {
+    "c_table/_language_c_table.c": {
+      "git_blob_sha": "00f07430d721cce37808549a6d000d2ba183d4fc",
+      "sha256": "f9c80f3cdcdbd8091e7609dd6ea2189bf3c70502548b34381ea05048e03e7aa9"
+    },
+    "c_table/build.py": {
+      "git_blob_sha": "3dc55a4a5ffe42425f4e3677bce84daa3f24e6b8",
+      "sha256": "a62ccdefdab9b2cec1c152d7a248733e5bca8cc391268c7417e4a10bea947faf"
+    },
+    "c_table/check.py": {
+      "git_blob_sha": "9a436cb4d42a6ca2b0ad2d274bac062e19097b39",
+      "sha256": "b4cacf99641a4b51922bc65e22d59a6ad877a1668f3c1cebec7b111f12b69693"
+    },
+    "c_table/README.md": {
+      "git_blob_sha": "0e703f78417eb6ca7acee5ea8ad96f706fd412e3",
+      "sha256": "42f6d036ac2ad00f4cf8d58c165faa8a0193d494efd1c74e5b3ce3b0ee4f86fa"
+    }
+  },
+  "findings": [
+    {
+      "area": "preimport callback certification",
+      "result": "Builtin callable type, module self, name and Unicode version reject ordinary Python replacements before module import."
+    },
+    {
+      "area": "custom callbacks",
+      "result": "Nonmatching callback identities or uncertified module state route to the included original native fold. The reviewed helper does not consume the control module state."
+    },
+    {
+      "area": "table validation",
+      "result": "Builder checks the header, page indices, entry value ranges, total bytes and Unicode scalar upper bound against the shared binary and metadata before emitting the header."
+    },
+    {
+      "area": "lengths and coordinates",
+      "result": "C first pass checks output-length overflow; code-point indexes preserve source coordinates; canonical Unicode width is computed before allocating output."
+    },
+    {
+      "area": "references and cleanup",
+      "result": "Both outputs use owned references with common cleanup; expansion positions share an owned integer via new references; signal checks release allocated results."
+    },
+    {
+      "area": "installation boundary",
+      "result": "install_into changes fold_excerpt_source only; the checker asserts the remaining 21 method identities and excerpt readiness. This report does not replace executing those checks."
+    },
+    {
+      "area": "language attribution",
+      "result": "C-table and Rust-table share guard and immutable table strategy. Compare them directly before attributing an improvement over callback fold to Rust."
+    }
+  ],
+  "limits": [
+    "Static review of the pinned files only; remote CI must rerun correctness and build checks.",
+    "The table is tied to the frozen Python Unicode version and source semantics.",
+    "No performance outcome or whole-application language recommendation follows from this review."
+  ]
+}

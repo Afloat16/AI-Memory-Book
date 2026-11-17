@@ -6,6 +6,7 @@ The direct Node kernel benchmark is separately exposed, never labeled E2E.
 from __future__ import annotations
 
 import atexit
+import hashlib
 import json
 import math
 import os
@@ -15,15 +16,32 @@ import subprocess
 import sys
 import threading
 from types import SimpleNamespace
+import types
 import unicodedata
 
 HERE = Path(__file__).resolve().parent
 MAX_SAFE_INTEGER = 2**53 - 1
+FROZEN_TEXT_SOURCE_SHA256 = "b27b2a4992d1530736b502f00d80b6c442ccaca534b16c1eb6a750e31436b6c7"
 
 
 def ordinary_builtin(value, module, name):
     return (type(value) is type(len) and getattr(value, "__self__", None) is module
             and getattr(value, "__name__", None) == name)
+
+
+def certified_units(lexical, function):
+    """Bind the callback code to frozen source, not a possibly patched snapshot."""
+    try:
+        source = Path(lexical.__file__).read_bytes()
+        if hashlib.sha256(source).hexdigest() != FROZEN_TEXT_SOURCE_SHA256:
+            return False
+        compiled = compile(source, lexical.__file__, "exec", dont_inherit=True, optimize=sys.flags.optimize)
+        original = next(value for value in compiled.co_consts
+                        if type(value) is types.CodeType and value.co_name == "_evidence_units")
+        return (type(function) is types.FunctionType and function.__globals__ is lexical.__dict__
+                and function.__code__ == original)
+    except (OSError, SyntaxError, StopIteration, TypeError):
+        return False
 
 
 def encode(value):
@@ -67,9 +85,15 @@ class NodeClient:
         self.log1p, self.fsum = math.log1p, math.fsum
         try:
             from memory_book import text
+            self.lexical = text
             self.reference_evidence_units = text._NATIVE_EVIDENCE_UNITS
+            self.evidence_code = getattr(self.reference_evidence_units, "__code__", None)
+            self.evidence_certified = certified_units(text, self.reference_evidence_units)
         except ImportError:
+            self.lexical = None
             self.reference_evidence_units = None
+            self.evidence_code = None
+            self.evidence_certified = False
         values = self.invoke("log1p_values", list(range(1, 41)))
         self.math_verified = (ordinary_builtin(self.log1p, math, "log1p")
             and ordinary_builtin(self.fsum, math, "fsum")
@@ -188,7 +212,10 @@ class NodeClient:
         return [(pages[index], header, allowance) for index, header, allowance in result]
 
     def excerpt_window(self, text, q, positions, width, evidence_units, log1p, fsum):
-        ordinary = (self.math_verified and type(text) is str and type(q) is list
+        ordinary = (self.math_verified and self.evidence_certified
+            and getattr(self.reference_evidence_units, "__code__", None) is self.evidence_code
+            and self.lexical._native_excerpt_window_ready()
+            and type(text) is str and type(q) is list
             and len(q) <= 64 and all(type(term) is str for term in q) and len(set(q)) == len(q)
             and type(width) is int and 0 < width < len(text) and type(positions) is list
             and len(positions) <= 2560 and len(text) * len(positions) <= MAX_SAFE_INTEGER

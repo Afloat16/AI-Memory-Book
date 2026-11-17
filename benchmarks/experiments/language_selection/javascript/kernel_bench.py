@@ -199,6 +199,6 @@ if __name__ == "__main__":
     parser.add_argument("--native-backend", action="append", default=[], metavar="LABEL=DIR=MODULE")
     parser.add_argument("--rounds", type=int, default=6)
     parser.add_argument("--iterations", type=int, default=64)
-    parser.add_argument("--warmup", type=int, default=16)
+    parser.add_argument("--warmup", type=int, default=256)
     parser.add_argument("--correctness-only", action="store_true")
     main(parser.parse_args())

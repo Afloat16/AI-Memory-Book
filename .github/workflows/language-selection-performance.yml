@@ -1,0 +1,97 @@
+name: Isolated language suitability experiment
+
+on:
+  push:
+    branches:
+      - validation/language-selection-formal-1
+      - validation/language-selection-preflight-*
+
+permissions:
+  contents: write
+
+concurrency:
+  group: language-selection-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  measurement:
+    if: github.repository == 'Afloat16/AI-Memory-Book' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONHASHSEED: '0'
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      LAB_PHASE: ${{ startsWith(github.ref, 'refs/heads/validation/language-selection-preflight-') && 'preflight' || 'formal' }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/benchmarks/reports/
+            !/benchmarks/results/
+            !/docs/assets/
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.12'
+          architecture: x64
+      - name: Install and record fixed experiment toolchains
+        shell: bash
+        run: |
+          mkdir -p .artifacts/language-selection
+          git fetch --filter=blob:none --depth=1 origin 234891619d7bed88ddf3fae37e7f3e1b14a808b6
+          python -m pip install 'setuptools==84.2.1' 'mcp==1.29.0' 'pydantic==2.13.4' 'tiktoken==0.12.0'
+          python -m pip list --format=json > .artifacts/language-selection/packages.json
+          rustup toolchain install 1.100.0 --profile minimal
+          rustup override set 1.100.0
+          python - <<'PY'
+          from pathlib import Path
+          from urllib.request import urlopen
+          import hashlib, tarfile
+          directory = Path('.artifacts/language-selection/node')
+          directory.mkdir()
+          raw = urlopen('https://nodejs.org/dist/v24.22.1/node-v24.22.1-linux-x64.tar.xz', timeout=60).read()
+          assert hashlib.sha256(raw).hexdigest() == '6c172a9ab6718f7b801fb5a7bd486af2ee5e32758086a04b84fcce2aa77095e6'
+          archive = directory / 'node.tar.xz'
+          archive.write_bytes(raw)
+          with tarfile.open(archive) as bundle:
+              bundle.extractall(directory, filter='data')
+          PY
+          echo "$GITHUB_WORKSPACE/.artifacts/language-selection/node/node-v24.22.1-linux-x64/bin" >> "$GITHUB_PATH"
+      - name: Validate evaluator syntax and rejection cases
+        run: |
+          python -m compileall -q benchmarks/experiments/language_selection
+          python benchmarks/experiments/language_selection/analyze.py --self-test
+      - name: Build, validate, and execute the registered experiment
+        id: measure
+        shell: bash
+        run: |
+          python -u benchmarks/experiments/language_selection/host.py run --phase "$LAB_PHASE" --output .artifacts/language-selection/run 2>&1 | tee .artifacts/language-selection/host.log
+      - name: Audit complete outputs and paired round statistics
+        if: always()
+        shell: bash
+        run: |
+          python benchmarks/experiments/language_selection/analyze.py --run .artifacts/language-selection/run/run.json --output .artifacts/language-selection/run/analysis.json --verify-local-files --allow-partial 2>&1 | tee .artifacts/language-selection/analyze.log
+      - name: Preserve all evidence on its own Git branch
+        if: always()
+        shell: bash
+        run: |
+          python benchmarks/experiments/language_selection/host.py preserve --output .artifacts/language-selection/run
+      - name: Keep an additional immutable artifact copy
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: language-selection-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .artifacts/language-selection/run/
+            .artifacts/language-selection/host.log
+            .artifacts/language-selection/analyze.log
+            .artifacts/language-selection/packages.json
+            .artifacts/language-selection/preservation.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 90
