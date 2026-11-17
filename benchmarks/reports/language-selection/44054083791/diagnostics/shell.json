@@ -1,0 +1,2570 @@
+{
+  "bash": "GNU bash, version 5.2.21(1)-release (x86_64-pc-linux-gnu)",
+  "bash_binary": {
+    "path": "/usr/bin/bash",
+    "sha256": "bc5945feb8bd26203ebfafea5ce1878bb2e32cb8fb50ab7ae395cfb1e1aaaef1"
+  },
+  "cases": 42,
+  "client_sha256": "51fcd7b96c41c30c82d8c00f60f232d7dbfab5c15c4065f927d46bf3422511d3",
+  "cold_starts": [
+    {
+      "case_id": "case-0000",
+      "first_rpc_ns": 2948055,
+      "index": 0,
+      "startup_plus_first_rpc_ns": 6683311,
+      "worker_startup_and_stop_load_ns": 3735256
+    }
+  ],
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "current_c_binary": {
+    "path": "/home/runner/work/AI-Memory-Book/AI-Memory-Book/.artifacts/language-selection/run/current/src/memory_book/_native.cpython-312-x86_64-linux-gnu.so",
+    "sha256": "123ee22d5c06b9aa985c6942c8b466d3c1baeb8bda53f19abc6a167913696cca"
+  },
+  "evaluator_sha256": "749a4a11132999a1da81d7dc947252fd4d4412e9ea38bd024c8ccb1ca791eede",
+  "input_sha256": "5e365466ef05781b909292c86ab197bc1d867d06fdc06d7892461ff22d42e710",
+  "iterations": 1,
+  "kind": "ascii-helper-diagnostic-not-end-to-end",
+  "notes": [
+    "current-c includes Python-to-C calls and result creation in the existing interpreter",
+    "shell-rpc includes integer encoding, persistent-process IPC, Bash scanning and decoding per call",
+    "shell-batch repeats the actual Bash scanner N times, amortizing one frame's encode/parse/IPC/decode cost",
+    "shell-batch still includes a frame's overhead; it is an optimistic protocol diagnostic, not a pure kernel timer",
+    "The frozen standard STOP set is initialized once per worker, matching a persistent ordinary constant, not a query-result cache",
+    "Cold startup is separately reported for the auxiliary Bash worker including STOP loading; no C cold-start ratio is implied",
+    "No full Shell application, SQL, ingestion, MCP or retrieval rewrite is implemented or timed"
+  ],
+  "omissions": [],
+  "python": "3.12.16 (main, Oct 26 2026, 02:50:49) [GCC 13.3.0]",
+  "records": [
+    {
+      "backend": "current-c",
+      "case_id": "case-0000",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 242,
+      "iterations": 1,
+      "ns_per_call": 13500.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "8606068ca23340682a68534f27725b4911503d18204735fe2e3f09301e832524",
+      "round": 0,
+      "sink": 27,
+      "total_ns": 13500
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0001",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 242,
+      "iterations": 1,
+      "ns_per_call": 6520.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "8606068ca23340682a68534f27725b4911503d18204735fe2e3f09301e832524",
+      "round": 0,
+      "sink": 27,
+      "total_ns": 6520
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0002",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 671,
+      "iterations": 1,
+      "ns_per_call": 6350.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "f271d946669ffab1271e0ce77cad4d5ec18f7fdeb61f19b67242b9c4fd0a5656",
+      "round": 0,
+      "sink": 124,
+      "total_ns": 6350
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0003",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 695,
+      "iterations": 1,
+      "ns_per_call": 6140.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "62ddd4188ea6637d94d549cb7739fbfe56b6ac545a882871174458beb5fd17f7",
+      "round": 0,
+      "sink": 128,
+      "total_ns": 6140
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0004",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 79,
+      "iterations": 1,
+      "ns_per_call": 2755.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "01b29f5bb041c99a28a75f4cafa347ae732160a9d22f1656b464d62d42c66006",
+      "round": 0,
+      "sink": 12,
+      "total_ns": 2755
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0005",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 128,
+      "iterations": 1,
+      "ns_per_call": 3775.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "488ada6758238c162869b31b8cb12f0a8cc7345c7a4e22697e454a91315ec950",
+      "round": 0,
+      "sink": 10,
+      "total_ns": 3775
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0006",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 332,
+      "iterations": 1,
+      "ns_per_call": 7492.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "46daea0c8bfee1fa42fc8aef038881aa67ca355c11631b18489762edc179e6d8",
+      "round": 0,
+      "sink": 35,
+      "total_ns": 7492
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0007",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 196,
+      "iterations": 1,
+      "ns_per_call": 6349.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "635b47b8573b63cae4da690c850cbf699d896f24077ffbf0fd862fb8a3e836d8",
+      "round": 0,
+      "sink": 23,
+      "total_ns": 6349
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0008",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 257,
+      "iterations": 1,
+      "ns_per_call": 5108.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "9ee9d35bb4d0c9a82c08d05d7d4d64d5f16d38e7dcf3a1ac813fe7513d9e8c85",
+      "round": 0,
+      "sink": 31,
+      "total_ns": 5108
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0009",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 65,
+      "iterations": 1,
+      "ns_per_call": 2934.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "417d8a12c8c53cd288f773ea8b2ef55c6001151d60c2a52e47208e28445ae977",
+      "round": 0,
+      "sink": 7,
+      "total_ns": 2934
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0010",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 108,
+      "iterations": 1,
+      "ns_per_call": 4497.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "b55ef61d9f29eb26a7b77d8b2cc62d40d33d87e18abb0e26b77c02dc5158dc76",
+      "round": 0,
+      "sink": 13,
+      "total_ns": 4497
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0011",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 112,
+      "iterations": 1,
+      "ns_per_call": 3645.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "959b8999b6beae8f2f9455e886f4eae8014c37fc6896ffc74c49902b2bbffca1",
+      "round": 0,
+      "sink": 14,
+      "total_ns": 3645
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0020",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 431,
+      "iterations": 1,
+      "ns_per_call": 7451.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "89d1f25af733da260ff5e1d372c5695c6cfeba2682c31eb7497c334be09f3762",
+      "round": 0,
+      "sink": 47,
+      "total_ns": 7451
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0021",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 53,
+      "iterations": 1,
+      "ns_per_call": 2253.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "047c7706ab3007332e62b52d606cd0ba0d05beb5285d011c797592b1591707ff",
+      "round": 0,
+      "sink": 5,
+      "total_ns": 2253
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0022",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 395,
+      "iterations": 1,
+      "ns_per_call": 7832.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "d87672273114363181ff58a7e0259f2132d390ddfb1c40b54a6866a6dfb2b938",
+      "round": 0,
+      "sink": 44,
+      "total_ns": 7832
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0023",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 248,
+      "iterations": 1,
+      "ns_per_call": 2304.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": false,
+      "result_sha256": "26e3720fe93be5467e4cc35bd4be9b202a4e9e9dc7b412f6ac153a575522384c",
+      "round": 0,
+      "sink": 47,
+      "total_ns": 2304
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0072",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 387,
+      "iterations": 1,
+      "ns_per_call": 8603.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "a26089d541d935cfab0588bafbb08582709945d001822b0e5f13949a896d631b",
+      "round": 0,
+      "sink": 48,
+      "total_ns": 8603
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0073",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 386,
+      "iterations": 1,
+      "ns_per_call": 9534.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "d953066985b89dd05f138127a3c96168bae22044a60dcf6bf430df9c2c84f002",
+      "round": 0,
+      "sink": 47,
+      "total_ns": 9534
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0074",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 390,
+      "iterations": 1,
+      "ns_per_call": 7651.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "d1dfd516f3320765b3c8469b916664970e55e2215ffc1368ba0e91a7c9a20d9e",
+      "round": 0,
+      "sink": 43,
+      "total_ns": 7651
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0075",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 387,
+      "iterations": 1,
+      "ns_per_call": 7431.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "ae48f7a4da821f55e3229af12c0f3ea88244aa67b861b02a7b6e115bb57e82fa",
+      "round": 0,
+      "sink": 39,
+      "total_ns": 7431
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0076",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 47,
+      "iterations": 1,
+      "ns_per_call": 2524.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "642016adaa643ec7d150f734a3e32fbb261b8a372afc132378e146693ea27ef7",
+      "round": 0,
+      "sink": 4,
+      "total_ns": 2524
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0077",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 375,
+      "iterations": 1,
+      "ns_per_call": 7071.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "7b0ffbdad2b4653b73ce93486799b2b082981fd695528d07876dbd55d34a342a",
+      "round": 0,
+      "sink": 44,
+      "total_ns": 7071
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0078",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 386,
+      "iterations": 1,
+      "ns_per_call": 6630.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "5a59e9d5b2958b0e4793655ad08671255fe6e8f8012cfcd0a343c295796686d6",
+      "round": 0,
+      "sink": 46,
+      "total_ns": 6630
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0079",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 390,
+      "iterations": 1,
+      "ns_per_call": 7481.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "ea634679fba75c56018a591d40e74bdf8d9eca7369fd492a2b7f843ac92b5021",
+      "round": 0,
+      "sink": 45,
+      "total_ns": 7481
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0088",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 799,
+      "iterations": 1,
+      "ns_per_call": 6600.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "bb190ef5480566825a8f92800f07bbae06568e88a420b49962ec55834469ae57",
+      "round": 0,
+      "sink": 112,
+      "total_ns": 6600
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0089",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 346,
+      "iterations": 1,
+      "ns_per_call": 3345.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "2705c0a678dc1671edcdcc7a5c3760b101dd1c4c12b3d79dbdc4a202f3165412",
+      "round": 0,
+      "sink": 51,
+      "total_ns": 3345
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0090",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 92,
+      "iterations": 1,
+      "ns_per_call": 3124.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "33d2bf021a038d51c9a1bc810ad82b3e026d94b1125afe06fb1ef11030cdc6c2",
+      "round": 0,
+      "sink": 10,
+      "total_ns": 3124
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0091",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 52,
+      "iterations": 1,
+      "ns_per_call": 2544.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "6e7376962e5fa1174f6580d05705830786feafe7040bb66bf0caed6abc3d76f2",
+      "round": 0,
+      "sink": 6,
+      "total_ns": 2544
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0092",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 120,
+      "iterations": 1,
+      "ns_per_call": 1733.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "553a8cd6a237fb592a5979c4d3ed0739de3a59d2dde9311b8ea1c98b158c89b9",
+      "round": 0,
+      "sink": 19,
+      "total_ns": 1733
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0093",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 116,
+      "iterations": 1,
+      "ns_per_call": 4066.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "a43322e1b994c60fb125bd6090700c930940674ba1bcb74f36a771d7de586d9c",
+      "round": 0,
+      "sink": 11,
+      "total_ns": 4066
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0094",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 814,
+      "iterations": 1,
+      "ns_per_call": 5358.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "d9bf2cef9ce20191faa3ae9ba3dd476aa6df11d58d707dc158df66e71ffd7b8c",
+      "round": 0,
+      "sink": 119,
+      "total_ns": 5358
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0095",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 118,
+      "iterations": 1,
+      "ns_per_call": 2193.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "7c471ad617e74ccb2e42d9955f9f0d4ede464fdbc1b1aa50b3d47a7a90a0fa54",
+      "round": 0,
+      "sink": 17,
+      "total_ns": 2193
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0152",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 391,
+      "iterations": 1,
+      "ns_per_call": 5648.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "357b30b8474def44844ff14ed8121d849b6d68e4185ab35f5e173438cc383f78",
+      "round": 0,
+      "sink": 43,
+      "total_ns": 5648
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0153",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 21,
+      "iterations": 1,
+      "ns_per_call": 1332.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "2732a8310926f0924f5c54b8a34b3bc3ac39c18aa106d21facb9f04793d5605f",
+      "round": 0,
+      "sink": 2,
+      "total_ns": 1332
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0154",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 21,
+      "iterations": 1,
+      "ns_per_call": 1102.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "2732a8310926f0924f5c54b8a34b3bc3ac39c18aa106d21facb9f04793d5605f",
+      "round": 0,
+      "sink": 2,
+      "total_ns": 1102
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0155",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 18,
+      "iterations": 1,
+      "ns_per_call": 1222.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "ac9810436fab8ad4e404efb732db4cf24b9a0c73a457e7cb19b45d4c8efa4f87",
+      "round": 0,
+      "sink": 2,
+      "total_ns": 1222
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0156",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 8,
+      "iterations": 1,
+      "ns_per_call": 1022.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "3a3119cb811187bd3830b295da05d0ce500f82d6f9e77928507061f7d8c93a78",
+      "round": 0,
+      "sink": 1,
+      "total_ns": 1022
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0157",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 393,
+      "iterations": 1,
+      "ns_per_call": 5878.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "b9957f7a2b5d95107b8e7906a0f9204ca4649e5eda884dcec65d44fa522281bc",
+      "round": 0,
+      "sink": 45,
+      "total_ns": 5878
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0158",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 389,
+      "iterations": 1,
+      "ns_per_call": 5919.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "50b65f434214851c2105fd25bf14b4ac971051e40199071e7d7ec0019a1c4020",
+      "round": 0,
+      "sink": 41,
+      "total_ns": 5919
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0159",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 496,
+      "iterations": 1,
+      "ns_per_call": 7361.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "e90fcfb077842361b491e03b3e795d25baf323165a89d30765b546e1d6a19b16",
+      "round": 0,
+      "sink": 52,
+      "total_ns": 7361
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0168",
+      "cohort": "unicode-long-stress",
+      "function": "terms_ascii",
+      "input_characters": 14600,
+      "iterations": 1,
+      "ns_per_call": 75304.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "synthetic-stress",
+      "query": true,
+      "result_sha256": "fe312191e3c39d0abcf92e6bcbcf383fd6bc17d17d38822f0d87043de2af66b0",
+      "round": 0,
+      "sink": 1800,
+      "total_ns": 75304
+    },
+    {
+      "backend": "current-c",
+      "case_id": "case-0169",
+      "cohort": "unicode-long-stress",
+      "function": "ascii_tokens",
+      "input_characters": 14600,
+      "iterations": 1,
+      "ns_per_call": 74533.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "synthetic-stress",
+      "query": false,
+      "result_sha256": "766b9a481f42ea5dcaf701d264aeeaa8dad779fa729de0f7c4d53b291375cce7",
+      "round": 0,
+      "sink": 2000,
+      "total_ns": 74533
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0000",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 242,
+      "iterations": 1,
+      "ns_per_call": 3214197.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "8606068ca23340682a68534f27725b4911503d18204735fe2e3f09301e832524",
+      "round": 0,
+      "sink": 27,
+      "total_ns": 3214197
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0001",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 242,
+      "iterations": 1,
+      "ns_per_call": 3232175.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "8606068ca23340682a68534f27725b4911503d18204735fe2e3f09301e832524",
+      "round": 0,
+      "sink": 27,
+      "total_ns": 3232175
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0002",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 671,
+      "iterations": 1,
+      "ns_per_call": 7694329.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "f271d946669ffab1271e0ce77cad4d5ec18f7fdeb61f19b67242b9c4fd0a5656",
+      "round": 0,
+      "sink": 124,
+      "total_ns": 7694329
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0003",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 695,
+      "iterations": 1,
+      "ns_per_call": 7922985.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "62ddd4188ea6637d94d549cb7739fbfe56b6ac545a882871174458beb5fd17f7",
+      "round": 0,
+      "sink": 128,
+      "total_ns": 7922985
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0004",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 79,
+      "iterations": 1,
+      "ns_per_call": 1042155.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "01b29f5bb041c99a28a75f4cafa347ae732160a9d22f1656b464d62d42c66006",
+      "round": 0,
+      "sink": 12,
+      "total_ns": 1042155
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0005",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 128,
+      "iterations": 1,
+      "ns_per_call": 1646959.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "488ada6758238c162869b31b8cb12f0a8cc7345c7a4e22697e454a91315ec950",
+      "round": 0,
+      "sink": 10,
+      "total_ns": 1646959
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0006",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 332,
+      "iterations": 1,
+      "ns_per_call": 4027607.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "46daea0c8bfee1fa42fc8aef038881aa67ca355c11631b18489762edc179e6d8",
+      "round": 0,
+      "sink": 35,
+      "total_ns": 4027607
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0007",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 196,
+      "iterations": 1,
+      "ns_per_call": 2393417.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "635b47b8573b63cae4da690c850cbf699d896f24077ffbf0fd862fb8a3e836d8",
+      "round": 0,
+      "sink": 23,
+      "total_ns": 2393417
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0008",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 257,
+      "iterations": 1,
+      "ns_per_call": 3141128.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "9ee9d35bb4d0c9a82c08d05d7d4d64d5f16d38e7dcf3a1ac813fe7513d9e8c85",
+      "round": 0,
+      "sink": 31,
+      "total_ns": 3141128
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0009",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 65,
+      "iterations": 1,
+      "ns_per_call": 873189.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "417d8a12c8c53cd288f773ea8b2ef55c6001151d60c2a52e47208e28445ae977",
+      "round": 0,
+      "sink": 7,
+      "total_ns": 873189
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0010",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 108,
+      "iterations": 1,
+      "ns_per_call": 1382039.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "b55ef61d9f29eb26a7b77d8b2cc62d40d33d87e18abb0e26b77c02dc5158dc76",
+      "round": 0,
+      "sink": 13,
+      "total_ns": 1382039
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0011",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 112,
+      "iterations": 1,
+      "ns_per_call": 1425825.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "959b8999b6beae8f2f9455e886f4eae8014c37fc6896ffc74c49902b2bbffca1",
+      "round": 0,
+      "sink": 14,
+      "total_ns": 1425825
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0020",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 431,
+      "iterations": 1,
+      "ns_per_call": 5079848.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "89d1f25af733da260ff5e1d372c5695c6cfeba2682c31eb7497c334be09f3762",
+      "round": 0,
+      "sink": 47,
+      "total_ns": 5079848
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0021",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 53,
+      "iterations": 1,
+      "ns_per_call": 739217.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "047c7706ab3007332e62b52d606cd0ba0d05beb5285d011c797592b1591707ff",
+      "round": 0,
+      "sink": 5,
+      "total_ns": 739217
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0022",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 395,
+      "iterations": 1,
+      "ns_per_call": 4751401.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "d87672273114363181ff58a7e0259f2132d390ddfb1c40b54a6866a6dfb2b938",
+      "round": 0,
+      "sink": 44,
+      "total_ns": 4751401
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0023",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 248,
+      "iterations": 1,
+      "ns_per_call": 2987775.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": false,
+      "result_sha256": "26e3720fe93be5467e4cc35bd4be9b202a4e9e9dc7b412f6ac153a575522384c",
+      "round": 0,
+      "sink": 47,
+      "total_ns": 2987775
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0072",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 387,
+      "iterations": 1,
+      "ns_per_call": 4759814.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "a26089d541d935cfab0588bafbb08582709945d001822b0e5f13949a896d631b",
+      "round": 0,
+      "sink": 48,
+      "total_ns": 4759814
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0073",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 386,
+      "iterations": 1,
+      "ns_per_call": 4763009.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "d953066985b89dd05f138127a3c96168bae22044a60dcf6bf430df9c2c84f002",
+      "round": 0,
+      "sink": 47,
+      "total_ns": 4763009
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0074",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 390,
+      "iterations": 1,
+      "ns_per_call": 4802668.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "d1dfd516f3320765b3c8469b916664970e55e2215ffc1368ba0e91a7c9a20d9e",
+      "round": 0,
+      "sink": 43,
+      "total_ns": 4802668
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0075",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 387,
+      "iterations": 1,
+      "ns_per_call": 4865493.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "ae48f7a4da821f55e3229af12c0f3ea88244aa67b861b02a7b6e115bb57e82fa",
+      "round": 0,
+      "sink": 39,
+      "total_ns": 4865493
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0076",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 47,
+      "iterations": 1,
+      "ns_per_call": 708841.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "642016adaa643ec7d150f734a3e32fbb261b8a372afc132378e146693ea27ef7",
+      "round": 0,
+      "sink": 4,
+      "total_ns": 708841
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0077",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 375,
+      "iterations": 1,
+      "ns_per_call": 4733464.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "7b0ffbdad2b4653b73ce93486799b2b082981fd695528d07876dbd55d34a342a",
+      "round": 0,
+      "sink": 44,
+      "total_ns": 4733464
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0078",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 386,
+      "iterations": 1,
+      "ns_per_call": 4844792.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "5a59e9d5b2958b0e4793655ad08671255fe6e8f8012cfcd0a343c295796686d6",
+      "round": 0,
+      "sink": 46,
+      "total_ns": 4844792
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0079",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 390,
+      "iterations": 1,
+      "ns_per_call": 5198697.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "ea634679fba75c56018a591d40e74bdf8d9eca7369fd492a2b7f843ac92b5021",
+      "round": 0,
+      "sink": 45,
+      "total_ns": 5198697
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0088",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 799,
+      "iterations": 1,
+      "ns_per_call": 11517898.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "bb190ef5480566825a8f92800f07bbae06568e88a420b49962ec55834469ae57",
+      "round": 0,
+      "sink": 112,
+      "total_ns": 11517898
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0089",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 346,
+      "iterations": 1,
+      "ns_per_call": 6540515.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "2705c0a678dc1671edcdcc7a5c3760b101dd1c4c12b3d79dbdc4a202f3165412",
+      "round": 0,
+      "sink": 51,
+      "total_ns": 6540515
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0090",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 92,
+      "iterations": 1,
+      "ns_per_call": 1418164.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "33d2bf021a038d51c9a1bc810ad82b3e026d94b1125afe06fb1ef11030cdc6c2",
+      "round": 0,
+      "sink": 10,
+      "total_ns": 1418164
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0091",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 52,
+      "iterations": 1,
+      "ns_per_call": 762162.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "6e7376962e5fa1174f6580d05705830786feafe7040bb66bf0caed6abc3d76f2",
+      "round": 0,
+      "sink": 6,
+      "total_ns": 762162
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0092",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 120,
+      "iterations": 1,
+      "ns_per_call": 1557714.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "553a8cd6a237fb592a5979c4d3ed0739de3a59d2dde9311b8ea1c98b158c89b9",
+      "round": 0,
+      "sink": 19,
+      "total_ns": 1557714
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0093",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 116,
+      "iterations": 1,
+      "ns_per_call": 1494368.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "a43322e1b994c60fb125bd6090700c930940674ba1bcb74f36a771d7de586d9c",
+      "round": 0,
+      "sink": 11,
+      "total_ns": 1494368
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0094",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 814,
+      "iterations": 1,
+      "ns_per_call": 9743777.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "d9bf2cef9ce20191faa3ae9ba3dd476aa6df11d58d707dc158df66e71ffd7b8c",
+      "round": 0,
+      "sink": 119,
+      "total_ns": 9743777
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0095",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 118,
+      "iterations": 1,
+      "ns_per_call": 1516452.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "7c471ad617e74ccb2e42d9955f9f0d4ede464fdbc1b1aa50b3d47a7a90a0fa54",
+      "round": 0,
+      "sink": 17,
+      "total_ns": 1516452
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0152",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 391,
+      "iterations": 1,
+      "ns_per_call": 4783249.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "357b30b8474def44844ff14ed8121d849b6d68e4185ab35f5e173438cc383f78",
+      "round": 0,
+      "sink": 43,
+      "total_ns": 4783249
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0153",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 21,
+      "iterations": 1,
+      "ns_per_call": 369208.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "2732a8310926f0924f5c54b8a34b3bc3ac39c18aa106d21facb9f04793d5605f",
+      "round": 0,
+      "sink": 2,
+      "total_ns": 369208
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0154",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 21,
+      "iterations": 1,
+      "ns_per_call": 371952.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "2732a8310926f0924f5c54b8a34b3bc3ac39c18aa106d21facb9f04793d5605f",
+      "round": 0,
+      "sink": 2,
+      "total_ns": 371952
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0155",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 18,
+      "iterations": 1,
+      "ns_per_call": 318361.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "ac9810436fab8ad4e404efb732db4cf24b9a0c73a457e7cb19b45d4c8efa4f87",
+      "round": 0,
+      "sink": 2,
+      "total_ns": 318361
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0156",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 8,
+      "iterations": 1,
+      "ns_per_call": 193913.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "3a3119cb811187bd3830b295da05d0ce500f82d6f9e77928507061f7d8c93a78",
+      "round": 0,
+      "sink": 1,
+      "total_ns": 193913
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0157",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 393,
+      "iterations": 1,
+      "ns_per_call": 4878743.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "b9957f7a2b5d95107b8e7906a0f9204ca4649e5eda884dcec65d44fa522281bc",
+      "round": 0,
+      "sink": 45,
+      "total_ns": 4878743
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0158",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 389,
+      "iterations": 1,
+      "ns_per_call": 4817672.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "50b65f434214851c2105fd25bf14b4ac971051e40199071e7d7ec0019a1c4020",
+      "round": 0,
+      "sink": 41,
+      "total_ns": 4817672
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0159",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 496,
+      "iterations": 1,
+      "ns_per_call": 6041841.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "e90fcfb077842361b491e03b3e795d25baf323165a89d30765b546e1d6a19b16",
+      "round": 0,
+      "sink": 52,
+      "total_ns": 6041841
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0168",
+      "cohort": "unicode-long-stress",
+      "function": "terms_ascii",
+      "input_characters": 14600,
+      "iterations": 1,
+      "ns_per_call": 168979355.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "synthetic-stress",
+      "query": true,
+      "result_sha256": "fe312191e3c39d0abcf92e6bcbcf383fd6bc17d17d38822f0d87043de2af66b0",
+      "round": 0,
+      "sink": 1800,
+      "total_ns": 168979355
+    },
+    {
+      "backend": "shell-rpc",
+      "case_id": "case-0169",
+      "cohort": "unicode-long-stress",
+      "function": "ascii_tokens",
+      "input_characters": 14600,
+      "iterations": 1,
+      "ns_per_call": 162113827.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "synthetic-stress",
+      "query": false,
+      "result_sha256": "766b9a481f42ea5dcaf701d264aeeaa8dad779fa729de0f7c4d53b291375cce7",
+      "round": 0,
+      "sink": 2000,
+      "total_ns": 162113827
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0000",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 242,
+      "iterations": 1,
+      "ns_per_call": 3115849.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "8606068ca23340682a68534f27725b4911503d18204735fe2e3f09301e832524",
+      "round": 0,
+      "sink": 27,
+      "total_ns": 3115849
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0001",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 242,
+      "iterations": 1,
+      "ns_per_call": 3133786.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "8606068ca23340682a68534f27725b4911503d18204735fe2e3f09301e832524",
+      "round": 0,
+      "sink": 27,
+      "total_ns": 3133786
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0002",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 671,
+      "iterations": 1,
+      "ns_per_call": 7656262.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "f271d946669ffab1271e0ce77cad4d5ec18f7fdeb61f19b67242b9c4fd0a5656",
+      "round": 0,
+      "sink": 124,
+      "total_ns": 7656262
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0003",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 695,
+      "iterations": 1,
+      "ns_per_call": 7825156.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "62ddd4188ea6637d94d549cb7739fbfe56b6ac545a882871174458beb5fd17f7",
+      "round": 0,
+      "sink": 128,
+      "total_ns": 7825156
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0004",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 79,
+      "iterations": 1,
+      "ns_per_call": 1026932.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "01b29f5bb041c99a28a75f4cafa347ae732160a9d22f1656b464d62d42c66006",
+      "round": 0,
+      "sink": 12,
+      "total_ns": 1026932
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0005",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 128,
+      "iterations": 1,
+      "ns_per_call": 1605587.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "488ada6758238c162869b31b8cb12f0a8cc7345c7a4e22697e454a91315ec950",
+      "round": 0,
+      "sink": 10,
+      "total_ns": 1605587
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0006",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 332,
+      "iterations": 1,
+      "ns_per_call": 3987306.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "46daea0c8bfee1fa42fc8aef038881aa67ca355c11631b18489762edc179e6d8",
+      "round": 0,
+      "sink": 35,
+      "total_ns": 3987306
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0007",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 196,
+      "iterations": 1,
+      "ns_per_call": 2402171.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "635b47b8573b63cae4da690c850cbf699d896f24077ffbf0fd862fb8a3e836d8",
+      "round": 0,
+      "sink": 23,
+      "total_ns": 2402171
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0008",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 257,
+      "iterations": 1,
+      "ns_per_call": 3115398.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "9ee9d35bb4d0c9a82c08d05d7d4d64d5f16d38e7dcf3a1ac813fe7513d9e8c85",
+      "round": 0,
+      "sink": 31,
+      "total_ns": 3115398
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0009",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 65,
+      "iterations": 1,
+      "ns_per_call": 870586.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "417d8a12c8c53cd288f773ea8b2ef55c6001151d60c2a52e47208e28445ae977",
+      "round": 0,
+      "sink": 7,
+      "total_ns": 870586
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0010",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 108,
+      "iterations": 1,
+      "ns_per_call": 1364433.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "b55ef61d9f29eb26a7b77d8b2cc62d40d33d87e18abb0e26b77c02dc5158dc76",
+      "round": 0,
+      "sink": 13,
+      "total_ns": 1364433
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0011",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 112,
+      "iterations": 1,
+      "ns_per_call": 1407878.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "959b8999b6beae8f2f9455e886f4eae8014c37fc6896ffc74c49902b2bbffca1",
+      "round": 0,
+      "sink": 14,
+      "total_ns": 1407878
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0020",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 431,
+      "iterations": 1,
+      "ns_per_call": 4906636.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "89d1f25af733da260ff5e1d372c5695c6cfeba2682c31eb7497c334be09f3762",
+      "round": 0,
+      "sink": 47,
+      "total_ns": 4906636
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0021",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 53,
+      "iterations": 1,
+      "ns_per_call": 700058.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "047c7706ab3007332e62b52d606cd0ba0d05beb5285d011c797592b1591707ff",
+      "round": 0,
+      "sink": 5,
+      "total_ns": 700058
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0022",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 395,
+      "iterations": 1,
+      "ns_per_call": 4536136.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "d87672273114363181ff58a7e0259f2132d390ddfb1c40b54a6866a6dfb2b938",
+      "round": 0,
+      "sink": 44,
+      "total_ns": 4536136
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0023",
+      "cohort": "public1015",
+      "function": "ascii_tokens",
+      "input_characters": 248,
+      "iterations": 1,
+      "ns_per_call": 3214388.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": false,
+      "result_sha256": "26e3720fe93be5467e4cc35bd4be9b202a4e9e9dc7b412f6ac153a575522384c",
+      "round": 0,
+      "sink": 47,
+      "total_ns": 3214388
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0072",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 387,
+      "iterations": 1,
+      "ns_per_call": 4633083.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "a26089d541d935cfab0588bafbb08582709945d001822b0e5f13949a896d631b",
+      "round": 0,
+      "sink": 48,
+      "total_ns": 4633083
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0073",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 386,
+      "iterations": 1,
+      "ns_per_call": 4586251.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "d953066985b89dd05f138127a3c96168bae22044a60dcf6bf430df9c2c84f002",
+      "round": 0,
+      "sink": 47,
+      "total_ns": 4586251
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0074",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 390,
+      "iterations": 1,
+      "ns_per_call": 4615927.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "d1dfd516f3320765b3c8469b916664970e55e2215ffc1368ba0e91a7c9a20d9e",
+      "round": 0,
+      "sink": 43,
+      "total_ns": 4615927
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0075",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 387,
+      "iterations": 1,
+      "ns_per_call": 4569998.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "ae48f7a4da821f55e3229af12c0f3ea88244aa67b861b02a7b6e115bb57e82fa",
+      "round": 0,
+      "sink": 39,
+      "total_ns": 4569998
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0076",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 47,
+      "iterations": 1,
+      "ns_per_call": 663272.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "642016adaa643ec7d150f734a3e32fbb261b8a372afc132378e146693ea27ef7",
+      "round": 0,
+      "sink": 4,
+      "total_ns": 663272
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0077",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 375,
+      "iterations": 1,
+      "ns_per_call": 4447352.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "7b0ffbdad2b4653b73ce93486799b2b082981fd695528d07876dbd55d34a342a",
+      "round": 0,
+      "sink": 44,
+      "total_ns": 4447352
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0078",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 386,
+      "iterations": 1,
+      "ns_per_call": 4617990.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "5a59e9d5b2958b0e4793655ad08671255fe6e8f8012cfcd0a343c295796686d6",
+      "round": 0,
+      "sink": 46,
+      "total_ns": 4617990
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0079",
+      "cohort": "public1015",
+      "function": "terms_ascii",
+      "input_characters": 390,
+      "iterations": 1,
+      "ns_per_call": 4633543.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "ea634679fba75c56018a591d40e74bdf8d9eca7369fd492a2b7f843ac92b5021",
+      "round": 0,
+      "sink": 45,
+      "total_ns": 4633543
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0088",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 799,
+      "iterations": 1,
+      "ns_per_call": 9419366.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "bb190ef5480566825a8f92800f07bbae06568e88a420b49962ec55834469ae57",
+      "round": 0,
+      "sink": 112,
+      "total_ns": 9419366
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0089",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 346,
+      "iterations": 1,
+      "ns_per_call": 4261390.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "2705c0a678dc1671edcdcc7a5c3760b101dd1c4c12b3d79dbdc4a202f3165412",
+      "round": 0,
+      "sink": 51,
+      "total_ns": 4261390
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0090",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 92,
+      "iterations": 1,
+      "ns_per_call": 1241125.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "33d2bf021a038d51c9a1bc810ad82b3e026d94b1125afe06fb1ef11030cdc6c2",
+      "round": 0,
+      "sink": 10,
+      "total_ns": 1241125
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0091",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 52,
+      "iterations": 1,
+      "ns_per_call": 753649.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "6e7376962e5fa1174f6580d05705830786feafe7040bb66bf0caed6abc3d76f2",
+      "round": 0,
+      "sink": 6,
+      "total_ns": 753649
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0092",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 120,
+      "iterations": 1,
+      "ns_per_call": 1561029.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "553a8cd6a237fb592a5979c4d3ed0739de3a59d2dde9311b8ea1c98b158c89b9",
+      "round": 0,
+      "sink": 19,
+      "total_ns": 1561029
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0093",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 116,
+      "iterations": 1,
+      "ns_per_call": 1507839.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": true,
+      "result_sha256": "a43322e1b994c60fb125bd6090700c930940674ba1bcb74f36a771d7de586d9c",
+      "round": 0,
+      "sink": 11,
+      "total_ns": 1507839
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0094",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 814,
+      "iterations": 1,
+      "ns_per_call": 9813371.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "d9bf2cef9ce20191faa3ae9ba3dd476aa6df11d58d707dc158df66e71ffd7b8c",
+      "round": 0,
+      "sink": 119,
+      "total_ns": 9813371
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0095",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 118,
+      "iterations": 1,
+      "ns_per_call": 1516241.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "ingest",
+      "query": false,
+      "result_sha256": "7c471ad617e74ccb2e42d9955f9f0d4ede464fdbc1b1aa50b3d47a7a90a0fa54",
+      "round": 0,
+      "sink": 17,
+      "total_ns": 1516241
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0152",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 391,
+      "iterations": 1,
+      "ns_per_call": 4768627.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "357b30b8474def44844ff14ed8121d849b6d68e4185ab35f5e173438cc383f78",
+      "round": 0,
+      "sink": 43,
+      "total_ns": 4768627
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0153",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 21,
+      "iterations": 1,
+      "ns_per_call": 371131.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "2732a8310926f0924f5c54b8a34b3bc3ac39c18aa106d21facb9f04793d5605f",
+      "round": 0,
+      "sink": 2,
+      "total_ns": 371131
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0154",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 21,
+      "iterations": 1,
+      "ns_per_call": 370190.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "2732a8310926f0924f5c54b8a34b3bc3ac39c18aa106d21facb9f04793d5605f",
+      "round": 0,
+      "sink": 2,
+      "total_ns": 370190
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0155",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 18,
+      "iterations": 1,
+      "ns_per_call": 311841.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "ac9810436fab8ad4e404efb732db4cf24b9a0c73a457e7cb19b45d4c8efa4f87",
+      "round": 0,
+      "sink": 2,
+      "total_ns": 311841
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0156",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 8,
+      "iterations": 1,
+      "ns_per_call": 187874.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "3a3119cb811187bd3830b295da05d0ce500f82d6f9e77928507061f7d8c93a78",
+      "round": 0,
+      "sink": 1,
+      "total_ns": 187874
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0157",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 393,
+      "iterations": 1,
+      "ns_per_call": 4776449.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "b9957f7a2b5d95107b8e7906a0f9204ca4649e5eda884dcec65d44fa522281bc",
+      "round": 0,
+      "sink": 45,
+      "total_ns": 4776449
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0158",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 389,
+      "iterations": 1,
+      "ns_per_call": 4678241.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "50b65f434214851c2105fd25bf14b4ac971051e40199071e7d7ec0019a1c4020",
+      "round": 0,
+      "sink": 41,
+      "total_ns": 4678241
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0159",
+      "cohort": "synthetic61",
+      "function": "terms_ascii",
+      "input_characters": 496,
+      "iterations": 1,
+      "ns_per_call": 5923483.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "recall_char2400",
+      "query": true,
+      "result_sha256": "e90fcfb077842361b491e03b3e795d25baf323165a89d30765b546e1d6a19b16",
+      "round": 0,
+      "sink": 52,
+      "total_ns": 5923483
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0168",
+      "cohort": "unicode-long-stress",
+      "function": "terms_ascii",
+      "input_characters": 14600,
+      "iterations": 1,
+      "ns_per_call": 175143050.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "synthetic-stress",
+      "query": true,
+      "result_sha256": "fe312191e3c39d0abcf92e6bcbcf383fd6bc17d17d38822f0d87043de2af66b0",
+      "round": 0,
+      "sink": 1800,
+      "total_ns": 175143050
+    },
+    {
+      "backend": "shell-batch",
+      "case_id": "case-0169",
+      "cohort": "unicode-long-stress",
+      "function": "ascii_tokens",
+      "input_characters": 14600,
+      "iterations": 1,
+      "ns_per_call": 169813575.0,
+      "order": [
+        "current-c",
+        "shell-rpc",
+        "shell-batch"
+      ],
+      "phase": "synthetic-stress",
+      "query": false,
+      "result_sha256": "766b9a481f42ea5dcaf701d264aeeaa8dad779fa729de0f7c4d53b291375cce7",
+      "round": 0,
+      "sink": 2000,
+      "total_ns": 169813575
+    }
+  ],
+  "rounds": 1,
+  "schema_version": 1,
+  "status": "completed",
+  "warmup": 0,
+  "worker_sha256": "e6198ab57d71de39810dfc5bc41dc845c479614e2497bfd30a790d337eabf185"
+}
