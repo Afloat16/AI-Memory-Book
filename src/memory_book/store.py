@@ -1198,20 +1198,13 @@ class MemoryBook:
             total = self.db.execute("SELECT COUNT(*) FROM sections WHERE chapter_id=?", (chapter_id,)).fetchone()[0]
             owner = ",s.project_id _section_project" if ordinary else ""
             rows = self.db.execute("SELECT sec.*,s.external_id session_id,s.title session_title,s.created_at" + owner + " FROM sections sec JOIN sessions s ON s.id=sec.session_pk WHERE sec.chapter_id=? ORDER BY s.created_at,s.id,sec.ordinal LIMIT ? OFFSET ?", (chapter_id, limit, offset)).fetchall()
-            totals, page_rows = {}, {}
+            totals = {}
             if ordinary and rows:
                 selected = [sec["id"] for sec in rows
                             if project is None or sec["_section_project"] == project]
                 if selected:
                     placeholders = ",".join("?" for _ in selected)
                     totals = dict(self.db.execute("SELECT section_id,COUNT(*) FROM pages WHERE section_id IN (" + placeholders + ") GROUP BY section_id", selected))
-                    # Each branch uses pages_section and stops at its own limit.
-                    # Only selected previews reach the final, bounded ordering.
-                    branch = "SELECT * FROM (SELECT section_id,id,title,length(content) chars,source_refs,ordinal,rid FROM pages WHERE section_id=? ORDER BY ordinal LIMIT ?)"
-                    query = " UNION ALL ".join(branch for _ in selected) + " ORDER BY section_id,ordinal,rid"
-                    parameters = [value for identity in selected for value in (identity, page_limit)]
-                    for page in self.db.execute(query, parameters):
-                        page_rows.setdefault(page["section_id"], []).append(page)
             sections = []
             for sec in rows:
                 details = dict(sec)
@@ -1220,11 +1213,15 @@ class MemoryBook:
                     if project is not None and section_project != project:
                         raise KeyError(f"section not found: {sec['id']}")
                     pages_total = totals.get(sec["id"], 0)
+                    # Reuse section()'s indexed query and convert one bounded
+                    # preview at a time, without a compound merge or sort.
+                    page_rows = self.db.execute("SELECT id,title,length(content) chars,source_refs FROM pages WHERE section_id=? ORDER BY ordinal LIMIT ? OFFSET ?", (sec["id"], page_limit, 0)).fetchall()
                     preview = {
-                        "pages": [{"id": p["id"], "title": p["title"], "chars": p["chars"], "turn_indices": sorted({r["turn_index"] for r in json.loads(p["source_refs"])})} for p in page_rows.get(sec["id"], [])],
+                        "pages": [{"id": p["id"], "title": p["title"], "chars": p["chars"], "turn_indices": sorted({r["turn_index"] for r in json.loads(p["source_refs"])})} for p in page_rows],
                         "total": pages_total,
                         "next_offset": page_limit if page_limit < pages_total else None,
                     }
+                    del page_rows
                 else:
                     preview = self.section(sec["id"], project=project, limit=page_limit)
                 sections.append({**details, "pages": preview["pages"], "pages_total": preview["total"], "pages_next_offset": preview["next_offset"]})
