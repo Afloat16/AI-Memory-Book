@@ -221,6 +221,17 @@ def render(args):
         ("分析器 SHA256",analysis.get("analysis_source_sha256"))])
     if audit.get("errors"):
         emit(["审计错误","详情"], ((r.get("code"),json.dumps(r.get("detail"),ensure_ascii=False)) for r in audit["errors"]))
+    section("计时边界与缓存")
+    emit(["项目","本次测量边界"], [
+        ("查询前的数据准备","每个worker使用新数据库，先完成首次导入和无变更重复导入；两种导入各自计时，随后进行查询。"),
+        ("直接调用计时","从调用book.recall开始，到返回dict为止；后续JSON序列化、输出校验和ledger写入不计入查询耗时。"),
+        ("MCP服务生命周期","每个MCP配置启动新的服务端；从启动到initialize完成的耗时单列，不计入单次查询。"),
+        ("MCP查询计时","覆盖client.call_tool的stdio传输、SDK处理、服务端输出及正常recall_cache写入；返回后的结果校验不计入。"),
+        ("查询结果缓存","直接调用设置use_cache=False；每次MCP调用前执行DELETE FROM recall_cache并提交，删除操作在查询计时之外。"),
+        ("SQLite与操作系统缓存","不清空SQLite或操作系统缓存；新数据库不等于冷缓存查询。"),
+        ("Token词表准备","direct及驱动进程在查询计时外准备cl100k_base词表；MCP服务端是新进程，不保证其首次token调用已预热。"),
+        ("额外查询预热与计数","没有额外warmup查询，不丢弃最初调用；全部计划attempts纳入计时及ledger核对。"),
+        ("激活指标","experimental_activation_ms仅计实验后端激活，不代表包含进程启动的完整CLI冷启动。")])
     section("候选边界与采用门槛","常规采用需预声明目标改善至少5%、整轮95%区间排除零、至少5/6轮改善，且没有关键场景超过3%的重复退化；压力语料获益单列。所有采用判断仍须服从审计和A/A控制。")
     emit(["候选","普通语料门槛","仅压力场景门槛","关键退化场景数","解释"],
          ([label(VARIANTS,r["variant"]),r.get("ordinary_production_gate") if eligible else "不适用",
