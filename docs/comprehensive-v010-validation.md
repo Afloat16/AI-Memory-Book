@@ -122,13 +122,111 @@ remain unchanged. A separately frozen directory-only comparison evaluates the
 replacement that keeps batch counts and uses the original indexed per-section
 LIMIT/OFFSET query. The semantic source and its first-run evidence are retained.
 
-## Delivery status
+### Directory candidate 2: accepted
+
+[Run 44008503529](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44008503529)
+completed on attempt 1 from frozen source `d5876b6e7640623d4ce3d63cb649b0401dc578d0`.
+Its [evidence commit 248e74ee](https://github.com/Afloat16/AI-Memory-Book/tree/248e74ee4aabd7f53835e5aead67aa8e8f63abbb)
+retains all 232 original files, including the unchanged workload, frozen sources,
+raw observations and complete event ledger. The new evaluator changes only its
+plan path and protocol ID; the first evaluator and its rejected results remain
+unchanged. The semantic source is byte-identical to the first hosted candidate.
+Independent review verifies all 232 raw file hashes and all 219 frozen inputs
+against their original commits, then reproduces the frozen audit with zero
+remeasured calls. The hosted preflight passes all 20 focused tests.
+
+All **1,440 timed calls** and **1,487 ledger events** pass the exact payload,
+serialized order, query-count and materialization checks. The prospective gate
+requires every median paired wall ratio to be at most 1.05 and strict improvement
+for both 20 × 20 and 100 × 20. All nine configurations pass without waivers.
+
+| Sections | Pages per section | Baseline median | Candidate median | Median paired wall-time change |
+|---:|---:|---:|---:|---:|
+| 1 | 1 | 0.075810 ms | 0.075093 ms | −0.48% |
+| 1 | 20 | 0.138099 ms | 0.140058 ms | +1.07% |
+| 1 | 100 | 0.399630 ms | 0.403592 ms | +0.42% |
+| 20 | 1 | 0.521635 ms | 0.415196 ms | −20.48% |
+| 20 | 20 | 1.857856 ms | 1.757063 ms | −5.31% |
+| 20 | 100 | 7.339468 ms | 7.193670 ms | −1.86% |
+| 100 | 1 | 2.387888 ms | 1.813116 ms | −23.97% |
+| 100 | 20 | 9.004408 ms | 8.417977 ms | −6.46% |
+| 100 | 100 | 38.011260 ms | 37.251585 ms | −1.98% |
+
+All six multi-section configurations improve in every paired round. The two
+single-section regressions are retained: 1 × 20 rises by about **1.96 microseconds**
+between pooled medians, and 1 × 100 by **3.96 microseconds**. Each regresses in
+three of four pairs; 1 × 1 also has one regressing pair despite its lower median
+paired ratio. Process-CPU summaries have the same configuration-level direction.
+These warm synthetic directory measurements do not establish cold-cache, full
+recall, concurrent-load or end-to-end gains.
+
+The accepted implementation uses 5, 24 and 104 SELECTs for 1, 20 and 100 sections,
+versus 6, 63 and 303 at baseline. It retains the baseline indexed page query for
+each section and releases each raw row list after conversion. At the maximum
+100 × 100 request, only 100 raw previews are read ahead of conversion, and
+content length is evaluated exactly 10,000 times. The returned output itself
+still grows with the requested number of previews.
+
+[Raw directory report](https://github.com/Afloat16/AI-Memory-Book/blob/248e74ee4aabd7f53835e5aead67aa8e8f63abbb/raw/reports/directory-runtime.json)
+· [Frozen acceptance audit](https://github.com/Afloat16/AI-Memory-Book/blob/248e74ee4aabd7f53835e5aead67aa8e8f63abbb/audit.json).
+
+## Acceptance and delivery
+
+The [explicit acceptance decision](../benchmarks/experiments/comprehensive_v010_acceptance.json)
+binds both component experiments to runtime digest
+`d00d84ef8436c97b45de5e5e5c2b67883ffbc03992cffa10e7f6d35a15e7fd16`.
+It retains all small-fixture costs, rejects directory candidate 1, and states
+the remaining exact-source publication gates. The large-fixture resource and
+latency benefits justify semantic streaming while the small-fixture regression
+remains visible; no claim is made that every workload is faster.
 
 The first complete candidate passed all 11 CI jobs in
 [run 44006128221](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44006128221).
 Its Windows job passed the real native executable and PowerShell installer
-smoke plus all 53 capture/import/export/isolation tests. Final source still
-requires fresh exact-commit CI and the full release matrix before publication.
+smoke plus all 53 capture/import/export/isolation tests. The frozen second
+directory candidate and evaluator also pass all 11 jobs in
+[run 44008145062](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44008145062).
+Publication requires fresh exact-commit CI, the complete 30-cell release matrix,
+all 67 asset checks and the actual public installer. Final evidence is kept
+separately in the
+[publication-proof branch](https://github.com/Afloat16/AI-Memory-Book/tree/validation/comprehensive-v0.10.0-publication-proof),
+so the release source and historical observations remain fixed.
+
+## Reproduced reliability and installation fixes
+
+Windows capture tests use a real owned child process: repeated status probes
+must leave it running, and exit code 259 must still be recognized as an exited
+process. The first Windows CI then exposed a separate completed-file-update
+failure. Path and descriptor metadata can report different ctime semantics;
+capture now compares ctime before/after through the same API, while comparing
+file identity, size and mtime across APIs. Regressions retain concurrent-write
+rejection, including changes that restore the original size and mtime.
+
+JSONL regressions retain LF, CRLF and CR physical records while preserving
+U+0085, U+2028 and U+2029 inside valid message strings. Capture still defers
+partial UTF-8 or incomplete JSON tails and imports their later completion.
+Import reads stop at the existing limit plus one byte, so a file that grows
+after its initial metadata check cannot cause an unbounded read.
+
+The installer reproduction used owned synthetic modules in the working
+directory and `PYTHONPATH`, plus an invalid `PYTHONHOME`. Managed launchers,
+bootstrap helpers and package probes now use `-I -X utf8`. Pip's copied child
+environment removes those two Python variables to protect nested build hooks;
+application variables, pip/proxy configuration and the caller's environment
+retain their behavior. The Windows executable is generated through the
+existing pip-vendored launcher facility with explicit interpreter arguments.
+
+The three operating-system installer jobs exercise actual installed launchers,
+Unicode paths, environment isolation, default extras, reinstall and failed-stage
+rollback. Newly generated isolated MCP commands retain those flags; services
+also receive `-u` explicitly. Existing configurations must be regenerated and
+their processes restarted to gain the new command flags. Source-based,
+nonisolated configurations keep their existing interpreter prefixes.
+
+The original Windows capture failure, Python 3.10 test-cleanup incompatibility,
+and Windows installer-test encoding failure remain in the development evidence.
+Their corrected checks passed before the final publication gate; successful
+runs do not replace those earlier records.
 
 ## Release verification changes
 
@@ -142,3 +240,6 @@ prevent a receipt from being issued.
 The current [release runbook](releasing.md) documents all 11 CI jobs, all 30
 native build/install/test cells and the 67-asset release contract. Historical
 experiments and frozen auditors remain untouched.
+The new [offline publication audit](comprehensive-release-audit.md) connects
+the same run/attempt's original logs and artifacts to the public download bytes,
+source commit, main and tag without rebuilding or remeasuring.

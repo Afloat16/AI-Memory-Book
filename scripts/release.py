@@ -73,6 +73,12 @@ APPROVED_RUNTIME_SHA256 = {
     # Decision and remaining exact-commit publication gates:
     # benchmarks/experiments/native_core_acceptance.json.
     "0.9.0": "6ec51c906de94c97f90ec9be3dc50d066c9abedcff283c1e118ef6d6847eb3b7",
+    # Bounded semantic reads and verified snapshots; accepted directory v2,
+    # with all small-fixture costs and the rejected v1 preserved. Reproduced
+    # capture/import/installer fixes; native algorithms remain unchanged.
+    # Decision and exact-commit CI/publication gates:
+    # benchmarks/experiments/comprehensive_v010_acceptance.json.
+    "0.10.0": "d00d84ef8436c97b45de5e5e5c2b67883ffbc03992cffa10e7f6d35a15e7fd16",
 }
 # Publication channels are explicit: older prereleases remain prereleases when
 # an interrupted run reconciles them. A new version needs a reviewed entry.
