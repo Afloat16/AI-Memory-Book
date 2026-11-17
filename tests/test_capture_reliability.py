@@ -159,7 +159,7 @@ class TranscriptBoundaryTests(unittest.TestCase):
                     self.assertEqual(book.get_session("example", "native")["messages"], [question["message"]])
                 path.write_bytes((prefix + tail).encode("utf-8"))  # A complete final record needs no newline.
                 second = sync.sync_once(config)
-                self.assertEqual((second["updated_sessions"], second["partial"], second["errors"]), (1, 0, 0))
+                self.assertEqual((second["updated_sessions"], second["partial"], second["errors"]), (1, 0, 0), second)
                 with MemoryBook(config.database) as book:
                     self.assertEqual(book.get_session("example", "native")["messages"], [question["message"], answer["message"]])
                 self.assertEqual(sync.sync_once(config)["skipped"], 1)
@@ -227,6 +227,50 @@ class TranscriptBoundaryTests(unittest.TestCase):
                     path.write_bytes(data)
                     with patch.object(importers, "MAX_IMPORT_BYTES", len(data)):
                         self.assertEqual(importers.load_sessions(path), expected)
+
+
+class SnapshotTimestampTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.path = self.root / "session.json"
+        self.path.write_text(json.dumps(TranscriptBoundaryTests.session("Updated source evidence")), encoding="utf-8")
+
+    @staticmethod
+    def with_ctime(info, ctime):
+        return SimpleNamespace(st_dev=info.st_dev, st_ino=info.st_ino, st_mode=info.st_mode,
+                               st_size=info.st_size, st_mtime_ns=info.st_mtime_ns, st_ctime_ns=ctime)
+
+    def path_stat(self):
+        original = Path.lstat
+
+        def lstat(path, *args, **kwargs):
+            info = original(path, *args, **kwargs)
+            return self.with_ctime(info, 100) if path == self.path else info
+
+        return lstat
+
+    def test_path_birth_time_and_descriptor_change_time_are_compared_consistently(self):
+        original = os.fstat
+        config = sync.SyncConfig(self.root / "book.db", self.root / "state.json",
+                                 sources=(sync.WatchSource("fixture", self.root, "canonical"),))
+        with patch.object(Path, "lstat", self.path_stat()), \
+                patch.object(sync.os, "fstat", side_effect=lambda fd: self.with_ctime(original(fd), 200)):
+            result = sync.sync_once(config)
+            self.assertEqual((result["imported"], result["deferred"], result["errors"]), (1, 0, 0), result)
+            with patch.object(sync, "_read_snapshot", side_effect=AssertionError("unchanged file was reread")):
+                self.assertEqual(sync.sync_once(config)["skipped"], 1)
+        with MemoryBook(config.database) as book:
+            self.assertEqual(book.get_session("example", "one")["messages"][0]["content"], "Updated source evidence")
+
+    def test_descriptor_change_during_read_is_still_deferred(self):
+        original = os.fstat
+        changed = iter((200, 300))
+        with patch.object(Path, "lstat", self.path_stat()), \
+                patch.object(sync.os, "fstat", side_effect=lambda fd: self.with_ctime(original(fd), next(changed))):
+            with self.assertRaisesRegex(sync._Deferred, "file_changed_during_read"):
+                sync._read_snapshot(self.path, importers.MAX_IMPORT_BYTES, self.root)
 
 
 if __name__ == "__main__":

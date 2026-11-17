@@ -372,9 +372,17 @@ def _read_snapshot(path: Path, max_bytes: int, boundary: Path) -> tuple[bytes, l
         after = os.fstat(handle.fileno())
     if len(data) > max_bytes:
         raise ValueError("file_too_large")
-    if _signature(before) != _signature(after) or _signature(after) != _signature(path.lstat()):
+    finished = path.lstat()
+    # On Windows, lstat ctime can mean birth time while fstat ctime means
+    # change time (CPython #157671). Compare each API with itself, retaining
+    # descriptor change detection even when a writer restores size and mtime.
+    before_signature, opened_signature = _signature(before), _signature(opened)
+    if (before_signature != _signature(finished)
+            or opened_signature != _signature(after)
+            or before_signature[:4] != opened_signature[:4]):
         raise _Deferred("file_changed_during_read")
-    return data, _signature(after)
+    # The polling fast path obtains its signature through lstat as well.
+    return data, _signature(finished)
 
 
 def _complete_text(data: bytes, path: Path, format: str) -> tuple[str, bool]:

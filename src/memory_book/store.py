@@ -1172,24 +1172,66 @@ class MemoryBook:
         return {"project": dict(row), "chapters": [dict(c) for c in chapters], "total": total, "next_offset": offset + limit if offset + limit < total else None, "revision": self.revision}
 
     def chapter(self, chapter_id: str, *, project: str | None = None, offset: int = 0, limit: int = 50, page_limit: int = 20) -> dict:
-        """Read a task directory, optionally requiring its exact project ID."""
+        """Read a task directory, optionally requiring its exact project ID.
+
+        Ordinary section previews share a read snapshot. An existing caller
+        transaction is reused and is never committed or rolled back here.
+        Customized section readers retain the original per-section call path.
+        """
         _integer(offset, "offset", 0, 10_000_000)
         _integer(limit, "limit", 1, 100)
         _integer(page_limit, "page_limit", 1, 100)
         if project is not None:
             _string(project, "project")
-        scope = " AND project_id=?" if project is not None else ""
-        parameters = (chapter_id, project) if project is not None else (chapter_id,)
-        row = self.db.execute("SELECT * FROM chapters WHERE id=?" + scope, parameters).fetchone()
-        if row is None:
-            raise KeyError(f"chapter not found: {chapter_id}")
-        total = self.db.execute("SELECT COUNT(*) FROM sections WHERE chapter_id=?", (chapter_id,)).fetchone()[0]
-        rows = self.db.execute("SELECT sec.*,s.external_id session_id,s.title session_title,s.created_at FROM sections sec JOIN sessions s ON s.id=sec.session_pk WHERE sec.chapter_id=? ORDER BY s.created_at,s.id,sec.ordinal LIMIT ? OFFSET ?", (chapter_id, limit, offset)).fetchall()
-        sections = []
-        for sec in rows:
-            preview = self.section(sec["id"], project=project, limit=page_limit)
-            sections.append({**dict(sec), "pages": preview["pages"], "pages_total": preview["total"], "pages_next_offset": preview["next_offset"]})
-        return {**dict(row), "sections": sections, "total": total, "next_offset": offset + limit if offset + limit < total else None}
+        section_reader = self.section
+        ordinary = (getattr(section_reader, "__func__", None) is _ORDINARY_SECTION
+                    and getattr(section_reader, "__self__", None) is self)
+        owns_snapshot = ordinary and not self.db.in_transaction
+        if owns_snapshot:
+            self.db.execute("BEGIN")
+        try:
+            scope = " AND project_id=?" if project is not None else ""
+            parameters = (chapter_id, project) if project is not None else (chapter_id,)
+            row = self.db.execute("SELECT * FROM chapters WHERE id=?" + scope, parameters).fetchone()
+            if row is None:
+                raise KeyError(f"chapter not found: {chapter_id}")
+            total = self.db.execute("SELECT COUNT(*) FROM sections WHERE chapter_id=?", (chapter_id,)).fetchone()[0]
+            owner = ",s.project_id _section_project" if ordinary else ""
+            rows = self.db.execute("SELECT sec.*,s.external_id session_id,s.title session_title,s.created_at" + owner + " FROM sections sec JOIN sessions s ON s.id=sec.session_pk WHERE sec.chapter_id=? ORDER BY s.created_at,s.id,sec.ordinal LIMIT ? OFFSET ?", (chapter_id, limit, offset)).fetchall()
+            totals, page_rows = {}, {}
+            if ordinary and rows:
+                selected = [sec["id"] for sec in rows
+                            if project is None or sec["_section_project"] == project]
+                if selected:
+                    placeholders = ",".join("?" for _ in selected)
+                    totals = dict(self.db.execute("SELECT section_id,COUNT(*) FROM pages WHERE section_id IN (" + placeholders + ") GROUP BY section_id", selected))
+                    # Each branch uses pages_section and stops at its own limit.
+                    # Only selected previews reach the final, bounded ordering.
+                    branch = "SELECT * FROM (SELECT section_id,id,title,length(content) chars,source_refs,ordinal,rid FROM pages WHERE section_id=? ORDER BY ordinal LIMIT ?)"
+                    query = " UNION ALL ".join(branch for _ in selected) + " ORDER BY section_id,ordinal,rid"
+                    parameters = [value for identity in selected for value in (identity, page_limit)]
+                    for page in self.db.execute(query, parameters):
+                        page_rows.setdefault(page["section_id"], []).append(page)
+            sections = []
+            for sec in rows:
+                details = dict(sec)
+                if ordinary:
+                    section_project = details.pop("_section_project")
+                    if project is not None and section_project != project:
+                        raise KeyError(f"section not found: {sec['id']}")
+                    pages_total = totals.get(sec["id"], 0)
+                    preview = {
+                        "pages": [{"id": p["id"], "title": p["title"], "chars": p["chars"], "turn_indices": sorted({r["turn_index"] for r in json.loads(p["source_refs"])})} for p in page_rows.get(sec["id"], [])],
+                        "total": pages_total,
+                        "next_offset": page_limit if page_limit < pages_total else None,
+                    }
+                else:
+                    preview = self.section(sec["id"], project=project, limit=page_limit)
+                sections.append({**details, "pages": preview["pages"], "pages_total": preview["total"], "pages_next_offset": preview["next_offset"]})
+            return {**dict(row), "sections": sections, "total": total, "next_offset": offset + limit if offset + limit < total else None}
+        finally:
+            if owns_snapshot and self.db.in_transaction:
+                self.db.execute("ROLLBACK")
 
     def section(self, section_id: str, *, project: str | None = None, offset: int = 0, limit: int = 50) -> dict:
         """Bound the page directory, optionally requiring its exact project ID."""
@@ -1941,3 +1983,4 @@ class MemoryBook:
 
 
 _ORDINARY_REFS = MemoryBook._refs
+_ORDINARY_SECTION = MemoryBook.section
