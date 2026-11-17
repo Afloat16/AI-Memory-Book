@@ -10,9 +10,12 @@ explicitly nonformal and cannot establish adoption or a language speed ranking.
 
 The next prospective matrix adds `rust_metadata` and `c_metadata` for the full
 bounded candidate metadata method. The eight earlier candidates remain in the
-comparison. This checkpoint stages the integration and analyzer; the new kernels
-and their shared correctness checks are still being completed. Do not start the
-formal branch until the ten-arm candidate set passes complete validation.
+comparison. Both new kernels and their shared correctness checks are complete:
+13 existing regressions, 128 direct cases, 11 SQL callback cases, 13 pre-install
+guards, and the synthetic/public corpora pass for both. The integrated worker
+also passes all 96 Unicode stress queries for each new candidate, with 96 native
+completions and zero fallback. Do not start the formal branch until the ten-arm
+candidate set passes the hosted preflight.
 
 The planned ten-arm formal schedule has 186 workers and 626,100 timed calls,
 including A/A controls. Main remains untouched.
@@ -62,6 +65,7 @@ the public README, main, release tags, retrieval rules, or database schema.
 | Same interface translation | Six equivalent Rust functions |
 | Unicode processing organization | C-table and Rust-table using the same frozen mapping |
 | Complete window computation | C-owned and Rust-owned with the same compatibility adapter |
+| Complete bounded candidate metadata | C and Rust with identical SQL, parameter order, mutation and callback behavior |
 | JavaScript | Warm kernel measurements and actual persistent Python/Node integration |
 | TypeScript | Types-only facade, checking the identities of the executed JavaScript functions |
 | Shell | Equivalent ASCII kernels in Bash; RPC, amortized batch cost, and cold start reported separately |

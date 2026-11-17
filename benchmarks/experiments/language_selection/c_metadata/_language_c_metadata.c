@@ -10,7 +10,7 @@
 enum Key {
     K_STORE, K_READY, K_AFTER_LIGHT, K_AFTER_DIRS, K_BOOK, K_ROWS, K_SQLITE,
     K_CONNECTION, K_ROW, K_DB, K_ROW_FACTORY, K_TEXT_FACTORY, K_TOKENS,
-    K_CACHE, K_WRAPPED, K_ORDINARY, K_METADATA, K_RID, K_VALUES, K_EXECUTE,
+    K_CACHE, K_WRAPPED, K_ORDINARY, K_METADATA, K_RID, K_ID, K_RANK, K_VALUES, K_EXECUTE,
     K_FETCHALL, K_PROJECT_ID, K_CHAPTER_ID, K_CHAPTER_TITLE, K_SESSION_ID,
     K_SESSION_TITLE, K_CREATED_AT, K_COUNT
 };
@@ -18,7 +18,7 @@ static const char *key_names[K_COUNT] = {
     "store", "ordinary_ready", "after_light", "after_directories", "MemoryBook",
     "_RecallCandidates", "sqlite3", "Connection", "Row", "db", "row_factory",
     "text_factory", "_directory_tokens", "_ordinary_directory_cache", "__wrapped__",
-    "_ORDINARY_DIRECTORY_TOKENS", "metadata", "rid", "values", "execute", "fetchall",
+    "_ORDINARY_DIRECTORY_TOKENS", "metadata", "rid", "id", "rank", "values", "execute", "fetchall",
     "project_id", "chapter_id", "chapter_title", "session_id", "session_title", "created_at"
 };
 typedef struct {
@@ -36,12 +36,22 @@ static int exact_keys(PyObject *mapping) {
 }
 
 /* No user equality, iteration or numeric conversion is invoked by this check. */
-static int ordinary_rows(PyObject *rows, PyObject *rid_key) {
+static int ordinary_rows(PyObject *rows, MetadataState *state) {
     Py_ssize_t pos = 0;
     PyObject *key, *value;
     while (PyDict_Next(rows, &pos, &key, &value)) {
-        if (!PyUnicode_CheckExact(key) || !PyDict_CheckExact(value) || !exact_keys(value)) return 0;
-        PyObject *rid = PyDict_GetItemWithError(value, rid_key);
+        if (!PyUnicode_CheckExact(key) || !PyDict_CheckExact(value)
+                || PyDict_Size(value) != 3 || !exact_keys(value)) return 0;
+        /* The actual caller always creates fresh {rid,id,rank} rows. Reusing
+         * a populated/custom row goes through Python, before any SQL, so
+         * overwritten values cannot run finalizers in a different order. */
+        int has_id = PyDict_Contains(value, state->keys[K_ID]);
+        if (has_id < 0) return -1;
+        if (!has_id) return 0;
+        int has_rank = PyDict_Contains(value, state->keys[K_RANK]);
+        if (has_rank < 0) return -1;
+        if (!has_rank) return 0;
+        PyObject *rid = PyDict_GetItemWithError(value, state->keys[K_RID]);
         if (!rid) return PyErr_Occurred() ? -1 : 0;
         if (!PyLong_CheckExact(rid)) return 0;
     }
@@ -236,7 +246,7 @@ static PyObject *bounded_metadata(PyObject *self, PyObject *arguments) {
     use_carried = Py_TYPE(rows) == (PyTypeObject *)rows_type;
     if (!PyDict_CheckExact(rows) && !use_carried) UNSUPPORTED();
     if (!PyDict_Check(rows)) UNSUPPORTED();
-    int row_shape = ordinary_rows(rows, state->keys[K_RID]);
+    int row_shape = ordinary_rows(rows, state);
     if (row_shape < 0) goto error;
     if (!row_shape) UNSUPPORTED();
     if (PyDict_Size(rows) != PyDict_Size(relevance) || !exact_keys(relevance)) UNSUPPORTED();
@@ -321,7 +331,7 @@ static PyObject *bounded_metadata(PyObject *self, PyObject *arguments) {
         if (eligible < 0) goto error;
         if (!eligible || !PyList_CheckExact(light)
                 || (!PyDict_CheckExact(rows) && Py_TYPE(rows) != (PyTypeObject *)rows_type)) CONTINUE_LIGHT();
-        int shape = ordinary_rows(rows, state->keys[K_RID]);
+        int shape = ordinary_rows(rows, state);
         if (shape < 0) goto error;
         if (!shape) CONTINUE_LIGHT();
     }
@@ -351,7 +361,7 @@ static PyObject *bounded_metadata(PyObject *self, PyObject *arguments) {
     if (eligible < 0) goto error;
     if (!eligible || !PyList_CheckExact(directories)
             || (!PyDict_CheckExact(rows) && Py_TYPE(rows) != (PyTypeObject *)rows_type)) CONTINUE_DIRS();
-    int shape = ordinary_rows(rows, state->keys[K_RID]);
+    int shape = ordinary_rows(rows, state);
     if (shape < 0) goto error;
     if (!shape) CONTINUE_DIRS();
     if (use_carried && (!PyDict_CheckExact(carried) || !carried_shape(carried))) CONTINUE_DIRS();

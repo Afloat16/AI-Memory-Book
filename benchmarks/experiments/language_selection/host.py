@@ -287,6 +287,7 @@ def checks(output, manifest, env):
         spec = manifest['variants'][kind + '_metadata']
         items.append((kind + '-metadata', [HERE / 'rust_metadata/check.py', '--python-source', source,
             '--binary', spec['metadata_plugin'], '--module', spec['metadata_module'],
+            '--locomo', manifest['locomo'],
             '--output', output / 'checks' / (kind + '-metadata.json')]))
     (output / 'checks').mkdir()
     for name, command in items:

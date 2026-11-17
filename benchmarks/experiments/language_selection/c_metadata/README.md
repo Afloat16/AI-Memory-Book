@@ -26,6 +26,9 @@ part of the measured method, including connection callbacks and errors.
 
 The ordinary domain uses exact built-in containers, string identities, float
 relevance values, integer row IDs and a positive machine-sized integer count.
+Each candidate row has exactly the fresh `rid`, `id`, and `rank` keys produced
+by the real caller. Already populated or custom rows retain the original path,
+including any observable finalizers when old metadata fields are overwritten.
 The shared adapter authenticates the class methods, attribute access, built-ins,
 directory cache and math dependency before dispatch. Unsupported custom inputs
 continue through the original method. After either SQL query, a changed
