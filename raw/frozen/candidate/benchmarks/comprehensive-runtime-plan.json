@@ -1,0 +1,66 @@
+{
+  "protocol": "comprehensive-runtime-v010-1",
+  "repository": "Afloat16/AI-Memory-Book",
+  "trigger_branch": "validation/comprehensive-v010-formal-1",
+  "run_policy": "One dedicated hosted push, attempt 1 only. Retain every observation and failure. A new attempt cannot replace this evidence.",
+  "baseline_commit": "238c8058f723a203eaca99f94d924ab77de4c0b3",
+  "candidate": "Exact workflow GITHUB_SHA, clean tracked checkout, no untracked files outside .artifacts; source, evaluator, workflow and protocol bytes frozen before tests or timing.",
+  "environment": {
+    "runner": "ubuntu-24.04",
+    "python": "3.12 x64; exact patch and image recorded",
+    "numpy": "2.5.5",
+    "numpy_wheel": "numpy-2.5.5-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+    "numpy_wheel_sha256": "704d819265e5d1064d932968e9ee85fff2103ccc78c05b878c06943ba27b8507",
+    "dependency_sources": ["https://pypi.org/project/numpy/2.5.5/", "https://numpy.org/devdocs/release/2.5.5-notes.html"],
+    "text_backend": "python for both arms; unchanged native text code is outside these measurements",
+    "python_hash_seed": "0",
+    "thread_environment": {"OMP_NUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1", "MKL_NUM_THREADS": "1"}
+  },
+  "semantic": {
+    "protocol": "benchmarks/semantic-runtime-plan.json",
+    "command": "python -u scripts/benchmark_semantic_runtime.py --pairs 4 --memory-pairs 2 --artifact-pairs 4 --output .artifacts/comprehensive-runtime/reports/semantic-runtime.json --events .artifacts/comprehensive-runtime/reports/semantic-runtime.events.jsonl",
+    "windows": [4096, 32768],
+    "pairs": 4,
+    "memory_pairs": 2,
+    "artifact_pairs": 4,
+    "warmups": 2,
+    "model_bytes": 118453870,
+    "tokenizer_bytes": 9081518,
+    "prospective_contracts": [
+      "Exact ordered result and float equality with the baseline before and after every measured call.",
+      "Untimed cursor audit forbids fetchall, bounds fetchmany to 4096 vectors, and verifies explicit cursor closure.",
+      "Exact model identity, fingerprint and consumed artifact bytes; candidate reads and hashes exactly half the baseline artifact bytes.",
+      "Separate latency and allocation trials; latency contains no tracemalloc, equality checks, result hashing or event writes."
+    ],
+    "allocation_metric": "tracemalloc-tracked peak allocations (including NumPy registered buffers); not total RSS or untracked SQLite/native allocations",
+    "limits": "Deterministic vectors and mocked tokenizer/ONNX runtime; no actual inference, semantic quality, or end-to-end recall measurement. Result metadata still grows with matched pages."
+  },
+  "directory": {
+    "protocol": "benchmarks/directory-runtime-plan.json",
+    "command": "python -u scripts/benchmark_directory_runtime.py --baseline-commit 238c8058f723a203eaca99f94d924ab77de4c0b3 --rounds 4 --iterations 20 --output .artifacts/comprehensive-runtime/reports/directory-runtime.json",
+    "section_limits": [1, 20, 100],
+    "page_limits": [1, 20, 100],
+    "rounds": 4,
+    "calls_per_arm_per_round": 20,
+    "warmups_per_arm": 2,
+    "prospective_contracts": [
+      "Exact payload and emitted JSON order for every configuration and timed call, using exact historical method AST on the same frozen archive.",
+      "Untimed SQL and content materialization audit, bounded to returned previews; no writes or leaked transaction.",
+      "All nine configurations, all four alternating AB/BA rounds and all twenty calls per arm retained."
+    ],
+    "limits": "Warm chapter-directory component only; fixture generation, tracing, hashing and equality checks excluded from timing."
+  },
+  "preflight": ["tests.test_comprehensive_runtime_preserve", "tests.test_semantic_streaming", "tests.test_semantic_model_snapshot", "tests.test_directory_batches"],
+  "interpretation": {
+    "timing": "Keep every raw wall and process CPU observation, including regressions; paired summaries are descriptive, not a universal or end-to-end speed guarantee.",
+    "cpu": "Process CPU is secondary diagnostic evidence and never replaces wall latency.",
+    "failures": "Semantic and directory steps execute independently after their own successful preflight. Any failed component fails the job; incomplete or mismatching output is preserved and never relabeled successful.",
+    "prior_runs": "Earlier development reports and historical formal experiments remain separate, byte-for-byte unchanged."
+  },
+  "preservation": {
+    "evidence_branch": "validation/evidence-comprehensive-v010-<run_id>-1",
+    "layout": "Evidence-only parentless Git tree; raw reports, append-only event ledgers, logs, partial failures, dependency install report, frozen sources and evaluator bytes inventoried by SHA-256.",
+    "publication": "Create only; no force pushes, deletion or overwrite. A differing existing ref is an error. Additional immutable upload-artifact copy includes preservation diagnostics.",
+    "audit": "Standard-library audit checks identities, full balanced observations, exact equality, bounded fetch, and exact half artifact I/O without executing either benchmark."
+  }
+}

@@ -1,0 +1,109 @@
+name: Frozen comprehensive runtime performance
+
+on:
+  push:
+    branches: ['validation/comprehensive-v010-formal-1']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: comprehensive-v010-formal-1
+  cancel-in-progress: false
+
+jobs:
+  measurement:
+    if: github.repository == 'Afloat16/AI-Memory-Book' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONHASHSEED: '0'
+      PYTHONPATH: src
+      MEMORY_BOOK_TEXT_BACKEND: python
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        id: checkout
+        with:
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/benchmarks/reports/
+            !/benchmarks/results/
+            !/docs/assets/
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        id: python
+        with:
+          python-version: '3.12'
+          architecture: x64
+      - name: Freeze exact baseline, candidate, evaluator and prospective plan
+        id: freeze
+        shell: bash
+        run: |
+          mkdir -p .artifacts/comprehensive-runtime/logs
+          python -u scripts/comprehensive_runtime_preserve.py freeze 2>&1 | tee .artifacts/comprehensive-runtime/logs/freeze.log
+      - name: Install the pinned CPython 3.12 NumPy wheel
+        id: install
+        shell: bash
+        run: |
+          printf '%s\n' 'numpy==2.5.5 --hash=sha256:704d819265e5d1064d932968e9ee85fff2103ccc78c05b878c06943ba27b8507' > .artifacts/comprehensive-runtime/numpy-requirement.txt
+          python -m pip install --disable-pip-version-check --force-reinstall --no-deps --only-binary=:all: --require-hashes --report .artifacts/comprehensive-runtime/numpy-install.json -r .artifacts/comprehensive-runtime/numpy-requirement.txt 2>&1 | tee .artifacts/comprehensive-runtime/logs/install.log
+          python -m pip list --format=json > .artifacts/comprehensive-runtime/packages.json
+      - name: Validate preservation and failure contracts
+        id: contracts
+        shell: bash
+        run: python -m unittest tests.test_comprehensive_runtime_preserve -v 2>&1 | tee .artifacts/comprehensive-runtime/logs/contracts.log
+      - name: Validate semantic equality and verified-byte behavior
+        id: semantic_validate
+        if: ${{ !cancelled() && steps.freeze.outcome == 'success' && steps.install.outcome == 'success' && steps.contracts.outcome == 'success' }}
+        shell: bash
+        run: python -m unittest tests.test_semantic_streaming tests.test_semantic_model_snapshot -v 2>&1 | tee .artifacts/comprehensive-runtime/logs/semantic-validate.log
+      - name: Validate bounded chapter-directory behavior
+        id: directory_validate
+        if: ${{ !cancelled() && steps.freeze.outcome == 'success' && steps.install.outcome == 'success' && steps.contracts.outcome == 'success' }}
+        shell: bash
+        run: python -m unittest tests.test_directory_batches -v 2>&1 | tee .artifacts/comprehensive-runtime/logs/directory-validate.log
+      - name: Measure all frozen semantic pairs once
+        id: semantic_measure
+        if: ${{ !cancelled() && steps.semantic_validate.outcome == 'success' }}
+        shell: bash
+        run: |
+          python -u scripts/comprehensive_runtime_preserve.py check 2>&1 | tee .artifacts/comprehensive-runtime/logs/semantic-source-check.log
+          python -u scripts/benchmark_semantic_runtime.py --pairs 4 --memory-pairs 2 --artifact-pairs 4 --output .artifacts/comprehensive-runtime/reports/semantic-runtime.json --events .artifacts/comprehensive-runtime/reports/semantic-runtime.events.jsonl 2>&1 | tee .artifacts/comprehensive-runtime/logs/semantic-measure.log
+      - name: Measure all frozen directory configurations once
+        id: directory_measure
+        if: ${{ !cancelled() && steps.directory_validate.outcome == 'success' }}
+        shell: bash
+        run: |
+          python -u scripts/comprehensive_runtime_preserve.py check 2>&1 | tee .artifacts/comprehensive-runtime/logs/directory-source-check.log
+          python -u scripts/benchmark_directory_runtime.py --baseline-commit 238c8058f723a203eaca99f94d924ab77de4c0b3 --rounds 4 --iterations 20 --output .artifacts/comprehensive-runtime/reports/directory-runtime.json 2>&1 | tee .artifacts/comprehensive-runtime/logs/directory-measure.log
+      - name: Preserve complete and failed evidence in a new Git tree
+        id: preserve
+        if: ${{ always() && steps.checkout.outcome == 'success' }}
+        shell: bash
+        env:
+          COMPREHENSIVE_CHECKOUT_OUTCOME: ${{ steps.checkout.outcome }}
+          COMPREHENSIVE_PYTHON_OUTCOME: ${{ steps.python.outcome }}
+          COMPREHENSIVE_FREEZE_OUTCOME: ${{ steps.freeze.outcome }}
+          COMPREHENSIVE_INSTALL_OUTCOME: ${{ steps.install.outcome }}
+          COMPREHENSIVE_CONTRACTS_OUTCOME: ${{ steps.contracts.outcome }}
+          COMPREHENSIVE_SEMANTIC_VALIDATE_OUTCOME: ${{ steps.semantic_validate.outcome }}
+          COMPREHENSIVE_DIRECTORY_VALIDATE_OUTCOME: ${{ steps.directory_validate.outcome }}
+          COMPREHENSIVE_SEMANTIC_MEASURE_OUTCOME: ${{ steps.semantic_measure.outcome }}
+          COMPREHENSIVE_DIRECTORY_MEASURE_OUTCOME: ${{ steps.directory_measure.outcome }}
+        run: python -u scripts/comprehensive_runtime_preserve.py preserve
+      - name: Retain an additional immutable artifact copy on failure or success
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: comprehensive-v010-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .artifacts/comprehensive-runtime/
+            .artifacts/comprehensive-runtime-preservation/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 90
