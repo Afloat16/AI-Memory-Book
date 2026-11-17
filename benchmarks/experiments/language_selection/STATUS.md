@@ -1,8 +1,52 @@
-# Language suitability experiment — preflight checkpoint
+# Language suitability experiment — completed recovery and decision
 
 ## Current continuation point
 
-The formal six-round run is active:
+The interrupted experiment has been recovered and reviewed on 2026-11-17.
+Formal run [44061948774](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44061948774)
+completed successfully. Its frozen source remains
+`40a8ce42b4131b511dcacd446d175b878b74a6f8`; its original evidence remains
+`351770ce9950ba60f77e04847a1de386c44dac2c` on
+`validation/language-selection-results-44061948774`. No timing worker was rerun
+or replaced during recovery.
+
+The original analyzer passed all 18 self-test groups again. A fresh offline
+audit of all saved worker reports and ledgers reproduced the original analysis
+exactly apart from the two explicitly different host-local byte-verification
+fields. The result is 186/186 workers, 626,100 timed calls, 558,618 paired
+complete-output comparisons, 1,252,200 ledger events, and zero mismatches or
+audit errors. Recovery additionally verified 192 frozen source bindings from
+Git. The original runner checked all 209 frozen files; the other 17 original
+runtime/build/dataset inputs were not independently reread on this machine.
+
+**Decision:** retain Python + C as the product architecture; do not start a
+whole-project Rust rewrite on this evidence. Both `c_table` and `rust_table`
+passed the registered ordinary-workload benefit gate, so preserve the shared
+Unicode-table strategy as a local optimization candidate. None of the 99
+same-strategy Rust/C comparisons met the registered material-benefit rule.
+The other Rust candidates did not pass the ordinary benefit gate. This is a
+performance-based decision, not a rejection based on implementation effort.
+An independent full Rust service remains unimplemented and unmeasured.
+
+Completed deliverables:
+
+- [Chinese decision and recovery record](../../reports/language-selection-review-20261117/DECISION.zh.md).
+- [Complete Chinese report and CSV tables](../../reports/language-selection-review-20261117/full-report/report.zh.md).
+- [Formal figures](../../reports/language-selection-review-20261117/figures/).
+- [Offline recovery verification](../../reports/language-selection-review-20261117/recovery-verification.json).
+- [Independent statistics review](../../reports/language-selection-review-20261117/independent-statistical-review.json).
+- [Independent correctness and scope review](../../reports/language-selection-review-20261117/independent-correctness-review.json).
+
+There is no unfinished measurement or remaining decision gate for this research
+run. Any production integration of the table strategy is a separate follow-up:
+keep the production source, packaging, release tags, main and public README
+unchanged in this experiment. Do not move the frozen formal/results branches
+or reuse favorable cells as a new language-speed claim. The reproduction
+commands and exact verification limits are in the decision document.
+
+## Pre-completion checkpoint (historical)
+
+At the preceding checkpoint, the formal six-round run was active:
 [run 44061948774](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44061948774),
 job `133965795078`, started 2026-11-17 10:07:57 UTC (18:07:57 Asia/Shanghai).
 Its branch is `validation/language-selection-formal-1`, frozen at
@@ -102,7 +146,7 @@ controls. Ordinary and stress-only adoption decisions are separate.
 A/A pairs precede main rounds 0, 2, and 4. Helper diagnostics run after the
 whole-workload matrix and cannot trigger the production adoption gate.
 
-## Continuation
+## Historical continuation (superseded)
 
 1. Read the active formal run above, `plan.json`, and `SCOPE.zh.md`.
 2. If it is still active, let the registered run finish. Do not restart it or
