@@ -1,0 +1,101 @@
+name: Prepare author attribution preview
+
+on:
+  push:
+    branches: ['maintenance/author-attribution-preparation']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: author-attribution-preparation
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    if: github.repository == 'Afloat16/AI-Memory-Book' && github.event_name == 'push' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      SOURCE_MAIN_SHA: b6fa111a53e4395875febd2379aa719e96d1179f
+      EXPECTED_PREVIEW_HEAD: 234891619d7bed88ddf3fae37e7f3e1b14a808b6
+      GIT_AUTHOR_NAME: Afloat
+      GIT_AUTHOR_EMAIL: ShuffleMonkey@163.com
+      GIT_COMMITTER_NAME: Afloat
+      GIT_COMMITTER_EMAIL: ShuffleMonkey@163.com
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/prepare_attribution_preview.py
+            /docs/commit-attribution/
+      - name: Check the fixed main and three unused destination refs
+        run: |
+          python3 - <<'PY'
+          import os, re, subprocess
+          assert re.fullmatch(r'[0-9a-f]{40}', os.environ['EXPECTED_PREVIEW_HEAD']), 'Local candidate must be reviewed first'
+          def remote(*refs):
+              return subprocess.check_output(['git', 'ls-remote', '--refs', 'origin', *refs], text=True).splitlines()
+          assert remote('refs/heads/main') == [os.environ['SOURCE_MAIN_SHA'] + '\trefs/heads/main'], 'main changed; inspect before continuing'
+          destinations = ('refs/heads/archive/main-before-attribution-b6fa111a',
+                          'refs/heads/maintenance/author-attribution-preview',
+                          'refs/heads/maintenance/author-attribution-review')
+          assert not remote(*destinations), 'A destination already exists; no overwrite is allowed'
+          PY
+      - name: Fetch commit ancestry without historical blobs
+        run: git fetch --no-tags --filter=tree:0 --unshallow origin "$GITHUB_SHA"
+      - name: Prepare and verify all original and corrected commit objects
+        run: |
+          python3 scripts/prepare_attribution_preview.py \
+            --repository . \
+            --source "$SOURCE_MAIN_SHA" \
+            --output docs/commit-attribution/preview \
+            --preview-ref refs/heads/maintenance/author-attribution-preview \
+            --expected-preview-head "$EXPECTED_PREVIEW_HEAD"
+      - name: Publish only the new archive, preview and review branches
+        run: |
+          python3 - <<'PY'
+          import json, os, pathlib, subprocess
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+          source = os.environ['SOURCE_MAIN_SHA']
+          preview = os.environ['EXPECTED_PREVIEW_HEAD']
+          report = json.loads(pathlib.Path('docs/commit-attribution/preview/summary.json').read_text())
+          assert report['source_main_sha'] == source and report['preview_sha'] == preview
+          assert report['source_tree'] == report['preview_tree']
+          assert git('rev-parse', 'HEAD') == os.environ['GITHUB_SHA'], 'Unexpected preparation HEAD'
+          assert not git('diff', '--cached', '--name-only'), 'Unrelated staged changes'
+          git('add', '--sparse', '--', 'docs/commit-attribution/preview')
+          staged = git('diff', '--cached', '--name-only').splitlines()
+          assert len(staged) == 5 and all(p.startswith('docs/commit-attribution/preview/') for p in staged), staged
+          git('commit', '-m', 'chore: preserve reviewed author-attribution preview and SHA mapping')
+          review = git('rev-parse', 'HEAD')
+          assert git('rev-parse', 'HEAD^') == os.environ['GITHUB_SHA'], 'Unexpected review parent'
+          assert git('ls-remote', '--refs', 'origin', 'refs/heads/main') == source + '\trefs/heads/main', 'main changed'
+          destinations = ('refs/heads/archive/main-before-attribution-b6fa111a',
+                          'refs/heads/maintenance/author-attribution-preview',
+                          'refs/heads/maintenance/author-attribution-review')
+          assert not git('ls-remote', '--refs', 'origin', *destinations), 'A destination appeared; no overwrite is allowed'
+          # Empty expected values are create-only leases: every existing destination is rejected.
+          # There is no general force flag and no main or tag destination.
+          leases = tuple('--force-with-lease=' + ref + ':' for ref in destinations)
+          git('push', '--atomic', *leases, 'origin', source + ':' + destinations[0],
+              preview + ':' + destinations[1], review + ':' + destinations[2])
+          observed = dict(line.split('\t')[::-1] for line in git('ls-remote', '--refs', 'origin', *destinations).splitlines())
+          assert observed == dict(zip(destinations, (source, preview, review))), observed
+          assert git('ls-remote', '--refs', 'origin', 'refs/heads/main') == source + '\trefs/heads/main', 'Unexpected main change'
+          print(json.dumps({'source': source, 'preview': preview, 'review': review, 'main_unchanged': True}, indent=2))
+          PY
+      - name: Retain an additional small copy of the review records
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: author-attribution-preview-${{ github.run_id }}-${{ github.run_attempt }}
+          path: docs/commit-attribution/preview/
+          if-no-files-found: warn
+          retention-days: 30
