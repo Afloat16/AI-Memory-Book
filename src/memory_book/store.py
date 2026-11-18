@@ -2024,6 +2024,23 @@ class MemoryBook:
             return (lo, hi)
         return None
 
+    def _small_project_rowids(self, project: str | None) -> list[int] | None:
+        """Certify a small exact scope under the caller's read snapshot.
+
+        Interleaved pages may have no useful rowid interval. A bounded
+        covering-index read can still provide membership before foreign
+        posting hits visit page metadata. This is a filter for one MATCH
+        cursor, never a separate MATCH per row or a project-local BM25 index.
+        Large scopes and customized connections retain the original path.
+        """
+        statement = "SELECT rid FROM pages WHERE project_id=? LIMIT 257"
+        if type(project) is not str or not self._can_batch_scoped_query(statement, 1):
+            return None
+        rows = [row[0] for row in self.db.execute(statement, (project,))]
+        if not rows or len(rows) > 256 or any(type(rowid) is not int for rowid in rows):
+            return None
+        return rows
+
     def _can_batch_scoped_query(self, statement: str, parameter_count: int) -> bool:
         """Use larger read statements only on an ordinary, known connection.
 
@@ -2301,11 +2318,6 @@ class MemoryBook:
         for key, val in (("project", project), ("chapter", chapter), ("session", session)):
             if val is not None:
                 _string(val, key)
-        qt = query_terms(query)
-        current_query = temporal_intent["resolved"] == "current"
-        declaration_tokens = (_declaration_query_terms(query)
-                              if current_query and not temporal_intent["preserve_occurrences"] else None)
-        use_stem = strategy == "book" and any(ASCII_WORD.search(token) for token in qt)
         semantic_model = self._semantic_encoder() if semantic else None
         # A read snapshot ties candidates, sources, and the cache revision together.
         self.db.execute("BEGIN")
@@ -2326,6 +2338,14 @@ class MemoryBook:
                 result["cache_hit"] = True
                 result["latency_ms"] = (time.perf_counter_ns() - started) / 1e6
                 return result
+            # Cached evidence already contains its complete declaration
+            # assessment. Keep validation above the lookup, but prepare the
+            # lexical/declaration query only when retrieval will run.
+            qt = query_terms(query)
+            current_query = temporal_intent["resolved"] == "current"
+            declaration_tokens = (_declaration_query_terms(query)
+                                  if current_query and not temporal_intent["preserve_occurrences"] else None)
+            use_stem = strategy == "book" and any(ASCII_WORD.search(token) for token in qt)
             clauses, params = [], []
             if project is not None:
                 clauses.append("p.project_id=?")
@@ -2359,6 +2379,8 @@ class MemoryBook:
                 # display-only fields are deferred to the final page fetch.
                 scope_join = " JOIN sessions s ON s.id=p.session_pk" if session is not None else ""
                 project_bounds = self._project_rowid_bounds(project) if qt and session is None else None
+                project_rowids = (self._small_project_rowids(project)
+                                  if project_bounds is None and qt and session is None else None)
                 # A chapter/session-only scope can be more selective than
                 # MATCH. Leave those unconstrained join orders free to use
                 # pages_chapter/pages_session. FTS-first bounded routes and
@@ -2382,22 +2404,8 @@ class MemoryBook:
                             (sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER, 192),
                             (sqlite3.SQLITE_LIMIT_SQL_LENGTH, 10000)))
                 route_metadata = ",p.project_id,p.chapter_id,p.session_pk" if carry_metadata else ""
-                routes = []
-                for table in (("pages_fts", "pages_stem_fts") if use_stem else ("pages_fts",)):
-                    # Table identifiers are fixed above; query text and every
-                    # caller-supplied scope remain bound SQL parameters.
-                    page_join = " CROSS JOIN" if project_bounds is not None else " JOIN"
-                    statement = (f"""SELECT p.rid,p.id,bm25({table},2.0,2.0,1.0,0.25) rank{route_metadata}
-                      FROM {table}""" + page_join +
-                      f" pages p{covering_hint} ON p.rid={table}.rowid" + scope_join +
-                      f" WHERE {table} MATCH ?" + where)
-                    route_params = [expression, *params]
-                    if project_bounds is not None:
-                        # Keep FTS outermost so range constraints narrow one
-                        # posting scan, rather than restarting MATCH per page.
-                        # The original scope still filters before the LIMIT.
-                        statement += f" AND {table}.rowid BETWEEN ? AND ?"
-                        route_params.extend(project_bounds)
+
+                def ordered_route(statement: str) -> str:
                     statement += " ORDER BY rank,p.id LIMIT 96"
                     if not use_stem:
                         # Keep the single-route path to one candidate query.
@@ -2407,6 +2415,35 @@ class MemoryBook:
                           JOIN pages p INDEXED BY pages_recall_metadata ON p.rid=hits.rid
                           JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk
                           ORDER BY hits.rank,p.id"""
+                    return statement
+
+                routes = []
+                for table in (("pages_fts", "pages_stem_fts") if use_stem else ("pages_fts",)):
+                    # Table identifiers are fixed above; query text and every
+                    # caller-supplied scope remain bound SQL parameters.
+                    page_join = " CROSS JOIN" if project_bounds is not None else " JOIN"
+                    projection = (f"""SELECT p.rid,p.id,bm25({table},2.0,2.0,1.0,0.25) rank{route_metadata}
+                      FROM {table}""")
+                    scoped_match = f" ON p.rid={table}.rowid" + scope_join + f" WHERE {table} MATCH ?" + where
+                    statement = projection + page_join + f" pages p{covering_hint}" + scoped_match
+                    route_params = [expression, *params]
+                    if project_bounds is not None:
+                        # Keep FTS outermost so range constraints narrow one
+                        # posting scan, rather than restarting MATCH per page.
+                        # The original scope still filters before the LIMIT.
+                        statement += f" AND {table}.rowid BETWEEN ? AND ?"
+                        route_params.extend(project_bounds)
+                    statement = ordered_route(statement)
+                    if project_bounds is None and project_rowids is not None:
+                        # Unary + prevents an IN-list from restarting MATCH
+                        # (and global BM25 statistics) once for every rowid.
+                        # Keep the original scope predicates before LIMIT.
+                        membership = f" AND +{table}.rowid IN (" + ",".join("?" for _ in project_rowids) + ")"
+                        membership_statement = ordered_route(projection +
+                            " CROSS JOIN pages p INDEXED BY pages_recall_metadata" + scoped_match + membership)
+                        if self._can_batch_scoped_query(membership_statement, len(route_params) + len(project_rowids)):
+                            statement = membership_statement
+                            route_params.extend(project_rowids)
                     routes.append(self.db.execute(statement, route_params).fetchall() if qt else [])
                 # Identical ordered routes add no candidate/ranking information.
                 # Keep BM25's score scale so novelty selection does not change

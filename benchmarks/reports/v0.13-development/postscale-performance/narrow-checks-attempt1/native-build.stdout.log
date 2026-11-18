@@ -1,0 +1,5 @@
+running build_ext
+building 'memory_book._native' extension
+gcc -fno-strict-overflow -Wsign-compare -Wunreachable-code -DNDEBUG -g -O3 -Wall -O3 -fstack-protector -fstack-clash-protection -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -fPIC -fPIC -I/workspace/scratch/428c08bef2bc/.venv/include -I/opt/codex/runtimes/codex-primary-runtime/dependencies/python/include/python3.12 -c src/memory_book/_native.c -o build/temp.linux-x86_64-cpython-312/src/memory_book/_native.o -O3
+gcc -shared -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now -Wl,--build-id=sha1 -Wl,--exclude-libs,ALL build/temp.linux-x86_64-cpython-312/src/memory_book/_native.o -L/install/lib -o build/lib.linux-x86_64-cpython-312/memory_book/_native.cpython-312-x86_64-linux-gnu.so
+copying build/lib.linux-x86_64-cpython-312/memory_book/_native.cpython-312-x86_64-linux-gnu.so -> src/memory_book

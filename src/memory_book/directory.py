@@ -99,6 +99,17 @@ def _batch_directory_matches(book: MemoryBook, where: str, parameters: list,
         bounded_parameters = [*parameters, *bounds, limit, offset, SECTION_PREVIEW_LIMIT]
         if book._can_batch_scoped_query(bounded_sql, len(bounded_parameters)):
             sql, query_parameters = bounded_sql, bounded_parameters
+    else:
+        rowids = book._small_project_rowids(project)
+        if rowids is not None:
+            # Filter one global MATCH before foreign page ownership lookups.
+            # Unary + deliberately prevents one MATCH cursor per rowid. BM25
+            # still uses the full existing index and its global statistics.
+            membership_sql = statement(where + " AND +pages_fts.rowid IN (" +
+                                       ",".join("?" for _ in rowids) + ")")
+            membership_parameters = [*parameters, *rowids, limit, offset, SECTION_PREVIEW_LIMIT]
+            if book._can_batch_scoped_query(membership_sql, len(membership_parameters)):
+                sql, query_parameters = membership_sql, membership_parameters
     rows = book.db.execute(sql, query_parameters).fetchall()
     ranked, sections, seen = [], {}, set()
     for row in rows:
