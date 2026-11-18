@@ -1,164 +1,173 @@
-# Current release: results and evidence
+# Current development results and evidence
 
-The README presents the capabilities of **v0.10.0**. The tables below distinguish
-the current wheel's fresh quality replay from retained component measurements.
-Older source identities remain here for reproducibility, rather than becoming
-version headings in the README.
+The README describes the **v0.11 source under validation**. Its original
+v0.10 published-wheel verification remains unchanged in
+[the archived results](v0.10.0-readme-results.md). New source replay, navigation
+contracts, upstream component executions and historical timings have distinct
+boundaries. A source replay is not a published-wheel or delivery verification.
 
-## What was verified on the current release
+## Source and experiment identities
 
-| Check | Result |
+| Evidence | Identity / execution |
 |---|---|
-| Released source | `164f48c42e88bd096bf58827d8b2ba77a9048ae3` |
-| Runtime digest | `d00d84ef8436c97b45de5e5e5c2b67883ffbc03992cffa10e7f6d35a15e7fd16` |
-| Executed package | Published CPython 3.12 Linux x86_64 native wheel, installed into an isolated environment |
-| Package identity | All 27 installed source files and the loaded extension match the published wheel; the source files also match the release commit |
-| Native excerpt replay | **640/640 responses match** across four repository strategies and two character budgets |
-| Common-block Book replay | **160/160 responses match**, with no response-field exclusions |
-| Independent score derivation | **800/800 scores match**, with no source-validation or budget failures |
-| Timing scope | One execution per setting; retained evaluator timers are diagnostics, not a new speed experiment |
+| Baseline | v0.10 main `234891619d7bed88ddf3fae37e7f3e1b14a808b6` |
+| Candidate 1 engineering replay | `da0ad5bac2395e6d196f4c8cf3af9d508eed7210`; 800 responses per runtime |
+| Candidate 2 engineering replay | `a7d36322f77a3fca9f5907db3edcce4a7dd3652c`; 800 responses per runtime |
+| Directory v2 | Same candidate-2 snapshot; 119 contracts, 130 locator calls and 161 original-page reads |
+| New upstream adapters | Frozen before quality execution at `db96c704a26be944399ec491630da73de8c5dd71` |
+| New evaluator closure | SHA-256 `249556338fef641eb6221daf5796cba792dbe10047f795f7e323a2d6bcca933a` |
+| Engineering dataset | SHA-256 `87e8ccad3510fb7e8a4c68c9fa3f284473abf8381ef6444ad179e3d4196b3ac3` |
+| New external execution | 18 setups, 720 native calls, 480 packed responses; independent audit verified |
 
-The native comparison excludes only the top-level `latency_ms` and `cache_hit`
-diagnostics. Evidence text, IDs, source spans, ranking, budgets and serialized
-response-field order remain in the comparison. The unchanged evaluators ran
-once at both 1,200 and 2,400 characters. No external engine, model inference or
-native-language performance experiment was rerun.
+Both source engineering replays independently check all scores, original source
+references and budgets and have zero per-case score changes or regressions
+against the baseline. They are not full serialized-response equivalence claims:
+new diagnostic fields are present. An independent review subsequently found a
+candidate-2 unclassified-proposal regression outside that fixture. The
+[validation record](v0.11.0-validation.md) retains that blocker and its resolution
+history; the original 80-question replay alone does not authorize a release.
 
-[Current verification report](../benchmarks/reports/readme-current/verification.json)
-· [Original-byte manifest for the compressed raw records](../benchmarks/reports/readme-current/raw-manifest.json)
-· [Replay script](../scripts/verify_current_readme_results.py).
-
-## Fixed workload and comparison modes
+## Fixed workload and common comparison boundary
 
 | Property | Fixed setting |
 |---|---|
-| Workload | Authored synthetic engineering development fixture |
+| Workload | Authored synthetic engineering development/regression fixture |
 | Scope | 8 projects, 4 algorithm families, 6 chronological checkpoints |
-| Questions | 80 total: 72 answerable and 8 missing-evidence cases |
-| Evidence / policy denominators | 80 required spans and 48 fixed-policy cases |
-| Common-block candidate boundary | Same project scope and at most 5 candidates |
-| Common-block track | Same complete source pages and citation framing; oversized whole blocks are skipped |
-| Native excerpt track | Book and the repository's scoped flat-FTS, recent-history and no-memory strategies |
-| Model or coding evaluation | No coding LLM, independently held-out task set or generated-code accuracy measurement |
+| Questions | 80 total: 72 answerable, 8 missing-evidence queries |
+| Denominators | 80 required evidence spans; 48 fixed-policy cases |
+| External candidate boundary | Same original page bodies, exact project scope, at most 5 native candidates |
+| Common packing | Original whole blocks with citation framing; oversized blocks are skipped |
+| Native excerpt track | Book plus repository flat-FTS, recent-history and no-memory strategies |
+| Excluded conclusions | Coding-LLM accuracy, independent holdout performance, production task success, universal superiority |
 
-The current Book rows were replayed from the published wheel. External rows
-retain the original pinned component executions, whose Book outputs match the
-current replay exactly. Their configurations are explicitly limited:
+The six original external executions and the three new ones have identical
+dataset and all six checkpoint page-bundle digests, with 24/56/80/104/120/144
+visible pages. New executions rebuild native indexes at each checkpoint;
+they do not establish native update/delete correctness. The final checkpoint
+has only 44 distinct page bodies among 144 pages, including repeated maintenance
+text. This limits the fixture's discrimination.
 
-| Component | Executed mode |
-|---|---|
-| billion-context | Pinned search kernel over supplied original pages |
-| claude-mem | Raw-observation FTS; observer/summarization workflow excluded |
-| Basic Memory | Explicit FTS; default full hybrid workflow excluded |
-| Mem0 | `infer=False`, Chroma provider; fact extraction excluded |
-| Chroma | Vector retrieval using the pinned local MiniLM representation |
-| LangGraph Store | Indexed store using the same MiniLM representation |
+## Complete common-block results
 
-The three MiniLM configurations were executed separately. Their equal scores
-are correlated: this fixture gives them the same ordered page-body sequence,
-although candidate IDs can differ for repeated maintenance text. They are
-grouped in the README to make this dependence visible. The final checkpoint
-contains 144 pages but only 44 distinct bodies, including 96 maintenance pages
-with eight distinct bodies. [Pinned protocol](../benchmarks/competitors/memory-systems-plan.md)
-· [Complete retained component report](../benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/report.json)
-· [Shared representation analysis](shared-minilm-audit.md).
+Historical rows retain their original pinned runs. BM25S and Haystack are new
+executions of actual upstream library/framework APIs. Memvid's configured-query
+limitation is disclosed separately below instead of presented as a product score.
 
-## Complete quality results
-
-### Common-block comparison
-
-| Component | Budget | Evidence spans | Complete cases | Fixed-policy passes | Stale-only cases | Mean characters |
+| Component / tested mode | Budget | Required spans | Complete cases | Fixed-policy checks | Stale-only | Mean characters |
 |---|---:|---:|---:|---:|---:|---:|
-| **Current Book** | 2,400 | **80/80** | **72/72** | **48/48** | **0** | 1,799.2 |
-| billion-context | 2,400 | 72/80 | 64/72 | 40/48 | 0 | 1,955.0 |
-| claude-mem FTS | 2,400 | 72/80 | 64/72 | 40/48 | 0 | 1,488.5 |
-| Basic Memory FTS | 2,400 | 72/80 | 64/72 | 40/48 | 0 | 1,333.1 |
+| **Book, source replay** | 2,400 | **80/80** | **72/72** | **48/48** | **0** | 1,799.2 |
+| BM25S 0.3.16, native defaults | 2,400 | 80/80 | 72/72 | 48/48 | 0 | 1,846.7 |
+| Haystack 3.5.0, native BM25 | 2,400 | 74/80 | 66/72 | 42/48 | 0 | 1,884.7 |
+| billion-context, pinned search kernel | 2,400 | 72/80 | 64/72 | 40/48 | 0 | 1,955.0 |
+| claude-mem, supplied-observation FTS | 2,400 | 72/80 | 64/72 | 40/48 | 0 | 1,488.5 |
+| Basic Memory, explicit FTS | 2,400 | 72/80 | 64/72 | 40/48 | 0 | 1,333.1 |
 | Each shared-MiniLM configuration | 2,400 | 55/80 | 47/72 | 25/48 | 4 | 1,963.0 |
-| **Current Book** | 1,200 | **76/80** | **68/72** | **44/48** | **4** | 1,048.1 |
-| billion-context | 1,200 | 72/80 | 64/72 | 40/48 | 0 | 948.5 |
-| claude-mem FTS | 1,200 | 72/80 | 64/72 | 40/48 | 0 | 848.0 |
-| Basic Memory FTS | 1,200 | 72/80 | 64/72 | 40/48 | 0 | 948.5 |
+| **Book, source replay** | 1,200 | **76/80** | **68/72** | **44/48** | **4** | 1,048.1 |
+| BM25S 0.3.16, native defaults | 1,200 | 80/80 | 72/72 | 48/48 | 0 | 1,045.3 |
+| Haystack 3.5.0, native BM25 | 1,200 | 74/80 | 66/72 | 42/48 | 0 | 969.9 |
+| billion-context, pinned search kernel | 1,200 | 72/80 | 64/72 | 40/48 | 0 | 948.5 |
+| claude-mem, supplied-observation FTS | 1,200 | 72/80 | 64/72 | 40/48 | 0 | 848.0 |
+| Basic Memory, explicit FTS | 1,200 | 72/80 | 64/72 | 40/48 | 0 | 948.5 |
 | Each shared-MiniLM configuration | 1,200 | 55/80 | 47/72 | 25/48 | 4 | 1,036.7 |
 
-At 2,400 characters, current Book recovers eight more complete cases than each
-tested lexical component (**11.11 percentage points**) and 25 more than the
-shared-MiniLM group (**34.72 points**). Its mean context is **7.97% shorter** than
-billion-context's, while it returns more text than the two other FTS components.
-The mean-character values are packer measurements, not model-token or billing
-costs. Rounding is to one decimal; the verification JSON retains exact values.
+**BM25S ties Book's complete-evidence and policy counts at 2,400 and leads at
+1,200 characters.** At 2,400 Book finds six more complete cases than Haystack
+and eight more than each of the three historical lexical modes. At 1,200
+Book's four stale-only cases are retained. A better aggregate does not imply a
+win on every question. Character counts are not token counts or billing costs.
 
-At 1,200 characters, Book's common-block packer still has four stale-only
-training-decision cases: two replacement decisions and two long-gap queries.
-Each tested lexical competitor wins those four cases and loses eight others
-to Book. The aggregate improvement does not mean every question improves.
+Mem0 (`infer=False`, Chroma provider), Chroma and LangGraph Store were executed
+separately with the same real local MiniLM representation. Their scores are
+correlated, not three independent model evaluations. Mem0 fact extraction,
+claude-mem's observer and Basic Memory's full default hybrid workflow were not
+run. Haystack/BM25S do not constitute complete memory products. Source mapping
+checks belong to the experiment's adapter boundary, not identical native
+citation functionality. [All modes and official sources](open-source-memory-comparison.md).
 
-### Native excerpt strategies
+BM25S completes 8/8 cases in each answerable category. Haystack has 2/8 for
+historical decisions and 8/8 in the other answerable categories. Detailed
+historical categories and all per-question records remain in their original
+reports. All eight scored external configurations and Book return context for
+the eight missing-evidence queries; that is not a measurement of refusal or
+invented answers by a model.
 
-| Strategy | Budget | Evidence spans | Complete cases | Fixed-policy passes | Stale-only cases | Mean characters |
+### Memvid: retained empty-query result and separate diagnosis
+
+`memvid-sdk==2.0.160`, explicit `mode="lex"`, returned native `hits=[]` for all
+80 unchanged natural-language questions in all three repetitions. This is an
+actual execution result, not adapter filtering or an invented failure score.
+Its 0/72 complete-evidence count remains in the raw report; the README reports
+the query limitation instead of calling the whole product inferior.
+
+A separately recorded 14-call diagnosis uses the first checkpoint's unchanged
+pages. The original full question returns no hits both with and without scope.
+Original-text keywords such as `edge_policy` and `routing` return source-verified
+pages; `edge_policy routing kernel` also returns hits, while `current edge_policy`
+does not. These controls demonstrate a usable index and a query-behavior
+boundary in this configuration. They do not identify every internal matcher
+rule or justify replacing scored questions with rewritten ones. An all-empty
+result is not evidence of calibrated abstention.
+
+The pinned API normalizes whitespace and adds metadata framing. Validation
+compares full normalized text and native frame/URI/project/title/time identities
+before mapping to the supplied original page bytes. It does not establish
+byte-exact native source reading. The original wheel's one inconsistent RECORD
+entry and absent-scope native error are disclosed in the fixed protocol.
+
+[Protocol and pre-quality failures](../benchmarks/competitors/extended-lexical-plan.md)
+· [Formal report](../benchmarks/reports/v0.11-extended-lexical/attempt1/report.json)
+· [Independent audit](../benchmarks/reports/v0.11-extended-lexical/attempt1/audit.json)
+· [Exact counts](../benchmarks/reports/v0.11-extended-lexical/verified-metrics.json)
+· [Diagnostic](../benchmarks/reports/v0.11-extended-lexical/memvid-query-diagnostic-1/report.json)
+· [Original-byte restoration and reproduction](../benchmarks/reports/v0.11-extended-lexical/README.md).
+
+## Native excerpt strategies
+
+| Strategy | Budget | Required spans | Complete cases | Fixed-policy checks | Stale-only | Mean characters |
 |---|---:|---:|---:|---:|---:|---:|
-| **Current Book** | 2,400 | **80/80** | **72/72** | **48/48** | **0** | 1,799.2 |
+| Book | 2,400 | 80/80 | 72/72 | 48/48 | 0 | 1,799.2 |
 | Scoped flat FTS | 2,400 | 60/80 | 52/72 | 28/48 | 14 | 1,801.3 |
 | Recent history | 2,400 | 64/80 | 56/72 | 32/48 | 0 | 2,260.9 |
 | No memory | 2,400 | 0/80 | 0/72 | 0/48 | 0 | 0.0 |
-| **Current Book** | 1,200 | **76/80** | **68/72** | **48/48** | **0** | 1,195.9 |
+| Book | 1,200 | 76/80 | 68/72 | 48/48 | 0 | 1,195.9 |
 | Scoped flat FTS | 1,200 | 56/80 | 48/72 | 28/48 | 14 | 1,154.0 |
 | Recent history | 1,200 | 40/80 | 32/72 | 16/48 | 0 | 1,184.0 |
 | No memory | 1,200 | 0/80 | 0/72 | 0/48 | 0 | 0.0 |
 
-At 2,400 characters, Book recovers **20 more complete cases than flat FTS** and
-**16 more than recent history**, with **20.42% fewer mean context characters**
-than recent history. These repository strategies are practical baselines, not
-additional external products. Native excerpt and common-block results remain
-separate, especially at the smaller budget.
-Recent history has shorter citation headings and no top-five candidate limit.
+At 2,400 characters Book recovers 20 more complete cases than scoped flat FTS
+and 16 more than recent history with 20.42% fewer mean context characters.
+These are repository strategies, not additional external products. Recent
+history has shorter citation headings and no top-five candidate limit. Book's
+native excerpt policy result at 1,200 must not be substituted for its different
+common-block result when comparing external components.
 
-All eight missing-evidence queries return related context for Book and each
-tested external component. Thus 80/80 evidence spans and 72/72 complete cases
-do not establish 80/80 answer correctness, abstention, real task completion or
-general performance on unseen data. The fixed-policy consumer selects recorded
-policies and executes handwritten variants; it is not a coding model.
+## Historical performance, not new runtime timings
 
-## Performance figures shipped with the current release
+The README's semantic/directory figures retain the original
+[v0.10 component experiment](comprehensive-v010-validation.md), including its
+small-fixture regressions and rejected first directory candidate. Its native
+figures retain the [earlier native-core experiment](native-core-validation.md),
+including slower rounds, startup and resource costs. No timing from those hosts
+is assigned to v0.11. Current-state recall and directory transaction behavior
+have changed; identical C/header bytes prove component continuity only.
 
-| Figure / claim | Evidence type | Exact source |
-|---|---|---|
-| Native-core recall/MCP and ingestion reductions | Retained frozen native-core experiment; implementation is still shipped, timing not rerun for this README | [Native-core validation](native-core-validation.md) |
-| Semantic latency and tracked allocations; model-file read/hash work | Frozen measurement of the semantic implementation shipped in the current release | [Semantic raw report](https://github.com/Afloat16/AI-Memory-Book/blob/780a99faa71da50eb0bf6e290fddc765e2b49b43/raw/reports/semantic-runtime.json) |
-| Directory latency, SELECT counts and bounded preview reads | Frozen accepted directory comparison on the current implementation | [Directory raw report](https://github.com/Afloat16/AI-Memory-Book/blob/248e74ee4aabd7f53835e5aead67aa8e8f63abbb/raw/reports/directory-runtime.json) |
-| All regressions, rejected candidate and interpretation limits | Retained acceptance decision | [Current runtime validation](comprehensive-v010-validation.md) |
-| 30 native cells, 67 public assets and actual published installer | Final source-bound publication audit | [Publication proof](https://github.com/Afloat16/AI-Memory-Book/blob/2f57e03299ddc350c773fe3bc2fc528e1b13dbd8/benchmarks/reports/comprehensive-v010/publication-proof/README.md) |
+The new current-revision three-repeat probes are development diagnostics,
+including a configuration slower than baseline. No cross-component speed
+ranking, whole-system speedup or combination of percentages is claimed.
+[New probe details and limits](v0.11.0-validation.md#current-revision-recovery).
 
-The current replay verifies that all six native C/header files are byte-identical
-to measured native-core source `238c8058f723a203eaca99f94d924ab77de4c0b3`; the
-`MemoryBook.recall` method AST is also identical. Only `chapter` changes among
-the class methods. This supports identifying the retained implementation, not
-assigning its earlier host's elapsed times to the newly built wheel.
+## Reproduce without replacing evidence
 
-Performance percentages from different experiments are not multiplied or added.
-The semantic and directory figures are warm synthetic component measurements.
-Tracked allocation is not total process RSS; mocked model initialization excludes
-real tokenizer parsing, ONNX loading and inference. Small-fixture regressions
-and all paired rounds remain in the linked reports.
+Every output path must be new. The source replay driver requires immutable
+baseline/candidate directories whose tracked runtime bytes match their Git
+commits; it retains failures and independently recomputes scores. Run the
+[driver](../scripts/validate_v011_engineering.py) with `--baseline-source`,
+`--candidate-source`, `--candidate-commit` and a new `--output` directory.
+Native snapshots need a compatible built extension matching their recorded C
+source. Directory v1 and v2 retain their separate preregistered protocol hashes.
 
-## Reproduce the current quality check
-
-Use a checkout containing this replay script and the released Git objects.
-Download the matching native wheel and `release-manifest.json` from the
-[current release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.10.0).
-This example uses the same CPython 3.12 Linux x86_64 package as the recorded replay:
-
-```sh
-python3.12 -m venv .artifacts/readme-venv
-.artifacts/readme-venv/bin/python -I -m pip install --no-index --no-deps ./ai_memory_book-0.10.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
-.artifacts/readme-venv/bin/python -I scripts/verify_current_readme_results.py \
-  --wheel ./ai_memory_book-0.10.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl \
-  --manifest ./release-manifest.json \
-  --output .artifacts/readme-replay-new
-```
-
-The output must be new. The script refuses changed evaluator inputs or a wheel
-that differs from its manifest and released source. It preserves raw evaluator
-records with lossless compression, records exact hashes, and reports failed
-comparisons without replacing them with a successful run. External engines are
-not prepared or executed. Their pinned versions, original calls, source maps,
-failure records and full product-mode limitations remain in the archived reports.
+For new upstream components, use the exact hash-pinned environment and commands
+in [the extension protocol](../benchmarks/competitors/extended-lexical-plan.md).
+The evidence recovery helper restores compressed original records into a new
+directory and checks both compressed and original-byte hashes before the frozen
+offline evaluator runs. It does not redo quality searches or revise scores.

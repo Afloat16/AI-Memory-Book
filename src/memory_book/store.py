@@ -23,7 +23,7 @@ from .text import (IDENTIFIER_WORD_BOUNDARY, estimate_tokens, excerpt, headline,
 SCHEMA_VERSION = 4
 INDEX_VERSION = 3
 LEXICAL_INDEX_VERSION = 1
-RECALL_VERSION = 17
+RECALL_VERSION = 18
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -695,6 +695,58 @@ def _declaration_groups(db: sqlite3.Connection, pool: list[dict], matched: dict[
                     "basis": "same field and remaining query facets; syntax is not authority"}
 
 
+def _qualify_revision_proposals(db: sqlite3.Connection, pool: list[dict],
+                                matched: dict[int, set[str]], contents: dict[int, str],
+                                references: dict[int, str], *, declarations: bool,
+                                diagnostics: dict | None) -> tuple[list[dict], dict, dict]:
+    """Check supplements before they can take any original relevance slot.
+
+    The original pool retains its existing unclassified-prose fallback. An
+    added page must instead have a complete, independently authenticated turn
+    declaring the same fields and remaining query facets as an original page
+    in the same chapter. A proposal cannot authenticate another proposal.
+
+    Rejected text must not supply field spellings to the retained pool. Repeat
+    analysis on the smaller set until stable, without moving pages or scores.
+    Each non-final pass removes at least one of the at-most-96 proposals; raw
+    source pages have already been read under recall's existing snapshot.
+    """
+    proposed = {item["rid"] for item in pool if item.get("_revision_proposal")}
+    passes = 0
+    while True:
+        refined, diagnostic = {}, {}
+        if declarations and len(pool) > 1:
+            refined, diagnostic = _declaration_groups(db, pool, matched, contents, references)
+            passes += 1
+        if not proposed:
+            break
+        comparable = set()
+        for (_, subjects, _), positions in refined.items():
+            if subjects and any(not pool[i].get("_revision_proposal") for i in positions):
+                comparable.update(pool[i]["rid"] for i in positions)
+        rejected = {item["rid"] for item in pool
+                    if item.get("_revision_proposal") and item["rid"] not in comparable}
+        if not rejected:
+            break
+        pool = [item for item in pool if item["rid"] not in rejected]
+        retained = {item["rid"] for item in pool}
+        matched = {rid: terms for rid, terms in matched.items() if rid in retained}
+        contents = {rid: body for rid, body in contents.items() if rid in retained}
+        references = {rid: refs for rid, refs in references.items() if rid in retained}
+        proposed.difference_update(rejected)
+    expansion = diagnostics.get("candidate_expansion") if diagnostics is not None else None
+    if expansion is not None:
+        qualified = sum(bool(item.get("_revision_proposal")) for item in pool)
+        expansion.update({
+            "qualification": "complete_source_declaration_with_original_pool_anchor",
+            "qualification_passes": passes,
+            "qualified_proposals": qualified,
+            "rejected_before_ordering": expansion["added_to_pool"] - qualified,
+            "qualified_pool_size": len(pool),
+        })
+    return pool, refined, diagnostic
+
+
 def _prefer_current_pool(db: sqlite3.Connection, pool: list[dict],
                          matched: dict[int, set[str]], *,
                          distinct: bool, declarations: bool = True,
@@ -733,23 +785,28 @@ def _prefer_current_pool(db: sqlite3.Connection, pool: list[dict],
                 ",".join("?" for _ in ids) + ")", ids):
             contents[row["rid"]] = row["content"]
             references[row["rid"]] = row["source_refs"]
-    if declarations:
-        refined, diagnostic = _declaration_groups(db, pool, matched, contents, references)
-        if diagnostic and diagnostics is not None:
-            diagnostics["declaration_ordering"] = diagnostic
-        if refined:
-            groups = refined
-            # A prose spelling and an identifier alias may now share a field;
-            # include any newly comparable same-session source positions.
-            repeated = set()
-            for positions in groups.values():
-                sessions = {}
-                for i in positions:
-                    item = pool[i]
-                    sessions.setdefault((item["project_id"], item["session_id"]), []).append(item["rid"])
-                for ids in sessions.values():
-                    if len(ids) > 1:
-                        repeated.update(ids)
+    pool, refined, diagnostic = _qualify_revision_proposals(
+        db, pool, matched, contents, references, declarations=declarations, diagnostics=diagnostics)
+    if diagnostic and diagnostics is not None:
+        diagnostics["declaration_ordering"] = diagnostic
+    # Qualification can remove supplementary pages. Rebuild positional groups
+    # before any permutation; original unclassified pages keep their fallback.
+    groups = {}
+    for i, item in enumerate(pool):
+        if matched[item["rid"]]:
+            key = (item["chapter_id"], frozenset(matched[item["rid"]]))
+            groups.setdefault(key, []).append(i)
+    if refined:
+        groups = refined
+    repeated = set()
+    for positions in groups.values():
+        sessions = {}
+        for i in positions:
+            item = pool[i]
+            sessions.setdefault((item["project_id"], item["session_id"]), []).append(item["rid"])
+        for ids in sessions.values():
+            if len(ids) > 1:
+                repeated.update(ids)
     for rid in repeated:
         turn = _latest_matching_turn(contents[rid], references[rid], matched[rid])
         if turn is not None:
@@ -776,16 +833,20 @@ def _prefer_current_pool(db: sqlite3.Connection, pool: list[dict],
 
 def _admit_revision_proposals(pool: list[dict], deferred: list[dict],
                               diagnostics: dict) -> tuple[list[dict], list[dict]]:
-    """Discard new chronology hits that never inherited a comparable slot."""
+    """Keep only already-qualified proposals that have a relevance slot."""
     expansion = diagnostics.get("candidate_expansion")
     if expansion is None:
         return pool, deferred
     rejected = {item["id"] for item in (*pool, *deferred)
                 if item.get("_revision_proposal") and item["score"] <= 0}
-    expansion["unmatched_proposals"] = len(rejected)
-    expansion["admitted_proposals"] = expansion["new_candidates"] - len(rejected)
-    return ([item for item in pool if item["id"] not in rejected],
-            [item for item in deferred if item["id"] not in rejected])
+    pool = [item for item in pool if item["id"] not in rejected]
+    deferred = [item for item in deferred if item["id"] not in rejected]
+    admitted = [item for item in (*pool, *deferred) if item.get("_revision_proposal")]
+    expansion["scoreless_proposals"] = len(rejected)
+    expansion["unmatched_proposals"] = expansion["added_to_pool"] - len(admitted)
+    expansion["admitted_proposals"] = len(admitted)
+    expansion["admitted_new_candidates"] = sum(bool(item.get("_revision_discovered")) for item in admitted)
+    return pool, deferred
 
 
 class _RecallCandidates(dict):
@@ -1493,9 +1554,10 @@ class MemoryBook:
         """Extend an existing task's comparison pool with bounded recent hits.
 
         BM25's top 96 and the result-size-derived pool can hide a short recent
-        correction beneath repeated earlier text. Recent pages are proposals,
-        not answers: only the existing same-task/field/facet comparison can
-        give them an established relevance slot. New tasks cannot enter here.
+        correction beneath repeated earlier text. Every supplement is a
+        proposal, including previously ranked tail pages. Only authenticated
+        declarations comparable to an original same-task/field/facet anchor
+        can take a relevance slot. New tasks cannot enter here.
 
         At most 96 recent rows are retained across the leading chapters, with
         an equal per-chapter quota when the original route was truncated.
@@ -1546,22 +1608,29 @@ class MemoryBook:
                     # No new relevance score is invented for a chronological
                     # proposal. It can enter returned evidence only by taking
                     # the slot of a comparable, already ranked source.
-                    item = {**dict(row), "rank": 0.0, "score": 0.0, "_revision_proposal": True}
+                    item = {**dict(row), "rank": 0.0, "score": 0.0, "_revision_discovered": True}
                     discovered += 1
-                pool.append(item)
+                # Existing tail scores and positions must survive rejection.
+                # Both known tail pages and newly discovered pages qualify
+                # before any score permutation or same-text de-duplication.
+                pool.append({**item, "_revision_proposal": True})
         diagnostics["candidate_expansion"] = {
             "route": "recent_exact_body_matches_in_leading_chapters",
             "metadata_source": "complete_exact_route" if exact_complete else "scoped_fts_chronology",
             "ordering_fields": ["sessions.created_at DESC", "sessions.id", "sections.ordinal DESC", "pages.ordinal DESC", "pages.id"],
             "candidate_limit": 96, "returned": returned, "added_to_pool": added,
             "new_candidates": discovered, "pool_size": len(pool),
+            "original_pool_size": pool_size,
+            "proposed_existing_candidates": added - discovered,
             "chapters_not_expanded": max(0, len(chapter_ids) - len(selected_chapters)),
             "chapter_routes": quotas,
             "scope_before_limit": True,
             "database_scan_bounded": exact_complete,
             "basis": "Recent matches only propose comparable revisions; timestamps and syntax do not establish authority.",
         }
-        return pool, [item for item in candidates[pool_size:] if item["id"] not in seen]
+        # Only finally admitted copies are removed from the original tail by
+        # the caller. Rejected copies leave its exact order and scores intact.
+        return pool, list(candidates[pool_size:])
 
     def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 2400, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False, temporal: str = "auto") -> dict:
         """Recall source evidence with optional current-state ordering.
@@ -1854,6 +1923,9 @@ class MemoryBook:
                             chosen.append(item)
                             covered.update(matched[item["rid"]])
                         selected = chosen + pending + deferred
+                    if current_query and semantic_model is None:
+                        retained = {item["id"] for item in selected}
+                        tail = [item for item in tail if item["id"] not in retained]
                     candidates = selected + tail
                 facets = (_query_facets(query) if coverage and strategy == "book" and limit > 1 and
                           not current_query and not temporal_intent.get("current_cues") and
@@ -1920,7 +1992,8 @@ class MemoryBook:
                             distinct=limit > 1 and not temporal_intent["preserve_occurrences"],
                             declarations=not temporal_intent["preserve_occurrences"], diagnostics=temporal_intent)
                         pool, deferred = _admit_revision_proposals(pool, deferred, temporal_intent)
-                        candidates = pool + deferred + tail
+                        retained = {item["id"] for item in (*pool, *deferred)}
+                        candidates = pool + deferred + [item for item in tail if item["id"] not in retained]
                 if candidates:
                     selected_ids = [item["id"] for item in candidates[:limit]]
                     sources = {row["id"]: dict(row) for row in self.db.execute(

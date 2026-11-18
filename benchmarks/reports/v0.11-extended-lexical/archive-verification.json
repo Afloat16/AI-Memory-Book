@@ -1,0 +1,114 @@
+{
+  "format": "memory-book-raw-archive-verification-v1",
+  "status": "verified",
+  "verified_at": "2026-11-18T03:09:16.636935+00:00",
+  "manifest_sha256": "714b77d0cbe2b5972a824eb631e1e5ce1fc8643b0c6e8de3a299e6aad82809ed",
+  "restore_script": "benchmarks/experiments/restore_extended_raw.py",
+  "restore_script_sha256": "9bde44058fbb8eaf0984060c8b1551d9948ec733816d59df9a0d36f3f3b105f0",
+  "archived_files": [
+    {
+      "path": "attempt1/attempts.jsonl",
+      "original_bytes": 2801322,
+      "original_sha256": "3fe8e36c4971a5d566774001b715f033d554a2af504615a8ec844c3c190b42ca",
+      "restored_byte_equal": true
+    },
+    {
+      "path": "attempt1/native.jsonl",
+      "original_bytes": 2655062,
+      "original_sha256": "355a224ab0a84e1e76cd9705c387543f60988138eefb9ce0e7de004a05c8f36c",
+      "restored_byte_equal": true
+    },
+    {
+      "path": "attempt1/raw.jsonl",
+      "original_bytes": 1593325,
+      "original_sha256": "9556e3993e1f0ec0dc6255cd8272d6dc5b5019de82dfcd345c952c8aaea5dff1",
+      "restored_byte_equal": true
+    }
+  ],
+  "raw_bytes": 7049709,
+  "gzip_bytes": 211128,
+  "preserved_file_count": 65,
+  "preserved_files_verified": true,
+  "frozen_evaluator_commit": "db96c704a26be944399ec491630da73de8c5dd71",
+  "frozen_evaluator_sha256": "249556338fef641eb6221daf5796cba792dbe10047f795f7e323a2d6bcca933a",
+  "all_frozen_closure_files_equal": true,
+  "restored_output": "/workspace/scratch/ebe841daad4b/v011-extended-restored-final",
+  "restored_offline_audit": {
+    "status": "verified",
+    "packed_responses": 480,
+    "native_calls": 720,
+    "command": "PYTHONPATH=src python -m benchmarks.extended_components --audit --output /workspace/scratch/ebe841daad4b/v011-extended-restored-final/attempt1",
+    "cwd": "/workspace/scratch/ebe841daad4b/v011-frozen-evaluator",
+    "original_audit_sha256": "a2181128a2e7595a1eb44efc444f33d10b7635a30955ef3617de7ea8b8d83d4c",
+    "restored_audit_sha256": "a2181128a2e7595a1eb44efc444f33d10b7635a30955ef3617de7ea8b8d83d4c",
+    "audit_bytes_identical": true
+  },
+  "historical_source_alignment": {
+    "report_path": "benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/report.json",
+    "report_sha256": "e2d381025085a032790f89d3ab2b9122cfd1ed6405dc04aafafd58f671a1c370",
+    "dataset_sha256": "87e8ccad3510fb7e8a4c68c9fa3f284473abf8381ef6444ad179e3d4196b3ac3",
+    "all_six_checkpoints_equal": true,
+    "checkpoints": [
+      {
+        "checkpoint": 1,
+        "documents": 24,
+        "documents_sha256": "29286edfb7e6112fba116b77c83ebf18dfc2476356debb8765bc92ca8a587922"
+      },
+      {
+        "checkpoint": 2,
+        "documents": 56,
+        "documents_sha256": "3c4dbf35aeaa85c5eb531aeb9d8ac53bd938604f04d929dae017fd3a7f2b969c"
+      },
+      {
+        "checkpoint": 3,
+        "documents": 80,
+        "documents_sha256": "50125d139b79e164522ac668b650a1c2061a28f4e9bbb3032215703285c369c8"
+      },
+      {
+        "checkpoint": 4,
+        "documents": 104,
+        "documents_sha256": "f95e4c5e253d54da77702f6ad8ff11b5143183e52e217bed1d18a7582e4aa2c9"
+      },
+      {
+        "checkpoint": 5,
+        "documents": 120,
+        "documents_sha256": "2410584ca0b58cc6615a24903b30651eedfa3faff25add1fa80afb147063fd1f"
+      },
+      {
+        "checkpoint": 6,
+        "documents": 144,
+        "documents_sha256": "5270141928756ae99f601819222c5ffa6af7a10d2cda6bfef23dbda6d65f86c4"
+      }
+    ]
+  },
+  "restore_tests": {
+    "status": "passed",
+    "tests": 4,
+    "command": "TMPDIR=/workspace/scratch/ebe841daad4b python -m unittest discover -s tests -p test_extended_archive.py -v",
+    "tests_sha256": "0c8ab08f46647777fe304cb14c173b451581133642083a36d32d1a855437bff5",
+    "coverage": [
+      "actual original audit file identities",
+      "existing destination rejected without modification",
+      "corrupt gzip rejected",
+      "relative traversal rejected",
+      "Windows drive and alternate stream paths rejected",
+      "UNC paths rejected",
+      "duplicate destination rejected",
+      "symlinked source rejected"
+    ],
+    "runner_preparation": "Initial python -m pytest invocation could not collect tests because pytest is not installed. Tests use standard-library unittest and add no dependency."
+  },
+  "scope_count": {
+    "external_project_families": 21,
+    "library_or_framework_families": 4,
+    "note": "Documentation coverage, not 21 complete memory products tested. Memvid empty natural-language lexical queries remain a separate diagnostic."
+  },
+  "original_raw_storage": "Original JSONL files removed from repository only after gzip roundtrip and independent frozen offline audit succeeded. Exact restored bytes remain in the recorded fresh output. Original report and audit files remain unchanged.",
+  "cleanup": "Removed only the empty diagnostic-process-tmp created by this diagnostic; all logs, failures and diagnostic state retained.",
+  "prior_restore": {
+    "output": "/workspace/scratch/ebe841daad4b/v011-extended-restored",
+    "audit_bytes_identical": true,
+    "manifest_sha256": "23936aab1d89928213545fb22bfb294053bb3ec18a86da62504863f0d9833d3b",
+    "note": "The final README reproduction command now explicitly sets PYTHONPATH=src; its manifest entry was updated and a new output directory was restored and audited again."
+  }
+}

@@ -93,6 +93,11 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
             tools.append(ListToolsResult(tools=listed).model_dump_json(exclude_none=True))
             recall = next(tool for tool in listed if tool.name == "recall_memory")
             self.assertNotIn("source_format", recall.inputSchema["properties"])
+            directory = next(tool for tool in listed if tool.name == "search_directory")
+            self.assertEqual(set(directory.inputSchema["properties"]), {"query", "project", "chapter", "limit", "offset"})
+            self.assertEqual(directory.inputSchema["required"], ["query"])
+            self.assertEqual(directory.inputSchema["properties"]["limit"]["default"], 10)
+            self.assertEqual(directory.inputSchema["properties"]["offset"]["default"], 0)
         self.assertEqual(tools[0], tools[1])
         # Exact frozen SDK representation is version-scoped; field compatibility
         # between modes is checked above on every installed supported SDK.
@@ -137,7 +142,12 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
                 self.assertNotIn("project", navigation["properties"])
                 self.assertEqual(navigation["required"], [identity])
                 navigation["properties"]["project"] = copy.deepcopy(project_schema)
-            self.assertEqual(tools[0], compact(expected))
+            # v0.11 adds one independently checked navigation tool. Every
+            # historical tool still has the exact approved representation.
+            existing = json.loads(tools[0])
+            self.assertEqual(sum(tool["name"] == "search_directory" for tool in existing["tools"]), 1)
+            existing["tools"] = [tool for tool in existing["tools"] if tool["name"] != "search_directory"]
+            self.assertEqual(compact(existing), compact(expected))
 
     async def test_real_cli_modes_preserve_defaults_and_full_provenance(self):
         from memory_book import MemoryBook
@@ -168,6 +178,12 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
                             "intent conservatively; current prefers comparable recent evidence; relevance\n"
                             "keeps relevance ordering. Neither resolves authority or an as-of state.\n"
                             "read_page also supplies full provenance. Empty results prove no\n", 1)
+                        navigation = "Use context and source_refs to cite session_id/turn_index. Read selected page IDs\n"
+                        self.assertEqual(expected.count(navigation), 1)
+                        expected = expected.replace(navigation,
+                            "Use search_directory when you know a task title or question but not its address;\n"
+                            "it returns chapter/section navigation, not answer evidence. Keep the same project\n"
+                            "when following those addresses with browse_chapter, browse_section or read_page.\n" + navigation, 1)
                         expected += INDEXED_REFERENCE_INSTRUCTIONS if selected == "indexed" else ""
                         self.assertEqual(initialized.instructions, expected)
                         listed = await client.list_tools()

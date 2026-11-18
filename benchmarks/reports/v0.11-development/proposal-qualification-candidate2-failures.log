@@ -1,0 +1,81 @@
+Candidate 2, before production fix
+store.py SHA256=5148a142d5f2283a0f29f7840559f1c755c2b77a98d16e3f18cca79188be1e09
+test_duplicate_text_cannot_replace_independent_source_authentication (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_duplicate_text_cannot_replace_independent_source_authentication) ... 
+  test_duplicate_text_cannot_replace_independent_source_authentication (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_duplicate_text_cannot_replace_independent_source_authentication) (limit=5) ... FAIL
+test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot) ... 
+  test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot) (old_sessions=8) ... FAIL
+  test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot) (old_sessions=120) ... FAIL
+test_noncurrent_paths_do_not_enter_proposal_qualification (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_noncurrent_paths_do_not_enter_proposal_qualification) ... ok
+test_occurrence_query_keeps_the_original_pool_and_tail (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_occurrence_query_keeps_the_original_pool_and_tail) ... FAIL
+test_original_unclassified_pool_keeps_its_existing_fallback (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_original_unclassified_pool_keeps_its_existing_fallback) ... ok
+test_proposal_requires_an_original_declaration_in_its_own_chapter (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_proposal_requires_an_original_declaration_in_its_own_chapter) ... FAIL
+test_rejected_field_example_cannot_change_original_pool_grouping (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_rejected_field_example_cannot_change_original_pool_grouping) ... 
+  test_rejected_field_example_cannot_change_original_pool_grouping (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_rejected_field_example_cannot_change_original_pool_grouping) (limit=1) ... FAIL
+test_semantic_fusion_still_rejects_an_unclassified_chronology_proposal (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_semantic_fusion_still_rejects_an_unclassified_chronology_proposal) ... FAIL
+
+======================================================================
+FAIL: test_duplicate_text_cannot_replace_independent_source_authentication (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_duplicate_text_cannot_replace_independent_source_authentication) (limit=5)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/tests/test_current_proposal_qualification.py", line 166, in test_duplicate_text_cannot_replace_independent_source_authentication
+    self.assertEqual(source_sessions(result)[0], "accepted")
+AssertionError: 'damaged-source' != 'accepted'
+- damaged-source
++ accepted
+
+
+======================================================================
+FAIL: test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot) (old_sessions=8)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/tests/test_current_proposal_qualification.py", line 68, in test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot
+    self.assertIn("The retry limit is three attempts.", result["context"])
+AssertionError: 'The retry limit is three attempts.' not found in '[p_b5b332e08e179a512934b203] alpha / latest-agenda | 2026-10-01T00:00:00+00:00\nUSER: What will the upcoming review discuss?\n\nASSISTANT: Whether the retry limit remains approved will be discussed later. This meeting note provides no new decision. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate…'
+
+======================================================================
+FAIL: test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot) (old_sessions=120)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/tests/test_current_proposal_qualification.py", line 68, in test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot
+    self.assertIn("The retry limit is three attempts.", result["context"])
+AssertionError: 'The retry limit is three attempts.' not found in '[p_b5b332e08e179a512934b203] alpha / latest-agenda | 2026-10-01T00:00:00+00:00\nUSER: What will the upcoming review discuss?\n\nASSISTANT: Whether the retry limit remains approved will be discussed later. This meeting note provides no new decision. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate…'
+
+======================================================================
+FAIL: test_occurrence_query_keeps_the_original_pool_and_tail (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_occurrence_query_keeps_the_original_pool_and_tail)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/tests/test_current_proposal_qualification.py", line 178, in test_occurrence_query_keeps_the_original_pool_and_tail
+    self.assertEqual(evidence_payload(result), evidence_payload(control))
+AssertionError: {'que[63 chars]: 'p_e037ec75fdfdfa85006448e8', 'title': 'Conv[1434 chars]True} != {'que[63 chars]: 'p_00ac5b389a942ffd28427dbf', 'title': 'Conv[1716 chars]True}
+Diff is 5050 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_proposal_requires_an_original_declaration_in_its_own_chapter (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_proposal_requires_an_original_declaration_in_its_own_chapter)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/tests/test_current_proposal_qualification.py", line 149, in test_proposal_requires_an_original_declaration_in_its_own_chapter
+    self.assertEqual(evidence_payload(result), evidence_payload(control))
+AssertionError: {'que[2121 chars]es': 2, 'unclassified_candidates': 3, 'oversiz[109 chars]True} != {'que[2121 chars]es': 1, 'unclassified_candidates': 3, 'oversiz[109 chars]True}
+Diff is 3944 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_rejected_field_example_cannot_change_original_pool_grouping (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_rejected_field_example_cannot_change_original_pool_grouping) (limit=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/tests/test_current_proposal_qualification.py", line 108, in test_rejected_field_example_cannot_change_original_pool_grouping
+    self.assertEqual(evidence_payload(result), evidence_payload(control))
+AssertionError: {'que[45 chars]: 'p_0bdf8bcfeb37295bf4a54b87', 'title': 'Conv[2044 chars]True} != {'que[45 chars]: 'p_f6fb4e26f2e3a76ba0e3850d', 'title': 'Conv[1895 chars]True}
+Diff is 6199 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_semantic_fusion_still_rejects_an_unclassified_chronology_proposal (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_semantic_fusion_still_rejects_an_unclassified_chronology_proposal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/tests/test_current_proposal_qualification.py", line 130, in test_semantic_fusion_still_rejects_an_unclassified_chronology_proposal
+    self.assertIn("The retry limit is three attempts.", result["context"])
+AssertionError: 'The retry limit is three attempts.' not found in '[p_b5b332e08e179a512934b203] alpha / latest-agenda | 2026-10-01T00:00:00+00:00\nUSER: What will the upcoming review discuss?\n\nASSISTANT: Whether the retry limit remains approved will be discussed later. This meeting note provides no new decision. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate administrative scheduling note follows. A separate…'
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.482s
+
+FAILED (failures=7)

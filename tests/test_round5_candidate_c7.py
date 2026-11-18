@@ -1,6 +1,7 @@
 """Exact SDK output scheduling, fallbacks and shutdown without timing claims."""
 import asyncio
 import importlib.util
+import importlib.metadata
 import io
 import json
 from pathlib import Path
@@ -234,8 +235,16 @@ import anyio
 from anyio._core import _fileio
 import mcp.server.fastmcp.server as sdk
 import mcp.server.stdio as stdio
+from importlib.metadata import version
 from memory_book import mcp_server as product
 server = product.create_server(":memory:")
+installed = version("mcp")
+automatic = product._standard_stdio_config(server)
+assert (automatic is not None) == (installed == "1.30.0")
+# Exercise structural guard branches under an explicitly simulated version.
+# This is a unit fixture, not certification of the installed SDK/version.
+version_gate = patch("importlib.metadata.version", return_value="1.30.0")
+version_gate.start()
 assert product._standard_stdio_config(server) is not None
 with patch("importlib.metadata.version", return_value="1.31.0"):
     assert product._standard_stdio_config(server) is None
@@ -278,15 +287,22 @@ alternate = io.TextIOWrapper(io.BytesIO(), encoding="utf-8")
 with patch.object(sys, "stdout", alternate), patch.object(sys, "__stdout__", alternate):
     assert product._standard_stdio_config(server) is None
 assert product._standard_stdio_config(server) is not None
-print(json.dumps({"standard_guard": True, "custom_fallbacks": True}))
+version_gate.stop()
+assert (product._standard_stdio_config(server) is not None) == (installed == "1.30.0")
+print(json.dumps({"standard_guard": True, "custom_fallbacks": True,
+                  "installed_sdk": installed, "automatic_certified": automatic is not None,
+                  "structural_fixture_version": "1.30.0"}))
 '''
         for flags in ([], ["-u"]):
             with self.subTest(flags=flags):
                 result = subprocess.run([sys.executable, *flags, "-c", script, SOURCE],
                                         capture_output=True, text=True, timeout=30)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                installed = importlib.metadata.version("mcp")
                 self.assertEqual(json.loads(result.stdout),
-                                 {"standard_guard": True, "custom_fallbacks": True})
+                                 {"standard_guard": True, "custom_fallbacks": True,
+                                  "installed_sdk": installed, "automatic_certified": installed == "1.30.0",
+                                  "structural_fixture_version": "1.30.0"})
 
     def test_real_sdk_transcript_large_unicode_cache_writes_and_eof(self):
         async def scenario(root, original):
@@ -297,6 +313,8 @@ import io, json, sys
 from pathlib import Path
 sys.path.insert(0, sys.argv[1])
 import anyio
+from importlib.metadata import version
+from mcp.server.stdio import stdio_server
 from memory_book import mcp_server as product
 state = {"selected": [], "closes": 0, "dispatches": {"combined": 0, "write": 0, "flush": 0}}
 original_config = product._standard_stdio_config
@@ -311,11 +329,21 @@ async def observe_dispatch(function, *args, **kwargs):
     return await original_run_sync(function, *args, **kwargs)
 def config(server):
     value = original_config(server)
-    assert value is not None, "default child stdout must qualify"
-    state["selected"].append(sys.argv[4] != "fallback")
-    # Observe only after the genuine SDK/default-stream guards have passed.
+    state["installed_sdk"] = version("mcp")
+    state["automatic_certified"] = value is not None
+    assert (value is not None) == (state["installed_sdk"] == "1.30.0")
+    mode = sys.argv[4]
+    if mode == "combined":
+        # Explicitly exercise the private combined-writer helper against the
+        # real SDK. This test injection does not enable it in production or
+        # claim that an unregistered SDK passed the automatic version gate.
+        value = (stdio_server, sys.stdout.buffer)
+    elif mode == "fallback":
+        value = None
+    state["selected"].append(value is not None)
+    # Observe after the untouched production configuration decision.
     anyio.to_thread.run_sync = observe_dispatch
-    return None if sys.argv[4] == "fallback" else value
+    return value
 product._standard_stdio_config = config
 original_close = product.MemoryBook.close
 def close(book):
@@ -328,7 +356,7 @@ state["buffer_closed"] = sys.stdout.buffer.closed
 Path(sys.argv[3]).write_text(json.dumps(state))
 '''
             transcripts, states = [], []
-            for mode in ("standard", "fallback"):
+            for mode in ("combined", "fallback", "automatic"):
                 database, state = root / (mode + ".db"), root / (mode + ".json")
                 shutil.copyfile(original, database)
                 parameters = StdioServerParameters(command=sys.executable,
@@ -360,14 +388,21 @@ Path(sys.argv[3]).write_text(json.dumps(state))
                 states.append(json.loads(state.read_text()))
                 transcripts.append(results)
             self.assertEqual(transcripts[0], transcripts[1])
+            self.assertEqual(transcripts[1], transcripts[2])
             self.assertEqual(states[0]["selected"], [True])
             self.assertEqual(states[1]["selected"], [False])
             self.assertEqual(states[0]["closes"], 1)
             self.assertEqual(states[1]["closes"], 1)
             self.assertEqual(states[0]["dispatches"], {"combined": 5, "write": 0, "flush": 0})
             self.assertEqual(states[1]["dispatches"], {"combined": 0, "write": 5, "flush": 5})
+            certified = importlib.metadata.version("mcp") == "1.30.0"
+            self.assertEqual(states[2]["selected"], [certified])
+            self.assertEqual(states[2]["closes"], 1)
+            self.assertEqual(states[2]["dispatches"], states[0 if certified else 1]["dispatches"])
+            self.assertTrue(all(state["automatic_certified"] == certified for state in states))
             for field in ("stdout_closed", "buffer_closed"):
                 self.assertEqual(states[0][field], states[1][field])
+                self.assertEqual(states[1][field], states[2][field])
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

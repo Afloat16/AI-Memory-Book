@@ -1,26 +1,28 @@
 # AI-Memory-Book
 
-**Local engineering memory with project boundaries, original evidence and bounded context.**
+**Give AI an addressable book of engineering memory, with a separate book for each project.**
 
-Preserve conversations as project books, task chapters and cited evidence pages. Recover decisions, constraints and failed attempts when a session ends or a client changes.
+Preserve conversations as project books, task chapters, question sections and original evidence pages. Find a chapter from its title or question, then follow its addresses to the source. Similar codebases can reuse task names and parameters while keeping their records in explicit project namespaces. Recover decisions, corrections, constraints and failed attempts when a session ends or a client changes.
 
-**v0.10.0 · MIT · Python 3.10+ · SQLite / FTS5 · Optional native C acceleration**
+**v0.11.0 · MIT · Python 3.10+ · SQLite / FTS5 · Optional native C acceleration**
 
 [简体中文](README.zh-CN.md) · [Results](#evidence-coverage) · [Performance](#performance) · [Quick start](#quick-start) · [How it works](#how-it-works) · [Documentation](#documentation)
 
 ## At a glance
 
-| Complete evidence | Smaller working allocation | Less context than recent history | Verified native delivery |
+| Complete evidence | Directory contracts | Less context than recent history | Original sources |
 |:---:|:---:|:---:|:---:|
-| **72 / 72** answerable cases | **66.31% lower** tracked peak | **20.4% fewer** characters | **30 / 30** build/install cells |
-| Fixed engineering workload, 2,400 characters | 32,768-vector-window fixture | 1,799.2 vs 2,260.9 mean characters | Six Python versions × five targets |
+| **72 / 72** answerable cases | **119 / 119** checks | **20.4% fewer** characters | **161** page reads verified |
+| Fixed engineering workload, 2,400 characters | Authored navigation, pagination and scope fixture | 1,799.2 vs 2,260.9 mean characters | 80 distinct pages in the directory fixture |
 
-These are measured fixture results. Evidence coverage is not coding-model answer accuracy; tracked allocation is not total process memory. [Results, current-release verification and conditions](docs/current-results.md).
+These are measured development-fixture results, not coding-model answer accuracy or independent real-world validation. [Results, source identities and limits](docs/current-results.md).
 
 | What you need | What the current release provides |
 |---|---|
 | Resume an engineering task | Original decisions, later corrections, constraints and failed attempts with source references |
 | Keep similar projects separate | Exact project IDs and project-bound MCP connections, including follow-up page reads |
+| Locate a task from its heading | Indexed title/question/directory search, unique chapter results and scoped follow-up addresses |
+| Recover a brief later correction | Current-state queries supplement already relevant chapters with recent, source-checked comparable candidates |
 | Search code and conversations | Chinese/English lexical retrieval plus acronym, camel-case and snake-case aliases |
 | Control the returned context | A default 2,400-character budget and up to five results; optional exact token caps |
 | Switch clients | One archive shared across supported Claude Code, Codex, Gemini and other integrations |
@@ -34,14 +36,14 @@ Requires **Python 3.10+ with SQLite FTS5**. The installer selects a compatible p
 **macOS / Linux**
 
 ```bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.10.0/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.11.0/scripts/install.sh
 bash install-memory-book.sh
 ```
 
 **Windows PowerShell**
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.10.0/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.11.0/scripts/install.py -OutFile install-memory-book.py
 py -3 -I -X utf8 .\install-memory-book.py
 ```
 
@@ -65,9 +67,9 @@ MCP configuration and native capture have separate support matrices. Tool invoca
 
 ## Evidence coverage
 
-![Complete required evidence on the fixed 2,400-character engineering workload: Book 72 of 72 answerable cases; each tested lexical component 64 of 72; the shared MiniLM configurations 47 of 72.](docs/readme-assets/evidence-coverage.svg)
+![Complete evidence on the fixed 2,400-character workload: Book and BM25S 72/72, Haystack BM25 66/72, three historical lexical modes 64/72, and shared MiniLM modes 47/72.](docs/readme-assets/evidence-coverage.svg)
 
-**Fixed workload:** 8 projects · 4 algorithm families · 6 chronological checkpoints · 80 questions, including 72 answerable cases and 8 missing-evidence queries. The current published native package reproduces **800 scored responses**: only native timing/cache diagnostics are excluded; evidence, ordering, sources and budgets match. [Current replay and exact comparison rules](docs/current-results.md).
+**Fixed workload:** 8 projects · 4 algorithm families · 6 chronological checkpoints · 80 questions, including 72 answerable cases and 8 missing-evidence queries. The baseline and frozen v0.11 algorithm candidate each completed **800 scored responses**. Independent evidence/source/budget checks passed, with **zero per-case score regressions**. This is a fresh source replay, not a claim that a new published wheel has already been verified. [Replay identities and exact conditions](docs/current-results.md).
 
 ### Compared with practical retrieval strategies
 
@@ -82,28 +84,36 @@ MCP configuration and native capture have separate support matrices. Tool invoca
 
 ### Compared with pinned open-source components
 
-Same original pages, project scope, unchanged questions, at most five candidates and a shared **2,400-character whole-block packer**. External rows retain the recorded pinned runs; the Book row is verified with the current published package. The tested modes are shown with the scores.
+Same 80 questions, six chronological checkpoints, original page hashes, project scope, at most five candidates and a shared **2,400-character whole-block packer**. The new Haystack/BM25S runs and six historical external configurations have matching dataset and supplied-page digests. Historical rows retain their original executions; Book is independently replayed on frozen source. These are configured components, not complete-product rankings.
 
 | Component / tested mode | Required spans | Complete evidence | Fixed-policy checks | Stale-only cases | Mean packed characters |
 |---|---:|---:|---:|---:|---:|
 | **AI-Memory-Book** | **80 / 80** | **72 / 72 · 100%** | **48 / 48** | **0** | **1,799.2** |
+| BM25S 0.3.16 · retrieval library, native defaults | 80 / 80 | 72 / 72 · 100% | 48 / 48 | 0 | 1,846.7 |
+| Haystack 3.5.0 · InMemoryBM25Retriever | 74 / 80 | 66 / 72 · 91.67% | 42 / 48 | 0 | 1,884.7 |
 | billion-context · pinned search kernel | 72 / 80 | 64 / 72 · 88.89% | 40 / 48 | 0 | 1,955.0 |
 | claude-mem · raw-observation FTS | 72 / 80 | 64 / 72 · 88.89% | 40 / 48 | 0 | 1,488.5 |
 | Basic Memory · explicit FTS | 72 / 80 | 64 / 72 · 88.89% | 40 / 48 | 0 | 1,333.1 |
 | Mem0 / Chroma / LangGraph · shared MiniLM configurations | 55 / 80 | 47 / 72 · 65.28% | 25 / 48 | 4 | 1,963.0 |
 
-| Measured advantage at this budget | Result |
+| Measured comparison at this budget | Result |
 |---|---|
-| Versus each tested lexical component | **8 more** complete cases; **+11.11 percentage points** |
-| Fixed-policy checks versus each lexical component | **8 more** passes; **+16.67 percentage points** |
+| Versus BM25S at 2,400 characters | **Tied**: 72/72 complete cases and 48/48 fixed-policy checks |
+| Versus Haystack BM25 | **6 more** complete cases; **+8.33 percentage points** |
+| Versus billion-context / claude-mem FTS / Basic Memory FTS | **8 more** complete cases; **+11.11 percentage points** |
+| Fixed-policy checks versus those three historical lexical modes | **8 more** passes; **+16.67 percentage points** |
 | Versus the shared MiniLM group | **25 more** complete cases |
 | Context versus billion-context | **7.97% fewer** packed characters |
 
-Mem0 uses `infer=False`; claude-mem's observer is not run. The three MiniLM interfaces were executed separately but share a representation and have correlated scores. These are configured component comparisons, not full-product rankings. Book returns more text than the two FTS components while recovering additional evidence. [Exact modes, pins and source audit](docs/current-results.md) · [Architecture and deployment comparison](docs/open-source-memory-comparison.md).
+Mem0 uses `infer=False`; claude-mem's observer is not run. The three MiniLM interfaces were executed separately but share a representation and have correlated scores. These are configured component comparisons, not full-product rankings. Book returns more text than claude-mem FTS and Basic Memory FTS while recovering additional evidence. **BM25S ties at 2,400 and leads Book at 1,200 characters**; the smaller-budget comparison is below. [Exact modes, pins and source audit](docs/current-results.md) · [Architecture and deployment comparison](docs/open-source-memory-comparison.md).
+
+**Memvid SDK 2.0.160, lexical mode, was also executed:** every original natural-language question returned an empty native hit list. A separate 14-call diagnosis recovered indexed pages for original-text keyword controls, while the full question still returned no hits with or without project scope. The formal responses are retained; they are reported as a configured-query limitation, not a zero-score product victory or an abstention result. No rewritten query replaces a scored question. [Complete extension, audit and diagnosis](docs/v0.11.0-validation.md#additional-real-upstream-components).
+
+The architecture review covers **21 external project families**, including four store/retrieval libraries or frameworks. **Nine external configurations have been executed**: eight appear in the scored table, while Memvid's query limitation is reported above. Letta, Graphiti, MemOS, Memori, Cognee, OpenViking, Serena, EverOS, SimpleMem, Supermemory, LongMemory and the official MCP memory server receive source-based feature coverage, without invented numerical results. [Scope and upstream references](docs/open-source-memory-comparison.md).
 
 ### Where the additional evidence appears
 
-Complete-evidence counts, **8 cases per scenario**, under the shared whole-block protocol:
+Complete-evidence counts for Book and the **historical external modes**, **8 cases per scenario**, under the shared whole-block protocol. BM25S completes all eight in every answerable category; Haystack does so except historical decisions (2/8).
 
 | Scenario | Book | billion-context | claude-mem FTS | Basic Memory FTS | Shared MiniLM group |
 |---|---:|---:|---:|---:|---:|
@@ -121,15 +131,19 @@ Complete-evidence counts, **8 cases per scenario**, under the shared whole-block
 | Native excerpts | 76 / 80 | 68 / 72 | **48 / 48** | **0** |
 | Shared whole-block packer | 76 / 80 | 68 / 72 | 44 / 48 | 4 |
 
-The two packing protocols are distinct. All tested backends return related context for the eight missing-evidence queries. This authored development workload has repeated maintenance text, no independent holdout and no coding LLM; it does not measure task success or abstention. [Limits and per-question records](docs/current-results.md).
+At the same 1,200-character common-block boundary, **BM25S recovers 80/80 spans, 72/72 complete cases and 48/48 policy checks, with zero stale-only cases**; Haystack BM25 has 74/80, 66/72 and 42/48, also with zero stale-only cases. Book's aggregate result does not dominate every component or every question.
+
+The two packing protocols are distinct. Book and all eight external configurations in the scored table return context for the eight missing-evidence queries; Memvid's all-empty result is the separately disclosed query limitation. This authored development workload has repeated maintenance text, no independent holdout and no coding LLM; it does not measure task success or abstention. [Limits and per-question records](docs/current-results.md).
 
 ## Performance
 
-### Current runtime and resource improvements
+### Retained frozen performance experiments
 
-![Measured current component improvements: lower semantic working allocation, less model-artifact verification work and faster multi-section directories. Small-fixture regressions remain shown.](docs/readme-assets/runtime-gains.svg)
+The figures below were measured on the named **v0.10.0 or earlier source snapshots**. v0.11 changes current-state recall and directory-read transactions. These experiments were not rerun on the new runtime and do not establish a v0.11 end-to-end speedup. Unchanged C source establishes component continuity only; gains from separate experiments are not combined.
 
-| Measured component | Reference → shipped implementation | Paired change |
+![Historical v0.10 component measurements: lower semantic working allocation, less model-artifact verification work and faster multi-section directories; small-fixture regressions retained.](docs/readme-assets/runtime-gains.svg)
+
+| Historically measured component | Reference → measured implementation | Paired change |
 |---|---:|---:|
 | Semantic ranking · 32,768 windows | 188.620 → 176.934 ms | **−6.38% latency** |
 | Tracked peak allocation · same fixture | 85,005,064 → 28,637,125 bytes | **−66.31% allocation** |
@@ -140,18 +154,18 @@ The two packing protocols are distinct. All tested backends return related conte
 | Directory · 20 / 100 sections × 1 preview page | Same original preview/query semantics | **−20.48% / −23.97% latency** |
 | Directory · 20 / 100 sections × 100 preview pages | Same returned bounds | **−1.86% / −1.98% latency** |
 
-**All six multi-section configurations improve in every paired round; all 1,440 timed directory calls retain exact outputs.** Query counts fall from 6 / 63 / 303 to 5 / 24 / 104 for 1 / 20 / 100 sections. [Frozen results and acceptance](docs/comprehensive-v010-validation.md).
+In that frozen v0.10 experiment, **all six multi-section configurations improved in every paired round; all 1,440 timed directory calls retained exact outputs.** Query counts fell from 6 / 63 / 303 to 5 / 24 / 104 for 1 / 20 / 100 sections. [Frozen results and acceptance](docs/comprehensive-v010-validation.md).
 
 | Retained small-fixture cost | Observed change |
 |---|---|
 | Semantic ranking · 4,096 windows | **+1.41%** latency; about **+0.329 ms** between pooled medians |
 | Directory · one section, 20 / 100 previews | **+1.07% / +0.42%**; about **+2 / +4 microseconds** |
 
-Percentages use the median of four paired ratios; displayed times are pooled medians. Tracked allocations are not total RSS. Mock initialization excludes real tokenizer parsing, model loading and inference. These component results are not whole-recall or MCP speedups.
+Latency percentages use the median of four paired ratios; displayed times are pooled medians. Tracked allocations are not total RSS. Mock initialization excludes real tokenizer parsing, model loading and inference. These component results are not whole-recall or MCP speedups.
 
 ### Native core shipped in this release
 
-The **22-entry C backend** handles measured text, scoring, selection, source-mapping and segmentation work, with a complete Python reference fallback. Its source is unchanged from the retained native-core measurement below, which compares it with the preceding native implementation. [Source continuity and benchmark conditions](docs/current-results.md).
+The **22-entry C backend** handles measured text, scoring, selection, source-mapping and segmentation work, with a complete Python reference fallback. Its C/header source is unchanged from the retained native-core measurement below, which compares it with the preceding native implementation. The Python recall orchestration has changed in v0.11; these old timings are not measurements of that complete pipeline. [Source continuity and benchmark conditions](docs/current-results.md).
 
 ![Retained native-core comparison at 2,400 characters: direct recall and real SDK stdio MCP p95 latency on synthetic and public regression data.](docs/readme-assets/native-latency.svg)
 
@@ -190,11 +204,29 @@ The frozen native-core experiment checks **113,568 timed calls / 56,784 paired o
 | Step | Behavior | Agent interface |
 |---|---|---|
 | Archive | Keep original turns and coordinates; group by project/task/session | Import, capture, `remember_session` when enabled |
-| Find | Apply project scope before candidate truncation; search pages and identifier aliases | `recall_memory` |
+| Locate | Search indexed headings and questions, group by chapter, and retain project scope | `search_directory` |
+| Find evidence | Apply project scope before candidate truncation; search original pages and identifier aliases | `recall_memory` |
 | Inspect | Browse only when helpful; follow citations to original pages | `browse_book`, `browse_chapter`, `browse_section`, `read_page` |
 | Continue | Verify constraints, corrections and failed attempts before editing | Your existing coding client |
 
 The default budget includes citation headings and separators inside `context`; it does not cap the complete JSON response or model tokens. `temporal=auto/current/relevance` controls evidence ordering; source inspection remains necessary when judging authority.
+
+### Find the chapter, then inspect the evidence
+
+```bash
+# Use an exact stored project ID and a phrase from a task or question heading.
+memory-book locate "gradient accumulation" --project service-alpha --limit 10
+```
+
+The locator searches metadata even when the original body does not repeat the heading. It returns unique chapters, each with at most five matching section previews, and explicit `result_type="directory", evidence=false`. Follow returned IDs with `browse_chapter`, `browse_section` or `read_page`; titles and summaries are navigation hints, not answer citations. Any analyzed metadata term can match, so a partial heading match may be returned.
+
+The authored eight-project directory workload passed **119 contracts**, with **130 locator calls** and **161 original-page reads** covering **80 distinct pages**. The first attempt's eight invalid no-match expectations and their disclosed correction remain in the [complete validation record](docs/v0.11.0-validation.md). This is a navigation/scope result, not answer accuracy or a speed benchmark.
+
+### Brief corrections in crowded histories
+
+Current-state recall now looks for recent comparable statements within chapters already reached by relevance search. It authenticates each page against its original turn and uses the existing same-field/query-facet rules before promoting a later statement. It does not simply choose the newest page across the archive.
+
+In six development configurations with 4, 100 or 1,000 repeated older records and limits of 1 or 5, three repeats each recovered the brief correction **3/18 times before and 18/18 after**. These are six configurations, not 18 independent questions. Relevance controls stayed unchanged. One configuration remained slower than the baseline; the extra candidate limit does not bound all database scan/sort work. [Probe, costs and algorithm limits](docs/v0.11.0-validation.md#current-revision-recovery).
 
 ### One project per MCP connection
 
@@ -215,9 +247,11 @@ memory-book recall "current gradient accumulation steps" --project service-alpha
 
 Unbound requests may search across books. A binding follows the configured connection, not the terminal's current directory; it protects against scope mistakes and is not multi-user authentication. [Scope and source semantics](docs/agent-guide.md#bound-project-connections).
 
-## Verified delivery
+## Retained v0.10 delivery record
 
-| Current release check | Result |
+The following is the completed **v0.10.0** publication record. New v0.11 delivery results are recorded only after its exact-source CI, native matrix and public-installer gates complete.
+
+| v0.10 release check | Result |
 |---|---|
 | Exact-source CI | **11 / 11 jobs passed** |
 | Native build / installation matrix | **30 / 30 cells** · CPython 3.10–3.15 |
@@ -225,7 +259,7 @@ Unbound requests may search across books. A binding follows the configured conne
 | Native test outcomes | **4,245 passed + 75 explicitly permitted optional skips; zero failures** |
 | Public assets | **67 files**, independently downloaded and hash-verified |
 | Published installer | Real public-URL install verifies version, native backend and default MCP/client dependencies |
-| Archive compatibility | **Schema 4**; source/page IDs, Unicode coordinates, ranking and budgets retained |
+| Archive compatibility | **Schema 4**; source/page IDs and Unicode coordinates retained |
 
 [Release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.10.0) · [Successful release workflow](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44009581198) · [Publication proof](https://github.com/Afloat16/AI-Memory-Book/blob/2f57e03299ddc350c773fe3bc2fc528e1b13dbd8/benchmarks/reports/comprehensive-v010/publication-proof/README.md)
 
@@ -235,7 +269,7 @@ Use the Python interpreter printed by the installer in place of `python` to insp
 python -I -X utf8 -c "import memory_book; from memory_book._text_backend import BACKEND_NAME; print(memory_book.__version__, BACKEND_NAME)"
 ```
 
-A compatible native installation prints `0.10.0 native`. `MEMORY_BOOK_TEXT_BACKEND=auto` is the default; `python` selects the reference, and `native` requires the extension. [Backend and source-build options](docs/deployment.md#native-backend-and-source-builds).
+A compatible native installation prints `0.11.0 native`. `MEMORY_BOOK_TEXT_BACKEND=auto` is the default; `python` selects the reference, and `native` requires the extension. [Backend and source-build options](docs/deployment.md#native-backend-and-source-builds).
 
 ## Documentation
 

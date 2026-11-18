@@ -2,18 +2,23 @@
   "schema_version": 1,
   "provenance": {
     "coverage": {
-      "scope": "Authored engineering fixture; 80 questions, 72 answerable; 2400-character common-block budget. Current published-wheel Book replay passed; pinned external component runs retained.",
+      "scope": "Authored 80-question development fixture, 72 answerable, 2400-character common-block budget. Frozen Book source replay; six historical external runs plus new BM25S/Haystack executions. Memvid all-empty configured responses disclosed separately.",
       "external_report": "benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/report.json",
       "current_evidence": "docs/current-results.md",
-      "current_verification": "benchmarks/reports/readme-current/verification.json",
-      "current_source_commit": "164f48c42e88bd096bf58827d8b2ba77a9048ae3",
-      "verification_sha256": "fcb9c47c10f0100ae6159365f252b2c1cb58edfb84b17e127e57c0469c85dc2c"
+      "historical_wheel_verification": "benchmarks/reports/readme-current/verification.json",
+      "historical_source_commit": "164f48c42e88bd096bf58827d8b2ba77a9048ae3",
+      "historical_verification_sha256": "fcb9c47c10f0100ae6159365f252b2c1cb58edfb84b17e127e57c0469c85dc2c",
+      "source_candidate": "a7d36322f77a3fca9f5907db3edcce4a7dd3652c",
+      "candidate_comparison": "benchmarks/reports/v0.11-development/engineering-attempt2/comparison.json",
+      "new_components_report": "benchmarks/reports/v0.11-extended-lexical/attempt1/report.json",
+      "new_components_report_sha256": "bda9683de8d80c0964f4df84207c06a86b3ad8ea4f30620de6996e280b5d1824",
+      "new_components_audit": "benchmarks/reports/v0.11-extended-lexical/attempt1/audit.json"
     },
     "runtime": {
       "source": "benchmarks/experiments/comprehensive_v010_acceptance.json",
       "semantic_evidence_commit": "780a99faa71da50eb0bf6e290fddc765e2b49b43",
       "directory_evidence_commit": "248e74ee4aabd7f53835e5aead67aa8e8f63abbb",
-      "scope": "Shipped semantic/directory implementations; four alternating paired rounds; component-only warm synthetic measurements."
+      "scope": "Historical v0.10 source snapshots; four paired latency rounds, two paired allocation probes; deterministic file-byte work counts; not remeasured on v0.11."
     },
     "native": {
       "source": "benchmarks/experiments/native_core_acceptance.json",
@@ -27,6 +32,14 @@
       {
         "id": "book",
         "complete": 72
+      },
+      {
+        "id": "bm25s",
+        "complete": 72
+      },
+      {
+        "id": "haystack",
+        "complete": 66
       },
       {
         "id": "billion",

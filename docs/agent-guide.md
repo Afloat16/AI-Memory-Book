@@ -9,7 +9,7 @@ fixed sequence of directory reads before each question.
 | Book address | What it identifies | MCP navigation |
 |---|---|---|
 | Project / book | One explicit engineering namespace, even when another project has the same display name | `browse_projects`, then `browse_book(project=...)` |
-| Task / chapter | Related sessions assigned to the same task within that project | `browse_chapter(chapter_id=...)` |
+| Task / chapter | Related sessions assigned to the same task within that project | `search_directory(query=..., project=...)`, then `browse_chapter(chapter_id=...)` |
 | Question group / section | Related turns within a source session | `browse_section(section_id=...)` |
 | Evidence / page | An addressable original-text segment with source references | `read_page(page_id=...)` |
 
@@ -17,6 +17,44 @@ A question can lead directly to a cited page through `recall_memory`. Follow
 the directory when the task needs neighboring evidence or a structured review.
 Use returned IDs; a displayed title or a repository's directory name is not a
 substitute for an exact project, chapter, section or page ID.
+
+## Find a chapter from its title or question
+
+Use `search_directory` when you know a task title, a question heading or a
+directory term but do not yet have its chapter ID. It searches indexed title,
+question and directory metadata, groups matching pages into unique chapters,
+and returns up to five matching section addresses per chapter. It does not
+require those words to occur in the original page body.
+
+```json
+{
+  "query": "gradient accumulation",
+  "project": "atlas",
+  "limit": 10,
+  "offset": 0
+}
+```
+
+`atlas` is an illustrative ID. Carry the actual project through subsequent
+`browse_chapter`, `browse_section` and `read_page` calls. An optional `chapter`
+argument narrows the locator to a known chapter; unknown or conflicting scopes
+are rejected rather than widened. Pagination counts chapters, not matching
+pages, so one long chapter does not occupy every result slot. Its lexical rank
+uses the best matching metadata page; it is not a semantic relevance guarantee.
+
+The response is explicitly `result_type="directory", evidence=false`. Titles
+and extractive summaries can contain factual words, but they are navigation
+hints, not verified answer citations. Read the returned original pages before
+using their statements as evidence. Metadata matching is **OR** over usable
+query terms; a partially matching heading may be returned. An empty result
+does not prove the archive has no relevant original evidence.
+
+The same locator is available as `memory-book locate QUERY --project PROJECT`,
+`MemoryBook.search_directory(...)`, and local HTTP `GET /api/locate` with `q`,
+`project`, optional `chapter`, `limit` and `offset` parameters. `toc`, section
+reads and the locator return counts, rows and revision from one read snapshot.
+Separate follow-up calls can observe later archive revisions; compare revision
+fields when a concurrent capture changes the archive.
 
 The server sends concise operating instructions during MCP initialization. Host
 behavior varies: tools may need approval, and the model still decides whether to
@@ -97,7 +135,7 @@ memory-book --db /absolute/path/memory.db mcp --project inference-demo
 | Tool on a bound connection | Scope behavior |
 |---|---|
 | `browse_projects` | Lists only the bound project, or an empty list if it is not stored |
-| `recall_memory` | An omitted or `null` `project` uses the binding; a different explicit ID is rejected |
+| `recall_memory`, `search_directory` | An omitted or `null` `project` uses the binding; a different explicit ID is rejected |
 | `browse_chapter`, `browse_section`, `read_page` | An omitted or `null` `project` uses the binding; the returned resource must belong to it |
 | `browse_book` | An omitted or `null` `project` uses the binding; a different explicit ID is rejected; an unbound connection still requires a project |
 | `remember_session`, when enabled | Requires an explicit matching `payload.project`; it does not infer a write destination |
@@ -172,6 +210,7 @@ Choose the smallest follow-up that resolves the missing information:
 | A relevant passage was shortened | Call `read_page` for that returned page ID |
 | More characters of the same page are needed | Continue from the returned `next_offset` |
 | A known section has additional pages | Call `browse_section`, following pagination only as needed |
+| A title/question is known but its chapter ID is not | Call scoped `search_directory`, then inspect a returned chapter or section |
 | The task asks to navigate a project's history | Use `browse_book` and the relevant chapter/section |
 | Query terms missed the likely wording | Make a focused retry using known identifiers or source terminology |
 | Sources disagree about the current decision | Compare their statements and dates; report unresolved conflict |

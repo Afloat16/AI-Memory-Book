@@ -1,0 +1,113 @@
+{
+  "schema": "unclassified-revision-proposal-review-v1",
+  "recorded_at_utc": "2026-11-18T02:59:30.233259+00:00",
+  "evidence_level": "Authored adversarial code-review reproduction, after implementation; not a holdout",
+  "script_sha256": "ecb2eb537edc528b1a86af7b1a00c0150399dafd2e9c1ec6503b1bad30facbed",
+  "interpretation": "The 120-old-session case exceeds the FTS route cap. The 8-old-session case tests candidates already in the FTS top96 but outside the original top4 comparison pool. Neither latest agenda contains a new decision.",
+  "observations": [
+    {
+      "arm": "baseline",
+      "old_session_count": 8,
+      "exit_code": 0,
+      "raw_path": "baseline-8.raw.json",
+      "raw_sha256": "1a442e49749b03e14ba6b2e7f94962623677618644240403951728e69235940b",
+      "selected_source_sessions": [
+        "old-004"
+      ],
+      "recorded_decision_retained": true,
+      "candidate_expansion": null
+    },
+    {
+      "arm": "candidate",
+      "old_session_count": 8,
+      "exit_code": 0,
+      "raw_path": "candidate-8.raw.json",
+      "raw_sha256": "1e8a38cf5374a94c4f7fdfd9017ed2ab19d8bd9b494575da633097e8ba6b19b5",
+      "selected_source_sessions": [
+        "latest-agenda"
+      ],
+      "recorded_decision_retained": false,
+      "candidate_expansion": {
+        "route": "recent_exact_body_matches_in_leading_chapters",
+        "metadata_source": "complete_exact_route",
+        "ordering_fields": [
+          "sessions.created_at DESC",
+          "sessions.id",
+          "sections.ordinal DESC",
+          "pages.ordinal DESC",
+          "pages.id"
+        ],
+        "candidate_limit": 96,
+        "returned": 9,
+        "added_to_pool": 5,
+        "new_candidates": 0,
+        "pool_size": 9,
+        "chapters_not_expanded": 0,
+        "chapter_routes": [
+          {
+            "chapter_id": "ch_da26fe831ca2a32a7072ff19",
+            "limit": 9,
+            "returned": 9
+          }
+        ],
+        "scope_before_limit": true,
+        "database_scan_bounded": true,
+        "basis": "Recent matches only propose comparable revisions; timestamps and syntax do not establish authority.",
+        "unmatched_proposals": 0,
+        "admitted_proposals": 0
+      }
+    },
+    {
+      "arm": "baseline",
+      "old_session_count": 120,
+      "exit_code": 0,
+      "raw_path": "baseline-120.raw.json",
+      "raw_sha256": "228e7f8f0326bffd24ab277778979ba1a767ba246be123c3f5a6e7546f641007",
+      "selected_source_sessions": [
+        "old-097"
+      ],
+      "recorded_decision_retained": true,
+      "candidate_expansion": null
+    },
+    {
+      "arm": "candidate",
+      "old_session_count": 120,
+      "exit_code": 0,
+      "raw_path": "candidate-120.raw.json",
+      "raw_sha256": "0ee304022eed97865601559f26e38ac15f2198373d23ddfef9092d111e15e650",
+      "selected_source_sessions": [
+        "latest-agenda"
+      ],
+      "recorded_decision_retained": false,
+      "candidate_expansion": {
+        "route": "recent_exact_body_matches_in_leading_chapters",
+        "metadata_source": "scoped_fts_chronology",
+        "ordering_fields": [
+          "sessions.created_at DESC",
+          "sessions.id",
+          "sections.ordinal DESC",
+          "pages.ordinal DESC",
+          "pages.id"
+        ],
+        "candidate_limit": 96,
+        "returned": 96,
+        "added_to_pool": 92,
+        "new_candidates": 20,
+        "pool_size": 96,
+        "chapters_not_expanded": 0,
+        "chapter_routes": [
+          {
+            "chapter_id": "ch_da26fe831ca2a32a7072ff19",
+            "limit": 96,
+            "returned": 96
+          }
+        ],
+        "scope_before_limit": true,
+        "database_scan_bounded": false,
+        "basis": "Recent matches only propose comparable revisions; timestamps and syntax do not establish authority.",
+        "unmatched_proposals": 19,
+        "admitted_proposals": 1
+      }
+    }
+  ]
+}

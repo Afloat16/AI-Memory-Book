@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import gzip
 import json
 import os
 from pathlib import Path
@@ -13,6 +14,17 @@ from unittest.mock import patch
 
 from scripts import directory_runtime_v2_preserve as preserve
 from tests.test_comprehensive_runtime_preserve import IDENTITY, fixture as original_fixture, save
+
+
+FROZEN_STORE = Path(__file__).parent / "fixtures/v011_historical_inputs/store-v010.py.gz"
+
+
+def frozen_store_bytes():
+    """Historical audit data, checked against the original prospective pin."""
+    raw = gzip.decompress(FROZEN_STORE.read_bytes())
+    if preserve.sha(raw) != preserve.STORE_SHA256:
+        raise ValueError("Frozen directory-v2 store fixture changed")
+    return raw
 
 
 def save_report(work, report):
@@ -34,7 +46,7 @@ def fixture(work):
     manifest, _, report = original_fixture(work)
     manifest["protocol"] = preserve.PROTOCOL
     for name in ("src/memory_book/store.py", "src/memory_book/semantic.py", *preserve.EVALUATOR_PATHS):
-        raw = (preserve.ROOT / name).read_bytes()
+        raw = frozen_store_bytes() if name == "src/memory_book/store.py" else (preserve.ROOT / name).read_bytes()
         path = "frozen/candidate/" + name
         target = work / path
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -62,6 +74,15 @@ def set_wall(report, sections, pages, candidate):
 
 
 class DirectoryV2AuditTests(unittest.TestCase):
+    def test_frozen_store_fixture_is_verified_before_building_a_report(self):
+        self.assertEqual(preserve.sha(frozen_store_bytes()), preserve.STORE_SHA256)
+        with tempfile.TemporaryDirectory() as temporary:
+            damaged = Path(temporary) / "store.gz"
+            damaged.write_bytes(gzip.compress(frozen_store_bytes() + b"\n", mtime=0))
+            with patch(__name__ + ".FROZEN_STORE", damaged):
+                with self.assertRaisesRegex(ValueError, "fixture changed"):
+                    fixture(Path(temporary) / "work")
+
     def test_same_matrix_complete_ledger_and_new_query_counts_pass(self):
         with tempfile.TemporaryDirectory() as temporary:
             work = Path(temporary)

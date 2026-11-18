@@ -57,13 +57,13 @@ class InstallerReleaseTests(unittest.TestCase):
                 f"ai-memory-book @ {local_wheel.resolve().as_uri()}")
 
     def test_release_defaults_match_package_and_wrappers(self):
-        self.assertEqual(INSTALLER.DEFAULT_VERSION, "v0.10.0")
-        self.assertIn('version = "0.10.0"', (ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-        self.assertIn('__version__ = "0.10.0"', (ROOT / "src/memory_book/__init__.py").read_text(encoding="utf-8"))
-        self.assertIn('installer_ref="v0.10.0"', (ROOT / "scripts/install.sh").read_text(encoding="utf-8"))
+        self.assertEqual(INSTALLER.DEFAULT_VERSION, "v0.11.0")
+        self.assertIn('version = "0.11.0"', (ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+        self.assertIn('__version__ = "0.11.0"', (ROOT / "src/memory_book/__init__.py").read_text(encoding="utf-8"))
+        self.assertIn('installer_ref="v0.11.0"', (ROOT / "scripts/install.sh").read_text(encoding="utf-8"))
         powershell = (ROOT / "scripts/install.ps1").read_text(encoding="utf-8")
-        self.assertIn("[string]$Version = 'v0.10.0'", powershell)
-        self.assertIn("$InstallerRef = 'v0.10.0'", powershell)
+        self.assertIn("[string]$Version = 'v0.11.0'", powershell)
+        self.assertIn("$InstallerRef = 'v0.11.0'", powershell)
 
     def test_native_era_never_uses_an_unverified_archive_route(self):
         for tag in ("v0.8.0", "0.8.0", "v0.8.1", "v1.0.0"):

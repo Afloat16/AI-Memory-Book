@@ -2,7 +2,7 @@
 # Install from a checkout, or download this script and run it with Bash.
 set -euo pipefail
 
-installer_ref="v0.10.0"
+installer_ref="v0.11.0"
 python_command=""
 source_path=""
 arguments=("$@")

@@ -23,11 +23,13 @@ AMBER = "#975c0a"
 class SVG:
     def __init__(self, height: int, title: str, description: str, lang: str):
         self.text_count = 0
+        family = ('"Noto Sans CJK SC",Inter,Arial,sans-serif' if lang == "zh-CN"
+                  else 'Inter,"Noto Sans CJK SC",Arial,sans-serif')
         self.parts = [f'<svg xmlns="http://www.w3.org/2000/svg" width="960" height="{height}" '
                       f'viewBox="0 0 960 {height}" role="img" aria-labelledby="title desc" lang="{lang}">',
                       f'<title id="title">{escape(title)}</title>',
                       f'<desc id="desc">{escape(description)}</desc>',
-                      '<style>text{font-family:Inter,"Noto Sans CJK SC",Arial,sans-serif;'
+                      '<style>text{font-family:' + family + ';'
                       'font-variant-numeric:tabular-nums} .kicker{letter-spacing:1.6px}</style>']
         self.rect(1, 1, 958, height - 2, BG, radius=20, stroke=LINE)
 
@@ -56,14 +58,15 @@ class SVG:
 
 def coverage(data, lang):
     zh = lang == "zh-CN"
-    title = "相同预算，找全更多原始证据" if zh else "More complete evidence within the same budget"
+    title = "固定预算下的原始证据覆盖" if zh else "Original evidence within a fixed budget"
     description = ("2400 字符整块打包预算。72 个可回答问题，AI-Memory-Book 找全 72 题，"
-                   "三个词法组件分别找全 64 题，共享 MiniLM 的三种配置分别找全 47 题。"
+                   "BM25S 找全 72 题，Haystack BM25 找全 66 题，三个历史词法组件分别找全 64 题，共享 MiniLM 的三种配置分别找全 47 题。"
                    "这是固定合成开发语料的证据覆盖，不是模型回答准确率。") if zh else (
                    "Complete evidence under a 2,400-character whole-block budget: AI-Memory-Book 72 of 72; "
-                   "billion-context, claude-mem raw FTS and Basic Memory FTS each 64 of 72; "
+                   "BM25S 72, Haystack BM25 66, billion-context, claude-mem raw FTS and Basic Memory FTS each 64 of 72; "
                    "three shared-MiniLM configurations each 47 of 72. Synthetic development evidence coverage, not LLM answer accuracy.")
-    s = SVG(600, title, description, lang)
+    extra = max(0, len(data["rows"]) - 5) * 63
+    s = SVG(626 + extra, title, description, lang)
     s.header("AI-MEMORY-BOOK · EVIDENCE", title,
              "固定合成工程语料 · 80 题 / 72 题可回答 · 2400 字符整块打包预算" if zh else
              "Authored engineering fixture · 80 questions / 72 answerable · 2,400-character block budget")
@@ -72,10 +75,12 @@ def coverage(data, lang):
     s.text(920, 155, "完整证据 / 可回答问题" if zh else "Complete / answerable", 15, MUTED, 600, "end")
     for tick in (0, 18, 36, 54, 72):
         tx = x + width * tick / 72
-        s.line(tx, 176, tx, 491)
-        s.text(tx, 514, tick, 14, MUTED, anchor="middle")
+        s.line(tx, 176, tx, 491 + extra)
+        s.text(tx, 514 + extra, tick, 14, MUTED, anchor="middle")
     labels = {
-        "book": ("AI-Memory-Book", "当前发布实现" if zh else "current release implementation"),
+        "book": ("AI-Memory-Book", "冻结源码回放" if zh else "frozen source replay"),
+        "bm25s": ("BM25S", "0.3.16 · 检索库" if zh else "0.3.16 · retrieval library"),
+        "haystack": ("Haystack BM25", "3.5.0 · 框架组件" if zh else "3.5.0 · framework component"),
         "billion": ("billion-context", "固定搜索内核" if zh else "pinned search kernel"),
         "claude": ("claude-mem", "原始 observation · FTS" if zh else "raw observations · FTS"),
         "basic": ("Basic Memory", "显式 FTS" if zh else "explicit FTS"),
@@ -92,10 +97,12 @@ def coverage(data, lang):
                TEAL if index == 0 else BLUE if index < 4 else "#8798b5", radius=5)
         s.text(920, y + 19, f'{row["complete"]} / {data["answerable"]}', 28,
                TEAL if index == 0 else INK, 700, "end")
-    s.text(36, 550, "当前 Book 复核；外部组件沿用固定配置记录。不是完整产品排名或模型回答分数。" if zh else
-           "Current Book replay; pinned external component records. Not a full-product or LLM-answer ranking.", 15, MUTED)
-    s.text(36, 577, "共享组：Mem0（infer=False）、Chroma 与 LangGraph Store；各自执行，结果相关。" if zh else
+    s.text(36, 550 + extra, "固定组件模式；旧记录与本轮新增运行分别保留。不是完整产品或模型回答排名。" if zh else
+           "Pinned component modes; retained and new runs identified separately. No full-product ranking.", 15, MUTED)
+    s.text(36, 577 + extra, "共享组：Mem0（infer=False）、Chroma 与 LangGraph Store；各自执行，结果相关。" if zh else
            "Shared group: Mem0 (infer=False), Chroma and LangGraph Store; separate runs, correlated results.", 14, MUTED)
+    s.text(36, 604 + extra, "BM25S 在此预算打平；1200 字符时优于 Book 整块模式。Memvid 空查询限制另列。" if zh else
+           "BM25S ties here and leads Book at 1,200 characters. Memvid empty-query limitation is separate.", 14, AMBER)
     return s
 
 
@@ -106,7 +113,7 @@ def metric_card(s, x, y, title, subtitle, baseline, current, unit, change, zh):
     s.text(x + 22, y + 109, f'−{change:.2f}%', 42, TEAL, 750)
     s.text(x + 414, y + 107, "越低越好" if zh else "lower is better", 14, MUTED, anchor="end")
     for index, (label, value, color) in enumerate((("改进前" if zh else "Before", baseline, PALE),
-                                                   ("当前" if zh else "Current", current, TEAL))):
+                                                   ("v0.10", current, TEAL))):
         by = y + 142 + index * 35
         s.text(x + 22, by + 5, label, 17, MUTED)
         s.rect(x + 95, by - 9, 200 * value / baseline, 15, color, radius=4)
@@ -125,8 +132,8 @@ def runtime(data, lang):
             "Retained small-case regressions are 1.41% for semantic ranking and 1.07% / 0.42% for single-section directories.")
     s = SVG(740, title, desc, lang)
     s.header("AI-MEMORY-BOOK · RUNTIME", title,
-             "当前交付实现的组件实测 · 对比改进前实现 · 四轮交替 A/B" if zh else
-             "Measured shipped components · compared with the prior implementation · four alternating A/B rounds")
+             "历史 v0.10 组件 · 耗时四对／分配量两对 · 非 v0.11 重测" if zh else
+             "Historical v0.10 components · four latency pairs / two allocation pairs")
     cards = [
         ("语义峰值分配" if zh else "Tracked peak allocation", "32768 个向量窗口 · 不等于进程 RSS" if zh else
          "32,768 vector windows · not process RSS", data["allocation"]),

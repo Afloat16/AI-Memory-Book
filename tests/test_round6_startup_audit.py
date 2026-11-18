@@ -22,7 +22,10 @@ def full_fixture():
         "evaluator_files": {name: auditor.sha((auditor.ROOT / name).read_bytes()) for name in auditor.EVALUATORS}}
     binding_raw = auditor.canonical(binding) + b"\n"
     source_paths = {engine: "/synthetic/" + engine + "/src" for engine in ("baseline", "candidate")}
-    executable, helper = producer.sys.executable, str(producer.ROOT / "scripts/round6_startup.py")
+    # These are unexecuted synthetic observations, not claims about this host.
+    # A relative invocation can leave /../ in sys.executable and must not leak
+    # into a fixture whose registered contract requires canonical paths.
+    executable, helper = "/synthetic/python", "/synthetic/evaluator/scripts/round6_startup.py"
     publication_key = auditor.digest({"protocol": auditor.PROTOCOL,
         "sources": {name: value["runtime_sha256"] for name, value in binding["sources"].items()}})
     run = {"binding": binding, "binding_file": {"path": "benchmarks/experiments/round6-startup-test-binding.json",
@@ -126,7 +129,12 @@ def full_fixture():
 
 
 def refresh(report, plan):
-    report["validation"] = producer.validation(report)
+    # The unchanged writer validates helper commands against its own process
+    # settings. Supply the same artificial world as these unexecuted rows;
+    # retain every command/timer/source check rather than rewriting a verdict.
+    with patch.object(producer.sys, "executable", report["run"]["host"]["executable"]), \
+            patch.object(producer, "ROOT", Path("/synthetic/evaluator")):
+        report["validation"] = producer.validation(report)
     report["comparisons"] = producer.comparisons(report["observations"])
     report["acceptance"] = producer.evaluate(report["comparisons"], report["validation"]["passed"], plan)
     report["adverse_observations"] = producer.adverse(report["comparisons"])
@@ -142,6 +150,12 @@ class StartupSavedAuditTests(unittest.TestCase):
 
     def audit(self):
         return auditor.audit_observations(self.report, self.events, self.binding, self.plan)
+
+    def test_synthetic_host_is_independent_of_the_invoking_interpreter_path(self):
+        with patch.object(producer.sys, "executable", "/host/project/../environment/python"):
+            report, events, binding, plan = full_fixture()
+        self.assertEqual(report["run"]["host"]["executable"], "/synthetic/python")
+        self.assertTrue(auditor.audit_observations(report, events, binding, plan)["passed"])
 
     def rehash(self, sequence):
         row = self.report["observations"][sequence]
