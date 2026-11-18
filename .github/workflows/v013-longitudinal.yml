@@ -32,10 +32,13 @@ jobs:
     steps:
       - name: Create this invocation's evidence directory
         shell: bash
-        run: mkdir -p "$V013_EVIDENCE_ROOT/logs"
+        run: |
+          mkdir -p "$V013_EVIDENCE_ROOT/logs"
+          printf 'V013_JOB_STARTED_EPOCH=%s\n' "$(date +%s)" >> "$GITHUB_ENV"
 
       - name: Check out the exact pushed candidate
         id: checkout
+        timeout-minutes: 5
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           ref: ${{ github.sha }}
@@ -60,6 +63,7 @@ jobs:
 
       - name: Select Python 3.12
         id: python
+        timeout-minutes: 3
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: '3.12'
@@ -67,6 +71,7 @@ jobs:
 
       - name: Install only the pinned native build tools
         id: install
+        timeout-minutes: 3
         shell: bash
         run: |
           trap 'code=$?; printf "{\"exit_code\":%s}\n" "$code" > "$V013_EVIDENCE_ROOT/install-exit.json"' EXIT
@@ -77,6 +82,7 @@ jobs:
 
       - name: Prepare the exact baseline and verify the remote protocol freeze
         id: freeze
+        timeout-minutes: 3
         shell: bash
         run: |
           trap 'code=$?; printf "{\"exit_code\":%s}\n" "$code" > "$V013_EVIDENCE_ROOT/freeze-exit.json"' EXIT
@@ -111,6 +117,7 @@ jobs:
 
       - name: Build and authenticate each checkout's actual native extension
         id: native
+        timeout-minutes: 5
         shell: bash
         run: |
           trap 'code=$?; printf "{\"exit_code\":%s}\n" "$code" > "$V013_EVIDENCE_ROOT/native-exit.json"' EXIT
@@ -155,7 +162,8 @@ jobs:
               'compiler': subprocess.check_output(['gcc', '--version'], text=True),
               'disk': dict(zip(('total', 'used', 'free'), shutil.disk_usage(root))),
               'memory_info': pathlib.Path('/proc/meminfo').read_text(),
-              'runner_supervision': {'job_timeout_minutes': 90, 'measurement_wall_seconds': 4500,
+              'runner_supervision': {'job_timeout_minutes': 90, 'preparation_and_measurement_wall_seconds': 4500,
+                  'invocation_started_epoch': int(os.environ['V013_JOB_STARTED_EPOCH']),
                   'signal': 'SIGINT', 'kill_after_seconds': 45,
                   'boundary': 'Additional CI execution cap; does not replace the frozen per-call/worker limits. An interrupted matrix is incomplete.'},
               'runtimes': {'baseline': runtime_identity(os.environ['V013_BASELINE_ROOT'], os.environ['V013_BASELINE_COMMIT']),
@@ -168,8 +176,20 @@ jobs:
         timeout-minutes: 77
         shell: bash
         run: |
+          elapsed=$(( $(date +%s) - V013_JOB_STARTED_EPOCH ))
+          remaining=$(( 4500 - elapsed ))
+          python - "$remaining" <<'PY'
+          import json, os, pathlib, sys
+          (pathlib.Path(os.environ['V013_EVIDENCE_ROOT']) / 'measurement-supervision.json').write_text(
+              json.dumps({'remaining_measurement_seconds': int(sys.argv[1]), 'preparation_and_measurement_cap_seconds': 4500,
+                          'boundary': 'Preparation consumes this outer budget so audit and artifact upload retain time within the 90-minute job.'}, indent=2) + '\n')
+          PY
+          if [ "$remaining" -le 0 ]; then
+            printf '{"measurement_started":false,"measurement_or_supervisor_exit_code":124,"reason":"preparation exhausted the outer execution budget"}\n' > "$V013_EVIDENCE_ROOT/measurement-exit.json"
+            exit 124
+          fi
           set +e
-          timeout --signal=INT --kill-after=45s 4500s python -u benchmarks/v013_scale.py run \
+          timeout --signal=INT --kill-after=45s "${remaining}s" python -u benchmarks/v013_scale.py run \
             --protocol-commit "$V013_PROTOCOL_COMMIT" \
             --baseline-root "$V013_BASELINE_ROOT" \
             --candidate-root "$GITHUB_WORKSPACE" \
@@ -203,6 +223,7 @@ jobs:
 
       - name: Record final outcomes and inventory every retained small artifact
         if: always()
+        timeout-minutes: 2
         shell: bash
         env:
           V013_STEP_OUTCOMES: >-
@@ -238,6 +259,7 @@ jobs:
 
       - name: Preserve original evidence even after failures or interruption
         if: always()
+        timeout-minutes: 7
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: v013-long-history-main-${{ github.run_id }}-${{ github.run_attempt }}
