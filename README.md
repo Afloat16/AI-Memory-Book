@@ -224,7 +224,9 @@ The authored eight-project directory workload passed **119 contracts**, with **1
 
 ### Brief corrections in crowded histories
 
-Current-state recall now looks for recent comparable statements within chapters already reached by relevance search. It authenticates each page against its original turn and uses the existing same-field/query-facet rules before promoting a later statement. It does not simply choose the newest page across the archive.
+Current-state recall now looks for recent comparable statements within chapters already reached by relevance search. Each supplemental page is authenticated against its original turn and must have comparable field declarations. When a query has additional qualifiers, both the proposed declaration and its original-pool anchor need an unambiguous adjacent qualifier for each field. Complex prose may remain outside this supplemental route.
+
+These admission checks apply to additions to the original comparison pool. Existing ordering inside that pool can still prefer a recent agenda or a statement with mixed context. This release does not establish general decision authority or resolve every current-state conflict.
 
 In six development configurations with 4, 100 or 1,000 repeated older records and limits of 1 or 5, three repeats each recovered the brief correction **3/18 times before and 18/18 after**. These are six configurations, not 18 independent questions. Relevance controls stayed unchanged. One configuration remained slower than the baseline; the extra candidate limit does not bound all database scan/sort work. [Probe, costs and algorithm limits](docs/v0.11.0-validation.md#current-revision-recovery).
 

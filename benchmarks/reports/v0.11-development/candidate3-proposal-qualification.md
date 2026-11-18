@@ -9,6 +9,14 @@ The candidate 3 `store.py` SHA-256 is
 `RECALL_VERSION` changed from 17 to 18 to invalidate cached candidate 2 ordering.
 The package version remains 0.11.0.
 
+**Subsequent review blocked this candidate.** The
+[facet-association reproduction](facet-association-review-attempt1/report.json)
+found that an unrelated production mention in another sentence could qualify
+a staging assignment for a production query. Both the 8-session and 104-session
+cases failed. Candidate 3 was saved as checkpoint
+`c760e0d7b7ccc087ea0a353afff9be9d13d98b3c`, but is not an accepted final source.
+The measurements below remain historical observations of that rejected source.
+
 ## Preserved failure and correction
 
 Candidate 2 promoted a later meeting agenda over an earlier recorded decision
@@ -27,6 +35,8 @@ subcases across 8 test methods; the complete original log is
 Its additional failures included semantic fusion, occurrence queries, cross-chapter
 anchors, rejected examples changing original grouping, and duplicate page text
 whose original source was deliberately corrupted after ingestion.
+The cross-chapter test caught a changed declaration-pool diagnostic; it did not
+demonstrate a changed first selected source or a cross-project data leak.
 
 Candidate 3 changes the following behavior:
 
@@ -83,18 +93,20 @@ Each case used one qualification pass and two declaration-clause parses;
 application SELECT counts were 9, 9, 11, 11, 11, and 11. These measured counts
 match candidate 2 for these particular valid-declaration fixtures.
 
-Three-repeat median wall times from the uninstrumented original probe follow.
-Runs occurred at different times on the same development workspace; they are
-descriptive observations and do not establish a speed advantage or regression.
+Three-repeat median wall times from the uninstrumented candidate 3 probe follow.
+This run used the **native backend**; the earlier baseline and candidate 1/2
+probes used **Python**. Their elapsed times are not an algorithm-only comparison
+and are therefore not displayed in adjacent columns. These are descriptive
+development observations and do not establish a speed advantage or regression.
 
-| Earlier sessions | Result limit | Original baseline, ms | Candidate 2, ms | Candidate 3, ms |
-|---:|---:|---:|---:|---:|
-| 4 | 1 | 1.261 | 0.864 | 0.710 |
-| 4 | 5 | 1.674 | 1.521 | 0.806 |
-| 100 | 1 | 2.880 | 4.729 | 3.252 |
-| 100 | 5 | 4.835 | 3.845 | 3.202 |
-| 1,000 | 1 | 13.951 | 8.561 | 11.990 |
-| 1,000 | 5 | 29.818 | 8.982 | 11.009 |
+| Earlier sessions | Result limit | Candidate 3 native, ms |
+|---:|---:|---:|
+| 4 | 1 | 0.710 |
+| 4 | 5 | 0.806 |
+| 100 | 1 | 3.252 |
+| 100 | 5 | 3.202 |
+| 1,000 | 1 | 11.990 |
+| 1,000 | 5 | 11.009 |
 
 ## Rejection work and remaining bounds
 
@@ -122,6 +134,8 @@ latency measurements.
 
 The agenda cases fail the declaration-spelling requirement before any original
 turn authentication is needed; zero checks do not mean the agenda was certified.
+Here source-check counts refer to `_complete_declaration_pages`, separately from
+ordinary page reads and excerpt provenance reads.
 The damaged-source case demonstrates an actual extra pass: the invalid page is
 never certified, while retained pages are rechecked under the same read snapshot.
 
@@ -135,4 +149,4 @@ fixtures establishes a fixed database-scan, CPU, or latency bound.
 
 Candidate 1/2 observations and the candidate 2 rejection evidence are retained.
 Independent replay and the final release gates must use the eventual committed
-candidate 3 source rather than reusing candidate 2 acceptance results.
+replacement for candidate 3 rather than reusing candidate 2/3 acceptance results.

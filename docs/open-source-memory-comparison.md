@@ -104,7 +104,7 @@ equivalent isolation. In a comparison for several similar repositories, each
 adapter must pass the intended project scope on both writes and reads, and the
 same workload must include conflicting facts in other projects. An isolated
 successful lookup does not measure behavior when scope is missing, invalid or
-ambiguous. The newly reviewed projects have not undergone those runtime checks
+ambiguous. The documentation-only families listed below have not undergone those runtime checks
 here; their listed mechanisms are official-source descriptions only.
 
 ## What has and has not been tested

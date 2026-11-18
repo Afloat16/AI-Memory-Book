@@ -23,7 +23,7 @@ from .text import (IDENTIFIER_WORD_BOUNDARY, estimate_tokens, excerpt, headline,
 SCHEMA_VERSION = 4
 INDEX_VERSION = 3
 LEXICAL_INDEX_VERSION = 1
-RECALL_VERSION = 18
+RECALL_VERSION = 19
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -473,6 +473,38 @@ _PROSE_BINDING = re.compile(
 # existing candidate path rather than analyzing a chosen prefix as complete.
 _MAX_DECLARATION_FIELDS = 64
 _MAX_DECLARATION_CHARS = 64_000
+_DIRECT_QUALIFIER = re.compile(
+    r"\w+(?:[.-]\w+)*(?:[ \t]+\w+(?:[.-]\w+)*)*[ \t]*:?")
+_SIMPLE_ASSIGNMENT_VALUE = re.compile(
+    r"\s*=\s*(?:" + _PROSE_VALUE + r"|[+-]?\w+(?:[./:-]\w+)*)\s*[.!。]?\s*\Z",
+    re.IGNORECASE)
+
+
+def _declaration_qualifier(line: str, binding: re.Match, identity: tuple, *, prose: bool) -> str | None:
+    """Recognize a direct label on one simple declaration, without inference.
+
+    This is only an admission guard for added revisions with extra query
+    facets. Complex prefixes, suffix explanations, or multiple assignments
+    remain available through the original candidate path. No environment-name
+    list or cross-sentence scope inheritance is used.
+    """
+    if prose:
+        if not re.fullmatch(r"\s*[.!。]?\s*", line[binding.end():]):
+            return None
+        subject = binding["subject"]
+        field_start = None
+        for word in re.finditer(r"[A-Za-z_][A-Za-z0-9_.-]*", subject):
+            if _field_identity(subject[word.start():]) == identity:
+                field_start = binding.start("subject") + word.start()
+                break
+        if field_start is None:
+            return None
+    else:
+        if _SIMPLE_ASSIGNMENT_VALUE.fullmatch(line[binding.end("name"):]) is None:
+            return None
+        field_start = binding.start("name")
+    prefix = line[:field_start].strip()
+    return prefix.rstrip(":").strip() if _DIRECT_QUALIFIER.fullmatch(prefix) else None
 
 
 def _declaration_clauses(content: str, raw_refs: str) -> list[tuple[str, int]]:
@@ -588,7 +620,8 @@ def _complete_declaration_pages(db: sqlite3.Connection, contents: dict[int, str]
 
 
 def _declaration_groups(db: sqlite3.Connection, pool: list[dict], matched: dict[int, set[str]],
-                        contents: dict[int, str], references: dict[int, str]) -> tuple[dict, dict]:
+                        contents: dict[int, str], references: dict[int, str], *,
+                        qualifier_contexts: dict | None = None) -> tuple[dict, dict]:
     """Compare the same declared field without promoting mere later mentions.
 
     Values never enter the key or score. Field names come only from candidate
@@ -643,13 +676,15 @@ def _declaration_groups(db: sqlite3.Connection, pool: list[dict], matched: dict[
                 # source turn above. Only the pure syntax of identical text
                 # is shared, never source authentication or coordinates.
                 parsed_clauses[body] = clauses[rid]
-    parsed_fields = {}
+    parsed_fields, parsed_contexts = {}, {}
     for rid, lines in clauses.items():
         body = contents[rid]
         if ordinary and body in parsed_fields:
             subjects = parsed_fields[body]
             if subjects:
                 declared[rid] = subjects
+            if qualifier_contexts is not None:
+                qualifier_contexts[rid] = parsed_contexts[body]
             continue
         # Parse quotes once in the original whole turn. Splitting first would
         # lose quotation state across a sentence or newline inside a quote.
@@ -660,12 +695,22 @@ def _declaration_groups(db: sqlite3.Connection, pool: list[dict], matched: dict[
             index = bisect_right(starts, position) - 1
             return index >= 0 and position < quoted[index][1]
 
+        local = {}
         for line, origin in lines:
-            for binding in _FIELD_BINDING.finditer(line):
+            bindings = list(_FIELD_BINDING.finditer(line))
+            prose_bindings = list(_PROSE_BINDING.finditer(line))
+            single = (qualifier_contexts is not None and
+                      sum(not quoted_at(origin + binding.start())
+                          for binding in (*bindings, *prose_bindings)) == 1)
+            for binding in bindings:
                 identity = _field_identity(binding["name"])
                 if identity in fields and not quoted_at(origin + binding.start()):
                     declared.setdefault(rid, set()).add(identity)
-            for binding in _PROSE_BINDING.finditer(line):
+                    if qualifier_contexts is not None:
+                        prefix = (_declaration_qualifier(line, binding, identity, prose=False)
+                                  if single else None)
+                        local.setdefault(identity, []).append(prefix)
+            for binding in prose_bindings:
                 if quoted_at(origin + binding.start()):
                     continue
                 parts = _field_identity(binding["subject"])
@@ -676,7 +721,20 @@ def _declaration_groups(db: sqlite3.Connection, pool: list[dict], matched: dict[
                     identity = (parts[0][start:], *parts[1:])
                     if identity in fields:
                         declared.setdefault(rid, set()).add(identity)
+                        if qualifier_contexts is not None:
+                            prefix = (_declaration_qualifier(line, binding, identity, prose=True)
+                                      if single else None)
+                            local.setdefault(identity, []).append(prefix)
                         break
+        if qualifier_contexts is not None:
+            # More than one declaration of the same field is ambiguous for a
+            # whole-page revision, even if one of the prefixes looks suitable.
+            qualifier_contexts[rid] = {identity: values[0] if len(values) == 1 else None
+                                       for identity, values in local.items()}
+            if ordinary:
+                # This is only syntax derived from identical body bytes. The
+                # source for each rid was independently authenticated above.
+                parsed_contexts[body] = qualifier_contexts[rid]
         if ordinary:
             parsed_fields[body] = frozenset(declared.get(rid, ()))
     groups = {}
@@ -713,17 +771,46 @@ def _qualify_revision_proposals(db: sqlite3.Connection, pool: list[dict],
     """
     proposed = {item["rid"] for item in pool if item.get("_revision_proposal")}
     passes = 0
+    facet_rejected = set()
     while True:
         refined, diagnostic = {}, {}
+        contexts = {} if proposed else None
         if declarations and len(pool) > 1:
-            refined, diagnostic = _declaration_groups(db, pool, matched, contents, references)
+            refined, diagnostic = _declaration_groups(
+                db, pool, matched, contents, references, qualifier_contexts=contexts)
             passes += 1
         if not proposed:
             break
         comparable = set()
-        for (_, subjects, _), positions in refined.items():
-            if subjects and any(not pool[i].get("_revision_proposal") for i in positions):
-                comparable.update(pool[i]["rid"] for i in positions)
+        prefix_tokens = {}
+        for (_, subjects, facets), positions in refined.items():
+            if not subjects:
+                continue
+            eligible = positions
+            if facets:
+                eligible = []
+                for i in positions:
+                    local = contexts.get(pool[i]["rid"], {})
+                    for subject in subjects:
+                        prefix = local.get(subject)
+                        if prefix is None:
+                            break
+                        if prefix not in prefix_tokens:
+                            # Stop-word removal must not turn a relation such
+                            # as "from X to Y" into an apparently direct label.
+                            terms = frozenset(query_terms(prefix))
+                            prefix_tokens[prefix] = (terms if set(lexical_terms(prefix)) <= terms
+                                                     else None)
+                        if prefix_tokens[prefix] != facets:
+                            break
+                    else:
+                        eligible.append(i)
+            if any(not pool[i].get("_revision_proposal") for i in eligible):
+                comparable.update(pool[i]["rid"] for i in eligible)
+            if facets:
+                facet_rejected.update(pool[i]["rid"] for i in positions
+                                      if pool[i].get("_revision_proposal")
+                                      and pool[i]["rid"] not in comparable)
         rejected = {item["rid"] for item in pool
                     if item.get("_revision_proposal") and item["rid"] not in comparable}
         if not rejected:
@@ -739,6 +826,8 @@ def _qualify_revision_proposals(db: sqlite3.Connection, pool: list[dict],
         qualified = sum(bool(item.get("_revision_proposal")) for item in pool)
         expansion.update({
             "qualification": "complete_source_declaration_with_original_pool_anchor",
+            "facet_qualification": "adjacent_qualifier_on_single_simple_declaration",
+            "rejected_facet_proposals": len(facet_rejected),
             "qualification_passes": passes,
             "qualified_proposals": qualified,
             "rejected_before_ordering": expansion["added_to_pool"] - qualified,

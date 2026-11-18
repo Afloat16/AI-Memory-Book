@@ -600,7 +600,7 @@ whether current-evidence ordering is appropriate; `current` explicitly requests
 it, and `relevance` keeps relevance ordering. Neither mode computes historical
 state as of an arbitrary date or decides which source is authoritative. The existing
 recall-cache identity separates these modes. v0.11.0 increments the recall cache
-version to 18 because current-state candidate recovery changes. Relevance and
+version to 19 because current-state candidate recovery changes. Relevance and
 historical queries keep their established route. A cache miss after upgrading
 is expected; stored source records and their IDs are retained.
 Character and optional token budgets continue to apply together.
