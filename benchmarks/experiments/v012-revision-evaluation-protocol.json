@@ -1,0 +1,43 @@
+{
+  "protocol": "v012-declaration-scope-development-v1",
+  "status_at_registration": "prospective; no quality execution has occurred",
+  "baseline_commit": "78cc906d81818a16884de7de2e613e5a56346f93",
+  "scope": "Authored development/regression diagnosis. Cases were designed after inspecting existing v0.11 weaknesses; this is not an independent holdout, external-product score or latency experiment.",
+  "dataset": "benchmarks/v012_revision_cases.py:workload",
+  "scenarios": 18,
+  "questions": 38,
+  "question_kinds": {
+    "answerable": 32,
+    "conflict": 2,
+    "missing": 2,
+    "empty_scope": 2
+  },
+  "requests_per_runtime_backend": 304,
+  "settings": {
+    "budgets_chars": [1200, 2400],
+    "limits": [1, 5],
+    "temporal_modes": ["auto", "relevance"],
+    "cache": false,
+    "segmentation": "turn",
+    "backends": ["python", "native"]
+  },
+  "metrics": {
+    "answerable": "Count the expected first session and complete original evidence separately; aggregate separately by mode/budget/limit.",
+    "conflict": "Both equally timed recorded declarations are evidence. Report their coverage separately; one-result requests cannot contain two separate pages. Do not label a chosen timestamp or ranking as resolved authority.",
+    "missing": "Count whether related context is returned. Nonempty context is not generated-answer accuracy or failure to abstain; the API is an evidence retriever.",
+    "empty_scope": "An absent exact project ID must return no results and cannot fall back to another book.",
+    "relevance_control": "Retain full responses; compare results, context and candidate_count with the baseline. Relevance-mode current-evidence counts are controls, not current-state accuracy claims.",
+    "integrity": "Every result must pass exact original-page follow-up, source-slice and excerpt-coordinate checks, exact context framing, project scope, result limit and character budget. Independently recompute every saved score and the closed request matrix."
+  },
+  "source_binding": "Require requested worktree HEAD, complete tracked runtime bytes and actual imported package/store/backend. Bind the loaded native extension and evaluator closure before and after execution. Save every response and journal attempted requests before each call.",
+  "comparison_rules": [
+    "Do not change the old 80-question fixture, questions, labels, common packer, historical reports or external ranking settings.",
+    "Do not remove a difficult case or change its gold after observing results. Any protocol correction requires a new version and retains the original attempt.",
+    "Keep every failed setup/execution and use a fresh output path for retries.",
+    "First-session or source-span regressions must be disclosed per case, even if aggregate results improve.",
+    "Supplementary expected-session checks do not prove universal decision authority or truth. Complex Chinese prose, dotted identifiers and equal-time conflicts intentionally expose limits.",
+    "Crowding cases contain repeated authored text; repetition count is not a count of independent quality questions.",
+    "External engines may be compared only in a separately registered supplied-page protocol with actual package execution and unchanged common packing. Native excerpts cannot substitute for those external scores.",
+    "No new latency ranking or universal-superiority claim is accepted from these executions."
+  ]
+}
