@@ -21,6 +21,7 @@ Each bundle was checked with `git bundle verify` in the existing repository.
 | `accuracy-final-development.bundle` | `e6c799267ef6781fd5e6f48b818eca5ac8908122` | Complete correctness development history, final `1122946` guards and the original `4e4a8eb` diagnostic evidence; requires `9ea37a7`. |
 | `integrated-4e4-source.bundle` | `4e4a8eb2fefe31a136033a37fcc844c36162ffae` | Recall-version-26 integrated source measured by the final declaration diagnostics; requires `28e558b`. Its complete tree equals remote `c7fa5c2`, as recorded in the equivalence receipt. |
 | `chapter-planner-fix.bundle` | Source `c0aa790`; evidence `2ec6ada` | Preserves both branches, including the original planner-test failure and its narrow source fix; requires `28e558b`. Full SHA identities are in the manifest. |
+| `run2-local-source.bundle` | `91412b438a0da95549cc9a3b85eccb4915359a2d` | Exact final local source used by the last legacy replay; requires `c7fa5c2`. Its complete tree equals the formal run-2 source `e0e2515`. |
 
 To inspect a bundle from a clone containing the prerequisite commit:
 
@@ -46,6 +47,7 @@ The final accuracy and integrated bundles expose
 `refs/heads/evidence/v013-integrated-4e4`. The planner bundle exposes both
 `refs/heads/evidence/v013-chapter-plan-source` and
 `refs/heads/evidence/v013-chapter-plan-evidence`.
+The run-2 local source bundle exposes `refs/heads/evidence/v013-run2-local`.
 `final-planner-scope.diff` and its review identify the only runtime change
 after the `4e4a8eb` accuracy replay; those old measurements are not relabeled
 as fresh measurements of the planner correction.

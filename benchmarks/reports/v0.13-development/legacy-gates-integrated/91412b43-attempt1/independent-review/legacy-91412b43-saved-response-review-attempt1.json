@@ -1,0 +1,132 @@
+{
+  "schema": "independent-saved-legacy-review-v1",
+  "started_at": "2026-11-18T15:08:13.476679+00:00",
+  "candidate_commit": "91412b438a0da95549cc9a3b85eccb4915359a2d",
+  "baseline_commit": "8044e4bafe18e73ea422af5eeb47ef961e65246c",
+  "memory_book_api_calls": 0,
+  "scope": "Saved evidence and source coordinates only; no retrieval, ingestion or performance measurement.",
+  "review_script_sha256": "bd0739efafe3a410222fbe8f069ff8fca9d6a6a6923e60a99f73d5aa08f8d3d9",
+  "gates": {
+    "engineering": {
+      "execution_sha256": "e2c384bc58a68444f80449aa50ac4a11a0441d1410d962cd4ec0ce8b8c82f9be",
+      "lossless_archives_checked": 10,
+      "source_and_evaluator_identity": "verified_against_git_blobs",
+      "results": {
+        "baseline": {
+          "native": {
+            "responses": 640,
+            "backends": {
+              "no_memory": 160,
+              "recent_history": 160,
+              "flat": 160,
+              "book": 160
+            },
+            "source_error_outputs": 0
+          },
+          "common-block": {
+            "responses": 160,
+            "backends": {
+              "book": 160
+            },
+            "source_error_outputs": 0
+          }
+        },
+        "candidate": {
+          "native": {
+            "responses": 640,
+            "backends": {
+              "no_memory": 160,
+              "recent_history": 160,
+              "flat": 160,
+              "book": 160
+            },
+            "source_error_outputs": 0
+          },
+          "common-block": {
+            "responses": 160,
+            "backends": {
+              "book": 160
+            },
+            "source_error_outputs": 0
+          }
+        }
+      },
+      "score_changes": 0,
+      "interpretation": "800 configurations per source include 480 no_memory/recent_history/flat controls and 320 book configurations; no score regression, not 800 fully correct book answers."
+    },
+    "short-page": {
+      "execution_sha256": "cbe8939c080cb1d514325594ef7d2b7c796cb05107be065ce104342a44a42340",
+      "lossless_archives_checked": 6,
+      "source_and_evaluator_identity": "verified_against_git_blobs",
+      "results": {
+        "python": {
+          "configurations": 482,
+          "recorded_control_current_present": 434,
+          "current_present": 434,
+          "lost_recorded_controls": [],
+          "original_regressions": 34,
+          "original_regressions_recovered": 34,
+          "original_control_payloads_independently_verified": 34,
+          "other_original_controls": "presence observations only; no missing original payloads reconstructed"
+        },
+        "native": {
+          "configurations": 482,
+          "recorded_control_current_present": 434,
+          "current_present": 434,
+          "lost_recorded_controls": [],
+          "original_regressions": 34,
+          "original_regressions_recovered": 34,
+          "original_control_payloads_independently_verified": 34,
+          "other_original_controls": "presence observations only; no missing original payloads reconstructed"
+        }
+      }
+    },
+    "directory": {
+      "execution_sha256": "17829ac1d7685bf2c01fb8c967fc2c83b36db21ae775a5bc273841fb9da43de0",
+      "lossless_archives_checked": 6,
+      "source_and_evaluator_identity": "verified_against_git_blobs",
+      "results": {
+        "python": {
+          "logical_cases": 119,
+          "raw_records": 597,
+          "operations": {
+            "ingest": 48,
+            "search_directory": 130,
+            "chapter": 97,
+            "section": 161,
+            "read": 161
+          },
+          "source_checked_reads": 161,
+          "source_refs_checked": 161,
+          "unique_pages": 80,
+          "expected_errors_preserved": 36,
+          "source_mismatches": 0
+        },
+        "native": {
+          "logical_cases": 119,
+          "raw_records": 597,
+          "operations": {
+            "ingest": 48,
+            "search_directory": 130,
+            "chapter": 97,
+            "section": 161,
+            "read": 161
+          },
+          "source_checked_reads": 161,
+          "source_refs_checked": 161,
+          "unique_pages": 80,
+          "expected_errors_preserved": 36,
+          "source_mismatches": 0
+        }
+      }
+    }
+  },
+  "scorer_bindings": {
+    "scripts/audit_project_scope_native_replay.py": "a70e7ba8af0922d7c83bf1b64af1315c7e080cc3dfeaf3658df06edf13965109",
+    "benchmarks/v012_short_page_guard_eval.py": "0112be08cb5bed81c0580c4266d3eb09799766a548b823288e464e08afae8568"
+  },
+  "evidence_root": "/workspace/scratch/428c08bef2bc/v013-accuracy/benchmarks/reports/v0.13-development/legacy-gates-integrated/91412b43-attempt1",
+  "status": "passed",
+  "checks": 4716,
+  "finished_at": "2026-11-18T15:08:14.777379+00:00"
+}
