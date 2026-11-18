@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/428c08bef2bc/v013-multisource-fix/benchmarks/v013_accuracy_eval.py", line 305, in <module>
+    main()
+  File "/workspace/scratch/428c08bef2bc/v013-multisource-fix/benchmarks/v013_accuracy_eval.py", line 288, in main
+    worker(args)
+  File "/workspace/scratch/428c08bef2bc/v013-multisource-fix/benchmarks/v013_accuracy_eval.py", line 165, in worker
+    before, evaluator = source_identity(source, args.commit), evaluator_identity()
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/428c08bef2bc/v013-multisource-fix/scripts/validate_v011_revision_recovery.py", line 43, in source_identity
+    raise ValueError("Worktree HEAD differs from the requested immutable source")
+ValueError: Worktree HEAD differs from the requested immutable source
+Traceback (most recent call last):
+  File "/workspace/scratch/428c08bef2bc/v013-multisource-fix/benchmarks/v013_accuracy_eval.py", line 305, in <module>
+    main()
+  File "/workspace/scratch/428c08bef2bc/v013-multisource-fix/benchmarks/v013_accuracy_eval.py", line 297, in main
+    subprocess.run([sys.executable, str(Path(__file__).resolve()), "--worker", "--source", str(args.source.resolve()),
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/workspace/scratch/428c08bef2bc/.venv/bin/python', '/workspace/scratch/428c08bef2bc/v013-multisource-fix/benchmarks/v013_accuracy_eval.py', '--worker', '--source', '/workspace/scratch/428c08bef2bc/v013-multisource-fix', '--commit', '28ebff9b3ca05fa9b0c0c2dbcc31cd3f678d678a', '--backend', 'python', '--output', '/workspace/scratch/428c08bef2bc/v013-multisource-fix/benchmarks/reports/v0.13-development/scale-correctness-review/final-62-python-attempt1']' returned non-zero exit status 1.

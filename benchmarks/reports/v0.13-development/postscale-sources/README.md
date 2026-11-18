@@ -5,15 +5,19 @@ records. The remote recovery checkpoint may have a different commit ID with
 the same final file tree. Do not replace an experiment's original source SHA
 with the recovery checkpoint SHA.
 
-Both bundles require the public run-1 candidate
-`9ea37a7c72aec21b6f106d9631d72d72199e283b`. Their exact byte counts, SHA-256
-hashes, heads and contained commits are in [manifest.json](manifest.json).
+The individual development bundles require the public run-1 candidate
+`9ea37a7c72aec21b6f106d9631d72d72199e283b`. The integrated `0a48` source bundle
+instead requires recovery checkpoint
+`1986fd8ec0f5bedb28041dda4033e573206af677`. Exact byte counts, SHA-256 hashes,
+heads, per-bundle prerequisites and contained commits are in [manifest.json](manifest.json).
 Each bundle was checked with `git bundle verify` in the existing repository.
 
 | Bundle | Head | Boundary |
 |---|---|---|
 | `accuracy-ab-development.bundle` | `660995077ba6165872e6644be3e21c00c525fc1a` | Original A/B development, including rejected quoted/conditional/negated-reference and Unicode-quotation attempts. Multi-source failure is still unresolved at this checkpoint; this is not an accepted source. |
 | `sparse-performance.bundle` | `0442e1238ac8ea653460bc708c4fcb4dabc6903a` | Performance source `f3b7e31` plus its original build/134-test-per-backend records. No formal speed claim is made by those tests. |
+| `accuracy-abc-development.bundle` | `b7c8ed693c8bcbc68537069181061a87bc6c415d` | A/B/C source, original failed attempts, 1,024-page reproductions and the original integrated diagnostic outputs. Later quotation and checklist-fact counterexamples block acceptance of this intermediate source. |
+| `integrated-0a48-source.bundle` | `0a48eadd563a1d6622d03cbaf5d5ef274ef8aac7` | Exact integrated source used by the second legacy gate replay and the 62/38/64 diagnostics. Its tree was saved remotely at `2bcf7f3`; original measurements retain the actual local SHA. |
 
 To inspect a bundle from a clone containing the prerequisite commit:
 
@@ -28,3 +32,8 @@ The parallel performance bundle exposes
 source and result commits. Original raw response files are also present in
 the corresponding report directories. Later corrections should add their own
 source recovery bundle and retain these original attempts.
+
+The later bundles expose `refs/heads/evidence/v013-abc-development` and
+`refs/heads/evidence/v013-integrated-0a48`, respectively. Each can be inspected
+using the same `git bundle verify`, `git fetch` and exact-commit `git show`
+sequence with its own file/ref/prerequisite.

@@ -1,0 +1,598 @@
+{
+  "schema": "v013-unchanged-legacy-gate-v1",
+  "gate": "engineering",
+  "status": "completed",
+  "accepted": true,
+  "candidate_commit": "0a48eadd563a1d6622d03cbaf5d5ef274ef8aac7",
+  "baseline_commit": "8044e4bafe18e73ea422af5eeb47ef961e65246c",
+  "scope": "Authored correctness/compatibility replay; no third-party rerun or performance claim.",
+  "started_at": "2026-11-18T14:38:02.133127+00:00",
+  "attempts": [
+    {
+      "label": "baseline",
+      "backend": "native",
+      "command": [
+        "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+        "/workspace/scratch/428c08bef2bc/v013-accuracy/scripts/validate_v013_legacy_gates.py",
+        "--worker",
+        "engineering",
+        "--candidate-source",
+        "/workspace/scratch/428c08bef2bc/v013-baseline",
+        "--candidate-commit",
+        "8044e4bafe18e73ea422af5eeb47ef961e65246c",
+        "--backend",
+        "native",
+        "--output",
+        "/workspace/scratch/428c08bef2bc/runtime-review/v013-integrated-legacy-gates/0a48eadd563a/attempt1/engineering-attempt1/baseline"
+      ],
+      "cwd": "/workspace/scratch/428c08bef2bc/v013-baseline",
+      "timeout_seconds": 600,
+      "started_at": "2026-11-18T14:38:02.594358+00:00",
+      "environment": {
+        "PYTHONPATH": "/workspace/scratch/428c08bef2bc/v013-baseline/src:/workspace/scratch/428c08bef2bc/v013-accuracy:/workspace/scratch/428c08bef2bc/v013-accuracy",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "MEMORY_BOOK_TEXT_BACKEND": "native",
+        "CC": "gcc",
+        "TIKTOKEN_CACHE_DIR": "/workspace/scratch/428c08bef2bc/tokenizer-cache"
+      },
+      "log": "baseline.log",
+      "timed_out": false,
+      "returncode": 0,
+      "finished_at": "2026-11-18T14:38:04.797677+00:00"
+    },
+    {
+      "label": "candidate",
+      "backend": "native",
+      "command": [
+        "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+        "/workspace/scratch/428c08bef2bc/v013-accuracy/scripts/validate_v013_legacy_gates.py",
+        "--worker",
+        "engineering",
+        "--candidate-source",
+        "/workspace/scratch/428c08bef2bc/v013-legacy-candidate",
+        "--candidate-commit",
+        "0a48eadd563a1d6622d03cbaf5d5ef274ef8aac7",
+        "--backend",
+        "native",
+        "--output",
+        "/workspace/scratch/428c08bef2bc/runtime-review/v013-integrated-legacy-gates/0a48eadd563a/attempt1/engineering-attempt1/candidate"
+      ],
+      "cwd": "/workspace/scratch/428c08bef2bc/v013-legacy-candidate",
+      "timeout_seconds": 600,
+      "started_at": "2026-11-18T14:38:05.115276+00:00",
+      "environment": {
+        "PYTHONPATH": "/workspace/scratch/428c08bef2bc/v013-legacy-candidate/src:/workspace/scratch/428c08bef2bc/v013-accuracy:/workspace/scratch/428c08bef2bc/v013-accuracy",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "MEMORY_BOOK_TEXT_BACKEND": "native",
+        "CC": "gcc",
+        "TIKTOKEN_CACHE_DIR": "/workspace/scratch/428c08bef2bc/tokenizer-cache"
+      },
+      "log": "candidate.log",
+      "timed_out": false,
+      "returncode": 0,
+      "finished_at": "2026-11-18T14:38:07.971680+00:00"
+    }
+  ],
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "sqlite": "3.53.1",
+    "dependencies": {
+      "mcp": "1.30.0",
+      "tiktoken": "0.12.0",
+      "numpy": "2.5.5",
+      "tomlkit": "0.15.2",
+      "build": "1.3.0",
+      "setuptools": "80.9.0",
+      "wheel": "0.45.1"
+    }
+  },
+  "source_before": {
+    "baseline": {
+      "commit": "8044e4bafe18e73ea422af5eeb47ef961e65246c",
+      "files": {
+        "src/memory_book/__init__.py": "4b14b12e331158309de8d8c16f8434044508b33270cdc53321a4bea39b7f7521",
+        "src/memory_book/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+        "src/memory_book/_native.c": "e0189243908da1035181911244301083877f44502064f8435ff3ce6363f88aad",
+        "src/memory_book/_native_excerpt.h": "973e1c0490b2287e117c9b67b2b27f39105996b27e11317085226e1da0d5dab2",
+        "src/memory_book/_native_lexical.h": "9e97f50d818cbdd8db61462e1f5d5b73ba82a871815d92a1403a64855d62913f",
+        "src/memory_book/_native_rank.h": "6f21ef972190dc65545e0b9109ab6b529881fbe1e8be3acb198441c95a1f320c",
+        "src/memory_book/_native_segmentation.h": "c0360b03583067e53509b822c34ec544d4dd4c218e9d1a2638df7a1803c503e6",
+        "src/memory_book/_native_source.h": "ff0fba96f09dfe103887b564e68f987b3840431c2d569558f204e29ec1c1bc5e",
+        "src/memory_book/_text_backend.py": "b8268cbc11d49be34fa83e1c8d7a46b481f2caf159ab7f4425f8198e76063b45",
+        "src/memory_book/cli.py": "5c7e8d571d0fd641d142dec00f73ed8fd7d2e224515e673beecfc018b8f53947",
+        "src/memory_book/clients.py": "b1329fb564acc79a14e2d281bae0687224d63323ac129aa602899a4d0f0b576c",
+        "src/memory_book/context_budget.py": "cab5bb22c729a56ab7a0b8464beabe0f619bbcc9219c22246c47367a2b2014d9",
+        "src/memory_book/directory.py": "81362ff13c34c30047c2c447cc317e74bddfb5f8eb87aa35cbf7b0fa1bfcd10f",
+        "src/memory_book/formats.py": "9b03524f6ae77aa1f0b73b4b74266da506421919135a6975ea692cac30eb48d1",
+        "src/memory_book/importers.py": "aa5c0ab87f4727762f9e69af7cf2ea539f0c1ab73bf8f524714a2935356ffcc8",
+        "src/memory_book/integration.py": "ea0447b2e04c266b3a269315f1c11c4b2d9fba14eb9e2702cd7368413df301ff",
+        "src/memory_book/maintenance.py": "a9fb2d53b2afc7fcf8347750118b6f581dbdd80dbb270f1808daa14af73ba7ba",
+        "src/memory_book/mcp_server.py": "850e2fdb46dd3087dae7d329ae107bdb7f9bca04635e67d9495932832145bcef",
+        "src/memory_book/paths.py": "d7865c48e2c09eca14c00b20efd306f591d3876fa5c19ba39c2716eb09be7137",
+        "src/memory_book/scope.py": "58eeaf7257b65275550507582ee25a62aaf19734bceb6f6cc253cf4febb60f2c",
+        "src/memory_book/segmentation.py": "4eb0eb70fc3a0751a511811fcf54a147e78a427d93a719cda060cc01c0aa6f8b",
+        "src/memory_book/semantic.py": "76aaaf40144146c5b3e6c542c1a3dedcad1a19f78d654da613dc085586bec6fd",
+        "src/memory_book/service.py": "2ab8da2433fb3573547f8c16fb0fccaa0493da5ba001d18d74b5da3622cc0c3a",
+        "src/memory_book/static/index.html": "4d8b699a28d9d4868754da598a483a6b6cf1174840adfa5d218580e475900a45",
+        "src/memory_book/store.py": "7012266f08c7c4b424dc078836601cbca7b0c9dfc9f45f6904b453055b7627cc",
+        "src/memory_book/sync.py": "bd149afe6bb93594cfb64bcfd908eb358fb31b3e2c0ca741edac72d705b64372",
+        "src/memory_book/text.py": "b27b2a4992d1530736b502f00d80b6c442ccaca534b16c1eb6a750e31436b6c7",
+        "src/memory_book/token_budget.py": "910de5a73eecbf3b6ebde521c2a274f3d31ba251a90f12a46abd3e0f3d2dbfce",
+        "src/memory_book/web.py": "dc3be1b8dda2f46c6dc8312e64e4b7f9c1a1cc2fca15bbba639c71c8d04f34d1"
+      },
+      "native_extensions": {
+        "_native.cpython-312-x86_64-linux-gnu.so": "632584bba254487bde39f7b883a1c01dd971b43e9526531709d20b7a36ad63ea"
+      },
+      "source_sha256": "b74abf6fa89e34ce2e34056fafc5a9f0662da88f1805c1ebcaa43fcf74b3b150"
+    },
+    "candidate": {
+      "commit": "0a48eadd563a1d6622d03cbaf5d5ef274ef8aac7",
+      "files": {
+        "src/memory_book/__init__.py": "aa31fe48ed04c8878e13536813d1f3332a0e07203c2568f90ffaefea7ba14738",
+        "src/memory_book/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+        "src/memory_book/_native.c": "e0189243908da1035181911244301083877f44502064f8435ff3ce6363f88aad",
+        "src/memory_book/_native_excerpt.h": "973e1c0490b2287e117c9b67b2b27f39105996b27e11317085226e1da0d5dab2",
+        "src/memory_book/_native_lexical.h": "9e97f50d818cbdd8db61462e1f5d5b73ba82a871815d92a1403a64855d62913f",
+        "src/memory_book/_native_rank.h": "6f21ef972190dc65545e0b9109ab6b529881fbe1e8be3acb198441c95a1f320c",
+        "src/memory_book/_native_segmentation.h": "c0360b03583067e53509b822c34ec544d4dd4c218e9d1a2638df7a1803c503e6",
+        "src/memory_book/_native_source.h": "ff0fba96f09dfe103887b564e68f987b3840431c2d569558f204e29ec1c1bc5e",
+        "src/memory_book/_text_backend.py": "b8268cbc11d49be34fa83e1c8d7a46b481f2caf159ab7f4425f8198e76063b45",
+        "src/memory_book/cli.py": "5c7e8d571d0fd641d142dec00f73ed8fd7d2e224515e673beecfc018b8f53947",
+        "src/memory_book/clients.py": "b1329fb564acc79a14e2d281bae0687224d63323ac129aa602899a4d0f0b576c",
+        "src/memory_book/context_budget.py": "cab5bb22c729a56ab7a0b8464beabe0f619bbcc9219c22246c47367a2b2014d9",
+        "src/memory_book/directory.py": "019d1b06482c2287cc5f192d44d2a379753f83910a1945dd3ad77834bbfb9e6d",
+        "src/memory_book/formats.py": "9b03524f6ae77aa1f0b73b4b74266da506421919135a6975ea692cac30eb48d1",
+        "src/memory_book/importers.py": "aa5c0ab87f4727762f9e69af7cf2ea539f0c1ab73bf8f524714a2935356ffcc8",
+        "src/memory_book/integration.py": "ea0447b2e04c266b3a269315f1c11c4b2d9fba14eb9e2702cd7368413df301ff",
+        "src/memory_book/maintenance.py": "a9fb2d53b2afc7fcf8347750118b6f581dbdd80dbb270f1808daa14af73ba7ba",
+        "src/memory_book/mcp_server.py": "e438d4769fda40a993580324ff695cdddade2c881a5cb1db05b17687e6ced8c4",
+        "src/memory_book/paths.py": "d7865c48e2c09eca14c00b20efd306f591d3876fa5c19ba39c2716eb09be7137",
+        "src/memory_book/scope.py": "58eeaf7257b65275550507582ee25a62aaf19734bceb6f6cc253cf4febb60f2c",
+        "src/memory_book/segmentation.py": "4eb0eb70fc3a0751a511811fcf54a147e78a427d93a719cda060cc01c0aa6f8b",
+        "src/memory_book/semantic.py": "76aaaf40144146c5b3e6c542c1a3dedcad1a19f78d654da613dc085586bec6fd",
+        "src/memory_book/service.py": "2ab8da2433fb3573547f8c16fb0fccaa0493da5ba001d18d74b5da3622cc0c3a",
+        "src/memory_book/static/index.html": "4d8b699a28d9d4868754da598a483a6b6cf1174840adfa5d218580e475900a45",
+        "src/memory_book/store.py": "ab959d7b67ac3273fa1b8e3371ee89827092b3a2a9a683784e29a9f67706e8af",
+        "src/memory_book/sync.py": "bd149afe6bb93594cfb64bcfd908eb358fb31b3e2c0ca741edac72d705b64372",
+        "src/memory_book/text.py": "b27b2a4992d1530736b502f00d80b6c442ccaca534b16c1eb6a750e31436b6c7",
+        "src/memory_book/token_budget.py": "910de5a73eecbf3b6ebde521c2a274f3d31ba251a90f12a46abd3e0f3d2dbfce",
+        "src/memory_book/web.py": "dc3be1b8dda2f46c6dc8312e64e4b7f9c1a1cc2fca15bbba639c71c8d04f34d1"
+      },
+      "native_extensions": {
+        "_native.cpython-312-x86_64-linux-gnu.so": "2acebf326c368d7937092eda91c464d24807a3a5c976c7351c93fc717cef79e0"
+      },
+      "source_sha256": "41b26196fac27a28f1610aa938cbcb3daffd8943c763be634b9d1bac249d510c"
+    }
+  },
+  "inputs_before": {
+    "driver": {
+      "commit": "8939f0925e973642f91101c85a01bc7e5bc8101b",
+      "files": {
+        "scripts/validate_v011_revision_recovery.py": {
+          "bytes": 12909,
+          "sha256": "e4ee8e6694b7087e18905016c82fdbdedf5f6405bcf95fd141bf0b74d92f23d7",
+          "git_blob": "e0316d1f548722e5ef776262e2ad8ed4ed5fcf88"
+        },
+        "scripts/validate_v013_legacy_gates.py": {
+          "bytes": 19063,
+          "sha256": "fa25f30cb775596bfdef448952eaaaf07247f188aa0b8f7411d2702d3b82e81e",
+          "git_blob": "2f02bb24eabb5d9bd5aecbe9930280f10c71e9b0"
+        }
+      }
+    },
+    "unchanged_legacy_inputs": {
+      "commit": "8044e4bafe18e73ea422af5eeb47ef961e65246c",
+      "files": {
+        "benchmarks/__init__.py": {
+          "bytes": 216,
+          "sha256": "82c1a9c2c4363d02d1ec7e504ce64a1c90051df12f852ec4978f32be5cf5bce0",
+          "git_blob": "e60abaac2aadb1ee8868ac47fdd037efb0a5c629"
+        },
+        "benchmarks/competitors/__init__.py": {
+          "bytes": 83,
+          "sha256": "c2cdffc43f51dd4658ed222d375b9c9344203b4da4b29ecb2a99129e0cb3534a",
+          "git_blob": "485034ecf498f410783bfdfdac057f16e0a24d02"
+        },
+        "benchmarks/competitors/billion-round2-lock.json": {
+          "bytes": 4249,
+          "sha256": "0f56614fb56f3f269f6e40eb28646a8939fdf4e6dddcc93187465d31311dfd69",
+          "git_blob": "f3aba0b4f125f3cfd9a639bb54493693e62c010d"
+        },
+        "benchmarks/competitors/billion.py": {
+          "bytes": 9752,
+          "sha256": "659d8296742b84a32d8094dc9756f48675582551e15bb411ff73842fa7ba9f14",
+          "git_blob": "04119c8deaad83508a3ab909ab8723b0c3540097"
+        },
+        "benchmarks/competitors/billion_bridge.mjs": {
+          "bytes": 2150,
+          "sha256": "8279eac093e3e51c5dfdcc9dc8dd2730f36c4653b78175a127e85b0ec62f6c93",
+          "git_blob": "31bb78ba85d798714ddd00255e6250507c4c6b7c"
+        },
+        "benchmarks/competitors/claude-mem-round2-lock.json": {
+          "bytes": 1609,
+          "sha256": "49267441d4a1292bdd6232abfd78a109fc97fcfcfcf740a51a84d767d6c3edae",
+          "git_blob": "3394bb76e5470e9f05dc330c35958a18792d07c5"
+        },
+        "benchmarks/competitors/claude_mem.py": {
+          "bytes": 13552,
+          "sha256": "40e23f39527e2c7e9232668de2a9536d537132c886d47018bef5c8023c2edbdc",
+          "git_blob": "a5f69be4bc68cfd960d1bc1151c68ad82e188db9"
+        },
+        "benchmarks/competitors/claude_mem_bridge.ts": {
+          "bytes": 5763,
+          "sha256": "51ce601093267d610644fcbc75241b4a75061f611c937888964e14588e0f660c",
+          "git_blob": "4ee170f1744040ea3c9a85b6d3225aec46072184"
+        },
+        "benchmarks/competitors/compile_billion.mjs": {
+          "bytes": 1023,
+          "sha256": "64cfba78b1c8bea6cf606aedb3e76c27c0ccefecb1a7f26a14c9a72029619b91",
+          "git_blob": "b9eac1758bfafeb1edbf4ba6fbe82805677cd9a3"
+        },
+        "benchmarks/competitors/download.py": {
+          "bytes": 959,
+          "sha256": "2bb2bc414826223f515d7b89e3a001e6586ab8813c5f6eaa2eaa7580d4376365",
+          "git_blob": "dcebf7c56d55e4d12f149e96111a3521e1daf374"
+        },
+        "benchmarks/competitors/memory-systems-lock.json": {
+          "bytes": 2653,
+          "sha256": "3eb7b0c83eb7fe487e9d4b243c605d4a9b7df258c84ecc93d9ad072a3c941d1f",
+          "git_blob": "bd474ed4b8fff6c5456bfb5e9e4af4b69b49f98b"
+        },
+        "benchmarks/competitors/memory-systems-plan.md": {
+          "bytes": 6237,
+          "sha256": "ef6756032c6b11b1a48cb340ea05850858f6fc66f92141c9c17fc4d9e2d9aa89",
+          "git_blob": "d006681bfe7ee9cf1c113734bd0ce02c74420cef"
+        },
+        "benchmarks/competitors/memory-systems-requirements.in": {
+          "bytes": 398,
+          "sha256": "faccb4d2f566618f1eea188eb06c82860d420ffdd77e9e8c7f8c5a3183098772",
+          "git_blob": "80051a0df4d9bf4319f6a8fc49e7fb4968901c4d"
+        },
+        "benchmarks/competitors/memory-systems-requirements.txt": {
+          "bytes": 397358,
+          "sha256": "611d1cfa7a8c7794d222beff186140ae6803b81f9192247f7dd1174ebc920cd1",
+          "git_blob": "e75f8c5966fdc726dc57a4d120f0ce4c8930b262"
+        },
+        "benchmarks/competitors/memory_systems.py": {
+          "bytes": 13585,
+          "sha256": "9e99942bfe9be7f5b0fa8e4fc6a022831eb6cb0dfdcc2cde793cc8dca048a31d",
+          "git_blob": "df2e1bced464d24025cbee0619414e6b22f79678"
+        },
+        "benchmarks/competitors/memory_systems_worker.py": {
+          "bytes": 18167,
+          "sha256": "8234df7cf8cf3649b701c816be196d237958f5974cdc8d19beb5e0192dae4305",
+          "git_blob": "faa3a76af9a3f18e901fb90851ca6d1cabae9273"
+        },
+        "benchmarks/engineering_components.py": {
+          "bytes": 19302,
+          "sha256": "48b2f7752f80622296b9ace09d4941ae5396296d06cf00f39afe8ea0764be5e7",
+          "git_blob": "f5fb94b62fe2a4c83927aad8c32f203160b4c815"
+        },
+        "benchmarks/engineering_workflow.py": {
+          "bytes": 32533,
+          "sha256": "3d1c53ef016a7143c86cf1326f2bf5b5cf7260863e91225d9a7e09a9773cdc6e",
+          "git_blob": "2c423bb55be3e6dda15d43a14b207f1f44b1d6d4"
+        },
+        "benchmarks/memory_systems.py": {
+          "bytes": 25792,
+          "sha256": "cbfa1f23ac556dd3daf04c8509c374affca86bf0d8968b4a13db454b9af548cd",
+          "git_blob": "e0ee72e37385ed838d1c034562301301e73b43f6"
+        },
+        "scripts/audit_project_scope_native_replay.py": {
+          "bytes": 23962,
+          "sha256": "a70e7ba8af0922d7c83bf1b64af1315c7e080cc3dfeaf3658df06edf13965109",
+          "git_blob": "acab58c56338b51edcb6148783ce816e256fcdcd"
+        },
+        "scripts/validate_v011_revision_recovery.py": {
+          "bytes": 12909,
+          "sha256": "e4ee8e6694b7087e18905016c82fdbdedf5f6405bcf95fd141bf0b74d92f23d7",
+          "git_blob": "e0316d1f548722e5ef776262e2ad8ed4ed5fcf88"
+        },
+        "scripts/validate_v012_engineering.py": {
+          "bytes": 9619,
+          "sha256": "e77750e11be08528b8b1cdffefdc3e0a0f743a4e0a188c420015f151d973cf5e",
+          "git_blob": "ca7a8d1fa66e009de07d9cea38bdc2adebaf3e0a"
+        },
+        "scripts/verify_current_readme_results.py": {
+          "bytes": 13202,
+          "sha256": "0fdc9e34d7a6265888dbcd91fb8193619b25b82d925ef8241fa1d860cdd30a5c",
+          "git_blob": "0437ab1310e864bbd347fb063942458ee817b1a2"
+        }
+      }
+    }
+  },
+  "comparisons": {
+    "native": {
+      "responses": 640,
+      "score_changes": [],
+      "regressions": []
+    },
+    "common-block": {
+      "responses": 160,
+      "score_changes": [],
+      "regressions": []
+    }
+  },
+  "source_after": {
+    "baseline": {
+      "commit": "8044e4bafe18e73ea422af5eeb47ef961e65246c",
+      "files": {
+        "src/memory_book/__init__.py": "4b14b12e331158309de8d8c16f8434044508b33270cdc53321a4bea39b7f7521",
+        "src/memory_book/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+        "src/memory_book/_native.c": "e0189243908da1035181911244301083877f44502064f8435ff3ce6363f88aad",
+        "src/memory_book/_native_excerpt.h": "973e1c0490b2287e117c9b67b2b27f39105996b27e11317085226e1da0d5dab2",
+        "src/memory_book/_native_lexical.h": "9e97f50d818cbdd8db61462e1f5d5b73ba82a871815d92a1403a64855d62913f",
+        "src/memory_book/_native_rank.h": "6f21ef972190dc65545e0b9109ab6b529881fbe1e8be3acb198441c95a1f320c",
+        "src/memory_book/_native_segmentation.h": "c0360b03583067e53509b822c34ec544d4dd4c218e9d1a2638df7a1803c503e6",
+        "src/memory_book/_native_source.h": "ff0fba96f09dfe103887b564e68f987b3840431c2d569558f204e29ec1c1bc5e",
+        "src/memory_book/_text_backend.py": "b8268cbc11d49be34fa83e1c8d7a46b481f2caf159ab7f4425f8198e76063b45",
+        "src/memory_book/cli.py": "5c7e8d571d0fd641d142dec00f73ed8fd7d2e224515e673beecfc018b8f53947",
+        "src/memory_book/clients.py": "b1329fb564acc79a14e2d281bae0687224d63323ac129aa602899a4d0f0b576c",
+        "src/memory_book/context_budget.py": "cab5bb22c729a56ab7a0b8464beabe0f619bbcc9219c22246c47367a2b2014d9",
+        "src/memory_book/directory.py": "81362ff13c34c30047c2c447cc317e74bddfb5f8eb87aa35cbf7b0fa1bfcd10f",
+        "src/memory_book/formats.py": "9b03524f6ae77aa1f0b73b4b74266da506421919135a6975ea692cac30eb48d1",
+        "src/memory_book/importers.py": "aa5c0ab87f4727762f9e69af7cf2ea539f0c1ab73bf8f524714a2935356ffcc8",
+        "src/memory_book/integration.py": "ea0447b2e04c266b3a269315f1c11c4b2d9fba14eb9e2702cd7368413df301ff",
+        "src/memory_book/maintenance.py": "a9fb2d53b2afc7fcf8347750118b6f581dbdd80dbb270f1808daa14af73ba7ba",
+        "src/memory_book/mcp_server.py": "850e2fdb46dd3087dae7d329ae107bdb7f9bca04635e67d9495932832145bcef",
+        "src/memory_book/paths.py": "d7865c48e2c09eca14c00b20efd306f591d3876fa5c19ba39c2716eb09be7137",
+        "src/memory_book/scope.py": "58eeaf7257b65275550507582ee25a62aaf19734bceb6f6cc253cf4febb60f2c",
+        "src/memory_book/segmentation.py": "4eb0eb70fc3a0751a511811fcf54a147e78a427d93a719cda060cc01c0aa6f8b",
+        "src/memory_book/semantic.py": "76aaaf40144146c5b3e6c542c1a3dedcad1a19f78d654da613dc085586bec6fd",
+        "src/memory_book/service.py": "2ab8da2433fb3573547f8c16fb0fccaa0493da5ba001d18d74b5da3622cc0c3a",
+        "src/memory_book/static/index.html": "4d8b699a28d9d4868754da598a483a6b6cf1174840adfa5d218580e475900a45",
+        "src/memory_book/store.py": "7012266f08c7c4b424dc078836601cbca7b0c9dfc9f45f6904b453055b7627cc",
+        "src/memory_book/sync.py": "bd149afe6bb93594cfb64bcfd908eb358fb31b3e2c0ca741edac72d705b64372",
+        "src/memory_book/text.py": "b27b2a4992d1530736b502f00d80b6c442ccaca534b16c1eb6a750e31436b6c7",
+        "src/memory_book/token_budget.py": "910de5a73eecbf3b6ebde521c2a274f3d31ba251a90f12a46abd3e0f3d2dbfce",
+        "src/memory_book/web.py": "dc3be1b8dda2f46c6dc8312e64e4b7f9c1a1cc2fca15bbba639c71c8d04f34d1"
+      },
+      "native_extensions": {
+        "_native.cpython-312-x86_64-linux-gnu.so": "632584bba254487bde39f7b883a1c01dd971b43e9526531709d20b7a36ad63ea"
+      },
+      "source_sha256": "b74abf6fa89e34ce2e34056fafc5a9f0662da88f1805c1ebcaa43fcf74b3b150"
+    },
+    "candidate": {
+      "commit": "0a48eadd563a1d6622d03cbaf5d5ef274ef8aac7",
+      "files": {
+        "src/memory_book/__init__.py": "aa31fe48ed04c8878e13536813d1f3332a0e07203c2568f90ffaefea7ba14738",
+        "src/memory_book/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+        "src/memory_book/_native.c": "e0189243908da1035181911244301083877f44502064f8435ff3ce6363f88aad",
+        "src/memory_book/_native_excerpt.h": "973e1c0490b2287e117c9b67b2b27f39105996b27e11317085226e1da0d5dab2",
+        "src/memory_book/_native_lexical.h": "9e97f50d818cbdd8db61462e1f5d5b73ba82a871815d92a1403a64855d62913f",
+        "src/memory_book/_native_rank.h": "6f21ef972190dc65545e0b9109ab6b529881fbe1e8be3acb198441c95a1f320c",
+        "src/memory_book/_native_segmentation.h": "c0360b03583067e53509b822c34ec544d4dd4c218e9d1a2638df7a1803c503e6",
+        "src/memory_book/_native_source.h": "ff0fba96f09dfe103887b564e68f987b3840431c2d569558f204e29ec1c1bc5e",
+        "src/memory_book/_text_backend.py": "b8268cbc11d49be34fa83e1c8d7a46b481f2caf159ab7f4425f8198e76063b45",
+        "src/memory_book/cli.py": "5c7e8d571d0fd641d142dec00f73ed8fd7d2e224515e673beecfc018b8f53947",
+        "src/memory_book/clients.py": "b1329fb564acc79a14e2d281bae0687224d63323ac129aa602899a4d0f0b576c",
+        "src/memory_book/context_budget.py": "cab5bb22c729a56ab7a0b8464beabe0f619bbcc9219c22246c47367a2b2014d9",
+        "src/memory_book/directory.py": "019d1b06482c2287cc5f192d44d2a379753f83910a1945dd3ad77834bbfb9e6d",
+        "src/memory_book/formats.py": "9b03524f6ae77aa1f0b73b4b74266da506421919135a6975ea692cac30eb48d1",
+        "src/memory_book/importers.py": "aa5c0ab87f4727762f9e69af7cf2ea539f0c1ab73bf8f524714a2935356ffcc8",
+        "src/memory_book/integration.py": "ea0447b2e04c266b3a269315f1c11c4b2d9fba14eb9e2702cd7368413df301ff",
+        "src/memory_book/maintenance.py": "a9fb2d53b2afc7fcf8347750118b6f581dbdd80dbb270f1808daa14af73ba7ba",
+        "src/memory_book/mcp_server.py": "e438d4769fda40a993580324ff695cdddade2c881a5cb1db05b17687e6ced8c4",
+        "src/memory_book/paths.py": "d7865c48e2c09eca14c00b20efd306f591d3876fa5c19ba39c2716eb09be7137",
+        "src/memory_book/scope.py": "58eeaf7257b65275550507582ee25a62aaf19734bceb6f6cc253cf4febb60f2c",
+        "src/memory_book/segmentation.py": "4eb0eb70fc3a0751a511811fcf54a147e78a427d93a719cda060cc01c0aa6f8b",
+        "src/memory_book/semantic.py": "76aaaf40144146c5b3e6c542c1a3dedcad1a19f78d654da613dc085586bec6fd",
+        "src/memory_book/service.py": "2ab8da2433fb3573547f8c16fb0fccaa0493da5ba001d18d74b5da3622cc0c3a",
+        "src/memory_book/static/index.html": "4d8b699a28d9d4868754da598a483a6b6cf1174840adfa5d218580e475900a45",
+        "src/memory_book/store.py": "ab959d7b67ac3273fa1b8e3371ee89827092b3a2a9a683784e29a9f67706e8af",
+        "src/memory_book/sync.py": "bd149afe6bb93594cfb64bcfd908eb358fb31b3e2c0ca741edac72d705b64372",
+        "src/memory_book/text.py": "b27b2a4992d1530736b502f00d80b6c442ccaca534b16c1eb6a750e31436b6c7",
+        "src/memory_book/token_budget.py": "910de5a73eecbf3b6ebde521c2a274f3d31ba251a90f12a46abd3e0f3d2dbfce",
+        "src/memory_book/web.py": "dc3be1b8dda2f46c6dc8312e64e4b7f9c1a1cc2fca15bbba639c71c8d04f34d1"
+      },
+      "native_extensions": {
+        "_native.cpython-312-x86_64-linux-gnu.so": "2acebf326c368d7937092eda91c464d24807a3a5c976c7351c93fc717cef79e0"
+      },
+      "source_sha256": "41b26196fac27a28f1610aa938cbcb3daffd8943c763be634b9d1bac249d510c"
+    }
+  },
+  "inputs_after": {
+    "driver": {
+      "commit": "8939f0925e973642f91101c85a01bc7e5bc8101b",
+      "files": {
+        "scripts/validate_v011_revision_recovery.py": {
+          "bytes": 12909,
+          "sha256": "e4ee8e6694b7087e18905016c82fdbdedf5f6405bcf95fd141bf0b74d92f23d7",
+          "git_blob": "e0316d1f548722e5ef776262e2ad8ed4ed5fcf88"
+        },
+        "scripts/validate_v013_legacy_gates.py": {
+          "bytes": 19063,
+          "sha256": "fa25f30cb775596bfdef448952eaaaf07247f188aa0b8f7411d2702d3b82e81e",
+          "git_blob": "2f02bb24eabb5d9bd5aecbe9930280f10c71e9b0"
+        }
+      }
+    },
+    "unchanged_legacy_inputs": {
+      "commit": "8044e4bafe18e73ea422af5eeb47ef961e65246c",
+      "files": {
+        "benchmarks/__init__.py": {
+          "bytes": 216,
+          "sha256": "82c1a9c2c4363d02d1ec7e504ce64a1c90051df12f852ec4978f32be5cf5bce0",
+          "git_blob": "e60abaac2aadb1ee8868ac47fdd037efb0a5c629"
+        },
+        "benchmarks/competitors/__init__.py": {
+          "bytes": 83,
+          "sha256": "c2cdffc43f51dd4658ed222d375b9c9344203b4da4b29ecb2a99129e0cb3534a",
+          "git_blob": "485034ecf498f410783bfdfdac057f16e0a24d02"
+        },
+        "benchmarks/competitors/billion-round2-lock.json": {
+          "bytes": 4249,
+          "sha256": "0f56614fb56f3f269f6e40eb28646a8939fdf4e6dddcc93187465d31311dfd69",
+          "git_blob": "f3aba0b4f125f3cfd9a639bb54493693e62c010d"
+        },
+        "benchmarks/competitors/billion.py": {
+          "bytes": 9752,
+          "sha256": "659d8296742b84a32d8094dc9756f48675582551e15bb411ff73842fa7ba9f14",
+          "git_blob": "04119c8deaad83508a3ab909ab8723b0c3540097"
+        },
+        "benchmarks/competitors/billion_bridge.mjs": {
+          "bytes": 2150,
+          "sha256": "8279eac093e3e51c5dfdcc9dc8dd2730f36c4653b78175a127e85b0ec62f6c93",
+          "git_blob": "31bb78ba85d798714ddd00255e6250507c4c6b7c"
+        },
+        "benchmarks/competitors/claude-mem-round2-lock.json": {
+          "bytes": 1609,
+          "sha256": "49267441d4a1292bdd6232abfd78a109fc97fcfcfcf740a51a84d767d6c3edae",
+          "git_blob": "3394bb76e5470e9f05dc330c35958a18792d07c5"
+        },
+        "benchmarks/competitors/claude_mem.py": {
+          "bytes": 13552,
+          "sha256": "40e23f39527e2c7e9232668de2a9536d537132c886d47018bef5c8023c2edbdc",
+          "git_blob": "a5f69be4bc68cfd960d1bc1151c68ad82e188db9"
+        },
+        "benchmarks/competitors/claude_mem_bridge.ts": {
+          "bytes": 5763,
+          "sha256": "51ce601093267d610644fcbc75241b4a75061f611c937888964e14588e0f660c",
+          "git_blob": "4ee170f1744040ea3c9a85b6d3225aec46072184"
+        },
+        "benchmarks/competitors/compile_billion.mjs": {
+          "bytes": 1023,
+          "sha256": "64cfba78b1c8bea6cf606aedb3e76c27c0ccefecb1a7f26a14c9a72029619b91",
+          "git_blob": "b9eac1758bfafeb1edbf4ba6fbe82805677cd9a3"
+        },
+        "benchmarks/competitors/download.py": {
+          "bytes": 959,
+          "sha256": "2bb2bc414826223f515d7b89e3a001e6586ab8813c5f6eaa2eaa7580d4376365",
+          "git_blob": "dcebf7c56d55e4d12f149e96111a3521e1daf374"
+        },
+        "benchmarks/competitors/memory-systems-lock.json": {
+          "bytes": 2653,
+          "sha256": "3eb7b0c83eb7fe487e9d4b243c605d4a9b7df258c84ecc93d9ad072a3c941d1f",
+          "git_blob": "bd474ed4b8fff6c5456bfb5e9e4af4b69b49f98b"
+        },
+        "benchmarks/competitors/memory-systems-plan.md": {
+          "bytes": 6237,
+          "sha256": "ef6756032c6b11b1a48cb340ea05850858f6fc66f92141c9c17fc4d9e2d9aa89",
+          "git_blob": "d006681bfe7ee9cf1c113734bd0ce02c74420cef"
+        },
+        "benchmarks/competitors/memory-systems-requirements.in": {
+          "bytes": 398,
+          "sha256": "faccb4d2f566618f1eea188eb06c82860d420ffdd77e9e8c7f8c5a3183098772",
+          "git_blob": "80051a0df4d9bf4319f6a8fc49e7fb4968901c4d"
+        },
+        "benchmarks/competitors/memory-systems-requirements.txt": {
+          "bytes": 397358,
+          "sha256": "611d1cfa7a8c7794d222beff186140ae6803b81f9192247f7dd1174ebc920cd1",
+          "git_blob": "e75f8c5966fdc726dc57a4d120f0ce4c8930b262"
+        },
+        "benchmarks/competitors/memory_systems.py": {
+          "bytes": 13585,
+          "sha256": "9e99942bfe9be7f5b0fa8e4fc6a022831eb6cb0dfdcc2cde793cc8dca048a31d",
+          "git_blob": "df2e1bced464d24025cbee0619414e6b22f79678"
+        },
+        "benchmarks/competitors/memory_systems_worker.py": {
+          "bytes": 18167,
+          "sha256": "8234df7cf8cf3649b701c816be196d237958f5974cdc8d19beb5e0192dae4305",
+          "git_blob": "faa3a76af9a3f18e901fb90851ca6d1cabae9273"
+        },
+        "benchmarks/engineering_components.py": {
+          "bytes": 19302,
+          "sha256": "48b2f7752f80622296b9ace09d4941ae5396296d06cf00f39afe8ea0764be5e7",
+          "git_blob": "f5fb94b62fe2a4c83927aad8c32f203160b4c815"
+        },
+        "benchmarks/engineering_workflow.py": {
+          "bytes": 32533,
+          "sha256": "3d1c53ef016a7143c86cf1326f2bf5b5cf7260863e91225d9a7e09a9773cdc6e",
+          "git_blob": "2c423bb55be3e6dda15d43a14b207f1f44b1d6d4"
+        },
+        "benchmarks/memory_systems.py": {
+          "bytes": 25792,
+          "sha256": "cbfa1f23ac556dd3daf04c8509c374affca86bf0d8968b4a13db454b9af548cd",
+          "git_blob": "e0ee72e37385ed838d1c034562301301e73b43f6"
+        },
+        "scripts/audit_project_scope_native_replay.py": {
+          "bytes": 23962,
+          "sha256": "a70e7ba8af0922d7c83bf1b64af1315c7e080cc3dfeaf3658df06edf13965109",
+          "git_blob": "acab58c56338b51edcb6148783ce816e256fcdcd"
+        },
+        "scripts/validate_v011_revision_recovery.py": {
+          "bytes": 12909,
+          "sha256": "e4ee8e6694b7087e18905016c82fdbdedf5f6405bcf95fd141bf0b74d92f23d7",
+          "git_blob": "e0316d1f548722e5ef776262e2ad8ed4ed5fcf88"
+        },
+        "scripts/validate_v012_engineering.py": {
+          "bytes": 9619,
+          "sha256": "e77750e11be08528b8b1cdffefdc3e0a0f743a4e0a188c420015f151d973cf5e",
+          "git_blob": "ca7a8d1fa66e009de07d9cea38bdc2adebaf3e0a"
+        },
+        "scripts/verify_current_readme_results.py": {
+          "bytes": 13202,
+          "sha256": "0fdc9e34d7a6265888dbcd91fb8193619b25b82d925ef8241fa1d860cdd30a5c",
+          "git_blob": "0437ab1310e864bbd347fb063942458ee817b1a2"
+        }
+      }
+    }
+  },
+  "source_unchanged": true,
+  "inputs_unchanged": true,
+  "compression_manifest": {
+    "baseline/common-block/native.jsonl": {
+      "bytes": 739092,
+      "sha256": "2e8105761bdeb4554261ef2c6612d4560f447c25a48d138378fc6c97d2139a03",
+      "stored_as": "baseline/common-block/native.jsonl.gz",
+      "stored_sha256": "b4ae5adccd0db2019756f79a91fae10e49bd61a2e7c61ccc4c92a376620048fb"
+    },
+    "baseline/common-block/raw.jsonl": {
+      "bytes": 747465,
+      "sha256": "18180f30f84f64d7616bd60cf4f40ee55e10ab0750a2edc7992603ce9a5847fc",
+      "stored_as": "baseline/common-block/raw.jsonl.gz",
+      "stored_sha256": "81cc6774d7a407138ee946ee5465be83415aa9906d28a1c7d2ec706f009a7567"
+    },
+    "baseline/native/raw.jsonl": {
+      "bytes": 3658263,
+      "sha256": "397ce468caf9fdf910c959f7e85bc3cbf5af7f061a1aee1d516588dccfcf6652",
+      "stored_as": "baseline/native/raw.jsonl.gz",
+      "stored_sha256": "4f0824840f7483125b37e531411927cf702c724b6e7cce7304130d25e5001924"
+    },
+    "baseline-import.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_as": "baseline-import.log.gz",
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    "baseline.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_as": "baseline.log.gz",
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    "candidate/common-block/native.jsonl": {
+      "bytes": 765998,
+      "sha256": "60b1baae164cb10183fecb9e714d0d4d2e99981df19f52f4e437d9c800d2b1b4",
+      "stored_as": "candidate/common-block/native.jsonl.gz",
+      "stored_sha256": "4380ec9bad6a31f990924570c1a7fad53c74027582013cc376f7e192b0062d4c"
+    },
+    "candidate/common-block/raw.jsonl": {
+      "bytes": 747492,
+      "sha256": "f568f1991b8a3207b1133a8d2b35729731a76c3d1a1a12b8e8cab77e9f30e10d",
+      "stored_as": "candidate/common-block/raw.jsonl.gz",
+      "stored_sha256": "acf253d1a59e7ea335e4fd80c72dd60214b9a0d42b8057bc315b5e292940cd75"
+    },
+    "candidate/native/raw.jsonl": {
+      "bytes": 3762609,
+      "sha256": "4ce649400ecdf2d4f26a2cc2f5059c010d8710fea7425b9728cc1118e370e56d",
+      "stored_as": "candidate/native/raw.jsonl.gz",
+      "stored_sha256": "84fc547bf513c2b2fe99fc58d2ca2d27384811d310df9c80f6c7fe197ad26100"
+    },
+    "candidate-import.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_as": "candidate-import.log.gz",
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    "candidate.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_as": "candidate.log.gz",
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    }
+  },
+  "finished_at": "2026-11-18T14:38:08.457207+00:00"
+}
