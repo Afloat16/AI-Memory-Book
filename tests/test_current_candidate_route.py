@@ -179,6 +179,78 @@ class CurrentCandidateRouteTests(unittest.TestCase):
             self.assertGreater(updated["revision"], first["revision"])
             self.assertIn("lease_duration=6", updated["context"])
 
+    def test_repeated_text_shares_parsing_only_after_every_source_is_checked(self):
+        with MemoryBook(":memory:", segmentation="turn") as book:
+            seed(book, 104)
+            checked = []
+            authenticate = store._complete_declaration_pages
+
+            def capture_sources(db, contents, references):
+                certified = authenticate(db, contents, references)
+                checked.append((set(contents), certified))
+                return certified
+
+            with patch.object(store, "_declaration_clauses", wraps=store._declaration_clauses) as parse:
+                with patch.object(store, "_complete_declaration_pages", side_effect=capture_sources):
+                    result = book.recall("current lease_duration", project="workers", limit=5,
+                                         use_cache=False)
+            self.assertEqual(parse.call_count, 2)
+            self.assertEqual(len(checked), 1)
+            self.assertEqual(checked[0][0], checked[0][1])
+            self.assertEqual(len(checked[0][0]), result["temporal"]["candidate_expansion"]["pool_size"])
+            self.assertEqual(source_sessions(result)[0], "accepted")
+
+    def test_custom_json_reader_keeps_the_uncached_source_checked_fallback(self):
+        with MemoryBook(":memory:", segmentation="turn") as book:
+            seed(book, 104)
+            ordinary = book.recall("current lease_duration", project="workers", limit=5,
+                                   use_cache=False)
+            original_loads = store.json.loads
+            with patch.object(store.json, "loads", side_effect=original_loads):
+                with patch.object(store, "_declaration_clauses", wraps=store._declaration_clauses) as parse:
+                    fallback = book.recall("current lease_duration", project="workers", limit=5,
+                                          use_cache=False)
+            self.assertGreater(parse.call_count, 2)
+            for result in (ordinary, fallback):
+                result.pop("latency_ms")
+            self.assertEqual(ordinary, fallback)
+
+    def test_chronology_candidate_limit_is_shared_across_leading_chapters(self):
+        with MemoryBook(":memory:", segmentation="turn") as book:
+            for task_index in range(8):
+                for index in range(20):
+                    book.ingest(record(f"task-{task_index}-old-{index}",
+                                       "lease_duration=30. " + "lease_duration. " * 12,
+                                       task=f"task-{task_index}"))
+                book.ingest(record(f"task-{task_index}-new", "lease_duration=12.",
+                                   task=f"task-{task_index}", date="2026-06-01T00:00:00Z"))
+            result = book.recall("current lease_duration", project="workers", limit=50,
+                                 budget_chars=100000, use_cache=False)
+            diagnostic = result["temporal"]["candidate_expansion"]
+            self.assertEqual(len(diagnostic["chapter_routes"]), 8)
+            self.assertEqual(sum(route["limit"] for route in diagnostic["chapter_routes"]), 96)
+            self.assertLessEqual(diagnostic["returned"], 96)
+            self.assertLessEqual(diagnostic["pool_size"], 4 * 50 + 96)
+            self.assertTrue(all(ref["project"] == "workers" for hit in result["results"]
+                                for ref in hit["source_refs"]))
+
+    def test_semantic_fusion_cannot_hide_the_new_lexically_comparable_revision(self):
+        from tests.test_semantic import FixtureEncoder
+        with MemoryBook(":memory:", segmentation="turn", semantic_model_dir="/fixture") as book:
+            book._semantic_model = FixtureEncoder()
+            seed(book, 104)
+            book.build_semantic_index()
+            old = dict(book.db.execute(
+                "SELECT p.id,p.rid,p.project_id,p.chapter_id,c.title chapter_title,"
+                "s.external_id session_id,s.title session_title,s.created_at FROM pages p "
+                "JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk "
+                "WHERE s.external_id='old-0'").fetchone())
+            with patch("memory_book.semantic.rank_pages", return_value=[{**old, "semantic_similarity": 1.0}]):
+                result = book.recall("current lease_duration", project="workers", limit=1,
+                                     semantic=True, use_cache=False)
+            self.assertEqual(source_sessions(result), ["accepted"])
+            self.assertIn("lease_duration=12", result["context"])
+
     @unittest.skipIf(store._NATIVE is None, "native extension not built")
     def test_python_and_native_return_identical_candidate_expansion_evidence(self):
         with MemoryBook(":memory:", segmentation="turn") as book:

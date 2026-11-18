@@ -76,15 +76,23 @@ class CandidateMetadataBoundTests(unittest.TestCase):
                 self.assert_original("quartz pressure", project="fixture", budget_chars=8000,
                                      budget_tokens=tokens, tokenizer=tokenizer)
 
-    def test_original_novelty_pool_including_current_single_word_limit_one(self):
+    def test_relevance_prefix_bound_and_current_revision_population_are_separate(self):
         for query, limit, expected in (("quartz", 1, 1), ("quartz pressure", 1, 1),
-                ("quartz pressure", 3, 12), ("current quartz", 1, 4),
-                ("previous current quartz", 1, 1), ("latest quartz", 2, 8)):
+                ("quartz pressure", 3, 12), ("previous current quartz", 1, 1)):
             with self.subTest(query=query, limit=limit):
                 with patch.object(self.book, "_bounded_candidate_metadata", return_value=None) as bound:
                     self.book.recall(query, limit=limit, use_cache=False)
                 bound.assert_called_once()
                 self.assertEqual(bound.call_args.args[2], expected)
+        for query, limit, expected in (("current quartz", 1, 4), ("latest quartz", 2, 8)):
+            with self.subTest(query=query, limit=limit):
+                with patch.object(self.book, "_bounded_candidate_metadata", return_value=None) as bound, \
+                        patch.object(self.book, "_current_revision_pool", wraps=self.book._current_revision_pool) as route:
+                    result = self.book.recall(query, limit=limit, use_cache=False)
+                bound.assert_not_called()
+                route.assert_called_once()
+                self.assertEqual(route.call_args.args[1], expected)
+                self.assertIn("candidate_expansion", result["temporal"])
 
     def test_late_title_boost_and_exact_upper_bound_ties_are_retained(self):
         relevance = {identity: 0.01 for identity in self.identities}

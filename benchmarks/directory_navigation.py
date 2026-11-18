@@ -6,11 +6,14 @@ The locator receives only public query/scope/pagination arguments, never labels.
 
 Inspect the frozen input without executing the locator::
 
-    PYTHONPATH=src python -m benchmarks.directory_navigation --describe
+    PYTHONPATH=src python -m benchmarks.directory_navigation --protocol-v2 --describe
 
 Execute once after committing the protocol; output must be a new directory::
 
-    PYTHONPATH=src python -m benchmarks.directory_navigation --output PATH
+    PYTHONPATH=src python -m benchmarks.directory_navigation --protocol-v2 --output PATH
+
+Without --protocol-v2, delegate to the byte-identical frozen v1 evaluator. Its
+original protocol and failed first attempt remain reproducible and unchanged.
 """
 
 from __future__ import annotations
@@ -28,8 +31,8 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PROTOCOL = ROOT / "benchmarks/experiments/v011-directory-navigation-protocol.json"
-SCHEMA = "directory-navigation-contracts-v1"
+PROTOCOL = ROOT / "benchmarks/experiments/v011-directory-navigation-protocol-v2.json"
+SCHEMA = "directory-navigation-contracts-v2"
 
 
 def encoded(value):
@@ -178,6 +181,10 @@ def run(output):
             operations[operation] += 1
             record = {"sequence": sequence, "case_id": case_id,
                       "operation": operation, "request": request}
+            if operation == "search_directory":
+                from memory_book.text import query_terms
+                # Diagnostic only; labels and token lists never enter the API.
+                record["query_terms"] = query_terms(request["query"])
             try:
                 result = function()
                 record["response"] = result
@@ -269,6 +276,8 @@ def run(output):
                 else:
                     outcome["status"] = "failed"
                     outcome["failure"] = {"type": type(exc).__name__, "message": str(exc)}
+                    from memory_book.text import query_terms
+                    outcome["failure"]["query_terms"] = query_terms(request["query"])
                     report["failures"].append({"case_id": case_id, **outcome["failure"]})
             outcome.update({"raw_sequence_start": start_sequence, "raw_sequence_end": sequence,
                             "returned_chapters": len(seen)})
@@ -307,10 +316,15 @@ def run(output):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--protocol-v2", action="store_true",
+                        help="Use the disclosed fixture correction; retain v1 by default")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--describe", action="store_true")
     group.add_argument("--output", type=Path)
     args = parser.parse_args()
+    if not args.protocol_v2:
+        from benchmarks.directory_navigation_v1 import main as frozen_v1_main
+        return frozen_v1_main()
     if args.describe:
         protocol = load_protocol()
         print(json.dumps({"schema": protocol["schema"], "scope": protocol["scope"],

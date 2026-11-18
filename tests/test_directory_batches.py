@@ -206,15 +206,38 @@ class DirectoryBatchTests(unittest.TestCase):
     def test_instance_section_override_keeps_original_calls_and_transaction_behavior(self):
         chapter = self.populate(3)
         ordinary = self.book.section
-        override = Mock(wraps=ordinary)
+        transaction_states = []
+
+        def customized(*arguments, **options):
+            transaction_states.append(self.book.db.in_transaction)
+            return ordinary(*arguments, **options)
+
+        override = Mock(side_effect=customized)
         with patch.object(self.book, "section", override):
             expected = baseline_chapter(self.book, chapter, project="alpha", page_limit=2)
             override.reset_mock()
+            transaction_states.clear()
             actual, sql = self.traced(lambda: self.book.chapter(chapter, project="alpha", page_limit=2))
         self.assertEqual(actual, expected)
         self.assertEqual(override.call_count, 3)
         self.assertTrue(all(call.kwargs == {"project": "alpha", "limit": 2} for call in override.call_args_list))
-        self.assertFalse(any(statement in {"BEGIN", "ROLLBACK", "COMMIT"} for statement in sql))
+        # The chapter wrapper still does not own a transaction around custom
+        # readers. Each delegated ordinary section now owns its read snapshot.
+        self.assertEqual(transaction_states, [False, False, False])
+        self.assertEqual([statement for statement in sql if statement in {"BEGIN", "ROLLBACK", "COMMIT"}],
+                         ["BEGIN", "ROLLBACK"] * 3)
+        self.assertFalse(self.book.db.in_transaction)
+        self.book.db.execute("BEGIN")
+        try:
+            transaction_states.clear()
+            with patch.object(self.book, "section", override):
+                inside, sql = self.traced(lambda: self.book.chapter(chapter, project="alpha", page_limit=2))
+            self.assertEqual(inside, expected)
+            self.assertEqual(transaction_states, [True, True, True])
+            self.assertFalse(any(statement in {"BEGIN", "ROLLBACK", "COMMIT"} for statement in sql))
+            self.assertTrue(self.book.db.in_transaction)
+        finally:
+            self.book.db.execute("ROLLBACK")
 
     def test_class_and_subclass_section_overrides_are_not_bypassed(self):
         chapter = self.populate(3)

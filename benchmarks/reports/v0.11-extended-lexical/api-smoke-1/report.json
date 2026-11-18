@@ -1,0 +1,54 @@
+{
+  "status": "failed",
+  "scope": "API and source identity smoke only; no benchmark score",
+  "evaluator": {
+    "files": {
+      "benchmarks/engineering_components.py": "48b2f7752f80622296b9ace09d4941ae5396296d06cf00f39afe8ea0764be5e7",
+      "benchmarks/engineering_workflow.py": "3d1c53ef016a7143c86cf1326f2bf5b5cf7260863e91225d9a7e09a9773cdc6e",
+      "benchmarks/competitors/billion.py": "659d8296742b84a32d8094dc9756f48675582551e15bb411ff73842fa7ba9f14",
+      "benchmarks/competitors/billion_bridge.mjs": "8279eac093e3e51c5dfdcc9dc8dd2730f36c4653b78175a127e85b0ec62f6c93",
+      "benchmarks/competitors/compile_billion.mjs": "64cfba78b1c8bea6cf606aedb3e76c27c0ccefecb1a7f26a14c9a72029619b91",
+      "benchmarks/competitors/download.py": "2bb2bc414826223f515d7b89e3a001e6586ab8813c5f6eaa2eaa7580d4376365",
+      "benchmarks/competitors/billion-round2-lock.json": "0f56614fb56f3f269f6e40eb28646a8939fdf4e6dddcc93187465d31311dfd69",
+      "benchmarks/extended_components.py": "dcb808ab9cb796f596800e9492de2e9e76ad938b906729d72314d22c6aba6c15",
+      "benchmarks/competitors/extended_lexical.py": "d97e94ef186c2a31c0328c282abb92df1dab144659d22ee40b96f2319711129b",
+      "benchmarks/competitors/extended-lexical-lock.json": "9afc3483b9c957d697d47f4697faa69da6e400730b608e2590698cdc9971466f",
+      "benchmarks/competitors/extended-lexical-plan.md": "c206dcc2f754c5bb855b9483e961fa01a2289c7026b3ed1d2e6a65f12eb588b7",
+      "benchmarks/competitors/extended-lexical-requirements.txt": "773ffaa3c3263c08fe98c0203e8debcb4bacfc7db9c8b6f4c3b00894c894f21d",
+      "benchmarks/competitors/memory_systems.py": "9e99942bfe9be7f5b0fa8e4fc6a022831eb6cb0dfdcc2cde793cc8dca048a31d",
+      "benchmarks/competitors/memory_systems_worker.py": "8234df7cf8cf3649b701c816be196d237958f5974cdc8d19beb5e0192dae4305"
+    },
+    "sha256": "91a01082e0898f7407ca38f3075a2a9e6be77f755c02b06b549639ba31b48207"
+  },
+  "backends": {
+    "haystack_bm25": {
+      "status": "failed",
+      "samples": []
+    },
+    "bm25s": {
+      "status": "failed",
+      "samples": []
+    },
+    "memvid_lex": {
+      "status": "failed",
+      "samples": []
+    }
+  },
+  "failures": [
+    {
+      "backend": "haystack_bm25",
+      "stage": "API smoke",
+      "error": "Traceback (most recent call last):\n  File \"/workspace/scratch/ebe841daad4b/AI-Memory-Book/benchmarks/extended_components.py\", line 312, in self_test\n    adapter = ExtendedLexical(backend, documents, state / backend, python=python)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/ebe841daad4b/AI-Memory-Book/benchmarks/competitors/extended_lexical.py\", line 117, in __init__\n    self.metadata = self._request({\"op\": \"init\", \"documents\": [\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/ebe841daad4b/AI-Memory-Book/benchmarks/competitors/memory_systems.py\", line 269, in _request\n    raise RuntimeError(value[\"error\"])\nRuntimeError: Traceback (most recent call last):\n  File \"/workspace/scratch/ebe841daad4b/AI-Memory-Book/benchmarks/competitors/extended_lexical.py\", line 308, in main\n    packages = package_identity()\n               ^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/ebe841daad4b/AI-Memory-Book/benchmarks/competitors/extended_lexical.py\", line 55, in package_identity\n    raise ValueError(f\"Installed upstream file differs from wheel: {name}/{entry}\")\nValueError: Installed upstream file differs from wheel: memvid-sdk/memvid_sdk/_lib.abi3.so\n\n"
+    },
+    {
+      "backend": "bm25s",
+      "stage": "API smoke",
+      "error": "Traceback (most recent call last):\n  File \"/workspace/scratch/ebe841daad4b/AI-Memory-Book/benchmarks/extended_components.py\", line 312, in self_test\n    adapter = ExtendedLexical(backend, documents, state / backend, python=python)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/ebe841daad4b/AI-Memory-Book/benchmarks/competitors/extended_lexical.py\", line 117, in __init__\n    self.metadata = self._request({\"op\": \"init\", \"documents\": [\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/ebe841daad4b/AI-Memory-Book/benchmarks/competitors/memory_systems.py\", line 269, in _request\n    raise RuntimeError(value[\"error\"])\nRuntimeError: Traceback (most recent call last):\n  File \"/workspace/scratch/ebe841daad4b/AI-Memory-Book/benchmarks/competitors/extended_lexical.py\", line 308, in main\n    packages = package_identity()\n               ^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/ebe841daad4b/AI-Memory-Book/benchmarks/competitors/extended_lexical.py\", line 55, in package_identity\n    raise ValueError(f\"Installed upstream file differs from wheel: {name}/{entry}\")\nValueError: Installed upstream file differs from wheel: memvid-sdk/memvid_sdk/_lib.abi3.so\n\n"
+    },
+    {
+      "backend": "memvid_lex",
+      "stage": "API smoke",
+      "error": "Traceback (most recent call last):\n  File \"/workspace/scratch/ebe841daad4b/AI-Memory-Book/benchmarks/extended_components.py\", line 312, in self_test\n    adapter = ExtendedLexical(backend, documents, state / backend, python=python)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/ebe841daad4b/AI-Memory-Book/benchmarks/competitors/extended_lexical.py\", line 117, in __init__\n    self.metadata = self._request({\"op\": \"init\", \"documents\": [\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/ebe841daad4b/AI-Memory-Book/benchmarks/competitors/memory_systems.py\", line 269, in _request\n    raise RuntimeError(value[\"error\"])\nRuntimeError: Traceback (most recent call last):\n  File \"/workspace/scratch/ebe841daad4b/AI-Memory-Book/benchmarks/competitors/extended_lexical.py\", line 308, in main\n    packages = package_identity()\n               ^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/ebe841daad4b/AI-Memory-Book/benchmarks/competitors/extended_lexical.py\", line 55, in package_identity\n    raise ValueError(f\"Installed upstream file differs from wheel: {name}/{entry}\")\nValueError: Installed upstream file differs from wheel: memvid-sdk/memvid_sdk/_lib.abi3.so\n\n"
+    }
+  ]
+}

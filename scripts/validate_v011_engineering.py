@@ -109,6 +109,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--baseline-source", type=Path)
+    parser.add_argument("--candidate-source", type=Path, default=ROOT)
+    parser.add_argument("--candidate-commit")
     parser.add_argument("--worker", action="store_true")
     args = parser.parse_args()
     if args.worker:
@@ -123,10 +125,19 @@ def main():
     for path in expected:
         if (baseline / path).read_bytes() != git("show", BASELINE + ":" + path):
             raise ValueError("Baseline source differs: " + path)
-    if git("status", "--porcelain", "--untracked-files=all", "--", "src/memory_book").strip():
-        raise ValueError("Commit the candidate runtime before replay")
+    candidate = args.candidate_source.resolve()
+    candidate_commit = args.candidate_commit or git("rev-parse", "HEAD").decode().strip()
+    candidate_files = git("ls-tree", "-r", "--name-only", candidate_commit, "src/memory_book").decode().splitlines()
+    for path in candidate_files:
+        if (candidate / path).read_bytes() != git("show", candidate_commit + ":" + path):
+            raise ValueError("Candidate source differs from the committed snapshot: " + path)
+    for source, names in ((baseline, expected), (candidate, candidate_files)):
+        actual = {p.relative_to(source).as_posix() for p in (source / "src/memory_book").rglob("*")
+                  if p.is_file() and p.suffix in {".py", ".c", ".h"}}
+        if actual != {name for name in names if Path(name).suffix in {".py", ".c", ".h"}}:
+            raise ValueError("Runtime source inventory differs from its Git snapshot")
     report = {"protocol": PROTOCOL, "status": "started", "baseline_commit": BASELINE,
-              "candidate_commit": git("rev-parse", "HEAD").decode().strip(),
+              "candidate_commit": candidate_commit,
               "started_at": datetime.now(timezone.utc).isoformat(),
               "driver_sha256": sha(Path(__file__).read_bytes()),
               "scope": "Fixed authored development/regression fixture; no external engine rerun, no latency claim",
@@ -134,7 +145,7 @@ def main():
               "attempts": []}
     write(output / "comparison.json", report)
     try:
-        for label, source in (("baseline", baseline), ("candidate", ROOT)):
+        for label, source in (("baseline", baseline), ("candidate", candidate)):
             attempt = {"label": label, "status": "started"}
             report["attempts"].append(attempt)
             write(output / "comparison.json", report)

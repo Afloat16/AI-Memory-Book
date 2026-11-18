@@ -599,12 +599,20 @@ def _declaration_groups(db: sqlite3.Connection, pool: list[dict], matched: dict[
     """
     query = set().union(*matched.values())
     fields, declared = {}, {}
+    ordinary = (type(db) is sqlite3.Connection and db.row_factory is sqlite3.Row
+                and db.text_factory is str and json.loads is _ORDINARY_JSON_LOADS
+                and all(type(body) is str for body in contents.values()))
+    seen_bodies = set()
     # Code/examples/comparisons may identify a field's spelling, but never
     # establish its current value. This also recognizes older prose followed
     # by a code example without treating the example as the latest revision.
     for body in contents.values():
         if len(body) > _MAX_DECLARATION_CHARS:
             continue
+        if ordinary:
+            if body in seen_bodies:
+                continue
+            seen_bodies.add(body)
         for binding in _FIELD_REFERENCE.finditer(body):
             name = binding["name"]
             aliases = set(query_terms(name))
@@ -622,12 +630,30 @@ def _declaration_groups(db: sqlite3.Connection, pool: list[dict], matched: dict[
                      "basis": "existing recency groups retained: pages over 64000 characters were not analyzed"}
                     if oversized else {})
     complete = _complete_declaration_pages(db, contents, references)
-    clauses = {rid: _declaration_clauses(body, references[rid])
-               for rid, body in contents.items() if rid in complete and matched.get(rid)}
+    clauses, parsed_clauses = {}, {}
+    for rid, body in contents.items():
+        if rid not in complete or not matched.get(rid):
+            continue
+        if ordinary and body in parsed_clauses:
+            clauses[rid] = parsed_clauses[body]
+        else:
+            clauses[rid] = _declaration_clauses(body, references[rid])
+            if ordinary:
+                # Every page was independently checked against its own full
+                # source turn above. Only the pure syntax of identical text
+                # is shared, never source authentication or coordinates.
+                parsed_clauses[body] = clauses[rid]
+    parsed_fields = {}
     for rid, lines in clauses.items():
+        body = contents[rid]
+        if ordinary and body in parsed_fields:
+            subjects = parsed_fields[body]
+            if subjects:
+                declared[rid] = subjects
+            continue
         # Parse quotes once in the original whole turn. Splitting first would
         # lose quotation state across a sentence or newline inside a quote.
-        quoted = _quoted_spans(contents[rid])
+        quoted = _quoted_spans(body)
         starts = [span[0] for span in quoted]
 
         def quoted_at(position):
@@ -651,6 +677,8 @@ def _declaration_groups(db: sqlite3.Connection, pool: list[dict], matched: dict[
                     if identity in fields:
                         declared.setdefault(rid, set()).add(identity)
                         break
+        if ordinary:
+            parsed_fields[body] = frozenset(declared.get(rid, ()))
     groups = {}
     for position, item in enumerate(pool):
         rid = item["rid"]
@@ -1170,6 +1198,14 @@ class MemoryBook:
           (SELECT COUNT(*) FROM pages WHERE project_id=p.id) pages
           FROM projects p ORDER BY p.name,p.id""").fetchall()
         return [dict(row) for row in rows]
+
+    def search_directory(self, query: str, *, project: str | None = None,
+                         chapter: str | None = None, limit: int = 10,
+                         offset: int = 0) -> dict:
+        """Locate directory entries without treating their titles as evidence."""
+        from .directory import search_directory
+        return search_directory(self, query, project=project, chapter=chapter,
+                                limit=limit, offset=offset)
 
     def toc(self, project: str, *, offset: int = 0, limit: int = 50) -> dict:
         _integer(offset, "offset", 0, 10_000_000)
