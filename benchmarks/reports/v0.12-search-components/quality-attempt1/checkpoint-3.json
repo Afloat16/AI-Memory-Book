@@ -1,0 +1,930 @@
+{
+  "checkpoint": 3,
+  "documents": 80,
+  "documents_sha256": "50125d139b79e164522ac668b650a1c2061a28f4e9bbb3032215703285c369c8",
+  "backends": {
+    "lancedb_fts": {
+      "backend": "lancedb_fts",
+      "packages": {
+        "annotated-types": {
+          "version": "0.8.0",
+          "active_dependencies": [],
+          "files_sha256": "f1de0dbedd624f9c72b081d900cb7119629c90b39e7ee7b7f84f35e048da7788",
+          "record_sha256": "8191d3aa1ac93480688819b4db2385606219a3f7a453b85e086646134ded4f96",
+          "native_files": {},
+          "installed_files": 9
+        },
+        "deprecation": {
+          "version": "2.1.0",
+          "active_dependencies": [
+            "packaging"
+          ],
+          "files_sha256": "2529698fb8b1510dc7a9c1469c1c6ffb2c8c1bba94bd9e79e98b8b3442ea56b9",
+          "record_sha256": "17dda63eecf2a41d578fb797c4d9839bda2aac95e2b84637c1263ccd0f021ef7",
+          "native_files": {},
+          "installed_files": 8
+        },
+        "lance-namespace": {
+          "version": "0.13.0",
+          "active_dependencies": [
+            "lance-namespace-urllib3-client"
+          ],
+          "files_sha256": "dec7da694e964618b11ede63fb005c141aea2feb646a4ad2b2fac0b063e9a032",
+          "record_sha256": "50f39ead2c068fd803c05850ed1ade559a0a43b5c114d399f73769422a7aaefb",
+          "native_files": {},
+          "installed_files": 10
+        },
+        "lance-namespace-urllib3-client": {
+          "version": "0.13.0",
+          "active_dependencies": [
+            "pydantic",
+            "python-dateutil",
+            "typing-extensions",
+            "urllib3"
+          ],
+          "files_sha256": "b4edca678cc1ad1eeb2ac59275ada276784b6ef9447aed1300fc19ba6beaf642",
+          "record_sha256": "aa80c5456954240caf51d47ece0381875ce312c048170c7034ce224e2f8e6d14",
+          "native_files": {},
+          "installed_files": 169
+        },
+        "lancedb": {
+          "version": "0.41.0",
+          "active_dependencies": [
+            "deprecation",
+            "lance-namespace",
+            "numpy",
+            "packaging",
+            "pyarrow",
+            "pydantic",
+            "tqdm"
+          ],
+          "files_sha256": "2eab639dccf40882652e0e3263174eef233d5e7015ca79ab1c6c9bcef3e97117",
+          "record_sha256": "901eff7ea863ecc09f56211eafddd3ade87aa912ee0756ef231fd10fb194dffb",
+          "native_files": {
+            "lancedb/_lancedb.abi3.so": "73f9fe5769d5fbc534868e739bac46f88a7449e945ac9be99bdf4fa6b9cf725c"
+          },
+          "installed_files": 91
+        },
+        "numpy": {
+          "version": "2.5.5",
+          "active_dependencies": [],
+          "files_sha256": "a1068d357f4ca78d072d74275ae1a498a9ab41dddcc867edf45fd564594a128e",
+          "record_sha256": "d6c1d0a8332b5df1de348024a9f0717cc9871cb70caf4f89c8a2896ccabe1ad7",
+          "native_files": {
+            "numpy.libs/libscipy_openblas64_-4b78795a.so": "ad494a874a8241624183202c0313c67605d648c3b3d6807d899bd6b350347472",
+            "numpy/_core/_multiarray_tests.cpython-312-x86_64-linux-gnu.so": "7040f354abb05ba34ad994169f12dd693ac68ada9ca2c4e1aedec5fe9257f149",
+            "numpy/_core/_multiarray_umath.cpython-312-x86_64-linux-gnu.so": "1650f5b6a42b0022f9821b475725469237dbc77595f1d5c7ae7bbc0288002095",
+            "numpy/_core/_operand_flag_tests.cpython-312-x86_64-linux-gnu.so": "d985fc6e648abe43a0d11d9e9c1c49c15a3020936c6105c159cc9ab2ff2e41f0",
+            "numpy/_core/_rational_tests.cpython-312-x86_64-linux-gnu.so": "78af03cdcfceda20ddb0063c7eb1b6fa149c79710173644c7e0a5b8b75142b91",
+            "numpy/_core/_simd.cpython-312-x86_64-linux-gnu.so": "a9c824abd21fdfd4cd782116defce75bda96dde5bdf453107a7632dc766afd9d",
+            "numpy/_core/_struct_ufunc_tests.cpython-312-x86_64-linux-gnu.so": "895b0c3376a227d8f2f9f35465876cd6b381daa177effa7a3070c7d31bba8688",
+            "numpy/_core/_umath_tests.cpython-312-x86_64-linux-gnu.so": "56dcb67e8abfe3d9e5d8c1c8775d9e1c02b86042a5328556bc3d3ccaff1aa328",
+            "numpy/fft/_pocketfft_umath.cpython-312-x86_64-linux-gnu.so": "29a1547b480b7ddc1e45cdc772b3f4b614cccced70204181bf5d3ad138a04ebb",
+            "numpy/linalg/_umath_linalg.cpython-312-x86_64-linux-gnu.so": "bbb371a2756b95b972eab4127f90f470a0e801bd88879e0555fde7537fb27b1e",
+            "numpy/linalg/lapack_lite.cpython-312-x86_64-linux-gnu.so": "2190f8688e6978772f82a9b0b98c9a0cf0564eac9e78c4970b2c760da8b84386",
+            "numpy/random/_bounded_integers.cpython-312-x86_64-linux-gnu.so": "4d17a888065bf4675783f42e6f7beacdff995709592af062c5dd776849af1e0e",
+            "numpy/random/_common.cpython-312-x86_64-linux-gnu.so": "7969a217e480337bc762708cfbfb566705a108d3eb7761a2508affc6728797cb",
+            "numpy/random/_generator.cpython-312-x86_64-linux-gnu.so": "7af52e74794208e080538ecec6594d12b1974e2aa9dbbb15e01ad31f565a7415",
+            "numpy/random/_mt19937.cpython-312-x86_64-linux-gnu.so": "ea055eff7d6c606aa51f86b32a7320664a582cd06f313e2861c800fd22a5c107",
+            "numpy/random/_pcg64.cpython-312-x86_64-linux-gnu.so": "7927e2b3321c24684ffe16e27071b55a305011fd7d88d9621ae8a53228556036",
+            "numpy/random/_philox.cpython-312-x86_64-linux-gnu.so": "a68a2b2dbee86c182c16bf304466e9ea5ca9b9cca4cca4d49ad1dcccb2faef6f",
+            "numpy/random/_sfc64.cpython-312-x86_64-linux-gnu.so": "95328b8d0ec76348378d4f7b31f18095ef2904092648637a5e8f5f4e3b2d2e07",
+            "numpy/random/bit_generator.cpython-312-x86_64-linux-gnu.so": "af377c32375873d478cd707ff79c88cfaa316d06f0a4e35c5eed703389520389",
+            "numpy/random/mtrand.cpython-312-x86_64-linux-gnu.so": "f65dc6d998db253c83c4acbc646bee7b4bf0feae73f5f685eb64d72cd37c0b38"
+          },
+          "installed_files": 928
+        },
+        "packaging": {
+          "version": "26.3",
+          "active_dependencies": [],
+          "files_sha256": "3263db32cd2e40ae21e630ed570488450a1dc833276f202d09e688bddd639bad",
+          "record_sha256": "1b8655965b0d83e9a067fd7f84b977bd1e117e0fb9f2874b2572781bdc9e2147",
+          "native_files": {},
+          "installed_files": 31
+        },
+        "pyarrow": {
+          "version": "26.0.1",
+          "active_dependencies": [],
+          "files_sha256": "14cf73fe3c4db037d1a6e11b1b9b15056620e2d3bd108ae72085fd58ade89e45",
+          "record_sha256": "c1f468e046b1949477bcf63d3fc87a5bcad7e387db19b53e24af03fd25fbcd14",
+          "native_files": {
+            "pyarrow/_acero.cpython-312-x86_64-linux-gnu.so": "cc463eda1583cbf365e4c8fc1858efd968fad90b40bd26f675b62261aa1e13f2",
+            "pyarrow/_azurefs.cpython-312-x86_64-linux-gnu.so": "abbfa822efd56a31f79c5dab814285fdae18c893908f027225b6e3fde93843a4",
+            "pyarrow/_compute.cpython-312-x86_64-linux-gnu.so": "410c37c4147b20b61f5c4a184f6adaa32344a03d022dbb4905a006942477c640",
+            "pyarrow/_csv.cpython-312-x86_64-linux-gnu.so": "2825c363df9fb0102cf535833aaadfd2df6194bd2b75ec83cc66c620b4a3ca61",
+            "pyarrow/_dataset.cpython-312-x86_64-linux-gnu.so": "21620d62fdb1a52e20b4abad6135e733268f849e3a55b8667b8f9b39e9bbfb56",
+            "pyarrow/_dataset_orc.cpython-312-x86_64-linux-gnu.so": "c41e6fa8b98c4ec71a32ca51733e7f117cc8db460b39374d5ba533e072278e94",
+            "pyarrow/_dataset_parquet.cpython-312-x86_64-linux-gnu.so": "4315c9171ebb585b1501b4288f83d677947df1c8686212438ae06411d8b3bb71",
+            "pyarrow/_dataset_parquet_encryption.cpython-312-x86_64-linux-gnu.so": "8f016db482fa0320b2b8c4be149f9b9e7d1bfe8ddd66b97ba84ee3c154815262",
+            "pyarrow/_feather.cpython-312-x86_64-linux-gnu.so": "ce54bdef6e721e0699c9c45dd7e610338e144e00b27a2ae2df5159e4408a4df0",
+            "pyarrow/_flight.cpython-312-x86_64-linux-gnu.so": "39f05d6969db9ae0013109c52e07df4c348ed13446320eb3cb95273a01273cd0",
+            "pyarrow/_fs.cpython-312-x86_64-linux-gnu.so": "78127d3bb9256880cc7436ba742a633fe3a04238cda6f0b26880be44a568f255",
+            "pyarrow/_gcsfs.cpython-312-x86_64-linux-gnu.so": "7f3fc46267df821eead1780b33a064d147df3101725fd98433938afe73692786",
+            "pyarrow/_hdfs.cpython-312-x86_64-linux-gnu.so": "6f283a7f6bdeb057d4befaf7b4cf84639ae232c50246f4870d3d679b497d5c26",
+            "pyarrow/_json.cpython-312-x86_64-linux-gnu.so": "5a7718282584556c76d801dffadbb99b0d4d214ad12cea6264b92041f81a08d9",
+            "pyarrow/_orc.cpython-312-x86_64-linux-gnu.so": "7af10a43224511b490e6d0fe9f73e2aa3b8910ebbab9651eb086cdc758478b60",
+            "pyarrow/_parquet.cpython-312-x86_64-linux-gnu.so": "9b301eff2b19a58680334e0659a2d44deefc3b7663a265c986fc2ea2d2fb4ea3",
+            "pyarrow/_parquet_encryption.cpython-312-x86_64-linux-gnu.so": "5de3cc143cc6711c18e2d7e0800e1fd75c7624cfad4b234abc1e732eaedb1a2b",
+            "pyarrow/_pyarrow_cpp_tests.cpython-312-x86_64-linux-gnu.so": "14073369c659ea3873defe5720ee9552ab8a1e46c0db795f567ff93454b2137e",
+            "pyarrow/_s3fs.cpython-312-x86_64-linux-gnu.so": "e36980537453ae6c350b9f8510e1bb12c0ab2e981af81acd0901a8ebf649ef54",
+            "pyarrow/_substrait.cpython-312-x86_64-linux-gnu.so": "8187124c6f370304425aa77c1213de8bb4f8fc79a86aaa42044ddfafd1e8853b",
+            "pyarrow/lib.cpython-312-x86_64-linux-gnu.so": "fed5cc774f08312c3543222c31fcc2a3b8f94dbcdec3e0d0f5126760e840b038",
+            "pyarrow/libarrow_python.so": "e11d382bb77cbad05f27393a2dcbf8f3a7cb32e0d4ce62615959e4c7bf5a2349",
+            "pyarrow/libarrow_python_flight.so": "a15e1ec795b27a79d46fb1b6823c31becf28b410d2d70ebdaf6b8ee7307d97ab",
+            "pyarrow/libarrow_python_parquet_encryption.so": "e32a9e27d0867820eaed90a1c1705ac9a1a0975bec98ed0e748dcf3ba5879498"
+          },
+          "installed_files": 754
+        },
+        "pydantic": {
+          "version": "2.14.3",
+          "active_dependencies": [
+            "annotated-types",
+            "pydantic-core",
+            "typing-extensions",
+            "typing-inspection"
+          ],
+          "files_sha256": "4ae49102371ae3e29be35531f703e27e068cfb90e05af9ed91c038524504012f",
+          "record_sha256": "a89b7526ee4dfe7e517505bffee55f78cfe8f21f4df719f7269e46658cefbfb4",
+          "native_files": {},
+          "installed_files": 114
+        },
+        "pydantic-core": {
+          "version": "2.50.4",
+          "active_dependencies": [
+            "typing-extensions"
+          ],
+          "files_sha256": "7b015c24c0eab802aa3c394065723423cfa13f0637efa55bcf3a3159413814ed",
+          "record_sha256": "4c3438c1c201a36d9ecec5a256bdbde84ba3359ee12a3231ba55a30b5acc7540",
+          "native_files": {
+            "pydantic_core/_pydantic_core.cpython-312-x86_64-linux-gnu.so": "61385e5d545d1ccd2a531453a1cbcd2670b4e931469cf0093ec9fda1853d1403"
+          },
+          "installed_files": 13
+        },
+        "python-dateutil": {
+          "version": "4.0.0",
+          "active_dependencies": [
+            "tzdata"
+          ],
+          "files_sha256": "b2b0c72ed60a9d656839d5304eadcf9b7892179992b4deaeb5d71161721fc3ff",
+          "record_sha256": "8eb8af9b580133411716fcc5be769bb547e537bc127a4a6ebf2d92e182e80cfd",
+          "native_files": {},
+          "installed_files": 28
+        },
+        "tqdm": {
+          "version": "4.70.1",
+          "active_dependencies": [],
+          "files_sha256": "bec6de369917d2ddadfafa52acbbf4d5b3c963f4ffd6f468e6306e59ad87ec23",
+          "record_sha256": "026aed181b2346bffce6e49f45ce5dc406be1a402b92deee70f90043eac1eec0",
+          "native_files": {},
+          "installed_files": 42
+        },
+        "typing-extensions": {
+          "version": "4.16.0",
+          "active_dependencies": [],
+          "files_sha256": "512effe819d50b0a459224eeaea4baf2d981e355ede902cfe2e228e5d44e14ef",
+          "record_sha256": "9e07fea845cac76293d927afa7157a14ecba39b318bc8af236b8de530b7656c1",
+          "native_files": {},
+          "installed_files": 7
+        },
+        "typing-inspection": {
+          "version": "0.4.5",
+          "active_dependencies": [
+            "typing-extensions"
+          ],
+          "files_sha256": "a1a2f11c0fd36f3217eef924f781f3777bcf199ec5a9e1ae0c28062c582eacb0",
+          "record_sha256": "8fdad294a7b5fa8c5e09bf85e4f22f9b3e140611b46e8a4d71d551cffde6e0fb",
+          "native_files": {},
+          "installed_files": 11
+        },
+        "tzdata": {
+          "version": "2026.6",
+          "active_dependencies": [],
+          "files_sha256": "bd8d68fbc3684ba606d5c16fb2b4dec2d9cace37d6e0bebcaa2eb0341cf770c3",
+          "record_sha256": "7264b3a15cf0a62ca4fe8429e35ae78fe380d58878647cefc95c42f19210ad1e",
+          "native_files": {},
+          "installed_files": 635
+        },
+        "urllib3": {
+          "version": "2.8.0",
+          "active_dependencies": [],
+          "files_sha256": "449c0b4cd10afd20dfb79d74bf4bc960c54d679ed3eaafd81ef34a106b292ee8",
+          "record_sha256": "1753d325c8936a612ecdc947e686ade56b21f591fbb7518330cb0f2f7619c330",
+          "native_files": {},
+          "installed_files": 44
+        },
+        "whoosh": {
+          "version": "2.7.4",
+          "active_dependencies": [],
+          "files_sha256": "7768e29058b939dcb17e2dda8f4c999ae3edbec5fca25d0d6938da38c8cdfcca",
+          "record_sha256": "f82e00d86b15b8047474e3052b4910f03794ededcd450499598924e77b5e3eae",
+          "native_files": {},
+          "installed_files": 121
+        }
+      },
+      "supplied_pages": 80,
+      "native_setup_and_index_ms": 1424.579533,
+      "network_policy": "Python INET tripwire; no model/service configured; not an OS sandbox",
+      "classification": "embedded database native FTS component; no vector or model calls",
+      "search_api": "table.search(original_query, query_type='fts', fts_columns='text').where(exact_project, prefilter=True).limit(5).to_list()",
+      "scope": "native exact project predicate before top-k; no result filtering or refill",
+      "indexed_text": "complete original text only; other fields stored unchanged",
+      "index_configuration": {
+        "with_position": false,
+        "base_tokenizer": "simple",
+        "language": "English",
+        "max_token_length": 40,
+        "lower_case": true,
+        "stem": null,
+        "remove_stop_words": null,
+        "ascii_folding": true,
+        "ngram_min_length": 3,
+        "ngram_max_length": 3,
+        "prefix_only": false,
+        "block_size": 128,
+        "custom_stop_words": null,
+        "memory_limit": null,
+        "num_workers": null,
+        "document_granularity": "row"
+      },
+      "query_operator": "unmodified native FTS query default OR",
+      "persistent": true,
+      "model_calls": 0,
+      "startup_and_index_roundtrip_ms": 2701.513983,
+      "final_verification": {
+        "packages": {
+          "annotated-types": {
+            "version": "0.8.0",
+            "active_dependencies": [],
+            "files_sha256": "f1de0dbedd624f9c72b081d900cb7119629c90b39e7ee7b7f84f35e048da7788",
+            "record_sha256": "8191d3aa1ac93480688819b4db2385606219a3f7a453b85e086646134ded4f96",
+            "native_files": {},
+            "installed_files": 9
+          },
+          "deprecation": {
+            "version": "2.1.0",
+            "active_dependencies": [
+              "packaging"
+            ],
+            "files_sha256": "2529698fb8b1510dc7a9c1469c1c6ffb2c8c1bba94bd9e79e98b8b3442ea56b9",
+            "record_sha256": "17dda63eecf2a41d578fb797c4d9839bda2aac95e2b84637c1263ccd0f021ef7",
+            "native_files": {},
+            "installed_files": 8
+          },
+          "lance-namespace": {
+            "version": "0.13.0",
+            "active_dependencies": [
+              "lance-namespace-urllib3-client"
+            ],
+            "files_sha256": "dec7da694e964618b11ede63fb005c141aea2feb646a4ad2b2fac0b063e9a032",
+            "record_sha256": "50f39ead2c068fd803c05850ed1ade559a0a43b5c114d399f73769422a7aaefb",
+            "native_files": {},
+            "installed_files": 10
+          },
+          "lance-namespace-urllib3-client": {
+            "version": "0.13.0",
+            "active_dependencies": [
+              "pydantic",
+              "python-dateutil",
+              "typing-extensions",
+              "urllib3"
+            ],
+            "files_sha256": "b4edca678cc1ad1eeb2ac59275ada276784b6ef9447aed1300fc19ba6beaf642",
+            "record_sha256": "aa80c5456954240caf51d47ece0381875ce312c048170c7034ce224e2f8e6d14",
+            "native_files": {},
+            "installed_files": 169
+          },
+          "lancedb": {
+            "version": "0.41.0",
+            "active_dependencies": [
+              "deprecation",
+              "lance-namespace",
+              "numpy",
+              "packaging",
+              "pyarrow",
+              "pydantic",
+              "tqdm"
+            ],
+            "files_sha256": "2eab639dccf40882652e0e3263174eef233d5e7015ca79ab1c6c9bcef3e97117",
+            "record_sha256": "901eff7ea863ecc09f56211eafddd3ade87aa912ee0756ef231fd10fb194dffb",
+            "native_files": {
+              "lancedb/_lancedb.abi3.so": "73f9fe5769d5fbc534868e739bac46f88a7449e945ac9be99bdf4fa6b9cf725c"
+            },
+            "installed_files": 91
+          },
+          "numpy": {
+            "version": "2.5.5",
+            "active_dependencies": [],
+            "files_sha256": "a1068d357f4ca78d072d74275ae1a498a9ab41dddcc867edf45fd564594a128e",
+            "record_sha256": "d6c1d0a8332b5df1de348024a9f0717cc9871cb70caf4f89c8a2896ccabe1ad7",
+            "native_files": {
+              "numpy.libs/libscipy_openblas64_-4b78795a.so": "ad494a874a8241624183202c0313c67605d648c3b3d6807d899bd6b350347472",
+              "numpy/_core/_multiarray_tests.cpython-312-x86_64-linux-gnu.so": "7040f354abb05ba34ad994169f12dd693ac68ada9ca2c4e1aedec5fe9257f149",
+              "numpy/_core/_multiarray_umath.cpython-312-x86_64-linux-gnu.so": "1650f5b6a42b0022f9821b475725469237dbc77595f1d5c7ae7bbc0288002095",
+              "numpy/_core/_operand_flag_tests.cpython-312-x86_64-linux-gnu.so": "d985fc6e648abe43a0d11d9e9c1c49c15a3020936c6105c159cc9ab2ff2e41f0",
+              "numpy/_core/_rational_tests.cpython-312-x86_64-linux-gnu.so": "78af03cdcfceda20ddb0063c7eb1b6fa149c79710173644c7e0a5b8b75142b91",
+              "numpy/_core/_simd.cpython-312-x86_64-linux-gnu.so": "a9c824abd21fdfd4cd782116defce75bda96dde5bdf453107a7632dc766afd9d",
+              "numpy/_core/_struct_ufunc_tests.cpython-312-x86_64-linux-gnu.so": "895b0c3376a227d8f2f9f35465876cd6b381daa177effa7a3070c7d31bba8688",
+              "numpy/_core/_umath_tests.cpython-312-x86_64-linux-gnu.so": "56dcb67e8abfe3d9e5d8c1c8775d9e1c02b86042a5328556bc3d3ccaff1aa328",
+              "numpy/fft/_pocketfft_umath.cpython-312-x86_64-linux-gnu.so": "29a1547b480b7ddc1e45cdc772b3f4b614cccced70204181bf5d3ad138a04ebb",
+              "numpy/linalg/_umath_linalg.cpython-312-x86_64-linux-gnu.so": "bbb371a2756b95b972eab4127f90f470a0e801bd88879e0555fde7537fb27b1e",
+              "numpy/linalg/lapack_lite.cpython-312-x86_64-linux-gnu.so": "2190f8688e6978772f82a9b0b98c9a0cf0564eac9e78c4970b2c760da8b84386",
+              "numpy/random/_bounded_integers.cpython-312-x86_64-linux-gnu.so": "4d17a888065bf4675783f42e6f7beacdff995709592af062c5dd776849af1e0e",
+              "numpy/random/_common.cpython-312-x86_64-linux-gnu.so": "7969a217e480337bc762708cfbfb566705a108d3eb7761a2508affc6728797cb",
+              "numpy/random/_generator.cpython-312-x86_64-linux-gnu.so": "7af52e74794208e080538ecec6594d12b1974e2aa9dbbb15e01ad31f565a7415",
+              "numpy/random/_mt19937.cpython-312-x86_64-linux-gnu.so": "ea055eff7d6c606aa51f86b32a7320664a582cd06f313e2861c800fd22a5c107",
+              "numpy/random/_pcg64.cpython-312-x86_64-linux-gnu.so": "7927e2b3321c24684ffe16e27071b55a305011fd7d88d9621ae8a53228556036",
+              "numpy/random/_philox.cpython-312-x86_64-linux-gnu.so": "a68a2b2dbee86c182c16bf304466e9ea5ca9b9cca4cca4d49ad1dcccb2faef6f",
+              "numpy/random/_sfc64.cpython-312-x86_64-linux-gnu.so": "95328b8d0ec76348378d4f7b31f18095ef2904092648637a5e8f5f4e3b2d2e07",
+              "numpy/random/bit_generator.cpython-312-x86_64-linux-gnu.so": "af377c32375873d478cd707ff79c88cfaa316d06f0a4e35c5eed703389520389",
+              "numpy/random/mtrand.cpython-312-x86_64-linux-gnu.so": "f65dc6d998db253c83c4acbc646bee7b4bf0feae73f5f685eb64d72cd37c0b38"
+            },
+            "installed_files": 928
+          },
+          "packaging": {
+            "version": "26.3",
+            "active_dependencies": [],
+            "files_sha256": "3263db32cd2e40ae21e630ed570488450a1dc833276f202d09e688bddd639bad",
+            "record_sha256": "1b8655965b0d83e9a067fd7f84b977bd1e117e0fb9f2874b2572781bdc9e2147",
+            "native_files": {},
+            "installed_files": 31
+          },
+          "pyarrow": {
+            "version": "26.0.1",
+            "active_dependencies": [],
+            "files_sha256": "14cf73fe3c4db037d1a6e11b1b9b15056620e2d3bd108ae72085fd58ade89e45",
+            "record_sha256": "c1f468e046b1949477bcf63d3fc87a5bcad7e387db19b53e24af03fd25fbcd14",
+            "native_files": {
+              "pyarrow/_acero.cpython-312-x86_64-linux-gnu.so": "cc463eda1583cbf365e4c8fc1858efd968fad90b40bd26f675b62261aa1e13f2",
+              "pyarrow/_azurefs.cpython-312-x86_64-linux-gnu.so": "abbfa822efd56a31f79c5dab814285fdae18c893908f027225b6e3fde93843a4",
+              "pyarrow/_compute.cpython-312-x86_64-linux-gnu.so": "410c37c4147b20b61f5c4a184f6adaa32344a03d022dbb4905a006942477c640",
+              "pyarrow/_csv.cpython-312-x86_64-linux-gnu.so": "2825c363df9fb0102cf535833aaadfd2df6194bd2b75ec83cc66c620b4a3ca61",
+              "pyarrow/_dataset.cpython-312-x86_64-linux-gnu.so": "21620d62fdb1a52e20b4abad6135e733268f849e3a55b8667b8f9b39e9bbfb56",
+              "pyarrow/_dataset_orc.cpython-312-x86_64-linux-gnu.so": "c41e6fa8b98c4ec71a32ca51733e7f117cc8db460b39374d5ba533e072278e94",
+              "pyarrow/_dataset_parquet.cpython-312-x86_64-linux-gnu.so": "4315c9171ebb585b1501b4288f83d677947df1c8686212438ae06411d8b3bb71",
+              "pyarrow/_dataset_parquet_encryption.cpython-312-x86_64-linux-gnu.so": "8f016db482fa0320b2b8c4be149f9b9e7d1bfe8ddd66b97ba84ee3c154815262",
+              "pyarrow/_feather.cpython-312-x86_64-linux-gnu.so": "ce54bdef6e721e0699c9c45dd7e610338e144e00b27a2ae2df5159e4408a4df0",
+              "pyarrow/_flight.cpython-312-x86_64-linux-gnu.so": "39f05d6969db9ae0013109c52e07df4c348ed13446320eb3cb95273a01273cd0",
+              "pyarrow/_fs.cpython-312-x86_64-linux-gnu.so": "78127d3bb9256880cc7436ba742a633fe3a04238cda6f0b26880be44a568f255",
+              "pyarrow/_gcsfs.cpython-312-x86_64-linux-gnu.so": "7f3fc46267df821eead1780b33a064d147df3101725fd98433938afe73692786",
+              "pyarrow/_hdfs.cpython-312-x86_64-linux-gnu.so": "6f283a7f6bdeb057d4befaf7b4cf84639ae232c50246f4870d3d679b497d5c26",
+              "pyarrow/_json.cpython-312-x86_64-linux-gnu.so": "5a7718282584556c76d801dffadbb99b0d4d214ad12cea6264b92041f81a08d9",
+              "pyarrow/_orc.cpython-312-x86_64-linux-gnu.so": "7af10a43224511b490e6d0fe9f73e2aa3b8910ebbab9651eb086cdc758478b60",
+              "pyarrow/_parquet.cpython-312-x86_64-linux-gnu.so": "9b301eff2b19a58680334e0659a2d44deefc3b7663a265c986fc2ea2d2fb4ea3",
+              "pyarrow/_parquet_encryption.cpython-312-x86_64-linux-gnu.so": "5de3cc143cc6711c18e2d7e0800e1fd75c7624cfad4b234abc1e732eaedb1a2b",
+              "pyarrow/_pyarrow_cpp_tests.cpython-312-x86_64-linux-gnu.so": "14073369c659ea3873defe5720ee9552ab8a1e46c0db795f567ff93454b2137e",
+              "pyarrow/_s3fs.cpython-312-x86_64-linux-gnu.so": "e36980537453ae6c350b9f8510e1bb12c0ab2e981af81acd0901a8ebf649ef54",
+              "pyarrow/_substrait.cpython-312-x86_64-linux-gnu.so": "8187124c6f370304425aa77c1213de8bb4f8fc79a86aaa42044ddfafd1e8853b",
+              "pyarrow/lib.cpython-312-x86_64-linux-gnu.so": "fed5cc774f08312c3543222c31fcc2a3b8f94dbcdec3e0d0f5126760e840b038",
+              "pyarrow/libarrow_python.so": "e11d382bb77cbad05f27393a2dcbf8f3a7cb32e0d4ce62615959e4c7bf5a2349",
+              "pyarrow/libarrow_python_flight.so": "a15e1ec795b27a79d46fb1b6823c31becf28b410d2d70ebdaf6b8ee7307d97ab",
+              "pyarrow/libarrow_python_parquet_encryption.so": "e32a9e27d0867820eaed90a1c1705ac9a1a0975bec98ed0e748dcf3ba5879498"
+            },
+            "installed_files": 754
+          },
+          "pydantic": {
+            "version": "2.14.3",
+            "active_dependencies": [
+              "annotated-types",
+              "pydantic-core",
+              "typing-extensions",
+              "typing-inspection"
+            ],
+            "files_sha256": "4ae49102371ae3e29be35531f703e27e068cfb90e05af9ed91c038524504012f",
+            "record_sha256": "a89b7526ee4dfe7e517505bffee55f78cfe8f21f4df719f7269e46658cefbfb4",
+            "native_files": {},
+            "installed_files": 114
+          },
+          "pydantic-core": {
+            "version": "2.50.4",
+            "active_dependencies": [
+              "typing-extensions"
+            ],
+            "files_sha256": "7b015c24c0eab802aa3c394065723423cfa13f0637efa55bcf3a3159413814ed",
+            "record_sha256": "4c3438c1c201a36d9ecec5a256bdbde84ba3359ee12a3231ba55a30b5acc7540",
+            "native_files": {
+              "pydantic_core/_pydantic_core.cpython-312-x86_64-linux-gnu.so": "61385e5d545d1ccd2a531453a1cbcd2670b4e931469cf0093ec9fda1853d1403"
+            },
+            "installed_files": 13
+          },
+          "python-dateutil": {
+            "version": "4.0.0",
+            "active_dependencies": [
+              "tzdata"
+            ],
+            "files_sha256": "b2b0c72ed60a9d656839d5304eadcf9b7892179992b4deaeb5d71161721fc3ff",
+            "record_sha256": "8eb8af9b580133411716fcc5be769bb547e537bc127a4a6ebf2d92e182e80cfd",
+            "native_files": {},
+            "installed_files": 28
+          },
+          "tqdm": {
+            "version": "4.70.1",
+            "active_dependencies": [],
+            "files_sha256": "bec6de369917d2ddadfafa52acbbf4d5b3c963f4ffd6f468e6306e59ad87ec23",
+            "record_sha256": "026aed181b2346bffce6e49f45ce5dc406be1a402b92deee70f90043eac1eec0",
+            "native_files": {},
+            "installed_files": 42
+          },
+          "typing-extensions": {
+            "version": "4.16.0",
+            "active_dependencies": [],
+            "files_sha256": "512effe819d50b0a459224eeaea4baf2d981e355ede902cfe2e228e5d44e14ef",
+            "record_sha256": "9e07fea845cac76293d927afa7157a14ecba39b318bc8af236b8de530b7656c1",
+            "native_files": {},
+            "installed_files": 7
+          },
+          "typing-inspection": {
+            "version": "0.4.5",
+            "active_dependencies": [
+              "typing-extensions"
+            ],
+            "files_sha256": "a1a2f11c0fd36f3217eef924f781f3777bcf199ec5a9e1ae0c28062c582eacb0",
+            "record_sha256": "8fdad294a7b5fa8c5e09bf85e4f22f9b3e140611b46e8a4d71d551cffde6e0fb",
+            "native_files": {},
+            "installed_files": 11
+          },
+          "tzdata": {
+            "version": "2026.6",
+            "active_dependencies": [],
+            "files_sha256": "bd8d68fbc3684ba606d5c16fb2b4dec2d9cace37d6e0bebcaa2eb0341cf770c3",
+            "record_sha256": "7264b3a15cf0a62ca4fe8429e35ae78fe380d58878647cefc95c42f19210ad1e",
+            "native_files": {},
+            "installed_files": 635
+          },
+          "urllib3": {
+            "version": "2.8.0",
+            "active_dependencies": [],
+            "files_sha256": "449c0b4cd10afd20dfb79d74bf4bc960c54d679ed3eaafd81ef34a106b292ee8",
+            "record_sha256": "1753d325c8936a612ecdc947e686ade56b21f591fbb7518330cb0f2f7619c330",
+            "native_files": {},
+            "installed_files": 44
+          },
+          "whoosh": {
+            "version": "2.7.4",
+            "active_dependencies": [],
+            "files_sha256": "7768e29058b939dcb17e2dda8f4c999ae3edbec5fca25d0d6938da38c8cdfcca",
+            "record_sha256": "f82e00d86b15b8047474e3052b4910f03794ededcd450499598924e77b5e3eae",
+            "native_files": {},
+            "installed_files": 121
+          }
+        },
+        "packages_unchanged": true,
+        "network_attempts": 0
+      }
+    },
+    "whoosh_bm25f_or": {
+      "backend": "whoosh_bm25f_or",
+      "packages": {
+        "annotated-types": {
+          "version": "0.8.0",
+          "active_dependencies": [],
+          "files_sha256": "f1de0dbedd624f9c72b081d900cb7119629c90b39e7ee7b7f84f35e048da7788",
+          "record_sha256": "8191d3aa1ac93480688819b4db2385606219a3f7a453b85e086646134ded4f96",
+          "native_files": {},
+          "installed_files": 9
+        },
+        "deprecation": {
+          "version": "2.1.0",
+          "active_dependencies": [
+            "packaging"
+          ],
+          "files_sha256": "2529698fb8b1510dc7a9c1469c1c6ffb2c8c1bba94bd9e79e98b8b3442ea56b9",
+          "record_sha256": "17dda63eecf2a41d578fb797c4d9839bda2aac95e2b84637c1263ccd0f021ef7",
+          "native_files": {},
+          "installed_files": 8
+        },
+        "lance-namespace": {
+          "version": "0.13.0",
+          "active_dependencies": [
+            "lance-namespace-urllib3-client"
+          ],
+          "files_sha256": "dec7da694e964618b11ede63fb005c141aea2feb646a4ad2b2fac0b063e9a032",
+          "record_sha256": "50f39ead2c068fd803c05850ed1ade559a0a43b5c114d399f73769422a7aaefb",
+          "native_files": {},
+          "installed_files": 10
+        },
+        "lance-namespace-urllib3-client": {
+          "version": "0.13.0",
+          "active_dependencies": [
+            "pydantic",
+            "python-dateutil",
+            "typing-extensions",
+            "urllib3"
+          ],
+          "files_sha256": "b4edca678cc1ad1eeb2ac59275ada276784b6ef9447aed1300fc19ba6beaf642",
+          "record_sha256": "aa80c5456954240caf51d47ece0381875ce312c048170c7034ce224e2f8e6d14",
+          "native_files": {},
+          "installed_files": 169
+        },
+        "lancedb": {
+          "version": "0.41.0",
+          "active_dependencies": [
+            "deprecation",
+            "lance-namespace",
+            "numpy",
+            "packaging",
+            "pyarrow",
+            "pydantic",
+            "tqdm"
+          ],
+          "files_sha256": "2eab639dccf40882652e0e3263174eef233d5e7015ca79ab1c6c9bcef3e97117",
+          "record_sha256": "901eff7ea863ecc09f56211eafddd3ade87aa912ee0756ef231fd10fb194dffb",
+          "native_files": {
+            "lancedb/_lancedb.abi3.so": "73f9fe5769d5fbc534868e739bac46f88a7449e945ac9be99bdf4fa6b9cf725c"
+          },
+          "installed_files": 91
+        },
+        "numpy": {
+          "version": "2.5.5",
+          "active_dependencies": [],
+          "files_sha256": "a1068d357f4ca78d072d74275ae1a498a9ab41dddcc867edf45fd564594a128e",
+          "record_sha256": "d6c1d0a8332b5df1de348024a9f0717cc9871cb70caf4f89c8a2896ccabe1ad7",
+          "native_files": {
+            "numpy.libs/libscipy_openblas64_-4b78795a.so": "ad494a874a8241624183202c0313c67605d648c3b3d6807d899bd6b350347472",
+            "numpy/_core/_multiarray_tests.cpython-312-x86_64-linux-gnu.so": "7040f354abb05ba34ad994169f12dd693ac68ada9ca2c4e1aedec5fe9257f149",
+            "numpy/_core/_multiarray_umath.cpython-312-x86_64-linux-gnu.so": "1650f5b6a42b0022f9821b475725469237dbc77595f1d5c7ae7bbc0288002095",
+            "numpy/_core/_operand_flag_tests.cpython-312-x86_64-linux-gnu.so": "d985fc6e648abe43a0d11d9e9c1c49c15a3020936c6105c159cc9ab2ff2e41f0",
+            "numpy/_core/_rational_tests.cpython-312-x86_64-linux-gnu.so": "78af03cdcfceda20ddb0063c7eb1b6fa149c79710173644c7e0a5b8b75142b91",
+            "numpy/_core/_simd.cpython-312-x86_64-linux-gnu.so": "a9c824abd21fdfd4cd782116defce75bda96dde5bdf453107a7632dc766afd9d",
+            "numpy/_core/_struct_ufunc_tests.cpython-312-x86_64-linux-gnu.so": "895b0c3376a227d8f2f9f35465876cd6b381daa177effa7a3070c7d31bba8688",
+            "numpy/_core/_umath_tests.cpython-312-x86_64-linux-gnu.so": "56dcb67e8abfe3d9e5d8c1c8775d9e1c02b86042a5328556bc3d3ccaff1aa328",
+            "numpy/fft/_pocketfft_umath.cpython-312-x86_64-linux-gnu.so": "29a1547b480b7ddc1e45cdc772b3f4b614cccced70204181bf5d3ad138a04ebb",
+            "numpy/linalg/_umath_linalg.cpython-312-x86_64-linux-gnu.so": "bbb371a2756b95b972eab4127f90f470a0e801bd88879e0555fde7537fb27b1e",
+            "numpy/linalg/lapack_lite.cpython-312-x86_64-linux-gnu.so": "2190f8688e6978772f82a9b0b98c9a0cf0564eac9e78c4970b2c760da8b84386",
+            "numpy/random/_bounded_integers.cpython-312-x86_64-linux-gnu.so": "4d17a888065bf4675783f42e6f7beacdff995709592af062c5dd776849af1e0e",
+            "numpy/random/_common.cpython-312-x86_64-linux-gnu.so": "7969a217e480337bc762708cfbfb566705a108d3eb7761a2508affc6728797cb",
+            "numpy/random/_generator.cpython-312-x86_64-linux-gnu.so": "7af52e74794208e080538ecec6594d12b1974e2aa9dbbb15e01ad31f565a7415",
+            "numpy/random/_mt19937.cpython-312-x86_64-linux-gnu.so": "ea055eff7d6c606aa51f86b32a7320664a582cd06f313e2861c800fd22a5c107",
+            "numpy/random/_pcg64.cpython-312-x86_64-linux-gnu.so": "7927e2b3321c24684ffe16e27071b55a305011fd7d88d9621ae8a53228556036",
+            "numpy/random/_philox.cpython-312-x86_64-linux-gnu.so": "a68a2b2dbee86c182c16bf304466e9ea5ca9b9cca4cca4d49ad1dcccb2faef6f",
+            "numpy/random/_sfc64.cpython-312-x86_64-linux-gnu.so": "95328b8d0ec76348378d4f7b31f18095ef2904092648637a5e8f5f4e3b2d2e07",
+            "numpy/random/bit_generator.cpython-312-x86_64-linux-gnu.so": "af377c32375873d478cd707ff79c88cfaa316d06f0a4e35c5eed703389520389",
+            "numpy/random/mtrand.cpython-312-x86_64-linux-gnu.so": "f65dc6d998db253c83c4acbc646bee7b4bf0feae73f5f685eb64d72cd37c0b38"
+          },
+          "installed_files": 928
+        },
+        "packaging": {
+          "version": "26.3",
+          "active_dependencies": [],
+          "files_sha256": "3263db32cd2e40ae21e630ed570488450a1dc833276f202d09e688bddd639bad",
+          "record_sha256": "1b8655965b0d83e9a067fd7f84b977bd1e117e0fb9f2874b2572781bdc9e2147",
+          "native_files": {},
+          "installed_files": 31
+        },
+        "pyarrow": {
+          "version": "26.0.1",
+          "active_dependencies": [],
+          "files_sha256": "14cf73fe3c4db037d1a6e11b1b9b15056620e2d3bd108ae72085fd58ade89e45",
+          "record_sha256": "c1f468e046b1949477bcf63d3fc87a5bcad7e387db19b53e24af03fd25fbcd14",
+          "native_files": {
+            "pyarrow/_acero.cpython-312-x86_64-linux-gnu.so": "cc463eda1583cbf365e4c8fc1858efd968fad90b40bd26f675b62261aa1e13f2",
+            "pyarrow/_azurefs.cpython-312-x86_64-linux-gnu.so": "abbfa822efd56a31f79c5dab814285fdae18c893908f027225b6e3fde93843a4",
+            "pyarrow/_compute.cpython-312-x86_64-linux-gnu.so": "410c37c4147b20b61f5c4a184f6adaa32344a03d022dbb4905a006942477c640",
+            "pyarrow/_csv.cpython-312-x86_64-linux-gnu.so": "2825c363df9fb0102cf535833aaadfd2df6194bd2b75ec83cc66c620b4a3ca61",
+            "pyarrow/_dataset.cpython-312-x86_64-linux-gnu.so": "21620d62fdb1a52e20b4abad6135e733268f849e3a55b8667b8f9b39e9bbfb56",
+            "pyarrow/_dataset_orc.cpython-312-x86_64-linux-gnu.so": "c41e6fa8b98c4ec71a32ca51733e7f117cc8db460b39374d5ba533e072278e94",
+            "pyarrow/_dataset_parquet.cpython-312-x86_64-linux-gnu.so": "4315c9171ebb585b1501b4288f83d677947df1c8686212438ae06411d8b3bb71",
+            "pyarrow/_dataset_parquet_encryption.cpython-312-x86_64-linux-gnu.so": "8f016db482fa0320b2b8c4be149f9b9e7d1bfe8ddd66b97ba84ee3c154815262",
+            "pyarrow/_feather.cpython-312-x86_64-linux-gnu.so": "ce54bdef6e721e0699c9c45dd7e610338e144e00b27a2ae2df5159e4408a4df0",
+            "pyarrow/_flight.cpython-312-x86_64-linux-gnu.so": "39f05d6969db9ae0013109c52e07df4c348ed13446320eb3cb95273a01273cd0",
+            "pyarrow/_fs.cpython-312-x86_64-linux-gnu.so": "78127d3bb9256880cc7436ba742a633fe3a04238cda6f0b26880be44a568f255",
+            "pyarrow/_gcsfs.cpython-312-x86_64-linux-gnu.so": "7f3fc46267df821eead1780b33a064d147df3101725fd98433938afe73692786",
+            "pyarrow/_hdfs.cpython-312-x86_64-linux-gnu.so": "6f283a7f6bdeb057d4befaf7b4cf84639ae232c50246f4870d3d679b497d5c26",
+            "pyarrow/_json.cpython-312-x86_64-linux-gnu.so": "5a7718282584556c76d801dffadbb99b0d4d214ad12cea6264b92041f81a08d9",
+            "pyarrow/_orc.cpython-312-x86_64-linux-gnu.so": "7af10a43224511b490e6d0fe9f73e2aa3b8910ebbab9651eb086cdc758478b60",
+            "pyarrow/_parquet.cpython-312-x86_64-linux-gnu.so": "9b301eff2b19a58680334e0659a2d44deefc3b7663a265c986fc2ea2d2fb4ea3",
+            "pyarrow/_parquet_encryption.cpython-312-x86_64-linux-gnu.so": "5de3cc143cc6711c18e2d7e0800e1fd75c7624cfad4b234abc1e732eaedb1a2b",
+            "pyarrow/_pyarrow_cpp_tests.cpython-312-x86_64-linux-gnu.so": "14073369c659ea3873defe5720ee9552ab8a1e46c0db795f567ff93454b2137e",
+            "pyarrow/_s3fs.cpython-312-x86_64-linux-gnu.so": "e36980537453ae6c350b9f8510e1bb12c0ab2e981af81acd0901a8ebf649ef54",
+            "pyarrow/_substrait.cpython-312-x86_64-linux-gnu.so": "8187124c6f370304425aa77c1213de8bb4f8fc79a86aaa42044ddfafd1e8853b",
+            "pyarrow/lib.cpython-312-x86_64-linux-gnu.so": "fed5cc774f08312c3543222c31fcc2a3b8f94dbcdec3e0d0f5126760e840b038",
+            "pyarrow/libarrow_python.so": "e11d382bb77cbad05f27393a2dcbf8f3a7cb32e0d4ce62615959e4c7bf5a2349",
+            "pyarrow/libarrow_python_flight.so": "a15e1ec795b27a79d46fb1b6823c31becf28b410d2d70ebdaf6b8ee7307d97ab",
+            "pyarrow/libarrow_python_parquet_encryption.so": "e32a9e27d0867820eaed90a1c1705ac9a1a0975bec98ed0e748dcf3ba5879498"
+          },
+          "installed_files": 754
+        },
+        "pydantic": {
+          "version": "2.14.3",
+          "active_dependencies": [
+            "annotated-types",
+            "pydantic-core",
+            "typing-extensions",
+            "typing-inspection"
+          ],
+          "files_sha256": "4ae49102371ae3e29be35531f703e27e068cfb90e05af9ed91c038524504012f",
+          "record_sha256": "a89b7526ee4dfe7e517505bffee55f78cfe8f21f4df719f7269e46658cefbfb4",
+          "native_files": {},
+          "installed_files": 114
+        },
+        "pydantic-core": {
+          "version": "2.50.4",
+          "active_dependencies": [
+            "typing-extensions"
+          ],
+          "files_sha256": "7b015c24c0eab802aa3c394065723423cfa13f0637efa55bcf3a3159413814ed",
+          "record_sha256": "4c3438c1c201a36d9ecec5a256bdbde84ba3359ee12a3231ba55a30b5acc7540",
+          "native_files": {
+            "pydantic_core/_pydantic_core.cpython-312-x86_64-linux-gnu.so": "61385e5d545d1ccd2a531453a1cbcd2670b4e931469cf0093ec9fda1853d1403"
+          },
+          "installed_files": 13
+        },
+        "python-dateutil": {
+          "version": "4.0.0",
+          "active_dependencies": [
+            "tzdata"
+          ],
+          "files_sha256": "b2b0c72ed60a9d656839d5304eadcf9b7892179992b4deaeb5d71161721fc3ff",
+          "record_sha256": "8eb8af9b580133411716fcc5be769bb547e537bc127a4a6ebf2d92e182e80cfd",
+          "native_files": {},
+          "installed_files": 28
+        },
+        "tqdm": {
+          "version": "4.70.1",
+          "active_dependencies": [],
+          "files_sha256": "bec6de369917d2ddadfafa52acbbf4d5b3c963f4ffd6f468e6306e59ad87ec23",
+          "record_sha256": "026aed181b2346bffce6e49f45ce5dc406be1a402b92deee70f90043eac1eec0",
+          "native_files": {},
+          "installed_files": 42
+        },
+        "typing-extensions": {
+          "version": "4.16.0",
+          "active_dependencies": [],
+          "files_sha256": "512effe819d50b0a459224eeaea4baf2d981e355ede902cfe2e228e5d44e14ef",
+          "record_sha256": "9e07fea845cac76293d927afa7157a14ecba39b318bc8af236b8de530b7656c1",
+          "native_files": {},
+          "installed_files": 7
+        },
+        "typing-inspection": {
+          "version": "0.4.5",
+          "active_dependencies": [
+            "typing-extensions"
+          ],
+          "files_sha256": "a1a2f11c0fd36f3217eef924f781f3777bcf199ec5a9e1ae0c28062c582eacb0",
+          "record_sha256": "8fdad294a7b5fa8c5e09bf85e4f22f9b3e140611b46e8a4d71d551cffde6e0fb",
+          "native_files": {},
+          "installed_files": 11
+        },
+        "tzdata": {
+          "version": "2026.6",
+          "active_dependencies": [],
+          "files_sha256": "bd8d68fbc3684ba606d5c16fb2b4dec2d9cace37d6e0bebcaa2eb0341cf770c3",
+          "record_sha256": "7264b3a15cf0a62ca4fe8429e35ae78fe380d58878647cefc95c42f19210ad1e",
+          "native_files": {},
+          "installed_files": 635
+        },
+        "urllib3": {
+          "version": "2.8.0",
+          "active_dependencies": [],
+          "files_sha256": "449c0b4cd10afd20dfb79d74bf4bc960c54d679ed3eaafd81ef34a106b292ee8",
+          "record_sha256": "1753d325c8936a612ecdc947e686ade56b21f591fbb7518330cb0f2f7619c330",
+          "native_files": {},
+          "installed_files": 44
+        },
+        "whoosh": {
+          "version": "2.7.4",
+          "active_dependencies": [],
+          "files_sha256": "7768e29058b939dcb17e2dda8f4c999ae3edbec5fca25d0d6938da38c8cdfcca",
+          "record_sha256": "f82e00d86b15b8047474e3052b4910f03794ededcd450499598924e77b5e3eae",
+          "native_files": {},
+          "installed_files": 121
+        }
+      },
+      "supplied_pages": 80,
+      "native_setup_and_index_ms": 171.697105,
+      "network_policy": "Python INET tripwire; no model/service configured; not an OS sandbox",
+      "classification": "full-text retrieval library; not an AI memory product",
+      "search_api": "QueryParser(text, group=OrGroup).parse(original_query); Searcher.search(filter=Term(project), limit=5)",
+      "scope": "native exact ID Term filter before top-k; no result filtering or refill",
+      "indexed_text": "complete original text; TEXT default StandardAnalyzer; title/time stored only",
+      "parser_group": "OrGroup (explicit nondefault; default QueryParser uses AndGroup)",
+      "ranking": {
+        "name": "native default BM25F",
+        "B": 0.75,
+        "K1": 1.2
+      },
+      "persistent": true,
+      "model_calls": 0,
+      "startup_and_index_roundtrip_ms": 1160.584996,
+      "final_verification": {
+        "packages": {
+          "annotated-types": {
+            "version": "0.8.0",
+            "active_dependencies": [],
+            "files_sha256": "f1de0dbedd624f9c72b081d900cb7119629c90b39e7ee7b7f84f35e048da7788",
+            "record_sha256": "8191d3aa1ac93480688819b4db2385606219a3f7a453b85e086646134ded4f96",
+            "native_files": {},
+            "installed_files": 9
+          },
+          "deprecation": {
+            "version": "2.1.0",
+            "active_dependencies": [
+              "packaging"
+            ],
+            "files_sha256": "2529698fb8b1510dc7a9c1469c1c6ffb2c8c1bba94bd9e79e98b8b3442ea56b9",
+            "record_sha256": "17dda63eecf2a41d578fb797c4d9839bda2aac95e2b84637c1263ccd0f021ef7",
+            "native_files": {},
+            "installed_files": 8
+          },
+          "lance-namespace": {
+            "version": "0.13.0",
+            "active_dependencies": [
+              "lance-namespace-urllib3-client"
+            ],
+            "files_sha256": "dec7da694e964618b11ede63fb005c141aea2feb646a4ad2b2fac0b063e9a032",
+            "record_sha256": "50f39ead2c068fd803c05850ed1ade559a0a43b5c114d399f73769422a7aaefb",
+            "native_files": {},
+            "installed_files": 10
+          },
+          "lance-namespace-urllib3-client": {
+            "version": "0.13.0",
+            "active_dependencies": [
+              "pydantic",
+              "python-dateutil",
+              "typing-extensions",
+              "urllib3"
+            ],
+            "files_sha256": "b4edca678cc1ad1eeb2ac59275ada276784b6ef9447aed1300fc19ba6beaf642",
+            "record_sha256": "aa80c5456954240caf51d47ece0381875ce312c048170c7034ce224e2f8e6d14",
+            "native_files": {},
+            "installed_files": 169
+          },
+          "lancedb": {
+            "version": "0.41.0",
+            "active_dependencies": [
+              "deprecation",
+              "lance-namespace",
+              "numpy",
+              "packaging",
+              "pyarrow",
+              "pydantic",
+              "tqdm"
+            ],
+            "files_sha256": "2eab639dccf40882652e0e3263174eef233d5e7015ca79ab1c6c9bcef3e97117",
+            "record_sha256": "901eff7ea863ecc09f56211eafddd3ade87aa912ee0756ef231fd10fb194dffb",
+            "native_files": {
+              "lancedb/_lancedb.abi3.so": "73f9fe5769d5fbc534868e739bac46f88a7449e945ac9be99bdf4fa6b9cf725c"
+            },
+            "installed_files": 91
+          },
+          "numpy": {
+            "version": "2.5.5",
+            "active_dependencies": [],
+            "files_sha256": "a1068d357f4ca78d072d74275ae1a498a9ab41dddcc867edf45fd564594a128e",
+            "record_sha256": "d6c1d0a8332b5df1de348024a9f0717cc9871cb70caf4f89c8a2896ccabe1ad7",
+            "native_files": {
+              "numpy.libs/libscipy_openblas64_-4b78795a.so": "ad494a874a8241624183202c0313c67605d648c3b3d6807d899bd6b350347472",
+              "numpy/_core/_multiarray_tests.cpython-312-x86_64-linux-gnu.so": "7040f354abb05ba34ad994169f12dd693ac68ada9ca2c4e1aedec5fe9257f149",
+              "numpy/_core/_multiarray_umath.cpython-312-x86_64-linux-gnu.so": "1650f5b6a42b0022f9821b475725469237dbc77595f1d5c7ae7bbc0288002095",
+              "numpy/_core/_operand_flag_tests.cpython-312-x86_64-linux-gnu.so": "d985fc6e648abe43a0d11d9e9c1c49c15a3020936c6105c159cc9ab2ff2e41f0",
+              "numpy/_core/_rational_tests.cpython-312-x86_64-linux-gnu.so": "78af03cdcfceda20ddb0063c7eb1b6fa149c79710173644c7e0a5b8b75142b91",
+              "numpy/_core/_simd.cpython-312-x86_64-linux-gnu.so": "a9c824abd21fdfd4cd782116defce75bda96dde5bdf453107a7632dc766afd9d",
+              "numpy/_core/_struct_ufunc_tests.cpython-312-x86_64-linux-gnu.so": "895b0c3376a227d8f2f9f35465876cd6b381daa177effa7a3070c7d31bba8688",
+              "numpy/_core/_umath_tests.cpython-312-x86_64-linux-gnu.so": "56dcb67e8abfe3d9e5d8c1c8775d9e1c02b86042a5328556bc3d3ccaff1aa328",
+              "numpy/fft/_pocketfft_umath.cpython-312-x86_64-linux-gnu.so": "29a1547b480b7ddc1e45cdc772b3f4b614cccced70204181bf5d3ad138a04ebb",
+              "numpy/linalg/_umath_linalg.cpython-312-x86_64-linux-gnu.so": "bbb371a2756b95b972eab4127f90f470a0e801bd88879e0555fde7537fb27b1e",
+              "numpy/linalg/lapack_lite.cpython-312-x86_64-linux-gnu.so": "2190f8688e6978772f82a9b0b98c9a0cf0564eac9e78c4970b2c760da8b84386",
+              "numpy/random/_bounded_integers.cpython-312-x86_64-linux-gnu.so": "4d17a888065bf4675783f42e6f7beacdff995709592af062c5dd776849af1e0e",
+              "numpy/random/_common.cpython-312-x86_64-linux-gnu.so": "7969a217e480337bc762708cfbfb566705a108d3eb7761a2508affc6728797cb",
+              "numpy/random/_generator.cpython-312-x86_64-linux-gnu.so": "7af52e74794208e080538ecec6594d12b1974e2aa9dbbb15e01ad31f565a7415",
+              "numpy/random/_mt19937.cpython-312-x86_64-linux-gnu.so": "ea055eff7d6c606aa51f86b32a7320664a582cd06f313e2861c800fd22a5c107",
+              "numpy/random/_pcg64.cpython-312-x86_64-linux-gnu.so": "7927e2b3321c24684ffe16e27071b55a305011fd7d88d9621ae8a53228556036",
+              "numpy/random/_philox.cpython-312-x86_64-linux-gnu.so": "a68a2b2dbee86c182c16bf304466e9ea5ca9b9cca4cca4d49ad1dcccb2faef6f",
+              "numpy/random/_sfc64.cpython-312-x86_64-linux-gnu.so": "95328b8d0ec76348378d4f7b31f18095ef2904092648637a5e8f5f4e3b2d2e07",
+              "numpy/random/bit_generator.cpython-312-x86_64-linux-gnu.so": "af377c32375873d478cd707ff79c88cfaa316d06f0a4e35c5eed703389520389",
+              "numpy/random/mtrand.cpython-312-x86_64-linux-gnu.so": "f65dc6d998db253c83c4acbc646bee7b4bf0feae73f5f685eb64d72cd37c0b38"
+            },
+            "installed_files": 928
+          },
+          "packaging": {
+            "version": "26.3",
+            "active_dependencies": [],
+            "files_sha256": "3263db32cd2e40ae21e630ed570488450a1dc833276f202d09e688bddd639bad",
+            "record_sha256": "1b8655965b0d83e9a067fd7f84b977bd1e117e0fb9f2874b2572781bdc9e2147",
+            "native_files": {},
+            "installed_files": 31
+          },
+          "pyarrow": {
+            "version": "26.0.1",
+            "active_dependencies": [],
+            "files_sha256": "14cf73fe3c4db037d1a6e11b1b9b15056620e2d3bd108ae72085fd58ade89e45",
+            "record_sha256": "c1f468e046b1949477bcf63d3fc87a5bcad7e387db19b53e24af03fd25fbcd14",
+            "native_files": {
+              "pyarrow/_acero.cpython-312-x86_64-linux-gnu.so": "cc463eda1583cbf365e4c8fc1858efd968fad90b40bd26f675b62261aa1e13f2",
+              "pyarrow/_azurefs.cpython-312-x86_64-linux-gnu.so": "abbfa822efd56a31f79c5dab814285fdae18c893908f027225b6e3fde93843a4",
+              "pyarrow/_compute.cpython-312-x86_64-linux-gnu.so": "410c37c4147b20b61f5c4a184f6adaa32344a03d022dbb4905a006942477c640",
+              "pyarrow/_csv.cpython-312-x86_64-linux-gnu.so": "2825c363df9fb0102cf535833aaadfd2df6194bd2b75ec83cc66c620b4a3ca61",
+              "pyarrow/_dataset.cpython-312-x86_64-linux-gnu.so": "21620d62fdb1a52e20b4abad6135e733268f849e3a55b8667b8f9b39e9bbfb56",
+              "pyarrow/_dataset_orc.cpython-312-x86_64-linux-gnu.so": "c41e6fa8b98c4ec71a32ca51733e7f117cc8db460b39374d5ba533e072278e94",
+              "pyarrow/_dataset_parquet.cpython-312-x86_64-linux-gnu.so": "4315c9171ebb585b1501b4288f83d677947df1c8686212438ae06411d8b3bb71",
+              "pyarrow/_dataset_parquet_encryption.cpython-312-x86_64-linux-gnu.so": "8f016db482fa0320b2b8c4be149f9b9e7d1bfe8ddd66b97ba84ee3c154815262",
+              "pyarrow/_feather.cpython-312-x86_64-linux-gnu.so": "ce54bdef6e721e0699c9c45dd7e610338e144e00b27a2ae2df5159e4408a4df0",
+              "pyarrow/_flight.cpython-312-x86_64-linux-gnu.so": "39f05d6969db9ae0013109c52e07df4c348ed13446320eb3cb95273a01273cd0",
+              "pyarrow/_fs.cpython-312-x86_64-linux-gnu.so": "78127d3bb9256880cc7436ba742a633fe3a04238cda6f0b26880be44a568f255",
+              "pyarrow/_gcsfs.cpython-312-x86_64-linux-gnu.so": "7f3fc46267df821eead1780b33a064d147df3101725fd98433938afe73692786",
+              "pyarrow/_hdfs.cpython-312-x86_64-linux-gnu.so": "6f283a7f6bdeb057d4befaf7b4cf84639ae232c50246f4870d3d679b497d5c26",
+              "pyarrow/_json.cpython-312-x86_64-linux-gnu.so": "5a7718282584556c76d801dffadbb99b0d4d214ad12cea6264b92041f81a08d9",
+              "pyarrow/_orc.cpython-312-x86_64-linux-gnu.so": "7af10a43224511b490e6d0fe9f73e2aa3b8910ebbab9651eb086cdc758478b60",
+              "pyarrow/_parquet.cpython-312-x86_64-linux-gnu.so": "9b301eff2b19a58680334e0659a2d44deefc3b7663a265c986fc2ea2d2fb4ea3",
+              "pyarrow/_parquet_encryption.cpython-312-x86_64-linux-gnu.so": "5de3cc143cc6711c18e2d7e0800e1fd75c7624cfad4b234abc1e732eaedb1a2b",
+              "pyarrow/_pyarrow_cpp_tests.cpython-312-x86_64-linux-gnu.so": "14073369c659ea3873defe5720ee9552ab8a1e46c0db795f567ff93454b2137e",
+              "pyarrow/_s3fs.cpython-312-x86_64-linux-gnu.so": "e36980537453ae6c350b9f8510e1bb12c0ab2e981af81acd0901a8ebf649ef54",
+              "pyarrow/_substrait.cpython-312-x86_64-linux-gnu.so": "8187124c6f370304425aa77c1213de8bb4f8fc79a86aaa42044ddfafd1e8853b",
+              "pyarrow/lib.cpython-312-x86_64-linux-gnu.so": "fed5cc774f08312c3543222c31fcc2a3b8f94dbcdec3e0d0f5126760e840b038",
+              "pyarrow/libarrow_python.so": "e11d382bb77cbad05f27393a2dcbf8f3a7cb32e0d4ce62615959e4c7bf5a2349",
+              "pyarrow/libarrow_python_flight.so": "a15e1ec795b27a79d46fb1b6823c31becf28b410d2d70ebdaf6b8ee7307d97ab",
+              "pyarrow/libarrow_python_parquet_encryption.so": "e32a9e27d0867820eaed90a1c1705ac9a1a0975bec98ed0e748dcf3ba5879498"
+            },
+            "installed_files": 754
+          },
+          "pydantic": {
+            "version": "2.14.3",
+            "active_dependencies": [
+              "annotated-types",
+              "pydantic-core",
+              "typing-extensions",
+              "typing-inspection"
+            ],
+            "files_sha256": "4ae49102371ae3e29be35531f703e27e068cfb90e05af9ed91c038524504012f",
+            "record_sha256": "a89b7526ee4dfe7e517505bffee55f78cfe8f21f4df719f7269e46658cefbfb4",
+            "native_files": {},
+            "installed_files": 114
+          },
+          "pydantic-core": {
+            "version": "2.50.4",
+            "active_dependencies": [
+              "typing-extensions"
+            ],
+            "files_sha256": "7b015c24c0eab802aa3c394065723423cfa13f0637efa55bcf3a3159413814ed",
+            "record_sha256": "4c3438c1c201a36d9ecec5a256bdbde84ba3359ee12a3231ba55a30b5acc7540",
+            "native_files": {
+              "pydantic_core/_pydantic_core.cpython-312-x86_64-linux-gnu.so": "61385e5d545d1ccd2a531453a1cbcd2670b4e931469cf0093ec9fda1853d1403"
+            },
+            "installed_files": 13
+          },
+          "python-dateutil": {
+            "version": "4.0.0",
+            "active_dependencies": [
+              "tzdata"
+            ],
+            "files_sha256": "b2b0c72ed60a9d656839d5304eadcf9b7892179992b4deaeb5d71161721fc3ff",
+            "record_sha256": "8eb8af9b580133411716fcc5be769bb547e537bc127a4a6ebf2d92e182e80cfd",
+            "native_files": {},
+            "installed_files": 28
+          },
+          "tqdm": {
+            "version": "4.70.1",
+            "active_dependencies": [],
+            "files_sha256": "bec6de369917d2ddadfafa52acbbf4d5b3c963f4ffd6f468e6306e59ad87ec23",
+            "record_sha256": "026aed181b2346bffce6e49f45ce5dc406be1a402b92deee70f90043eac1eec0",
+            "native_files": {},
+            "installed_files": 42
+          },
+          "typing-extensions": {
+            "version": "4.16.0",
+            "active_dependencies": [],
+            "files_sha256": "512effe819d50b0a459224eeaea4baf2d981e355ede902cfe2e228e5d44e14ef",
+            "record_sha256": "9e07fea845cac76293d927afa7157a14ecba39b318bc8af236b8de530b7656c1",
+            "native_files": {},
+            "installed_files": 7
+          },
+          "typing-inspection": {
+            "version": "0.4.5",
+            "active_dependencies": [
+              "typing-extensions"
+            ],
+            "files_sha256": "a1a2f11c0fd36f3217eef924f781f3777bcf199ec5a9e1ae0c28062c582eacb0",
+            "record_sha256": "8fdad294a7b5fa8c5e09bf85e4f22f9b3e140611b46e8a4d71d551cffde6e0fb",
+            "native_files": {},
+            "installed_files": 11
+          },
+          "tzdata": {
+            "version": "2026.6",
+            "active_dependencies": [],
+            "files_sha256": "bd8d68fbc3684ba606d5c16fb2b4dec2d9cace37d6e0bebcaa2eb0341cf770c3",
+            "record_sha256": "7264b3a15cf0a62ca4fe8429e35ae78fe380d58878647cefc95c42f19210ad1e",
+            "native_files": {},
+            "installed_files": 635
+          },
+          "urllib3": {
+            "version": "2.8.0",
+            "active_dependencies": [],
+            "files_sha256": "449c0b4cd10afd20dfb79d74bf4bc960c54d679ed3eaafd81ef34a106b292ee8",
+            "record_sha256": "1753d325c8936a612ecdc947e686ade56b21f591fbb7518330cb0f2f7619c330",
+            "native_files": {},
+            "installed_files": 44
+          },
+          "whoosh": {
+            "version": "2.7.4",
+            "active_dependencies": [],
+            "files_sha256": "7768e29058b939dcb17e2dda8f4c999ae3edbec5fca25d0d6938da38c8cdfcca",
+            "record_sha256": "f82e00d86b15b8047474e3052b4910f03794ededcd450499598924e77b5e3eae",
+            "native_files": {},
+            "installed_files": 121
+          }
+        },
+        "packages_unchanged": true,
+        "network_attempts": 0
+      }
+    }
+  }
+}
