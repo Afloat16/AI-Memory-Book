@@ -1,0 +1,24 @@
+usage: audit_and_package.py [-h] --repo-root REPO_ROOT --evidence EVIDENCE
+                            --output OUTPUT --source-commit SOURCE_COMMIT
+                            --version VERSION --runtime-sha256 RUNTIME_SHA256
+                            --native-baseline NATIVE_BASELINE --temporary-root
+                            TEMPORARY_ROOT --run-id RUN_ID --run-attempt
+                            RUN_ATTEMPT
+
+Run the frozen publication auditor and preserve a losslessly verified package.
+This helper does not fetch, build, install, publish, or change the repository.
+All outputs go to one new caller-selected package directory. Failed attempts
+retain their logs and cannot overwrite an earlier package.
+
+options:
+  -h, --help            show this help message and exit
+  --repo-root REPO_ROOT
+  --evidence EVIDENCE
+  --output OUTPUT
+  --source-commit SOURCE_COMMIT
+  --version VERSION
+  --runtime-sha256 RUNTIME_SHA256
+  --native-baseline NATIVE_BASELINE
+  --temporary-root TEMPORARY_ROOT
+  --run-id RUN_ID
+  --run-attempt RUN_ATTEMPT
