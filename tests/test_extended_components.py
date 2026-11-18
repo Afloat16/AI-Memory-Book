@@ -14,10 +14,57 @@ import unittest
 from urllib.parse import quote
 
 from benchmarks.competitors.extended_lexical import memvid_record, result_identity
-from benchmarks.extended_components import fresh_output, validate_native
+from benchmarks import engineering_workflow as workflow
+from benchmarks.extended_components import audit_inventory, audit_summaries, fresh_output, validate_native
 
 
 class ExtendedComponentIntegrityTests(unittest.TestCase):
+    def inventory_fixture(self):
+        case = {"id": "case-a", "query": "marker", "project": "alpha", "checkpoint": 1,
+                "category": "scope", "required": [], "stale": [], "consumer_family": None}
+        settings = {"backends": ["bm25s"], "budgets_chars": [1200, 2400], "repeats": 1, "top_k": 5}
+        native = [{"backend": "bm25s", "case_id": case["id"], "query": case["query"],
+                   "project": case["project"], "checkpoint": case["checkpoint"],
+                   "samples": [{"repetition": 0, "adapter_call_ms": 1.5}]}]
+        response = {"context": "", "results": []}
+        rows = [{"backend": "bm25s", "case_id": case["id"], "query": case["query"],
+                 "project": case["project"], "checkpoint": case["checkpoint"], "category": case["category"],
+                 "budget_chars": budget, "latency_ms": [1.5], "repeat_outputs_equal": True,
+                 "score": workflow.score(case, response, {}, budget)} for budget in settings["budgets_chars"]]
+        return [{"checkpoint": 1, "cases": [case]}], settings, native, rows
+
+    def test_audit_inventory_rejects_extra_missing_and_duplicate_cases(self):
+        steps, settings, native, rows = self.inventory_fixture()
+        audit_inventory(steps, settings, native, rows)
+        bad_native = native + [{**native[0], "case_id": "undeclared"}]
+        bad_rows = rows + [{**rows[0], "case_id": "undeclared"}]
+        for native_variant, row_variant in ((bad_native, bad_rows), (native, rows[:-1]),
+                                            (native + native, rows), (native, rows + rows)):
+            with self.subTest(), self.assertRaises(ValueError):
+                audit_inventory(steps, settings, native_variant, row_variant)
+
+    def test_audit_inventory_rejects_request_and_category_label_drift(self):
+        steps, settings, native, rows = self.inventory_fixture()
+        for key, value in (("query", "rewritten"), ("project", "foreign"), ("checkpoint", 2)):
+            with self.subTest(native_field=key), self.assertRaises(ValueError):
+                audit_inventory(steps, settings, [{**native[0], key: value}], rows)
+        for key, value in (("query", "rewritten"), ("project", "foreign"),
+                           ("checkpoint", 2), ("category", "wrong-category"), ("latency_ms", [0.001])):
+            changed = [{**rows[0], key: value}, rows[1]]
+            with self.subTest(packed_field=key), self.assertRaises(ValueError):
+                audit_inventory(steps, settings, native, changed)
+
+    def test_audit_recomputes_per_category_summary(self):
+        _, _, _, rows = self.inventory_fixture()
+        report = {"summary": workflow.summarize(rows), "by_category": {"scope": workflow.summarize(rows)}}
+        audit_summaries(report, rows)
+        changed = copy.deepcopy(report)
+        changed["by_category"]["scope"][0]["cases"] += 1
+        with self.assertRaises(ValueError):
+            audit_summaries(changed, rows)
+        with self.assertRaises(ValueError):
+            audit_summaries({**report, "by_category": {"wrong-category": report["by_category"]["scope"]}}, rows)
+
     def memvid_fixture(self, project="scope-alpha", text="USER: valve\n\nASSISTANT: 值=17."):
         identity = "page-1"
         doc = {"id": identity, "project": project, "title": "Valve settings",

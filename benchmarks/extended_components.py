@@ -344,10 +344,56 @@ def self_test(output, *, python=sys.executable, backends=BACKENDS):
     return report
 
 
+def audit_inventory(steps, settings, native_rows, rows):
+    """Require the exact registered case inventory and original request labels."""
+    cases = {case["id"]: case for step in steps for case in step["cases"]}
+    backends, budgets, repeats = settings["backends"], settings["budgets_chars"], settings["repeats"]
+    if (not backends or len(set(backends)) != len(backends) or set(backends) - set(BACKENDS)
+            or not budgets or len(set(budgets)) != len(budgets)
+            or any(type(budget) is not int or not 0 < budget <= 100000 for budget in budgets)
+            or type(repeats) is not int or not 1 <= repeats <= 30 or settings["top_k"] != 5):
+        raise ValueError("Report settings violate the registered component contract")
+    native_lookup = {(row["backend"], row["case_id"]): row for row in native_rows}
+    row_lookup = {(row["backend"], row["case_id"], row["budget_chars"]): row for row in rows}
+    if len(native_lookup) != len(native_rows) or len(row_lookup) != len(rows):
+        raise ValueError("Duplicate evidence rows")
+    expected_native = {(backend, case_id) for backend in backends for case_id in cases}
+    expected_packed = {(backend, case_id, budget) for backend in backends for case_id in cases for budget in budgets}
+    if set(native_lookup) != expected_native or set(row_lookup) != expected_packed:
+        raise ValueError("Evidence row inventory differs from the exact registered Cartesian product")
+    for native in native_rows:
+        case = cases[native["case_id"]]
+        if any(native.get(key) != case[key] for key in ("query", "project", "checkpoint")):
+            raise ValueError("Native request labels differ from the frozen case")
+        if [sample["repetition"] for sample in native["samples"]] != list(range(repeats)):
+            raise ValueError("Native repetition inventory differs from the registered order")
+    for row in rows:
+        case = cases[row["case_id"]]
+        if any(row.get(key) != case[key] for key in ("query", "project", "checkpoint", "category")):
+            raise ValueError("Packed response labels differ from the frozen case")
+        native = native_lookup[(row["backend"], row["case_id"])]
+        if row["latency_ms"] != [sample["adapter_call_ms"] for sample in native["samples"]]:
+            raise ValueError("Packed timing observations differ from saved native samples")
+    return native_lookup, row_lookup
+
+
+def audit_summaries(report, rows):
+    summary = workflow.summarize(rows)
+    by_category = {category: workflow.summarize([row for row in rows if row["category"] == category])
+                   for category in sorted({row["category"] for row in rows})}
+    if summary != report["summary"] or by_category != report["by_category"]:
+        raise ValueError("Overall or per-category summary differs from independent row recomputation")
+
+
 def audit(output):
     """Recompute every native mapping, packed response and evidence score offline."""
     output = Path(output)
     report = json.loads((output / "report.json").read_text(encoding="utf-8"))
+    binding = json.loads((output / "binding.json").read_text(encoding="utf-8"))
+    if (report.get("status") != "completed" or report.get("integrity_passed") is not True
+            or report.get("failures") or any(report[key] != binding[key] for key in
+                ("version", "dataset_sha256", "settings", "runtime", "evaluator", "lock", "environment"))):
+        raise ValueError("Run is incomplete or differs from its pre-execution binding")
     steps = json.loads((output / "dataset.json").read_text(encoding="utf-8"))
     if workflow.sha(steps) != report["dataset_sha256"] or steps != workflow.workload():
         raise ValueError("Dataset is not the frozen engineering workload")
@@ -355,10 +401,14 @@ def audit(output):
         raise ValueError("Evaluator closure changed after the recorded run")
     native_rows = [json.loads(line) for line in (output / "native.jsonl").read_text(encoding="utf-8").splitlines()]
     rows = [json.loads(line) for line in (output / "raw.jsonl").read_text(encoding="utf-8").splitlines()]
-    native_lookup = {(row["backend"], row["case_id"]): row for row in native_rows}
-    row_lookup = {(row["backend"], row["case_id"], row["budget_chars"]): row for row in rows}
-    if len(native_lookup) != len(native_rows) or len(row_lookup) != len(rows):
-        raise ValueError("Duplicate evidence rows")
+    native_lookup, row_lookup = audit_inventory(steps, report["settings"], native_rows, rows)
+    expected_cases = sum(len(step["cases"]) for step in steps)
+    expected_statuses = {backend: {"status": "completed", "packed_rows": expected_cases * len(report["settings"]["budgets_chars"]),
+                                   "expected_packed_rows": expected_cases * len(report["settings"]["budgets_chars"])}
+                         for backend in report["settings"]["backends"]}
+    if (report["case_count"] != expected_cases or report["backend_status"] != expected_statuses
+            or report["completed_native_query_backend_pairs"] != len(native_rows)):
+        raise ValueError("Reported completed counts differ from exact verified row inventory")
     visible, checked, native_calls = {}, 0, 0
     for step in steps:
         for session in step["sessions"]:
@@ -403,8 +453,7 @@ def audit(output):
                             or row["repeat_outputs_equal"] != (len(identities) == 1)):
                         raise ValueError("Packed response, score or stability differs")
                     checked += 1
-    if workflow.summarize(rows) != report["summary"]:
-        raise ValueError("Summary differs from independent row recomputation")
+    audit_summaries(report, rows)
     return {"status": "verified", "packed_responses": checked, "native_calls": native_calls,
             "dataset_sha256": report["dataset_sha256"], "evaluator_sha256": report["evaluator"]["sha256"],
             "files": {path.name: sha_file(path) for path in sorted(output.iterdir())
