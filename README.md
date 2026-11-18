@@ -8,6 +8,8 @@ Preserve conversations as project books, task chapters, question sections and or
 
 **v0.12.0 is published.** Exact-source CI, native-wheel installation checks and the real public-URL installer have passed. The quick start below installs this release. [Source and delivery evidence](docs/v0.12.0-validation.md#delivery-status-and-practical-limits).
 
+**v0.13 development:** the first frozen longitudinal experiment completed 13,608 API measurements across seven stages, reaching 100,000 pages in 788 projects. It exposed eight multi-source omissions per stage (48/56 answerable recall cases complete), alongside measured directory gains and remaining recall costs. The original responses and failed candidates are retained; further corrections are under validation. [Full development results and limits](docs/v0.13.0-validation.md).
+
 [简体中文](README.zh-CN.md) · [Results](#evidence-coverage) · [Performance](#performance) · [Quick start](#quick-start) · [How it works](#how-it-works) · [Documentation](#documentation)
 
 ## At a glance

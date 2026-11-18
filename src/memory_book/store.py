@@ -23,7 +23,7 @@ from .text import (IDENTIFIER_WORD_BOUNDARY, estimate_tokens, excerpt, headline,
 SCHEMA_VERSION = 4
 INDEX_VERSION = 3
 LEXICAL_INDEX_VERSION = 1
-RECALL_VERSION = 24
+RECALL_VERSION = 25
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -549,6 +549,14 @@ _DECLARATION_FRAME = re.compile(
     r"(?:decision|configuration|contract|settings?|replacement|value)"
     r"(?:\s+for\s+(?:the\s+)?(?:(?:initial|original|current|previous|prior)\s+)?"
     r"(?:decision|configuration|contract|settings?|value))?)\Z", re.IGNORECASE)
+_CHINESE_DECLARATION_FRAME = re.compile(
+    r"(?:(?:中文|英文)?(?:复核|核对)?(?:记录|备注)\s*[:：]\s*)?"
+    r"(?:当前|原始|初始|最新|最终|修订)?(?:生效|已批准|已确认)?"
+    r"(?:约定|契约|配置|设置|值)(?:为)?\Z")
+_DECLARATION_DESCRIPTION = re.compile(
+    r"(?<![\w.])(?:project|implementation|runtime)\s+"
+    r"(?:decision|configuration|contract|settings?|value)(?![\w.])", re.IGNORECASE)
+_UNPARSED_QUOTATION = re.compile(r"[“”‘’「」『』«»‹›]")
 _EXPLICIT_REVOCATION = re.compile(
     r"(?:(?:the\s+)?(?:old|previous|former|prior)\s+(?:value|setting|configuration|contract|decision)"
     r"\s+(?:is|was)\s+(?:invalid|obsolete|revoked|withdrawn|no\s+longer\s+valid)|"
@@ -563,6 +571,31 @@ _NONDECISION_BINDING = re.compile(
 _EXPLICIT_NO_DECISION = re.compile(
     r"\b(?:no\s+(?:new\s+)?(?:value|decision)\s+(?:was|is|has\s+been)\s+"
     r"(?:decided|selected|approved|recorded)|pending\s+approval)\b", re.IGNORECASE)
+_REFERENCE_NAME = r"[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*"
+_REFERENCE_NAMES = _REFERENCE_NAME + r"(?:\s*(?:,\s*|\band\s+)" + _REFERENCE_NAME + r")*"
+_REFERENCE_REPORT = re.compile(
+    r"(?:(?:we|the\s+(?:review|audit|inspection))\s+)?"
+    r"(?:reviewed|inspected|checked|examined|audited|discussed)\s+"
+    r"(?:(?:the\s+)?(?:logs?|records?)\s+for\s+)?(?P<names>" + _REFERENCE_NAMES + r")"
+    r"(?:\s+(?:logs?|records?))?(?:\s+during\s+(?:the\s+)?(?:review|audit|inspection))?\Z",
+    re.IGNORECASE)
+_REFERENCE_REMINDER = re.compile(_REFERENCE_NAMES + r"\s+(?:logs?|records?)\Z", re.IGNORECASE)
+_NO_CHANGE_REPORT = re.compile(
+    r"(?:no\s+(?:new\s+)?(?:value|decision|configuration|setting|contract|policy)\s+"
+    r"(?:was|is|has\s+been)\s+(?:decided|selected|approved|recorded)|"
+    r"(?:the\s+)?(?:value|decision|configuration|setting|contract|policy)\s+remains\s+unchanged|"
+    r"(?:this|the)\s+(?:(?:maintenance|review)\s+)?(?:discussion|review|inspection|audit|record)\s+"
+    r"(?:proposes|records|contains)\s+no\s+(?:new\s+)?(?:approved\s+)?"
+    r"(?:policy|parameter|configuration|setting|value|decision|contract)"
+    r"(?:\s+or\s+(?:policy|parameter|configuration|setting|value|decision|contract))*\s+change)\Z",
+    re.IGNORECASE)
+_REFERENCE_CHECK = re.compile(
+    r"(?:the\s+)?(?:deployment|regression|verification|validation|test)\s+"
+    r"(?:checklist|checks?)\s+(?:passed|completed)\Z", re.IGNORECASE)
+_REFERENCE_TITLE = re.compile(
+    r"(?:(?P<prefix>[A-Za-z_][A-Za-z0-9_ -]*?)\s+)?"
+    r"(?:(?:maintenance|regression|deployment|verification|validation)\s+)?"
+    r"(?:review|inspection|audit|check|discussion)(?:\s+\d+)?\Z", re.IGNORECASE)
 
 
 class _DeclarationQueryTerms(set):
@@ -571,6 +604,21 @@ class _DeclarationQueryTerms(set):
     def __init__(self, query: str):
         super().__init__(query_terms(query))
         self.query = query
+
+
+def _declaration_description_terms(query: set[str] | None) -> set[str]:
+    """Recognize whole reporting phrases without changing field discovery.
+
+    Quoted text and code-name boundaries retain their literal meaning. The
+    caller additionally protects every discovered field alias before treating
+    any of these words as navigation/reporting context.
+    """
+    if not isinstance(query, _DeclarationQueryTerms) or _UNPARSED_QUOTATION.search(query.query):
+        return set()
+    quoted = _quoted_spans(query.query)
+    return {term for match in _DECLARATION_DESCRIPTION.finditer(query.query)
+            if not any(lo < match.end() and match.start() < hi for lo, hi in quoted)
+            for term in query_terms(match.group())}
 
 
 def _declaration_query_terms(query: str) -> set[str]:
@@ -622,7 +670,7 @@ def _source_declaration_query(query: set[str], contents: dict[int, str], complet
 def _declaration_scope(prefix: str) -> str | None:
     """Keep explicit labels, including ones the query did not mention."""
     prefix = re.sub(r"^the(?:\s+|$)", "", prefix, flags=re.IGNORECASE)
-    if _DECLARATION_FRAME.fullmatch(prefix):
+    if _DECLARATION_FRAME.fullmatch(prefix) or _CHINESE_DECLARATION_FRAME.fullmatch(prefix):
         return ""
     tokens = set(query_terms(prefix))
     if not set(lexical_terms(prefix)) <= tokens:
@@ -660,7 +708,8 @@ def _simple_declaration_suffix(suffix: str) -> bool:
         or _FIELD_REFERENCE.search(body) or _PROSE_BINDING.search(body))
 
 
-def _declaration_qualifier(line: str, binding: re.Match, identity: tuple, *, prose: bool) -> str | None:
+def _declaration_qualifier(line: str, binding: re.Match, identity: tuple, *, prose: bool,
+                           allow_chinese_frame: bool = True) -> str | None:
     """Recognize a direct label on one simple declaration, without inference.
 
     Complex prefixes, unrecognized explanations, or multiple assignments remain
@@ -687,7 +736,19 @@ def _declaration_qualifier(line: str, binding: re.Match, identity: tuple, *, pro
     prefix = line[:field_start].strip()
     if not prefix:
         return ""
-    return prefix.rstrip(":").strip() if _DIRECT_QUALIFIER.fullmatch(prefix) else None
+    if _CHINESE_DECLARATION_FRAME.fullmatch(prefix):
+        qualified = prefix
+    elif _DIRECT_QUALIFIER.fullmatch(prefix):
+        qualified = prefix.rstrip(":").strip()
+    else:
+        return None
+    # Use the same label normalization as _declaration_scope. An ASCII
+    # colon or leading article must not postpone frame recognition until
+    # after the whole-source quotation guard has already been checked.
+    frame = re.sub(r"^the(?:\s+|$)", "", qualified, flags=re.IGNORECASE)
+    if not allow_chinese_frame and _CHINESE_DECLARATION_FRAME.fullmatch(frame):
+        return None
+    return qualified
 
 
 def _declaration_clauses(content: str, raw_refs: str) -> list[tuple[str, int]]:
@@ -862,6 +923,53 @@ def _partial_declaration_anchors(db: sqlite3.Connection, pool: list[dict],
     return anchors
 
 
+def _field_mention_count(body: str, identity: tuple) -> int:
+    """Count literal identifier/prose-name mentions, including unknown statements.
+
+    Do not require a value grammar: ``limit is not 12`` must still block an
+    agreement exception. Qualified-name boundaries are retained. Names outside
+    this conservative ASCII word grammar keep the previous ambiguity policy.
+    """
+    if any(not re.fullmatch(r"[a-z0-9_]+", word) for segment in identity for word in segment):
+        return -1
+    tokens = list(re.finditer(r"[A-Za-z_]\w*(?:[.-][A-Za-z_]\w*)*", body))
+    identifiers = [_field_identity(token.group()) for token in tokens]
+    if len(identity) != 1:
+        return sum(value == identity for value in identifiers)
+    target = identity[0]
+    count = 0
+    for start in range(len(tokens)):
+        words = ()
+        for end in range(start, len(tokens)):
+            if (end > start and not body[tokens[end - 1].end():tokens[end].start()].isspace()
+                    or len(identifiers[end]) != 1):
+                break
+            words += identifiers[end][0]
+            if words == target:
+                count += 1
+                break
+            if words != target[:len(words)]:
+                break
+    return count
+
+
+def _repeated_declaration_prefix(prefixes: list[str | None], values: list[str],
+                                 reference_count: int) -> str | None:
+    """Accept repetition only after every recognized reference qualifies.
+
+    Equal values cannot erase different scopes. Extra quoted, conditional or
+    comparison references prevent this exception; unknown syntax keeps the
+    original relevance position. Literal equality is not a numeric conversion
+    or a truth score.
+    """
+    if (len(prefixes) < 2 or reference_count != len(prefixes)
+            or len(values) != len(prefixes) or len(set(values)) != 1
+            or any(prefix is None for prefix in prefixes)):
+        return None
+    scopes = [_declaration_scope(prefix) for prefix in prefixes]
+    return prefixes[0] if None not in scopes and len(set(scopes)) == 1 else None
+
+
 def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched: dict[int, set[str]],
                         contents: dict[int, str], references: dict[int, str], *,
                         qualifier_contexts: dict | None = None,
@@ -981,6 +1089,10 @@ def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched
         # lose quotation state across a sentence or newline inside a quote.
         quoted = _quoted_spans(body)
         starts = [span[0] for span in quoted]
+        # The new reporting-frame grammar cannot infer quotation boundaries
+        # unsupported by the historical source parser. Keep that source's
+        # previous qualification instead of interpreting an inner quoted line.
+        allow_chinese_frame = not _UNPARSED_QUOTATION.search(body)
 
         def quoted_at(position):
             index = bisect_right(starts, position) - 1
@@ -998,10 +1110,11 @@ def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched
                 if identity in fields and not quoted_at(origin + binding.start()):
                     declared.setdefault(rid, set()).add(identity)
                     if qualifier_contexts is not None:
-                        prefix = (_declaration_qualifier(line, binding, identity, prose=False)
+                        prefix = (_declaration_qualifier(line, binding, identity, prose=False,
+                                                        allow_chinese_frame=allow_chinese_frame)
                                   if single else None)
                         local.setdefault(identity, []).append(prefix)
-                        if source_analysis is not None and prefix is not None:
+                        if prefix is not None:
                             value = _SIMPLE_ASSIGNMENT_VALUE.fullmatch(line[binding.end("name"):])
                             values.setdefault(identity, []).append(value["value"].strip())
             for binding in prose_bindings:
@@ -1014,17 +1127,21 @@ def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched
                     if identity in fields:
                         declared.setdefault(rid, set()).add(identity)
                         if qualifier_contexts is not None:
-                            prefix = (_declaration_qualifier(line, binding, identity, prose=True)
+                            prefix = (_declaration_qualifier(line, binding, identity, prose=True,
+                                                            allow_chinese_frame=allow_chinese_frame)
                                       if single else None)
                             local.setdefault(identity, []).append(prefix)
-                            if source_analysis is not None and prefix is not None:
+                            if prefix is not None:
                                 values.setdefault(identity, []).append(binding["value"].strip())
                         break
         if qualifier_contexts is not None:
-            # More than one declaration of the same field is ambiguous for a
-            # whole-page revision, even if one of the prefixes looks suitable.
-            qualifier_contexts[rid] = {identity: values[0] if len(values) == 1 else None
-                                       for identity, values in local.items()}
+            reference_counts = {identity: _field_mention_count(body, identity)
+                                for identity, prefixes in local.items() if len(prefixes) > 1}
+            qualifier_contexts[rid] = {
+                identity: (prefixes[0] if len(prefixes) == 1 else
+                           _repeated_declaration_prefix(prefixes, values.get(identity, []),
+                                                        reference_counts.get(identity, 0)))
+                for identity, prefixes in local.items()}
             if ordinary:
                 # This is only syntax derived from identical body bytes. The
                 # source for each rid was independently authenticated above.
@@ -1032,12 +1149,14 @@ def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched
         if ordinary:
             parsed_fields[body] = frozenset(declared.get(rid, ()))
         if source_analysis is not None:
-            source_analysis["values"][rid] = {identity: values[0] for identity, values in values.items()
-                                              if len(values) == 1}
+            source_analysis["values"][rid] = {
+                identity: literals[0] for identity, literals in values.items()
+                if qualifier_contexts[rid].get(identity) is not None}
             if ordinary:
                 parsed_values[body] = source_analysis["values"][rid]
     groups, unqualified = {}, 0
     directory_terms = {}
+    descriptions = _declaration_description_terms(query_tokens) - set().union(*fields.values())
     for position, item in enumerate(pool):
         rid = item["rid"]
         if not matched[rid]:
@@ -1047,7 +1166,7 @@ def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched
         title = item["chapter_title"]
         if title not in directory_terms:
             directory_terms[title] = frozenset(query_terms(title))
-        required = matched[rid] - aliases - directory_terms[title]
+        required = matched[rid] - aliases - directory_terms[title] - descriptions
         local = qualifier_contexts.get(rid, {})
         signatures = []
         comparable = bool(subjects)
@@ -1200,6 +1319,56 @@ def _current_evidence_assessment(pool: list[dict], groups: dict, source_analysis
             "basis": "Syntax and timestamps describe only inspected candidates; they do not establish truth, authority or exhaustive archive coverage."}
 
 
+def _reference_only_nondecision_fields(body: str, chapter_title: str,
+                                       requested: set[tuple]) -> set[tuple]:
+    """Recognize a closed, whole-turn report without inventing a declaration.
+
+    Every nonempty line must have a reporting, no-change or administrative
+    role. Unknown claims, scope labels, quotations and code retain relevance
+    ordering. Only an explicit reporting verb's named objects supply fields;
+    repeated field-name reminders cannot lend a field to another report.
+    User text is checked too: the only supported heading form is an ordinary
+    review label optionally prefixed by the actual chapter title's prefix.
+    """
+    if (not requested or len(body) > _MAX_DECLARATION_CHARS
+            or _quoted_spans(body) or _UNPARSED_QUOTATION.search(body)):
+        return set()
+    mentioned, no_change, role = set(), False, None
+    title = " ".join(chapter_title.casefold().split())
+    for raw in body.splitlines():
+        marker = re.match(r"^(USER|ASSISTANT):\s?", raw)
+        if marker:
+            role, raw = marker[1], raw[marker.end():]
+        if not raw.strip():
+            continue
+        if raw.startswith(("    ", "\t")) or role not in ("USER", "ASSISTANT"):
+            return set()
+        if role == "USER":
+            label = _REFERENCE_TITLE.fullmatch(raw.strip())
+            if label is None:
+                return set()
+            prefix = " ".join((label["prefix"] or "").casefold().split())
+            if prefix and title != prefix and not title.startswith(prefix + " "):
+                return set()
+            continue
+        # Split complete sentences without dropping unknown clauses, unlike
+        # the declaration parser which intentionally excludes nondeclarations.
+        for part in re.split(r"[。;；]|(?<=\.)(?:\s+|$)", raw):
+            clause = part.strip().removesuffix(".").strip()
+            if not clause:
+                continue
+            report = _REFERENCE_REPORT.fullmatch(clause)
+            if report:
+                names = re.split(r"\s*,\s*|\s+and\s+", report["names"], flags=re.IGNORECASE)
+                mentioned.update(_field_identity(name) for name in names
+                                 if _field_identity(name) in requested)
+            elif _NO_CHANGE_REPORT.fullmatch(clause):
+                no_change = True
+            elif not (_REFERENCE_REMINDER.fullmatch(clause) or _REFERENCE_CHECK.fullmatch(clause)):
+                return set()
+    return mentioned if no_change else set()
+
+
 def _prefer_declarations_over_nondecisions(pool: list[dict], groups: dict,
                                           matched: dict[int, set[str]], contents: dict[int, str],
                                           references: dict[int, str], source_analysis: dict) -> int:
@@ -1207,7 +1376,8 @@ def _prefer_declarations_over_nondecisions(pool: list[dict], groups: dict,
 
     This does not rank all numeric text ahead of other evidence. An eligible
     nondecision must be an authenticated full source, contain no value binding,
-    and explicitly record deferral/no selected value. The declaration must
+    and explicitly record deferral/no selected value or a closed no-change
+    report whose complete text has been checked. The declaration must
     carry the same local scope and at least the nondecision's query coverage.
     """
     complete = source_analysis.get("complete_sources", set())
@@ -1218,6 +1388,11 @@ def _prefer_declarations_over_nondecisions(pool: list[dict], groups: dict,
                 item = pool[i]
                 if item["rid"] in complete and not item.get("_current_anchor_only"):
                     declared[item["rid"]] = chapter, next(iter(subjects)), scope
+    query = source_analysis.get("query_tokens", set())
+    reference_fields = {}
+    for chapter, identity, scope in declared.values():
+        if scope == "" and all(set(segment) <= query or "".join(segment) in query for segment in identity):
+            reference_fields.setdefault(chapter, set()).add(identity)
     nondecisions = {}
     for item in pool:
         rid = item["rid"]
@@ -1227,14 +1402,16 @@ def _prefer_declarations_over_nondecisions(pool: list[dict], groups: dict,
         # A revocation mention can use different grammar, or refer to another
         # field. Conservatively keep its source in the retrieval order; this
         # guard grants no declaration status or authority to the mention.
-        if (not _EXPLICIT_NO_DECISION.search(body) or _EXPLICIT_REVOCATION.search(body)
+        if (_EXPLICIT_REVOCATION.search(body)
                 or _REVOCATION_MENTION.search(body)
                 or _FIELD_BINDING.search(body)
                 or _PROSE_BINDING.search(body)):
             continue
         quoted = _quoted_spans(body)
         keys = set()
-        for line, origin in _declaration_clauses(body, references[rid]):
+        lines = (_declaration_clauses(body, references[rid])
+                 if _EXPLICIT_NO_DECISION.search(body) else ())
+        for line, origin in lines:
             for binding in _NONDECISION_BINDING.finditer(line):
                 if any(lo <= origin + binding.start() < hi for lo, hi in quoted):
                     continue
@@ -1247,6 +1424,8 @@ def _prefer_declarations_over_nondecisions(pool: list[dict], groups: dict,
                     scope = _declaration_scope(prefix.rstrip(":").strip())
                     if scope is not None:
                         keys.add((item["chapter_id"], identity, scope))
+        keys.update((item["chapter_id"], identity, "") for identity in _reference_only_nondecision_fields(
+            body, item["chapter_title"], reference_fields.get(item["chapter_id"], set())))
         if keys:
             nondecisions[rid] = keys
     moved = 0
