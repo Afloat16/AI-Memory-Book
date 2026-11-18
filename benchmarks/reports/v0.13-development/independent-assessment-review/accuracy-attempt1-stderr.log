@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/428c08bef2bc/v013-independent-review/probe.py", line 104, in <module>
+    run(parser.parse_args())
+  File "/workspace/scratch/428c08bef2bc/v013-independent-review/probe.py", line 86, in run
+    raw.append({'case':case['id'],'surface':'bound-MCP-SDK-call_tool','bound_project':case['mcp_bound_project'],'calls':asyncio.run(mcp_call())})
+                                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/workspace/scratch/428c08bef2bc/v013-independent-review/probe.py", line 77, in mcp_call
+    server=mcp.create_server(path,bound_project=case['mcp_bound_project'])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: create_server() got an unexpected keyword argument 'bound_project'
