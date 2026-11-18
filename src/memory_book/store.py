@@ -8,6 +8,7 @@ import math
 import re
 import sqlite3
 import time
+import unicodedata
 from bisect import bisect_right
 from datetime import datetime, timezone
 from functools import lru_cache
@@ -23,7 +24,7 @@ from .text import (IDENTIFIER_WORD_BOUNDARY, estimate_tokens, excerpt, headline,
 SCHEMA_VERSION = 4
 INDEX_VERSION = 3
 LEXICAL_INDEX_VERSION = 1
-RECALL_VERSION = 25
+RECALL_VERSION = 26
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -556,7 +557,7 @@ _CHINESE_DECLARATION_FRAME = re.compile(
 _DECLARATION_DESCRIPTION = re.compile(
     r"(?<![\w.])(?:project|implementation|runtime)\s+"
     r"(?:decision|configuration|contract|settings?|value)(?![\w.])", re.IGNORECASE)
-_UNPARSED_QUOTATION = re.compile(r"[“”‘’「」『』«»‹›]")
+_NON_ASCII = re.compile(r"[^\x00-\x7f]")
 _EXPLICIT_REVOCATION = re.compile(
     r"(?:(?:the\s+)?(?:old|previous|former|prior)\s+(?:value|setting|configuration|contract|decision)"
     r"\s+(?:is|was)\s+(?:invalid|obsolete|revoked|withdrawn|no\s+longer\s+valid)|"
@@ -579,7 +580,8 @@ _REFERENCE_REPORT = re.compile(
     r"(?:(?:the\s+)?(?:logs?|records?)\s+for\s+)?(?P<names>" + _REFERENCE_NAMES + r")"
     r"(?:\s+(?:logs?|records?))?(?:\s+during\s+(?:the\s+)?(?:review|audit|inspection))?\Z",
     re.IGNORECASE)
-_REFERENCE_REMINDER = re.compile(_REFERENCE_NAMES + r"\s+(?:logs?|records?)\Z", re.IGNORECASE)
+_REFERENCE_REMINDER = re.compile(r"(?P<names>" + _REFERENCE_NAMES + r")\s+(?:logs?|records?)\Z",
+                                 re.IGNORECASE)
 _NO_CHANGE_REPORT = re.compile(
     r"(?:no\s+(?:new\s+)?(?:value|decision|configuration|setting|contract|policy)\s+"
     r"(?:was|is|has\s+been)\s+(?:decided|selected|approved|recorded)|"
@@ -590,8 +592,8 @@ _NO_CHANGE_REPORT = re.compile(
     r"(?:\s+or\s+(?:policy|parameter|configuration|setting|value|decision|contract))*\s+change)\Z",
     re.IGNORECASE)
 _REFERENCE_CHECK = re.compile(
-    r"(?:the\s+)?(?:deployment|regression|verification|validation|test)\s+"
-    r"(?:checklist|checks?)\s+(?:passed|completed)\Z", re.IGNORECASE)
+    r"(?:the\s+)?(?P<object>(?:deployment|regression|verification|validation|test)\s+"
+    r"(?:checklist|checks?))\s+(?:passed|completed)\Z", re.IGNORECASE)
 _REFERENCE_TITLE = re.compile(
     r"(?:(?P<prefix>[A-Za-z_][A-Za-z0-9_ -]*?)\s+)?"
     r"(?:(?:maintenance|regression|deployment|verification|validation)\s+)?"
@@ -606,6 +608,23 @@ class _DeclarationQueryTerms(set):
         self.query = query
 
 
+def _has_unparsed_quotation(text: str) -> bool:
+    """Conservatively gate new grammar around unsupported Unicode quotations.
+
+    The historical quote parser is unchanged. Unicode initial/final quote
+    punctuation and named quotation/apostrophe/corner-bracket forms may carry
+    a quotation across sentence boundaries; a short handwritten list misses
+    fullwidth and presentation forms. Inspect each distinct non-ASCII symbol
+    once, and retain the prior relevance route instead of inferring its use.
+    """
+    for symbol in set(_NON_ASCII.findall(text)):
+        name = unicodedata.name(symbol, "")
+        if (unicodedata.category(symbol) in {"Pi", "Pf"}
+                or any(label in name for label in ("QUOTATION", "APOSTROPHE", "CORNER BRACKET"))):
+            return True
+    return False
+
+
 def _declaration_description_terms(query: set[str] | None) -> set[str]:
     """Recognize whole reporting phrases without changing field discovery.
 
@@ -613,7 +632,7 @@ def _declaration_description_terms(query: set[str] | None) -> set[str]:
     caller additionally protects every discovered field alias before treating
     any of these words as navigation/reporting context.
     """
-    if not isinstance(query, _DeclarationQueryTerms) or _UNPARSED_QUOTATION.search(query.query):
+    if not isinstance(query, _DeclarationQueryTerms) or _has_unparsed_quotation(query.query):
         return set()
     quoted = _quoted_spans(query.query)
     return {term for match in _DECLARATION_DESCRIPTION.finditer(query.query)
@@ -1092,7 +1111,7 @@ def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched
         # The new reporting-frame grammar cannot infer quotation boundaries
         # unsupported by the historical source parser. Keep that source's
         # previous qualification instead of interpreting an inner quoted line.
-        allow_chinese_frame = not _UNPARSED_QUOTATION.search(body)
+        allow_chinese_frame = not _has_unparsed_quotation(body)
 
         def quoted_at(position):
             index = bisect_right(starts, position) - 1
@@ -1320,18 +1339,20 @@ def _current_evidence_assessment(pool: list[dict], groups: dict, source_analysis
 
 
 def _reference_only_nondecision_fields(body: str, chapter_title: str,
-                                       requested: set[tuple]) -> set[tuple]:
+                                       requested: set[tuple], query: set[str]) -> set[tuple]:
     """Recognize a closed, whole-turn report without inventing a declaration.
 
     Every nonempty line must have a reporting, no-change or administrative
     role. Unknown claims, scope labels, quotations and code retain relevance
     ordering. Only an explicit reporting verb's named objects supply fields;
     repeated field-name reminders cannot lend a field to another report.
+    A requested report action/object or check result keeps its source even
+    when those terms also occur in navigation titles or older declarations.
     User text is checked too: the only supported heading form is an ordinary
     review label optionally prefixed by the actual chapter title's prefix.
     """
     if (not requested or len(body) > _MAX_DECLARATION_CHARS
-            or _quoted_spans(body) or _UNPARSED_QUOTATION.search(body)):
+            or _quoted_spans(body) or _has_unparsed_quotation(body)):
         return set()
     mentioned, no_change, role = set(), False, None
     title = " ".join(chapter_title.casefold().split())
@@ -1358,13 +1379,35 @@ def _reference_only_nondecision_fields(body: str, chapter_title: str,
             if not clause:
                 continue
             report = _REFERENCE_REPORT.fullmatch(clause)
+            reminder = _REFERENCE_REMINDER.fullmatch(clause)
+            check = _REFERENCE_CHECK.fullmatch(clause)
+            reference = report or reminder
+            if reference:
+                names = re.split(r"\s*,\s*|\s+and\s+", reference["names"], flags=re.IGNORECASE)
+                # Exclude only actual identifier spans, not their word aliases
+                # throughout the sentence. Logs/reviews can be an independently
+                # requested fact even if their words also occur inside a name.
+                facets = set(query_terms(clause[:reference.start("names")]
+                                         + clause[reference.end("names"):]))
+                # A shared alias is not a request for a second field. Keep
+                # dotted segments and require that whole identity, just as in
+                # declaration/conflict qualification, before treating another
+                # named object as an independently requested field.
+                for name in names:
+                    identity = _field_identity(name)
+                    if identity not in requested and all(
+                            set(segment) <= query or "".join(segment) in query for segment in identity):
+                        return set()
+                if facets & query:
+                    return set()
+            if check and set(query_terms(check["object"])) & query:
+                return set()
             if report:
-                names = re.split(r"\s*,\s*|\s+and\s+", report["names"], flags=re.IGNORECASE)
                 mentioned.update(_field_identity(name) for name in names
                                  if _field_identity(name) in requested)
             elif _NO_CHANGE_REPORT.fullmatch(clause):
                 no_change = True
-            elif not (_REFERENCE_REMINDER.fullmatch(clause) or _REFERENCE_CHECK.fullmatch(clause)):
+            elif not (reminder or check):
                 return set()
     return mentioned if no_change else set()
 
@@ -1425,7 +1468,7 @@ def _prefer_declarations_over_nondecisions(pool: list[dict], groups: dict,
                     if scope is not None:
                         keys.add((item["chapter_id"], identity, scope))
         keys.update((item["chapter_id"], identity, "") for identity in _reference_only_nondecision_fields(
-            body, item["chapter_title"], reference_fields.get(item["chapter_id"], set())))
+            body, item["chapter_title"], reference_fields.get(item["chapter_id"], set()), query))
         if keys:
             nondecisions[rid] = keys
     moved = 0

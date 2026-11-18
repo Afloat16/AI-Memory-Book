@@ -76,6 +76,7 @@ class MultiSourceDeclarationRegressions(unittest.TestCase):
             'We inspected the logs for task_limit. No new value was selected.',
             'We checked task_limit during the review. The configuration remains unchanged.',
             'The review examined task_limit records. This discussion proposes no approved parameter change.',
+            'We inspected task_limit and jobs.task_scale logs. No new value was selected.',
         )
         for note in notes:
             with self.subTest(note=note), MemoryBook(':memory:', segmentation='turn') as book:
@@ -86,7 +87,8 @@ class MultiSourceDeclarationRegressions(unittest.TestCase):
                 self.assertIn('nondecision_priority', result['temporal'])
 
     def test_unparsed_unicode_quotes_do_not_gain_new_frame_qualification(self):
-        for left, right in (('“', '”'), ('「', '」')):
+        for left, right in (('“', '”'), ('「', '」'), ('＂', '＂'), ('〝', '〞'),
+                            ('❝', '❞'), ('｢', '｣'), ('＇', '＇')):
             for frame in ('当前生效约定为', '当前配置:', 'The 当前配置:'):
                 with self.subTest(left=left, frame=frame), MemoryBook(':memory:', segmentation='turn') as book:
                     book.ingest(record('old', 'Approved configuration: access_limit=30. ' + 'access_limit record. ' * 12))
@@ -146,12 +148,28 @@ class MultiSourceDeclarationRegressions(unittest.TestCase):
                 book.ingest(review)
                 self.assertEqual(first(book.recall('current task_limit', project='engine', limit=1)), expected)
 
-    def test_recall_version_24_results_are_invalidated(self):
+    def test_no_change_report_preserves_separately_requested_current_check_result(self):
         with MemoryBook(':memory:', segmentation='turn') as book:
-            book.ingest(record('decision', 'Approved configuration: task_limit=12.'))
-            with patch.object(store, 'RECALL_VERSION', 24):
-                book.recall('current task_limit', project='engine')
-            self.assertFalse(book.recall('current task_limit', project='engine')['cache_hit'])
+            decision = record('decision', 'Approved configuration: task_limit=12. The deployment checklist failed.')
+            review = record('review', 'We inspected task_limit logs. No new value was selected. '
+                            'The deployment checklist passed. ' + 'task_limit records. ' * 12, newer=True)
+            for source in (decision, review):
+                source['task_title'] = 'Deployment checklist'
+                book.ingest(source)
+            result = book.recall('What is the current task_limit and the result of the deployment checklist?',
+                                 project='engine', limit=1)
+            self.assertEqual(first(result), 'review')
+            self.assertNotIn('nondecision_priority', result['temporal'])
+            self.assertIn('checklist passed', result['context'])
+            self.assertEqual(first(book.recall('current task_limit', project='engine', limit=1)), 'decision')
+
+    def test_prior_recall_versions_are_invalidated(self):
+        for old_version in (24, 25):
+            with self.subTest(old_version=old_version), MemoryBook(':memory:', segmentation='turn') as book:
+                book.ingest(record('decision', 'Approved configuration: task_limit=12.'))
+                with patch.object(store, 'RECALL_VERSION', old_version):
+                    book.recall('current task_limit', project='engine')
+                self.assertFalse(book.recall('current task_limit', project='engine')['cache_hit'])
 
 
 if __name__ == '__main__':
