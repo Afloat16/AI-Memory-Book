@@ -1,0 +1,16 @@
+diff --git a/src/memory_book/store.py b/src/memory_book/store.py
+index af35d6d..00c5718 100644
+--- a/src/memory_book/store.py
++++ b/src/memory_book/store.py
+@@ -2601,8 +2601,10 @@ class MemoryBook:
+                 # display-only fields are deferred to the final page fetch.
+                 scope_join = " JOIN sessions s ON s.id=p.session_pk" if session is not None else ""
+                 project_bounds = self._project_rowid_bounds(project) if qt and session is None else None
++                # A chapter can be more selective than its whole project.
++                # Preserve its original unbounded join and index choices.
+                 project_rowids = (self._small_project_rowids(project)
+-                                  if project_bounds is None and qt and session is None else None)
++                                  if project_bounds is None and qt and chapter is None and session is None else None)
+                 # A chapter/session-only scope can be more selective than
+                 # MATCH. Leave those unconstrained join orders free to use
+                 # pages_chapter/pages_session. FTS-first bounded routes and

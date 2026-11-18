@@ -1,0 +1,97 @@
+{
+  "schema": "v013-chapter-planner-correction-v1",
+  "source_commit": "c0aa790b81a3979a1915fba75f90a9a480bddbea",
+  "parent_source_commit": "4e4a8eb2fefe31a136033a37fcc844c36162ffae",
+  "status": "passed",
+  "original_failure_evidence_commit": "15e9f4cac999e51a49b6bf3f77c48c2f31982aa6",
+  "original_failure": {
+    "native": {
+      "tests_run": 1,
+      "failures": 1,
+      "errors": 0
+    },
+    "python": {
+      "tests_run": 1,
+      "failures": 1,
+      "errors": 0
+    },
+    "assertion": "Old round5 line 186 rejects a forced covering-index hint on unbounded chapter/session candidate routes."
+  },
+  "change": "Only require chapter is None before preparing small-project rowid membership in recall. Project-only eligibility, directory SQL, source scope, global BM25, ordering and snapshot are unchanged. RECALL_VERSION remains 26.",
+  "results": {
+    "native": {
+      "returncode": 0,
+      "summary": {
+        "tests_run": 17,
+        "failures": 0,
+        "errors": 0,
+        "skipped": [],
+        "expected_failures": 0,
+        "unexpected_successes": 0,
+        "successful": true
+      }
+    },
+    "python": {
+      "returncode": 0,
+      "summary": {
+        "tests_run": 17,
+        "failures": 0,
+        "errors": 0,
+        "skipped": [],
+        "expected_failures": 0,
+        "unexpected_successes": 0,
+        "successful": true
+      }
+    }
+  },
+  "test_files_unchanged_from_original": true,
+  "source_unchanged_during_checks": true,
+  "modules": [
+    "test_round5_covering_index (8 tests)",
+    "test_sparse_project_membership (9 tests)"
+  ],
+  "build": "Forced gcc native rebuild and actual package/backend/extension location plus hash verified for this exact source.",
+  "independent_static_review": {
+    "agent": "comparison_audit",
+    "result": "No blocking issue found in the one-condition source diff; no runtime API calls or extra probes performed by that reviewer."
+  },
+  "scope_limitations": [
+    "This is the specific reproduced CI regression and two complete modules per backend, not a full-suite or cross-platform CI result.",
+    "The earlier 134-test selected suite omitted the existing round5 module; its passing result did not cover this planner contract.",
+    "Execution timings are retained as provenance and support no speedup claim."
+  ],
+  "files": {
+    "native-build.stderr.log": {
+      "bytes": 2113,
+      "sha256": "b3d96d9b8d4a69759d667683140fce3470f46b39280de66770312dc01a8a9db2"
+    },
+    "native-build.stdout.log": {
+      "bytes": 898,
+      "sha256": "c999ecd8e78900bdc8067ebdd4695a7eb68d81304f53e4d49bfd094961e82487"
+    },
+    "native-tests.stderr.log": {
+      "bytes": 3464,
+      "sha256": "6e84797df92d4652097a2e6ef0b91d30b99a701afbda57caba40b9da4def087a"
+    },
+    "native-tests.stdout.log": {
+      "bytes": 576,
+      "sha256": "b8ad3bd9d5edf6ae11d5aa2b0ea889be5244710337ea6efc6bf01c0ba58c0c46"
+    },
+    "python-tests.stderr.log": {
+      "bytes": 3464,
+      "sha256": "0c3bc69b3e6d4be977addb9bf34c733b94b4fc1d93a15d74cb5d6a21a2a32bac"
+    },
+    "python-tests.stdout.log": {
+      "bytes": 412,
+      "sha256": "b7894ab02f5adf514e80b4905cd2552e76920d5973a506ca492d590d888d6289"
+    },
+    "receipt.json": {
+      "bytes": 16755,
+      "sha256": "9526bff3ef89f38ff5793f480a46842c9d8eb5ff5b8d896cf7768526a24526d0"
+    },
+    "run_checks.py": {
+      "bytes": 7144,
+      "sha256": "2c7d941544cf52464ebbcc3460b37ac13c60c4881b339852e75c794dfd4eb6f3"
+    }
+  }
+}

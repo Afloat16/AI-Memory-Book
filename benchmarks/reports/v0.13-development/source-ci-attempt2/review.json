@@ -1,0 +1,74 @@
+{
+  "source_commit": "c7fa5c2d418411cd1543ffce7f045022b7de5fec",
+  "equivalent_local_source": "4e4a8eb2fefe31a136033a37fcc844c36162ffae",
+  "run_id": 44328488562,
+  "run_attempt": 1,
+  "status": "failed",
+  "successful_jobs": 6,
+  "failed_jobs": [
+    {
+      "job_id": 134886137762,
+      "job_name": "core (3.14)",
+      "failed_tests": [
+        "test_selective_unbounded_chapter_and_session_routes_keep_index_choice (test_round5_covering_index.RecallCoveringIndexTests.test_selective_unbounded_chapter_and_session_routes_keep_index_choice)"
+      ],
+      "source_commit_present_in_checkout_log": true,
+      "summaries": [
+        "Ran 1719 tests in 64.978s",
+        "FAILED (failures=1, skipped=156)"
+      ]
+    },
+    {
+      "job_id": 134886137909,
+      "job_name": "core (3.12)",
+      "failed_tests": [
+        "test_selective_unbounded_chapter_and_session_routes_keep_index_choice (test_round5_covering_index.RecallCoveringIndexTests.test_selective_unbounded_chapter_and_session_routes_keep_index_choice)"
+      ],
+      "source_commit_present_in_checkout_log": true,
+      "summaries": [
+        "Ran 1719 tests in 44.956s",
+        "FAILED (failures=1, skipped=155)"
+      ]
+    },
+    {
+      "job_id": 134886137971,
+      "job_name": "core (3.15)",
+      "failed_tests": [
+        "test_selective_unbounded_chapter_and_session_routes_keep_index_choice (test_round5_covering_index.RecallCoveringIndexTests.test_selective_unbounded_chapter_and_session_routes_keep_index_choice)"
+      ],
+      "source_commit_present_in_checkout_log": true,
+      "summaries": [
+        "Ran 1719 tests in 61.359s",
+        "FAILED (failures=1, skipped=156)"
+      ]
+    },
+    {
+      "job_id": 134886138068,
+      "job_name": "mcp",
+      "failed_tests": [
+        "test_selective_unbounded_chapter_and_session_routes_keep_index_choice (test_round5_covering_index.RecallCoveringIndexTests.test_selective_unbounded_chapter_and_session_routes_keep_index_choice)"
+      ],
+      "source_commit_present_in_checkout_log": true,
+      "summaries": [
+        "Ran 1719 tests in 93.843s",
+        "FAILED (failures=1, skipped=14)"
+      ]
+    },
+    {
+      "job_id": 134886138072,
+      "job_name": "core (3.13)",
+      "failed_tests": [
+        "test_selective_unbounded_chapter_and_session_routes_keep_index_choice (test_round5_covering_index.RecallCoveringIndexTests.test_selective_unbounded_chapter_and_session_routes_keep_index_choice)"
+      ],
+      "source_commit_present_in_checkout_log": true,
+      "summaries": [
+        "Ran 1719 tests in 61.422s",
+        "FAILED (failures=1, skipped=156)"
+      ]
+    }
+  ],
+  "log_capture": "All five complete decoded job-log strings were saved byte-for-byte, read back and compared exactly with the original connector strings, then losslessly gzipped. run.json and jobs.json are decoded API snapshots serialized as JSON.",
+  "source_binding": "The run API binds head_sha; each original failed-job checkout log independently contains that exact source SHA. The job wrapper omits a head_sha field.",
+  "diagnosis": "Sparse-project membership routing overrides the prior planner choice for project+chapter queries without tight rowid bounds. Preserve the historical contract; do not weaken its existing assertion.",
+  "formal_scale_run_started": false
+}

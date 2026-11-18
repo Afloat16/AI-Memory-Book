@@ -1,0 +1,73 @@
+{
+  "schema": "v013-original-chapter-plan-failure-v1",
+  "source_commit": "4e4a8eb2fefe31a136033a37fcc844c36162ffae",
+  "status": "original_failure_reproduced",
+  "results": {
+    "native": {
+      "returncode": 1,
+      "summary": {
+        "tests_run": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": [],
+        "expected_failures": 0,
+        "unexpected_successes": 0,
+        "successful": false
+      }
+    },
+    "python": {
+      "returncode": 1,
+      "summary": {
+        "tests_run": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": [],
+        "expected_failures": 0,
+        "unexpected_successes": 0,
+        "successful": false
+      }
+    }
+  },
+  "failed_test": "test_round5_covering_index.RecallCoveringIndexTests.test_selective_unbounded_chapter_and_session_routes_keep_index_choice",
+  "original_assertion": "Unbounded chapter/session candidate SQL must not force INDEXED BY pages_recall_metadata.",
+  "observation": "Native and Python each execute the unchanged old test and fail at its original line 186. Runtime and test inputs remain bound to the original 4e4a8eb source.",
+  "plan": "Limit small-project membership preparation to chapter is None; preserve chapter/session index choice and the unchanged existing test.",
+  "ci_context": {
+    "run_id": 44328488562,
+    "provenance": "Parent supplied CI regression; this artifact independently records local reproduction only."
+  },
+  "files": {
+    "native-build.stderr.log": {
+      "bytes": 2113,
+      "sha256": "b3d96d9b8d4a69759d667683140fce3470f46b39280de66770312dc01a8a9db2"
+    },
+    "native-build.stdout.log": {
+      "bytes": 898,
+      "sha256": "c999ecd8e78900bdc8067ebdd4695a7eb68d81304f53e4d49bfd094961e82487"
+    },
+    "native-tests.stderr.log": {
+      "bytes": 997,
+      "sha256": "004f04a2406c03e45af34712dac2e174b104e0058fe535b339e9fd0d7b3bbc9d"
+    },
+    "native-tests.stdout.log": {
+      "bytes": 576,
+      "sha256": "241ef128fbaab16906377bc3e6c950a3ebb5000e09b4635db7ca7a72c258aaea"
+    },
+    "python-tests.stderr.log": {
+      "bytes": 997,
+      "sha256": "9f6d45388e09be09817b6dd63b9ea381f305103c3f18aebc05b0d3a8c38f5c91"
+    },
+    "python-tests.stdout.log": {
+      "bytes": 412,
+      "sha256": "42a5d94c91c0acc5866fff04129b7cd1d1a2b78ad7fa19b4106a7b2eaa4c7fda"
+    },
+    "receipt.json": {
+      "bytes": 16956,
+      "sha256": "1d40f4fabd4c9ed829efd24d0e546430d79b944970ecbf6bf3e76282ca1a1af5"
+    },
+    "run_checks.py": {
+      "bytes": 7144,
+      "sha256": "2c7d941544cf52464ebbcc3460b37ac13c60c4881b339852e75c794dfd4eb6f3"
+    }
+  }
+}

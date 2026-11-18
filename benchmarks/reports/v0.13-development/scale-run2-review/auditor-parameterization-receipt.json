@@ -1,0 +1,41 @@
+{
+  "schema": "v013-independent-scale-auditor-parameterization-v1",
+  "created_at": "2026-11-18T14:51:54.815735+00:00",
+  "status": "reverse_byte_identity_verified",
+  "scope": "Only run/archive/source/output identity parameterization; no experiment execution or change to scoring, statistics, frozen protocol, or run1 files.",
+  "original_script": {
+    "commit": "20304b4b13ffa511bd9ced5b35a14ac46ba1bf36",
+    "path": "benchmarks/reports/v0.13-development/scale-run1-review/audit_scale_zip.py",
+    "sha256": "4f968d9167c15a6fd24ac257dd2e57629c5086d70b6f906732afeb22c7da0d63",
+    "bytes": 18857
+  },
+  "parameterized_script": {
+    "path": "benchmarks/reports/v0.13-development/scale-run2-review/audit_scale_zip_v2.py",
+    "sha256": "c9bc8c58405968c3f81bc2ec6cacbdcc39f020ac22f61ed16128c5d8046866f9",
+    "bytes": 19159
+  },
+  "reverse_replacements": [
+    {
+      "parameterized": "import argparse\nparser = argparse.ArgumentParser(description=__doc__)\nparser.add_argument('--repo-root', type=Path, required=True)\nparser.add_argument('--archive', type=Path, required=True)\nparser.add_argument('--output', type=Path, required=True)\nparser.add_argument('--expected-zip-sha256', required=True)\nparser.add_argument('--run-id', type=int, required=True)\nparser.add_argument('--run-attempt', type=int, required=True)\nparser.add_argument('--candidate', required=True)\nargs = parser.parse_args()\nREPO = args.repo_root.resolve()\nARCHIVE = args.archive.resolve()\nOUTPUT = args.output.resolve()\nEXPECTED_ZIP = args.expected_zip_sha256\n",
+      "original": "REPO = Path('/workspace/scratch/428c08bef2bc/AI-Memory-Book')\nARCHIVE = Path('/workspace/scratch/428c08bef2bc/v013-scale-evidence/original-artifact-44314074983-1.zip')\nOUTPUT = Path(__file__).with_name('scale-run1-saved-response-review.json')\nEXPECTED_ZIP = 'a15df28d653c08dbd447e4ec3308c79df43ac7ebd997d8baab88706c92c1fed3'\n",
+      "occurrences": 1
+    },
+    {
+      "parameterized": "'run_id': args.run_id, 'run_attempt': args.run_attempt",
+      "original": "'run_id': 44314074983, 'run_attempt': 1",
+      "occurrences": 1
+    },
+    {
+      "parameterized": "('candidate', args.candidate)",
+      "original": "('candidate', '9ea37a7c72aec21b6f106d9631d72d72199e283b')",
+      "occurrences": 1
+    }
+  ],
+  "restored_original_sha256": "4f968d9167c15a6fd24ac257dd2e57629c5086d70b6f906732afeb22c7da0d63",
+  "restored_original_byte_equal": true,
+  "frozen_protocol_commit": "b3fd165cb632c439ff28873fdba7f33e9d258178",
+  "baseline_commit": "8044e4bafe18e73ea422af5eeb47ef961e65246c",
+  "memory_book_api_calls": 0,
+  "new_experiments_executed": false,
+  "original_run1_files_modified": false
+}
