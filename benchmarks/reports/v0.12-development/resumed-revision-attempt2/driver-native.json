@@ -1,0 +1,44 @@
+{
+  "backend": "native",
+  "status": "completed",
+  "started_at": "2026-11-18T08:27:46.023759+00:00",
+  "commands": [
+    {
+      "kind": "candidate",
+      "command": [
+        "/workspace/scratch/b92339f83b53/AI-Memory-Book/.venv/bin/python",
+        "/workspace/scratch/b92339f83b53/AI-Memory-Book/benchmarks/v012_revision_eval.py",
+        "--source",
+        "/workspace/scratch/b92339f83b53/AI-Memory-Book",
+        "--commit",
+        "021a384567db5aa64fde155f090d2eb399f55c03",
+        "--backend",
+        "native",
+        "--output",
+        "/workspace/scratch/b92339f83b53/AI-Memory-Book/benchmarks/reports/v0.12-development/resumed-revision-attempt2/native-candidate"
+      ],
+      "status": "completed",
+      "returncode": 0
+    },
+    {
+      "kind": "paired-independent-audit",
+      "command": [
+        "/workspace/scratch/b92339f83b53/AI-Memory-Book/.venv/bin/python",
+        "-m",
+        "benchmarks.v012_revision_pair_audit",
+        "--baseline",
+        "/workspace/scratch/b92339f83b53/AI-Memory-Book/benchmarks/reports/v0.12-development/resumed-revision-attempt1/native-baseline",
+        "--candidate",
+        "/workspace/scratch/b92339f83b53/AI-Memory-Book/benchmarks/reports/v0.12-development/resumed-revision-attempt2/native-candidate",
+        "--candidate-commit",
+        "021a384567db5aa64fde155f090d2eb399f55c03",
+        "--output",
+        "/workspace/scratch/b92339f83b53/AI-Memory-Book/benchmarks/reports/v0.12-development/resumed-revision-attempt2/native-pair-audit.json"
+      ],
+      "status": "completed",
+      "returncode": 0
+    }
+  ],
+  "reused_baseline": "/workspace/scratch/b92339f83b53/AI-Memory-Book/benchmarks/reports/v0.12-development/resumed-revision-attempt1/native-baseline",
+  "finished_at": "2026-11-18T08:27:48.091649+00:00"
+}
