@@ -1,0 +1,64 @@
+{
+  "protocol": "v013-current-evidence-development-v1",
+  "status_at_registration": "prospective; no quality execution or runtime modification has occurred",
+  "baseline_commit": "8044e4bafe18e73ea422af5eeb47ef961e65246c",
+  "scope": "Author-written development diagnosis after inspecting v0.12 limitations. Not an independent holdout, a production answer-accuracy result or a latency experiment.",
+  "dataset": "benchmarks/v013_accuracy_cases.py:workload",
+  "scenarios": 27,
+  "questions": 62,
+  "requests_per_runtime_backend": 496,
+  "settings": {
+    "budgets_chars": [
+      1200,
+      2400
+    ],
+    "limits": [
+      1,
+      5
+    ],
+    "temporal_modes": [
+      "auto",
+      "relevance"
+    ],
+    "cache": false,
+    "segmentation": "turn",
+    "backends": [
+      "python",
+      "native"
+    ]
+  },
+  "intended_changes": [
+    "Recognize bounded Chinese completed-aspect declarations without treating a parameter name ending in 次数 as an event-count request. Explicit occurrence/timeline requests retain their old path.",
+    "Prefer an authenticated query-covered same-chapter declaration over explicit deferred/nondecision material; do not globally privilege every numeric statement over arbitrary relevant evidence.",
+    "Expose bounded-candidate uncertainty: equal-time distinct comparable values are a potential conflict; related text without a comparable declaration is unconfirmed evidence, not a proven negative or generated abstention."
+  ],
+  "assessment_contract": {
+    "path": "response.temporal.evidence_assessment.status",
+    "statuses": [
+      "comparable_declaration",
+      "potential_conflict",
+      "no_comparable_declaration",
+      "no_matching_evidence",
+      "not_assessed"
+    ],
+    "scope": "The diagnostic describes only the inspected bounded candidate pool. It does not claim exhaustive archive coverage, semantic truth or authority. Values are never used to score or boost retrieval.",
+    "relevance_and_explicit_occurrence_controls": "not_assessed; do not apply the current-declaration policy to them",
+    "missing": "Preserve related original evidence. A no_comparable_declaration flag is not an empty-result requirement.",
+    "conflict": "Do not select a true value. Retain both pages when limit/budget admits them; at limit one retain explicit potential-conflict metadata without inventing a second evidence block. No confidence probability is emitted.",
+    "conflict_references": "An explicit conflicts list; every entry contains at least two distinct page_ids. Follow-up reads authenticate every referenced full original page inside the exact queried project, including references outside the packed context."
+  },
+  "metrics": {
+    "source_integrity": "Reuse the unchanged v012 verify_and_score source/page/coordinate/budget verifier with the new case arguments; independently validate every raw response and exact closed request matrix.",
+    "answerable": "Report expected first session and complete source spans separately by mode, budget and limit. Count a first-session improvement only for the registered answerable cases.",
+    "uncertainty": "Report each expected assessment status independently of first-source/evidence coverage. Missing baseline diagnostics are recorded as absent; never claim a preexisting detector executed.",
+    "controls": "Keep the full source-return payload. Relevance-mode results/context/candidate_count must remain unchanged. Explicit occurrence/history control payloads are compared separately. Foreign-project data cannot appear in returned evidence or conflict page IDs.",
+    "comparability": "An unknown exact project never falls back to another book. Identical task/session IDs in two namespaces use different values. Equal-time identical values, different fields and different environments are negative conflict controls."
+  },
+  "existing_evidence": "Replay the entire unchanged 38-question v012 diagnostic and original engineering/directory gates separately. Never relabel its two known Chinese failures or modify its expected evidence to obtain gains.",
+  "retention": [
+    "Commit protocol/dataset/evaluator before first execution; obtain the controller's remote-freeze confirmation before changing runtime.",
+    "Bind actual source HEAD, all runtime bytes, actual imported module/backend, native binary and evaluator bytes before and after each arm. Source commits precede result commits.",
+    "Use a new attempt path for every run. Retain all setup errors, failed cases, original responses and control differences. No dropped cases or changed gold after observing outputs.",
+    "No timing, universal-superiority or independent-generalization claim is supported by this small authored diagnostic."
+  ]
+}
