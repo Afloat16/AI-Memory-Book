@@ -6,9 +6,9 @@
 
 [English](README.md) · [快速开始](#快速开始) · [检索效果](#检索效果) · [性能](#性能) · [工作方式](#工作方式) · [文档](#文档)
 
-**v0.13.0 发布准备 · MIT · Python 3.10+ · 本地 SQLite / FTS5 · 可选原生 C 加速**
+**v0.13.0 · MIT · Python 3.10+ · 本地 SQLite / FTS5 · 可选原生 C 加速**
 
-**v0.13.0 正在准备发布。** 独立审计的长期回放达到 **788 个项目、100,000 页**。七个检查点上，v0.13 均找全 **56/56 个可回答 recall 案例**，v0.12 基线为 **48/56**。目录导航的合并样本 p50 在 14 个已测查询／阶段组中均更低；召回同时存在改善与变慢项。本轮源码实验已经验证；发布登记、最终发布源码 CI、原生包和公开安装仍需各自通过门禁。[结果与边界](docs/current-results.md) · [v0.12 公开安装证明](benchmarks/reports/v0.12-publication/README.md)
+**[v0.13.0 已正式发布](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.13.0)。** 独立审计的长期回放达到 **788 个项目、100,000 页**。七个检查点上，v0.13 均找全 **56/56 个可回答 recall 案例**，v0.12 基线为 **48/56**。目录导航的合并样本 p50 在 14 个已测查询／阶段组中均更低；召回同时存在改善与变慢项。发布版本也已通过其最终源码 CI、原生构建／验证矩阵及真实公开 URL 安装。[结果与边界](docs/current-results.md) · [v0.13 发布证明](benchmarks/reports/v0.13-publication/README.md)
 
 ## 当前版本一览
 
@@ -33,7 +33,7 @@
 
 ## 快速开始
 
-**以下命令以 v0.13.0 为目标，请在其[发布工作流](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/release.yml)及公开安装检查完成后使用。** 当前实际已发布版本仍是 [v0.12.0](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.12.0)。
+**使用以下固定版本命令安装已发布的 [v0.13.0](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.13.0)。** 其[正式发布运行与真实公开 URL 安装](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44343790035)均已成功完成。
 
 需要 **Python 3.10+ 与 SQLite FTS5**。安装器创建隔离环境并安装 MCP／客户端依赖，无需克隆仓库或安装 Node.js。
 
@@ -223,9 +223,13 @@ memory-book recall "当前梯度累积步数" --project service-alpha --budget 2
 
 ## 源码验证与交付状态
 
-冻结 v0.13 源码 `e0e2515f6e16404cfb9b676cd2eab01ce84b81cc` 在 [CI 44331775791，attempt 1](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44331775791) 中 **11/11 个任务全部通过**。其完整 Git tree 与本地测量的 `91412b43` 相同，[身份收据](benchmarks/reports/v0.13-development/postscale-sources/run2-source-equivalence.json) 保留两个真实提交号。MCP 任务发现 1719 项测试，通过 1705 项、跳过 14 项，失败／错误为零。这是源码验证，发布包和公开安装另行取证。[原始 CI 元数据与完整 MCP 日志](benchmarks/reports/v0.13-development/final-source-ci/review.json)
+已发布的 **v0.13.0** 构建自 `4977ebc13e9da10a8fa4cb95f39e2c533aabe790`。[正式发布运行 44343790035，attempt 1](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44343790035) 已完成五个平台、CPython 3.10–3.15 的全部 **30 个原生构建／验证组合**及真实公开 URL 安装。原始日志记录 **4320 个原生测试结果：4245 次通过、75 次明确允许的可选跳过**。同一源码在 [CI 44343790028，attempt 1](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44343790028) 中 **11/11 个任务全部通过**。[完整发布证据](benchmarks/reports/v0.13-publication/README.md)
 
-快速开始面向**发布后的 v0.13.0**；本文尚未声称它已通过新的原生发布矩阵和公开安装。当前已发布的 **v0.12.0** 保留独立[发布证明](benchmarks/reports/v0.12-publication/README.md)，其中记录 11 项成功 CI、覆盖五个平台和 CPython 3.10–3.15 的 30 个原生构建／安装组合、4245 次通过与 75 次允许的跳过、67 个独立下载校验的公开文件及真实公开 URL 安装成功。这些属于 v0.12 交付结果。[公开版本](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.12.0) · [v0.11 历史交付](benchmarks/reports/v0.11-publication/README.md)
+离线交付审计核对了 **11 个原始产物 ZIP 和 67 个独立下载的公开文件**。随后全部 **126 个捕获文件**逐字节恢复；原始与恢复后的审计 JSON 均与独立证明完全一致。这验证的是保存下来的交付证据，没有重新构建或执行安装。[审计结果](benchmarks/reports/v0.13-publication/audit.json) · [恢复证明](benchmarks/reports/v0.13-publication/restoration-verification.json)
+
+长期实验的实际测量源码仍是 `e0e2515f6e16404cfb9b676cd2eab01ce84b81cc`，其完整 Git tree 与本地 `91412b43` 相同；[身份收据](benchmarks/reports/v0.13-development/postscale-sources/run2-source-equivalence.json) 保留两个真实测量提交号。该源码此前的 [CI 44331775791，attempt 1](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44331775791) 已通过 11/11 个任务；其中 MCP 任务发现 1719 项测试，通过 1705 项、跳过 14 项，失败／错误为零。[原始源码 CI 记录](benchmarks/reports/v0.13-development/final-source-ci/review.json)
+
+**历史 v0.12.0 交付**保留独立[发布证明](benchmarks/reports/v0.12-publication/README.md)：11 项成功 CI、30 个原生组合、4245 次通过与 75 次允许的跳过、67 个独立下载校验的公开文件及公开安装成功。这些数字属于 v0.12。[v0.11 历史交付](benchmarks/reports/v0.11-publication/README.md)
 
 继续使用 **schema 4**；原始来源／页面 ID 和 Unicode 坐标不变。将 `python` 替换成安装器打印的解释器路径，可核对实际版本和后端：
 
@@ -233,7 +237,7 @@ memory-book recall "当前梯度累积步数" --project service-alpha --budget 2
 python -I -X utf8 -c "import memory_book; from memory_book._text_backend import BACKEND_NAME; print(memory_book.__version__, BACKEND_NAME)"
 ~~~
 
-v0.13 发布后，兼容原生的平台预期打印 `0.13.0 native`；必须由真实发布工作流和公开安装证明核实这一结果。默认 `MEMORY_BOOK_TEXT_BACKEND=auto`；`python` 选择参考实现，`native` 要求扩展存在。[后端选择与源码构建](docs/deployment.md#native-backend-and-source-builds)
+兼容原生的安装会打印 `0.13.0 native`；可移植回退路径打印 `0.13.0 python`。默认 `MEMORY_BOOK_TEXT_BACKEND=auto`；`python` 选择参考实现，`native` 要求扩展存在。[后端选择与源码构建](docs/deployment.md#native-backend-and-source-builds)
 
 ## 文档
 
@@ -248,4 +252,4 @@ v0.13 发布后，兼容原生的平台预期打印 `0.13.0 native`；必须由�
 
 运行 `memory-book serve` 可在 [127.0.0.1:8765](http://127.0.0.1:8765) 查看归档。数据保存在本地且未加密；召回的证据会进入所用客户端的模型上下文。[数据位置与维护](docs/deployment.md#data-and-configuration-paths)
 
-独立实现，采用 [MIT 许可证](LICENSE)。[当前发布版](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.12.0) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml)
+独立实现，采用 [MIT 许可证](LICENSE)。[当前发布版](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.13.0) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml)

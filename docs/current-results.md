@@ -1,10 +1,12 @@
 # Current v0.13 source results and evidence
 
-**Status: v0.13 source experiments and exact-source CI are verified; v0.13
-publication is a separate gate.** The quick-start commands target v0.13.0 after its publication gates pass;
-the currently published release remains v0.12.0. The long-history replay is independently audited from its original ZIP,
-and the unchanged small engineering/declaration suites retain their own source
-identities. Source tests, CI and public release delivery are not interchangeable.
+**Status: v0.13.0 is published; its final-source CI, 30 native build/verification
+cells, real public-URL installation and restored-evidence audit passed.** The quick-start commands install
+this release. The [publication record](../benchmarks/reports/v0.13-publication/README.md)
+binds delivery to release source `4977ebc1`. The long-history replay is independently
+audited from its original ZIP, and the unchanged small engineering/declaration
+suites retain their own measured source identities. Source experiments and
+public delivery remain separately identified below.
 
 The [v0.12 results snapshot](v0.12.0-readme-results.md) preserves the previous
 `current-results.md` byte for byte. The [v0.11 results](v0.11.0-readme-results.md),
@@ -21,13 +23,15 @@ run or older speed measurement is relabelled as a new v0.13 execution.
 | Remote formal / CI candidate | `e0e2515f6e16404cfb9b676cd2eab01ce84b81cc`; complete Git tree `b150f4dfa45a01d407301b60c3fd0f40dac1c420` equals local `91412b43` |
 | Formal long-history run | `44331778554`, attempt 1; candidate `e0e2515f`, original unchanged protocol |
 | Original run-2 artifact | SHA-256 `47df01825bf4e14baadf3154a24683e5f18aaa238790e013fde381610be6ceac` |
-| Exact-source ordinary CI | Run `44331775791`, attempt 1; 11 successful jobs |
+| Measured-source ordinary CI | Run `44331775791`, attempt 1; 11 successful jobs at `e0e2515f` |
 | Separate declaration / control replay | `4e4a8eb2fefe31a136033a37fcc844c36162ffae`; recall cache version 26 |
 | Engineering evaluator | `6cf692ba3595cb236c5b9ea050bf0f8730b53c4c`; original frozen evaluator bytes |
 | Engineering dataset | SHA-256 `87e8ccad3510fb7e8a4c68c9fa3f284473abf8381ef6444ad179e3d4196b3ac3` |
 | Frozen 62-question diagnostic | `296cce97a05488224960e28065f35f594d755732` |
 | Frozen longitudinal protocol | `b3fd165cb632c439ff28873fdba7f33e9d258178`; unchanged queries, source requirements and scorer |
-| Currently published installation | v0.12.0 at `62508a1ce681111ec5702c88e3aa42f67b9fc9c0` |
+| Published v0.13.0 source | `4977ebc13e9da10a8fa4cb95f39e2c533aabe790` |
+| Completed release workflow | Run `44343790035`, attempt 1; public release ID `450240331` |
+| Latest completed release-source CI | Run `44343790028`, attempt 1; 11 successful jobs at `4977ebc1` |
 
 The [complete-tree equivalence receipt](../benchmarks/reports/v0.13-development/postscale-sources/run2-source-equivalence.json)
 binds local `91412b43` to remote `e0e2515f`; it does not rewrite measured commit
@@ -420,10 +424,33 @@ passed all 11 jobs at `e0e2515f`: five Python core jobs, MCP, browser reader,
 three installer jobs and container. The MCP log records 1,719 discovered tests,
 1,705 passes, 14 skips and zero failures/errors.
 [Retained metadata and complete MCP log](../benchmarks/reports/v0.13-development/final-source-ci/review.json).
-These results do not cover a future source commit containing release registration
-or establish a new wheel matrix/public installation.
+This earlier CI result remains bound to the measured source. The final release
+has its own source identity and delivery records.
 
-The published v0.12.0 remains separately proven by release run `44275753685`,
+Published [v0.13.0](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.13.0)
+is built from `4977ebc13e9da10a8fa4cb95f39e2c533aabe790`.
+[Release run 44343790035, attempt 1](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44343790035)
+completed all 30 native build/verification cells across five platforms and
+CPython 3.10–3.15. Its `published-install` job `134948513451` also succeeded,
+and the public release ID `450240331` has 67 assets. Preparation CI
+`44342325614/1`, main CI `44343788812/1` and release-branch CI `44343790028/1`
+each passed all 11 jobs at the same release source. The latest selected CI is
+`44343790028/1`. [Complete publication evidence](../benchmarks/reports/v0.13-publication/README.md).
+
+The frozen auditor parsed **4,320 native-test outcomes: 4,245 passes and 75
+explicitly permitted optional skips** from this release's original records.
+It verified 11 original artifact ZIPs, 67 independently downloaded public
+assets, 65 manifest payloads and 66 checksum entries. All 126 captured files,
+including 97 original auditor inputs, were preserved in 63 archive parts and
+restored byte for byte. The original, restored and independent audit JSONs
+are identical, with SHA-256
+`6fbe09088a1d0173a4f2deaca20156c3d08e429a97041b8749d8709815ec8a9f`.
+[Audit](../benchmarks/reports/v0.13-publication/audit.json)
+· [Restoration proof](../benchmarks/reports/v0.13-publication/restoration-verification.json).
+This is an offline check of saved delivery evidence; it does not add another
+build, installation or performance experiment.
+
+Historical v0.12.0 delivery remains separately proven by release run `44275753685`,
 attempt 1: 30 native cells, 4,245 passes plus 75 permitted skips, 67 independently
 downloaded assets and successful real public-URL installation. Its exact-source
 CI is `44275753683`, attempt 1. These facts remain [v0.12 delivery evidence](../benchmarks/reports/v0.12-publication/README.md),

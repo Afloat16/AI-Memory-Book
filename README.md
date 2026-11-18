@@ -4,9 +4,9 @@
 
 Preserve conversations as project books, task chapters, question sections and original evidence pages. Find a chapter from its title or question, then follow its addresses to the source. Similar codebases can reuse task names and parameters while keeping their records in explicit project namespaces. Recover decisions, corrections, constraints and failed attempts when a session ends or a client changes.
 
-**v0.13.0 release preparation · MIT · Python 3.10+ · SQLite / FTS5 · Optional native C acceleration**
+**v0.13.0 · MIT · Python 3.10+ · SQLite / FTS5 · Optional native C acceleration**
 
-**v0.13.0 is being prepared for publication.** The independently audited long-history replay reaches **100,000 pages across 788 projects**. At every one of seven checkpoints, the v0.13 source returns complete evidence for **56/56 answerable recall cases**, compared with **48/56** for the v0.12 baseline. Directory navigation has lower pooled p50 in all 14 measured query-stage groups; recall has both improvements and slower cases. The source experiment is verified; release registration, final release-source CI, native wheels and public installation remain separate gates. [Results and limits](docs/current-results.md) · [Published v0.12 installation proof](benchmarks/reports/v0.12-publication/README.md).
+**[v0.13.0 is published](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.13.0).** The independently audited long-history replay reaches **100,000 pages across 788 projects**. At every one of seven checkpoints, the v0.13 source returns complete evidence for **56/56 answerable recall cases**, compared with **48/56** for the v0.12 baseline. Directory navigation has lower pooled p50 in all 14 measured query-stage groups; recall has both improvements and slower cases. The release also passed its own final-source CI, native build/verification matrix and public-URL installation. [Results and limits](docs/current-results.md) · [v0.13 publication proof](benchmarks/reports/v0.13-publication/README.md).
 
 [简体中文](README.zh-CN.md) · [Results](#evidence-coverage) · [Performance](#performance) · [Quick start](#quick-start) · [How it works](#how-it-works) · [Documentation](#documentation)
 
@@ -34,7 +34,7 @@ These are authored development-fixture results with distinct denominators. They 
 
 ## Quick start
 
-**These commands target v0.13.0. Use them after its [release workflow](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/release.yml) and public-installation checks complete.** Until then, the existing published release is [v0.12.0](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.12.0).
+**Install the published [v0.13.0 release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.13.0) with the pinned commands below.** Its [release run and real public-URL installation](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44343790035) completed successfully.
 
 Requires **Python 3.10+ with SQLite FTS5**. The installer selects a compatible prebuilt native wheel or the portable Python fallback and creates an isolated environment with MCP/client dependencies.
 
@@ -220,9 +220,13 @@ Unbound requests may search across books. A binding follows the configured conne
 
 ## Source validation and delivery status
 
-The frozen v0.13 source `e0e2515f6e16404cfb9b676cd2eab01ce84b81cc` passed **11/11 jobs** in [CI run 44331775791, attempt 1](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44331775791). Its full Git tree equals the locally measured `91412b43` source; their [identity receipt](benchmarks/reports/v0.13-development/postscale-sources/run2-source-equivalence.json) preserves both commit IDs. The MCP job discovered 1,719 tests: 1,705 passed, 14 skipped and zero failures/errors. These are source checks; release-wheel and public-installation evidence remains separate. [Original CI metadata and full MCP log](benchmarks/reports/v0.13-development/final-source-ci/review.json).
+The published **v0.13.0** is built from `4977ebc13e9da10a8fa4cb95f39e2c533aabe790`. [Release run 44343790035, attempt 1](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44343790035) completed all **30 native build/verification cells**—CPython 3.10–3.15 on five platforms—and its real public-URL installer. The original logs contain **4,320 native-test outcomes: 4,245 passes and 75 explicitly permitted optional skips**. The same source passed **11/11 jobs** in [CI run 44343790028, attempt 1](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44343790028). [Complete publication evidence](benchmarks/reports/v0.13-publication/README.md).
 
-The quick start targets **v0.13.0 after publication**. Its native release matrix and public-installation results are not yet claimed here. The currently published **v0.12.0** retains its independent [publication proof](benchmarks/reports/v0.12-publication/README.md), which records 11 successful CI jobs, 30 native build/installation cells for CPython 3.10–3.15 across five platforms, 4,245 native passes plus 75 permitted skips, 67 independently downloaded assets and a successful real public-URL installer. These are v0.12 delivery results. [Published release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.12.0) · [Historical v0.11 delivery](benchmarks/reports/v0.11-publication/README.md).
+The offline delivery audit verified **11 original artifact ZIPs and 67 independently downloaded public assets**. All **126 captured files** were then restored byte for byte; the original and restored audit JSONs match the independent proof exactly. This verifies saved delivery evidence without rebuilding or rerunning installation. [Audit](benchmarks/reports/v0.13-publication/audit.json) · [Restoration proof](benchmarks/reports/v0.13-publication/restoration-verification.json).
+
+The measured long-history source remains `e0e2515f6e16404cfb9b676cd2eab01ce84b81cc`, with the same complete Git tree as local `91412b43`; their [identity receipt](benchmarks/reports/v0.13-development/postscale-sources/run2-source-equivalence.json) preserves both measured commit IDs. Its earlier [CI run 44331775791, attempt 1](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44331775791) passed 11/11 jobs; that MCP job discovered 1,719 tests, passed 1,705 and skipped 14 with zero failures/errors. [Original source-CI records](benchmarks/reports/v0.13-development/final-source-ci/review.json).
+
+**Historical v0.12.0 delivery** retains its separate [publication proof](benchmarks/reports/v0.12-publication/README.md): 11 successful CI jobs, 30 native cells, 4,245 native passes plus 75 permitted skips, 67 independently downloaded assets and successful public installation. These counts belong to v0.12. [Historical v0.11 delivery](benchmarks/reports/v0.11-publication/README.md).
 
 Schema **4**, source/page IDs and Unicode coordinates remain unchanged. Use the Python interpreter printed by the installer in place of `python` to inspect the installed backend:
 
@@ -230,7 +234,7 @@ Schema **4**, source/page IDs and Unicode coordinates remain unchanged. Use the 
 python -I -X utf8 -c "import memory_book; from memory_book._text_backend import BACKEND_NAME; print(memory_book.__version__, BACKEND_NAME)"
 ```
 
-After v0.13 publication, a compatible native installation should print `0.13.0 native`; the actual release workflow and public-installer proof must verify that outcome. `MEMORY_BOOK_TEXT_BACKEND=auto` is the default; `python` selects the reference, and `native` requires the extension. [Backend and source-build options](docs/deployment.md#native-backend-and-source-builds).
+On a compatible native installation, this prints `0.13.0 native`; the portable fallback reports `0.13.0 python`. `MEMORY_BOOK_TEXT_BACKEND=auto` is the default; `python` selects the reference, and `native` requires the extension. [Backend and source-build options](docs/deployment.md#native-backend-and-source-builds).
 
 ## Documentation
 

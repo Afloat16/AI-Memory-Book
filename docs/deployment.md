@@ -21,12 +21,18 @@ key. Your AI client's own model and account requirements remain separate.
 
 ## Install v0.13.0
 
-**v0.13.0 is in release preparation at this source checkpoint.** The pinned
-commands below are usable after its release workflow and public installer
-complete. Follow the [current validation record](https://github.com/Afloat16/AI-Memory-Book/blob/main/docs/v0.13.0-validation.md)
-for actual delivery status. The existing published version remains
-[v0.12.0](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.12.0)
-until those gates pass; source acceptance alone is not publication evidence.
+**[v0.13.0 is published](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.13.0).**
+The pinned commands below install this release. Its
+[release run 44343790035, attempt 1](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44343790035)
+completed all 30 native build/verification cells and the real public-URL
+installer. The original native-test logs record 4,245 passes and 75 explicitly
+permitted optional skips out of 4,320 outcomes. The release source is
+`4977ebc13e9da10a8fa4cb95f39e2c533aabe790`.
+See the [publication evidence](../benchmarks/reports/v0.13-publication/README.md)
+and [validation record](v0.13.0-validation.md) for the exact delivery identities
+and measured limits. The offline audit verified all 67 independently downloaded
+assets, and a [separate restoration check](../benchmarks/reports/v0.13-publication/restoration-verification.json)
+recovered the captured evidence byte for byte with an identical audit result.
 
 Download the pinned installer, run it, and connect your AI
 client. The installer selects a compatible **v0.13.0 native wheel** from the
