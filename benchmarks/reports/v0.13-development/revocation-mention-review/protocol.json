@@ -1,0 +1,101 @@
+{
+  "id": "v013-independent-revocation-mention-review-1",
+  "purpose": "Preserve a later revocation-bearing source rather than demote it as plain nondecision and promote an explicitly revoked old value.",
+  "timing": "Frozen before running these variants. comparison_audit found the two syntax gaps by static reading only.",
+  "base_runtime": "57db3a81b7f6eaad38933e9b72e5b43e6eaf3a53",
+  "scope": "Independent development counterexamples; no changes to the frozen 62/38 cases, scoring or formal scale data.",
+  "design": "Reuse the original independent revoked_old_configuration fixture exactly, replacing only the revocation sentence with one specified passive form.",
+  "backends": [
+    "python",
+    "native"
+  ],
+  "expected_basis": "Both later sources explicitly state revocation of the previous value. Preserve their retrieval order rather than promote the earlier declaration through the nondecision heuristic; no authoritative new value is asserted.",
+  "cases": [
+    {
+      "id": "perfect_passive_revocation",
+      "variation": "The previous value has been revoked.",
+      "sources": [
+        {
+          "project": "workers",
+          "session_id": "previous",
+          "task_id": "configuration",
+          "task_title": "Configuration",
+          "title": "Configuration",
+          "created_at": "2026-01-01T00:00:00Z",
+          "messages": [
+            {
+              "role": "assistant",
+              "content": "Production wait_limit=12."
+            }
+          ]
+        },
+        {
+          "project": "workers",
+          "session_id": "revoked",
+          "task_id": "configuration",
+          "task_title": "Configuration",
+          "title": "Configuration",
+          "created_at": "2026-06-01T00:00:00Z",
+          "messages": [
+            {
+              "role": "assistant",
+              "content": "Production wait_limit remains on the review agenda. The previous value has been revoked. No new value was selected. production wait_limit review. production wait_limit review. production wait_limit review. production wait_limit review. production wait_limit review. production wait_limit review. production wait_limit review. production wait_limit review. production wait_limit review. production wait_limit review. production wait_limit review. production wait_limit review. "
+            }
+          ]
+        }
+      ],
+      "request": {
+        "query": "current production wait_limit",
+        "project": "workers",
+        "limit": 1
+      },
+      "expected": {
+        "first_session": "revoked",
+        "nondecision_promotions": 0
+      }
+    },
+    {
+      "id": "chinese_passive_revocation",
+      "variation": "旧值已被撤销。",
+      "sources": [
+        {
+          "project": "workers",
+          "session_id": "previous",
+          "task_id": "configuration",
+          "task_title": "Configuration",
+          "title": "Configuration",
+          "created_at": "2026-01-01T00:00:00Z",
+          "messages": [
+            {
+              "role": "assistant",
+              "content": "Production wait_limit=12."
+            }
+          ]
+        },
+        {
+          "project": "workers",
+          "session_id": "revoked",
+          "task_id": "configuration",
+          "task_title": "Configuration",
+          "title": "Configuration",
+          "created_at": "2026-06-01T00:00:00Z",
+          "messages": [
+            {
+              "role": "assistant",
+              "content": "Production wait_limit remains on the review agenda. 旧值已被撤销。 No new value was selected. production wait_limit review. production wait_limit review. production wait_limit review. production wait_limit review. production wait_limit review. production wait_limit review. production wait_limit review. production wait_limit review. production wait_limit review. production wait_limit review. production wait_limit review. production wait_limit review. "
+            }
+          ]
+        }
+      ],
+      "request": {
+        "query": "current production wait_limit",
+        "project": "workers",
+        "limit": 1
+      },
+      "expected": {
+        "first_session": "revoked",
+        "nondecision_promotions": 0
+      }
+    }
+  ]
+}

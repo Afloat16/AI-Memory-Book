@@ -23,7 +23,7 @@ from .text import (IDENTIFIER_WORD_BOUNDARY, estimate_tokens, excerpt, headline,
 SCHEMA_VERSION = 4
 INDEX_VERSION = 3
 LEXICAL_INDEX_VERSION = 1
-RECALL_VERSION = 23
+RECALL_VERSION = 24
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -553,6 +553,8 @@ _EXPLICIT_REVOCATION = re.compile(
     r"(?:(?:the\s+)?(?:old|previous|former|prior)\s+(?:value|setting|configuration|contract|decision)"
     r"\s+(?:is|was)\s+(?:invalid|obsolete|revoked|withdrawn|no\s+longer\s+valid)|"
     r"(?:旧值|原值|前值)(?:已经|已)?(?:失效|无效|撤销|弃用))[.!。]?", re.IGNORECASE)
+_REVOCATION_MENTION = re.compile(
+    r"\b(?:revok(?:e[ds]?|ing)|withdraw(?:n|s|ing|al)?)\b|撤销|撤回", re.IGNORECASE)
 _NONDECISION_BINDING = re.compile(
     r"(?<![\w._-])(?P<subject>[A-Za-z_][A-Za-z0-9_.-]*"
     r"(?:[ \t]+[A-Za-z_][A-Za-z0-9_.-]*){0,7})\s+"
@@ -1222,7 +1224,11 @@ def _prefer_declarations_over_nondecisions(pool: list[dict], groups: dict,
         if rid not in complete or rid in declared:
             continue
         body = contents[rid]
+        # A revocation mention can use different grammar, or refer to another
+        # field. Conservatively keep its source in the retrieval order; this
+        # guard grants no declaration status or authority to the mention.
         if (not _EXPLICIT_NO_DECISION.search(body) or _EXPLICIT_REVOCATION.search(body)
+                or _REVOCATION_MENTION.search(body)
                 or _FIELD_BINDING.search(body)
                 or _PROSE_BINDING.search(body)):
             continue

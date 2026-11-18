@@ -43,7 +43,8 @@ class AssessmentReviewRegressions(unittest.TestCase):
             self.assertIn("current.phase_size=12", result["context"])
 
     def test_explicit_revocation_is_never_demoted_as_a_plain_nondecision(self):
-        for revocation in ("The previous value was revoked.", "The old setting is no longer valid.", "旧值已失效。"):
+        for revocation in ("The previous value was revoked.", "The old setting is no longer valid.", "旧值已失效。",
+                           "The previous value has been revoked.", "旧值已被撤销。"):
             with self.subTest(revocation=revocation), MemoryBook(":memory:", segmentation="turn") as book:
                 book.ingest(source("previous", "Production wait_limit=12."))
                 book.ingest(source("revoked", "Production wait_limit remains on the review agenda. "
@@ -69,16 +70,17 @@ class AssessmentReviewRegressions(unittest.TestCase):
             self.assertEqual(relevant["temporal"]["evidence_assessment"]["status"], "potential_conflict")
 
     def test_candidate_one_result_cache_is_not_reused_after_the_review_fix(self):
-        with MemoryBook(":memory:", segmentation="turn") as book:
-            book.ingest(source("a", "Production wait_limit=12."))
-            with patch.object(store, "RECALL_VERSION", 22):
-                first = book.recall("current production wait_limit", project="workers")
-                cached = book.recall("current production wait_limit", project="workers")
-            self.assertFalse(first["cache_hit"])
-            self.assertTrue(cached["cache_hit"])
-            after = book.recall("current production wait_limit", project="workers")
-            self.assertFalse(after["cache_hit"])
-            self.assertEqual(after["context"], first["context"])
+        for old_version in (22, 23):
+            with self.subTest(old_version=old_version), MemoryBook(":memory:", segmentation="turn") as book:
+                book.ingest(source("a", "Production wait_limit=12."))
+                with patch.object(store, "RECALL_VERSION", old_version):
+                    first = book.recall("current production wait_limit", project="workers")
+                    cached = book.recall("current production wait_limit", project="workers")
+                self.assertFalse(first["cache_hit"])
+                self.assertTrue(cached["cache_hit"])
+                after = book.recall("current production wait_limit", project="workers")
+                self.assertFalse(after["cache_hit"])
+                self.assertEqual(after["context"], first["context"])
 
 
 if __name__ == "__main__":

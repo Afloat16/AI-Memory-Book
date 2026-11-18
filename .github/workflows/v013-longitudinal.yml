@@ -19,8 +19,6 @@ jobs:
     env:
       V013_PROTOCOL_COMMIT: b3fd165cb632c439ff28873fdba7f33e9d258178
       V013_BASELINE_COMMIT: 8044e4bafe18e73ea422af5eeb47ef961e65246c
-      V013_BASELINE_ROOT: ${{ runner.temp }}/v013-scale-baseline
-      V013_EVIDENCE_ROOT: ${{ runner.temp }}/v013-scale-${{ github.run_id }}-${{ github.run_attempt }}
       CC: gcc
       MEMORY_BOOK_BUILD_NATIVE: '1'
       MEMORY_BOOK_TEXT_BACKEND: native
@@ -33,7 +31,10 @@ jobs:
       - name: Create this invocation's evidence directory
         shell: bash
         run: |
-          mkdir -p "$V013_EVIDENCE_ROOT/logs"
+          evidence_root="$RUNNER_TEMP/v013-scale-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          mkdir -p "$evidence_root/logs"
+          printf 'V013_BASELINE_ROOT=%s/v013-scale-baseline\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          printf 'V013_EVIDENCE_ROOT=%s\n' "$evidence_root" >> "$GITHUB_ENV"
           printf 'V013_JOB_STARTED_EPOCH=%s\n' "$(date +%s)" >> "$GITHUB_ENV"
 
       - name: Check out the exact pushed candidate
