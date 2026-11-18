@@ -372,6 +372,13 @@ can differ in direction; the cold 12/37 and 14/35 counts are not interchangeable
 They are observed directions, not statistical-significance claims. p95 uses
 nearest rank with n=30 for cold/directory and n=90 for warm.
 
+![All 112 measured query-stage groups, showing median paired-round candidate/baseline p50 ratios with slower groups retained.](readme-assets/v013-all-performance.svg)
+
+[Every pooled p50/p95, paired round, workload/resource observation and plotting input](../benchmarks/reports/v0.13-development/scale-run2-performance/README.md)
+· [Foreign-project growth](readme-assets/v013-foreign-growth.svg)
+· [History growth and insertion layout](readme-assets/v013-layout-and-growth.svg)
+· [Initialization, storage and lifetime peak RSS](readme-assets/v013-resources.svg).
+
 | Checkpoint / query | Baseline p50 → v0.13 p50, ms | Baseline p95 → v0.13 p95, ms |
 |---|---:|---:|
 | Interleaved 100k · archived current | 166.898 → **102.478** | 175.218 → **113.145** |

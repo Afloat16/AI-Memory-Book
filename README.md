@@ -142,7 +142,9 @@ The two packing tracks remain separate. Zero stale-only means that no case conta
 
 ## Performance
 
-The same long-history replay measures seven recall queries and two complete directory chains per stage, using six balanced rounds and a separately restored baseline-built database for each arm. Each query-stage/version has 30 cold-result-cache calls and 90 warm-result-cache calls; directory chains have 30 calls. “Cold” clears the recall-result cache, **not** SQLite or operating-system caches. The single hosted Linux runner uses Python 3.12, SQLite 3.45.1 and an AMD EPYC 7763 CPU. [Protocol, full timings and resource observations](benchmarks/reports/v0.13-development/scale-run2-review/scale-run2-summary.md).
+The same long-history replay measures seven recall queries and two complete directory chains per stage, using six balanced rounds and a separately restored baseline-built database for each arm. Each recall query-stage/version has 30 cold-result-cache calls and 90 warm-result-cache calls; directory chains have 30 calls. “Cold” clears the recall-result cache, **not** SQLite or operating-system caches. The single hosted Linux runner uses Python 3.12, SQLite 3.45.1 and an AMD EPYC 7763 CPU. [Protocol, full timings and resource observations](benchmarks/reports/v0.13-development/scale-run2-review/scale-run2-summary.md).
+
+![Measured p50 and p95 under foreign-project growth; exact project scope does not remove archive-size costs.](docs/readme-assets/v013-foreign-growth.svg)
 
 | Measured query-stage groups | Lower v0.13 pooled p50 | Higher v0.13 pooled p50 |
 |---|---:|---:|
@@ -151,6 +153,10 @@ The same long-history replay measures seven recall queries and two complete dire
 | Complete directory navigation and page reads | **14 / 14** | 0 / 14 |
 
 At the 100,000-page interleaved checkpoint, archived-project current recall changes from **166.898 → 102.478 ms**, historical recall from **133.222 → 67.912 ms**, and the archived-project directory chain from **159.154 → 26.707 ms** (pooled p50). These measured gains coexist with costs: the worst cold p50 increase is **56.4%** for a 1,024-page multi-source query; a small archived-project current query is also **56.3% slower**. All seven warm slowdowns are multi-source queries, whose previously missing evidence is now included; their extra latency remains reported.
+
+![Measured latency as target history grows and insertion layout changes; archived and active project costs remain distinct.](docs/readme-assets/v013-layout-and-growth.svg)
+
+The figures show pooled p50 and nearest-rank p95. The [complete 112-group comparison and resource record](benchmarks/reports/v0.13-development/scale-run2-performance/README.md) also retain six-round paired ratios, initialization, storage and process-lifetime peak RSS. Pooled and paired direction counts can differ; every slower group remains listed.
 
 The directory and chronology routes reuse matching work while preserving ownership checks, source IDs and result order. Small project membership can avoid an unhelpful row-ID span, with fallbacks for other scopes and SQLite constraints. **Cold recall still depends on archive size.** Bounded returned candidates and exact project filters do not bound every database scan or [global BM25 statistic](https://www.sqlite.org/fts5.html#the_bm25_function). Snapshot restoration, opening the database, scoring and journaling are outside the query timer; these are API measurements, not coding-LLM or end-to-end task latency.
 
