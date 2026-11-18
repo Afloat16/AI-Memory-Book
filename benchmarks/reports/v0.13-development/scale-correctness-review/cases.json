@@ -1,0 +1,1226 @@
+[
+  {
+    "id": "routing-archive:current",
+    "project": "routing-archive",
+    "lifecycle": "inactive",
+    "family": "routing",
+    "category": "current",
+    "surface": "recall",
+    "query": "What is the current edge_policy implementation contract?",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "edge_policy=bellman_ford"
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "edge_policy=reject_negative"
+      }
+    ]
+  },
+  {
+    "id": "routing-archive:historical",
+    "project": "routing-archive",
+    "lifecycle": "inactive",
+    "family": "routing",
+    "category": "historical",
+    "surface": "recall",
+    "query": "What was the original edge_policy implementation decision?",
+    "required": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "edge_policy=reject_negative"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "routing-archive:identifier",
+    "project": "routing-archive",
+    "lifecycle": "inactive",
+    "family": "routing",
+    "category": "identifier",
+    "surface": "recall",
+    "query": "What is the approved `routing.relaxation_limit` value?",
+    "required": [
+      {
+        "session_id": "active-config",
+        "turn_index": 0,
+        "quote": "routing.relaxation_limit=64"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "routing-archive:multi_source",
+    "project": "routing-archive",
+    "lifecycle": "inactive",
+    "family": "routing",
+    "category": "multi_source",
+    "surface": "recall",
+    "query": "What is the current edge_policy and which boundary constraints must pass?",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "edge_policy=bellman_ford"
+      },
+      {
+        "session_id": "boundary-contract",
+        "turn_index": 0,
+        "quote": "A negative cycle must raise ValueError; unreachable vertices keep infinity."
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "edge_policy=reject_negative"
+      }
+    ]
+  },
+  {
+    "id": "routing-archive:chinese",
+    "project": "routing-archive",
+    "lifecycle": "inactive",
+    "family": "routing",
+    "category": "chinese",
+    "surface": "recall",
+    "query": "中断很久后继续开发图路径，当前 edge_policy 应当采用什么约定？请回查原始依据。",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "当前生效约定为 edge_policy=bellman_ford。"
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "edge_policy=reject_negative"
+      }
+    ]
+  },
+  {
+    "id": "routing-archive:failure",
+    "project": "routing-archive",
+    "lifecycle": "inactive",
+    "family": "routing",
+    "category": "failure",
+    "surface": "recall",
+    "query": "Why did the routing prototype fail and what mistake should we avoid?",
+    "required": [
+      {
+        "session_id": "failed-prototype",
+        "turn_index": 0,
+        "quote": "The visited-once Dijkstra prototype returned 2 instead of -1 on a negative edge."
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "routing-archive:replacement",
+    "project": "routing-archive",
+    "lifecycle": "inactive",
+    "family": "routing",
+    "category": "replacement",
+    "surface": "recall",
+    "query": "Find the currently approved configuration for routing.relaxation_limit in this project.",
+    "required": [
+      {
+        "session_id": "active-config",
+        "turn_index": 0,
+        "quote": "routing.relaxation_limit=64"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "routing-archive:missing",
+    "project": "routing-archive",
+    "lifecycle": "inactive",
+    "family": "routing",
+    "category": "missing",
+    "surface": "recall",
+    "query": "What approved distributed_all_reduce_bucket_bytes value should this project deploy?",
+    "required": [],
+    "stale": []
+  },
+  {
+    "id": "routing-core:current",
+    "project": "routing-core",
+    "lifecycle": "long_lived",
+    "family": "routing",
+    "category": "current",
+    "surface": "recall",
+    "query": "What is the current edge_policy implementation contract?",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "edge_policy=reject_negative"
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "edge_policy=bellman_ford"
+      }
+    ]
+  },
+  {
+    "id": "routing-core:historical",
+    "project": "routing-core",
+    "lifecycle": "long_lived",
+    "family": "routing",
+    "category": "historical",
+    "surface": "recall",
+    "query": "What was the original edge_policy implementation decision?",
+    "required": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "edge_policy=bellman_ford"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "routing-core:identifier",
+    "project": "routing-core",
+    "lifecycle": "long_lived",
+    "family": "routing",
+    "category": "identifier",
+    "surface": "recall",
+    "query": "What is the approved `routing.relaxation_limit` value?",
+    "required": [
+      {
+        "session_id": "active-config",
+        "turn_index": 0,
+        "quote": "routing.relaxation_limit=81"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "routing-core:multi_source",
+    "project": "routing-core",
+    "lifecycle": "long_lived",
+    "family": "routing",
+    "category": "multi_source",
+    "surface": "recall",
+    "query": "What is the current edge_policy and which boundary constraints must pass?",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "edge_policy=reject_negative"
+      },
+      {
+        "session_id": "boundary-contract",
+        "turn_index": 0,
+        "quote": "A negative cycle must raise ValueError; unreachable vertices keep infinity."
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "edge_policy=bellman_ford"
+      }
+    ]
+  },
+  {
+    "id": "routing-core:chinese",
+    "project": "routing-core",
+    "lifecycle": "long_lived",
+    "family": "routing",
+    "category": "chinese",
+    "surface": "recall",
+    "query": "中断很久后继续开发图路径，当前 edge_policy 应当采用什么约定？请回查原始依据。",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "当前生效约定为 edge_policy=reject_negative。"
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "edge_policy=bellman_ford"
+      }
+    ]
+  },
+  {
+    "id": "routing-core:failure",
+    "project": "routing-core",
+    "lifecycle": "long_lived",
+    "family": "routing",
+    "category": "failure",
+    "surface": "recall",
+    "query": "Why did the routing prototype fail and what mistake should we avoid?",
+    "required": [
+      {
+        "session_id": "failed-prototype",
+        "turn_index": 0,
+        "quote": "The visited-once Dijkstra prototype returned 2 instead of -1 on a negative edge."
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "routing-core:replacement",
+    "project": "routing-core",
+    "lifecycle": "long_lived",
+    "family": "routing",
+    "category": "replacement",
+    "surface": "recall",
+    "query": "Find the currently approved configuration for routing.relaxation_limit in this project.",
+    "required": [
+      {
+        "session_id": "active-config",
+        "turn_index": 0,
+        "quote": "routing.relaxation_limit=81"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "routing-core:missing",
+    "project": "routing-core",
+    "lifecycle": "long_lived",
+    "family": "routing",
+    "category": "missing",
+    "surface": "recall",
+    "query": "What approved distributed_all_reduce_bucket_bytes value should this project deploy?",
+    "required": [],
+    "stale": []
+  },
+  {
+    "id": "ranking-archive:current",
+    "project": "ranking-archive",
+    "lifecycle": "inactive",
+    "family": "ranking",
+    "category": "current",
+    "surface": "recall",
+    "query": "What is the current tie_policy implementation contract?",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "tie_policy=id_ascending"
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "tie_policy=stable_input"
+      }
+    ]
+  },
+  {
+    "id": "ranking-archive:historical",
+    "project": "ranking-archive",
+    "lifecycle": "inactive",
+    "family": "ranking",
+    "category": "historical",
+    "surface": "recall",
+    "query": "What was the original tie_policy implementation decision?",
+    "required": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "tie_policy=stable_input"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "ranking-archive:identifier",
+    "project": "ranking-archive",
+    "lifecycle": "inactive",
+    "family": "ranking",
+    "category": "identifier",
+    "surface": "recall",
+    "query": "What is the approved `ranking.stable_topk_buffer` value?",
+    "required": [
+      {
+        "session_id": "active-config",
+        "turn_index": 0,
+        "quote": "ranking.stable_topk_buffer=98"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "ranking-archive:multi_source",
+    "project": "ranking-archive",
+    "lifecycle": "inactive",
+    "family": "ranking",
+    "category": "multi_source",
+    "surface": "recall",
+    "query": "What is the current tie_policy and which boundary constraints must pass?",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "tie_policy=id_ascending"
+      },
+      {
+        "session_id": "boundary-contract",
+        "turn_index": 0,
+        "quote": "A request with k=0 returns an empty list; tied scores retain the approved tie policy."
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "tie_policy=stable_input"
+      }
+    ]
+  },
+  {
+    "id": "ranking-archive:chinese",
+    "project": "ranking-archive",
+    "lifecycle": "inactive",
+    "family": "ranking",
+    "category": "chinese",
+    "surface": "recall",
+    "query": "中断很久后继续开发候选排序，当前 tie_policy 应当采用什么约定？请回查原始依据。",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "当前生效约定为 tie_policy=id_ascending。"
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "tie_policy=stable_input"
+      }
+    ]
+  },
+  {
+    "id": "ranking-archive:failure",
+    "project": "ranking-archive",
+    "lifecycle": "inactive",
+    "family": "ranking",
+    "category": "failure",
+    "surface": "recall",
+    "query": "Why did the ranking prototype fail and what mistake should we avoid?",
+    "required": [
+      {
+        "session_id": "failed-prototype",
+        "turn_index": 0,
+        "quote": "Converting tied candidates to a set changed the winner across repeated requests."
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "ranking-archive:replacement",
+    "project": "ranking-archive",
+    "lifecycle": "inactive",
+    "family": "ranking",
+    "category": "replacement",
+    "surface": "recall",
+    "query": "Find the currently approved configuration for ranking.stable_topk_buffer in this project.",
+    "required": [
+      {
+        "session_id": "active-config",
+        "turn_index": 0,
+        "quote": "ranking.stable_topk_buffer=98"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "ranking-archive:missing",
+    "project": "ranking-archive",
+    "lifecycle": "inactive",
+    "family": "ranking",
+    "category": "missing",
+    "surface": "recall",
+    "query": "What approved distributed_all_reduce_bucket_bytes value should this project deploy?",
+    "required": [],
+    "stale": []
+  },
+  {
+    "id": "ranking-next:current",
+    "project": "ranking-next",
+    "lifecycle": "newcomer",
+    "family": "ranking",
+    "category": "current",
+    "surface": "recall",
+    "query": "What is the current tie_policy implementation contract?",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "tie_policy=stable_input"
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "tie_policy=id_ascending"
+      }
+    ]
+  },
+  {
+    "id": "ranking-next:historical",
+    "project": "ranking-next",
+    "lifecycle": "newcomer",
+    "family": "ranking",
+    "category": "historical",
+    "surface": "recall",
+    "query": "What was the original tie_policy implementation decision?",
+    "required": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "tie_policy=id_ascending"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "ranking-next:identifier",
+    "project": "ranking-next",
+    "lifecycle": "newcomer",
+    "family": "ranking",
+    "category": "identifier",
+    "surface": "recall",
+    "query": "What is the approved `ranking.stable_topk_buffer` value?",
+    "required": [
+      {
+        "session_id": "active-config",
+        "turn_index": 0,
+        "quote": "ranking.stable_topk_buffer=115"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "ranking-next:multi_source",
+    "project": "ranking-next",
+    "lifecycle": "newcomer",
+    "family": "ranking",
+    "category": "multi_source",
+    "surface": "recall",
+    "query": "What is the current tie_policy and which boundary constraints must pass?",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "tie_policy=stable_input"
+      },
+      {
+        "session_id": "boundary-contract",
+        "turn_index": 0,
+        "quote": "A request with k=0 returns an empty list; tied scores retain the approved tie policy."
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "tie_policy=id_ascending"
+      }
+    ]
+  },
+  {
+    "id": "ranking-next:chinese",
+    "project": "ranking-next",
+    "lifecycle": "newcomer",
+    "family": "ranking",
+    "category": "chinese",
+    "surface": "recall",
+    "query": "中断很久后继续开发候选排序，当前 tie_policy 应当采用什么约定？请回查原始依据。",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "当前生效约定为 tie_policy=stable_input。"
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "tie_policy=id_ascending"
+      }
+    ]
+  },
+  {
+    "id": "ranking-next:failure",
+    "project": "ranking-next",
+    "lifecycle": "newcomer",
+    "family": "ranking",
+    "category": "failure",
+    "surface": "recall",
+    "query": "Why did the ranking prototype fail and what mistake should we avoid?",
+    "required": [
+      {
+        "session_id": "failed-prototype",
+        "turn_index": 0,
+        "quote": "Converting tied candidates to a set changed the winner across repeated requests."
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "ranking-next:replacement",
+    "project": "ranking-next",
+    "lifecycle": "newcomer",
+    "family": "ranking",
+    "category": "replacement",
+    "surface": "recall",
+    "query": "Find the currently approved configuration for ranking.stable_topk_buffer in this project.",
+    "required": [
+      {
+        "session_id": "active-config",
+        "turn_index": 0,
+        "quote": "ranking.stable_topk_buffer=115"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "ranking-next:missing",
+    "project": "ranking-next",
+    "lifecycle": "newcomer",
+    "family": "ranking",
+    "category": "missing",
+    "surface": "recall",
+    "query": "What approved distributed_all_reduce_bucket_bytes value should this project deploy?",
+    "required": [],
+    "stale": []
+  },
+  {
+    "id": "training-core:current",
+    "project": "training-core",
+    "lifecycle": "long_lived",
+    "family": "training",
+    "category": "current",
+    "surface": "recall",
+    "query": "What is the current split_policy implementation contract?",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "split_policy=whole_group"
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "split_policy=row_modulo"
+      }
+    ]
+  },
+  {
+    "id": "training-core:historical",
+    "project": "training-core",
+    "lifecycle": "long_lived",
+    "family": "training",
+    "category": "historical",
+    "surface": "recall",
+    "query": "What was the original split_policy implementation decision?",
+    "required": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "split_policy=row_modulo"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "training-core:identifier",
+    "project": "training-core",
+    "lifecycle": "long_lived",
+    "family": "training",
+    "category": "identifier",
+    "surface": "recall",
+    "query": "What is the approved `training.group_split_seed` value?",
+    "required": [
+      {
+        "session_id": "active-config",
+        "turn_index": 0,
+        "quote": "training.group_split_seed=132"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "training-core:multi_source",
+    "project": "training-core",
+    "lifecycle": "long_lived",
+    "family": "training",
+    "category": "multi_source",
+    "surface": "recall",
+    "query": "What is the current split_policy and which boundary constraints must pass?",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "split_policy=whole_group"
+      },
+      {
+        "session_id": "boundary-contract",
+        "turn_index": 0,
+        "quote": "No patient group may cross train and validation; each record appears exactly once."
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "split_policy=row_modulo"
+      }
+    ]
+  },
+  {
+    "id": "training-core:chinese",
+    "project": "training-core",
+    "lifecycle": "long_lived",
+    "family": "training",
+    "category": "chinese",
+    "surface": "recall",
+    "query": "中断很久后继续开发训练划分，当前 split_policy 应当采用什么约定？请回查原始依据。",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "当前生效约定为 split_policy=whole_group。"
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "split_policy=row_modulo"
+      }
+    ]
+  },
+  {
+    "id": "training-core:failure",
+    "project": "training-core",
+    "lifecycle": "long_lived",
+    "family": "training",
+    "category": "failure",
+    "surface": "recall",
+    "query": "Why did the training prototype fail and what mistake should we avoid?",
+    "required": [
+      {
+        "session_id": "failed-prototype",
+        "turn_index": 0,
+        "quote": "A row-wise split leaked repeated patient records into both train and validation."
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "training-core:replacement",
+    "project": "training-core",
+    "lifecycle": "long_lived",
+    "family": "training",
+    "category": "replacement",
+    "surface": "recall",
+    "query": "Find the currently approved configuration for training.group_split_seed in this project.",
+    "required": [
+      {
+        "session_id": "active-config",
+        "turn_index": 0,
+        "quote": "training.group_split_seed=132"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "training-core:missing",
+    "project": "training-core",
+    "lifecycle": "long_lived",
+    "family": "training",
+    "category": "missing",
+    "surface": "recall",
+    "query": "What approved distributed_all_reduce_bucket_bytes value should this project deploy?",
+    "required": [],
+    "stale": []
+  },
+  {
+    "id": "training-next:current",
+    "project": "training-next",
+    "lifecycle": "newcomer",
+    "family": "training",
+    "category": "current",
+    "surface": "recall",
+    "query": "What is the current split_policy implementation contract?",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "split_policy=row_modulo"
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "split_policy=whole_group"
+      }
+    ]
+  },
+  {
+    "id": "training-next:historical",
+    "project": "training-next",
+    "lifecycle": "newcomer",
+    "family": "training",
+    "category": "historical",
+    "surface": "recall",
+    "query": "What was the original split_policy implementation decision?",
+    "required": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "split_policy=whole_group"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "training-next:identifier",
+    "project": "training-next",
+    "lifecycle": "newcomer",
+    "family": "training",
+    "category": "identifier",
+    "surface": "recall",
+    "query": "What is the approved `training.group_split_seed` value?",
+    "required": [
+      {
+        "session_id": "active-config",
+        "turn_index": 0,
+        "quote": "training.group_split_seed=149"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "training-next:multi_source",
+    "project": "training-next",
+    "lifecycle": "newcomer",
+    "family": "training",
+    "category": "multi_source",
+    "surface": "recall",
+    "query": "What is the current split_policy and which boundary constraints must pass?",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "split_policy=row_modulo"
+      },
+      {
+        "session_id": "boundary-contract",
+        "turn_index": 0,
+        "quote": "No patient group may cross train and validation; each record appears exactly once."
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "split_policy=whole_group"
+      }
+    ]
+  },
+  {
+    "id": "training-next:chinese",
+    "project": "training-next",
+    "lifecycle": "newcomer",
+    "family": "training",
+    "category": "chinese",
+    "surface": "recall",
+    "query": "中断很久后继续开发训练划分，当前 split_policy 应当采用什么约定？请回查原始依据。",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "当前生效约定为 split_policy=row_modulo。"
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "split_policy=whole_group"
+      }
+    ]
+  },
+  {
+    "id": "training-next:failure",
+    "project": "training-next",
+    "lifecycle": "newcomer",
+    "family": "training",
+    "category": "failure",
+    "surface": "recall",
+    "query": "Why did the training prototype fail and what mistake should we avoid?",
+    "required": [
+      {
+        "session_id": "failed-prototype",
+        "turn_index": 0,
+        "quote": "A row-wise split leaked repeated patient records into both train and validation."
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "training-next:replacement",
+    "project": "training-next",
+    "lifecycle": "newcomer",
+    "family": "training",
+    "category": "replacement",
+    "surface": "recall",
+    "query": "Find the currently approved configuration for training.group_split_seed in this project.",
+    "required": [
+      {
+        "session_id": "active-config",
+        "turn_index": 0,
+        "quote": "training.group_split_seed=149"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "training-next:missing",
+    "project": "training-next",
+    "lifecycle": "newcomer",
+    "family": "training",
+    "category": "missing",
+    "surface": "recall",
+    "query": "What approved distributed_all_reduce_bucket_bytes value should this project deploy?",
+    "required": [],
+    "stale": []
+  },
+  {
+    "id": "attention-core:current",
+    "project": "attention-core",
+    "lifecycle": "long_lived",
+    "family": "attention",
+    "category": "current",
+    "surface": "recall",
+    "query": "What is the current all_masked_policy implementation contract?",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "all_masked_policy=zeros"
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "all_masked_policy=uniform"
+      }
+    ]
+  },
+  {
+    "id": "attention-core:historical",
+    "project": "attention-core",
+    "lifecycle": "long_lived",
+    "family": "attention",
+    "category": "historical",
+    "surface": "recall",
+    "query": "What was the original all_masked_policy implementation decision?",
+    "required": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "all_masked_policy=uniform"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "attention-core:identifier",
+    "project": "attention-core",
+    "lifecycle": "long_lived",
+    "family": "attention",
+    "category": "identifier",
+    "surface": "recall",
+    "query": "What is the approved `attention.mask_tile_size` value?",
+    "required": [
+      {
+        "session_id": "active-config",
+        "turn_index": 0,
+        "quote": "attention.mask_tile_size=166"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "attention-core:multi_source",
+    "project": "attention-core",
+    "lifecycle": "long_lived",
+    "family": "attention",
+    "category": "multi_source",
+    "surface": "recall",
+    "query": "What is the current all_masked_policy and which boundary constraints must pass?",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "all_masked_policy=zeros"
+      },
+      {
+        "session_id": "boundary-contract",
+        "turn_index": 0,
+        "quote": "Masked positions are zero; subtract the maximum before exponentiation."
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "all_masked_policy=uniform"
+      }
+    ]
+  },
+  {
+    "id": "attention-core:chinese",
+    "project": "attention-core",
+    "lifecycle": "long_lived",
+    "family": "attention",
+    "category": "chinese",
+    "surface": "recall",
+    "query": "中断很久后继续开发注意力算子，当前 all_masked_policy 应当采用什么约定？请回查原始依据。",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "当前生效约定为 all_masked_policy=zeros。"
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "all_masked_policy=uniform"
+      }
+    ]
+  },
+  {
+    "id": "attention-core:failure",
+    "project": "attention-core",
+    "lifecycle": "long_lived",
+    "family": "attention",
+    "category": "failure",
+    "surface": "recall",
+    "query": "Why did the attention prototype fail and what mistake should we avoid?",
+    "required": [
+      {
+        "session_id": "failed-prototype",
+        "turn_index": 0,
+        "quote": "Subtracting negative infinity produced NaN for a completely masked row."
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "attention-core:replacement",
+    "project": "attention-core",
+    "lifecycle": "long_lived",
+    "family": "attention",
+    "category": "replacement",
+    "surface": "recall",
+    "query": "Find the currently approved configuration for attention.mask_tile_size in this project.",
+    "required": [
+      {
+        "session_id": "active-config",
+        "turn_index": 0,
+        "quote": "attention.mask_tile_size=166"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "attention-core:missing",
+    "project": "attention-core",
+    "lifecycle": "long_lived",
+    "family": "attention",
+    "category": "missing",
+    "surface": "recall",
+    "query": "What approved distributed_all_reduce_bucket_bytes value should this project deploy?",
+    "required": [],
+    "stale": []
+  },
+  {
+    "id": "attention-next:current",
+    "project": "attention-next",
+    "lifecycle": "newcomer",
+    "family": "attention",
+    "category": "current",
+    "surface": "recall",
+    "query": "What is the current all_masked_policy implementation contract?",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "all_masked_policy=uniform"
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "all_masked_policy=zeros"
+      }
+    ]
+  },
+  {
+    "id": "attention-next:historical",
+    "project": "attention-next",
+    "lifecycle": "newcomer",
+    "family": "attention",
+    "category": "historical",
+    "surface": "recall",
+    "query": "What was the original all_masked_policy implementation decision?",
+    "required": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "all_masked_policy=zeros"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "attention-next:identifier",
+    "project": "attention-next",
+    "lifecycle": "newcomer",
+    "family": "attention",
+    "category": "identifier",
+    "surface": "recall",
+    "query": "What is the approved `attention.mask_tile_size` value?",
+    "required": [
+      {
+        "session_id": "active-config",
+        "turn_index": 0,
+        "quote": "attention.mask_tile_size=183"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "attention-next:multi_source",
+    "project": "attention-next",
+    "lifecycle": "newcomer",
+    "family": "attention",
+    "category": "multi_source",
+    "surface": "recall",
+    "query": "What is the current all_masked_policy and which boundary constraints must pass?",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "all_masked_policy=uniform"
+      },
+      {
+        "session_id": "boundary-contract",
+        "turn_index": 0,
+        "quote": "Masked positions are zero; subtract the maximum before exponentiation."
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "all_masked_policy=zeros"
+      }
+    ]
+  },
+  {
+    "id": "attention-next:chinese",
+    "project": "attention-next",
+    "lifecycle": "newcomer",
+    "family": "attention",
+    "category": "chinese",
+    "surface": "recall",
+    "query": "中断很久后继续开发注意力算子，当前 all_masked_policy 应当采用什么约定？请回查原始依据。",
+    "required": [
+      {
+        "session_id": "current-policy",
+        "turn_index": 0,
+        "quote": "当前生效约定为 all_masked_policy=uniform。"
+      }
+    ],
+    "stale": [
+      {
+        "session_id": "original-policy",
+        "turn_index": 0,
+        "quote": "all_masked_policy=zeros"
+      }
+    ]
+  },
+  {
+    "id": "attention-next:failure",
+    "project": "attention-next",
+    "lifecycle": "newcomer",
+    "family": "attention",
+    "category": "failure",
+    "surface": "recall",
+    "query": "Why did the attention prototype fail and what mistake should we avoid?",
+    "required": [
+      {
+        "session_id": "failed-prototype",
+        "turn_index": 0,
+        "quote": "Subtracting negative infinity produced NaN for a completely masked row."
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "attention-next:replacement",
+    "project": "attention-next",
+    "lifecycle": "newcomer",
+    "family": "attention",
+    "category": "replacement",
+    "surface": "recall",
+    "query": "Find the currently approved configuration for attention.mask_tile_size in this project.",
+    "required": [
+      {
+        "session_id": "active-config",
+        "turn_index": 0,
+        "quote": "attention.mask_tile_size=183"
+      }
+    ],
+    "stale": []
+  },
+  {
+    "id": "attention-next:missing",
+    "project": "attention-next",
+    "lifecycle": "newcomer",
+    "family": "attention",
+    "category": "missing",
+    "surface": "recall",
+    "query": "What approved distributed_all_reduce_bucket_bytes value should this project deploy?",
+    "required": [],
+    "stale": []
+  }
+]

@@ -1,0 +1,69 @@
+test_real_cli_modes_preserve_defaults_and_full_provenance (tests.test_indexed_references.IndexedReferenceSDKTests.test_real_cli_modes_preserve_defaults_and_full_provenance) ... ERROR
+test_schema_only_adds_approved_defaults_and_temporal_control (tests.test_indexed_references.IndexedReferenceSDKTests.test_schema_only_adds_approved_defaults_and_temporal_control) ... FAIL
+test_default_and_explicit_objects_preserve_frozen_json_bytes (tests.test_indexed_references.IndexedReferenceValueTests.test_default_and_explicit_objects_preserve_frozen_json_bytes) ... ok
+test_empty_result_retains_version_and_is_reversible (tests.test_indexed_references.IndexedReferenceValueTests.test_empty_result_retains_version_and_is_reversible) ... ok
+test_indexed_preserves_all_fields_duplicates_and_project_scope (tests.test_indexed_references.IndexedReferenceValueTests.test_indexed_preserves_all_fields_duplicates_and_project_scope) ... ok
+test_invalid_operator_format_fails_before_opening_a_database (tests.test_indexed_references.IndexedReferenceValueTests.test_invalid_operator_format_fails_before_opening_a_database) ... ok
+test_unknown_extra_fields_unicode_and_repeated_sessions_roundtrip (tests.test_indexed_references.IndexedReferenceValueTests.test_unknown_extra_fields_unicode_and_repeated_sessions_roundtrip) ... ok
+
+======================================================================
+ERROR: test_real_cli_modes_preserve_defaults_and_full_provenance (tests.test_indexed_references.IndexedReferenceSDKTests.test_real_cli_modes_preserve_defaults_and_full_provenance)
+----------------------------------------------------------------------
+  + Exception Group Traceback (most recent call last):
+  |   File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py", line 118, in run
+  |     return self._loop.run_until_complete(task)
+  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+  |     return future.result()
+  |            ^^^^^^^^^^^^^^^
+  |   File "/workspace/scratch/428c08bef2bc/v013-mcp-contract-fix/tests/test_indexed_references.py", line 168, in test_real_cli_modes_preserve_defaults_and_full_provenance
+  |     async with stdio_client(params) as (reader, writer):
+  |                ^^^^^^^^^^^^^^^^^^^^
+  |   File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/contextlib.py", line 231, in __aexit__
+  |     await self.gen.athrow(value)
+  |   File "/workspace/scratch/428c08bef2bc/.venv/lib/python3.12/site-packages/mcp/client/stdio/__init__.py", line 183, in stdio_client
+  |     anyio.create_task_group() as tg,
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/workspace/scratch/428c08bef2bc/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 871, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Exception Group Traceback (most recent call last):
+    |   File "/workspace/scratch/428c08bef2bc/.venv/lib/python3.12/site-packages/mcp/client/stdio/__init__.py", line 189, in stdio_client
+    |     yield read_stream, write_stream
+    |   File "/workspace/scratch/428c08bef2bc/v013-mcp-contract-fix/tests/test_indexed_references.py", line 169, in test_real_cli_modes_preserve_defaults_and_full_provenance
+    |     async with ClientSession(reader, writer, read_timeout_seconds=timedelta(seconds=20)) as client:
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/workspace/scratch/428c08bef2bc/.venv/lib/python3.12/site-packages/mcp/shared/session.py", line 238, in __aexit__
+    |     return await self._task_group.__aexit__(exc_type, exc_val, exc_tb)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/workspace/scratch/428c08bef2bc/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 871, in __aexit__
+    |     raise BaseExceptionGroup(
+    | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+    +-+---------------- 1 ----------------
+      | Traceback (most recent call last):
+      |   File "/workspace/scratch/428c08bef2bc/v013-mcp-contract-fix/tests/test_indexed_references.py", line 188, in test_real_cli_modes_preserve_defaults_and_full_provenance
+      |     self.assertEqual(initialized.instructions, expected)
+      | AssertionError: 'Loca[1014 chars]te.\nFor assessed current queries, read eviden[667 chars]e.\n' != 'Loca[1014 chars]te.\nread_page also supplies full provenance. [288 chars]e.\n'
+      | Diff is 1759 characters long. Set self.maxDiff to None to see it.
+      +------------------------------------
+
+======================================================================
+FAIL: test_schema_only_adds_approved_defaults_and_temporal_control (tests.test_indexed_references.IndexedReferenceSDKTests.test_schema_only_adds_approved_defaults_and_temporal_control)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/workspace/scratch/428c08bef2bc/v013-mcp-contract-fix/tests/test_indexed_references.py", line 150, in test_schema_only_adds_approved_defaults_and_temporal_control
+    self.assertEqual(compact(existing), compact(expected))
+AssertionError: '{"to[1210 chars]ned. Assessed current requests include the bou[3887 chars]}}]}' != '{"to[1210 chars]ned. details=true includes the resolution basi[3668 chars]}}]}'
+Diff is 12763 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.865s
+
+FAILED (failures=1, errors=1)

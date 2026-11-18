@@ -107,8 +107,9 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
             # changed recall's omitted budget; v0.5.0 adds explicit temporal
             # control and its documentation. v0.7.0 allows a bound connection
             # to supply browse_book's project and adds explicit project
-            # assertions to follow-up navigation. Every other serialized field
-            # must remain equal, including between the two source formats.
+            # assertions to follow-up navigation. v0.13 documents the bounded
+            # assessment already returned to current requests. Every other
+            # serialized field must remain equal between the source formats.
             expected = json.loads(FIXTURE["schema"])
             compact = lambda value: json.dumps(value, ensure_ascii=False, separators=(",", ":"))
             self.assertEqual(compact(expected), FIXTURE["schema"])
@@ -123,7 +124,10 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
                 "\n        temporal=auto distinguishes current requests from historical queries;"
                 "\n        current explicitly prefers comparable recent evidence, and relevance"
                 "\n        keeps relevance ordering. This is not an as-of state resolver. Repeated"
-                "\n        event evidence is retained. details=true includes the resolution basis."
+                "\n        event evidence is retained. Assessed current requests include the bounded"
+                "\n        evidence_assessment status and conflict page IDs even in compact output;"
+                "\n        these do not establish truth or exhaustive absence. details=true adds"
+                "\n        the resolution basis and assessment counts."
                 "\n        ")
             project_schema = {"anyOf": [{"type": "string"}, {"type": "null"}],
                               "default": None, "title": "Project"}
@@ -168,9 +172,9 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
                 async with stdio_client(params) as (reader, writer):
                     async with ClientSession(reader, writer, read_timeout_seconds=timedelta(seconds=20)) as client:
                         initialized = await client.initialize()
-                        # Only the approved temporal explanation changes the
-                        # historical instructions. The stored evidence and
-                        # evaluator fixture remain byte-for-byte unchanged.
+                        # Apply only the explicitly approved temporal,
+                        # bounded-assessment and navigation explanations. The
+                        # stored evidence and historical fixture stay unchanged.
                         old = "diagnostics. read_page also supplies full provenance. Empty results prove no\n"
                         self.assertEqual(FIXTURE["instructions"].count(old), 1)
                         expected = FIXTURE["instructions"].replace(old,
@@ -178,6 +182,14 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
                             "intent conservatively; current prefers comparable recent evidence; relevance\n"
                             "keeps relevance ordering. Neither resolves authority or an as-of state.\n"
                             "read_page also supplies full provenance. Empty results prove no\n", 1)
+                        assessment_anchor = "keeps relevance ordering. Neither resolves authority or an as-of state.\n"
+                        self.assertEqual(expected.count(assessment_anchor), 1)
+                        expected = expected.replace(assessment_anchor, assessment_anchor +
+                            "For assessed current queries, read evidence_assessment even in compact output.\n"
+                            "potential_conflict means unresolved comparable sources: inspect its page_ids\n"
+                            "within the same project. no_comparable_declaration means the bounded inspected\n"
+                            "pool did not establish a comparable declaration, not that the archive proves\n"
+                            "absence. No assessment status is a truth or confidence score.\n", 1)
                         navigation = "Use context and source_refs to cite session_id/turn_index. Read selected page IDs\n"
                         self.assertEqual(expected.count(navigation), 1)
                         expected = expected.replace(navigation,

@@ -1,0 +1,167 @@
+{
+  "scope": "Independent verification and explicit test expectation update for already approved MCP instructions and tool description. No runtime, fixture, benchmark, scorer or scale changes.",
+  "base_runtime_commit": "9ea37a7c72aec21b6f106d9631d72d72199e283b",
+  "test_only_commit": "e91b33fb694654caf273ea2f9b0a8b9f1e650ab3",
+  "author_and_committer": "Afloat <ShuffleMonkey@163.com>",
+  "changed_files": [
+    "tests/test_indexed_references.py"
+  ],
+  "reason": "The new bounded evidence-assessment guidance had been added to the runtime, while two historical exact instruction/description expectations still reconstructed the pre-v0.13 wording. The original frozen snapshot is retained.",
+  "test_change": "Register the exact approved description suffix and instruction paragraph as literal expected text. The insertion anchor must occur exactly once; final complete instruction/schema equality remains enforced.",
+  "unchanged_contracts": [
+    "Historical native_result/compact/details serialized bytes",
+    "All remaining schema fields, defaults, annotations, operator source-format parity and strict argument checks",
+    "Default and explicit objects equivalence, reversible indexed references, full provenance and real read_page calls",
+    "Existing project-bound conflict metadata and scoped follow-up checks in test_v013_mcp_assessment"
+  ],
+  "unchanged_git_trees": {
+    "src": {
+      "base_tree": "cd508f73e90fbf8cad271231b143ce28e5fe3335",
+      "fixed_tree": "cd508f73e90fbf8cad271231b143ce28e5fe3335",
+      "identical": true
+    },
+    "benchmarks": {
+      "base_tree": "f326caef4de9cc7f9437cf0ce4d082f658fa9bf4",
+      "fixed_tree": "f326caef4de9cc7f9437cf0ce4d082f658fa9bf4",
+      "identical": true
+    },
+    "scripts": {
+      "base_tree": "23a361215b89334babe30e3443612ae0f3f2b1d8",
+      "fixed_tree": "23a361215b89334babe30e3443612ae0f3f2b1d8",
+      "identical": true
+    },
+    "tests/fixtures": {
+      "base_tree": "b65e238189ab252c4d14c181c97bd9e3db5e8d5d",
+      "fixed_tree": "b65e238189ab252c4d14c181c97bd9e3db5e8d5d",
+      "identical": true
+    }
+  },
+  "historical_fixture": {
+    "path": "tests/fixtures/mcp-object-reference-baseline.json",
+    "bytes": 9340,
+    "sha256": "20a0a3df9343bd031cbdd5cc1defbccbccb48b6cafcb7d43dab1a708f4a9fc18"
+  },
+  "test_file_sha256": "bb10f0588e99ae4236d3ba832e5a1b45ada976a0f7c69976e1398d43204882df",
+  "ci_failure": {
+    "run_id": 44314079392,
+    "run_attempt": 1,
+    "source_commit": "9ea37a7c72aec21b6f106d9631d72d72199e283b",
+    "job_id": 134835470497,
+    "job_name": "mcp",
+    "tests_run": 1700,
+    "failures": 1,
+    "errors": 1,
+    "skipped": 14,
+    "status": "failed",
+    "raw_log": "mcp-job-134835470497.log.gz",
+    "raw_log_bytes": 414108,
+    "raw_log_sha256": "e58370f3c3bccf49057626d6a8bce8c8c43d54e5506c5b1b3f52d279f0063b1f",
+    "failed_tests": [
+      "test_real_cli_modes_preserve_defaults_and_full_provenance",
+      "test_schema_only_adds_approved_defaults_and_temporal_control"
+    ],
+    "observed_assertions": "Historical MCP instruction/tool-description equality rejects the newly added bounded assessment guidance. Pending independent review; original failure retained.",
+    "capture": "Exact UTF-8 tool-returned log string; no newline normalization.",
+    "relative_raw_log": "../source-ci-attempt1/mcp-job-134835470497.log.gz",
+    "compressed_sha256": "a871c3b1371599a5605826e9d6294a21a82972d9c41a636136731c5c40911bc8",
+    "compressed_bytes": 70804,
+    "original_review_sha256": "5058dc676c88ac458873e0c591d8da7d800db45125d865ff064b1808b070259b",
+    "independent_observation": "Both recorded failing test names and exact summary independently verified from the complete retained log. Local exact-base reproduction matches one failure and one SDK ExceptionGroup error."
+  },
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "mcp": "1.30.0",
+    "pydantic": "2.14.3",
+    "tiktoken": "0.12.0"
+  },
+  "frozen_schema_version_branch": "Installed mcp 1.30.0 and pydantic 2.14.3 exactly match the snapshot; its whole-schema equality branch executed rather than being skipped.",
+  "execution_binding": "Baseline ran at clean exact9ea. Fixed tests ran with unchanged exact9ea runtime plus the test-file bytes subsequently committed as e91b33f. No native rebuild or formal scale query was performed.",
+  "commands": [
+    {
+      "label": "baseline",
+      "argv": [
+        "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+        "-m",
+        "unittest",
+        "tests.test_indexed_references",
+        "-v"
+      ],
+      "environment": {
+        "PYTHONPATH": "src",
+        "MEMORY_BOOK_TEXT_BACKEND": "python",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "log": "logs/baseline-indexed-references.log",
+      "exit_code": 1,
+      "counts": {
+        "tests": 7,
+        "passed": 5,
+        "failures": 1,
+        "errors": 1,
+        "skipped": 0
+      }
+    },
+    {
+      "label": "fixed-related",
+      "argv": [
+        "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+        "-m",
+        "unittest",
+        "tests.test_indexed_references",
+        "tests.test_mcp",
+        "tests.test_mcp_lifecycle",
+        "tests.test_token_budget_mcp",
+        "tests.test_v013_mcp_assessment",
+        "tests.test_mcp_costs",
+        "-v"
+      ],
+      "environment": {
+        "PYTHONPATH": "src",
+        "MEMORY_BOOK_TEXT_BACKEND": "python",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "log": "logs/fixed-related-mcp-sdk.log",
+      "exit_code": 1,
+      "counts": {
+        "tests": 24,
+        "passed": 23,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0
+      }
+    },
+    {
+      "label": "offline-cache-retry",
+      "argv": [
+        "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+        "-m",
+        "unittest",
+        "tests.test_token_budget_mcp",
+        "-v"
+      ],
+      "environment": {
+        "PYTHONPATH": "src",
+        "MEMORY_BOOK_TEXT_BACKEND": "python",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/scratch/428c08bef2bc/tokenizer-cache"
+      },
+      "log": "logs/token-budget-cached-attempt2.log",
+      "exit_code": 0,
+      "counts": {
+        "tests": 1,
+        "passed": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    }
+  ],
+  "environment_failure_retained": "The first broader run passed the two repaired tests and 21 other tests, then the additional token-budget test failed because TIKTOKEN_CACHE_DIR was absent and public vocabulary DNS was unavailable. That complete failed log remains saved. Only this test was rerun with the existing cache; it passed without code/test changes.",
+  "token_cache_retry": {
+    "path": "/workspace/scratch/428c08bef2bc/tokenizer-cache/9b5ad71b2ce5302211f9c61530b329a4922fc6a4",
+    "sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+    "bytes": 1681126,
+    "download_performed": false
+  },
+  "outcome": "All 24 distinct selected MCP tests passed across retained attempts; not a claim that the first 24-test run passed, or that the full 1700-test CI rerun has completed. Root will run the full exact-source CI after integrating the test-only commit."
+}

@@ -1,0 +1,24 @@
+{
+  "id": "v013-post-scale-correctness-review-1",
+  "scope": "Post-observation authored development diagnosis. Original 1024-page first stage and all 64 recall requests/gold remain unchanged; no formal performance timing or new independent holdout claim.",
+  "base_runtime": "9ea37a7c72aec21b6f106d9631d72d72199e283b",
+  "base_checkout": "e91b33fb694654caf273ea2f9b0a8b9f1e650ab3",
+  "original_run": 44314074983,
+  "input_sha256": "11760c2179457e6eefc92a870e65d0da8a37659328f2b016c97e9883e3589912",
+  "original_files": {
+    "benchmarks/v013_workload.py": "ac6b5afc3cfa560bb2890249576cf3f1bee209c6567cfcfdb11f2f6d29a2fb2d",
+    "benchmarks/v013_scale.py": "9e9a22f67013d50b1bc1a0464e6fc507179b65a116b8afff5305537c85387945",
+    "benchmarks/experiments/v013-long-history-plan.json": "22bd91af6210f9490b8655b76eb906dc990930005d8a3490fd76529107b6ecb4"
+  },
+  "request_options": {
+    "strategy": "book",
+    "temporal": "auto",
+    "semantic": false,
+    "coverage": false,
+    "limit": 5,
+    "budget_chars": 2400,
+    "budget_tokens": null
+  },
+  "diagnostic": "Wrap _declaration_groups to record the actual bounded pool and its already parsed outcomes without changing returned values. The extra inspection work is not a performance measurement. Only routing-archive current/multi_source candidates receive detailed clause traces.",
+  "verification": "Score saved responses with the unchanged frozen scorer and check original page/source ownership. Keep every failure. Runtime files are checked against the named committed source before/after each run."
+}
