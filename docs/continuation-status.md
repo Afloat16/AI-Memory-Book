@@ -1,5 +1,9 @@
 # Completed validation and recovery record — 2026-11-12
 
+> Historical completion record. For the current v0.12 development and release
+> checkpoints, read [v0.12 continuation](v0.12.0-continuation.md) and the
+> [source acceptance](../benchmarks/experiments/v012-source-acceptance.json).
+
 **The registered continuation is complete.** All fixed cohorts have published
 results, and the [strict final audit](../benchmarks/reports/hosted-final-aggregation.json)
 is `complete-verified-snapshot`: **80 input files checked, eight derived
