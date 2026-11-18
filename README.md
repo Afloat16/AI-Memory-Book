@@ -228,7 +228,7 @@ Current-state recall now looks for recent comparable statements within chapters 
 
 These admission checks apply to additions to the original comparison pool. Existing ordering inside that pool can still prefer a recent agenda or a statement with mixed context. This release does not establish general decision authority or resolve every current-state conflict.
 
-In six development configurations with 4, 100 or 1,000 repeated older records and limits of 1 or 5, three repeats each recovered the brief correction **3/18 times before and 18/18 after**. These are six configurations, not 18 independent questions. Relevance controls stayed unchanged. One configuration remained slower than the baseline; the extra candidate limit does not bound all database scan/sort work. [Probe, costs and algorithm limits](docs/v0.11.0-validation.md#current-revision-recovery).
+The final frozen-source replay ran six development configurations with 4, 100 or 1,000 repeated older records and limits of 1 or 5, three repeats each. It recovered the brief correction **3/18 times before and 18/18 after on each of the Python and native backends**. These are six configurations per backend, not 18 independent questions. Each backend's relevance controls stayed unchanged. Earlier development probes include slower configurations; this release makes no new speed claim, and the extra candidate limit does not bound all database scan/sort work. [Probe, costs and algorithm limits](docs/v0.11.0-validation.md#current-revision-recovery).
 
 ### One project per MCP connection
 

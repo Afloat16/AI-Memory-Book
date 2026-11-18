@@ -79,6 +79,11 @@ APPROVED_RUNTIME_SHA256 = {
     # Decision and exact-commit CI/publication gates:
     # benchmarks/experiments/comprehensive_v010_acceptance.json.
     "0.10.0": "d00d84ef8436c97b45de5e5e5c2b67883ffbc03992cffa10e7f6d35a15e7fd16",
+    # Addressable scoped directories and qualified supplementary revisions.
+    # Bound baseline/final engineering, both text backends, directory contracts,
+    # retained review failures, known fallback limits and remaining delivery gates:
+    # benchmarks/experiments/v011-source-acceptance.json.
+    "0.11.0": "64f36bbf9cb59ca338a41c623b516f3c46b97a53cae05f31976d50d13bf0aa75",
 }
 # Publication channels are explicit: older prereleases remain prereleases when
 # an interrupted run reconciles them. A new version needs a reviewed entry.
@@ -96,9 +101,10 @@ RELEASE_PRERELEASE = {
     "v0.8.1": False,
     "v0.9.0": False,
     "v0.10.0": False,
+    "v0.11.0": False,
 }
 INSTALLERS = ("install.py", "install.sh", "install.ps1")
-NATIVE_RELEASE_TAGS = {"v0.8.0", "v0.8.1", "v0.9.0", "v0.10.0"}
+NATIVE_RELEASE_TAGS = {"v0.8.0", "v0.8.1", "v0.9.0", "v0.10.0", "v0.11.0"}
 READ_DELAYS = (1, 2, 4)
 
 

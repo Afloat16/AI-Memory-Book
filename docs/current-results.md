@@ -1,6 +1,6 @@
-# Current development results and evidence
+# Current source results and evidence
 
-The README describes the **v0.11 source under validation**. Its original
+The README describes the **v0.11 source accepted for publication**. Its original
 v0.10 published-wheel verification remains unchanged in
 [the archived results](v0.10.0-readme-results.md). New source replay, navigation
 contracts, upstream component executions and historical timings have distinct
@@ -13,19 +13,26 @@ boundaries. A source replay is not a published-wheel or delivery verification.
 | Baseline | v0.10 main `234891619d7bed88ddf3fae37e7f3e1b14a808b6` |
 | Candidate 1 engineering replay | `da0ad5bac2395e6d196f4c8cf3af9d508eed7210`; 800 responses per runtime |
 | Candidate 2 engineering replay | `a7d36322f77a3fca9f5907db3edcce4a7dd3652c`; 800 responses per runtime |
-| Directory v2 | Same candidate-2 snapshot; 119 contracts, 130 locator calls and 161 original-page reads |
+| Final candidate 4 engineering replay | `6619724936026658d08d91bbbdc7d55d77f699cc`; 800 responses per runtime |
+| Final paired revision probe | Same candidate-4 snapshot; 144 calls across baseline/final × Python/native, actual imports and complete runtime identities checked |
+| Final directory v2 rerun | Same candidate-4 snapshot; 119 contracts, 130 locator calls and 161 original-page reads; earlier attempts retained |
+| Complete local suite | Candidate 4: 1,603 discovered, 1,589 passed, 14 conditional skips, zero failures/errors |
+| Accepted release runtime | SHA-256 `64f36bbf9cb59ca338a41c623b516f3c46b97a53cae05f31976d50d13bf0aa75` |
 | New upstream adapters | Frozen before quality execution at `db96c704a26be944399ec491630da73de8c5dd71` |
 | New evaluator closure | SHA-256 `249556338fef641eb6221daf5796cba792dbe10047f795f7e323a2d6bcca933a` |
 | Engineering dataset | SHA-256 `87e8ccad3510fb7e8a4c68c9fa3f284473abf8381ef6444ad179e3d4196b3ac3` |
 | New external execution | 18 setups, 720 native calls, 480 packed responses; independent audit verified |
 
-Both source engineering replays independently check all scores, original source
+All three source engineering replays independently check all scores, original source
 references and budgets and have zero per-case score changes or regressions
 against the baseline. They are not full serialized-response equivalence claims:
 new diagnostic fields are present. An independent review subsequently found a
 candidate-2 unclassified-proposal regression outside that fixture. The
 [validation record](v0.11.0-validation.md) retains that blocker and its resolution
-history; the original 80-question replay alone does not authorize a release.
+history. Both unchanged review reproductions now pass on candidate 4, alongside
+the final directory, paired-recovery and complete-suite checks. The
+[source acceptance](../benchmarks/experiments/v011-source-acceptance.json) keeps
+the exact-source CI, native matrix and public-installer requirements separate.
 
 ## Fixed workload and common comparison boundary
 
@@ -152,8 +159,9 @@ including slower rounds, startup and resource costs. No timing from those hosts
 is assigned to v0.11. Current-state recall and directory transaction behavior
 have changed; identical C/header bytes prove component continuity only.
 
-The new current-revision three-repeat probes are development diagnostics,
-including a configuration slower than baseline. No cross-component speed
+The current-revision three-repeat probes are development diagnostics. The
+historical probes include a configuration slower than baseline; the final
+source-bound paired replay verifies recovery, not speed. No cross-component speed
 ranking, whole-system speedup or combination of percentages is claimed.
 [New probe details and limits](v0.11.0-validation.md#current-revision-recovery).
 

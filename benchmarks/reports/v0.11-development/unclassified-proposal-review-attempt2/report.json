@@ -1,0 +1,135 @@
+{
+  "schema": "unclassified-revision-proposal-review-v1",
+  "recorded_at_utc": "2026-11-18T03:43:20.327589+00:00",
+  "evidence_level": "Authored adversarial code-review reproduction, after implementation; not a holdout",
+  "script_sha256": "ecb2eb537edc528b1a86af7b1a00c0150399dafd2e9c1ec6503b1bad30facbed",
+  "interpretation": "The 120-old-session case exceeds the FTS route cap. The 8-old-session case tests candidates already in the FTS top96 but outside the original top4 comparison pool. Neither latest agenda contains a new decision.",
+  "observations": [
+    {
+      "arm": "baseline",
+      "old_session_count": 8,
+      "exit_code": 0,
+      "raw_path": "baseline-8.raw.json",
+      "raw_sha256": "4c303b295d6fc87a16340f2baa7b4c07d8cc686caffd05451078294a699939a6",
+      "selected_source_sessions": [
+        "old-004"
+      ],
+      "recorded_decision_retained": true,
+      "candidate_expansion": null
+    },
+    {
+      "arm": "candidate",
+      "old_session_count": 8,
+      "exit_code": 0,
+      "raw_path": "candidate-8.raw.json",
+      "raw_sha256": "d1318be1af8da4ba8b42c4f471095454ae44c5f735323401b1ff28a054be8db2",
+      "selected_source_sessions": [
+        "old-004"
+      ],
+      "recorded_decision_retained": true,
+      "candidate_expansion": {
+        "route": "recent_exact_body_matches_in_leading_chapters",
+        "metadata_source": "complete_exact_route",
+        "ordering_fields": [
+          "sessions.created_at DESC",
+          "sessions.id",
+          "sections.ordinal DESC",
+          "pages.ordinal DESC",
+          "pages.id"
+        ],
+        "candidate_limit": 96,
+        "returned": 9,
+        "added_to_pool": 5,
+        "new_candidates": 0,
+        "pool_size": 9,
+        "original_pool_size": 4,
+        "proposed_existing_candidates": 5,
+        "chapters_not_expanded": 0,
+        "chapter_routes": [
+          {
+            "chapter_id": "ch_da26fe831ca2a32a7072ff19",
+            "limit": 9,
+            "returned": 9
+          }
+        ],
+        "scope_before_limit": true,
+        "database_scan_bounded": true,
+        "basis": "Recent matches only propose comparable revisions; timestamps and syntax do not establish authority.",
+        "qualification": "complete_source_declaration_with_original_pool_anchor",
+        "facet_qualification": "adjacent_qualifier_on_single_simple_declaration",
+        "rejected_facet_proposals": 0,
+        "qualification_passes": 2,
+        "qualified_proposals": 0,
+        "rejected_before_ordering": 5,
+        "qualified_pool_size": 4,
+        "scoreless_proposals": 0,
+        "unmatched_proposals": 5,
+        "admitted_proposals": 0,
+        "admitted_new_candidates": 0
+      }
+    },
+    {
+      "arm": "baseline",
+      "old_session_count": 120,
+      "exit_code": 0,
+      "raw_path": "baseline-120.raw.json",
+      "raw_sha256": "db0dc67a98eeceed2ab71166554d875de2d2745e492c7c4e79b23a0ef88e6a5a",
+      "selected_source_sessions": [
+        "old-097"
+      ],
+      "recorded_decision_retained": true,
+      "candidate_expansion": null
+    },
+    {
+      "arm": "candidate",
+      "old_session_count": 120,
+      "exit_code": 0,
+      "raw_path": "candidate-120.raw.json",
+      "raw_sha256": "a1698e4c663e4271256ea3413dea62a2075534c7432667772350fe9b59400306",
+      "selected_source_sessions": [
+        "old-097"
+      ],
+      "recorded_decision_retained": true,
+      "candidate_expansion": {
+        "route": "recent_exact_body_matches_in_leading_chapters",
+        "metadata_source": "scoped_fts_chronology",
+        "ordering_fields": [
+          "sessions.created_at DESC",
+          "sessions.id",
+          "sections.ordinal DESC",
+          "pages.ordinal DESC",
+          "pages.id"
+        ],
+        "candidate_limit": 96,
+        "returned": 96,
+        "added_to_pool": 92,
+        "new_candidates": 20,
+        "pool_size": 96,
+        "original_pool_size": 4,
+        "proposed_existing_candidates": 72,
+        "chapters_not_expanded": 0,
+        "chapter_routes": [
+          {
+            "chapter_id": "ch_da26fe831ca2a32a7072ff19",
+            "limit": 96,
+            "returned": 96
+          }
+        ],
+        "scope_before_limit": true,
+        "database_scan_bounded": false,
+        "basis": "Recent matches only propose comparable revisions; timestamps and syntax do not establish authority.",
+        "qualification": "complete_source_declaration_with_original_pool_anchor",
+        "facet_qualification": "adjacent_qualifier_on_single_simple_declaration",
+        "rejected_facet_proposals": 0,
+        "qualification_passes": 2,
+        "qualified_proposals": 0,
+        "rejected_before_ordering": 92,
+        "qualified_pool_size": 4,
+        "scoreless_proposals": 0,
+        "unmatched_proposals": 92,
+        "admitted_proposals": 0,
+        "admitted_new_candidates": 0
+      }
+    }
+  ]
+}

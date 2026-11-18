@@ -51,10 +51,12 @@ does not prove the archive has no relevant original evidence.
 
 The same locator is available as `memory-book locate QUERY --project PROJECT`,
 `MemoryBook.search_directory(...)`, and local HTTP `GET /api/locate` with `q`,
-`project`, optional `chapter`, `limit` and `offset` parameters. `toc`, section
-reads and the locator return counts, rows and revision from one read snapshot.
-Separate follow-up calls can observe later archive revisions; compare revision
-fields when a concurrent capture changes the archive.
+`project`, optional `chapter`, `limit` and `offset` parameters. Each `toc`,
+section or locator request reads its metadata and counts in one snapshot.
+`toc` and the locator also read their reported revision in that snapshot;
+section responses do not include a revision field. Separate follow-up calls
+can observe later archive states while concurrent capture continues. Revision
+fields on responses that provide them do not lock subsequent reads.
 
 The server sends concise operating instructions during MCP initialization. Host
 behavior varies: tools may need approval, and the model still decides whether to

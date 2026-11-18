@@ -1,0 +1,62 @@
+{
+  "protocol": "v011-bound-revision-recovery-v1",
+  "status": "completed",
+  "started_at": "2026-11-18T03:42:58.981792+00:00",
+  "scope": "Six authored crowding configurations per backend, three repeats; not independent cases or a speed experiment",
+  "driver_sha256": "e4ee8e6694b7087e18905016c82fdbdedf5f6405bcf95fd141bf0b74d92f23d7",
+  "probe_sha256": "0f699741b6c75bb51e9829323e29d8b3ee6f06ba25be6852efa13897ba2d21a8",
+  "baseline_commit": "234891619d7bed88ddf3fae37e7f3e1b14a808b6",
+  "candidate_commit": "6619724936026658d08d91bbbdc7d55d77f699cc",
+  "attempts": [
+    {
+      "backend": "python",
+      "arm": "baseline",
+      "status": "completed",
+      "commit": "234891619d7bed88ddf3fae37e7f3e1b14a808b6",
+      "returncode": 0
+    },
+    {
+      "backend": "python",
+      "arm": "candidate",
+      "status": "completed",
+      "commit": "6619724936026658d08d91bbbdc7d55d77f699cc",
+      "returncode": 0
+    },
+    {
+      "backend": "native",
+      "arm": "candidate",
+      "status": "completed",
+      "commit": "6619724936026658d08d91bbbdc7d55d77f699cc",
+      "returncode": 0
+    },
+    {
+      "backend": "native",
+      "arm": "baseline",
+      "status": "completed",
+      "commit": "234891619d7bed88ddf3fae37e7f3e1b14a808b6",
+      "returncode": 0
+    }
+  ],
+  "comparisons": {
+    "python": {
+      "current_calls_per_arm": 18,
+      "current_new_present": {
+        "baseline": 3,
+        "candidate": 18
+      },
+      "relevance_calls_per_arm": 18,
+      "relevance_payload_differences_excluding_only_latency": []
+    },
+    "native": {
+      "current_calls_per_arm": 18,
+      "current_new_present": {
+        "candidate": 18,
+        "baseline": 3
+      },
+      "relevance_calls_per_arm": 18,
+      "relevance_payload_differences_excluding_only_latency": []
+    }
+  },
+  "accepted": true,
+  "finished_at": "2026-11-18T03:43:03.222980+00:00"
+}
