@@ -1,8 +1,11 @@
 # v0.12 documentation checks
 
-This record verifies the pending-publication documentation against retained
-source-bound evidence. It makes no new retrieval, upstream, model, speed,
-package-installation or release claim.
+This record tracks the source-documentation and completed-delivery checkpoints.
+Its documentation audits make no new retrieval, upstream, model or speed
+measurement. Published delivery is established by the separately retained
+[original release evidence and independent audit](../v0.12-publication/README.md).
+
+## Source-documentation checkpoint
 
 `claims-audit-attempt1.json` records the successful offline documentation audit.
 The independent source scorer recomputed all 1,600 saved baseline/candidate
@@ -36,7 +39,35 @@ unchanged; it is not a fresh performance measurement. The native-latency figures
 remain unchanged. The prior current-results document is archived as
 `docs/v0.11.0-readme-results.md`; original measured records remain intact.
 
-At this documentation checkpoint v0.12 is source accepted, with publication
-checks still pending. The quick start continues to target verified v0.11.0.
-Any later delivery update needs its own actual release evidence and a new
-claims-audit output; the first audit must not be overwritten.
+At the first documentation checkpoint, v0.12 was source accepted and its
+publication checks were pending; the quick start therefore targeted verified
+v0.11.0. `claims-audit-attempt1.json` remains unchanged as that historical
+checkpoint. It is not a statement of the current delivery status.
+
+## Completed-delivery documentation checkpoint
+
+The published v0.12.0 source is
+`62508a1ce681111ec5702c88e3aa42f67b9fc9c0`, retaining accepted runtime digest
+`2842f78c288454ea7348cb81cb6bd6a972cb26e003faaac64eb81f78b2ffa38b`.
+CI run `44275753683`, attempt 1 passed all 11 jobs. Release run
+`44275753685`, attempt 1 completed 30 native build/install cells and the real
+public-URL installer. The independent audit verifies 4,245 native passes plus
+75 explicitly permitted skips, 67 public assets, 65 manifest payloads and
+66 checksum entries. These are the actual new release records, not copied
+v0.11 results.
+
+Both READMEs now install v0.12.0, report its verified delivery and retain the
+v0.11 delivery table as explicitly historical. `current-results.md`, the
+v0.12 validation page, deployment instructions and release notes link the new
+publication proof. The source-acceptance record and its original pending-gate
+list remain unchanged; the later proof closes those gates. Quality numbers,
+source hashes, original failures and chart values are unchanged.
+
+`claims-audit-attempt2.json` records the same successful offline numeric audit
+after this documentation update. `delivery-documentation-audit.json` separately
+binds the published proof, source and run identities to the updated installation
+links and delivery sections. It does not rerun installation or publication.
+The passing publication proof has SHA-256
+`163894d932d34e9957a048663f2afbf1041338dffac42315178b0be4408beb05`;
+restoring the original evidence and using the same frozen auditor reproduces
+that exact proof. [Full preservation and restoration record](../v0.12-publication/README.md).

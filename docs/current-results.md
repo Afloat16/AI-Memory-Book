@@ -1,11 +1,14 @@
 # Current source results and evidence
 
 The README reports the accepted **v0.12 source checkpoint**
-`021a384567db5aa64fde155f090d2eb399f55c03`. Source acceptance is complete;
-the v0.12 exact-commit CI, native-wheel matrix and public-installer publication
-gates remain pending. The quick start currently installs the verified
-**v0.11.0** release. Its [original publication evidence](../benchmarks/reports/v0.11-publication/README.md)
-was recovered and audited without repeating publication.
+`021a384567db5aa64fde155f090d2eb399f55c03`. The published **v0.12.0** release
+at `62508a1ce681111ec5702c88e3aa42f67b9fc9c0` retains those accepted runtime
+bytes and has completed exact-source CI, native-wheel installation and the
+real public-URL installer gates. The quick start installs this published release.
+[Original v0.12 delivery evidence and independent audit](../benchmarks/reports/v0.12-publication/README.md).
+
+The prior v0.11 release keeps its [separate historical publication evidence](../benchmarks/reports/v0.11-publication/README.md);
+its counts are not reused as new v0.12 executions.
 
 The [v0.11 source results](v0.11.0-readme-results.md) and all failed development
 attempts remain available. Historical external runs keep their original source,
@@ -18,6 +21,9 @@ component or transfer old performance measurements to the new runtime.
 |---|---|
 | Published v0.11 baseline | `78cc906d81818a16884de7de2e613e5a56346f93` |
 | Accepted v0.12 source | `021a384567db5aa64fde155f090d2eb399f55c03` |
+| Published v0.12 source | `62508a1ce681111ec5702c88e3aa42f67b9fc9c0`; same accepted runtime digest |
+| v0.12 exact-source CI | Run `44275753683`, attempt 1; 11 successful jobs |
+| v0.12 delivery | Run `44275753685`, attempt 1; 30 native cells, 4,245 passes plus 75 permitted skips, 67 verified public assets and successful public installer |
 | Accepted runtime | SHA-256 `2842f78c288454ea7348cb81cb6bd6a972cb26e003faaac64eb81f78b2ffa38b` |
 | Engineering replay | 800 responses per runtime: 640 native-strategy and 160 Book common-block; all scores/source references/budgets independently checked |
 | Engineering dataset | SHA-256 `87e8ccad3510fb7e8a4c68c9fa3f284473abf8381ef6444ad179e3d4196b3ac3` |
@@ -35,7 +41,9 @@ The runtime digest is the source-byte aggregate defined by
 The [source acceptance](../benchmarks/experiments/v012-source-acceptance.json)
 binds every referenced report's byte count and SHA-256. The
 [complete validation record](v0.12.0-validation.md) distinguishes actual executions,
-reused baselines, original failures and remaining publication gates.
+reused baselines, original failures and completed publication checks. The source
+acceptance JSON remains the original prepublication decision; its then-pending
+delivery requirements are closed by the separate publication proof.
 
 The engineering comparison has zero per-case score regressions. Its 104 changed
 native score records and 34 changed common-block score records include source

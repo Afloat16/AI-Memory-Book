@@ -20,10 +20,11 @@ key. Your AI client's own model and account requirements remain separate.
 
 ## Install v0.12.0
 
-**Release preparation:** the pinned v0.12.0 URLs below become usable after
-publication. Until then, use the [published v0.11.0 installation
-instructions](https://github.com/Afloat16/AI-Memory-Book/blob/v0.11.0/docs/deployment.md).
-[Source acceptance and delivery status](v0.12.0-validation.md) are recorded separately.
+**v0.12.0 is published.** Its exact-source CI, 30 native build/install cells
+and real public-URL installer passed. All 67 public release files were
+independently downloaded and hash-verified.
+[Original delivery proof](../benchmarks/reports/v0.12-publication/README.md)
+· [Source acceptance and validation](v0.12.0-validation.md).
 
 Download the pinned installer, run it, and connect your AI
 client. The installer selects a compatible **v0.12.0 native wheel** from the

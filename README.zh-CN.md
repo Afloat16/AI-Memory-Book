@@ -6,9 +6,9 @@
 
 [English](README.md) · [快速开始](#快速开始) · [检索效果](#检索效果) · [性能](#性能) · [工作方式](#工作方式) · [文档](#文档)
 
-**v0.12.0 源码验收通过 · MIT · Python 3.10+ · 本地 SQLite / FTS5**
+**v0.12.0 · MIT · Python 3.10+ · 本地 SQLite / FTS5**
 
-v0.12 已完成所记录的源码检查；该版本的最终 CI、原生包矩阵与公开安装交付验证仍待完成。下方快速开始安装的是已经核验的 **v0.11.0** 发布版。[源码证据与待完成门禁](docs/v0.12.0-validation.md)
+**v0.12.0 已正式发布。** 最终源码 CI、原生包安装矩阵和真实公开 URL 安装均已通过；下方快速开始安装此版本。[源码与交付证据](docs/v0.12.0-validation.md#delivery-status-and-practical-limits)
 
 ## 当前版本一览
 
@@ -35,14 +35,14 @@ v0.12 已完成所记录的源码检查；该版本的最终 CI、原生包矩�
 **macOS / Linux**
 
 ~~~bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.11.0/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.12.0/scripts/install.sh
 bash install-memory-book.sh
 ~~~
 
 **Windows PowerShell**
 
 ~~~powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.11.0/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.12.0/scripts/install.py -OutFile install-memory-book.py
 py -3 -I -X utf8 .\install-memory-book.py
 ~~~
 
@@ -220,9 +220,26 @@ memory-book recall "当前梯度累积步数" --project service-alpha --budget 2
 
 ## 源码验收与已发布交付
 
-v0.12 源码检查点的完整本地测试记录为：**发现 1657 项、通过 1655 项、2 项仅限 Windows 的跳过、0 失败／错误**。该版本最终提交 CI、原生包矩阵与公开安装门禁仍待完成，源码通过不等于发布包已核验。[源码验收记录](benchmarks/experiments/v012-source-acceptance.json)
+v0.12 源码检查点的完整本地测试记录为：**发现 1657 项、通过 1655 项、2 项仅限 Windows 的跳过、0 失败／错误**。正式发布源码 `62508a1ce681111ec5702c88e3aa42f67b9fc9c0` 保留已验收运行时字节，另行完成了最终 CI、原生包与公开安装门禁。[源码验收记录](benchmarks/experiments/v012-source-acceptance.json) · [发布交付证明](benchmarks/reports/v0.12-publication/README.md)
 
-快速开始使用的已核验发布版本为 **v0.11.0**：
+以下交付检查对应同一份 **v0.12.0** 发布源码。30 个原生组合与公开安装来自发布运行 `44275753685` 的 attempt `1`；最终源码 CI 则由独立运行 `44275753683` 的 attempt `1` 验证。
+
+| 项目 | v0.12 已核验发布结果 |
+|---|---|
+| 最终源码 CI | **11 / 11 项通过** |
+| 原生构建与安装 | **30 / 30 个组合通过**：CPython 3.10–3.15 × 5 个平台目标 |
+| 平台目标 | Linux x86_64／ARM64、macOS Intel／ARM64、Windows AMD64 |
+| 原生测试记录 | **4245 项通过、75 项指定可选跳过、0 失败** |
+| 公开发布文件 | **67 个**均独立下载并核对大小与 SHA-256 |
+| 公开安装 | 确认 v0.12.0、原生后端与默认 MCP／客户端依赖 |
+| 行为与档案 | schema 4、页面／来源 ID 与 Unicode 坐标保持 |
+
+[已发布 v0.12](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.12.0) · [成功发布工作流](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44275753685) · [最终源码 CI](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44275753683) · [原始构建产物、日志、发布文件与独立审计](benchmarks/reports/v0.12-publication/README.md)
+
+<details>
+<summary>历史 v0.11 交付记录</summary>
+
+此前 **v0.11.0** 发布保留独立证据，不计入 v0.12 的执行次数：
 
 | 项目 | v0.11 已记录发布结果 |
 |---|---|
@@ -236,13 +253,15 @@ v0.12 源码检查点的完整本地测试记录为：**发现 1657 项、通过
 
 [已发布 v0.11](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.11.0) · [原始发布工作流](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44233642151) · [已恢复并审计的发布证明](benchmarks/reports/v0.11-publication/README.md)
 
+</details>
+
 用安装器输出的 Python 解释器路径替换下方 `python`，即可检查实际版本与后端：
 
 ~~~bash
 python -I -X utf8 -c "import memory_book; from memory_book._text_backend import BACKEND_NAME; print(memory_book.__version__, BACKEND_NAME)"
 ~~~
 
-使用上述已发布安装命令，兼容平台打印 `0.11.0 native`。`MEMORY_BOOK_TEXT_BACKEND=auto` 为默认值，`python` 选择参考实现，`native` 要求扩展存在。[后端选择与源码构建](docs/deployment.md#native-backend-and-source-builds)
+使用上述已发布安装命令，兼容平台打印 `0.12.0 native`。`MEMORY_BOOK_TEXT_BACKEND=auto` 为默认值，`python` 选择参考实现，`native` 要求扩展存在。[后端选择与源码构建](docs/deployment.md#native-backend-and-source-builds)
 
 ## 文档
 
@@ -257,4 +276,4 @@ python -I -X utf8 -c "import memory_book; from memory_book._text_backend import 
 
 运行 `memory-book serve` 可在 [127.0.0.1:8765](http://127.0.0.1:8765) 查看归档。数据保存在本地且未加密；召回的证据会进入所用客户端的模型上下文。[数据位置与维护](docs/deployment.md#data-and-configuration-paths)
 
-独立实现，采用 [MIT 许可证](LICENSE)。[当前发布版](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.11.0) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml)
+独立实现，采用 [MIT 许可证](LICENSE)。[当前发布版](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.12.0) · [CI](https://github.com/Afloat16/AI-Memory-Book/actions/workflows/ci.yml)

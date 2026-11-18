@@ -4,9 +4,9 @@
 
 Preserve conversations as project books, task chapters, question sections and original evidence pages. Find a chapter from its title or question, then follow its addresses to the source. Similar codebases can reuse task names and parameters while keeping their records in explicit project namespaces. Recover decisions, corrections, constraints and failed attempts when a session ends or a client changes.
 
-**v0.12.0 source accepted · MIT · Python 3.10+ · SQLite / FTS5 · Optional native C acceleration**
+**v0.12.0 · MIT · Python 3.10+ · SQLite / FTS5 · Optional native C acceleration**
 
-The v0.12 runtime has passed its recorded source checks. Versioned CI, native-wheel and public-installer delivery gates are still pending; the quick start below installs the verified **v0.11.0** release. [Source acceptance and remaining gates](docs/v0.12.0-validation.md).
+**v0.12.0 is published.** Exact-source CI, native-wheel installation checks and the real public-URL installer have passed. The quick start below installs this release. [Source and delivery evidence](docs/v0.12.0-validation.md#delivery-status-and-practical-limits).
 
 [简体中文](README.zh-CN.md) · [Results](#evidence-coverage) · [Performance](#performance) · [Quick start](#quick-start) · [How it works](#how-it-works) · [Documentation](#documentation)
 
@@ -38,14 +38,14 @@ Requires **Python 3.10+ with SQLite FTS5**. The installer selects a compatible p
 **macOS / Linux**
 
 ```bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.11.0/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.12.0/scripts/install.sh
 bash install-memory-book.sh
 ```
 
 **Windows PowerShell**
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.11.0/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.12.0/scripts/install.py -OutFile install-memory-book.py
 py -3 -I -X utf8 .\install-memory-book.py
 ```
 
@@ -241,9 +241,26 @@ Unbound requests may search across books. A binding follows the configured conne
 
 ## Source acceptance and published delivery
 
-The v0.12 source checkpoint passed the recorded local suite: **1,657 discovered tests, 1,655 passed, two Windows-only skips, zero failures/errors**. Its exact-commit CI, native-wheel matrix and public-installer gates remain pending. Local source acceptance is distinct from published-package verification. [Source acceptance](benchmarks/experiments/v012-source-acceptance.json).
+The v0.12 source checkpoint passed the recorded local suite: **1,657 discovered tests, 1,655 passed, two Windows-only skips, zero failures/errors**. The published release at `62508a1ce681111ec5702c88e3aa42f67b9fc9c0` retains the accepted runtime bytes and has separately completed its CI, native-wheel and public-installer gates. [Source acceptance](benchmarks/experiments/v012-source-acceptance.json) · [Published delivery proof](benchmarks/reports/v0.12-publication/README.md).
 
-The verified published release used by the quick start is **v0.11.0**:
+The following delivery checks cover the same published **v0.12.0** source. The 30 native cells and public installer belong to release run `44275753685`, attempt `1`; the independent exact-source CI is run `44275753683`, attempt `1`.
+
+| v0.12 release check | Verified result |
+|---|---|
+| Exact-source CI | **11 / 11 jobs passed** |
+| Native build / installation matrix | **30 / 30 cells** · CPython 3.10–3.15 |
+| Targets | Linux x86_64 / ARM64 · macOS Intel / ARM64 · Windows AMD64 |
+| Native test outcomes | **4,245 passed + 75 explicitly permitted optional skips; zero failures** |
+| Public assets | **67 files**, independently downloaded and hash-verified |
+| Published installer | Real public-URL install verifies v0.12.0, native backend and default MCP/client dependencies |
+| Archive compatibility | **Schema 4**; source/page IDs and Unicode coordinates retained |
+
+[Published v0.12 release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.12.0) · [Successful release workflow](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44275753685) · [Exact-source CI](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44275753683) · [Original artifacts, logs, assets and independent audit](benchmarks/reports/v0.12-publication/README.md).
+
+<details>
+<summary>Historical v0.11 delivery</summary>
+
+The earlier **v0.11.0** publication retains its own evidence and is not counted as a v0.12 execution:
 
 | v0.11 release check | Recorded result |
 |---|---|
@@ -257,13 +274,15 @@ The verified published release used by the quick start is **v0.11.0**:
 
 [Published v0.11 release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.11.0) · [Original release workflow](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44233642151) · [Recovered and audited publication proof](benchmarks/reports/v0.11-publication/README.md).
 
+</details>
+
 Use the Python interpreter printed by the installer in place of `python` to inspect the installed backend:
 
 ```bash
 python -I -X utf8 -c "import memory_book; from memory_book._text_backend import BACKEND_NAME; print(memory_book.__version__, BACKEND_NAME)"
 ```
 
-A compatible native installation from the published quick start prints `0.11.0 native`. `MEMORY_BOOK_TEXT_BACKEND=auto` is the default; `python` selects the reference, and `native` requires the extension. [Backend and source-build options](docs/deployment.md#native-backend-and-source-builds).
+A compatible native installation from the published quick start prints `0.12.0 native`. `MEMORY_BOOK_TEXT_BACKEND=auto` is the default; `python` selects the reference, and `native` requires the extension. [Backend and source-build options](docs/deployment.md#native-backend-and-source-builds).
 
 ## Documentation
 
