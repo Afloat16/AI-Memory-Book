@@ -1,0 +1,133 @@
+{
+  "source_commit": "da3dfc831728046ac6e0587bd635818869e22ff4",
+  "frozen_protocol_commit": "296cce97a05488224960e28065f35f594d755732",
+  "baseline_commit": "8044e4bafe18e73ea422af5eeb47ef961e65246c",
+  "scope": "Author-written development diagnostics, not an independent holdout or a production answer-accuracy benchmark. No timing claim.",
+  "saved_row_audits": [
+    {
+      "path": "accuracy-baseline-python-attempt1",
+      "status": "verified",
+      "responses": 496,
+      "report_sha256": "2f9f1267c95b428403b9f40a35414cf44e0a57250a2163ae71b113da5a0a8937"
+    },
+    {
+      "path": "accuracy-baseline-native-attempt1",
+      "status": "verified",
+      "responses": 496,
+      "report_sha256": "8fa0d10ee8b2020e7851f4d04446a5af0522356397f10c093b3597b491aa2b55"
+    },
+    {
+      "path": "accuracy-candidate-python-attempt1",
+      "status": "verified",
+      "responses": 496,
+      "report_sha256": "19a53c75548f79302a877e7bba46c6b672a02c3b841c9af7bb3e4f3cd8b2745c"
+    },
+    {
+      "path": "accuracy-candidate-native-attempt2",
+      "status": "verified",
+      "responses": 496,
+      "report_sha256": "77e308e0e30bc8c5ed8237acf8b2da563df31541a73e48d3dfa2c13b3e935fdb"
+    },
+    {
+      "path": "accuracy-v012-baseline-python-attempt1",
+      "status": "verified",
+      "responses": 304,
+      "report_sha256": "16b3c48e9558f5eae39a9c1fe11ee503adf4d12520a3b63381a903e58d150ece"
+    },
+    {
+      "path": "accuracy-v012-baseline-native-attempt1",
+      "status": "verified",
+      "responses": 304,
+      "report_sha256": "d157fd8860fedd1ddae1e8837fdd49f321b64192f5a08bb49a64fc1059061abc"
+    },
+    {
+      "path": "accuracy-v012-candidate-python-attempt1",
+      "status": "verified",
+      "responses": 304,
+      "report_sha256": "816486e061887323b42570eaa84346dc90db78c961e66d56c4b5b183d9a7178d"
+    },
+    {
+      "path": "accuracy-v012-candidate-native-attempt2",
+      "status": "verified",
+      "responses": 304,
+      "report_sha256": "c165f13d531407a303433e57482dee25afe3d5781147754ca0c1bc2e07d401fe"
+    }
+  ],
+  "backend_parity": [
+    {
+      "suite": "accuracy",
+      "phase": "baseline",
+      "responses": 496,
+      "response_differences_excluding_latency_ms": []
+    },
+    {
+      "suite": "accuracy",
+      "phase": "candidate",
+      "responses": 496,
+      "response_differences_excluding_latency_ms": []
+    },
+    {
+      "suite": "accuracy-v012",
+      "phase": "baseline",
+      "responses": 304,
+      "response_differences_excluding_latency_ms": []
+    },
+    {
+      "suite": "accuracy-v012",
+      "phase": "candidate",
+      "responses": 304,
+      "response_differences_excluding_latency_ms": []
+    }
+  ],
+  "development_attempts": [
+    {
+      "log": "accuracy-development-logs/v013-unit-attempt1.log",
+      "status": "failed",
+      "tests": 8,
+      "failures": 1,
+      "reason": "The newly authored same-session unit fixture placed two adjacent assistant messages in one turn. Replaced with an actual user-message separator. Frozen benchmark cases and scoring were unchanged. This uncommitted development run is not a source-bound quality arm."
+    },
+    {
+      "log": "accuracy-development-logs/v013-unit-attempt2.log",
+      "status": "passed",
+      "tests": 91,
+      "skipped": 1,
+      "scope": "Existing current/temporal tests plus the new core tests before source commit; source-bound benchmark results are recorded separately."
+    },
+    {
+      "log": "accuracy-development-logs/v013-unit-attempt3.log",
+      "status": "passed",
+      "tests": 9,
+      "scope": "Final new core tests including semantic and skipped-retrieval controls."
+    },
+    {
+      "log": "accuracy-development-logs/v013-unit-native-attempt1.log",
+      "status": "passed",
+      "tests": 9,
+      "scope": "Same core tests under actual candidate native backend."
+    },
+    {
+      "log": "accuracy-development-logs/v013-native-build-attempt1.log",
+      "status": "build_did_not_produce_native_binary",
+      "exit_code": 0,
+      "reason": "Optional setuptools extension used nonexistent clang; two attempt1 diagnostic invocations failed before worker startup and executed zero cases. Their setup-failure records remain."
+    },
+    {
+      "log": "accuracy-development-logs/v013-native-build-attempt2.log",
+      "status": "passed",
+      "compiler": "gcc",
+      "scope": "Built in the candidate worktree; actual imported binary path and hash are bound in native attempt2 reports."
+    }
+  ],
+  "operational_notes": [
+    "Initial git add of report paths was rejected by sparse-checkout; explicit --sparse subsequently staged only those newly created result paths.",
+    "An exploratory tokenizer import initially requested lexical_terms from memory_book.text, which exports it through the backend instead; the corrected import used memory_book.store. This did not execute a recall or change any fixture."
+  ],
+  "interpretation_limits": [
+    "The old v012 diagnostic has 38 questions, of which 32 are first-source answerable; candidate 32/32 refers only to that registered subset per cell.",
+    "The v013 diagnostic has 62 questions, of which 38 are first-source answerable; candidate 38/38 refers only to that registered subset per cell.",
+    "At limit one multi-source conflicts and repeated occurrence evidence cannot all fit by definition. Candidate total source-span coverage remains 48/66 for v013 and 34/36 for v012 in those cells; it is 66/66 and 36/36 at limit five.",
+    "A comparable declaration status only describes authenticated syntax within the bounded pool. It does not establish global completeness, the true value, or semantic authority.",
+    "The equal-time distinct-value detector reports potential conflict; it does not resolve it."
+  ]
+}

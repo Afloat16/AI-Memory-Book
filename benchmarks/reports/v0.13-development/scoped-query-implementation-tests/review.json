@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "status": "relevant-contracts-passed",
+  "source_commit": "54c97ab884e9a59a083fc69916b811abd11bc316",
+  "baseline_commit": "8044e4bafe18e73ea422af5eeb47ef961e65246c",
+  "diagnostic_commit": "6f1548e35eab3b37668720473ba59c40a93433fa",
+  "authors": {
+    "author": "Afloat <ShuffleMonkey@163.com>",
+    "committer": "Afloat <ShuffleMonkey@163.com>"
+  },
+  "source_files": {
+    "src/memory_book/directory.py": "c4c1dead1c81ad62cb003a007620847b131c1b4c6661eb63da2fdd36ad2986c1",
+    "src/memory_book/store.py": "eb87a1032d07ebf548a1553e72febd072049b8c8037f1e8515f9ba9bcc27406b",
+    "tests/test_scoped_query_batching.py": "a3ccd0664b4b86b752c584e222b083480958afb5ce7a85e63254a0f6498cfe06"
+  },
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "sqlite": "3.53.1",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41"
+  },
+  "native_extension": {
+    "src/memory_book/_native.cpython-312-x86_64-linux-gnu.so": {
+      "sha256": "6c4183d609f34fa463a41612763d06fa21430ca45d97c66ffc62bf29f17902cc",
+      "bytes": 673264
+    }
+  },
+  "verified_final": [
+    {
+      "command": "PYTHONPATH=src MEMORY_BOOK_TEXT_BACKEND=python PYTHONDONTWRITEBYTECODE=1 /workspace/scratch/428c08bef2bc/.venv/bin/python -m unittest discover -s tests -p '*current*' -v",
+      "log": "current-python-attempt2.log",
+      "exit_code": 0,
+      "tests": 95,
+      "passed": 94,
+      "skipped": 1,
+      "skip_reason": "native extension was not yet built; all relevant native contracts were subsequently run"
+    },
+    {
+      "command": "PYTHONPATH=src MEMORY_BOOK_TEXT_BACKEND=python PYTHONDONTWRITEBYTECODE=1 /workspace/scratch/428c08bef2bc/.venv/bin/python -m unittest tests.test_scoped_query_batching tests.test_directory_search tests.test_directory_batches tests.test_project_rowid_bounds tests.test_round5_covering_index -v",
+      "log": "scoped-and-directory-python-attempt2.log",
+      "exit_code": 0,
+      "tests": 49,
+      "passed": 49,
+      "skipped": 0
+    },
+    {
+      "command": "CC=gcc MEMORY_BOOK_BUILD_NATIVE=1 PYTHONDONTWRITEBYTECODE=1 /workspace/scratch/428c08bef2bc/.venv/bin/python setup.py build_ext --inplace",
+      "log": "native-build.log",
+      "exit_code": 0
+    },
+    {
+      "command": "PYTHONPATH=src MEMORY_BOOK_TEXT_BACKEND=native PYTHONDONTWRITEBYTECODE=1 /workspace/scratch/428c08bef2bc/.venv/bin/python -m unittest discover -s tests -p '*current*' -v",
+      "log": "current-native-attempt1.log",
+      "exit_code": 0,
+      "tests": 95,
+      "passed": 95,
+      "skipped": 0
+    },
+    {
+      "command": "PYTHONPATH=src MEMORY_BOOK_TEXT_BACKEND=native PYTHONDONTWRITEBYTECODE=1 /workspace/scratch/428c08bef2bc/.venv/bin/python -m unittest tests.test_scoped_query_batching tests.test_directory_search tests.test_directory_batches tests.test_project_rowid_bounds tests.test_round5_covering_index -v",
+      "log": "scoped-and-directory-native-attempt1.log",
+      "exit_code": 0,
+      "tests": 49,
+      "passed": 49,
+      "skipped": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "output": "empty"
+    }
+  ],
+  "retained_development_failures": [
+    {
+      "command": "PYTHONPATH=src MEMORY_BOOK_TEXT_BACKEND=python PYTHONDONTWRITEBYTECODE=1 /workspace/scratch/428c08bef2bc/.venv/bin/python -m unittest discover -s tests -p '*current*' -v",
+      "tests": 95,
+      "errors": 34,
+      "skipped": 1,
+      "exit_code": 1,
+      "raw_log": null,
+      "record_boundary": "First tool output was truncated; no complete filesystem log was captured. This is a development failure record, not a reconstructed log.",
+      "cause": "The initial patch added a rowid_bounds keyword to _current_revision_pool call sites, breaking existing control replacements with the original signature.",
+      "resolution": "Restored the original method/call signature. Query optimization derives bounds only from the fixed explicit caller project predicate. Existing control fixtures were unchanged."
+    },
+    {
+      "command": "PYTHONPATH=src MEMORY_BOOK_TEXT_BACKEND=python PYTHONDONTWRITEBYTECODE=1 /workspace/scratch/428c08bef2bc/.venv/bin/python -m unittest discover -s tests -p test_scoped_query_batching.py -v",
+      "log": "scoped-batching-python-attempt1.log",
+      "tests": 7,
+      "failures": 1,
+      "exit_code": 1,
+      "cause": "A newly authored limit test assumed a SQL-length cap forced every batching helper to fall back, although the shorter chronology query still fit.",
+      "resolution": "The test now permits the still-valid chronology statement only when all returned rows equal the original query; directory and other limit fallbacks remain required. Runtime was unchanged by this test correction."
+    }
+  ],
+  "scope": [
+    "Exact directory response fields, BM25 scores, pagination and ordering against the retained original route.",
+    "Current pool, returned source evidence, chronology tie-breakers, per-chapter quotas and diagnostics against the original route.",
+    "Project/chapter/session scopes, interleaved rowids and mixed ownership joins.",
+    "One FTS MATCH cursor for ordinary batched directory/chronology and favorable rowid bounds.",
+    "Old SQLite or absent limit API, connection wrappers, custom row/text factories, and reduced variable/SQL/compiler limits retain viable old queries.",
+    "Existing source-authority, facet, qualification, revision, directory-snapshot and covering-index contracts."
+  ],
+  "limits": [
+    "Not a full repository or release acceptance suite.",
+    "No formal large-scale or external-project comparison was run in this implementation check.",
+    "No ranking/source/retention limits or persistent schema/index were changed. Global FTS phrase-frequency work remains.",
+    "Final performance and quality claims require the parent integrated source commit and frozen formal protocol."
+  ],
+  "files": {
+    "current-native-attempt1.log": {
+      "sha256": "51c3b33040167213253461975daaa74c85b59cdb3899478516ebf6e85bbdb6c9",
+      "bytes": 18292
+    },
+    "current-python-attempt2.log": {
+      "sha256": "ebcfb6a5850504fecd059a095624c839743096d4581068109e55511aee6c5dc3",
+      "bytes": 18338
+    },
+    "native-build.log": {
+      "sha256": "e27ae3913d9193fbd834e89739de544dd362fd9c307e13220ca5c71f18381f6f",
+      "bytes": 3128
+    },
+    "scoped-and-directory-native-attempt1.log": {
+      "sha256": "c7741fa974cb7b110478db62e122b1cfafe576fb4da02c7282b64b3e95d2e444",
+      "bytes": 9254
+    },
+    "scoped-and-directory-python-attempt2.log": {
+      "sha256": "7ac8004f7b281251faeb11113bc7ad4474981f761ca9b6d9a86e01c90ed3c741",
+      "bytes": 9254
+    },
+    "scoped-batching-python-attempt1.log": {
+      "sha256": "a75ea320519a4c5c88be29c3ee1ae9cb6dff6b0caebe14a9620c03c542483456",
+      "bytes": 6309
+    }
+  }
+}

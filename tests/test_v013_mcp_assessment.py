@@ -46,7 +46,7 @@ class CurrentAssessmentMCPTests(unittest.IsolatedAsyncioTestCase):
     async def test_real_compact_stdio_retains_conflicts_and_scoped_followups(self):
         parameters = StdioServerParameters(command=sys.executable, args=[
             "-c", "import sys; from memory_book.mcp_server import serve; "
-            "serve(sys.argv[1], bound_project='service')", self.database],
+            "serve(sys.argv[1], project='service')", self.database],
             env={"PYTHONPATH": str(Path(__file__).resolve().parents[1] / "src"),
                  "PYTHONUNBUFFERED": "1"})
         async with stdio_client(parameters) as (reader, writer):
@@ -105,7 +105,7 @@ class CurrentAssessmentMCPTests(unittest.IsolatedAsyncioTestCase):
         from memory_book.mcp_server import create_server
         outputs = []
         for source_format in ("objects", "indexed"):
-            server = create_server(self.database, bound_project="service",
+            server = create_server(self.database, project="service",
                                    source_format=source_format)
             result = await server.call_tool("recall_memory", {
                 "query": "current production retry_limit", "limit": 1,
