@@ -60,10 +60,10 @@ def coverage(data, lang):
     zh = lang == "zh-CN"
     title = "固定预算下的原始证据覆盖" if zh else "Original evidence within a fixed budget"
     description = ("2400 字符整块打包预算。72 个可回答问题，AI-Memory-Book 找全 72 题，"
-                   "BM25S 找全 72 题，Haystack BM25 找全 66 题，三个历史词法组件分别找全 64 题，共享 MiniLM 的三种配置分别找全 47 题。"
+                   "BM25S 与配置后的 Whoosh 各找全 72 题，Haystack BM25 找全 66 题，LanceDB FTS 和三个历史词法组件各找全 64 题，共享 MiniLM 的三种配置各找全 47 题。"
                    "这是固定合成开发语料的证据覆盖，不是模型回答准确率。") if zh else (
                    "Complete evidence under a 2,400-character whole-block budget: AI-Memory-Book 72 of 72; "
-                   "BM25S 72, Haystack BM25 66, billion-context, claude-mem raw FTS and Basic Memory FTS each 64 of 72; "
+                   "BM25S and configured Whoosh each 72, Haystack BM25 66, LanceDB FTS, billion-context, claude-mem raw FTS and Basic Memory FTS each 64 of 72; "
                    "three shared-MiniLM configurations each 47 of 72. Synthetic development evidence coverage, not LLM answer accuracy.")
     extra = max(0, len(data["rows"]) - 5) * 63
     s = SVG(626 + extra, title, description, lang)
@@ -78,7 +78,9 @@ def coverage(data, lang):
         s.line(tx, 176, tx, 491 + extra)
         s.text(tx, 514 + extra, tick, 14, MUTED, anchor="middle")
     labels = {
-        "book": ("AI-Memory-Book", "冻结源码回放" if zh else "frozen source replay"),
+        "book": ("AI-Memory-Book", "v0.12 冻结源码回放" if zh else "v0.12 frozen source replay"),
+        "whoosh": ("Whoosh", "2.7.4 · BM25F / OR"),
+        "lancedb": ("LanceDB FTS", "0.41.0 · 原生 FTS" if zh else "0.41.0 · native FTS"),
         "bm25s": ("BM25S", "0.3.16 · 检索库" if zh else "0.3.16 · retrieval library"),
         "haystack": ("Haystack BM25", "3.5.0 · 框架组件" if zh else "3.5.0 · framework component"),
         "billion": ("billion-context", "固定搜索内核" if zh else "pinned search kernel"),
@@ -101,8 +103,8 @@ def coverage(data, lang):
            "Pinned component modes; retained and new runs identified separately. No full-product ranking.", 15, MUTED)
     s.text(36, 577 + extra, "共享组：Mem0（infer=False）、Chroma 与 LangGraph Store；各自执行，结果相关。" if zh else
            "Shared group: Mem0 (infer=False), Chroma and LangGraph Store; separate runs, correlated results.", 14, MUTED)
-    s.text(36, 604 + extra, "BM25S 在此预算打平；1200 字符时优于 Book 整块模式。Memvid 空查询限制另列。" if zh else
-           "BM25S ties here and leads Book at 1,200 characters. Memvid empty-query limitation is separate.", 14, AMBER)
+    s.text(36, 604 + extra, "Book、BM25S、Whoosh 两预算同分；Whoosh 平均字符更少。Memvid 查询限制另列。" if zh else
+           "Book, BM25S and Whoosh tie at both budgets; Whoosh uses less text. Memvid is separate.", 14, AMBER)
     return s
 
 
@@ -132,7 +134,7 @@ def runtime(data, lang):
             "Retained small-case regressions are 1.41% for semantic ranking and 1.07% / 0.42% for single-section directories.")
     s = SVG(740, title, desc, lang)
     s.header("AI-MEMORY-BOOK · RUNTIME", title,
-             "历史 v0.10 组件 · 耗时四对／分配量两对 · 非 v0.11 重测" if zh else
+             "历史 v0.10 组件 · 耗时四对／分配量两对 · 非 v0.12 重测" if zh else
              "Historical v0.10 components · four latency pairs / two allocation pairs")
     cards = [
         ("语义峰值分配" if zh else "Tracked peak allocation", "32768 个向量窗口 · 不等于进程 RSS" if zh else

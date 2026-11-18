@@ -2,24 +2,29 @@
   "schema_version": 1,
   "provenance": {
     "coverage": {
-      "scope": "Authored 80-question development fixture, 72 answerable, 2400-character common-block budget. Frozen Book source replay; six historical external runs plus new BM25S/Haystack executions. Memvid all-empty configured responses disclosed separately.",
+      "scope": "Authored 80-question development fixture, 72 answerable, 2400-character common-block budget. Accepted v0.12 Book source replay; six original external configurations plus retained BM25S/Haystack and actual LanceDB/Whoosh executions. Memvid configured-query limitation disclosed separately.",
       "external_report": "benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/report.json",
       "current_evidence": "docs/current-results.md",
       "historical_wheel_verification": "benchmarks/reports/readme-current/verification.json",
       "historical_source_commit": "164f48c42e88bd096bf58827d8b2ba77a9048ae3",
       "historical_verification_sha256": "fcb9c47c10f0100ae6159365f252b2c1cb58edfb84b17e127e57c0469c85dc2c",
-      "source_candidate": "6619724936026658d08d91bbbdc7d55d77f699cc",
-      "candidate_comparison": "benchmarks/reports/v0.11-development/engineering-attempt3/comparison.json",
+      "source_candidate": "021a384567db5aa64fde155f090d2eb399f55c03",
+      "candidate_comparison": "benchmarks/reports/v0.12-development/resumed-engineering-attempt2/comparison.json",
       "new_components_report": "benchmarks/reports/v0.11-extended-lexical/attempt1/report.json",
       "new_components_report_sha256": "bda9683de8d80c0964f4df84207c06a86b3ad8ea4f30620de6996e280b5d1824",
       "new_components_audit": "benchmarks/reports/v0.11-extended-lexical/attempt1/audit.json",
-      "candidate_comparison_sha256": "33bb993ad93d964064fe6b7220fec8bb1c3321eaa92845c242539dc0c53236ae"
+      "candidate_comparison_sha256": "10ee8359f27a0108884366a9fca8ab9de594bb353efff8cde564a788d17107b7",
+      "source_acceptance": "benchmarks/experiments/v012-source-acceptance.json",
+      "source_acceptance_sha256": "8f15b94d53d4bb1be10f20f3438652ada9ac7c7da438c452920eb5102033bbd8",
+      "search_components_summary": "benchmarks/reports/v0.12-search-components/quality-attempt1/summary.json",
+      "search_components_summary_sha256": "be0d0ad9dc15a81dcde9c5b6078a0dfd702080c5fa7fcb8a9663a1ec855f0236",
+      "search_components_audit": "benchmarks/reports/v0.12-search-components/quality-attempt1/audit.json"
     },
     "runtime": {
       "source": "benchmarks/experiments/comprehensive_v010_acceptance.json",
       "semantic_evidence_commit": "780a99faa71da50eb0bf6e290fddc765e2b49b43",
       "directory_evidence_commit": "248e74ee4aabd7f53835e5aead67aa8e8f63abbb",
-      "scope": "Historical v0.10 source snapshots; four paired latency rounds, two paired allocation probes; deterministic file-byte work counts; not remeasured on v0.11."
+      "scope": "Historical v0.10 source snapshots; four paired latency rounds, two paired allocation probes; deterministic file-byte work counts; not remeasured on v0.12."
     },
     "native": {
       "source": "benchmarks/experiments/native_core_acceptance.json",
@@ -39,8 +44,16 @@
         "complete": 72
       },
       {
+        "id": "whoosh",
+        "complete": 72
+      },
+      {
         "id": "haystack",
         "complete": 66
+      },
+      {
+        "id": "lancedb",
+        "complete": 64
       },
       {
         "id": "billion",
