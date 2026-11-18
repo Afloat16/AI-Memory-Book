@@ -1,0 +1,347 @@
+{
+  "schema_version": 1,
+  "version": "0.13.0",
+  "decision": "source-accepted-for-evidence-completeness-and-directory-improvements-with-retained-recall-costs; exact-release-delivery-gates-pending",
+  "recorded_at_utc": "2026-11-18T15:45:25.319669+00:00",
+  "source_commit": "e0e2515f6e16404cfb9b676cd2eab01ce84b81cc",
+  "equivalent_local_source_commit": "91412b438a0da95549cc9a3b85eccb4915359a2d",
+  "equivalent_source_tree": "b150f4dfa45a01d407301b60c3fd0f40dac1c420",
+  "baseline_commit": "8044e4bafe18e73ea422af5eeb47ef961e65246c",
+  "accepted_runtime_sha256": "a7492a74a94170b87a2fd54ada421866b9d737f46dce2ff3a3bc21d6debb9da1",
+  "runtime_hash_definition": "scripts.release.source_identity: sorted relative runtime .py/.c/.h/.rs name + NUL + complete source bytes + NUL; distinct from experiment full-source inventory and native binary hashes",
+  "schema_version_runtime": 4,
+  "recall_cache_version": 26,
+  "accepted_scope": [
+    "Source-qualified current declarations and complete multi-source evidence under the frozen authored long-history workload, with negative controls and query-requested report facts preserved.",
+    "Preserved measured project/source-coordinate isolation and legacy engineering, short-page and directory contracts.",
+    "Lower complete-directory pooled p50 in all 14 measured groups and lower warm-recall p50 in 42/49 groups; 100k interleaved archived-project cold-recall gains coexist with 37/49 cold groups becoming slower.",
+    "Bounded candidate-pool evidence assessment without universal authority or absence inference."
+  ],
+  "decision_rationale": "Correctness and completeness are the primary priority. Every formerly complete case remains complete and all eight missing multi-source policies are recovered at each of seven stages. Directory and selected interleaved-archive gains justify a scoped version with the cold-recall regressions explicitly accepted as costs. This is not acceptance of every original performance or generalization goal.",
+  "objectives_not_achieved": [
+    "Constant or archive-size-independent response time for fixed-size old projects: global FTS work remains and measured candidate latency grows with foreign history.",
+    "Uniform cold-recall speedup: 37/49 pooled p50 groups are slower; no universal memory reduction or statistically established production SLA.",
+    "Calibrated abstention: all 56 missing-answer configurations still return context.",
+    "Correct factual authority in arbitrary prose, unseen production correctness, LLM final-answer accuracy, and superiority over all open-source products."
+  ],
+  "frozen_protocol": {
+    "commit": "b3fd165cb632c439ff28873fdba7f33e9d258178",
+    "files": {
+      "benchmarks/experiments/v013-long-history-plan.json": "22bd91af6210f9490b8655b76eb906dc990930005d8a3490fd76529107b6ecb4",
+      "benchmarks/v013_workload.py": "ac6b5afc3cfa560bb2890249576cf3f1bee209c6567cfcfdb11f2f6d29a2fb2d",
+      "benchmarks/v013_scale.py": "9e9a22f67013d50b1bc1a0464e6fc507179b65a116b8afff5305537c85387945",
+      "tests/test_v013_scale.py": "2d3bcbc8588c936ea78c75725472b036b78a6602fa6fc97f159ca5034845f595"
+    }
+  },
+  "formal_run2": {
+    "run_id": 44331778554,
+    "run_attempt": 1,
+    "artifact_id": 14439324717,
+    "original_zip_bytes": 29394152,
+    "original_zip_sha256": "47df01825bf4e14baadf3154a24683e5f18aaa238790e013fde381610be6ceac",
+    "evidence_commit": "6779c1a1f586e078dba45d1f1753c7b1e36312ce",
+    "audit_status": "passed_saved_record_integrity",
+    "audit_checks": 166409,
+    "new_audit_memory_book_calls": 0,
+    "inventory": {
+      "primary_measurements": 13608,
+      "source_refs_checked": 66136,
+      "quality_calls": 1008,
+      "performance_calls": 12600,
+      "completed_blocks": 84
+    },
+    "quality": {
+      "baseline": {
+        "recall": {
+          "queries": 448,
+          "errors": 0,
+          "answerable": 392,
+          "complete": 336,
+          "required_spans": 448,
+          "covered_spans": 392,
+          "source_error_outputs": 0,
+          "current_first_eligible": 168,
+          "current_source_first": 80,
+          "stale_before_current": 32,
+          "missing_queries": 56,
+          "returned_context_for_missing": 56
+        },
+        "directory": {
+          "queries": 56,
+          "errors": 0,
+          "answerable": 56,
+          "complete": 56,
+          "required_spans": 56,
+          "covered_spans": 56,
+          "source_error_outputs": 0,
+          "current_first_eligible": 56,
+          "current_source_first": 56,
+          "stale_before_current": 0,
+          "missing_queries": 0,
+          "returned_context_for_missing": 0
+        }
+      },
+      "candidate": {
+        "recall": {
+          "queries": 448,
+          "errors": 0,
+          "answerable": 392,
+          "complete": 392,
+          "required_spans": 448,
+          "covered_spans": 448,
+          "source_error_outputs": 0,
+          "current_first_eligible": 168,
+          "current_source_first": 112,
+          "stale_before_current": 0,
+          "missing_queries": 56,
+          "returned_context_for_missing": 56
+        },
+        "directory": {
+          "queries": 56,
+          "errors": 0,
+          "answerable": 56,
+          "complete": 56,
+          "required_spans": 56,
+          "covered_spans": 56,
+          "source_error_outputs": 0,
+          "current_first_eligible": 56,
+          "current_source_first": 56,
+          "stale_before_current": 0,
+          "missing_queries": 0,
+          "returned_context_for_missing": 0
+        }
+      }
+    },
+    "pooled_p50_directions": {
+      "cold-result-cache": {
+        "comparisons": 49,
+        "candidate_p50_faster": 12,
+        "candidate_p50_slower": 37,
+        "min_candidate_over_baseline_p50": 0.5097678022828621,
+        "max_candidate_over_baseline_p50": 1.5640470820888952
+      },
+      "warm-result-cache": {
+        "comparisons": 49,
+        "candidate_p50_faster": 42,
+        "candidate_p50_slower": 7,
+        "min_candidate_over_baseline_p50": 0.8156673766342415,
+        "max_candidate_over_baseline_p50": 1.093337615474195
+      },
+      "uncached-directory": {
+        "comparisons": 14,
+        "candidate_p50_faster": 14,
+        "candidate_p50_slower": 0,
+        "min_candidate_over_baseline_p50": 0.06330327771222834,
+        "max_candidate_over_baseline_p50": 0.5072081892189105
+      }
+    },
+    "counterfactual_outputs": {
+      "age-shift-1024": {
+        "baseline": {
+          "compared_cases": 72,
+          "changed_evidence_projections": []
+        },
+        "candidate": {
+          "compared_cases": 72,
+          "changed_evidence_projections": []
+        }
+      },
+      "interleaved-100000": {
+        "baseline": {
+          "compared_cases": 72,
+          "changed_evidence_projections": []
+        },
+        "candidate": {
+          "compared_cases": 72,
+          "changed_evidence_projections": []
+        }
+      }
+    },
+    "host": {
+      "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+      "python": "3.12.16 (main, Oct 26 2026, 02:50:49) [GCC 13.3.0]",
+      "sqlite": "3.45.1",
+      "machine": "x86_64",
+      "cpu": "AMD EPYC 7763 64-Core Processor",
+      "logical_cpu_count": 4,
+      "load_average": [
+        0.8369140625,
+        0.3330078125,
+        0.119140625
+      ],
+      "pid": 2596
+    },
+    "paired_median_directions": {
+      "cold": {
+        "faster": 14,
+        "slower": 35
+      },
+      "warm": {
+        "faster": 42,
+        "slower": 7
+      },
+      "directory": {
+        "faster": 14,
+        "slower": 0
+      }
+    },
+    "corpus": "Seven real-ingestion synthetic checkpoints, 1024/10016/50016/100000 pages, 788 projects at peak, two archived targets fixed at 16 pages, six target histories grow; explicit turn segmentation.",
+    "sample_definition": "64 recall questions (56 answerable, 8 missing) and 8 directory questions repeat at seven stages. 392 answerable configurations are not 392 independent questions. Each of 84 blocks has independent baseline-snapshot restoration.",
+    "timing_definition": "Single Ubuntu24.04 hosted runner. Directory is the complete navigation/read chain. Cold deletes only recall_cache; OS/pager/helper caches not flushed. p95 nearest rank at n30 cold/directory or n90 warm. Quality failures remain failures.",
+    "all_groups": "benchmarks/reports/v0.13-development/scale-run2-review/scale-run2-summary.md",
+    "quality_per_stage": {
+      "baseline_complete": 48,
+      "candidate_complete": 56,
+      "answerable": 56,
+      "baseline_spans": 56,
+      "candidate_spans": 64,
+      "required_spans": 64,
+      "multi_source_candidate_ranks": [
+        2,
+        1
+      ]
+    },
+    "limitations": [
+      "Post-run1 diagnosis and retest on the same authored workload, not an independent holdout.",
+      "No external product measured at 100k in this study.",
+      "200k optional extension not run.",
+      "No OS/SQLite-cold claim; native hosted binary identity retained, not locally rebuilt.",
+      "Working SQLite databases excluded from original artifact; source fingerprints/generators/response proofs retained, not original DB restoration.",
+      "CPU covers worker work outside query timers; round zero includes 72 additional quality queries; RSS is process-lifetime high-water.",
+      "Run1 used a different hosted CPU; absolute run1/run2 latency is not a paired causal comparison."
+    ]
+  },
+  "final_legacy_gates": {
+    "source_commit": "91412b438a0da95549cc9a3b85eccb4915359a2d",
+    "equivalent_formal_source": "e0e2515f6e16404cfb9b676cd2eab01ce84b81cc",
+    "responses_per_runtime": 800,
+    "baseline_reexecuted": true,
+    "engineering_regressions": 0,
+    "engineering_score_changes": 0,
+    "book_complete_per_budget_track": "72/72",
+    "book_spans_per_budget_track": "80/80",
+    "book_fixed_policy_per_budget_track": "48/48",
+    "missing_evidence_nonempty_per_budget_track": "8/8",
+    "short_page_per_backend": {
+      "configurations": 482,
+      "positive_controls_retained": 434,
+      "insufficient_budget_controls": 48,
+      "original_regressions_recovered": 34
+    },
+    "directory_contracts_per_backend": "119/119",
+    "directory_operations_per_backend": 597,
+    "directory_reads_per_backend": 161,
+    "independent_saved_response_checks": 4716
+  },
+  "earlier_directly_bound_small_diagnostics": {
+    "source_commit": "4e4a8eb2fefe31a136033a37fcc844c36162ffae",
+    "stable_python_native_pairs": 914,
+    "records": 1828,
+    "new_62_case_responses_per_backend": 496,
+    "auto_answerable_first_and_complete_per_configuration": "38/38",
+    "old_38_case_responses_per_backend": 304,
+    "old_auto_answerable_first_and_complete_per_configuration": "32/32",
+    "independent_controls_per_backend": 37,
+    "original_review_entries_per_backend": 13,
+    "unit_methods_per_backend": 10,
+    "not_relabelled_as_final_planner_source": true,
+    "later_runtime_change": "The only later runtime delta restricts sparse project membership to no chapter/session scope; final legacy gates and formal run2 exercise that final source."
+  },
+  "measured_candidate_ci": {
+    "status": "verified_successful_exact_source_ci",
+    "source_commit": "e0e2515f6e16404cfb9b676cd2eab01ce84b81cc",
+    "run_id": 44331775791,
+    "run_attempt": 1,
+    "required_jobs": 11,
+    "successful_jobs": 11,
+    "job_names": [
+      "container",
+      "core (3.10)",
+      "core (3.12)",
+      "core (3.13)",
+      "core (3.14)",
+      "core (3.15)",
+      "installers (macos-latest)",
+      "installers (ubuntu-latest)",
+      "installers (windows-latest)",
+      "mcp",
+      "reader-browser"
+    ],
+    "mcp_suite": {
+      "discovered": 1719,
+      "passed": 1705,
+      "skipped": 14,
+      "failures": 0,
+      "errors": 0
+    },
+    "log": {
+      "path": "mcp-job-134897787447.log.gz",
+      "bytes": 70526,
+      "sha256": "379a3af973aeb31a365960e96406a6f45f23f09ff9e454ea603e0e647a013f2f",
+      "decoded_bytes": 413140,
+      "decoded_sha256": "20e37fd6ccfd75c7da3e8a47092001de9db8df6200c5a13c4525d78ef2191499",
+      "exact_connector_string_round_trip": true
+    },
+    "boundary": "CI and complete MCP log evidence for the exact formal candidate, not scale acceptance, native release delivery, or publication. Run/jobs snapshots are serialized decoded API objects."
+  },
+  "external_comparison": {
+    "fresh_external_calls_this_cycle": 0,
+    "historical_executed_configurations": 11,
+    "historical_scored_configurations": 10,
+    "separate_memvid_query_limitation": true,
+    "architecture_families_reviewed": 26,
+    "scope": "Historical version/configuration-pinned supplied-source engineering experiments; no new 100k external benchmark or full-product superiority claim.",
+    "retained_counterevidence": "Book, BM25S and configured Whoosh tie at both character budgets; Whoosh uses fewer mean packed context characters.",
+    "historical_snapshot": "docs/v0.12.0-readme-results.md"
+  },
+  "retained_failed_attempts": [
+    "First formal run44314074983/1: both arms48/56complete, candidate cold41/49slower and warm49/49slower; original ZIP untouched.",
+    "Repeated-declaration, Unicode quotation, colon normalization and independent checklist/report-fact counterexamples in scale-correctness-review.",
+    "Initial whole-field guard54/56 and corrected56/56 remain separately source-bound.",
+    "Offline-auditor TypeError and premeasurement source mismatch retain original errors; corrected reports are separate.",
+    "CI44314079392/1 MCP literal-contract failure and strict test-only correction.",
+    "CI44328488562/1 five jobs failing old chapter-planner assertion; old assertion retained, runtime route corrected."
+  ],
+  "evidence_files": {
+    "benchmarks/reports/v0.13-scale-run2/manifest.json": {
+      "bytes": 3945,
+      "sha256": "42dcb9e7c7c7129c3f1d3e84e2fa56f1f882a644d783a51cd0522c04775e1713"
+    },
+    "benchmarks/reports/v0.13-scale-run2/restore-verification.json": {
+      "bytes": 508,
+      "sha256": "5bc624986b0a193add7107608000aa1dcab95823d836ccea3dad1a1c2cdd6fc2"
+    },
+    "benchmarks/reports/v0.13-development/scale-run2-review/scale-run2-saved-response-review.json": {
+      "bytes": 373470,
+      "sha256": "87e57eda285804f3a358baf7d16e9b82876f4dd40c1b3f73d0715b12635755cb"
+    },
+    "benchmarks/reports/v0.13-development/scale-run2-review/scale-run2-summary.md": {
+      "bytes": 26329,
+      "sha256": "35354d1cfd173f71affc0f63228427ec858a9e49405eb16779589260faf2a03a"
+    },
+    "benchmarks/reports/v0.13-development/legacy-gates-integrated/91412b43-attempt1/summary.json": {
+      "bytes": 9459,
+      "sha256": "13e1843c6c90aea48389ac7214aa25d180665d060bc983380a63be039886139d"
+    },
+    "benchmarks/reports/v0.13-development/scale-correctness-review/final-offline-audit-attempt2.json": {
+      "bytes": 12268,
+      "sha256": "018944fc0ed58f2abaabc5e364fe18e12706fd521d914f45e51b299661f05ad7"
+    },
+    "benchmarks/reports/v0.13-development/final-source-ci/review.json": {
+      "bytes": 1124,
+      "sha256": "da3508922eec5b4f25c38d8629ad525e08522c4ee9e5a218ae289693bc79802e"
+    },
+    "benchmarks/reports/v0.13-development/postscale-sources/run2-source-equivalence.json": {
+      "bytes": 774,
+      "sha256": "00ad7b4ac89cc061f90185e87397e33bfa5f7e371e9f9a2d1c1824e30086b45b"
+    }
+  },
+  "remaining_publication_gates_at_decision": [
+    "A later release-source commit retaining this runtime must pass all eleven exact-source push CI jobs.",
+    "The same source must be current main before release/v0.13.0 is created.",
+    "All thirty native build/install cells, fallback/package checks and the real public-URL installer must pass in one complete release attempt.",
+    "Capture all original metadata/job logs/eleven artifact ZIPs and independently downloaded public assets; run the frozen comprehensive auditor.",
+    "Archive every captured file and reproduce the identical audit proof after verified restoration."
+  ],
+  "history_policy": "This decision records source acceptance at its own time. Subsequent publication evidence closes delivery gates in a separate record without rewriting original measurements, failed attempts, scope limitations or this pending-gate history."
+}

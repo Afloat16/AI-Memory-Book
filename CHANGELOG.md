@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.13.0 — complete evidence across similar project histories
+
+Improve source-qualified multi-source recall and scoped directory work while
+preserving all measured costs. See the [release notes](docs/releases/v0.13.0.md)
+and [source validation](docs/v0.13.0-validation.md).
+
+- Qualify repeated same-value declarations and bounded bilingual reporting
+  forms, with quotation, negation, field, environment and report-fact guards.
+- Preserve requested checklist/review facts when ordering current declarations
+  above authenticated no-change reports. Return bounded assessment guidance.
+- Batch directory/current-candidate work; use guarded sparse-project routing;
+  prepare query terms only after validated recall-cache misses.
+- Complete the unchanged seven-stage experiment through 100,000 real pages and
+  788 projects: 13,608 original calls. Complete evidence rises from 48/56 to
+  56/56 at each stage; all source and cross-project checks remain clean.
+- Retain the first failed candidate, all original attempts and the exact second
+  ZIP. Independent review checks 166,409 conditions without new retrieval calls.
+- Retain performance costs: cold pooled p50 is slower in 37/49 groups, warm is
+  slower in 7/49, and directory is faster in 14/14. Fixed-size old-project cost
+  still grows with the global archive; no constant-time or universal win claim.
+- Keep schema 4, original IDs and native C/header algorithms; recall-cache
+  version 26. Source acceptance and exact release delivery are separate gates.
+
 ## 0.12.0 — source-local revisions and complete short records
 
 Keep current-state evidence tied to its own original declaration and make more

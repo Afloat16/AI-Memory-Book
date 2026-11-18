@@ -89,6 +89,12 @@ APPROVED_RUNTIME_SHA256 = {
     # replays, retained failures and remaining delivery gates:
     # benchmarks/experiments/v012-source-acceptance.json.
     "0.12.0": "2842f78c288454ea7348cb81cb6bd6a972cb26e003faaac64eb81f78b2ffa38b",
+    # Complete multi-source evidence under the frozen 100k-page workload,
+    # conserved source isolation and legacy gates; all cold-recall costs remain.
+    # This does not approve constant-time access or universal speed superiority.
+    # Decision and remaining exact-source delivery gates:
+    # benchmarks/experiments/v013-source-acceptance.json.
+    "0.13.0": "a7492a74a94170b87a2fd54ada421866b9d737f46dce2ff3a3bc21d6debb9da1",
 }
 # Publication channels are explicit: older prereleases remain prereleases when
 # an interrupted run reconciles them. A new version needs a reviewed entry.
@@ -108,9 +114,10 @@ RELEASE_PRERELEASE = {
     "v0.10.0": False,
     "v0.11.0": False,
     "v0.12.0": False,
+    "v0.13.0": False,
 }
 INSTALLERS = ("install.py", "install.sh", "install.ps1")
-NATIVE_RELEASE_TAGS = {"v0.8.0", "v0.8.1", "v0.9.0", "v0.10.0", "v0.11.0", "v0.12.0"}
+NATIVE_RELEASE_TAGS = {"v0.8.0", "v0.8.1", "v0.9.0", "v0.10.0", "v0.11.0", "v0.12.0", "v0.13.0"}
 READ_DELAYS = (1, 2, 4)
 
 

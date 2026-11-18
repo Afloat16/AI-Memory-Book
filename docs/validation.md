@@ -7,6 +7,14 @@ user conversation history was used in development or published.
 
 ## Current validation index
 
+- [v0.13.0 longitudinal memory](v0.13.0-validation.md): seven checkpoints through
+  100k real pages, independently audited completeness gains, all latency costs,
+  legacy regressions and separate delivery gates.
+- [Current measured results](current-results.md): current source evidence and
+  historical pinned external-component comparisons with explicit boundaries.
+- [v0.12.0 validation](v0.12.0-validation.md) and
+  [preserved v0.12 result snapshot](v0.12.0-readme-results.md).
+- [v0.11.0 validation](v0.11.0-validation.md).
 - [v0.10.0 comprehensive optimization](comprehensive-v010-validation.md):
   bounded semantic and directory reads, one-pass model verification, capture
   reliability and release delivery. Component measurements and limits are

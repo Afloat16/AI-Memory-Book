@@ -1,57 +1,117 @@
-# Current source results and evidence
+# Current v0.13 source results and evidence
 
-The README reports the accepted **v0.12 source checkpoint**
-`021a384567db5aa64fde155f090d2eb399f55c03`. The published **v0.12.0** release
-at `62508a1ce681111ec5702c88e3aa42f67b9fc9c0` retains those accepted runtime
-bytes and has completed exact-source CI, native-wheel installation and the
-real public-URL installer gates. The quick start installs this published release.
-[Original v0.12 delivery evidence and independent audit](../benchmarks/reports/v0.12-publication/README.md).
+**Status: v0.13 source experiments and exact-source CI are verified; v0.13
+publication is a separate gate.** The quick-start commands target v0.13.0 after its publication gates pass;
+the currently published release remains v0.12.0. The long-history replay is independently audited from its original ZIP,
+and the unchanged small engineering/declaration suites retain their own source
+identities. Source tests, CI and public release delivery are not interchangeable.
 
-The prior v0.11 release keeps its [separate historical publication evidence](../benchmarks/reports/v0.11-publication/README.md);
-its counts are not reused as new v0.12 executions.
-
-The [v0.11 source results](v0.11.0-readme-results.md) and all failed development
-attempts remain available. Historical external runs keep their original source,
-package and model identities. New Book source results do not rerun every external
-component or transfer old performance measurements to the new runtime.
+The [v0.12 results snapshot](v0.12.0-readme-results.md) preserves the previous
+`current-results.md` byte for byte. The [v0.11 results](v0.11.0-readme-results.md),
+[original v0.12 publication proof](../benchmarks/reports/v0.12-publication/README.md)
+and all failed development attempts remain available. No historical external
+run or older speed measurement is relabelled as a new v0.13 execution.
 
 ## Source and experiment identities
 
-| Evidence | Identity / execution |
+| Evidence | Actual identity / scope |
 |---|---|
-| Published v0.11 baseline | `78cc906d81818a16884de7de2e613e5a56346f93` |
-| Accepted v0.12 source | `021a384567db5aa64fde155f090d2eb399f55c03` |
-| Published v0.12 source | `62508a1ce681111ec5702c88e3aa42f67b9fc9c0`; same accepted runtime digest |
-| v0.12 exact-source CI | Run `44275753683`, attempt 1; 11 successful jobs |
-| v0.12 delivery | Run `44275753685`, attempt 1; 30 native cells, 4,245 passes plus 75 permitted skips, 67 verified public assets and successful public installer |
-| Accepted runtime | SHA-256 `2842f78c288454ea7348cb81cb6bd6a972cb26e003faaac64eb81f78b2ffa38b` |
-| Engineering replay | 800 responses per runtime: 640 native-strategy and 160 Book common-block; all scores/source references/budgets independently checked |
+| Published baseline runtime | Main checkpoint `8044e4bafe18e73ea422af5eeb47ef961e65246c`, preserving v0.12.0 runtime bytes |
+| Final local engineering, directory and short-page replay | `91412b438a0da95549cc9a3b85eccb4915359a2d` |
+| Remote formal / CI candidate | `e0e2515f6e16404cfb9b676cd2eab01ce84b81cc`; complete Git tree `b150f4dfa45a01d407301b60c3fd0f40dac1c420` equals local `91412b43` |
+| Formal long-history run | `44331778554`, attempt 1; candidate `e0e2515f`, original unchanged protocol |
+| Original run-2 artifact | SHA-256 `47df01825bf4e14baadf3154a24683e5f18aaa238790e013fde381610be6ceac` |
+| Exact-source ordinary CI | Run `44331775791`, attempt 1; 11 successful jobs |
+| Separate declaration / control replay | `4e4a8eb2fefe31a136033a37fcc844c36162ffae`; recall cache version 26 |
+| Engineering evaluator | `6cf692ba3595cb236c5b9ea050bf0f8730b53c4c`; original frozen evaluator bytes |
 | Engineering dataset | SHA-256 `87e8ccad3510fb7e8a4c68c9fa3f284473abf8381ef6444ad179e3d4196b3ac3` |
-| Declaration diagnosis | 38 questions; 304 responses per backend/arm; 608 fresh candidate responses and 608 unchanged same-environment baseline responses reused |
-| Short-page guard | 482 configurations per backend; original failures and control evidence retained |
-| Directory rerun | Per backend: 119 contracts, 130 locator calls, 161 original-page reads, 80 distinct pages |
-| Crowding replay | 144 actual responses across both versions/backends; 18/18 current-recovery calls per backend/arm |
-| Corrected suffix review | 72 actual responses; original new regressions resolved, existing baseline failure retained |
-| Complete local suite | 1,657 discovered; 1,655 passed; two Windows-only skips; zero failures/errors |
-| LanceDB / Whoosh evaluator | Frozen at `8f0fa2ae81d938c6d47881468640d735e8b11c20` before quality queries |
-| New external execution | 480 native searches, 320 packed responses, 984-event journal; independent offline audit passed |
+| Frozen 62-question diagnostic | `296cce97a05488224960e28065f35f594d755732` |
+| Frozen longitudinal protocol | `b3fd165cb632c439ff28873fdba7f33e9d258178`; unchanged queries, source requirements and scorer |
+| Currently published installation | v0.12.0 at `62508a1ce681111ec5702c88e3aa42f67b9fc9c0` |
 
-The runtime digest is the source-byte aggregate defined by
-`scripts.release.source_identity`; it is not an evaluator or native-binary digest.
-The [source acceptance](../benchmarks/experiments/v012-source-acceptance.json)
-binds every referenced report's byte count and SHA-256. The
-[complete validation record](v0.12.0-validation.md) distinguishes actual executions,
-reused baselines, original failures and completed publication checks. The source
-acceptance JSON remains the original prepublication decision; its then-pending
-delivery requirements are closed by the separate publication proof.
+The [complete-tree equivalence receipt](../benchmarks/reports/v0.13-development/postscale-sources/run2-source-equivalence.json)
+binds local `91412b43` to remote `e0e2515f`; it does not rewrite measured commit
+IDs. The earlier `4e4a8eb2` declaration replay remains labelled with that actual
+source. The final source also contains the subsequent narrow SQL scope-planner
+correction. Exact source histories can be recovered from the retained
+[development bundles](../benchmarks/reports/v0.13-development/postscale-sources/manifest.json).
 
-The engineering comparison has zero per-case score regressions. Its 104 changed
-native score records and 34 changed common-block score records include source
-ranks and context lengths; they are **not** 138 independent accuracy gains or
-unchanged serialized responses. The actual gain is four additional complete
-evidence cases at 1,200 characters in each packing track.
+## Long histories across similar projects
 
-## Fixed workload and comparison boundary
+The formal second run uses the original questions, requirements, scorer and
+protocol after the first run exposed missing multi-source evidence. This is
+**development evidence after observing failures**, not a new holdout. The
+v0.12 baseline and frozen v0.13 candidate are compared within the same run on
+separately restored baseline-built snapshots. Each source imports its recorded
+runtime and native binary; the original hosted binary hashes are retained,
+without claiming a local reconstruction of those binaries.
+
+[Original run-2 artifact, manifest and lossless restorer](../benchmarks/reports/v0.13-scale-run2/README.md)
+· [Independent saved-response audit](../benchmarks/reports/v0.13-development/scale-run2-review/scale-run2-saved-response-review.json)
+· [Full run-2 review](../benchmarks/reports/v0.13-development/scale-run2-review/scale-run2-summary.md).
+
+| Checkpoint | Pages | Projects | Controlled change | Complete recall, baseline → v0.13 |
+|---|---:|---:|---|---:|
+| `age-reference-1024` | 1,024 | 22 | Reference archive | 48/56 → **56/56** |
+| `age-shift-1024` | 1,024 | 22 | Same content/order; all timestamps 3,650 days earlier | 48/56 → **56/56** |
+| `foreign-10016` | 10,016 | 163 | Only similar foreign-project growth | 48/56 → **56/56** |
+| `foreign-50016` | 50,016 | 788 | Further foreign-project growth | 48/56 → **56/56** |
+| `own-100000` | 100,000 | 788 | Six target projects acquire their own long histories | 48/56 → **56/56** |
+| `interleaved-100000` | 100,000 | 788 | Same logical sources and page IDs, different insertion order | 48/56 → **56/56** |
+| `replacement-100000` | 100,000 | 788 | Six existing configuration sources replaced | 48/56 → **56/56** |
+
+The eight target projects initially have 16 pages each. Two archived projects
+stay at that size; six active/new targets grow. At the largest stages, 780 other
+similar projects share the database. The age-shift and interleaving controls
+preserve evidence projections within each arm. The repeated maintenance text
+and authored cases limit extrapolation to arbitrary real archives.
+
+| Quality outcome across seven stages | Baseline | v0.13 candidate |
+|---|---:|---:|
+| Answerable recall configurations complete | 336/392 | **392/392** |
+| Required recall spans recovered | 392/448 | **448/448** |
+| Current source first, where evaluated | 80/168 | **112/168** |
+| Stale source before current source | 32 | **0** |
+| Complete directory evidence | 56/56 | **56/56** |
+| Missing-evidence queries returning nonempty context | 56/56 | **56/56** |
+| Source errors / cross-project output | 0 | **0** |
+
+Each version has 448 recall quality calls: 392 answerable configurations and
+56 missing-evidence controls. They repeat 56 answerable and eight missing
+questions across seven stages, so 392 is not an independent-question count.
+The same query can be repeated further for timing without creating new quality
+cases. All eight multi-source cases at every stage now include current policy
+and boundary constraints, with required ranks **[2, 1]**: boundary first,
+current policy second. The recorded current-first result is therefore 112/168,
+not 168/168. The original baseline has eight omissions per stage; its incomplete
+multi-source timings remain in the record. Both versions still return context
+for every missing-evidence query; no calibrated abstention is established.
+
+The original run-1 candidate had the same 48/56 complete cases per stage as the
+baseline. Its failures and intermediate corrections remain in the
+[development record](v0.13.0-validation.md). New evidence does not overwrite
+those original scores. The independent run-2 auditor made no retrieval calls;
+it checked 84 completed blocks, 13,608 original measurements and 66,136 source
+references, and completed 166,409 saved-record checks. Those checks establish
+integrity under the frozen scorer, not universal factual correctness.
+
+## Fixed engineering replay
+
+Both the v0.12 baseline and final v0.13 source were freshly executed in the same
+environment. Each has **800 scored response configurations**: 640 responses
+from four repository strategies and 160 Book common-block responses. This
+amounts to 320 Book configurations and 480 no-memory/flat/recent-history
+controls per runtime, drawn from the same 80 logical questions. It is not 800
+independent questions or 800 fully correct Book answers.
+
+The original worker and a separate offline auditor verified source coordinates,
+budgets, runtime/evaluator identities and saved scores. There are **zero score
+changes and zero regressions** between the two versions on this matrix. For
+Book, every budget/surface configuration retains **80/80 required spans,
+72/72 complete cases, 48/48 fixed-policy checks and zero stale-only cases**.
+The eight missing-evidence queries still return nonempty related context.
+[Final source replay](../benchmarks/reports/v0.13-development/legacy-gates-integrated/91412b43-attempt1/summary.json)
+· [Independent saved-response audit](../benchmarks/reports/v0.13-development/legacy-gates-integrated/91412b43-attempt1/independent-review/legacy-91412b43-saved-response-review-attempt1.json).
 
 | Property | Fixed setting |
 |---|---|
@@ -59,32 +119,59 @@ evidence cases at 1,200 characters in each packing track.
 | Scope | 8 projects, 4 algorithm families, 6 chronological checkpoints |
 | Questions | 80 total: 72 answerable, 8 missing-evidence queries |
 | Denominators | 80 required evidence spans; 48 fixed-policy cases |
+| Budgets | 1,200 and 2,400 characters, including citation framing |
 | External candidate boundary | Same original page bodies, exact project scope, at most 5 native candidates |
-| Common packing | Original whole blocks with citation framing; oversized blocks are skipped, without rewriting the query or supplementing candidates |
+| Common packing | Original whole blocks; oversized blocks skipped, with no query rewriting or candidate supplementation |
 | Native excerpt track | Book plus repository scoped-flat-FTS, recent-history and no-memory strategies |
-| Excluded conclusions | Coding-LLM accuracy, independent holdout performance, production task success, calibrated abstention, universal superiority |
+| Excluded conclusions | Coding-LLM accuracy, independent holdout quality, production task success, calibrated abstention, universal superiority |
 
-All external rows in this comparison use the same workload and checkpoint
-source-page digests, with 24/56/80/104/120/144 visible pages. The new
-[LanceDB/Whoosh same-input audit](../benchmarks/reports/v0.12-search-components/same-input-audit.json)
-checks byte-identical input files against the prior extension; the Book replay
-retains the unchanged evaluator and its own exported source bundles. External
-indexes are rebuilt at each checkpoint, so these runs do not establish native
-update/delete lifecycle correctness. The last checkpoint has only 44 distinct
-page bodies among 144 pages, including repeated maintenance text. This limits
-the fixture's discrimination and generalization.
+All external rows use the original workload and six supplied-page checkpoints
+of 24/56/80/104/120/144 visible pages. The final checkpoint has only 44 distinct
+page bodies among 144 pages, including repeated maintenance text. External
+indexes were rebuilt at each checkpoint; their results do not establish native
+update/delete lifecycle behavior or large-archive performance. The
+[LanceDB/Whoosh input audit](../benchmarks/reports/v0.12-search-components/same-input-audit.json)
+and original source bundles bind the shared input bytes.
+
+## Eleven executed external configurations
+
+These are the **historical tested pins**, not a claim to test every current
+upstream release or every product's full default workflow. Ten configurations
+have scored rows below; Memvid's native-query limitation is reported separately.
+
+| Configuration | Retained pin | Actual tested boundary |
+|---|---|---|
+| billion-context | `9674cfafbc78c50245ae0d887483d3d6ce880c15` | Pinned search kernel, not the complete proxy workflow |
+| claude-mem | 15.18.1 at `c4a9f5725f420bf9c6e866cdd3b94bd36498af09` | Supplied raw-observation FTS; no observer |
+| Basic Memory | 1.0.0 at `c9bd187b83baba549d5cd16bacc180f8023d51c8` | Explicit FTS; no full default hybrid pipeline |
+| Mem0 | `mem0ai==2.2.1` | `infer=False`, Chroma provider, shared MiniLM representation |
+| Chroma | `chromadb==1.5.9` | Native vector retrieval with the same MiniLM representation |
+| LangGraph Store | `langgraph-checkpoint==4.3.2` | Store retrieval with the same MiniLM representation |
+| Haystack | `haystack-ai==3.5.0` | InMemoryBM25Retriever native BM25L and exact project filter |
+| BM25S | `bm25s==0.3.16` | Native defaults, one index per project |
+| LanceDB | `lancedb==0.41.0` | Native FTS and exact project prefilter |
+| Whoosh | `Whoosh==2.7.4` | Default analyzer / BM25F, explicitly configured OR parser |
+| Memvid | `memvid-sdk==2.0.160` | Explicit lexical mode and native URI-prefix scope |
+
+Original source/package/model locks: [billion-context](../benchmarks/competitors/billion-round2-lock.json),
+[claude-mem](../benchmarks/competitors/claude-mem-round2-lock.json),
+[six-component matrix](../benchmarks/competitors/memory-systems-lock.json),
+[Haystack/BM25S/Memvid](../benchmarks/competitors/extended-lexical-lock.json) and
+[LanceDB/Whoosh](../benchmarks/competitors/v012_search_components.lock.json).
+The shared MiniLM model and its content hash remain in the original lock;
+three interfaces using it are correlated evidence.
 
 ## Complete common-block results
 
-Book's two rows come from the current accepted source replay. The six original
-external configurations, the Haystack/BM25S extension and the LanceDB/Whoosh
-extension retain their original pinned executions. The three shared-MiniLM
-configurations are grouped for display, not counted as one execution or three
-independent model evaluations.
+Book's rows are the final v0.13 source replay at `91412b43`. The six original
+external configurations, Haystack/BM25S extension and LanceDB/Whoosh extension
+retain their original pinned executions. None was rerun in the 100,000-page
+v0.13 experiment. The three shared-MiniLM configurations are grouped for display,
+not counted as one execution or three independent model evaluations.
 
 | Component / tested mode | Budget | Required spans | Complete cases | Fixed-policy checks | Stale-only | Mean characters |
 |---|---:|---:|---:|---:|---:|---:|
-| **Book, v0.12 source replay** | 2,400 | **80/80** | **72/72** | **48/48** | **0** | 1,798.9 |
+| **Book, v0.13 source replay** | 2,400 | **80/80** | **72/72** | **48/48** | **0** | 1,798.9 |
 | BM25S 0.3.16, native defaults | 2,400 | 80/80 | 72/72 | 48/48 | 0 | 1,846.7 |
 | Whoosh 2.7.4, BM25F / configured OR | 2,400 | 80/80 | 72/72 | 48/48 | 0 | 1,457.8 |
 | Haystack 3.5.0, native BM25 | 2,400 | 74/80 | 66/72 | 42/48 | 0 | 1,884.7 |
@@ -93,7 +180,7 @@ independent model evaluations.
 | claude-mem, supplied-observation FTS | 2,400 | 72/80 | 64/72 | 40/48 | 0 | 1,488.5 |
 | Basic Memory, explicit FTS | 2,400 | 72/80 | 64/72 | 40/48 | 0 | 1,333.1 |
 | Each shared-MiniLM configuration | 2,400 | 55/80 | 47/72 | 25/48 | 4 | 1,963.1 |
-| **Book, v0.12 source replay** | 1,200 | **80/80** | **72/72** | **48/48** | **0** | 1,041.5 |
+| **Book, v0.13 source replay** | 1,200 | **80/80** | **72/72** | **48/48** | **0** | 1,041.5 |
 | BM25S 0.3.16, native defaults | 1,200 | 80/80 | 72/72 | 48/48 | 0 | 1,045.3 |
 | Whoosh 2.7.4, BM25F / configured OR | 1,200 | 80/80 | 72/72 | 48/48 | 0 | 884.5 |
 | Haystack 3.5.0, native BM25 | 1,200 | 74/80 | 66/72 | 42/48 | 0 | 969.9 |
@@ -152,10 +239,9 @@ native source reading. An all-empty result is not calibrated abstention.
 
 ## Native excerpt strategies
 
-These rows all come from the accepted source's fresh engineering replay. The
-flat strategy shares the product's native excerpt assembler, so its 1,200-character
-result also changes when that assembler changes; it is not a frozen external
-implementation.
+All rows below come from the final source's fresh engineering replay. The flat
+strategy shares Book's native excerpt assembler; it is a repository control,
+not a separately installed competitor. All its previous score outcomes remain.
 
 | Strategy | Budget | Required spans | Complete cases | Fixed-policy checks | Stale-only | Mean characters |
 |---|---:|---:|---:|---:|---:|---:|
@@ -174,69 +260,182 @@ has shorter citation headings and no top-five candidate limit. Native-excerpt
 and common-block rows remain separate protocols even where their aggregate
 counts agree.
 
-### What changed at 1,200 characters
+The v0.11 → v0.12 1,200-character improvement is retained in the
+[historical snapshot](v0.12.0-readme-results.md#what-changed-at-1200-characters).
+The v0.13 replay has no new score gain on this particular fixture. Zero
+stale-only is the fixed metric above, not removal of all historical evidence.
 
-| Book source / packing | Required spans | Complete cases | Fixed-policy checks | Stale-only | Mean characters |
-|---|---:|---:|---:|---:|---:|
-| v0.11 / native excerpts | 76/80 | 68/72 | 48/48 | 0 | 1,195.9 |
-| v0.12 / native excerpts | 80/80 | 72/72 | 48/48 | 0 | 1,196.6 |
-| v0.11 / common blocks | 76/80 | 68/72 | 44/48 | 4 | 1,048.1 |
-| v0.12 / common blocks | 80/80 | 72/72 | 48/48 | 0 | 1,041.5 |
+## Current declarations and bounded assessment
 
-The old four incomplete cases and four common-block stale-only outcomes are
-retained in the baseline responses. Neither the original question/label set
-nor the shared packer was changed. This is a development-fixture improvement,
-not a new independent test set. Zero stale-only means no registered stale span
-without any required span under that fixed metric; old and current text can
-still coexist in a response.
+The final declaration/control replay is bound to `4e4a8eb2`, separately from
+the final `91412b43` legacy replay. Python and native outputs agree on **914
+saved entry pairs** after excluding only latency and cache-hit fields: 1,828
+original entries in total. These are response/configuration counts, not that
+many independent accuracy questions.
+[Development report](../benchmarks/reports/v0.13-development/scale-correctness-review/development-review.json)
+· [Independent offline audit](../benchmarks/reports/v0.13-development/scale-correctness-review/final-offline-audit-attempt2.json).
 
-## Declaration diagnosis and remaining limits
+| Registered diagnostic | Per-backend observed result | Counting boundary |
+|---|---|---|
+| v0.13 62-question matrix | 38/38 answerable questions have expected first source and complete evidence in every auto setting | 496 response configurations per backend; 1,200/2,400 characters × one/five results × auto/relevance modes |
+| Existing 38-question matrix | 32/32 answerable questions have expected first source and complete evidence in every auto setting | 304 configurations per backend; controls and relevance-mode outcomes retained separately |
+| Additional correctness controls | 37/37 explicit expected outcomes met per backend | Quoted/conditional/negated references, revocation, fields/scopes and independently queried report/check facts |
+| New regression unit methods | 10/10 per backend | Methods, not a count of every subtest as an independent question |
 
-On the separately registered 38-question diagnostic, each auto-mode
-budget/limit setting improves expected-first-source recovery from **22/32 to
-30/32** answerable questions, on both backends. With limit one, complete evidence
-improves by the same counts; with limit five it stays **32/32**. Both
-`chinese-prose:0` and `chinese-prose:1` still select an earlier decision first;
-the newer evidence appears with limit five. The six non-answerable/control
-questions are reported separately, not added to the answerable denominator.
+All 496 v0.13 configurations per backend match their registered assessment and
+occurrence-intent labels. This is a diagnostic-contract result; it is not
+496/496 factual answers. The original 13-entry independent review was replayed; its outputs match
+the preceding `0a48eadd` candidate, including pure-prose `最终输出维度` and `current.phase_size`
+limitations. These are different cases from the two original 38-question
+Chinese diagnostic cases now passing. The tuned small replay is development
+evidence, not a new holdout.
 
-Current-state comparison now requires authenticated, statement-local comparable
-declarations even within the original relevance pool. This prevents specific
-unqualified recency transfers. It does not make BM25 a general authority model:
-a sufficiently relevant agenda can still rank first, ambiguous prose can be
-left unrecognized, equal-time conflicts are unresolved and missing-evidence
-queries can return related records. Project binding guards accidental scope
-changes within a configured connection; it is not multi-user authentication.
-The finite supplement cap does not bound every database scan or source check.
-[Every response, counterexample and correction](v0.12.0-validation.md).
+The added comparison rules use complete authenticated sources, local scope,
+whole field identity and exact literal agreement. A quoted, conditional,
+negated or differently scoped mention cannot automatically validate repeated
+values. A complete explicit no-change report may yield its relevance position
+to a comparable decision, but an explicitly requested report action, report
+object or independent check result keeps its own source. Unknown extra clauses
+retain conservative behavior. These are finite syntactic rules, not general
+natural-language interpretation; repeated non-ASCII field identities remain
+conservative.
 
-## Architecture coverage and historical performance
+| Assessment status | Meaning within the inspected candidate pool |
+|---|---|
+| `comparable_declaration` | At least one authenticated comparable declaration was established |
+| `potential_conflict` | Latest equal-time comparable declarations contain distinct literals; page IDs identify sources to inspect |
+| `no_comparable_declaration` | No comparable declaration was established by the inspected routes; related text can still be returned |
+| `no_matching_evidence` | The assessed route produced no matching candidates; this is not an exhaustive archive search |
+| `not_assessed` | Declaration assessment did not run for this request, including relevance/history, occurrence or skipped retrieval routes |
 
-The official-source review covers **26 external project families**, including
-six retrieval/store libraries or frameworks. **Eleven external configurations**
-have actually run on this fixture: ten scored configurations and Memvid's
-separate query limitation. Hindsight, MemSearch and MCP Memory Service were
-added through pinned documentation review, without runtime scores. Companion
-LangMem remains grouped with LangGraph. [Complete modes and sources](open-source-memory-comparison.md).
+MCP compact output retains assessed status and conflict page IDs. It does not
+silently turn a conflict into an authoritative value. Query scope and source
+reads still require the same project identity. Equal timestamps alone do not
+establish factual authority; source order inside a session remains distinct
+from a conflict across comparable sources. Missing evidence and unrecognized
+syntax remain uncertainty, not proof that no decision exists.
 
-The README's v0.10 semantic/directory and earlier native-core timings keep their
-original source snapshots, costs and slower cases. v0.12 changes temporal
-ordering and character/token assembly. Identical C/header bytes establish
-component continuity only. No new latency comparison, product-wide speedup,
-allocation win or combined percentage is inferred from the correctness runs.
+## Directory navigation, source scope and budgets
 
-## Reproduce and audit without replacing evidence
+The final `91412b43` replay passes **119/119 directory contracts per backend**.
+Each backend performs 130 locator calls and 161 original-page reads covering
+80 distinct pages. The saved-source audit preserves 36 expected error outcomes
+and finds zero source mismatches. These repeated operations test exact scope,
+metadata navigation, pagination and follow-up reads; they are not additional
+answer-quality questions. [Final contracts and operations](../benchmarks/reports/v0.13-development/legacy-gates-integrated/91412b43-attempt1/summary.json).
 
-Use fresh output paths and the committed immutable baseline/candidate sources.
-The [engineering replay driver](../scripts/validate_v012_engineering.py) verifies
-actual runtime inventories and independently recomputes scores. The
-[declaration evaluator](../benchmarks/v012_revision_eval.py) and
-[pair auditor](../benchmarks/v012_revision_pair_audit.py) retain their frozen
-protocol and before/after runtime identities. Repeated execution creates a new
-attempt; it must not overwrite recorded successes or failures.
+Directory hits explicitly have `evidence=false`; titles and summaries are
+navigation hints. Following their addresses reaches the original evidence.
+A project-bound MCP connection inherits its configured project when omitted
+and rejects conflicting project or foreign-page requests. Unbound requests can
+search across books. This prevents accidental scope switching within a bound
+connection; it is not multi-user authentication or automatic inference of the
+project from the current terminal directory.
 
-The [LanceDB/Whoosh evidence restorer](../benchmarks/reports/v0.12-search-components/README.md#evidence-and-lossless-restoration)
-checks every compressed piece, original file and audit digest before offline
-recomputation. It requires no upstream installation to verify saved records and
-does not rerun ranking. Source checks, package installations, correctness
-replays, CI and public-installer delivery are distinct evidence levels.
+The short-page replay executes **482 configurations per backend**. All **434**
+recorded current-evidence presences remain present; 48 original insufficient-
+budget controls remain. The original 34 regressions from an earlier unprotected
+candidate are retained and their available control payloads independently
+verified. The other original controls retain their recorded presence observations;
+missing historical payloads were not reconstructed. Characters include citation
+headings and separators in `context`, not the whole JSON response or model
+billing tokens. Optional token caps are a separate interface.
+
+## Long-history performance and remaining costs
+
+The formal run contains **84 execution blocks, 1,008 quality calls and 12,600
+performance calls: 13,608 total**. Seven recall queries and two full directory
+chains repeat at each stage, across six balanced rounds ordered
+`AB, BA, BA, AB, AB, BA`. Each recall query/version/stage has **30 cold-result-cache
+calls and 90 immediate warm-result-cache calls**; directory chains have 30.
+The optional 200,000-page extension was not executed.
+
+Cold means deleting the recall-result cache before timing. OS, SQLite page and
+helper caches are not flushed. Warm calls use the immediate result-cache path.
+Directory timing includes discovery, section access and original-page reading.
+Snapshot restore, opening the database, scoring and journaling are outside the
+query timer. The single hosted Linux x86_64 runner reports Python 3.12.16,
+SQLite 3.45.1 and AMD EPYC 7763 with four logical CPUs exposed. These are API
+measurements on one authored workload, not model generation or coding-task
+completion time. [Raw timing review](../benchmarks/reports/v0.13-development/scale-run2-review/scale-run2-summary.md).
+
+| Timing family | Query-stage groups | Lower candidate pooled p50 | Higher candidate pooled p50 | Lower / higher median paired-round p50 ratio |
+|---|---:|---:|---:|---:|
+| Cold-result-cache recall | 49 | 12 | **37** | 14 / **35** |
+| Warm-result-cache recall | 49 | 42 | **7** | 42 / **7** |
+| Complete directory chain | 14 | **14** | 0 | **14** / 0 |
+
+Pooled p50 is the median of all calls in a group. The paired summary first
+compares baseline/candidate medians within each of the six rounds, then takes
+the median of those ratios. The two statistics answer different questions and
+can differ in direction; the cold 12/37 and 14/35 counts are not interchangeable.
+They are observed directions, not statistical-significance claims. p95 uses
+nearest rank with n=30 for cold/directory and n=90 for warm.
+
+| Checkpoint / query | Baseline p50 → v0.13 p50, ms | Baseline p95 → v0.13 p95, ms |
+|---|---:|---:|
+| Interleaved 100k · archived current | 166.898 → **102.478** | 175.218 → **113.145** |
+| Interleaved 100k · archived historical | 133.222 → **67.912** | 134.992 → **69.078** |
+| Interleaved 100k · archived directory chain | 159.154 → **26.707** | 163.496 → **30.749** |
+| Interleaved 100k · active current | 332.062 → **338.309** | 337.134 → **341.403** |
+| Reference 1,024 · archived current | 6.726 → **10.516** | 16.026 → **20.485** |
+| Reference 1,024 · multi-source | 7.235 → **11.316** | 7.595 → **11.674** |
+
+Recall rows in this table are cold-result-cache calls; the directory row is the
+complete uncached navigation chain. The worst cold pooled p50 increase is
+**56.4%** for the small multi-source query, whose baseline omits the current
+policy. The small archived-current query also rises **56.3%**, so the costs
+cannot all be attributed to fixing an incomplete answer. All seven warm
+slowdowns are multi-source queries; their additional complete evidence and
+extra latency are both retained. The largest warm pooled p50 increase is 9.3%.
+No failure or slower row is discarded from the complete tables.
+
+Cold recall still depends on archive size, even when an archived project's own
+pages do not grow. A better 100k archived query is not constant-time access.
+The implementation reuses directory/chronology matching work and can use exact
+small project membership when a row-ID range is unhelpful, preserving ownership
+joins, fallback routes and source/result semantics. [FTS5 BM25 scoring](https://www.sqlite.org/fts5.html#the_bm25_function) still uses
+whole-table document counts, average length and phrase document frequencies; bounded output does not bound every scan, rank computation
+or source authentication step. Initialization, storage and process-lifetime peak
+RSS are separate resource observations, not included in the query latency or
+claimed as per-query allocation.
+
+Earlier [v0.10 semantic/directory timings](comprehensive-v010-validation.md) and
+[native-core timings](native-core-validation.md) remain historical, including
+their startup costs and slower cases. Unchanged C/header bytes establish
+component continuity only; these historical percentages are not v0.13 speedups
+or additions to the new experiment.
+
+## CI and publication boundary
+
+Exact-source [CI run 44331775791, attempt 1](https://github.com/Afloat16/AI-Memory-Book/actions/runs/44331775791)
+passed all 11 jobs at `e0e2515f`: five Python core jobs, MCP, browser reader,
+three installer jobs and container. The MCP log records 1,719 discovered tests,
+1,705 passes, 14 skips and zero failures/errors.
+[Retained metadata and complete MCP log](../benchmarks/reports/v0.13-development/final-source-ci/review.json).
+These results do not cover a future source commit containing release registration
+or establish a new wheel matrix/public installation.
+
+The published v0.12.0 remains separately proven by release run `44275753685`,
+attempt 1: 30 native cells, 4,245 passes plus 75 permitted skips, 67 independently
+downloaded assets and successful real public-URL installation. Its exact-source
+CI is `44275753683`, attempt 1. These facts remain [v0.12 delivery evidence](../benchmarks/reports/v0.12-publication/README.md),
+not v0.13 publication counts. Archive schema remains 4.
+
+## Architecture coverage and reproduction
+
+The retained official-source review covers **26 external project families**,
+including six retrieval/store libraries or frameworks. Eleven configurations
+were actually executed on the small original fixture; other families receive
+feature/deployment coverage with pinned sources, without invented runtime
+scores. [Architecture comparison and exact source references](open-source-memory-comparison.md).
+
+Use immutable runtime/evaluator commits and fresh output directories. Preserve
+failed attempts and no-answer/control cases. The
+[engineering replay driver](../scripts/validate_v012_engineering.py),
+[62-question evaluator](../benchmarks/v013_accuracy_eval.py) and
+[38-question evaluator](../benchmarks/v012_revision_eval.py) retain their
+registered protocols. Saved-response auditing is independent of rerunning
+retrieval. The [LanceDB/Whoosh restorer](../benchmarks/reports/v0.12-search-components/README.md#evidence-and-lossless-restoration)
+verifies archive parts and original files before offline audit; it does not
+re-execute the upstream search engine.

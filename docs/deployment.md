@@ -17,18 +17,20 @@ key. Your AI client's own model and account requirements remain separate.
 <a id="install-v090"></a>
 <a id="install-v0100"></a>
 <a id="install-v0110"></a>
+<a id="install-v0120"></a>
 
-## Install v0.12.0
+## Install v0.13.0
 
-**v0.12.0 is published.** Its exact-source CI, 30 native build/install cells
-and real public-URL installer passed. All 67 public release files were
-independently downloaded and hash-verified.
-[Original delivery proof](../benchmarks/reports/v0.12-publication/README.md)
-· [Source acceptance and validation](v0.12.0-validation.md).
+**v0.13.0 is in release preparation at this source checkpoint.** The pinned
+commands below are usable after its release workflow and public installer
+complete. Follow the [current validation record](https://github.com/Afloat16/AI-Memory-Book/blob/main/docs/v0.13.0-validation.md)
+for actual delivery status. The existing published version remains
+[v0.12.0](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.12.0)
+until those gates pass; source acceptance alone is not publication evidence.
 
 Download the pinned installer, run it, and connect your AI
-client. The installer selects a compatible **v0.12.0 native wheel** from the
-[GitHub release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.12.0),
+client. The installer selects a compatible **v0.13.0 native wheel** from the
+[GitHub release](https://github.com/Afloat16/AI-Memory-Book/releases/tag/v0.13.0),
 using the isolated environment's own Python compatibility tags. It validates the
 manifest and verifies the wheel and loaded extension hashes before activating the launcher.
 Platforms without a compatible native wheel use the pure-Python fallback.
@@ -39,19 +41,19 @@ included in the installation; capture and the browser reader remain optional.
 ### macOS / Linux
 
 ```bash
-curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.12.0/scripts/install.sh
+curl -fsSLo install-memory-book.sh https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.13.0/scripts/install.sh
 bash install-memory-book.sh
 ```
 
 ### Windows PowerShell
 
 ```powershell
-Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.12.0/scripts/install.py -OutFile install-memory-book.py
+Invoke-WebRequest https://raw.githubusercontent.com/Afloat16/AI-Memory-Book/v0.13.0/scripts/install.py -OutFile install-memory-book.py
 py -3 -I -X utf8 .\install-memory-book.py
 ```
 
 The shared Python installer also works on macOS/Linux. A PowerShell wrapper is
-available at [the v0.12.0 `scripts/install.ps1`](https://github.com/Afloat16/AI-Memory-Book/blob/v0.12.0/scripts/install.ps1). Neither wrapper
+available at [the v0.13.0 `scripts/install.ps1`](https://github.com/Afloat16/AI-Memory-Book/blob/v0.13.0/scripts/install.ps1). Neither wrapper
 changes your shell profile or PowerShell execution policy. Use Python 3.10 or
 newer; some Linux distributions package `venv` separately.
 
@@ -70,7 +72,7 @@ live under the data directory's `install` subdirectory. The usual POSIX launcher
 is `~/.local/bin/memory-book`; Windows uses the data directory's `bin` directory.
 Custom `--prefix`, `--bin-dir`, or `MEMORY_BOOK_HOME` can change these locations.
 
-The downloaded helper defaults to `--version v0.12.0`. It also accepts an older
+The downloaded helper defaults to `--version v0.13.0`. It also accepts an older
 release tag, a full commit SHA, or `--source /absolute/path/to/checkout-or-wheel`.
 `--without-extras` installs only
 the core and therefore omits MCP/client integration. Installation stages a new
@@ -89,7 +91,7 @@ memory-book setup --client claude-code
 memory-book doctor
 ```
 
-The version should be `0.12.0`. Replace `claude-code` with your client profile,
+The version should be `0.13.0`. Replace `claude-code` with your client profile,
 such as `codex`; add `--dry-run` to setup if you want to preview configuration
 changes. Restart the selected client so it loads the new MCP connection. The
 server sends concise operating instructions at initialization; it does not preload your
@@ -105,7 +107,7 @@ itself enable transcript capture.
 Already installed? Follow [Upgrading](#upgrading) to keep your existing database
 and reconnect clients to the new environment.
 
-### Recall defaults in v0.12.0
+### Recall defaults in v0.13.0
 
 An omitted recall budget means **2,400 characters**, including citation
 headings, with up to **five results**. The default remains the local lexical
@@ -120,7 +122,7 @@ budget for every project. Supply `budget_chars` explicitly when a task needs a
 different allowance; for example, Python/MCP `budget_chars=4000` or CLI
 `memory-book recall "query" --project project-id --budget 4000` uses that explicit
 character allowance. Limits on the context text do not cap all
-protocol metadata or model tokens. See the [release scope](releases/v0.12.0.md)
+protocol metadata or model tokens. See the [release scope](releases/v0.13.0.md)
 and [token budgets](token-budget.md).
 
 ### Keep a client connection inside one project
@@ -159,13 +161,13 @@ a native wheel from the release that matches that environment's Python, ABI and
 platform, then verify the backend as described below:
 
 ```bash
-uv tool install "ai-memory-book[mcp,clients] @ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.12.0/ai_memory_book-0.12.0-py3-none-any.whl"
+uv tool install "ai-memory-book[mcp,clients] @ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.13.0/ai_memory_book-0.13.0-py3-none-any.whl"
 ```
 
 Or:
 
 ```bash
-pipx install "ai-memory-book[mcp,clients] @ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.12.0/ai_memory_book-0.12.0-py3-none-any.whl"
+pipx install "ai-memory-book[mcp,clients] @ https://github.com/Afloat16/AI-Memory-Book/releases/download/v0.13.0/ai_memory_book-0.13.0-py3-none-any.whl"
 ```
 
 These wheel URLs do not require Git. The persistent tool workflows are described
@@ -184,7 +186,7 @@ indexes; this is not an offline installation promise.
 ### Source checkout
 
 ```bash
-git clone --branch v0.12.0 https://github.com/Afloat16/AI-Memory-Book.git
+git clone --branch v0.13.0 https://github.com/Afloat16/AI-Memory-Book.git
 cd AI-Memory-Book
 python -m venv .venv
 source .venv/bin/activate
@@ -434,23 +436,23 @@ unnecessary when the daemon already provides that reader.
 
 ## Schema 4 upgrade
 
-**v0.12.0 includes schema 4**, identifier-aware lexical retrieval, temporal recall
+**v0.13.0 includes schema 4**, identifier-aware lexical retrieval, temporal recall
 controls, verified database backup, and read-only archive checks. The release
 installer and a checkout of the release tag provide the same runtime features;
 a development checkout is no longer required for these capabilities.
 This migration procedure applies to earlier schemas. An archive already on
-schema 4 needs no new schema migration for v0.12.0.
+schema 4 needs no new schema migration for v0.13.0.
 
 Before moving an existing archive to schema 4:
 
 1. Stop background capture and close all old MCP servers and other writers.
-   Install or prepare the v0.12.0 environment without opening the archive
+   Install or prepare the v0.13.0 environment without opening the archive
    through ordinary commands.
-2. Use the **v0.12.0** launcher to run `backup --output NEW_PATH` against
+2. Use the **v0.13.0** launcher to run `backup --output NEW_PATH` against
    the existing database. This maintenance path reads the old schema without
    migrating it. `check-database` reports `migration_required` while preserving
    the snapshot and source. Keep that pre-migration snapshot.
-3. Open the working archive with a normal v0.12.0 command, such as
+3. Open the working archive with a normal v0.13.0 command, such as
    `memory-book stats`. The schema-3-to-4 migration transactionally rebuilds the
    derived exact and stem FTS indexes. Original normalized source text, page IDs
    and source content hashes remain intact. The source-hashing `INDEX_VERSION`
@@ -460,7 +462,7 @@ Before moving an existing archive to schema 4:
    check and must be explicitly rebuilt; default lexical recall is ready after
    migration without an embedding model.
 4. Update **every writer's** environment and client/service configuration to the
-   v0.12.0 launcher, preserving the database, background configuration
+   v0.13.0 launcher, preserving the database, background configuration
    and intended capture/write settings. Reinstall the user service with the new
    launcher where needed, then restart all clients and capture workers.
 
@@ -473,7 +475,7 @@ there is no automatic downgrade of the migrated file.
 
 ## Back up and check the archive
 
-These commands are included in [v0.12.0](#install-v0120).
+These commands are included in [v0.13.0](#install-v0130).
 
 Create a verified database snapshot with:
 
@@ -580,45 +582,41 @@ particular point in history.
 
 ## Upgrading
 
-v0.12.0 keeps schema 4, existing source IDs, project-bound chapter/source
-navigation and the 22-entry native backend. It requires authenticated,
-statement-local comparable declarations throughout current-state temporal
-ordering, including the original relevance pool. Explicit field/environment
-qualifiers cannot come from another sentence or a directory title. Guarded
-revision syntax remains limited; high original lexical relevance can still
-rank an agenda ahead, and chronology does not establish decision authority.
+v0.13.0 keeps schema 4, existing source IDs, project-bound chapter/source
+navigation and the 22-entry native backend. It qualifies repeated declarations,
+handles bounded bilingual current-state wording and keeps independently requested
+report facts visible. The default response also supplies bounded evidence
+assessment; an assessment is not proof of whole-archive completeness or absence.
 
-The release also completes short source pages within the character budget
-while protecting already-fitting current turns and existing minimum allowances.
-Exact-token first-fit begins with those same protected character blocks and
-preserves every whole block that fits before optional token-unit supplementation.
-See the [v0.12 validation record](v0.12.0-validation.md) for the unchanged
-engineering replay, separate declaration diagnostic, navigation contracts,
-original failures and remaining limits. Earlier semantic, directory and native
-performance measurements retain their historical source identities; they are
-not speed measurements of this complete runtime. An archive already on schema 4
-needs no new schema migration for this release.
+Directory/current-candidate batching and guarded small-project routing reduce
+some work, while the global FTS ranking remains. The frozen 100k-page experiment
+improves complete answerable evidence from 48/56 to 56/56 at every stage and
+reduces directory p50 in all 14 groups. Cold-recall p50 is higher in 37/49 groups;
+fixed-size old projects still incur growth-dependent cost. See the
+[v0.13 validation record](v0.13.0-validation.md) for exact sources, every timing
+group, retained failures and limits. An archive already on schema 4 needs no
+new migration for this release.
 
-To upgrade to **v0.12.0**, first follow the [schema 4 procedure](#schema-4-upgrade)
+To upgrade to **v0.13.0**, first follow the [schema 4 procedure](#schema-4-upgrade)
 when your working archive uses an earlier schema. For that migration, stop older
 writers, install the new runtime without opening the archive, and create a
 verified snapshot with the new launcher's existing `backup` command before
 normal commands migrate the working database.
 
-Download and run the v0.12.0 installer shown above, using the same `--prefix`,
+Download and run the v0.13.0 installer shown above, using the same `--prefix`,
 `--bin-dir`, or `MEMORY_BOOK_HOME` overrides if you originally selected them.
 Download the new helper rather than reusing one that defaults to another release.
-For uv, pipx, or a source checkout, use the corresponding pinned v0.12.0 URL or tag.
+For uv, pipx, or a source checkout, use the corresponding pinned v0.13.0 URL or tag.
 Update every client and background worker to the new launcher, then restart them.
 
 The default remains **2,400 characters and five results**. `temporal=auto` infers
 whether current-evidence ordering is appropriate; `current` explicitly requests
 it, and `relevance` keeps relevance ordering. Neither mode computes historical
 state as of an arbitrary date or decides which source is authoritative. The existing
-recall-cache identity separates these modes. v0.12.0 increments the recall cache
-version to 21 for the declaration and protected-allocation changes. Relevance
-and historical queries keep their established ranking route; context allocation
-can change because short-record completion also applies to their selected pages.
+recall-cache identity separates these modes. v0.13.0 increments the recall cache
+version to 26 for its declaration, evidence-assessment and routing changes.
+Relevance and historical queries retain their established ranking semantics;
+assessment metadata does not create a new authority decision.
 A cache miss after upgrading is expected; stored source records and their IDs
 are retained. Character and optional token budgets continue to apply together.
 
@@ -632,7 +630,7 @@ inheritance behavior.
 and normalized source JSON before publication. A failed export removes its own
 staging files, allowing a retry to the same absent or empty target; existing
 nonempty targets and the current working directory itself are rejected; choose
-a new child directory for a handoff. See the [v0.12.0 release notes](releases/v0.12.0.md)
+a new child directory for a handoff. See the [v0.13.0 release notes](releases/v0.13.0.md)
 for validation evidence and the exact scope of the changes.
 
 Each MemoryBook connection uses a **4096 KiB SQLite pager cache target**.
@@ -696,7 +694,7 @@ memory-book setup --client claude-code --client codex
 memory-book doctor
 ```
 
-Confirm that the new launcher prints `0.12.0`. If you already use background
+Confirm that the new launcher prints `0.13.0`. If you already use background
 capture, update its service to the new environment:
 
 ```bash
