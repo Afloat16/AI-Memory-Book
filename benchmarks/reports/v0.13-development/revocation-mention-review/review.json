@@ -1,0 +1,353 @@
+{
+  "scope": "Independent development follow-up to the previously frozen review; no formal scale timing or external project comparison.",
+  "source_commit": "971504257ab03082a0557c638297d482c18f3876",
+  "base_runtime": "57db3a81b7f6eaad38933e9b72e5b43e6eaf3a53",
+  "protocol_freeze_commit": "5505a17aa57dfbe111ef94fad335a43b68de11ab",
+  "baseline_failure_commit": "8039001f70d1ec1c6029a900315fb65e3ddd0f76",
+  "author_and_committer": "Afloat <ShuffleMonkey@163.com>",
+  "recall_version": 24,
+  "schema_version": 4,
+  "findings": [
+    "The previous value has been revoked.",
+    "旧值已被撤销。"
+  ],
+  "baseline": "Both variants promote the revoked previous source under runtime 57 / recall version 23, on both backends. Each complete response and exact input is preserved.",
+  "fix": "A conservative revocation-mention guard only prevents nondecision demotion. It recognizes revoke/withdraw inflections and 撤销/撤回 independently of declaration parsing. It assigns no authoritative status, does not alter _EXPLICIT_REVOCATION or declaration qualification, and can conservatively keep extra sources if the mention concerns another field.",
+  "result": "Both variants retain the later revocation-bearing source with zero nondecision promotions on both backends.",
+  "regression_scope": {
+    "v013": "496 responses per backend. Auto answerable 38/38 first source and complete evidence in each of four cells. All 496 assessment and occurrence labels correct. Relevance, missing and conflict controls remain unaltered.",
+    "v012": "304 responses per backend. Auto answerable 32/32 first source and complete evidence in each of four cells. Other controls remain unaltered.",
+    "original_review": "13 preserved entries per backend: 12 direct responses plus one bound MCP SDK group. All original source/request bytes unchanged.",
+    "unit_tests": {
+      "focused_python": {
+        "passed": 15,
+        "skipped": 0
+      },
+      "focused_native": {
+        "passed": 6,
+        "skipped": 0
+      },
+      "current_python": {
+        "passed": 103,
+        "skipped": 1
+      },
+      "current_native": {
+        "passed": 104,
+        "skipped": 0
+      }
+    }
+  },
+  "offline_equivalence": "All 800 quality row pairs and all 13 original review pairs are equal across backends, and all 1600 quality responses and 26 original review entries equal their runtime-57 counterparts after removing only latency_ms/cache_hit. Both new variant baselines equal across backends, as do both fixed candidate variants.",
+  "raw_counts": {
+    "frozen_quality": 1600,
+    "original_review_entries": 26,
+    "new_variant_baseline_responses": 4,
+    "new_variant_candidate_responses": 4
+  },
+  "limitations": [
+    "Developer-authored development checks support only their exact recorded cases. No universal factual correctness or superiority claim is supported.",
+    "Previously recorded pure-prose 最终输出维度/current.phase_size limitations and unscoped conflict-address labeling limitation remain unchanged.",
+    "No large-scale benchmark was run by this agent."
+  ],
+  "commands": [
+    {
+      "argv": [
+        "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+        "benchmarks/v013_accuracy_eval.py",
+        "--source",
+        "/workspace/scratch/428c08bef2bc/v013-assessment-fix",
+        "--commit",
+        "971504257ab03082a0557c638297d482c18f3876",
+        "--backend",
+        "python",
+        "--output",
+        "benchmarks/reports/v0.13-development/revocation-mention-review/v013-python-attempt1"
+      ],
+      "result": "exit 0; full raw result audited by unchanged evaluator",
+      "stdout": "logs/v013-python.stdout.json",
+      "stderr": "logs/v013-python.stderr.log"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+        "benchmarks/v013_accuracy_eval.py",
+        "--source",
+        "/workspace/scratch/428c08bef2bc/v013-assessment-fix",
+        "--commit",
+        "971504257ab03082a0557c638297d482c18f3876",
+        "--backend",
+        "native",
+        "--output",
+        "benchmarks/reports/v0.13-development/revocation-mention-review/v013-native-attempt1"
+      ],
+      "result": "exit 0; full raw result audited by unchanged evaluator",
+      "stdout": "logs/v013-native.stdout.json",
+      "stderr": "logs/v013-native.stderr.log"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+        "benchmarks/v012_revision_eval.py",
+        "--source",
+        "/workspace/scratch/428c08bef2bc/v013-assessment-fix",
+        "--commit",
+        "971504257ab03082a0557c638297d482c18f3876",
+        "--backend",
+        "python",
+        "--output",
+        "benchmarks/reports/v0.13-development/revocation-mention-review/v012-python-attempt1"
+      ],
+      "result": "exit 0; full raw result audited by unchanged evaluator",
+      "stdout": "logs/v012-python.stdout.json",
+      "stderr": "logs/v012-python.stderr.log"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+        "benchmarks/v012_revision_eval.py",
+        "--source",
+        "/workspace/scratch/428c08bef2bc/v013-assessment-fix",
+        "--commit",
+        "971504257ab03082a0557c638297d482c18f3876",
+        "--backend",
+        "native",
+        "--output",
+        "benchmarks/reports/v0.13-development/revocation-mention-review/v012-native-attempt1"
+      ],
+      "result": "exit 0; full raw result audited by unchanged evaluator",
+      "stdout": "logs/v012-native.stdout.json",
+      "stderr": "logs/v012-native.stderr.log"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+        "benchmarks/reports/v0.13-development/revocation-mention-review/probe.py",
+        "--runtime",
+        "/workspace/scratch/428c08bef2bc/v013-assessment-fix",
+        "--source-commit",
+        "57db3a81b7f6eaad38933e9b72e5b43e6eaf3a53",
+        "--output",
+        "benchmarks/reports/v0.13-development/revocation-mention-review/baseline-python-attempt1"
+      ],
+      "environment": {
+        "MEMORY_BOOK_TEXT_BACKEND": "python",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "result": {
+        "execution_exit": 0,
+        "responses": 2,
+        "expected_cases_passed": 0
+      },
+      "raw": "baseline-python-attempt1/raw.jsonl",
+      "receipt": "baseline-python-attempt1/receipt.json"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+        "benchmarks/reports/v0.13-development/revocation-mention-review/probe.py",
+        "--runtime",
+        "/workspace/scratch/428c08bef2bc/v013-assessment-fix",
+        "--source-commit",
+        "57db3a81b7f6eaad38933e9b72e5b43e6eaf3a53",
+        "--output",
+        "benchmarks/reports/v0.13-development/revocation-mention-review/baseline-native-attempt1"
+      ],
+      "environment": {
+        "MEMORY_BOOK_TEXT_BACKEND": "native",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "result": {
+        "execution_exit": 0,
+        "responses": 2,
+        "expected_cases_passed": 0
+      },
+      "raw": "baseline-native-attempt1/raw.jsonl",
+      "receipt": "baseline-native-attempt1/receipt.json"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+        "benchmarks/reports/v0.13-development/revocation-mention-review/probe.py",
+        "--runtime",
+        "/workspace/scratch/428c08bef2bc/v013-assessment-fix",
+        "--source-commit",
+        "971504257ab03082a0557c638297d482c18f3876",
+        "--output",
+        "benchmarks/reports/v0.13-development/revocation-mention-review/candidate-python-attempt1"
+      ],
+      "environment": {
+        "MEMORY_BOOK_TEXT_BACKEND": "python",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "result": {
+        "execution_exit": 0,
+        "responses": 2,
+        "expected_cases_passed": 2
+      },
+      "raw": "candidate-python-attempt1/raw.jsonl",
+      "receipt": "candidate-python-attempt1/receipt.json"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+        "benchmarks/reports/v0.13-development/revocation-mention-review/probe.py",
+        "--runtime",
+        "/workspace/scratch/428c08bef2bc/v013-assessment-fix",
+        "--source-commit",
+        "971504257ab03082a0557c638297d482c18f3876",
+        "--output",
+        "benchmarks/reports/v0.13-development/revocation-mention-review/candidate-native-attempt1"
+      ],
+      "environment": {
+        "MEMORY_BOOK_TEXT_BACKEND": "native",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "result": {
+        "execution_exit": 0,
+        "responses": 2,
+        "expected_cases_passed": 2
+      },
+      "raw": "candidate-native-attempt1/raw.jsonl",
+      "receipt": "candidate-native-attempt1/receipt.json"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+        "/workspace/scratch/428c08bef2bc/v013-independent-review/probe.py",
+        "--runtime",
+        "/workspace/scratch/428c08bef2bc/v013-assessment-fix",
+        "--output",
+        "benchmarks/reports/v0.13-development/revocation-mention-review/original-review-python-attempt1",
+        "--mcp-snapshot",
+        "/workspace/scratch/428c08bef2bc/v013-independent-review/mcp_server_snapshot.py"
+      ],
+      "environment": {
+        "MEMORY_BOOK_TEXT_BACKEND": "python",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "result": "exit 0; original inputs and 13 entries retained",
+      "stdout": "logs/original-review-python.stdout.jsonl",
+      "stderr": "logs/original-review-python.stderr.log"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+        "benchmarks/reports/v0.13-development/assessment-review-fix/review_backend_probe.py",
+        "--runtime",
+        "/workspace/scratch/428c08bef2bc/v013-assessment-fix",
+        "--output",
+        "benchmarks/reports/v0.13-development/revocation-mention-review/original-review-native-attempt1",
+        "--mcp-snapshot",
+        "/workspace/scratch/428c08bef2bc/v013-independent-review/mcp_server_snapshot.py"
+      ],
+      "environment": {
+        "MEMORY_BOOK_TEXT_BACKEND": "native",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "result": "exit 0; original inputs and 13 entries retained",
+      "stdout": "logs/original-review-native.stdout.jsonl",
+      "stderr": "logs/original-review-native.stderr.log"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+        "-m",
+        "unittest",
+        "tests.test_current_evidence_assessment",
+        "tests.test_v013_assessment_review_regressions",
+        "-v"
+      ],
+      "environment": {
+        "PYTHONPATH": "src",
+        "MEMORY_BOOK_TEXT_BACKEND": "python",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "log": "logs/focused-python.log",
+      "result": {
+        "tests": 15,
+        "passed": 15,
+        "skipped": 0,
+        "failed": 0
+      }
+    },
+    {
+      "argv": [
+        "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+        "-m",
+        "unittest",
+        "tests.test_v013_assessment_review_regressions",
+        "-v"
+      ],
+      "environment": {
+        "PYTHONPATH": "src",
+        "MEMORY_BOOK_TEXT_BACKEND": "native",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "log": "logs/focused-native.log",
+      "result": {
+        "tests": 6,
+        "passed": 6,
+        "skipped": 0,
+        "failed": 0
+      }
+    },
+    {
+      "argv": [
+        "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "*current*",
+        "-v"
+      ],
+      "environment": {
+        "PYTHONPATH": "src",
+        "MEMORY_BOOK_TEXT_BACKEND": "python",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "log": "logs/current-python.log",
+      "result": {
+        "tests": 104,
+        "passed": 103,
+        "skipped": 1,
+        "failed": 0
+      }
+    },
+    {
+      "argv": [
+        "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "*current*",
+        "-v"
+      ],
+      "environment": {
+        "PYTHONPATH": "src",
+        "MEMORY_BOOK_TEXT_BACKEND": "native",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "log": "logs/current-native.log",
+      "result": {
+        "tests": 104,
+        "passed": 104,
+        "skipped": 0,
+        "failed": 0
+      }
+    },
+    {
+      "argv": [
+        "/workspace/scratch/428c08bef2bc/.venv/bin/python",
+        "benchmarks/reports/v0.13-development/revocation-mention-review/verify_evidence.py"
+      ],
+      "result": "exit 0; independent offline checks, backend equality, original matrix source equivalence and frozen variant expectations verified",
+      "stdout": "offline-verification.json"
+    }
+  ]
+}

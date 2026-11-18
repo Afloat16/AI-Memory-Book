@@ -1,6 +1,6 @@
 # Exact development source snapshots
 
-The two Git bundles preserve the exact local commits referenced by the
+The Git bundles preserve the exact local commits referenced by the
 separate accuracy and scoped-query development reports. Later integration
 commits combine these changes and do not replace their original identities.
 The prerequisite commits are already saved in the public repository. Bundle
@@ -12,6 +12,8 @@ the retained branches without changing the current worktree:
 ```sh
 git bundle verify benchmarks/reports/v0.13-development/development-sources/accuracy.bundle
 git fetch benchmarks/reports/v0.13-development/development-sources/accuracy.bundle refs/heads/work/v013-accuracy-source:refs/heads/reproduce/v013-accuracy
+git bundle verify benchmarks/reports/v0.13-development/development-sources/assessment-corrections.bundle
+git fetch benchmarks/reports/v0.13-development/development-sources/assessment-corrections.bundle refs/heads/work/v013-assessment-fix:refs/heads/reproduce/v013-assessment-fix
 git bundle verify benchmarks/reports/v0.13-development/development-sources/performance.bundle
 git fetch benchmarks/reports/v0.13-development/development-sources/performance.bundle refs/heads/work/v013-performance:refs/heads/reproduce/v013-performance
 ```
