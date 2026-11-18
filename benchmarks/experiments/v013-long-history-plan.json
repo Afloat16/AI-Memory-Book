@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "protocol": "v013-long-history-scale-1",
+  "status": "protocol-before-measurement",
+  "baseline_commit": "8044e4bafe18e73ea422af5eeb47ef961e65246c",
+  "generator": "benchmarks/v013_workload.py",
+  "runner": "benchmarks/v013_scale.py",
+  "tests": "tests/test_v013_scale.py",
+  "seed": 1301729,
+  "scope": "Authored synthetic source-grounded engineering-memory diagnostic. No real-user, LLM coding-success, external-product, million-page, or universal superiority claim.",
+  "freeze": {
+    "required": "The exact protocol, generator, runner and integrity tests must be committed before any official workload query is executed. The root agent must save that commit remotely before starting run.",
+    "binding": "run requires an explicit protocol commit and two exact, clean runtime checkouts; file bytes are checked against the protocol commit. Both runtime commits, tracked runtime file hashes, loaded backend and native extension hash are recorded.",
+    "integrity_tests_before_freeze": "Pure generation, adversarial saved-response scoring, schedule and resource-bound tests are permitted. They do not execute the new formal recall queries.",
+    "failures": "Never rewrite queries, gold, sources, timing order or budgets to remove observed failures. Corrections require a new protocol version and retain original attempts. Interrupted work is resumable with immutable attempt directories.",
+    "integrity_test_reporting": "Label tests/test_v013_scale.py as pre-freeze evaluator-integrity and tiny-ingest/snapshot checks, record its actual test count and source hash, and never add those checks to formal query totals or quality denominators."
+  },
+  "source": {
+    "construction": "Only MemoryBook.ingest creates original conversations, turns, sections, pages and FTS indexes. No synthetic direct table population.",
+    "segmentation": "turn",
+    "max_page_chars": 900,
+    "min_page_chars": 0,
+    "boundary": "Turn segmentation deliberately gives one real stored page per turn. It is not a study of default adaptive segmentation, long-page quality, embedding retrieval, concurrent load or operating-system cold boot.",
+    "target_projects": 8,
+    "target_initial_pages_per_project": 16,
+    "inactive_targets": [
+      "routing-archive",
+      "ranking-archive"
+    ],
+    "long_lived_targets": [
+      "routing-core",
+      "training-core",
+      "attention-core"
+    ],
+    "newcomer_targets": [
+      "ranking-next",
+      "training-next",
+      "attention-next"
+    ],
+    "background_pages_per_session": 32,
+    "foreign_pages_per_project_at_most": 64,
+    "similarity": "Exact task names and code identifiers recur across projects; project IDs and approved numeric values differ. Original/current contracts, historical failures, Chinese queries, multi-source boundaries and source replacement are explicit. Approved current sources also contain Chinese text; Chinese cases require the original Chinese clause and code-point source coordinates.",
+    "gold_separation": "Retrieval receives only query, exact project ID and fixed request options. Expected quotes/source identities are passed only to the scorer after retrieval. Directory traversal follows returned IDs without gold-guided selection."
+  },
+  "axes": {
+    "age": "Fresh independent 1024-page databases receive identical conversations in identical ingestion order, differing only by a uniform 3650-day source-timestamp shift. Content, project IDs, source IDs, page IDs and rowid layout must match. This models source age, not a decade of actual process uptime or repeated reingestion.",
+    "foreign": "Hold all 128 target-project pages fixed; append only unrelated but similar project histories at 1024, 10016 and 50016 total pages. Required 1k/10k/50k floors are rounded to complete 32-turn sessions. Global FTS document-frequency/rank changes are reported rather than misclassified as evidence fabrication.",
+    "own": "Hold 49888 foreign pages fixed; grow the six active/newcomer target histories by 49984 pages to exactly 100000 total pages. Two inactive targets retain their 16 original pages and serve as unchanged probes. Added experiments explicitly do not approve new contracts.",
+    "layout": "Rebuild exactly the 100000-page logical corpus with round-robin source insertion, interleaving original target sources through foreign and own histories. Compare logical-source hashes and preserve the original clustered-layout observations. Keep only one large uncompressed DB at a time.",
+    "replacement": "After layout comparison, reingest six active-config sources under the same project/session IDs with changed approved numeric values. Total pages remain 100000. Gold changes only at this preregistered checkpoint; old config values must not be treated as current evidence."
+  },
+  "resource_profiles": {
+    "main": {
+      "required": true,
+      "checkpoint_ids": [
+        "age-reference-1024",
+        "age-shift-1024",
+        "foreign-10016",
+        "foreign-50016",
+        "own-100000",
+        "interleaved-100000",
+        "replacement-100000"
+      ],
+      "total_pages": [
+        1024,
+        1024,
+        10016,
+        50016,
+        100000,
+        100000,
+        100000
+      ]
+    },
+    "expanded": {
+      "required": false,
+      "requires_explicit_profile_selection": true,
+      "additional_checkpoint_ids": [
+        "foreign-150016",
+        "own-200000"
+      ],
+      "additional_total_pages": [
+        150016,
+        200000
+      ],
+      "interpretation": "Optional extension: hold the target histories from the 100000-total-page checkpoint fixed while adding foreign pages to 150016, then hold foreign pages fixed while adding own history to 200000. Unexecuted stages are not results."
+    }
+  },
+  "limits": {
+    "minimum_free_bytes": 262144000,
+    "maximum_database_bytes": 536870912,
+    "minimum_snapshot_headroom_bytes": 67108864,
+    "call_timeout_seconds": 20,
+    "worker_timeout_seconds": 600,
+    "build_timeout_seconds": 3600,
+    "run_timeout_seconds": 14400,
+    "on_limit": "Flush original journals; record actual achieved counts and the exact limit. Stop and list every unexecuted checkpoint/arm. Do not extrapolate 100k or optional 200k success."
+  },
+  "retrieval": {
+    "strategy": "book",
+    "temporal": "auto",
+    "semantic": false,
+    "coverage": false,
+    "limit": 5,
+    "budget_chars": 2400,
+    "budget_tokens": null,
+    "quality_recall_queries": 64,
+    "quality_directory_queries": 8,
+    "quality_answerable_recall_queries": 56,
+    "quality_missing_queries": 8,
+    "repeated_question_boundary": "Identifier and replacement prompts intentionally test the same source in different wording. Repeats, phases, projects and cache calls are not independent real-user examples."
+  },
+  "directory": {
+    "chapter_limit": 2,
+    "sections_per_chapter": 3,
+    "pages_per_section": 1,
+    "read_limit_chars": 900,
+    "total_original_evidence_budget_chars": 2400,
+    "path": "search_directory -> returned section IDs -> section -> returned page IDs -> read, with exact project scope on every call. Navigation titles/summaries do not count as evidence. Directory quality is a separate channel from direct recall."
+  },
+  "measurement": {
+    "backend": "explicit native or python; both arms must use the same selection, actual backend recorded, never silently fall back",
+    "runtime_environment": {
+      "PYTHONHASHSEED": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    },
+    "arm_order_by_round": [
+      [
+        "baseline",
+        "candidate"
+      ],
+      [
+        "candidate",
+        "baseline"
+      ],
+      [
+        "candidate",
+        "baseline"
+      ],
+      [
+        "baseline",
+        "candidate"
+      ],
+      [
+        "baseline",
+        "candidate"
+      ],
+      [
+        "candidate",
+        "baseline"
+      ]
+    ],
+    "repetitions_per_query_per_round": 5,
+    "warm_result_cache_calls_per_cold_call": 3,
+    "performance_query_ids": [
+      "routing-archive:current",
+      "routing-archive:historical",
+      "routing-archive:directory",
+      "routing-core:identifier",
+      "routing-core:current",
+      "ranking-next:chinese",
+      "ranking-next:directory",
+      "training-core:multi_source",
+      "attention-next:replacement"
+    ],
+    "quality": "All 72 cases once per arm per checkpoint in the first arm block. Every performance output is also source/gold checked after its timer; correctness is never inferred from speed.",
+    "cold_result_cache": "Explicitly delete only recall_cache outside timing before each cold sample. Invoke recall(use_cache=True), require cache_hit false, then immediately perform three timed identical warm calls requiring cache_hit true. SQLite pager, connection-local helper caches and OS caches are not globally flushed.",
+    "directory_cache": "The directory path has no result cache. Label its repeated measurements uncached-directory; do not call them warm recall-cache hits.",
+    "isolation": "No arm processes overlap. Restore the same baseline-built frozen SQLite gzip snapshot into a fresh working DB before every arm block, then remove the working copy after that process exits. Candidate-created indexes and caches never enter the next baseline arm. Opening/initializing the database, copying/restoring, integrity scoring, journaling and source hashing are outside call latency; opening time is separately recorded. Child workers inherit the invocation lock so a disconnected parent cannot cause a concurrent resume. All unreferenced interrupted attempt directories are listed, never deleted or silently pooled into final samples.",
+    "os_cache_boundary": "Restoration and earlier calls populate filesystem/OS caches. No privileged drop_caches operation or physical-storage-cold latency claim. Record host load/CPU/RSS and SQLite main/WAL/SHM sizes. ABBA helps order effects but is not proof of a noise-free isolated machine.",
+    "clock": "perf_counter_ns for external API wall time; process_time_ns for child-process CPU. resource.ru_maxrss is process lifetime high-water RSS, not per-call allocation or total system memory.",
+    "statistics": "Report per checkpoint/layout/arm/query/cache mode n, p50, nearest-rank p95, minimum and maximum, plus matched per-round medians and candidate/baseline ratios. Cold and directory n=30 per query per arm; warm n=90. These are single-host empirical quantiles, not universal service guarantees. No pooling unlike modes or correctness/performance trade-offs. Fixed-size quality/timing summaries accept only the single completed block for each registered round/arm. Interrupted partial attempts remain listed with original observations/errors and are not pooled with their resumed replacement. Duplicate completed blocks are rejected. Paired ratios require equal complete valid samples in both arms.",
+    "source_identity": "Exact baseline/candidate Git commits and hashes of all tracked src/memory_book files plus the imported extension; explicit repo-root-specific PYTHONPATH in fresh subprocesses. Timings do not measure shell/subprocess startup.",
+    "host_support": "Formal timing requires a POSIX host with resource, flock and SIGALRM. Integrity tests remain importable on Windows; this protocol makes no cross-platform timing claim.",
+    "expected_primary_counts": {
+      "checkpoints": 7,
+      "arm_blocks_per_checkpoint": 12,
+      "performance_calls_per_arm_block": 150,
+      "performance_calls_per_checkpoint": 1800,
+      "quality_calls_per_checkpoint": 144,
+      "performance_calls_total": 12600,
+      "quality_calls_total": 1008,
+      "api_measurements_total": 13608,
+      "cold_samples_per_query_per_arm_per_checkpoint": 30,
+      "warm_samples_per_query_per_arm_per_checkpoint": 90,
+      "directory_samples_per_query_per_arm_per_checkpoint": 30
+    },
+    "call_deadline": "The 20-second per-call SIGALRM deadline is best-effort: Python may handle the signal only after a SQLite/native C call returns. The parent enforces the separate 600-second hard worker timeout. A killed in-flight call has a started event but no invented latency or response; earlier completed raw records remain."
+  },
+  "evidence": {
+    "raw": "Append-only compact timing/hash/source-reference observations plus gzip JSONL containing every complete original API response, including all failures and partial timed-out attempts. Original responses are never replaced with rescored summaries.",
+    "dataset": "Record generated payload and logical-source hashes, actual table/page/project counts, per-target rowid span/density, created-date hashes, database/snapshot sizes and file hashes. Source reconstruction uses the frozen generator, not hidden stored answers.",
+    "correctness": [
+      "required evidence spans with matching original project/session/turn citations",
+      "full-source coordinate reconstruction including Chinese text",
+      "all excerpt characters backed by original source",
+      "cross-project pages/references",
+      "current-evidence first rank and stale-before-current separately",
+      "multi-source completeness",
+      "missing-evidence context-return diagnostic without calling empty output calibrated abstention",
+      "directory-read source correctness and bounded evidence budget"
+    ],
+    "comparison": "Same-checkpoint baseline/candidate comparisons use the same restored DB snapshot. Layout and age controls additionally compare normalized logical-source/evidence projections; data growth may legitimately change FTS scores/ranks. Any changed answers, failures, timeouts and unexecuted cells remain visible.",
+    "snapshots": "Large source DB snapshots are working artifacts and may be pruned after all dependent checkpoints and arm records are saved; their original hashes/sizes and deterministic rebuild specification remain in the manifest. Retain final snapshot when resources permit. No benchmark result is claimed solely from generated input size."
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "status": "passed",
+  "evidence_kind": "pre-freeze-evaluator-integrity",
+  "recorded_at_utc": "2026-11-18T12:50:36.691331+00:00",
+  "tests_run": 19,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "formal_retrieval_queries_executed": 0,
+  "scope": "Pure deterministic generation, adversarial supplied-response scoring, tiny real ingest/source-table checks, SQLite snapshot isolation and interrupted-attempt sample accounting; no formal recall or directory query executed against MemoryBook. These tests are not formal quality cases or measured performance samples.",
+  "source_sha256": {
+    "benchmarks/experiments/v013-long-history-plan.json": "22bd91af6210f9490b8655b76eb906dc990930005d8a3490fd76529107b6ecb4",
+    "benchmarks/v013_workload.py": "ac6b5afc3cfa560bb2890249576cf3f1bee209c6567cfcfdb11f2f6d29a2fb2d",
+    "benchmarks/v013_scale.py": "9e9a22f67013d50b1bc1a0464e6fc507179b65a116b8afff5305537c85387945",
+    "tests/test_v013_scale.py": "2d3bcbc8588c936ea78c75725472b036b78a6602fa6fc97f159ca5034845f595"
+  },
+  "tiny_ingest_runtime": {
+    "git_head": "b7a00373ea7538a69caf60e34418fb2756fa3303",
+    "store_py_sha256": "7012266f08c7c4b424dc078836601cbca7b0c9dfc9f45f6904b453055b7627cc",
+    "backend": "native"
+  },
+  "elapsed_seconds_for_tests_not_benchmark": 1.1430467889949796,
+  "derived_main_call_counts": {
+    "checkpoints": 7,
+    "arm_blocks_per_checkpoint": 12,
+    "performance_calls_per_arm_block": 150,
+    "performance_calls_per_checkpoint": 1800,
+    "quality_calls_per_checkpoint": 144,
+    "performance_calls_total": 12600,
+    "quality_calls_total": 1008,
+    "api_measurements_total": 13608,
+    "cold_samples_per_query_per_arm_per_checkpoint": 30,
+    "warm_samples_per_query_per_arm_per_checkpoint": 90,
+    "directory_samples_per_query_per_arm_per_checkpoint": 30
+  },
+  "original_unittest_output": "test_directory_failure_retains_all_earlier_original_api_responses (tests.test_v013_scale.V013ExecutionIntegrityTests.test_directory_failure_retains_all_earlier_original_api_responses) ... ok\ntest_directory_reads_only_returned_addresses_with_explicit_scope (tests.test_v013_scale.V013ExecutionIntegrityTests.test_directory_reads_only_returned_addresses_with_explicit_scope) ... ok\ntest_floor_and_unfinished_cells_are_not_silently_treated_as_success (tests.test_v013_scale.V013ExecutionIntegrityTests.test_floor_and_unfinished_cells_are_not_silently_treated_as_success) ... ok\ntest_gzip_members_preserve_original_responses_with_offsets (tests.test_v013_scale.V013ExecutionIntegrityTests.test_gzip_members_preserve_original_responses_with_offsets) ... ok\ntest_p95_uses_registered_nearest_rank_and_does_not_hide_small_n (tests.test_v013_scale.V013ExecutionIntegrityTests.test_p95_uses_registered_nearest_rank_and_does_not_hide_small_n) ... ok\ntest_real_ingest_builds_real_pages_and_fresh_age_controls_without_recall (tests.test_v013_scale.V013ExecutionIntegrityTests.test_real_ingest_builds_real_pages_and_fresh_age_controls_without_recall) ... ok\ntest_restore_removes_candidate_index_and_restarts_from_original_bytes (tests.test_v013_scale.V013ExecutionIntegrityTests.test_restore_removes_candidate_index_and_restarts_from_original_bytes) ... ok\ntest_resume_keeps_partial_attempt_but_does_not_pool_it_into_fixed_samples (tests.test_v013_scale.V013ExecutionIntegrityTests.test_resume_keeps_partial_attempt_but_does_not_pool_it_into_fixed_samples) ... ok\ntest_untracked_python_module_is_rejected_before_runtime_import (tests.test_v013_scale.V013ExecutionIntegrityTests.test_untracked_python_module_is_rejected_before_runtime_import) ... ok\ntest_boundary_rank_one_does_not_count_as_current_policy_rank_one (tests.test_v013_scale.V013SourceScoringTests.test_boundary_rank_one_does_not_count_as_current_policy_rank_one) ... ok\ntest_cross_project_and_invalid_unicode_coordinates_cannot_receive_credit (tests.test_v013_scale.V013SourceScoringTests.test_cross_project_and_invalid_unicode_coordinates_cannot_receive_credit) ... ok\ntest_missing_gold_and_current_first_are_separate_from_completeness (tests.test_v013_scale.V013SourceScoringTests.test_missing_gold_and_current_first_are_separate_from_completeness) ... ok\ntest_source_replacement_makes_superseded_same_id_text_invalid (tests.test_v013_scale.V013SourceScoringTests.test_source_replacement_makes_superseded_same_id_text_invalid) ... ok\ntest_valid_cited_evidence_passes_but_invented_excerpt_or_context_fails (tests.test_v013_scale.V013SourceScoringTests.test_valid_cited_evidence_passes_but_invented_excerpt_or_context_fails) ... ok\ntest_age_control_changes_only_uniform_dates_in_same_ingestion_order (tests.test_v013_scale.V013WorkloadIntegrityTests.test_age_control_changes_only_uniform_dates_in_same_ingestion_order) ... ok\ntest_gold_exists_in_requested_source_and_only_registered_replacements_change (tests.test_v013_scale.V013WorkloadIntegrityTests.test_gold_exists_in_requested_source_and_only_registered_replacements_change) ... ok\ntest_layout_changes_order_but_not_any_logical_payload_or_source_id (tests.test_v013_scale.V013WorkloadIntegrityTests.test_layout_changes_order_but_not_any_logical_payload_or_source_id) ... ok\ntest_registered_totals_come_from_real_source_turns (tests.test_v013_scale.V013WorkloadIntegrityTests.test_registered_totals_come_from_real_source_turns) ... ok\ntest_source_reconstruction_cannot_cross_project_or_unseen_history (tests.test_v013_scale.V013WorkloadIntegrityTests.test_source_reconstruction_cannot_cross_project_or_unseen_history) ... ok\n\n----------------------------------------------------------------------\nRan 19 tests in 1.073s\n\nOK\n",
+  "prior_integrity_record": "benchmarks/experiments/v013-scale-integrity-attempt1.json",
+  "change_since_prior_record": "Independent review found that resumed partial attempts must remain separate from fixed-sample statistics; added an adversarial resume-accounting test and an explicit registered rule before any formal query."
+}
