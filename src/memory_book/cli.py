@@ -69,6 +69,12 @@ def parser() -> argparse.ArgumentParser:
     recall.add_argument("--semantic-model-dir", help="Local pinned semantic model directory; used only with --semantic")
     semantic_index = sub.add_parser("semantic-index", help="Explicitly build or refresh the optional local semantic index")
     semantic_index.add_argument("--semantic-model-dir", required=True, help="Local pinned model directory; no implicit model download")
+    locate = sub.add_parser("locate", help="Find matching task chapters and question sections in the directory")
+    locate.add_argument("query")
+    locate.add_argument("--project", help="Restrict navigation to this exact project ID")
+    locate.add_argument("--chapter", help="Restrict navigation to this exact chapter ID")
+    locate.add_argument("--offset", type=int, default=0)
+    locate.add_argument("--limit", type=int, default=10)
     toc = sub.add_parser("toc", help="Browse a project's chapter directory")
     toc.add_argument("project")
     chapter = sub.add_parser("chapter", help="Browse a chapter's sessions, sections and page addresses")
@@ -410,6 +416,10 @@ def main(argv: list[str] | None = None) -> int:
                     print(f'{len(result["results"])} pages · {result["context_chars"]}/{args.budget} characters · {token_status} · {result["latency_ms"]:.2f} ms · cache={result["cache_hit"]}', file=sys.stderr)
                     for warning in result["warnings"]:
                         print(warning, file=sys.stderr)
+            elif args.command == "locate":
+                from .directory import search_directory
+                _print(search_directory(book, args.query, project=args.project,
+                                        chapter=args.chapter, offset=args.offset, limit=args.limit))
             elif args.command == "toc":
                 _print(book.toc(args.project, offset=args.offset, limit=args.limit))
             elif args.command == "chapter":

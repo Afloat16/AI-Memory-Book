@@ -32,6 +32,9 @@ INSTRUCTIONS = """Local background memory for AI agents: project books, task cha
 question sections, evidence pages. Recall once only when earlier work matters;
 skip self-contained requests. Use a known project ID and small budget_chars.
 Discover unknown IDs with browse_projects; retain them, never invent them.
+Use search_directory when you know a task title or question but not its address;
+it returns chapter/section navigation, not answer evidence. Keep the same project
+when following those addresses with browse_chapter, browse_section or read_page.
 Use context and source_refs to cite session_id/turn_index. Read selected page IDs
 only if needed; directory browsing is optional, not a per-question preflight.
 recall_memory defaults to compact references; details=true adds exact spans and
@@ -272,6 +275,23 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
                 semantic=semantic, temporal=temporal,
             )
         return _json(recall_payload(result, details=details, source_format=source_format))
+
+    @server.tool(annotations=read_only)
+    def search_directory(query: str, project: str | None = None,
+                         chapter: str | None = None,
+                         offset: StrictInt = 0, limit: StrictInt = 10) -> Any:
+        """Find matching task chapters and question sections without loading evidence bodies.
+
+        Directory matches are navigation hints, not factual evidence. Scope is
+        applied before ranking and pagination. An omitted project inherits a
+        bound connection; unbound connections may explicitly search all books.
+        Follow returned IDs under their exact project before citing any text.
+        """
+        from .directory import search_directory as locate
+        project = requested_project(project)
+        with acquire_book() as book:
+            return _json(locate(book, query, project=project, chapter=chapter,
+                                offset=offset, limit=limit))
 
     @server.tool(annotations=read_only)
     def browse_projects() -> Any:

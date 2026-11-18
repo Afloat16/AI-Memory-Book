@@ -133,7 +133,7 @@ def make_server(db_path, host: str = "127.0.0.1", port: int = 8765, *, container
             if path == "/favicon.ico":
                 self._send(HTTPStatus.NO_CONTENT, b"", "image/x-icon")
                 return
-            routes = {"/api/projects", "/api/stats", "/api/toc", "/api/chapter", "/api/section", "/api/read", "/api/recall"}
+            routes = {"/api/projects", "/api/stats", "/api/toc", "/api/chapter", "/api/section", "/api/read", "/api/recall", "/api/locate"}
             if path not in routes:
                 self._error(HTTPStatus.NOT_FOUND, "Unknown resource.")
                 return
@@ -143,6 +143,15 @@ def make_server(db_path, host: str = "127.0.0.1", port: int = 8765, *, container
                     result = book.projects()
                 elif path == "/api/stats":
                     result = book.stats()
+                elif path == "/api/locate":
+                    from .directory import search_directory
+                    result = search_directory(
+                        book, self._param(params, "q", ""),
+                        project=self._param(params, "project"),
+                        chapter=self._param(params, "chapter"),
+                        offset=self._integer(params, "offset", 0, 0, 1000000),
+                        limit=self._integer(params, "limit", 10, 1, 100),
+                    )
                 elif path == "/api/toc":
                     project = self._param(params, "project")
                     if not project:

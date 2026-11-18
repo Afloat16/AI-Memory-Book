@@ -23,7 +23,7 @@ from .text import (IDENTIFIER_WORD_BOUNDARY, estimate_tokens, excerpt, headline,
 SCHEMA_VERSION = 4
 INDEX_VERSION = 3
 LEXICAL_INDEX_VERSION = 1
-RECALL_VERSION = 16
+RECALL_VERSION = 17
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -746,6 +746,20 @@ def _prefer_current_pool(db: sqlite3.Connection, pool: list[dict],
     return _distinct_current_pages(pool, contents) if distinct else (pool, [])
 
 
+def _admit_revision_proposals(pool: list[dict], deferred: list[dict],
+                              diagnostics: dict) -> tuple[list[dict], list[dict]]:
+    """Discard new chronology hits that never inherited a comparable slot."""
+    expansion = diagnostics.get("candidate_expansion")
+    if expansion is None:
+        return pool, deferred
+    rejected = {item["id"] for item in (*pool, *deferred)
+                if item.get("_revision_proposal") and item["score"] <= 0}
+    expansion["unmatched_proposals"] = len(rejected)
+    expansion["admitted_proposals"] = expansion["new_candidates"] - len(rejected)
+    return ([item for item in pool if item["id"] not in rejected],
+            [item for item in deferred if item["id"] not in rejected])
+
+
 class _RecallCandidates(dict):
     """Candidate rows with request-local, same-snapshot covering metadata."""
 
@@ -1160,16 +1174,23 @@ class MemoryBook:
     def toc(self, project: str, *, offset: int = 0, limit: int = 50) -> dict:
         _integer(offset, "offset", 0, 10_000_000)
         _integer(limit, "limit", 1, 100)
-        row = self.db.execute("SELECT * FROM projects WHERE id=?", (project,)).fetchone()
-        if row is None:
-            raise KeyError(f"project not found: {project}")
-        total = self.db.execute("SELECT COUNT(*) FROM chapters WHERE project_id=?", (project,)).fetchone()[0]
-        chapters = self.db.execute("""SELECT c.*,
-          (SELECT COUNT(*) FROM sessions WHERE chapter_id=c.id) sessions,
-          (SELECT COUNT(*) FROM sections WHERE chapter_id=c.id) sections,
-          (SELECT COUNT(*) FROM pages WHERE chapter_id=c.id) pages
-          FROM chapters c WHERE project_id=? ORDER BY title,id LIMIT ? OFFSET ?""", (project, limit, offset)).fetchall()
-        return {"project": dict(row), "chapters": [dict(c) for c in chapters], "total": total, "next_offset": offset + limit if offset + limit < total else None, "revision": self.revision}
+        owns_snapshot = not self.db.in_transaction
+        if owns_snapshot:
+            self.db.execute("BEGIN")
+        try:
+            row = self.db.execute("SELECT * FROM projects WHERE id=?", (project,)).fetchone()
+            if row is None:
+                raise KeyError(f"project not found: {project}")
+            total = self.db.execute("SELECT COUNT(*) FROM chapters WHERE project_id=?", (project,)).fetchone()[0]
+            chapters = self.db.execute("""SELECT c.*,
+              (SELECT COUNT(*) FROM sessions WHERE chapter_id=c.id) sessions,
+              (SELECT COUNT(*) FROM sections WHERE chapter_id=c.id) sections,
+              (SELECT COUNT(*) FROM pages WHERE chapter_id=c.id) pages
+              FROM chapters c WHERE project_id=? ORDER BY title,id LIMIT ? OFFSET ?""", (project, limit, offset)).fetchall()
+            return {"project": dict(row), "chapters": [dict(c) for c in chapters], "total": total, "next_offset": offset + limit if offset + limit < total else None, "revision": self.revision}
+        finally:
+            if owns_snapshot and self.db.in_transaction:
+                self.db.execute("ROLLBACK")
 
     def chapter(self, chapter_id: str, *, project: str | None = None, offset: int = 0, limit: int = 50, page_limit: int = 20) -> dict:
         """Read a task directory, optionally requiring its exact project ID.
@@ -1231,19 +1252,26 @@ class MemoryBook:
                 self.db.execute("ROLLBACK")
 
     def section(self, section_id: str, *, project: str | None = None, offset: int = 0, limit: int = 50) -> dict:
-        """Bound the page directory, optionally requiring its exact project ID."""
+        """Read one consistent page directory with an optional exact project ID."""
         _integer(offset, "offset", 0, 10_000_000)
         _integer(limit, "limit", 1, 100)
         if project is not None:
             _string(project, "project")
-        scope = " AND s.project_id=?" if project is not None else ""
-        parameters = (section_id, project) if project is not None else (section_id,)
-        row = self.db.execute("SELECT sec.*,s.external_id session_id,s.title session_title FROM sections sec JOIN sessions s ON s.id=sec.session_pk WHERE sec.id=?" + scope, parameters).fetchone()
-        if row is None:
-            raise KeyError(f"section not found: {section_id}")
-        total = self.db.execute("SELECT COUNT(*) FROM pages WHERE section_id=?", (section_id,)).fetchone()[0]
-        pages = self.db.execute("SELECT id,title,length(content) chars,source_refs FROM pages WHERE section_id=? ORDER BY ordinal LIMIT ? OFFSET ?", (section_id, limit, offset)).fetchall()
-        return {**dict(row), "pages": [{"id": p["id"], "title": p["title"], "chars": p["chars"], "turn_indices": sorted({r["turn_index"] for r in json.loads(p["source_refs"])})} for p in pages], "total": total, "next_offset": offset + limit if offset + limit < total else None}
+        owns_snapshot = not self.db.in_transaction
+        if owns_snapshot:
+            self.db.execute("BEGIN")
+        try:
+            scope = " AND s.project_id=?" if project is not None else ""
+            parameters = (section_id, project) if project is not None else (section_id,)
+            row = self.db.execute("SELECT sec.*,s.external_id session_id,s.title session_title FROM sections sec JOIN sessions s ON s.id=sec.session_pk WHERE sec.id=?" + scope, parameters).fetchone()
+            if row is None:
+                raise KeyError(f"section not found: {section_id}")
+            total = self.db.execute("SELECT COUNT(*) FROM pages WHERE section_id=?", (section_id,)).fetchone()[0]
+            pages = self.db.execute("SELECT id,title,length(content) chars,source_refs FROM pages WHERE section_id=? ORDER BY ordinal LIMIT ? OFFSET ?", (section_id, limit, offset)).fetchall()
+            return {**dict(row), "pages": [{"id": p["id"], "title": p["title"], "chars": p["chars"], "turn_indices": sorted({r["turn_index"] for r in json.loads(p["source_refs"])})} for p in pages], "total": total, "next_offset": offset + limit if offset + limit < total else None}
+        finally:
+            if owns_snapshot and self.db.in_transaction:
+                self.db.execute("ROLLBACK")
 
     def _breadcrumb(self, row: sqlite3.Row | dict) -> list[dict]:
         return [{"id": row["project_id"], "title": row["project_name"], "kind": "project"}, {"id": row["chapter_id"], "title": row["chapter_title"], "kind": "chapter"}, {"id": row["section_id"], "title": row["section_title"], "kind": "section"}, {"id": row["id"], "title": row["title"], "kind": "page"}]
@@ -1422,6 +1450,83 @@ class MemoryBook:
                     session_title=directory[6], created_at=directory[7])
         return {identity: row for identity, row in rows.items() if identity in retained}
 
+    def _current_revision_pool(self, candidates: list[dict], pool_size: int,
+                               expression: str, where: str, params: list,
+                               exact_ids: set[str], exact_complete: bool,
+                               diagnostics: dict) -> tuple[list[dict], list[dict]]:
+        """Extend an existing task's comparison pool with bounded recent hits.
+
+        BM25's top 96 and the result-size-derived pool can hide a short recent
+        correction beneath repeated earlier text. Recent pages are proposals,
+        not answers: only the existing same-task/field/facet comparison can
+        give them an established relevance slot. New tasks cannot enter here.
+
+        At most 96 recent rows are retained across the leading chapters, with
+        an equal per-chapter quota when the original route was truncated.
+        A complete exact route reuses all its metadata (fewer than 96 rows).
+        Otherwise SQLite orders matching postings by source-session time;
+        the retained rows are bounded, but the database scan/sort is not.
+        Every route applies all caller scopes before its LIMIT and runs under
+        recall's existing read snapshot. This is not a latest-state database.
+        """
+        pool = list(candidates[:pool_size])
+        chapter_ids = list(dict.fromkeys(item["chapter_id"] for item in pool))
+        selected_chapters = chapter_ids[:96]
+        if not selected_chapters:
+            return pool, list(candidates[pool_size:])
+        quota, remainder = divmod(96, len(selected_chapters))
+        by_id = {item["id"]: item for item in candidates}
+        seen = {item["id"] for item in pool}
+        returned = added = discovered = 0
+        quotas = []
+        for index, chapter_id in enumerate(selected_chapters):
+            bound = quota + (index < remainder)
+            if exact_complete:
+                route = [item for item in candidates
+                         if item["chapter_id"] == chapter_id and item["id"] in exact_ids]
+                # Stable two-pass sorting keeps equal timestamps on ID order.
+                route.sort(key=lambda item: item["id"])
+                route.sort(key=lambda item: item["created_at"], reverse=True)
+                bound = len(route)
+            else:
+                route = self.db.execute("""SELECT p.id,p.rid,p.project_id,p.chapter_id,
+                  c.title chapter_title,s.external_id session_id,s.title session_title,s.created_at
+                  FROM pages_fts JOIN pages p ON p.rid=pages_fts.rowid
+                  JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk
+                  JOIN sections sec ON sec.id=p.section_id
+                  WHERE pages_fts MATCH ? AND p.chapter_id=?""" + where +
+                  " ORDER BY s.created_at DESC,s.id,sec.ordinal DESC,p.ordinal DESC,p.id LIMIT ?",
+                  [expression, chapter_id, *params, bound]).fetchall()
+            returned += len(route)
+            quotas.append({"chapter_id": chapter_id, "limit": bound, "returned": len(route)})
+            for row in route:
+                identity = row["id"]
+                if identity in seen:
+                    continue
+                seen.add(identity)
+                added += 1
+                item = by_id.get(identity)
+                if item is None:
+                    # No new relevance score is invented for a chronological
+                    # proposal. It can enter returned evidence only by taking
+                    # the slot of a comparable, already ranked source.
+                    item = {**dict(row), "rank": 0.0, "score": 0.0, "_revision_proposal": True}
+                    discovered += 1
+                pool.append(item)
+        diagnostics["candidate_expansion"] = {
+            "route": "recent_exact_body_matches_in_leading_chapters",
+            "metadata_source": "complete_exact_route" if exact_complete else "scoped_fts_chronology",
+            "ordering_fields": ["sessions.created_at DESC", "sessions.id", "sections.ordinal DESC", "pages.ordinal DESC", "pages.id"],
+            "candidate_limit": 96, "returned": returned, "added_to_pool": added,
+            "new_candidates": discovered, "pool_size": len(pool),
+            "chapters_not_expanded": max(0, len(chapter_ids) - len(selected_chapters)),
+            "chapter_routes": quotas,
+            "scope_before_limit": True,
+            "database_scan_bounded": exact_complete,
+            "basis": "Recent matches only propose comparable revisions; timestamps and syntax do not establish authority.",
+        }
+        return pool, [item for item in candidates[pool_size:] if item["id"] not in seen]
+
     def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 2400, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False, temporal: str = "auto") -> dict:
         """Recall source evidence with optional current-state ordering.
 
@@ -1595,7 +1700,7 @@ class MemoryBook:
                     rows = {row["id"]: dict(row) for row in routes[0]}
                 bounded = None
                 base_relevance = None
-                if (use_stem and rows and strategy == "book" and not coverage and not semantic
+                if (use_stem and rows and strategy == "book" and not coverage and not semantic and not current_query
                         and self.db.row_factory is sqlite3.Row and self.db.text_factory is str
                         and self._directory_tokens is self._ordinary_directory_cache
                         and getattr(self._directory_tokens, "__wrapped__", None) is _ORDINARY_DIRECTORY_TOKENS):
@@ -1680,6 +1785,12 @@ class MemoryBook:
                     # crowded out by several almost-identical high scores.
                     pool = candidates[:limit * 4]
                     pool_count = len(pool)
+                    tail = candidates[pool_count:]
+                    if current_query and semantic_model is None:
+                        pool, tail = self._current_revision_pool(
+                            candidates, pool_count, expression, where, params,
+                            {row["id"] for row in routes[0]}, len(routes[0]) < 96,
+                            temporal_intent)
                     deferred = []
                     ids = [item["rid"] for item in pool]
                     matched = {row["rowid"]: qset.intersection(row["body"].split())
@@ -1692,6 +1803,7 @@ class MemoryBook:
                             self.db, pool, matched,
                             distinct=limit > 1 and not temporal_intent["preserve_occurrences"],
                             declarations=not temporal_intent["preserve_occurrences"], diagnostics=temporal_intent)
+                        pool, deferred = _admit_revision_proposals(pool, deferred, temporal_intent)
                     selected = (_NATIVE.select_novelty(pool, deferred, matched, len(qset), limit)
                                 if _NATIVE is not None else NotImplemented)
                     if selected is NotImplemented:
@@ -1706,7 +1818,7 @@ class MemoryBook:
                             chosen.append(item)
                             covered.update(matched[item["rid"]])
                         selected = chosen + pending + deferred
-                    candidates = selected + candidates[pool_count:]
+                    candidates = selected + tail
                 facets = (_query_facets(query) if coverage and strategy == "book" and limit > 1 and
                           not current_query and not temporal_intent.get("current_cues") and
                           not temporal_intent.get("historical_cues") else [])
@@ -1755,6 +1867,12 @@ class MemoryBook:
                         # source-checked preference to the final bounded pool.
                         pool = candidates[:limit * 4]
                         pool_count = len(pool)
+                        tail = candidates[pool_count:]
+                        if qt:
+                            pool, tail = self._current_revision_pool(
+                                candidates, pool_count, expression, where, params,
+                                {row["id"] for row in routes[0]}, len(routes[0]) < 96,
+                                temporal_intent)
                         ids = [item["rid"] for item in pool]
                         matched = {row["rowid"]: qset.intersection(row["body"].split())
                                    for row in self.db.execute(
@@ -1765,7 +1883,8 @@ class MemoryBook:
                             self.db, pool, matched,
                             distinct=limit > 1 and not temporal_intent["preserve_occurrences"],
                             declarations=not temporal_intent["preserve_occurrences"], diagnostics=temporal_intent)
-                        candidates = pool + deferred + candidates[pool_count:]
+                        pool, deferred = _admit_revision_proposals(pool, deferred, temporal_intent)
+                        candidates = pool + deferred + tail
                 if candidates:
                     selected_ids = [item["id"] for item in candidates[:limit]]
                     sources = {row["id"]: dict(row) for row in self.db.execute(

@@ -1,0 +1,94 @@
+test_continuation_page_cannot_claim_a_complete_declaration (tests.test_current_candidate_route.CurrentCandidateRouteTests.test_continuation_page_cannot_claim_a_complete_declaration) ... FAIL
+test_different_declared_field_sets_do_not_replace_a_complete_contract (tests.test_current_candidate_route.CurrentCandidateRouteTests.test_different_declared_field_sets_do_not_replace_a_complete_contract) ... ok
+test_every_scope_precedes_the_recent_route_limit (tests.test_current_candidate_route.CurrentCandidateRouteTests.test_every_scope_precedes_the_recent_route_limit) ... ok
+test_latest_turn_within_one_long_session_is_in_the_recent_route (tests.test_current_candidate_route.CurrentCandidateRouteTests.test_latest_turn_within_one_long_session_is_in_the_recent_route) ... ok
+test_more_than_96_old_matches_cannot_hide_a_recent_comparable_revision (tests.test_current_candidate_route.CurrentCandidateRouteTests.test_more_than_96_old_matches_cannot_hide_a_recent_comparable_revision) ... ok
+test_newer_mentions_and_other_fields_cannot_replace_a_declaration (tests.test_current_candidate_route.CurrentCandidateRouteTests.test_newer_mentions_and_other_fields_cannot_replace_a_declaration) ... ok
+test_python_and_native_return_identical_candidate_expansion_evidence (tests.test_current_candidate_route.CurrentCandidateRouteTests.test_python_and_native_return_identical_candidate_expansion_evidence) ... skipped 'native extension not built'
+test_relevance_historical_and_flat_paths_do_not_expand_candidates (tests.test_current_candidate_route.CurrentCandidateRouteTests.test_relevance_historical_and_flat_paths_do_not_expand_candidates) ... ok
+test_remaining_environment_facet_keeps_staging_out_of_production_slot (tests.test_current_candidate_route.CurrentCandidateRouteTests.test_remaining_environment_facet_keeps_staging_out_of_production_slot) ... ok
+test_replacing_the_short_session_invalidates_cached_revision (tests.test_current_candidate_route.CurrentCandidateRouteTests.test_replacing_the_short_session_invalidates_cached_revision) ... ok
+test_requested_result_count_does_not_hide_the_short_revision (tests.test_current_candidate_route.CurrentCandidateRouteTests.test_requested_result_count_does_not_hide_the_short_revision) ... ok
+test_book_counts_rows_and_revision_share_a_snapshot (tests.test_directory_snapshot.DirectorySnapshotTests.test_book_counts_rows_and_revision_share_a_snapshot) ... ERROR
+test_existing_caller_transaction_is_never_committed_or_rolled_back (tests.test_directory_snapshot.DirectorySnapshotTests.test_existing_caller_transaction_is_never_committed_or_rolled_back) ... ERROR
+test_failures_close_only_snapshots_owned_by_navigation (tests.test_directory_snapshot.DirectorySnapshotTests.test_failures_close_only_snapshots_owned_by_navigation) ... ERROR
+test_scoped_section_remains_consistent_if_its_source_is_deleted (tests.test_directory_snapshot.DirectorySnapshotTests.test_scoped_section_remains_consistent_if_its_source_is_deleted) ... ERROR
+test_section_count_and_pages_share_a_snapshot_across_source_replacement (tests.test_directory_snapshot.DirectorySnapshotTests.test_section_count_and_pages_share_a_snapshot_across_source_replacement) ... ERROR
+
+======================================================================
+ERROR: test_book_counts_rows_and_revision_share_a_snapshot (tests.test_directory_snapshot.DirectorySnapshotTests.test_book_counts_rows_and_revision_share_a_snapshot)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/tests/test_directory_snapshot.py", line 23, in setUp
+    self.reader = MemoryBook(path, segmentation="turn", max_page_chars=100, min_page_chars=0)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/src/memory_book/store.py", line 781, in __init__
+    _integer(max_page_chars, "max_page_chars", 128, 100_000)
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/src/memory_book/store.py", line 226, in _integer
+    raise ValueError(f"{name} must be an integer between {minimum} and {maximum}")
+ValueError: max_page_chars must be an integer between 128 and 100000
+
+======================================================================
+ERROR: test_existing_caller_transaction_is_never_committed_or_rolled_back (tests.test_directory_snapshot.DirectorySnapshotTests.test_existing_caller_transaction_is_never_committed_or_rolled_back)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/tests/test_directory_snapshot.py", line 23, in setUp
+    self.reader = MemoryBook(path, segmentation="turn", max_page_chars=100, min_page_chars=0)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/src/memory_book/store.py", line 781, in __init__
+    _integer(max_page_chars, "max_page_chars", 128, 100_000)
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/src/memory_book/store.py", line 226, in _integer
+    raise ValueError(f"{name} must be an integer between {minimum} and {maximum}")
+ValueError: max_page_chars must be an integer between 128 and 100000
+
+======================================================================
+ERROR: test_failures_close_only_snapshots_owned_by_navigation (tests.test_directory_snapshot.DirectorySnapshotTests.test_failures_close_only_snapshots_owned_by_navigation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/tests/test_directory_snapshot.py", line 23, in setUp
+    self.reader = MemoryBook(path, segmentation="turn", max_page_chars=100, min_page_chars=0)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/src/memory_book/store.py", line 781, in __init__
+    _integer(max_page_chars, "max_page_chars", 128, 100_000)
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/src/memory_book/store.py", line 226, in _integer
+    raise ValueError(f"{name} must be an integer between {minimum} and {maximum}")
+ValueError: max_page_chars must be an integer between 128 and 100000
+
+======================================================================
+ERROR: test_scoped_section_remains_consistent_if_its_source_is_deleted (tests.test_directory_snapshot.DirectorySnapshotTests.test_scoped_section_remains_consistent_if_its_source_is_deleted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/tests/test_directory_snapshot.py", line 23, in setUp
+    self.reader = MemoryBook(path, segmentation="turn", max_page_chars=100, min_page_chars=0)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/src/memory_book/store.py", line 781, in __init__
+    _integer(max_page_chars, "max_page_chars", 128, 100_000)
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/src/memory_book/store.py", line 226, in _integer
+    raise ValueError(f"{name} must be an integer between {minimum} and {maximum}")
+ValueError: max_page_chars must be an integer between 128 and 100000
+
+======================================================================
+ERROR: test_section_count_and_pages_share_a_snapshot_across_source_replacement (tests.test_directory_snapshot.DirectorySnapshotTests.test_section_count_and_pages_share_a_snapshot_across_source_replacement)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/tests/test_directory_snapshot.py", line 23, in setUp
+    self.reader = MemoryBook(path, segmentation="turn", max_page_chars=100, min_page_chars=0)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/src/memory_book/store.py", line 781, in __init__
+    _integer(max_page_chars, "max_page_chars", 128, 100_000)
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/src/memory_book/store.py", line 226, in _integer
+    raise ValueError(f"{name} must be an integer between {minimum} and {maximum}")
+ValueError: max_page_chars must be an integer between 128 and 100000
+
+======================================================================
+FAIL: test_continuation_page_cannot_claim_a_complete_declaration (tests.test_current_candidate_route.CurrentCandidateRouteTests.test_continuation_page_cannot_claim_a_complete_declaration)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/ebe841daad4b/AI-Memory-Book/tests/test_current_candidate_route.py", line 149, in test_continuation_page_cannot_claim_a_complete_declaration
+    self.assertNotEqual(source_sessions(result), ["incomplete"])
+AssertionError: ['incomplete'] == ['incomplete']
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.569s
+
+FAILED (failures=1, errors=5, skipped=1)
