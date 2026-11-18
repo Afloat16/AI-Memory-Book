@@ -48,3 +48,28 @@ A candidate run will use a new directory after the candidate source is
 committed. Current baseline observations do not establish candidate quality.
 Comparisons must preserve all cases and disclose any first-session or evidence
 regression, as well as explicit relevance-control payload changes.
+
+## Retained short-page allocation review
+
+An additional development review checks a specific interaction between short
+source completion and the existing complete-current-turn excerpt route. It
+uses the unchanged `same_page_session` fixture, two 180- or 230-character
+supporting notes, and budgets 400 through 1,600 in increments of five:
+482 configurations of two small constructed archives, not 482 independent
+questions. This is separate from the frozen 38-question diagnostic.
+
+The unguarded postprocessor loses a previously returned current turn in
+34 configurations. At 450 characters with 180-character notes, the ordinary
+allocation returns a 147-character excerpt of turn 1 containing the revision;
+the postprocessor reallocates its space to a supporting note and returns a
+124-character excerpt of turn 0 instead. Source hashes were unchanged during
+that review. These are working-tree development observations, not measurements
+of a released source or a performance comparison.
+
+`short-page-review-attempt1.json` retains all 482 presence observations and the
+complete before/after responses plus original-page reads for all 34
+regressions. The other 448 original payloads were not retained; they are not
+reconstructed or claimed independently reverified. The new guard evaluator
+independently verifies all 34 complete original counterexamples, pins the
+original probe/fixture/report, and will retain every new production response
+on committed source. Guard verification remains pending until that run.

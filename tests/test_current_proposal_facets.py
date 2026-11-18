@@ -1,7 +1,8 @@
 """Statement-local qualifier regressions authored after candidate3 review.
 
-These cases exercise conservative admission of supplementary revisions. They
-do not assert natural-language truth or change the original pool's fallback.
+These cases exercise conservative admission and original-pool ordering. They
+do not assert natural-language truth. The v0.11 original-pool counterexample
+is retained in the v0.12 baseline record and now has a safe-ordering assertion.
 """
 
 from __future__ import annotations
@@ -138,7 +139,7 @@ class CurrentProposalFacetTests(unittest.TestCase):
             self.assertEqual(source_sessions(result), ["accepted"])
             self.assertNotIn("99", result["context"])
 
-    def test_original_pool_keeps_its_existing_whole_page_facet_behavior(self):
+    def test_original_pool_also_requires_statement_local_facets(self):
         with MemoryBook(":memory:", segmentation="turn") as book:
             seed(book, 2)
             book.ingest(record("already-in-pool", "Staging lease_duration=99. "
@@ -149,7 +150,9 @@ class CurrentProposalFacetTests(unittest.TestCase):
             with patch.object(book, "_current_revision_pool", side_effect=original_pool):
                 control = book.recall(**request)
             result = book.recall(**request)
-            self.assertEqual(source_sessions(control), ["already-in-pool"])
+            self.assertTrue(source_sessions(control)[0].startswith("old-"))
+            self.assertIn("Production lease_duration=30", control["context"])
+            self.assertNotIn("Staging lease_duration=99", control["context"])
             self.assertEqual(evidence_payload(result), evidence_payload(control))
 
     def test_semantic_fusion_cannot_borrow_another_sentences_qualifier(self):

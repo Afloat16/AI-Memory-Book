@@ -1,0 +1,416 @@
+{
+  "status": "passed",
+  "sources": [
+    {
+      "project": "p",
+      "task_id": "q",
+      "title": "Retry limit",
+      "session_id": "conversation",
+      "created_at": "2026-01-01T00:00:00Z",
+      "messages": [
+        {
+          "role": "user",
+          "content": "retry limit?"
+        },
+        {
+          "role": "assistant",
+          "content": "Retry limit is 3. retry limit. retry limit. retry limit. retry limit. retry limit. retry limit. "
+        },
+        {
+          "role": "user",
+          "content": "retry limit?"
+        },
+        {
+          "role": "assistant",
+          "content": "Retry limit is now 7."
+        }
+      ]
+    },
+    {
+      "project": "p",
+      "task_id": "q",
+      "title": "Retry limit",
+      "session_id": "notes",
+      "created_at": "2026-02-01T00:00:00Z",
+      "messages": [
+        {
+          "role": "assistant",
+          "content": "Retry limit maintenance review. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. "
+        }
+      ]
+    }
+  ],
+  "request": {
+    "query": "current retry limit",
+    "project": "p",
+    "limit": 2,
+    "budget_chars": 450,
+    "use_cache": false
+  },
+  "response": {
+    "query": "current retry limit",
+    "results": [
+      {
+        "id": "p_985373937285011576cd2cdc",
+        "title": "retry limit?",
+        "text": "\u2026USER: retry limit?\n\nASSISTANT: Retry limit is now 7.",
+        "source_refs": [
+          {
+            "created_at": "2026-01-01T00:00:00+00:00",
+            "end": 181,
+            "message_indices": [
+              2,
+              3
+            ],
+            "project": "p",
+            "session_id": "conversation",
+            "start": 129,
+            "turn_end": 52,
+            "turn_index": 1,
+            "turn_start": 0
+          }
+        ],
+        "breadcrumb": [
+          {
+            "id": "p",
+            "title": "p",
+            "kind": "project"
+          },
+          {
+            "id": "ch_0044671d5381833d28ca3f4d",
+            "title": "q",
+            "kind": "chapter"
+          },
+          {
+            "id": "sec_142e2a50b437963eafbe136e",
+            "title": "retry limit?",
+            "kind": "section"
+          },
+          {
+            "id": "p_985373937285011576cd2cdc",
+            "title": "retry limit?",
+            "kind": "page"
+          }
+        ],
+        "score": 9.539409274621295e-06,
+        "lexical_coverage": 1.0,
+        "created_at": "2026-01-01T00:00:00+00:00",
+        "truncated": true,
+        "page_chars": 181,
+        "excerpt_spans": [
+          [
+            129,
+            181
+          ]
+        ]
+      },
+      {
+        "id": "p_96be9791582ac279b07281f0",
+        "title": "Conversation note",
+        "text": "\u2026retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. re\u2026",
+        "source_refs": [
+          {
+            "created_at": "2026-02-01T00:00:00+00:00",
+            "end": 615,
+            "message_indices": [
+              0
+            ],
+            "project": "p",
+            "session_id": "notes",
+            "start": 463,
+            "turn_end": 615,
+            "turn_index": 0,
+            "turn_start": 463
+          }
+        ],
+        "breadcrumb": [
+          {
+            "id": "p",
+            "title": "p",
+            "kind": "project"
+          },
+          {
+            "id": "ch_0044671d5381833d28ca3f4d",
+            "title": "q",
+            "kind": "chapter"
+          },
+          {
+            "id": "sec_37314f62763bac5f3e891a8f",
+            "title": "Conversation note",
+            "kind": "section"
+          },
+          {
+            "id": "p_96be9791582ac279b07281f0",
+            "title": "Conversation note",
+            "kind": "page"
+          }
+        ],
+        "score": 9.520856454147576e-06,
+        "lexical_coverage": 1.0,
+        "created_at": "2026-02-01T00:00:00+00:00",
+        "truncated": true,
+        "page_chars": 793,
+        "excerpt_spans": [
+          [
+            463,
+            615
+          ]
+        ]
+      }
+    ],
+    "context": "[p_985373937285011576cd2cdc] p / conversation | 2026-01-01T00:00:00+00:00\n\u2026USER: retry limit?\n\nASSISTANT: Retry limit is now 7.\n\n[p_96be9791582ac279b07281f0] p / notes | 2026-02-01T00:00:00+00:00\n\u2026retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. re\u2026",
+    "context_chars": 350,
+    "estimated_tokens": 88,
+    "candidate_count": 2,
+    "revision": 2,
+    "cache_hit": false,
+    "warnings": [
+      "Historical evidence can conflict. Check source timestamps; retrieval does not resolve which decision is authoritative."
+    ],
+    "strategy": "book",
+    "budget_chars": 450,
+    "temporal": {
+      "requested": "auto",
+      "resolved": "current",
+      "basis": "current_cue",
+      "preserve_occurrences": false,
+      "current_cues": [
+        "current"
+      ],
+      "candidate_expansion": {
+        "route": "recent_exact_body_matches_in_leading_chapters",
+        "metadata_source": "complete_exact_route",
+        "ordering_fields": [
+          "sessions.created_at DESC",
+          "sessions.id",
+          "sections.ordinal DESC",
+          "pages.ordinal DESC",
+          "pages.id"
+        ],
+        "candidate_limit": 96,
+        "returned": 2,
+        "added_to_pool": 0,
+        "new_candidates": 0,
+        "pool_size": 2,
+        "original_pool_size": 2,
+        "proposed_existing_candidates": 0,
+        "chapters_not_expanded": 0,
+        "chapter_routes": [
+          {
+            "chapter_id": "ch_0044671d5381833d28ca3f4d",
+            "limit": 2,
+            "returned": 2
+          }
+        ],
+        "scope_before_limit": true,
+        "database_scan_bounded": true,
+        "basis": "Recent matches only propose comparable revisions; timestamps and syntax do not establish authority.",
+        "qualification": "complete_source_declaration_with_original_pool_anchor",
+        "facet_qualification": "adjacent_qualifier_on_single_simple_declaration",
+        "rejected_facet_proposals": 0,
+        "qualification_passes": 1,
+        "qualified_proposals": 0,
+        "rejected_before_ordering": 0,
+        "qualified_pool_size": 2,
+        "scoreless_proposals": 0,
+        "unmatched_proposals": 0,
+        "admitted_proposals": 0,
+        "admitted_new_candidates": 0
+      },
+      "declaration_ordering": {
+        "declaration_candidates": 0,
+        "unclassified_candidates": 2,
+        "oversized_candidates": 0,
+        "unqualified_declarations": 0,
+        "complete_source_partial_anchors": 0,
+        "basis": "same declared fields and statement-local qualifiers; chapter terms are navigation context; syntax is not authority"
+      }
+    },
+    "truncated": true,
+    "latency_ms": 6.765974
+  },
+  "no_reallocation_control": {
+    "query": "current retry limit",
+    "results": [
+      {
+        "id": "p_985373937285011576cd2cdc",
+        "title": "retry limit?",
+        "text": "\u2026USER: retry limit?\n\nASSISTANT: Retry limit is now 7.",
+        "source_refs": [
+          {
+            "created_at": "2026-01-01T00:00:00+00:00",
+            "end": 181,
+            "message_indices": [
+              2,
+              3
+            ],
+            "project": "p",
+            "session_id": "conversation",
+            "start": 129,
+            "turn_end": 52,
+            "turn_index": 1,
+            "turn_start": 0
+          }
+        ],
+        "breadcrumb": [
+          {
+            "id": "p",
+            "title": "p",
+            "kind": "project"
+          },
+          {
+            "id": "ch_0044671d5381833d28ca3f4d",
+            "title": "q",
+            "kind": "chapter"
+          },
+          {
+            "id": "sec_142e2a50b437963eafbe136e",
+            "title": "retry limit?",
+            "kind": "section"
+          },
+          {
+            "id": "p_985373937285011576cd2cdc",
+            "title": "retry limit?",
+            "kind": "page"
+          }
+        ],
+        "score": 9.539409274621295e-06,
+        "lexical_coverage": 1.0,
+        "created_at": "2026-01-01T00:00:00+00:00",
+        "truncated": true,
+        "page_chars": 181,
+        "excerpt_spans": [
+          [
+            129,
+            181
+          ]
+        ]
+      },
+      {
+        "id": "p_96be9791582ac279b07281f0",
+        "title": "Conversation note",
+        "text": "\u2026retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. re\u2026",
+        "source_refs": [
+          {
+            "created_at": "2026-02-01T00:00:00+00:00",
+            "end": 615,
+            "message_indices": [
+              0
+            ],
+            "project": "p",
+            "session_id": "notes",
+            "start": 463,
+            "turn_end": 615,
+            "turn_index": 0,
+            "turn_start": 463
+          }
+        ],
+        "breadcrumb": [
+          {
+            "id": "p",
+            "title": "p",
+            "kind": "project"
+          },
+          {
+            "id": "ch_0044671d5381833d28ca3f4d",
+            "title": "q",
+            "kind": "chapter"
+          },
+          {
+            "id": "sec_37314f62763bac5f3e891a8f",
+            "title": "Conversation note",
+            "kind": "section"
+          },
+          {
+            "id": "p_96be9791582ac279b07281f0",
+            "title": "Conversation note",
+            "kind": "page"
+          }
+        ],
+        "score": 9.520856454147576e-06,
+        "lexical_coverage": 1.0,
+        "created_at": "2026-02-01T00:00:00+00:00",
+        "truncated": true,
+        "page_chars": 793,
+        "excerpt_spans": [
+          [
+            463,
+            615
+          ]
+        ]
+      }
+    ],
+    "context": "[p_985373937285011576cd2cdc] p / conversation | 2026-01-01T00:00:00+00:00\n\u2026USER: retry limit?\n\nASSISTANT: Retry limit is now 7.\n\n[p_96be9791582ac279b07281f0] p / notes | 2026-02-01T00:00:00+00:00\n\u2026retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. retry limit background notes. re\u2026",
+    "context_chars": 350,
+    "estimated_tokens": 88,
+    "candidate_count": 2,
+    "revision": 2,
+    "cache_hit": false,
+    "warnings": [
+      "Historical evidence can conflict. Check source timestamps; retrieval does not resolve which decision is authoritative."
+    ],
+    "strategy": "book",
+    "budget_chars": 450,
+    "temporal": {
+      "requested": "auto",
+      "resolved": "current",
+      "basis": "current_cue",
+      "preserve_occurrences": false,
+      "current_cues": [
+        "current"
+      ],
+      "candidate_expansion": {
+        "route": "recent_exact_body_matches_in_leading_chapters",
+        "metadata_source": "complete_exact_route",
+        "ordering_fields": [
+          "sessions.created_at DESC",
+          "sessions.id",
+          "sections.ordinal DESC",
+          "pages.ordinal DESC",
+          "pages.id"
+        ],
+        "candidate_limit": 96,
+        "returned": 2,
+        "added_to_pool": 0,
+        "new_candidates": 0,
+        "pool_size": 2,
+        "original_pool_size": 2,
+        "proposed_existing_candidates": 0,
+        "chapters_not_expanded": 0,
+        "chapter_routes": [
+          {
+            "chapter_id": "ch_0044671d5381833d28ca3f4d",
+            "limit": 2,
+            "returned": 2
+          }
+        ],
+        "scope_before_limit": true,
+        "database_scan_bounded": true,
+        "basis": "Recent matches only propose comparable revisions; timestamps and syntax do not establish authority.",
+        "qualification": "complete_source_declaration_with_original_pool_anchor",
+        "facet_qualification": "adjacent_qualifier_on_single_simple_declaration",
+        "rejected_facet_proposals": 0,
+        "qualification_passes": 1,
+        "qualified_proposals": 0,
+        "rejected_before_ordering": 0,
+        "qualified_pool_size": 2,
+        "scoreless_proposals": 0,
+        "unmatched_proposals": 0,
+        "admitted_proposals": 0,
+        "admitted_new_candidates": 0
+      },
+      "declaration_ordering": {
+        "declaration_candidates": 0,
+        "unclassified_candidates": 2,
+        "oversized_candidates": 0,
+        "unqualified_declarations": 0,
+        "complete_source_partial_anchors": 0,
+        "basis": "same declared fields and statement-local qualifiers; chapter terms are navigation context; syntax is not authority"
+      }
+    },
+    "truncated": true,
+    "latency_ms": 2.587999
+  },
+  "allocator_sha256": "58f09c8a1a1d973c1e1a47f5c52fb3c50a6112f2af617d97147126192de9f989",
+  "store_sha256": "0da051c5659c19424043e9d11b189366de4a99c6739c31411bce6572fe84d14a"
+}

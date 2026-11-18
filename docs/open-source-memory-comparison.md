@@ -1,9 +1,9 @@
 # Open-source memory systems: scope, configuration and evidence
 
 The original official-source review was checked on **2026-11-16 (Asia/Shanghai)**;
-the pinned Haystack/BM25S component extension was executed and checked on
-**2026-11-18**. This comparison covers **21 external project families**, including
-four retrieval/store libraries or frameworks. It separates the executed supplied-page experiment from documentation
+the pinned Haystack/BM25S and LanceDB/Whoosh component extensions were executed and checked on
+**2026-11-18**. This comparison covers **23 external project families**, including
+six retrieval/store libraries or frameworks. It separates the executed supplied-page experiment from documentation
 about complete products. A component score is not a score for its parent
 product's default end-to-end workflow.
 
@@ -36,13 +36,17 @@ Memvid SDK 2.0.160 lexical APIs. Dataset and all six supplied-page checkpoint
 digests match the retained experiment. Haystack/BM25S add scored rows;
 Memvid's native all-empty natural-language responses are disclosed as a
 configured-query limitation, with positive keyword controls in a separate
-post-run diagnostic. There are nine executed external configurations, eight
-in the main score table. [Pinned extension and limitations](v0.11.0-validation.md#additional-real-upstream-components).
+post-run diagnostic. The subsequent LanceDB 0.41.0 native FTS and Whoosh 2.7.4
+BM25F/OR extension adds two actual executions, with identical original questions
+and all six source-page bundles. There are **11 executed external configurations**,
+**10 scored configurations** and the separately disclosed Memvid query limitation.
+[v0.11 extension](v0.11.0-validation.md#additional-real-upstream-components)
+· [LanceDB/Whoosh protocol, full results and lossless recovery](../benchmarks/reports/v0.12-search-components/README.md).
 
 ## Project families and engineering roles
 
-The links below identify the official source snapshots used for the feature
-review. Tested package versions and source locks are specified separately in
+The links below identify official sources and fixed package references used for
+the feature review. Tested package versions and source locks are specified separately in
 the protocol; a current main-branch README does not establish the identity of
 an older or newer installed release.
 
@@ -69,6 +73,8 @@ They have **not** been run on this workload and receive no numerical result.
 | [Chroma][chroma] | Documents, IDs, metadata and vectors | Local client/persistence or server; default text embedding downloads a local MiniLM model | ID-based document reads, metadata filtering and collection/tenant/database boundaries; it does not supply an application-specific conversation policy |
 | [Haystack BM25][haystack] | Framework retriever over original document bodies, with native BM25L defaults in the tested in-memory component | The tested lexical component runs locally without model calls; other framework pipelines can use models/services | Native project-metadata filter in this adapter; document IDs/content are mapped to supplied original pages, not a complete conversation-memory policy |
 | [BM25S][bm25s] | Sparse BM25 retrieval library; tested Lucene BM25 defaults and native tokenization without a stemmer | Local NumPy/SciPy lexical retrieval; no embedding or generation model in this test | One actual native index per project selected before retrieval; original page identity lives in the corpus payload; lifecycle and authorization remain application responsibilities |
+| [LanceDB native FTS][lancedb] | Embedded database with native full-text retrieval; the tested 0.41.0 index uses its FTS defaults and OR matching | Local lexical search without an embedding or generation model in this test | Exact native project predicate before top-five selection; full stored bodies, IDs, titles and times verified against supplied pages; this is not a conversation-memory policy or an authentication test |
+| [Whoosh BM25F][whoosh] | Text-search library; tested 2.7.4 default StandardAnalyzer and BM25F, with an explicitly configured OR QueryParser | Local Python index/search; no model in this test | Native exact project Term filter before top-five selection; complete stored source fields verified; application code supplies memory ingestion, provenance addresses and lifecycle |
 | [OpenViking][openviking] | `viking://` context filesystem; directory abstracts/overviews (L0/L1), original content (L2), and vector retrieval constrained by target directories | Self-hosted service with configurable model providers, including local Ollama; summaries, embeddings and optional intent analysis have their own model requirements | Resource subtrees, account/user namespaces and optional resource ACLs; current retrieval performs scoped global vector search rather than recursively walking the directory tree |
 | [Serena][serena] | Coding toolkit with human-editable Markdown memories, topic directories and explicit `mem:` references; memory names precede detailed reads | Project memory files need no vector database; an attached coding agent performs the reading/writing and may use an LLM | `.serena/memories/` per project plus deliberately shared global memories; rename/reference checking and Git versioning are documented |
 | [EverOS, formerly EverMemOS][everos] | Canonical Markdown conversations/files/agent traces with SQLite and LanceDB indexes; separate user and agent memory surfaces | Local runtime; the normal ingestion quickstart requires an extraction model; vector, reranking and multimodal paths add configured providers | On-disk `app_id/project_id` partitioning and user/agent/session search fields; source files can be inspected and versioned; the no-key educational demo is not the live ingestion pipeline |
@@ -119,6 +125,8 @@ here; their listed mechanisms are official-source descriptions only.
 | LangGraph | Pinned indexed `InMemoryStore` with the same real embedding model | Durable-store behavior, checkpoint recovery and an agent's extraction policy |
 | Haystack BM25 | Actual pinned in-memory retriever with native project equality filters | Full RAG/agent pipelines, other stores, models and production service behavior |
 | BM25S | Actual pinned BM25 library; separate project indexes and unchanged queries | A memory product, multi-user authentication, native conversation ingestion or source-citation policy |
+| LanceDB native FTS | Actual 0.41.0 local native FTS; unchanged queries, exact project prefilter and full stored-field verification | Vector/hybrid modes, native update/delete behavior, managed service or complete memory products built on LanceDB |
+| Whoosh BM25F / OR | Actual 2.7.4 BM25F over default TEXT analysis; explicitly configured OR parser and native exact project filter | Default AND parser, alternative analyzers/scoring, application memory policy, authorization and native update/delete lifecycle |
 | Memvid lexical | Actual pinned SDK with native URI-prefix scope; all formal natural-language queries returned empty hits; keyword controls retrieved source pages | Default/other search modes, query rewriting, semantic retrieval, byte-exact native source reading and end-to-end product quality |
 | Letta / Graphiti / MemOS / Memori / Cognee / LongMemory | Official-source feature review only | Numerical quality, speed, resource use and production correctness in this workload |
 | OpenViking / Serena / EverOS / SimpleMem / Supermemory | Pinned official-source feature review only | All retrieval, completeness, cross-project isolation, latency and resource results in this workload |
@@ -127,8 +135,8 @@ here; their listed mechanisms are official-source descriptions only.
 
 All seven originally registered backends completed the [retained matrix](../benchmarks/reports/v0.6.0-engineering/hosted/memory-systems/report.json).
 The [independent audit](../benchmarks/reports/v0.6.0-engineering/audit.json) recomputes every score and packed context and verifies all 320 complete-response pairs with the unchanged two-component harness.
-At 2400 characters, Book has 72/72 complete-evidence cases; billion, claude-mem FTS and Basic Memory FTS each have 64/72; the shared-MiniLM configurations each have 47/72.
-At 1200, Book has 68/72 but retains four stale-only training-decision failures that each tested lexical competitor avoids.
+In the retained v0.11 Book comparison, at 2400 characters Book has 72/72 complete-evidence cases; billion, claude-mem FTS and Basic Memory FTS each have 64/72; the shared-MiniLM configurations each have 47/72.
+That v0.11 Book snapshot has 68/72 at 1200 and retains four stale-only training-decision failures that each of those tested lexical competitors avoids.
 All seven return related context for all eight missing-evidence cases in both budgets.
 
 The new [three-component attempt](../benchmarks/reports/v0.11-extended-lexical/attempt1/report.json)
@@ -137,11 +145,35 @@ responses whose contexts and scores were independently recomputed; the audit
 does not rerun upstream ranking. At both budgets BM25S has 72/72 complete cases, 80/80 required spans
 and 48/48 fixed-policy checks; Haystack has 66/72, 74/80 and 42/48. Both have
 zero stale-only cases and return context for all eight missing-evidence queries.
-BM25S ties Book at 2,400 characters and leads Book's common-block result at
+BM25S ties the v0.11 Book snapshot at 2,400 characters and leads its common-block result at
 1,200. Those observations contradict a universal superiority claim.
 Memvid's all-empty native outputs are retained separately; its keyword controls
 establish an operational index in the tested fixture, not answer accuracy or
 abstention. [Original records, archive recovery and diagnosis](../benchmarks/reports/v0.11-extended-lexical/README.md).
+
+The frozen LanceDB/Whoosh extension completed **480 actual native searches** and
+**320 packed responses**, with no source-validation failure, budget violation or
+repeated-output change. Its offline audit reconstructs every original query,
+native mapping, packed response, score and summary; restoring all archived inputs
+produces the same audit proof. Both components return related context for all
+eight missing-evidence questions.
+
+| Actual configured component | Characters | Required spans | Complete cases | Fixed-policy checks | Stale-only | Mean context characters |
+|---|---:|---:|---:|---:|---:|---:|
+| LanceDB 0.41.0 native FTS | 1,200 | 72/80 | 64/72 | 40/48 | 4 | 1,035.8 |
+| LanceDB 0.41.0 native FTS | 2,400 | 72/80 | 64/72 | 40/48 | 4 | 1,876.7 |
+| Whoosh 2.7.4 BM25F, explicit OR parser | 1,200 | 80/80 | 72/72 | 48/48 | 0 | 884.5 |
+| Whoosh 2.7.4 BM25F, explicit OR parser | 2,400 | 80/80 | 72/72 | 48/48 | 0 | 1,457.8 |
+
+Whoosh joins BM25S as a 2,400-character complete-evidence/policy tie against the
+v0.11 Book snapshot and leads that snapshot at 1,200. Whoosh also uses fewer
+mean packed characters at 2,400. Those results are retained, including when
+describing Book's engineering advantages. LanceDB completes 4/8 bilingual and
+4/8 historical-decision cases; its other answerable categories are 8/8.
+Whoosh completes every answerable category. These are configured retrieval
+components, not eleven independently ranked complete memory products.
+The [current results](current-results.md) identify the separately replayed Book
+source; external scores are never silently reassigned to a new Book version.
 
 External indexes are rebuilt from the visible page snapshot at each checkpoint;
 this does not validate their native update/delete lifecycle. Source-validation
@@ -237,3 +269,5 @@ datasets, prompts, budgets or managed services are not copied into these tables.
 
 [haystack]: https://pypi.org/project/haystack-ai/3.5.0/
 [bm25s]: https://pypi.org/project/bm25s/0.3.16/
+[lancedb]: https://pypi.org/project/lancedb/0.41.0/
+[whoosh]: https://pypi.org/project/Whoosh/2.7.4/

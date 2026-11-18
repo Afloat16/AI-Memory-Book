@@ -1,0 +1,38 @@
+Executing <Task pending name='Task-2' coro=<TemporalMCPTests.test_real_stdio_schema_forwarding_diagnostics_and_compact_projection() running at /workspace/scratch/f1b87803016c/AI-Memory-Book/tests/test_temporal_recall.py:326> cb=[_run_until_complete_cb() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:181] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:100> took 0.286 seconds
+======================================================================
+FAIL: test_current_code_fence_is_not_reinterpreted_as_partial_sentences (tests.test_current_token_recall.CurrentTokenRecallTests.test_current_code_fence_is_not_reinterpreted_as_partial_sentences) (tokenizer='cl100k_base')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/f1b87803016c/AI-Memory-Book/tests/test_current_token_recall.py", line 198, in test_current_code_fence_is_not_reinterpreted_as_partial_sentences
+    self.assertEqual({ref["turn_index"] for hit in result["results"]
+AssertionError: Items in the first set but not the second:
+0
+Items in the second set but not the first:
+1
+
+======================================================================
+FAIL: test_current_code_fence_is_not_reinterpreted_as_partial_sentences (tests.test_current_token_recall.CurrentTokenRecallTests.test_current_code_fence_is_not_reinterpreted_as_partial_sentences) (tokenizer='o200k_base')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/f1b87803016c/AI-Memory-Book/tests/test_current_token_recall.py", line 198, in test_current_code_fence_is_not_reinterpreted_as_partial_sentences
+    self.assertEqual({ref["turn_index"] for hit in result["results"]
+AssertionError: Items in the first set but not the second:
+0
+Items in the second set but not the first:
+1
+
+======================================================================
+FAIL: test_previous_accepted_block_does_not_reopen_old_turn_units (tests.test_current_token_recall.CurrentTokenRecallTests.test_previous_accepted_block_does_not_reopen_old_turn_units)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/f1b87803016c/AI-Memory-Book/tests/test_current_token_recall.py", line 141, in test_previous_accepted_block_does_not_reopen_old_turn_units
+    self.assertEqual(full["results"][0]["source_refs"][0]["session_id"], "maintenance")
+AssertionError: 's1' != 'maintenance'
+- s1
++ maintenance
+
+
+----------------------------------------------------------------------
+Ran 100 tests in 3.846s
+
+FAILED (failures=3)

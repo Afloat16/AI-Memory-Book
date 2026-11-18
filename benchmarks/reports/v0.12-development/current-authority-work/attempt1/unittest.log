@@ -1,0 +1,113 @@
+Executing <Task pending name='Task-2' coro=<TemporalMCPTests.test_real_stdio_schema_forwarding_diagnostics_and_compact_projection() running at /workspace/scratch/f1b87803016c/AI-Memory-Book/tests/test_temporal_recall.py:326> cb=[_run_until_complete_cb() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:181] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:100> took 0.361 seconds
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/pydantic_settings/sources/utils.py:47: IncompleteFieldDefinitionWarning: Field 'lifespan' has an incomplete definition: its annotation contains an unresolved forward reference, so settings sources may fail to correctly resolve its value. Call `model_rebuild()` on the model where the field is defined, once all the referenced types are defined.
+  warnings.warn(
+======================================================================
+FAIL: test_chinese_revision_respects_project_scope_with_duplicate_session_ids (tests.test_current_turn_recall.CurrentTurnRecallTests.test_chinese_revision_respects_project_scope_with_duplicate_session_ids) (project='训练甲')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/f1b87803016c/AI-Memory-Book/tests/test_current_turn_recall.py", line 72, in test_chinese_revision_respects_project_scope_with_duplicate_session_ids
+    self.assertIn(f"步数改为{value}", result["context"])
+AssertionError: '步数改为2' not found in '[p_e1660fe14afff3c400710462] 训练甲 / 训练讨论 | 2026-10-01T00:00:00+00:00\n…: 梯度累积步数怎么设置？\n\nASSISTANT: 梯度累积步数设为8。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。…'
+
+======================================================================
+FAIL: test_chinese_revision_respects_project_scope_with_duplicate_session_ids (tests.test_current_turn_recall.CurrentTurnRecallTests.test_chinese_revision_respects_project_scope_with_duplicate_session_ids) (project='训练乙')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/f1b87803016c/AI-Memory-Book/tests/test_current_turn_recall.py", line 72, in test_chinese_revision_respects_project_scope_with_duplicate_session_ids
+    self.assertIn(f"步数改为{value}", result["context"])
+AssertionError: '步数改为4' not found in '[p_41847428f12f40eaf3e4c0ba] 训练乙 / 训练讨论 | 2026-10-01T00:00:00+00:00\n…: 梯度累积步数怎么设置？\n\nASSISTANT: 梯度累积步数设为8。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。梯度累积步数。…'
+
+======================================================================
+FAIL: test_original_pool_keeps_its_existing_whole_page_facet_behavior (tests.test_current_proposal_facets.CurrentProposalFacetTests.test_original_pool_keeps_its_existing_whole_page_facet_behavior)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/f1b87803016c/AI-Memory-Book/tests/test_current_proposal_facets.py", line 152, in test_original_pool_keeps_its_existing_whole_page_facet_behavior
+    self.assertEqual(source_sessions(control), ["already-in-pool"])
+AssertionError: Lists differ: ['old-1'] != ['already-in-pool']
+
+First differing element 0:
+'old-1'
+'already-in-pool'
+
+- ['old-1']
++ ['already-in-pool']
+
+======================================================================
+FAIL: test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot) (old_sessions=8, limit=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/f1b87803016c/AI-Memory-Book/tests/test_current_proposal_qualification.py", line 69, in test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot
+    self.assertEqual(evidence_payload(result), evidence_payload(control))
+AssertionError: {'que[1614 chars]es': 8, 'unclassified_candidates': 0, 'oversiz[192 chars]True} != {'que[1614 chars]es': 4, 'unclassified_candidates': 0, 'oversiz[192 chars]True}
+Diff is 3481 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot) (old_sessions=120, limit=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/f1b87803016c/AI-Memory-Book/tests/test_current_proposal_qualification.py", line 69, in test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot
+    self.assertEqual(evidence_payload(result), evidence_payload(control))
+AssertionError: {'que[1617 chars]es': 95, 'unclassified_candidates': 0, 'oversi[193 chars]True} != {'que[1617 chars]es': 4, 'unclassified_candidates': 0, 'oversiz[192 chars]True}
+Diff is 3486 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot) (old_sessions=24, limit=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/f1b87803016c/AI-Memory-Book/tests/test_current_proposal_qualification.py", line 69, in test_new_agenda_cannot_inherit_a_recorded_decisions_relevance_slot
+    self.assertEqual(evidence_payload(result), evidence_payload(control))
+AssertionError: {'que[2695 chars]es': 24, 'unclassified_candidates': 0, 'oversi[193 chars]True} != {'que[2695 chars]es': 8, 'unclassified_candidates': 0, 'oversiz[192 chars]True}
+Diff is 5508 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_original_unclassified_pool_keeps_its_existing_fallback (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_original_unclassified_pool_keeps_its_existing_fallback)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/f1b87803016c/AI-Memory-Book/tests/test_current_proposal_qualification.py", line 108, in test_original_unclassified_pool_keeps_its_existing_fallback
+    self.assertEqual(source_sessions(control), ["latest-agenda"])
+AssertionError: Lists differ: ['old-001'] != ['latest-agenda']
+
+First differing element 0:
+'old-001'
+'latest-agenda'
+
+- ['old-001']
++ ['latest-agenda']
+
+======================================================================
+FAIL: test_rejected_field_example_cannot_change_original_pool_grouping (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_rejected_field_example_cannot_change_original_pool_grouping) (limit=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/f1b87803016c/AI-Memory-Book/tests/test_current_proposal_qualification.py", line 131, in test_rejected_field_example_cannot_change_original_pool_grouping
+    self.assertEqual(source_sessions(control), ["review"])
+AssertionError: Lists differ: ['decision-0'] != ['review']
+
+First differing element 0:
+'decision-0'
+'review'
+
+- ['decision-0']
++ ['review']
+
+======================================================================
+FAIL: test_rejected_spelling_cannot_leave_another_proposal_artificially_qualified (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_rejected_spelling_cannot_leave_another_proposal_artificially_qualified)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/f1b87803016c/AI-Memory-Book/tests/test_current_proposal_qualification.py", line 171, in test_rejected_spelling_cannot_leave_another_proposal_artificially_qualified
+    self.assertEqual(evidence_payload(result), evidence_payload(control))
+AssertionError: {'que[45 chars]: 'p_e5acb923aea59c3b1633fc58', 'title': 'Conv[6183 chars]True} != {'que[45 chars]: 'p_0bdf8bcfeb37295bf4a54b87', 'title': 'Conv[2125 chars]True}
+Diff is 12170 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_semantic_fusion_still_rejects_an_unclassified_chronology_proposal (tests.test_current_proposal_qualification.CurrentProposalQualificationTests.test_semantic_fusion_still_rejects_an_unclassified_chronology_proposal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/f1b87803016c/AI-Memory-Book/tests/test_current_proposal_qualification.py", line 152, in test_semantic_fusion_still_rejects_an_unclassified_chronology_proposal
+    self.assertEqual(evidence_payload(result), evidence_payload(control))
+AssertionError: {'que[1615 chars]es': 95, 'unclassified_candidates': 0, 'oversi[261 chars]-v1'} != {'que[1615 chars]es': 4, 'unclassified_candidates': 0, 'oversiz[260 chars]-v1'}
+Diff is 3558 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 78 tests in 3.540s
+
+FAILED (failures=10, skipped=5)

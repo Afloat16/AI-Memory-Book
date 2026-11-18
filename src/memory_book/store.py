@@ -23,7 +23,7 @@ from .text import (IDENTIFIER_WORD_BOUNDARY, estimate_tokens, excerpt, headline,
 SCHEMA_VERSION = 4
 INDEX_VERSION = 3
 LEXICAL_INDEX_VERSION = 1
-RECALL_VERSION = 19
+RECALL_VERSION = 20
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -393,10 +393,14 @@ def _latest_matching_turn(content: str, raw_refs: str, matched: set[str]) -> int
     return max((ref["turn_index"] for ref in _matching_turn_refs(content, refs, matched)), default=None)
 
 
-def _current_excerpt_ref(content: str, refs: list[dict], matched: set[str], allowance: int | None = None) -> dict | None:
+def _current_excerpt_ref(content: str, refs: list[dict], matched: set[str], allowance: int | None = None,
+                         *, original_turns: dict[int, str] | None = None) -> dict | None:
     """Propose a complete matching turn, optionally bounded by excerpt size.
 
-    The caller verifies original text before using the span. An unbounded
+    The caller supplies full original turns from the existing read snapshot.
+    The proposed turn must independently contain a comparable declaration;
+    a later agenda or another environment cannot obtain a special excerpt
+    through term overlap alone. An unbounded
     proposal can restrict token supplements without shortening a full page
     that already fits both budgets.
     """
@@ -420,6 +424,36 @@ def _current_excerpt_ref(content: str, refs: list[dict], matched: set[str], allo
             or type(ref.get("turn_end")) is not int or ref["turn_end"] != end - start
             or (allowance is not None
                 and end - start + bool(start) + (end < len(content)) > allowance)):
+        return None
+    if original_turns is None:
+        return None
+    sources, analysis_refs, pool, matches = {}, {}, [], {}
+    for candidate in matching:
+        ordinal = candidate["turn_index"]
+        body = original_turns.get(ordinal)
+        lo, hi = candidate["start"], candidate["end"]
+        if (type(body) is not str or candidate.get("turn_start") != 0
+                or candidate.get("turn_end") != len(body) or content[lo:hi] != body):
+            continue
+        sources[ordinal] = body
+        analysis_refs[ordinal] = json.dumps([{**candidate, "start": 0, "end": len(body)}])
+        # An excerpt needs its own complete match. A directory title cannot
+        # supply the scope of the proposed source turn inside a mixed page.
+        pool.append({"rid": ordinal, "chapter_id": "same-page", "chapter_title": ""})
+        matches[ordinal] = matched.intersection(terms(body))
+    contexts = {}
+    groups, _ = _declaration_groups(None, pool, matches, sources, analysis_refs,
+                                   authenticated_turns=set(sources), qualifier_contexts=contexts)
+    declared = any(subjects and any(pool[position]["rid"] == latest_turn for position in positions)
+                   for (_, subjects, _), positions in groups.items())
+    # A source that explicitly revokes the previous value is useful even when
+    # its replacement is available only as an indivisible code block. Keep the
+    # revocation visible without parsing that code as a current declaration.
+    # A conflicting/ambiguous assignment in the same turn blocks this route.
+    revoked = (not contexts.get(latest_turn) and latest_turn in sources
+               and any(_EXPLICIT_REVOCATION.fullmatch(clause.strip())
+                       for clause, _ in _declaration_clauses(sources[latest_turn], analysis_refs[latest_turn])))
+    if not declared and not revoked:
         return None
     return ref
 
@@ -462,13 +496,25 @@ _NONDECLARATIVE = re.compile(
     r"\b(?:example|examples|sample|hypothetical|suppose|if|unless|could|would|might|"
     r"not|never|assert|return|print|def|class|lambda|import)\b|"
     r"e\.g\.|例如|示例|假设|如果|伪代码|不要|不能", re.IGNORECASE)
-_PROSE_VALUE = (r"(?:[+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?\b|"
+_NUMBER_WORD = (r"(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|"
+                r"thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|"
+                r"(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)"
+                r"(?:[- ](?:one|two|three|four|five|six|seven|eight|nine))?)")
+_QUANTITY_UNIT = (r"(?:attempts?|retries|retry|seconds?|milliseconds?|microseconds?|nanoseconds?|"
+                  r"minutes?|hours?|days?|bytes?|kilobytes?|megabytes?|gigabytes?|terabytes?|"
+                  r"kib|mib|gib|tib|kb|mb|gb|tb|ms|us|µs|μs|ns|min|s|h|b|"
+                  r"requests?|workers?|threads?|tokens?|steps?|items?|connections?|"
+                  r"次|毫秒|微秒|秒|分钟|小时|字节|步|个|%)")
+_QUANTITY_VALUE = (r"(?:[+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?|"
+                   + _NUMBER_WORD + r")(?:\s*" + _QUANTITY_UNIT + r")?(?!\w)")
+_PROSE_VALUE = (r"(?:" + _QUANTITY_VALUE + r"|"
                 r"(?:true|false|null|none)\b|\"[^\"\n]+\"|'[^'\n]+'|`[^`\n]+`)")
 _PROSE_BINDING = re.compile(
-    r"(?<![\w._-])(?P<subject>[A-Za-z_][A-Za-z0-9_.-]*(?:[ \t]+[A-Za-z_][A-Za-z0-9_.-]*){0,7})(?:"
+    r"(?<![\w._-])(?P<subject>[A-Za-z_\u3400-\u9fff][A-Za-z0-9_.\-\u3400-\u9fff]*?"
+    r"(?:[ \t]+[A-Za-z_\u3400-\u9fff][A-Za-z0-9_.\-\u3400-\u9fff]*){0,7})(?:"
     r"\s+(?:(?:is|are)\s+(?:now\s+)?|(?:is|are)\s+(?:now\s+)?set\s+to\s+|"
     r"(?:has|have)\s+been\s+set\s+to\s+|(?:was\s+)?(?:changed|set)\s+to\s+)"
-    r"|\s*(?:现在)?(?:设置为|设为|改为|调整为))" + _PROSE_VALUE, re.IGNORECASE)
+    r"|\s*(?:现在)?(?:设置为|设为|改为|调整为|是|为))" + _PROSE_VALUE, re.IGNORECASE)
 # Resource limits, not quality thresholds: oversized/ambiguous input keeps the
 # existing candidate path rather than analyzing a chosen prefix as complete.
 _MAX_DECLARATION_FIELDS = 64
@@ -476,34 +522,97 @@ _MAX_DECLARATION_CHARS = 64_000
 _DIRECT_QUALIFIER = re.compile(
     r"\w+(?:[.-]\w+)*(?:[ \t]+\w+(?:[.-]\w+)*)*[ \t]*:?")
 _SIMPLE_ASSIGNMENT_VALUE = re.compile(
-    r"\s*=\s*(?:" + _PROSE_VALUE + r"|[+-]?\w+(?:[./:-]\w+)*)\s*[.!。]?\s*\Z",
+    r"\s*=\s*(?:" + _PROSE_VALUE + r"|[+-]?\w+(?:[./:-]\w+)*)(?P<suffix>.*)\Z",
     re.IGNORECASE)
+_PROSE_QUANTITY_SUFFIX = re.compile(
+    r"\s*"
+    r"(?:[,，]\s*(?:旧值|原值|前值)(?:已|已经|因|导致)[^。.!?]*)?[.!。]?\s*\Z",
+    re.IGNORECASE)
+_SIMPLE_REASON = re.compile(r"\s+because\s+(?P<reason>[^.!?;:]+?)[.!。]?\s*\Z", re.IGNORECASE)
+_REASON_RELATION = re.compile(
+    r"\b(?:for|from|to|in|on|at|under|with|without|per|when|whenever|except|only|"
+    r"unless|provided|assuming|conditional|hypothetical|pending|proposed|tentative|"
+    r"awaiting|unapproved)\b|['\"`?,，]", re.IGNORECASE)
+# Conventional reporting labels are not environment names. This deliberately
+# small grammar strips no arbitrary prefix: e.g. "Production", "EU staging"
+# and labels absent from the query remain distinct exact scope signatures.
+_DECLARATION_FRAME = re.compile(
+    r"(?:(?:selected|approved|recorded|configured|measured|accepted|confirmed)|"
+    r"(?:(?:initial|original|current|approved|selected|measured|recorded|updated|final|accepted)\s+)*"
+    r"(?:(?:project|implementation|runtime)\s+)?"
+    r"(?:decision|configuration|contract|settings?|replacement|value)"
+    r"(?:\s+for\s+(?:the\s+)?(?:(?:initial|original|current|previous|prior)\s+)?"
+    r"(?:decision|configuration|contract|settings?|value))?)\Z", re.IGNORECASE)
+_EXPLICIT_REVOCATION = re.compile(
+    r"(?:(?:the\s+)?(?:old|previous|former|prior)\s+(?:value|setting|configuration|contract|decision)"
+    r"\s+(?:is|was)\s+(?:invalid|obsolete|revoked|withdrawn|no\s+longer\s+valid)|"
+    r"(?:旧值|原值|前值)(?:已经|已)?(?:失效|无效|撤销|弃用))[.!。]?", re.IGNORECASE)
+
+
+def _declaration_scope(prefix: str) -> str | None:
+    """Keep explicit labels, including ones the query did not mention."""
+    prefix = re.sub(r"^the(?:\s+|$)", "", prefix, flags=re.IGNORECASE)
+    if _DECLARATION_FRAME.fullmatch(prefix):
+        return ""
+    tokens = set(query_terms(prefix))
+    if not set(lexical_terms(prefix)) <= tokens:
+        return None  # A relation such as "from X to Y" is not a simple label.
+    return " ".join(prefix.casefold().split())
+
+
+def _prose_subjects(subject: str):
+    """Enumerate bounded subject suffixes without erasing identifier dots."""
+    for word in re.finditer(r"[A-Za-z_\u3400-\u9fff][A-Za-z0-9_.\-\u3400-\u9fff]*", subject):
+        name = subject[word.start():]
+        yield name, _field_identity(name)
+
+
+def _simple_declaration_suffix(suffix: str) -> bool:
+    """Accept a quantity or a bounded causal explanation, never a new scope.
+
+    Units are part of the value grammar shared by assignments and prose.
+    A simple ``because`` clause may explain the value, but cannot introduce
+    another binding, condition, quoted example or prepositional scope change.
+    Unrecognized explanations keep relevance ordering and original text.
+    """
+    if _PROSE_QUANTITY_SUFFIX.fullmatch(suffix) is not None:
+        return True
+    reason = _SIMPLE_REASON.fullmatch(suffix)
+    if reason is None:
+        return False
+    body = reason["reason"]
+    return bool(body.strip()) and not (
+        _NONDECLARATIVE.search(body) or _REASON_RELATION.search(body)
+        or _FIELD_REFERENCE.search(body) or _PROSE_BINDING.search(body))
 
 
 def _declaration_qualifier(line: str, binding: re.Match, identity: tuple, *, prose: bool) -> str | None:
     """Recognize a direct label on one simple declaration, without inference.
 
-    This is only an admission guard for added revisions with extra query
-    facets. Complex prefixes, suffix explanations, or multiple assignments
-    remain available through the original candidate path. No environment-name
+    Complex prefixes, unrecognized explanations, or multiple assignments remain
+    available through relevance retrieval, but cannot obtain a different
+    declaration's position through timestamp ordering. No environment-name
     list or cross-sentence scope inheritance is used.
     """
     if prose:
-        if not re.fullmatch(r"\s*[.!。]?\s*", line[binding.end():]):
+        if not _simple_declaration_suffix(line[binding.end():]):
             return None
         subject = binding["subject"]
         field_start = None
-        for word in re.finditer(r"[A-Za-z_][A-Za-z0-9_.-]*", subject):
+        for word in re.finditer(r"[A-Za-z_\u3400-\u9fff][A-Za-z0-9_.\-\u3400-\u9fff]*", subject):
             if _field_identity(subject[word.start():]) == identity:
                 field_start = binding.start("subject") + word.start()
                 break
         if field_start is None:
             return None
     else:
-        if _SIMPLE_ASSIGNMENT_VALUE.fullmatch(line[binding.end("name"):]) is None:
+        value = _SIMPLE_ASSIGNMENT_VALUE.fullmatch(line[binding.end("name"):])
+        if value is None or not _simple_declaration_suffix(value["suffix"]):
             return None
         field_start = binding.start("name")
     prefix = line[:field_start].strip()
+    if not prefix:
+        return ""
     return prefix.rstrip(":").strip() if _DIRECT_QUALIFIER.fullmatch(prefix) else None
 
 
@@ -619,18 +728,97 @@ def _complete_declaration_pages(db: sqlite3.Connection, contents: dict[int, str]
     return certified
 
 
-def _declaration_groups(db: sqlite3.Connection, pool: list[dict], matched: dict[int, set[str]],
+def _partial_declaration_anchors(db: sqlite3.Connection, pool: list[dict],
+                                 contents: dict[int, str], references: dict[int, str],
+                                 complete: set[int]) -> dict[int, tuple[str, str]]:
+    """Authenticate full original turns behind existing continuation pages.
+
+    A partial page cannot establish a newer declaration. It may supply an
+    existing relevance slot to a complete comparable turn, after its entire
+    original source (not a truncated prefix) has been read and parsed. Added
+    chronological proposals never gain this exception. Returned bodies and
+    synthetic analysis coordinates are internal only; output citations remain
+    the unmodified stored page/source coordinates.
+    """
+    pending = {}
+    for item in pool:
+        rid = item["rid"]
+        if rid in complete or item.get("_revision_proposal"):
+            continue
+        body = contents.get(rid)
+        if type(body) is not str:
+            continue
+        try:
+            refs = json.loads(references[rid])
+        except (KeyError, TypeError, ValueError):
+            continue
+        if not isinstance(refs, list) or len(refs) != 1 or not isinstance(refs[0], dict):
+            continue
+        ref = refs[0]
+        if (any(type(ref.get(key)) is not int for key in ("start", "end", "turn_start", "turn_end", "turn_index"))
+                or (ref["start"], ref["end"]) != (0, len(body))
+                or not 0 <= ref["turn_start"] < ref["turn_end"]
+                or ref["turn_end"] - ref["turn_start"] != len(body)
+                or ref["turn_index"] < 0
+                or ref.get("project") != item["project_id"]
+                or ref.get("session_id") != item["session_id"]):
+            continue
+        pending[rid] = ref
+    anchors = {}
+    pairs = list(pending.items())
+    for offset in range(0, len(pairs), 64):
+        batch = pairs[offset:offset + 64]
+        rows = db.execute(
+            "SELECT p.rid,t.content FROM pages p JOIN turns t ON t.session_pk=p.session_pk "
+            "JOIN sessions s ON s.id=p.session_pk AND s.project_id=p.project_id "
+            "AND s.chapter_id=p.chapter_id WHERE length(t.content)<=? AND (" +
+            " OR ".join("(p.rid=? AND t.ordinal=?)" for _ in batch) + ")",
+            [_MAX_DECLARATION_CHARS,
+             *[value for rid, ref in batch for value in (rid, ref["turn_index"])]])
+        for row in rows:
+            rid, original = row["rid"], row["content"]
+            ref = pending[rid]
+            if (type(original) is not str or not len(contents[rid]) < len(original) <= _MAX_DECLARATION_CHARS
+                    or ref["turn_end"] > len(original)
+                    or original[ref["turn_start"]:ref["turn_end"]] != contents[rid]):
+                continue
+            analysis = {**ref, "start": 0, "end": len(original),
+                        "turn_start": 0, "turn_end": len(original)}
+            anchors[rid] = original, json.dumps([analysis])
+    return anchors
+
+
+def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched: dict[int, set[str]],
                         contents: dict[int, str], references: dict[int, str], *,
-                        qualifier_contexts: dict | None = None) -> tuple[dict, dict]:
+                        qualifier_contexts: dict | None = None,
+                        authenticated_turns: set[int] | None = None) -> tuple[dict, dict]:
     """Compare the same declared field without promoting mere later mentions.
 
     Values never enter the key or score. Field names come only from candidate
     text, and must match the query. Clear prose updates to those fields are
     included, so a change from ``retry_limit=3`` to ``retry limit is now 7``
-    remains comparable. Other query facets still separate environments/tasks.
-    Unclassified prose/code stays in the candidate pool and in relevance slots.
+    remains comparable. Plain numeric prose can establish its own subject;
+    an unrelated code example is not required to supply its field spelling.
+    Query terms supported only by the common chapter title are navigation
+    context. All other matched facets must qualify each declaration itself.
+    Unclassified prose/code stays in its original relevance slot.
     """
     query = set().union(*matched.values())
+    # Local qualifiers govern every timestamp transfer, including candidates
+    # already present in the original relevance pool.
+    if qualifier_contexts is None:
+        qualifier_contexts = {}
+    complete = (_complete_declaration_pages(db, contents, references)
+                if authenticated_turns is None else authenticated_turns)
+    anchors = (_partial_declaration_anchors(db, pool, contents, references, complete)
+               if authenticated_turns is None else {})
+    if anchors:
+        contents = {**contents, **{rid: values[0] for rid, values in anchors.items()}}
+        references = {**references, **{rid: values[1] for rid, values in anchors.items()}}
+        for item in pool:
+            if item["rid"] in anchors:
+                item["_current_anchor_only"] = True
+        complete = complete | anchors.keys()
     fields, declared = {}, {}
     ordinary = (type(db) is sqlite3.Connection and db.row_factory is sqlite3.Row
                 and db.text_factory is str and json.loads is _ORDINARY_JSON_LOADS
@@ -655,14 +843,31 @@ def _declaration_groups(db: sqlite3.Connection, pool: list[dict], matched: dict[
             if not all(identity):
                 continue
             if identity not in fields and len(fields) == _MAX_DECLARATION_FIELDS:
-                return {}, {"basis": "existing recency groups retained: field analysis exceeded 64 fields"}
+                return {}, {"basis": "relevance retained: field analysis exceeded 64 fields"}
             fields.setdefault(identity, set()).update(aliases)
+    # Derive a plain-prose field only from the query-matching subject suffix.
+    # Existing assignment identities take precedence, retaining dotted-name
+    # boundaries and cross-spelling aliases. This is syntax, not truth scoring.
+    for body in dict.fromkeys(contents.values()) if ordinary else contents.values():
+        if len(body) > _MAX_DECLARATION_CHARS:
+            continue
+        for binding in _PROSE_BINDING.finditer(body):
+            suffixes = list(_prose_subjects(binding["subject"]))
+            if any(identity in fields for _, identity in suffixes):
+                continue
+            for name, identity in suffixes:
+                aliases = set(query_terms(name))
+                if not aliases or not aliases <= query or not set(lexical_terms(name)) <= aliases:
+                    continue
+                if identity not in fields and len(fields) == _MAX_DECLARATION_FIELDS:
+                    return {}, {"basis": "relevance retained: field analysis exceeded 64 fields"}
+                fields.setdefault(identity, set()).update(aliases)
+                break
     if not fields:
         oversized = sum(len(body) > _MAX_DECLARATION_CHARS for body in contents.values())
         return {}, ({"oversized_candidates": oversized,
-                     "basis": "existing recency groups retained: pages over 64000 characters were not analyzed"}
+                     "basis": "relevance retained: pages over 64000 characters were not analyzed"}
                     if oversized else {})
-    complete = _complete_declaration_pages(db, contents, references)
     clauses, parsed_clauses = {}, {}
     for rid, body in contents.items():
         if rid not in complete or not matched.get(rid):
@@ -713,12 +918,10 @@ def _declaration_groups(db: sqlite3.Connection, pool: list[dict], matched: dict[
             for binding in prose_bindings:
                 if quoted_at(origin + binding.start()):
                     continue
-                parts = _field_identity(binding["subject"])
                 # One scan per clause and bounded dictionary lookups; do not
                 # scan every field's regex over every source clause. Longest
                 # subject suffix wins, without crossing a qualified-name dot.
-                for start in range(len(parts[0])):
-                    identity = (parts[0][start:], *parts[1:])
+                for _, identity in _prose_subjects(binding["subject"]):
                     if identity in fields:
                         declared.setdefault(rid, set()).add(identity)
                         if qualifier_contexts is not None:
@@ -737,20 +940,48 @@ def _declaration_groups(db: sqlite3.Connection, pool: list[dict], matched: dict[
                 parsed_contexts[body] = qualifier_contexts[rid]
         if ordinary:
             parsed_fields[body] = frozenset(declared.get(rid, ()))
-    groups = {}
+    groups, unqualified = {}, 0
+    directory_terms = {}
     for position, item in enumerate(pool):
         rid = item["rid"]
         if not matched[rid]:
             continue
         subjects = frozenset(declared.get(rid, ()))
         aliases = set().union(*(fields[subject] for subject in subjects)) if subjects else set()
-        key = (item["chapter_id"], subjects, frozenset(matched[rid] - aliases))
+        title = item["chapter_title"]
+        if title not in directory_terms:
+            directory_terms[title] = frozenset(query_terms(title))
+        required = matched[rid] - aliases - directory_terms[title]
+        local = qualifier_contexts.get(rid, {})
+        signatures = []
+        comparable = bool(subjects)
+        for subject in subjects:
+            prefix = local.get(subject)
+            if prefix is None:
+                comparable = False
+                break
+            scope = _declaration_scope(prefix)
+            if scope is None or not required <= set(query_terms(scope)):
+                comparable = False
+                break
+            signatures.append(scope)
+        if signatures and any(signature != signatures[0] for signature in signatures[1:]):
+            comparable = False
+        if comparable:
+            key = (item["chapter_id"], subjects, signatures[0])
+        else:
+            # Keep all original evidence available without lending its score
+            # to an agenda, partial turn, suffix-qualified or mixed-scope page.
+            key = (item["chapter_id"], frozenset(), (rid,))
+            unqualified += bool(subjects)
         groups.setdefault(key, []).append(position)
     return groups, {"declaration_candidates": len(declared),
                     "unclassified_candidates": sum(bool(matched[item["rid"]]) and item["rid"] not in declared
                                                    for item in pool),
                     "oversized_candidates": sum(len(body) > _MAX_DECLARATION_CHARS for body in contents.values()),
-                    "basis": "same field and remaining query facets; syntax is not authority"}
+                    "unqualified_declarations": unqualified,
+                    "complete_source_partial_anchors": len(anchors),
+                    "basis": "same declared fields and statement-local qualifiers; chapter terms are navigation context; syntax is not authority"}
 
 
 def _qualify_revision_proposals(db: sqlite3.Connection, pool: list[dict],
@@ -759,9 +990,9 @@ def _qualify_revision_proposals(db: sqlite3.Connection, pool: list[dict],
                                 diagnostics: dict | None) -> tuple[list[dict], dict, dict]:
     """Check supplements before they can take any original relevance slot.
 
-    The original pool retains its existing unclassified-prose fallback. An
-    added page must instead have a complete, independently authenticated turn
-    declaring the same fields and remaining query facets as an original page
+    Every transferred position requires a complete, independently authenticated
+    turn declaring the same fields and statement-local facets. An added page
+    must also have an independently qualified original page
     in the same chapter. A proposal cannot authenticate another proposal.
 
     Rejected text must not supply field spellings to the retained pool. Repeat
@@ -782,32 +1013,13 @@ def _qualify_revision_proposals(db: sqlite3.Connection, pool: list[dict],
         if not proposed:
             break
         comparable = set()
-        prefix_tokens = {}
-        for (_, subjects, facets), positions in refined.items():
+        for (_, subjects, scope), positions in refined.items():
             if not subjects:
                 continue
             eligible = positions
-            if facets:
-                eligible = []
-                for i in positions:
-                    local = contexts.get(pool[i]["rid"], {})
-                    for subject in subjects:
-                        prefix = local.get(subject)
-                        if prefix is None:
-                            break
-                        if prefix not in prefix_tokens:
-                            # Stop-word removal must not turn a relation such
-                            # as "from X to Y" into an apparently direct label.
-                            terms = frozenset(query_terms(prefix))
-                            prefix_tokens[prefix] = (terms if set(lexical_terms(prefix)) <= terms
-                                                     else None)
-                        if prefix_tokens[prefix] != facets:
-                            break
-                    else:
-                        eligible.append(i)
             if any(not pool[i].get("_revision_proposal") for i in eligible):
                 comparable.update(pool[i]["rid"] for i in eligible)
-            if facets:
+            if scope:
                 facet_rejected.update(pool[i]["rid"] for i in positions
                                       if pool[i].get("_revision_proposal")
                                       and pool[i]["rid"] not in comparable)
@@ -879,13 +1091,14 @@ def _prefer_current_pool(db: sqlite3.Connection, pool: list[dict],
     if diagnostic and diagnostics is not None:
         diagnostics["declaration_ordering"] = diagnostic
     # Qualification can remove supplementary pages. Rebuild positional groups
-    # before any permutation; original unclassified pages keep their fallback.
+    # before any permutation. Unclassified text keeps its relevance position;
+    # occurrence queries retain their separate chronology behavior.
     groups = {}
     for i, item in enumerate(pool):
         if matched[item["rid"]]:
             key = (item["chapter_id"], frozenset(matched[item["rid"]]))
             groups.setdefault(key, []).append(i)
-    if refined:
+    if declarations:
         groups = refined
     repeated = set()
     for positions in groups.values():
@@ -902,10 +1115,14 @@ def _prefer_current_pool(db: sqlite3.Connection, pool: list[dict],
             turn_positions[rid] = turn
     for positions in groups.values():
         scores = [pool[i]["score"] for i in positions]
-        revisions = sorted((pool[i] for i in positions), key=lambda item: item["created_at"], reverse=True)
+        eligible = [pool[i] for i in positions if not pool[i].get("_current_anchor_only")]
+        if not eligible:
+            continue
+        revisions = sorted(eligible, key=lambda item: item["created_at"], reverse=True)
+        revisions.extend(pool[i] for i in positions if pool[i].get("_current_anchor_only"))
         sessions = {}
         for i, item in enumerate(revisions):
-            if item["rid"] in turn_positions:
+            if item["rid"] in turn_positions and not item.get("_current_anchor_only"):
                 key = (item["project_id"], item["session_id"])
                 sessions.setdefault(key, []).append(i)
         for same_session in sessions.values():
@@ -2160,6 +2377,9 @@ class MemoryBook:
                         char_allowances = {row["id"]: allowance for row, _, allowance in allocations}
                         current_pages = (selected_pages if source_units_for is not None
                                          else [row for row, _, _ in allocations])
+                        excerpt_candidates = []
+                        known_turns = dict(original_turns) if original_turns is not None else {}
+                        wanted = {}
                         for row in current_pages:
                             match_set = current_matches.get(row["rid"])
                             allowance = char_allowances.get(row["id"])
@@ -2168,15 +2388,10 @@ class MemoryBook:
                                 continue
                             refs = (refs_by_page[row["id"]] if refs_by_page is not None
                                     else json.loads(row["source_refs"]))
-                            ref = _current_excerpt_ref(row["content"], refs, match_set,
-                                                       None if source_units_for is not None else allowance)
-                            if ref is not None:
-                                proposed[row["id"]] = (row, ref)
-                        known_turns = original_turns if original_turns is not None else {}
-                        wanted = {}
-                        for row, ref in proposed.values():
-                            if (row["session_pk"], ref["turn_index"]) not in known_turns:
-                                wanted.setdefault(row["session_pk"], set()).add(ref["turn_index"])
+                            excerpt_candidates.append((row, refs, match_set, allowance))
+                            for ref in _matching_turn_refs(row["content"], refs, match_set):
+                                if (row["session_pk"], ref["turn_index"]) not in known_turns:
+                                    wanted.setdefault(row["session_pk"], set()).add(ref["turn_index"])
                         extra_turns = self._batch_original_turns(wanted) if wanted else {}
                         if extra_turns is None:
                             extra_turns = {}
@@ -2186,9 +2401,18 @@ class MemoryBook:
                                         "SELECT ordinal,content FROM turns WHERE session_pk=? AND ordinal IN (" +
                                         ",".join("?" for _ in ordered) + ")", [session_pk, *ordered]):
                                     extra_turns[(session_pk, source["ordinal"])] = source["content"]
+                        known_turns.update(extra_turns)
+                        for row, refs, match_set, allowance in excerpt_candidates:
+                            originals = {ref["turn_index"]: known_turns.get((row["session_pk"], ref["turn_index"]))
+                                         for ref in _matching_turn_refs(row["content"], refs, match_set)}
+                            ref = _current_excerpt_ref(row["content"], refs, match_set,
+                                                       None if source_units_for is not None else allowance,
+                                                       original_turns=originals)
+                            if ref is not None:
+                                proposed[row["id"]] = (row, ref)
                         for identity, (row, ref) in proposed.items():
                             key = (row["session_pk"], ref["turn_index"])
-                            original = known_turns.get(key, extra_turns.get(key))
+                            original = known_turns.get(key)
                             start, end = ref["start"], ref["end"]
                             if (isinstance(original, str) and ref["turn_end"] == len(original)
                                     and row["content"][start:end] == original):
@@ -2214,6 +2438,10 @@ class MemoryBook:
         except BaseException:
             self.db.execute("ROLLBACK")
             raise
+        if token_counter is None:
+            from .context_budget import complete_short_pages
+            allocations = complete_short_pages(
+                allocations, protected_ids=frozenset(current_spans))
         legacy = []
         for row, header, allowance in allocations:
             if row["id"] in current_spans:

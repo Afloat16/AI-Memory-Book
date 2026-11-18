@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+from datetime import datetime
 import gzip
 import hashlib
 import json
@@ -72,7 +73,8 @@ def fixture(size):
 
 
 def observed(response, pages, size, budget):
-    _, originals, full_bodies = fixture(size)
+    sessions, originals, full_bodies = fixture(size)
+    session_lookup = {session["session_id"]: session for session in sessions}
     if (response["query"] != "current gradient accumulation steps" or response["budget_chars"] != budget
             or response["context_chars"] != len(response["context"]) or len(response["context"]) > budget
             or response["cache_hit"] is not False or response["strategy"] != "book"
@@ -88,16 +90,49 @@ def observed(response, pages, size, budget):
     for hit in response["results"]:
         page = pages[hit["id"]]
         session = hit["source_refs"][0]["session_id"]
+        source = session_lookup.get(session)
+        if source is None:
+            raise ValueError("Unknown original session")
+        created_at = datetime.fromisoformat(source["created_at"].replace("Z", "+00:00")).isoformat()
+        expected_refs = []
+        offset = 0
+        for ordinal, start in enumerate(range(0, len(source["messages"]), 2)):
+            body = originals[("trainer", session, ordinal)]
+            expected_refs.append({"project": "trainer", "session_id": session, "turn_index": ordinal,
+                                  "message_indices": list(range(start, min(start + 2, len(source["messages"])))),
+                                  "start": offset, "end": offset + len(body), "turn_start": 0,
+                                  "turn_end": len(body), "created_at": created_at})
+            offset += len(body) + 2
         if (page["id"] != hit["id"] or page["content"] != full_bodies.get(session)
                 or page["offset"] != 0 or page["next_offset"] is not None
                 or page["total_chars"] != len(page["content"]) or hit["page_chars"] != len(page["content"])
-                or page["created_at"] != hit["created_at"]
+                or page["created_at"] != created_at or hit["created_at"] != created_at
                 or page["breadcrumb"][0]["id"] != "trainer" or hit["breadcrumb"][0]["id"] != "trainer"
-                or any(ref["project"] != "trainer" or ref["session_id"] != session for ref in page["source_refs"])):
+                or page["source_refs"] != expected_refs):
             raise ValueError("Original follow-up page differs from the frozen session")
-        for ref in hit["source_refs"]:
-            if page["content"][ref["start"]:ref["end"]] != originals[("trainer", session, ref["turn_index"])][ref["turn_start"]:ref["turn_end"]]:
-                raise ValueError("Absolute page offsets differ from original-turn offsets")
+        # This fixed character-only route emits one contiguous original span;
+        # exact-token composition is a separate, unchanged production path.
+        spans = hit.get("excerpt_spans")
+        if (type(spans) is not list or len(spans) != 1 or type(spans[0]) is not list
+                or len(spans[0]) != 2 or any(type(value) is not int for value in spans[0])):
+            raise ValueError("Unexpected character-excerpt span representation")
+        lo, hi = spans[0]
+        if not 0 <= lo < hi <= len(page["content"]):
+            raise ValueError("Character-excerpt span is outside the original page")
+        expected_text = ("…" if lo else "") + page["content"][lo:hi] + ("…" if hi < len(page["content"]) else "")
+        expected_snippet_refs = []
+        for original_ref in expected_refs:
+            start, end = max(lo, original_ref["start"]), min(hi, original_ref["end"])
+            if start < end:
+                expected_snippet_refs.append({**original_ref, "start": start, "end": end,
+                                              "turn_start": start - original_ref["start"],
+                                              "turn_end": end - original_ref["start"]})
+        if hit["text"] != expected_text or hit["source_refs"] != expected_snippet_refs:
+            raise ValueError("Snippet text or exact clipped source mapping differs")
+        for ref in (*page["source_refs"], *hit["source_refs"]):
+            if (any(type(ref[key]) is not int for key in ("start", "end", "turn_start", "turn_end", "turn_index"))
+                    or any(type(index) is not int for index in ref["message_indices"])):
+                raise ValueError("Source coordinates are not exact integer offsets")
         blocks.append(f'[{hit["id"]}] trainer / {session} | {hit["created_at"]}\n' + hit["text"])
     if response["context"] != "\n\n".join(blocks):
         raise ValueError("Context contains unsupported text outside verified snippets and framing")
@@ -178,18 +213,26 @@ def worker(args):
               "loaded_native": {"path": str(binary), "sha256": sha(binary.read_bytes())} if binary else None}
     write(output / "report.json", report)
     original, _ = controls()
-    rows = []
+    rows, pending = [], None
     try:
-        with (output / "raw.jsonl").open("x", encoding="utf-8") as raw:
+        with (output / "raw.jsonl").open("x", encoding="utf-8") as raw, (output / "journal.jsonl").open("x", encoding="utf-8") as journal:
             for size in (180, 230):
                 sessions, _, _ = fixture(size)
                 with memory_book.MemoryBook(":memory:") as book:
                     for session in sessions:
                         book.ingest(session)
                     for budget in range(400, 1601, 5):
+                        pending = {"short_record_chars": size, "budget_chars": budget,
+                                   "status": "started", "original_pages": {}}
+                        journal.write(json.dumps(pending) + "\n")
+                        journal.flush()
+                        os.fsync(journal.fileno())
                         response = book.recall("current gradient accumulation steps", project="trainer", limit=3,
                                                budget_chars=budget, use_cache=False)
-                        pages = {h["id"]: book.read(h["id"], project="trainer", limit=100000) for h in response["results"]}
+                        pending.update(status="response_received", response=response)
+                        pages = pending["original_pages"]
+                        for hit in response["results"]:
+                            pages[hit["id"]] = book.read(hit["id"], project="trainer", limit=100000)
                         row = {"short_record_chars": size, "budget_chars": budget,
                                "response": response, "original_pages": pages,
                                "control_current_present": original[(size, budget)],
@@ -198,6 +241,10 @@ def worker(args):
                         raw.flush()
                         os.fsync(raw.fileno())
                         rows.append(row)
+                        journal.write(json.dumps({"short_record_chars": size, "budget_chars": budget,
+                                                  "status": "completed"}) + "\n")
+                        journal.flush()
+                        pending = None
         summary = validate_rows(rows)
         after = source_identity(source, args.commit)
         if before != after or binding() != evaluator or (binary and sha(binary.read_bytes()) != report["loaded_native"]["sha256"]):
@@ -206,6 +253,8 @@ def worker(args):
                       accepted=not summary["lost_recorded_controls"] and summary["original_regressions_recovered"] == 34)
     except BaseException as error:
         report.update(status="failed", accepted=False, error={"type": type(error).__name__, "message": str(error)})
+        if pending is not None:
+            write(output / "failed-response.json", {**pending, "error": report["error"]})
         raise
     finally:
         raw_path = output / "raw.jsonl"

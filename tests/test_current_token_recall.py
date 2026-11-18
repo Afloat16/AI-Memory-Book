@@ -133,7 +133,10 @@ class CurrentTokenRecallTests(unittest.TestCase):
         leading["session_id"] = "maintenance"
         leading["created_at"] = "2026-12-01T00:00:00Z"
         leading["messages"] = [{"role": "assistant", "content":
-                                "Gradient accumulation steps need a source check."}]
+                                "Gradient accumulation steps need a source check. "
+                                + "gradient accumulation steps. " * 12}]
+        # Keep a lexically leading block to test token assembly. A later
+        # maintenance timestamp no longer lends it another source's rank.
         self.book.ingest(leading)
         full = self.book.recall(QUERY, project="trainer", limit=2, budget_chars=4000,
                                 use_cache=False)

@@ -58,6 +58,31 @@ class ShortPageGuardEvaluationTests(unittest.TestCase):
             with self.subTest(kind=kind), self.assertRaises(ValueError):
                 evaluation.observed(row["response"], row["original_pages"], row["short_record_chars"], row["budget_chars"])
 
+    def test_independent_review_metadata_counterexamples_are_rejected(self):
+        for kind in ("span", "missing_refs", "full_turn", "full_message", "full_offset", "snippet_message", "date"):
+            row = self.fixture()
+            hit = row["response"]["results"][0]
+            page = row["original_pages"][hit["id"]]
+            if kind == "span":
+                hit["excerpt_spans"] = [[999999, 1000000]]
+            elif kind == "missing_refs":
+                page["source_refs"] = []
+            elif kind == "full_turn":
+                page["source_refs"][0]["turn_index"] = 999999
+            elif kind == "full_message":
+                page["source_refs"][0]["message_indices"] = [999999]
+            elif kind == "full_offset":
+                page["source_refs"][0]["start"] = 999999
+            elif kind == "snippet_message":
+                hit["source_refs"][0]["message_indices"] = [999999]
+            else:
+                prior = hit["created_at"]
+                hit["created_at"] = page["created_at"] = "2099-01-01T00:00:00+00:00"
+                row["response"]["context"] = row["response"]["context"].replace(prior, hit["created_at"])
+                row["response"]["context_chars"] = len(row["response"]["context"])
+            with self.subTest(kind=kind), self.assertRaises(ValueError):
+                evaluation.observed(row["response"], row["original_pages"], row["short_record_chars"], row["budget_chars"])
+
 
 if __name__ == "__main__":
     unittest.main()

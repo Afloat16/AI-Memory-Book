@@ -66,11 +66,15 @@ class CurrentProposalQualificationTests(unittest.TestCase):
                 self.assertIn("The retry limit is three attempts.", control["context"])
                 self.assertIn("The retry limit is three attempts.", result["context"])
                 self.assertNotIn("latest-agenda", source_sessions(result))
-                self.assertEqual(evidence_payload(result), evidence_payload(control))
+                # Pure numeric prose now supplies a real field identity, so
+                # additional older declarations may be analyzed. That changes
+                # diagnostic counts, never the selected source evidence here.
+                for key in ("results", "context", "context_chars", "candidate_count", "warnings"):
+                    self.assertEqual(result[key], control[key], key)
                 expansion = result["temporal"]["candidate_expansion"]
                 self.assertGreater(expansion["added_to_pool"], 0)
                 self.assertEqual(expansion["new_candidates"] == 0, count < 96)
-                self.assertEqual(expansion["admitted_proposals"], 0)
+                self.assertGreater(expansion["rejected_before_ordering"], 0)
 
     def test_promoted_tail_copy_cannot_mutate_original_tail_scores_or_order(self):
         with MemoryBook(":memory:", segmentation="turn") as book:
@@ -94,7 +98,7 @@ class CurrentProposalQualificationTests(unittest.TestCase):
             self.assertEqual(result["candidate_count"], 9)
             self.assertEqual(result["temporal"]["candidate_expansion"]["new_candidates"], 0)
 
-    def test_original_unclassified_pool_keeps_its_existing_fallback(self):
+    def test_original_pool_agenda_cannot_take_a_recorded_decisions_slot(self):
         with MemoryBook(":memory:", segmentation="turn") as book:
             for source in agenda_sessions(2):
                 book.ingest(source)
@@ -104,8 +108,9 @@ class CurrentProposalQualificationTests(unittest.TestCase):
                 control = book.recall(**request)
             result = book.recall(**request)
             # All three sources are already in the original four-item pool.
-            # This test preserves that fallback; it does not assert authority.
-            self.assertEqual(source_sessions(control), ["latest-agenda"])
+            # The old failure is retained in the v0.12 development baseline.
+            self.assertTrue(source_sessions(control)[0].startswith("old-"))
+            self.assertIn("The retry limit is three attempts.", control["context"])
             self.assertEqual(evidence_payload(result), evidence_payload(control))
             self.assertEqual(result["temporal"]["candidate_expansion"]["added_to_pool"], 0)
 
@@ -128,7 +133,8 @@ class CurrentProposalQualificationTests(unittest.TestCase):
                     result = book.recall(**request)
                     self.assertEqual(evidence_payload(result), evidence_payload(control))
                     if limit == 1:
-                        self.assertEqual(source_sessions(control), ["review"])
+                        self.assertTrue(source_sessions(control)[0].startswith("decision-"))
+                        self.assertIn("Retry limit is 3", control["context"])
 
     def test_semantic_fusion_still_rejects_an_unclassified_chronology_proposal(self):
         from tests.test_semantic import FixtureEncoder
@@ -149,9 +155,10 @@ class CurrentProposalQualificationTests(unittest.TestCase):
                     control = book.recall(**request)
                 result = book.recall(**request)
             self.assertIn("The retry limit is three attempts.", result["context"])
-            self.assertEqual(evidence_payload(result), evidence_payload(control))
+            for key in ("results", "context", "context_chars", "candidate_count", "warnings"):
+                self.assertEqual(result[key], control[key], key)
 
-    def test_rejected_spelling_cannot_leave_another_proposal_artificially_qualified(self):
+    def test_pure_prose_update_does_not_depend_on_a_rejected_identifier_example(self):
         with MemoryBook(":memory:", segmentation="turn") as book:
             for index in range(8):
                 book.ingest(record(f"decision-{index}", "Retry limit is 3. " + "retry limit. " * 20))
@@ -166,12 +173,20 @@ class CurrentProposalQualificationTests(unittest.TestCase):
             with patch.object(book, "_current_revision_pool", side_effect=original_pool):
                 control = book.recall(**request)
             result = book.recall(**request)
-            # The only identifier spelling occurs in a rejected example.
-            # Re-running on retained text must also withdraw the prose proposal.
-            self.assertEqual(evidence_payload(result), evidence_payload(control))
+            # Numeric prose now establishes its own query-matching subject.
+            # Removing the rejected code example must not withdraw that valid
+            # independently authenticated update or change its source text.
+            self.assertNotEqual(source_sessions(control), ["prose-update"])
+            self.assertEqual(source_sessions(result), ["prose-update"])
+            self.assertIn("Retry limit is now 7", result["context"])
             expansion = result["temporal"]["candidate_expansion"]
-            self.assertEqual(expansion["admitted_proposals"], 0)
-            self.assertGreaterEqual(expansion["qualification_passes"], 3)
+            self.assertGreater(expansion["admitted_proposals"], 0)
+            self.assertGreater(expansion["rejected_before_ordering"], 0)
+            self.assertTrue(book.delete_session("workers", "example"))
+            without_example = book.recall(**request)
+            self.assertEqual(result["context"], without_example["context"])
+            self.assertEqual(result["results"][0]["source_refs"],
+                             without_example["results"][0]["source_refs"])
 
     def test_proposal_requires_an_original_declaration_in_its_own_chapter(self):
         with MemoryBook(":memory:", segmentation="turn") as book:
