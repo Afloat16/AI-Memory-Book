@@ -182,6 +182,7 @@ from a process that can open the database directly. See the
 | `results[].truncated` | Present and `true` when the excerpt omits part of that page |
 | `context_chars` / `budget_chars` | Actual assembled context size and requested limit |
 | `warnings` | Budget, project-scope, or conflicting-history cautions |
+| `evidence_assessment` | In compact assessed-current responses: bounded status and original conflict page IDs; not a truth or confidence score |
 | `revision` | The database revision associated with this response |
 
 Use only IDs and references actually returned by tools. A useful citation in a
@@ -196,6 +197,31 @@ change. Set `"details": true` on `recall_memory` to retrieve the full reference
 coordinates, `excerpt_spans`, and diagnostics, or use `read_page` for a selected
 page. CLI and HTTP responses continue to expose their full fields. All MCP tools
 return one JSON text block; `browse_projects` contains a JSON array.
+
+For assessed current requests, compact MCP output retains
+`evidence_assessment.status`, `scope` and `conflicts`. Detailed MCP, Python,
+CLI JSON and HTTP responses expose the complete assessment under
+`temporal.evidence_assessment`, including inspected-candidate counts and its
+basis. Ordinary relevance/history/event requests and requests that could not
+be assessed omit the compact field; detailed output reports `not_assessed`.
+The evidence text, citation framing and source coordinates are unchanged by
+this projection. The assessment is outer JSON metadata and is not included in
+the context character/token budget.
+
+| Assessment status | What the agent should do |
+|---|---|
+| `comparable_declaration` | Check the cited declaration and its qualifiers; this is not a finding of general authority |
+| `potential_conflict` | Follow the returned conflict `page_ids` under the same exact project and report the unresolved alternatives |
+| `no_comparable_declaration` | Treat the related excerpts as unconfirmed for the requested current value; use a focused source or directory follow-up |
+| `no_matching_evidence` | Report a miss for this lookup and scope; do not infer that the archive or project has no answer |
+| `not_assessed` | No current-declaration assessment ran for this request; inspect the ordinary returned evidence |
+
+The scope is `bounded_candidate_pool`. Candidates outside that pool, other
+chapters, unsupported prose and truncated source coverage can remain unseen.
+A conflict may reference an original page that did not fit the returned
+context, especially at `limit=1`; use its real page ID for an exact read.
+The diagnostic does not select a true value, assign a confidence probability,
+or provide calibrated abstention.
 
 In detailed responses and page reads, `source_refs.start` and `end` are half-open character offsets within the full
 page, while `turn_start` and `turn_end` locate the same text in the assembled

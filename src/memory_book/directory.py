@@ -47,6 +47,79 @@ def _ranked_hits(where: str) -> str:
             + _MATCH_FROM + " WHERE " + where + " LIMIT -1")
 
 
+def _batch_directory_matches(book: MemoryBook, where: str, parameters: list,
+                             project: str | None, limit: int, offset: int) -> tuple | None:
+    """Share one MATCH across complete aggregates and bounded previews.
+
+    Each section belongs to one chapter. Summing section page counts and
+    taking their minimum ranks therefore preserves the original chapter
+    aggregates exactly. The non-flattening hits fence keeps bm25 inside its
+    MATCH cursor. Ordinary CTEs and windows need no schema, JSON extension or
+    MATERIALIZED syntax. Older/customized connections use the original path.
+    """
+    def statement(predicate: str) -> str:
+        return """WITH hits AS (""" + _ranked_hits(predicate) + """),
+          section_matches AS (
+            SELECT chapter_id,section_id,MIN(match_rank) AS match_rank,
+              COUNT(*) AS matching_pages FROM hits GROUP BY chapter_id,section_id
+          ), chapter_matches AS (
+            SELECT chapter_id,MIN(match_rank) AS match_rank,SUM(matching_pages) AS matching_pages,
+              COUNT(DISTINCT section_id) AS matching_sections_total
+            FROM section_matches GROUP BY chapter_id
+          ), ranked_chapters AS (
+            SELECT * FROM chapter_matches ORDER BY match_rank,chapter_id LIMIT ? OFFSET ?
+          ), section_ranks AS (
+            SELECT sm.*,ROW_NUMBER() OVER (
+              PARTITION BY sm.chapter_id ORDER BY sm.match_rank,sm.section_id) AS preview_position
+            FROM section_matches sm JOIN ranked_chapters rc ON rc.chapter_id=sm.chapter_id
+          )
+          SELECT totals.total,rc.chapter_id,rc.match_rank,rc.matching_pages,rc.matching_sections_total,
+            sr.section_id,sr.match_rank AS section_match_rank,sr.matching_pages AS section_matching_pages,
+            sec.title,sec.summary,sec.session_pk,s.external_id AS session_id,
+            s.title AS session_title,s.created_at,
+            (SELECT COUNT(*) FROM pages p
+             WHERE p.section_id=sec.id AND p.session_pk=sec.session_pk
+               AND p.chapter_id=sec.chapter_id AND p.project_id=s.project_id) AS pages_total
+          FROM (SELECT COUNT(*) AS total FROM chapter_matches) totals
+          LEFT JOIN ranked_chapters rc ON 1=1
+          LEFT JOIN section_ranks sr ON sr.chapter_id=rc.chapter_id AND sr.preview_position<=?
+          LEFT JOIN sections sec ON sec.id=sr.section_id
+          LEFT JOIN sessions s ON s.id=sec.session_pk
+          ORDER BY rc.match_rank,rc.chapter_id,sr.match_rank,sr.section_id"""
+
+    if any(type(value) is not str for value in parameters):
+        return None
+    sql = statement(where)
+    query_parameters = [*parameters, limit, offset, SECTION_PREVIEW_LIMIT]
+    if not book._can_batch_scoped_query(sql, len(query_parameters)):
+        return None
+    bounds = book._project_rowid_bounds(project)
+    if bounds is not None:
+        bounded_sql = statement(where + " AND pages_fts.rowid BETWEEN ? AND ?")
+        bounded_parameters = [*parameters, *bounds, limit, offset, SECTION_PREVIEW_LIMIT]
+        if book._can_batch_scoped_query(bounded_sql, len(bounded_parameters)):
+            sql, query_parameters = bounded_sql, bounded_parameters
+    rows = book.db.execute(sql, query_parameters).fetchall()
+    ranked, sections, seen = [], {}, set()
+    for row in rows:
+        chapter_id = row["chapter_id"]
+        if chapter_id is None:
+            continue
+        if chapter_id not in seen:
+            seen.add(chapter_id)
+            ranked.append({key: row[key] for key in
+                           ("chapter_id", "match_rank", "matching_pages", "matching_sections_total")})
+            sections[chapter_id] = []
+        if row["section_id"] is not None:
+            sections[chapter_id].append({
+                "section_id": row["section_id"], "match_rank": row["section_match_rank"],
+                "matching_pages": row["section_matching_pages"],
+                **{key: row[key] for key in ("title", "summary", "session_pk", "session_id",
+                                           "session_title", "created_at", "pages_total")},
+            })
+    return rows[0]["total"], ranked, sections
+
+
 def search_directory(book: MemoryBook, query: str, *, project: str | None = None,
                      chapter: str | None = None, limit: int = 10, offset: int = 0) -> dict:
     """Find matching chapter and section addresses without returning evidence.
@@ -123,15 +196,17 @@ def search_directory(book: MemoryBook, query: str, *, project: str | None = None
             parameters.append(chapter)
         where = " AND ".join(predicates)
 
-        total = db.execute("SELECT COUNT(DISTINCT p.chapter_id) " + _MATCH_FROM
-                           + " WHERE " + where, parameters).fetchone()[0]
+        batched = _batch_directory_matches(book, where, parameters, project, limit, offset)
+        total = (batched[0] if batched is not None else
+                 db.execute("SELECT COUNT(DISTINCT p.chapter_id) " + _MATCH_FROM
+                            + " WHERE " + where, parameters).fetchone()[0])
         response["total"] = total
         if offset >= total:
             return response
 
         # The only chapter LIMIT is outside GROUP BY: even thousands of pages
         # in one chapter cannot consume another chapter's result slot.
-        ranked = db.execute(
+        ranked = batched[1] if batched is not None else db.execute(
             "SELECT chapter_id,MIN(match_rank) AS match_rank,COUNT(*) AS matching_pages,"
             "COUNT(DISTINCT section_id) AS matching_sections_total FROM ("
             + _ranked_hits(where) + ") AS hits GROUP BY chapter_id "
@@ -158,7 +233,7 @@ def search_directory(book: MemoryBook, query: str, *, project: str | None = None
             chapter_id = match["chapter_id"]
             details = metadata[chapter_id]
             section_where = where + " AND p.chapter_id=?"
-            section_rows = db.execute(
+            section_rows = batched[2][chapter_id] if batched is not None else db.execute(
                 """SELECT matched.section_id,matched.match_rank,matched.matching_pages,
                 sec.title,sec.summary,sec.session_pk,s.external_id AS session_id,
                 s.title AS session_title,s.created_at,

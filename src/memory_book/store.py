@@ -23,7 +23,7 @@ from .text import (IDENTIFIER_WORD_BOUNDARY, estimate_tokens, excerpt, headline,
 SCHEMA_VERSION = 4
 INDEX_VERSION = 3
 LEXICAL_INDEX_VERSION = 1
-RECALL_VERSION = 21
+RECALL_VERSION = 22
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -57,7 +57,7 @@ EVENT_QUERY = re.compile(
     r"(?:session|event|occurrence)\s+counts?|occurrences?|frequenc(?:y|ies)|"
     r"timeline|chronolog(?:y|ical)|(?:sequence|order)\s+of\s+(?:events|decisions)|"
     r"(?:each|every)\s+(?:session|event|occurrence))\b|"
-    r"次数|多少次|几次|频率|频次|逐次|每次|各次|时间线|时间顺序|先后|事件序列|"
+    r"(?:出现|发生|执行|触发|调用|失败|成功)(?:了|的)?次数|多少次|几次|频率|频次|逐次|每次|各次|时间线|时间顺序|先后|事件序列|"
     r"统计.{0,12}(?:会话|事件|次数)|(?:会话|事件).{0,12}(?:数量|个数|总数)", re.IGNORECASE)
 
 
@@ -514,7 +514,8 @@ _PROSE_BINDING = re.compile(
     r"(?:[ \t]+[A-Za-z_\u3400-\u9fff][A-Za-z0-9_.\-\u3400-\u9fff]*){0,7})(?:"
     r"\s+(?:(?:is|are)\s+(?:now\s+)?|(?:is|are)\s+(?:now\s+)?set\s+to\s+|"
     r"(?:has|have)\s+been\s+set\s+to\s+|(?:was\s+)?(?:changed|set)\s+to\s+)"
-    r"|\s*(?:现在)?(?:设置为|设为|改为|调整为|是|为))" + _PROSE_VALUE, re.IGNORECASE)
+    r"|\s*(?:现在|现已|已经|已)?(?:设置为|设为|改为|调整为|是|为)\s*)"
+    r"(?P<value>" + _PROSE_VALUE + r")", re.IGNORECASE)
 # Resource limits, not quality thresholds: oversized/ambiguous input keeps the
 # existing candidate path rather than analyzing a chosen prefix as complete.
 _MAX_DECLARATION_FIELDS = 64
@@ -522,7 +523,7 @@ _MAX_DECLARATION_CHARS = 64_000
 _DIRECT_QUALIFIER = re.compile(
     r"\w+(?:[.-]\w+)*(?:[ \t]+\w+(?:[.-]\w+)*)*[ \t]*:?")
 _SIMPLE_ASSIGNMENT_VALUE = re.compile(
-    r"\s*=\s*(?:" + _PROSE_VALUE + r"|[+-]?\w+(?:[./:-]\w+)*)(?P<suffix>.*)\Z",
+    r"\s*=\s*(?P<value>" + _PROSE_VALUE + r"|[+-]?\w+(?:[./:-]\w+)*)(?P<suffix>.*)\Z",
     re.IGNORECASE)
 _PROSE_QUANTITY_SUFFIX = re.compile(
     r"\s*"
@@ -552,6 +553,30 @@ _EXPLICIT_REVOCATION = re.compile(
     r"(?:(?:the\s+)?(?:old|previous|former|prior)\s+(?:value|setting|configuration|contract|decision)"
     r"\s+(?:is|was)\s+(?:invalid|obsolete|revoked|withdrawn|no\s+longer\s+valid)|"
     r"(?:旧值|原值|前值)(?:已经|已)?(?:失效|无效|撤销|弃用))[.!。]?", re.IGNORECASE)
+_NONDECISION_BINDING = re.compile(
+    r"(?<![\w._-])(?P<subject>[A-Za-z_][A-Za-z0-9_.-]*"
+    r"(?:[ \t]+[A-Za-z_][A-Za-z0-9_.-]*){0,7})\s+"
+    r"(?:(?:remains?|is|are)\s+(?:on\s+(?:the\s+)?(?:review\s+)?agenda|pending\s+approval)|"
+    r"will\s+be\s+(?:discussed|reviewed))\b", re.IGNORECASE)
+_EXPLICIT_NO_DECISION = re.compile(
+    r"\b(?:no\s+(?:new\s+)?(?:value|decision)\s+(?:was|is|has\s+been)\s+"
+    r"(?:decided|selected|approved|recorded)|pending\s+approval)\b", re.IGNORECASE)
+
+
+def _declaration_query_terms(query: str) -> set[str]:
+    """Remove only Chinese question grammar from declaration matching.
+
+    A CJK bigram crossing 当前, 的 or 是多少 is not a parameter/environment
+    facet. The lexical index, candidate routes, scores and ordinary relevance
+    matches keep the unmodified query; only source-declaration analysis uses
+    this view. Source subjects and their environment labels are never erased.
+    """
+    if not re.search(r"[\u3400-\u9fff]", query):
+        return set(query_terms(query))
+    query = CURRENT_QUERY.sub(" ", query)
+    query = re.sub(r"(?<=[\u3400-\u9fff])的(?=[\u3400-\u9fff])", "", query)
+    query = re.sub(r"(?:是多少|是什么|为多少)(?=[?？\s]|$)", " ", query)
+    return set(query_terms(query))
 
 
 def _declaration_scope(prefix: str) -> str | None:
@@ -800,7 +825,9 @@ def _partial_declaration_anchors(db: sqlite3.Connection, pool: list[dict],
 def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched: dict[int, set[str]],
                         contents: dict[int, str], references: dict[int, str], *,
                         qualifier_contexts: dict | None = None,
-                        authenticated_turns: set[int] | None = None) -> tuple[dict, dict]:
+                        authenticated_turns: set[int] | None = None,
+                        query_tokens: set[str] | None = None,
+                        source_analysis: dict | None = None) -> tuple[dict, dict]:
     """Compare the same declared field without promoting mere later mentions.
 
     Values never enter the key or score. Field names come only from candidate
@@ -812,7 +839,9 @@ def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched
     context. All other matched facets must qualify each declaration itself.
     Unclassified prose/code stays in its original relevance slot.
     """
-    query = set().union(*matched.values())
+    query = set().union(*matched.values()) if query_tokens is None else query_tokens
+    if query_tokens is not None:
+        matched = {rid: tokens & query for rid, tokens in matched.items()}
     # Local qualifiers govern every timestamp transfer, including candidates
     # already present in the original relevance pool.
     if qualifier_contexts is None:
@@ -828,6 +857,8 @@ def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched
             if item["rid"] in anchors:
                 item["_current_anchor_only"] = True
         complete = complete | anchors.keys()
+    if source_analysis is not None:
+        source_analysis.update(complete_sources=complete - anchors.keys(), values={})
     fields, declared = {}, {}
     ordinary = (type(db) is sqlite3.Connection and db.row_factory is sqlite3.Row
                 and db.text_factory is str and json.loads is _ORDINARY_JSON_LOADS
@@ -890,7 +921,7 @@ def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched
                 # source turn above. Only the pure syntax of identical text
                 # is shared, never source authentication or coordinates.
                 parsed_clauses[body] = clauses[rid]
-    parsed_fields, parsed_contexts = {}, {}
+    parsed_fields, parsed_contexts, parsed_values = {}, {}, {}
     for rid, lines in clauses.items():
         body = contents[rid]
         if ordinary and body in parsed_fields:
@@ -899,6 +930,8 @@ def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched
                 declared[rid] = subjects
             if qualifier_contexts is not None:
                 qualifier_contexts[rid] = parsed_contexts[body]
+            if source_analysis is not None:
+                source_analysis["values"][rid] = parsed_values[body]
             continue
         # Parse quotes once in the original whole turn. Splitting first would
         # lose quotation state across a sentence or newline inside a quote.
@@ -909,7 +942,7 @@ def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched
             index = bisect_right(starts, position) - 1
             return index >= 0 and position < quoted[index][1]
 
-        local = {}
+        local, values = {}, {}
         for line, origin in lines:
             bindings = list(_FIELD_BINDING.finditer(line))
             prose_bindings = list(_PROSE_BINDING.finditer(line))
@@ -924,6 +957,9 @@ def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched
                         prefix = (_declaration_qualifier(line, binding, identity, prose=False)
                                   if single else None)
                         local.setdefault(identity, []).append(prefix)
+                        if source_analysis is not None and prefix is not None:
+                            value = _SIMPLE_ASSIGNMENT_VALUE.fullmatch(line[binding.end("name"):])
+                            values.setdefault(identity, []).append(value["value"].strip())
             for binding in prose_bindings:
                 if quoted_at(origin + binding.start()):
                     continue
@@ -937,6 +973,8 @@ def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched
                             prefix = (_declaration_qualifier(line, binding, identity, prose=True)
                                       if single else None)
                             local.setdefault(identity, []).append(prefix)
+                            if source_analysis is not None and prefix is not None:
+                                values.setdefault(identity, []).append(binding["value"].strip())
                         break
         if qualifier_contexts is not None:
             # More than one declaration of the same field is ambiguous for a
@@ -949,6 +987,11 @@ def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched
                 parsed_contexts[body] = qualifier_contexts[rid]
         if ordinary:
             parsed_fields[body] = frozenset(declared.get(rid, ()))
+        if source_analysis is not None:
+            source_analysis["values"][rid] = {identity: values[0] for identity, values in values.items()
+                                              if len(values) == 1}
+            if ordinary:
+                parsed_values[body] = source_analysis["values"][rid]
     groups, unqualified = {}, 0
     directory_terms = {}
     for position, item in enumerate(pool):
@@ -996,7 +1039,8 @@ def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched
 def _qualify_revision_proposals(db: sqlite3.Connection, pool: list[dict],
                                 matched: dict[int, set[str]], contents: dict[int, str],
                                 references: dict[int, str], *, declarations: bool,
-                                diagnostics: dict | None) -> tuple[list[dict], dict, dict]:
+                                diagnostics: dict | None, query_tokens: set[str] | None = None,
+                                source_analysis: dict | None = None) -> tuple[list[dict], dict, dict]:
     """Check supplements before they can take any original relevance slot.
 
     Every transferred position requires a complete, independently authenticated
@@ -1015,9 +1059,12 @@ def _qualify_revision_proposals(db: sqlite3.Connection, pool: list[dict],
     while True:
         refined, diagnostic = {}, {}
         contexts = {} if proposed else None
-        if declarations and len(pool) > 1:
+        if source_analysis is not None:
+            source_analysis.clear()
+        if declarations and pool:
             refined, diagnostic = _declaration_groups(
-                db, pool, matched, contents, references, qualifier_contexts=contexts)
+                db, pool, matched, contents, references, qualifier_contexts=contexts,
+                query_tokens=query_tokens, source_analysis=source_analysis)
             passes += 1
         if not proposed:
             break
@@ -1057,10 +1104,114 @@ def _qualify_revision_proposals(db: sqlite3.Connection, pool: list[dict],
     return pool, refined, diagnostic
 
 
+def _current_evidence_assessment(pool: list[dict], groups: dict, source_analysis: dict,
+                                 turn_positions: dict[int, int]) -> dict:
+    """Describe authenticated declarations in this bounded pool, not truth.
+
+    Distinct literal values at the latest identical session timestamp are a
+    potential conflict. Ordered turns inside one session retain their explicit
+    order. Values are used only for this diagnostic, never a retrieval score.
+    """
+    values = source_analysis.get("values", {})
+    complete = source_analysis.get("complete_sources", set())
+    conflicts, comparable, compared_groups = [], set(), 0
+    for (_, subjects, scope), positions in groups.items():
+        if not subjects:
+            continue
+        eligible = [pool[i] for i in positions if pool[i]["rid"] in complete
+                    and subjects <= values.get(pool[i]["rid"], {}).keys()
+                    and not pool[i].get("_current_anchor_only")]
+        if not eligible:
+            continue
+        compared_groups += 1
+        comparable.update(item["rid"] for item in eligible)
+        timestamp = max(item["created_at"] for item in eligible)
+        latest = [item for item in eligible if item["created_at"] == timestamp]
+        session_turns = {}
+        for item in latest:
+            if item["rid"] in turn_positions:
+                key = item["project_id"], item["session_id"]
+                session_turns[key] = max(session_turns.get(key, -1), turn_positions[item["rid"]])
+        latest = [item for item in latest if item["rid"] not in turn_positions
+                  or turn_positions[item["rid"]] == session_turns[(item["project_id"], item["session_id"])]]
+        signatures = {tuple(sorted(values[item["rid"]].items())) for item in latest}
+        if len(signatures) > 1:
+            conflicts.append({"page_ids": [item["id"] for item in latest],
+                              "created_at": timestamp, "statement_scope": scope,
+                              "basis": "same declared fields and local scope; equal latest timestamp; distinct literal values"})
+    return {"status": ("potential_conflict" if conflicts else
+                        "comparable_declaration" if comparable else "no_comparable_declaration"),
+            "scope": "bounded_candidate_pool", "inspected_candidates": len(pool),
+            "complete_sources": len(complete), "comparable_candidates": len(comparable),
+            "compared_groups": compared_groups, "conflicts": conflicts,
+            "basis": "Syntax and timestamps describe only inspected candidates; they do not establish truth, authority or exhaustive archive coverage."}
+
+
+def _prefer_declarations_over_nondecisions(pool: list[dict], groups: dict,
+                                          matched: dict[int, set[str]], contents: dict[int, str],
+                                          references: dict[int, str], source_analysis: dict) -> int:
+    """Prefer a scoped declaration only over explicit same-field nondecisions.
+
+    This does not rank all numeric text ahead of other evidence. An eligible
+    nondecision must be an authenticated full source, contain no value binding,
+    and explicitly record deferral/no selected value. The declaration must
+    carry the same local scope and at least the nondecision's query coverage.
+    """
+    complete = source_analysis.get("complete_sources", set())
+    declared = {}
+    for (chapter, subjects, scope), positions in groups.items():
+        if len(subjects) == 1:
+            for i in positions:
+                item = pool[i]
+                if item["rid"] in complete and not item.get("_current_anchor_only"):
+                    declared[item["rid"]] = chapter, next(iter(subjects)), scope
+    nondecisions = {}
+    for item in pool:
+        rid = item["rid"]
+        if rid not in complete or rid in declared:
+            continue
+        body = contents[rid]
+        if (not _EXPLICIT_NO_DECISION.search(body) or _FIELD_BINDING.search(body)
+                or _PROSE_BINDING.search(body)):
+            continue
+        quoted = _quoted_spans(body)
+        keys = set()
+        for line, origin in _declaration_clauses(body, references[rid]):
+            for binding in _NONDECISION_BINDING.finditer(line):
+                if any(lo <= origin + binding.start() < hi for lo, hi in quoted):
+                    continue
+                subject = binding["subject"]
+                for name, identity in _prose_subjects(subject):
+                    prefix = line[:binding.start("subject")] + subject[:len(subject) - len(name)]
+                    prefix = prefix.strip()
+                    if prefix and not _DIRECT_QUALIFIER.fullmatch(prefix):
+                        continue
+                    scope = _declaration_scope(prefix.rstrip(":").strip())
+                    if scope is not None:
+                        keys.add((item["chapter_id"], identity, scope))
+        if keys:
+            nondecisions[rid] = keys
+    moved = 0
+    for i, item in enumerate(pool):
+        keys = nondecisions.get(item["rid"])
+        if not keys:
+            continue
+        for j in range(i + 1, len(pool)):
+            decision = pool[j]
+            if (declared.get(decision["rid"]) in keys and decision["score"] > 0
+                    and matched[item["rid"]] <= matched[decision["rid"]]):
+                item["score"], decision["score"] = decision["score"], item["score"]
+                pool[i], pool[j] = decision, item
+                moved += 1
+                break
+    return moved
+
+
 def _prefer_current_pool(db: sqlite3.Connection, pool: list[dict],
                          matched: dict[int, set[str]], *,
                          distinct: bool, declarations: bool = True,
-                         diagnostics: dict | None = None) -> tuple[list[dict], list[dict]]:
+                         diagnostics: dict | None = None,
+                         query_tokens: set[str] | None = None) -> tuple[list[dict], list[dict]]:
     """Order comparable revisions after any candidate route has been fused.
 
     Recency stays within one task: declarations of the same field also require
@@ -1086,7 +1237,7 @@ def _prefer_current_pool(db: sqlite3.Connection, pool: list[dict],
     turn_positions = {}
     distinct = distinct and len(pool) > 1
     contents, references = {}, {}
-    declarations = declarations and len(pool) > 1
+    declarations = declarations and bool(pool)
     wanted_sources = repeated | ({item["rid"] for item in pool} if distinct or declarations else set())
     if wanted_sources:
         ids = sorted(wanted_sources)
@@ -1095,8 +1246,10 @@ def _prefer_current_pool(db: sqlite3.Connection, pool: list[dict],
                 ",".join("?" for _ in ids) + ")", ids):
             contents[row["rid"]] = row["content"]
             references[row["rid"]] = row["source_refs"]
+    source_analysis = {}
     pool, refined, diagnostic = _qualify_revision_proposals(
-        db, pool, matched, contents, references, declarations=declarations, diagnostics=diagnostics)
+        db, pool, matched, contents, references, declarations=declarations, diagnostics=diagnostics,
+        query_tokens=query_tokens, source_analysis=source_analysis)
     if diagnostic and diagnostics is not None:
         diagnostics["declaration_ordering"] = diagnostic
     # Qualification can remove supplementary pages. Rebuild positional groups
@@ -1143,6 +1296,16 @@ def _prefer_current_pool(db: sqlite3.Connection, pool: list[dict],
                 revisions[i] = item
         for i, item, score in zip(positions, revisions, scores):
             pool[i], item["score"] = item, score
+    if declarations:
+        if diagnostics is not None:
+            diagnostics["evidence_assessment"] = _current_evidence_assessment(
+                pool, groups, source_analysis, turn_positions)
+        moved = _prefer_declarations_over_nondecisions(
+            pool, groups, matched, contents, references, source_analysis)
+        if moved and diagnostics is not None:
+            diagnostics["nondecision_priority"] = {
+                "promotions": moved,
+                "basis": "authenticated same-chapter, same-field, same-scope declaration over explicit nondecision with no loss of query coverage"}
     return _distinct_current_pages(pool, contents) if distinct else (pool, [])
 
 
@@ -1803,6 +1966,31 @@ class MemoryBook:
             return (lo, hi)
         return None
 
+    def _can_batch_scoped_query(self, statement: str, parameter_count: int) -> bool:
+        """Use larger read statements only on an ordinary, known connection.
+
+        Older SQLite/Python, wrappers, custom factories and reduced compiler
+        limits retain the original queries and their errors. In particular a
+        new VALUES relation must not exhaust a caller's variable budget where
+        the original per-chapter statements succeeded. Never catch SQL errors
+        and retry a possibly interrupted or changed caller transaction.
+        """
+        if (sqlite3.sqlite_version_info < (3, 25, 0)
+                or type(self.db) is not sqlite3.Connection
+                or self.db.row_factory is not sqlite3.Row or self.db.text_factory is not str):
+            return False
+        getlimit = getattr(self.db, "getlimit", None)
+        if getlimit is None or parameter_count > getlimit(sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER):
+            return False
+        for category, minimum in ((sqlite3.SQLITE_LIMIT_COLUMN, 2000),
+                (sqlite3.SQLITE_LIMIT_EXPR_DEPTH, 1000),
+                (sqlite3.SQLITE_LIMIT_COMPOUND_SELECT, 500),
+                (sqlite3.SQLITE_LIMIT_VDBE_OP, 250000000),
+                (sqlite3.SQLITE_LIMIT_LENGTH, 1000000000)):
+            if getlimit(category) < minimum:
+                return False
+        return len(statement.encode("utf-8")) <= getlimit(sqlite3.SQLITE_LIMIT_SQL_LENGTH)
+
     def _bounded_candidate_metadata(self, rows: dict[str, dict], relevance: dict[str, float],
                                     count: int) -> dict[str, dict] | None:
         """Load shared directories once, retaining a certified ranking prefix.
@@ -1862,6 +2050,72 @@ class MemoryBook:
                     session_title=directory[6], created_at=directory[7])
         return {identity: row for identity, row in rows.items() if identity in retained}
 
+    def _batch_current_revision_routes(self, chapter_ids: list[str], quota: int, remainder: int,
+                                       expression: str, where: str, params: list) -> dict | None:
+        """Share one FTS cursor, retaining the original per-chapter top rows.
+
+        The window is applied only after every caller scope. Its five order
+        fields and each chapter's quota are the original chronology query's.
+        This bounds returned rows, not the posting scan or temporary sort.
+        A lone chapter needs no window; favorable bounds can narrow its one
+        FTS-first cursor while its existing top-N sort stays unchanged.
+        """
+        if not self._can_batch_scoped_query("", 0) or any(type(value) is not str for value in params):
+            return None
+        # `where` is assembled by recall from these fixed clauses, in this
+        # order. Only an explicit caller project predicate permits this probe;
+        # a project's presence in the leading candidates is not a scope.
+        project = params[0] if where.startswith(" AND p.project_id=?") and params else None
+        rowid_bounds = self._project_rowid_bounds(project) if "s.external_id=?" not in where else None
+        columns = """p.id,p.rid,p.project_id,p.chapter_id,
+          c.title chapter_title,s.external_id session_id,s.title session_title,s.created_at"""
+        joins = """FROM pages_fts CROSS JOIN pages p ON p.rid=pages_fts.rowid
+          JOIN chapters c ON c.id=p.chapter_id JOIN sessions s ON s.id=p.session_pk
+          JOIN sections sec ON sec.id=p.section_id"""
+        ordering = "s.created_at DESC,s.id,sec.ordinal DESC,p.ordinal DESC,p.id"
+        if len(chapter_ids) == 1:
+            if rowid_bounds is None:
+                return None
+            statement = ("SELECT " + columns + " " + joins
+                         + " WHERE pages_fts MATCH ? AND p.chapter_id=?" + where
+                         + " AND pages_fts.rowid BETWEEN ? AND ? ORDER BY " + ordering + " LIMIT ?")
+            parameters = [expression, chapter_ids[0], *params, *rowid_bounds, quota + bool(remainder)]
+            if not self._can_batch_scoped_query(statement, len(parameters)):
+                return None
+            return {chapter_ids[0]: self.db.execute(statement, parameters).fetchall()}
+
+        requested = ",".join(f"(?,{index},{quota + (index < remainder)})"
+                             for index in range(len(chapter_ids)))
+        prefix = "WITH requested_chapters(chapter_id,position,quota) AS (VALUES " + requested + "),"
+        suffix = """ ) SELECT hits.id,hits.rid,hits.project_id,hits.chapter_id,
+          hits.chapter_title,hits.session_id,hits.session_title,hits.created_at
+          FROM hits JOIN requested_chapters requested ON requested.chapter_id=hits.chapter_id
+          WHERE hits.chronology_position<=requested.quota
+          ORDER BY requested.position,hits.chronology_position"""
+
+        def query(bounds: tuple[int, int] | None) -> tuple[str, list]:
+            predicate = (" WHERE pages_fts MATCH ? AND p.chapter_id IN "
+                         "(SELECT chapter_id FROM requested_chapters)" + where)
+            parameters = [*chapter_ids, expression, *params]
+            if bounds is not None:
+                predicate += " AND pages_fts.rowid BETWEEN ? AND ?"
+                parameters.extend(bounds)
+            statement = (prefix + " hits AS (SELECT " + columns
+                         + ",ROW_NUMBER() OVER (PARTITION BY p.chapter_id ORDER BY " + ordering
+                         + ") AS chronology_position " + joins + predicate + suffix)
+            return statement, parameters
+
+        statement, parameters = query(rowid_bounds)
+        if not self._can_batch_scoped_query(statement, len(parameters)):
+            # Range parameters are optional, but chapter membership is not.
+            statement, parameters = query(None)
+            if not self._can_batch_scoped_query(statement, len(parameters)):
+                return None
+        result = {chapter_id: [] for chapter_id in chapter_ids}
+        for row in self.db.execute(statement, parameters):
+            result[row["chapter_id"]].append(row)
+        return result
+
     def _current_revision_pool(self, candidates: list[dict], pool_size: int,
                                expression: str, where: str, params: list,
                                exact_ids: set[str], exact_complete: bool,
@@ -1888,6 +2142,8 @@ class MemoryBook:
         if not selected_chapters:
             return pool, list(candidates[pool_size:])
         quota, remainder = divmod(96, len(selected_chapters))
+        batched = (None if exact_complete else self._batch_current_revision_routes(
+            selected_chapters, quota, remainder, expression, where, params))
         by_id = {item["id"]: item for item in candidates}
         seen = {item["id"] for item in pool}
         returned = added = discovered = 0
@@ -1901,6 +2157,8 @@ class MemoryBook:
                 route.sort(key=lambda item: item["id"])
                 route.sort(key=lambda item: item["created_at"], reverse=True)
                 bound = len(route)
+            elif batched is not None:
+                route = batched[chapter_id]
             else:
                 route = self.db.execute("""SELECT p.id,p.rid,p.project_id,p.chapter_id,
                   c.title chapter_title,s.external_id session_id,s.title session_title,s.created_at
@@ -1987,6 +2245,8 @@ class MemoryBook:
                 _string(val, key)
         qt = query_terms(query)
         current_query = temporal_intent["resolved"] == "current"
+        declaration_tokens = (_declaration_query_terms(query)
+                              if current_query and not temporal_intent["preserve_occurrences"] else None)
         use_stem = strategy == "book" and any(ASCII_WORD.search(token) for token in qt)
         semantic_model = self._semantic_encoder() if semantic else None
         # A read snapshot ties candidates, sources, and the cache revision together.
@@ -2222,7 +2482,8 @@ class MemoryBook:
                         pool, deferred = _prefer_current_pool(
                             self.db, pool, matched,
                             distinct=limit > 1 and not temporal_intent["preserve_occurrences"],
-                            declarations=not temporal_intent["preserve_occurrences"], diagnostics=temporal_intent)
+                            declarations=not temporal_intent["preserve_occurrences"], diagnostics=temporal_intent,
+                            query_tokens=declaration_tokens)
                         pool, deferred = _admit_revision_proposals(pool, deferred, temporal_intent)
                     selected = (_NATIVE.select_novelty(pool, deferred, matched, len(qset), limit)
                                 if _NATIVE is not None else NotImplemented)
@@ -2305,7 +2566,8 @@ class MemoryBook:
                         pool, deferred = _prefer_current_pool(
                             self.db, pool, matched,
                             distinct=limit > 1 and not temporal_intent["preserve_occurrences"],
-                            declarations=not temporal_intent["preserve_occurrences"], diagnostics=temporal_intent)
+                            declarations=not temporal_intent["preserve_occurrences"], diagnostics=temporal_intent,
+                            query_tokens=declaration_tokens)
                         pool, deferred = _admit_revision_proposals(pool, deferred, temporal_intent)
                         retained = {item["id"] for item in (*pool, *deferred)}
                         candidates = pool + deferred + [item for item in tail if item["id"] not in retained]
@@ -2516,6 +2778,21 @@ class MemoryBook:
         if not results and candidates:
             warnings.append("Budget too small to return an evidence block including its citation.")
         candidate_count = len(candidates) if full_candidate_count is None else full_candidate_count
+        if "evidence_assessment" not in temporal_intent:
+            assessed = (current_query and not temporal_intent["preserve_occurrences"]
+                        and bool(budget_chars) and bool(qt or (semantic and query)))
+            temporal_intent["evidence_assessment"] = {
+                "status": ("no_comparable_declaration" if candidates else "no_matching_evidence")
+                          if assessed else "not_assessed",
+                "scope": "bounded_candidate_pool", "inspected_candidates": 0,
+                "complete_sources": 0, "comparable_candidates": 0, "compared_groups": 0, "conflicts": [],
+                "basis": ("No comparable declaration was established in the inspected candidate routes; this is not an exhaustive absence claim."
+                          if assessed else "Declaration assessment is disabled for relevance, history, occurrence requests or skipped retrieval.")}
+        assessment_status = temporal_intent["evidence_assessment"]["status"]
+        if assessment_status == "potential_conflict":
+            warnings.append("Potential conflict among comparable declarations with the same latest timestamp in the bounded candidate pool; inspect the cited original pages. Retrieval has not selected an authoritative value.")
+        elif assessment_status == "no_comparable_declaration":
+            warnings.append("No comparable declaration was established in the bounded candidate pool; related source text is unconfirmed, not proof that no decision exists.")
         result = {"query": query, "results": results, "context": context, "context_chars": len(context), "estimated_tokens": estimate_tokens(context), "candidate_count": candidate_count, "revision": revision, "cache_hit": False, "warnings": warnings, "strategy": strategy, "budget_chars": budget_chars, "temporal": temporal_intent, "truncated": candidate_count > len(results) or any(r["truncated"] for r in results)}
         if semantic_model is not None:
             result.update(semantic=True, semantic_model_fingerprint=semantic_model.fingerprint)
