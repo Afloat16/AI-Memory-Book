@@ -1,0 +1,470 @@
+{
+  "schema": "v013-small-postscale-cost-diagnosis-summary-v1",
+  "status": "completed",
+  "candidate_commit": "9ea37a7c72aec21b6f106d9631d72d72199e283b",
+  "probe_commit": "9ccd8162e3c153ed258209a837803a95738b66c6",
+  "scope": "Instrumented cProfile/SQL trace diagnosis on real-ingested in-memory archives, not formal latency acceptance. First-call imports and profiling overhead are retained. No new local baseline arm was run.",
+  "top_level_request_count": 130,
+  "counting_unit": "One recall or one full directory/read chain. Ingestion is separate.",
+  "raw_measured_response_records": 125,
+  "cache_priming_calls_without_retained_original_response": 5,
+  "priming_limit": "The five preparatory cache fills are excluded from recorded/profiled response comparisons; their original response payloads were not saved and are not reconstructed. All 25 cold/chain and 100 warm measured responses are retained.",
+  "profiled_call_errors": [],
+  "quality_failures_retained": [],
+  "scenarios": [
+    {
+      "id": "core128",
+      "actual_pages": 128,
+      "ingest_calls": 128,
+      "layout": "clustered",
+      "project_bounds": [
+        1,
+        16
+      ],
+      "source_tables_unchanged_after_reads": true,
+      "warm_cached_payload_utf8_bytes": 9299,
+      "warm_profiled_20_calls_ms": 7.090377,
+      "warm_components_ms": {
+        "loads": 2.955957,
+        "_resolve_temporal_intent": 1.079887,
+        "query_terms": 0.603518,
+        "_declaration_query_terms": 0.36378800000000006
+      },
+      "sql": [
+        {
+          "variant": "production_ranked_hits",
+          "rows": 16,
+          "profiled_ms": 0.354123,
+          "vm_progress_interval": 100,
+          "vm_progress_callbacks": 12,
+          "exact_global_bm25_rows_equal": true,
+          "query_plan": [
+            "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4><",
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH c USING INDEX sqlite_autoindex_chapters_1 (id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sessions_1 (id=?)",
+            "SEARCH sec USING INDEX sqlite_autoindex_sections_1 (id=?)"
+          ],
+          "error": null
+        },
+        {
+          "variant": "same_cursor_without_bm25_diagnostic_only",
+          "rows": 16,
+          "profiled_ms": 0.157567,
+          "vm_progress_interval": 100,
+          "vm_progress_callbacks": 10,
+          "exact_global_bm25_rows_equal": null,
+          "query_plan": [
+            "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4><",
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH c USING INDEX sqlite_autoindex_chapters_1 (id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sessions_1 (id=?)",
+            "SEARCH sec USING INDEX sqlite_autoindex_sections_1 (id=?)"
+          ],
+          "error": null
+        },
+        {
+          "variant": "scope_in_point_probes",
+          "rows": 16,
+          "profiled_ms": 1.759477,
+          "vm_progress_interval": 100,
+          "vm_progress_callbacks": 64,
+          "exact_global_bm25_rows_equal": true,
+          "query_plan": [
+            "SCAN pages_fts VIRTUAL TABLE INDEX 0:=M4",
+            "LIST SUBQUERY 1",
+            "SEARCH pages USING COVERING INDEX pages_project (project_id=?)",
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH c USING INDEX sqlite_autoindex_chapters_1 (id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sessions_1 (id=?)",
+            "SEARCH sec USING INDEX sqlite_autoindex_sections_1 (id=?)"
+          ],
+          "error": null
+        },
+        {
+          "variant": "scope_in_single_scan",
+          "rows": 16,
+          "profiled_ms": 0.425841,
+          "vm_progress_interval": 100,
+          "vm_progress_callbacks": 23,
+          "exact_global_bm25_rows_equal": true,
+          "query_plan": [
+            "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4",
+            "LIST SUBQUERY 1",
+            "SEARCH pages USING COVERING INDEX pages_project (project_id=?)",
+            "CREATE BLOOM FILTER",
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH c USING INDEX sqlite_autoindex_chapters_1 (id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sessions_1 (id=?)",
+            "SEARCH sec USING INDEX sqlite_autoindex_sections_1 (id=?)"
+          ],
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "foreign1024",
+      "actual_pages": 1024,
+      "ingest_calls": 156,
+      "layout": "clustered",
+      "project_bounds": [
+        1,
+        16
+      ],
+      "source_tables_unchanged_after_reads": true,
+      "warm_cached_payload_utf8_bytes": 9267,
+      "warm_profiled_20_calls_ms": 6.947801,
+      "warm_components_ms": {
+        "loads": 2.5100170000000004,
+        "_resolve_temporal_intent": 0.780995,
+        "query_terms": 0.448942,
+        "_declaration_query_terms": 0.422586
+      },
+      "sql": [
+        {
+          "variant": "production_ranked_hits",
+          "rows": 16,
+          "profiled_ms": 0.98674,
+          "vm_progress_interval": 100,
+          "vm_progress_callbacks": 13,
+          "exact_global_bm25_rows_equal": true,
+          "query_plan": [
+            "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4><",
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH c USING INDEX sqlite_autoindex_chapters_1 (id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sessions_1 (id=?)",
+            "SEARCH sec USING INDEX sqlite_autoindex_sections_1 (id=?)"
+          ],
+          "error": null
+        },
+        {
+          "variant": "same_cursor_without_bm25_diagnostic_only",
+          "rows": 16,
+          "profiled_ms": 0.241103,
+          "vm_progress_interval": 100,
+          "vm_progress_callbacks": 10,
+          "exact_global_bm25_rows_equal": null,
+          "query_plan": [
+            "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4><",
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH c USING INDEX sqlite_autoindex_chapters_1 (id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sessions_1 (id=?)",
+            "SEARCH sec USING INDEX sqlite_autoindex_sections_1 (id=?)"
+          ],
+          "error": null
+        },
+        {
+          "variant": "scope_in_point_probes",
+          "rows": 16,
+          "profiled_ms": 4.5339,
+          "vm_progress_interval": 100,
+          "vm_progress_callbacks": 83,
+          "exact_global_bm25_rows_equal": true,
+          "query_plan": [
+            "SCAN pages_fts VIRTUAL TABLE INDEX 0:=M4",
+            "LIST SUBQUERY 1",
+            "SEARCH pages USING COVERING INDEX pages_project (project_id=?)",
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH c USING INDEX sqlite_autoindex_chapters_1 (id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sessions_1 (id=?)",
+            "SEARCH sec USING INDEX sqlite_autoindex_sections_1 (id=?)"
+          ],
+          "error": null
+        },
+        {
+          "variant": "scope_in_single_scan",
+          "rows": 16,
+          "profiled_ms": 0.617409,
+          "vm_progress_interval": 100,
+          "vm_progress_callbacks": 85,
+          "exact_global_bm25_rows_equal": true,
+          "query_plan": [
+            "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4",
+            "LIST SUBQUERY 1",
+            "SEARCH pages USING COVERING INDEX pages_project (project_id=?)",
+            "CREATE BLOOM FILTER",
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH c USING INDEX sqlite_autoindex_chapters_1 (id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sessions_1 (id=?)",
+            "SEARCH sec USING INDEX sqlite_autoindex_sections_1 (id=?)"
+          ],
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "foreign2048",
+      "actual_pages": 2048,
+      "ingest_calls": 188,
+      "layout": "clustered",
+      "project_bounds": [
+        1,
+        16
+      ],
+      "source_tables_unchanged_after_reads": true,
+      "warm_cached_payload_utf8_bytes": 9265,
+      "warm_profiled_20_calls_ms": 6.617855,
+      "warm_components_ms": {
+        "loads": 2.8209750000000002,
+        "_resolve_temporal_intent": 1.244703,
+        "query_terms": 0.44545,
+        "_declaration_query_terms": 0.37226000000000004
+      },
+      "sql": [
+        {
+          "variant": "production_ranked_hits",
+          "rows": 16,
+          "profiled_ms": 0.942368,
+          "vm_progress_interval": 100,
+          "vm_progress_callbacks": 17,
+          "exact_global_bm25_rows_equal": true,
+          "query_plan": [
+            "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4><",
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH c USING INDEX sqlite_autoindex_chapters_1 (id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sessions_1 (id=?)",
+            "SEARCH sec USING INDEX sqlite_autoindex_sections_1 (id=?)"
+          ],
+          "error": null
+        },
+        {
+          "variant": "same_cursor_without_bm25_diagnostic_only",
+          "rows": 16,
+          "profiled_ms": 0.364168,
+          "vm_progress_interval": 100,
+          "vm_progress_callbacks": 12,
+          "exact_global_bm25_rows_equal": null,
+          "query_plan": [
+            "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4><",
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH c USING INDEX sqlite_autoindex_chapters_1 (id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sessions_1 (id=?)",
+            "SEARCH sec USING INDEX sqlite_autoindex_sections_1 (id=?)"
+          ],
+          "error": null
+        },
+        {
+          "variant": "scope_in_point_probes",
+          "rows": 16,
+          "profiled_ms": 8.846037,
+          "vm_progress_interval": 100,
+          "vm_progress_callbacks": 153,
+          "exact_global_bm25_rows_equal": true,
+          "query_plan": [
+            "SCAN pages_fts VIRTUAL TABLE INDEX 0:=M4",
+            "LIST SUBQUERY 1",
+            "SEARCH pages USING COVERING INDEX pages_project (project_id=?)",
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH c USING INDEX sqlite_autoindex_chapters_1 (id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sessions_1 (id=?)",
+            "SEARCH sec USING INDEX sqlite_autoindex_sections_1 (id=?)"
+          ],
+          "error": null
+        },
+        {
+          "variant": "scope_in_single_scan",
+          "rows": 16,
+          "profiled_ms": 1.364793,
+          "vm_progress_interval": 100,
+          "vm_progress_callbacks": 162,
+          "exact_global_bm25_rows_equal": true,
+          "query_plan": [
+            "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4",
+            "LIST SUBQUERY 1",
+            "SEARCH pages USING COVERING INDEX pages_project (project_id=?)",
+            "CREATE BLOOM FILTER",
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH c USING INDEX sqlite_autoindex_chapters_1 (id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sessions_1 (id=?)",
+            "SEARCH sec USING INDEX sqlite_autoindex_sections_1 (id=?)"
+          ],
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "mixed2048",
+      "actual_pages": 2048,
+      "ingest_calls": 188,
+      "layout": "clustered",
+      "project_bounds": [
+        1,
+        16
+      ],
+      "source_tables_unchanged_after_reads": true,
+      "warm_cached_payload_utf8_bytes": 9298,
+      "warm_profiled_20_calls_ms": 5.532192,
+      "warm_components_ms": {
+        "loads": 2.308404,
+        "_resolve_temporal_intent": 0.8970210000000001,
+        "query_terms": 0.43257500000000004,
+        "_declaration_query_terms": 0.314542
+      },
+      "sql": [
+        {
+          "variant": "production_ranked_hits",
+          "rows": 16,
+          "profiled_ms": 1.029088,
+          "vm_progress_interval": 100,
+          "vm_progress_callbacks": 24,
+          "exact_global_bm25_rows_equal": true,
+          "query_plan": [
+            "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4><",
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH c USING INDEX sqlite_autoindex_chapters_1 (id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sessions_1 (id=?)",
+            "SEARCH sec USING INDEX sqlite_autoindex_sections_1 (id=?)"
+          ],
+          "error": null
+        },
+        {
+          "variant": "same_cursor_without_bm25_diagnostic_only",
+          "rows": 16,
+          "profiled_ms": 0.402485,
+          "vm_progress_interval": 100,
+          "vm_progress_callbacks": 15,
+          "exact_global_bm25_rows_equal": null,
+          "query_plan": [
+            "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4><",
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH c USING INDEX sqlite_autoindex_chapters_1 (id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sessions_1 (id=?)",
+            "SEARCH sec USING INDEX sqlite_autoindex_sections_1 (id=?)"
+          ],
+          "error": null
+        },
+        {
+          "variant": "scope_in_point_probes",
+          "rows": 16,
+          "profiled_ms": 10.417241,
+          "vm_progress_interval": 100,
+          "vm_progress_callbacks": 244,
+          "exact_global_bm25_rows_equal": true,
+          "query_plan": [
+            "SCAN pages_fts VIRTUAL TABLE INDEX 0:=M4",
+            "LIST SUBQUERY 1",
+            "SEARCH pages USING COVERING INDEX pages_project (project_id=?)",
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH c USING INDEX sqlite_autoindex_chapters_1 (id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sessions_1 (id=?)",
+            "SEARCH sec USING INDEX sqlite_autoindex_sections_1 (id=?)"
+          ],
+          "error": null
+        },
+        {
+          "variant": "scope_in_single_scan",
+          "rows": 16,
+          "profiled_ms": 1.454598,
+          "vm_progress_interval": 100,
+          "vm_progress_callbacks": 167,
+          "exact_global_bm25_rows_equal": true,
+          "query_plan": [
+            "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4",
+            "LIST SUBQUERY 1",
+            "SEARCH pages USING COVERING INDEX pages_project (project_id=?)",
+            "CREATE BLOOM FILTER",
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH c USING INDEX sqlite_autoindex_chapters_1 (id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sessions_1 (id=?)",
+            "SEARCH sec USING INDEX sqlite_autoindex_sections_1 (id=?)"
+          ],
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "interleaved2048",
+      "actual_pages": 2048,
+      "ingest_calls": 188,
+      "layout": "interleaved",
+      "project_bounds": null,
+      "source_tables_unchanged_after_reads": true,
+      "warm_cached_payload_utf8_bytes": 9298,
+      "warm_profiled_20_calls_ms": 4.498767,
+      "warm_components_ms": {
+        "loads": 1.9231420000000001,
+        "_resolve_temporal_intent": 0.6613460000000001,
+        "query_terms": 0.446872,
+        "_declaration_query_terms": 0.254813
+      },
+      "sql": [
+        {
+          "variant": "production_ranked_hits",
+          "rows": 16,
+          "profiled_ms": 1.406856,
+          "vm_progress_interval": 100,
+          "vm_progress_callbacks": 118,
+          "exact_global_bm25_rows_equal": true,
+          "query_plan": [
+            "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4",
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH c USING INDEX sqlite_autoindex_chapters_1 (id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sessions_1 (id=?)",
+            "SEARCH sec USING INDEX sqlite_autoindex_sections_1 (id=?)"
+          ],
+          "error": null
+        },
+        {
+          "variant": "same_cursor_without_bm25_diagnostic_only",
+          "rows": 16,
+          "profiled_ms": 0.849337,
+          "vm_progress_interval": 100,
+          "vm_progress_callbacks": 113,
+          "exact_global_bm25_rows_equal": null,
+          "query_plan": [
+            "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4",
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH c USING INDEX sqlite_autoindex_chapters_1 (id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sessions_1 (id=?)",
+            "SEARCH sec USING INDEX sqlite_autoindex_sections_1 (id=?)"
+          ],
+          "error": null
+        },
+        {
+          "variant": "scope_in_point_probes",
+          "rows": 16,
+          "profiled_ms": 6.257283,
+          "vm_progress_interval": 100,
+          "vm_progress_callbacks": 136,
+          "exact_global_bm25_rows_equal": true,
+          "query_plan": [
+            "SCAN pages_fts VIRTUAL TABLE INDEX 0:=M4",
+            "LIST SUBQUERY 1",
+            "SEARCH pages USING COVERING INDEX pages_project (project_id=?)",
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH c USING INDEX sqlite_autoindex_chapters_1 (id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sessions_1 (id=?)",
+            "SEARCH sec USING INDEX sqlite_autoindex_sections_1 (id=?)"
+          ],
+          "error": null
+        },
+        {
+          "variant": "scope_in_single_scan",
+          "rows": 16,
+          "profiled_ms": 0.849058,
+          "vm_progress_interval": 100,
+          "vm_progress_callbacks": 160,
+          "exact_global_bm25_rows_equal": true,
+          "query_plan": [
+            "SCAN pages_fts VIRTUAL TABLE INDEX 0:M4",
+            "LIST SUBQUERY 1",
+            "SEARCH pages USING COVERING INDEX pages_project (project_id=?)",
+            "CREATE BLOOM FILTER",
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH c USING INDEX sqlite_autoindex_chapters_1 (id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sessions_1 (id=?)",
+            "SEARCH sec USING INDEX sqlite_autoindex_sections_1 (id=?)"
+          ],
+          "error": null
+        }
+      ]
+    }
+  ],
+  "source_unchanged": true,
+  "proposals": {
+    "warm": "Keep all argument, temporal, tokenizer and semantic validation before lookup; defer only lexical/declaration query preparation until a cache miss. Preserve the complete response payload.",
+    "sparse_project": "Only when no narrow rowid range exists and an indexed LIMIT 257 probe certifies <=256 project pages, consider a unary-plus rowid whitelist before ownership joins on one FTS cursor. Keep original BM25, scope predicates, ordering, pagination and snapshot.",
+    "rejected": "Ordinary rowid IN restarts the FTS cursor for each point and repeatedly computes global phrase statistics; preserve this slower diagnostic route but do not adopt it.",
+    "remaining": "Even unary-plus membership scans global postings and computes global phrase DF. It does not establish O(1) retrieval or complete archive-scale independence."
+  }
+}
