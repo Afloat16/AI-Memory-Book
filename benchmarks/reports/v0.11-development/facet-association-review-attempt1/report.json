@@ -1,0 +1,135 @@
+{
+  "schema": "facet-association-review-v1",
+  "recorded_at_utc": "2026-11-18T03:14:20.716262+00:00",
+  "evidence_level": "Authored adversarial code-review reproduction after implementation; not a holdout",
+  "script_sha256": "f6cf34443f89256159560fa7ad9b7d6d3d81839ca63c053c30cd988e133ac9e9",
+  "interpretation": "Production is a query qualifier. The latest complete turn assigns only a staging value and mentions production in a separate sentence without a new production decision. The 8-record case tests the original FTS tail; the 104-record case exceeds the 96-row exact route cap.",
+  "observations": [
+    {
+      "arm": "baseline",
+      "old_session_count": 8,
+      "exit_code": 0,
+      "raw_path": "baseline-8.raw.json",
+      "raw_sha256": "069faa2593bdd27e19093b30e97be873fbe0e1c31603f94723683c0f6690b799",
+      "selected_source_sessions": [
+        "old-2"
+      ],
+      "production_decision_retained": true,
+      "unrelated_staging_assignment_selected": false,
+      "candidate_expansion": null
+    },
+    {
+      "arm": "candidate",
+      "old_session_count": 8,
+      "exit_code": 0,
+      "raw_path": "candidate-8.raw.json",
+      "raw_sha256": "4f3513508e40e2fccf611471715f62fae362a91954f2e596d32c84e913aa1487",
+      "selected_source_sessions": [
+        "latest-staging"
+      ],
+      "production_decision_retained": false,
+      "unrelated_staging_assignment_selected": true,
+      "candidate_expansion": {
+        "route": "recent_exact_body_matches_in_leading_chapters",
+        "metadata_source": "complete_exact_route",
+        "ordering_fields": [
+          "sessions.created_at DESC",
+          "sessions.id",
+          "sections.ordinal DESC",
+          "pages.ordinal DESC",
+          "pages.id"
+        ],
+        "candidate_limit": 96,
+        "returned": 9,
+        "added_to_pool": 5,
+        "new_candidates": 0,
+        "pool_size": 9,
+        "original_pool_size": 4,
+        "proposed_existing_candidates": 5,
+        "chapters_not_expanded": 0,
+        "chapter_routes": [
+          {
+            "chapter_id": "ch_350757235912d4df8f7f3a87",
+            "limit": 9,
+            "returned": 9
+          }
+        ],
+        "scope_before_limit": true,
+        "database_scan_bounded": true,
+        "basis": "Recent matches only propose comparable revisions; timestamps and syntax do not establish authority.",
+        "qualification": "complete_source_declaration_with_original_pool_anchor",
+        "qualification_passes": 1,
+        "qualified_proposals": 5,
+        "rejected_before_ordering": 0,
+        "qualified_pool_size": 9,
+        "scoreless_proposals": 0,
+        "unmatched_proposals": 0,
+        "admitted_proposals": 5,
+        "admitted_new_candidates": 0
+      }
+    },
+    {
+      "arm": "baseline",
+      "old_session_count": 104,
+      "exit_code": 0,
+      "raw_path": "baseline-104.raw.json",
+      "raw_sha256": "a3497f5a3fe0f56ab948f25efb0797751a3a24bb0c8fac5f9cb7e75ae0184b86",
+      "selected_source_sessions": [
+        "old-57"
+      ],
+      "production_decision_retained": true,
+      "unrelated_staging_assignment_selected": false,
+      "candidate_expansion": null
+    },
+    {
+      "arm": "candidate",
+      "old_session_count": 104,
+      "exit_code": 0,
+      "raw_path": "candidate-104.raw.json",
+      "raw_sha256": "8b38c58215e2f53aeadb2805094def8ee7dcee8fb7743d588fe7866ee192524a",
+      "selected_source_sessions": [
+        "latest-staging"
+      ],
+      "production_decision_retained": false,
+      "unrelated_staging_assignment_selected": true,
+      "candidate_expansion": {
+        "route": "recent_exact_body_matches_in_leading_chapters",
+        "metadata_source": "scoped_fts_chronology",
+        "ordering_fields": [
+          "sessions.created_at DESC",
+          "sessions.id",
+          "sections.ordinal DESC",
+          "pages.ordinal DESC",
+          "pages.id"
+        ],
+        "candidate_limit": 96,
+        "returned": 96,
+        "added_to_pool": 93,
+        "new_candidates": 8,
+        "pool_size": 97,
+        "original_pool_size": 4,
+        "proposed_existing_candidates": 85,
+        "chapters_not_expanded": 0,
+        "chapter_routes": [
+          {
+            "chapter_id": "ch_350757235912d4df8f7f3a87",
+            "limit": 96,
+            "returned": 96
+          }
+        ],
+        "scope_before_limit": true,
+        "database_scan_bounded": false,
+        "basis": "Recent matches only propose comparable revisions; timestamps and syntax do not establish authority.",
+        "qualification": "complete_source_declaration_with_original_pool_anchor",
+        "qualification_passes": 1,
+        "qualified_proposals": 93,
+        "rejected_before_ordering": 0,
+        "qualified_pool_size": 97,
+        "scoreless_proposals": 7,
+        "unmatched_proposals": 7,
+        "admitted_proposals": 86,
+        "admitted_new_candidates": 1
+      }
+    }
+  ]
+}

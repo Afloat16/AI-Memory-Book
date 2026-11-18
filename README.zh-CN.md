@@ -94,7 +94,7 @@ memory-book doctor
 | billion-context · 固定搜索内核 | 64/72 · 88.89% | 40/48 | 0 | 1955.0 |
 | claude-mem · 原始 observation FTS | 64/72 · 88.89% | 40/48 | 0 | 1488.5 |
 | Basic Memory · 显式 FTS | 64/72 · 88.89% | 40/48 | 0 | 1333.1 |
-| 共享 MiniLM 配置¹ | 47/72 · 65.28% | 25/48 | 4 | 1963.0 |
+| 共享 MiniLM 配置¹ | 47/72 · 65.28% | 25/48 | 4 | 1963.1 |
 
 **Book 与 BM25S 在 2400 字符下的完整证据和固定策略结果持平。** Book 比 Haystack BM25 多找全 6 题，比 billion-context／claude-mem FTS／Basic Memory FTS 各多找全 8 题，比共享 MiniLM 组多找全 25 题。平均上下文比 billion-context 少 7.97%，但多于另两个历史 FTS 组件。**1200 字符下 BM25S 优于 Book 整块模式**，下文完整列出。
 

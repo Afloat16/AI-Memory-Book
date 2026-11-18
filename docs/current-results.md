@@ -61,20 +61,21 @@ limitation is disclosed separately below instead of presented as a product score
 | billion-context, pinned search kernel | 2,400 | 72/80 | 64/72 | 40/48 | 0 | 1,955.0 |
 | claude-mem, supplied-observation FTS | 2,400 | 72/80 | 64/72 | 40/48 | 0 | 1,488.5 |
 | Basic Memory, explicit FTS | 2,400 | 72/80 | 64/72 | 40/48 | 0 | 1,333.1 |
-| Each shared-MiniLM configuration | 2,400 | 55/80 | 47/72 | 25/48 | 4 | 1,963.0 |
+| Each shared-MiniLM configuration | 2,400 | 55/80 | 47/72 | 25/48 | 4 | 1,963.1 |
 | **Book, source replay** | 1,200 | **76/80** | **68/72** | **44/48** | **4** | 1,048.1 |
 | BM25S 0.3.16, native defaults | 1,200 | 80/80 | 72/72 | 48/48 | 0 | 1,045.3 |
 | Haystack 3.5.0, native BM25 | 1,200 | 74/80 | 66/72 | 42/48 | 0 | 969.9 |
 | billion-context, pinned search kernel | 1,200 | 72/80 | 64/72 | 40/48 | 0 | 948.5 |
 | claude-mem, supplied-observation FTS | 1,200 | 72/80 | 64/72 | 40/48 | 0 | 848.0 |
-| Basic Memory, explicit FTS | 1,200 | 72/80 | 64/72 | 40/48 | 0 | 948.5 |
+| Basic Memory, explicit FTS | 1,200 | 72/80 | 64/72 | 40/48 | 0 | 948.6 |
 | Each shared-MiniLM configuration | 1,200 | 55/80 | 47/72 | 25/48 | 4 | 1,036.7 |
 
 **BM25S ties Book's complete-evidence and policy counts at 2,400 and leads at
 1,200 characters.** At 2,400 Book finds six more complete cases than Haystack
 and eight more than each of the three historical lexical modes. At 1,200
 Book's four stale-only cases are retained. A better aggregate does not imply a
-win on every question. Character counts are not token counts or billing costs.
+win on every question. Character counts are not token counts or billing costs. Displayed means use
+one decimal place with decimal round-half-up; source reports retain exact values.
 
 Mem0 (`infer=False`, Chroma provider), Chroma and LangGraph Store were executed
 separately with the same real local MiniLM representation. Their scores are
