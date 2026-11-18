@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "reviewed_at_utc": "2026-11-18T09:17:22.586519+00:00",
+  "base_commit": "549c8cbb8a941d685be47dcd3302599a5b6b589c",
+  "accepted_source_commit": "021a384567db5aa64fde155f090d2eb399f55c03",
+  "baseline_commit": "78cc906d81818a16884de7de2e613e5a56346f93",
+  "accepted_runtime_sha256": "2842f78c288454ea7348cb81cb6bd6a972cb26e003faaac64eb81f78b2ffa38b",
+  "runtime_changes_since_accepted_source": [],
+  "registration": {
+    "version": "0.12.0",
+    "tag": "v0.12.0",
+    "prerelease": false,
+    "native_release": true
+  },
+  "scope": "Release preparation review and release/installer contract tests; not new quality, speed, native-wheel build or publication evidence.",
+  "acceptance_file": {
+    "path": "benchmarks/experiments/v012-source-acceptance.json",
+    "sha256": "8f15b94d53d4bb1be10f20f3438652ada9ac7c7da438c452920eb5102033bbd8"
+  },
+  "acceptance_evidence_checks": {
+    "files": 19,
+    "all_bytes_and_sha256_match": true
+  },
+  "native_source_continuity": [
+    {
+      "path": "src/memory_book/_native.c",
+      "sha256": "e0189243908da1035181911244301083877f44502064f8435ff3ce6363f88aad",
+      "matches_v011": true
+    },
+    {
+      "path": "src/memory_book/_native_excerpt.h",
+      "sha256": "973e1c0490b2287e117c9b67b2b27f39105996b27e11317085226e1da0d5dab2",
+      "matches_v011": true
+    },
+    {
+      "path": "src/memory_book/_native_lexical.h",
+      "sha256": "9e97f50d818cbdd8db61462e1f5d5b73ba82a871815d92a1403a64855d62913f",
+      "matches_v011": true
+    },
+    {
+      "path": "src/memory_book/_native_rank.h",
+      "sha256": "6f21ef972190dc65545e0b9109ab6b529881fbe1e8be3acb198441c95a1f320c",
+      "matches_v011": true
+    },
+    {
+      "path": "src/memory_book/_native_segmentation.h",
+      "sha256": "c0360b03583067e53509b822c34ec544d4dd4c218e9d1a2638df7a1803c503e6",
+      "matches_v011": true
+    },
+    {
+      "path": "src/memory_book/_native_source.h",
+      "sha256": "ff0fba96f09dfe103887b564e68f987b3840431c2d569558f204e29ec1c1bc5e",
+      "matches_v011": true
+    }
+  ],
+  "retained_full_suite_log_check": {
+    "discovered": 1657,
+    "passed": 1655,
+    "skipped": 2,
+    "failures": 0,
+    "errors": 0,
+    "executed_in_this_review": false,
+    "source": "benchmarks/reports/v0.12-development/resumed-full-suite-attempt2/unittest.log.gz"
+  },
+  "tests": {
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "-m",
+      "unittest",
+      "tests.test_native_release",
+      "tests.test_native_release_cell",
+      "tests.test_native_release_workflow",
+      "tests.test_installer_release",
+      "tests.test_release",
+      "-v"
+    ],
+    "cwd": "/workspace/scratch/428c08bef2bc/AI-Memory-Book",
+    "explicit_environment": {
+      "PYTHONPATH": "src",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "started_at_utc": "2026-11-18T09:17:21.900436+00:00",
+    "returncode": 0,
+    "discovered": 59,
+    "passed": 59,
+    "skipped": 0,
+    "outcome": "OK",
+    "raw_log": "unittest.log.gz",
+    "raw_sha256": "fae40cbc8c9fd4d99e761aa3f8f3b48297ce9ed8f8a0afbd0a83a18a38e58b8e",
+    "compressed_sha256": "1982f63fcbf4c35f9c37596223d9380c329e3bffac2545d95e8088f00815d8c7"
+  },
+  "reviewed_files_sha256": {
+    "scripts/release.py": "d46d8e3c4ea0b8c293e07d456fbcf42a77d867a80c89225bfb1e1e1643015a40",
+    "docs/releases/v0.12.0.md": "0bee3df041ae42b9bbc7c618e83f020ba08ae43064dfe2973e691a9d8bda70d6",
+    "docs/deployment.md": "53d0754112aa56b3fdb47cf7d92a35d8178f80646a767b705f80dc94fc8a6542",
+    "CHANGELOG.md": "57b66be398e91a257b795382350a83fe7534222b20e5a47b4eef61aadd23cb9e"
+  },
+  "remaining_gates": [
+    "Commit the prepared documentation and registration with Afloat as author and committer.",
+    "Require all eleven Tests jobs on that exact review commit.",
+    "Fast-forward main and create release/v0.12.0 at the same verified SHA.",
+    "Require all thirty native cells from one run and attempt, published assets and the real public installer.",
+    "Capture and independently audit original publication evidence before advancing main again."
+  ],
+  "mutations_in_this_review": [
+    "scripts/release.py runtime/channel/native-tag registration",
+    "docs/releases/v0.12.0.md",
+    "docs/deployment.md current release guidance",
+    "CHANGELOG.md v0.12 section"
+  ],
+  "not_performed": [
+    "runtime edits",
+    "git commit",
+    "git push",
+    "workflow triggering",
+    "release publication"
+  ]
+}

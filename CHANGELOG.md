@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.12.0 — source-local revisions and complete short records
+
+Keep current-state evidence tied to its own original declaration and make more
+complete source records fit the existing context budget. See the
+[release notes](docs/releases/v0.12.0.md) and
+[source validation](docs/v0.12.0-validation.md).
+
+- Require authenticated, statement-local comparable declarations throughout
+  temporal relevance transfers, including the original candidate pool. Preserve
+  explicit environment/field qualifiers and guard ambiguous revision suffixes;
+  a timestamp or directory title cannot supply missing source-local support.
+- Complete short pages from available long-page allocation while preserving
+  current-turn spans, existing minimum allowances and candidate order. Exact-token
+  first-fit starts with the same protected character blocks and retains every
+  whole block it can accept before optional supplementation.
+- On the unchanged authored engineering workload, complete evidence at 1,200
+  characters improves from 68/72 to 72/72 in both packing protocols; the 2,400
+  result remains 72/72. The common-block 1,200-character policy result improves
+  from 44/48 to 48/48 and its four stale-only cases are resolved. Preserve the
+  unchanged fixture, packer, prior failures and full baseline/candidate records.
+- In the separate authored declaration diagnostic, expected-first evidence
+  improves from 22/32 to 30/32 per auto-mode configuration on both backends;
+  two complex Chinese-prose first-source failures remain. Missing-evidence
+  abstention and general decision authority are not established.
+- Add actual pinned LanceDB FTS and Whoosh OR/BM25F executions, bringing external
+  configurations to eleven: ten scored and Memvid separately diagnosed. Extend
+  source-based architecture coverage to 26 families. Book, BM25S and Whoosh tie
+  on the fixed complete-evidence counts at both budgets; Whoosh returns fewer
+  mean packed characters. No complete-product or universal-superiority claim.
+- Retain schema 4, source IDs, project-bound navigation and all six native C/header
+  files. Increase the recall-cache version to 21. Source acceptance records 1,655
+  passes and two Windows-only skips out of 1,657 local tests; exact-commit CI,
+  the new native build matrix and public installation remain separate delivery
+  gates. No new speed measurement is claimed.
+
 ## 0.8.0 — equivalent native text execution
 
 Translate measured text-processing loops into an optional CPython C extension,
