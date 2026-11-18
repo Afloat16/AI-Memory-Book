@@ -1,7 +1,8 @@
 # Completed validation and recovery record — 2026-11-12
 
-> Historical completion record. For the current v0.12 development and release
-> checkpoints, read [v0.12 continuation](v0.12.0-continuation.md) and the
+> Historical completion record. For current longitudinal-memory development,
+> read [v0.13 continuation](v0.13.0-continuation.md). The completed prior release
+> is recorded in [v0.12 continuation](v0.12.0-continuation.md) and its
 > [source acceptance](../benchmarks/experiments/v012-source-acceptance.json).
 
 **The registered continuation is complete.** All fixed cohorts have published
