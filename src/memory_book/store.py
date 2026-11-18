@@ -23,7 +23,7 @@ from .text import (IDENTIFIER_WORD_BOUNDARY, estimate_tokens, excerpt, headline,
 SCHEMA_VERSION = 4
 INDEX_VERSION = 3
 LEXICAL_INDEX_VERSION = 1
-RECALL_VERSION = 22
+RECALL_VERSION = 23
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -563,20 +563,58 @@ _EXPLICIT_NO_DECISION = re.compile(
     r"(?:decided|selected|approved|recorded)|pending\s+approval)\b", re.IGNORECASE)
 
 
-def _declaration_query_terms(query: str) -> set[str]:
-    """Remove only Chinese question grammar from declaration matching.
+class _DeclarationQueryTerms(set):
+    """Keep the literal question available for source-aware grammar handling."""
 
-    A CJK bigram crossing 当前, 的 or 是多少 is not a parameter/environment
-    facet. The lexical index, candidate routes, scores and ordinary relevance
-    matches keep the unmodified query; only source-declaration analysis uses
-    this view. Source subjects and their environment labels are never erased.
+    def __init__(self, query: str):
+        super().__init__(query_terms(query))
+        self.query = query
+
+
+def _declaration_query_terms(query: str) -> set[str]:
+    """Remove terminal question grammar without erasing literal field names.
+
+    Temporal words can also occur inside names such as current.phase_size or
+    最终输出维度. Leave them to the existing tokenizer instead of deleting
+    every occurrence. Possessive 的 is handled only after source field names
+    are available; 目的端口 must retain its literal character. The index,
+    candidate scores and original query are unchanged.
     """
-    if not re.search(r"[\u3400-\u9fff]", query):
-        return set(query_terms(query))
-    query = CURRENT_QUERY.sub(" ", query)
-    query = re.sub(r"(?<=[\u3400-\u9fff])的(?=[\u3400-\u9fff])", "", query)
     query = re.sub(r"(?:是多少|是什么|为多少)(?=[?？\s]|$)", " ", query)
-    return set(query_terms(query))
+    return _DeclarationQueryTerms(query)
+
+
+def _source_declaration_query(query: set[str], contents: dict[int, str], complete: set[int]) -> set[str]:
+    """Protect literal source-field spans before bridging Chinese possession.
+
+    A source may spell 生产环境重试次数 while a question uses 环境的重试次数.
+    Bridging that particle must not delete the 的 of an attested field such
+    as 目的端口. Only independently authenticated source text supplies these
+    protections, and excessive field spellings retain the literal view.
+    """
+    if not isinstance(query, _DeclarationQueryTerms) or "的" not in query.query:
+        return query
+    protected, spellings = set(), set()
+    for rid in complete:
+        body = contents.get(rid, "")
+        if len(body) > _MAX_DECLARATION_CHARS:
+            continue
+        names = [binding["name"] for binding in _FIELD_REFERENCE.finditer(body)]
+        names.extend(name for binding in _PROSE_BINDING.finditer(body)
+                     for name, _ in _prose_subjects(binding["subject"]))
+        for name in names:
+            if "的" not in name or name in spellings or name not in query.query:
+                continue
+            spellings.add(name)
+            if len(spellings) > _MAX_DECLARATION_FIELDS:
+                return query
+            start = query.query.find(name)
+            while start >= 0:
+                protected.update(i for i in range(start, start + len(name)) if query.query[i] == "的")
+                start = query.query.find(name, start + len(name))
+    prepared = re.sub(r"(?<=[\u3400-\u9fff])的(?=[\u3400-\u9fff])",
+                      lambda match: "的" if match.start() in protected else "", query.query)
+    return set(query_terms(prepared))
 
 
 def _declaration_scope(prefix: str) -> str | None:
@@ -840,8 +878,6 @@ def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched
     Unclassified prose/code stays in its original relevance slot.
     """
     query = set().union(*matched.values()) if query_tokens is None else query_tokens
-    if query_tokens is not None:
-        matched = {rid: tokens & query for rid, tokens in matched.items()}
     # Local qualifiers govern every timestamp transfer, including candidates
     # already present in the original relevance pool.
     if qualifier_contexts is None:
@@ -857,8 +893,14 @@ def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched
             if item["rid"] in anchors:
                 item["_current_anchor_only"] = True
         complete = complete | anchors.keys()
+    query = _source_declaration_query(query, contents, complete)
+    if query_tokens is not None:
+        matched = {rid: tokens & query for rid, tokens in matched.items()}
     if source_analysis is not None:
-        source_analysis.update(complete_sources=complete - anchors.keys(), values={})
+        field_query = (set(lexical_terms(query_tokens.query))
+                       if isinstance(query_tokens, _DeclarationQueryTerms) else set())
+        source_analysis.update(complete_sources=complete - anchors.keys(), values={},
+                               query_tokens=query | field_query)
     fields, declared = {}, {}
     ordinary = (type(db) is sqlite3.Connection and db.row_factory is sqlite3.Row
                 and db.text_factory is str and json.loads is _ORDINARY_JSON_LOADS
@@ -1114,9 +1156,17 @@ def _current_evidence_assessment(pool: list[dict], groups: dict, source_analysis
     """
     values = source_analysis.get("values", {})
     complete = source_analysis.get("complete_sources", set())
+    query = source_analysis.get("query_tokens", set())
     conflicts, comparable, compared_groups = [], set(), 0
     for (_, subjects, scope), positions in groups.items():
         if not subjects:
+            continue
+        # Field discovery intentionally accepts aliases sharing a query word.
+        # Conflict claims need the whole requested identity: a shared "limit"
+        # must not make connection_limit contradict a query for wait_limit.
+        relevant = frozenset(subject for subject in subjects if all(
+            set(segment) <= query or "".join(segment) in query for segment in subject))
+        if not relevant:
             continue
         eligible = [pool[i] for i in positions if pool[i]["rid"] in complete
                     and subjects <= values.get(pool[i]["rid"], {}).keys()
@@ -1134,7 +1184,8 @@ def _current_evidence_assessment(pool: list[dict], groups: dict, source_analysis
                 session_turns[key] = max(session_turns.get(key, -1), turn_positions[item["rid"]])
         latest = [item for item in latest if item["rid"] not in turn_positions
                   or turn_positions[item["rid"]] == session_turns[(item["project_id"], item["session_id"])]]
-        signatures = {tuple(sorted(values[item["rid"]].items())) for item in latest}
+        signatures = {tuple(sorted((subject, values[item["rid"]][subject])
+                                   for subject in relevant)) for item in latest}
         if len(signatures) > 1:
             conflicts.append({"page_ids": [item["id"] for item in latest],
                               "created_at": timestamp, "statement_scope": scope,
@@ -1171,7 +1222,8 @@ def _prefer_declarations_over_nondecisions(pool: list[dict], groups: dict,
         if rid not in complete or rid in declared:
             continue
         body = contents[rid]
-        if (not _EXPLICIT_NO_DECISION.search(body) or _FIELD_BINDING.search(body)
+        if (not _EXPLICIT_NO_DECISION.search(body) or _EXPLICIT_REVOCATION.search(body)
+                or _FIELD_BINDING.search(body)
                 or _PROSE_BINDING.search(body)):
             continue
         quoted = _quoted_spans(body)

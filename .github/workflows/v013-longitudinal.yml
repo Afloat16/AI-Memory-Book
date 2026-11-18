@@ -1,0 +1,249 @@
+name: Frozen v0.13 longitudinal memory experiment
+
+on:
+  push:
+    branches: ['validation/v0.13-scale-run1']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v013-longitudinal-scale-run1
+  cancel-in-progress: false
+
+jobs:
+  main-matrix:
+    if: github.repository == 'Afloat16/AI-Memory-Book'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      V013_PROTOCOL_COMMIT: b3fd165cb632c439ff28873fdba7f33e9d258178
+      V013_BASELINE_COMMIT: 8044e4bafe18e73ea422af5eeb47ef961e65246c
+      V013_BASELINE_ROOT: ${{ runner.temp }}/v013-scale-baseline
+      V013_EVIDENCE_ROOT: ${{ runner.temp }}/v013-scale-${{ github.run_id }}-${{ github.run_attempt }}
+      CC: gcc
+      MEMORY_BOOK_BUILD_NATIVE: '1'
+      MEMORY_BOOK_TEXT_BACKEND: native
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONHASHSEED: '0'
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - name: Create this invocation's evidence directory
+        shell: bash
+        run: mkdir -p "$V013_EVIDENCE_ROOT/logs"
+
+      - name: Check out the exact pushed candidate
+        id: checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /src/
+            /setup.py
+            /pyproject.toml
+            /README.md
+            /LICENSE
+            /benchmarks/__init__.py
+            /benchmarks/v013_scale.py
+            /benchmarks/v013_workload.py
+            /benchmarks/experiments/v013-long-history-plan.json
+            /benchmarks/experiments/v013-scale-integrity-attempt1.json
+            /benchmarks/experiments/v013-scale-integrity-attempt2.json
+            /tests/test_v013_scale.py
+            /scripts/audit_v013_scale_ci.py
+            /.github/workflows/v013-longitudinal.yml
+
+      - name: Select Python 3.12
+        id: python
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          python-version: '3.12'
+          architecture: x64
+
+      - name: Install only the pinned native build tools
+        id: install
+        shell: bash
+        run: |
+          trap 'code=$?; printf "{\"exit_code\":%s}\n" "$code" > "$V013_EVIDENCE_ROOT/install-exit.json"' EXIT
+          python -m pip install --disable-pip-version-check --no-deps --only-binary=:all: \
+            --report "$V013_EVIDENCE_ROOT/build-tool-install.json" \
+            'setuptools==80.9.0' 'wheel==0.45.1' 2>&1 | tee "$V013_EVIDENCE_ROOT/logs/install.log"
+          python -m pip list --format=json > "$V013_EVIDENCE_ROOT/packages.json"
+
+      - name: Prepare the exact baseline and verify the remote protocol freeze
+        id: freeze
+        shell: bash
+        run: |
+          trap 'code=$?; printf "{\"exit_code\":%s}\n" "$code" > "$V013_EVIDENCE_ROOT/freeze-exit.json"' EXIT
+          {
+            test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+            git fetch --no-tags --depth=1 origin "$V013_PROTOCOL_COMMIT"
+            git fetch --no-tags --depth=1 origin "$V013_BASELINE_COMMIT"
+            git worktree add --detach --no-checkout "$V013_BASELINE_ROOT" "$V013_BASELINE_COMMIT"
+            git -C "$V013_BASELINE_ROOT" sparse-checkout init --cone
+            git -C "$V013_BASELINE_ROOT" sparse-checkout set src
+            git -C "$V013_BASELINE_ROOT" checkout --detach "$V013_BASELINE_COMMIT"
+            python - <<'PY'
+          import hashlib, json, os, pathlib, re, subprocess
+          from benchmarks.v013_scale import FROZEN_FILES, frozen_identity
+          protocol = os.environ['V013_PROTOCOL_COMMIT']
+          assert re.fullmatch('[0-9a-f]{40}', protocol), 'An exact frozen protocol SHA is required'
+          files = [*FROZEN_FILES, 'benchmarks/experiments/v013-scale-integrity-attempt1.json',
+                   'benchmarks/experiments/v013-scale-integrity-attempt2.json']
+          hashes = {}
+          for name in files:
+              raw = pathlib.Path(name).read_bytes()
+              assert raw == subprocess.check_output(['git', 'show', protocol + ':' + name]), name
+              hashes[name] = hashlib.sha256(raw).hexdigest()
+          for name in ('.github/workflows/v013-longitudinal.yml', 'scripts/audit_v013_scale_ci.py'):
+              assert pathlib.Path(name).read_bytes() == subprocess.check_output(['git', 'show', os.environ['GITHUB_SHA'] + ':' + name]), name
+          destination = pathlib.Path(os.environ['V013_EVIDENCE_ROOT']) / 'protocol-preflight.json'
+          destination.write_text(json.dumps({'protocol': frozen_identity(protocol), 'all_six_frozen_files': hashes,
+              'candidate_commit': os.environ['GITHUB_SHA'], 'baseline_commit': os.environ['V013_BASELINE_COMMIT']}, indent=2) + '\n')
+          PY
+            python benchmarks/v013_scale.py describe > "$V013_EVIDENCE_ROOT/registered-matrix.json"
+          } 2>&1 | tee "$V013_EVIDENCE_ROOT/logs/freeze.log"
+
+      - name: Build and authenticate each checkout's actual native extension
+        id: native
+        shell: bash
+        run: |
+          trap 'code=$?; printf "{\"exit_code\":%s}\n" "$code" > "$V013_EVIDENCE_ROOT/native-exit.json"' EXIT
+          for arm in baseline candidate; do
+            if [ "$arm" = baseline ]; then
+              repo="$V013_BASELINE_ROOT"
+              commit="$V013_BASELINE_COMMIT"
+            else
+              repo="$GITHUB_WORKSPACE"
+              commit="$GITHUB_SHA"
+            fi
+            (
+              cd "$repo"
+              python setup.py build_ext --inplace --force
+              PYTHONPATH="$repo/src" V013_EXPECTED_ROOT="$repo" V013_EXPECTED_COMMIT="$commit" V013_ARM="$arm" python - <<'PY'
+          import hashlib, json, os, pathlib, subprocess
+          import memory_book
+          from memory_book._text_backend import BACKEND_NAME, NATIVE
+          root = pathlib.Path(os.environ['V013_EXPECTED_ROOT']).resolve()
+          assert subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD']).decode().strip() == os.environ['V013_EXPECTED_COMMIT']
+          assert pathlib.Path(memory_book.__file__).resolve().parent == root / 'src/memory_book'
+          assert BACKEND_NAME == 'native' and NATIVE is not None
+          binary = pathlib.Path(NATIVE.__file__).resolve()
+          assert binary.parent == root / 'src/memory_book', str(binary)
+          result = {'commit': os.environ['V013_EXPECTED_COMMIT'], 'backend': BACKEND_NAME,
+              'package_file': str(pathlib.Path(memory_book.__file__).resolve()), 'extension_file': str(binary),
+              'extension_sha256': hashlib.sha256(binary.read_bytes()).hexdigest()}
+          path = pathlib.Path(os.environ['V013_EVIDENCE_ROOT']) / (os.environ['V013_ARM'] + '-native.json')
+          path.write_text(json.dumps(result, indent=2) + '\n')
+          print(json.dumps(result))
+          PY
+            ) 2>&1 | tee "$V013_EVIDENCE_ROOT/logs/$arm-native-build.log"
+          done
+          python - <<'PY'
+          import json, os, pathlib, shutil, subprocess
+          from benchmarks.v013_scale import host_identity, runtime_identity
+          allowed = ('GITHUB_SHA', 'GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT', 'GITHUB_REPOSITORY', 'GITHUB_REF',
+                     'ImageOS', 'ImageVersion', 'RUNNER_OS', 'RUNNER_ARCH', 'CC', 'PYTHONHASHSEED',
+                     'OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS')
+          root = pathlib.Path(os.environ['V013_EVIDENCE_ROOT'])
+          info = {'host': host_identity(), 'environment': {key: os.environ.get(key) for key in allowed},
+              'compiler': subprocess.check_output(['gcc', '--version'], text=True),
+              'disk': dict(zip(('total', 'used', 'free'), shutil.disk_usage(root))),
+              'memory_info': pathlib.Path('/proc/meminfo').read_text(),
+              'runner_supervision': {'job_timeout_minutes': 90, 'measurement_wall_seconds': 4500,
+                  'signal': 'SIGINT', 'kill_after_seconds': 45,
+                  'boundary': 'Additional CI execution cap; does not replace the frozen per-call/worker limits. An interrupted matrix is incomplete.'},
+              'runtimes': {'baseline': runtime_identity(os.environ['V013_BASELINE_ROOT'], os.environ['V013_BASELINE_COMMIT']),
+                           'candidate': runtime_identity(os.environ['GITHUB_WORKSPACE'], os.environ['GITHUB_SHA'])}}
+          (root / 'environment-before.json').write_text(json.dumps(info, indent=2) + '\n')
+          PY
+
+      - name: Run the complete main matrix in sequential isolated workers
+        id: measure
+        timeout-minutes: 77
+        shell: bash
+        run: |
+          set +e
+          timeout --signal=INT --kill-after=45s 4500s python -u benchmarks/v013_scale.py run \
+            --protocol-commit "$V013_PROTOCOL_COMMIT" \
+            --baseline-root "$V013_BASELINE_ROOT" \
+            --candidate-root "$GITHUB_WORKSPACE" \
+            --candidate-commit "$GITHUB_SHA" \
+            --backend native --profile main --python "$(command -v python)" \
+            --output "$V013_EVIDENCE_ROOT/run" 2>&1 | tee "$V013_EVIDENCE_ROOT/logs/measurement.log"
+          codes=("${PIPESTATUS[@]}")
+          set -e
+          python - "${codes[0]}" "${codes[1]}" <<'PY'
+          import json, os, pathlib, sys
+          result = {'measurement_or_supervisor_exit_code': int(sys.argv[1]), 'tee_exit_code': int(sys.argv[2]),
+              'timeout_exit_code': 124, 'forced_kill_exit_code': 137,
+              'boundary': 'Exit zero means measurement execution completed; accuracy acceptance requires inspection of the retained original scores.'}
+          (pathlib.Path(os.environ['V013_EVIDENCE_ROOT']) / 'measurement-exit.json').write_text(json.dumps(result, indent=2) + '\n')
+          PY
+          if [ "${codes[0]}" -ne 0 ]; then exit "${codes[0]}"; fi
+          exit "${codes[1]}"
+
+      - name: Audit original responses after all measured workers have exited
+        id: audit
+        if: ${{ always() && steps.native.outcome == 'success' && steps.measure.outcome != 'skipped' }}
+        timeout-minutes: 5
+        shell: bash
+        run: |
+          trap 'code=$?; printf "{\"exit_code\":%s}\n" "$code" > "$V013_EVIDENCE_ROOT/audit-exit.json"' EXIT
+          python scripts/audit_v013_scale_ci.py \
+            --run-root "$V013_EVIDENCE_ROOT/run" --output "$V013_EVIDENCE_ROOT/independent-audit.json" \
+            --protocol-commit "$V013_PROTOCOL_COMMIT" --candidate-commit "$GITHUB_SHA" \
+            --baseline-root "$V013_BASELINE_ROOT" --candidate-root "$GITHUB_WORKSPACE" \
+            2>&1 | tee "$V013_EVIDENCE_ROOT/logs/independent-audit.log"
+
+      - name: Record final outcomes and inventory every retained small artifact
+        if: always()
+        shell: bash
+        env:
+          V013_STEP_OUTCOMES: >-
+            {"checkout":"${{ steps.checkout.outcome }}","python":"${{ steps.python.outcome }}",
+             "install":"${{ steps.install.outcome }}","freeze":"${{ steps.freeze.outcome }}",
+             "native":"${{ steps.native.outcome }}","measure":"${{ steps.measure.outcome }}",
+             "audit":"${{ steps.audit.outcome }}"}
+        run: |
+          mkdir -p "$V013_EVIDENCE_ROOT/logs"
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, shutil
+          root = pathlib.Path(os.environ['V013_EVIDENCE_ROOT'])
+          status = {'steps': json.loads(os.environ['V013_STEP_OUTCOMES']), 'candidate_commit': os.environ['GITHUB_SHA'],
+              'protocol_commit': os.environ['V013_PROTOCOL_COMMIT'],
+              'disk_after': dict(zip(('total', 'used', 'free'), shutil.disk_usage(root))),
+              'snapshot_boundary': 'SQLite databases, WAL/SHM and gzip database snapshots are reproducible working artifacts, excluded from upload. Their original hashes, sizes and generator specification remain in manifest/fingerprint records. No independent DB restoration is claimed by the saved-response audit.'}
+          (root / 'workflow-status.json').write_text(json.dumps(status, indent=2) + '\n')
+          retained, excluded = {}, []
+          for path in sorted(root.rglob('*')):
+              if not path.is_file():
+                  continue
+              relative = path.relative_to(root).as_posix()
+              if '.sqlite' in path.name:
+                  excluded.append({'path': relative, 'bytes': path.stat().st_size})
+                  continue
+              value = hashlib.sha256()
+              with path.open('rb') as stream:
+                  for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+                      value.update(chunk)
+              retained[relative] = {'bytes': path.stat().st_size, 'sha256': value.hexdigest()}
+          (root / 'artifact-files.json').write_text(json.dumps({'retained': retained, 'excluded_working_databases': excluded}, indent=2) + '\n')
+          PY
+
+      - name: Preserve original evidence even after failures or interruption
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: v013-long-history-main-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ env.V013_EVIDENCE_ROOT }}/
+            !${{ env.V013_EVIDENCE_ROOT }}/**/*.sqlite*
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 90
