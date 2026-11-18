@@ -1,0 +1,56 @@
+{
+  "scope": "Working-tree token-compatibility development verification; original test expectations unchanged, real cl100k_base and o200k_base in each backend. Not immutable source acceptance.",
+  "head": "8ce9e27af88792a8f48d71ccab41bc9fe32f521d",
+  "source_before": {
+    "src/memory_book/store.py": "9d76c2cc10c94f8783fcbce983dc69d1afb39bef5cd9fef8d2566480f096c784",
+    "src/memory_book/context_budget.py": "cab5bb22c729a56ab7a0b8464beabe0f619bbcc9219c22246c47367a2b2014d9",
+    "src/memory_book/token_budget.py": "910de5a73eecbf3b6ebde521c2a274f3d31ba251a90f12a46abd3e0f3d2dbfce",
+    "tests/test_token_budget.py": "89fa3919c92f97e5b3f7ff44f92fa2ebcf0f6121ed941a21dd5b450bc300aa4c",
+    "tests/test_short_page_token_preservation.py": "a5e1d30ea6ad225dd17c15d14f48f67b11508100e70335d085263882506f523f"
+  },
+  "started_at": "2026-11-18T08:22:06.884720+00:00",
+  "runs": [
+    {
+      "backend": "python",
+      "command": [
+        "/workspace/scratch/b92339f83b53/AI-Memory-Book/.venv/bin/python",
+        "-m",
+        "unittest",
+        "tests.test_token_budget",
+        "tests.test_current_token_recall",
+        "tests.test_current_turn_recall",
+        "tests.test_context_budget",
+        "tests.test_token_budget_mcp",
+        "tests.test_native_budget_eval",
+        "tests.test_short_page_token_preservation",
+        "-v"
+      ],
+      "returncode": 0
+    },
+    {
+      "backend": "native",
+      "command": [
+        "/workspace/scratch/b92339f83b53/AI-Memory-Book/.venv/bin/python",
+        "-m",
+        "unittest",
+        "tests.test_token_budget",
+        "tests.test_current_token_recall",
+        "tests.test_current_turn_recall",
+        "tests.test_context_budget",
+        "tests.test_token_budget_mcp",
+        "tests.test_native_budget_eval",
+        "tests.test_short_page_token_preservation",
+        "-v"
+      ],
+      "returncode": 0
+    }
+  ],
+  "source_after": {
+    "src/memory_book/store.py": "9d76c2cc10c94f8783fcbce983dc69d1afb39bef5cd9fef8d2566480f096c784",
+    "src/memory_book/context_budget.py": "cab5bb22c729a56ab7a0b8464beabe0f619bbcc9219c22246c47367a2b2014d9",
+    "src/memory_book/token_budget.py": "910de5a73eecbf3b6ebde521c2a274f3d31ba251a90f12a46abd3e0f3d2dbfce",
+    "tests/test_token_budget.py": "89fa3919c92f97e5b3f7ff44f92fa2ebcf0f6121ed941a21dd5b450bc300aa4c",
+    "tests/test_short_page_token_preservation.py": "a5e1d30ea6ad225dd17c15d14f48f67b11508100e70335d085263882506f523f"
+  },
+  "source_unchanged": true
+}

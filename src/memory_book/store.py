@@ -23,7 +23,7 @@ from .text import (IDENTIFIER_WORD_BOUNDARY, estimate_tokens, excerpt, headline,
 SCHEMA_VERSION = 4
 INDEX_VERSION = 3
 LEXICAL_INDEX_VERSION = 1
-RECALL_VERSION = 20
+RECALL_VERSION = 21
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -526,18 +526,23 @@ _SIMPLE_ASSIGNMENT_VALUE = re.compile(
     re.IGNORECASE)
 _PROSE_QUANTITY_SUFFIX = re.compile(
     r"\s*"
-    r"(?:[,，]\s*(?:旧值|原值|前值)(?:已|已经|因|导致)[^。.!?]*)?[.!。]?\s*\Z",
+    r"(?:[,，]\s*(?:旧值|原值|前值)(?:已经|已)?"
+    r"(?:因(?P<reason>[^。，.!?;；:：,\"'`]+?)而)?"
+    r"(?:失效|无效|撤销|弃用))?[.!。]?\s*\Z",
     re.IGNORECASE)
 _SIMPLE_REASON = re.compile(r"\s+because\s+(?P<reason>[^.!?;:]+?)[.!。]?\s*\Z", re.IGNORECASE)
 _REASON_RELATION = re.compile(
     r"\b(?:for|from|to|in|on|at|under|with|without|per|when|whenever|except|only|"
     r"unless|provided|assuming|conditional|hypothetical|pending|proposed|tentative|"
-    r"awaiting|unapproved)\b|['\"`?,，]", re.IGNORECASE)
+    r"awaiting|unapproved)\b|['\"`?,，]|"
+    r"假如|假设|若|除非|仅|只在|只对|用于|适用|针对|条件|待批|待审|等待|尚未|审批|批准|提议|临时",
+    re.IGNORECASE)
 # Conventional reporting labels are not environment names. This deliberately
 # small grammar strips no arbitrary prefix: e.g. "Production", "EU staging"
 # and labels absent from the query remain distinct exact scope signatures.
 _DECLARATION_FRAME = re.compile(
-    r"(?:(?:selected|approved|recorded|configured|measured|accepted|confirmed)|"
+    r"(?:(?:selected|approved|recorded|configured|measured|accepted|confirmed|"
+    r"initial|original|current|updated|final|corrected|revised)|"
     r"(?:(?:initial|original|current|approved|selected|measured|recorded|updated|final|accepted)\s+)*"
     r"(?:(?:project|implementation|runtime)\s+)?"
     r"(?:decision|configuration|contract|settings?|replacement|value)"
@@ -571,13 +576,17 @@ def _simple_declaration_suffix(suffix: str) -> bool:
     """Accept a quantity or a bounded causal explanation, never a new scope.
 
     Units are part of the value grammar shared by assignments and prose.
-    A simple ``because`` clause may explain the value, but cannot introduce
-    another binding, condition, quoted example or prepositional scope change.
+    A simple ``because`` clause or complete Chinese old-value withdrawal may
+    explain the value, but cannot introduce another binding, condition, quoted
+    example or scope change. Chinese explanations must end at the withdrawal;
+    a second comma or arbitrary trailing clause cannot waive qualification.
     Unrecognized explanations keep relevance ordering and original text.
     """
-    if _PROSE_QUANTITY_SUFFIX.fullmatch(suffix) is not None:
+    reason = _PROSE_QUANTITY_SUFFIX.fullmatch(suffix)
+    if reason is not None and reason["reason"] is None:
         return True
-    reason = _SIMPLE_REASON.fullmatch(suffix)
+    if reason is None:
+        reason = _SIMPLE_REASON.fullmatch(suffix)
     if reason is None:
         return False
     body = reason["reason"]
@@ -2438,10 +2447,15 @@ class MemoryBook:
         except BaseException:
             self.db.execute("ROLLBACK")
             raise
-        if token_counter is None:
-            from .context_budget import complete_short_pages
-            allocations = complete_short_pages(
-                allocations, protected_ids=frozenset(current_spans))
+        # Exact-token first-fit must start from the same character-only
+        # evidence blocks exposed by this request. Otherwise a completed short
+        # record can disappear or change its source metadata merely because a
+        # token cap was supplied, even when that whole block fits the cap.
+        # Protect authenticated current turns in both routes before assembling
+        # the shared legacy blocks; token supplements retain their own policy.
+        from .context_budget import complete_short_pages
+        allocations = complete_short_pages(
+            allocations, protected_ids=frozenset(current_spans))
         legacy = []
         for row, header, allowance in allocations:
             if row["id"] in current_spans:

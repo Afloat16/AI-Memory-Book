@@ -2,7 +2,8 @@
 
 This does not select, rank, merge or rewrite evidence. The caller supplies its
 ordinary allocations, including citation costs. Already complete pages and
-page order are preserved. Optional exact-token assembly keeps its own policy.
+page order are preserved. Character-only and exact-token recall share these
+baseline allocations; exact-token first-fit and supplementation remain separate.
 """
 from __future__ import annotations
 

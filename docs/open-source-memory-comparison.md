@@ -2,7 +2,9 @@
 
 The original official-source review was checked on **2026-11-16 (Asia/Shanghai)**;
 the pinned Haystack/BM25S and LanceDB/Whoosh component extensions were executed and checked on
-**2026-11-18**. This comparison covers **23 external project families**, including
+**2026-11-18**. A further pinned official-source review of Hindsight, MemSearch and
+MCP Memory Service was checked on **2026-11-18**, without executing those systems.
+This comparison covers **26 external project families**, including
 six retrieval/store libraries or frameworks. It separates the executed supplied-page experiment from documentation
 about complete products. A component score is not a score for its parent
 product's default end-to-end workflow.
@@ -55,6 +57,15 @@ and Supermemory. Their pinned document/blob identities and the claims checked
 are recorded in the [upstream review manifest](../benchmarks/reports/v0.7.0-project-scope/upstream-review.json).
 They have **not** been run on this workload and receive no numerical result.
 
+The three documentation additions in this v0.12 review are Hindsight,
+MemSearch and MCP Memory Service. Their exact README commits, blob identities,
+supported claims and unmeasured boundaries are retained in the
+[v0.12 source-review manifest](upstream-review-v012-additions.json). They also
+have **not** been run on this workload. Adding their feature coverage changes
+the family count from 23 to 26; it leaves the **11 executed external
+configurations**, **10 scored configurations** and separate Memvid diagnostic
+unchanged.
+
 | Project family | Memory representation and retrieval | Local/model requirements | Source and scope relevant to engineering |
 |---|---|---|---|
 | [billion-context](https://github.com/ranxianglei/billion-context/tree/9674cfafbc78c50245ae0d887483d3d6ce880c15) | Proxy/client context management, reversible compression and searchable blocks | Full workflow can involve model-directed compression; the pinned search kernel runs locally | Stored block references and project filtering; the experiment covers the kernel, not proxy routing or decompression |
@@ -80,6 +91,9 @@ They have **not** been run on this workload and receive no numerical result.
 | [EverOS, formerly EverMemOS][everos] | Canonical Markdown conversations/files/agent traces with SQLite and LanceDB indexes; separate user and agent memory surfaces | Local runtime; the normal ingestion quickstart requires an extraction model; vector, reranking and multimodal paths add configured providers | On-disk `app_id/project_id` partitioning and user/agent/session search fields; source files can be inspected and versioned; the no-key educational demo is not the live ingestion pipeline |
 | [SimpleMem][simplemem] | Model-extracted atomic facts with semantic, keyword and metadata retrieval; separate research/Python and MCP paths | Python/Docker self-hosting is documented; the text MCP path uses LLM/embedding services and LanceDB | MCP documents per-user tables and token authentication; this alone does not demonstrate separate projects for one user; Python multimodal/evolution features are not all exposed by MCP |
 | [Supermemory][supermemory] | Extracted memories, profiles, document ingestion and hybrid retrieval, with coding-agent plugins | Hosted API or local runtime; offline text use is documented with Ollama and local embeddings after the initial model download; URL ingestion uses a hosted reader | Project/container tags scope memory and profile queries; documentation of these selectors is not a measured cross-project isolation result |
+| [Hindsight][hindsight] | Model-extracted facts, entities and temporal relationships; semantic, BM25, graph and temporal recall with fusion/reranking; wiki-style pages | Extraction uses an LLM; retrieval uses configured embeddings/reranking; self-hosting supports local model providers | Bank IDs, a documented bank per coding repository and bank-specific MCP endpoints; observations retain supporting quotes and pages can be organized in folders; source-coordinate fidelity and isolation were not tested here |
+| [MemSearch][memsearch] | Authoritative Markdown with a rebuildable Milvus index; dense/BM25 fusion and progressive search, section expansion and original-transcript reading | Local ONNX and Ollama embeddings are supported; the documented Python API defaults to OpenAI; background project/user-note maintenance is optional and disabled by default | `source_prefix` search scope, configurable collections, full Markdown sections and raw dialogue access; these mechanisms were not evaluated here as exact-project or authenticated isolation guarantees |
+| [MCP Memory Service][mcp-memory-service] | Persistent memory through MCP/HTTP; semantic plus BM25 search, consolidation and heuristic supersession of conflicting records | SQLite with local ONNX via the `sqlite` extra; without that extra the README documents hash-embedding fallback; optional search summaries need a configured LLM | Tag/time/store filters and agent tagging are documented; bootstrap profiles are explicitly not project-isolated, a limitation of that feature rather than a result about every scoped search path; source coordinates and isolation were not tested here |
 
 Local operation, source lookup and support for multiple clients occur in several
 projects. Book's engineering value is its combination of normalized original
@@ -90,9 +104,11 @@ agent state, authored Markdown knowledge or a vector-store API may prefer a
 different architecture.
 
 Directory-oriented navigation and progressive reading are also documented by
-[OpenViking][openviking-layers], [Serena][serena], and
-[claude-mem][claude]; Markdown and project scope are also available in Basic
-Memory and EverOS. These are relevant alternatives, not absent capabilities.
+[OpenViking][openviking-layers], [Serena][serena], [claude-mem][claude] and
+[MemSearch][memsearch]. [Hindsight][hindsight] documents folder-organized pages
+and repository-specific banks; MemSearch explicitly includes original-transcript
+reading. Markdown and project scope are also available in Basic Memory and
+EverOS. These are relevant alternatives, not absent capabilities.
 Book's intended fit is an engineer returning to the original evidence for a
 specific project/task with a bounded context budget. The table does not prove
 that its isolation, completeness or speed exceeds every listed product.
@@ -130,6 +146,7 @@ here; their listed mechanisms are official-source descriptions only.
 | Memvid lexical | Actual pinned SDK with native URI-prefix scope; all formal natural-language queries returned empty hits; keyword controls retrieved source pages | Default/other search modes, query rewriting, semantic retrieval, byte-exact native source reading and end-to-end product quality |
 | Letta / Graphiti / MemOS / Memori / Cognee / LongMemory | Official-source feature review only | Numerical quality, speed, resource use and production correctness in this workload |
 | OpenViking / Serena / EverOS / SimpleMem / Supermemory | Pinned official-source feature review only | All retrieval, completeness, cross-project isolation, latency and resource results in this workload |
+| Hindsight / MemSearch / MCP Memory Service | Pinned official README review only; each returned blob identity was rechecked | All same-workload retrieval scores, source-coordinate fidelity, missing/ambiguous project behavior, cross-project isolation, latency, resources and end-to-end coding results |
 | LangMem companion SDK | Pinned README/API-example review only; grouped with the LangGraph ecosystem | Model-driven memory extraction, management and end-to-end agent behavior |
 | Official MCP memory | Official API/source review | Generic ranked natural-language retrieval; an empty literal-string search is not a semantic-search failure score |
 
@@ -231,6 +248,9 @@ datasets, prompts, budgets or managed services are not copied into these tables.
 - [LangMem memory tools and storage contract][langmem]
 - [Haystack 3.5.0 package and framework description][haystack] and [native BM25 retriever](https://docs.haystack.deepset.ai/docs/inmemorybm25retriever)
 - [BM25S 0.3.16 package and native library API][bm25s]
+- [Hindsight retain/recall, supporting evidence, pages and repository banks][hindsight]
+- [MemSearch authoritative Markdown, progressive transcript reads and source-prefix scope][memsearch]
+- [MCP Memory Service scoped search, local embedding requirements and bootstrap-profile boundary][mcp-memory-service]
 
 [mem0]: https://github.com/mem0ai/mem0/blob/f1791daa86d469249c9b002f62644d58a1eb96a0/README.md
 [openmemory]: https://github.com/mem0ai/openmemory/blob/2df78cc48e5f688a771fee5b39899325accc2450/README.md
@@ -271,3 +291,6 @@ datasets, prompts, budgets or managed services are not copied into these tables.
 [bm25s]: https://pypi.org/project/bm25s/0.3.16/
 [lancedb]: https://pypi.org/project/lancedb/0.41.0/
 [whoosh]: https://pypi.org/project/Whoosh/2.7.4/
+[hindsight]: https://github.com/vectorize-io/hindsight/blob/0e9c72c86aa650b282af4f93f8eda6e0b672b70e/README.md
+[memsearch]: https://github.com/zilliztech/memsearch/blob/3e296a379cbd4605debde8571b2c7f61f27399a5/README.md
+[mcp-memory-service]: https://github.com/doobidoo/mcp-memory-service/blob/33e1c1f2f595e72eb38b881bc1d4ab5f7fc0878f/README.md

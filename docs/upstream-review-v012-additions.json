@@ -1,0 +1,108 @@
+{
+  "status": "official_source_review_only_not_executed",
+  "reviewed_date": "2026-11-18",
+  "timezone": "Asia/Shanghai",
+  "purpose": "Pinned official-source feature review for three additions to the architecture comparison. These additions establish no runtime result, benchmark score, isolation pass, performance claim or end-to-end coding result in this project workload.",
+  "method": "Resolved each official repository's main commit with GitHub GET commits/main, then read README.md at that exact SHA through the connected GitHub reader. Search results were discovery only; claims below are based on pinned README bytes.",
+  "projects": [
+    {
+      "repository": "vectorize-io/hindsight",
+      "commit": "0e9c72c86aa650b282af4f93f8eda6e0b672b70e",
+      "path": "README.md",
+      "blob_sha": "04ade06523a762e63affa7f54e1b5899d87dcca6",
+      "url": "https://github.com/vectorize-io/hindsight/blob/0e9c72c86aa650b282af4f93f8eda6e0b672b70e/README.md",
+      "evidence_sections": [
+        "Core Concepts / Retain",
+        "Core Concepts / Recall",
+        "Coding Agents",
+        "MCP Server",
+        "Quick Start / Start a server",
+        "Core Concepts / Observations",
+        "Core Concepts / Mental Models & Pages",
+        "Core Concepts / Memory Banks"
+      ],
+      "supported_summary": "Retain uses an LLM to extract facts, entities, relationships and temporal information. Recall combines semantic, keyword/BM25, graph and temporal retrieval with fusion, reranking and a token limit. Memories use bank IDs; the coding-agent integration describes a bank per repository and shared access across clients. A bank-specific MCP endpoint is documented. Self-hosted deployments can configure local model providers. The README also describes observations with supporting quotes and proof counts, and searchable pages organized in folders and projectable to Markdown. These are documented evidence/navigation capabilities, not independently verified original-conversation coordinate fidelity.",
+      "suggested_comparison_boundary": "Feature documentation only. Bank selectors and repository defaults have not been tested as cross-project authorization or isolation here. Do not import Hindsight's self-reported LongMemEval/accuracy claims into this project's measured results.",
+      "not_measured": [
+        "same-workload retrieval",
+        "source-coordinate fidelity",
+        "missing/ambiguous project behavior",
+        "cross-project isolation",
+        "latency",
+        "resources",
+        "end-to-end coding success"
+      ]
+    },
+    {
+      "repository": "zilliztech/memsearch",
+      "commit": "3e296a379cbd4605debde8571b2c7f61f27399a5",
+      "path": "README.md",
+      "blob_sha": "ac111aec74519b201b496a0a55746b2fb60c720a",
+      "url": "https://github.com/zilliztech/memsearch/blob/3e296a379cbd4605debde8571b2c7f61f27399a5/README.md",
+      "evidence_sections": [
+        "Why memsearch?",
+        "Configuration / Embedding",
+        "Architecture",
+        "How Plugins Work",
+        "Python API"
+      ],
+      "supported_summary": "Markdown files are authoritative and Milvus is a rebuildable index. The documented retrieval combines dense vectors, BM25 and reciprocal-rank fusion, followed by progressive search, section expansion and original-transcript reading. The API demonstrates source_prefix scope; collections are configurable. Local ONNX and Ollama embeddings are supported, while the documented Python API defaults to OpenAI. Optional background project/user-note maintenance is disabled by default.",
+      "suggested_comparison_boundary": "Feature documentation only. Source prefixes and collection selection have not been evaluated as an exact-project or authenticated isolation boundary. Original transcript access and progressive retrieval are documented capabilities; do not say these are absent.",
+      "not_measured": [
+        "same-workload retrieval",
+        "source-coordinate fidelity",
+        "missing/ambiguous project behavior",
+        "cross-project isolation",
+        "latency",
+        "resources",
+        "end-to-end coding success"
+      ]
+    },
+    {
+      "repository": "doobidoo/mcp-memory-service",
+      "commit": "33e1c1f2f595e72eb38b881bc1d4ab5f7fc0878f",
+      "path": "README.md",
+      "blob_sha": "40a3a5c8b5ac3eb7385861ef2f342352257a4a94",
+      "url": "https://github.com/doobidoo/mcp-memory-service/blob/33e1c1f2f595e72eb38b881bc1d4ab5f7fc0878f/README.md",
+      "evidence_sections": [
+        "Get Started / Install",
+        "Features / Store and retrieve context",
+        "Features / Capture and maintain knowledge",
+        "Features / Run locally and share across devices"
+      ],
+      "supported_summary": "The service exposes persistent memory through MCP and HTTP, with SQLite/local ONNX and optional alternative backends. It documents semantic plus BM25 search, tag/time/store filters, consolidation and heuristic supersession of conflicting memories. The sqlite extra supplies local ONNX; without it the README warns of hash-embedding fallback. Optional summaries require a configured LLM. Bootstrap profiles are explicitly documented as not isolated by project.",
+      "suggested_comparison_boundary": "Feature documentation only. Tags/agent headers and store partitions are not independently measured authorization guarantees. Do not generalize the bootstrap-profile limitation to every scoped search path. Exclude the README's 5ms marketing statement from any measured comparison.",
+      "not_measured": [
+        "same-workload retrieval",
+        "source-coordinate fidelity",
+        "missing/ambiguous project behavior",
+        "cross-project isolation",
+        "latency",
+        "resources",
+        "end-to-end coding success"
+      ]
+    }
+  ],
+  "integration_notes": [
+    "Architecture coverage is now 26 external project families after adding the three documented families to the recovered branch's previous 23.",
+    "Existing completed external configurations remain 11 and scored configurations remain 10; Memvid retains its separate configured-query limitation.",
+    "The six previously identified retrieval/store library or framework entries and the grouping of companion SDKs are unchanged.",
+    "Main v0.11 had 21 families, 9 executed configurations and 8 scored configurations. Those historical counts must not be silently reassigned to the integrated comparison.",
+    "Directory navigation, source inspection, local operation and multiple clients occur in alternatives too. The project's engineering claims must rely on its tested combination and specific observed behavior.",
+    "No license statements or upstream self-reported accuracy/latency scores are imported by this review."
+  ],
+  "integration": {
+    "architecture_families_before": 23,
+    "architecture_families_after": 26,
+    "executed_external_configurations": 11,
+    "scored_external_configurations": 10,
+    "separate_configured_query_limitation": "Memvid",
+    "companion_counting": "LangMem remains grouped with LangGraph; no new backend or score is inferred from a documentation review."
+  },
+  "recheck": {
+    "date": "2026-11-18",
+    "timezone": "Asia/Shanghai",
+    "method": "Read each exact pinned README again through GitHub fetch_file; every returned blob SHA matched the prior review record. This recheck did not run upstream code.",
+    "all_three_blob_identities_match": true
+  }
+}

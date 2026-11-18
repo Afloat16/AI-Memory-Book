@@ -1,0 +1,126 @@
+{
+  "status": "completed",
+  "records": [
+    {
+      "backend": "python",
+      "status": "completed",
+      "started_at": "2026-11-18T08:15:07.407015+00:00",
+      "commands": [
+        {
+          "kind": "baseline",
+          "command": [
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book/.venv/bin/python",
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book/benchmarks/v012_revision_eval.py",
+            "--source",
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book-baseline",
+            "--commit",
+            "78cc906d81818a16884de7de2e613e5a56346f93",
+            "--backend",
+            "python",
+            "--output",
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book/benchmarks/reports/v0.12-development/resumed-revision-attempt1/python-baseline"
+          ],
+          "status": "completed",
+          "returncode": 0
+        },
+        {
+          "kind": "candidate",
+          "command": [
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book/.venv/bin/python",
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book/benchmarks/v012_revision_eval.py",
+            "--source",
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book",
+            "--commit",
+            "01032a691abdc4fddfd10f61c9e61f260f9decb3",
+            "--backend",
+            "python",
+            "--output",
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book/benchmarks/reports/v0.12-development/resumed-revision-attempt1/python-candidate"
+          ],
+          "status": "completed",
+          "returncode": 0
+        },
+        {
+          "kind": "paired-independent-audit",
+          "command": [
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book/.venv/bin/python",
+            "-m",
+            "benchmarks.v012_revision_pair_audit",
+            "--baseline",
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book/benchmarks/reports/v0.12-development/resumed-revision-attempt1/python-baseline",
+            "--candidate",
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book/benchmarks/reports/v0.12-development/resumed-revision-attempt1/python-candidate",
+            "--candidate-commit",
+            "01032a691abdc4fddfd10f61c9e61f260f9decb3",
+            "--output",
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book/benchmarks/reports/v0.12-development/resumed-revision-attempt1/python-pair-audit.json"
+          ],
+          "status": "completed",
+          "returncode": 0
+        }
+      ],
+      "finished_at": "2026-11-18T08:15:10.418591+00:00"
+    },
+    {
+      "backend": "native",
+      "status": "completed",
+      "started_at": "2026-11-18T08:15:07.407320+00:00",
+      "commands": [
+        {
+          "kind": "baseline",
+          "command": [
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book/.venv/bin/python",
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book/benchmarks/v012_revision_eval.py",
+            "--source",
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book-baseline",
+            "--commit",
+            "78cc906d81818a16884de7de2e613e5a56346f93",
+            "--backend",
+            "native",
+            "--output",
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book/benchmarks/reports/v0.12-development/resumed-revision-attempt1/native-baseline"
+          ],
+          "status": "completed",
+          "returncode": 0
+        },
+        {
+          "kind": "candidate",
+          "command": [
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book/.venv/bin/python",
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book/benchmarks/v012_revision_eval.py",
+            "--source",
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book",
+            "--commit",
+            "01032a691abdc4fddfd10f61c9e61f260f9decb3",
+            "--backend",
+            "native",
+            "--output",
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book/benchmarks/reports/v0.12-development/resumed-revision-attempt1/native-candidate"
+          ],
+          "status": "completed",
+          "returncode": 0
+        },
+        {
+          "kind": "paired-independent-audit",
+          "command": [
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book/.venv/bin/python",
+            "-m",
+            "benchmarks.v012_revision_pair_audit",
+            "--baseline",
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book/benchmarks/reports/v0.12-development/resumed-revision-attempt1/native-baseline",
+            "--candidate",
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book/benchmarks/reports/v0.12-development/resumed-revision-attempt1/native-candidate",
+            "--candidate-commit",
+            "01032a691abdc4fddfd10f61c9e61f260f9decb3",
+            "--output",
+            "/workspace/scratch/b92339f83b53/AI-Memory-Book/benchmarks/reports/v0.12-development/resumed-revision-attempt1/native-pair-audit.json"
+          ],
+          "status": "completed",
+          "returncode": 0
+        }
+      ],
+      "finished_at": "2026-11-18T08:15:10.370379+00:00"
+    }
+  ],
+  "scope": "Frozen authored development protocol. No latency claim; backend pairs ran concurrently."
+}

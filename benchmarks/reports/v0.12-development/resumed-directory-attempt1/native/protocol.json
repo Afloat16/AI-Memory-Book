@@ -1,0 +1,3906 @@
+{
+  "schema": "directory-navigation-contracts-v2",
+  "registered_date": "2026-11-18",
+  "timezone": "Asia/Shanghai",
+  "scope": "Authored new-API development contracts: locate directories across eight similar projects, then follow exact scoped IDs to original source. This fixture was written after the implementation; it is not an independent holdout, LLM answer benchmark, or cross-product ranking. Version 2 corrects eight invalid no-match expectations and adds eight lexically nonoverlapping negative cases; this is fixture correction, not an algorithm improvement.",
+  "baseline": {
+    "version": "v0.10.0",
+    "status": "not_applicable_new_API",
+    "numeric_score": null,
+    "reason": "The preceding release has no search_directory/locate API. Existing manual browsing is not assigned a zero score."
+  },
+  "contract": {
+    "segmentation": "turn",
+    "maximum_section_previews": 5,
+    "returned_evidence": false,
+    "matching_fields": [
+      "title",
+      "question",
+      "directory"
+    ],
+    "missing_project_scope": "Unbound API calls explicitly search all projects; returned IDs retain each project. The evaluator supplies that exact returned project to every follow-up read. No project is guessed from a title or cwd.",
+    "unknown_or_conflicting_scope": "KeyError; never broaden",
+    "invalid_scope_or_pagination": "ValueError",
+    "pagination": "Count unique chapters; deduplicate before limiting; follow next_offset until complete",
+    "source_validation": "Independently reconstruct original paired message turns. Require every follow-up page character and coordinate to match frozen originals and the selected project/chapter/section.",
+    "metadata": "Stored titles and summaries may contain source-derived text; they are navigation metadata, not authoritative retrieved evidence.",
+    "timing": "No latency values, repeated speed trials or relative performance claims."
+  },
+  "failure_policy": "Keep raw JSONL after each actual call, preserve every failed case, use a new output directory for every attempt; never overwrite a failed report.",
+  "dataset_sha256": "232be3ab5d7cfd8cd468ea16a1e8d0f0622d25a3daa6511ddbd42496dd54929b",
+  "evaluator_sha256": "9194fff51b4295b17e2ad534e98116016115de0c388a1c80ad28eaa1a5f2af28",
+  "dataset": {
+    "name": "eight-similar-project-directory-contracts",
+    "sessions": [
+      {
+        "project": "atlas-online",
+        "project_name": "Similar kernel service",
+        "task_id": "retry",
+        "task_title": "HTTPRetryPolicy rollout",
+        "session_id": "design-note",
+        "title": "HTTPRetryPolicy handoff",
+        "created_at": "2026-11-01T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1000. sourceunique00 belongs to atlas-online; record retry/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "atlas-online",
+        "project_name": "Similar kernel service",
+        "task_id": "optimizer",
+        "task_title": "训练流水线优化器配置",
+        "session_id": "review-note",
+        "title": "优化器状态复核",
+        "created_at": "2026-11-02T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1010. sourceunique00 belongs to atlas-online; record optimizer/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "atlas-online",
+        "project_name": "Similar kernel service",
+        "task_id": "handoff-large",
+        "task_title": "Orion handoff archive",
+        "session_id": "archive-01",
+        "title": "Orion handoff detail",
+        "created_at": "2026-11-03T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1020. sourceunique00 belongs to atlas-online; record handoff-large/0. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 1: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1021. sourceunique00 belongs to atlas-online; record handoff-large/1. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 2: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1022. sourceunique00 belongs to atlas-online; record handoff-large/2. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 3: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1023. sourceunique00 belongs to atlas-online; record handoff-large/3. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 4: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1024. sourceunique00 belongs to atlas-online; record handoff-large/4. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 5: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1025. sourceunique00 belongs to atlas-online; record handoff-large/5. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 6: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1026. sourceunique00 belongs to atlas-online; record handoff-large/6. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 7: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1027. sourceunique00 belongs to atlas-online; record handoff-large/7. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 8: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1028. sourceunique00 belongs to atlas-online; record handoff-large/8. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 9: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1029. sourceunique00 belongs to atlas-online; record handoff-large/9. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 10: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1030. sourceunique00 belongs to atlas-online; record handoff-large/10. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 11: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1031. sourceunique00 belongs to atlas-online; record handoff-large/11. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 12: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1032. sourceunique00 belongs to atlas-online; record handoff-large/12. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 13: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1033. sourceunique00 belongs to atlas-online; record handoff-large/13. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 14: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1034. sourceunique00 belongs to atlas-online; record handoff-large/14. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 15: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1035. sourceunique00 belongs to atlas-online; record handoff-large/15. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 16: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1036. sourceunique00 belongs to atlas-online; record handoff-large/16. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 17: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1037. sourceunique00 belongs to atlas-online; record handoff-large/17. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "atlas-online",
+        "project_name": "Similar kernel service",
+        "task_id": "handoff-small",
+        "task_title": "Orion handoff review",
+        "session_id": "review-01",
+        "title": "Orion handoff detail",
+        "created_at": "2026-11-04T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1030. sourceunique00 belongs to atlas-online; record handoff-small/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "atlas-online",
+        "project_name": "Similar kernel service",
+        "task_id": "maintenance",
+        "task_title": "Routine tasks",
+        "session_id": "component-review",
+        "title": "ZebraCacheInvalidator notes",
+        "created_at": "2026-11-05T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1040. sourceunique00 belongs to atlas-online; record maintenance/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "atlas-online",
+        "project_name": "Similar kernel service",
+        "task_id": "inspection",
+        "task_title": "Inspection notes",
+        "session_id": "index-audit",
+        "title": "Record handoff",
+        "created_at": "2026-11-06T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Where was the DeltaCursorWindow boundary discussed?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1050. sourceunique00 belongs to atlas-online; record inspection/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "atlas-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "retry",
+        "task_title": "HTTPRetryPolicy rollout",
+        "session_id": "design-note",
+        "title": "HTTPRetryPolicy handoff",
+        "created_at": "2026-11-01T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1100. sourceunique01 belongs to atlas-batch; record retry/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "atlas-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "optimizer",
+        "task_title": "训练流水线优化器配置",
+        "session_id": "review-note",
+        "title": "优化器状态复核",
+        "created_at": "2026-11-02T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1110. sourceunique01 belongs to atlas-batch; record optimizer/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "atlas-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "handoff-large",
+        "task_title": "Orion handoff archive",
+        "session_id": "archive-01",
+        "title": "Orion handoff detail",
+        "created_at": "2026-11-03T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1120. sourceunique01 belongs to atlas-batch; record handoff-large/0. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 1: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1121. sourceunique01 belongs to atlas-batch; record handoff-large/1. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 2: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1122. sourceunique01 belongs to atlas-batch; record handoff-large/2. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 3: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1123. sourceunique01 belongs to atlas-batch; record handoff-large/3. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 4: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1124. sourceunique01 belongs to atlas-batch; record handoff-large/4. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 5: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1125. sourceunique01 belongs to atlas-batch; record handoff-large/5. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 6: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1126. sourceunique01 belongs to atlas-batch; record handoff-large/6. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 7: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1127. sourceunique01 belongs to atlas-batch; record handoff-large/7. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 8: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1128. sourceunique01 belongs to atlas-batch; record handoff-large/8. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 9: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1129. sourceunique01 belongs to atlas-batch; record handoff-large/9. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 10: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1130. sourceunique01 belongs to atlas-batch; record handoff-large/10. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 11: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1131. sourceunique01 belongs to atlas-batch; record handoff-large/11. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 12: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1132. sourceunique01 belongs to atlas-batch; record handoff-large/12. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 13: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1133. sourceunique01 belongs to atlas-batch; record handoff-large/13. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 14: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1134. sourceunique01 belongs to atlas-batch; record handoff-large/14. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 15: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1135. sourceunique01 belongs to atlas-batch; record handoff-large/15. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 16: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1136. sourceunique01 belongs to atlas-batch; record handoff-large/16. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 17: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1137. sourceunique01 belongs to atlas-batch; record handoff-large/17. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "atlas-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "handoff-small",
+        "task_title": "Orion handoff review",
+        "session_id": "review-01",
+        "title": "Orion handoff detail",
+        "created_at": "2026-11-04T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1130. sourceunique01 belongs to atlas-batch; record handoff-small/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "atlas-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "maintenance",
+        "task_title": "Routine tasks",
+        "session_id": "component-review",
+        "title": "ZebraCacheInvalidator notes",
+        "created_at": "2026-11-05T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1140. sourceunique01 belongs to atlas-batch; record maintenance/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "atlas-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "inspection",
+        "task_title": "Inspection notes",
+        "session_id": "index-audit",
+        "title": "Record handoff",
+        "created_at": "2026-11-06T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Where was the DeltaCursorWindow boundary discussed?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1150. sourceunique01 belongs to atlas-batch; record inspection/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "borealis-online",
+        "project_name": "Similar kernel service",
+        "task_id": "retry",
+        "task_title": "HTTPRetryPolicy rollout",
+        "session_id": "design-note",
+        "title": "HTTPRetryPolicy handoff",
+        "created_at": "2026-11-01T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1200. sourceunique02 belongs to borealis-online; record retry/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "borealis-online",
+        "project_name": "Similar kernel service",
+        "task_id": "optimizer",
+        "task_title": "训练流水线优化器配置",
+        "session_id": "review-note",
+        "title": "优化器状态复核",
+        "created_at": "2026-11-02T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1210. sourceunique02 belongs to borealis-online; record optimizer/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "borealis-online",
+        "project_name": "Similar kernel service",
+        "task_id": "handoff-large",
+        "task_title": "Orion handoff archive",
+        "session_id": "archive-01",
+        "title": "Orion handoff detail",
+        "created_at": "2026-11-03T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1220. sourceunique02 belongs to borealis-online; record handoff-large/0. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 1: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1221. sourceunique02 belongs to borealis-online; record handoff-large/1. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 2: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1222. sourceunique02 belongs to borealis-online; record handoff-large/2. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 3: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1223. sourceunique02 belongs to borealis-online; record handoff-large/3. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 4: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1224. sourceunique02 belongs to borealis-online; record handoff-large/4. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 5: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1225. sourceunique02 belongs to borealis-online; record handoff-large/5. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 6: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1226. sourceunique02 belongs to borealis-online; record handoff-large/6. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 7: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1227. sourceunique02 belongs to borealis-online; record handoff-large/7. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 8: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1228. sourceunique02 belongs to borealis-online; record handoff-large/8. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 9: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1229. sourceunique02 belongs to borealis-online; record handoff-large/9. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 10: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1230. sourceunique02 belongs to borealis-online; record handoff-large/10. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 11: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1231. sourceunique02 belongs to borealis-online; record handoff-large/11. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 12: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1232. sourceunique02 belongs to borealis-online; record handoff-large/12. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 13: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1233. sourceunique02 belongs to borealis-online; record handoff-large/13. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 14: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1234. sourceunique02 belongs to borealis-online; record handoff-large/14. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 15: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1235. sourceunique02 belongs to borealis-online; record handoff-large/15. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 16: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1236. sourceunique02 belongs to borealis-online; record handoff-large/16. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 17: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1237. sourceunique02 belongs to borealis-online; record handoff-large/17. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "borealis-online",
+        "project_name": "Similar kernel service",
+        "task_id": "handoff-small",
+        "task_title": "Orion handoff review",
+        "session_id": "review-01",
+        "title": "Orion handoff detail",
+        "created_at": "2026-11-04T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1230. sourceunique02 belongs to borealis-online; record handoff-small/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "borealis-online",
+        "project_name": "Similar kernel service",
+        "task_id": "maintenance",
+        "task_title": "Routine tasks",
+        "session_id": "component-review",
+        "title": "ZebraCacheInvalidator notes",
+        "created_at": "2026-11-05T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1240. sourceunique02 belongs to borealis-online; record maintenance/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "borealis-online",
+        "project_name": "Similar kernel service",
+        "task_id": "inspection",
+        "task_title": "Inspection notes",
+        "session_id": "index-audit",
+        "title": "Record handoff",
+        "created_at": "2026-11-06T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Where was the DeltaCursorWindow boundary discussed?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1250. sourceunique02 belongs to borealis-online; record inspection/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "borealis-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "retry",
+        "task_title": "HTTPRetryPolicy rollout",
+        "session_id": "design-note",
+        "title": "HTTPRetryPolicy handoff",
+        "created_at": "2026-11-01T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1300. sourceunique03 belongs to borealis-batch; record retry/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "borealis-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "optimizer",
+        "task_title": "训练流水线优化器配置",
+        "session_id": "review-note",
+        "title": "优化器状态复核",
+        "created_at": "2026-11-02T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1310. sourceunique03 belongs to borealis-batch; record optimizer/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "borealis-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "handoff-large",
+        "task_title": "Orion handoff archive",
+        "session_id": "archive-01",
+        "title": "Orion handoff detail",
+        "created_at": "2026-11-03T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1320. sourceunique03 belongs to borealis-batch; record handoff-large/0. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 1: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1321. sourceunique03 belongs to borealis-batch; record handoff-large/1. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 2: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1322. sourceunique03 belongs to borealis-batch; record handoff-large/2. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 3: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1323. sourceunique03 belongs to borealis-batch; record handoff-large/3. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 4: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1324. sourceunique03 belongs to borealis-batch; record handoff-large/4. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 5: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1325. sourceunique03 belongs to borealis-batch; record handoff-large/5. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 6: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1326. sourceunique03 belongs to borealis-batch; record handoff-large/6. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 7: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1327. sourceunique03 belongs to borealis-batch; record handoff-large/7. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 8: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1328. sourceunique03 belongs to borealis-batch; record handoff-large/8. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 9: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1329. sourceunique03 belongs to borealis-batch; record handoff-large/9. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 10: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1330. sourceunique03 belongs to borealis-batch; record handoff-large/10. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 11: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1331. sourceunique03 belongs to borealis-batch; record handoff-large/11. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 12: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1332. sourceunique03 belongs to borealis-batch; record handoff-large/12. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 13: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1333. sourceunique03 belongs to borealis-batch; record handoff-large/13. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 14: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1334. sourceunique03 belongs to borealis-batch; record handoff-large/14. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 15: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1335. sourceunique03 belongs to borealis-batch; record handoff-large/15. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 16: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1336. sourceunique03 belongs to borealis-batch; record handoff-large/16. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 17: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1337. sourceunique03 belongs to borealis-batch; record handoff-large/17. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "borealis-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "handoff-small",
+        "task_title": "Orion handoff review",
+        "session_id": "review-01",
+        "title": "Orion handoff detail",
+        "created_at": "2026-11-04T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1330. sourceunique03 belongs to borealis-batch; record handoff-small/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "borealis-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "maintenance",
+        "task_title": "Routine tasks",
+        "session_id": "component-review",
+        "title": "ZebraCacheInvalidator notes",
+        "created_at": "2026-11-05T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1340. sourceunique03 belongs to borealis-batch; record maintenance/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "borealis-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "inspection",
+        "task_title": "Inspection notes",
+        "session_id": "index-audit",
+        "title": "Record handoff",
+        "created_at": "2026-11-06T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Where was the DeltaCursorWindow boundary discussed?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1350. sourceunique03 belongs to borealis-batch; record inspection/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "cirrus-online",
+        "project_name": "Similar kernel service",
+        "task_id": "retry",
+        "task_title": "HTTPRetryPolicy rollout",
+        "session_id": "design-note",
+        "title": "HTTPRetryPolicy handoff",
+        "created_at": "2026-11-01T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1400. sourceunique04 belongs to cirrus-online; record retry/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "cirrus-online",
+        "project_name": "Similar kernel service",
+        "task_id": "optimizer",
+        "task_title": "训练流水线优化器配置",
+        "session_id": "review-note",
+        "title": "优化器状态复核",
+        "created_at": "2026-11-02T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1410. sourceunique04 belongs to cirrus-online; record optimizer/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "cirrus-online",
+        "project_name": "Similar kernel service",
+        "task_id": "handoff-large",
+        "task_title": "Orion handoff archive",
+        "session_id": "archive-01",
+        "title": "Orion handoff detail",
+        "created_at": "2026-11-03T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1420. sourceunique04 belongs to cirrus-online; record handoff-large/0. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 1: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1421. sourceunique04 belongs to cirrus-online; record handoff-large/1. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 2: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1422. sourceunique04 belongs to cirrus-online; record handoff-large/2. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 3: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1423. sourceunique04 belongs to cirrus-online; record handoff-large/3. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 4: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1424. sourceunique04 belongs to cirrus-online; record handoff-large/4. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 5: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1425. sourceunique04 belongs to cirrus-online; record handoff-large/5. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 6: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1426. sourceunique04 belongs to cirrus-online; record handoff-large/6. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 7: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1427. sourceunique04 belongs to cirrus-online; record handoff-large/7. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 8: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1428. sourceunique04 belongs to cirrus-online; record handoff-large/8. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 9: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1429. sourceunique04 belongs to cirrus-online; record handoff-large/9. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 10: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1430. sourceunique04 belongs to cirrus-online; record handoff-large/10. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 11: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1431. sourceunique04 belongs to cirrus-online; record handoff-large/11. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 12: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1432. sourceunique04 belongs to cirrus-online; record handoff-large/12. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 13: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1433. sourceunique04 belongs to cirrus-online; record handoff-large/13. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 14: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1434. sourceunique04 belongs to cirrus-online; record handoff-large/14. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 15: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1435. sourceunique04 belongs to cirrus-online; record handoff-large/15. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 16: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1436. sourceunique04 belongs to cirrus-online; record handoff-large/16. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 17: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1437. sourceunique04 belongs to cirrus-online; record handoff-large/17. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "cirrus-online",
+        "project_name": "Similar kernel service",
+        "task_id": "handoff-small",
+        "task_title": "Orion handoff review",
+        "session_id": "review-01",
+        "title": "Orion handoff detail",
+        "created_at": "2026-11-04T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1430. sourceunique04 belongs to cirrus-online; record handoff-small/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "cirrus-online",
+        "project_name": "Similar kernel service",
+        "task_id": "maintenance",
+        "task_title": "Routine tasks",
+        "session_id": "component-review",
+        "title": "ZebraCacheInvalidator notes",
+        "created_at": "2026-11-05T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1440. sourceunique04 belongs to cirrus-online; record maintenance/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "cirrus-online",
+        "project_name": "Similar kernel service",
+        "task_id": "inspection",
+        "task_title": "Inspection notes",
+        "session_id": "index-audit",
+        "title": "Record handoff",
+        "created_at": "2026-11-06T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Where was the DeltaCursorWindow boundary discussed?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1450. sourceunique04 belongs to cirrus-online; record inspection/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "cirrus-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "retry",
+        "task_title": "HTTPRetryPolicy rollout",
+        "session_id": "design-note",
+        "title": "HTTPRetryPolicy handoff",
+        "created_at": "2026-11-01T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1500. sourceunique05 belongs to cirrus-batch; record retry/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "cirrus-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "optimizer",
+        "task_title": "训练流水线优化器配置",
+        "session_id": "review-note",
+        "title": "优化器状态复核",
+        "created_at": "2026-11-02T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1510. sourceunique05 belongs to cirrus-batch; record optimizer/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "cirrus-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "handoff-large",
+        "task_title": "Orion handoff archive",
+        "session_id": "archive-01",
+        "title": "Orion handoff detail",
+        "created_at": "2026-11-03T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1520. sourceunique05 belongs to cirrus-batch; record handoff-large/0. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 1: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1521. sourceunique05 belongs to cirrus-batch; record handoff-large/1. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 2: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1522. sourceunique05 belongs to cirrus-batch; record handoff-large/2. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 3: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1523. sourceunique05 belongs to cirrus-batch; record handoff-large/3. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 4: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1524. sourceunique05 belongs to cirrus-batch; record handoff-large/4. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 5: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1525. sourceunique05 belongs to cirrus-batch; record handoff-large/5. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 6: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1526. sourceunique05 belongs to cirrus-batch; record handoff-large/6. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 7: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1527. sourceunique05 belongs to cirrus-batch; record handoff-large/7. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 8: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1528. sourceunique05 belongs to cirrus-batch; record handoff-large/8. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 9: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1529. sourceunique05 belongs to cirrus-batch; record handoff-large/9. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 10: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1530. sourceunique05 belongs to cirrus-batch; record handoff-large/10. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 11: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1531. sourceunique05 belongs to cirrus-batch; record handoff-large/11. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 12: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1532. sourceunique05 belongs to cirrus-batch; record handoff-large/12. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 13: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1533. sourceunique05 belongs to cirrus-batch; record handoff-large/13. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 14: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1534. sourceunique05 belongs to cirrus-batch; record handoff-large/14. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 15: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1535. sourceunique05 belongs to cirrus-batch; record handoff-large/15. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 16: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1536. sourceunique05 belongs to cirrus-batch; record handoff-large/16. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 17: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1537. sourceunique05 belongs to cirrus-batch; record handoff-large/17. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "cirrus-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "handoff-small",
+        "task_title": "Orion handoff review",
+        "session_id": "review-01",
+        "title": "Orion handoff detail",
+        "created_at": "2026-11-04T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1530. sourceunique05 belongs to cirrus-batch; record handoff-small/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "cirrus-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "maintenance",
+        "task_title": "Routine tasks",
+        "session_id": "component-review",
+        "title": "ZebraCacheInvalidator notes",
+        "created_at": "2026-11-05T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1540. sourceunique05 belongs to cirrus-batch; record maintenance/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "cirrus-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "inspection",
+        "task_title": "Inspection notes",
+        "session_id": "index-audit",
+        "title": "Record handoff",
+        "created_at": "2026-11-06T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Where was the DeltaCursorWindow boundary discussed?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1550. sourceunique05 belongs to cirrus-batch; record inspection/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "delta-online",
+        "project_name": "Similar kernel service",
+        "task_id": "retry",
+        "task_title": "HTTPRetryPolicy rollout",
+        "session_id": "design-note",
+        "title": "HTTPRetryPolicy handoff",
+        "created_at": "2026-11-01T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1600. sourceunique06 belongs to delta-online; record retry/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "delta-online",
+        "project_name": "Similar kernel service",
+        "task_id": "optimizer",
+        "task_title": "训练流水线优化器配置",
+        "session_id": "review-note",
+        "title": "优化器状态复核",
+        "created_at": "2026-11-02T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1610. sourceunique06 belongs to delta-online; record optimizer/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "delta-online",
+        "project_name": "Similar kernel service",
+        "task_id": "handoff-large",
+        "task_title": "Orion handoff archive",
+        "session_id": "archive-01",
+        "title": "Orion handoff detail",
+        "created_at": "2026-11-03T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1620. sourceunique06 belongs to delta-online; record handoff-large/0. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 1: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1621. sourceunique06 belongs to delta-online; record handoff-large/1. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 2: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1622. sourceunique06 belongs to delta-online; record handoff-large/2. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 3: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1623. sourceunique06 belongs to delta-online; record handoff-large/3. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 4: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1624. sourceunique06 belongs to delta-online; record handoff-large/4. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 5: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1625. sourceunique06 belongs to delta-online; record handoff-large/5. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 6: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1626. sourceunique06 belongs to delta-online; record handoff-large/6. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 7: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1627. sourceunique06 belongs to delta-online; record handoff-large/7. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 8: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1628. sourceunique06 belongs to delta-online; record handoff-large/8. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 9: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1629. sourceunique06 belongs to delta-online; record handoff-large/9. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 10: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1630. sourceunique06 belongs to delta-online; record handoff-large/10. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 11: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1631. sourceunique06 belongs to delta-online; record handoff-large/11. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 12: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1632. sourceunique06 belongs to delta-online; record handoff-large/12. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 13: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1633. sourceunique06 belongs to delta-online; record handoff-large/13. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 14: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1634. sourceunique06 belongs to delta-online; record handoff-large/14. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 15: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1635. sourceunique06 belongs to delta-online; record handoff-large/15. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 16: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1636. sourceunique06 belongs to delta-online; record handoff-large/16. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 17: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1637. sourceunique06 belongs to delta-online; record handoff-large/17. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "delta-online",
+        "project_name": "Similar kernel service",
+        "task_id": "handoff-small",
+        "task_title": "Orion handoff review",
+        "session_id": "review-01",
+        "title": "Orion handoff detail",
+        "created_at": "2026-11-04T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1630. sourceunique06 belongs to delta-online; record handoff-small/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "delta-online",
+        "project_name": "Similar kernel service",
+        "task_id": "maintenance",
+        "task_title": "Routine tasks",
+        "session_id": "component-review",
+        "title": "ZebraCacheInvalidator notes",
+        "created_at": "2026-11-05T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1640. sourceunique06 belongs to delta-online; record maintenance/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "delta-online",
+        "project_name": "Similar kernel service",
+        "task_id": "inspection",
+        "task_title": "Inspection notes",
+        "session_id": "index-audit",
+        "title": "Record handoff",
+        "created_at": "2026-11-06T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Where was the DeltaCursorWindow boundary discussed?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1650. sourceunique06 belongs to delta-online; record inspection/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "delta-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "retry",
+        "task_title": "HTTPRetryPolicy rollout",
+        "session_id": "design-note",
+        "title": "HTTPRetryPolicy handoff",
+        "created_at": "2026-11-01T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1700. sourceunique07 belongs to delta-batch; record retry/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "delta-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "optimizer",
+        "task_title": "训练流水线优化器配置",
+        "session_id": "review-note",
+        "title": "优化器状态复核",
+        "created_at": "2026-11-02T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1710. sourceunique07 belongs to delta-batch; record optimizer/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "delta-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "handoff-large",
+        "task_title": "Orion handoff archive",
+        "session_id": "archive-01",
+        "title": "Orion handoff detail",
+        "created_at": "2026-11-03T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1720. sourceunique07 belongs to delta-batch; record handoff-large/0. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 1: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1721. sourceunique07 belongs to delta-batch; record handoff-large/1. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 2: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1722. sourceunique07 belongs to delta-batch; record handoff-large/2. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 3: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1723. sourceunique07 belongs to delta-batch; record handoff-large/3. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 4: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1724. sourceunique07 belongs to delta-batch; record handoff-large/4. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 5: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1725. sourceunique07 belongs to delta-batch; record handoff-large/5. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 6: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1726. sourceunique07 belongs to delta-batch; record handoff-large/6. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 7: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1727. sourceunique07 belongs to delta-batch; record handoff-large/7. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 8: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1728. sourceunique07 belongs to delta-batch; record handoff-large/8. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 9: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1729. sourceunique07 belongs to delta-batch; record handoff-large/9. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 10: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1730. sourceunique07 belongs to delta-batch; record handoff-large/10. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 11: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1731. sourceunique07 belongs to delta-batch; record handoff-large/11. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 12: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1732. sourceunique07 belongs to delta-batch; record handoff-large/12. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 13: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1733. sourceunique07 belongs to delta-batch; record handoff-large/13. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 14: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1734. sourceunique07 belongs to delta-batch; record handoff-large/14. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 15: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1735. sourceunique07 belongs to delta-batch; record handoff-large/15. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 16: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1736. sourceunique07 belongs to delta-batch; record handoff-large/16. Preserve this exact value for the named archive."
+          },
+          {
+            "role": "user",
+            "content": "Resume checkpoint 17: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1737. sourceunique07 belongs to delta-batch; record handoff-large/17. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "delta-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "handoff-small",
+        "task_title": "Orion handoff review",
+        "session_id": "review-01",
+        "title": "Orion handoff detail",
+        "created_at": "2026-11-04T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1730. sourceunique07 belongs to delta-batch; record handoff-small/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "delta-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "maintenance",
+        "task_title": "Routine tasks",
+        "session_id": "component-review",
+        "title": "ZebraCacheInvalidator notes",
+        "created_at": "2026-11-05T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Resume checkpoint 0: which setting was recorded?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1740. sourceunique07 belongs to delta-batch; record maintenance/0. Preserve this exact value for the named archive."
+          }
+        ]
+      },
+      {
+        "project": "delta-batch",
+        "project_name": "Similar kernel service",
+        "task_id": "inspection",
+        "task_title": "Inspection notes",
+        "session_id": "index-audit",
+        "title": "Record handoff",
+        "created_at": "2026-11-06T08:00:00Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Where was the DeltaCursorWindow boundary discussed?"
+          },
+          {
+            "role": "assistant",
+            "content": "Approved setting is 1750. sourceunique07 belongs to delta-batch; record inspection/0. Preserve this exact value for the named archive."
+          }
+        ]
+      }
+    ],
+    "cases": [
+      {
+        "id": "atlas-online:identifier_words",
+        "category": "identifier_words",
+        "request": {
+          "query": "HTTP retry policy",
+          "project": "atlas-online",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "atlas-online",
+            "retry"
+          ]
+        ]
+      },
+      {
+        "id": "atlas-online:identifier_alias",
+        "category": "identifier_alias",
+        "request": {
+          "query": "http_retry_policy",
+          "project": "atlas-online",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "atlas-online",
+            "retry"
+          ]
+        ]
+      },
+      {
+        "id": "atlas-online:chinese_directory",
+        "category": "chinese_directory",
+        "request": {
+          "query": "训练流水线",
+          "project": "atlas-online",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "atlas-online",
+            "optimizer"
+          ]
+        ]
+      },
+      {
+        "id": "atlas-online:session_title",
+        "category": "session_title",
+        "request": {
+          "query": "ZebraCacheInvalidator",
+          "project": "atlas-online",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "atlas-online",
+            "maintenance"
+          ]
+        ]
+      },
+      {
+        "id": "atlas-online:question_metadata",
+        "category": "question_metadata",
+        "request": {
+          "query": "DeltaCursorWindow",
+          "project": "atlas-online",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "atlas-online",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "id": "atlas-online:chapter_pagination",
+        "category": "chapter_pagination",
+        "request": {
+          "query": "Orion",
+          "project": "atlas-online",
+          "limit": 1
+        },
+        "paginate": true,
+        "expected_chapters": [
+          [
+            "atlas-online",
+            "handoff-large"
+          ],
+          [
+            "atlas-online",
+            "handoff-small"
+          ]
+        ]
+      },
+      {
+        "id": "atlas-online:chapter_scope",
+        "category": "chapter_scope",
+        "request": {
+          "query": "Orion",
+          "project": "atlas-online",
+          "chapter_ref": [
+            "atlas-online",
+            "handoff-small"
+          ],
+          "limit": 1
+        },
+        "expected_chapters": [
+          [
+            "atlas-online",
+            "handoff-small"
+          ]
+        ]
+      },
+      {
+        "id": "atlas-online:unknown_project",
+        "category": "unknown_project",
+        "request": {
+          "query": "Orion",
+          "project": "atlas-online-missing"
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "atlas-online:conflicting_chapter",
+        "category": "conflicting_chapter",
+        "request": {
+          "query": "Orion",
+          "project": "atlas-online",
+          "chapter_ref": [
+            "atlas-batch",
+            "handoff-small"
+          ]
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "atlas-online:nonexact_project",
+        "category": "nonexact_project",
+        "request": {
+          "query": "Orion",
+          "project": "atlas-online "
+        },
+        "expected_error": "ValueError"
+      },
+      {
+        "id": "atlas-online:unknown_chapter",
+        "category": "unknown_chapter",
+        "request": {
+          "query": "Orion",
+          "project": "atlas-online",
+          "chapter": "missing-chapter"
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "atlas-online:partial_metadata_match",
+        "category": "partial_metadata_match",
+        "request": {
+          "query": "NeverIndexedQuasarBoundary",
+          "project": "atlas-online"
+        },
+        "expected_chapters": [
+          [
+            "atlas-online",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "id": "atlas-online:body_only",
+        "category": "body_only",
+        "request": {
+          "query": "sourceunique00",
+          "project": "atlas-online"
+        },
+        "expected_chapters": []
+      },
+      {
+        "id": "atlas-batch:identifier_words",
+        "category": "identifier_words",
+        "request": {
+          "query": "HTTP retry policy",
+          "project": "atlas-batch",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "atlas-batch",
+            "retry"
+          ]
+        ]
+      },
+      {
+        "id": "atlas-batch:identifier_alias",
+        "category": "identifier_alias",
+        "request": {
+          "query": "http_retry_policy",
+          "project": "atlas-batch",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "atlas-batch",
+            "retry"
+          ]
+        ]
+      },
+      {
+        "id": "atlas-batch:chinese_directory",
+        "category": "chinese_directory",
+        "request": {
+          "query": "训练流水线",
+          "project": "atlas-batch",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "atlas-batch",
+            "optimizer"
+          ]
+        ]
+      },
+      {
+        "id": "atlas-batch:session_title",
+        "category": "session_title",
+        "request": {
+          "query": "ZebraCacheInvalidator",
+          "project": "atlas-batch",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "atlas-batch",
+            "maintenance"
+          ]
+        ]
+      },
+      {
+        "id": "atlas-batch:question_metadata",
+        "category": "question_metadata",
+        "request": {
+          "query": "DeltaCursorWindow",
+          "project": "atlas-batch",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "atlas-batch",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "id": "atlas-batch:chapter_pagination",
+        "category": "chapter_pagination",
+        "request": {
+          "query": "Orion",
+          "project": "atlas-batch",
+          "limit": 1
+        },
+        "paginate": true,
+        "expected_chapters": [
+          [
+            "atlas-batch",
+            "handoff-large"
+          ],
+          [
+            "atlas-batch",
+            "handoff-small"
+          ]
+        ]
+      },
+      {
+        "id": "atlas-batch:chapter_scope",
+        "category": "chapter_scope",
+        "request": {
+          "query": "Orion",
+          "project": "atlas-batch",
+          "chapter_ref": [
+            "atlas-batch",
+            "handoff-small"
+          ],
+          "limit": 1
+        },
+        "expected_chapters": [
+          [
+            "atlas-batch",
+            "handoff-small"
+          ]
+        ]
+      },
+      {
+        "id": "atlas-batch:unknown_project",
+        "category": "unknown_project",
+        "request": {
+          "query": "Orion",
+          "project": "atlas-batch-missing"
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "atlas-batch:conflicting_chapter",
+        "category": "conflicting_chapter",
+        "request": {
+          "query": "Orion",
+          "project": "atlas-batch",
+          "chapter_ref": [
+            "borealis-online",
+            "handoff-small"
+          ]
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "atlas-batch:nonexact_project",
+        "category": "nonexact_project",
+        "request": {
+          "query": "Orion",
+          "project": "atlas-batch "
+        },
+        "expected_error": "ValueError"
+      },
+      {
+        "id": "atlas-batch:unknown_chapter",
+        "category": "unknown_chapter",
+        "request": {
+          "query": "Orion",
+          "project": "atlas-batch",
+          "chapter": "missing-chapter"
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "atlas-batch:partial_metadata_match",
+        "category": "partial_metadata_match",
+        "request": {
+          "query": "NeverIndexedQuasarBoundary",
+          "project": "atlas-batch"
+        },
+        "expected_chapters": [
+          [
+            "atlas-batch",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "id": "atlas-batch:body_only",
+        "category": "body_only",
+        "request": {
+          "query": "sourceunique01",
+          "project": "atlas-batch"
+        },
+        "expected_chapters": []
+      },
+      {
+        "id": "borealis-online:identifier_words",
+        "category": "identifier_words",
+        "request": {
+          "query": "HTTP retry policy",
+          "project": "borealis-online",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "borealis-online",
+            "retry"
+          ]
+        ]
+      },
+      {
+        "id": "borealis-online:identifier_alias",
+        "category": "identifier_alias",
+        "request": {
+          "query": "http_retry_policy",
+          "project": "borealis-online",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "borealis-online",
+            "retry"
+          ]
+        ]
+      },
+      {
+        "id": "borealis-online:chinese_directory",
+        "category": "chinese_directory",
+        "request": {
+          "query": "训练流水线",
+          "project": "borealis-online",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "borealis-online",
+            "optimizer"
+          ]
+        ]
+      },
+      {
+        "id": "borealis-online:session_title",
+        "category": "session_title",
+        "request": {
+          "query": "ZebraCacheInvalidator",
+          "project": "borealis-online",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "borealis-online",
+            "maintenance"
+          ]
+        ]
+      },
+      {
+        "id": "borealis-online:question_metadata",
+        "category": "question_metadata",
+        "request": {
+          "query": "DeltaCursorWindow",
+          "project": "borealis-online",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "borealis-online",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "id": "borealis-online:chapter_pagination",
+        "category": "chapter_pagination",
+        "request": {
+          "query": "Orion",
+          "project": "borealis-online",
+          "limit": 1
+        },
+        "paginate": true,
+        "expected_chapters": [
+          [
+            "borealis-online",
+            "handoff-large"
+          ],
+          [
+            "borealis-online",
+            "handoff-small"
+          ]
+        ]
+      },
+      {
+        "id": "borealis-online:chapter_scope",
+        "category": "chapter_scope",
+        "request": {
+          "query": "Orion",
+          "project": "borealis-online",
+          "chapter_ref": [
+            "borealis-online",
+            "handoff-small"
+          ],
+          "limit": 1
+        },
+        "expected_chapters": [
+          [
+            "borealis-online",
+            "handoff-small"
+          ]
+        ]
+      },
+      {
+        "id": "borealis-online:unknown_project",
+        "category": "unknown_project",
+        "request": {
+          "query": "Orion",
+          "project": "borealis-online-missing"
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "borealis-online:conflicting_chapter",
+        "category": "conflicting_chapter",
+        "request": {
+          "query": "Orion",
+          "project": "borealis-online",
+          "chapter_ref": [
+            "borealis-batch",
+            "handoff-small"
+          ]
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "borealis-online:nonexact_project",
+        "category": "nonexact_project",
+        "request": {
+          "query": "Orion",
+          "project": "borealis-online "
+        },
+        "expected_error": "ValueError"
+      },
+      {
+        "id": "borealis-online:unknown_chapter",
+        "category": "unknown_chapter",
+        "request": {
+          "query": "Orion",
+          "project": "borealis-online",
+          "chapter": "missing-chapter"
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "borealis-online:partial_metadata_match",
+        "category": "partial_metadata_match",
+        "request": {
+          "query": "NeverIndexedQuasarBoundary",
+          "project": "borealis-online"
+        },
+        "expected_chapters": [
+          [
+            "borealis-online",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "id": "borealis-online:body_only",
+        "category": "body_only",
+        "request": {
+          "query": "sourceunique02",
+          "project": "borealis-online"
+        },
+        "expected_chapters": []
+      },
+      {
+        "id": "borealis-batch:identifier_words",
+        "category": "identifier_words",
+        "request": {
+          "query": "HTTP retry policy",
+          "project": "borealis-batch",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "borealis-batch",
+            "retry"
+          ]
+        ]
+      },
+      {
+        "id": "borealis-batch:identifier_alias",
+        "category": "identifier_alias",
+        "request": {
+          "query": "http_retry_policy",
+          "project": "borealis-batch",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "borealis-batch",
+            "retry"
+          ]
+        ]
+      },
+      {
+        "id": "borealis-batch:chinese_directory",
+        "category": "chinese_directory",
+        "request": {
+          "query": "训练流水线",
+          "project": "borealis-batch",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "borealis-batch",
+            "optimizer"
+          ]
+        ]
+      },
+      {
+        "id": "borealis-batch:session_title",
+        "category": "session_title",
+        "request": {
+          "query": "ZebraCacheInvalidator",
+          "project": "borealis-batch",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "borealis-batch",
+            "maintenance"
+          ]
+        ]
+      },
+      {
+        "id": "borealis-batch:question_metadata",
+        "category": "question_metadata",
+        "request": {
+          "query": "DeltaCursorWindow",
+          "project": "borealis-batch",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "borealis-batch",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "id": "borealis-batch:chapter_pagination",
+        "category": "chapter_pagination",
+        "request": {
+          "query": "Orion",
+          "project": "borealis-batch",
+          "limit": 1
+        },
+        "paginate": true,
+        "expected_chapters": [
+          [
+            "borealis-batch",
+            "handoff-large"
+          ],
+          [
+            "borealis-batch",
+            "handoff-small"
+          ]
+        ]
+      },
+      {
+        "id": "borealis-batch:chapter_scope",
+        "category": "chapter_scope",
+        "request": {
+          "query": "Orion",
+          "project": "borealis-batch",
+          "chapter_ref": [
+            "borealis-batch",
+            "handoff-small"
+          ],
+          "limit": 1
+        },
+        "expected_chapters": [
+          [
+            "borealis-batch",
+            "handoff-small"
+          ]
+        ]
+      },
+      {
+        "id": "borealis-batch:unknown_project",
+        "category": "unknown_project",
+        "request": {
+          "query": "Orion",
+          "project": "borealis-batch-missing"
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "borealis-batch:conflicting_chapter",
+        "category": "conflicting_chapter",
+        "request": {
+          "query": "Orion",
+          "project": "borealis-batch",
+          "chapter_ref": [
+            "cirrus-online",
+            "handoff-small"
+          ]
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "borealis-batch:nonexact_project",
+        "category": "nonexact_project",
+        "request": {
+          "query": "Orion",
+          "project": "borealis-batch "
+        },
+        "expected_error": "ValueError"
+      },
+      {
+        "id": "borealis-batch:unknown_chapter",
+        "category": "unknown_chapter",
+        "request": {
+          "query": "Orion",
+          "project": "borealis-batch",
+          "chapter": "missing-chapter"
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "borealis-batch:partial_metadata_match",
+        "category": "partial_metadata_match",
+        "request": {
+          "query": "NeverIndexedQuasarBoundary",
+          "project": "borealis-batch"
+        },
+        "expected_chapters": [
+          [
+            "borealis-batch",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "id": "borealis-batch:body_only",
+        "category": "body_only",
+        "request": {
+          "query": "sourceunique03",
+          "project": "borealis-batch"
+        },
+        "expected_chapters": []
+      },
+      {
+        "id": "cirrus-online:identifier_words",
+        "category": "identifier_words",
+        "request": {
+          "query": "HTTP retry policy",
+          "project": "cirrus-online",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "cirrus-online",
+            "retry"
+          ]
+        ]
+      },
+      {
+        "id": "cirrus-online:identifier_alias",
+        "category": "identifier_alias",
+        "request": {
+          "query": "http_retry_policy",
+          "project": "cirrus-online",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "cirrus-online",
+            "retry"
+          ]
+        ]
+      },
+      {
+        "id": "cirrus-online:chinese_directory",
+        "category": "chinese_directory",
+        "request": {
+          "query": "训练流水线",
+          "project": "cirrus-online",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "cirrus-online",
+            "optimizer"
+          ]
+        ]
+      },
+      {
+        "id": "cirrus-online:session_title",
+        "category": "session_title",
+        "request": {
+          "query": "ZebraCacheInvalidator",
+          "project": "cirrus-online",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "cirrus-online",
+            "maintenance"
+          ]
+        ]
+      },
+      {
+        "id": "cirrus-online:question_metadata",
+        "category": "question_metadata",
+        "request": {
+          "query": "DeltaCursorWindow",
+          "project": "cirrus-online",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "cirrus-online",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "id": "cirrus-online:chapter_pagination",
+        "category": "chapter_pagination",
+        "request": {
+          "query": "Orion",
+          "project": "cirrus-online",
+          "limit": 1
+        },
+        "paginate": true,
+        "expected_chapters": [
+          [
+            "cirrus-online",
+            "handoff-large"
+          ],
+          [
+            "cirrus-online",
+            "handoff-small"
+          ]
+        ]
+      },
+      {
+        "id": "cirrus-online:chapter_scope",
+        "category": "chapter_scope",
+        "request": {
+          "query": "Orion",
+          "project": "cirrus-online",
+          "chapter_ref": [
+            "cirrus-online",
+            "handoff-small"
+          ],
+          "limit": 1
+        },
+        "expected_chapters": [
+          [
+            "cirrus-online",
+            "handoff-small"
+          ]
+        ]
+      },
+      {
+        "id": "cirrus-online:unknown_project",
+        "category": "unknown_project",
+        "request": {
+          "query": "Orion",
+          "project": "cirrus-online-missing"
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "cirrus-online:conflicting_chapter",
+        "category": "conflicting_chapter",
+        "request": {
+          "query": "Orion",
+          "project": "cirrus-online",
+          "chapter_ref": [
+            "cirrus-batch",
+            "handoff-small"
+          ]
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "cirrus-online:nonexact_project",
+        "category": "nonexact_project",
+        "request": {
+          "query": "Orion",
+          "project": "cirrus-online "
+        },
+        "expected_error": "ValueError"
+      },
+      {
+        "id": "cirrus-online:unknown_chapter",
+        "category": "unknown_chapter",
+        "request": {
+          "query": "Orion",
+          "project": "cirrus-online",
+          "chapter": "missing-chapter"
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "cirrus-online:partial_metadata_match",
+        "category": "partial_metadata_match",
+        "request": {
+          "query": "NeverIndexedQuasarBoundary",
+          "project": "cirrus-online"
+        },
+        "expected_chapters": [
+          [
+            "cirrus-online",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "id": "cirrus-online:body_only",
+        "category": "body_only",
+        "request": {
+          "query": "sourceunique04",
+          "project": "cirrus-online"
+        },
+        "expected_chapters": []
+      },
+      {
+        "id": "cirrus-batch:identifier_words",
+        "category": "identifier_words",
+        "request": {
+          "query": "HTTP retry policy",
+          "project": "cirrus-batch",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "cirrus-batch",
+            "retry"
+          ]
+        ]
+      },
+      {
+        "id": "cirrus-batch:identifier_alias",
+        "category": "identifier_alias",
+        "request": {
+          "query": "http_retry_policy",
+          "project": "cirrus-batch",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "cirrus-batch",
+            "retry"
+          ]
+        ]
+      },
+      {
+        "id": "cirrus-batch:chinese_directory",
+        "category": "chinese_directory",
+        "request": {
+          "query": "训练流水线",
+          "project": "cirrus-batch",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "cirrus-batch",
+            "optimizer"
+          ]
+        ]
+      },
+      {
+        "id": "cirrus-batch:session_title",
+        "category": "session_title",
+        "request": {
+          "query": "ZebraCacheInvalidator",
+          "project": "cirrus-batch",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "cirrus-batch",
+            "maintenance"
+          ]
+        ]
+      },
+      {
+        "id": "cirrus-batch:question_metadata",
+        "category": "question_metadata",
+        "request": {
+          "query": "DeltaCursorWindow",
+          "project": "cirrus-batch",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "cirrus-batch",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "id": "cirrus-batch:chapter_pagination",
+        "category": "chapter_pagination",
+        "request": {
+          "query": "Orion",
+          "project": "cirrus-batch",
+          "limit": 1
+        },
+        "paginate": true,
+        "expected_chapters": [
+          [
+            "cirrus-batch",
+            "handoff-large"
+          ],
+          [
+            "cirrus-batch",
+            "handoff-small"
+          ]
+        ]
+      },
+      {
+        "id": "cirrus-batch:chapter_scope",
+        "category": "chapter_scope",
+        "request": {
+          "query": "Orion",
+          "project": "cirrus-batch",
+          "chapter_ref": [
+            "cirrus-batch",
+            "handoff-small"
+          ],
+          "limit": 1
+        },
+        "expected_chapters": [
+          [
+            "cirrus-batch",
+            "handoff-small"
+          ]
+        ]
+      },
+      {
+        "id": "cirrus-batch:unknown_project",
+        "category": "unknown_project",
+        "request": {
+          "query": "Orion",
+          "project": "cirrus-batch-missing"
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "cirrus-batch:conflicting_chapter",
+        "category": "conflicting_chapter",
+        "request": {
+          "query": "Orion",
+          "project": "cirrus-batch",
+          "chapter_ref": [
+            "delta-online",
+            "handoff-small"
+          ]
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "cirrus-batch:nonexact_project",
+        "category": "nonexact_project",
+        "request": {
+          "query": "Orion",
+          "project": "cirrus-batch "
+        },
+        "expected_error": "ValueError"
+      },
+      {
+        "id": "cirrus-batch:unknown_chapter",
+        "category": "unknown_chapter",
+        "request": {
+          "query": "Orion",
+          "project": "cirrus-batch",
+          "chapter": "missing-chapter"
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "cirrus-batch:partial_metadata_match",
+        "category": "partial_metadata_match",
+        "request": {
+          "query": "NeverIndexedQuasarBoundary",
+          "project": "cirrus-batch"
+        },
+        "expected_chapters": [
+          [
+            "cirrus-batch",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "id": "cirrus-batch:body_only",
+        "category": "body_only",
+        "request": {
+          "query": "sourceunique05",
+          "project": "cirrus-batch"
+        },
+        "expected_chapters": []
+      },
+      {
+        "id": "delta-online:identifier_words",
+        "category": "identifier_words",
+        "request": {
+          "query": "HTTP retry policy",
+          "project": "delta-online",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "delta-online",
+            "retry"
+          ]
+        ]
+      },
+      {
+        "id": "delta-online:identifier_alias",
+        "category": "identifier_alias",
+        "request": {
+          "query": "http_retry_policy",
+          "project": "delta-online",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "delta-online",
+            "retry"
+          ]
+        ]
+      },
+      {
+        "id": "delta-online:chinese_directory",
+        "category": "chinese_directory",
+        "request": {
+          "query": "训练流水线",
+          "project": "delta-online",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "delta-online",
+            "optimizer"
+          ]
+        ]
+      },
+      {
+        "id": "delta-online:session_title",
+        "category": "session_title",
+        "request": {
+          "query": "ZebraCacheInvalidator",
+          "project": "delta-online",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "delta-online",
+            "maintenance"
+          ]
+        ]
+      },
+      {
+        "id": "delta-online:question_metadata",
+        "category": "question_metadata",
+        "request": {
+          "query": "DeltaCursorWindow",
+          "project": "delta-online",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "delta-online",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "id": "delta-online:chapter_pagination",
+        "category": "chapter_pagination",
+        "request": {
+          "query": "Orion",
+          "project": "delta-online",
+          "limit": 1
+        },
+        "paginate": true,
+        "expected_chapters": [
+          [
+            "delta-online",
+            "handoff-large"
+          ],
+          [
+            "delta-online",
+            "handoff-small"
+          ]
+        ]
+      },
+      {
+        "id": "delta-online:chapter_scope",
+        "category": "chapter_scope",
+        "request": {
+          "query": "Orion",
+          "project": "delta-online",
+          "chapter_ref": [
+            "delta-online",
+            "handoff-small"
+          ],
+          "limit": 1
+        },
+        "expected_chapters": [
+          [
+            "delta-online",
+            "handoff-small"
+          ]
+        ]
+      },
+      {
+        "id": "delta-online:unknown_project",
+        "category": "unknown_project",
+        "request": {
+          "query": "Orion",
+          "project": "delta-online-missing"
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "delta-online:conflicting_chapter",
+        "category": "conflicting_chapter",
+        "request": {
+          "query": "Orion",
+          "project": "delta-online",
+          "chapter_ref": [
+            "delta-batch",
+            "handoff-small"
+          ]
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "delta-online:nonexact_project",
+        "category": "nonexact_project",
+        "request": {
+          "query": "Orion",
+          "project": "delta-online "
+        },
+        "expected_error": "ValueError"
+      },
+      {
+        "id": "delta-online:unknown_chapter",
+        "category": "unknown_chapter",
+        "request": {
+          "query": "Orion",
+          "project": "delta-online",
+          "chapter": "missing-chapter"
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "delta-online:partial_metadata_match",
+        "category": "partial_metadata_match",
+        "request": {
+          "query": "NeverIndexedQuasarBoundary",
+          "project": "delta-online"
+        },
+        "expected_chapters": [
+          [
+            "delta-online",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "id": "delta-online:body_only",
+        "category": "body_only",
+        "request": {
+          "query": "sourceunique06",
+          "project": "delta-online"
+        },
+        "expected_chapters": []
+      },
+      {
+        "id": "delta-batch:identifier_words",
+        "category": "identifier_words",
+        "request": {
+          "query": "HTTP retry policy",
+          "project": "delta-batch",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "delta-batch",
+            "retry"
+          ]
+        ]
+      },
+      {
+        "id": "delta-batch:identifier_alias",
+        "category": "identifier_alias",
+        "request": {
+          "query": "http_retry_policy",
+          "project": "delta-batch",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "delta-batch",
+            "retry"
+          ]
+        ]
+      },
+      {
+        "id": "delta-batch:chinese_directory",
+        "category": "chinese_directory",
+        "request": {
+          "query": "训练流水线",
+          "project": "delta-batch",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "delta-batch",
+            "optimizer"
+          ]
+        ]
+      },
+      {
+        "id": "delta-batch:session_title",
+        "category": "session_title",
+        "request": {
+          "query": "ZebraCacheInvalidator",
+          "project": "delta-batch",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "delta-batch",
+            "maintenance"
+          ]
+        ]
+      },
+      {
+        "id": "delta-batch:question_metadata",
+        "category": "question_metadata",
+        "request": {
+          "query": "DeltaCursorWindow",
+          "project": "delta-batch",
+          "limit": 2
+        },
+        "expected_chapters": [
+          [
+            "delta-batch",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "id": "delta-batch:chapter_pagination",
+        "category": "chapter_pagination",
+        "request": {
+          "query": "Orion",
+          "project": "delta-batch",
+          "limit": 1
+        },
+        "paginate": true,
+        "expected_chapters": [
+          [
+            "delta-batch",
+            "handoff-large"
+          ],
+          [
+            "delta-batch",
+            "handoff-small"
+          ]
+        ]
+      },
+      {
+        "id": "delta-batch:chapter_scope",
+        "category": "chapter_scope",
+        "request": {
+          "query": "Orion",
+          "project": "delta-batch",
+          "chapter_ref": [
+            "delta-batch",
+            "handoff-small"
+          ],
+          "limit": 1
+        },
+        "expected_chapters": [
+          [
+            "delta-batch",
+            "handoff-small"
+          ]
+        ]
+      },
+      {
+        "id": "delta-batch:unknown_project",
+        "category": "unknown_project",
+        "request": {
+          "query": "Orion",
+          "project": "delta-batch-missing"
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "delta-batch:conflicting_chapter",
+        "category": "conflicting_chapter",
+        "request": {
+          "query": "Orion",
+          "project": "delta-batch",
+          "chapter_ref": [
+            "atlas-online",
+            "handoff-small"
+          ]
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "delta-batch:nonexact_project",
+        "category": "nonexact_project",
+        "request": {
+          "query": "Orion",
+          "project": "delta-batch "
+        },
+        "expected_error": "ValueError"
+      },
+      {
+        "id": "delta-batch:unknown_chapter",
+        "category": "unknown_chapter",
+        "request": {
+          "query": "Orion",
+          "project": "delta-batch",
+          "chapter": "missing-chapter"
+        },
+        "expected_error": "KeyError"
+      },
+      {
+        "id": "delta-batch:partial_metadata_match",
+        "category": "partial_metadata_match",
+        "request": {
+          "query": "NeverIndexedQuasarBoundary",
+          "project": "delta-batch"
+        },
+        "expected_chapters": [
+          [
+            "delta-batch",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "id": "delta-batch:body_only",
+        "category": "body_only",
+        "request": {
+          "query": "sourceunique07",
+          "project": "delta-batch"
+        },
+        "expected_chapters": []
+      },
+      {
+        "id": "unbound:chapter_pagination",
+        "category": "unbound_explicit_global",
+        "request": {
+          "query": "Orion",
+          "limit": 5
+        },
+        "paginate": true,
+        "expected_chapters": [
+          [
+            "atlas-online",
+            "handoff-large"
+          ],
+          [
+            "atlas-online",
+            "handoff-small"
+          ],
+          [
+            "atlas-batch",
+            "handoff-large"
+          ],
+          [
+            "atlas-batch",
+            "handoff-small"
+          ],
+          [
+            "borealis-online",
+            "handoff-large"
+          ],
+          [
+            "borealis-online",
+            "handoff-small"
+          ],
+          [
+            "borealis-batch",
+            "handoff-large"
+          ],
+          [
+            "borealis-batch",
+            "handoff-small"
+          ],
+          [
+            "cirrus-online",
+            "handoff-large"
+          ],
+          [
+            "cirrus-online",
+            "handoff-small"
+          ],
+          [
+            "cirrus-batch",
+            "handoff-large"
+          ],
+          [
+            "cirrus-batch",
+            "handoff-small"
+          ],
+          [
+            "delta-online",
+            "handoff-large"
+          ],
+          [
+            "delta-online",
+            "handoff-small"
+          ],
+          [
+            "delta-batch",
+            "handoff-large"
+          ],
+          [
+            "delta-batch",
+            "handoff-small"
+          ]
+        ]
+      },
+      {
+        "id": "unbound:shared_identifier",
+        "category": "unbound_explicit_global",
+        "request": {
+          "query": "HTTPRetryPolicy",
+          "limit": 100
+        },
+        "expected_chapters": [
+          [
+            "atlas-online",
+            "retry"
+          ],
+          [
+            "atlas-batch",
+            "retry"
+          ],
+          [
+            "borealis-online",
+            "retry"
+          ],
+          [
+            "borealis-batch",
+            "retry"
+          ],
+          [
+            "cirrus-online",
+            "retry"
+          ],
+          [
+            "cirrus-batch",
+            "retry"
+          ],
+          [
+            "delta-online",
+            "retry"
+          ],
+          [
+            "delta-batch",
+            "retry"
+          ]
+        ]
+      },
+      {
+        "id": "invalid:empty_project",
+        "category": "invalid_scope",
+        "request": {
+          "query": "Orion",
+          "project": ""
+        },
+        "expected_error": "ValueError"
+      },
+      {
+        "id": "invalid:empty_chapter",
+        "category": "invalid_scope",
+        "request": {
+          "query": "Orion",
+          "chapter": ""
+        },
+        "expected_error": "ValueError"
+      },
+      {
+        "id": "invalid:boolean_limit",
+        "category": "invalid_pagination",
+        "request": {
+          "query": "Orion",
+          "limit": true
+        },
+        "expected_error": "ValueError"
+      },
+      {
+        "id": "invalid:negative_offset",
+        "category": "invalid_pagination",
+        "request": {
+          "query": "Orion",
+          "offset": -1
+        },
+        "expected_error": "ValueError"
+      },
+      {
+        "id": "chapter_only:exact_address",
+        "category": "chapter_only_scope",
+        "request": {
+          "query": "Orion",
+          "chapter_ref": [
+            "atlas-online",
+            "handoff-small"
+          ]
+        },
+        "expected_chapters": [
+          [
+            "atlas-online",
+            "handoff-small"
+          ]
+        ]
+      },
+      {
+        "id": "atlas-batch:no_index_overlap",
+        "category": "unmatched_directory",
+        "request": {
+          "query": "ZirconQuasarNebulaVacuum",
+          "project": "atlas-batch"
+        },
+        "expected_chapters": []
+      },
+      {
+        "id": "atlas-online:no_index_overlap",
+        "category": "unmatched_directory",
+        "request": {
+          "query": "ZirconQuasarNebulaVacuum",
+          "project": "atlas-online"
+        },
+        "expected_chapters": []
+      },
+      {
+        "id": "borealis-batch:no_index_overlap",
+        "category": "unmatched_directory",
+        "request": {
+          "query": "ZirconQuasarNebulaVacuum",
+          "project": "borealis-batch"
+        },
+        "expected_chapters": []
+      },
+      {
+        "id": "borealis-online:no_index_overlap",
+        "category": "unmatched_directory",
+        "request": {
+          "query": "ZirconQuasarNebulaVacuum",
+          "project": "borealis-online"
+        },
+        "expected_chapters": []
+      },
+      {
+        "id": "cirrus-batch:no_index_overlap",
+        "category": "unmatched_directory",
+        "request": {
+          "query": "ZirconQuasarNebulaVacuum",
+          "project": "cirrus-batch"
+        },
+        "expected_chapters": []
+      },
+      {
+        "id": "cirrus-online:no_index_overlap",
+        "category": "unmatched_directory",
+        "request": {
+          "query": "ZirconQuasarNebulaVacuum",
+          "project": "cirrus-online"
+        },
+        "expected_chapters": []
+      },
+      {
+        "id": "delta-batch:no_index_overlap",
+        "category": "unmatched_directory",
+        "request": {
+          "query": "ZirconQuasarNebulaVacuum",
+          "project": "delta-batch"
+        },
+        "expected_chapters": []
+      },
+      {
+        "id": "delta-online:no_index_overlap",
+        "category": "unmatched_directory",
+        "request": {
+          "query": "ZirconQuasarNebulaVacuum",
+          "project": "delta-online"
+        },
+        "expected_chapters": []
+      }
+    ]
+  },
+  "correction": {
+    "previous_protocol": "benchmarks/experiments/v011-directory-navigation-protocol.json",
+    "previous_protocol_sha256": "fa98bf79262411133c6c9cb927f4c4f5e4f2002cbe5aca6aa52e4a020f45d42e",
+    "previous_source_commit": "da0ad5bac2395e6d196f4c8cf3af9d508eed7210",
+    "previous_evaluator": "benchmarks/directory_navigation_v1.py",
+    "previous_evaluator_sha256": "79a6f67498c265c27fb9a82c4de99bd1261abfc494cc390725e7bb3520bbe339",
+    "previous_report": "benchmarks/reports/v0.11-development/directory-navigation-attempt1/report.json",
+    "previous_report_sha256": "8279fa85aea8d43c506ab4353f8400fb480dcdf9c52d3d4c012e7f1432277afe",
+    "previous_result": {
+      "status": "failed",
+      "passed_cases": 103,
+      "failed_cases": 8,
+      "total_cases": 111
+    },
+    "diagnosis": "NeverIndexedQuasarBoundary is CamelCase and query_terms produces never/indexed/quasar/boundary/neverindexedquasarboundary. The documented metadata OR query matches boundary in the Inspection question. The original zero-match expectation was invalid; no runtime change is made to turn these cases green.",
+    "changed_expectations": [
+      {
+        "original_case_id": "atlas-online:unmatched_directory",
+        "corrected_case_id": "atlas-online:partial_metadata_match",
+        "query": "NeverIndexedQuasarBoundary",
+        "query_terms": [
+          "never",
+          "indexed",
+          "quasar",
+          "boundary",
+          "neverindexedquasarboundary"
+        ],
+        "intersecting_token": "boundary",
+        "matching_original_question": "Where was the DeltaCursorWindow boundary discussed?",
+        "old_expected_chapters": [],
+        "corrected_expected_chapters": [
+          [
+            "atlas-online",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "original_case_id": "atlas-batch:unmatched_directory",
+        "corrected_case_id": "atlas-batch:partial_metadata_match",
+        "query": "NeverIndexedQuasarBoundary",
+        "query_terms": [
+          "never",
+          "indexed",
+          "quasar",
+          "boundary",
+          "neverindexedquasarboundary"
+        ],
+        "intersecting_token": "boundary",
+        "matching_original_question": "Where was the DeltaCursorWindow boundary discussed?",
+        "old_expected_chapters": [],
+        "corrected_expected_chapters": [
+          [
+            "atlas-batch",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "original_case_id": "borealis-online:unmatched_directory",
+        "corrected_case_id": "borealis-online:partial_metadata_match",
+        "query": "NeverIndexedQuasarBoundary",
+        "query_terms": [
+          "never",
+          "indexed",
+          "quasar",
+          "boundary",
+          "neverindexedquasarboundary"
+        ],
+        "intersecting_token": "boundary",
+        "matching_original_question": "Where was the DeltaCursorWindow boundary discussed?",
+        "old_expected_chapters": [],
+        "corrected_expected_chapters": [
+          [
+            "borealis-online",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "original_case_id": "borealis-batch:unmatched_directory",
+        "corrected_case_id": "borealis-batch:partial_metadata_match",
+        "query": "NeverIndexedQuasarBoundary",
+        "query_terms": [
+          "never",
+          "indexed",
+          "quasar",
+          "boundary",
+          "neverindexedquasarboundary"
+        ],
+        "intersecting_token": "boundary",
+        "matching_original_question": "Where was the DeltaCursorWindow boundary discussed?",
+        "old_expected_chapters": [],
+        "corrected_expected_chapters": [
+          [
+            "borealis-batch",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "original_case_id": "cirrus-online:unmatched_directory",
+        "corrected_case_id": "cirrus-online:partial_metadata_match",
+        "query": "NeverIndexedQuasarBoundary",
+        "query_terms": [
+          "never",
+          "indexed",
+          "quasar",
+          "boundary",
+          "neverindexedquasarboundary"
+        ],
+        "intersecting_token": "boundary",
+        "matching_original_question": "Where was the DeltaCursorWindow boundary discussed?",
+        "old_expected_chapters": [],
+        "corrected_expected_chapters": [
+          [
+            "cirrus-online",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "original_case_id": "cirrus-batch:unmatched_directory",
+        "corrected_case_id": "cirrus-batch:partial_metadata_match",
+        "query": "NeverIndexedQuasarBoundary",
+        "query_terms": [
+          "never",
+          "indexed",
+          "quasar",
+          "boundary",
+          "neverindexedquasarboundary"
+        ],
+        "intersecting_token": "boundary",
+        "matching_original_question": "Where was the DeltaCursorWindow boundary discussed?",
+        "old_expected_chapters": [],
+        "corrected_expected_chapters": [
+          [
+            "cirrus-batch",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "original_case_id": "delta-online:unmatched_directory",
+        "corrected_case_id": "delta-online:partial_metadata_match",
+        "query": "NeverIndexedQuasarBoundary",
+        "query_terms": [
+          "never",
+          "indexed",
+          "quasar",
+          "boundary",
+          "neverindexedquasarboundary"
+        ],
+        "intersecting_token": "boundary",
+        "matching_original_question": "Where was the DeltaCursorWindow boundary discussed?",
+        "old_expected_chapters": [],
+        "corrected_expected_chapters": [
+          [
+            "delta-online",
+            "inspection"
+          ]
+        ]
+      },
+      {
+        "original_case_id": "delta-batch:unmatched_directory",
+        "corrected_case_id": "delta-batch:partial_metadata_match",
+        "query": "NeverIndexedQuasarBoundary",
+        "query_terms": [
+          "never",
+          "indexed",
+          "quasar",
+          "boundary",
+          "neverindexedquasarboundary"
+        ],
+        "intersecting_token": "boundary",
+        "matching_original_question": "Where was the DeltaCursorWindow boundary discussed?",
+        "old_expected_chapters": [],
+        "corrected_expected_chapters": [
+          [
+            "delta-batch",
+            "inspection"
+          ]
+        ]
+      }
+    ],
+    "added_negative": {
+      "query": "ZirconQuasarNebulaVacuum",
+      "query_terms": [
+        "zircon",
+        "quasar",
+        "nebula",
+        "vacuum",
+        "zirconquasarnebulavacuum"
+      ],
+      "metadata_token_intersection": [],
+      "method": "Static tokenizer/index preprocessing over frozen titles and user questions, before retrieval execution."
+    },
+    "comparison_rule": "Do not report 103/111 to a corrected result as a retrieval gain. Preserve both attempts, disclosed denominator change, all inputs and raw outputs.",
+    "reproduce_v1": "PYTHONPATH=COMMITTED_SNAPSHOT/src:. python -m benchmarks.directory_navigation --output NEW_PATH",
+    "reproduce_v2": "PYTHONPATH=COMMITTED_SNAPSHOT/src:. python -m benchmarks.directory_navigation --protocol-v2 --output NEW_PATH"
+  }
+}

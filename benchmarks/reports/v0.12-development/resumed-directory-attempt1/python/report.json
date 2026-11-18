@@ -1,0 +1,1140 @@
+{
+  "schema": "directory-navigation-contracts-v2",
+  "status": "passed",
+  "started_at_utc": "2026-11-18T08:15:25.629884+00:00",
+  "scope": "Authored new-API development contracts: locate directories across eight similar projects, then follow exact scoped IDs to original source. This fixture was written after the implementation; it is not an independent holdout, LLM answer benchmark, or cross-product ranking. Version 2 corrects eight invalid no-match expectations and adds eight lexically nonoverlapping negative cases; this is fixture correction, not an algorithm improvement.",
+  "baseline": {
+    "version": "v0.10.0",
+    "status": "not_applicable_new_API",
+    "numeric_score": null,
+    "reason": "The preceding release has no search_directory/locate API. Existing manual browsing is not assigned a zero score."
+  },
+  "protocol_sha256": "a85751d1f520769e6fa7a7fb54453688ac3019fdfb8092f84610b2a434ab1222",
+  "dataset_sha256": "232be3ab5d7cfd8cd468ea16a1e8d0f0622d25a3daa6511ddbd42496dd54929b",
+  "evaluator_sha256": "9194fff51b4295b17e2ad534e98116016115de0c388a1c80ad28eaa1a5f2af28",
+  "runtime_before": {
+    "version": "0.12.0",
+    "package": "/workspace/scratch/b92339f83b53/AI-Memory-Book/src/memory_book",
+    "backend": "python",
+    "files": {
+      "__init__.py": "4b14b12e331158309de8d8c16f8434044508b33270cdc53321a4bea39b7f7521",
+      "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+      "_native.c": "e0189243908da1035181911244301083877f44502064f8435ff3ce6363f88aad",
+      "_native_excerpt.h": "973e1c0490b2287e117c9b67b2b27f39105996b27e11317085226e1da0d5dab2",
+      "_native_lexical.h": "9e97f50d818cbdd8db61462e1f5d5b73ba82a871815d92a1403a64855d62913f",
+      "_native_rank.h": "6f21ef972190dc65545e0b9109ab6b529881fbe1e8be3acb198441c95a1f320c",
+      "_native_segmentation.h": "c0360b03583067e53509b822c34ec544d4dd4c218e9d1a2638df7a1803c503e6",
+      "_native_source.h": "ff0fba96f09dfe103887b564e68f987b3840431c2d569558f204e29ec1c1bc5e",
+      "_text_backend.py": "b8268cbc11d49be34fa83e1c8d7a46b481f2caf159ab7f4425f8198e76063b45",
+      "cli.py": "5c7e8d571d0fd641d142dec00f73ed8fd7d2e224515e673beecfc018b8f53947",
+      "clients.py": "b1329fb564acc79a14e2d281bae0687224d63323ac129aa602899a4d0f0b576c",
+      "context_budget.py": "58f09c8a1a1d973c1e1a47f5c52fb3c50a6112f2af617d97147126192de9f989",
+      "directory.py": "81362ff13c34c30047c2c447cc317e74bddfb5f8eb87aa35cbf7b0fa1bfcd10f",
+      "formats.py": "9b03524f6ae77aa1f0b73b4b74266da506421919135a6975ea692cac30eb48d1",
+      "importers.py": "aa5c0ab87f4727762f9e69af7cf2ea539f0c1ab73bf8f524714a2935356ffcc8",
+      "integration.py": "ea0447b2e04c266b3a269315f1c11c4b2d9fba14eb9e2702cd7368413df301ff",
+      "maintenance.py": "a9fb2d53b2afc7fcf8347750118b6f581dbdd80dbb270f1808daa14af73ba7ba",
+      "mcp_server.py": "850e2fdb46dd3087dae7d329ae107bdb7f9bca04635e67d9495932832145bcef",
+      "paths.py": "d7865c48e2c09eca14c00b20efd306f591d3876fa5c19ba39c2716eb09be7137",
+      "scope.py": "58eeaf7257b65275550507582ee25a62aaf19734bceb6f6cc253cf4febb60f2c",
+      "segmentation.py": "4eb0eb70fc3a0751a511811fcf54a147e78a427d93a719cda060cc01c0aa6f8b",
+      "semantic.py": "76aaaf40144146c5b3e6c542c1a3dedcad1a19f78d654da613dc085586bec6fd",
+      "service.py": "2ab8da2433fb3573547f8c16fb0fccaa0493da5ba001d18d74b5da3622cc0c3a",
+      "store.py": "0da051c5659c19424043e9d11b189366de4a99c6739c31411bce6572fe84d14a",
+      "sync.py": "bd149afe6bb93594cfb64bcfd908eb358fb31b3e2c0ca741edac72d705b64372",
+      "text.py": "b27b2a4992d1530736b502f00d80b6c442ccaca534b16c1eb6a750e31436b6c7",
+      "token_budget.py": "910de5a73eecbf3b6ebde521c2a274f3d31ba251a90f12a46abd3e0f3d2dbfce",
+      "web.py": "dc3be1b8dda2f46c6dc8312e64e4b7f9c1a1cc2fca15bbba639c71c8d04f34d1"
+    },
+    "extension": null,
+    "sha256": "21045036befbbc438bb12e35fd7a5ca127ee64af774bf04a754a41ac985a5e56"
+  },
+  "git": {
+    "head": "01032a691abdc4fddfd10f61c9e61f260f9decb3",
+    "relevant_status": ""
+  },
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "sqlite": "3.53.1"
+  },
+  "timing_policy": "No latency metric or speed comparison is collected.",
+  "cases": [
+    {
+      "id": "atlas-online:identifier_words",
+      "category": "identifier_words",
+      "status": "passed",
+      "raw_sequence_start": 49,
+      "raw_sequence_end": 52,
+      "returned_chapters": 1
+    },
+    {
+      "id": "atlas-online:identifier_alias",
+      "category": "identifier_alias",
+      "status": "passed",
+      "raw_sequence_start": 53,
+      "raw_sequence_end": 56,
+      "returned_chapters": 1
+    },
+    {
+      "id": "atlas-online:chinese_directory",
+      "category": "chinese_directory",
+      "status": "passed",
+      "raw_sequence_start": 57,
+      "raw_sequence_end": 60,
+      "returned_chapters": 1
+    },
+    {
+      "id": "atlas-online:session_title",
+      "category": "session_title",
+      "status": "passed",
+      "raw_sequence_start": 61,
+      "raw_sequence_end": 64,
+      "returned_chapters": 1
+    },
+    {
+      "id": "atlas-online:question_metadata",
+      "category": "question_metadata",
+      "status": "passed",
+      "raw_sequence_start": 65,
+      "raw_sequence_end": 68,
+      "returned_chapters": 1
+    },
+    {
+      "id": "atlas-online:chapter_pagination",
+      "category": "chapter_pagination",
+      "status": "passed",
+      "raw_sequence_start": 69,
+      "raw_sequence_end": 84,
+      "returned_chapters": 2
+    },
+    {
+      "id": "atlas-online:chapter_scope",
+      "category": "chapter_scope",
+      "status": "passed",
+      "raw_sequence_start": 85,
+      "raw_sequence_end": 88,
+      "returned_chapters": 1
+    },
+    {
+      "id": "atlas-online:unknown_project",
+      "category": "unknown_project",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 89,
+      "raw_sequence_end": 89,
+      "returned_chapters": 0
+    },
+    {
+      "id": "atlas-online:conflicting_chapter",
+      "category": "conflicting_chapter",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 90,
+      "raw_sequence_end": 90,
+      "returned_chapters": 0
+    },
+    {
+      "id": "atlas-online:nonexact_project",
+      "category": "nonexact_project",
+      "status": "passed",
+      "expected_error_observed": "ValueError",
+      "raw_sequence_start": 91,
+      "raw_sequence_end": 91,
+      "returned_chapters": 0
+    },
+    {
+      "id": "atlas-online:unknown_chapter",
+      "category": "unknown_chapter",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 92,
+      "raw_sequence_end": 92,
+      "returned_chapters": 0
+    },
+    {
+      "id": "atlas-online:partial_metadata_match",
+      "category": "partial_metadata_match",
+      "status": "passed",
+      "raw_sequence_start": 93,
+      "raw_sequence_end": 96,
+      "returned_chapters": 1
+    },
+    {
+      "id": "atlas-online:body_only",
+      "category": "body_only",
+      "status": "passed",
+      "raw_sequence_start": 97,
+      "raw_sequence_end": 97,
+      "returned_chapters": 0
+    },
+    {
+      "id": "atlas-batch:identifier_words",
+      "category": "identifier_words",
+      "status": "passed",
+      "raw_sequence_start": 98,
+      "raw_sequence_end": 101,
+      "returned_chapters": 1
+    },
+    {
+      "id": "atlas-batch:identifier_alias",
+      "category": "identifier_alias",
+      "status": "passed",
+      "raw_sequence_start": 102,
+      "raw_sequence_end": 105,
+      "returned_chapters": 1
+    },
+    {
+      "id": "atlas-batch:chinese_directory",
+      "category": "chinese_directory",
+      "status": "passed",
+      "raw_sequence_start": 106,
+      "raw_sequence_end": 109,
+      "returned_chapters": 1
+    },
+    {
+      "id": "atlas-batch:session_title",
+      "category": "session_title",
+      "status": "passed",
+      "raw_sequence_start": 110,
+      "raw_sequence_end": 113,
+      "returned_chapters": 1
+    },
+    {
+      "id": "atlas-batch:question_metadata",
+      "category": "question_metadata",
+      "status": "passed",
+      "raw_sequence_start": 114,
+      "raw_sequence_end": 117,
+      "returned_chapters": 1
+    },
+    {
+      "id": "atlas-batch:chapter_pagination",
+      "category": "chapter_pagination",
+      "status": "passed",
+      "raw_sequence_start": 118,
+      "raw_sequence_end": 133,
+      "returned_chapters": 2
+    },
+    {
+      "id": "atlas-batch:chapter_scope",
+      "category": "chapter_scope",
+      "status": "passed",
+      "raw_sequence_start": 134,
+      "raw_sequence_end": 137,
+      "returned_chapters": 1
+    },
+    {
+      "id": "atlas-batch:unknown_project",
+      "category": "unknown_project",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 138,
+      "raw_sequence_end": 138,
+      "returned_chapters": 0
+    },
+    {
+      "id": "atlas-batch:conflicting_chapter",
+      "category": "conflicting_chapter",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 139,
+      "raw_sequence_end": 139,
+      "returned_chapters": 0
+    },
+    {
+      "id": "atlas-batch:nonexact_project",
+      "category": "nonexact_project",
+      "status": "passed",
+      "expected_error_observed": "ValueError",
+      "raw_sequence_start": 140,
+      "raw_sequence_end": 140,
+      "returned_chapters": 0
+    },
+    {
+      "id": "atlas-batch:unknown_chapter",
+      "category": "unknown_chapter",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 141,
+      "raw_sequence_end": 141,
+      "returned_chapters": 0
+    },
+    {
+      "id": "atlas-batch:partial_metadata_match",
+      "category": "partial_metadata_match",
+      "status": "passed",
+      "raw_sequence_start": 142,
+      "raw_sequence_end": 145,
+      "returned_chapters": 1
+    },
+    {
+      "id": "atlas-batch:body_only",
+      "category": "body_only",
+      "status": "passed",
+      "raw_sequence_start": 146,
+      "raw_sequence_end": 146,
+      "returned_chapters": 0
+    },
+    {
+      "id": "borealis-online:identifier_words",
+      "category": "identifier_words",
+      "status": "passed",
+      "raw_sequence_start": 147,
+      "raw_sequence_end": 150,
+      "returned_chapters": 1
+    },
+    {
+      "id": "borealis-online:identifier_alias",
+      "category": "identifier_alias",
+      "status": "passed",
+      "raw_sequence_start": 151,
+      "raw_sequence_end": 154,
+      "returned_chapters": 1
+    },
+    {
+      "id": "borealis-online:chinese_directory",
+      "category": "chinese_directory",
+      "status": "passed",
+      "raw_sequence_start": 155,
+      "raw_sequence_end": 158,
+      "returned_chapters": 1
+    },
+    {
+      "id": "borealis-online:session_title",
+      "category": "session_title",
+      "status": "passed",
+      "raw_sequence_start": 159,
+      "raw_sequence_end": 162,
+      "returned_chapters": 1
+    },
+    {
+      "id": "borealis-online:question_metadata",
+      "category": "question_metadata",
+      "status": "passed",
+      "raw_sequence_start": 163,
+      "raw_sequence_end": 166,
+      "returned_chapters": 1
+    },
+    {
+      "id": "borealis-online:chapter_pagination",
+      "category": "chapter_pagination",
+      "status": "passed",
+      "raw_sequence_start": 167,
+      "raw_sequence_end": 182,
+      "returned_chapters": 2
+    },
+    {
+      "id": "borealis-online:chapter_scope",
+      "category": "chapter_scope",
+      "status": "passed",
+      "raw_sequence_start": 183,
+      "raw_sequence_end": 186,
+      "returned_chapters": 1
+    },
+    {
+      "id": "borealis-online:unknown_project",
+      "category": "unknown_project",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 187,
+      "raw_sequence_end": 187,
+      "returned_chapters": 0
+    },
+    {
+      "id": "borealis-online:conflicting_chapter",
+      "category": "conflicting_chapter",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 188,
+      "raw_sequence_end": 188,
+      "returned_chapters": 0
+    },
+    {
+      "id": "borealis-online:nonexact_project",
+      "category": "nonexact_project",
+      "status": "passed",
+      "expected_error_observed": "ValueError",
+      "raw_sequence_start": 189,
+      "raw_sequence_end": 189,
+      "returned_chapters": 0
+    },
+    {
+      "id": "borealis-online:unknown_chapter",
+      "category": "unknown_chapter",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 190,
+      "raw_sequence_end": 190,
+      "returned_chapters": 0
+    },
+    {
+      "id": "borealis-online:partial_metadata_match",
+      "category": "partial_metadata_match",
+      "status": "passed",
+      "raw_sequence_start": 191,
+      "raw_sequence_end": 194,
+      "returned_chapters": 1
+    },
+    {
+      "id": "borealis-online:body_only",
+      "category": "body_only",
+      "status": "passed",
+      "raw_sequence_start": 195,
+      "raw_sequence_end": 195,
+      "returned_chapters": 0
+    },
+    {
+      "id": "borealis-batch:identifier_words",
+      "category": "identifier_words",
+      "status": "passed",
+      "raw_sequence_start": 196,
+      "raw_sequence_end": 199,
+      "returned_chapters": 1
+    },
+    {
+      "id": "borealis-batch:identifier_alias",
+      "category": "identifier_alias",
+      "status": "passed",
+      "raw_sequence_start": 200,
+      "raw_sequence_end": 203,
+      "returned_chapters": 1
+    },
+    {
+      "id": "borealis-batch:chinese_directory",
+      "category": "chinese_directory",
+      "status": "passed",
+      "raw_sequence_start": 204,
+      "raw_sequence_end": 207,
+      "returned_chapters": 1
+    },
+    {
+      "id": "borealis-batch:session_title",
+      "category": "session_title",
+      "status": "passed",
+      "raw_sequence_start": 208,
+      "raw_sequence_end": 211,
+      "returned_chapters": 1
+    },
+    {
+      "id": "borealis-batch:question_metadata",
+      "category": "question_metadata",
+      "status": "passed",
+      "raw_sequence_start": 212,
+      "raw_sequence_end": 215,
+      "returned_chapters": 1
+    },
+    {
+      "id": "borealis-batch:chapter_pagination",
+      "category": "chapter_pagination",
+      "status": "passed",
+      "raw_sequence_start": 216,
+      "raw_sequence_end": 231,
+      "returned_chapters": 2
+    },
+    {
+      "id": "borealis-batch:chapter_scope",
+      "category": "chapter_scope",
+      "status": "passed",
+      "raw_sequence_start": 232,
+      "raw_sequence_end": 235,
+      "returned_chapters": 1
+    },
+    {
+      "id": "borealis-batch:unknown_project",
+      "category": "unknown_project",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 236,
+      "raw_sequence_end": 236,
+      "returned_chapters": 0
+    },
+    {
+      "id": "borealis-batch:conflicting_chapter",
+      "category": "conflicting_chapter",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 237,
+      "raw_sequence_end": 237,
+      "returned_chapters": 0
+    },
+    {
+      "id": "borealis-batch:nonexact_project",
+      "category": "nonexact_project",
+      "status": "passed",
+      "expected_error_observed": "ValueError",
+      "raw_sequence_start": 238,
+      "raw_sequence_end": 238,
+      "returned_chapters": 0
+    },
+    {
+      "id": "borealis-batch:unknown_chapter",
+      "category": "unknown_chapter",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 239,
+      "raw_sequence_end": 239,
+      "returned_chapters": 0
+    },
+    {
+      "id": "borealis-batch:partial_metadata_match",
+      "category": "partial_metadata_match",
+      "status": "passed",
+      "raw_sequence_start": 240,
+      "raw_sequence_end": 243,
+      "returned_chapters": 1
+    },
+    {
+      "id": "borealis-batch:body_only",
+      "category": "body_only",
+      "status": "passed",
+      "raw_sequence_start": 244,
+      "raw_sequence_end": 244,
+      "returned_chapters": 0
+    },
+    {
+      "id": "cirrus-online:identifier_words",
+      "category": "identifier_words",
+      "status": "passed",
+      "raw_sequence_start": 245,
+      "raw_sequence_end": 248,
+      "returned_chapters": 1
+    },
+    {
+      "id": "cirrus-online:identifier_alias",
+      "category": "identifier_alias",
+      "status": "passed",
+      "raw_sequence_start": 249,
+      "raw_sequence_end": 252,
+      "returned_chapters": 1
+    },
+    {
+      "id": "cirrus-online:chinese_directory",
+      "category": "chinese_directory",
+      "status": "passed",
+      "raw_sequence_start": 253,
+      "raw_sequence_end": 256,
+      "returned_chapters": 1
+    },
+    {
+      "id": "cirrus-online:session_title",
+      "category": "session_title",
+      "status": "passed",
+      "raw_sequence_start": 257,
+      "raw_sequence_end": 260,
+      "returned_chapters": 1
+    },
+    {
+      "id": "cirrus-online:question_metadata",
+      "category": "question_metadata",
+      "status": "passed",
+      "raw_sequence_start": 261,
+      "raw_sequence_end": 264,
+      "returned_chapters": 1
+    },
+    {
+      "id": "cirrus-online:chapter_pagination",
+      "category": "chapter_pagination",
+      "status": "passed",
+      "raw_sequence_start": 265,
+      "raw_sequence_end": 280,
+      "returned_chapters": 2
+    },
+    {
+      "id": "cirrus-online:chapter_scope",
+      "category": "chapter_scope",
+      "status": "passed",
+      "raw_sequence_start": 281,
+      "raw_sequence_end": 284,
+      "returned_chapters": 1
+    },
+    {
+      "id": "cirrus-online:unknown_project",
+      "category": "unknown_project",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 285,
+      "raw_sequence_end": 285,
+      "returned_chapters": 0
+    },
+    {
+      "id": "cirrus-online:conflicting_chapter",
+      "category": "conflicting_chapter",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 286,
+      "raw_sequence_end": 286,
+      "returned_chapters": 0
+    },
+    {
+      "id": "cirrus-online:nonexact_project",
+      "category": "nonexact_project",
+      "status": "passed",
+      "expected_error_observed": "ValueError",
+      "raw_sequence_start": 287,
+      "raw_sequence_end": 287,
+      "returned_chapters": 0
+    },
+    {
+      "id": "cirrus-online:unknown_chapter",
+      "category": "unknown_chapter",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 288,
+      "raw_sequence_end": 288,
+      "returned_chapters": 0
+    },
+    {
+      "id": "cirrus-online:partial_metadata_match",
+      "category": "partial_metadata_match",
+      "status": "passed",
+      "raw_sequence_start": 289,
+      "raw_sequence_end": 292,
+      "returned_chapters": 1
+    },
+    {
+      "id": "cirrus-online:body_only",
+      "category": "body_only",
+      "status": "passed",
+      "raw_sequence_start": 293,
+      "raw_sequence_end": 293,
+      "returned_chapters": 0
+    },
+    {
+      "id": "cirrus-batch:identifier_words",
+      "category": "identifier_words",
+      "status": "passed",
+      "raw_sequence_start": 294,
+      "raw_sequence_end": 297,
+      "returned_chapters": 1
+    },
+    {
+      "id": "cirrus-batch:identifier_alias",
+      "category": "identifier_alias",
+      "status": "passed",
+      "raw_sequence_start": 298,
+      "raw_sequence_end": 301,
+      "returned_chapters": 1
+    },
+    {
+      "id": "cirrus-batch:chinese_directory",
+      "category": "chinese_directory",
+      "status": "passed",
+      "raw_sequence_start": 302,
+      "raw_sequence_end": 305,
+      "returned_chapters": 1
+    },
+    {
+      "id": "cirrus-batch:session_title",
+      "category": "session_title",
+      "status": "passed",
+      "raw_sequence_start": 306,
+      "raw_sequence_end": 309,
+      "returned_chapters": 1
+    },
+    {
+      "id": "cirrus-batch:question_metadata",
+      "category": "question_metadata",
+      "status": "passed",
+      "raw_sequence_start": 310,
+      "raw_sequence_end": 313,
+      "returned_chapters": 1
+    },
+    {
+      "id": "cirrus-batch:chapter_pagination",
+      "category": "chapter_pagination",
+      "status": "passed",
+      "raw_sequence_start": 314,
+      "raw_sequence_end": 329,
+      "returned_chapters": 2
+    },
+    {
+      "id": "cirrus-batch:chapter_scope",
+      "category": "chapter_scope",
+      "status": "passed",
+      "raw_sequence_start": 330,
+      "raw_sequence_end": 333,
+      "returned_chapters": 1
+    },
+    {
+      "id": "cirrus-batch:unknown_project",
+      "category": "unknown_project",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 334,
+      "raw_sequence_end": 334,
+      "returned_chapters": 0
+    },
+    {
+      "id": "cirrus-batch:conflicting_chapter",
+      "category": "conflicting_chapter",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 335,
+      "raw_sequence_end": 335,
+      "returned_chapters": 0
+    },
+    {
+      "id": "cirrus-batch:nonexact_project",
+      "category": "nonexact_project",
+      "status": "passed",
+      "expected_error_observed": "ValueError",
+      "raw_sequence_start": 336,
+      "raw_sequence_end": 336,
+      "returned_chapters": 0
+    },
+    {
+      "id": "cirrus-batch:unknown_chapter",
+      "category": "unknown_chapter",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 337,
+      "raw_sequence_end": 337,
+      "returned_chapters": 0
+    },
+    {
+      "id": "cirrus-batch:partial_metadata_match",
+      "category": "partial_metadata_match",
+      "status": "passed",
+      "raw_sequence_start": 338,
+      "raw_sequence_end": 341,
+      "returned_chapters": 1
+    },
+    {
+      "id": "cirrus-batch:body_only",
+      "category": "body_only",
+      "status": "passed",
+      "raw_sequence_start": 342,
+      "raw_sequence_end": 342,
+      "returned_chapters": 0
+    },
+    {
+      "id": "delta-online:identifier_words",
+      "category": "identifier_words",
+      "status": "passed",
+      "raw_sequence_start": 343,
+      "raw_sequence_end": 346,
+      "returned_chapters": 1
+    },
+    {
+      "id": "delta-online:identifier_alias",
+      "category": "identifier_alias",
+      "status": "passed",
+      "raw_sequence_start": 347,
+      "raw_sequence_end": 350,
+      "returned_chapters": 1
+    },
+    {
+      "id": "delta-online:chinese_directory",
+      "category": "chinese_directory",
+      "status": "passed",
+      "raw_sequence_start": 351,
+      "raw_sequence_end": 354,
+      "returned_chapters": 1
+    },
+    {
+      "id": "delta-online:session_title",
+      "category": "session_title",
+      "status": "passed",
+      "raw_sequence_start": 355,
+      "raw_sequence_end": 358,
+      "returned_chapters": 1
+    },
+    {
+      "id": "delta-online:question_metadata",
+      "category": "question_metadata",
+      "status": "passed",
+      "raw_sequence_start": 359,
+      "raw_sequence_end": 362,
+      "returned_chapters": 1
+    },
+    {
+      "id": "delta-online:chapter_pagination",
+      "category": "chapter_pagination",
+      "status": "passed",
+      "raw_sequence_start": 363,
+      "raw_sequence_end": 378,
+      "returned_chapters": 2
+    },
+    {
+      "id": "delta-online:chapter_scope",
+      "category": "chapter_scope",
+      "status": "passed",
+      "raw_sequence_start": 379,
+      "raw_sequence_end": 382,
+      "returned_chapters": 1
+    },
+    {
+      "id": "delta-online:unknown_project",
+      "category": "unknown_project",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 383,
+      "raw_sequence_end": 383,
+      "returned_chapters": 0
+    },
+    {
+      "id": "delta-online:conflicting_chapter",
+      "category": "conflicting_chapter",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 384,
+      "raw_sequence_end": 384,
+      "returned_chapters": 0
+    },
+    {
+      "id": "delta-online:nonexact_project",
+      "category": "nonexact_project",
+      "status": "passed",
+      "expected_error_observed": "ValueError",
+      "raw_sequence_start": 385,
+      "raw_sequence_end": 385,
+      "returned_chapters": 0
+    },
+    {
+      "id": "delta-online:unknown_chapter",
+      "category": "unknown_chapter",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 386,
+      "raw_sequence_end": 386,
+      "returned_chapters": 0
+    },
+    {
+      "id": "delta-online:partial_metadata_match",
+      "category": "partial_metadata_match",
+      "status": "passed",
+      "raw_sequence_start": 387,
+      "raw_sequence_end": 390,
+      "returned_chapters": 1
+    },
+    {
+      "id": "delta-online:body_only",
+      "category": "body_only",
+      "status": "passed",
+      "raw_sequence_start": 391,
+      "raw_sequence_end": 391,
+      "returned_chapters": 0
+    },
+    {
+      "id": "delta-batch:identifier_words",
+      "category": "identifier_words",
+      "status": "passed",
+      "raw_sequence_start": 392,
+      "raw_sequence_end": 395,
+      "returned_chapters": 1
+    },
+    {
+      "id": "delta-batch:identifier_alias",
+      "category": "identifier_alias",
+      "status": "passed",
+      "raw_sequence_start": 396,
+      "raw_sequence_end": 399,
+      "returned_chapters": 1
+    },
+    {
+      "id": "delta-batch:chinese_directory",
+      "category": "chinese_directory",
+      "status": "passed",
+      "raw_sequence_start": 400,
+      "raw_sequence_end": 403,
+      "returned_chapters": 1
+    },
+    {
+      "id": "delta-batch:session_title",
+      "category": "session_title",
+      "status": "passed",
+      "raw_sequence_start": 404,
+      "raw_sequence_end": 407,
+      "returned_chapters": 1
+    },
+    {
+      "id": "delta-batch:question_metadata",
+      "category": "question_metadata",
+      "status": "passed",
+      "raw_sequence_start": 408,
+      "raw_sequence_end": 411,
+      "returned_chapters": 1
+    },
+    {
+      "id": "delta-batch:chapter_pagination",
+      "category": "chapter_pagination",
+      "status": "passed",
+      "raw_sequence_start": 412,
+      "raw_sequence_end": 427,
+      "returned_chapters": 2
+    },
+    {
+      "id": "delta-batch:chapter_scope",
+      "category": "chapter_scope",
+      "status": "passed",
+      "raw_sequence_start": 428,
+      "raw_sequence_end": 431,
+      "returned_chapters": 1
+    },
+    {
+      "id": "delta-batch:unknown_project",
+      "category": "unknown_project",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 432,
+      "raw_sequence_end": 432,
+      "returned_chapters": 0
+    },
+    {
+      "id": "delta-batch:conflicting_chapter",
+      "category": "conflicting_chapter",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 433,
+      "raw_sequence_end": 433,
+      "returned_chapters": 0
+    },
+    {
+      "id": "delta-batch:nonexact_project",
+      "category": "nonexact_project",
+      "status": "passed",
+      "expected_error_observed": "ValueError",
+      "raw_sequence_start": 434,
+      "raw_sequence_end": 434,
+      "returned_chapters": 0
+    },
+    {
+      "id": "delta-batch:unknown_chapter",
+      "category": "unknown_chapter",
+      "status": "passed",
+      "expected_error_observed": "KeyError",
+      "raw_sequence_start": 435,
+      "raw_sequence_end": 435,
+      "returned_chapters": 0
+    },
+    {
+      "id": "delta-batch:partial_metadata_match",
+      "category": "partial_metadata_match",
+      "status": "passed",
+      "raw_sequence_start": 436,
+      "raw_sequence_end": 439,
+      "returned_chapters": 1
+    },
+    {
+      "id": "delta-batch:body_only",
+      "category": "body_only",
+      "status": "passed",
+      "raw_sequence_start": 440,
+      "raw_sequence_end": 440,
+      "returned_chapters": 0
+    },
+    {
+      "id": "unbound:chapter_pagination",
+      "category": "unbound_explicit_global",
+      "status": "passed",
+      "raw_sequence_start": 441,
+      "raw_sequence_end": 556,
+      "returned_chapters": 16
+    },
+    {
+      "id": "unbound:shared_identifier",
+      "category": "unbound_explicit_global",
+      "status": "passed",
+      "raw_sequence_start": 557,
+      "raw_sequence_end": 581,
+      "returned_chapters": 8
+    },
+    {
+      "id": "invalid:empty_project",
+      "category": "invalid_scope",
+      "status": "passed",
+      "expected_error_observed": "ValueError",
+      "raw_sequence_start": 582,
+      "raw_sequence_end": 582,
+      "returned_chapters": 0
+    },
+    {
+      "id": "invalid:empty_chapter",
+      "category": "invalid_scope",
+      "status": "passed",
+      "expected_error_observed": "ValueError",
+      "raw_sequence_start": 583,
+      "raw_sequence_end": 583,
+      "returned_chapters": 0
+    },
+    {
+      "id": "invalid:boolean_limit",
+      "category": "invalid_pagination",
+      "status": "passed",
+      "expected_error_observed": "ValueError",
+      "raw_sequence_start": 584,
+      "raw_sequence_end": 584,
+      "returned_chapters": 0
+    },
+    {
+      "id": "invalid:negative_offset",
+      "category": "invalid_pagination",
+      "status": "passed",
+      "expected_error_observed": "ValueError",
+      "raw_sequence_start": 585,
+      "raw_sequence_end": 585,
+      "returned_chapters": 0
+    },
+    {
+      "id": "chapter_only:exact_address",
+      "category": "chapter_only_scope",
+      "status": "passed",
+      "raw_sequence_start": 586,
+      "raw_sequence_end": 589,
+      "returned_chapters": 1
+    },
+    {
+      "id": "atlas-batch:no_index_overlap",
+      "category": "unmatched_directory",
+      "status": "passed",
+      "raw_sequence_start": 590,
+      "raw_sequence_end": 590,
+      "returned_chapters": 0
+    },
+    {
+      "id": "atlas-online:no_index_overlap",
+      "category": "unmatched_directory",
+      "status": "passed",
+      "raw_sequence_start": 591,
+      "raw_sequence_end": 591,
+      "returned_chapters": 0
+    },
+    {
+      "id": "borealis-batch:no_index_overlap",
+      "category": "unmatched_directory",
+      "status": "passed",
+      "raw_sequence_start": 592,
+      "raw_sequence_end": 592,
+      "returned_chapters": 0
+    },
+    {
+      "id": "borealis-online:no_index_overlap",
+      "category": "unmatched_directory",
+      "status": "passed",
+      "raw_sequence_start": 593,
+      "raw_sequence_end": 593,
+      "returned_chapters": 0
+    },
+    {
+      "id": "cirrus-batch:no_index_overlap",
+      "category": "unmatched_directory",
+      "status": "passed",
+      "raw_sequence_start": 594,
+      "raw_sequence_end": 594,
+      "returned_chapters": 0
+    },
+    {
+      "id": "cirrus-online:no_index_overlap",
+      "category": "unmatched_directory",
+      "status": "passed",
+      "raw_sequence_start": 595,
+      "raw_sequence_end": 595,
+      "returned_chapters": 0
+    },
+    {
+      "id": "delta-batch:no_index_overlap",
+      "category": "unmatched_directory",
+      "status": "passed",
+      "raw_sequence_start": 596,
+      "raw_sequence_end": 596,
+      "returned_chapters": 0
+    },
+    {
+      "id": "delta-online:no_index_overlap",
+      "category": "unmatched_directory",
+      "status": "passed",
+      "raw_sequence_start": 597,
+      "raw_sequence_end": 597,
+      "returned_chapters": 0
+    }
+  ],
+  "failures": [],
+  "archive": {
+    "projects": 8,
+    "sessions": 48,
+    "chapters": 48,
+    "pages": 184,
+    "revision": 48
+  },
+  "runtime_after": {
+    "version": "0.12.0",
+    "package": "/workspace/scratch/b92339f83b53/AI-Memory-Book/src/memory_book",
+    "backend": "python",
+    "files": {
+      "__init__.py": "4b14b12e331158309de8d8c16f8434044508b33270cdc53321a4bea39b7f7521",
+      "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+      "_native.c": "e0189243908da1035181911244301083877f44502064f8435ff3ce6363f88aad",
+      "_native_excerpt.h": "973e1c0490b2287e117c9b67b2b27f39105996b27e11317085226e1da0d5dab2",
+      "_native_lexical.h": "9e97f50d818cbdd8db61462e1f5d5b73ba82a871815d92a1403a64855d62913f",
+      "_native_rank.h": "6f21ef972190dc65545e0b9109ab6b529881fbe1e8be3acb198441c95a1f320c",
+      "_native_segmentation.h": "c0360b03583067e53509b822c34ec544d4dd4c218e9d1a2638df7a1803c503e6",
+      "_native_source.h": "ff0fba96f09dfe103887b564e68f987b3840431c2d569558f204e29ec1c1bc5e",
+      "_text_backend.py": "b8268cbc11d49be34fa83e1c8d7a46b481f2caf159ab7f4425f8198e76063b45",
+      "cli.py": "5c7e8d571d0fd641d142dec00f73ed8fd7d2e224515e673beecfc018b8f53947",
+      "clients.py": "b1329fb564acc79a14e2d281bae0687224d63323ac129aa602899a4d0f0b576c",
+      "context_budget.py": "58f09c8a1a1d973c1e1a47f5c52fb3c50a6112f2af617d97147126192de9f989",
+      "directory.py": "81362ff13c34c30047c2c447cc317e74bddfb5f8eb87aa35cbf7b0fa1bfcd10f",
+      "formats.py": "9b03524f6ae77aa1f0b73b4b74266da506421919135a6975ea692cac30eb48d1",
+      "importers.py": "aa5c0ab87f4727762f9e69af7cf2ea539f0c1ab73bf8f524714a2935356ffcc8",
+      "integration.py": "ea0447b2e04c266b3a269315f1c11c4b2d9fba14eb9e2702cd7368413df301ff",
+      "maintenance.py": "a9fb2d53b2afc7fcf8347750118b6f581dbdd80dbb270f1808daa14af73ba7ba",
+      "mcp_server.py": "850e2fdb46dd3087dae7d329ae107bdb7f9bca04635e67d9495932832145bcef",
+      "paths.py": "d7865c48e2c09eca14c00b20efd306f591d3876fa5c19ba39c2716eb09be7137",
+      "scope.py": "58eeaf7257b65275550507582ee25a62aaf19734bceb6f6cc253cf4febb60f2c",
+      "segmentation.py": "4eb0eb70fc3a0751a511811fcf54a147e78a427d93a719cda060cc01c0aa6f8b",
+      "semantic.py": "76aaaf40144146c5b3e6c542c1a3dedcad1a19f78d654da613dc085586bec6fd",
+      "service.py": "2ab8da2433fb3573547f8c16fb0fccaa0493da5ba001d18d74b5da3622cc0c3a",
+      "store.py": "0da051c5659c19424043e9d11b189366de4a99c6739c31411bce6572fe84d14a",
+      "sync.py": "bd149afe6bb93594cfb64bcfd908eb358fb31b3e2c0ca741edac72d705b64372",
+      "text.py": "b27b2a4992d1530736b502f00d80b6c442ccaca534b16c1eb6a750e31436b6c7",
+      "token_budget.py": "910de5a73eecbf3b6ebde521c2a274f3d31ba251a90f12a46abd3e0f3d2dbfce",
+      "web.py": "dc3be1b8dda2f46c6dc8312e64e4b7f9c1a1cc2fca15bbba639c71c8d04f34d1"
+    },
+    "extension": null,
+    "sha256": "21045036befbbc438bb12e35fd7a5ca127ee64af774bf04a754a41ac985a5e56"
+  },
+  "completed_at_utc": "2026-11-18T08:15:25.879507+00:00",
+  "summary": {
+    "logical_cases": 119,
+    "passed_cases": 119,
+    "failed_cases": 0,
+    "categories": {
+      "identifier_words": 8,
+      "identifier_alias": 8,
+      "chinese_directory": 8,
+      "session_title": 8,
+      "question_metadata": 8,
+      "chapter_pagination": 8,
+      "chapter_scope": 8,
+      "unknown_project": 8,
+      "conflicting_chapter": 8,
+      "nonexact_project": 8,
+      "unknown_chapter": 8,
+      "partial_metadata_match": 8,
+      "body_only": 8,
+      "unbound_explicit_global": 2,
+      "invalid_scope": 2,
+      "invalid_pagination": 2,
+      "chapter_only_scope": 1,
+      "unmatched_directory": 8
+    },
+    "operations": {
+      "ingest": 48,
+      "search_directory": 130,
+      "chapter": 97,
+      "section": 161,
+      "read": 161
+    },
+    "unique_chapters_followed": 48,
+    "unique_sections_followed": 80,
+    "unique_pages_read": 80,
+    "interpretation": "Authored contract cases and repeated follow-up reads, not answer accuracy or independent quality samples."
+  },
+  "raw_records": {
+    "path": "raw.jsonl",
+    "rows": 597,
+    "bytes": 812801,
+    "sha256": "e7e48379b87e70a5ebcf9584a70f170661cee24ddf7f235b8fdc69bfa031f387"
+  }
+}

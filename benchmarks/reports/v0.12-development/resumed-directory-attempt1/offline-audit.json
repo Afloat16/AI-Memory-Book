@@ -1,0 +1,66 @@
+{
+  "schema": "v012-resumed-directory-crowding-offline-audit-v1",
+  "status": "passed",
+  "candidate_commit": "01032a691abdc4fddfd10f61c9e61f260f9decb3",
+  "baseline_commit": "78cc906d81818a16884de7de2e613e5a56346f93",
+  "audit_script_sha256": "33316c3a45ccc95b7a5e13f620da8f60b6833a5a679bfa7409597af6e43b7d1e",
+  "directory": {
+    "backends": {
+      "native": {
+        "contracts": 119,
+        "raw_rows": 597,
+        "operations": {
+          "ingest": 48,
+          "search_directory": 130,
+          "chapter": 97,
+          "section": 161,
+          "read": 161
+        },
+        "original_reads_verified": 161,
+        "distinct_original_pages": 80,
+        "raw_sha256": "733da969a93ac5c288dbdfd864f946c494ecab335df15f1ffb9c0778225b8a8d",
+        "source_unchanged": true
+      },
+      "python": {
+        "contracts": 119,
+        "raw_rows": 597,
+        "operations": {
+          "ingest": 48,
+          "search_directory": 130,
+          "chapter": 97,
+          "section": 161,
+          "read": 161
+        },
+        "original_reads_verified": 161,
+        "distinct_original_pages": 80,
+        "raw_sha256": "e7e48379b87e70a5ebcf9584a70f170661cee24ddf7f235b8fdc69bfa031f387",
+        "source_unchanged": true
+      }
+    },
+    "cross_backend_comparison": {
+      "same_records_except_chapter_ingestion_updated_at": true,
+      "rows_with_only_that_difference": 97,
+      "interpretation": "Descriptive offline comparison; raw timestamps remain unchanged."
+    }
+  },
+  "crowding": {
+    "verified_responses": 144,
+    "backends": {
+      "native": {
+        "current_recovery_per_18_calls": {
+          "baseline": 18,
+          "candidate": 18
+        },
+        "relevance_payload_differences_excluding_only_latency": []
+      },
+      "python": {
+        "current_recovery_per_18_calls": {
+          "baseline": 18,
+          "candidate": 18
+        },
+        "relevance_payload_differences_excluding_only_latency": []
+      }
+    },
+    "interpretation": "Retains published v0.11 recovery; no new improvement or performance claim."
+  }
+}
