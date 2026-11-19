@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "protocol": "v014-long-history-scale-1",
+  "protocol": "v014-long-history-scale-2",
   "status": "protocol-before-measurement",
   "baseline_commit": "861b7f35ac2557024d89bc51d5b3017ca35cb9d0",
   "generator": "benchmarks/v014_workload.py",
@@ -205,7 +205,7 @@
     }
   },
   "evidence": {
-    "raw": "Append-only compact timing/hash/source-reference observations plus gzip JSONL containing every complete original API response, including all failures and partial timed-out attempts. Original responses are never replaced with rescored summaries.",
+    "raw": "Append-only compact timing/hash/source-reference observations plus gzip JSONL containing every complete original API response, including all failures and partial timed-out attempts. Original responses are never replaced with rescored summaries. Validation exceptions are recorded with phase=validation after retaining the original API response; invalid framing cannot silently enter valid latency samples.",
     "dataset": "Record generated payload and logical-source hashes, actual table/page/project counts, per-target rowid span/density, created-date hashes, database/snapshot sizes and file hashes. Source reconstruction uses the frozen generator, not hidden stored answers.",
     "correctness": [
       "required evidence spans with matching original project/session/turn citations",
@@ -217,10 +217,17 @@
       "missing-evidence context-return diagnostic without calling empty output calibrated abstention",
       "directory-read source correctness and bounded evidence budget",
       "Explicit missing and partial facets are gold; nonempty context alone is neither a correct answer nor a false answer.",
-      "Returned-excerpt identifier coverage is separate from current declaration assessment and from complete semantic answerability. Missing coverage metadata is unassessed, not silently successful."
+      "Returned-excerpt identifier coverage is separate from current declaration assessment and from complete semantic answerability. Missing coverage metadata is unassessed, not silently successful.",
+      "Coverage missing identifiers must be a subset of its requested identifiers, its status and list must agree, and an explicitly present returned literal cannot receive missing credit."
     ],
     "comparison": "Same-checkpoint baseline/candidate comparisons use the same restored DB snapshot. Layout and age controls additionally compare normalized logical-source/evidence projections; data growth may legitimately change FTS scores/ranks. Any changed answers, failures, timeouts and unexecuted cells remain visible.",
     "snapshots": "Large source DB snapshots are working artifacts and may be pruned after all dependent checkpoints and arm records are saved; their original hashes/sizes and deterministic rebuild specification remain in the manifest. Retain final snapshot when resources permit. No benchmark result is claimed solely from generated input size.",
     "work": "Record candidate_count when exposed, SQL progress callbacks and SQLite trace-callback count in separately instrumented probes. Report these exact observable quantities; do not rename them scanned rows."
+  },
+  "supersedes": {
+    "protocol": "v014-long-history-scale-1",
+    "commit": "9f99edb933f7c80e782faba6df5c330aab4453b6",
+    "reason": "Pre-formal independent review found that verifier exceptions could lose the just-returned response and inconsistent coverage metadata could receive missing-signal credit. V2 retains validation-failure responses and verifies metadata consistency; sources, gold, query schedule and budgets are unchanged.",
+    "prior_execution": "Only the explicitly labeled 192-page baseline-vs-itself development plumbing was executed; its original v1 records are preserved under benchmarks/reports/v0.14-development/plumbing-baseline-selfcheck."
   }
 }

@@ -29,6 +29,7 @@ import math
 import os
 from pathlib import Path
 import platform
+import re
 import shutil
 import signal
 import sqlite3
@@ -88,7 +89,7 @@ def append_json(path, value):
 
 def plan():
     value = json.loads((ROOT / PLAN_RELATIVE).read_text(encoding="utf-8"))
-    if value["protocol"] != "v014-long-history-scale-1" or value["seed"] != SEED:
+    if value["protocol"] != "v014-long-history-scale-2" or value["seed"] != SEED:
         raise ValueError("Unknown frozen protocol/seed")
     if value["measurement"].get("expected_primary_counts") != measurement_counts(value, len(checkpoints())):
         raise ValueError("Registered call counts do not match executable loops")
@@ -381,11 +382,32 @@ def score(response, case, spec, budget=2400):
     # boundary source ranked first must not count as current-policy-first.
     first = ranks[0] if ranks else None
     stale_first = min((r for r in stale if r is not None), default=None)
-    coverage = response.get("evidence_coverage")
-    coverage = coverage if isinstance(coverage, dict) else {}
+    raw_coverage = response.get("evidence_coverage")
+    coverage = raw_coverage if isinstance(raw_coverage, dict) else {}
+    coverage_errors = []
+    if "evidence_coverage" in response and not isinstance(raw_coverage, dict):
+        coverage_errors.append("coverage_not_object")
+    if coverage and coverage.get("scope") != "returned_excerpts":
+        coverage_errors.append("coverage_scope_not_returned_excerpts")
     reported_missing = coverage.get("missing_identifiers", [])
+    requested = coverage.get("requested_identifiers", [])
+    if (not isinstance(reported_missing, list)
+            or any(not isinstance(value, str) for value in reported_missing)):
+        coverage_errors.append("invalid_missing_identifier_list")
+    if not isinstance(requested, list) or any(not isinstance(value, str) for value in requested):
+        coverage_errors.append("invalid_requested_identifier_list")
     reported_missing = reported_missing if isinstance(reported_missing, list) else []
+    requested = requested if isinstance(requested, list) else []
     reported_missing = {value.casefold() for value in reported_missing if isinstance(value, str)}
+    requested = {value.casefold() for value in requested if isinstance(value, str)}
+    if not reported_missing <= requested:
+        coverage_errors.append("missing_identifier_not_requested")
+    if (coverage.get("status") == "insufficient_evidence") != bool(reported_missing):
+        coverage_errors.append("coverage_status_and_missing_list_disagree")
+    for identifier in reported_missing:
+        literal = re.compile(r"(?<![\w.])" + re.escape(identifier) + r"(?![\w.])", re.IGNORECASE)
+        if any(literal.search(hit.get("text", "")) for hit in hits):
+            coverage_errors.append("missing_identifier_is_literally_present:" + identifier)
     expected_missing = {value.casefold() for value in case["missing_identifiers"]}
     assessment = response.get("temporal", {}).get("evidence_assessment", {})
     assessment = assessment if isinstance(assessment, dict) else {}
@@ -393,7 +415,7 @@ def score(response, case, spec, budget=2400):
     # identifier mentions do not prove a value, authority or complete coverage.
     missing_signal = (coverage.get("status") == "insufficient_evidence"
                       and coverage.get("scope") == "returned_excerpts"
-                      and expected_missing <= reported_missing and not errors)
+                      and expected_missing <= reported_missing and not errors and not coverage_errors)
     return {"answerable": answerable, "answerability": answerability,
             "required_spans": len(ranks),
             "covered_spans": sum(r is not None for r in ranks) if not errors else 0,
@@ -407,6 +429,7 @@ def score(response, case, spec, budget=2400):
             "expected_missing_identifiers": sorted(expected_missing),
             "coverage_status": coverage.get("status", "metadata_absent"),
             "coverage_scope": coverage.get("scope"),
+            "coverage_errors": coverage_errors,
             "reported_missing_identifiers": sorted(reported_missing),
             "expected_missing_identifiers_flagged": len(expected_missing & reported_missing),
             "explicit_missing_signal": missing_signal if expected_missing else None,
@@ -574,7 +597,7 @@ def measure_case(book, case, spec, mode, identity, recorder, configuration):
             finally:
                 cpu_ns, wall_ns = time.process_time_ns() - cpu, time.perf_counter_ns() - wall
     except Exception as exc:
-        error = {"type": type(exc).__name__, "message": str(exc), "traceback": traceback.format_exc()}
+        error = {"phase": "api", "type": type(exc).__name__, "message": str(exc), "traceback": traceback.format_exc()}
     finally:
         if work:
             work.stop()
@@ -582,22 +605,37 @@ def measure_case(book, case, spec, mode, identity, recorder, configuration):
     # the measured API duration. The raw API response is retained unmodified.
     if book.db.in_transaction:
         book.db.execute("ROLLBACK")
-    scored = score(normalized, case, spec, configuration["retrieval"]["budget_chars"]) if normalized else None
-    if scored is not None:
-        page_errors = page_identity_errors(book, normalized, case["project"])
-        if page_errors:
-            scored["source_errors"].extend(page_errors)
-            scored["covered_spans"] = 0
-            if scored["available_evidence_complete"] is not None:
-                scored["available_evidence_complete"] = False
-            if scored["explicit_missing_signal"] is not None:
-                scored["explicit_missing_signal"] = False
-            if scored["answerable"]:
-                scored["complete"] = False
-            if scored["current_source_first"] is not None:
-                scored["current_source_first"] = False
+    scored = None
+    if error is None:
+        try:
+            if not isinstance(normalized, dict):
+                raise ValueError("API response is not an object")
+            if case["surface"] == "recall" and (
+                    normalized.get("query") != case["query"]
+                    or normalized.get("strategy") != "book"
+                    or normalized.get("budget_chars") != configuration["retrieval"]["budget_chars"]
+                    or normalized.get("temporal", {}).get("requested") != "auto"):
+                raise ValueError("Returned request framing differs from the frozen call")
+            scored = score(normalized, case, spec, configuration["retrieval"]["budget_chars"])
+            page_errors = page_identity_errors(book, normalized, case["project"])
+            if page_errors:
+                scored["source_errors"].extend(page_errors)
+                scored["covered_spans"] = 0
+                if scored["available_evidence_complete"] is not None:
+                    scored["available_evidence_complete"] = False
+                if scored["explicit_missing_signal"] is not None:
+                    scored["explicit_missing_signal"] = False
+                if scored["answerable"]:
+                    scored["complete"] = False
+                if scored["current_source_first"] is not None:
+                    scored["current_source_first"] = False
+        except Exception as exc:
+            # The original response must survive a verifier bug or malformed
+            # output. This is a failed validation sample, never a missing row.
+            error = {"phase": "validation", "type": type(exc).__name__,
+                     "message": str(exc), "traceback": traceback.format_exc()}
     cache_valid = True
-    if case["surface"] == "recall" and normalized is not None:
+    if case["surface"] == "recall" and isinstance(normalized, dict):
         if mode == "cold-result-cache":
             cache_valid = normalized.get("cache_hit") is False
         elif mode == "warm-result-cache":
@@ -606,8 +644,8 @@ def measure_case(book, case, spec, mode, identity, recorder, configuration):
                    "mode": mode, **identity, "wall_ns": wall_ns, "process_cpu_ns": cpu_ns,
                    "error": error, "cache_mode_valid": cache_valid, "score": scored,
                    "sql_work": work.result() if work else None,
-                   "returned_candidate_count": normalized.get("candidate_count") if normalized else None,
-                   "returned_truncated": normalized.get("truncated") if normalized else None,
+                   "returned_candidate_count": normalized.get("candidate_count") if isinstance(normalized, dict) else None,
+                   "returned_truncated": normalized.get("truncated") if isinstance(normalized, dict) else None,
                    "stable_response_sha256": digest(stable_response(raw)) if raw is not None else None,
                    "resources": process_resources()}
     recorder.record(observation, raw)
@@ -946,6 +984,7 @@ def quality_totals(rows):
                                                        and row["available_evidence_complete"] is True for row in scored),
             "explicit_missing_signals": sum(row["explicit_missing_signal"] is True for row in scored),
             "coverage_metadata_absent": sum(row["coverage_status"] == "metadata_absent" for row in scored),
+            "coverage_error_outputs": sum(bool(row["coverage_errors"]) for row in scored),
             "false_missing_signals_on_answerable": sum(row["false_missing_signal_on_answerable"] is True for row in scored),
             "returned_context_for_missing": sum(row["returned_context_for_missing"] is True for row in scored)}
     return totals
