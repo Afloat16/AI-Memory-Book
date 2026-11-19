@@ -1,0 +1,154 @@
+{
+  "protocol": "v014-fixed-target-foreign-growth-1",
+  "seed": 1401973,
+  "registration_status": "Freeze and publish these four supplementary files before the first supplementary smoke or main retrieval call.",
+  "reason": "The original expanded stage follows target-source replacement/deletion, leaving targets at 15 pages. This separate matched experiment removes that source-change confound at 200k pages. The original nine-stage protocol and every observation remain unchanged and must still be reported.",
+  "evidence_class": "Supplementary authored development control, designed after inspection of earlier main-run stages; not an untouched holdout.",
+  "worker_evaluator": {
+    "protocol": "v014-paired-long-history-1",
+    "files": {
+      "benchmarks/v014_scale.py": "2bfcbfb4fcb49de8a31e12d34c44620b6453f9ce42d69d6ac0330ef411c01f5b",
+      "benchmarks/v014_workload.py": "67c501dc4ece219a753dcc40efa9b4debf7eb605a9aa0c8072e111797e8dfc50",
+      "benchmarks/v014_audit.py": "8ee7b75996a218523f365c7aed08cb82019e2e9138293c28bab2712857388d98",
+      "benchmarks/experiments/v014-long-history-plan.json": "9aa2a8aa72fe56e83eb2c93cb4369dfa0bbc0ab993a30cc017939f207e1f3a63",
+      "tests/test_v014_scale.py": "530e4f30a8f46c00d04643359576b3c13113cea14906cc9582f0b5c4efb19dc3",
+      "benchmarks/v013_scale.py": "9e9a22f67013d50b1bc1a0464e6fc507179b65a116b8afff5305537c85387945",
+      "benchmarks/v013_workload.py": "ac6b5afc3cfa560bb2890249576cf3f1bee209c6567cfcfdb11f2f6d29a2fb2d"
+    }
+  },
+  "runtimes": {
+    "baseline": {
+      "commit": "861b7f35ac2557024d89bc51d5b3017ca35cb9d0",
+      "tracked_runtime_sha256": "847e12f013a57e4b2872ee39ed83b401613d04a5cd02edf1185b2d334a4ff091"
+    },
+    "candidate": {
+      "commit": "ad8f9e8095e465fff83415057cc3428e44b73c59",
+      "tracked_runtime_sha256": "7afecda30e0a7559f96569b7659900ce05438323f04ba667410929132b8c1e83"
+    }
+  },
+  "profiles": {
+    "smoke": {
+      "total_pages": [
+        256,
+        512,
+        1024
+      ],
+      "rounds": 2,
+      "repetitions": 1,
+      "warm_calls": 1,
+      "expected_records": 996
+    },
+    "main": {
+      "total_pages": [
+        1024,
+        50016,
+        200032
+      ],
+      "rounds": 4,
+      "repetitions": 4,
+      "warm_calls": 2,
+      "expected_records": 3636
+    }
+  },
+  "stage_ids": [
+    "reference",
+    "foreign_large",
+    "foreign_200k"
+  ],
+  "invariants": {
+    "targets": 12,
+    "pages_per_target": 16,
+    "target_pages_total": 192,
+    "own_pages": 0,
+    "revision": 0,
+    "delete_config": false,
+    "shift_days": 0,
+    "layout": "clustered",
+    "source_sessions": "Every stage uses the original frozen v014 generator. Later stages restore the preceding snapshot, then ingest unchanged core/existing sources plus additional foreign sessions. Unchanged sources are skipped by the public ingest path.",
+    "queries_and_gold": "All original 108 cases, requirements, source coordinates, budgets, ordering and original 12 performance cases remain unchanged. Their canonical digest is bound before the first worker.",
+    "source_table_columns": "Hash every target-owned row in projects, chapters, sessions, turns, sections and pages, with column lists saved in each fingerprint. Exclude only bookkeeping fields listed below and pages.rid from the source-table hash. Separately hash the full target page rid/id/project_id/session_pk mapping and compare target page count/min/max rowid placement.",
+    "excluded_bookkeeping_columns": {
+      "projects": [
+        "created_at",
+        "updated_at"
+      ],
+      "chapters": [
+        "updated_at"
+      ],
+      "sessions": [
+        "updated_at"
+      ]
+    },
+    "preserved_source_metadata": "sessions.created_at, raw_json, content_hash, settings_json, project names, chapter metadata, complete turns, page IDs, contents, exact source_refs and all other listed source-table columns are included.",
+    "fail_if_target_changes": true
+  },
+  "performance_cases": [
+    "routing-archive:current",
+    "routing-archive:historical",
+    "routing-archive:multi_source",
+    "routing-core:current",
+    "routing-core:identifier",
+    "routing-core:multi_source",
+    "lease-archive:current",
+    "lease-live:identifier",
+    "compaction-archive:multi_source",
+    "routing-archive:directory",
+    "routing-core:directory",
+    "lease-archive:directory"
+  ],
+  "measurement": {
+    "arms": {
+      "baseline": "861b7f35 global default",
+      "candidate": "ad8f9e8 explicit project ranking"
+    },
+    "candidate_ranking_scope": "project",
+    "required_fields_controls": false,
+    "backend": "native for primary run; python permitted only as separately labeled repetition",
+    "arm_order_by_round": [
+      [
+        "baseline",
+        "candidate"
+      ],
+      [
+        "candidate",
+        "baseline"
+      ],
+      [
+        "baseline",
+        "candidate"
+      ],
+      [
+        "candidate",
+        "baseline"
+      ]
+    ],
+    "unchanged_worker": "benchmarks/v014_scale.py worker-build and worker-measure via the original scale.invoke. No global monkeypatch or modified original worker/scorer.",
+    "quality_calls": 648,
+    "performance_calls": 2880,
+    "first_request_calls": 24,
+    "work_diagnostic_calls": 72,
+    "foreign_write_calls": 12,
+    "main_arm_workers": 24,
+    "cold_samples_per_case_arm_stage": 16,
+    "warm_samples_per_case_arm_stage": 32,
+    "directory_samples_per_case_arm_stage": 16,
+    "p95": "Nearest rank. For 16 samples p95 equals the maximum. No confidence interval or significance claim.",
+    "timing_scope": "Original public API timers unchanged. Snapshot copying/restoring, source fingerprints, journal writes and scoring remain outside query timers. First-request and after-foreign-write costs remain separately recorded.",
+    "work_scope": "Original progress handlers on parent and cached local SQLite connections; separate calls, excludes internal FTS C work and initial projection construction.",
+    "cold_scope": "Result-cache miss only; OS and SQLite page caches are not evicted."
+  },
+  "storage": {
+    "encoding": "gzip",
+    "original_sqlite_bytes": "Exact original bytes are authenticated before removing raw snapshots and after every restore. Original compressed snapshots and raw response journals are retained.",
+    "minimum_free_bytes": 1000000000,
+    "reuse_old_measurements": false
+  },
+  "auditing": "Separate supplementary auditor checks the exact registered stage/arm/round matrix, complete per-worker (case, mode, repetition, warm) identity multiset and all 108 quality cases per arm, protocol copies, original response pairing/hashes, per-worker runtime identity, unchanged target fingerprints, actual page counts, source slices, cache behavior and full registered gold. It reuses the original scoring rules without changing them. The execution guard requires a clean committed protocol HEAD before and throughout the run; offline auditing verifies the same bound file bytes and records that commit separately so that an artifact restore does not need a live Git checkout.",
+  "reporting": [
+    "Report all stage/case/mode rows, failures, quality losses/gains, missing-evidence nonempty outputs, p50 and p95 with sample counts, first-preparation and foreign-write diagnostics, actual ranking route/fallback, VM counts and worker resources.",
+    "Report the complete original nine-stage run separately, including its 15-page post-deletion 200k stage; never replace or hide an unfavorable original stage.",
+    "No required-fields gate calls are included; retain its earlier diagnostics and limitations from the original experiment.",
+    "Public-source holdout regressions continue to block project-local ranking as a default. Supplementary scale improvements cannot override those regressions.",
+    "Evidence supports only these authored cases, source histories and environments. It does not prove constant-time behavior, universal retrieval correctness, RSS bounds, calibrated abstention or LLM coding-task success."
+  ]
+}
