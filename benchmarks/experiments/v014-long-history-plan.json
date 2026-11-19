@@ -1,0 +1,26 @@
+{
+  "protocol": "v014-paired-long-history-1",
+  "seed": 1401973,
+  "status": "freeze-before-first-formal-run",
+  "preformal_storage_addendum": {
+    "version": "lossless-gzip-snapshots-1",
+    "reason": "Available workspace disk space cannot retain every uncompressed 100k/200k-stage database concurrently.",
+    "optional_flag": "--compressed-snapshots",
+    "semantics": "Only snapshot storage changes. Workload, original source bytes, queries, gold, budgets, arm order, API timing boundaries and scoring stay unchanged.",
+    "integrity": "Bind compressed artifact hash/size and original SQLite hash/size; reopen completed gzip and authenticate the full stream before deleting raw; restore exact bytes before every worker and offline source audit.",
+    "resource_policy": "Keep a 1000000000-byte free-space floor. Check full raw restoration headroom before writing, and enforce the floor during compression, restoration and ingestion. Stop safely and retain evidence on resource failure.",
+    "prior_protocol": "The complete pre-addendum source bytes are preserved in the continuation evidence; early smoke measurements retain their original bindings."
+  },
+  "rounds": 4,
+  "repetitions": 4,
+  "warm_calls": 2,
+  "budget_chars": 2400,
+  "limit": 5,
+  "claims": "Synthetic scale plus authored transfer development evidence; no heldout real-project or LLM-task claim.",
+  "controls": ["timestamp age only", "foreign growth with target fixed", "own history growth", "same logical corpus interleaved physical layout", "same-name distinct project IDs", "source replacement through each runtime", "source deletion through each runtime", "unrelated source write then old-project revalidation", "first request after opening each worker", "exact original source reference reconstruction", "cold versus warm result cache", "separate parent and cached project-connection SQLite VM work diagnostics", "optional explicit required-field false-rejection and missing-evidence diagnostics"],
+  "resource_limits": {"worker_timeout_seconds": 1800, "minimum_free_bytes": 1000000000, "call_timeout_seconds": 45},
+  "timing_boundary": "Only public API invocation. Database restore, opening, mutation preparation, scoring and journaling are outside API latency; opening and mutations retained separately.",
+  "work_diagnostic_boundary": "Separate steady-state calls with sqlite3 progress_handler every 100 VM operations on the parent and every cached project-local connection. First projection building is measured by first-request latency separately. FTS internal C operations and filesystem traffic are not counted.",
+  "acceptance": {"retain_all_failures": true, "source_errors": 0, "cross_project_errors": 0, "no_complete_case_regressions": true, "report_all_timing_groups": true, "absence_is_not_proven_by_context_presence": true},
+  "notes": ["Four alternating AB/BA rounds; 16 cold and 32 warm samples per recall query and arm per stage.", "Optional expanded profile adds foreign growth to more than 200000 actual pages; never label it executed unless manifest completed.", "No changed query, expected answer, budget or order may erase a measured failure.", "Source and evaluator byte identities bind every worker before and after execution."]
+}

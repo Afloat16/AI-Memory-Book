@@ -11,7 +11,7 @@ import time
 import unicodedata
 from bisect import bisect_right
 from datetime import datetime, timezone
-from functools import lru_cache
+from functools import lru_cache, wraps
 from pathlib import Path
 from types import FunctionType
 from typing import Any
@@ -24,7 +24,7 @@ from .text import (IDENTIFIER_WORD_BOUNDARY, estimate_tokens, excerpt, headline,
 SCHEMA_VERSION = 4
 INDEX_VERSION = 3
 LEXICAL_INDEX_VERSION = 1
-RECALL_VERSION = 26
+RECALL_VERSION = 27
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -989,6 +989,48 @@ def _repeated_declaration_prefix(prefixes: list[str | None], values: list[str],
     return prefixes[0] if None not in scopes and len(set(scopes)) == 1 else None
 
 
+def _literal_prose_identifier(name: str, query: set[str] | None) -> bool:
+    """Keep stopwords inside an explicitly named, unspaced source identifier.
+
+    Prose discovery normally requires every subject word to survive query
+    stopword removal. A complete literal identifier may itself contain words
+    such as ``current`` or 最终. Admit that narrowly when a *separate* current
+    cue remains outside the identifier. This does not reinterpret a spaced
+    phrase such as "current retry limit" as one field, or lend a suffix the
+    identity of a longer qualified/Chinese name.
+    """
+    if (not isinstance(query, _DeclarationQueryTerms) or not name
+            or any(character.isspace() for character in name)
+            or CURRENT_QUERY.fullmatch(name)):
+        return False
+    text = query.query
+    if len(name) > len(text):
+        return False
+
+    def identifier_character(character: str) -> bool:
+        return character.isalnum() or character in "_.-"
+
+    for match in re.finditer(re.escape(name), text, flags=re.IGNORECASE):
+        start, end = match.span()
+        if end < len(text) and identifier_character(text[end]):
+            continue
+        if start and identifier_character(text[start - 1]):
+            prefix_start = start
+            while prefix_start and identifier_character(text[prefix_start - 1]):
+                prefix_start -= 1
+            prefix = text[prefix_start:start]
+            # Chinese questions commonly join 当前 directly to an exact name.
+            # Only a whole Chinese temporal cue can supply that boundary;
+            # namespace dots, ASCII name prefixes and longer CJK words cannot.
+            if not (CURRENT_QUERY.fullmatch(prefix)
+                    and re.search(r"[\u3400-\u9fff]", prefix)):
+                continue
+        outside = text[:start] + " " + text[end:]
+        if CURRENT_QUERY.search(outside):
+            return True
+    return False
+
+
 def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched: dict[int, set[str]],
                         contents: dict[int, str], references: dict[int, str], *,
                         qualifier_contexts: dict | None = None,
@@ -1068,7 +1110,9 @@ def _declaration_groups(db: sqlite3.Connection | None, pool: list[dict], matched
                 continue
             for name, identity in suffixes:
                 aliases = set(query_terms(name))
-                if not aliases or not aliases <= query or not set(lexical_terms(name)) <= aliases:
+                if (not aliases or not aliases <= query
+                        or (not set(lexical_terms(name)) <= aliases
+                            and not _literal_prose_identifier(name, query_tokens))):
                     continue
                 if identity not in fields and len(fields) == _MAX_DECLARATION_FIELDS:
                     return {}, {"basis": "relevance retained: field analysis exceeded 64 fields"}
@@ -1330,12 +1374,13 @@ def _current_evidence_assessment(pool: list[dict], groups: dict, source_analysis
             conflicts.append({"page_ids": [item["id"] for item in latest],
                               "created_at": timestamp, "statement_scope": scope,
                               "basis": "same declared fields and local scope; equal latest timestamp; distinct literal values"})
-    return {"status": ("potential_conflict" if conflicts else
+    result = {"status": ("potential_conflict" if conflicts else
                         "comparable_declaration" if comparable else "no_comparable_declaration"),
             "scope": "bounded_candidate_pool", "inspected_candidates": len(pool),
             "complete_sources": len(complete), "comparable_candidates": len(comparable),
             "compared_groups": compared_groups, "conflicts": conflicts,
             "basis": "Syntax and timestamps describe only inspected candidates; they do not establish truth, authority or exhaustive archive coverage."}
+    return result
 
 
 def _reference_only_nondecision_fields(body: str, chapter_title: str,
@@ -1580,6 +1625,11 @@ def _prefer_current_pool(db: sqlite3.Connection, pool: list[dict],
         if diagnostics is not None:
             diagnostics["evidence_assessment"] = _current_evidence_assessment(
                 pool, groups, source_analysis, turn_positions)
+            if diagnostics.get("_required_fields"):
+                from .evidence_gate import declaration_support
+                diagnostics["_support"] = declaration_support(
+                    pool, contents, references, source_analysis.get("complete_sources", set()),
+                    diagnostics["_required_fields"])
         moved = _prefer_declarations_over_nondecisions(
             pool, groups, matched, contents, references, source_analysis)
         if moved and diagnostics is not None:
@@ -1622,7 +1672,7 @@ class MemoryBook:
     query text is transmitted by that vocabulary initialization.
     """
 
-    def __init__(self, path: str | Path = ".memory-book/memory.db", *, segmentation: str = "adaptive", max_page_chars: int = 900, min_page_chars: int = 400, similarity_threshold: float = 0.12, cache_size: int = 128, semantic_model_dir: str | Path | None = None):
+    def __init__(self, path: str | Path = ".memory-book/memory.db", *, segmentation: str = "adaptive", max_page_chars: int = 900, min_page_chars: int = 400, similarity_threshold: float = 0.12, cache_size: int = 128, semantic_model_dir: str | Path | None = None, ranking_scope: str = "global"):
         if segmentation not in {"adaptive", "turn", "session"}:
             raise ValueError("segmentation must be adaptive, turn, or session")
         _integer(max_page_chars, "max_page_chars", 128, 100_000)
@@ -1630,6 +1680,10 @@ class MemoryBook:
         _integer(cache_size, "cache_size", 0, 10_000)
         if isinstance(similarity_threshold, bool) or not isinstance(similarity_threshold, (int, float)) or not 0 <= similarity_threshold <= 1:
             raise ValueError("similarity_threshold must be between 0 and 1")
+        if not isinstance(ranking_scope, str) or ranking_scope not in {"global", "project"}:
+            raise ValueError("ranking_scope must be global or project")
+        self.ranking_scope = ranking_scope
+        self._project_indexes = None
         self.path = str(path)
         self.segmentation, self.max_page_chars = segmentation, max_page_chars
         self.min_page_chars, self.similarity_threshold = min_page_chars, similarity_threshold
@@ -1719,14 +1773,19 @@ class MemoryBook:
 
     def close(self) -> None:
         try:
-            self.db.close()
+            project_indexes = getattr(self, "_project_indexes", None)
+            if project_indexes is not None:
+                project_indexes.close()
         finally:
             try:
-                self._directory_tokens.cache_clear()
+                self.db.close()
             finally:
-                self._semantic_model = None
-                if self._token_count_memo is not None:
-                    self._token_count_memo.clear()
+                try:
+                    self._directory_tokens.cache_clear()
+                finally:
+                    self._semantic_model = None
+                    if self._token_count_memo is not None:
+                        self._token_count_memo.clear()
 
     def _token_memo_snapshot(self) -> dict[str, int]:
         """Read-only private diagnostics; never allocate or warm the memo."""
@@ -2022,6 +2081,9 @@ class MemoryBook:
                          chapter: str | None = None, limit: int = 10,
                          offset: int = 0) -> dict:
         """Locate directory entries without treating their titles as evidence."""
+        if self.ranking_scope == "project":
+            return self._project_scoped_call("search_directory", query,
+                {"project": project, "chapter": chapter, "limit": limit, "offset": offset})
         from .directory import search_directory
         return search_directory(self, query, project=project, chapter=chapter,
                                 limit=limit, offset=offset)
@@ -2502,7 +2564,29 @@ class MemoryBook:
         # the caller. Rejected copies leave its exact order and scores intact.
         return pool, list(candidates[pool_size:])
 
-    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 2400, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False, temporal: str = "auto") -> dict:
+    def _project_scoped_call(self, operation: str, query: str, options: dict) -> dict:
+        from .project_index import ProjectIndexes
+        if self._project_indexes is None:
+            self._project_indexes = ProjectIndexes()
+        return self._project_indexes.call(self, operation, query, options)
+
+    def _project_recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 2400, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False, temporal: str = "auto", required_fields: list[str] | None = None) -> dict:
+        """Recall original evidence, optionally with bounded project-local ranks.
+
+        ``ranking_scope='project'`` on the book opts into project-local BM25
+        for complete small scopes. Responses disclose preparation cost and any
+        bounded fallback. The default global corpus and scores are unchanged.
+        """
+        options = dict(project=project, chapter=chapter, session=session,
+                       budget_chars=budget_chars, limit=limit, strategy=strategy,
+                       use_cache=use_cache, coverage=coverage, budget_tokens=budget_tokens,
+                       tokenizer=tokenizer, semantic=semantic, temporal=temporal,
+                       required_fields=required_fields)
+        if self.ranking_scope == "project":
+            return self._project_scoped_call("recall", query, options)
+        return self._recall(query, **options)
+
+    def recall(self, query: str, project: str | None = None, chapter: str | None = None, session: str | None = None, *, budget_chars: int = 2400, limit: int = 5, strategy: str = "book", use_cache: bool = True, coverage: bool = False, budget_tokens: int | None = None, tokenizer: str = "cl100k_base", semantic: bool = False, temporal: str = "auto", required_fields: list[str] | None = None) -> dict:
         """Recall source evidence with optional current-state ordering.
 
         temporal=auto conservatively infers current versus relevance ordering;
@@ -2514,6 +2598,12 @@ class MemoryBook:
         started = time.perf_counter_ns()
         query = _string(query, "query", maximum=8000, required=False)
         temporal_intent = _resolve_temporal_intent(query, temporal, strategy)
+        from .evidence_gate import apply_evidence_gate, normalize_required_fields
+        required_fields = normalize_required_fields(required_fields)
+        if required_fields is not None:
+            if project is None:
+                raise ValueError("required_fields requires an explicit project")
+            temporal_intent["_required_fields"] = required_fields
         _integer(budget_chars, "budget_chars", 0, 100_000)
         _integer(limit, "limit", 1, 50)
         from .token_budget import TOKENIZERS, TokenCounter
@@ -2546,6 +2636,8 @@ class MemoryBook:
         try:
             revision = self.revision
             cache_options = [INDEX_VERSION, RECALL_VERSION, query, project, chapter, session, budget_chars, limit, strategy, coverage, temporal]
+            if required_fields is not None:
+                cache_options.extend(["required_fields_v3", required_fields])
             if semantic_model is not None:
                 from .semantic import FUSION_VERSION, SEMANTIC_VERSION, check_index, fuse_candidates, rank_pages
                 check_index(self.db, revision, semantic_model)
@@ -3119,6 +3211,9 @@ class MemoryBook:
             result.update(budget_tokens=budget_tokens, tokenizer=tokenizer,
                           tokenizer_version=token_counter.version,
                           context_tokens=context_tokens)
+        temporal_intent.pop("_required_fields", None)
+        support = temporal_intent.pop("_support", [])
+        result = apply_evidence_gate(result, required_fields, support)
         if use_cache and self.cache_size:
             # A concurrent ingestion must not be overwritten by an old cache.
             self.db.execute("BEGIN IMMEDIATE")
@@ -3132,6 +3227,12 @@ class MemoryBook:
                 raise
         result["latency_ms"] = (time.perf_counter_ns() - started) / 1e6
         return result
+
+    # Keep the established implementation's function/frame identity for
+    # instrumentation and custom hooks. The ordinary wrapper only chooses the
+    # explicit ranking scope; no code-object or historical fixture changes.
+    _recall = recall
+    recall = wraps(_recall)(_project_recall)
 
 
 _ORDINARY_REFS = MemoryBook._refs

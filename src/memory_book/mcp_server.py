@@ -132,7 +132,7 @@ def recall_payload(result: dict[str, Any], *, details: bool = False,
                                       for key in ("status", "scope", "conflicts")}}
                if assessed else {}),
             **{key: result[key] for key in ("budget_tokens", "tokenizer", "tokenizer_version", "context_tokens",
-                                           "semantic", "semantic_model_fingerprint")
+                                           "semantic", "semantic_model_fingerprint", "evidence_gate", "ranking_scope")
                if key in result}}
 
 
@@ -170,10 +170,13 @@ class _BookResource:
 
 def create_server(db_path: str | Path, allow_write: bool = False, *,
                   semantic_model_dir: str | Path | None = None,
-                  source_format: str = "objects", project: str | None = None) -> FastMCP:
+                  source_format: str = "objects", project: str | None = None,
+                  ranking_scope: str = "global") -> FastMCP:
     """Create an MCP server; knowledge writes must be explicitly enabled."""
     if source_format not in ("objects", "indexed"):
         raise ValueError("source_format must be objects or indexed")
+    if ranking_scope not in ("global", "project"):
+        raise ValueError("ranking_scope must be global or project")
     bound_project = validate_project(project) if project is not None else None
 
     def requested_project(value: str | None) -> str | None:
@@ -214,14 +217,14 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
             # Direct SDK calls have no transport lifespan. A future SDK may
             # also offload tools to worker threads. Both keep the original
             # safe, temporary connection behavior and SQLite's thread guard.
-            with MemoryBook(database, semantic_model_dir=semantic_model_dir) as book:
+            with MemoryBook(database, semantic_model_dir=semantic_model_dir, ranking_scope=ranking_scope) as book:
                 yield book
             return
         identity = _database_identity(database)
         if owned.book is not None and identity != owned.identity:
             owned.close()
         if owned.book is None:
-            book = MemoryBook(database, semantic_model_dir=semantic_model_dir)
+            book = MemoryBook(database, semantic_model_dir=semantic_model_dir, ranking_scope=ranking_scope)
             after_open = _database_identity(database)
             if identity is None or identity != after_open:
                 # A new file or a concurrent replacement has no stable
@@ -261,6 +264,7 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
         tokenizer: str = "cl100k_base",
         semantic: StrictBool = False,
         temporal: Literal["auto", "current", "relevance"] = "auto",
+        required_fields: list[str] | None = None,
     ) -> str:
         """Recall cited history. Compact by default; details adds exact spans and diagnostics.
 
@@ -281,6 +285,11 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
         evidence_assessment status and conflict page IDs even in compact output;
         these do not establish truth or exhaustive absence. details=true adds
         the resolution basis and assessment counts.
+        required_fields optionally names literal fields whose complete current
+        declarations must all survive in the returned pages. It requires a
+        project and withholds context when support is missing, truncated or
+        conflicting. This conservative gate does not prove archive-wide absence
+        or answerability for arbitrary prose; evidence_gate explains its result.
         """
         _range(budget_chars, "budget_chars", 0, 100000)
         _range(limit, "limit", 1, 50)
@@ -290,7 +299,7 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
                 query, project=project, chapter=chapter, session=session,
                 budget_chars=budget_chars, limit=limit, coverage=coverage,
                 budget_tokens=budget_tokens, tokenizer=tokenizer,
-                semantic=semantic, temporal=temporal,
+                semantic=semantic, temporal=temporal, required_fields=required_fields,
             )
         return _json(recall_payload(result, details=details, source_format=source_format))
 
@@ -305,10 +314,9 @@ def create_server(db_path: str | Path, allow_write: bool = False, *,
         bound connection; unbound connections may explicitly search all books.
         Follow returned IDs under their exact project before citing any text.
         """
-        from .directory import search_directory as locate
         project = requested_project(project)
         with acquire_book() as book:
-            return _json(locate(book, query, project=project, chapter=chapter,
+            return _json(book.search_directory(query, project=project, chapter=chapter,
                                 offset=offset, limit=limit))
 
     @server.tool(annotations=read_only)
@@ -518,10 +526,12 @@ async def _run_standard_stdio(server, transport, binary):
 
 def serve(db_path: str | Path, allow_write: bool = False, *,
           semantic_model_dir: str | Path | None = None,
-          source_format: str = "objects", project: str | None = None) -> None:
+          source_format: str = "objects", project: str | None = None,
+          ranking_scope: str = "global") -> None:
     """Run the SDK's stdio transport. No HTTP listener is created."""
+    scope_options = {"ranking_scope": ranking_scope} if ranking_scope != "global" else {}
     server = create_server(db_path, allow_write=allow_write, semantic_model_dir=semantic_model_dir,
-                           source_format=source_format, project=project)
+                           source_format=source_format, project=project, **scope_options)
     configuration = _standard_stdio_config(server)
     if configuration is None:
         server.run(transport="stdio")

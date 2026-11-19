@@ -34,6 +34,9 @@ def parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="memory-book", description="AI conversation memory organized as books, with direct evidence recall.")
     p.add_argument("--version", action="version", version=__version__)
     p.add_argument("--db", help="SQLite path (default: configured shared user database, or MEMORY_BOOK_DB)")
+    p.add_argument("--ranking-scope", choices=("global", "project"),
+                   default=os.environ.get("MEMORY_BOOK_RANKING_SCOPE", "global"),
+                   help="FTS statistics: global (compatible default), or bounded project-local ranking with explicit fallback")
     sub = p.add_subparsers(dest="command", required=True)
     sub.add_parser("init", help="Initialize the local database")
     sub.add_parser("projects", help="List project books")
@@ -60,6 +63,8 @@ def parser() -> argparse.ArgumentParser:
     recall.add_argument("--tokenizer", choices=("cl100k_base", "o200k_base"), default="cl100k_base", help="Reference tokenizer for --budget-tokens")
     recall.add_argument("--limit", type=int, default=5)
     recall.add_argument("--temporal", choices=("auto", "current", "relevance"), default="auto", help="Time ordering: infer conservatively (auto), prefer comparable current evidence, or keep relevance order; not an as-of state resolver")
+    recall.add_argument("--require-field", action="append", dest="required_fields",
+                        help="Withhold context unless this literal field has a complete supported current declaration; repeat for multiple fields; requires --project")
     recall_mode = recall.add_mutually_exclusive_group()
     recall_mode.add_argument("--flat", action="store_true", help="Disable directory ranking signal (evaluation baseline)")
     recall_mode.add_argument("--coverage", action="store_true", help="Opt in to experimental explicit-clause coverage; adds search work and can reduce small-budget completeness")
@@ -368,7 +373,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "mcp":
             from .mcp_server import serve
             serve(args.db, allow_write=args.allow_write, semantic_model_dir=args.semantic_model_dir,
-                  source_format=args.source_format, project=args.project)
+                  source_format=args.source_format, project=args.project, ranking_scope=args.ranking_scope)
             return 0
         if args.command == "serve":
             from .web import serve
@@ -394,7 +399,8 @@ def main(argv: list[str] | None = None) -> int:
         if book_type is None:
             book_type = __getattr__("MemoryBook")
         with book_type(args.db, segmentation=mode, max_page_chars=getattr(args, "page_chars", 900),
-                        semantic_model_dir=getattr(args, "semantic_model_dir", None)) as book:
+                        semantic_model_dir=getattr(args, "semantic_model_dir", None),
+                        ranking_scope=args.ranking_scope) as book:
             if args.command in {"init", "stats"}:
                 _print(book.stats())
             elif args.command == "projects":
@@ -406,7 +412,7 @@ def main(argv: list[str] | None = None) -> int:
                 # still leave earlier sessions committed; replay is idempotent.
                 _print([book.ingest(session) for session in sessions])
             elif args.command == "recall":
-                result = book.recall(args.query, project=args.project, chapter=args.chapter, session=args.session, budget_chars=args.budget, limit=args.limit, strategy="flat" if args.flat else "book", use_cache=not args.no_cache, coverage=args.coverage, budget_tokens=args.budget_tokens, tokenizer=args.tokenizer, semantic=args.semantic, temporal=args.temporal)
+                result = book.recall(args.query, project=args.project, chapter=args.chapter, session=args.session, budget_chars=args.budget, limit=args.limit, strategy="flat" if args.flat else "book", use_cache=not args.no_cache, coverage=args.coverage, budget_tokens=args.budget_tokens, tokenizer=args.tokenizer, semantic=args.semantic, temporal=args.temporal, required_fields=args.required_fields)
                 if args.json:
                     _print(result)
                 else:
@@ -417,8 +423,7 @@ def main(argv: list[str] | None = None) -> int:
                     for warning in result["warnings"]:
                         print(warning, file=sys.stderr)
             elif args.command == "locate":
-                from .directory import search_directory
-                _print(search_directory(book, args.query, project=args.project,
+                _print(book.search_directory(args.query, project=args.project,
                                         chapter=args.chapter, offset=args.offset, limit=args.limit))
             elif args.command == "toc":
                 _print(book.toc(args.project, offset=args.offset, limit=args.limit))
