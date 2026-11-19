@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "protocol": "v014-long-history-scale-1",
+  "status": "protocol-before-measurement",
+  "baseline_commit": "861b7f35ac2557024d89bc51d5b3017ca35cb9d0",
+  "generator": "benchmarks/v014_workload.py",
+  "runner": "benchmarks/v014_scale.py",
+  "tests": "tests/test_v014_scale.py",
+  "seed": 1401729,
+  "scope": "Authored synthetic source-grounded engineering-memory diagnostic. No real-user, LLM coding-success, external-product, million-page, or universal superiority claim.",
+  "freeze": {
+    "required": "The new protocol, wrapper generator, runner, tests and unchanged v013_workload dependency must be committed before formal workload queries. Bind that explicit commit; preserve all failures and development diagnostics separately.",
+    "binding": "run requires an explicit protocol commit and two exact, clean runtime checkouts; file bytes are checked against the protocol commit. Both runtime commits, tracked runtime file hashes, loaded backend and native extension hash are recorded.",
+    "integrity_tests_before_freeze": "Pure generation, adversarial saved-response scoring, schedule and resource-bound tests are permitted before freeze. A separately labeled development profile may check 192-page plumbing after commit and must never enter formal counts.",
+    "failures": "Never rewrite queries, gold, sources, timing order or budgets to remove observed failures. Corrections require a new protocol version and retain original attempts. Interrupted work is resumable with immutable attempt directories.",
+    "integrity_test_reporting": "Label tests/test_v014_scale.py as evaluator integrity. It does not execute the formal retrieval matrix."
+  },
+  "source": {
+    "construction": "Only MemoryBook.ingest creates original conversations, turns, sections, pages and FTS indexes. No synthetic direct table population.",
+    "segmentation": "turn",
+    "max_page_chars": 900,
+    "min_page_chars": 0,
+    "boundary": "Turn segmentation deliberately gives one real stored page per turn. It is not a study of default adaptive segmentation, long-page quality, embedding retrieval, concurrent load or operating-system cold boot.",
+    "target_projects": 8,
+    "target_initial_pages_per_project": 16,
+    "inactive_targets": [
+      "routing-archive",
+      "ranking-archive"
+    ],
+    "long_lived_targets": [
+      "routing-core",
+      "training-core",
+      "attention-core"
+    ],
+    "newcomer_targets": [
+      "ranking-next",
+      "training-next",
+      "attention-next"
+    ],
+    "background_pages_per_session": 32,
+    "foreign_pages_per_project_at_most": 64,
+    "similarity": "Exact task names and code identifiers recur across projects; project IDs and approved numeric values differ. Original/current contracts, historical failures, Chinese queries, multi-source boundaries and source replacement are explicit. Approved current sources also contain Chinese text; Chinese cases require the original Chinese clause and code-point source coordinates. The v014 background nonce seed differs; all prior 72 source-grounded questions are retained and 16 new questions require explicitly absent exact identifiers, including eight partially answerable multi-facet requests.",
+    "gold_separation": "Retrieval receives only query, exact project ID and fixed request options. Expected quotes/source identities are passed only to the scorer after retrieval. Directory traversal follows returned IDs without gold-guided selection."
+  },
+  "axes": {
+    "age": "Fresh independent 1024-page databases, identical content and physical order, shift all source timestamps by either 3650 or 7300 days. This is a source-age control, not actual process uptime.",
+    "foreign": "Hold every target at its original 16 pages while foreign history grows: total 1024, 10016, 50016, 100000 pages. Project-local answers and evidence remain unchanged.",
+    "own": "Hold 99872 foreign pages fixed and add 100000 pages to the six active targets, reaching 200000 total. Two old targets stay at 16 pages. Own-history queries are a separate scaling axis; a small-project optimization is not evidence of bounded large-project work.",
+    "layout": "Rebuild exactly the 200000-page logical corpus in interleaved order; logical-source and page-ID hashes must match clustered own-200000, physical row layout must differ.",
+    "replacement": "Reingest the six registered active-config sources under the same identities after interleaving; changed values and timestamps are preregistered. 200000 pages remain."
+  },
+  "resource_profiles": {
+    "main": {
+      "required": true,
+      "checkpoint_ids": [
+        "age-reference-1024",
+        "age-shift-3650-1024",
+        "age-shift-7300-1024",
+        "foreign-10016",
+        "foreign-50016",
+        "foreign-100000",
+        "own-200000",
+        "interleaved-200000",
+        "replacement-200000"
+      ],
+      "total_pages": [
+        1024,
+        1024,
+        1024,
+        10016,
+        50016,
+        100000,
+        200000,
+        200000,
+        200000
+      ]
+    },
+    "expanded": {
+      "required": false,
+      "requires_explicit_profile_selection": true,
+      "additional_checkpoint_ids": [
+        "foreign-350016",
+        "own-500000"
+      ],
+      "additional_total_pages": [
+        350016,
+        500000
+      ],
+      "interpretation": "Only executed, completed cells are results. This extension is optional and uses the same quality/performance rules."
+    },
+    "development": {
+      "required": false,
+      "development_only": true,
+      "checkpoint_ids": [
+        "development-192"
+      ],
+      "total_pages": [
+        192
+      ],
+      "interpretation": "Post-commit plumbing diagnostic; never pooled with formal data and never evidence for scale or unseen quality."
+    }
+  },
+  "limits": {
+    "minimum_free_bytes": 1073741824,
+    "maximum_database_bytes": 4294967296,
+    "minimum_snapshot_headroom_bytes": 268435456,
+    "call_timeout_seconds": 20,
+    "worker_timeout_seconds": 900,
+    "build_timeout_seconds": 5400,
+    "run_timeout_seconds": 21600,
+    "on_limit": "Flush original journals; record actual achieved counts and the exact limit. Stop and list every unexecuted checkpoint/arm. Do not extrapolate 100k or optional 200k success."
+  },
+  "retrieval": {
+    "strategy": "book",
+    "temporal": "auto",
+    "semantic": false,
+    "coverage": false,
+    "limit": 5,
+    "budget_chars": 2400,
+    "budget_tokens": null,
+    "quality_recall_queries": 80,
+    "quality_directory_queries": 8,
+    "quality_answerable_recall_queries": 56,
+    "quality_missing_queries": 16,
+    "repeated_question_boundary": "Identifier and replacement prompts intentionally test the same source in different wording. Repeats, phases, projects and cache calls are not independent real-user examples.",
+    "quality_partial_queries": 8
+  },
+  "directory": {
+    "chapter_limit": 2,
+    "sections_per_chapter": 3,
+    "pages_per_section": 1,
+    "read_limit_chars": 900,
+    "total_original_evidence_budget_chars": 2400,
+    "path": "search_directory -> returned section IDs -> section -> returned page IDs -> read, with exact project scope on every call. Navigation titles/summaries do not count as evidence. Directory quality is a separate channel from direct recall."
+  },
+  "measurement": {
+    "backend": "explicit native or python; both arms must use the same selection, actual backend recorded, never silently fall back",
+    "runtime_environment": {
+      "PYTHONHASHSEED": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    },
+    "arm_order_by_round": [
+      [
+        "baseline",
+        "candidate"
+      ],
+      [
+        "candidate",
+        "baseline"
+      ],
+      [
+        "candidate",
+        "baseline"
+      ],
+      [
+        "baseline",
+        "candidate"
+      ]
+    ],
+    "repetitions_per_query_per_round": 8,
+    "warm_result_cache_calls_per_cold_call": 1,
+    "performance_query_ids": [
+      "routing-archive:current",
+      "routing-archive:historical",
+      "routing-archive:directory",
+      "routing-core:identifier",
+      "routing-core:current",
+      "ranking-next:directory",
+      "training-core:multi_source",
+      "attention-next:replacement",
+      "routing-archive:missing_identifier"
+    ],
+    "quality": "All 88 cases per arm/checkpoint in first block, after the first-connection query. Every timing/probe response is independently source/gold checked outside its timer. Partial-answer cases count available required evidence separately from whole-request answerability.",
+    "cold_result_cache": "Delete only recall_cache outside timing before each cold sample, require cache_hit=false, then immediately execute one warm call requiring cache_hit=true. Connection helper caches, pager and OS cache are not flushed. The separately labeled first-connection call precedes quality and all other retrieval in each fresh worker.",
+    "directory_cache": "The directory path has no result cache. Label its repeated measurements uncached-directory; do not call them warm recall-cache hits.",
+    "isolation": "No arm processes overlap. Build a baseline source snapshot through real ingest. For each stage, restore it once into a dedicated candidate-initialization worker which executes zero retrieval calls, checks an empty result cache and verifies source-table/logical-source/page-ID equality, then save a candidate-indexed snapshot. Record this one-time migration separately. Every baseline block restores only the baseline snapshot; every candidate block restores only its candidate snapshot, each in a fresh process. Original source bytes are identical; derived indexes intentionally differ. Source hashes, restore time, SQL work probes, scoring and journaling are outside uninstrumented query timers. Keep all failed attempts; lock is inherited by children.",
+    "os_cache_boundary": "Restoration and earlier calls populate filesystem/OS caches. No privileged drop_caches operation or physical-storage-cold latency claim. Record host load/CPU/RSS and SQLite main/WAL/SHM sizes. ABBA helps order effects but is not proof of a noise-free isolated machine.",
+    "clock": "perf_counter_ns for external API wall time; process_time_ns for child-process CPU. resource.ru_maxrss is process lifetime high-water RSS, not per-call allocation or total system memory.",
+    "statistics": "Per checkpoint/arm/query/mode report n, p50, nearest-rank p95, min/max, errors, incompleteness and paired per-round medians. Four balanced rounds x eight repeats give 32 cold/directory and 32 immediate warm calls; first-connection and work probes have n=4. No p99 claim. Never pool unlike modes, probe wall time with production latency, failed partial attempts with resumed replacements, or unlike query sizes.",
+    "source_identity": "Exact baseline/candidate Git commits and hashes of all tracked src/memory_book files plus the imported extension; explicit repo-root-specific PYTHONPATH in fresh subprocesses. Timings do not measure shell/subprocess startup.",
+    "host_support": "Formal timing requires a POSIX host with resource, flock and SIGALRM. Integrity tests remain importable on Windows; this protocol makes no cross-platform timing claim.",
+    "call_deadline": "The 20-second per-call SIGALRM deadline is best-effort: Python may handle the signal only after a SQLite/native C call returns. The parent enforces the separate 600-second hard worker timeout. A killed in-flight call has a started event but no invented latency or response; earlier completed raw records remain.",
+    "first_connection_query_id": "routing-archive:current",
+    "sql_vm_progress_interval": 100,
+    "work_probe_repetitions_per_query_per_round": 1,
+    "first_connection": "Before any recall or directory call, run the fixed old-project current query with use_cache=False once per fresh worker. Constructor/possible migration wall and CPU time are measured separately. First-connection n=4 per arm/checkpoint is descriptive, not a stable tail estimate. Constructor and restoration may warm the OS/SQLite cache; no physical cold-boot claim.",
+    "work_probe": "After uninstrumented timing samples, clear recall result cache and rerun each selected query once per arm block with SQLite set_progress_handler(interval=100) plus trace callback. Retain callbacks*100 as a coarse VM instruction proxy and SQLite trace-callback count. These are not scanned rows, complete SQLite instructions, or instrumented wall-time performance. Callbacks can reset by statement and SQLite internals vary. All probe responses remain source-checked and saved; probe timing is reported separately.",
+    "cost_scope": "Builder ingestion time/calls/CPU/RSS and baseline DB size are recorded. Each arm opening/possible migration wall+CPU/storage is separate; fingerprinting, snapshot restore and journaling are outside API timing. Because source snapshots are baseline-built this does not measure candidate bulk ingestion throughput.",
+    "expected_primary_counts": {
+      "checkpoints": 9,
+      "arm_blocks_per_checkpoint": 8,
+      "performance_calls_per_arm_block": 128,
+      "performance_calls_per_checkpoint": 1024,
+      "quality_calls_per_checkpoint": 176,
+      "performance_calls_total": 9216,
+      "quality_calls_total": 1584,
+      "first_connection_calls_total": 72,
+      "instrumented_work_probe_calls_total": 648,
+      "api_measurements_total": 11520,
+      "cold_samples_per_query_per_arm_per_checkpoint": 32,
+      "warm_samples_per_query_per_arm_per_checkpoint": 32,
+      "directory_samples_per_query_per_arm_per_checkpoint": 32
+    }
+  },
+  "evidence": {
+    "raw": "Append-only compact timing/hash/source-reference observations plus gzip JSONL containing every complete original API response, including all failures and partial timed-out attempts. Original responses are never replaced with rescored summaries.",
+    "dataset": "Record generated payload and logical-source hashes, actual table/page/project counts, per-target rowid span/density, created-date hashes, database/snapshot sizes and file hashes. Source reconstruction uses the frozen generator, not hidden stored answers.",
+    "correctness": [
+      "required evidence spans with matching original project/session/turn citations",
+      "full-source coordinate reconstruction including Chinese text",
+      "all excerpt characters backed by original source",
+      "cross-project pages/references",
+      "current-evidence first rank and stale-before-current separately",
+      "multi-source completeness",
+      "missing-evidence context-return diagnostic without calling empty output calibrated abstention",
+      "directory-read source correctness and bounded evidence budget",
+      "Explicit missing and partial facets are gold; nonempty context alone is neither a correct answer nor a false answer.",
+      "Returned-excerpt identifier coverage is separate from current declaration assessment and from complete semantic answerability. Missing coverage metadata is unassessed, not silently successful."
+    ],
+    "comparison": "Same-checkpoint baseline/candidate comparisons use the same restored DB snapshot. Layout and age controls additionally compare normalized logical-source/evidence projections; data growth may legitimately change FTS scores/ranks. Any changed answers, failures, timeouts and unexecuted cells remain visible.",
+    "snapshots": "Large source DB snapshots are working artifacts and may be pruned after all dependent checkpoints and arm records are saved; their original hashes/sizes and deterministic rebuild specification remain in the manifest. Retain final snapshot when resources permit. No benchmark result is claimed solely from generated input size.",
+    "work": "Record candidate_count when exposed, SQL progress callbacks and SQLite trace-callback count in separately instrumented probes. Report these exact observable quantities; do not rename them scanned rows."
+  }
+}
