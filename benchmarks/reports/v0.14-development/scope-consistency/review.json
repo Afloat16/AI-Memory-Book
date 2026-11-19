@@ -1,0 +1,96 @@
+{
+  "status": "baseline_controls_passed_after_fixture_repair",
+  "runtime_source": "861b7f35ac2557024d89bc51d5b3017ca35cb9d0",
+  "runtime_sha256": "a7492a74a94170b87a2fd54ada421866b9d737f46dce2ff3a3bc21d6debb9da1",
+  "test_source_commit": "73cae8534d4ba9e15c8052c9d2585aa9d6876163",
+  "backend": "python",
+  "attempts": [
+    {
+      "path": "baseline-attempt1",
+      "status": "interrupted",
+      "exit_code": 130,
+      "tests_completed": null,
+      "reason": "git archive attempted unavailable historical materialization in partial clone; zero unittest output retained"
+    },
+    {
+      "path": "baseline-attempt2",
+      "status": "passed_with_legacy_class_skipped",
+      "executed_methods": 44,
+      "class_skips": 1,
+      "reason": "bounded local historical blob lookup timed out; no legacy compatibility result inferred"
+    },
+    {
+      "path": "baseline-attempt3",
+      "status": "passed",
+      "executed_methods": 9,
+      "skips": 0,
+      "legacy_writer_actual_source": "861b7f35ac2557024d89bc51d5b3017ca35cb9d0",
+      "legacy_writer_runtime_equivalent_to_release_source": "4977ebc13e9da10a8fa4cb95f39e2c533aabe790",
+      "legacy_writer_mutations": [
+        "replace",
+        "rename",
+        "delete",
+        "foreign project replacement"
+      ]
+    }
+  ],
+  "executed_method_occurrences": 53,
+  "distinct_passed_methods": 45,
+  "scope": [
+    "public API project/session/chapter isolation",
+    "foreign writes preserve target source bytes without assuming global BM25 score invariance",
+    "target replacement/rename/relink/deletion/recreation",
+    "bounded conflict pointers do not mix project identities",
+    "real SQLite statement failure rolls back source/navigation/cache/revision",
+    "a concurrent replacement cannot publish a stale result at the new revision",
+    "ready archive opens without waiting for the held writer lock",
+    "online backup restore has an independent evidence and revision history",
+    "actual pinned v0.13 writer survives candidate opener or is atomically rejected",
+    "existing schema 1/2/3 migration, interrupted backfill, competing openers, old writer guards, directory snapshots and safe maintenance"
+  ],
+  "limits": [
+    "No v0.14 candidate runtime was tested in these records.",
+    "No new schema or index-layout contract is asserted.",
+    "Healthy archive open control is not a startup performance benchmark.",
+    "Foreign-project response scores are intentionally not frozen because baseline BM25 uses global statistics.",
+    "No benchmark gold, query, scorer, or historical report was modified."
+  ],
+  "files": {
+    "baseline-attempt1/invocation.json": {
+      "bytes": 631,
+      "sha256": "6b6aef6eb631a3145646056cdbce15121324fd5a20a3d347b6b6e70fb3c1ee20"
+    },
+    "baseline-attempt1/receipt.json": {
+      "bytes": 1099,
+      "sha256": "6f4ced065bd1b45bec7fdb1a3a9ef975d75090c1ef0800daab3d635803632361"
+    },
+    "baseline-attempt1/unittest.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "baseline-attempt2/invocation.json": {
+      "bytes": 732,
+      "sha256": "87300f42abd0c57d7b91d2c5a2ae71a7402ca563e37d38a984d2e457be399b8d"
+    },
+    "baseline-attempt2/receipt.json": {
+      "bytes": 892,
+      "sha256": "3f5fab691a3c32fa2db7d40c9944c849cd1a72e8ab0ccba2512b89e36b4d7c5b"
+    },
+    "baseline-attempt2/unittest.log": {
+      "bytes": 8440,
+      "sha256": "56da5b2d97b7aaa0d5abe4d162306b6ef43104eb25253c5ef31b61b26750f050"
+    },
+    "baseline-attempt3/invocation.json": {
+      "bytes": 889,
+      "sha256": "1e7c8a33b540871c8dc89c6ede685257b7071bffc9d020c053e7debabbf7c618"
+    },
+    "baseline-attempt3/receipt.json": {
+      "bytes": 1049,
+      "sha256": "777346a74328140d0e43ef1d1be751e9ae7c1fb535ab594d83875f6aad732a13"
+    },
+    "baseline-attempt3/unittest.log": {
+      "bytes": 2143,
+      "sha256": "70d8e6220b1a232bb2780fc8088942af313b00eb04cc9c3effd53a08ef0b10db"
+    }
+  }
+}
