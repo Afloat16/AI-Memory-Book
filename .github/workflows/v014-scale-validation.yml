@@ -1,0 +1,439 @@
+name: Frozen v0.14 hosted scale validation
+
+on:
+  push:
+    branches: ['validation/v014-200k-*']
+    paths: ['.github/workflows/v014-scale-validation.yml']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v014-hosted-${{ github.run_id }}-${{ github.run_attempt }}
+  cancel-in-progress: false
+
+jobs:
+  frozen-scale:
+    if: github.repository == 'Afloat16/AI-Memory-Book'
+    name: ${{ matrix.experiment }} / native / Python 3.12
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        experiment: [original-expanded, fixed-scope]
+    env:
+      V014_EXPERIMENT: ${{ matrix.experiment }}
+      V014_PROTOCOL_COMMIT: 9e83813000b832a2d774d28356a02ddf2e0bedce
+      V014_BASELINE_COMMIT: 861b7f35ac2557024d89bc51d5b3017ca35cb9d0
+      V014_CANDIDATE_COMMIT: ad8f9e8095e465fff83415057cc3428e44b73c59
+      CC: gcc
+      MEMORY_BOOK_BUILD_NATIVE: '1'
+      MEMORY_BOOK_TEXT_BACKEND: native
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONHASHSEED: '0'
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - name: Allocate a fresh evidence directory for this job and attempt
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, os, pathlib, time
+          base = pathlib.Path(os.environ['RUNNER_TEMP'])
+          label = f"v014-{os.environ['V014_EXPERIMENT']}-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}"
+          evidence = base / label
+          evidence.mkdir()
+          for name in ('logs', 'attempts', 'audits', 'native', 'protocol'):
+              (evidence / name).mkdir()
+          values = {'V014_EVIDENCE_ROOT': str(evidence), 'V014_JOB_STARTED_EPOCH': str(int(time.time())),
+                    'V014_PROTOCOL_ROOT': str(pathlib.Path(os.environ['GITHUB_WORKSPACE']) / 'protocol'),
+                    'V014_BASELINE_ROOT': str(base / (label + '-baseline')),
+                    'V014_CANDIDATE_ROOT': str(base / (label + '-candidate'))}
+          with open(os.environ['GITHUB_ENV'], 'a') as stream:
+              for key, value in values.items():
+                  stream.write(f'{key}={value}\n')
+          (evidence / 'invocation.json').write_text(json.dumps({
+              'experiment': os.environ['V014_EXPERIMENT'], 'workflow_commit': os.environ['GITHUB_SHA'],
+              'run_id': os.environ['GITHUB_RUN_ID'], 'run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'scope': 'Separate hosted validation; earlier local successes, failures and timings remain evidence.',
+              'supervision': {'job_minutes': 90, 'preparation_and_measurement_seconds': 4200,
+                              'audit_seconds': 540, 'per_call_and_worker_limits': 'unchanged frozen defaults'}
+          }, indent=2) + '\n')
+          PY
+
+      - name: Preserve the exact triggering workflow
+        id: workflow
+        timeout-minutes: 3
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          ref: ${{ github.sha }}
+          path: workflow-source
+          fetch-depth: 1
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/workflows/v014-scale-validation.yml
+
+      - name: Check out the independently frozen supplementary protocol
+        id: checkout
+        timeout-minutes: 5
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          ref: 9e83813000b832a2d774d28356a02ddf2e0bedce
+          path: protocol
+          fetch-depth: 1
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /src/
+            /setup.py
+            /pyproject.toml
+            /README.md
+            /LICENSE
+            /benchmarks/__init__.py
+            /benchmarks/v013_scale.py
+            /benchmarks/v013_workload.py
+            /benchmarks/v014_scale.py
+            /benchmarks/v014_workload.py
+            /benchmarks/v014_audit.py
+            /benchmarks/v014_fixed_scope.py
+            /benchmarks/v014_fixed_scope_audit.py
+            /benchmarks/experiments/v013-long-history-plan.json
+            /benchmarks/experiments/v014-long-history-plan.json
+            /benchmarks/experiments/v014-fixed-scope-plan.json
+            /tests/test_v013_scale.py
+            /tests/test_v014_scale.py
+            /tests/test_v014_fixed_scope.py
+
+      - name: Select Python 3.12
+        id: python
+        timeout-minutes: 3
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          python-version: '3.12'
+          architecture: x64
+
+      - name: Install the existing pinned native build tools
+        id: install
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          trap 'code=$?; printf "{\"exit_code\":%s}\n" "$code" > "$V014_EVIDENCE_ROOT/install-exit.json"' EXIT
+          python -m pip install --disable-pip-version-check --no-deps --only-binary=:all: \
+            --report "$V014_EVIDENCE_ROOT/build-tool-install.json" \
+            'setuptools==80.9.0' 'wheel==0.45.1' 2>&1 | tee "$V014_EVIDENCE_ROOT/logs/install.log"
+          python -m pip list --format=json > "$V014_EVIDENCE_ROOT/packages.json"
+
+      - name: Prepare sparse baseline and candidate worktrees and verify frozen inputs
+        id: freeze
+        timeout-minutes: 5
+        shell: bash
+        run: |
+          trap 'code=$?; printf "{\"exit_code\":%s}\n" "$code" > "$V014_EVIDENCE_ROOT/freeze-exit.json"' EXIT
+          python - <<'PY' 2>&1 | tee "$V014_EVIDENCE_ROOT/logs/freeze.log"
+          import hashlib, json, os, pathlib, shutil, subprocess, sys
+          protocol = pathlib.Path(os.environ['V014_PROTOCOL_ROOT'])
+          evidence = pathlib.Path(os.environ['V014_EVIDENCE_ROOT'])
+          def git(root, *args, **kwargs):
+              return subprocess.check_output(['git', '-C', str(root), *args], text=True, **kwargs)
+          assert git(protocol, 'rev-parse', 'HEAD').strip() == os.environ['V014_PROTOCOL_COMMIT']
+          assert not git(protocol, 'status', '--porcelain', '--untracked-files=all').strip()
+          assert shutil.disk_usage(evidence).free >= 4_000_000_000, 'At least 4 GB free is required before preparation'
+          git(protocol, 'config', 'extensions.worktreeConfig', 'true')
+          patterns = '\n'.join(('/src/', '/setup.py', '/pyproject.toml', '/README.md', '/LICENSE',
+              '/benchmarks/__init__.py', '/benchmarks/v013_scale.py', '/benchmarks/v013_workload.py',
+              '/benchmarks/v014_scale.py', '/benchmarks/v014_workload.py', '/benchmarks/v014_audit.py',
+              '/benchmarks/experiments/v013-long-history-plan.json', '/benchmarks/experiments/v014-long-history-plan.json',
+              '/tests/test_v013_scale.py', '/tests/test_v014_scale.py')) + '\n'
+          for arm in ('baseline', 'candidate'):
+              commit = os.environ[f'V014_{arm.upper()}_COMMIT']
+              root = pathlib.Path(os.environ[f'V014_{arm.upper()}_ROOT'])
+              git(protocol, 'fetch', '--filter=blob:none', '--no-tags', '--depth=1', 'origin', commit)
+              git(protocol, 'worktree', 'add', '--detach', '--no-checkout', str(root), commit)
+              git(root, 'sparse-checkout', 'init', '--no-cone')
+              git(root, 'sparse-checkout', 'set', '--no-cone', '--stdin', input=patterns)
+              git(root, 'checkout', '--detach', commit)
+              assert git(root, 'rev-parse', 'HEAD').strip() == commit
+              assert not git(root, 'status', '--porcelain', '--untracked-files=all').strip()
+          sys.path.insert(0, str(protocol))
+          from benchmarks import v014_fixed_scope as fixed
+          from benchmarks import v014_scale as scale
+          plan = fixed.settings()
+          supplement = fixed.protocol_identity()
+          assert supplement['commit'] == os.environ['V014_PROTOCOL_COMMIT']
+          original = scale.protocol_identity()
+          candidate = pathlib.Path(os.environ['V014_CANDIDATE_ROOT'])
+          for relative, expected in original['files'].items():
+              assert hashlib.sha256((candidate / relative).read_bytes()).hexdigest() == expected, relative
+          for relative in sorted(set(scale.FROZEN) | set(fixed.FROZEN)):
+              destination = evidence / 'protocol' / relative
+              destination.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copyfile(protocol / relative, destination)
+          workflow = pathlib.Path(os.environ['GITHUB_WORKSPACE']) / 'workflow-source/.github/workflows/v014-scale-validation.yml'
+          shutil.copyfile(workflow, evidence / 'workflow.yml')
+          (evidence / 'protocol-preflight.json').write_text(json.dumps({
+              'original_evaluator': original, 'supplementary_evaluator': supplement,
+              'workflow_sha256': hashlib.sha256(workflow.read_bytes()).hexdigest(),
+              'baseline_commit': os.environ['V014_BASELINE_COMMIT'],
+              'candidate_commit': os.environ['V014_CANDIDATE_COMMIT'],
+              'fixed_smoke_records': fixed.expected_records('smoke', plan),
+              'fixed_main_records': fixed.expected_records('main', plan),
+              'original_expanded_stages': scale.checkpoints('expanded')
+          }, indent=2) + '\n')
+          PY
+
+      - name: Compile and authenticate both actual native extensions
+        id: native
+        timeout-minutes: 5
+        shell: bash
+        run: |
+          trap 'code=$?; printf "{\"exit_code\":%s}\n" "$code" > "$V014_EVIDENCE_ROOT/native-exit.json"' EXIT
+          for arm in baseline candidate; do
+            if [ "$arm" = baseline ]; then
+              repo="$V014_BASELINE_ROOT"
+              commit="$V014_BASELINE_COMMIT"
+            else
+              repo="$V014_CANDIDATE_ROOT"
+              commit="$V014_CANDIDATE_COMMIT"
+            fi
+            (
+              cd "$repo"
+              python setup.py build_ext --inplace --force
+              PYTHONPATH="$repo/src" V014_EXPECTED_ROOT="$repo" V014_EXPECTED_COMMIT="$commit" V014_ARM="$arm" python - <<'PY'
+          import hashlib, json, os, pathlib, shutil, subprocess
+          import memory_book
+          from memory_book._text_backend import BACKEND_NAME, NATIVE
+          root = pathlib.Path(os.environ['V014_EXPECTED_ROOT']).resolve()
+          assert subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD']).decode().strip() == os.environ['V014_EXPECTED_COMMIT']
+          assert pathlib.Path(memory_book.__file__).resolve().parent == root / 'src/memory_book'
+          assert BACKEND_NAME == 'native' and NATIVE is not None
+          binary = pathlib.Path(NATIVE.__file__).resolve()
+          assert binary.parent == root / 'src/memory_book'
+          destination = pathlib.Path(os.environ['V014_EVIDENCE_ROOT']) / 'native' / os.environ['V014_ARM']
+          destination.mkdir()
+          shutil.copyfile(binary, destination / binary.name)
+          result = {'commit': os.environ['V014_EXPECTED_COMMIT'], 'backend': BACKEND_NAME,
+              'package_file': str(pathlib.Path(memory_book.__file__).resolve()), 'extension_file': str(binary),
+              'extension_sha256': hashlib.sha256(binary.read_bytes()).hexdigest()}
+          (destination / 'identity.json').write_text(json.dumps(result, indent=2) + '\n')
+          print(json.dumps(result))
+          PY
+            ) 2>&1 | tee "$V014_EVIDENCE_ROOT/logs/$arm-native-build.log"
+          done
+          python - <<'PY'
+          import json, os, pathlib, shutil, subprocess, sys
+          sys.path.insert(0, os.environ['V014_PROTOCOL_ROOT'])
+          from benchmarks import v014_fixed_scope as fixed
+          from benchmarks.v013_scale import host_identity, runtime_identity
+          evidence = pathlib.Path(os.environ['V014_EVIDENCE_ROOT'])
+          plan = fixed.settings()
+          identities = {}
+          for arm in ('baseline', 'candidate'):
+              identities[arm] = runtime_identity(os.environ[f'V014_{arm.upper()}_ROOT'], os.environ[f'V014_{arm.upper()}_COMMIT'])
+              for key, expected in plan['runtimes'][arm].items():
+                  assert identities[arm][key] == expected, (arm, key)
+          allowed = ('GITHUB_SHA', 'GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT', 'GITHUB_REPOSITORY', 'GITHUB_REF',
+                     'ImageOS', 'ImageVersion', 'RUNNER_OS', 'RUNNER_ARCH', 'CC', 'PYTHONHASHSEED',
+                     'OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS')
+          (evidence / 'environment-before.json').write_text(json.dumps({
+              'host': host_identity(), 'runtimes': identities,
+              'environment': {key: os.environ.get(key) for key in allowed},
+              'compiler': subprocess.check_output(['gcc', '--version'], text=True),
+              'memory_info': pathlib.Path('/proc/meminfo').read_text(),
+              'vmstat': pathlib.Path('/proc/vmstat').read_text(),
+              'disk': dict(zip(('total', 'used', 'free'), shutil.disk_usage(evidence))),
+              'scope': 'Isolated hosted job; repeated calls share OS/SQLite caches. No OS cache eviction or random-host equivalence is claimed.'
+          }, indent=2) + '\n')
+          PY
+
+      - name: Execute each registered attempt once with unchanged per-call limits
+        id: measure
+        timeout-minutes: 72
+        shell: bash
+        run: |
+          python -u - <<'PY'
+          import json, os, pathlib, shutil, subprocess, sys, time
+          evidence = pathlib.Path(os.environ['V014_EVIDENCE_ROOT'])
+          original = os.environ['V014_EXPERIMENT'] == 'original-expanded'
+          runner = pathlib.Path(os.environ['V014_CANDIDATE_ROOT'] if original else os.environ['V014_PROTOCOL_ROOT'])
+          script = runner / 'benchmarks' / ('v014_scale.py' if original else 'v014_fixed_scope.py')
+          profiles = [('original-expanded', 'expanded')] if original else [('fixed-smoke', 'smoke'), ('fixed-main', 'main')]
+          exit_code = 0
+          for label, profile in profiles:
+              remaining = 4200 - (int(time.time()) - int(os.environ['V014_JOB_STARTED_EPOCH']))
+              command = [sys.executable, '-u', str(script), 'run', '--baseline-root', os.environ['V014_BASELINE_ROOT'],
+                         '--candidate-root', os.environ['V014_CANDIDATE_ROOT'], '--backend', 'native', '--profile', profile,
+                         '--output', str(evidence / 'attempts' / (label + '-attempt1'))]
+              if original:
+                  command += ['--candidate-ranking-scope', 'project', '--required-fields-controls', '--compressed-snapshots']
+              record = {'label': label, 'profile': profile, 'command': command, 'remaining_seconds': remaining,
+                        'started_at_epoch': time.time(), 'free_bytes_before': shutil.disk_usage(evidence).free,
+                        'boundary': 'A new hosted attempt, never a replacement for earlier local evidence. No automatic retry.'}
+              if remaining <= 0 or record['free_bytes_before'] < 4_000_000_000:
+                  record.update(status='not_started', exit_code=124 if remaining <= 0 else 2,
+                                reason='Outer execution budget exhausted or less than 4 GB disk headroom')
+              else:
+                  supervised = ['timeout', '--signal=INT', '--kill-after=45s', f'{remaining}s', *command]
+                  with (evidence / 'logs' / (label + '.log')).open('x') as log:
+                      process = subprocess.Popen(supervised, cwd=runner, stdout=subprocess.PIPE,
+                                                 stderr=subprocess.STDOUT, text=True, bufsize=1)
+                      for line in process.stdout:
+                          log.write(line)
+                          log.flush()
+                          print(line, end='', flush=True)
+                      code = process.wait()
+                  record.update(status='process_exited', exit_code=code, finished_at_epoch=time.time())
+              (evidence / (label + '-execution.json')).write_text(json.dumps(record, indent=2) + '\n')
+              if record['exit_code']:
+                  exit_code = record['exit_code']
+                  if not original and label == 'fixed-smoke':
+                      (evidence / 'fixed-main-not-started.json').write_text(json.dumps({
+                          'reason': 'The preceding registered smoke attempt did not complete successfully',
+                          'smoke_exit_code': exit_code, 'no_main_retrieval_calls': True
+                      }, indent=2) + '\n')
+                  break
+          raise SystemExit(exit_code)
+          PY
+
+      - name: Run the corresponding frozen saved-response auditors even after failure
+        id: audit
+        if: ${{ always() && steps.native.outcome == 'success' && steps.measure.outcome != 'skipped' }}
+        timeout-minutes: 10
+        shell: bash
+        run: |
+          python -u - <<'PY'
+          import json, os, pathlib, subprocess, sys, time
+          evidence = pathlib.Path(os.environ['V014_EVIDENCE_ROOT'])
+          original = os.environ['V014_EXPERIMENT'] == 'original-expanded'
+          runner = pathlib.Path(os.environ['V014_CANDIDATE_ROOT'] if original else os.environ['V014_PROTOCOL_ROOT'])
+          script = runner / 'benchmarks' / ('v014_audit.py' if original else 'v014_fixed_scope_audit.py')
+          labels = ['original-expanded'] if original else ['fixed-smoke', 'fixed-main']
+          started, outcomes, failed = time.monotonic(), [], False
+          for label in labels:
+              attempt = evidence / 'attempts' / (label + '-attempt1')
+              output = evidence / 'audits' / (label + '.json')
+              record = {'label': label, 'audit_script': str(script), 'new_retrieval_calls': 0}
+              remaining = int(540 - (time.monotonic() - started))
+              if not (attempt / 'manifest.json').is_file() or not (attempt / 'binding.json').is_file():
+                  record.update(status='not_auditable', reason='Attempt lacks an original manifest or binding')
+                  failed = True
+              elif remaining <= 0:
+                  record.update(status='not_started', reason='Outer audit budget exhausted')
+                  failed = True
+              else:
+                  command = ['timeout', '--signal=INT', '--kill-after=20s', f'{remaining}s',
+                             sys.executable, '-u', str(script), str(attempt), '--output', str(output)]
+                  with (evidence / 'logs' / (label + '-audit.log')).open('x') as log:
+                      completed = subprocess.run(command, cwd=runner, stdout=log, stderr=subprocess.STDOUT)
+                  record.update(status='process_exited', exit_code=completed.returncode)
+                  failed |= completed.returncode != 0
+                  if output.is_file():
+                      result = json.loads(output.read_text())
+                      for key in ('audit_type', 'integrity_pass', 'safety_and_quality_pass', 'observations_audited'):
+                          record[key] = result.get(key)
+                      failed |= not bool(result.get('safety_and_quality_pass'))
+                  else:
+                      failed = True
+                      record['reason'] = 'Frozen auditor did not produce a completed report; logs retained'
+              outcomes.append(record)
+              print(json.dumps(record), flush=True)
+          (evidence / 'audit-executions.json').write_text(json.dumps({
+              'audits': outcomes, 'all_execution_integrity_and_registered_quality_checks_pass': not failed,
+              'boundary': 'Offline source/response re-scoring, not an independent holdout or proof of general correctness.'
+          }, indent=2) + '\n')
+          raise SystemExit(1 if failed else 0)
+          PY
+
+      - name: Finalize outcomes and hash every retained artifact after processes exit
+        id: inventory
+        if: always()
+        timeout-minutes: 2
+        shell: bash
+        env:
+          V014_STEP_OUTCOMES: >-
+            {"workflow":"${{ steps.workflow.outcome }}","checkout":"${{ steps.checkout.outcome }}",
+             "python":"${{ steps.python.outcome }}","install":"${{ steps.install.outcome }}",
+             "freeze":"${{ steps.freeze.outcome }}","native":"${{ steps.native.outcome }}",
+             "measure":"${{ steps.measure.outcome }}","audit":"${{ steps.audit.outcome }}"}
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, shutil, signal, time
+          evidence = pathlib.Path(os.environ['V014_EVIDENCE_ROOT'])
+          evidence.mkdir(parents=True, exist_ok=True)
+          def workers():
+              found = []
+              for entry in pathlib.Path('/proc').iterdir():
+                  if not entry.name.isdigit() or int(entry.name) == os.getpid():
+                      continue
+                  try:
+                      args = (entry / 'cmdline').read_bytes().split(b'\0')
+                  except (OSError, ProcessLookupError):
+                      continue
+                  if any(str(evidence / 'attempts').encode() in arg for arg in args) and any(
+                          arg.endswith((b'/v014_scale.py', b'/v014_fixed_scope.py', b'/v014_audit.py', b'/v014_fixed_scope_audit.py')) for arg in args):
+                      found.append(int(entry.name))
+              return found
+          lingering = workers()
+          for pid in lingering:
+              try:
+                  os.kill(pid, signal.SIGTERM)
+              except ProcessLookupError:
+                  pass
+          if lingering:
+              time.sleep(2)
+          for pid in workers():
+              try:
+                  os.kill(pid, signal.SIGKILL)
+              except ProcessLookupError:
+                  pass
+          if lingering:
+              time.sleep(1)
+          remaining = workers()
+          status = {'experiment': os.environ['V014_EXPERIMENT'], 'steps': json.loads(os.environ['V014_STEP_OUTCOMES']),
+                    'protocol_commit': os.environ['V014_PROTOCOL_COMMIT'], 'candidate_commit': os.environ['V014_CANDIDATE_COMMIT'],
+                    'baseline_commit': os.environ['V014_BASELINE_COMMIT'], 'late_process_cleanup_pids': lingering,
+                    'remaining_worker_pids': remaining, 'disk_after': dict(zip(('total', 'used', 'free'), shutil.disk_usage(evidence))),
+                    'memory_info_after': pathlib.Path('/proc/meminfo').read_text(),
+                    'vmstat_after': pathlib.Path('/proc/vmstat').read_text(),
+                    'artifact_scope': 'All raw journals, source snapshots (including .sqlite.gz), protocol copies, logs and compiled native extensions retained. Only mutable working.sqlite, working.sqlite-wal and working.sqlite-shm are excluded.',
+                    'interpretation': 'A hosted repetition does not invalidate, replace or hide any earlier local attempt. Hosts differ; no causal attribution of a timeout to host contention is asserted by this workflow.'}
+          (evidence / 'workflow-status.json').write_text(json.dumps(status, indent=2) + '\n')
+          if remaining:
+              raise RuntimeError('Benchmark processes remain; artifact finalization cannot claim quiescence')
+          excluded_names = {'working.sqlite', 'working.sqlite-wal', 'working.sqlite-shm'}
+          retained, excluded = {}, []
+          for path in sorted(evidence.rglob('*')):
+              if not path.is_file():
+                  continue
+              relative = path.relative_to(evidence).as_posix()
+              if path.name in excluded_names:
+                  excluded.append({'path': relative, 'bytes': path.stat().st_size})
+                  continue
+              digest = hashlib.sha256()
+              with path.open('rb') as incoming:
+                  for chunk in iter(lambda: incoming.read(1024 * 1024), b''):
+                      digest.update(chunk)
+              retained[relative] = {'bytes': path.stat().st_size, 'sha256': digest.hexdigest()}
+          (evidence / 'artifact-files.json').write_text(json.dumps({'retained': retained, 'excluded_mutable_working_files': excluded}, indent=2) + '\n')
+          if lingering:
+              raise RuntimeError('Late process cleanup was necessary; retained evidence is not an unqualified completed run')
+          PY
+
+      - name: Preserve every attempt and source snapshot even after failure
+        if: always()
+        timeout-minutes: 7
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: v014-${{ matrix.experiment }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ env.V014_EVIDENCE_ROOT }}/
+            !${{ env.V014_EVIDENCE_ROOT }}/**/working.sqlite
+            !${{ env.V014_EVIDENCE_ROOT }}/**/working.sqlite-wal
+            !${{ env.V014_EVIDENCE_ROOT }}/**/working.sqlite-shm
+          include-hidden-files: true
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 90
