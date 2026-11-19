@@ -47,7 +47,7 @@ def capture(destination):
                          "file": filename, "bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest(),
                          "kind": "license" if path == license_path else "source"})
             print(filename, len(raw), flush=True)
-    manifest = {"schema_version": 1, "protocol": "v014-public-source-holdout-v1",
+    manifest = {"schema_version": 1, "protocol": "v014-public-source-holdout-v2",
                 "scope": "Pinned public source-code snapshots; independently authored retrieval questions, not real user transcripts or end-to-end coding success.",
                 "sources": rows}
     (destination / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

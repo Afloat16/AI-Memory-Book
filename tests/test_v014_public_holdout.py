@@ -64,13 +64,22 @@ class PublicSourceHoldoutIntegrityTests(unittest.TestCase):
 
     def test_nonempty_missing_context_is_not_an_answer_or_absence_proof(self):
         case, response, pages, originals = self.fixture()
-        case.update(required=[], category="missing")
-        response["evidence_coverage"] = {"status": "insufficient_evidence", "missing_identifiers": ["unknown_field"]}
+        case.update(required=[], category="missing", expected_missing=["unknown_field"])
+        response["evidence_coverage"] = {"scope": "returned_excerpts", "status": "insufficient_evidence", "missing_identifiers": ["unknown_field"]}
         score = verify_response(case, response, pages, originals, 1200)
         self.assertTrue(score["missing"])
         self.assertTrue(score["returned_context"])
         self.assertFalse(score["complete"])
         self.assertEqual(score["coverage_status"], "insufficient_evidence")
+        self.assertTrue(score["explicit_missing_diagnosis"])
+
+    def test_wrong_identifier_or_global_absence_scope_cannot_score_a_diagnosis(self):
+        for scope, missing in (("entire_archive", ["unknown_field"]), ("returned_excerpts", ["other_field"])):
+            with self.subTest(scope=scope, missing=missing):
+                case, response, pages, originals = self.fixture()
+                case.update(required=[], category="missing", expected_missing=["unknown_field"])
+                response["evidence_coverage"] = {"scope": scope, "status": "insufficient_evidence", "missing_identifiers": missing}
+                self.assertFalse(verify_response(case, response, pages, originals, 1200)["explicit_missing_diagnosis"])
 
 
 if __name__ == "__main__":

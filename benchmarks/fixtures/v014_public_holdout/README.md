@@ -1,4 +1,4 @@
-# Public engineering-source transfer holdout, protocol v1
+# Public engineering-source transfer holdout, protocol v2
 
 This is a retrieval-only transfer test, frozen before either runtime arm is
 queried. It uses 16 real source files from eight immutable upstream commits:
@@ -62,7 +62,7 @@ python -m benchmarks.v014_public_holdout run \
 The runner starts a fresh subprocess with the selected source path and backend,
 requires committed runtime bytes, checks the protocol against its commit, and
 retains failure receipts. It never overwrites an existing attempt directory.
-The five integrity tests use source validation and fabricated response mutations;
+The six integrity tests use source validation and fabricated response mutations;
 they do not execute holdout queries and do not enter quality denominators.
 
 The first direct network capture attempt received HTTP 403 before obtaining
@@ -70,3 +70,15 @@ any source. The successful capture used the connected GitHub reader at the
 same immutable commits. The reusable capture helper remains suitable for an
 environment permitted to read GitHub's public API directly; it refuses to
 overwrite an existing capture. The manifest identifies the actual method used.
+
+## Pre-measurement independent review
+
+Protocol v1 was preserved in remote commit
+`a5705ce3f94b0ff5764ac799f44abe734e7d559d`. Before any holdout retrieval,
+independent review identified three evaluator defects. Protocol v2 retains
+all source bytes, questions, gold quotes and budgets, and fixes only their
+validation: failed scoring retains the original response; a missing-field
+signal needs the correct identifier and `returned_excerpts` scope; and the
+source-identity helper plus end-of-run native/evaluator identities are bound.
+The added adversarial metadata test prevents unrelated or global-absence
+signals from receiving credit. No runtime tuning followed a holdout result.

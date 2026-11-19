@@ -21,7 +21,7 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "benchmarks/fixtures/v014_public_holdout"
-PROTOCOL = "v014-public-source-holdout-v1"
+PROTOCOL = "v014-public-source-holdout-v2"
 sys.path.append(str(ROOT))
 from scripts.validate_v011_revision_recovery import source_identity
 
@@ -140,6 +140,7 @@ def dataset():
             if identifier in bodies:
                 raise ValueError("Missing-case identifier unexpectedly exists")
             add(project, f"missing-{i}", f"What is the current {identifier} value in this project?", [], "missing")
+            cases[-1]["expected_missing"] = [identifier]
     return sessions, cases
 
 
@@ -195,14 +196,22 @@ def verify_response(case, response, pages, originals, budget):
         raise ValueError("Context contains unaudited text")
     matches = [any(session == gold["session_id"] and gold["quote"] in text for session, text in verified) for gold in case["required"]]
     coverage = response.get("evidence_coverage", {})
+    expected_missing = case.get("expected_missing", [])
+    explicit_missing = bool(expected_missing) and (
+        coverage.get("scope") == "returned_excerpts"
+        and coverage.get("status") == "insufficient_evidence"
+        and isinstance(coverage.get("missing_identifiers"), list)
+        and all(name in coverage["missing_identifiers"] for name in expected_missing))
     return {"required_spans": len(matches), "matched_spans": sum(matches),
             "complete": bool(matches) and all(matches), "missing": case["category"] == "missing",
             "returned_context": bool(response["context"]), "coverage_status": coverage.get("status", "absent"),
+            "coverage_scope": coverage.get("scope"), "explicit_missing_diagnosis": explicit_missing,
             "missing_identifiers": coverage.get("missing_identifiers", []), "source_integrity": True}
 
 
 def frozen_identity(commit):
-    names = ["benchmarks/v014_public_holdout.py", "tests/test_v014_public_holdout.py", "scripts/capture_v014_public_holdout.py"]
+    names = ["benchmarks/v014_public_holdout.py", "tests/test_v014_public_holdout.py",
+             "scripts/capture_v014_public_holdout.py", "scripts/validate_v011_revision_recovery.py"]
     names += [p.relative_to(ROOT).as_posix() for p in FIXTURE.iterdir() if p.is_file()]
     hashes = {}
     for name in sorted(names):
@@ -246,12 +255,19 @@ def worker(args):
                     for case in cases:
                         response = book.recall(case["query"], project=case["project"], budget_chars=budget, limit=5, temporal="auto", use_cache=False)
                         pages = {hit["id"]: book.read(hit["id"], project=case["project"], limit=12000) for hit in response["results"]}
-                        score = verify_response(case, response, pages, originals, budget)
                         row = {"case_id": case["id"], "category": case["category"], "budget_chars": budget,
-                               "response": response, "original_pages": pages, "score": score}
-                        stream.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n")
-                        stream.flush()
-                        rows.append(row)
+                               "response": response, "original_pages": pages, "score": None}
+                        try:
+                            row["score"] = verify_response(case, response, pages, originals, budget)
+                        except BaseException as exc:
+                            row["verification_error"] = repr(exc)
+                            raise
+                        finally:
+                            # Retain the actual response even when its independent
+                            # integrity audit fails; a failure is never erased.
+                            stream.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n")
+                            stream.flush()
+                            rows.append(row)
         proof["status"] = "completed"
         proof["summary"] = []
         for budget in (1200, 2400):
@@ -260,10 +276,13 @@ def worker(args):
             proof["summary"].append({"budget_chars": budget, "queries": len(scores), "answerable": sum(not s["missing"] for s in scores),
                                      "complete": sum(s["complete"] for s in scores), "required_spans": sum(s["required_spans"] for s in scores),
                                      "matched_spans": sum(s["matched_spans"] for s in scores), "source_errors": 0,
-                                     "missing_diagnosed": sum(s["missing"] and s["coverage_status"] == "insufficient_evidence" for s in scores),
+                                     "missing_diagnosed": sum(s["explicit_missing_diagnosis"] for s in scores),
                                      "answerable_flagged_insufficient": sum(not s["missing"] and s["coverage_status"] == "insufficient_evidence" for s in scores),
                                      "coverage_status_counts": dict(Counter(s["coverage_status"] for s in scores))})
         proof["source_after"] = source_identity(args.source, args.commit)
+        proof["protocol_after"] = frozen_identity(args.protocol_commit)
+        if proof["source_after"] != identity or proof["protocol_after"] != protocol:
+            raise ValueError("Runtime/native binary or evaluator changed during the run")
         proof["raw_sha256"] = sha((args.output / "responses.jsonl.gz").read_bytes())
     except BaseException as exc:
         proof.update(status="failed", error=repr(exc), completed_responses=len(rows))
