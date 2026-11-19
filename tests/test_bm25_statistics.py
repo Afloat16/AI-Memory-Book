@@ -14,6 +14,10 @@ from memory_book import bm25_stats
 from memory_book.text import query_terms
 
 
+HAS_INSPECTED_LIMITS = (sqlite3.sqlite_version_info >= (3, 25, 0)
+                        and hasattr(sqlite3.Connection, "getlimit"))
+
+
 def source(project, identity, *, turns=1, value=12, task=None, title=None):
     return {"project": project, "session_id": str(identity), "task_id": task or f"policy-{identity % 3}",
             "title": title or "Worker policy conferences run running", "task_title": title or "Worker lease policy 缓存策略",
@@ -195,6 +199,7 @@ class BM25StatisticsTests(unittest.TestCase):
                     actual = self.book.search_directory(query, project="target", **options)
                 self.assertEqual(actual, expected)
 
+    @unittest.skipUnless(HAS_INSPECTED_LIMITS, "fast route requires inspected SQLite compiler limits")
     def test_recent_expansion_uses_complete_project_and_retains_original_evidence(self):
         self.book.ingest(source("target", 25, turns=130, value=999, task="long-policy"))
         with patch.object(self.book._bm25, "ranked_routes", return_value=None):
@@ -208,6 +213,32 @@ class BM25StatisticsTests(unittest.TestCase):
         self.assertTrue(expansion["database_scan_bounded"])
         expansion["metadata_source"] = expected["temporal"]["candidate_expansion"]["metadata_source"]
         expansion["database_scan_bounded"] = expected["temporal"]["candidate_expansion"]["database_scan_bounded"]
+        self.assertEqual(stable(actual), stable(expected))
+
+    def test_uninspectable_limits_keep_the_original_complete_history_route(self):
+        self.book.ingest(source("target", 25, turns=130, value=999, task="long-policy"))
+        ordinary_getattr = getattr
+
+        def without_limit_inspection(obj, name, *default):
+            if obj is self.book.db and name == "getlimit":
+                return None
+            return ordinary_getattr(obj, name, *default)
+
+        # Python 3.10 has no Connection.getlimit. Exercise that actual
+        # capability boundary on every host, without changing SQL or forcing
+        # an uninspectable connection down the new optimized route.
+        with patch("memory_book.store.getattr", side_effect=without_limit_inspection, create=True):
+            self.assertFalse(self.book._can_batch_scoped_query(self.book._bm25.scope_statement, 2))
+            with patch.object(self.book._bm25, "ranked_routes", return_value=None):
+                expected = self.book.recall("current lease_duration", project="target", use_cache=False)
+            with patch.object(bm25_stats, "MIN_ARCHIVE_PAGES", 0), \
+                    patch.object(self.book._bm25, "ranked_routes",
+                                 side_effect=AssertionError("uninspectable limits must retain original SQL")) as optimized:
+                actual = self.book.recall("current lease_duration", project="target", use_cache=False)
+            optimized.assert_not_called()
+        expansion = actual["temporal"]["candidate_expansion"]
+        self.assertEqual(expansion["metadata_source"], "scoped_fts_chronology")
+        self.assertFalse(expansion["database_scan_bounded"])
         self.assertEqual(stable(actual), stable(expected))
 
     @unittest.skipUnless(hasattr(sqlite3.Connection, "setlimit"), "inspected SQLite limits unavailable")
@@ -269,6 +300,25 @@ class BM25StatisticsTests(unittest.TestCase):
                 self.assertEqual(book.export(), sources)
                 self.assertEqual(book.revision, revision)
                 self.assert_statistics_match_fts(book)
+
+
+class StatisticsCleanupTests(unittest.TestCase):
+    def test_helper_cleanup_failure_still_closes_archive_and_releases_text(self):
+        book = MemoryBook(":memory:")
+        helper = book._bm25
+        helper._tokens(0, "retained helper tokens")
+        book._directory_tokens("retained directory text")
+        book._semantic_model = object()
+        try:
+            with patch.object(helper, "close", side_effect=RuntimeError("helper cleanup failed")):
+                with self.assertRaisesRegex(RuntimeError, "helper cleanup failed"):
+                    book.close()
+            with self.assertRaises(sqlite3.ProgrammingError):
+                book.db.execute("SELECT 1")
+            self.assertEqual(book._directory_tokens.cache_info().currsize, 0)
+            self.assertIsNone(book._semantic_model)
+        finally:
+            helper.close()
 
 
 if __name__ == "__main__":

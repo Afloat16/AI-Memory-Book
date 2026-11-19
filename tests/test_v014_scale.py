@@ -8,6 +8,7 @@ from pathlib import Path
 import sqlite3
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from benchmarks import v014_scale as scale
 from benchmarks import v014_workload as work
@@ -149,6 +150,25 @@ class V014ScoringIntegrityTests(unittest.TestCase):
             response["evidence_coverage"] = self.coverage(case, **changes)
             self.assertFalse(scale.score(response, case, self.spec)["explicit_missing_signal"])
 
+    def test_missing_signal_cannot_hide_a_false_missing_claim_about_a_present_literal(self):
+        case = self.rows["routing-archive:partial_identifier"]
+        identifiers = case["missing_identifiers"] + ["edge_policy"]
+        response = {**self.response, "evidence_coverage": self.coverage(case,
+            requested_identifiers=identifiers, missing_identifiers=identifiers)}
+        scored = scale.score(response, case, self.spec)
+        self.assertFalse(scored["explicit_missing_signal"])
+        self.assertIn("missing_identifier_is_literally_present:edge_policy", scored["coverage_errors"])
+        self.assertTrue(scored["available_evidence_complete"])
+
+    def test_missing_metadata_must_be_internally_consistent(self):
+        case = self.rows["routing-archive:missing_identifier"]
+        for changes in ({"requested_identifiers": []}, {"missing_identifiers": "wrong-shape"},
+                        {"requested_identifiers": [None]}, {"status": "not_assessed"}):
+            response = {**self.response, "evidence_coverage": self.coverage(case, **changes)}
+            scored = scale.score(response, case, self.spec)
+            self.assertFalse(scored["explicit_missing_signal"])
+            self.assertTrue(scored["coverage_errors"])
+
     def test_partial_request_cannot_become_complete_just_because_known_facet_is_present(self):
         case = self.rows["routing-archive:partial_identifier"]
         response = {**self.response, "evidence_coverage": self.coverage(case)}
@@ -189,6 +209,44 @@ class V014ScoringIntegrityTests(unittest.TestCase):
 
 
 class V014MeasurementIntegrityTests(unittest.TestCase):
+    def record_supplied_response(self, raw, score_exception=None):
+        case = work.cases()[0]
+        spec = work.checkpoints()[0]
+        class Book:
+            def __init__(self):
+                self.db = sqlite3.connect(":memory:")
+
+            def recall(self, *args, **kwargs):
+                return raw
+        book = Book()
+        try:
+            with tempfile.TemporaryDirectory(dir=scale.ROOT.parent) as folder:
+                recorder = scale.Recorder(folder)
+                with patch.object(scale, "score", side_effect=score_exception) as scorer:
+                    row = scale.measure_case(book, case, spec, "quality", {}, recorder, scale.plan())
+                packet = json.loads(gzip.decompress(recorder.raw.read_bytes()))
+                return row, packet, scorer.call_count
+        finally:
+            book.db.close()
+
+    def test_scorer_exception_retains_the_original_api_response_and_timer(self):
+        raw = {"query": work.cases()[0]["query"], "strategy": "book", "budget_chars": 2400,
+               "temporal": {"requested": "auto"}, "results": [], "context": "unaltered original"}
+        row, packet, calls = self.record_supplied_response(raw, ValueError("deliberate verifier failure"))
+        self.assertEqual(calls, 1)
+        self.assertEqual(row["error"]["phase"], "validation")
+        self.assertEqual(packet["original_response"], raw)
+        self.assertEqual(row["raw_sha256"], scale.digest(raw))
+        self.assertIsInstance(row["wall_ns"], int)
+
+    def test_bad_api_framing_is_saved_as_failed_validation_before_scoring(self):
+        for raw in ([], {"query": "wrong request"}, {"query": work.cases()[0]["query"],
+                    "strategy": "book", "budget_chars": 2400, "temporal": None}):
+            row, packet, calls = self.record_supplied_response(raw)
+            self.assertEqual(row["error"]["phase"], "validation")
+            self.assertEqual(packet["original_response"], raw)
+            self.assertEqual(calls, 0)
+
     def test_balanced_schedule_and_sample_counts(self):
         config = scale.plan()
         self.assertEqual(scale.expected_samples_per_round("cold-result-cache", config), 8)

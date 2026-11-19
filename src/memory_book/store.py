@@ -1724,8 +1724,14 @@ class MemoryBook:
 
     def close(self) -> None:
         try:
-            self._bm25.close()
-            self.db.close()
+            try:
+                # Keep cleanup compatible with partially initialized/custom
+                # instances, and never let a helper failure leak the archive.
+                statistics = getattr(self, "_bm25", None)
+                if statistics is not None:
+                    statistics.close()
+            finally:
+                self.db.close()
         finally:
             try:
                 self._directory_tokens.cache_clear()

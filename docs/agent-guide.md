@@ -183,6 +183,7 @@ from a process that can open the database directly. See the
 | `context_chars` / `budget_chars` | Actual assembled context size and requested limit |
 | `warnings` | Budget, project-scope, or conflicting-history cautions |
 | `evidence_assessment` | In compact assessed-current responses: bounded status and original conflict page IDs; not a truth or confidence score |
+| `evidence_coverage` | When the query explicitly names identifiers: whether the returned original excerpts mention them; missing mentions trigger a scoped follow-up, while present mentions do not establish an answer |
 | `revision` | The database revision associated with this response |
 
 Use only IDs and references actually returned by tools. A useful citation in a
@@ -222,6 +223,21 @@ A conflict may reference an original page that did not fit the returned
 context, especially at `limit=1`; use its real page ID for an exact read.
 The diagnostic does not select a true value, assign a confidence probability,
 or provide calibrated abstention.
+
+Identifier queries additionally expose `evidence_coverage` in compact and
+detailed responses, including relevance and history requests. Its scope is
+`returned_excerpts`, not the candidate pool or the entire archive.
+`insufficient_evidence` lists `missing_identifiers`: the returned excerpts did
+not contain every explicitly requested name under the documented lexical
+matching rules. Preserve the related evidence, use a focused recall or
+directory lookup in the same project, and read returned page IDs as needed.
+Do not infer that an old or unreturned source has no answer.
+`identifier_mentions_present` only reports mentions; a pending review, quoted
+example or obsolete value may still be all the available evidence. Continue
+checking declarations, source dates, conflicts and qualifiers.
+`not_assessed` is used for unsupported alternatives, exclusions or bounded
+syntax limits. Ordinary unmarked prose has no identifier-coverage field.
+See [identifier evidence coverage](evidence-coverage.md) for the exact limits.
 
 In detailed responses and page reads, `source_refs.start` and `end` are half-open character offsets within the full
 page, while `turn_start` and `turn_end` locate the same text in the assembled
