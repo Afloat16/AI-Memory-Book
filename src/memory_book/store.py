@@ -18,13 +18,14 @@ from typing import Any
 
 from .segmentation import make_turns, segment
 from ._text_backend import NATIVE as _NATIVE
+from .bm25_stats import SCHEMA_SQL as BM25_SCHEMA_SQL
 from .text import (IDENTIFIER_WORD_BOUNDARY, estimate_tokens, excerpt, headline,
                    identifier_terms as terms, index_text, query_terms, terms as lexical_terms)
 
 SCHEMA_VERSION = 4
 INDEX_VERSION = 3
 LEXICAL_INDEX_VERSION = 1
-RECALL_VERSION = 26
+RECALL_VERSION = 27
 APPLICATION_ID = 0x4D424F4B
 MAX_SESSION_CHARS = 8_000_000
 CURRENT_QUERY = re.compile(r"\b(?:latest|current|now|final|finally)\b|当前|现在|最新|最终|最后", re.IGNORECASE)
@@ -194,7 +195,7 @@ INSERT OR IGNORE INTO meta VALUES ('lexical_index_version', '1');
 """ + STEM_REVISION_SQL + "\n" + LEXICAL_REVISION_SQL + """
 PRAGMA application_id = 1296191307;
 PRAGMA user_version = 4;
-"""
+""" + BM25_SCHEMA_SQL
 
 
 def _json(value: Any) -> str:
@@ -1651,6 +1652,8 @@ class MemoryBook:
         self.db.row_factory = sqlite3.Row
         self.db.execute("PRAGMA foreign_keys=ON")
         self.db.execute("PRAGMA busy_timeout=10000")
+        from .bm25_stats import BM25Statistics
+        self._bm25 = BM25Statistics(self.db)
         try:
             version = self.db.execute("PRAGMA user_version").fetchone()[0]
             app_id = self.db.execute("PRAGMA application_id").fetchone()[0]
@@ -1667,9 +1670,11 @@ class MemoryBook:
             # leaves source rows, addresses, revision and schema compatibility
             # unchanged; SQLite also maintains it for older/external writers.
             self.db.execute(RECALL_METADATA_INDEX_SQL)
+            self._bm25.ensure()
             self._enable_wal()
             self.db.execute("PRAGMA synchronous=NORMAL")
         except BaseException:
+            self._bm25.close()
             self.db.close()
             raise
 
@@ -1719,6 +1724,7 @@ class MemoryBook:
 
     def close(self) -> None:
         try:
+            self._bm25.close()
             self.db.close()
         finally:
             try:
@@ -1853,6 +1859,9 @@ class MemoryBook:
                     self._migrate_v3()
                 else:
                     self._migrate_v2()
+                # Lexical migrations change derived tokens. Rebuild their
+                # global statistics in this same atomic migration transaction.
+                self._bm25.ensure(force=True)
                 self._changed()
                 self.db.execute(f"PRAGMA application_id={APPLICATION_ID}")
                 self.db.execute(f"PRAGMA user_version={SCHEMA_VERSION}")
@@ -1931,6 +1940,7 @@ class MemoryBook:
         # nothing on the normal path. The lexical guard rejects an already-open
         # older writer: copying its exact tokens into the stem index cannot
         # reproduce identifier aliases. Its caller rolls back the whole write.
+        self._bm25.advance_revision()
         self.db.execute("""INSERT OR REPLACE INTO meta(key,value)
           SELECT 'stem_revision',CAST(value AS INTEGER)+1 FROM meta WHERE key='revision'""")
         self.db.execute("""INSERT OR REPLACE INTO meta(key,value)
@@ -1952,6 +1962,7 @@ class MemoryBook:
                     values = (index_text(title + " " + page["title"]), page["rid"])
                     self.db.execute("UPDATE pages_fts SET directory=? WHERE rowid=?", values)
                     self.db.execute("UPDATE pages_stem_fts SET directory=? WHERE rowid=?", values)
+                    self._bm25.refresh(page["rid"])
 
     def ingest(self, payload: dict) -> dict:
         source = normalize_session(payload)
@@ -1964,6 +1975,7 @@ class MemoryBook:
         now = _now()
         self.db.execute("BEGIN IMMEDIATE")
         try:
+            self._bm25.ensure()
             old = self.db.execute("SELECT * FROM sessions WHERE id=?", (session_pk,)).fetchone()
             old_project = self.db.execute("SELECT name FROM projects WHERE id=?", (project,)).fetchone()
             old_chapter = self.db.execute("SELECT title FROM chapters WHERE id=?", (chapter_id,)).fetchone()
@@ -1982,12 +1994,14 @@ class MemoryBook:
             self.db.execute("INSERT INTO projects VALUES(?,?,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name, updated_at=excluded.updated_at", (project, source["project_name"], now, now))
             self.db.execute("INSERT INTO chapters(id,project_id,task_id,title,updated_at) VALUES(?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title,updated_at=excluded.updated_at", (chapter_id, project, task_key, source["task_title"], now))
             if old:
+                self._bm25.remove("p.session_pk=?", (session_pk,))
                 self.db.execute("DELETE FROM sessions WHERE id=?", (session_pk,))
             created = source["created_at"]
             self.db.execute("INSERT INTO sessions VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (session_pk, external, project, chapter_id, source["title"], created, now, content_hash, source_json, self.segmentation, len(source["messages"]), len(turns), sum(len(t.content) for t in turns), _json(settings)))
             for turn in turns:
                 self.db.execute("INSERT INTO turns VALUES(?,?,?,?,?,?)", (_id("t_", session_pk, str(turn.index)), session_pk, turn.index, turn.question, turn.content, _json(turn.message_indices)))
             page_count = 0
+            statistics_pages = []
             indexed_directory = index_text(source["task_title"] + " " + source["title"])
             for i, section in enumerate(sections):
                 section_id = _id("sec_", session_pk, str(i), section.title)
@@ -1999,7 +2013,9 @@ class MemoryBook:
                     indexed = (cur.lastrowid, index_text(page.title), index_text(page.question), index_text(page.content), indexed_directory)
                     self.db.execute("INSERT INTO pages_fts(rowid,title,question,body,directory) VALUES(?,?,?,?,?)", indexed)
                     self.db.execute("INSERT INTO pages_stem_fts(rowid,title,question,body,directory) VALUES(?,?,?,?,?)", indexed)
+                    statistics_pages.append(indexed)
                     page_count += 1
+            self._bm25.add_many(statistics_pages)
             self._refresh_chapter(chapter_id, reindex_directory=bool(old_chapter and old_chapter["title"] != source["task_title"]))
             if old and old["chapter_id"] != chapter_id:
                 self._refresh_chapter(old["chapter_id"])
@@ -2193,8 +2209,10 @@ class MemoryBook:
     def delete_session(self, project: str, session_id: str) -> bool:
         self.db.execute("BEGIN IMMEDIATE")
         try:
+            self._bm25.ensure()
             row = self.db.execute("SELECT id,chapter_id FROM sessions WHERE project_id=? AND external_id=?", (project, session_id)).fetchone()
             if row:
+                self._bm25.remove("p.session_pk=?", (row["id"],))
                 self.db.execute("DELETE FROM sessions WHERE id=?", (row["id"],))
                 self._refresh_chapter(row["chapter_id"])
                 self.db.execute("UPDATE projects SET updated_at=? WHERE id=?", (_now(), project))
@@ -2208,6 +2226,8 @@ class MemoryBook:
     def delete_project(self, project: str) -> bool:
         self.db.execute("BEGIN IMMEDIATE")
         try:
+            self._bm25.ensure()
+            self._bm25.remove("p.project_id=?", (project,))
             cur = self.db.execute("DELETE FROM projects WHERE id=?", (project,))
             if cur.rowcount:
                 self._changed()
@@ -2416,7 +2436,7 @@ class MemoryBook:
     def _current_revision_pool(self, candidates: list[dict], pool_size: int,
                                expression: str, where: str, params: list,
                                exact_ids: set[str], exact_complete: bool,
-                               diagnostics: dict) -> tuple[list[dict], list[dict]]:
+                               diagnostics: dict, scoped_routes=None) -> tuple[list[dict], list[dict]]:
         """Extend an existing task's comparison pool with bounded recent hits.
 
         BM25's top 96 and the result-size-derived pool can hide a short recent
@@ -2439,8 +2459,10 @@ class MemoryBook:
         if not selected_chapters:
             return pool, list(candidates[pool_size:])
         quota, remainder = divmod(96, len(selected_chapters))
-        batched = (None if exact_complete else self._batch_current_revision_routes(
-            selected_chapters, quota, remainder, expression, where, params))
+        batched = (None if exact_complete else
+                   self._bm25.recent_routes(scoped_routes, selected_chapters, quota, remainder)
+                   if scoped_routes is not None else self._batch_current_revision_routes(
+                       selected_chapters, quota, remainder, expression, where, params))
         by_id = {item["id"]: item for item in candidates}
         seen = {item["id"] for item in pool}
         returned = added = discovered = 0
@@ -2486,7 +2508,8 @@ class MemoryBook:
                 pool.append({**item, "_revision_proposal": True})
         diagnostics["candidate_expansion"] = {
             "route": "recent_exact_body_matches_in_leading_chapters",
-            "metadata_source": "complete_exact_route" if exact_complete else "scoped_fts_chronology",
+            "metadata_source": ("complete_exact_route" if exact_complete else
+                                "complete_project_statistics" if scoped_routes is not None else "scoped_fts_chronology"),
             "ordering_fields": ["sessions.created_at DESC", "sessions.id", "sections.ordinal DESC", "pages.ordinal DESC", "pages.id"],
             "candidate_limit": 96, "returned": returned, "added_to_pool": added,
             "new_candidates": discovered, "pool_size": len(pool),
@@ -2495,7 +2518,7 @@ class MemoryBook:
             "chapters_not_expanded": max(0, len(chapter_ids) - len(selected_chapters)),
             "chapter_routes": quotas,
             "scope_before_limit": True,
-            "database_scan_bounded": exact_complete,
+            "database_scan_bounded": exact_complete or scoped_routes is not None,
             "basis": "Recent matches only propose comparable revisions; timestamps and syntax do not establish authority.",
         }
         # Only finally admitted copies are removed from the original tail by
@@ -2642,7 +2665,15 @@ class MemoryBook:
                     return statement
 
                 routes = []
-                for table in (("pages_fts", "pages_stem_fts") if use_stem else ("pages_fts",)):
+                # A complete small project can use incrementally maintained
+                # *global* BM25 statistics. This avoids rereading foreign term
+                # posting lists; it does not change to project-local ranking.
+                # Customized connections/limits keep their original SQL path.
+                scoped_routes = (self._bm25.ranked_routes(project, qt, use_stem, chapter, session)
+                    if qt and project is not None and not coverage and not semantic
+                    and self._can_batch_scoped_query(self._bm25.scope_statement, 2) else None)
+                for table in (() if scoped_routes is not None else
+                              (("pages_fts", "pages_stem_fts") if use_stem else ("pages_fts",))):
                     # Table identifiers are fixed above; query text and every
                     # caller-supplied scope remain bound SQL parameters.
                     page_join = " CROSS JOIN" if project_bounds is not None else " JOIN"
@@ -2669,6 +2700,8 @@ class MemoryBook:
                             statement = membership_statement
                             route_params.extend(project_rowids)
                     routes.append(self.db.execute(statement, route_params).fetchall() if qt else [])
+                if scoped_routes is not None:
+                    routes = scoped_routes
                 # Identical ordered routes add no candidate/ranking information.
                 # Keep BM25's score scale so novelty selection does not change
                 # merely because the same ranking was observed a second time.
@@ -2789,7 +2822,8 @@ class MemoryBook:
                         pool, tail = self._current_revision_pool(
                             candidates, pool_count, expression, where, params,
                             {row["id"] for row in routes[0]}, len(routes[0]) < 96,
-                            temporal_intent)
+                            temporal_intent,
+                            **({"scoped_routes": scoped_routes} if scoped_routes is not None else {}))
                     deferred = []
                     ids = [item["rid"] for item in pool]
                     matched = {row["rowid"]: qset.intersection(row["body"].split())
@@ -3112,7 +3146,13 @@ class MemoryBook:
             warnings.append("Potential conflict among comparable declarations with the same latest timestamp in the bounded candidate pool; inspect the cited original pages. Retrieval has not selected an authoritative value.")
         elif assessment_status == "no_comparable_declaration":
             warnings.append("No comparable declaration was established in the bounded candidate pool; related source text is unconfirmed, not proof that no decision exists.")
+        from .evidence_coverage import assess_identifier_coverage
+        identifier_coverage = assess_identifier_coverage(query, results)
+        if identifier_coverage and identifier_coverage["status"] == "insufficient_evidence":
+            warnings.append("Returned source excerpts omit one or more explicitly requested identifiers. Treat this lookup as insufficient for those identifiers; use a focused lookup or directory follow-up in the same project and read the returned original page IDs. This is not proof of archive absence.")
         result = {"query": query, "results": results, "context": context, "context_chars": len(context), "estimated_tokens": estimate_tokens(context), "candidate_count": candidate_count, "revision": revision, "cache_hit": False, "warnings": warnings, "strategy": strategy, "budget_chars": budget_chars, "temporal": temporal_intent, "truncated": candidate_count > len(results) or any(r["truncated"] for r in results)}
+        if identifier_coverage is not None:
+            result["evidence_coverage"] = identifier_coverage
         if semantic_model is not None:
             result.update(semantic=True, semantic_model_fingerprint=semantic_model.fingerprint)
         if token_counter is not None:

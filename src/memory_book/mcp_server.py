@@ -131,6 +131,8 @@ def recall_payload(result: dict[str, Any], *, details: bool = False,
             **({"evidence_assessment": {key: assessment[key]
                                       for key in ("status", "scope", "conflicts")}}
                if assessed else {}),
+            **({"evidence_coverage": result["evidence_coverage"]}
+               if "evidence_coverage" in result else {}),
             **{key: result[key] for key in ("budget_tokens", "tokenizer", "tokenizer_version", "context_tokens",
                                            "semantic", "semantic_model_fingerprint")
                if key in result}}

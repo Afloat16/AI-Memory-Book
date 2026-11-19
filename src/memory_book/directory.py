@@ -48,7 +48,8 @@ def _ranked_hits(where: str) -> str:
 
 
 def _batch_directory_matches(book: MemoryBook, where: str, parameters: list,
-                             project: str | None, limit: int, offset: int) -> tuple | None:
+                             project: str | None, limit: int, offset: int,
+                             tokens: list[str] | None = None) -> tuple | None:
     """Share one MATCH across complete aggregates and bounded previews.
 
     Each section belongs to one chapter. Summing section page counts and
@@ -93,6 +94,46 @@ def _batch_directory_matches(book: MemoryBook, where: str, parameters: list,
     query_parameters = [*parameters, limit, offset, SECTION_PREVIEW_LIMIT]
     if not book._can_batch_scoped_query(sql, len(query_parameters)):
         return None
+    if project is not None and tokens:
+        chapter = parameters[2] if "p.chapter_id=?" in where else None
+        bounded = book._bm25.directory_hits(project, tokens, chapter)
+        if bounded is not None:
+            # This is the complete project, not a relevance prefix. Group all
+            # matching pages before pagination, using unchanged global BM25.
+            grouped = {}
+            for row in bounded:
+                key = (row["chapter_id"], row["section_id"])
+                if key not in grouped:
+                    grouped[key] = {"section_id": row["section_id"], "match_rank": row["rank"],
+                                    "matching_pages": 0}
+                group = grouped[key]
+                group["matching_pages"] += 1
+                group["match_rank"] = min(group["match_rank"], row["rank"])
+            chapters = {}
+            for (chapter_id, _), section in grouped.items():
+                if chapter_id not in chapters:
+                    chapters[chapter_id] = {"chapter_id": chapter_id, "match_rank": section["match_rank"],
+                                            "matching_pages": 0, "matching_sections_total": 0}
+                group = chapters[chapter_id]
+                group["match_rank"] = min(group["match_rank"], section["match_rank"])
+                group["matching_pages"] += section["matching_pages"]
+                group["matching_sections_total"] += 1
+            ranked = sorted(chapters.values(), key=lambda row: (row["match_rank"], row["chapter_id"]))[offset:offset + limit]
+            sections = {}
+            for match in ranked:
+                chapter_id = match["chapter_id"]
+                preview = sorted((section for (identity, _), section in grouped.items() if identity == chapter_id),
+                                 key=lambda row: (row["match_rank"], row["section_id"]))[:SECTION_PREVIEW_LIMIT]
+                sections[chapter_id] = []
+                for section in preview:
+                    row = book.db.execute("""SELECT sec.title,sec.summary,sec.session_pk,s.external_id AS session_id,
+                      s.title AS session_title,s.created_at,
+                      (SELECT COUNT(*) FROM pages p WHERE p.section_id=sec.id AND p.session_pk=sec.session_pk
+                        AND p.chapter_id=sec.chapter_id AND p.project_id=s.project_id) AS pages_total
+                      FROM sections sec JOIN sessions s ON s.id=sec.session_pk WHERE sec.id=?""",
+                      (section["section_id"],)).fetchone()
+                    sections[chapter_id].append({**section, **dict(row)})
+            return len(chapters), ranked, sections
     bounds = book._project_rowid_bounds(project)
     if bounds is not None:
         bounded_sql = statement(where + " AND pages_fts.rowid BETWEEN ? AND ?")
@@ -207,7 +248,7 @@ def search_directory(book: MemoryBook, query: str, *, project: str | None = None
             parameters.append(chapter)
         where = " AND ".join(predicates)
 
-        batched = _batch_directory_matches(book, where, parameters, project, limit, offset)
+        batched = _batch_directory_matches(book, where, parameters, project, limit, offset, tokens)
         total = (batched[0] if batched is not None else
                  db.execute("SELECT COUNT(DISTINCT p.chapter_id) " + _MATCH_FROM
                             + " WHERE " + where, parameters).fetchone()[0])
