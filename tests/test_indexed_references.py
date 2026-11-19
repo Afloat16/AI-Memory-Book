@@ -93,6 +93,11 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
             tools.append(ListToolsResult(tools=listed).model_dump_json(exclude_none=True))
             recall = next(tool for tool in listed if tool.name == "recall_memory")
             self.assertNotIn("source_format", recall.inputSchema["properties"])
+            self.assertNotIn("ranking_scope", recall.inputSchema["properties"])
+            self.assertEqual(recall.inputSchema["properties"]["required_fields"], {
+                "anyOf": [{"items": {"type": "string"}, "type": "array"}, {"type": "null"}],
+                "default": None, "title": "Required Fields"})
+            self.assertNotIn("required_fields", recall.inputSchema.get("required", []))
             directory = next(tool for tool in listed if tool.name == "search_directory")
             self.assertEqual(set(directory.inputSchema["properties"]), {"query", "project", "chapter", "limit", "offset"})
             self.assertEqual(directory.inputSchema["required"], ["query"])
@@ -108,8 +113,11 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
             # control and its documentation. v0.7.0 allows a bound connection
             # to supply browse_book's project and adds explicit project
             # assertions to follow-up navigation. v0.13 documents the bounded
-            # assessment already returned to current requests. Every other
-            # serialized field must remain equal between the source formats.
+            # assessment already returned to current requests. The current
+            # optional required_fields gate adds one nullable string-array
+            # parameter and its bounded-support explanation; omitted/null
+            # retains the original behavior. Every other serialized field
+            # must still match the approved historical representation.
             expected = json.loads(FIXTURE["schema"])
             compact = lambda value: json.dumps(value, ensure_ascii=False, separators=(",", ":"))
             self.assertEqual(compact(expected), FIXTURE["schema"])
@@ -120,6 +128,10 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
             recall_schema["inputSchema"]["properties"]["temporal"] = {
                 "default": "auto", "enum": ["auto", "current", "relevance"],
                 "title": "Temporal", "type": "string"}
+            self.assertNotIn("required_fields", recall_schema["inputSchema"]["properties"])
+            recall_schema["inputSchema"]["properties"]["required_fields"] = {
+                "anyOf": [{"items": {"type": "string"}, "type": "array"}, {"type": "null"}],
+                "default": None, "title": "Required Fields"}
             recall_schema["description"] = recall_schema["description"].rstrip() + (
                 "\n        temporal=auto distinguishes current requests from historical queries;"
                 "\n        current explicitly prefers comparable recent evidence, and relevance"
@@ -128,6 +140,11 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
                 "\n        evidence_assessment status and conflict page IDs even in compact output;"
                 "\n        these do not establish truth or exhaustive absence. details=true adds"
                 "\n        the resolution basis and assessment counts."
+                "\n        required_fields optionally names literal fields whose complete current"
+                "\n        declarations must all survive in the returned pages. It requires a"
+                "\n        project and withholds context when support is missing, truncated or"
+                "\n        conflicting. This conservative gate does not prove archive-wide absence"
+                "\n        or answerability for arbitrary prose; evidence_gate explains its result."
                 "\n        ")
             project_schema = {"anyOf": [{"type": "string"}, {"type": "null"}],
                               "default": None, "title": "Project"}
@@ -152,6 +169,38 @@ class IndexedReferenceSDKTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(sum(tool["name"] == "search_directory" for tool in existing["tools"]), 1)
             existing["tools"] = [tool for tool in existing["tools"] if tool["name"] != "search_directory"]
             self.assertEqual(compact(existing), compact(expected))
+
+    async def test_required_fields_is_optional_and_rejects_invalid_runtime_values(self):
+        from memory_book import MemoryBook
+        from mcp.server.fastmcp.exceptions import ToolError
+
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "memory.db"
+            with MemoryBook(database, segmentation="turn") as book:
+                book.ingest({"project": "engine", "session_id": "configuration",
+                    "created_at": "2025-01-01T00:00:00Z",
+                    "messages": [{"role": "assistant", "content": "Production retry_limit=12."}]})
+            for source_format in ("objects", "indexed"):
+                server = create_server(database, source_format=source_format)
+                arguments = {"query": "current production retry_limit", "project": "engine"}
+
+                async def call(extra):
+                    result = await server.call_tool("recall_memory", {**arguments, **extra})
+                    return json.loads("".join(part.text for part in result if part.type == "text"))
+
+                omitted, explicit_null = await call({}), await call({"required_fields": None})
+                self.assertEqual(omitted, explicit_null)
+                self.assertNotIn("evidence_gate", omitted)
+                supported = await call({"required_fields": ["retry_limit"]})
+                self.assertEqual(supported["context"], omitted["context"])
+                self.assertEqual(supported["evidence_gate"]["status"], "supported")
+                for invalid in ("retry_limit", [], [False], [""], ["retry limit"],
+                                ["worker..retry_limit"], ["x" * 129], ["x"] * 17):
+                    with self.subTest(source_format=source_format, invalid=invalid), \
+                            self.assertRaisesRegex(ToolError, "required_fields"):
+                        await call({"required_fields": invalid})
+                with self.assertRaisesRegex(ToolError, "required_fields requires an explicit project"):
+                    await call({"project": None, "required_fields": ["retry_limit"]})
 
     async def test_real_cli_modes_preserve_defaults_and_full_provenance(self):
         from memory_book import MemoryBook
