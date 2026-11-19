@@ -1,0 +1,109 @@
+{
+  "schema_version": 2,
+  "protocol": "v014-write-costs-2",
+  "status": "frozen-before-measurement",
+  "scope": "Source-bound API write costs and original-source equivalence. No recall timing, answer-quality, physical-cold-I/O or production concurrency claim.",
+  "runner": "benchmarks/v014_write_costs.py",
+  "integrity_tests": "tests/test_v014_write_costs.py",
+  "source_binding": "The coordinator resolves --protocol-commit to an immutable commit and verifies runner/plan/tests byte for byte. Each fresh worker rechecks the protocol and a clean runtime plus native-file inventory before and after all operations; the selected package and actual loaded extension must resolve inside its checkout. The auditor requires both proofs to equal the coordinator binding. The absolute interpreter path preserves its virtual-environment symlink, with executable, prefix and Python version verified.",
+  "workload": {
+    "projects": 20,
+    "sessions_per_project": 8,
+    "turns_per_session": 32,
+    "initial_sessions": 160,
+    "initial_pages": 5120,
+    "segmentation": "turn",
+    "max_page_chars": 900,
+    "min_page_chars": 0,
+    "result_cache_size": 0,
+    "source_timestamps": "Explicit March 2020 timestamps; neither source age nor wall-clock current values are randomized.",
+    "layout": "Round-robin project ingestion; every session contains distinct turn evidence and cross-project similar engineering language.",
+    "operations_in_order": [
+      {
+        "stage": "ingest",
+        "count": 160
+      },
+      {
+        "stage": "skip",
+        "count": 20
+      },
+      {
+        "stage": "replacement",
+        "count": 10
+      },
+      {
+        "stage": "relink",
+        "count": 5
+      },
+      {
+        "stage": "delete_session",
+        "count": 10
+      },
+      {
+        "stage": "delete_project",
+        "count": 1
+      }
+    ],
+    "operations_per_arm": 206,
+    "final_pages": 4544,
+    "expected_stage_pages": {
+      "ingest": 5120,
+      "skip": 5120,
+      "replacement": 5120,
+      "relink": 5120,
+      "delete_session": 4800,
+      "delete_project": 4544
+    }
+  },
+  "schedule": {
+    "rounds": 4,
+    "order": [
+      [
+        "baseline",
+        "candidate"
+      ],
+      [
+        "candidate",
+        "baseline"
+      ],
+      [
+        "baseline",
+        "candidate"
+      ],
+      [
+        "candidate",
+        "baseline"
+      ]
+    ],
+    "workers": 8,
+    "timed_mutation_calls": 1648,
+    "additional_empty_archive_initializations": 8,
+    "isolation": "Workers run sequentially in fresh processes and independent empty databases. No arm sees the other arm's derived tables. No CPU benchmark should overlap this run. Source verification/resource collection remain outside API write timers.",
+    "additional_archive_closes": 8
+  },
+  "measurement": {
+    "wall": "perf_counter_ns around exactly one public API operation",
+    "cpu": "process_time_ns around that same operation",
+    "memory": "resource.ru_maxrss process lifetime high water after each operation; units recorded, not per-call allocation",
+    "disk": "main/WAL/SHM file sizes and SQLite page-count bytes after each operation; record closed-file sizes separately",
+    "initialization": "Time empty MemoryBook initialization separately; existing-archive statistics migration belongs to the scale protocol, not this empty-archive measurement.",
+    "statistics": "Retain every operation. Report per-arm/stage n, p50, nearest-rank p95, min/max/sum and paired per-round medians. Repeated calls/rounds are correlated diagnostic observations, not independent user samples.",
+    "cache_boundary": "No OS cache drop. A fresh process and database do not imply cold storage. Skip replay is its own stage.",
+    "close": "Time MemoryBook.close and its final WAL checkpoint separately, outside the mutation samples; retain closed file sizes.",
+    "journaling": "Durably flush operation-start and completion records outside API timers; the journal overhead and source/FTS audit reads are not included in mutation samples. Supervisor wall times include the full worker."
+  },
+  "integrity": {
+    "real_api": "Only MemoryBook.ingest/link_session/delete_session/delete_project modify source archives. Never populate source or FTS tables directly.",
+    "source_equality": "After each stage, compare every stable source column, source coordinates/page IDs, canonical exports, exact/stem FTS stored row content and actual FTS5 term/column document and occurrence counts. All 24 paired stage snapshots must match. Wall-clock project/session maintenance timestamps are excluded. This is not a shadow-table byte or full posting-position comparison.",
+    "responses": "Audit every ordered operation index/stage/method/request digest against the frozen generator, not just row counts. Ingest, replacement and relink must return the requested project/session, 32 pages, correct revision and skip flag; deletions must return true. Validate all stage counts/revisions, required table digests, native and source proofs, exact raw-record hashes and successful process receipts.",
+    "failure": "Any initialization/operation/close exception, interruption, timeout, nonzero exit, incomplete start/completion journal, changed runtime/native/protocol, contract failure or source mismatch rejects the run. Preserve separate immutable receipts, all original logs and every completed/partial working database. Fresh output directories only; never pool replacement attempts.",
+    "data_retention": "Workers retain their closed SQLite databases. Only the coordinator may remove known working SQLite/WAL/SHM files after all eight workers, raw hashes, source identities and all 24 source pairs have passed, and summary.json has been durably captured and reverified. Any prior failure leaves all working databases available. A successful cleanup gets its own receipt; there is no retained-DB claim after successful cleanup."
+  },
+  "limits": {
+    "worker_timeout_seconds": 900,
+    "rounds_fixed": 4,
+    "overwrite_output": false
+  },
+  "pre_freeze_checks": "Pure generator/count/schedule/hash, synthetic saved-record adversarial auditor fixtures and static compilation checks are permitted. They do not construct MemoryBook, open SQLite archives, invoke workers, time actual mutations or contribute experimental observations.",
+  "supersedes_unexecuted_protocol": "v014-write-costs-1 at 39850375979880d877f1c434937978a73812ee41; no mutation timing had run before this independent audit amendment."
+}
