@@ -1,0 +1,2527 @@
+{
+  "kind": "independent_development_regression_review",
+  "created_at": "2026-11-19T06:21:37.397220+00:00",
+  "source_commit": "be60b7557a499a39ebe4bb317ab802a0ac57b141",
+  "source_hashes": {
+    "src/memory_book/evidence_gate.py": "2076d774be6a31730f68640f3474ebbb6a69cbfe3041fe3580f9f4fc0673058a",
+    "src/memory_book/store.py": "83fefc4be7f0560c6e30be46d49c1c5dd92b41af02a2a6a9baf16df077128d5c",
+    "src/memory_book/project_index.py": "fbe5b3f625f9dcad5cb639ccb70aa5cb2499bfbbae1857f2756a0b11c78768df"
+  },
+  "python": "3.12.14",
+  "case_templates": 52,
+  "checks": 108,
+  "passed": 108,
+  "failed": [],
+  "cases": [
+    {
+      "name": "positive_assignment",
+      "sources": [
+        [
+          "a",
+          "Production retry_limit=12.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "supported",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "positive_prose",
+      "sources": [
+        [
+          "a",
+          "Production retry limit is 12.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "supported",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "positive_boolean",
+      "sources": [
+        [
+          "a",
+          "Production retry_limit=true.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "supported",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "positive_bare_literal",
+      "sources": [
+        [
+          "a",
+          "Production retry_limit=unlimited.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "supported",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "positive_bare_field",
+      "sources": [
+        [
+          "a",
+          "retry_limit=12.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "supported",
+      "query": "current retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "bare_query_does_not_infer_scope",
+      "sources": [
+        [
+          "a",
+          "Production retry_limit=12.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "wrong_environment",
+      "sources": [
+        [
+          "a",
+          "Staging retry_limit=12.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "narrower_unrequested_environment",
+      "sources": [
+        [
+          "a",
+          "Production staging retry_limit=12.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "explicit_multitoken_environment",
+      "sources": [
+        [
+          "a",
+          "Production staging retry_limit=12.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "supported",
+      "query": "current production staging retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "inline_prefix_not",
+      "sources": [
+        [
+          "a",
+          "Not Production retry_limit=99.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "inline_prefix_hypothetical",
+      "sources": [
+        [
+          "a",
+          "Hypothetical Production retry_limit=99.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "inline_prefix_if",
+      "sources": [
+        [
+          "a",
+          "If Production retry_limit=99.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "inline_prefix_example",
+      "sources": [
+        [
+          "a",
+          "Example Production retry_limit=99.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "inline_prefix_unapproved",
+      "sources": [
+        [
+          "a",
+          "Unapproved Production retry_limit=99.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "inline_prefix_revoked",
+      "sources": [
+        [
+          "a",
+          "Revoked Production retry_limit=99.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "inline_prefix_proposed",
+      "sources": [
+        [
+          "a",
+          "Proposed Production retry_limit=99.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "inline_prefix_tentative",
+      "sources": [
+        [
+          "a",
+          "Tentative Production retry_limit=99.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "inline_prefix_assuming",
+      "sources": [
+        [
+          "a",
+          "Assuming Production retry_limit=99.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "inline_prefix_unless",
+      "sources": [
+        [
+          "a",
+          "Unless Production retry_limit=99.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "inline_prefix_pending",
+      "sources": [
+        [
+          "a",
+          "Pending Production retry_limit=99.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "inline_prefix_unconfirmed",
+      "sources": [
+        [
+          "a",
+          "Unconfirmed Production retry_limit=99.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "inline_prefix_imaginary",
+      "sources": [
+        [
+          "a",
+          "Imaginary Production retry_limit=99.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "inline_prefix_withdrawn",
+      "sources": [
+        [
+          "a",
+          "Withdrawn Production retry_limit=99.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "multiline_quote_\"",
+      "sources": [
+        [
+          "a",
+          "The review says \"\nProduction retry_limit=99.\n\"",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "multiline_quote_'",
+      "sources": [
+        [
+          "a",
+          "The review says '\nProduction retry_limit=99.\n'",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "multiline_quote_“",
+      "sources": [
+        [
+          "a",
+          "The review says “\nProduction retry_limit=99.\n”",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "multiline_quote_「",
+      "sources": [
+        [
+          "a",
+          "The review says 「\nProduction retry_limit=99.\n」",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "multiline_quote_『",
+      "sources": [
+        [
+          "a",
+          "The review says 『\nProduction retry_limit=99.\n』",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "multiline_quote_«",
+      "sources": [
+        [
+          "a",
+          "The review says «\nProduction retry_limit=99.\n»",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "multiline_quote_＂",
+      "sources": [
+        [
+          "a",
+          "The review says ＂\nProduction retry_limit=99.\n＂",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "multiline_quote_`",
+      "sources": [
+        [
+          "a",
+          "The review says `\nProduction retry_limit=99.\n`",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "hypothetical_introducer",
+      "sources": [
+        [
+          "a",
+          "A hypothetical example follows:\nProduction retry_limit=99.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "revoked_after_sentence",
+      "sources": [
+        [
+          "a",
+          "Production retry_limit=99. This decision was revoked.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "negative_after_sentence",
+      "sources": [
+        [
+          "a",
+          "Production retry_limit=99. Do not use this value.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "unknown_chinese_after_sentence",
+      "sources": [
+        [
+          "a",
+          "Production retry_limit=99. 未确认此配置。",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "quoted_value",
+      "sources": [
+        [
+          "a",
+          "Production retry_limit=\"twelve\".",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "commented",
+      "sources": [
+        [
+          "a",
+          "// Production retry_limit=99.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "code_fenced",
+      "sources": [
+        [
+          "a",
+          "```\nProduction retry_limit=99.\n```",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "conditional_suffix",
+      "sources": [
+        [
+          "a",
+          "Production retry_limit=99 if staging is active.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "role_claim",
+      "sources": [
+        [
+          "a",
+          "USER: Production retry_limit=99.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "namespace_mismatch",
+      "sources": [
+        [
+          "a",
+          "Production worker.retry_limit=12.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production worker.retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "namespace_exact",
+      "sources": [
+        [
+          "a",
+          "Production worker.retry_limit=12.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "supported",
+      "query": "current production worker.retry_limit",
+      "fields": [
+        "worker.retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "extra_missing_query_facet",
+      "sources": [
+        [
+          "a",
+          "Production retry_limit=12.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit capacity",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "budget_excludes_complete_page",
+      "sources": [
+        [
+          "a",
+          "Production retry_limit=12.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {
+        "budget_chars": 100
+      }
+    },
+    {
+      "name": "missing_required_field",
+      "sources": [
+        [
+          "a",
+          "Production retry_limit=12.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit",
+        "lease_window"
+      ],
+      "options": {}
+    },
+    {
+      "name": "overlapping_field_same_timestamp_conflict",
+      "sources": [
+        [
+          "a",
+          "Production retry_limit=12. Production lease_window=18.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ],
+        [
+          "b",
+          "Production retry_limit=99.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit lease_window",
+      "fields": [
+        "retry_limit",
+        "lease_window"
+      ],
+      "options": {}
+    },
+    {
+      "name": "same_turn_conflict",
+      "sources": [
+        [
+          "a",
+          "Production retry_limit=12. Production retry_limit=99.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "latest_cross_field_limit_one",
+      "sources": [
+        [
+          "a",
+          "Production retry_limit=12. Production lease_window=18.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ],
+        [
+          "b",
+          "Production retry_limit=99.",
+          "2021-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit lease_window",
+      "fields": [
+        "retry_limit",
+        "lease_window"
+      ],
+      "options": {
+        "limit": 1
+      }
+    },
+    {
+      "name": "latest_cross_field_limit_two",
+      "sources": [
+        [
+          "a",
+          "Production retry_limit=12. Production lease_window=18.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ],
+        [
+          "b",
+          "Production retry_limit=99.",
+          "2021-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "supported",
+      "query": "current production retry_limit lease_window",
+      "fields": [
+        "retry_limit",
+        "lease_window"
+      ],
+      "options": {
+        "limit": 2
+      }
+    },
+    {
+      "name": "unclassified_same_revocation",
+      "sources": [
+        [
+          "old",
+          "Production retry_limit=12.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ],
+        [
+          "same",
+          "Production retry_limit was revoked. No new value was selected.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "unclassified_later_revocation",
+      "sources": [
+        [
+          "old",
+          "Production retry_limit=12.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ],
+        [
+          "later",
+          "Production retry_limit was revoked. No new value was selected.",
+          "2021-01-01T00:00:00Z",
+          "engine"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit",
+      "fields": [
+        "retry_limit"
+      ],
+      "options": {}
+    },
+    {
+      "name": "foreign_field_cannot_supply_missing_value",
+      "sources": [
+        [
+          "a",
+          "Production retry_limit=12.",
+          "2020-01-01T00:00:00Z",
+          "engine"
+        ],
+        [
+          "f",
+          "Production retry_limit=99. Production lease_window=80.",
+          "2021-01-01T00:00:00Z",
+          "engine-copy"
+        ]
+      ],
+      "expected": "abstained",
+      "query": "current production retry_limit lease_window",
+      "fields": [
+        "retry_limit",
+        "lease_window"
+      ],
+      "options": {}
+    }
+  ],
+  "results": [
+    {
+      "name": "positive_assignment",
+      "mode": "global",
+      "expected": "supported",
+      "actual": "supported",
+      "reason": null,
+      "field_issues": {},
+      "context_chars": 105,
+      "context_sha256": "dbdab17757527940083cf1a77223b8d4a248c542f18d72e9a025dbbf5fb6b75f",
+      "supporting_page_ids": {
+        "retry_limit": [
+          "p_8253b4a3d3a5ae305e6852ed"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "name": "positive_prose",
+      "mode": "global",
+      "expected": "supported",
+      "actual": "supported",
+      "reason": null,
+      "field_issues": {},
+      "context_chars": 108,
+      "context_sha256": "7b9875fb4e3d4adbbd52398215730667b0006b92dfe75197a4216440fbcab7d0",
+      "supporting_page_ids": {
+        "retry_limit": [
+          "p_ac6cd32c9c3fa9a166d88bad"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "name": "positive_boolean",
+      "mode": "global",
+      "expected": "supported",
+      "actual": "supported",
+      "reason": null,
+      "field_issues": {},
+      "context_chars": 107,
+      "context_sha256": "20c1c8b937ad850d679e636db0b242a214904f6994677524d5ee3f5429f5b968",
+      "supporting_page_ids": {
+        "retry_limit": [
+          "p_83cfe2b6ee31b80660c5ecef"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "name": "positive_bare_literal",
+      "mode": "global",
+      "expected": "supported",
+      "actual": "supported",
+      "reason": null,
+      "field_issues": {},
+      "context_chars": 112,
+      "context_sha256": "00f84a7436aecd18ddc0715d71e0ba3a8129dd47a0333fecdf789a5adb5221a2",
+      "supporting_page_ids": {
+        "retry_limit": [
+          "p_b4c8fd0f0b56dc101e2c3404"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "name": "positive_bare_field",
+      "mode": "global",
+      "expected": "supported",
+      "actual": "supported",
+      "reason": null,
+      "field_issues": {},
+      "context_chars": 94,
+      "context_sha256": "48ca333e45160404c56ae879eea2de12d1cd7ca6161e7f794a22ad8fb27edd49",
+      "supporting_page_ids": {
+        "retry_limit": [
+          "p_b448c3127ddd53a29ab636b0"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "name": "bare_query_does_not_infer_scope",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "wrong_environment",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "narrower_unrequested_environment",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "explicit_multitoken_environment",
+      "mode": "global",
+      "expected": "supported",
+      "actual": "supported",
+      "reason": null,
+      "field_issues": {},
+      "context_chars": 113,
+      "context_sha256": "2f81f9c95005a293c7415d1dbf0a109f33fb3bb2e9c1eb9d86fd1ecdd104256b",
+      "supporting_page_ids": {
+        "retry_limit": [
+          "p_3cc178a75a1e5449782e929b"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_not",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_hypothetical",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_if",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_example",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_unapproved",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_revoked",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_proposed",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_tentative",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_assuming",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_unless",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_pending",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_unconfirmed",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_imaginary",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_withdrawn",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "multiline_quote_\"",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "multiline_quote_'",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "multiline_quote_“",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "multiline_quote_「",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "multiline_quote_『",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "multiline_quote_«",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "multiline_quote_＂",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "multiline_quote_`",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "hypothetical_introducer",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "revoked_after_sentence",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "negative_after_sentence",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "unknown_chinese_after_sentence",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "quoted_value",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "commented",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "code_fenced",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "conditional_suffix",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "role_claim",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "namespace_mismatch",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "namespace_exact",
+      "mode": "global",
+      "expected": "supported",
+      "actual": "supported",
+      "reason": null,
+      "field_issues": {},
+      "context_chars": 112,
+      "context_sha256": "edef7b37fd3d216517254fbb67503824688bdba0a294fc6aea939b796ec55e7d",
+      "supporting_page_ids": {
+        "worker.retry_limit": [
+          "p_611c33489ae0ec31bc842f46"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "name": "extra_missing_query_facet",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "budget_excludes_complete_page",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "missing_required_field",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": [
+          "p_8253b4a3d3a5ae305e6852ed"
+        ],
+        "lease_window": []
+      },
+      "passed": true
+    },
+    {
+      "name": "overlapping_field_same_timestamp_conflict",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "conflicting_declarations",
+      "field_issues": {
+        "retry_limit": "conflicting_declarations"
+      },
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": [],
+        "lease_window": [
+          "p_cf8baae3297afbc5ea031eb3"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "name": "same_turn_conflict",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "conflicting_declarations",
+      "field_issues": {
+        "retry_limit": "conflicting_declarations"
+      },
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "latest_cross_field_limit_one",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": [],
+        "lease_window": [
+          "p_cf8baae3297afbc5ea031eb3"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "name": "latest_cross_field_limit_two",
+      "mode": "global",
+      "expected": "supported",
+      "actual": "supported",
+      "reason": null,
+      "field_issues": {},
+      "context_chars": 240,
+      "context_sha256": "d3131a1f3d2a79132b682be41a703aff3a3b8a5ed7885ad2fb7c86ee1848d7bd",
+      "supporting_page_ids": {
+        "retry_limit": [
+          "p_969b7ad795082e1649f46bb4"
+        ],
+        "lease_window": [
+          "p_cf8baae3297afbc5ea031eb3"
+        ]
+      },
+      "passed": true,
+      "latest_support_correct": true
+    },
+    {
+      "name": "unclassified_same_revocation",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "unconfirmed_current_declarations",
+      "field_issues": {
+        "retry_limit": "unclassified_current_evidence"
+      },
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "unclassified_later_revocation",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "unconfirmed_current_declarations",
+      "field_issues": {
+        "retry_limit": "unclassified_current_evidence"
+      },
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "foreign_field_cannot_supply_missing_value",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": [
+          "p_8253b4a3d3a5ae305e6852ed"
+        ],
+        "lease_window": []
+      },
+      "passed": true
+    },
+    {
+      "name": "positive_assignment",
+      "mode": "project",
+      "expected": "supported",
+      "actual": "supported",
+      "reason": null,
+      "field_issues": {},
+      "context_chars": 105,
+      "context_sha256": "dbdab17757527940083cf1a77223b8d4a248c542f18d72e9a025dbbf5fb6b75f",
+      "supporting_page_ids": {
+        "retry_limit": [
+          "p_8253b4a3d3a5ae305e6852ed"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "name": "positive_prose",
+      "mode": "project",
+      "expected": "supported",
+      "actual": "supported",
+      "reason": null,
+      "field_issues": {},
+      "context_chars": 108,
+      "context_sha256": "7b9875fb4e3d4adbbd52398215730667b0006b92dfe75197a4216440fbcab7d0",
+      "supporting_page_ids": {
+        "retry_limit": [
+          "p_ac6cd32c9c3fa9a166d88bad"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "name": "positive_boolean",
+      "mode": "project",
+      "expected": "supported",
+      "actual": "supported",
+      "reason": null,
+      "field_issues": {},
+      "context_chars": 107,
+      "context_sha256": "20c1c8b937ad850d679e636db0b242a214904f6994677524d5ee3f5429f5b968",
+      "supporting_page_ids": {
+        "retry_limit": [
+          "p_83cfe2b6ee31b80660c5ecef"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "name": "positive_bare_literal",
+      "mode": "project",
+      "expected": "supported",
+      "actual": "supported",
+      "reason": null,
+      "field_issues": {},
+      "context_chars": 112,
+      "context_sha256": "00f84a7436aecd18ddc0715d71e0ba3a8129dd47a0333fecdf789a5adb5221a2",
+      "supporting_page_ids": {
+        "retry_limit": [
+          "p_b4c8fd0f0b56dc101e2c3404"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "name": "positive_bare_field",
+      "mode": "project",
+      "expected": "supported",
+      "actual": "supported",
+      "reason": null,
+      "field_issues": {},
+      "context_chars": 94,
+      "context_sha256": "48ca333e45160404c56ae879eea2de12d1cd7ca6161e7f794a22ad8fb27edd49",
+      "supporting_page_ids": {
+        "retry_limit": [
+          "p_b448c3127ddd53a29ab636b0"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "name": "bare_query_does_not_infer_scope",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "wrong_environment",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "narrower_unrequested_environment",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "explicit_multitoken_environment",
+      "mode": "project",
+      "expected": "supported",
+      "actual": "supported",
+      "reason": null,
+      "field_issues": {},
+      "context_chars": 113,
+      "context_sha256": "2f81f9c95005a293c7415d1dbf0a109f33fb3bb2e9c1eb9d86fd1ecdd104256b",
+      "supporting_page_ids": {
+        "retry_limit": [
+          "p_3cc178a75a1e5449782e929b"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_not",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_hypothetical",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_if",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_example",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_unapproved",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_revoked",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_proposed",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_tentative",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_assuming",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_unless",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_pending",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_unconfirmed",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_imaginary",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "inline_prefix_withdrawn",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "multiline_quote_\"",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "multiline_quote_'",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "multiline_quote_“",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "multiline_quote_「",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "multiline_quote_『",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "multiline_quote_«",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "multiline_quote_＂",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "multiline_quote_`",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "hypothetical_introducer",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "revoked_after_sentence",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "negative_after_sentence",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "unknown_chinese_after_sentence",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "quoted_value",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "commented",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "code_fenced",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "conditional_suffix",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "role_claim",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "namespace_mismatch",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "namespace_exact",
+      "mode": "project",
+      "expected": "supported",
+      "actual": "supported",
+      "reason": null,
+      "field_issues": {},
+      "context_chars": 112,
+      "context_sha256": "edef7b37fd3d216517254fbb67503824688bdba0a294fc6aea939b796ec55e7d",
+      "supporting_page_ids": {
+        "worker.retry_limit": [
+          "p_611c33489ae0ec31bc842f46"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "name": "extra_missing_query_facet",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "budget_excludes_complete_page",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "missing_required_field",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": [
+          "p_8253b4a3d3a5ae305e6852ed"
+        ],
+        "lease_window": []
+      },
+      "passed": true
+    },
+    {
+      "name": "overlapping_field_same_timestamp_conflict",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "conflicting_declarations",
+      "field_issues": {
+        "retry_limit": "conflicting_declarations"
+      },
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": [],
+        "lease_window": [
+          "p_cf8baae3297afbc5ea031eb3"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "name": "same_turn_conflict",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "conflicting_declarations",
+      "field_issues": {
+        "retry_limit": "conflicting_declarations"
+      },
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "latest_cross_field_limit_one",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": [],
+        "lease_window": [
+          "p_cf8baae3297afbc5ea031eb3"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "name": "latest_cross_field_limit_two",
+      "mode": "project",
+      "expected": "supported",
+      "actual": "supported",
+      "reason": null,
+      "field_issues": {},
+      "context_chars": 240,
+      "context_sha256": "d3131a1f3d2a79132b682be41a703aff3a3b8a5ed7885ad2fb7c86ee1848d7bd",
+      "supporting_page_ids": {
+        "retry_limit": [
+          "p_969b7ad795082e1649f46bb4"
+        ],
+        "lease_window": [
+          "p_cf8baae3297afbc5ea031eb3"
+        ]
+      },
+      "passed": true,
+      "latest_support_correct": true
+    },
+    {
+      "name": "unclassified_same_revocation",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "unconfirmed_current_declarations",
+      "field_issues": {
+        "retry_limit": "unclassified_current_evidence"
+      },
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "unclassified_later_revocation",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "unconfirmed_current_declarations",
+      "field_issues": {
+        "retry_limit": "unclassified_current_evidence"
+      },
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": []
+      },
+      "passed": true
+    },
+    {
+      "name": "foreign_field_cannot_supply_missing_value",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "field_issues": {},
+      "context_chars": 0,
+      "context_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "supporting_page_ids": {
+        "retry_limit": [
+          "p_8253b4a3d3a5ae305e6852ed"
+        ],
+        "lease_window": []
+      },
+      "passed": true
+    },
+    {
+      "name": "source_ref_project_mismatch",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "context_chars": 0,
+      "passed": true
+    },
+    {
+      "name": "source_ref_session_id_mismatch",
+      "mode": "global",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "context_chars": 0,
+      "passed": true
+    },
+    {
+      "name": "source_ref_project_mismatch",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "context_chars": 0,
+      "passed": true
+    },
+    {
+      "name": "source_ref_session_id_mismatch",
+      "mode": "project",
+      "expected": "abstained",
+      "actual": "abstained",
+      "reason": "required_declarations_not_delivered",
+      "context_chars": 0,
+      "passed": true
+    }
+  ],
+  "limits": [
+    "Authored adversarial development tests, not an untouched independent holdout.",
+    "Only tests bounded syntactic support and returned original pages, not factual authority or full coding-task success.",
+    "Both global and opt-in project-local ranking are exercised."
+  ]
+}

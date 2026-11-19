@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "protocol": "v014-public-source-holdout-1",
+  "status_at_registration": "Frozen before any retrieval execution; only source acquisition and pure source/scorer integrity checks are permitted before runtime freeze.",
+  "registered_at_utc": "2026-11-19T06:05:36+00:00",
+  "baseline_commit": "861b7f35ac2557024d89bc51d5b3017ca35cb9d0",
+  "manifest": "benchmarks/experiments/v014-public-holdout-provenance.json",
+  "manifest_sha256": "f002293d08a722893f2fcfccd8c74d97152b40d1cfcd4032f3e9e396829483d4",
+  "evaluator": "scripts/evaluate_v014_public_holdout.py",
+  "evaluator_sha256": "048ce29d6498c95e76834faa7cea45c7b9ab4cdaadf68c6d5682d9a0f2f1c075",
+  "source_and_gold_digests": {
+    "sources_sha256": "257b5694d56566e05a63de8729890416714ebe131a17b6c8b4ea25f5c25f61ce",
+    "questions_sha256": "42b82ea4ebe715b3ab52f4de6cfd59e61792d54a1c5c9a577172c9a093bc9ad2",
+    "licenses_sha256": "4bb2849842da2e7ebdaaa1fa24824c613b839a6ce71a585cb3c0636d57212d95",
+    "commit_metadata_sha256": "d1d94646a408558070e9f906be15850a12ef393c5cdba7cc0676050e68d6e2b0"
+  },
+  "counts": {
+    "projects": 4,
+    "release_commits": 8,
+    "source_files": 10,
+    "questions": 36,
+    "answerable_questions": 32,
+    "missing_questions": 4,
+    "required_spans": 48,
+    "categories": {
+      "historical_change": 8,
+      "historical_fact": 8,
+      "missing_in_selected_files": 4,
+      "multi_fact": 4,
+      "newer_snapshot_fact": 12
+    }
+  },
+  "purpose": "Independent source-extraction holdout against real public project histories, complementing the separately frozen synthetic scale experiment. Official repository files and real release-commit timestamps replace authored conversation contents; questions remain evaluator-authored.",
+  "freeze_rules": [
+    "Commit this protocol, the provenance/source/gold manifest, and the evaluator before the first recall call. Root records the resulting exact protocol commit and saves it remotely.",
+    "Complete and freeze the runtime candidate before revealing any holdout retrieval outcome to its optimizer. The evaluator agent must not optimize runtime source or disclose query/gold details to the runtime optimizer before the candidate is fixed.",
+    "Run both baseline and candidate from exact committed runtime checkouts with identical inputs, budgets and segmentation settings. Bind every tracked runtime file and the actual imported backend/native binary before and after the matrix.",
+    "Any result used for further tuning becomes development evidence. Preserve the first attempt and use new unseen public sources/questions for an independent claim about a subsequently tuned candidate.",
+    "Do not remove or rewrite a question, gold source span, missing-field label, budget, or evaluator expectation after seeing a retrieval response. Corrections require a new separately identified protocol and retain all old evidence."
+  ],
+  "segmentation_modes": [
+    "turn",
+    "adaptive",
+    "session"
+  ],
+  "segmentation_boundary": "The actual runtime supports turn, adaptive, and session; it has no fixed segmentation mode. Each file is one original message/turn, so turn and session are separate interface checks over the same underlying page grouping, not independent quality samples.",
+  "ingestion_settings": {
+    "max_page_chars": 900,
+    "min_page_chars": 400,
+    "similarity_threshold": 0.12
+  },
+  "ingestion_order": "All 10 sources sorted by official commit timestamp, then repository and file path; use MemoryBook.ingest only. One shared database per segmentation mode contains all four project namespaces and both releases of each project.",
+  "retrieval": {
+    "strategy": "book",
+    "budgets_chars": [
+      1200,
+      2400
+    ],
+    "limit": 5,
+    "budget_tokens": null,
+    "use_cache": false,
+    "coverage": false,
+    "semantic": false,
+    "scope": "Exact project only; no chapter or session filter is passed. Current versus relevance is explicitly frozen per question; tags/file paths may be present in the query and authentic session metadata."
+  },
+  "matrix": {
+    "questions": 36,
+    "answerable_questions": 32,
+    "missing_questions": 4,
+    "required_spans": 48,
+    "segmentation_modes": 3,
+    "character_budgets": 2,
+    "response_configurations_per_arm_backend": 216,
+    "answerable_configurations_per_arm_backend": 192,
+    "missing_configurations_per_arm_backend": 24,
+    "required_span_observations_per_arm_backend": 288,
+    "backends": [
+      "python",
+      "native"
+    ],
+    "source_followup_reads": "Read every returned page and every additional conflict-reference page using the same exact project scope. Count separately from recall configurations. No evidence credit is granted from the follow-up body unless its span was present in returned context.",
+    "ranking_configurations": 3,
+    "response_configurations_per_ranking_configuration_backend": 216,
+    "response_configurations_all_three_configurations_per_backend": 648,
+    "response_configurations_all_three_configurations_both_backends": 1296
+  },
+  "scoring": {
+    "evidence": "Gold is an exact half-open Unicode-codepoint interval in a particular original file at a particular fixed commit. A match requires the union of authenticated returned-context source intervals to cover that whole gold interval. Identical text from another project, release, or file never earns credit.",
+    "complete": "All required source spans for that question are covered in returned context. Compare multi-source history questions and multi-fact single-source questions separately.",
+    "first_source": "Where predeclared, separately report whether the first returned source belongs to the required release/file. This is source selection, not factual-authority inference; a first source without its required span can still be incomplete.",
+    "source_integrity": "Validate every original page, project breadcrumb, source/session/turn/message identity, page and turn coordinates, exact source slices, timestamps, citation framing, excerpt gaps, and character/result budgets. Every conflict page must also belong to the exact query project.",
+    "missing": "The named field is absent from all selected source files in that project. Report nonempty context and assessment statuses; neither an empty response nor no_comparable_declaration alone establishes calibrated abstention. Do not infer absence from the rest of the repository.",
+    "regression": "Compare each individual gold-span presence and first-source expectation. Unchanged aggregate counts do not excuse an old passing span/case becoming a failure. Retain API and source-integrity errors in all denominators."
+  },
+  "acceptance": {
+    "required": "No source-coordinate, project-isolation, budget, or run-identity violations. No formerly returned required span or predeclared first-source success lost versus the registered v0.13 baseline.",
+    "completeness": "Report absolute candidate completeness as well as paired nonregression. Finishing all calls or preserving baseline failures is not a claim that all questions are answered.",
+    "limits": "This holdout establishes only performance on the fixed public-source extraction questions. It is not a production query sample, a coding-LLM evaluation, a cross-product comparison, a timing benchmark or a universal correctness guarantee.",
+    "project_execution": "Report actual project-route count separately from requested project mode. This small corpus is expected to use project-local ranking for every candidate_project call; a disclosed global fallback is never counted as a successful measurement of the project feature."
+  },
+  "retention": {
+    "attempts": "Every run requires a new nonexisting output directory; preserve failed and incomplete attempts. Raw API responses and all source page follow-ups are appended before the next query, then losslessly gzip-compressed with both raw and compressed SHA-256 hashes.",
+    "outputs": [
+      "report.json",
+      "raw.jsonl.gz",
+      "journal.jsonl",
+      "frozen-protocol.json",
+      "frozen-provenance.json",
+      "per-mode ingest receipts and SQLite archive snapshots"
+    ],
+    "offline_audit": "The saved-record auditor recomputes all source coverage, exact closed-matrix inventories and summary denominators without importing MemoryBook or making new retrieval calls."
+  },
+  "reproduction": [
+    "python scripts/evaluate_v014_public_holdout.py check",
+    "python scripts/evaluate_v014_public_holdout.py self-test",
+    "python scripts/evaluate_v014_public_holdout.py run --source BASELINE_CHECKOUT --commit 861b7f35ac2557024d89bc51d5b3017ca35cb9d0 --protocol-commit FROZEN_PROTOCOL_SHA --backend python --arm baseline --ranking-scope global --output NEW_BASELINE_GLOBAL_ATTEMPT",
+    "python scripts/evaluate_v014_public_holdout.py run --source CANDIDATE_CHECKOUT --commit FROZEN_CANDIDATE_SHA --protocol-commit FROZEN_PROTOCOL_SHA --backend python --arm candidate --ranking-scope global --output NEW_CANDIDATE_GLOBAL_ATTEMPT",
+    "python scripts/evaluate_v014_public_holdout.py run --source CANDIDATE_CHECKOUT --commit FROZEN_CANDIDATE_SHA --protocol-commit FROZEN_PROTOCOL_SHA --backend python --arm candidate --ranking-scope project --output NEW_CANDIDATE_PROJECT_ATTEMPT",
+    "Repeat all three configurations with --backend native after building and verifying each selected checkout's own extension.",
+    "python scripts/evaluate_v014_public_holdout.py audit --output SAVED_ATTEMPT",
+    "python scripts/evaluate_v014_public_holdout.py compare --baseline BASELINE_GLOBAL_ATTEMPT --candidate CANDIDATE_GLOBAL_ATTEMPT",
+    "python scripts/evaluate_v014_public_holdout.py compare --baseline BASELINE_GLOBAL_ATTEMPT --candidate CANDIDATE_PROJECT_ATTEMPT",
+    "python scripts/evaluate_v014_public_holdout.py compare --baseline CANDIDATE_GLOBAL_ATTEMPT --candidate CANDIDATE_PROJECT_ATTEMPT"
+  ],
+  "pre_execution_addenda": [
+    {
+      "registered_at_utc": "2026-11-19T06:09:36+00:00",
+      "reason": "Root requested explicit constructor ranking_scope selection before any holdout retrieval. The candidate feature is opt-in; default/global compatibility must be evaluated separately.",
+      "previous_protocol_sha256": "06924e387a8855f66cedbfb7d51b8315b52fb74b42b9c757eb49d6f5221514fb",
+      "previous_evaluator_sha256": "e585a9b0763db8e6db53b72e20f045993e921302d93fc5209295d0da4a0349dc",
+      "unchanged_manifest_sha256": "f002293d08a722893f2fcfccd8c74d97152b40d1cfcd4032f3e9e396829483d4",
+      "questions_sources_gold_budgets_and_segmentation_unchanged": true,
+      "recall_calls_before_addendum": 0
+    }
+  ],
+  "ranking_configurations": {
+    "baseline_global": {
+      "arm": "baseline",
+      "ranking_scope": "global",
+      "constructor": "Omit ranking_scope; this preserves compatibility with the frozen v0.13 constructor. A missing book.ranking_scope attribute is permitted only for this legacy arm."
+    },
+    "candidate_global": {
+      "arm": "candidate",
+      "ranking_scope": "global",
+      "constructor": "Omit ranking_scope and verify the actual candidate book.ranking_scope is global. This explicitly checks the new runtime's default behavior."
+    },
+    "candidate_project": {
+      "arm": "candidate",
+      "ranking_scope": "project",
+      "constructor": "Pass ranking_scope=project and verify actual book.ranking_scope. Each original response must disclose requested and actual ranking_scope; all global fallbacks and reasons are retained, not counted as project execution."
+    }
+  },
+  "ranking_comparisons": [
+    [
+      "baseline_global",
+      "candidate_global"
+    ],
+    [
+      "baseline_global",
+      "candidate_project"
+    ],
+    [
+      "candidate_global",
+      "candidate_project"
+    ]
+  ],
+  "ranking_binding": "Bind requested scope and constructor invocation to report, raw rows, journal, worker arguments, and per-mode observed constructor state. The offline auditor rejects mixed labels and validates the actual response route; a project request that falls back to global is reported explicitly. Within-candidate scope comparisons require one identical runtime commit."
+}

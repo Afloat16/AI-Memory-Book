@@ -1,0 +1,1388 @@
+{
+  "schema_version": 1,
+  "protocol": "v014-public-source-holdout-1",
+  "captured_at_utc": "2026-11-19T06:00:42+00:00",
+  "scope": "Independently authored retrieval questions over authentic pinned public packaging-source snapshots. This is not a record of real developer conversations, coding-LLM task success, calibrated abstention, or an unseen natural query distribution.",
+  "source_selection": "Four official project repositories named before source extraction; two historical release snapshots each. No retrieval output was observed during source, question or gold selection.",
+  "source_capture": "Official GitHub commit API for dates/tree identities and GitHub raw file contents. Every captured source and license text is checked against its blob SHA-1 in the exact release commit tree.",
+  "acquisition_notes": [
+    "An initial HTTPX 0.23.3 setup.py lookup returned 404; its actual pyproject.toml was then located before any question or gold was frozen.",
+    "GitHub contents-file responses were decoded text rather than raw API metadata. File byte identity was independently bound to the exact commit tree entries instead."
+  ],
+  "date_semantics": "created_at is the official committer timestamp of the pinned release snapshot; author and committer dates are both retained. It is not a fabricated conversation date or a claim about first introduction of an individual line.",
+  "ingestion": "One canonical assistant message per selected file, containing only the original half-open excerpt. The only removed characters are final LF characters outside the excerpt. Metadata carries repository, release tag and file path. MemoryBook adds its ordinary role framing; no question, gold, summary, or answer is injected into source messages.",
+  "coordinate_unit": "Source and gold offsets are Unicode code points with half-open [start,end) ranges; excerpts additionally record exact UTF-8 byte offsets.",
+  "copyright": "Original upstream license notices are retained below. Requests NOTICE is retained on each Requests source. Redistribution of captured source excerpts remains subject to the corresponding upstream license.",
+  "commit_metadata": {
+    "psf/requests@147c8511ddbfa5e8f71bbf5c18ede0c4ceb3bba4": {
+      "repository": "psf/requests",
+      "tag_observed": "v2.31.0",
+      "commit": "147c8511ddbfa5e8f71bbf5c18ede0c4ceb3bba4",
+      "author_date": "2023-05-22T15:10:32Z",
+      "committer_date": "2023-05-22T15:10:32Z",
+      "message": "v2.31.0",
+      "tree_sha1": "7be4f5113896a87e2d1ed58a00c237881ae79520",
+      "api_url": "https://api.github.com/repos/psf/requests/commits/147c8511ddbfa5e8f71bbf5c18ede0c4ceb3bba4",
+      "tag_lookup_api_url": "https://api.github.com/repos/psf/requests/commits/v2.31.0",
+      "source_of_dates": "Official GitHub commit object; this is the release-snapshot commit time, not a claim about when each line was first introduced."
+    },
+    "psf/requests@b25c87d7cb8d6a18a37fa12442b5f883f9e41741": {
+      "repository": "psf/requests",
+      "tag_observed": "v2.32.5",
+      "commit": "b25c87d7cb8d6a18a37fa12442b5f883f9e41741",
+      "author_date": "2025-08-18T20:23:20Z",
+      "committer_date": "2025-08-18T20:23:20Z",
+      "message": "v2.32.5",
+      "tree_sha1": "2663dda7dbb8ce123af703b4573d85d09383ba0f",
+      "api_url": "https://api.github.com/repos/psf/requests/commits/b25c87d7cb8d6a18a37fa12442b5f883f9e41741",
+      "tag_lookup_api_url": "https://api.github.com/repos/psf/requests/commits/v2.32.5",
+      "source_of_dates": "Official GitHub commit object; this is the release-snapshot commit time, not a claim about when each line was first introduced."
+    },
+    "pallets/flask@47af817c8fe01045c641b97f8fb784c7ad864eee": {
+      "repository": "pallets/flask",
+      "tag_observed": "2.2.5",
+      "commit": "47af817c8fe01045c641b97f8fb784c7ad864eee",
+      "author_date": "2023-05-02T14:35:27Z",
+      "committer_date": "2023-05-02T14:35:27Z",
+      "message": "release version 2.2.5",
+      "tree_sha1": "4b83f0bc1932b6939223ae8e3901ca907d2542d0",
+      "api_url": "https://api.github.com/repos/pallets/flask/commits/47af817c8fe01045c641b97f8fb784c7ad864eee",
+      "tag_lookup_api_url": "https://api.github.com/repos/pallets/flask/commits/2.2.5",
+      "source_of_dates": "Official GitHub commit object; this is the release-snapshot commit time, not a claim about when each line was first introduced."
+    },
+    "pallets/flask@ab8149664182b662453a563161aa89013c806dc9": {
+      "repository": "pallets/flask",
+      "tag_observed": "3.1.0",
+      "commit": "ab8149664182b662453a563161aa89013c806dc9",
+      "author_date": "2024-11-13T16:43:28Z",
+      "committer_date": "2024-11-13T18:20:07Z",
+      "message": "release version 3.1.0",
+      "tree_sha1": "ac9687dbcc33f4c02c708197038d45d26cd97392",
+      "api_url": "https://api.github.com/repos/pallets/flask/commits/ab8149664182b662453a563161aa89013c806dc9",
+      "tag_lookup_api_url": "https://api.github.com/repos/pallets/flask/commits/3.1.0",
+      "source_of_dates": "Official GitHub commit object; this is the release-snapshot commit time, not a claim about when each line was first introduced."
+    },
+    "pallets/werkzeug@22a254fca2ad0130adbbcbd11d3de51bcb04a08b": {
+      "repository": "pallets/werkzeug",
+      "tag_observed": "2.2.3",
+      "commit": "22a254fca2ad0130adbbcbd11d3de51bcb04a08b",
+      "author_date": "2023-02-14T17:10:34Z",
+      "committer_date": "2023-02-14T17:10:34Z",
+      "message": "release version 2.2.3",
+      "tree_sha1": "e40c118ddb55614900bb8a1aa3c9504f99a5fab9",
+      "api_url": "https://api.github.com/repos/pallets/werkzeug/commits/22a254fca2ad0130adbbcbd11d3de51bcb04a08b",
+      "tag_lookup_api_url": "https://api.github.com/repos/pallets/werkzeug/commits/2.2.3",
+      "source_of_dates": "Official GitHub commit object; this is the release-snapshot commit time, not a claim about when each line was first introduced."
+    },
+    "pallets/werkzeug@df655e6ce6bc77adc7833619a079e66eba566aee": {
+      "repository": "pallets/werkzeug",
+      "tag_observed": "3.1.0",
+      "commit": "df655e6ce6bc77adc7833619a079e66eba566aee",
+      "author_date": "2024-10-31T16:57:35Z",
+      "committer_date": "2024-10-31T16:57:35Z",
+      "message": "release version 3.1.0",
+      "tree_sha1": "bf3eb28ac5021f870a6585f0c768c854220201ac",
+      "api_url": "https://api.github.com/repos/pallets/werkzeug/commits/df655e6ce6bc77adc7833619a079e66eba566aee",
+      "tag_lookup_api_url": "https://api.github.com/repos/pallets/werkzeug/commits/3.1.0",
+      "source_of_dates": "Official GitHub commit object; this is the release-snapshot commit time, not a claim about when each line was first introduced."
+    },
+    "encode/httpx@08a557e3e2b9220b90ee21238e316206ffa65d36": {
+      "repository": "encode/httpx",
+      "tag_observed": "0.23.3",
+      "commit": "08a557e3e2b9220b90ee21238e316206ffa65d36",
+      "author_date": "2023-01-04T09:39:43Z",
+      "committer_date": "2023-01-04T09:39:43Z",
+      "message": "Version 0.23.3 (#2540)",
+      "tree_sha1": "68ff364622f352018738a6e1f77294c8b98eea6a",
+      "api_url": "https://api.github.com/repos/encode/httpx/commits/08a557e3e2b9220b90ee21238e316206ffa65d36",
+      "tag_lookup_api_url": "https://api.github.com/repos/encode/httpx/commits/0.23.3",
+      "source_of_dates": "Official GitHub commit object; this is the release-snapshot commit time, not a claim about when each line was first introduced."
+    },
+    "encode/httpx@26d48e0634e6ee9cdc0533996db289ce4b430177": {
+      "repository": "encode/httpx",
+      "tag_observed": "0.28.1",
+      "commit": "26d48e0634e6ee9cdc0533996db289ce4b430177",
+      "author_date": "2024-12-06T15:35:41Z",
+      "committer_date": "2024-12-06T15:35:41Z",
+      "message": "Version 0.28.1 (#3445)",
+      "tree_sha1": "f6bc290d5ec30e882f9d6215a016aa7aac2c02a1",
+      "api_url": "https://api.github.com/repos/encode/httpx/commits/26d48e0634e6ee9cdc0533996db289ce4b430177",
+      "tag_lookup_api_url": "https://api.github.com/repos/encode/httpx/commits/0.28.1",
+      "source_of_dates": "Official GitHub commit object; this is the release-snapshot commit time, not a claim about when each line was first introduced."
+    }
+  },
+  "licenses": {
+    "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b": {
+      "sha256": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b",
+      "git_blob_sha1": "67db8588217f266eb561f75fae738656325deac9",
+      "text": "\n                                 Apache License\n                           Version 2.0, January 2004\n                        http://www.apache.org/licenses/\n\n   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION\n\n   1. Definitions.\n\n      \"License\" shall mean the terms and conditions for use, reproduction,\n      and distribution as defined by Sections 1 through 9 of this document.\n\n      \"Licensor\" shall mean the copyright owner or entity authorized by\n      the copyright owner that is granting the License.\n\n      \"Legal Entity\" shall mean the union of the acting entity and all\n      other entities that control, are controlled by, or are under common\n      control with that entity. For the purposes of this definition,\n      \"control\" means (i) the power, direct or indirect, to cause the\n      direction or management of such entity, whether by contract or\n      otherwise, or (ii) ownership of fifty percent (50%) or more of the\n      outstanding shares, or (iii) beneficial ownership of such entity.\n\n      \"You\" (or \"Your\") shall mean an individual or Legal Entity\n      exercising permissions granted by this License.\n\n      \"Source\" form shall mean the preferred form for making modifications,\n      including but not limited to software source code, documentation\n      source, and configuration files.\n\n      \"Object\" form shall mean any form resulting from mechanical\n      transformation or translation of a Source form, including but\n      not limited to compiled object code, generated documentation,\n      and conversions to other media types.\n\n      \"Work\" shall mean the work of authorship, whether in Source or\n      Object form, made available under the License, as indicated by a\n      copyright notice that is included in or attached to the work\n      (an example is provided in the Appendix below).\n\n      \"Derivative Works\" shall mean any work, whether in Source or Object\n      form, that is based on (or derived from) the Work and for which the\n      editorial revisions, annotations, elaborations, or other modifications\n      represent, as a whole, an original work of authorship. For the purposes\n      of this License, Derivative Works shall not include works that remain\n      separable from, or merely link (or bind by name) to the interfaces of,\n      the Work and Derivative Works thereof.\n\n      \"Contribution\" shall mean any work of authorship, including\n      the original version of the Work and any modifications or additions\n      to that Work or Derivative Works thereof, that is intentionally\n      submitted to Licensor for inclusion in the Work by the copyright owner\n      or by an individual or Legal Entity authorized to submit on behalf of\n      the copyright owner. For the purposes of this definition, \"submitted\"\n      means any form of electronic, verbal, or written communication sent\n      to the Licensor or its representatives, including but not limited to\n      communication on electronic mailing lists, source code control systems,\n      and issue tracking systems that are managed by, or on behalf of, the\n      Licensor for the purpose of discussing and improving the Work, but\n      excluding communication that is conspicuously marked or otherwise\n      designated in writing by the copyright owner as \"Not a Contribution.\"\n\n      \"Contributor\" shall mean Licensor and any individual or Legal Entity\n      on behalf of whom a Contribution has been received by Licensor and\n      subsequently incorporated within the Work.\n\n   2. Grant of Copyright License. Subject to the terms and conditions of\n      this License, each Contributor hereby grants to You a perpetual,\n      worldwide, non-exclusive, no-charge, royalty-free, irrevocable\n      copyright license to reproduce, prepare Derivative Works of,\n      publicly display, publicly perform, sublicense, and distribute the\n      Work and such Derivative Works in Source or Object form.\n\n   3. Grant of Patent License. Subject to the terms and conditions of\n      this License, each Contributor hereby grants to You a perpetual,\n      worldwide, non-exclusive, no-charge, royalty-free, irrevocable\n      (except as stated in this section) patent license to make, have made,\n      use, offer to sell, sell, import, and otherwise transfer the Work,\n      where such license applies only to those patent claims licensable\n      by such Contributor that are necessarily infringed by their\n      Contribution(s) alone or by combination of their Contribution(s)\n      with the Work to which such Contribution(s) was submitted. If You\n      institute patent litigation against any entity (including a\n      cross-claim or counterclaim in a lawsuit) alleging that the Work\n      or a Contribution incorporated within the Work constitutes direct\n      or contributory patent infringement, then any patent licenses\n      granted to You under this License for that Work shall terminate\n      as of the date such litigation is filed.\n\n   4. Redistribution. You may reproduce and distribute copies of the\n      Work or Derivative Works thereof in any medium, with or without\n      modifications, and in Source or Object form, provided that You\n      meet the following conditions:\n\n      (a) You must give any other recipients of the Work or\n          Derivative Works a copy of this License; and\n\n      (b) You must cause any modified files to carry prominent notices\n          stating that You changed the files; and\n\n      (c) You must retain, in the Source form of any Derivative Works\n          that You distribute, all copyright, patent, trademark, and\n          attribution notices from the Source form of the Work,\n          excluding those notices that do not pertain to any part of\n          the Derivative Works; and\n\n      (d) If the Work includes a \"NOTICE\" text file as part of its\n          distribution, then any Derivative Works that You distribute must\n          include a readable copy of the attribution notices contained\n          within such NOTICE file, excluding those notices that do not\n          pertain to any part of the Derivative Works, in at least one\n          of the following places: within a NOTICE text file distributed\n          as part of the Derivative Works; within the Source form or\n          documentation, if provided along with the Derivative Works; or,\n          within a display generated by the Derivative Works, if and\n          wherever such third-party notices normally appear. The contents\n          of the NOTICE file are for informational purposes only and\n          do not modify the License. You may add Your own attribution\n          notices within Derivative Works that You distribute, alongside\n          or as an addendum to the NOTICE text from the Work, provided\n          that such additional attribution notices cannot be construed\n          as modifying the License.\n\n      You may add Your own copyright statement to Your modifications and\n      may provide additional or different license terms and conditions\n      for use, reproduction, or distribution of Your modifications, or\n      for any such Derivative Works as a whole, provided Your use,\n      reproduction, and distribution of the Work otherwise complies with\n      the conditions stated in this License.\n\n   5. Submission of Contributions. Unless You explicitly state otherwise,\n      any Contribution intentionally submitted for inclusion in the Work\n      by You to the Licensor shall be under the terms and conditions of\n      this License, without any additional terms or conditions.\n      Notwithstanding the above, nothing herein shall supersede or modify\n      the terms of any separate license agreement you may have executed\n      with Licensor regarding such Contributions.\n\n   6. Trademarks. This License does not grant permission to use the trade\n      names, trademarks, service marks, or product names of the Licensor,\n      except as required for reasonable and customary use in describing the\n      origin of the Work and reproducing the content of the NOTICE file.\n\n   7. Disclaimer of Warranty. Unless required by applicable law or\n      agreed to in writing, Licensor provides the Work (and each\n      Contributor provides its Contributions) on an \"AS IS\" BASIS,\n      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or\n      implied, including, without limitation, any warranties or conditions\n      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A\n      PARTICULAR PURPOSE. You are solely responsible for determining the\n      appropriateness of using or redistributing the Work and assume any\n      risks associated with Your exercise of permissions under this License.\n\n   8. Limitation of Liability. In no event and under no legal theory,\n      whether in tort (including negligence), contract, or otherwise,\n      unless required by applicable law (such as deliberate and grossly\n      negligent acts) or agreed to in writing, shall any Contributor be\n      liable to You for damages, including any direct, indirect, special,\n      incidental, or consequential damages of any character arising as a\n      result of this License or out of the use or inability to use the\n      Work (including but not limited to damages for loss of goodwill,\n      work stoppage, computer failure or malfunction, or any and all\n      other commercial damages or losses), even if such Contributor\n      has been advised of the possibility of such damages.\n\n   9. Accepting Warranty or Additional Liability. While redistributing\n      the Work or Derivative Works thereof, You may choose to offer,\n      and charge a fee for, acceptance of support, warranty, indemnity,\n      or other liability obligations and/or rights consistent with this\n      License. However, in accepting such obligations, You may act only\n      on Your own behalf and on Your sole responsibility, not on behalf\n      of any other Contributor, and only if You agree to indemnify,\n      defend, and hold each Contributor harmless for any liability\n      incurred by, or claims asserted against, such Contributor by reason\n      of your accepting any such warranty or additional liability.\n",
+      "origins": [
+        {
+          "repository": "psf/requests",
+          "commit": "147c8511ddbfa5e8f71bbf5c18ede0c4ceb3bba4",
+          "path": "LICENSE",
+          "url": "https://github.com/psf/requests/blob/147c8511ddbfa5e8f71bbf5c18ede0c4ceb3bba4/LICENSE"
+        },
+        {
+          "repository": "psf/requests",
+          "commit": "b25c87d7cb8d6a18a37fa12442b5f883f9e41741",
+          "path": "LICENSE",
+          "url": "https://github.com/psf/requests/blob/b25c87d7cb8d6a18a37fa12442b5f883f9e41741/LICENSE"
+        }
+      ]
+    },
+    "489a8e1108509ed98a37bb983e11e0f7e1d31f0bd8f99a79c8448e7ff37d07ea": {
+      "sha256": "489a8e1108509ed98a37bb983e11e0f7e1d31f0bd8f99a79c8448e7ff37d07ea",
+      "git_blob_sha1": "9d227a0cc43c3268d15722b763bd94ad298645a1",
+      "text": "Copyright 2010 Pallets\n\nRedistribution and use in source and binary forms, with or without\nmodification, are permitted provided that the following conditions are\nmet:\n\n1.  Redistributions of source code must retain the above copyright\n    notice, this list of conditions and the following disclaimer.\n\n2.  Redistributions in binary form must reproduce the above copyright\n    notice, this list of conditions and the following disclaimer in the\n    documentation and/or other materials provided with the distribution.\n\n3.  Neither the name of the copyright holder nor the names of its\n    contributors may be used to endorse or promote products derived from\n    this software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\nLIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A\nPARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT\nHOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,\nSPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED\nTO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR\nPROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF\nLIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING\nNEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS\nSOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n",
+      "origins": [
+        {
+          "repository": "pallets/flask",
+          "commit": "47af817c8fe01045c641b97f8fb784c7ad864eee",
+          "path": "LICENSE.rst",
+          "url": "https://github.com/pallets/flask/blob/47af817c8fe01045c641b97f8fb784c7ad864eee/LICENSE.rst"
+        },
+        {
+          "repository": "pallets/flask",
+          "commit": "ab8149664182b662453a563161aa89013c806dc9",
+          "path": "LICENSE.txt",
+          "url": "https://github.com/pallets/flask/blob/ab8149664182b662453a563161aa89013c806dc9/LICENSE.txt"
+        }
+      ]
+    },
+    "3b49dcee4105eb37bac10faf1be260408fe85d252b8e9df2e0979fc1e094437b": {
+      "sha256": "3b49dcee4105eb37bac10faf1be260408fe85d252b8e9df2e0979fc1e094437b",
+      "git_blob_sha1": "c37cae49ec77ad6ebb25568c1605f1fee5313cfb",
+      "text": "Copyright 2007 Pallets\n\nRedistribution and use in source and binary forms, with or without\nmodification, are permitted provided that the following conditions are\nmet:\n\n1.  Redistributions of source code must retain the above copyright\n    notice, this list of conditions and the following disclaimer.\n\n2.  Redistributions in binary form must reproduce the above copyright\n    notice, this list of conditions and the following disclaimer in the\n    documentation and/or other materials provided with the distribution.\n\n3.  Neither the name of the copyright holder nor the names of its\n    contributors may be used to endorse or promote products derived from\n    this software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\nLIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A\nPARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT\nHOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,\nSPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED\nTO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR\nPROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF\nLIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING\nNEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS\nSOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n",
+      "origins": [
+        {
+          "repository": "pallets/werkzeug",
+          "commit": "22a254fca2ad0130adbbcbd11d3de51bcb04a08b",
+          "path": "LICENSE.rst",
+          "url": "https://github.com/pallets/werkzeug/blob/22a254fca2ad0130adbbcbd11d3de51bcb04a08b/LICENSE.rst"
+        },
+        {
+          "repository": "pallets/werkzeug",
+          "commit": "df655e6ce6bc77adc7833619a079e66eba566aee",
+          "path": "LICENSE.txt",
+          "url": "https://github.com/pallets/werkzeug/blob/df655e6ce6bc77adc7833619a079e66eba566aee/LICENSE.txt"
+        }
+      ]
+    },
+    "4ec59d544f12b5f539a3a716fd321ac58ccd8030b465221f2c880200cdf28d8d": {
+      "sha256": "4ec59d544f12b5f539a3a716fd321ac58ccd8030b465221f2c880200cdf28d8d",
+      "git_blob_sha1": "ab79d16a3f4c6c894c028d1f7431811e8711b42b",
+      "text": "Copyright © 2019, [Encode OSS Ltd](https://www.encode.io/).\nAll rights reserved.\n\nRedistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:\n\n* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.\n\n* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.\n\n* Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n",
+      "origins": [
+        {
+          "repository": "encode/httpx",
+          "commit": "08a557e3e2b9220b90ee21238e316206ffa65d36",
+          "path": "LICENSE.md",
+          "url": "https://github.com/encode/httpx/blob/08a557e3e2b9220b90ee21238e316206ffa65d36/LICENSE.md"
+        },
+        {
+          "repository": "encode/httpx",
+          "commit": "26d48e0634e6ee9cdc0533996db289ce4b430177",
+          "path": "LICENSE.md",
+          "url": "https://github.com/encode/httpx/blob/26d48e0634e6ee9cdc0533996db289ce4b430177/LICENSE.md"
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "psf--requests@v2.31.0:setup.py",
+      "repository": "psf/requests",
+      "project": "public:psf/requests",
+      "tag": "v2.31.0",
+      "commit": "147c8511ddbfa5e8f71bbf5c18ede0c4ceb3bba4",
+      "commit_metadata_key": "psf/requests@147c8511ddbfa5e8f71bbf5c18ede0c4ceb3bba4",
+      "created_at": "2023-05-22T15:10:32Z",
+      "path": "setup.py",
+      "source_url": "https://github.com/psf/requests/blob/147c8511ddbfa5e8f71bbf5c18ede0c4ceb3bba4/setup.py",
+      "raw_url": "https://raw.githubusercontent.com/psf/requests/147c8511ddbfa5e8f71bbf5c18ede0c4ceb3bba4/setup.py",
+      "tree_api_url": "https://api.github.com/repos/psf/requests/git/trees/7be4f5113896a87e2d1ed58a00c237881ae79520",
+      "full_file": {
+        "text": "#!/usr/bin/env python\nimport os\nimport sys\nfrom codecs import open\n\nfrom setuptools import setup\nfrom setuptools.command.test import test as TestCommand\n\nCURRENT_PYTHON = sys.version_info[:2]\nREQUIRED_PYTHON = (3, 7)\n\nif CURRENT_PYTHON < REQUIRED_PYTHON:\n    sys.stderr.write(\n        \"\"\"\n==========================\nUnsupported Python version\n==========================\nThis version of Requests requires at least Python {}.{}, but\nyou're trying to install it on Python {}.{}. To resolve this,\nconsider upgrading to a supported Python version.\n\nIf you can't upgrade your Python version, you'll need to\npin to an older version of Requests (<2.28).\n\"\"\".format(\n            *(REQUIRED_PYTHON + CURRENT_PYTHON)\n        )\n    )\n    sys.exit(1)\n\n\nclass PyTest(TestCommand):\n    user_options = [(\"pytest-args=\", \"a\", \"Arguments to pass into py.test\")]\n\n    def initialize_options(self):\n        TestCommand.initialize_options(self)\n        try:\n            from multiprocessing import cpu_count\n\n            self.pytest_args = [\"-n\", str(cpu_count()), \"--boxed\"]\n        except (ImportError, NotImplementedError):\n            self.pytest_args = [\"-n\", \"1\", \"--boxed\"]\n\n    def finalize_options(self):\n        TestCommand.finalize_options(self)\n        self.test_args = []\n        self.test_suite = True\n\n    def run_tests(self):\n        import pytest\n\n        errno = pytest.main(self.pytest_args)\n        sys.exit(errno)\n\n\n# 'setup.py publish' shortcut.\nif sys.argv[-1] == \"publish\":\n    os.system(\"python setup.py sdist bdist_wheel\")\n    os.system(\"twine upload dist/*\")\n    sys.exit()\n\nrequires = [\n    \"charset_normalizer>=2,<4\",\n    \"idna>=2.5,<4\",\n    \"urllib3>=1.21.1,<3\",\n    \"certifi>=2017.4.17\",\n]\ntest_requirements = [\n    \"pytest-httpbin==2.0.0\",\n    \"pytest-cov\",\n    \"pytest-mock\",\n    \"pytest-xdist\",\n    \"PySocks>=1.5.6, !=1.5.7\",\n    \"pytest>=3\",\n]\n\nabout = {}\nhere = os.path.abspath(os.path.dirname(__file__))\nwith open(os.path.join(here, \"requests\", \"__version__.py\"), \"r\", \"utf-8\") as f:\n    exec(f.read(), about)\n\nwith open(\"README.md\", \"r\", \"utf-8\") as f:\n    readme = f.read()\n\nsetup(\n    name=about[\"__title__\"],\n    version=about[\"__version__\"],\n    description=about[\"__description__\"],\n    long_description=readme,\n    long_description_content_type=\"text/markdown\",\n    author=about[\"__author__\"],\n    author_email=about[\"__author_email__\"],\n    url=about[\"__url__\"],\n    packages=[\"requests\"],\n    package_data={\"\": [\"LICENSE\", \"NOTICE\"]},\n    package_dir={\"requests\": \"requests\"},\n    include_package_data=True,\n    python_requires=\">=3.7\",\n    install_requires=requires,\n    license=about[\"__license__\"],\n    zip_safe=False,\n    classifiers=[\n        \"Development Status :: 5 - Production/Stable\",\n        \"Environment :: Web Environment\",\n        \"Intended Audience :: Developers\",\n        \"License :: OSI Approved :: Apache Software License\",\n        \"Natural Language :: English\",\n        \"Operating System :: OS Independent\",\n        \"Programming Language :: Python\",\n        \"Programming Language :: Python :: 3\",\n        \"Programming Language :: Python :: 3.7\",\n        \"Programming Language :: Python :: 3.8\",\n        \"Programming Language :: Python :: 3.9\",\n        \"Programming Language :: Python :: 3.10\",\n        \"Programming Language :: Python :: 3.11\",\n        \"Programming Language :: Python :: 3 :: Only\",\n        \"Programming Language :: Python :: Implementation :: CPython\",\n        \"Programming Language :: Python :: Implementation :: PyPy\",\n        \"Topic :: Internet :: WWW/HTTP\",\n        \"Topic :: Software Development :: Libraries\",\n    ],\n    cmdclass={\"test\": PyTest},\n    tests_require=test_requirements,\n    extras_require={\n        \"security\": [],\n        \"socks\": [\"PySocks>=1.5.6, !=1.5.7\"],\n        \"use_chardet_on_py3\": [\"chardet>=3.0.2,<6\"],\n    },\n    project_urls={\n        \"Documentation\": \"https://requests.readthedocs.io\",\n        \"Source\": \"https://github.com/psf/requests\",\n    },\n)\n",
+        "utf8_bytes": 3944,
+        "sha256": "e6061b128a3248d4c75abde74965cd770b84452931ac45ae3ded8e4cdc822e6d",
+        "git_blob_sha1": "012354574d60cb4304b6077fd4b9a19919d3255d",
+        "upstream_tree_blob_sha1": "012354574d60cb4304b6077fd4b9a19919d3255d"
+      },
+      "excerpt": {
+        "start": 0,
+        "end": 3943,
+        "start_byte": 0,
+        "end_byte": 3943,
+        "start_line": 1,
+        "end_line": 132,
+        "sha256": "74d3ef70ba8a9fc20f9d19b54492777e26bd2b23dd10459fb51812ab1472c328",
+        "coordinate_unit": "Unicode code points, half-open"
+      },
+      "session_id": "v2.31.0:setup.py",
+      "session_title": "psf/requests v2.31.0 setup.py",
+      "task_id": "package-configuration",
+      "task_title": "Package configuration and compatibility",
+      "license_sha256": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b",
+      "notice": "Requests\nCopyright 2019 Kenneth Reitz\n"
+    },
+    {
+      "id": "psf--requests@v2.32.5:setup.py",
+      "repository": "psf/requests",
+      "project": "public:psf/requests",
+      "tag": "v2.32.5",
+      "commit": "b25c87d7cb8d6a18a37fa12442b5f883f9e41741",
+      "commit_metadata_key": "psf/requests@b25c87d7cb8d6a18a37fa12442b5f883f9e41741",
+      "created_at": "2025-08-18T20:23:20Z",
+      "path": "setup.py",
+      "source_url": "https://github.com/psf/requests/blob/b25c87d7cb8d6a18a37fa12442b5f883f9e41741/setup.py",
+      "raw_url": "https://raw.githubusercontent.com/psf/requests/b25c87d7cb8d6a18a37fa12442b5f883f9e41741/setup.py",
+      "tree_api_url": "https://api.github.com/repos/psf/requests/git/trees/2663dda7dbb8ce123af703b4573d85d09383ba0f",
+      "full_file": {
+        "text": "#!/usr/bin/env python\nimport os\nimport sys\nfrom codecs import open\n\nfrom setuptools import setup\n\nCURRENT_PYTHON = sys.version_info[:2]\nREQUIRED_PYTHON = (3, 9)\n\nif CURRENT_PYTHON < REQUIRED_PYTHON:\n    sys.stderr.write(\n        \"\"\"\n==========================\nUnsupported Python version\n==========================\nThis version of Requests requires at least Python {}.{}, but\nyou're trying to install it on Python {}.{}. To resolve this,\nconsider upgrading to a supported Python version.\n\nIf you can't upgrade your Python version, you'll need to\npin to an older version of Requests (<2.32.0).\n\"\"\".format(\n            *(REQUIRED_PYTHON + CURRENT_PYTHON)\n        )\n    )\n    sys.exit(1)\n\n\n# 'setup.py publish' shortcut.\nif sys.argv[-1] == \"publish\":\n    os.system(\"python setup.py sdist bdist_wheel\")\n    os.system(\"twine upload dist/*\")\n    sys.exit()\n\nrequires = [\n    \"charset_normalizer>=2,<4\",\n    \"idna>=2.5,<4\",\n    \"urllib3>=1.21.1,<3\",\n    \"certifi>=2017.4.17\",\n]\ntest_requirements = [\n    \"pytest-httpbin==2.1.0\",\n    \"pytest-cov\",\n    \"pytest-mock\",\n    \"pytest-xdist\",\n    \"PySocks>=1.5.6, !=1.5.7\",\n    \"pytest>=3\",\n]\n\nabout = {}\nhere = os.path.abspath(os.path.dirname(__file__))\nwith open(os.path.join(here, \"src\", \"requests\", \"__version__.py\"), \"r\", \"utf-8\") as f:\n    exec(f.read(), about)\n\nwith open(\"README.md\", \"r\", \"utf-8\") as f:\n    readme = f.read()\n\nsetup(\n    name=about[\"__title__\"],\n    version=about[\"__version__\"],\n    description=about[\"__description__\"],\n    long_description=readme,\n    long_description_content_type=\"text/markdown\",\n    author=about[\"__author__\"],\n    author_email=about[\"__author_email__\"],\n    url=about[\"__url__\"],\n    packages=[\"requests\"],\n    package_data={\"\": [\"LICENSE\", \"NOTICE\"]},\n    package_dir={\"\": \"src\"},\n    include_package_data=True,\n    python_requires=\">=3.9\",\n    install_requires=requires,\n    license=about[\"__license__\"],\n    zip_safe=False,\n    classifiers=[\n        \"Development Status :: 5 - Production/Stable\",\n        \"Environment :: Web Environment\",\n        \"Intended Audience :: Developers\",\n        \"License :: OSI Approved :: Apache Software License\",\n        \"Natural Language :: English\",\n        \"Operating System :: OS Independent\",\n        \"Programming Language :: Python\",\n        \"Programming Language :: Python :: 3\",\n        \"Programming Language :: Python :: 3.9\",\n        \"Programming Language :: Python :: 3.10\",\n        \"Programming Language :: Python :: 3.11\",\n        \"Programming Language :: Python :: 3.12\",\n        \"Programming Language :: Python :: 3.13\",\n        \"Programming Language :: Python :: 3.14\",\n        \"Programming Language :: Python :: 3 :: Only\",\n        \"Programming Language :: Python :: Implementation :: CPython\",\n        \"Programming Language :: Python :: Implementation :: PyPy\",\n        \"Topic :: Internet :: WWW/HTTP\",\n        \"Topic :: Software Development :: Libraries\",\n    ],\n    tests_require=test_requirements,\n    extras_require={\n        \"security\": [],\n        \"socks\": [\"PySocks>=1.5.6, !=1.5.7\"],\n        \"use_chardet_on_py3\": [\"chardet>=3.0.2,<6\"],\n    },\n    project_urls={\n        \"Documentation\": \"https://requests.readthedocs.io\",\n        \"Source\": \"https://github.com/psf/requests\",\n    },\n)\n",
+        "utf8_bytes": 3229,
+        "sha256": "251167dd6732e42117b9f9e536c3ac877197ee6eda8779eae3b756432cfc8f85",
+        "git_blob_sha1": "ff65d39102cf9b36efedc676ac7194d83251d20f",
+        "upstream_tree_blob_sha1": "ff65d39102cf9b36efedc676ac7194d83251d20f"
+      },
+      "excerpt": {
+        "start": 0,
+        "end": 3228,
+        "start_byte": 0,
+        "end_byte": 3228,
+        "start_line": 1,
+        "end_line": 107,
+        "sha256": "5bd22b4ed899b199424e5c5e92a4636cb3817d0f90c52c857fce1267198a69bc",
+        "coordinate_unit": "Unicode code points, half-open"
+      },
+      "session_id": "v2.32.5:setup.py",
+      "session_title": "psf/requests v2.32.5 setup.py",
+      "task_id": "package-configuration",
+      "task_title": "Package configuration and compatibility",
+      "license_sha256": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b",
+      "notice": "Requests\nCopyright 2019 Kenneth Reitz\n"
+    },
+    {
+      "id": "pallets--flask@2.2.5:setup.cfg",
+      "repository": "pallets/flask",
+      "project": "public:pallets/flask",
+      "tag": "2.2.5",
+      "commit": "47af817c8fe01045c641b97f8fb784c7ad864eee",
+      "commit_metadata_key": "pallets/flask@47af817c8fe01045c641b97f8fb784c7ad864eee",
+      "created_at": "2023-05-02T14:35:27Z",
+      "path": "setup.cfg",
+      "source_url": "https://github.com/pallets/flask/blob/47af817c8fe01045c641b97f8fb784c7ad864eee/setup.cfg",
+      "raw_url": "https://raw.githubusercontent.com/pallets/flask/47af817c8fe01045c641b97f8fb784c7ad864eee/setup.cfg",
+      "tree_api_url": "https://api.github.com/repos/pallets/flask/git/trees/4b83f0bc1932b6939223ae8e3901ca907d2542d0",
+      "full_file": {
+        "text": "[metadata]\nname = Flask\nversion = attr: flask.__version__\nurl = https://palletsprojects.com/p/flask\nproject_urls =\n    Donate = https://palletsprojects.com/donate\n    Documentation = https://flask.palletsprojects.com/\n    Changes = https://flask.palletsprojects.com/changes/\n    Source Code = https://github.com/pallets/flask/\n    Issue Tracker = https://github.com/pallets/flask/issues/\n    Twitter = https://twitter.com/PalletsTeam\n    Chat = https://discord.gg/pallets\nlicense = BSD-3-Clause\nauthor = Armin Ronacher\nauthor_email = armin.ronacher@active-4.com\nmaintainer = Pallets\nmaintainer_email = contact@palletsprojects.com\ndescription = A simple framework for building complex web applications.\nlong_description = file: README.rst\nlong_description_content_type = text/x-rst\nclassifiers =\n    Development Status :: 5 - Production/Stable\n    Environment :: Web Environment\n    Framework :: Flask\n    Intended Audience :: Developers\n    License :: OSI Approved :: BSD License\n    Operating System :: OS Independent\n    Programming Language :: Python\n    Topic :: Internet :: WWW/HTTP :: Dynamic Content\n    Topic :: Internet :: WWW/HTTP :: WSGI\n    Topic :: Internet :: WWW/HTTP :: WSGI :: Application\n    Topic :: Software Development :: Libraries :: Application Frameworks\n\n[options]\npackages = find:\npackage_dir = = src\ninclude_package_data = True\npython_requires = >= 3.7\n# Dependencies are in setup.py for GitHub's dependency graph.\n\n[options.packages.find]\nwhere = src\n\n[options.entry_points]\nconsole_scripts =\n    flask = flask.cli:main\n\n[tool:pytest]\ntestpaths = tests\nfilterwarnings =\n    error\n\n[coverage:run]\nbranch = True\nsource =\n    flask\n    tests\n\n[coverage:paths]\nsource =\n    src\n    */site-packages\n\n[mypy]\nfiles = src/flask, tests/typing\npython_version = 3.7\nshow_error_codes = True\nallow_redefinition = True\ndisallow_subclassing_any = True\n# disallow_untyped_calls = True\n# disallow_untyped_defs = True\n# disallow_incomplete_defs = True\nno_implicit_optional = True\nlocal_partial_types = True\n# no_implicit_reexport = True\nstrict_equality = True\nwarn_redundant_casts = True\nwarn_unused_configs = True\nwarn_unused_ignores = True\n# warn_return_any = True\n# warn_unreachable = True\n\n[mypy-asgiref.*]\nignore_missing_imports = True\n\n[mypy-blinker.*]\nignore_missing_imports = True\n\n[mypy-dotenv.*]\nignore_missing_imports = True\n\n[mypy-cryptography.*]\nignore_missing_imports = True\n\n[mypy-importlib_metadata]\nignore_missing_imports = True\n",
+        "utf8_bytes": 2456,
+        "sha256": "8240b66078eb41608a73ef1aea77a16803e14d3dbc01a04a1add8063d238a604",
+        "git_blob_sha1": "736bd50f2774c6fc85b5d4c496baf40ef92f8969",
+        "upstream_tree_blob_sha1": "736bd50f2774c6fc85b5d4c496baf40ef92f8969"
+      },
+      "excerpt": {
+        "start": 0,
+        "end": 2455,
+        "start_byte": 0,
+        "end_byte": 2455,
+        "start_line": 1,
+        "end_line": 96,
+        "sha256": "cdec91c47cb46f0cf9c6121b14e0929f736f565c1f5d1280c3ef317148cc430c",
+        "coordinate_unit": "Unicode code points, half-open"
+      },
+      "session_id": "2.2.5:setup.cfg",
+      "session_title": "pallets/flask 2.2.5 setup.cfg",
+      "task_id": "package-configuration",
+      "task_title": "Package configuration and compatibility",
+      "license_sha256": "489a8e1108509ed98a37bb983e11e0f7e1d31f0bd8f99a79c8448e7ff37d07ea",
+      "notice": null
+    },
+    {
+      "id": "pallets--flask@3.1.0:pyproject.toml",
+      "repository": "pallets/flask",
+      "project": "public:pallets/flask",
+      "tag": "3.1.0",
+      "commit": "ab8149664182b662453a563161aa89013c806dc9",
+      "commit_metadata_key": "pallets/flask@ab8149664182b662453a563161aa89013c806dc9",
+      "created_at": "2024-11-13T18:20:07Z",
+      "path": "pyproject.toml",
+      "source_url": "https://github.com/pallets/flask/blob/ab8149664182b662453a563161aa89013c806dc9/pyproject.toml",
+      "raw_url": "https://raw.githubusercontent.com/pallets/flask/ab8149664182b662453a563161aa89013c806dc9/pyproject.toml",
+      "tree_api_url": "https://api.github.com/repos/pallets/flask/git/trees/ac9687dbcc33f4c02c708197038d45d26cd97392",
+      "full_file": {
+        "text": "[project]\nname = \"Flask\"\nversion = \"3.1.0\"\ndescription = \"A simple framework for building complex web applications.\"\nreadme = \"README.md\"\nlicense = {file = \"LICENSE.txt\"}\nmaintainers = [{name = \"Pallets\", email = \"contact@palletsprojects.com\"}]\nclassifiers = [\n    \"Development Status :: 5 - Production/Stable\",\n    \"Environment :: Web Environment\",\n    \"Framework :: Flask\",\n    \"Intended Audience :: Developers\",\n    \"License :: OSI Approved :: BSD License\",\n    \"Operating System :: OS Independent\",\n    \"Programming Language :: Python\",\n    \"Topic :: Internet :: WWW/HTTP :: Dynamic Content\",\n    \"Topic :: Internet :: WWW/HTTP :: WSGI\",\n    \"Topic :: Internet :: WWW/HTTP :: WSGI :: Application\",\n    \"Topic :: Software Development :: Libraries :: Application Frameworks\",\n    \"Typing :: Typed\",\n]\nrequires-python = \">=3.9\"\ndependencies = [\n    \"Werkzeug>=3.1\",\n    \"Jinja2>=3.1.2\",\n    \"itsdangerous>=2.2\",\n    \"click>=8.1.3\",\n    \"blinker>=1.9\",\n    \"importlib-metadata>=3.6; python_version < '3.10'\",\n]\n\n[project.urls]\nDonate = \"https://palletsprojects.com/donate\"\nDocumentation = \"https://flask.palletsprojects.com/\"\nChanges = \"https://flask.palletsprojects.com/changes/\"\nSource = \"https://github.com/pallets/flask/\"\nChat = \"https://discord.gg/pallets\"\n\n[project.optional-dependencies]\nasync = [\"asgiref>=3.2\"]\ndotenv = [\"python-dotenv\"]\n\n[project.scripts]\nflask = \"flask.cli:main\"\n\n[build-system]\nrequires = [\"flit_core<4\"]\nbuild-backend = \"flit_core.buildapi\"\n\n[tool.flit.module]\nname = \"flask\"\n\n[tool.flit.sdist]\ninclude = [\n    \"docs/\",\n    \"examples/\",\n    \"requirements/\",\n    \"tests/\",\n    \"CHANGES.rst\",\n    \"CONTRIBUTING.rst\",\n    \"tox.ini\",\n]\nexclude = [\n    \"docs/_build/\",\n]\n\n[tool.pytest.ini_options]\ntestpaths = [\"tests\"]\nfilterwarnings = [\n    \"error\",\n]\n\n[tool.coverage.run]\nbranch = true\nsource = [\"flask\", \"tests\"]\n\n[tool.coverage.paths]\nsource = [\"src\", \"*/site-packages\"]\n\n[tool.mypy]\npython_version = \"3.9\"\nfiles = [\"src/flask\", \"tests/type_check\"]\nshow_error_codes = true\npretty = true\nstrict = true\n\n[[tool.mypy.overrides]]\nmodule = [\n    \"asgiref.*\",\n    \"dotenv.*\",\n    \"cryptography.*\",\n    \"importlib_metadata\",\n]\nignore_missing_imports = true\n\n[tool.pyright]\npythonVersion = \"3.9\"\ninclude = [\"src/flask\", \"tests/type_check\"]\ntypeCheckingMode = \"basic\"\n\n[tool.ruff]\nsrc = [\"src\"]\nfix = true\nshow-fixes = true\noutput-format = \"full\"\n\n[tool.ruff.lint]\nselect = [\n    \"B\",  # flake8-bugbear\n    \"E\",  # pycodestyle error\n    \"F\",  # pyflakes\n    \"I\",  # isort\n    \"UP\",  # pyupgrade\n    \"W\",  # pycodestyle warning\n]\n\n[tool.ruff.lint.isort]\nforce-single-line = true\norder-by-type = false\n\n[tool.gha-update]\ntag-only = [\n    \"slsa-framework/slsa-github-generator\",\n]\n",
+        "utf8_bytes": 2699,
+        "sha256": "625d2002343fdfc7535b7ce1cb590f86c2a9a9296e632ef5127becea31519fbf",
+        "git_blob_sha1": "33473f8c30e701d1016df728f30e0f261d4ec362",
+        "upstream_tree_blob_sha1": "33473f8c30e701d1016df728f30e0f261d4ec362"
+      },
+      "excerpt": {
+        "start": 0,
+        "end": 2698,
+        "start_byte": 0,
+        "end_byte": 2698,
+        "start_line": 1,
+        "end_line": 124,
+        "sha256": "10e052892f29b0a53533dacc39917d363e447e8e4ce223e4c024b1152a1621d6",
+        "coordinate_unit": "Unicode code points, half-open"
+      },
+      "session_id": "3.1.0:pyproject.toml",
+      "session_title": "pallets/flask 3.1.0 pyproject.toml",
+      "task_id": "package-configuration",
+      "task_title": "Package configuration and compatibility",
+      "license_sha256": "489a8e1108509ed98a37bb983e11e0f7e1d31f0bd8f99a79c8448e7ff37d07ea",
+      "notice": null
+    },
+    {
+      "id": "pallets--werkzeug@2.2.3:setup.cfg",
+      "repository": "pallets/werkzeug",
+      "project": "public:pallets/werkzeug",
+      "tag": "2.2.3",
+      "commit": "22a254fca2ad0130adbbcbd11d3de51bcb04a08b",
+      "commit_metadata_key": "pallets/werkzeug@22a254fca2ad0130adbbcbd11d3de51bcb04a08b",
+      "created_at": "2023-02-14T17:10:34Z",
+      "path": "setup.cfg",
+      "source_url": "https://github.com/pallets/werkzeug/blob/22a254fca2ad0130adbbcbd11d3de51bcb04a08b/setup.cfg",
+      "raw_url": "https://raw.githubusercontent.com/pallets/werkzeug/22a254fca2ad0130adbbcbd11d3de51bcb04a08b/setup.cfg",
+      "tree_api_url": "https://api.github.com/repos/pallets/werkzeug/git/trees/e40c118ddb55614900bb8a1aa3c9504f99a5fab9",
+      "full_file": {
+        "text": "[metadata]\nname = Werkzeug\nversion = attr: werkzeug.__version__\nurl = https://palletsprojects.com/p/werkzeug/\nproject_urls =\n    Donate = https://palletsprojects.com/donate\n    Documentation = https://werkzeug.palletsprojects.com/\n    Changes = https://werkzeug.palletsprojects.com/changes/\n    Source Code = https://github.com/pallets/werkzeug/\n    Issue Tracker = https://github.com/pallets/werkzeug/issues/\n    Twitter = https://twitter.com/PalletsTeam\n    Chat = https://discord.gg/pallets\nlicense = BSD-3-Clause\nauthor = Armin Ronacher\nauthor_email = armin.ronacher@active-4.com\nmaintainer = Pallets\nmaintainer_email = contact@palletsprojects.com\ndescription = The comprehensive WSGI web application library.\nlong_description = file: README.rst\nlong_description_content_type = text/x-rst\nclassifiers =\n    Development Status :: 5 - Production/Stable\n    Environment :: Web Environment\n    Intended Audience :: Developers\n    License :: OSI Approved :: BSD License\n    Operating System :: OS Independent\n    Programming Language :: Python\n    Topic :: Internet :: WWW/HTTP :: Dynamic Content\n    Topic :: Internet :: WWW/HTTP :: WSGI\n    Topic :: Internet :: WWW/HTTP :: WSGI :: Application\n    Topic :: Internet :: WWW/HTTP :: WSGI :: Middleware\n    Topic :: Software Development :: Libraries :: Application Frameworks\n\n[options]\npackages = find:\npackage_dir = = src\ninclude_package_data = True\npython_requires = >= 3.7\n# Dependencies are in setup.py for GitHub's dependency graph.\n\n[options.packages.find]\nwhere = src\n\n[tool:pytest]\ntestpaths = tests\nfilterwarnings =\n    error\nmarkers =\n    dev_server: tests that start the dev server\n\n[coverage:run]\nbranch = True\nsource =\n    werkzeug\n    tests\n\n[coverage:paths]\nsource =\n    src\n    */site-packages\n\n[mypy]\nfiles = src/werkzeug\npython_version = 3.7\nshow_error_codes = True\nallow_redefinition = True\ndisallow_subclassing_any = True\n# disallow_untyped_calls = True\ndisallow_untyped_defs = True\ndisallow_incomplete_defs = True\nno_implicit_optional = True\nlocal_partial_types = True\nno_implicit_reexport = True\nstrict_equality = True\nwarn_redundant_casts = True\nwarn_unused_configs = True\nwarn_unused_ignores = True\nwarn_return_any = True\n# warn_unreachable = True\n\n[mypy-werkzeug.wrappers]\nno_implicit_reexport = False\n\n[mypy-colorama.*]\nignore_missing_imports = True\n\n[mypy-cryptography.*]\nignore_missing_imports = True\n\n[mypy-eventlet.*]\nignore_missing_imports = True\n\n[mypy-gevent.*]\nignore_missing_imports = True\n\n[mypy-greenlet.*]\nignore_missing_imports = True\n\n[mypy-watchdog.*]\nignore_missing_imports = True\n\n[mypy-xprocess.*]\nignore_missing_imports = True\n",
+        "utf8_bytes": 2621,
+        "sha256": "48773cf7339a19e4fd9a499a63db58ad1944057d94d043bed6a3e867ff225067",
+        "git_blob_sha1": "03fb5b66af61090cf1baa2a3848cb3541eed6eee",
+        "upstream_tree_blob_sha1": "03fb5b66af61090cf1baa2a3848cb3541eed6eee"
+      },
+      "excerpt": {
+        "start": 0,
+        "end": 2620,
+        "start_byte": 0,
+        "end_byte": 2620,
+        "start_line": 1,
+        "end_line": 103,
+        "sha256": "af80d462c81759f9fce5bb77f3f555555937d9f710a632677f23799939d84bcd",
+        "coordinate_unit": "Unicode code points, half-open"
+      },
+      "session_id": "2.2.3:setup.cfg",
+      "session_title": "pallets/werkzeug 2.2.3 setup.cfg",
+      "task_id": "package-configuration",
+      "task_title": "Package configuration and compatibility",
+      "license_sha256": "3b49dcee4105eb37bac10faf1be260408fe85d252b8e9df2e0979fc1e094437b",
+      "notice": null
+    },
+    {
+      "id": "pallets--werkzeug@3.1.0:pyproject.toml",
+      "repository": "pallets/werkzeug",
+      "project": "public:pallets/werkzeug",
+      "tag": "3.1.0",
+      "commit": "df655e6ce6bc77adc7833619a079e66eba566aee",
+      "commit_metadata_key": "pallets/werkzeug@df655e6ce6bc77adc7833619a079e66eba566aee",
+      "created_at": "2024-10-31T16:57:35Z",
+      "path": "pyproject.toml",
+      "source_url": "https://github.com/pallets/werkzeug/blob/df655e6ce6bc77adc7833619a079e66eba566aee/pyproject.toml",
+      "raw_url": "https://raw.githubusercontent.com/pallets/werkzeug/df655e6ce6bc77adc7833619a079e66eba566aee/pyproject.toml",
+      "tree_api_url": "https://api.github.com/repos/pallets/werkzeug/git/trees/bf3eb28ac5021f870a6585f0c768c854220201ac",
+      "full_file": {
+        "text": "[project]\nname = \"Werkzeug\"\nversion = \"3.1.0\"\ndescription = \"The comprehensive WSGI web application library.\"\nreadme = \"README.md\"\nlicense = {file = \"LICENSE.txt\"}\nmaintainers = [{name = \"Pallets\", email = \"contact@palletsprojects.com\"}]\nclassifiers = [\n    \"Development Status :: 5 - Production/Stable\",\n    \"Environment :: Web Environment\",\n    \"Intended Audience :: Developers\",\n    \"License :: OSI Approved :: BSD License\",\n    \"Operating System :: OS Independent\",\n    \"Programming Language :: Python\",\n    \"Topic :: Internet :: WWW/HTTP :: Dynamic Content\",\n    \"Topic :: Internet :: WWW/HTTP :: WSGI\",\n    \"Topic :: Internet :: WWW/HTTP :: WSGI :: Application\",\n    \"Topic :: Internet :: WWW/HTTP :: WSGI :: Middleware\",\n    \"Topic :: Software Development :: Libraries :: Application Frameworks\",\n    \"Typing :: Typed\",\n]\nrequires-python = \">=3.9\"\ndependencies = [\n    \"MarkupSafe>=2.1.1\",\n]\n\n[project.urls]\nDonate = \"https://palletsprojects.com/donate\"\nDocumentation = \"https://werkzeug.palletsprojects.com/\"\nChanges = \"https://werkzeug.palletsprojects.com/changes/\"\n\"Source Code\" = \"https://github.com/pallets/werkzeug/\"\n\"Issue Tracker\" = \"https://github.com/pallets/werkzeug/issues/\"\nChat = \"https://discord.gg/pallets\"\n\n[project.optional-dependencies]\nwatchdog = [\"watchdog>=2.3\"]\n\n[build-system]\nrequires = [\"flit_core<4\"]\nbuild-backend = \"flit_core.buildapi\"\n\n[tool.flit.module]\nname = \"werkzeug\"\n\n[tool.flit.sdist]\ninclude = [\n    \"docs/\",\n    \"examples/\",\n    \"requirements/\",\n    \"tests/\",\n    \"CHANGES.rst\",\n    \"tox.ini\",\n]\nexclude = [\n    \"docs/_build/\",\n]\n\n[tool.pytest.ini_options]\ntestpaths = [\"tests\"]\nfilterwarnings = [\n    \"error\",\n]\nmarkers = [\"dev_server: tests that start the dev server\"]\n\n[tool.coverage.run]\nbranch = true\nsource = [\"werkzeug\", \"tests\"]\n\n[tool.coverage.paths]\nsource = [\"src\", \"*/site-packages\"]\n\n[tool.mypy]\npython_version = \"3.9\"\nfiles = [\"src/werkzeug\"]\nshow_error_codes = true\npretty = true\nstrict = true\n\n[[tool.mypy.overrides]]\nmodule = [\n    \"colorama.*\",\n    \"cryptography.*\",\n    \"ephemeral_port_reserve\",\n    \"watchdog.*\",\n    \"xprocess.*\",\n]\nignore_missing_imports = true\n\n[tool.pyright]\npythonVersion = \"3.9\"\ninclude = [\"src/werkzeug\"]\n\n[tool.ruff]\nextend-exclude = [\"examples/\"]\nsrc = [\"src\"]\nfix = true\nshow-fixes = true\noutput-format = \"full\"\n\n[tool.ruff.lint]\nselect = [\n    \"B\",  # flake8-bugbear\n    \"E\",  # pycodestyle error\n    \"F\",  # pyflakes\n    \"I\",  # isort\n    \"UP\",  # pyupgrade\n    \"W\",  # pycodestyle warning\n]\nignore = [\n    \"E402\",  # allow circular imports at end of file\n]\n\n[tool.ruff.lint.isort]\nforce-single-line = true\norder-by-type = false\n\n[tool.gha-update]\ntag-only = [\n    \"slsa-framework/slsa-github-generator\",\n]\n",
+        "utf8_bytes": 2701,
+        "sha256": "154586858f5116be4e1b29c7351db48abb085cbafbe74595e48f93df56f67a2a",
+        "git_blob_sha1": "bdd66cbb89f4b9210c3dbbaf9a0dd65b0affb611",
+        "upstream_tree_blob_sha1": "bdd66cbb89f4b9210c3dbbaf9a0dd65b0affb611"
+      },
+      "excerpt": {
+        "start": 0,
+        "end": 2700,
+        "start_byte": 0,
+        "end_byte": 2700,
+        "start_line": 1,
+        "end_line": 120,
+        "sha256": "492816844fc02d175132312b0d46a8d29cf6c73cef1dc0afca7e7e4bd6df4a71",
+        "coordinate_unit": "Unicode code points, half-open"
+      },
+      "session_id": "3.1.0:pyproject.toml",
+      "session_title": "pallets/werkzeug 3.1.0 pyproject.toml",
+      "task_id": "package-configuration",
+      "task_title": "Package configuration and compatibility",
+      "license_sha256": "3b49dcee4105eb37bac10faf1be260408fe85d252b8e9df2e0979fc1e094437b",
+      "notice": null
+    },
+    {
+      "id": "encode--httpx@0.23.3:pyproject.toml",
+      "repository": "encode/httpx",
+      "project": "public:encode/httpx",
+      "tag": "0.23.3",
+      "commit": "08a557e3e2b9220b90ee21238e316206ffa65d36",
+      "commit_metadata_key": "encode/httpx@08a557e3e2b9220b90ee21238e316206ffa65d36",
+      "created_at": "2023-01-04T09:39:43Z",
+      "path": "pyproject.toml",
+      "source_url": "https://github.com/encode/httpx/blob/08a557e3e2b9220b90ee21238e316206ffa65d36/pyproject.toml",
+      "raw_url": "https://raw.githubusercontent.com/encode/httpx/08a557e3e2b9220b90ee21238e316206ffa65d36/pyproject.toml",
+      "tree_api_url": "https://api.github.com/repos/encode/httpx/git/trees/68ff364622f352018738a6e1f77294c8b98eea6a",
+      "full_file": {
+        "text": "[build-system]\nrequires = [\"hatchling\", \"hatch-fancy-pypi-readme\"]\nbuild-backend = \"hatchling.build\"\n\n[project]\nname = \"httpx\"\ndescription = \"The next generation HTTP client.\"\nlicense = \"BSD-3-Clause\"\nrequires-python = \">=3.7\"\nauthors = [\n    { name = \"Tom Christie\", email = \"tom@tomchristie.com\" },\n]\nclassifiers = [\n    \"Development Status :: 4 - Beta\",\n    \"Environment :: Web Environment\",\n    \"Framework :: AsyncIO\",\n    \"Framework :: Trio\",\n    \"Intended Audience :: Developers\",\n    \"License :: OSI Approved :: BSD License\",\n    \"Operating System :: OS Independent\",\n    \"Programming Language :: Python :: 3\",\n    \"Programming Language :: Python :: 3 :: Only\",\n    \"Programming Language :: Python :: 3.7\",\n    \"Programming Language :: Python :: 3.8\",\n    \"Programming Language :: Python :: 3.9\",\n    \"Programming Language :: Python :: 3.10\",\n    \"Programming Language :: Python :: 3.11\",\n    \"Topic :: Internet :: WWW/HTTP\",\n]\ndependencies = [\n    \"certifi\",\n    \"httpcore>=0.15.0,<0.17.0\",\n    \"rfc3986[idna2008]>=1.3,<2\",\n    \"sniffio\",\n]\ndynamic = [\"readme\", \"version\"]\n\n[project.optional-dependencies]\nbrotli = [\n    \"brotli; platform_python_implementation == 'CPython'\",\n    \"brotlicffi; platform_python_implementation != 'CPython'\",\n]\ncli = [\n    \"click==8.*\",\n    \"pygments==2.*\",\n    \"rich>=10,<13\",\n]\nhttp2 = [\n    \"h2>=3,<5\",\n]\nsocks = [\n    \"socksio==1.*\",\n]\n\n[project.scripts]\nhttpx = \"httpx:main\"\n\n[project.urls]\nChangelog = \"https://github.com/encode/httpx/blob/master/CHANGELOG.md\"\nDocumentation = \"https://www.python-httpx.org\"\nHomepage = \"https://github.com/encode/httpx\"\nSource = \"https://github.com/encode/httpx\"\n\n[tool.hatch.version]\npath = \"httpx/__version__.py\"\n\n[tool.hatch.build.targets.sdist]\ninclude = [\n    \"/httpx\",\n    \"/CHANGELOG.md\",\n    \"/README.md\",\n]\n\n[tool.hatch.metadata.hooks.fancy-pypi-readme]\ncontent-type = \"text/markdown\"\n\n[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]\npath = \"README.md\"\n\n[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]\ntext = \"\\n## Release Information\\n\\n\"\n\n[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]\npath = \"CHANGELOG.md\"\npattern = \"\\n(###.+?\\n)## \"\n\n[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]\ntext = \"\\n---\\n\\n[Full changelog](https://github.com/encode/httpx/blob/master/CHANGELOG.md)\\n\"\n\n[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]\npattern = 'src=\"(docs/img/.*?)\"'\nreplacement = 'src=\"https://raw.githubusercontent.com/encode/httpx/master/\\1\"'\n",
+        "utf8_bytes": 2484,
+        "sha256": "b1f90ab4aa15ec326eba8dee63b14d8d212c9200024cc9d00e178d423a2f7cde",
+        "git_blob_sha1": "bd617710575908c29c5bf5d9f9f9df613957c8af",
+        "upstream_tree_blob_sha1": "bd617710575908c29c5bf5d9f9f9df613957c8af"
+      },
+      "excerpt": {
+        "start": 0,
+        "end": 2483,
+        "start_byte": 0,
+        "end_byte": 2483,
+        "start_line": 1,
+        "end_line": 92,
+        "sha256": "058cd5a1b1873909cf926140cca9d9a3c8aae66b1b6829465baac212f789820b",
+        "coordinate_unit": "Unicode code points, half-open"
+      },
+      "session_id": "0.23.3:pyproject.toml",
+      "session_title": "encode/httpx 0.23.3 pyproject.toml",
+      "task_id": "package-configuration",
+      "task_title": "Package configuration and compatibility",
+      "license_sha256": "4ec59d544f12b5f539a3a716fd321ac58ccd8030b465221f2c880200cdf28d8d",
+      "notice": null
+    },
+    {
+      "id": "encode--httpx@0.28.1:pyproject.toml",
+      "repository": "encode/httpx",
+      "project": "public:encode/httpx",
+      "tag": "0.28.1",
+      "commit": "26d48e0634e6ee9cdc0533996db289ce4b430177",
+      "commit_metadata_key": "encode/httpx@26d48e0634e6ee9cdc0533996db289ce4b430177",
+      "created_at": "2024-12-06T15:35:41Z",
+      "path": "pyproject.toml",
+      "source_url": "https://github.com/encode/httpx/blob/26d48e0634e6ee9cdc0533996db289ce4b430177/pyproject.toml",
+      "raw_url": "https://raw.githubusercontent.com/encode/httpx/26d48e0634e6ee9cdc0533996db289ce4b430177/pyproject.toml",
+      "tree_api_url": "https://api.github.com/repos/encode/httpx/git/trees/f6bc290d5ec30e882f9d6215a016aa7aac2c02a1",
+      "full_file": {
+        "text": "[build-system]\nrequires = [\"hatchling\", \"hatch-fancy-pypi-readme\"]\nbuild-backend = \"hatchling.build\"\n\n[project]\nname = \"httpx\"\ndescription = \"The next generation HTTP client.\"\nlicense = \"BSD-3-Clause\"\nrequires-python = \">=3.8\"\nauthors = [\n    { name = \"Tom Christie\", email = \"tom@tomchristie.com\" },\n]\nclassifiers = [\n    \"Development Status :: 4 - Beta\",\n    \"Environment :: Web Environment\",\n    \"Framework :: AsyncIO\",\n    \"Framework :: Trio\",\n    \"Intended Audience :: Developers\",\n    \"License :: OSI Approved :: BSD License\",\n    \"Operating System :: OS Independent\",\n    \"Programming Language :: Python :: 3\",\n    \"Programming Language :: Python :: 3 :: Only\",\n    \"Programming Language :: Python :: 3.8\",\n    \"Programming Language :: Python :: 3.9\",\n    \"Programming Language :: Python :: 3.10\",\n    \"Programming Language :: Python :: 3.11\",\n    \"Programming Language :: Python :: 3.12\",\n    \"Topic :: Internet :: WWW/HTTP\",\n]\ndependencies = [\n    \"certifi\",\n    \"httpcore==1.*\",\n    \"anyio\",\n    \"idna\",\n]\ndynamic = [\"readme\", \"version\"]\n\n[project.optional-dependencies]\nbrotli = [\n    \"brotli; platform_python_implementation == 'CPython'\",\n    \"brotlicffi; platform_python_implementation != 'CPython'\",\n]\ncli = [\n    \"click==8.*\",\n    \"pygments==2.*\",\n    \"rich>=10,<14\",\n]\nhttp2 = [\n    \"h2>=3,<5\",\n]\nsocks = [\n    \"socksio==1.*\",\n]\nzstd = [\n  \"zstandard>=0.18.0\",\n]\n\n[project.scripts]\nhttpx = \"httpx:main\"\n\n[project.urls]\nChangelog = \"https://github.com/encode/httpx/blob/master/CHANGELOG.md\"\nDocumentation = \"https://www.python-httpx.org\"\nHomepage = \"https://github.com/encode/httpx\"\nSource = \"https://github.com/encode/httpx\"\n\n[tool.hatch.version]\npath = \"httpx/__version__.py\"\n\n[tool.hatch.build.targets.sdist]\ninclude = [\n    \"/httpx\",\n    \"/CHANGELOG.md\",\n    \"/README.md\",\n    \"/tests\",\n]\n\n[tool.hatch.metadata.hooks.fancy-pypi-readme]\ncontent-type = \"text/markdown\"\n\n[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]\npath = \"README.md\"\n\n[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]\ntext = \"\\n## Release Information\\n\\n\"\n\n[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]\npath = \"CHANGELOG.md\"\npattern = \"\\n(###.+?\\n)## \"\n\n[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]\ntext = \"\\n---\\n\\n[Full changelog](https://github.com/encode/httpx/blob/master/CHANGELOG.md)\\n\"\n\n[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]\npattern = 'src=\"(docs/img/.*?)\"'\nreplacement = 'src=\"https://raw.githubusercontent.com/encode/httpx/master/\\1\"'\n\n[tool.ruff.lint]\nselect = [\"E\", \"F\", \"I\", \"B\", \"PIE\"]\nignore = [\"B904\", \"B028\"]\n\n[tool.ruff.lint.isort]\ncombine-as-imports = true\n\n[tool.ruff.lint.per-file-ignores]\n\"__init__.py\" = [\"F403\", \"F405\"]\n\n[tool.mypy]\nignore_missing_imports = true\nstrict = true\n\n[[tool.mypy.overrides]]\nmodule = \"tests.*\"\ndisallow_untyped_defs = false\ncheck_untyped_defs = true\n\n[tool.pytest.ini_options]\naddopts = \"-rxXs\"\nfilterwarnings = [\n  \"error\",\n  \"ignore: You seem to already have a custom sys.excepthook handler installed. I'll skip installing Trio's custom handler, but this means MultiErrors will not show full tracebacks.:RuntimeWarning\",\n  # See: https://github.com/agronholm/anyio/issues/508\n  \"ignore: trio.MultiError is deprecated since Trio 0.22.0:trio.TrioDeprecationWarning\"\n]\nmarkers = [\n  \"copied_from(source, changes=None): mark test as copied from somewhere else, along with a description of changes made to accodomate e.g. our test setup\",\n  \"network: marks tests which require network connection. Used in 3rd-party build environments that have network disabled.\"\n]\n\n[tool.coverage.run]\nomit = [\"venv/*\"]\ninclude = [\"httpx/*\", \"tests/*\"]\n",
+        "utf8_bytes": 3639,
+        "sha256": "df6ead82c82909bacc1f54fa0de8edc52dab17742d548d41c284506e3c05706f",
+        "git_blob_sha1": "9e671911356e5a223eae91abf163781583411173",
+        "upstream_tree_blob_sha1": "9e671911356e5a223eae91abf163781583411173"
+      },
+      "excerpt": {
+        "start": 0,
+        "end": 3638,
+        "start_byte": 0,
+        "end_byte": 3638,
+        "start_line": 1,
+        "end_line": 132,
+        "sha256": "c50d3daf5b709d7cd286faa4346b79b7dab2845cb30ce3ccf271942feaea0174",
+        "coordinate_unit": "Unicode code points, half-open"
+      },
+      "session_id": "0.28.1:pyproject.toml",
+      "session_title": "encode/httpx 0.28.1 pyproject.toml",
+      "task_id": "package-configuration",
+      "task_title": "Package configuration and compatibility",
+      "license_sha256": "4ec59d544f12b5f539a3a716fd321ac58ccd8030b465221f2c880200cdf28d8d",
+      "notice": null
+    },
+    {
+      "id": "pallets--flask@2.2.5:setup.py",
+      "repository": "pallets/flask",
+      "project": "public:pallets/flask",
+      "tag": "2.2.5",
+      "commit": "47af817c8fe01045c641b97f8fb784c7ad864eee",
+      "commit_metadata_key": "pallets/flask@47af817c8fe01045c641b97f8fb784c7ad864eee",
+      "created_at": "2023-05-02T14:35:27Z",
+      "path": "setup.py",
+      "source_url": "https://github.com/pallets/flask/blob/47af817c8fe01045c641b97f8fb784c7ad864eee/setup.py",
+      "raw_url": "https://raw.githubusercontent.com/pallets/flask/47af817c8fe01045c641b97f8fb784c7ad864eee/setup.py",
+      "tree_api_url": "https://api.github.com/repos/pallets/flask/git/trees/4b83f0bc1932b6939223ae8e3901ca907d2542d0",
+      "full_file": {
+        "text": "from setuptools import setup\n\n# Metadata goes in setup.cfg. These are here for GitHub's dependency graph.\nsetup(\n    name=\"Flask\",\n    install_requires=[\n        \"Werkzeug >= 2.2.2\",\n        \"Jinja2 >= 3.0\",\n        \"itsdangerous >= 2.0\",\n        \"click >= 8.0\",\n        \"importlib-metadata >= 3.6.0; python_version < '3.10'\",\n    ],\n    extras_require={\n        \"async\": [\"asgiref >= 3.2\"],\n        \"dotenv\": [\"python-dotenv\"],\n    },\n)\n",
+        "utf8_bytes": 438,
+        "sha256": "818eb29aa7040a661a88e510b31415be1422f884721eeebe5f39e170425341f5",
+        "git_blob_sha1": "671754677495b92d6c6f85b0f16432a3b350a605",
+        "upstream_tree_blob_sha1": "671754677495b92d6c6f85b0f16432a3b350a605"
+      },
+      "excerpt": {
+        "start": 0,
+        "end": 437,
+        "start_byte": 0,
+        "end_byte": 437,
+        "start_line": 1,
+        "end_line": 17,
+        "sha256": "5c30421dc4ce2783a2aa998355b25cd353654a7937f99a7313d5291a34a5c262",
+        "coordinate_unit": "Unicode code points, half-open"
+      },
+      "session_id": "2.2.5:setup.py",
+      "session_title": "pallets/flask 2.2.5 setup.py",
+      "task_id": "package-configuration",
+      "task_title": "Package configuration and compatibility",
+      "license_sha256": "489a8e1108509ed98a37bb983e11e0f7e1d31f0bd8f99a79c8448e7ff37d07ea",
+      "notice": null
+    },
+    {
+      "id": "pallets--werkzeug@2.2.3:setup.py",
+      "repository": "pallets/werkzeug",
+      "project": "public:pallets/werkzeug",
+      "tag": "2.2.3",
+      "commit": "22a254fca2ad0130adbbcbd11d3de51bcb04a08b",
+      "commit_metadata_key": "pallets/werkzeug@22a254fca2ad0130adbbcbd11d3de51bcb04a08b",
+      "created_at": "2023-02-14T17:10:34Z",
+      "path": "setup.py",
+      "source_url": "https://github.com/pallets/werkzeug/blob/22a254fca2ad0130adbbcbd11d3de51bcb04a08b/setup.py",
+      "raw_url": "https://raw.githubusercontent.com/pallets/werkzeug/22a254fca2ad0130adbbcbd11d3de51bcb04a08b/setup.py",
+      "tree_api_url": "https://api.github.com/repos/pallets/werkzeug/git/trees/e40c118ddb55614900bb8a1aa3c9504f99a5fab9",
+      "full_file": {
+        "text": "from setuptools import setup\n\n# Metadata goes in setup.cfg. These are here for GitHub's dependency graph.\nsetup(\n    name=\"Werkzeug\",\n    install_requires=[\"MarkupSafe>=2.1.1\"],\n    extras_require={\"watchdog\": [\"watchdog\"]},\n)\n",
+        "utf8_bytes": 227,
+        "sha256": "284655b97daa46a1ee433a24d116827f50203f2a6d4fa94c1eb5b1ba4525ad9a",
+        "git_blob_sha1": "413ce2a72ec0adc58104cb42a8a9195f2f5d79b7",
+        "upstream_tree_blob_sha1": "413ce2a72ec0adc58104cb42a8a9195f2f5d79b7"
+      },
+      "excerpt": {
+        "start": 0,
+        "end": 226,
+        "start_byte": 0,
+        "end_byte": 226,
+        "start_line": 1,
+        "end_line": 8,
+        "sha256": "b23bf8cc4f81b9b6d6870408e28cbcc83d9d01cbe6ea2c7e662df1353aecaaaa",
+        "coordinate_unit": "Unicode code points, half-open"
+      },
+      "session_id": "2.2.3:setup.py",
+      "session_title": "pallets/werkzeug 2.2.3 setup.py",
+      "task_id": "package-configuration",
+      "task_title": "Package configuration and compatibility",
+      "license_sha256": "3b49dcee4105eb37bac10faf1be260408fe85d252b8e9df2e0979fc1e094437b",
+      "notice": null
+    }
+  ],
+  "questions": [
+    {
+      "id": "psf--requests:older-python",
+      "project": "public:psf/requests",
+      "kind": "answerable",
+      "category": "historical_fact",
+      "query": "In psf/requests v2.31.0, what Python version requirement does setup.py declare?",
+      "temporal": "relevance",
+      "required": [
+        {
+          "source_id": "psf--requests@v2.31.0:setup.py",
+          "quote": "python_requires=\">=3.7\"",
+          "start": 2537,
+          "end": 2560,
+          "sha256": "606dc881f0f624dd2381d826d104f2d6cca145148a8af5abcd774a561c74b3ec"
+        }
+      ],
+      "expected_first_source_ids": [
+        "psf--requests@v2.31.0:setup.py"
+      ],
+      "absent_field": null
+    },
+    {
+      "id": "psf--requests:newer-python",
+      "project": "public:psf/requests",
+      "kind": "answerable",
+      "category": "newer_snapshot_fact",
+      "query": "For psf/requests, what is the Python version requirement in the newer captured release v2.32.5?",
+      "temporal": "current",
+      "required": [
+        {
+          "source_id": "psf--requests@v2.32.5:setup.py",
+          "quote": "python_requires=\">=3.9\"",
+          "start": 1801,
+          "end": 1824,
+          "sha256": "f493f6814b6055ec9337d099835df824dc59ed31f2845a11ccef056da955a6e2"
+        }
+      ],
+      "expected_first_source_ids": [
+        "psf--requests@v2.32.5:setup.py"
+      ],
+      "absent_field": null
+    },
+    {
+      "id": "psf--requests:python-change",
+      "project": "public:psf/requests",
+      "kind": "answerable",
+      "category": "historical_change",
+      "query": "Compare the Python version requirement in psf/requests v2.31.0 and v2.32.5; show both source declarations.",
+      "temporal": "relevance",
+      "required": [
+        {
+          "source_id": "psf--requests@v2.31.0:setup.py",
+          "quote": "python_requires=\">=3.7\"",
+          "start": 2537,
+          "end": 2560,
+          "sha256": "606dc881f0f624dd2381d826d104f2d6cca145148a8af5abcd774a561c74b3ec"
+        },
+        {
+          "source_id": "psf--requests@v2.32.5:setup.py",
+          "quote": "python_requires=\">=3.9\"",
+          "start": 1801,
+          "end": 1824,
+          "sha256": "f493f6814b6055ec9337d099835df824dc59ed31f2845a11ccef056da955a6e2"
+        }
+      ],
+      "expected_first_source_ids": [],
+      "absent_field": null
+    },
+    {
+      "id": "psf--requests:older-secondary",
+      "project": "public:psf/requests",
+      "kind": "answerable",
+      "category": "historical_fact",
+      "query": "In psf/requests v2.31.0, what is the package_dir package source directory mapping?",
+      "temporal": "relevance",
+      "required": [
+        {
+          "source_id": "psf--requests@v2.31.0:setup.py",
+          "quote": "package_dir={\"requests\": \"requests\"}",
+          "start": 2464,
+          "end": 2500,
+          "sha256": "068d5ec16c9f6c7348c0709f3470aa1d899f39a1b8ff94bab31348bc9382a3cf"
+        }
+      ],
+      "expected_first_source_ids": [
+        "psf--requests@v2.31.0:setup.py"
+      ],
+      "absent_field": null
+    },
+    {
+      "id": "psf--requests:newer-secondary",
+      "project": "public:psf/requests",
+      "kind": "answerable",
+      "category": "newer_snapshot_fact",
+      "query": "In the newer captured psf/requests release v2.32.5, what is the package_dir package source directory mapping?",
+      "temporal": "current",
+      "required": [
+        {
+          "source_id": "psf--requests@v2.32.5:setup.py",
+          "quote": "package_dir={\"\": \"src\"}",
+          "start": 1741,
+          "end": 1764,
+          "sha256": "88d4a5345dbfae1be1c0b13d090f45cb9237199cb4a68cdb39394bcb45040aea"
+        }
+      ],
+      "expected_first_source_ids": [
+        "psf--requests@v2.32.5:setup.py"
+      ],
+      "absent_field": null
+    },
+    {
+      "id": "psf--requests:secondary-change",
+      "project": "public:psf/requests",
+      "kind": "answerable",
+      "category": "historical_change",
+      "query": "Compare the package_dir package source directory mapping in psf/requests v2.31.0 versus v2.32.5; recover both original declarations.",
+      "temporal": "relevance",
+      "required": [
+        {
+          "source_id": "psf--requests@v2.31.0:setup.py",
+          "quote": "package_dir={\"requests\": \"requests\"}",
+          "start": 2464,
+          "end": 2500,
+          "sha256": "068d5ec16c9f6c7348c0709f3470aa1d899f39a1b8ff94bab31348bc9382a3cf"
+        },
+        {
+          "source_id": "psf--requests@v2.32.5:setup.py",
+          "quote": "package_dir={\"\": \"src\"}",
+          "start": 1741,
+          "end": 1764,
+          "sha256": "88d4a5345dbfae1be1c0b13d090f45cb9237199cb4a68cdb39394bcb45040aea"
+        }
+      ],
+      "expected_first_source_ids": [],
+      "absent_field": null
+    },
+    {
+      "id": "psf--requests:newer-additional",
+      "project": "public:psf/requests",
+      "kind": "answerable",
+      "category": "newer_snapshot_fact",
+      "query": "Which pytest-httpbin version is pinned in psf/requests v2.32.5 test_requirements?",
+      "temporal": "current",
+      "required": [
+        {
+          "source_id": "psf--requests@v2.32.5:setup.py",
+          "quote": "\"pytest-httpbin==2.1.0\"",
+          "start": 996,
+          "end": 1019,
+          "sha256": "cb130eb0301c432de6e8b563f5c367c11b262cf9f7f9d493f8d2d11c3ae9876b"
+        }
+      ],
+      "expected_first_source_ids": [
+        "psf--requests@v2.32.5:setup.py"
+      ],
+      "absent_field": null
+    },
+    {
+      "id": "psf--requests:newer-multi-fact",
+      "project": "public:psf/requests",
+      "kind": "answerable",
+      "category": "multi_fact",
+      "query": "For psf/requests v2.32.5, recover the Python requirement, package_dir mapping, and pytest-httpbin test dependency together.",
+      "temporal": "current",
+      "required": [
+        {
+          "source_id": "psf--requests@v2.32.5:setup.py",
+          "quote": "python_requires=\">=3.9\"",
+          "start": 1801,
+          "end": 1824,
+          "sha256": "f493f6814b6055ec9337d099835df824dc59ed31f2845a11ccef056da955a6e2"
+        },
+        {
+          "source_id": "psf--requests@v2.32.5:setup.py",
+          "quote": "package_dir={\"\": \"src\"}",
+          "start": 1741,
+          "end": 1764,
+          "sha256": "88d4a5345dbfae1be1c0b13d090f45cb9237199cb4a68cdb39394bcb45040aea"
+        },
+        {
+          "source_id": "psf--requests@v2.32.5:setup.py",
+          "quote": "\"pytest-httpbin==2.1.0\"",
+          "start": 996,
+          "end": 1019,
+          "sha256": "cb130eb0301c432de6e8b563f5c367c11b262cf9f7f9d493f8d2d11c3ae9876b"
+        }
+      ],
+      "expected_first_source_ids": [],
+      "absent_field": null
+    },
+    {
+      "id": "psf--requests:missing-field",
+      "project": "public:psf/requests",
+      "kind": "missing",
+      "category": "missing_in_selected_files",
+      "query": "What value is configured for total_request_timeout_seconds in the supplied psf/requests packaging files?",
+      "temporal": "relevance",
+      "required": [],
+      "expected_first_source_ids": [],
+      "absent_field": "total_request_timeout_seconds"
+    },
+    {
+      "id": "pallets--flask:older-python",
+      "project": "public:pallets/flask",
+      "kind": "answerable",
+      "category": "historical_fact",
+      "query": "In pallets/flask 2.2.5, what Python version requirement does setup.cfg declare?",
+      "temporal": "relevance",
+      "required": [
+        {
+          "source_id": "pallets--flask@2.2.5:setup.cfg",
+          "quote": "python_requires = >= 3.7",
+          "start": 1355,
+          "end": 1379,
+          "sha256": "97358e7628cc808038be1b96129719b339219edac749f79ec4ed2f6ca4a59ad7"
+        }
+      ],
+      "expected_first_source_ids": [
+        "pallets--flask@2.2.5:setup.cfg"
+      ],
+      "absent_field": null
+    },
+    {
+      "id": "pallets--flask:newer-python",
+      "project": "public:pallets/flask",
+      "kind": "answerable",
+      "category": "newer_snapshot_fact",
+      "query": "For pallets/flask, what is the Python version requirement in the newer captured release 3.1.0?",
+      "temporal": "current",
+      "required": [
+        {
+          "source_id": "pallets--flask@3.1.0:pyproject.toml",
+          "quote": "requires-python = \">=3.9\"",
+          "start": 803,
+          "end": 828,
+          "sha256": "6809aff51bb85d23cc9935b3a71b8d6ecc130bebe14d80f8ca962a3dbdb85714"
+        }
+      ],
+      "expected_first_source_ids": [
+        "pallets--flask@3.1.0:pyproject.toml"
+      ],
+      "absent_field": null
+    },
+    {
+      "id": "pallets--flask:python-change",
+      "project": "public:pallets/flask",
+      "kind": "answerable",
+      "category": "historical_change",
+      "query": "Compare the Python version requirement in pallets/flask 2.2.5 and 3.1.0; show both source declarations.",
+      "temporal": "relevance",
+      "required": [
+        {
+          "source_id": "pallets--flask@2.2.5:setup.cfg",
+          "quote": "python_requires = >= 3.7",
+          "start": 1355,
+          "end": 1379,
+          "sha256": "97358e7628cc808038be1b96129719b339219edac749f79ec4ed2f6ca4a59ad7"
+        },
+        {
+          "source_id": "pallets--flask@3.1.0:pyproject.toml",
+          "quote": "requires-python = \">=3.9\"",
+          "start": 803,
+          "end": 828,
+          "sha256": "6809aff51bb85d23cc9935b3a71b8d6ecc130bebe14d80f8ca962a3dbdb85714"
+        }
+      ],
+      "expected_first_source_ids": [],
+      "absent_field": null
+    },
+    {
+      "id": "pallets--flask:older-secondary",
+      "project": "public:pallets/flask",
+      "kind": "answerable",
+      "category": "historical_fact",
+      "query": "In pallets/flask 2.2.5, what is the Werkzeug dependency version bound?",
+      "temporal": "relevance",
+      "required": [
+        {
+          "source_id": "pallets--flask@2.2.5:setup.py",
+          "quote": "\"Werkzeug >= 2.2.2\"",
+          "start": 162,
+          "end": 181,
+          "sha256": "16538a84243313b2093fadd261b9476a541d2158d2f449acfd0832f934008042"
+        }
+      ],
+      "expected_first_source_ids": [
+        "pallets--flask@2.2.5:setup.py"
+      ],
+      "absent_field": null
+    },
+    {
+      "id": "pallets--flask:newer-secondary",
+      "project": "public:pallets/flask",
+      "kind": "answerable",
+      "category": "newer_snapshot_fact",
+      "query": "In the newer captured pallets/flask release 3.1.0, what is the Werkzeug dependency version bound?",
+      "temporal": "current",
+      "required": [
+        {
+          "source_id": "pallets--flask@3.1.0:pyproject.toml",
+          "quote": "\"Werkzeug>=3.1\"",
+          "start": 850,
+          "end": 865,
+          "sha256": "62967af585d04c950197d2e1641cbb8cdb06886e0c896022913faad0723165c0"
+        }
+      ],
+      "expected_first_source_ids": [
+        "pallets--flask@3.1.0:pyproject.toml"
+      ],
+      "absent_field": null
+    },
+    {
+      "id": "pallets--flask:secondary-change",
+      "project": "public:pallets/flask",
+      "kind": "answerable",
+      "category": "historical_change",
+      "query": "Compare the Werkzeug dependency version bound in pallets/flask 2.2.5 versus 3.1.0; recover both original declarations.",
+      "temporal": "relevance",
+      "required": [
+        {
+          "source_id": "pallets--flask@2.2.5:setup.py",
+          "quote": "\"Werkzeug >= 2.2.2\"",
+          "start": 162,
+          "end": 181,
+          "sha256": "16538a84243313b2093fadd261b9476a541d2158d2f449acfd0832f934008042"
+        },
+        {
+          "source_id": "pallets--flask@3.1.0:pyproject.toml",
+          "quote": "\"Werkzeug>=3.1\"",
+          "start": 850,
+          "end": 865,
+          "sha256": "62967af585d04c950197d2e1641cbb8cdb06886e0c896022913faad0723165c0"
+        }
+      ],
+      "expected_first_source_ids": [],
+      "absent_field": null
+    },
+    {
+      "id": "pallets--flask:newer-additional",
+      "project": "public:pallets/flask",
+      "kind": "answerable",
+      "category": "newer_snapshot_fact",
+      "query": "Which blinker dependency version does pallets/flask 3.1.0 require?",
+      "temporal": "current",
+      "required": [
+        {
+          "source_id": "pallets--flask@3.1.0:pyproject.toml",
+          "quote": "\"blinker>=1.9\"",
+          "start": 937,
+          "end": 951,
+          "sha256": "77eb56af520575cd45e9c301943c428898753c4d70c7c94f37cb8844395cdfb2"
+        }
+      ],
+      "expected_first_source_ids": [
+        "pallets--flask@3.1.0:pyproject.toml"
+      ],
+      "absent_field": null
+    },
+    {
+      "id": "pallets--flask:newer-multi-fact",
+      "project": "public:pallets/flask",
+      "kind": "answerable",
+      "category": "multi_fact",
+      "query": "For pallets/flask 3.1.0, recover the Python requirement and both Werkzeug and blinker dependency bounds together.",
+      "temporal": "current",
+      "required": [
+        {
+          "source_id": "pallets--flask@3.1.0:pyproject.toml",
+          "quote": "requires-python = \">=3.9\"",
+          "start": 803,
+          "end": 828,
+          "sha256": "6809aff51bb85d23cc9935b3a71b8d6ecc130bebe14d80f8ca962a3dbdb85714"
+        },
+        {
+          "source_id": "pallets--flask@3.1.0:pyproject.toml",
+          "quote": "\"Werkzeug>=3.1\"",
+          "start": 850,
+          "end": 865,
+          "sha256": "62967af585d04c950197d2e1641cbb8cdb06886e0c896022913faad0723165c0"
+        },
+        {
+          "source_id": "pallets--flask@3.1.0:pyproject.toml",
+          "quote": "\"blinker>=1.9\"",
+          "start": 937,
+          "end": 951,
+          "sha256": "77eb56af520575cd45e9c301943c428898753c4d70c7c94f37cb8844395cdfb2"
+        }
+      ],
+      "expected_first_source_ids": [],
+      "absent_field": null
+    },
+    {
+      "id": "pallets--flask:missing-field",
+      "project": "public:pallets/flask",
+      "kind": "missing",
+      "category": "missing_in_selected_files",
+      "query": "What value is configured for session_signing_key_rotation_days in the supplied pallets/flask packaging files?",
+      "temporal": "relevance",
+      "required": [],
+      "expected_first_source_ids": [],
+      "absent_field": "session_signing_key_rotation_days"
+    },
+    {
+      "id": "pallets--werkzeug:older-python",
+      "project": "public:pallets/werkzeug",
+      "kind": "answerable",
+      "category": "historical_fact",
+      "query": "In pallets/werkzeug 2.2.3, what Python version requirement does setup.cfg declare?",
+      "temporal": "relevance",
+      "required": [
+        {
+          "source_id": "pallets--werkzeug@2.2.3:setup.cfg",
+          "quote": "python_requires = >= 3.7",
+          "start": 1400,
+          "end": 1424,
+          "sha256": "97358e7628cc808038be1b96129719b339219edac749f79ec4ed2f6ca4a59ad7"
+        }
+      ],
+      "expected_first_source_ids": [
+        "pallets--werkzeug@2.2.3:setup.cfg"
+      ],
+      "absent_field": null
+    },
+    {
+      "id": "pallets--werkzeug:newer-python",
+      "project": "public:pallets/werkzeug",
+      "kind": "answerable",
+      "category": "newer_snapshot_fact",
+      "query": "For pallets/werkzeug, what is the Python version requirement in the newer captured release 3.1.0?",
+      "temporal": "current",
+      "required": [
+        {
+          "source_id": "pallets--werkzeug@3.1.0:pyproject.toml",
+          "quote": "requires-python = \">=3.9\"",
+          "start": 829,
+          "end": 854,
+          "sha256": "6809aff51bb85d23cc9935b3a71b8d6ecc130bebe14d80f8ca962a3dbdb85714"
+        }
+      ],
+      "expected_first_source_ids": [
+        "pallets--werkzeug@3.1.0:pyproject.toml"
+      ],
+      "absent_field": null
+    },
+    {
+      "id": "pallets--werkzeug:python-change",
+      "project": "public:pallets/werkzeug",
+      "kind": "answerable",
+      "category": "historical_change",
+      "query": "Compare the Python version requirement in pallets/werkzeug 2.2.3 and 3.1.0; show both source declarations.",
+      "temporal": "relevance",
+      "required": [
+        {
+          "source_id": "pallets--werkzeug@2.2.3:setup.cfg",
+          "quote": "python_requires = >= 3.7",
+          "start": 1400,
+          "end": 1424,
+          "sha256": "97358e7628cc808038be1b96129719b339219edac749f79ec4ed2f6ca4a59ad7"
+        },
+        {
+          "source_id": "pallets--werkzeug@3.1.0:pyproject.toml",
+          "quote": "requires-python = \">=3.9\"",
+          "start": 829,
+          "end": 854,
+          "sha256": "6809aff51bb85d23cc9935b3a71b8d6ecc130bebe14d80f8ca962a3dbdb85714"
+        }
+      ],
+      "expected_first_source_ids": [],
+      "absent_field": null
+    },
+    {
+      "id": "pallets--werkzeug:older-secondary",
+      "project": "public:pallets/werkzeug",
+      "kind": "answerable",
+      "category": "historical_fact",
+      "query": "In pallets/werkzeug 2.2.3, what is the watchdog optional dependency declaration?",
+      "temporal": "relevance",
+      "required": [
+        {
+          "source_id": "pallets--werkzeug@2.2.3:setup.py",
+          "quote": "extras_require={\"watchdog\": [\"watchdog\"]}",
+          "start": 182,
+          "end": 223,
+          "sha256": "d65d86a42171ebab762a730beb15bba6e2150afbc2876576b1dc47c191633ca0"
+        }
+      ],
+      "expected_first_source_ids": [
+        "pallets--werkzeug@2.2.3:setup.py"
+      ],
+      "absent_field": null
+    },
+    {
+      "id": "pallets--werkzeug:newer-secondary",
+      "project": "public:pallets/werkzeug",
+      "kind": "answerable",
+      "category": "newer_snapshot_fact",
+      "query": "In the newer captured pallets/werkzeug release 3.1.0, what is the watchdog optional dependency declaration?",
+      "temporal": "current",
+      "required": [
+        {
+          "source_id": "pallets--werkzeug@3.1.0:pyproject.toml",
+          "quote": "watchdog = [\"watchdog>=2.3\"]",
+          "start": 1263,
+          "end": 1291,
+          "sha256": "77993f1f210660d83ff2c04e8297e19df50b6494c0771987b727f6e6d47bdd7a"
+        }
+      ],
+      "expected_first_source_ids": [
+        "pallets--werkzeug@3.1.0:pyproject.toml"
+      ],
+      "absent_field": null
+    },
+    {
+      "id": "pallets--werkzeug:secondary-change",
+      "project": "public:pallets/werkzeug",
+      "kind": "answerable",
+      "category": "historical_change",
+      "query": "Compare the watchdog optional dependency declaration in pallets/werkzeug 2.2.3 versus 3.1.0; recover both original declarations.",
+      "temporal": "relevance",
+      "required": [
+        {
+          "source_id": "pallets--werkzeug@2.2.3:setup.py",
+          "quote": "extras_require={\"watchdog\": [\"watchdog\"]}",
+          "start": 182,
+          "end": 223,
+          "sha256": "d65d86a42171ebab762a730beb15bba6e2150afbc2876576b1dc47c191633ca0"
+        },
+        {
+          "source_id": "pallets--werkzeug@3.1.0:pyproject.toml",
+          "quote": "watchdog = [\"watchdog>=2.3\"]",
+          "start": 1263,
+          "end": 1291,
+          "sha256": "77993f1f210660d83ff2c04e8297e19df50b6494c0771987b727f6e6d47bdd7a"
+        }
+      ],
+      "expected_first_source_ids": [],
+      "absent_field": null
+    },
+    {
+      "id": "pallets--werkzeug:newer-additional",
+      "project": "public:pallets/werkzeug",
+      "kind": "answerable",
+      "category": "newer_snapshot_fact",
+      "query": "Which build-backend does the pallets/werkzeug 3.1.0 package configuration select?",
+      "temporal": "current",
+      "required": [
+        {
+          "source_id": "pallets--werkzeug@3.1.0:pyproject.toml",
+          "quote": "build-backend = \"flit_core.buildapi\"",
+          "start": 1335,
+          "end": 1371,
+          "sha256": "6bae030d33c0801d74ef1f7f4aba8e3c24e8175ff5ad9579c74caddb7aab78a9"
+        }
+      ],
+      "expected_first_source_ids": [
+        "pallets--werkzeug@3.1.0:pyproject.toml"
+      ],
+      "absent_field": null
+    },
+    {
+      "id": "pallets--werkzeug:newer-multi-fact",
+      "project": "public:pallets/werkzeug",
+      "kind": "answerable",
+      "category": "multi_fact",
+      "query": "For pallets/werkzeug 3.1.0, recover the Python requirement, watchdog optional dependency, and build-backend together.",
+      "temporal": "current",
+      "required": [
+        {
+          "source_id": "pallets--werkzeug@3.1.0:pyproject.toml",
+          "quote": "requires-python = \">=3.9\"",
+          "start": 829,
+          "end": 854,
+          "sha256": "6809aff51bb85d23cc9935b3a71b8d6ecc130bebe14d80f8ca962a3dbdb85714"
+        },
+        {
+          "source_id": "pallets--werkzeug@3.1.0:pyproject.toml",
+          "quote": "watchdog = [\"watchdog>=2.3\"]",
+          "start": 1263,
+          "end": 1291,
+          "sha256": "77993f1f210660d83ff2c04e8297e19df50b6494c0771987b727f6e6d47bdd7a"
+        },
+        {
+          "source_id": "pallets--werkzeug@3.1.0:pyproject.toml",
+          "quote": "build-backend = \"flit_core.buildapi\"",
+          "start": 1335,
+          "end": 1371,
+          "sha256": "6bae030d33c0801d74ef1f7f4aba8e3c24e8175ff5ad9579c74caddb7aab78a9"
+        }
+      ],
+      "expected_first_source_ids": [],
+      "absent_field": null
+    },
+    {
+      "id": "pallets--werkzeug:missing-field",
+      "project": "public:pallets/werkzeug",
+      "kind": "missing",
+      "category": "missing_in_selected_files",
+      "query": "What value is configured for max_request_header_bytes in the supplied pallets/werkzeug packaging files?",
+      "temporal": "relevance",
+      "required": [],
+      "expected_first_source_ids": [],
+      "absent_field": "max_request_header_bytes"
+    },
+    {
+      "id": "encode--httpx:older-python",
+      "project": "public:encode/httpx",
+      "kind": "answerable",
+      "category": "historical_fact",
+      "query": "In encode/httpx 0.23.3, what Python version requirement does pyproject.toml declare?",
+      "temporal": "relevance",
+      "required": [
+        {
+          "source_id": "encode--httpx@0.23.3:pyproject.toml",
+          "quote": "requires-python = \">=3.7\"",
+          "start": 201,
+          "end": 226,
+          "sha256": "cd45100e577ad8ce97ea8b1f18d0b2204e98a38db66afb9e7bf5f40799eb49bc"
+        }
+      ],
+      "expected_first_source_ids": [
+        "encode--httpx@0.23.3:pyproject.toml"
+      ],
+      "absent_field": null
+    },
+    {
+      "id": "encode--httpx:newer-python",
+      "project": "public:encode/httpx",
+      "kind": "answerable",
+      "category": "newer_snapshot_fact",
+      "query": "For encode/httpx, what is the Python version requirement in the newer captured release 0.28.1?",
+      "temporal": "current",
+      "required": [
+        {
+          "source_id": "encode--httpx@0.28.1:pyproject.toml",
+          "quote": "requires-python = \">=3.8\"",
+          "start": 201,
+          "end": 226,
+          "sha256": "923824209506ccfe32780d75fc46e860bf4d82d451145661a500ac34507ad93e"
+        }
+      ],
+      "expected_first_source_ids": [
+        "encode--httpx@0.28.1:pyproject.toml"
+      ],
+      "absent_field": null
+    },
+    {
+      "id": "encode--httpx:python-change",
+      "project": "public:encode/httpx",
+      "kind": "answerable",
+      "category": "historical_change",
+      "query": "Compare the Python version requirement in encode/httpx 0.23.3 and 0.28.1; show both source declarations.",
+      "temporal": "relevance",
+      "required": [
+        {
+          "source_id": "encode--httpx@0.23.3:pyproject.toml",
+          "quote": "requires-python = \">=3.7\"",
+          "start": 201,
+          "end": 226,
+          "sha256": "cd45100e577ad8ce97ea8b1f18d0b2204e98a38db66afb9e7bf5f40799eb49bc"
+        },
+        {
+          "source_id": "encode--httpx@0.28.1:pyproject.toml",
+          "quote": "requires-python = \">=3.8\"",
+          "start": 201,
+          "end": 226,
+          "sha256": "923824209506ccfe32780d75fc46e860bf4d82d451145661a500ac34507ad93e"
+        }
+      ],
+      "expected_first_source_ids": [],
+      "absent_field": null
+    },
+    {
+      "id": "encode--httpx:older-secondary",
+      "project": "public:encode/httpx",
+      "kind": "answerable",
+      "category": "historical_fact",
+      "query": "In encode/httpx 0.23.3, what is the httpcore dependency version bound?",
+      "temporal": "relevance",
+      "required": [
+        {
+          "source_id": "encode--httpx@0.23.3:pyproject.toml",
+          "quote": "\"httpcore>=0.15.0,<0.17.0\"",
+          "start": 971,
+          "end": 997,
+          "sha256": "aeee37c7487a4ed0246546050b6ed8488f3eebd76d33f46f34c2e1b93e7734da"
+        }
+      ],
+      "expected_first_source_ids": [
+        "encode--httpx@0.23.3:pyproject.toml"
+      ],
+      "absent_field": null
+    },
+    {
+      "id": "encode--httpx:newer-secondary",
+      "project": "public:encode/httpx",
+      "kind": "answerable",
+      "category": "newer_snapshot_fact",
+      "query": "In the newer captured encode/httpx release 0.28.1, what is the httpcore dependency version bound?",
+      "temporal": "current",
+      "required": [
+        {
+          "source_id": "encode--httpx@0.28.1:pyproject.toml",
+          "quote": "\"httpcore==1.*\"",
+          "start": 972,
+          "end": 987,
+          "sha256": "c352ce6dddfaf36fa19ab896d7cad80150aa7924fbfd968250f4e992db16e35c"
+        }
+      ],
+      "expected_first_source_ids": [
+        "encode--httpx@0.28.1:pyproject.toml"
+      ],
+      "absent_field": null
+    },
+    {
+      "id": "encode--httpx:secondary-change",
+      "project": "public:encode/httpx",
+      "kind": "answerable",
+      "category": "historical_change",
+      "query": "Compare the httpcore dependency version bound in encode/httpx 0.23.3 versus 0.28.1; recover both original declarations.",
+      "temporal": "relevance",
+      "required": [
+        {
+          "source_id": "encode--httpx@0.23.3:pyproject.toml",
+          "quote": "\"httpcore>=0.15.0,<0.17.0\"",
+          "start": 971,
+          "end": 997,
+          "sha256": "aeee37c7487a4ed0246546050b6ed8488f3eebd76d33f46f34c2e1b93e7734da"
+        },
+        {
+          "source_id": "encode--httpx@0.28.1:pyproject.toml",
+          "quote": "\"httpcore==1.*\"",
+          "start": 972,
+          "end": 987,
+          "sha256": "c352ce6dddfaf36fa19ab896d7cad80150aa7924fbfd968250f4e992db16e35c"
+        }
+      ],
+      "expected_first_source_ids": [],
+      "absent_field": null
+    },
+    {
+      "id": "encode--httpx:newer-additional",
+      "project": "public:encode/httpx",
+      "kind": "answerable",
+      "category": "newer_snapshot_fact",
+      "query": "What rich version bound is declared in the cli optional dependency group of encode/httpx 0.28.1?",
+      "temporal": "current",
+      "required": [
+        {
+          "source_id": "encode--httpx@0.28.1:pyproject.toml",
+          "quote": "\"rich>=10,<14\"",
+          "start": 1267,
+          "end": 1281,
+          "sha256": "18e83d7b726a73c4db1bdd35057bc1dff782db3880c7b8c713f928eb3dc2c878"
+        }
+      ],
+      "expected_first_source_ids": [
+        "encode--httpx@0.28.1:pyproject.toml"
+      ],
+      "absent_field": null
+    },
+    {
+      "id": "encode--httpx:newer-multi-fact",
+      "project": "public:encode/httpx",
+      "kind": "answerable",
+      "category": "multi_fact",
+      "query": "For encode/httpx 0.28.1, recover the Python requirement, httpcore dependency, and rich CLI extra version bound together.",
+      "temporal": "current",
+      "required": [
+        {
+          "source_id": "encode--httpx@0.28.1:pyproject.toml",
+          "quote": "requires-python = \">=3.8\"",
+          "start": 201,
+          "end": 226,
+          "sha256": "923824209506ccfe32780d75fc46e860bf4d82d451145661a500ac34507ad93e"
+        },
+        {
+          "source_id": "encode--httpx@0.28.1:pyproject.toml",
+          "quote": "\"httpcore==1.*\"",
+          "start": 972,
+          "end": 987,
+          "sha256": "c352ce6dddfaf36fa19ab896d7cad80150aa7924fbfd968250f4e992db16e35c"
+        },
+        {
+          "source_id": "encode--httpx@0.28.1:pyproject.toml",
+          "quote": "\"rich>=10,<14\"",
+          "start": 1267,
+          "end": 1281,
+          "sha256": "18e83d7b726a73c4db1bdd35057bc1dff782db3880c7b8c713f928eb3dc2c878"
+        }
+      ],
+      "expected_first_source_ids": [],
+      "absent_field": null
+    },
+    {
+      "id": "encode--httpx:missing-field",
+      "project": "public:encode/httpx",
+      "kind": "missing",
+      "category": "missing_in_selected_files",
+      "query": "What value is configured for connect_timeout_seconds in the supplied encode/httpx packaging files?",
+      "temporal": "relevance",
+      "required": [],
+      "expected_first_source_ids": [],
+      "absent_field": "connect_timeout_seconds"
+    }
+  ],
+  "independence_limits": [
+    "Questions are authored by an evaluation agent after reading real public code, not collected from production users.",
+    "Public repositories may be familiar to the underlying language model. Holdout means hidden from this turn's runtime optimizer before its source freeze, not unknown to model pretraining.",
+    "Repeated queries and multi-fact questions share some source facts; neither matrix repetition nor separate text backends creates independent questions.",
+    "Current means the newer of the two captured releases in the selected corpus; no claim is made about the latest upstream version at execution time.",
+    "Missing-field labels apply only to these selected complete packaging files, not the entire repository or all past releases."
+  ],
+  "integrity": {
+    "sources_sha256": "257b5694d56566e05a63de8729890416714ebe131a17b6c8b4ea25f5c25f61ce",
+    "questions_sha256": "42b82ea4ebe715b3ab52f4de6cfd59e61792d54a1c5c9a577172c9a093bc9ad2",
+    "licenses_sha256": "4bb2849842da2e7ebdaaa1fa24824c613b839a6ce71a585cb3c0636d57212d95",
+    "commit_metadata_sha256": "d1d94646a408558070e9f906be15850a12ef393c5cdba7cc0676050e68d6e2b0",
+    "projects": 4,
+    "release_commits": 8,
+    "source_files": 10,
+    "questions": 36,
+    "answerable_questions": 32,
+    "missing_questions": 4,
+    "required_spans": 48,
+    "categories": {
+      "historical_change": 8,
+      "historical_fact": 8,
+      "missing_in_selected_files": 4,
+      "multi_fact": 4,
+      "newer_snapshot_fact": 12
+    },
+    "recall_calls_before_freeze": 0
+  }
+}

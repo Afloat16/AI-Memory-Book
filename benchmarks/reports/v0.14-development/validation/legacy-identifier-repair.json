@@ -1,0 +1,766 @@
+{
+  "kind": "original_v013_identifier_failures_repaired",
+  "created_at": "2026-11-19T06:18:58.029237+00:00",
+  "source_commit": "0fab1bc7b88f974bf65cab5a1794545f02bcb9b0",
+  "recall_cache_version": 27,
+  "source_hashes": {
+    "src/memory_book/store.py": "83fefc4be7f0560c6e30be46d49c1c5dd92b41af02a2a6a9baf16df077128d5c",
+    "tests/test_literal_prose_identifiers.py": "2f1b04a9748cd221575eb28712cd7557a6497c17a5a7885e34d1f04ed62e5954"
+  },
+  "before_report_path": "/workspace/scratch/538d317f6ebd/legacy-identifier-reproduction.json",
+  "before_report_sha256": "ed03aa76ea67cdf92f75d15de442b0698f4806b0da3f6259cd26eeaa46495da2",
+  "source_state": "Working-tree runtime measured; source hashes, not HEAD alone, identify this repair before root final freeze.",
+  "records": [
+    {
+      "case": "final_output_dimension_identifier",
+      "mode": "global",
+      "source_inputs": [
+        {
+          "project": "workers",
+          "session_id": "initial",
+          "task_id": "configuration",
+          "task_title": "Configuration",
+          "title": "Configuration",
+          "created_at": "2026-01-01T00:00:00Z",
+          "messages": [
+            {
+              "role": "assistant",
+              "content": "最终输出维度为 768。最终输出维度记录。最终输出维度记录。最终输出维度记录。最终输出维度记录。最终输出维度记录。最终输出维度记录。最终输出维度记录。最终输出维度记录。最终输出维度记录。最终输出维度记录。最终输出维度记录。最终输出维度记录。"
+            }
+          ]
+        },
+        {
+          "project": "workers",
+          "session_id": "revised",
+          "task_id": "configuration",
+          "task_title": "Configuration",
+          "title": "Configuration",
+          "created_at": "2026-06-01T00:00:00Z",
+          "messages": [
+            {
+              "role": "assistant",
+              "content": "最终输出维度为 1024。"
+            }
+          ]
+        }
+      ],
+      "request": {
+        "query": "当前最终输出维度",
+        "project": "workers",
+        "limit": 1
+      },
+      "before_first_session": "initial",
+      "after_first_session": "revised",
+      "response": {
+        "query": "当前最终输出维度",
+        "results": [
+          {
+            "id": "p_3aba4ba3d1e86d51690695d8",
+            "title": "Conversation note",
+            "text": "ASSISTANT: 最终输出维度为 1024。",
+            "source_refs": [
+              {
+                "created_at": "2026-06-01T00:00:00+00:00",
+                "end": 24,
+                "message_indices": [
+                  0
+                ],
+                "project": "workers",
+                "session_id": "revised",
+                "start": 0,
+                "turn_end": 24,
+                "turn_index": 0,
+                "turn_start": 0
+              }
+            ],
+            "breadcrumb": [
+              {
+                "id": "workers",
+                "title": "workers",
+                "kind": "project"
+              },
+              {
+                "id": "ch_23d69e05e2b142fcf8204a38",
+                "title": "Configuration",
+                "kind": "chapter"
+              },
+              {
+                "id": "sec_a0cb7f72407f8fb995720651",
+                "title": "Conversation note",
+                "kind": "section"
+              },
+              {
+                "id": "p_3aba4ba3d1e86d51690695d8",
+                "title": "Conversation note",
+                "kind": "page"
+              }
+            ],
+            "score": 1.5381512605042015e-05,
+            "lexical_coverage": 0.8,
+            "created_at": "2026-06-01T00:00:00+00:00",
+            "truncated": false,
+            "page_chars": 24,
+            "excerpt_spans": [
+              [
+                0,
+                24
+              ]
+            ]
+          }
+        ],
+        "context": "[p_3aba4ba3d1e86d51690695d8] workers / revised | 2026-06-01T00:00:00+00:00\nASSISTANT: 最终输出维度为 1024。",
+        "context_chars": 99,
+        "estimated_tokens": 30,
+        "candidate_count": 2,
+        "revision": 2,
+        "cache_hit": false,
+        "warnings": [
+          "Historical evidence can conflict. Check source timestamps; retrieval does not resolve which decision is authoritative."
+        ],
+        "strategy": "book",
+        "budget_chars": 2400,
+        "temporal": {
+          "requested": "auto",
+          "resolved": "current",
+          "basis": "current_cue",
+          "preserve_occurrences": false,
+          "current_cues": [
+            "当前",
+            "最终"
+          ],
+          "candidate_expansion": {
+            "route": "recent_exact_body_matches_in_leading_chapters",
+            "metadata_source": "complete_exact_route",
+            "ordering_fields": [
+              "sessions.created_at DESC",
+              "sessions.id",
+              "sections.ordinal DESC",
+              "pages.ordinal DESC",
+              "pages.id"
+            ],
+            "candidate_limit": 96,
+            "returned": 2,
+            "added_to_pool": 0,
+            "new_candidates": 0,
+            "pool_size": 2,
+            "original_pool_size": 2,
+            "proposed_existing_candidates": 0,
+            "chapters_not_expanded": 0,
+            "chapter_routes": [
+              {
+                "chapter_id": "ch_23d69e05e2b142fcf8204a38",
+                "limit": 2,
+                "returned": 2
+              }
+            ],
+            "scope_before_limit": true,
+            "database_scan_bounded": true,
+            "basis": "Recent matches only propose comparable revisions; timestamps and syntax do not establish authority.",
+            "qualification": "complete_source_declaration_with_original_pool_anchor",
+            "facet_qualification": "adjacent_qualifier_on_single_simple_declaration",
+            "rejected_facet_proposals": 0,
+            "qualification_passes": 1,
+            "qualified_proposals": 0,
+            "rejected_before_ordering": 0,
+            "qualified_pool_size": 2,
+            "scoreless_proposals": 0,
+            "unmatched_proposals": 0,
+            "admitted_proposals": 0,
+            "admitted_new_candidates": 0
+          },
+          "declaration_ordering": {
+            "declaration_candidates": 2,
+            "unclassified_candidates": 0,
+            "oversized_candidates": 0,
+            "unqualified_declarations": 0,
+            "complete_source_partial_anchors": 0,
+            "basis": "same declared fields and statement-local qualifiers; chapter terms are navigation context; syntax is not authority"
+          },
+          "evidence_assessment": {
+            "status": "comparable_declaration",
+            "scope": "bounded_candidate_pool",
+            "inspected_candidates": 2,
+            "complete_sources": 2,
+            "comparable_candidates": 2,
+            "compared_groups": 1,
+            "conflicts": [],
+            "basis": "Syntax and timestamps describe only inspected candidates; they do not establish truth, authority or exhaustive archive coverage."
+          }
+        },
+        "truncated": true,
+        "latency_ms": 12.374217
+      }
+    },
+    {
+      "case": "final_output_dimension_identifier",
+      "mode": "project",
+      "source_inputs": [
+        {
+          "project": "workers",
+          "session_id": "initial",
+          "task_id": "configuration",
+          "task_title": "Configuration",
+          "title": "Configuration",
+          "created_at": "2026-01-01T00:00:00Z",
+          "messages": [
+            {
+              "role": "assistant",
+              "content": "最终输出维度为 768。最终输出维度记录。最终输出维度记录。最终输出维度记录。最终输出维度记录。最终输出维度记录。最终输出维度记录。最终输出维度记录。最终输出维度记录。最终输出维度记录。最终输出维度记录。最终输出维度记录。最终输出维度记录。"
+            }
+          ]
+        },
+        {
+          "project": "workers",
+          "session_id": "revised",
+          "task_id": "configuration",
+          "task_title": "Configuration",
+          "title": "Configuration",
+          "created_at": "2026-06-01T00:00:00Z",
+          "messages": [
+            {
+              "role": "assistant",
+              "content": "最终输出维度为 1024。"
+            }
+          ]
+        }
+      ],
+      "request": {
+        "query": "当前最终输出维度",
+        "project": "workers",
+        "limit": 1
+      },
+      "before_first_session": "initial",
+      "after_first_session": "revised",
+      "response": {
+        "query": "当前最终输出维度",
+        "results": [
+          {
+            "id": "p_3aba4ba3d1e86d51690695d8",
+            "title": "Conversation note",
+            "text": "ASSISTANT: 最终输出维度为 1024。",
+            "source_refs": [
+              {
+                "created_at": "2026-06-01T00:00:00+00:00",
+                "end": 24,
+                "message_indices": [
+                  0
+                ],
+                "project": "workers",
+                "session_id": "revised",
+                "start": 0,
+                "turn_end": 24,
+                "turn_index": 0,
+                "turn_start": 0
+              }
+            ],
+            "breadcrumb": [
+              {
+                "id": "workers",
+                "title": "workers",
+                "kind": "project"
+              },
+              {
+                "id": "ch_23d69e05e2b142fcf8204a38",
+                "title": "Configuration",
+                "kind": "chapter"
+              },
+              {
+                "id": "sec_a0cb7f72407f8fb995720651",
+                "title": "Conversation note",
+                "kind": "section"
+              },
+              {
+                "id": "p_3aba4ba3d1e86d51690695d8",
+                "title": "Conversation note",
+                "kind": "page"
+              }
+            ],
+            "score": 1.5381512605042015e-05,
+            "lexical_coverage": 0.8,
+            "created_at": "2026-06-01T00:00:00+00:00",
+            "truncated": false,
+            "page_chars": 24,
+            "excerpt_spans": [
+              [
+                0,
+                24
+              ]
+            ]
+          }
+        ],
+        "context": "[p_3aba4ba3d1e86d51690695d8] workers / revised | 2026-06-01T00:00:00+00:00\nASSISTANT: 最终输出维度为 1024。",
+        "context_chars": 99,
+        "estimated_tokens": 30,
+        "candidate_count": 2,
+        "revision": 2,
+        "cache_hit": false,
+        "warnings": [
+          "Historical evidence can conflict. Check source timestamps; retrieval does not resolve which decision is authoritative."
+        ],
+        "strategy": "book",
+        "budget_chars": 2400,
+        "temporal": {
+          "requested": "auto",
+          "resolved": "current",
+          "basis": "current_cue",
+          "preserve_occurrences": false,
+          "current_cues": [
+            "当前",
+            "最终"
+          ],
+          "candidate_expansion": {
+            "route": "recent_exact_body_matches_in_leading_chapters",
+            "metadata_source": "complete_exact_route",
+            "ordering_fields": [
+              "sessions.created_at DESC",
+              "sessions.id",
+              "sections.ordinal DESC",
+              "pages.ordinal DESC",
+              "pages.id"
+            ],
+            "candidate_limit": 96,
+            "returned": 2,
+            "added_to_pool": 0,
+            "new_candidates": 0,
+            "pool_size": 2,
+            "original_pool_size": 2,
+            "proposed_existing_candidates": 0,
+            "chapters_not_expanded": 0,
+            "chapter_routes": [
+              {
+                "chapter_id": "ch_23d69e05e2b142fcf8204a38",
+                "limit": 2,
+                "returned": 2
+              }
+            ],
+            "scope_before_limit": true,
+            "database_scan_bounded": true,
+            "basis": "Recent matches only propose comparable revisions; timestamps and syntax do not establish authority.",
+            "qualification": "complete_source_declaration_with_original_pool_anchor",
+            "facet_qualification": "adjacent_qualifier_on_single_simple_declaration",
+            "rejected_facet_proposals": 0,
+            "qualification_passes": 1,
+            "qualified_proposals": 0,
+            "rejected_before_ordering": 0,
+            "qualified_pool_size": 2,
+            "scoreless_proposals": 0,
+            "unmatched_proposals": 0,
+            "admitted_proposals": 0,
+            "admitted_new_candidates": 0
+          },
+          "declaration_ordering": {
+            "declaration_candidates": 2,
+            "unclassified_candidates": 0,
+            "oversized_candidates": 0,
+            "unqualified_declarations": 0,
+            "complete_source_partial_anchors": 0,
+            "basis": "same declared fields and statement-local qualifiers; chapter terms are navigation context; syntax is not authority"
+          },
+          "evidence_assessment": {
+            "status": "comparable_declaration",
+            "scope": "bounded_candidate_pool",
+            "inspected_candidates": 2,
+            "complete_sources": 2,
+            "comparable_candidates": 2,
+            "compared_groups": 1,
+            "conflicts": [],
+            "basis": "Syntax and timestamps describe only inspected candidates; they do not establish truth, authority or exhaustive archive coverage."
+          }
+        },
+        "truncated": true,
+        "latency_ms": 4.783313,
+        "ranking_scope": {
+          "requested": "project",
+          "actual": "project",
+          "statistics": "project_local_bm25",
+          "fallback_reason": null,
+          "page_limit": 256,
+          "source_byte_limit": 4194304,
+          "index_cache_hit": false,
+          "fingerprint_checked": true,
+          "preparation_ms": 3.337081
+        }
+      }
+    },
+    {
+      "case": "qualified_current_identifier",
+      "mode": "global",
+      "source_inputs": [
+        {
+          "project": "workers",
+          "session_id": "initial",
+          "task_id": "configuration",
+          "task_title": "Configuration",
+          "title": "Configuration",
+          "created_at": "2026-01-01T00:00:00Z",
+          "messages": [
+            {
+              "role": "assistant",
+              "content": "current.phase_size is 30. current.phase_size record. current.phase_size record. current.phase_size record. current.phase_size record. current.phase_size record. current.phase_size record. current.phase_size record. current.phase_size record. current.phase_size record. current.phase_size record. current.phase_size record. current.phase_size record. "
+            }
+          ]
+        },
+        {
+          "project": "workers",
+          "session_id": "revised",
+          "task_id": "configuration",
+          "task_title": "Configuration",
+          "title": "Configuration",
+          "created_at": "2026-06-01T00:00:00Z",
+          "messages": [
+            {
+              "role": "assistant",
+              "content": "current.phase_size is 12."
+            }
+          ]
+        }
+      ],
+      "request": {
+        "query": "当前 current.phase_size",
+        "project": "workers",
+        "limit": 1
+      },
+      "before_first_session": "initial",
+      "after_first_session": "revised",
+      "response": {
+        "query": "当前 current.phase_size",
+        "results": [
+          {
+            "id": "p_785156642f3d050b35802152",
+            "title": "Conversation note",
+            "text": "ASSISTANT: current.phase_size is 12.",
+            "source_refs": [
+              {
+                "created_at": "2026-06-01T00:00:00+00:00",
+                "end": 36,
+                "message_indices": [
+                  0
+                ],
+                "project": "workers",
+                "session_id": "revised",
+                "start": 0,
+                "turn_end": 36,
+                "turn_index": 0,
+                "turn_start": 0
+              }
+            ],
+            "breadcrumb": [
+              {
+                "id": "workers",
+                "title": "workers",
+                "kind": "project"
+              },
+              {
+                "id": "ch_23d69e05e2b142fcf8204a38",
+                "title": "Configuration",
+                "kind": "chapter"
+              },
+              {
+                "id": "sec_a0cb7f72407f8fb995720651",
+                "title": "Conversation note",
+                "kind": "section"
+              },
+              {
+                "id": "p_785156642f3d050b35802152",
+                "title": "Conversation note",
+                "kind": "page"
+              }
+            ],
+            "score": 1.1572772898368884e-05,
+            "lexical_coverage": 1.0,
+            "created_at": "2026-06-01T00:00:00+00:00",
+            "truncated": false,
+            "page_chars": 36,
+            "excerpt_spans": [
+              [
+                0,
+                36
+              ]
+            ]
+          }
+        ],
+        "context": "[p_785156642f3d050b35802152] workers / revised | 2026-06-01T00:00:00+00:00\nASSISTANT: current.phase_size is 12.",
+        "context_chars": 111,
+        "estimated_tokens": 28,
+        "candidate_count": 2,
+        "revision": 2,
+        "cache_hit": false,
+        "warnings": [
+          "Historical evidence can conflict. Check source timestamps; retrieval does not resolve which decision is authoritative."
+        ],
+        "strategy": "book",
+        "budget_chars": 2400,
+        "temporal": {
+          "requested": "auto",
+          "resolved": "current",
+          "basis": "current_cue",
+          "preserve_occurrences": false,
+          "current_cues": [
+            "当前",
+            "current"
+          ],
+          "candidate_expansion": {
+            "route": "recent_exact_body_matches_in_leading_chapters",
+            "metadata_source": "complete_exact_route",
+            "ordering_fields": [
+              "sessions.created_at DESC",
+              "sessions.id",
+              "sections.ordinal DESC",
+              "pages.ordinal DESC",
+              "pages.id"
+            ],
+            "candidate_limit": 96,
+            "returned": 2,
+            "added_to_pool": 0,
+            "new_candidates": 0,
+            "pool_size": 2,
+            "original_pool_size": 2,
+            "proposed_existing_candidates": 0,
+            "chapters_not_expanded": 0,
+            "chapter_routes": [
+              {
+                "chapter_id": "ch_23d69e05e2b142fcf8204a38",
+                "limit": 2,
+                "returned": 2
+              }
+            ],
+            "scope_before_limit": true,
+            "database_scan_bounded": true,
+            "basis": "Recent matches only propose comparable revisions; timestamps and syntax do not establish authority.",
+            "qualification": "complete_source_declaration_with_original_pool_anchor",
+            "facet_qualification": "adjacent_qualifier_on_single_simple_declaration",
+            "rejected_facet_proposals": 0,
+            "qualification_passes": 1,
+            "qualified_proposals": 0,
+            "rejected_before_ordering": 0,
+            "qualified_pool_size": 2,
+            "scoreless_proposals": 0,
+            "unmatched_proposals": 0,
+            "admitted_proposals": 0,
+            "admitted_new_candidates": 0
+          },
+          "declaration_ordering": {
+            "declaration_candidates": 2,
+            "unclassified_candidates": 0,
+            "oversized_candidates": 0,
+            "unqualified_declarations": 0,
+            "complete_source_partial_anchors": 0,
+            "basis": "same declared fields and statement-local qualifiers; chapter terms are navigation context; syntax is not authority"
+          },
+          "evidence_assessment": {
+            "status": "comparable_declaration",
+            "scope": "bounded_candidate_pool",
+            "inspected_candidates": 2,
+            "complete_sources": 2,
+            "comparable_candidates": 2,
+            "compared_groups": 1,
+            "conflicts": [],
+            "basis": "Syntax and timestamps describe only inspected candidates; they do not establish truth, authority or exhaustive archive coverage."
+          }
+        },
+        "truncated": true,
+        "latency_ms": 2.434188
+      }
+    },
+    {
+      "case": "qualified_current_identifier",
+      "mode": "project",
+      "source_inputs": [
+        {
+          "project": "workers",
+          "session_id": "initial",
+          "task_id": "configuration",
+          "task_title": "Configuration",
+          "title": "Configuration",
+          "created_at": "2026-01-01T00:00:00Z",
+          "messages": [
+            {
+              "role": "assistant",
+              "content": "current.phase_size is 30. current.phase_size record. current.phase_size record. current.phase_size record. current.phase_size record. current.phase_size record. current.phase_size record. current.phase_size record. current.phase_size record. current.phase_size record. current.phase_size record. current.phase_size record. current.phase_size record. "
+            }
+          ]
+        },
+        {
+          "project": "workers",
+          "session_id": "revised",
+          "task_id": "configuration",
+          "task_title": "Configuration",
+          "title": "Configuration",
+          "created_at": "2026-06-01T00:00:00Z",
+          "messages": [
+            {
+              "role": "assistant",
+              "content": "current.phase_size is 12."
+            }
+          ]
+        }
+      ],
+      "request": {
+        "query": "当前 current.phase_size",
+        "project": "workers",
+        "limit": 1
+      },
+      "before_first_session": "initial",
+      "after_first_session": "revised",
+      "response": {
+        "query": "当前 current.phase_size",
+        "results": [
+          {
+            "id": "p_785156642f3d050b35802152",
+            "title": "Conversation note",
+            "text": "ASSISTANT: current.phase_size is 12.",
+            "source_refs": [
+              {
+                "created_at": "2026-06-01T00:00:00+00:00",
+                "end": 36,
+                "message_indices": [
+                  0
+                ],
+                "project": "workers",
+                "session_id": "revised",
+                "start": 0,
+                "turn_end": 36,
+                "turn_index": 0,
+                "turn_start": 0
+              }
+            ],
+            "breadcrumb": [
+              {
+                "id": "workers",
+                "title": "workers",
+                "kind": "project"
+              },
+              {
+                "id": "ch_23d69e05e2b142fcf8204a38",
+                "title": "Configuration",
+                "kind": "chapter"
+              },
+              {
+                "id": "sec_a0cb7f72407f8fb995720651",
+                "title": "Conversation note",
+                "kind": "section"
+              },
+              {
+                "id": "p_785156642f3d050b35802152",
+                "title": "Conversation note",
+                "kind": "page"
+              }
+            ],
+            "score": 1.1572772898368884e-05,
+            "lexical_coverage": 1.0,
+            "created_at": "2026-06-01T00:00:00+00:00",
+            "truncated": false,
+            "page_chars": 36,
+            "excerpt_spans": [
+              [
+                0,
+                36
+              ]
+            ]
+          }
+        ],
+        "context": "[p_785156642f3d050b35802152] workers / revised | 2026-06-01T00:00:00+00:00\nASSISTANT: current.phase_size is 12.",
+        "context_chars": 111,
+        "estimated_tokens": 28,
+        "candidate_count": 2,
+        "revision": 2,
+        "cache_hit": false,
+        "warnings": [
+          "Historical evidence can conflict. Check source timestamps; retrieval does not resolve which decision is authoritative."
+        ],
+        "strategy": "book",
+        "budget_chars": 2400,
+        "temporal": {
+          "requested": "auto",
+          "resolved": "current",
+          "basis": "current_cue",
+          "preserve_occurrences": false,
+          "current_cues": [
+            "当前",
+            "current"
+          ],
+          "candidate_expansion": {
+            "route": "recent_exact_body_matches_in_leading_chapters",
+            "metadata_source": "complete_exact_route",
+            "ordering_fields": [
+              "sessions.created_at DESC",
+              "sessions.id",
+              "sections.ordinal DESC",
+              "pages.ordinal DESC",
+              "pages.id"
+            ],
+            "candidate_limit": 96,
+            "returned": 2,
+            "added_to_pool": 0,
+            "new_candidates": 0,
+            "pool_size": 2,
+            "original_pool_size": 2,
+            "proposed_existing_candidates": 0,
+            "chapters_not_expanded": 0,
+            "chapter_routes": [
+              {
+                "chapter_id": "ch_23d69e05e2b142fcf8204a38",
+                "limit": 2,
+                "returned": 2
+              }
+            ],
+            "scope_before_limit": true,
+            "database_scan_bounded": true,
+            "basis": "Recent matches only propose comparable revisions; timestamps and syntax do not establish authority.",
+            "qualification": "complete_source_declaration_with_original_pool_anchor",
+            "facet_qualification": "adjacent_qualifier_on_single_simple_declaration",
+            "rejected_facet_proposals": 0,
+            "qualification_passes": 1,
+            "qualified_proposals": 0,
+            "rejected_before_ordering": 0,
+            "qualified_pool_size": 2,
+            "scoreless_proposals": 0,
+            "unmatched_proposals": 0,
+            "admitted_proposals": 0,
+            "admitted_new_candidates": 0
+          },
+          "declaration_ordering": {
+            "declaration_candidates": 2,
+            "unclassified_candidates": 0,
+            "oversized_candidates": 0,
+            "unqualified_declarations": 0,
+            "complete_source_partial_anchors": 0,
+            "basis": "same declared fields and statement-local qualifiers; chapter terms are navigation context; syntax is not authority"
+          },
+          "evidence_assessment": {
+            "status": "comparable_declaration",
+            "scope": "bounded_candidate_pool",
+            "inspected_candidates": 2,
+            "complete_sources": 2,
+            "comparable_candidates": 2,
+            "compared_groups": 1,
+            "conflicts": [],
+            "basis": "Syntax and timestamps describe only inspected candidates; they do not establish truth, authority or exhaustive archive coverage."
+          }
+        },
+        "truncated": true,
+        "latency_ms": 4.516743,
+        "ranking_scope": {
+          "requested": "project",
+          "actual": "project",
+          "statistics": "project_local_bm25",
+          "fallback_reason": null,
+          "page_limit": 256,
+          "source_byte_limit": 4194304,
+          "index_cache_hit": false,
+          "fingerprint_checked": true,
+          "preparation_ms": 2.879111
+        }
+      }
+    }
+  ],
+  "checks": 4,
+  "passed": 4,
+  "unit_tests": {
+    "command": "python -m unittest tests.test_literal_prose_identifiers tests.test_v013_multisource_regressions tests.test_v013_assessment_review_regressions tests.test_temporal_recall tests.test_identifier_recall -q",
+    "tests": 44,
+    "status": "OK",
+    "elapsed_seconds": 3.9
+  },
+  "limit": "Two original inspected development cases plus targeted regression controls; not broad natural-language understanding or unseen holdout evidence."
+}
